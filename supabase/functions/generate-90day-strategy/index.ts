@@ -190,8 +190,19 @@ ${constraintsBlock}
 ## PILLAR "${pillarId.toUpperCase()}" ASSESSMENT
 ${assessmentBlock}
 ${scopeBlock}
+## TREATMENT-ONLY RULES (CRITICAL — THE MOST IMPORTANT RULES):
+The assessments ALREADY HAPPENED. You have the results above. This plan is the TREATMENT/CURE — NEVER another diagnostic or test.
+- BANNED VERBS: "identify", "assess", "check", "evaluate", "test", "measure", "track", "recognize", "notice", "become aware", "journal about feelings", "reflect on"
+- REQUIRED VERBS: "practice", "execute", "perform", "drill", "complete", "run protocol", "train", "apply"
+- BANNED PATTERNS: "Perform daily stability checks", "Identify 3 cases where...", "Notice when you...", "Track your progress by..."
+- For IMAGE pillar: mewing exercises, face yoga routines, jawline sculpting, posture correction drills (wall angels, chin tucks), skincare protocols, facial massage — NOT posture tests or body checks
+- For CONSCIOUSNESS: identity anchoring rituals, mask-release protocols, frequency calibration sessions, shadow work release rituals, ego state integration drills — NOT "identify 3 cases" or introspection exercises
+- For VITALITY: nutrition protocols, hydration schedules, sleep optimization rituals, cold exposure protocols — NOT "track your meals" or "check your energy"
+- For FOCUS: breathwork protocols, meditation sessions, attention training drills — NOT "notice when your mind wanders"
+- EVERY goal must be something the user DOES physically/actively, not something they think about or analyze
+
 ## RULES:
-1. Goals MUST directly address assessment findings and weak subscores.
+1. Goals MUST directly address assessment findings and weak subscores with TREATMENT PROTOCOLS.
 2. Reference user's actual projects/businesses BY NAME where relevant.
 3. Use recent memory to understand current context and struggles.
 4. Platform is "Mind OS" — never use old branding.
@@ -199,6 +210,7 @@ ${scopeBlock}
 6. Goals should follow progressive complexity: Goal 1 = foundational, Goal 2 = intermediate, Goal 3 = advanced.
 7. CRITICAL: Every goal MUST fall within the pillar's IN SCOPE definition above. If a goal belongs to another pillar, DO NOT include it.
 8. CRITICAL: Every goal MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness). Never suggest anything the user has explicitly refused or that violates their dietary restrictions.
+9. CRITICAL: Every goal is a PROTOCOL the user executes, not a diagnostic the user performs. The assessment data above IS the diagnosis — now prescribe the cure.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -234,9 +246,17 @@ ${goalsStr}
 ## ASSESSMENT CONTEXT:
 ${assessmentBlock}
 
+## TREATMENT-ONLY RULES (CRITICAL):
+- Milestones must be progressive TREATMENT STAGES, not diagnostic checkpoints.
+- BANNED: "identify", "recognize", "notice", "become aware", "check if", "test whether", "evaluate", "assess", "journal about"
+- REQUIRED: "execute", "perform", "practice", "complete", "drill", "run protocol", "train", "master"
+- Each milestone = a specific skill/protocol the user masters at increasing difficulty.
+- Example GOOD: "Master 10-minute mewing hold with tongue suction" / "Execute 3-round shadow work release ritual"
+- Example BAD: "Identify posture weaknesses" / "Notice 3 situations where you feel insecure"
+
 ## RULES:
 - Each mission gets exactly 5 milestones, progressively more challenging.
-- Milestones must be specific and actionable.
+- Milestones must be specific TREATMENT protocols, not diagnostic observations.
 - Each milestone should target a different aspect of the mission.
 - CRITICAL: All milestones MUST stay within the pillar's scope. No cross-pillar tasks.
 - CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness).
@@ -310,10 +330,19 @@ Mapping by pillar (use as guide, but override based on actual activity):
 - play → step_by_step
 - order (routines/cleaning) → step_by_step
 
+## TREATMENT-ONLY RULES (CRITICAL):
+- Every daily action is a PHYSICAL PROTOCOL the user executes. No thinking, no analyzing, no journaling about feelings.
+- Convert any abstract concept into a concrete body-based or app-based ritual.
+- BAD: "Journal about your feelings" → GOOD: "Open app, rate 6 subsystems 1-10, tap submit"
+- BAD: "Reflect on what makes you insecure" → GOOD: "Execute 5-minute identity anchoring breathwork protocol"
+- BAD: "Check posture against wall" → GOOD: "Perform 10-minute mewing hold with proper tongue posture"
+- BANNED VERBS: "identify", "reflect", "journal about", "think about", "notice", "become aware", "check", "test", "evaluate"
+- REQUIRED VERBS: "perform", "execute", "practice", "drill", "complete", "run", "apply", "train"
+
 ## RULES:
 - Each milestone gets exactly 5 mini-milestones (daily actionable tasks).
 - Mini-milestones must be completable in a single day/session.
-- Be concrete and specific — no generic filler.
+- Be concrete and specific — no generic filler. Every action is a TREATMENT STEP.
 - Each mini-milestone under 15 words.
 - Hebrew must be natural.
 - Progressive difficulty within each milestone.
