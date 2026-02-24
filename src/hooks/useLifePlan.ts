@@ -57,38 +57,48 @@ export function useLifePlan() {
     queryFn: async () => {
       if (!user?.id) return null;
 
+      // Get all active plans (core + arena hubs)
       const { data, error } = await supabase
         .from('life_plans')
         .select('*')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as LifePlan | null;
+      if (!data || data.length === 0) return null;
+
+      // Return the earliest start_date plan as the "primary" for timeline calculations
+      // but we'll aggregate milestones from all plans
+      const sorted = [...data].sort((a, b) => 
+        new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+      );
+      // Attach all plan IDs for milestone aggregation
+      const primary = sorted[0] as LifePlan & { all_plan_ids?: string[] };
+      primary.all_plan_ids = data.map(p => p.id);
+      return primary;
     },
     enabled: !!user?.id,
   });
 }
 
-export function useMilestones(planId: string | null) {
+export function useMilestones(planId: string | null, allPlanIds?: string[]) {
+  const ids = allPlanIds?.length ? allPlanIds : (planId ? [planId] : []);
   return useQuery({
-    queryKey: ['milestones', planId],
+    queryKey: ['milestones', ids],
     queryFn: async () => {
-      if (!planId) return [];
+      if (ids.length === 0) return [];
 
       const { data, error } = await supabase
         .from('life_plan_milestones')
         .select('*')
-        .eq('plan_id', planId)
+        .in('plan_id', ids)
         .order('week_number', { ascending: true });
 
       if (error) throw error;
       return data as Milestone[];
     },
-    enabled: !!planId,
+    enabled: ids.length > 0,
   });
 }
 
@@ -191,7 +201,8 @@ export function useCompleteMilestone() {
 
 export function useLifePlanWithMilestones() {
   const { data: plan, isLoading: planLoading } = useLifePlan();
-  const { data: milestones, isLoading: milestonesLoading } = useMilestones(plan?.id || null);
+  const allPlanIds = (plan as any)?.all_plan_ids as string[] | undefined;
+  const { data: milestones, isLoading: milestonesLoading } = useMilestones(plan?.id || null, allPlanIds);
   const { data: currentMilestone } = useCurrentWeekMilestone(plan?.id || null, plan?.start_date || null);
   const { data: summary } = useLaunchpadSummary();
 
