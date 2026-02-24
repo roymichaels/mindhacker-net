@@ -85,6 +85,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         .from('plan_missions')
         .select('id, plan_id, pillar, mission_number, title, title_en')
         .in('plan_id', planIds)
+        .order('pillar')
         .order('mission_number');
       if (error) throw error;
       return data || [];
@@ -102,7 +103,9 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         .from('life_plan_milestones')
         .select('id, plan_id, mission_id, milestone_number, title, title_en, is_completed, focus_area')
         .in('plan_id', planIds)
-        .order('milestone_number');
+        .order('milestone_number')
+        .order('mission_id')
+        .order('id');
       if (error) throw error;
       return data || [];
     },
