@@ -4,6 +4,7 @@
  * On mobile, the HUD is shown inline in MobileHeroGrid instead.
  */
 import { useState, useCallback } from 'react';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
@@ -17,7 +18,7 @@ import {
 } from '@/components/dashboard/MergedModals';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
-  Target, UserCircle, Compass, RefreshCw, Loader2,
+  Target, UserCircle, Compass, RefreshCw, Loader2, Play,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +33,7 @@ export function HudSidebar() {
   const streak = useStreak();
   const tokens = useEnergy();
   const { sessionStats } = useGameState();
+  const { nextAction } = useTodayExecution();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
   const [recalibrating, setRecalibrating] = useState(false);
@@ -259,15 +261,24 @@ export function HudSidebar() {
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-          {/* Recalibrate button — expanded */}
-          <button
-            onClick={handleRecalibrate}
-            disabled={recalibrating}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold disabled:opacity-50"
-          >
-            {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            <span>{recalibrating ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') : (isHe ? 'כיול מחדש' : 'Recalibrate')}</span>
-          </button>
+          {/* Next Action button — expanded */}
+          {nextAction ? (
+            <button
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold"
+            >
+              <Play className="w-4 h-4" />
+              <span className="truncate">{nextAction.title}</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleRecalibrate}
+              disabled={recalibrating}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold disabled:opacity-50"
+            >
+              {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              <span>{recalibrating ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') : (isHe ? 'כיול מחדש' : 'Recalibrate')}</span>
+            </button>
+          )}
         </div>
         )}
       </aside>
