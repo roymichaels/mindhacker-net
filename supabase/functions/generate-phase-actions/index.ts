@@ -178,6 +178,17 @@ The assessments ALREADY HAPPENED. These are TREATMENT actions, not diagnostics.
 - For IMAGE: mewing, face yoga, jawline sculpting, posture correction drills — NOT tests
 - For CONSCIOUSNESS: shadow work rituals, identity anchoring, ego state integration — NOT self-analysis
 
+## COMPREHENSIVE VITALITY PROTOCOLS (include when pillar is vitality or related):
+- GROUNDING: 20-30 min barefoot on earth/grass/sand daily (combine with sun exposure when possible)
+- SUN EXPOSURE: 10-30 min morning sunlight within first hour of waking (no sunglasses)
+- COLD EXPOSURE: Cold shower finish (30s-3min) or ice bath protocol
+- BREATHING: Daily breathwork protocol (box breathing, Wim Hof, or power breathing)
+- HYDRATION: Structured water intake (500ml upon waking, then every 90 min)
+- LYMPHATIC: Dry brushing before shower or rebounding 5 min
+- CIRCADIAN: Blue light blocking 2h before sleep, morning bright light
+- MOVEMENT: Micro-movement every 60 min (not just training sessions)
+For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of what science recommends.
+
 ## EXECUTION TEMPLATES (assign one per action):
 | Template | When to use |
 |----------|-------------|
