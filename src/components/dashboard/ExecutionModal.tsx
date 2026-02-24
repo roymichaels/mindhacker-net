@@ -104,13 +104,10 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
         const wantCombat = isCombatActivity(action.actionType, action.title);
 
         // Race the edge function against a 8s timeout
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 8000);
-
         let data: any = null;
         let fetchError: any = null;
         try {
-          const res = await supabase.functions.invoke('generate-today-queue', {
+          const edgeCall = supabase.functions.invoke('generate-today-queue', {
             body: {
               user_id: user.id,
               language,
@@ -123,12 +120,14 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
               want_combat_routine: wantCombat,
             },
           });
-          data = res.data;
-          fetchError = res.error;
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), 8000)
+          );
+          const res = await Promise.race([edgeCall, timeoutPromise]);
+          data = (res as any).data;
+          fetchError = (res as any).error;
         } catch (e: any) {
           fetchError = e;
-        } finally {
-          clearTimeout(timeout);
         }
 
         if (cancelled) return;
