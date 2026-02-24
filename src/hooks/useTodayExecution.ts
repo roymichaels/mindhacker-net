@@ -154,7 +154,7 @@ function computeMovementScore(queue: NowQueueItem[], completedIds: Set<string>) 
 export function useTodayExecution() {
   const { user } = useAuth();
   const { language } = useTranslation();
-  const { queue, tier, maxActions, isLoading: queueLoading, refetch } = useNowEngine();
+  const { queue, tier, maxActions, isLoading: queueLoading, refetch, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
 
   const { data: schedulePrefs } = useQuery({
     queryKey: ['schedule-prefs', user?.id],
@@ -215,13 +215,16 @@ export function useTodayExecution() {
   const totalPendingMin = pendingActions.reduce((sum, a) => sum + a.durationMin, 0);
   const isMinDayMode = hoursRemaining * 60 < totalPendingMin && pendingActions.length > 3;
 
+  const hasPlan = hasCoreStrategy || hasArenaStrategy;
+
   return {
     queue,
-    nextAction,
+    nextAction: hasPlan ? nextAction : null,
     schedule,
     tier,
     maxActions,
     isFree,
+    hasPlan,
 
     movementScore: movement.score,
     bodyCovered: movement.bodyCovered,
