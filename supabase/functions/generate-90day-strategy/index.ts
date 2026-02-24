@@ -85,6 +85,24 @@ ${businessSection}
 ${memorySnippets}`;
 }
 
+// Pillar scope definitions — strict boundaries for AI generation
+const PILLAR_SCOPES: Record<string, { scope_en: string; NOT_en: string }> = {
+  consciousness: { scope_en: 'Self-awareness, ego states, shadow work, emotional intelligence, mindfulness, inner dialogue, psychological patterns, self-understanding', NOT_en: 'NOT meditation techniques (→focus), NOT physical health (→vitality), NOT breathing exercises (→focus)' },
+  presence: { scope_en: 'Social confidence, charisma, public speaking, body language, first impressions, voice projection, stage presence, personal magnetism', NOT_en: 'NOT physical strength (→power), NOT fighting skills (→combat), NOT networking strategy (→influence)' },
+  power: { scope_en: 'Physical strength, max lifts (squat/bench/deadlift), bodyweight strength, calisthenics progressions (muscle-up/planche/handstand), explosive power, grip strength, structural strength', NOT_en: 'NOT sleep optimization (→vitality), NOT cardio/endurance (→vitality), NOT flexibility/yoga (→focus), NOT fighting/martial arts (→combat), NOT nutrition (→vitality)' },
+  vitality: { scope_en: 'Energy management, sleep optimization, nutrition, hydration, cardiovascular health, hormonal health, recovery, cold/heat exposure, circadian rhythm, longevity protocols', NOT_en: 'NOT strength training (→power), NOT fighting (→combat), NOT meditation (→focus), NOT body awareness practices (→focus)' },
+  focus: { scope_en: 'Breath work, meditation, guided meditation, hypnosis/trance, somatic awareness (tai chi/qigong), structural calm (yoga), attention training, CO2 tolerance, nervous system regulation', NOT_en: 'NOT physical strength (→power), NOT sleep/nutrition (→vitality), NOT social skills (→presence), NOT productivity systems (→order)' },
+  combat: { scope_en: 'Martial arts training, boxing, Muay Thai, kickboxing, shadowboxing, heavy bag work, sparring, fighting technique, combat conditioning, self-defense', NOT_en: 'NOT general strength (→power), NOT flexibility (→focus), NOT cardio (→vitality), NOT mental toughness without combat context (→consciousness)' },
+  expansion: { scope_en: 'Learning new skills, intellectual growth, reading, courses, creative pursuits, exploring new domains, curiosity, knowledge acquisition, personal development beyond other pillars', NOT_en: 'NOT business learning (→business), NOT financial education (→wealth), NOT social skills (→presence/influence)' },
+  wealth: { scope_en: 'Financial planning, investing, savings, budgeting, income growth, passive income, financial literacy, asset building, debt management, financial freedom strategy', NOT_en: 'NOT business operations (→business), NOT selling/marketing (→influence), NOT project management (→projects)' },
+  influence: { scope_en: 'Networking, personal branding, social media presence, content creation, thought leadership, persuasion, sales, marketing, community building, reputation management', NOT_en: 'NOT social confidence (→presence), NOT financial planning (→wealth), NOT business operations (→business)' },
+  relationships: { scope_en: 'Romantic relationships, family bonds, friendships, communication skills, conflict resolution, intimacy, boundaries, dating, social connection, emotional support systems', NOT_en: 'NOT networking/branding (→influence), NOT charisma (→presence), NOT self-awareness (→consciousness)' },
+  business: { scope_en: 'Business strategy, operations, product development, team management, scaling, business model, customer acquisition, systems, processes, entrepreneurship', NOT_en: 'NOT personal finance (→wealth), NOT personal branding (→influence), NOT project execution (→projects)' },
+  projects: { scope_en: 'Project planning, execution, milestones, deliverables, time management for specific projects, MVP development, shipping, iteration, portfolio management', NOT_en: 'NOT business strategy (→business), NOT financial planning (→wealth), NOT general productivity (→order)' },
+  play: { scope_en: 'Recreation, hobbies, fun, adventure, travel, games, sports for enjoyment, creative play, entertainment, joy, work-life balance', NOT_en: 'NOT competitive training (→combat/power), NOT skill building (→expansion), NOT social networking (→influence)' },
+  order: { scope_en: 'Daily routines, habits, organization, environment design, productivity systems, time blocking, decluttering, discipline, accountability, life admin', NOT_en: 'NOT project-specific tasks (→projects), NOT business processes (→business), NOT meditation/focus practices (→focus)' },
+};
+
 // LAYER 1: Generate 3 strategic main goals per pillar
 function buildLayer1Prompt(
   pillarId: string,
@@ -93,6 +111,10 @@ function buildLayer1Prompt(
   userContext: string,
 ): string {
   const assessmentBlock = resolveAssessmentBlock(assessment);
+  const scope = PILLAR_SCOPES[pillarId];
+  const scopeBlock = scope
+    ? `\n## PILLAR SCOPE (STRICT BOUNDARIES):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
+    : '';
   
   return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS).
 
@@ -104,7 +126,7 @@ ${userContext}
 
 ## PILLAR "${pillarId.toUpperCase()}" ASSESSMENT
 ${assessmentBlock}
-
+${scopeBlock}
 ## RULES:
 1. Goals MUST directly address assessment findings and weak subscores.
 2. Reference user's actual projects/businesses BY NAME where relevant.
@@ -112,6 +134,7 @@ ${assessmentBlock}
 4. Platform is "Mind OS" — never use old branding.
 5. Hebrew must be natural, not translated.
 6. Goals should follow progressive complexity: Goal 1 = foundational, Goal 2 = intermediate, Goal 3 = advanced.
+7. CRITICAL: Every goal MUST fall within the pillar's IN SCOPE definition above. If a goal belongs to another pillar, DO NOT include it.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -130,12 +153,16 @@ function buildLayer2Prompt(
   assessmentBlock: string,
 ): string {
   const goalsStr = goals.map((g, i) => `  ${i+1}. "${g.goal_en}" / "${g.goal_he}"`).join('\n');
+  const scope = PILLAR_SCOPES[pillarId];
+  const scopeBlock = scope
+    ? `\n## PILLAR SCOPE (STRICT):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
+    : '';
   
   return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 MILESTONES.
 This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 progressive milestones.
 
 ## PILLAR: ${pillarId.toUpperCase()}
-
+${scopeBlock}
 ## MISSIONS:
 ${goalsStr}
 
@@ -146,6 +173,7 @@ ${assessmentBlock}
 - Each mission gets exactly 5 milestones, progressively more challenging.
 - Milestones must be specific and actionable.
 - Each milestone should target a different aspect of the mission.
+- CRITICAL: All milestones MUST stay within the pillar's scope. No cross-pillar tasks.
 - Hebrew must be natural. Keep text concise.
 
 ## OUTPUT (JSON only, NO markdown):
