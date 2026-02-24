@@ -122,6 +122,24 @@ export interface AuroraContext {
   pulse_week: { avg_energy: number; avg_confidence: number; compliance: number; recovery_debt: number; days_logged: number } | null;
   behavioral_risks: { risk: string; severity: string; action: string }[];
   last_recalibration: { week: number; compliance: number; cognitive_load: number; recovery_debt: number; adjustments: string } | null;
+
+  // ─── Biological Profile & Constraints (NEW) ───────────
+  biological_profile: {
+    diet_type: string[];
+    meals_per_day: string | null;
+    protein_awareness: string | null;
+    nutrition_weak_point: string | null;
+    hydration: { volume: string | null; sources: string[] };
+    sleep: { time: string | null; wake: string | null; duration: string | null; quality: number | null };
+    substances: { caffeine: string | null; alcohol: string | null; nicotine: string | null; thc: string | null };
+    activity_level: string | null;
+    training_window: string | null;
+    age_bracket: string | null;
+    gender: string | null;
+  };
+
+  // Per-domain willingness (what user will/won't do)
+  willingness: Record<string, { willing: string[]; not_willing: string[]; constraints: string[] }>;
 }
 
 // ─── Hash ──────────────────────────────────────────────────
@@ -176,6 +194,9 @@ export async function buildContext(
     pulseWeekRes,
     recalibRes,
     crossConvRes,
+    // NEW: life domains + launchpad for biological profile
+    lifeDomainsRes,
+    launchpadProfileRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -219,6 +240,10 @@ export async function buildContext(
       const { data: recentMsgs } = await supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").in("conversation_id", convIds).order("created_at", { ascending: false }).limit(60);
       return { data: (recentMsgs || []).map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
     }),
+    // Life domains (assessments, rawInputsUsed, willingness)
+    supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
+    // Launchpad profile (biological baseline from onboarding)
+    supabase.from("launchpad_progress").select("step_2_profile_data, step_3_lifestyle_data").eq("user_id", userId).maybeSingle(),
   ]);
 
   const profile = profileRes.data;
@@ -237,6 +262,8 @@ export async function buildContext(
   const recentInsights = recentInsightsRes.data || [];
   const userProjects = projectsRes.data || [];
   const launchpadSummary = launchpadSummaryRes.data;
+  const lifeDomains = lifeDomainsRes.data || [];
+  const launchpadProfile = launchpadProfileRes.data;
   const overdueTasks = overdueRes.data || [];
   const todayTasks = todayTasksRes.data || [];
   const habits = habitsRes.data || [];
@@ -320,6 +347,56 @@ export async function buildContext(
   const principles = identityData.filter((i: any) => i.element_type === "principle").map((i: any) => i.content);
   const selfConcepts = identityData.filter((i: any) => i.element_type === "self_concept").map((i: any) => i.content);
   const visionStatements = identityData.filter((i: any) => i.element_type === "vision_statement").map((i: any) => i.content);
+
+  // ── Biological Profile (from vitality domain rawInputsUsed + launchpad) ──
+  const vitalityDomain = lifeDomains.find((d: any) => d.domain_id === 'vitality');
+  const vitalityLatest = vitalityDomain?.domain_config?.latest_assessment;
+  const rawInputs = vitalityLatest?.rawInputsUsed || {};
+  // Also check history for rawInputsUsed (older format)
+  const historyInputs = vitalityDomain?.domain_config?.history?.[0]?.rawInputsUsed || {};
+  const bio = { ...historyInputs, ...rawInputs }; // latest wins
+
+  const launchpadBio = launchpadProfile?.step_2_profile_data || {};
+
+  const biologicalProfile: AuroraContext["biological_profile"] = {
+    diet_type: Array.isArray(bio.diet_type) ? bio.diet_type : (bio.diet_type ? [bio.diet_type] : []),
+    meals_per_day: bio.meals_per_day || null,
+    protein_awareness: bio.protein_awareness || null,
+    nutrition_weak_point: bio.nutrition_weak_point || null,
+    hydration: {
+      volume: bio.daily_fluid_volume || null,
+      sources: Array.isArray(bio.fluid_sources) ? bio.fluid_sources : [],
+    },
+    sleep: {
+      time: bio.sleep_time || null,
+      wake: bio.wake_time || bio.desired_wake_time || null,
+      duration: bio.sleep_duration_avg || null,
+      quality: bio.sleep_quality || null,
+    },
+    substances: {
+      caffeine: bio.caffeine_intake || null,
+      alcohol: bio.alcohol_frequency || null,
+      nicotine: bio.nicotine || null,
+      thc: bio.weed_thc || null,
+    },
+    activity_level: bio.activity_level || (launchpadBio as any)?.activity_level || null,
+    training_window: bio.training_window_available || null,
+    age_bracket: bio.age_bracket || (launchpadBio as any)?.age_bracket || null,
+    gender: bio.gender || (launchpadBio as any)?.gender || profile?.aurora_preferences?.gender || null,
+  };
+
+  // ── Willingness per domain ─────────────────────────────
+  const willingness: AuroraContext["willingness"] = {};
+  for (const domain of lifeDomains) {
+    const la = (domain as any).domain_config?.latest_assessment;
+    if (la?.willingness) {
+      willingness[(domain as any).domain_id] = {
+        willing: Array.isArray(la.willingness.willing) ? la.willingness.willing : [],
+        not_willing: Array.isArray(la.willingness.not_willing) ? la.willingness.not_willing : [],
+        constraints: Array.isArray(la.willingness.constraints) ? la.willingness.constraints : [],
+      };
+    }
+  }
 
   // ── Assemble context ───────────────────────────────────
   const now = new Date();
@@ -451,6 +528,10 @@ export async function buildContext(
       recovery_debt: latestRecalib.recovery_debt_score,
       adjustments: JSON.stringify(latestRecalib.adjustments_made),
     } : null,
+
+    // Biological profile & constraints
+    biological_profile: biologicalProfile,
+    willingness,
   };
 
   // Compute hash for tracing
@@ -493,5 +574,13 @@ function createEmptyContext(today: string): AuroraContext {
     pulse_week: null,
     behavioral_risks: [],
     last_recalibration: null,
+    biological_profile: {
+      diet_type: [], meals_per_day: null, protein_awareness: null, nutrition_weak_point: null,
+      hydration: { volume: null, sources: [] },
+      sleep: { time: null, wake: null, duration: null, quality: null },
+      substances: { caffeine: null, alcohol: null, nicotine: null, thc: null },
+      activity_level: null, training_window: null, age_bracket: null, gender: null,
+    },
+    willingness: {},
   };
 }

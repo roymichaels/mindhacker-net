@@ -18,11 +18,71 @@ import { buildContext, type AuroraContext } from "../_shared/contextBuilder.ts";
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
+// ─── Build CRITICAL CONSTRAINTS block from biological profile ──
+
+function buildConstraintsBlock(ctx: AuroraContext): string {
+  const parts: string[] = [];
+  const bio = ctx.biological_profile;
+
+  // Diet constraints
+  if (bio.diet_type.length > 0) {
+    const dietLabel = bio.diet_type.join(' + ');
+    const forbidden: string[] = [];
+    const allowed: string[] = [];
+    
+    const isVegan = bio.diet_type.some(d => ['vegan', 'alkaline'].includes(d.toLowerCase()));
+    const isVegetarian = bio.diet_type.some(d => d.toLowerCase() === 'vegetarian');
+    
+    if (isVegan) {
+      forbidden.push('dairy (cheese, yogurt, butter, milk, whey)', 'eggs', 'meat', 'fish', 'seafood', 'honey', 'gelatin', 'any animal products');
+      allowed.push('fruits', 'vegetables', 'nuts', 'seeds', 'legumes', 'grains', 'coconut products', 'plant-based milk', 'tofu', 'tempeh');
+    } else if (isVegetarian) {
+      forbidden.push('meat', 'fish', 'seafood', 'gelatin');
+    }
+    
+    if (bio.diet_type.some(d => d.toLowerCase() === 'alkaline')) {
+      forbidden.push('refined sugar', 'white flour', 'processed foods', 'artificial sweeteners', 'soda');
+      allowed.push('alkaline vegetables', 'sprouts', 'green juices', 'herbal teas');
+    }
+
+    parts.push(`- DIET: ${dietLabel.toUpperCase()}`);
+    if (forbidden.length > 0) parts.push(`  FORBIDDEN: ${forbidden.join(', ')}`);
+    if (allowed.length > 0) parts.push(`  ALLOWED: ${allowed.join(', ')}`);
+  }
+
+  // Substance constraints
+  if (bio.substances.alcohol === 'never') parts.push('- ALCOHOL: Never drinks — do NOT suggest alcohol in any context');
+  if (bio.substances.nicotine === 'no' || bio.substances.nicotine === 'never') parts.push('- NICOTINE: Does not use — do NOT suggest smoking/vaping');
+  
+  // Sleep pattern
+  if (bio.sleep.time || bio.sleep.wake) {
+    parts.push(`- SLEEP WINDOW: ${bio.sleep.time || '?'} → ${bio.sleep.wake || '?'} (do NOT suggest activities outside this window)`);
+  }
+
+  // Willingness constraints
+  const allNotWilling: string[] = [];
+  for (const [domain, w] of Object.entries(ctx.willingness)) {
+    if (w.not_willing.length > 0) {
+      allNotWilling.push(...w.not_willing.map(nw => `${nw} (${domain})`));
+    }
+  }
+  if (allNotWilling.length > 0) {
+    parts.push(`- USER EXPLICITLY REFUSED: ${allNotWilling.join(', ')}`);
+  }
+
+  if (parts.length === 0) return '';
+  return `\n## CRITICAL USER CONSTRAINTS (NEVER VIOLATE):\n${parts.join('\n')}\n`;
+}
+
 // ─── Context → Compact User Summary for Execution ─────────
 
 function buildUserContextBlock(ctx: AuroraContext, language: string): string {
   const isHe = language === "he";
   const parts: string[] = [];
+
+  // CONSTRAINTS FIRST (most important)
+  const constraints = buildConstraintsBlock(ctx);
+  if (constraints) parts.push(constraints);
 
   // Profile
   const genderNote = isHe
