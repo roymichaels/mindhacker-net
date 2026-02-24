@@ -12,7 +12,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { Calendar, Play, Rocket, Loader2 } from 'lucide-react';
+import { Calendar, Play, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
@@ -29,6 +29,13 @@ const dotBgMap: Record<string, string> = {
   amber: 'bg-amber-500/15', cyan: 'bg-cyan-500/15', slate: 'bg-slate-500/15',
   indigo: 'bg-indigo-500/15', emerald: 'bg-emerald-500/15', purple: 'bg-purple-500/15',
   sky: 'bg-sky-500/15', rose: 'bg-rose-500/15', violet: 'bg-violet-500/15', teal: 'bg-teal-500/15',
+};
+
+const dotBorderMap: Record<string, string> = {
+  blue: 'border-blue-500/50', fuchsia: 'border-fuchsia-500/50', red: 'border-red-500/50',
+  amber: 'border-amber-500/50', cyan: 'border-cyan-500/50', slate: 'border-slate-500/50',
+  indigo: 'border-indigo-500/50', emerald: 'border-emerald-500/50', purple: 'border-purple-500/50',
+  sky: 'border-sky-500/50', rose: 'border-rose-500/50', violet: 'border-violet-500/50', teal: 'border-teal-500/50',
 };
 
 interface DailyMilestone {
@@ -258,53 +265,105 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
       ? (isHe ? '⚡ משימות ליבה להיום' : '⚡ Core Missions Today')
       : (isHe ? '🎯 משימות זירה להיום' : '🎯 Arena Missions Today');
 
+  const completedCount = dailyMilestones.filter(dm => dm.isCompleted).length;
+  const progressPercent = dailyMilestones.length > 0 ? Math.round((completedCount / dailyMilestones.length) * 100) : 0;
+
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'}>
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm p-4 shadow-sm">
+      {/* Header */}
       {!hideHeader && (
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
-            {title}
-          </h3>
-          <span className="text-[10px] text-muted-foreground/60 ms-auto">
-            {dailyMilestones.length} {isHe ? 'משימות' : 'tasks'}
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-base font-bold">{title}</h3>
+          <span className="text-sm font-semibold text-muted-foreground">
+            {completedCount}/{dailyMilestones.length}
           </span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {dailyMilestones.map((dm, i) => {
+      {/* Progress bar */}
+      <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary mb-5">
+        <div
+          className="h-full bg-primary transition-all duration-500"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
+
+      {/* Vertical roadmap timeline */}
+      <div className="relative">
+        {dailyMilestones.map((dm, idx) => {
           const Icon = dm.domain.icon;
+          const isLast = idx === dailyMilestones.length - 1;
+          const dotBorder = dm.isCompleted
+            ? 'bg-primary border-primary'
+            : `border-2 ${dotBorderMap[dm.domain.color] || 'border-muted-foreground/40'}`;
+
           return (
-            <motion.button
+            <motion.div
               key={dm.pillarId}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              onClick={() => handleExecute(dm)}
-              className={cn(
-                'group w-full flex items-start gap-3 p-3 rounded-xl border border-border/40',
-                'bg-card/40 hover:bg-accent/10 hover:border-primary/30 transition-all text-start',
-                dm.isCompleted && 'opacity-50'
-              )}
+              initial={{ opacity: 0, x: isRTL ? 12 : -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.04 }}
+              className="relative flex items-start gap-3 group"
             >
-              <div className={cn('shrink-0 w-8 h-8 rounded-lg flex items-center justify-center', dotBgMap[dm.domain.color])}>
-                <Icon className={cn('w-4 h-4', domainColorMap[dm.domain.color])} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className={cn('text-[10px] font-semibold uppercase tracking-wider', domainColorMap[dm.domain.color])}>
+              {/* Timeline connector line */}
+              {!isLast && (
+                <div className={cn(
+                  "absolute top-7 w-0.5 h-[calc(100%-12px)]",
+                  "ltr:left-[13px] rtl:right-[13px]",
+                  dm.isCompleted ? 'bg-primary/40' : 'bg-border/60'
+                )} />
+              )}
+
+              {/* Milestone dot */}
+              <button
+                onClick={() => handleExecute(dm)}
+                className={cn(
+                  "relative z-10 w-7 h-7 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center transition-all",
+                  "cursor-pointer hover:scale-110",
+                  dotBorder,
+                  dm.isCompleted && 'shadow-sm shadow-primary/30'
+                )}
+              >
+                {dm.isCompleted ? (
+                  <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                ) : (
+                  <Icon className={cn('w-3.5 h-3.5', domainColorMap[dm.domain.color])} />
+                )}
+              </button>
+
+              {/* Content */}
+              <button
+                onClick={() => handleExecute(dm)}
+                className={cn(
+                  "flex-1 min-w-0 pb-4 text-start group-hover:opacity-100 transition-opacity",
+                  dm.isCompleted && 'opacity-50'
+                )}
+              >
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className={cn('text-[10px] font-bold uppercase tracking-wider', domainColorMap[dm.domain.color])}>
                     {isHe ? dm.domain.labelHe : dm.domain.labelEn}
                   </span>
-                  <span className="text-[9px] text-muted-foreground/40">
+                  <span className="text-[9px] text-muted-foreground/40 font-medium">
                     {dm.milestoneIndex}/{dm.totalMilestones}
                   </span>
+                  {dm.isCompleted && (
+                    <span className="text-[9px] text-primary font-semibold">
+                      {isHe ? '✓ הושלם' : '✓ Done'}
+                    </span>
+                  )}
                 </div>
-                <p className="text-xs font-medium leading-snug line-clamp-2">{dm.milestoneTitle}</p>
+                <p className={cn(
+                  "text-sm font-medium leading-snug",
+                  dm.isCompleted && 'line-through text-muted-foreground'
+                )}>
+                  {dm.milestoneTitle}
+                </p>
                 <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{dm.missionTitle}</p>
-              </div>
-              <Play className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary shrink-0 mt-1 transition-colors" />
-            </motion.button>
+              </button>
+
+              {/* Execute arrow */}
+              <Play className="w-3.5 h-3.5 text-muted-foreground/20 group-hover:text-primary shrink-0 mt-2 transition-colors" />
+            </motion.div>
           );
         })}
       </div>
