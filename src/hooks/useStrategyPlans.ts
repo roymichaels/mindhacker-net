@@ -195,9 +195,54 @@ export function useStrategyPlans() {
 
       const parseMaybeJson = (value: unknown): any | null => {
         if (!value || typeof value !== 'string') return null;
+
+        const trimmed = value.trim();
         try {
-          return JSON.parse(value);
+          return JSON.parse(trimmed);
         } catch {
+          // Fallback: extract first JSON object from noisy strings like
+          // "Edge function returned 400: Error, { ... }"
+          const firstBrace = trimmed.indexOf('{');
+          if (firstBrace < 0) return null;
+
+          let depth = 0;
+          let inString = false;
+          let escape = false;
+
+          for (let i = firstBrace; i < trimmed.length; i++) {
+            const ch = trimmed[i];
+
+            if (escape) {
+              escape = false;
+              continue;
+            }
+
+            if (ch === '\\') {
+              escape = true;
+              continue;
+            }
+
+            if (ch === '"') {
+              inString = !inString;
+              continue;
+            }
+
+            if (inString) continue;
+
+            if (ch === '{') depth++;
+            if (ch === '}') {
+              depth--;
+              if (depth === 0) {
+                const candidate = trimmed.slice(firstBrace, i + 1);
+                try {
+                  return JSON.parse(candidate);
+                } catch {
+                  return null;
+                }
+              }
+            }
+          }
+
           return null;
         }
       };
@@ -230,12 +275,16 @@ export function useStrategyPlans() {
 
         // Case 3: message includes JSON payload after status text
         const message = typeof errorAny?.message === 'string' ? errorAny.message : '';
-        const jsonStart = message.indexOf('{');
-        if (jsonStart >= 0) {
-          const messagePayload = parseMaybeJson(message.slice(jsonStart));
-          if (messagePayload?.error === 'MISSING_ASSESSMENT_DATA') {
-            throw buildMissingAssessmentError(messagePayload.missing_pillars || []);
-          }
+        const messagePayload = parseMaybeJson(message);
+        if (messagePayload?.error === 'MISSING_ASSESSMENT_DATA') {
+          throw buildMissingAssessmentError(messagePayload.missing_pillars || []);
+        }
+
+        // Case 4: payload text contains marker but JSON is malformed/truncated
+        if (message.includes('MISSING_ASSESSMENT_DATA')) {
+          const pillarIds = Array.from(message.matchAll(/"pillarId"\s*:\s*"([^"]+)"/g)).map((m) => m[1]);
+          const fallbackMissing = pillarIds.map((pillarId) => ({ pillarId }));
+          throw buildMissingAssessmentError(fallbackMissing);
         }
 
         throw error;
