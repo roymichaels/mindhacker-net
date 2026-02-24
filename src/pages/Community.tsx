@@ -10,6 +10,7 @@ import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
 import PillarTopicBoards from '@/components/community/PillarTopicBoards';
+import CommunityForumBoard from '@/components/community/CommunityForumBoard';
 
 import AddToPlanModal from '@/components/community/AddToPlanModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
@@ -138,8 +139,18 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
             />
           )}
 
-          {/* Thread Feed — always show for "all", or when a topic is selected */}
-          {(isAll || selectedTopic) && (
+          {/* FXP-style Forum Board — shown for "all" when no topic selected */}
+          {isAll && !selectedTopic && (
+            <CommunityForumBoard
+              onNavigate={(pillarId, topicId) => {
+                onPillarSelect?.(pillarId);
+                setSelectedTopic(topicId);
+              }}
+            />
+          )}
+
+          {/* Thread Feed — when a specific topic is selected */}
+          {((!isAll && selectedTopic) || (isAll && selectedTopic)) && (
             <ThreadList
               pillarFilter={selectedPillar}
               topicFilter={selectedTopic}
