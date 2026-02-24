@@ -186,11 +186,18 @@ export function useStrategyPlans() {
         },
       });
 
-      // Check for structured assessment-quality error from backend
+      // Check data FIRST — Supabase functions.invoke populates data even on non-2xx
+      if (data?.error === 'MISSING_ASSESSMENT_DATA') {
+        const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
+        missingError.missingPillars = data.missing_pillars || [];
+        throw missingError;
+      }
+
+      // Then check for other errors
       if (error) {
         // Try to parse the error body for MISSING_ASSESSMENT_DATA
         try {
-          const errBody = typeof error === 'object' && error.context ? JSON.parse(error.context?.body || '{}') : {};
+          const errBody = typeof error === 'object' && (error as any).context ? JSON.parse((error as any).context?.body || '{}') : {};
           if (errBody.error === 'MISSING_ASSESSMENT_DATA') {
             const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
             missingError.missingPillars = errBody.missing_pillars || [];
@@ -200,13 +207,6 @@ export function useStrategyPlans() {
           if ((parseErr as any)?.message === 'MISSING_ASSESSMENT_DATA') throw parseErr;
         }
         throw error;
-      }
-
-      // Also check if data itself contains assessment error (edge function returns 400 as data)
-      if (data?.error === 'MISSING_ASSESSMENT_DATA') {
-        const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
-        missingError.missingPillars = data.missing_pillars || [];
-        throw missingError;
       }
 
       return data;
