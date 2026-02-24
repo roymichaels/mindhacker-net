@@ -97,7 +97,7 @@ export function RoadmapSidebar() {
   return (
     <>
       <aside className={cn(
-        "hidden lg:flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
+        "hidden lg:flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
         "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
         "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
         "border-s border-border/50 dark:border-primary/15",
