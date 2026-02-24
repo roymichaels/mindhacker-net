@@ -1,86 +1,84 @@
 
+Goal: make “Create 100 Day Plan” behave as a guided flow (open assessment chat) instead of triggering runtime/non‑2xx errors.
 
-# Add Required Assessment Metrics for ALL 14 Pillars
+What I found
+1. The request is reaching the backend function successfully, and the backend returns a structured missing-data payload.
+   - Network snapshot shows `POST .../generate-90day-strategy` with status `400` and body:
+     - `error: "MISSING_ASSESSMENT_DATA"`
+     - `missing_pillars: [...]`
+2. The function currently returns HTTP 400 for an expected business-state (“assessment incomplete”), not a true server failure.
+   - In `supabase/functions/generate-90day-strategy/index.ts` around the assessment quality gate, it explicitly returns `status: 400`.
+3. The platform/runtime treats non-2xx from backend functions as app/runtime errors (the exact red toast and blank-screen error container user is seeing), so even with frontend parsing attempts, UX still breaks.
+4. There is a second latent issue: `consciousness` is missing from `DOMAIN_ASSESS_META` in `src/lib/domain-assess/types.ts`.
+   - If the missing pillar opened is `consciousness` (which is first in your payload), assessment chat logic can break when tool-call completion computes weighted subsystem score using `meta.subsystems`.
 
-## Problem
-Currently only 4 pillars (combat, power, vitality, focus) have `DOMAIN_REQUIRED_METRICS` defined in the assessment quality contract. The remaining 10 pillars (consciousness, presence, expansion, wealth, influence, relationships, business, projects, play, order) have NO required metrics -- meaning they pass the quality gate with just basic subscores and willingness, even though the AI needs real data (income numbers, relationship patterns, etc.) to generate a meaningful plan.
+Implementation plan
+1. Reclassify “missing assessment” from transport error to domain response in backend function
+   - File: `supabase/functions/generate-90day-strategy/index.ts`
+   - Change the quality-gate response for `!qualityCheck.ready` from HTTP 400 to HTTP 200.
+   - Keep payload shape the same (`error`, `message`, `missing_pillars`) so existing UI logic still works.
+   - Why: avoids runtime “non-2xx” crash handling while preserving structured missing-field guidance.
 
-This is why pillars like "Projects" and "Play" generate plans with generic content -- no hard data was required or captured.
+2. Harden frontend strategy generation parsing to treat missing-assessment from either data or error path identically
+   - File: `src/hooks/useStrategyPlans.ts`
+   - Keep current `data?.error === 'MISSING_ASSESSMENT_DATA'` handling as primary path (this becomes reliable after step 1).
+   - Keep defensive error parsing for backward compatibility (in case any old deployments or alternate callers still return non-2xx).
+   - Normalize output to one custom error shape:
+     - `code: 'MISSING_ASSESSMENT_DATA'`
+     - `missingPillars: [...]`
+   - Ensure global mutation `onError` continues suppressing destructive toast for this code.
 
-## Solution
+3. Add robust UI fallback when missing pillar list is empty/partial
+   - Files:
+     - `src/components/hubs/DailyMilestones.tsx`
+     - `src/components/life/LifeActivitySidebar.tsx`
+     - `src/components/arena/ArenaActivitySidebar.tsx`
+     - `src/components/execution/TodayExecutionSection.tsx`
+     - `src/components/missions/PillarModal.tsx` (if still used for plan generation CTA)
+   - Current behavior opens modal only if `err.missingPillars?.length > 0`.
+   - Add fallback resolution:
+     - First try backend-provided first pillar (`pillarId` or `pillar`).
+     - If unavailable, derive first unconfigured/needs_reassessment domain from `useLifeDomains().statusMap`.
+   - This guarantees “something opens” instead of “nothing happens”.
 
-### 1. Define required metrics for ALL 14 pillars in `assessment-quality.ts`
+4. Fix consciousness assessment meta gap (prevents next crash after modal opens)
+   - File: `src/lib/domain-assess/types.ts`
+   - Add `CONSCIOUSNESS_SUBSYSTEMS` and include `consciousness` in `DOMAIN_ASSESS_META`.
+   - Keep IDs aligned with existing consciousness assessment/tool schema.
+   - Why: when missing pillar is consciousness, chat completion/save flow won’t fail on `meta.subsystems`.
 
-Each pillar will get a `DOMAIN_REQUIRED_METRICS` entry with specific fields and questions the user MUST answer before plan generation:
+5. Verify routing/modal behavior remains consistent on /life and /arena
+   - File checks:
+     - `src/pages/LifeHub.tsx` uses `DailyMilestones hub="core"`
+     - `src/pages/ArenaHub.tsx` uses `DailyMilestones hub="arena"`
+   - Confirm modal opens from both route-specific CTA and sidebar recalibrate actions.
 
-| Pillar | Required Metrics | Key Questions |
-|--------|-----------------|---------------|
-| **consciousness** | `consciousness_metrics` | Daily self-reflection practice? Journaling frequency? Awareness of emotional triggers? |
-| **presence** | `presence_metrics` | Current skincare routine? Last intentional style purchase? Posture awareness level? |
-| **power** | `power_metrics` | (already defined -- training type, frequency, max pullups/pushups, bodyweight) |
-| **vitality** | `vitality_metrics` | (already defined -- sleep hours/times, diet type, caffeine) |
-| **focus** | `focus_metrics` | (already defined -- deep work hours, screen time, meditation) |
-| **combat** | `combat_metrics` | (already defined -- disciplines, frequencies, round capacity, maxes) |
-| **expansion** | `expansion_metrics` | Books read per month? Languages spoken? Current learning project? Creative output frequency? |
-| **wealth** | `wealth_metrics` | Monthly income range? Savings rate? Active income streams? Debt status? |
-| **influence** | `influence_metrics` | Team/people managed? Public speaking frequency? Content creation? Network size estimate? |
-| **relationships** | `relationships_metrics` | Close friends count? Relationship status? Conflict frequency? Support network quality? |
-| **business** | `business_metrics` | Business exists (yes/no)? Monthly revenue? Team size? Years in operation? |
-| **projects** | `projects_metrics` | Active projects count? Completion rate? Average project duration? Biggest blocker? |
-| **play** | `play_metrics` | Weekly play hours? Types of play activities? Last vacation? Rest guilt level? |
-| **order** | `order_metrics` | Cleaning frequency? Unread emails count? Digital organization level? Minimalism score? |
+Validation plan (end-to-end)
+1. On `/life`, click “צור תוכנית 100 יום” with incomplete assessments.
+   - Expected: no runtime error container, no red non-2xx toast.
+   - Expected: assessment modal opens for first missing pillar.
+2. Complete one missing pillar assessment (especially consciousness first).
+   - Expected: save succeeds, modal closes cleanly, no crash.
+3. Trigger generation again.
+   - Expected: opens next missing pillar until all required metrics are completed.
+4. After all required fields are filled, trigger generation again.
+   - Expected: strategy generation succeeds and plan UI appears.
+5. Repeat smoke test on `/arena` and recalibrate buttons in both sidebars.
 
-### 2. Update each pillar's system prompt in `domain-assess/index.ts`
+Technical notes
+- This is not primarily a parsing bug anymore; it is an HTTP semantics/UX contract mismatch:
+  - Missing user input is an expected state -> should be 2xx with structured domain error payload.
+  - True failures (unexpected exceptions) should remain 5xx.
+- Keeping both backend and frontend hardening ensures resilience even if one side regresses.
+- No database migration required.
 
-For every pillar that currently lacks a `MANDATORY HARD METRICS` block (all except combat), add one -- same pattern as combat's existing block. This instructs the AI to collect those specific numbers/facts before calling `extract_domain_profile`.
+Risks and mitigations
+- Risk: changing 400->200 could affect other callers expecting thrown errors.
+  - Mitigation: keep response payload unchanged with explicit `error: 'MISSING_ASSESSMENT_DATA'`; frontend already supports this.
+- Risk: subsystem IDs mismatch for consciousness meta.
+  - Mitigation: align with existing consciousness assessment schema before wiring.
 
-### 3. Update `domain_metrics` description in the extraction tool
-
-The `domain_metrics` field description in `buildExtractTool()` currently only lists combat/power/vitality/focus examples. Expand it to cover all 14 pillars so the model knows what to extract for each domain.
-
-### 4. Frontend preflight already works
-
-The existing flow in `useStrategyPlans.ts` and `DailyMilestones.tsx` already catches `MISSING_ASSESSMENT_DATA` errors and opens the `DomainAssessModal`. Once the backend validator has proper required metrics for all pillars, this existing gate will automatically trigger for any pillar missing data.
-
-## Files Modified
-
-| File | Change |
-|------|--------|
-| `supabase/functions/_shared/assessment-quality.ts` | Add `DOMAIN_REQUIRED_METRICS` entries for all 10 missing pillars (consciousness, presence, expansion, wealth, influence, relationships, business, projects, play, order) |
-| `supabase/functions/domain-assess/index.ts` | Add `MANDATORY HARD METRICS` blocks to system prompts for all 10 pillars that don't have them; expand `domain_metrics` description in `buildExtractTool()` to list all 14 pillar metric fields |
-
-## Technical Details
-
-### assessment-quality.ts additions (example for wealth)
-
-```typescript
-wealth: {
-  fields: ['wealth_metrics'],
-  questions: [
-    { field: 'wealth_metrics.monthly_income_range', question_he: 'מה טווח ההכנסה החודשית שלך?', question_en: 'What is your monthly income range?' },
-    { field: 'wealth_metrics.income_streams', question_he: 'כמה מקורות הכנסה יש לך?', question_en: 'How many income streams do you have?' },
-    { field: 'wealth_metrics.savings_rate', question_he: 'כמה אחוז מההכנסה אתה חוסך?', question_en: 'What percentage of income do you save?' },
-    { field: 'wealth_metrics.debt_status', question_he: 'יש לך חובות? באיזה היקף?', question_en: 'Do you have debt? How much?' },
-    { field: 'wealth_metrics.financial_goal', question_he: 'מה היעד הפיננסי שלך ל-12 חודשים?', question_en: 'What is your financial goal for 12 months?' },
-  ],
-},
-```
-
-### domain-assess/index.ts prompt addition (example for wealth)
-
-```text
-MANDATORY HARD METRICS (YOU MUST COLLECT ALL BEFORE CALLING extract_domain_profile):
-1. "What is your monthly income range?" -> monthly_income_range
-2. "How many income streams?" -> income_streams (number)
-3. "What % do you save?" -> savings_rate
-4. "Any debt?" -> debt_status
-5. "12-month financial goal?" -> financial_goal
-```
-
-Same pattern applied to all remaining pillars.
-
-## Impact
-- Every pillar now has a defined "data contract" -- no plan generation until real data is captured
-- Existing preflight gate (DomainAssessModal popup) automatically triggers for any pillar with missing metrics
-- Assessment conversations become more structured and produce actionable planning data
-- Users who already completed assessments without these metrics will be prompted to supplement their data before next plan generation
+Result after implementation
+- Clicking generate will no longer surface runtime/non‑2xx failure UI for missing assessments.
+- Users will be routed into the required assessment flow as requested.
+- Consciousness-first missing flows won’t crash during chat completion.
