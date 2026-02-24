@@ -55,7 +55,8 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
     generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
       onError: (err: any) => {
         if (err?.message === 'MISSING_ASSESSMENT_DATA' && err.missingPillars?.length > 0) {
-          setAssessDomainId(err.missingPillars[0].pillarId);
+          const firstMissing = err.missingPillars[0]?.pillarId || err.missingPillars[0]?.pillar;
+          if (firstMissing) setAssessDomainId(firstMissing);
         }
       },
     });
