@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
+import { isAssessmentReady } from '@/utils/assessmentQuality';
 
 export interface LifeDomainRow {
   id: string;
@@ -65,7 +66,7 @@ export function useLifeDomains() {
     },
   });
 
-  /** Build a status map for quick lookups — with legacy normalization (Phase 4) */
+  /** Build a status map for quick lookups — normalized to assessment readiness gate */
   const statusMap: Record<string, string> = {};
   for (const d of LIFE_DOMAINS) {
     const row = getDomain(d.id);
@@ -73,15 +74,27 @@ export function useLifeDomains() {
       statusMap[d.id] = 'unconfigured';
       continue;
     }
-    // Normalize: if row has legacy `latest` but no `latest_assessment`, treat as unconfigured
+
     const cfg = row.domain_config as Record<string, any> | undefined;
-    const hasNewFormat = !!cfg?.latest_assessment;
-    const hasLegacy = !!cfg?.latest && !hasNewFormat;
+    const hasLegacy = !!cfg?.latest && !cfg?.latest_assessment;
+
+    // Legacy shape always requires reassessment
     if (hasLegacy) {
-      // Legacy data — mark as needing reassessment
       statusMap[d.id] = 'needs_reassessment';
-    } else if (cfg?.completed === true && hasNewFormat) {
-      statusMap[d.id] = row.status ?? 'configured';
+      continue;
+    }
+
+    const ready = isAssessmentReady(d.id, cfg);
+    if (ready) {
+      statusMap[d.id] = row.status === 'active' ? 'active' : 'configured';
+      continue;
+    }
+
+    // Any partial/old assessment data that fails quality gate => needs reassessment
+    const hasAnyAssessmentData = !!cfg?.latest_assessment || cfg?.completed === true || row.status === 'configured' || row.status === 'active';
+
+    if (hasAnyAssessmentData) {
+      statusMap[d.id] = 'needs_reassessment';
     } else {
       statusMap[d.id] = row.status ?? 'unconfigured';
     }
