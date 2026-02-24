@@ -33,12 +33,13 @@ const YOUTUBE_ACTIVITIES = [
 ];
 
 const VOICE_GUIDED_ACTIVITIES = [
-  'meditation', 'breathwork', 'breathing', 'cold exposure', 'visualization',
-  'body scan', 'progressive relaxation', 'mindfulness',
-  // Hebrew keywords
-  'מדיטציה', 'נשימה', 'נשימות', 'סריקת גוף', 'סריקה', 'הרפיה', 'דמיון מודרך',
-  'מיינדפולנס', 'מיקוד', 'הרגעה', 'ויזואליזציה', 'תודעה', 'נוכחות',
-  'שקט פנימי', 'מודעות', 'רגיעה', 'הפחתת מתח', 'תחושות',
+  'meditation', 'breathwork', 'breathing exercise', 'cold exposure', 'visualization',
+  'body scan', 'progressive relaxation', 'mindfulness', 'guided breathing',
+  // Hebrew keywords — specific enough to avoid false positives
+  'מדיטציה', 'תרגיל נשימה', 'נשימות עמוקות', 'סריקת גוף', 'הרפיה',
+  'דמיון מודרך', 'מיינדפולנס', 'הרגעה עמוקה', 'ויזואליזציה',
+  'שקט פנימי', 'מודעות קשובה', 'רגיעה עמוקה', 'הפחתת מתח',
+  'נשימה מודעת', 'מיקוד נשימה', 'body_scan',
 ];
 
 const COMBAT_ACTIVITIES = [
@@ -61,7 +62,9 @@ type ActionMode = 'voice' | 'youtube' | 'workout';
 
 function classifyAction(actionType: string, title: string): ActionMode {
   const combined = `${actionType} ${title}`.toLowerCase();
-  if (VOICE_GUIDED_ACTIVITIES.some(a => combined.includes(a))) return 'voice';
+  // Also check regex for Hebrew patterns that keyword matching might miss
+  if (VOICE_GUIDED_ACTIVITIES.some(a => combined.includes(a)) ||
+      /סריקת[\s_]?גוף|נשימ(ה|ות)[\s_]?(עמוק|מודע|מיקוד)|body[\s_]?scan|breath[\s_]?(work|exercise|focus)/i.test(combined)) return 'voice';
   if (YOUTUBE_ACTIVITIES.some(a => combined.includes(a))) return 'youtube';
   if (COMBAT_ACTIVITIES.some(a => combined.includes(a))) return 'workout';
   // Default: workout outline for anything else
@@ -162,8 +165,8 @@ function getSpecificSteps(combined: string, dur: number, isRTL: boolean): Execut
     ];
   }
 
-  // Cold exposure / cold shower
-  if (/cold|קר|מקלחת|shower|ice/.test(combined)) {
+  // Cold exposure — must NOT match קריפטו, use word boundaries
+  if (/cold[\s_-]?(exposure|shower)|ice[\s_-]?bath|מקלחת[\s_]?קרה|חשיפה[\s_]?ל?קור|אמבט[\s_]?קרח/.test(combined)) {
     return [
       { label: isRTL ? '🧘 הכנה — נשימות כוח' : '🧘 Prepare — Power Breaths', detail: isRTL ? '30 נשימות עמוקות מהירות (Wim Hof). אחרי — עצור נשימה 30 שניות.' : '30 fast deep breaths (Wim Hof). Then hold breath 30 seconds.', durationSec: 120 },
       { label: isRTL ? '🧊 חשיפה לקור' : '🧊 Cold Exposure', detail: isRTL ? 'פתח מים קרים. התחל מהרגליים ועלה. נשום לאט ועמוק. אל תברח.' : 'Turn on cold water. Start from legs and work up. Breathe slow and deep. Don\'t escape.', durationSec: Math.max(1, dur - 4) * 60 },
@@ -189,8 +192,8 @@ function getSpecificSteps(combined: string, dur: number, isRTL: boolean): Execut
     ];
   }
 
-  // Work / deep work / project
-  if (/work|עבודה|deep work|project|פרויקט|משימה|task/.test(combined)) {
+  // Work / deep work / project — must be specific to avoid matching random words
+  if (/deep[\s_]?work|עבודה עמוקה|פרויקט מרכזי|focused[\s_]?work|sprint/.test(combined)) {
     return [
       { label: isRTL ? '🎯 הגדרת מטרה' : '🎯 Define Goal', detail: isRTL ? 'מה בדיוק אני רוצה להשלים? כתוב משפט אחד.' : 'What exactly do I want to complete? Write one sentence.', durationSec: 120 },
       { label: isRTL ? '🔥 עבודה עמוקה' : '🔥 Deep Work', detail: isRTL ? `${Math.max(5, dur - 5)} דקות. טלפון במצב טיסה. חלון אחד פתוח. מיקוד מלא.` : `${Math.max(5, dur - 5)} minutes. Phone on airplane mode. One window open. Full focus.`, durationSec: Math.max(5, dur - 5) * 60 },
@@ -226,10 +229,10 @@ type VoiceScriptType = 'body_scan' | 'breathing' | 'visualization' | 'mindfulnes
 
 function detectScriptType(actionType: string, title: string): VoiceScriptType {
   const combined = `${actionType} ${title}`.toLowerCase();
-  if (/body.?scan|סריקת גוף|סריקה|תחושות|scan/.test(combined)) return 'body_scan';
-  if (/visuali|דמיון מודרך|ויזואליזציה/.test(combined)) return 'visualization';
-  if (/mindful|מיינדפולנס|נוכחות|מודעות|תודעה/.test(combined)) return 'mindfulness';
-  if (/relax|הרפיה|הרגעה|רגיעה|מתח/.test(combined)) return 'relaxation';
+  if (/body.?scan|סריקת[\s_]?גוף|סריקה.{0,5}תחושות|body_scan/.test(combined)) return 'body_scan';
+  if (/visuali|דמיון[\s_]?מודרך|ויזואליזציה/.test(combined)) return 'visualization';
+  if (/mindful|מיינדפולנס|נוכחות|מודעות[\s_]?קשובה|תודעה/.test(combined)) return 'mindfulness';
+  if (/relax|הרפיה|הרגעה[\s_]?עמוקה|רגיעה|מתח/.test(combined)) return 'relaxation';
   return 'breathing';
 }
 
