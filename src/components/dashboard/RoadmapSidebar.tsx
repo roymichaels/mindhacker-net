@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   RefreshCw, ChevronDown, ChevronUp, CheckCircle2, Circle,
   Target, Calendar, Trophy, PanelLeftClose, PanelLeftOpen,
-  Loader2,
+  Loader2, Play,
 } from 'lucide-react';
 import { useLifePlanWithMilestones, useCompleteMilestone } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from './MilestoneDetailModal';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
 
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const TOTAL_PHASES = 10;
@@ -38,6 +39,7 @@ export function RoadmapSidebar() {
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
 
   const { user } = useAuth();
+  const { nextAction } = useTodayExecution();
   const queryClient = useQueryClient();
   const { plan, milestones, currentWeek: currentPhase, isLoading, hasLifePlan } = useLifePlanWithMilestones();
 
@@ -141,17 +143,26 @@ export function RoadmapSidebar() {
               })}
             </div>
             <span className="text-[9px] font-bold text-primary">{progressPct}%</span>
-            <button
-              onClick={handleRecalibrate}
-              disabled={recalibrating}
-              className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
-              title={isHe ? 'כיול מחדש' : 'Recalibrate'}
-            >
-              {recalibrating
-                ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                : <RefreshCw className="w-3.5 h-3.5 text-primary" />
-              }
-            </button>
+            {nextAction ? (
+              <button
+                className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+                title={nextAction.title}
+              >
+                <Play className="w-3.5 h-3.5 text-primary" />
+              </button>
+            ) : (
+              <button
+                onClick={handleRecalibrate}
+                disabled={recalibrating}
+                className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+                title={isHe ? 'כיול מחדש' : 'Recalibrate'}
+              >
+                {recalibrating
+                  ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                  : <RefreshCw className="w-3.5 h-3.5 text-primary" />
+                }
+              </button>
+            )}
           </div>
         )}
 
@@ -353,21 +364,30 @@ export function RoadmapSidebar() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent mt-2 mb-2" />
 
-            {/* Recalibrate */}
-            <button
-              onClick={handleRecalibrate}
-              disabled={recalibrating}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-xs font-semibold disabled:opacity-50"
-            >
-              {recalibrating
-                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                : <RefreshCw className="w-3.5 h-3.5" />
-              }
-              <span>{recalibrating
-                ? (isHe ? 'מחשב מחדש...' : 'Recalculating...')
-                : (isHe ? 'כיול מחדש' : 'Recalibrate')
-              }</span>
-            </button>
+            {/* Next Action / Recalibrate */}
+            {nextAction ? (
+              <button
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-xs font-semibold"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span className="truncate">{nextAction.title}</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleRecalibrate}
+                disabled={recalibrating}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-xs font-semibold disabled:opacity-50"
+              >
+                {recalibrating
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : <RefreshCw className="w-3.5 h-3.5" />
+                }
+                <span>{recalibrating
+                  ? (isHe ? 'מחשב מחדש...' : 'Recalculating...')
+                  : (isHe ? 'כיול מחדש' : 'Recalibrate')
+                }</span>
+              </button>
+            )}
           </div>
         )}
       </aside>
