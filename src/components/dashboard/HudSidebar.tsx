@@ -33,7 +33,7 @@ export function HudSidebar() {
   const streak = useStreak();
   const tokens = useEnergy();
   const { sessionStats } = useGameState();
-  const { nextAction } = useTodayExecution();
+  const { nextAction, hasPlan } = useTodayExecution();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
   const [recalibrating, setRecalibrating] = useState(false);
@@ -261,8 +261,8 @@ export function HudSidebar() {
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-          {/* Next Action button — expanded */}
-          {nextAction ? (
+          {/* Next Action button — only when a plan exists */}
+          {hasPlan && nextAction ? (
             <button
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold"
             >
