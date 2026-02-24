@@ -300,6 +300,37 @@ function generateExecutionSteps(actionType: string, pillar: string, durationMin:
   ];
 }
 
+// ─── Execution template types ─────────────────────────────────
+type ExecutionTemplate = 'tts_guided' | 'video_embed' | 'sets_reps_timer' | 'step_by_step' | 'timer_focus' | 'social_checklist';
+
+// Fallback mapping: pillar + actionType → execution template
+function inferExecutionTemplate(pillarId: string, actionType: string): ExecutionTemplate {
+  const combined = `${actionType} ${pillarId}`.toLowerCase();
+  
+  // TTS guided: meditation, breathwork, body scan, visualization
+  if (/meditation|breathwork|body.?scan|visualization|mindful|breathing|relaxation|מדיטציה|נשימ|סריקת.?גוף|ויזואליזציה|הרפיה/.test(combined)) return 'tts_guided';
+  
+  // Video embed: yoga, tai chi, qigong, stretching, pilates
+  if (/yoga|tai.?chi|qigong|qi.?gong|pilates|stretching|mobility|foam.?rolling|יוגה|טאי.?צ׳י/.test(combined)) return 'video_embed';
+  
+  // Sets/reps/timer: combat, strength, HIIT
+  if (/combat|shadow|boxing|strength|power|hiit|calisthenics|push.?up|pull.?up|squat|plank|לחימה|אגרוף|כוח|אימון/.test(combined) && !/influence|השפעה/.test(combined)) return 'sets_reps_timer';
+  
+  // Social checklist: relationships, networking, presence
+  if (/relation|networking|social|outreach|call|meeting|dating|יחסים|נטוורקינג|שיחה|מפגש/.test(combined) && pillarId !== 'business') return 'social_checklist';
+  
+  // Timer focus: deep work, business, wealth, projects, expansion
+  if (/deep.?work|business|wealth|project|sprint|revenue|content.?creation|study|learn|course|עבודה.?עמוקה|עסק|פרויקט|למידה/.test(combined)) return 'timer_focus';
+  if (['wealth', 'business', 'projects', 'expansion', 'influence'].includes(pillarId)) return 'timer_focus';
+  
+  // Step by step: vitality, skincare, cooking, journaling, reading, cleaning, order
+  if (/skin|cook|clean|journal|read|routine|morning|evening|sleep|nutrition|טיפוח|בישול|ניקיון|יומן|קריאה|סדר/.test(combined)) return 'step_by_step';
+  if (['vitality', 'consciousness', 'order', 'play'].includes(pillarId)) return 'step_by_step';
+  
+  // Default
+  return 'step_by_step';
+}
+
 // ─── Queue item type ──────────────────────────────────────────
 interface QueueItem {
   pillarId: string;
@@ -314,6 +345,7 @@ interface QueueItem {
   sourceId?: string;
   blockType?: string;
   executionSteps?: ExecStep[];
+  executionTemplate?: ExecutionTemplate;
 }
 
 // ─── Get current week of the strategy ─────────────────────────
@@ -468,7 +500,7 @@ serve(async (req) => {
           queue.push({
             pillarId: action.pillar,
             hub: 'core',
-            actionType: action.pillar + '_strategy',
+            actionType: action.action_type || action.pillar + '_strategy',
             title: isHe ? action.action_he : action.action_en,
             titleEn: action.action_en,
             durationMin: Math.round(action.duration_min * dayIntensity.multiplier),
@@ -479,6 +511,7 @@ serve(async (req) => {
             sourceType: "strategy",
             sourceId: coreStrategy.id,
             blockType: action.block_type,
+            executionTemplate: action.execution_template || undefined,
           });
           usedPillars.add(action.pillar);
         }
@@ -499,7 +532,7 @@ serve(async (req) => {
           queue.push({
             pillarId: action.pillar,
             hub: 'arena',
-            actionType: action.pillar + '_strategy',
+            actionType: action.action_type || action.pillar + '_strategy',
             title: isHe ? action.action_he : action.action_en,
             titleEn: action.action_en,
             durationMin: Math.round(action.duration_min * dayIntensity.multiplier),
@@ -510,6 +543,7 @@ serve(async (req) => {
             sourceType: "strategy",
             sourceId: arenaStrategy.id,
             blockType: action.block_type,
+            executionTemplate: action.execution_template || undefined,
           });
           usedPillars.add(action.pillar);
         }
@@ -581,10 +615,13 @@ serve(async (req) => {
     // Sort final queue by urgency
     queue.sort((a, b) => b.urgencyScore - a.urgencyScore);
 
-    // Attach execution steps to each queue item
+    // Attach execution steps and template to each queue item
     for (const item of queue) {
       if (!item.executionSteps) {
         item.executionSteps = generateExecutionSteps(item.actionType, item.pillarId, item.durationMin, isHe);
+      }
+      if (!item.executionTemplate) {
+        item.executionTemplate = inferExecutionTemplate(item.pillarId, item.actionType);
       }
     }
 
