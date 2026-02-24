@@ -65,11 +65,26 @@ export function useLifeDomains() {
     },
   });
 
-  /** Build a status map for quick lookups */
+  /** Build a status map for quick lookups — with legacy normalization (Phase 4) */
   const statusMap: Record<string, string> = {};
   for (const d of LIFE_DOMAINS) {
     const row = getDomain(d.id);
-    statusMap[d.id] = row?.status ?? 'unconfigured';
+    if (!row) {
+      statusMap[d.id] = 'unconfigured';
+      continue;
+    }
+    // Normalize: if row has legacy `latest` but no `latest_assessment`, treat as unconfigured
+    const cfg = row.domain_config as Record<string, any> | undefined;
+    const hasNewFormat = !!cfg?.latest_assessment;
+    const hasLegacy = !!cfg?.latest && !hasNewFormat;
+    if (hasLegacy) {
+      // Legacy data — mark as needing reassessment
+      statusMap[d.id] = 'needs_reassessment';
+    } else if (cfg?.completed === true && hasNewFormat) {
+      statusMap[d.id] = row.status ?? 'configured';
+    } else {
+      statusMap[d.id] = row.status ?? 'unconfigured';
+    }
   }
 
   return {

@@ -372,6 +372,19 @@ SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 5. Pressure Handling (התמודדות עם לחץ) — Comfortable sparring? How do they perform under stress?
 6. Tactical Awareness (מודעות טקטית) — Fight IQ, distance management, game plan adaptation?
 
+MANDATORY HARD METRICS (YOU MUST COLLECT ALL BEFORE CALLING extract_domain_profile):
+Before finalizing, you MUST have explicit answers to ALL of these questions. If the user skips or avoids answering, re-ask directly. Do NOT finalize without these numbers:
+
+1. "Which martial arts do you train?" → disciplines (e.g., boxing, BJJ, MMA, Muay Thai)
+2. "How many times per week do you train?" → training_frequency (number)
+3. "How often do you spar live?" → sparring_frequency ("never"/"1-2x/week"/"3+/week")
+4. "How many 3-minute rounds can you sustain before gassing out?" → round_capacity (number)
+5. "Max push-ups in one set?" → max_pushups (number)
+6. "Max pull-ups in one set?" → max_pullups (number, 0 if can't)
+7. "Training mode?" → training_mode ("solo"/"gym"/"hybrid"/"tactical")
+
+If the user says they don't train, set zeros. If they are injured, mark as constraint. But get the NUMBERS.
+
 RULES:
 - ONE question at a time. Respect martial arts seriously.
 - Ask about SPECIFIC arts — "Which martial arts? How long? Belt/level?"
@@ -379,10 +392,11 @@ RULES:
 - Ask about fear — "Are you comfortable getting hit?" / "When was the last time you got hurt in training?"
 - Differentiate solo training from live pressure.
 - Use their language (Hebrew/English).
-- After 6-10 exchanges, call extract_domain_profile.
+- After 6-10 exchanges AND after collecting all MANDATORY METRICS, call extract_domain_profile.
 - Keep messages SHORT. 1-3 sentences max.
 - Challenge: "YouTube tutorials don't count" / "2 years of shadow boxing isn't combat experience"
 - Never give training advice during assessment.
+- DO NOT call extract_domain_profile until you have numbers for ALL 7 mandatory metrics above.
 
 STYLE: Like a veteran fighter/coach who's been in real fights — respects experience, sees through ego.`,
   },
@@ -581,13 +595,18 @@ function buildExtractTool(domainId: string) {
             },
             required: ["willing_to_do", "not_willing_to_do"],
           },
+          domain_metrics: {
+            type: "object",
+            description: "Domain-specific hard metrics collected during conversation. For combat: disciplines, training_frequency, sparring_frequency, round_capacity, max_pushups, max_pullups, training_mode. For power: training_type, training_frequency, max_pullups, max_pushups, bodyweight. For vitality: sleep_hours, sleep_time, wake_time, diet_type, caffeine_cups. For focus: deep_work_max_hours, screen_time_hours, meditation_practice. Include whatever numeric/factual data was collected.",
+            additionalProperties: true,
+          },
           confidence: {
             type: "string",
             enum: ["low", "med", "high"],
-            description: "How confident in this assessment based on conversation depth.",
+            description: "How confident in this assessment based on conversation depth. Must be 'med' or 'high' if all required metrics were collected.",
           },
         },
-        required: ["subscores", "findings", "mirror_statement", "one_next_step", "willingness", "confidence"],
+        required: ["subscores", "findings", "mirror_statement", "one_next_step", "willingness", "domain_metrics", "confidence"],
       },
     },
   };

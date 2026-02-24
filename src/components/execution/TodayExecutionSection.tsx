@@ -16,6 +16,7 @@ import { NowQueueItem } from '@/hooks/useNowEngine';
 import { TodayScheduleCard } from './TodayScheduleCard';
 import { MovementScoreCard } from './MovementScoreCard';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 import { Button } from '@/components/ui/button';
 import { getDomainById } from '@/navigation/lifeDomains';
 
@@ -43,6 +44,7 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
 
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
 
   const handleExecute = (action: NowQueueItem) => {
     setExecutionAction(action);
@@ -50,7 +52,13 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
   };
 
   const handleGenerateStrategy = () => {
-    generateStrategy.mutate({ hub: 'both', forceRegenerate: false });
+    generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
+      onError: (err: any) => {
+        if (err?.message === 'MISSING_ASSESSMENT_DATA' && err.missingPillars?.length > 0) {
+          setAssessDomainId(err.missingPillars[0].pillarId);
+        }
+      },
+    });
   };
 
   if (isLoading) {
@@ -222,6 +230,15 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
         action={executionAction}
         onComplete={() => refetch()}
       />
+
+      {/* Assessment popup for missing pillars */}
+      {assessDomainId && (
+        <DomainAssessModal
+          open={!!assessDomainId}
+          onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
+          domainId={assessDomainId}
+        />
+      )}
     </div>
   );
 }

@@ -21,6 +21,16 @@ export interface DomainAssessmentResult {
   mirror_statement: { he: string; en: string };
   one_next_step: { he: string; en: string };
   selected_focus_items?: string[];
+  /** Willingness boundaries — controls plan generation hard rules */
+  willingness?: {
+    willing_to_do: string[];
+    not_willing_to_do: string[];
+    open_to_try?: string[];
+    constraints?: string[];
+  };
+  /** Domain-specific hard metrics (combat_metrics, power_metrics, etc.) */
+  domain_metrics?: Record<string, any>;
+  [key: string]: any; // allow domain-specific metric keys like combat_metrics
 }
 
 export interface DomainAssessmentConfig {

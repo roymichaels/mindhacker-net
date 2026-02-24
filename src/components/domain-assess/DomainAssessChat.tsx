@@ -221,6 +221,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
     }
     domain_index = Math.round(domain_index);
 
+    // Build full result including willingness + domain_metrics (Phase 2: save full payload)
     const result: DomainAssessmentResult = {
       assessed_at: new Date().toISOString(),
       domain_index,
@@ -230,6 +231,9 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       mirror_statement: toolArgs.mirror_statement,
       one_next_step: toolArgs.one_next_step,
       selected_focus_items: [],
+      // Preserve willingness + domain_metrics for plan generation
+      willingness: toolArgs.willingness ?? { willing_to_do: [], not_willing_to_do: [] },
+      ...(toolArgs.domain_metrics ? { [`${domainId}_metrics`]: toolArgs.domain_metrics, domain_metrics: toolArgs.domain_metrics } : {}),
     };
 
     setSaving(true);
