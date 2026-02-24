@@ -247,7 +247,7 @@ export function useStrategyPlans() {
         }
       };
 
-      // Supabase may return structured error in `data` on non-2xx
+      // Primary path: backend returns 200 with error payload for missing assessments
       if (data?.error === 'MISSING_ASSESSMENT_DATA') {
         throw buildMissingAssessmentError(data.missing_pillars || []);
       }
@@ -256,36 +256,18 @@ export function useStrategyPlans() {
         const errorAny = error as any;
         const message = typeof errorAny?.message === 'string' ? errorAny.message : String(error);
 
-        // Fast path: check if the error message contains the marker at all
-        if (message.includes('MISSING_ASSESSMENT_DATA') || String(errorAny?.context?.body ?? '').includes('MISSING_ASSESSMENT_DATA')) {
-          // Try to extract structured JSON from message or context
-          let payload: any = null;
-
-          // Try context as Response (wrap in try-catch since clone() can throw if body consumed)
-          if (!payload && typeof errorAny?.context?.clone === 'function') {
-            try {
-              payload = await errorAny.context.clone().json();
-            } catch { /* body already consumed */ }
-          }
-
-          // Try context.body as string
+        // Defensive: handle legacy 400 responses that may still contain the marker
+        if (message.includes('MISSING_ASSESSMENT_DATA')) {
+          let payload: any = parseMaybeJson(message);
           if (!payload) payload = parseMaybeJson(errorAny?.context?.body);
-
-          // Try message string
-          if (!payload) payload = parseMaybeJson(message);
 
           if (payload?.missing_pillars) {
             throw buildMissingAssessmentError(payload.missing_pillars);
           }
 
-          // Last resort: regex extract pillar IDs from truncated text
+          // Last resort: regex extract pillar IDs
           const pillarIds = Array.from(message.matchAll(/"pillarId"\s*:\s*"([^"]+)"/g)).map((m) => m[1]);
-          if (pillarIds.length > 0) {
-            throw buildMissingAssessmentError(pillarIds.map((id) => ({ pillarId: id })));
-          }
-
-          // Marker found but couldn't parse anything — still throw structured error
-          throw buildMissingAssessmentError([]);
+          throw buildMissingAssessmentError(pillarIds.length > 0 ? pillarIds.map((id) => ({ pillarId: id })) : []);
         }
 
         throw error;

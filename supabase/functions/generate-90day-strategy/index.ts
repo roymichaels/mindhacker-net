@@ -632,7 +632,7 @@ serve(async (req) => {
         message: 'Some pillars need assessment completion before plan generation.',
         missing_pillars: missingPillars,
       }), {
-        status: 400,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
