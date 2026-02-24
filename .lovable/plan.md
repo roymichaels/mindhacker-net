@@ -1,127 +1,156 @@
 
 
-# שדרוג תוכן משימות עם AI בזמן אמת
+# Fix: Inject User's Biological Profile, Diet, and Willingness Into Aurora's Brain
 
-## הבעיה
+## Root Cause
 
-התבניות (templates) עובדות — המודל מציג את ה-UI הנכון (טיימר, סטים, TTS). אבל **התוכן בתוך כל תבנית עדיין גנרי**: "הכנה / ביצוע / סגירה". 
+Aurora's "brain" (contextBuilder) and both generation engines are **blind** to:
+- **Diet**: `["alkaline", "vegetarian"]` stored in `life_domains.domain_config.history[].rawInputsUsed.diet_type`
+- **Willingness boundaries**: What users said they WILL and WON'T do (stored in `life_domains.domain_config.latest_assessment.willingness`)
+- **All raw assessment inputs**: sleep times, caffeine, training style, substances, nutrition weak points
+- **Launchpad profile data**: `launchpad_progress.step_2_profile_data` with age, gender, work type, etc.
+
+This means the AI generates missions telling an alkaline vegan to eat feta cheese, eggs, and butter because it literally doesn't know.
+
+## Fix: 3 Files, 1 Principle
+
+**Principle**: Every AI generation point must have access to the user's biological constraints and willingness. We inject this data at the source (contextBuilder) so ALL downstream consumers automatically get it.
+
+---
+
+### 1. Upgrade `_shared/contextBuilder.ts` — Add Biological Profile + Willingness
+
+**What changes:**
+- Add a new `biological_profile` field to `AuroraContext` containing:
+  - `diet_type` (e.g. `["alkaline", "vegetarian"]`)
+  - `substances` (caffeine, alcohol, nicotine, THC usage)
+  - `sleep_pattern` (sleep/wake times, quality)
+  - `training_style` (activity level, training window)
+  - `nutrition_details` (meals/day, protein awareness, weak points, hydration)
+  - `age_bracket`, `gender`
+- Add a new `willingness` field containing per-pillar willingness data (what user will/won't do)
+- Add a new `assessment_constraints` field with key findings across all assessed pillars
+- Query `life_domains` and `launchpad_progress` in the parallel DB fetch block
+- Extract `rawInputsUsed` from the most recent vitality history entry
+- Extract willingness from each domain's `latest_assessment`
 
 ```text
-למשל: "השגת רמת בסיס של הידרציה (2 ליטר מים ביום)"
-מקבל: הכנה → ביצוע 12 דקות → סגירה
-
-צריך לקבל:
-  1. מלא בקבוק 750מ"ל ושים ליד העבודה (60 שניות)
-  2. שתה כוס מלאה עכשיו — 250מ"ל (30 שניות)
-  3. הגדר תזכורת כל 90 דקות (60 שניות)
-  4. עקוב: כמה שתית עד עכשיו? רשום. (60 שניות)
-  5. יעד ערב: לפחות 1.5 ליטר עד 18:00 (30 שניות)
+New AuroraContext fields:
+  biological_profile: {
+    diet_type: string[]        // ["alkaline", "vegetarian"]
+    meals_per_day: string      // "2"
+    protein_awareness: string  // "some"
+    nutrition_weak_point: string // "ultra_processed"
+    hydration: { volume: string, sources: string[] }
+    sleep: { time: string, wake: string, duration: string, quality: number }
+    substances: { caffeine: string, alcohol: string, nicotine: string, thc: string }
+    activity_level: string
+    age_bracket: string
+    gender: string
+  }
+  willingness: {
+    [pillar]: { willing: string[], not_willing: string[], constraints: string[] }
+  }
 ```
 
-הסיבה: הפונקציה `generateExecutionSteps` ב-`generate-today-queue` משתמשת ב-regex + תבניות סטטיות קבועות מראש.
+### 2. Upgrade `generate-execution-steps/index.ts` — Use Biological Profile
 
-## הפתרון: AI Content Generation עם Timeout + Fallback
+**What changes:**
+- `buildUserContextBlock` now includes a `BIOLOGICAL CONSTRAINTS` section extracted from the new context fields
+- Adds explicit `HARD RULES` to the system prompt:
+  - "User is alkaline vegan — NEVER suggest dairy, eggs, meat, fish, honey, or any animal products"
+  - "User is NOT willing to: [list from willingness]"
+  - These rules appear at the TOP of the prompt with `## CRITICAL CONSTRAINTS (NEVER VIOLATE)` heading
+- All food-related steps are filtered through dietary constraints
+- All activity steps are filtered through willingness boundaries
 
-כשמשתמש לוחץ על משימה, המערכת:
-1. מציגה מיד את ה-UI הנכון (תבנית) עם שלבים סטטיים (מה שיש עכשיו)
-2. ברקע, שולחת קריאת AI ליצירת שלבים מפורטים ומותאמים
-3. אם AI מגיב תוך 8 שניות — מחליפה את השלבים בתוכן המפורט
-4. אם לא — נשארת עם ה-fallback הסטטי (מה שיש היום)
+### 3. Upgrade `generate-90day-strategy/index.ts` — Use rawInputsUsed + Willingness
 
+**What changes:**
+- `resolveAssessmentBlock` now also extracts `rawInputsUsed` from the domain's history (where diet_type lives)
+- Adds willingness data to the assessment block sent to AI
+- Adds a new `buildConstraintsBlock` function that generates a global constraints section injected into ALL 3 layers of the prompt pipeline:
+  - Layer 1 (goals): Don't generate nutrition goals that conflict with alkaline vegan diet
+  - Layer 2 (milestones): Don't create milestones involving foods user can't eat
+  - Layer 3 (mini-milestones/daily actions): Every single daily action must respect diet + willingness
+- Queries `launchpad_progress.step_2_profile_data` for additional biological context
+- The constraints block is injected with `## CRITICAL USER CONSTRAINTS (NEVER VIOLATE)` header
+
+---
+
+## Technical Details
+
+### contextBuilder.ts Changes
+
+Add to the parallel queries:
 ```text
-המשתמש לוחץ "התחל משימה"
-        |
-        v
-  [מציג UI מיידי עם שלבים סטטיים]
-        |
-        +---> [קריאת AI ברקע — 8 שניות timeout]
-        |         |
-        |     מצליח? → מחליף שלבים בתוכן AI מפורט
-        |         |
-        |     נכשל/timeout? → נשאר עם fallback סטטי
-        v
-  [המשתמש מתחיל לעבוד]
+// Life domains (assessments + willingness + raw inputs)
+supabase.from("life_domains")
+  .select("domain_id, domain_config, status")
+  .eq("user_id", userId)
+
+// Launchpad profile (biological baseline from onboarding)  
+supabase.from("launchpad_progress")
+  .select("step_2_profile_data, step_3_lifestyle_data")
+  .eq("user_id", userId)
+  .single()
 ```
 
-## מה ישתנה
-
-### 1. Edge Function חדשה: `generate-execution-steps`
-פונקציה קלה שמקבלת: `title`, `pillar`, `execution_template`, `action_type`, `duration_min`, `language`
-
-ומחזירה שלבי ביצוע מפורטים שנוצרו על ידי AI:
-- לכל תבנית, הפרומפט שונה (סטים+חזרות לאימון, שלבים מפורטים לרוטינה, וכו')
-- כולל `label`, `detail`, `durationSec` לכל שלב
-- ל-`sets_reps_timer`: כולל `sets`, `reps`, `restSec` לכל תרגיל
-- ל-`tts_guided`: מייצר סקריפט TTS מותאם אישית במקום סקריפטים סטטיים
-
-### 2. שדרוג `ExecutionModal.tsx`
-- כשנפתח, מציג מיד את השלבים הסטטיים (כמו עכשיו)
-- שולח קריאה ל-`generate-execution-steps` ברקע
-- אם מגיע תוך 8 שניות — מחליף את השלבים בצורה חלקה (אנימציה)
-- מראה אינדיקטור "מייצר תוכן מותאם..." בזמן שממתין
-- ל-`tts_guided`: מחליף את הסקריפטים הסטטיים בסקריפט AI מותאם
-
-### 3. שיפור השלבים הסטטיים ב-`generate-today-queue`
-- שדרוג ה-fallback templates שיהיו יותר ספציפיים (עדיין סטטיים, אבל טובים יותר)
-- הוספת שלבים ספציפיים לתבניות חסרות (הידרציה, שינה, וכו')
-
-## פירוט טכני
-
-### Edge Function: `generate-execution-steps`
-
+Parse biological profile from vitality domain's `rawInputsUsed`:
 ```text
-Input:
-{
-  title: "השגת רמת בסיס של הידרציה (2 ליטר מים ביום)",
-  pillar: "vitality",
-  execution_template: "step_by_step",
-  action_type: "hydration_baseline",
-  duration_min: 15,
-  language: "he"
+const vitalityDomain = domains.find(d => d.domain_id === 'vitality')
+const rawInputs = vitalityDomain?.domain_config?.history?.[0]?.rawInputsUsed || {}
+// OR from launchpad_progress.step_2_profile_data as fallback
+```
+
+### generate-execution-steps/index.ts Changes
+
+New constraint block at top of system prompt:
+```text
+## CRITICAL CONSTRAINTS (NEVER VIOLATE):
+- DIET: alkaline vegetarian — NO dairy, NO eggs, NO meat, NO fish, NO honey
+  ALLOWED: fruits, vegetables, nuts, seeds, legumes, grains, coconut products, plant-based milk
+- NOT WILLING TO: [from willingness data]
+- SUBSTANCES: no alcohol, no nicotine (respect these in suggestions)
+- SLEEP TARGET: 22:00-03:00 (do not suggest late-night activities)
+```
+
+### generate-90day-strategy/index.ts Changes
+
+Upgrade `resolveAssessmentBlock` to include raw inputs:
+```text
+const history = cfg.history || [];
+const latestHistory = history[0] || {};
+const rawInputs = latestHistory.rawInputsUsed || {};
+// Add diet_type, substances, sleep patterns to the block
+```
+
+New `buildConstraintsBlock` function querying all domains for willingness:
+```text
+function buildConstraintsBlock(assessments, launchpadProfile) {
+  // Extract diet from vitality rawInputsUsed
+  // Extract willingness.not_willing from each domain
+  // Return formatted constraint block
 }
-
-Output:
-{
-  steps: [
-    { label: "מלא בקבוק 750מ\"ל", detail: "שים ליד שולחן העבודה...", durationSec: 60 },
-    { label: "שתה כוס מלאה עכשיו", detail: "250מ\"ל — לאט...", durationSec: 30 },
-    ...
-  ],
-  tts_script?: ["שורה 1...", "שורה 2..."]  // רק עבור tts_guided
-}
 ```
 
-הפרומפט ל-AI:
-- מקבל את סוג התבנית ומתאים את הפורמט
-- `sets_reps_timer` → תרגילים עם סטים, חזרות, מנוחות
-- `tts_guided` → סקריפט מונחה מותאם (למשל סריקת גוף ספציפית למתח בכתפיים)
-- `step_by_step` → שלבים מפורטים עם הסברים
-- `timer_focus` → כוונה + בלוק עבודה + סיכום מותאמים
-- `social_checklist` → טיפים ושלבים ספציפיים לסוג האינטראקציה
+Inject into all 3 layer prompts.
 
-### שינויים ב-ExecutionModal
+---
 
-```text
-useEffect (כש-action משתנה):
-  1. הצג שלבים סטטיים מיידית
-  2. setIsEnhancing(true)
-  3. קריאה ל-generate-execution-steps עם AbortController (8 שניות)
-  4. אם הצליח → setSteps(aiSteps), setIsEnhancing(false)
-  5. אם נכשל → setIsEnhancing(false), נשאר עם סטטי
-```
+## Files Modified
 
-### קבצים
+| File | Change |
+|------|--------|
+| `supabase/functions/_shared/contextBuilder.ts` | Add `biological_profile`, `willingness`, `assessment_constraints` fields + queries for `life_domains` and `launchpad_progress` |
+| `supabase/functions/generate-execution-steps/index.ts` | Add CRITICAL CONSTRAINTS section to system prompt using biological_profile + willingness from context |
+| `supabase/functions/generate-90day-strategy/index.ts` | Upgrade `resolveAssessmentBlock` to include rawInputsUsed, add `buildConstraintsBlock`, inject into all 3 prompt layers |
 
-| קובץ | שינוי |
-|-------|-------|
-| `supabase/functions/generate-execution-steps/index.ts` | **חדש** — Edge function ליצירת שלבים עם AI |
-| `src/components/dashboard/ExecutionModal.tsx` | הוספת קריאת AI ברקע + אינדיקטור טעינה + החלפת שלבים חלקה |
-| `supabase/functions/generate-today-queue/index.ts` | שיפור fallback templates סטטיים (יותר ספציפיים) |
+## Impact
 
-### ביצועים ו-UX
+After this fix:
+- Aurora will NEVER suggest non-vegan food to a vegan user
+- Aurora will NEVER suggest activities the user explicitly said they won't do
+- All missions, milestones, and daily actions will respect biological constraints
+- The fix is systemic — every AI touchpoint (chat, execution steps, strategy, hypnosis) benefits because it flows through the shared context builder
 
-- **אפס עיכוב**: המודל נפתח מיידית עם תוכן סטטי
-- **שדרוג חלק**: אם AI מגיב — השלבים מתחלפים באנימציה
-- **Timeout 8 שניות**: אם AI איטי — המשתמש לא מחכה
-- **אינדיקטור**: "Sparkles" icon + "מותאם אישית..." כשממתין ל-AI
-- **Cache**: תוצאות AI נשמרות ב-state כדי למנוע קריאות כפולות באותו session
