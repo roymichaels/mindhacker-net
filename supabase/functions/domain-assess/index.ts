@@ -37,6 +37,12 @@ SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 5. Wealth Mindset (חשיבה כלכלית) — Scarcity vs abundance? Money blocks?
 6. Strategic Positioning (מיצוב אסטרטגי) — Are they positioned for financial growth?
 
+WILLINGNESS EXTRACTION (CRITICAL):
+- Before finishing, ask: "What financial habits are you WILLING to start? What's off the table for you?"
+- Record what they agree to (e.g., "track expenses daily") and what they refuse (e.g., "not willing to budget").
+- Note any constraints (e.g., "no savings capacity right now", "irregular income").
+- This data directly controls their plan — do NOT assume willingness. ONLY include what they explicitly confirm.
+
 RULES:
 - ONE question at a time. Direct, personal, no financial jargon.
 - Ask about REAL numbers when relevant — income, savings, debt. Don't be shy.
@@ -548,13 +554,40 @@ function buildExtractTool(domainId: string) {
             properties: { he: { type: "string" }, en: { type: "string" } },
             required: ["he", "en"],
           },
+          willingness: {
+            type: "object",
+            description: "What the user explicitly said they ARE and ARE NOT willing to do. Critical for plan generation.",
+            properties: {
+              willing_to_do: {
+                type: "array",
+                description: "Activities/habits the user explicitly agreed to or showed enthusiasm about.",
+                items: { type: "string" },
+              },
+              not_willing_to_do: {
+                type: "array",
+                description: "Activities/habits the user explicitly refused, showed resistance to, or said they don't want.",
+                items: { type: "string" },
+              },
+              open_to_try: {
+                type: "array",
+                description: "Activities the user is hesitant but open to trying.",
+                items: { type: "string" },
+              },
+              constraints: {
+                type: "array",
+                description: "Physical, time, or personal constraints that limit what the user can do (e.g., injury, no gym access, works nights).",
+                items: { type: "string" },
+              },
+            },
+            required: ["willing_to_do", "not_willing_to_do"],
+          },
           confidence: {
             type: "string",
             enum: ["low", "med", "high"],
             description: "How confident in this assessment based on conversation depth.",
           },
         },
-        required: ["subscores", "findings", "mirror_statement", "one_next_step", "confidence"],
+        required: ["subscores", "findings", "mirror_statement", "one_next_step", "willingness", "confidence"],
       },
     },
   };
@@ -580,7 +613,21 @@ serve(async (req) => {
 
     const config = DOMAIN_CONFIGS[domainId];
     const langLabel = language === "he" ? "Hebrew" : "English";
-    const systemContent = `${config.systemPrompt}\n\nUser's preferred language: ${langLabel}. Always respond in that language.\n\nSTART with: "${language === "he" ? config.startQuestion.he : config.startQuestion.en}"`;
+    const willingnessBlock = `
+
+WILLINGNESS EXTRACTION (CRITICAL — applies to ALL domains):
+- Before concluding the assessment (around message 7-8), ask ONE direct question:
+  Hebrew: "מה אתה מוכן להתחיל לעשות בתחום הזה? ומה בטוח לא?"
+  English: "What are you WILLING to start doing in this area? And what's definitely off the table?"
+- Record their answers precisely in the willingness field when calling extract_domain_profile.
+- willing_to_do: ONLY things they explicitly said yes to.
+- not_willing_to_do: Things they explicitly refused or showed clear resistance to.
+- open_to_try: Things they were hesitant about but didn't refuse.
+- constraints: Physical, time, access, or personal limitations they mentioned.
+- NEVER ASSUME willingness. If they didn't say it, don't include it.
+- This data DIRECTLY controls their 100-day plan. Wrong data = irrelevant plan.`;
+
+    const systemContent = `${config.systemPrompt}\n${willingnessBlock}\n\nUser's preferred language: ${langLabel}. Always respond in that language.\n\nSTART with: "${language === "he" ? config.startQuestion.he : config.startQuestion.en}"`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
