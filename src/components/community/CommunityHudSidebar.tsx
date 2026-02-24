@@ -1,12 +1,14 @@
 /**
  * CommunityHudSidebar - Left sidebar for community pillar navigation.
- * Violet/purple color scheme matching community identity.
+ * Includes the Player Card HUD at the top.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelRightClose, PanelRightOpen, Users, Plus } from 'lucide-react';
-import { LIFE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
+import { useAuth } from '@/contexts/AuthContext';
+import { PanelRightClose, PanelRightOpen, Users } from 'lucide-react';
+import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
+import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
 
 interface CommunityHudSidebarProps {
   selectedPillar: string;
@@ -24,6 +26,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const { user } = useAuth();
 
   return (
     <aside className={cn(
@@ -61,7 +64,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
 
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent my-1" />
 
-          {/* Global feed */}
           <button
             onClick={() => onPillarSelect('all')}
             className={cn(
@@ -90,24 +92,14 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
               {PILLAR_ICONS[domain.id] || '⚡'}
             </button>
           ))}
-
         </div>
       )}
 
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col gap-2 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
-          {/* Header badge */}
-          <div className="w-full rounded-xl bg-gradient-to-br from-violet-500/15 to-purple-500/15 border border-violet-500/20 p-3 flex items-center justify-between">
-            <div className="text-center flex-1">
-              <span className="text-sm font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
-                {isHe ? 'קומיוניטי MindOS' : 'MindOS Community'}
-              </span>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? '14 עמודים. ציוויליזציה אחת.' : '14 pillars. One civilization.'}
-              </p>
-            </div>
-          </div>
+          {/* Player Card HUD — same as dashboard */}
+          {user && <CommunityPlayerCard userId={user.id} />}
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
 
@@ -116,7 +108,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
             {isHe ? 'עמודים' : 'Pillars'}
           </span>
           <div className="flex flex-col gap-1 w-full">
-            {/* Global feed button */}
             <button
               onClick={() => onPillarSelect('all')}
               className={cn(
@@ -157,7 +148,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
-
         </div>
       )}
     </aside>
