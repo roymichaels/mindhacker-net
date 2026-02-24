@@ -247,22 +247,94 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
       );
     }
 
+    // Build pillar assessment status for all relevant domains
+    const pillarStatuses = allDomains.map(d => {
+      const row = getDomainRow(d.id);
+      const cfg = row?.domain_config as Record<string, any> | undefined;
+      const completed = cfg?.completed === true;
+      return { domain: d, completed };
+    });
+    const completedAssessments = pillarStatuses.filter(p => p.completed).length;
+    const totalAssessments = pillarStatuses.length;
+
     return (
-      <div dir={isRTL ? 'rtl' : 'ltr'} className="flex flex-col items-center gap-3 py-8 px-4 rounded-2xl border border-border/40 bg-card/30">
-        <Rocket className="w-8 h-8 text-primary/60" />
-        <p className="text-sm font-medium text-center text-foreground/80">
-          {isHe
-            ? `טרם יצרת תוכנית 100 יום ל${missingHubs.map(h => h === 'core' ? 'ליבה' : 'זירה').join(' ו')}`
-            : `Generate your 100-day plan for ${missingHubs.map(h => h === 'core' ? 'Core' : 'Arena').join(' & ')}`}
-        </p>
-        <p className="text-xs text-muted-foreground text-center max-w-xs">
-          {isHe ? 'התוכנית תייצר משימות יומיות מותאמות אישית לכל תחום' : 'The plan will create personalized daily missions for every pillar'}
-        </p>
+      <div dir={isRTL ? 'rtl' : 'ltr'} className="flex flex-col gap-4 py-4 px-4 rounded-2xl border border-border/40 bg-card/30">
+        {/* Header */}
+        <div className="flex flex-col items-center gap-2">
+          <Rocket className="w-8 h-8 text-primary/60" />
+          <p className="text-sm font-medium text-center text-foreground/80">
+            {isHe
+              ? `טרם יצרת תוכנית 100 יום ל${missingHubs.map(h => h === 'core' ? 'ליבה' : 'זירה').join(' ו')}`
+              : `Generate your 100-day plan for ${missingHubs.map(h => h === 'core' ? 'Core' : 'Arena').join(' & ')}`}
+          </p>
+          <p className="text-xs text-muted-foreground text-center max-w-xs">
+            {isHe ? 'התוכנית תייצר משימות יומיות מותאמות אישית לכל תחום' : 'The plan will create personalized daily missions for every pillar'}
+          </p>
+        </div>
+
+        {/* Assessment progress */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{isHe ? 'אבחונים שהושלמו' : 'Assessments completed'}</span>
+            <span className="font-semibold">{completedAssessments}/{totalAssessments}</span>
+          </div>
+          <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full bg-primary transition-all duration-500"
+              style={{ width: `${totalAssessments > 0 ? Math.round((completedAssessments / totalAssessments) * 100) : 0}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Pillar cards grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {pillarStatuses.map(({ domain: d, completed }) => {
+            const Icon = d.icon;
+            return (
+              <button
+                key={d.id}
+                onClick={() => {
+                  if (!completed) setAssessDomainId(d.id);
+                }}
+                disabled={completed}
+                className={cn(
+                  "flex items-center gap-2 p-2.5 rounded-xl border transition-all text-start",
+                  completed
+                    ? "border-primary/20 bg-primary/5 opacity-60 cursor-default"
+                    : "border-border/50 bg-card/50 hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
+                )}
+              >
+                <div className={cn(
+                  "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+                  completed ? 'bg-primary/10' : (dotBgMap[d.color] || 'bg-muted')
+                )}>
+                  {completed ? (
+                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                  ) : (
+                    <Icon className={cn('w-4 h-4', domainColorMap[d.color])} />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={cn("text-xs font-medium truncate", completed && "text-muted-foreground")}>
+                    {isHe ? d.labelHe : d.labelEn}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {completed
+                      ? (isHe ? '✓ הושלם' : '✓ Done')
+                      : (isHe ? 'נדרש אבחון' : 'Needs assessment')}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Generate button */}
         <Button
           size="sm"
-          className="gap-1.5 mt-1"
+          className="gap-1.5 w-full"
           disabled={isGenerating}
-         onClick={() => {
+          onClick={() => {
             const openFirstMissing = (missingPillars?: any[]) => {
               const firstMissing = missingPillars?.[0]?.pillarId || missingPillars?.[0]?.pillar;
               const fallbackPillar = firstMissing || allDomains.find(d => {
@@ -274,7 +346,6 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
 
             generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
               onSuccess: (data: any) => {
-                // Backend returns 200 with MISSING_ASSESSMENT_DATA — open assessment modal
                 if (data?.error === 'MISSING_ASSESSMENT_DATA') {
                   openFirstMissing(data.missing_pillars);
                 }
@@ -294,7 +365,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           )}
         </Button>
 
-        {/* Assessment popup — must be inside early-return block */}
+        {/* Assessment popup */}
         {assessDomainId && (
           <DomainAssessModal
             open={!!assessDomainId}
