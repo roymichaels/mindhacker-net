@@ -284,6 +284,15 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
             <><Rocket className="w-3.5 h-3.5" />{isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}</>
           )}
         </Button>
+
+        {/* Assessment popup — must be inside early-return block */}
+        {assessDomainId && (
+          <DomainAssessModal
+            open={!!assessDomainId}
+            onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
+            domainId={assessDomainId}
+          />
+        )}
       </div>
     );
   }
