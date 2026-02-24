@@ -2,6 +2,7 @@
  * DailyMilestones — Shows today's milestone for each pillar from the 100-day plan.
  * Reads from plan_missions + life_plan_milestones tables (not legacy plan_data JSON).
  * Picks one milestone per pillar based on day-of-plan offset.
+ * If a pillar hasn't completed its assessment, clicking opens DomainAssessModal first.
  */
 import { useMemo, useState } from 'react';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
@@ -10,11 +11,13 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { Calendar, Play, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
 const domainColorMap: Record<string, string> = {
@@ -64,8 +67,10 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { corePlan, arenaPlan, generateStrategy, isGenerating, isHealing } = useStrategyPlans();
+  const { statusMap, getDomain: getDomainRow } = useLifeDomains();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
   const { openHypnosis } = useAuroraActions();
 
   // Determine which plan IDs to query
@@ -192,6 +197,17 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
       openHypnosis();
       return;
     }
+
+    // Check if this pillar has a completed assessment
+    const domainRow = getDomainRow(dm.pillarId);
+    const hasAssessment = domainRow?.domain_config?.completed === true;
+    
+    if (!hasAssessment) {
+      // Open assessment modal instead — pillar needs diagnosis first
+      setAssessDomainId(dm.pillarId);
+      return;
+    }
+
     const hubType = CORE_DOMAINS.some(d => d.id === dm.pillarId) ? 'core' : 'arena';
     setExecutionAction({
       pillarId: dm.pillarId,
@@ -377,6 +393,15 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         action={executionAction}
         onComplete={() => {}}
       />
+
+      {/* Assessment popup for pillars that haven't completed assessment */}
+      {assessDomainId && (
+        <DomainAssessModal
+          open={!!assessDomainId}
+          onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
+          domainId={assessDomainId}
+        />
+      )}
     </div>
   );
 }
