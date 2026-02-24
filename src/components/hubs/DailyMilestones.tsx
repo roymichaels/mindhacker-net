@@ -4,7 +4,7 @@
  * Picks one milestone per pillar based on day-of-plan offset.
  */
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -66,7 +66,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const { corePlan, arenaPlan, generateStrategy, isGenerating, isHealing } = useStrategyPlans();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
-  const navigate = useNavigate();
+  const { openHypnosis } = useAuroraActions();
 
   // Determine which plan IDs to query
   const planIds = useMemo(() => {
@@ -186,7 +186,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
 
   const handleExecute = (dm: DailyMilestone) => {
     if (dm.pillarId === 'consciousness-hypnosis') {
-      navigate('/hypnosis');
+      openHypnosis();
       return;
     }
     const hubType = CORE_DOMAINS.some(d => d.id === dm.pillarId) ? 'core' : 'arena';
