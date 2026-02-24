@@ -33,13 +33,75 @@ function resolveAssessmentBlock(assessment: PillarAssessment | undefined): strin
   const subscores = latest.subscores || latest.subsystems || latest.subScores || {};
   const findings = latest.findings?.slice(0, 5) || [];
 
+  // Extract rawInputsUsed (diet, sleep, substances, etc.)
+  const rawInputs = latest.rawInputsUsed || {};
+  const historyInputs = cfg.history?.[0]?.rawInputsUsed || {};
+  const allRawInputs = { ...historyInputs, ...rawInputs };
+  const rawInputsSummary = Object.keys(allRawInputs).length > 0
+    ? `\nRaw Inputs: ${JSON.stringify(allRawInputs, null, 1).slice(0, 600)}`
+    : '';
+
   return `Score: ${overallScore ?? '?'}/100
 Mirror Statement: ${mirrorStatement || 'N/A'}
 Subscores: ${JSON.stringify(subscores, null, 1)}
 Findings: ${JSON.stringify(findings, null, 1)}
 Next Step: ${nextStep || 'N/A'}
 Assessed At: ${latest.assessed_at || 'Unknown'}
-Form Data: ${JSON.stringify(formData, null, 1).slice(0, 500)}`;
+Form Data: ${JSON.stringify(formData, null, 1).slice(0, 500)}${rawInputsSummary}`;
+}
+
+// ========== CONSTRAINTS BLOCK (injected into all layers) ==========
+function buildStrategyConstraintsBlock(allDomains: PillarAssessment[]): string {
+  const parts: string[] = [];
+
+  // Extract diet from vitality rawInputsUsed
+  const vitalityDomain = allDomains.find(d => d.domain_id === 'vitality');
+  const vLatest = vitalityDomain?.domain_config?.latest_assessment;
+  const rawInputs = vLatest?.rawInputsUsed || {};
+  const historyInputs = vitalityDomain?.domain_config?.history?.[0]?.rawInputsUsed || {};
+  const bio = { ...historyInputs, ...rawInputs };
+
+  // Diet
+  const dietType = Array.isArray(bio.diet_type) ? bio.diet_type : (bio.diet_type ? [bio.diet_type] : []);
+  if (dietType.length > 0) {
+    const label = dietType.join(' + ').toUpperCase();
+    const isVegan = dietType.some((d: string) => ['vegan', 'alkaline'].includes(d.toLowerCase()));
+    const forbidden: string[] = [];
+
+    if (isVegan) {
+      forbidden.push('dairy (cheese, yogurt, butter, milk, whey, feta)', 'eggs', 'meat', 'fish', 'seafood', 'honey', 'gelatin', 'any animal products');
+    } else if (dietType.some((d: string) => d.toLowerCase() === 'vegetarian')) {
+      forbidden.push('meat', 'fish', 'seafood');
+    }
+    if (dietType.some((d: string) => d.toLowerCase() === 'alkaline')) {
+      forbidden.push('refined sugar', 'white flour', 'processed foods', 'soda');
+    }
+    parts.push(`- DIET: ${label} — NEVER include: ${forbidden.join(', ')}`);
+  }
+
+  // Substances
+  if (bio.alcohol_frequency === 'never') parts.push('- NO ALCOHOL — never suggest alcohol-related activities');
+  if (bio.nicotine === 'no' || bio.nicotine === 'never') parts.push('- NO NICOTINE');
+
+  // Sleep pattern
+  if (bio.sleep_time || bio.wake_time || bio.desired_wake_time) {
+    parts.push(`- SLEEP: ${bio.sleep_time || '?'} → ${bio.wake_time || bio.desired_wake_time || '?'}`);
+  }
+
+  // Willingness from all domains
+  const notWilling: string[] = [];
+  for (const domain of allDomains) {
+    const w = domain.domain_config?.latest_assessment?.willingness;
+    if (w?.not_willing && Array.isArray(w.not_willing) && w.not_willing.length > 0) {
+      notWilling.push(...w.not_willing.map((nw: string) => `${nw} (${domain.domain_id})`));
+    }
+  }
+  if (notWilling.length > 0) {
+    parts.push(`- USER REFUSES: ${notWilling.join(', ')}`);
+  }
+
+  if (parts.length === 0) return '';
+  return `\n## CRITICAL USER CONSTRAINTS (NEVER VIOLATE):\n${parts.join('\n')}\n\nEvery goal, milestone, and daily action MUST respect these constraints. If a task involves food, it MUST comply with the diet. If the user refused something, NEVER include it.\n`;
 }
 
 // ========== 3-LAYER PROMPT PIPELINE ==========
@@ -109,6 +171,7 @@ function buildLayer1Prompt(
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
   userContext: string,
+  constraintsBlock: string,
 ): string {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const scope = PILLAR_SCOPES[pillarId];
@@ -123,7 +186,7 @@ This is part of a 100-DAY TRANSFORMATION PLAN divided into 10 progressive phases
 Each phase builds on the previous one — start with foundations, then layer complexity.
 
 ${userContext}
-
+${constraintsBlock}
 ## PILLAR "${pillarId.toUpperCase()}" ASSESSMENT
 ${assessmentBlock}
 ${scopeBlock}
@@ -135,6 +198,7 @@ ${scopeBlock}
 5. Hebrew must be natural, not translated.
 6. Goals should follow progressive complexity: Goal 1 = foundational, Goal 2 = intermediate, Goal 3 = advanced.
 7. CRITICAL: Every goal MUST fall within the pillar's IN SCOPE definition above. If a goal belongs to another pillar, DO NOT include it.
+8. CRITICAL: Every goal MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness). Never suggest anything the user has explicitly refused or that violates their dietary restrictions.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -151,6 +215,7 @@ function buildLayer2Prompt(
   pillarId: string,
   goals: { goal_en: string; goal_he: string }[],
   assessmentBlock: string,
+  constraintsBlock: string,
 ): string {
   const goalsStr = goals.map((g, i) => `  ${i+1}. "${g.goal_en}" / "${g.goal_he}"`).join('\n');
   const scope = PILLAR_SCOPES[pillarId];
@@ -162,7 +227,7 @@ function buildLayer2Prompt(
 This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 progressive milestones.
 
 ## PILLAR: ${pillarId.toUpperCase()}
-${scopeBlock}
+${scopeBlock}${constraintsBlock}
 ## MISSIONS:
 ${goalsStr}
 
@@ -174,6 +239,7 @@ ${assessmentBlock}
 - Milestones must be specific and actionable.
 - Each milestone should target a different aspect of the mission.
 - CRITICAL: All milestones MUST stay within the pillar's scope. No cross-pillar tasks.
+- CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness).
 - Hebrew must be natural. Keep text concise.
 
 ## OUTPUT (JSON only, NO markdown):
@@ -200,6 +266,7 @@ ${assessmentBlock}
 function buildLayer3Prompt(
   pillarId: string,
   missions: any[],
+  constraintsBlock: string,
 ): string {
   const structure = missions.map((m, mi) => {
     const mstones = (m.milestones || []).map((ms: any, si: number) => 
@@ -213,7 +280,7 @@ Each mini-milestone becomes a DAILY ACTION in the user's queue.
 Total: 3 missions × 5 milestones × 5 mini-milestones = 75 daily actions spread across 100 days.
 
 ## PILLAR: ${pillarId.toUpperCase()}
-
+${constraintsBlock}
 ## STRUCTURE:
 ${structure}
 
@@ -251,6 +318,7 @@ Mapping by pillar (use as guide, but override based on actual activity):
 - Hebrew must be natural.
 - Progressive difficulty within each milestone.
 - CRITICAL: Every mini-milestone MUST have execution_template and action_type.
+- CRITICAL: Every action MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness). If an action involves food, it MUST comply with their diet.
 - action_type should be a snake_case identifier like "body_scan_15min", "shadowboxing_3_rounds", "deep_work_45min", "skincare_morning", etc.
 
 ## OUTPUT (JSON only, NO markdown):
@@ -349,13 +417,14 @@ async function generatePillarStrategy(
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
   userContext: string,
+  constraintsBlock: string,
 ): Promise<{ missions: any[] } | null> {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const sysMsg = "Output ONLY valid JSON. No markdown. No explanation.";
 
   // LAYER 1: 3 Missions (strategic goals)
   console.log(`  [${pillarId}] Layer 1: generating 3 missions...`);
-  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext), sysMsg, 1200);
+  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext, constraintsBlock), sysMsg, 1200);
   if (!layer1?.goals || layer1.goals.length < 3) {
     console.error(`  [${pillarId}] Layer 1 failed`);
     return null;
@@ -363,7 +432,7 @@ async function generatePillarStrategy(
 
   // LAYER 2: 5 milestones per mission (outline — no mini-milestones yet)
   console.log(`  [${pillarId}] Layer 2: generating 5 milestones per mission...`);
-  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 3000);
+  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock, constraintsBlock), sysMsg, 3000);
   if (!layer2?.missions) {
     console.error(`  [${pillarId}] Layer 2 failed`);
     return null;
@@ -492,6 +561,7 @@ serve(async (req) => {
     ]);
 
     const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
+    const constraintsBlock = buildStrategyConstraintsBlock(allDomains);
     const userContext = buildUserContext(
       profileRes.data,
       projectsRes.data || [],
@@ -529,7 +599,7 @@ serve(async (req) => {
         
         const aiPromises = pillarIds.map(async (pillarId) => {
           const assessment = hubAssessments.find(a => a.domain_id === pillarId);
-          const result = await generatePillarStrategy(LOVABLE_API_KEY, pillarId, h, assessment, userContext);
+          const result = await generatePillarStrategy(LOVABLE_API_KEY, pillarId, h, assessment, userContext, constraintsBlock);
           return { pillarId, data: result };
         });
 
