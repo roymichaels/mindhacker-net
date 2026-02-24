@@ -1,19 +1,24 @@
 /**
  * DomainAssessResults — Generic results display for AI domain assessments.
+ * Now includes embedded PillarModal trigger for viewing the 100-day roadmap.
  */
-import { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useDomainAssessment } from '@/hooks/useDomainAssessment';
+import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, ArrowRight, AlertTriangle, AlertCircle, Sparkles, Target } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertTriangle, AlertCircle, Sparkles, Target, Map, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
+import { PillarModal } from '@/components/missions/PillarModal';
 
 const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = {
   emerald:  { border: 'border-emerald-500/30',  bg: 'from-emerald-500/10',  text: 'text-emerald-400' },
@@ -27,6 +32,7 @@ const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = 
   slate:    { border: 'border-slate-500/30',    bg: 'from-slate-500/10',    text: 'text-slate-400' },
   indigo:   { border: 'border-indigo-500/30',   bg: 'from-indigo-500/10',   text: 'text-indigo-400' },
   violet:   { border: 'border-violet-500/30',   bg: 'from-violet-500/10',   text: 'text-violet-400' },
+  teal:     { border: 'border-teal-500/30',     bg: 'from-teal-500/10',     text: 'text-teal-400' },
 };
 
 function isCoreDomain(id: string) { return CORE_DOMAINS.some(d => d.id === id); }
@@ -46,6 +52,7 @@ export default function DomainAssessResults({ domainId }: Props) {
   const navigate = useNavigate();
   const { t, language, isRTL } = useTranslation();
   const { config } = useDomainAssessment(domainId);
+  const [showRoadmap, setShowRoadmap] = useState(false);
 
   const meta = DOMAIN_ASSESS_META[domainId];
   const domain = getDomainById(domainId);
@@ -53,6 +60,53 @@ export default function DomainAssessResults({ domainId }: Props) {
   const lang = language === 'he' ? 'he' : 'en';
   const isHe = language === 'he';
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const isCore = isCoreDomain(domainId);
+
+  // Fetch plan data for the PillarModal roadmap
+  const { corePlan, arenaPlan } = useStrategyPlans();
+  const activePlan = isCore ? corePlan : arenaPlan;
+
+  const { data: missions } = useQuery({
+    queryKey: ['plan-missions', activePlan?.id],
+    queryFn: async () => {
+      if (!activePlan?.id) return [];
+      const { data } = await supabase
+        .from('plan_missions').select('*')
+        .eq('plan_id', activePlan.id).order('mission_number');
+      return data || [];
+    },
+    enabled: !!activePlan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: milestones } = useQuery({
+    queryKey: ['mission-milestones', activePlan?.id],
+    queryFn: async () => {
+      if (!activePlan?.id) return [];
+      const { data } = await supabase
+        .from('life_plan_milestones')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area')
+        .eq('plan_id', activePlan.id).not('mission_id', 'is', null).order('milestone_number');
+      return data || [];
+    },
+    enabled: !!activePlan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const pillarMissions = useMemo(() =>
+    (missions || []).filter(m => m.pillar === domainId),
+    [missions, domainId]
+  );
+
+  const milestonesByMission = useMemo(() => {
+    const grouped: Record<string, any[]> = {};
+    for (const ms of (milestones || [])) {
+      if (!ms.mission_id) continue;
+      if (!grouped[ms.mission_id]) grouped[ms.mission_id] = [];
+      grouped[ms.mission_id].push(ms);
+    }
+    return grouped;
+  }, [milestones]);
 
   const assessment = config.latest_assessment;
 
@@ -73,7 +127,7 @@ export default function DomainAssessResults({ domainId }: Props) {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`${getBasePath(domainId)}/${domainId}`)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">
@@ -181,16 +235,41 @@ export default function DomainAssessResults({ domainId }: Props) {
           </Card>
         )}
 
+        {/* Roadmap Button */}
+        <Button
+          onClick={() => setShowRoadmap(true)}
+          className={cn("w-full gap-2", colors.text)}
+          variant="outline"
+          size="lg"
+        >
+          <Map className="w-5 h-5" />
+          {isHe ? 'צפה במפת הדרכים' : 'View Roadmap'}
+        </Button>
+
         {/* Actions */}
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => navigate(`${getBasePath(domainId)}/${domainId}/assess`)} className="flex-1">
-            {isHe ? 'עשה שוב' : 'Retake'}
+          <Button variant="outline" onClick={() => navigate(`${getBasePath(domainId)}/${domainId}/assess`)} className="flex-1 gap-2">
+            <RefreshCw className="w-4 h-4" />
+            {isHe ? 'אבחון מחדש' : 'Retake'}
           </Button>
           <Button onClick={() => navigate(getBasePath(domainId))} className="flex-1">
-            {isHe ? (isCoreDomain(domainId) ? 'חזור לליבה' : 'חזור לזירה') : (isCoreDomain(domainId) ? 'Back to Core' : 'Back to Arena')}
+            {isHe ? (isCore ? 'חזור לליבה' : 'חזור לזירה') : (isCore ? 'Back to Core' : 'Back to Arena')}
           </Button>
         </div>
       </div>
+
+      {/* PillarModal for roadmap */}
+      {domain && (
+        <PillarModal
+          open={showRoadmap}
+          onOpenChange={setShowRoadmap}
+          hub={isCore ? 'core' : 'arena'}
+          pillar={domain}
+          missions={pillarMissions}
+          milestonesByMission={milestonesByMission}
+          isActive={true}
+        />
+      )}
     </PageShell>
   );
 }
