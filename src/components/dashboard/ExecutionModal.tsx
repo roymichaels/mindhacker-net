@@ -1,17 +1,18 @@
 /**
  * ExecutionModal — Action Wizard modal with 6 execution templates.
  * Templates: tts_guided, video_embed, sets_reps_timer, step_by_step, timer_focus, social_checklist
- * Template is pre-assigned by strategy generation; falls back to pillar-based inference.
  * 
- * AI Enhancement: When modal opens, a background call to generate-execution-steps
- * fetches detailed, AI-generated steps with an 8-second timeout. If successful,
- * steps are swapped in smoothly. Otherwise, static fallback steps are used.
+ * LIVE INTERACTIVE MODE:
+ * - sets_reps_timer: Sequential rounds with work countdown → rest countdown → next round
+ * - step_by_step: Sequential steps with optional per-step timers
+ * - Close prevention while timers are active
+ * - Cannot complete until all rounds/steps are done
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CheckCircle2, SkipForward, Sparkles, Clock, Flame,
-  Loader2, Play, Pause, Volume2, VolumeX, Timer, Users, BookOpen,
+  Loader2, Play, Pause, Volume2, VolumeX, Timer, Users, BookOpen, Lock, AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -72,6 +73,9 @@ interface ExecutionStep {
   detail?: string;
   durationSec?: number;
 }
+
+// ---- Round phase state machine ----
+type RoundPhase = 'ready' | 'working' | 'resting' | 'done';
 
 // ---- Social tips ----
 const SOCIAL_TIPS = {
@@ -167,11 +171,22 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const timerStartRef = useRef<number>(0);
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Sets/reps state
+  // LIVE sets/reps state machine
   const [currentRound, setCurrentRound] = useState(0);
-  const [isResting, setIsResting] = useState(false);
+  const [roundPhase, setRoundPhase] = useState<RoundPhase>('ready');
+  const [workCountdown, setWorkCountdown] = useState(0);
   const [restCountdown, setRestCountdown] = useState(0);
+  const workIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const restIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Step-by-step sequential state
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const [stepTimerCountdown, setStepTimerCountdown] = useState(0);
+  const [stepTimerRunning, setStepTimerRunning] = useState(false);
+  const stepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Skip confirmation
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
   // Breathing timer state (for TTS)
   const [breathElapsed, setBreathElapsed] = useState(0);
@@ -182,6 +197,12 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const [aiVoiceScript, setAiVoiceScript] = useState<string[] | null>(null);
 
   const orbSize = isMobile ? 120 : 160;
+
+  // Is any timer actively running?
+  const isTimerActive = timerRunning || roundPhase === 'working' || roundPhase === 'resting' || stepTimerRunning || voiceState === 'playing';
+
+  // DEFAULT_REST_SEC
+  const DEFAULT_REST_SEC = 45;
 
   // Classify and build content when action changes
   useEffect(() => {
@@ -196,7 +217,13 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     setTimerElapsed(0);
     setTimerRunning(false);
     setCurrentRound(0);
-    setIsResting(false);
+    setRoundPhase('ready');
+    setWorkCountdown(0);
+    setRestCountdown(0);
+    setActiveStepIndex(0);
+    setStepTimerCountdown(0);
+    setStepTimerRunning(false);
+    setShowSkipConfirm(false);
     setIsEnhanced(false);
     setAiVoiceScript(null);
     playingRef.current = false;
@@ -208,7 +235,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
   }, [open, action, isRTL]);
 
-  // AI Enhancement: fetch detailed steps in background with 8s timeout
+  // AI Enhancement: fetch detailed steps in background with 20s timeout
   useEffect(() => {
     if (!open || !action) return;
 
@@ -291,9 +318,12 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
       if (breathIntervalRef.current) clearInterval(breathIntervalRef.current);
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       if (restIntervalRef.current) clearInterval(restIntervalRef.current);
+      if (workIntervalRef.current) clearInterval(workIntervalRef.current);
+      if (stepTimerRef.current) clearInterval(stepTimerRef.current);
       setBreathElapsed(0);
       setTimerElapsed(0);
       setTimerRunning(false);
+      setStepTimerRunning(false);
     }
   }, [open]);
 
@@ -365,17 +395,34 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
   };
 
-  // Sets/reps controls
-  const startRest = (durationSec: number = 60) => {
-    setIsResting(true);
-    setRestCountdown(durationSec);
-    restIntervalRef.current = setInterval(() => {
-      setRestCountdown(prev => {
+  // ===================== LIVE SETS/REPS CONTROLS =====================
+  const startWorkPhase = () => {
+    const step = steps[currentRound];
+    const duration = step?.durationSec || 60;
+    setWorkCountdown(duration);
+    setRoundPhase('working');
+    impact('medium');
+
+    workIntervalRef.current = setInterval(() => {
+      setWorkCountdown(prev => {
         if (prev <= 1) {
-          if (restIntervalRef.current) clearInterval(restIntervalRef.current);
-          setIsResting(false);
+          if (workIntervalRef.current) clearInterval(workIntervalRef.current);
+          // Work done → transition to rest or done
           impact('heavy');
           try { navigator.vibrate?.([200, 100, 200]); } catch {}
+
+          const nextRound = currentRound + 1;
+          // Mark current round complete
+          setCheckedSteps(prev => new Set([...prev, currentRound]));
+
+          if (nextRound < steps.length) {
+            // Start rest phase
+            startRestPhase();
+          } else {
+            // All rounds done
+            setRoundPhase('done');
+            setCurrentRound(nextRound);
+          }
           return 0;
         }
         return prev - 1;
@@ -383,21 +430,82 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }, 1000);
   };
 
-  const completeRound = () => {
-    const nextRound = currentRound + 1;
-    setCurrentRound(nextRound);
-    toggleStep(currentRound);
-    if (nextRound < steps.length) {
-      startRest(60);
-    }
+  const startRestPhase = () => {
+    setRoundPhase('resting');
+    setRestCountdown(DEFAULT_REST_SEC);
+
+    restIntervalRef.current = setInterval(() => {
+      setRestCountdown(prev => {
+        if (prev <= 1) {
+          if (restIntervalRef.current) clearInterval(restIntervalRef.current);
+          // Rest done → advance to next round
+          impact('medium');
+          try { navigator.vibrate?.([100, 50, 100]); } catch {}
+          setCurrentRound(r => r + 1);
+          setRoundPhase('ready');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
-  const toggleStep = (idx: number) => {
+  // ===================== STEP-BY-STEP SEQUENTIAL =====================
+  const startStepTimer = (idx: number) => {
+    const step = steps[idx];
+    if (!step?.durationSec) return;
+    setStepTimerCountdown(step.durationSec);
+    setStepTimerRunning(true);
+    impact('light');
+
+    stepTimerRef.current = setInterval(() => {
+      setStepTimerCountdown(prev => {
+        if (prev <= 1) {
+          if (stepTimerRef.current) clearInterval(stepTimerRef.current);
+          setStepTimerRunning(false);
+          // Auto-check the step
+          completeStep(idx);
+          impact('medium');
+          try { navigator.vibrate?.([100, 50, 100]); } catch {}
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const completeStep = (idx: number) => {
     setCheckedSteps(prev => {
       const next = new Set(prev);
-      next.has(idx) ? next.delete(idx) : next.add(idx);
+      next.add(idx);
       return next;
     });
+    setActiveStepIndex(idx + 1);
+  };
+
+  const handleManualStepCheck = (idx: number) => {
+    // Only allow checking the active step (sequential)
+    if (template === 'step_by_step' && idx !== activeStepIndex) return;
+    if (template === 'step_by_step' && checkedSteps.has(idx)) return; // no uncheck
+    
+    // If step has a timer and it's not running, start it
+    const step = steps[idx];
+    if (template === 'step_by_step' && step?.durationSec && !stepTimerRunning) {
+      startStepTimer(idx);
+      return;
+    }
+
+    // For non-timed steps or other templates, toggle directly
+    if (template === 'step_by_step') {
+      completeStep(idx);
+    } else {
+      // For video_embed and social_checklist — keep free toggle
+      setCheckedSteps(prev => {
+        const next = new Set(prev);
+        next.has(idx) ? next.delete(idx) : next.add(idx);
+        return next;
+      });
+    }
   };
 
   const timerTarget = (action?.durationMin || 25) * 60;
@@ -454,14 +562,27 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   };
 
   const handleSkip = () => {
+    if (isTimerActive && !showSkipConfirm) {
+      setShowSkipConfirm(true);
+      return;
+    }
+    // Confirmed skip or no timer active
     stopCurrentAudio();
     stopBrowserSpeech();
     playingRef.current = false;
+    if (workIntervalRef.current) clearInterval(workIntervalRef.current);
+    if (restIntervalRef.current) clearInterval(restIntervalRef.current);
+    if (stepTimerRef.current) clearInterval(stepTimerRef.current);
+    setShowSkipConfirm(false);
     toast(t('today.skippedReturn'));
     onOpenChange(false);
   };
 
   const handleClose = () => {
+    if (isTimerActive) {
+      setShowSkipConfirm(true);
+      return;
+    }
     stopCurrentAudio();
     stopBrowserSpeech();
     playingRef.current = false;
@@ -481,25 +602,65 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
       <DialogContent
         className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col bg-background overflow-hidden"
         onPointerDownOutside={(e) => {
-          if (voiceState === 'playing' || timerRunning) e.preventDefault();
+          if (isTimerActive) e.preventDefault();
         }}
         onEscapeKeyDown={(e) => {
-          if (voiceState === 'playing' || timerRunning) e.preventDefault();
+          if (isTimerActive) e.preventDefault();
         }}
       >
         <VisuallyHidden>
           <DialogTitle>{action.title}</DialogTitle>
         </VisuallyHidden>
 
-        {/* Exit Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleClose}
-          className="absolute top-3 end-3 z-50 h-9 w-9 rounded-full bg-background/80 hover:bg-destructive/20 border border-border/50"
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        {/* Skip Confirmation Overlay */}
+        <AnimatePresence>
+          {showSkipConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[60] bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6"
+            >
+              <AlertTriangle className="h-12 w-12 text-destructive" />
+              <h3 className="text-lg font-bold text-center">
+                {isRTL ? 'בטוח שאתה רוצה לצאת?' : 'Are you sure you want to leave?'}
+              </h3>
+              <p className="text-sm text-muted-foreground text-center max-w-xs">
+                {isRTL ? 'הטיימר עדיין פועל. יציאה תאפס את ההתקדמות.' : 'Timer is still running. Leaving will reset your progress.'}
+              </p>
+              <div className="flex gap-3 mt-2">
+                <Button variant="outline" onClick={() => setShowSkipConfirm(false)}>
+                  {isRTL ? 'המשך' : 'Continue'}
+                </Button>
+                <Button variant="destructive" onClick={() => {
+                  stopCurrentAudio();
+                  stopBrowserSpeech();
+                  playingRef.current = false;
+                  if (workIntervalRef.current) clearInterval(workIntervalRef.current);
+                  if (restIntervalRef.current) clearInterval(restIntervalRef.current);
+                  if (stepTimerRef.current) clearInterval(stepTimerRef.current);
+                  if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+                  setShowSkipConfirm(false);
+                  onOpenChange(false);
+                }}>
+                  {isRTL ? 'צא' : 'Leave'}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Exit Button — hidden while timer active */}
+        {!isTimerActive && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClose}
+            className="absolute top-3 end-3 z-50 h-9 w-9 rounded-full bg-background/80 hover:bg-destructive/20 border border-border/50"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
 
         {/* Header */}
         <div className="px-5 pt-5 pb-3 flex-shrink-0 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -512,7 +673,6 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             <Clock className="h-3.5 w-3.5" />
             <span>{action.durationMin} {isRTL ? 'דק׳' : 'min'}</span>
           </div>
-          {/* AI Enhancement indicator */}
           {isEnhancing && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-1.5 mt-2 text-xs text-primary/70">
               <Sparkles className="h-3 w-3 animate-pulse" />
@@ -605,17 +765,17 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                 )}
                 <div className="space-y-2">
                   {steps.map((step, idx) => (
-                    <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={toggleStep} isRTL={isRTL} t={t} />
+                    <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={handleManualStepCheck} isRTL={isRTL} t={t} />
                   ))}
                 </div>
               </motion.div>
             )}
 
-            {/* ======== SETS / REPS / TIMER ======== */}
+            {/* ======== SETS / REPS / TIMER (LIVE) ======== */}
             {template === 'sets_reps_timer' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
                 {/* Round indicator */}
-                <div className="text-center py-3">
+                <div className="text-center py-2">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     {isRTL ? 'סיבוב' : 'Round'}
                   </p>
@@ -624,58 +784,225 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                   </p>
                 </div>
 
-                {/* Rest countdown overlay */}
-                {isResting && (
+                {/* WORKING countdown overlay */}
+                {roundPhase === 'working' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 border-2 border-primary/40 p-6 text-center space-y-2"
+                  >
+                    <p className="text-sm text-primary font-bold uppercase tracking-wider">
+                      {isRTL ? '🔥 עבודה' : '🔥 WORK'}
+                    </p>
+                    <p className="text-6xl font-mono font-bold tabular-nums text-primary">
+                      {formatTime(workCountdown)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {steps[currentRound]?.label}
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* REST countdown overlay */}
+                {roundPhase === 'resting' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="rounded-2xl bg-accent/10 border-2 border-accent/30 p-6 text-center space-y-3"
+                  >
+                    <p className="text-sm text-accent-foreground font-medium">
+                      {isRTL ? '⏸️ מנוחה — נשימה עמוקה' : '⏸️ REST — Deep breathing'}
+                    </p>
+                    <p className="text-6xl font-mono font-bold tabular-nums">
+                      {restCountdown}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {isRTL ? 'הסיבוב הבא מתחיל אוטומטית' : 'Next round starts automatically'}
+                    </p>
+                    {/* Breathing animation */}
+                    <motion.div
+                      animate={{ scale: [1, 1.15, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                      className="w-16 h-16 mx-auto rounded-full bg-accent/20 border border-accent/30"
+                    />
+                  </motion.div>
+                )}
+
+                {/* All done */}
+                {roundPhase === 'done' && (
                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl bg-primary/10 border border-primary/30 p-6 text-center space-y-2">
-                    <p className="text-sm text-primary font-medium">{isRTL ? '⏸️ מנוחה' : '⏸️ Rest'}</p>
-                    <p className="text-5xl font-mono font-bold tabular-nums">{restCountdown}</p>
-                    <p className="text-xs text-muted-foreground">{isRTL ? 'שניות' : 'seconds'}</p>
+                    <span className="text-4xl">🎯</span>
+                    <p className="text-primary font-bold text-lg">{isRTL ? 'כל הסיבובים הושלמו!' : 'All Rounds Complete!'}</p>
                   </motion.div>
                 )}
 
                 {/* Motivational banner */}
-                <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm leading-relaxed">
-                      {isRTL ? '🎵 שים שיר — כל שיר זה ראונד. אין עצירות. הגוף שלך הוא כלי הנשק.' : '🎵 Put on a song — each song is a round. No stops. Your body is the weapon.'}
-                    </p>
+                {roundPhase === 'ready' && (
+                  <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
+                    <div className="flex items-start gap-2">
+                      <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <p className="text-sm leading-relaxed">
+                        {isRTL ? '🎵 שים שיר — כל שיר זה ראונד. אין עצירות. הגוף שלך הוא כלי הנשק.' : '🎵 Put on a song — each song is a round. No stops. Your body is the weapon.'}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Steps as rounds */}
-                {steps.map((step, idx) => (
-                  <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={toggleStep} isRTL={isRTL} t={t} highlight={idx === currentRound && !isResting} />
-                ))}
+                {/* Steps as rounds — locked unless current */}
+                {steps.map((step, idx) => {
+                  const isCurrent = idx === currentRound && roundPhase !== 'done';
+                  const isCompleted = checkedSteps.has(idx);
+                  const isLocked = idx > currentRound && !isCompleted;
 
-                {/* Complete round button */}
-                {!isResting && currentRound < steps.length && (
-                  <Button onClick={completeRound} className="w-full rounded-xl h-12 gap-2" variant="outline">
-                    <Flame className="h-4 w-4" />
-                    {isRTL ? `סיים סיבוב ${currentRound + 1}` : `Complete Round ${currentRound + 1}`}
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: isRTL ? 12 : -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                    >
+                      <div
+                        className={cn(
+                          'w-full flex items-start gap-3 p-3.5 rounded-xl border text-start transition-all',
+                          isCompleted ? 'bg-primary/10 border-primary/30 opacity-60' : '',
+                          isCurrent && !isCompleted ? 'ring-2 ring-primary/50 border-primary/40 bg-card/80' : '',
+                          isLocked ? 'opacity-40 bg-muted/30 border-border/20' : '',
+                          !isLocked && !isCompleted && !isCurrent ? 'bg-card/50 border-border/40' : '',
+                        )}
+                      >
+                        <div className={cn(
+                          'shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors',
+                          isCompleted ? 'border-primary bg-primary' : isLocked ? 'border-muted-foreground/20' : 'border-muted-foreground/30'
+                        )}>
+                          {isCompleted && <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />}
+                          {isLocked && <Lock className="h-2.5 w-2.5 text-muted-foreground/40" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn('text-sm font-medium', isCompleted && 'line-through')}>
+                            {step.label}
+                          </p>
+                          {step.detail && <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>}
+                          {step.durationSec && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/60 mt-1">
+                              <Clock className="h-2.5 w-2.5" />
+                              {step.durationSec}s
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+
+                {/* Start Round button */}
+                {roundPhase === 'ready' && currentRound < steps.length && (
+                  <Button onClick={startWorkPhase} className="w-full rounded-xl h-14 gap-2 text-base bg-gradient-to-r from-primary to-accent shadow-lg">
+                    <Play className="h-5 w-5" />
+                    {isRTL ? `התחל סיבוב ${currentRound + 1}` : `Start Round ${currentRound + 1}`}
                   </Button>
                 )}
               </motion.div>
             )}
 
-            {/* ======== STEP BY STEP ======== */}
+            {/* ======== STEP BY STEP (SEQUENTIAL + TIMED) ======== */}
             {template === 'step_by_step' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2.5">
-                {steps.map((step, idx) => (
-                  <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={toggleStep} isRTL={isRTL} t={t} />
-                ))}
+                {steps.map((step, idx) => {
+                  const isCurrent = idx === activeStepIndex;
+                  const isCompleted = checkedSteps.has(idx);
+                  const isLocked = idx > activeStepIndex && !isCompleted;
+                  const isTimedStep = !!step.durationSec;
+                  const isThisStepTiming = stepTimerRunning && isCurrent;
+
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: isRTL ? 12 : -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                    >
+                      <button
+                        onClick={() => handleManualStepCheck(idx)}
+                        disabled={isLocked || isCompleted || isThisStepTiming}
+                        className={cn(
+                          'w-full flex items-start gap-3 p-3.5 rounded-xl border text-start transition-all',
+                          isCompleted ? 'bg-primary/10 border-primary/30' : '',
+                          isCurrent && !isCompleted ? 'ring-2 ring-primary/50 border-primary/40' : '',
+                          isLocked ? 'opacity-40 bg-muted/30 border-border/20 cursor-not-allowed' : '',
+                          !isLocked && !isCompleted && !isCurrent ? 'bg-card/50 border-border/40' : '',
+                          isThisStepTiming ? 'ring-2 ring-accent/50 cursor-default' : '',
+                        )}
+                      >
+                        <div className={cn(
+                          'shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors',
+                          isCompleted ? 'border-primary bg-primary' : isLocked ? 'border-muted-foreground/20' : 'border-muted-foreground/30'
+                        )}>
+                          {isCompleted && <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />}
+                          {isLocked && <Lock className="h-2.5 w-2.5 text-muted-foreground/40" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn('text-sm font-medium', isCompleted && 'line-through opacity-60')}>
+                            {step.label}
+                          </p>
+                          {step.detail && <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>}
+
+                          {/* Timer display for timed steps */}
+                          {isTimedStep && isCurrent && !isCompleted && (
+                            <div className="mt-2">
+                              {isThisStepTiming ? (
+                                <motion.div
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  className="flex items-center gap-2"
+                                >
+                                  <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
+                                    <motion.div
+                                      className="h-full bg-primary rounded-full"
+                                      style={{ width: `${((step.durationSec! - stepTimerCountdown) / step.durationSec!) * 100}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-mono font-semibold text-primary tabular-nums">
+                                    {formatTime(stepTimerCountdown)}
+                                  </span>
+                                </motion.div>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-xs text-primary/70 font-medium">
+                                  <Timer className="h-3 w-3" />
+                                  {isRTL ? `לחץ להתחיל ${Math.ceil(step.durationSec! / 60)} דק׳` : `Tap to start ${Math.ceil(step.durationSec! / 60)} min`}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Duration display for non-active timed steps */}
+                          {isTimedStep && !isCurrent && !isCompleted && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/60 mt-1">
+                              <Clock className="h-2.5 w-2.5" />
+                              {Math.ceil(step.durationSec! / 60)} {isRTL ? 'דק׳' : 'min'}
+                            </span>
+                          )}
+
+                          {/* Non-timed current step hint */}
+                          {!isTimedStep && isCurrent && !isCompleted && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] text-primary/60 mt-1">
+                              {isRTL ? 'לחץ להשלמה' : 'Tap to complete'}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             )}
 
             {/* ======== TIMER FOCUS (Pomodoro) ======== */}
             {template === 'timer_focus' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center min-h-[380px] py-4 space-y-6">
-                {/* Minimal dark focus screen */}
                 <div className="text-center space-y-2">
                   <p className="text-sm text-muted-foreground">{isRTL ? action.title : action.titleEn}</p>
                 </div>
 
-                {/* Big timer */}
                 <div className="text-center">
                   <span className={cn("text-6xl font-mono font-light tabular-nums tracking-wider", timerDone && "text-primary")}>
                     {formatTime(timerElapsed)}
@@ -683,7 +1010,6 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                   <p className="text-xs text-muted-foreground mt-2">/ {formatTime(timerTarget)}</p>
                 </div>
 
-                {/* Timer done message */}
                 {timerDone && (
                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-2">
                     <span className="text-4xl">🎯</span>
@@ -691,14 +1017,12 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                   </motion.div>
                 )}
 
-                {/* Start/Pause button */}
                 {!timerDone && (
                   <Button size="lg" onClick={toggleTimer} className="h-16 w-16 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
                     {timerRunning ? <Pause className="h-7 w-7" /> : <Play className="h-7 w-7 ms-0.5" />}
                   </Button>
                 )}
 
-                {/* Minimal focus tip */}
                 <p className="text-xs text-muted-foreground/50 max-w-[200px] text-center">
                   {isRTL ? 'טלפון במצב טיסה. חלון אחד. מיקוד מלא.' : 'Phone on airplane mode. One window. Full focus.'}
                 </p>
@@ -708,7 +1032,6 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             {/* ======== SOCIAL CHECKLIST ======== */}
             {template === 'social_checklist' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-                {/* Random social tip */}
                 <div className="rounded-xl bg-accent/10 border border-accent/20 p-3">
                   <div className="flex items-start gap-2">
                     <Users className="h-4 w-4 text-accent-foreground mt-0.5 shrink-0" />
@@ -720,9 +1043,8 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                   </div>
                 </div>
 
-                {/* Steps */}
                 {steps.map((step, idx) => (
-                  <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={toggleStep} isRTL={isRTL} t={t} />
+                  <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={handleManualStepCheck} isRTL={isRTL} t={t} />
                 ))}
               </motion.div>
             )}
@@ -757,7 +1079,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   );
 }
 
-// ---- Step Item Component ----
+// ---- Step Item Component (for video_embed, social_checklist) ----
 function StepItem({ step, idx, checked, onToggle, isRTL, t, highlight }: {
   step: ExecutionStep;
   idx: number;
