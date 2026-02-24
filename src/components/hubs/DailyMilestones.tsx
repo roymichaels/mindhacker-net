@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { isAssessmentReady } from '@/utils/assessmentQuality';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { Calendar, Play, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
@@ -200,7 +201,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
 
     // Check if this pillar has a completed assessment
     const domainRow = getDomainRow(dm.pillarId);
-    const hasAssessment = domainRow?.domain_config?.completed === true;
+    const hasAssessment = isAssessmentReady(dm.pillarId, domainRow?.domain_config as Record<string, any> | undefined);
     
     if (!hasAssessment) {
       // Open assessment modal instead — pillar needs diagnosis first
@@ -250,8 +251,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     // Build pillar assessment status for all relevant domains
     const pillarStatuses = allDomains.map(d => {
       const row = getDomainRow(d.id);
-      const cfg = row?.domain_config as Record<string, any> | undefined;
-      const completed = cfg?.completed === true;
+      const completed = isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
       return { domain: d, completed };
     });
     const completedAssessments = pillarStatuses.filter(p => p.completed).length;
@@ -339,7 +339,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
               const firstMissing = missingPillars?.[0]?.pillarId || missingPillars?.[0]?.pillar;
               const fallbackPillar = firstMissing || allDomains.find(d => {
                 const row = getDomainRow(d.id);
-                return !row?.domain_config?.completed;
+                return !isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
               })?.id;
               if (fallbackPillar) setAssessDomainId(fallbackPillar);
             };
