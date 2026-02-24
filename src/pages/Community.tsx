@@ -10,7 +10,7 @@ import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
 import PillarTopicBoards from '@/components/community/PillarTopicBoards';
-import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
+
 import AddToPlanModal from '@/components/community/AddToPlanModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -75,8 +75,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
     <UsernameGate>
       <PageShell>
         <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full">
-          {/* Player Card */}
-          <CommunityPlayerCard userId={user.id} />
 
           {/* Pillar header + controls row */}
           <div className="flex items-center justify-between gap-3">
