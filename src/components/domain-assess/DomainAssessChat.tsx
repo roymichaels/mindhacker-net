@@ -366,6 +366,8 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
     if (conversationId) {
       saveMessageToDB(conversationId, 'assistant', content);
     }
+    // Emit event for voice mode auto-play
+    window.dispatchEvent(new CustomEvent('aurora:response', { detail: { text: content } }));
   }, [conversationId, saveMessageToDB]);
 
   const startConversation = useCallback(async () => {
