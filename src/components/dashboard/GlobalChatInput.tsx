@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Send, Loader2, Plus, Image, Camera, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -8,7 +8,10 @@ import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
+import VoiceModeButton from '@/components/aurora/VoiceModeButton';
+import AuroraVoiceMode from '@/components/aurora/AuroraVoiceMode';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
@@ -32,6 +35,18 @@ const GlobalChatInput = () => {
   
   const { sendMessageRef, isStreaming, isChatExpanded, setIsChatExpanded } = useAuroraChatContext();
   const isMobile = useIsMobile();
+
+  // Voice mode
+  const handleVoiceModeSend = useCallback((message: string) => {
+    if (sendMessageRef.current) {
+      sendMessageRef.current(message);
+    }
+  }, [sendMessageRef]);
+
+  const voiceMode = useAuroraVoiceMode({
+    onSend: handleVoiceModeSend,
+    useGlobalResponseEvent: true,
+  });
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -303,8 +318,13 @@ const GlobalChatInput = () => {
               style={{ maxHeight: '36px' }}
             />
 
-            {/* Voice Recording Button Inside Input */}
-            <div className="absolute end-1">
+            {/* Voice buttons inside input */}
+            <div className="absolute end-1 flex items-center gap-0.5">
+              <VoiceModeButton
+                onClick={voiceMode.open}
+                disabled={isStreaming || isRecording}
+                className="h-7 w-7"
+              />
               <VoiceRecordingButton
                 isRecording={isRecording}
                 isTranscribing={isTranscribing}
@@ -351,6 +371,15 @@ const GlobalChatInput = () => {
       )}
 
       <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
+      <AuroraVoiceMode
+        isActive={voiceMode.isActive}
+        state={voiceMode.state}
+        userTranscript={voiceMode.userTranscript}
+        auroraResponse={voiceMode.auroraResponse}
+        error={voiceMode.error}
+        onClose={voiceMode.close}
+        onStopListening={voiceMode.stopListening}
+      />
     </div>
   );
 };

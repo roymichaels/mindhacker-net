@@ -315,6 +315,9 @@ export const useAuroraChat = (conversationId: string | null) => {
           content: cleanedContent,
           is_ai_message: true,
         });
+
+        // Emit event for voice mode auto-play
+        window.dispatchEvent(new CustomEvent('aurora:response', { detail: { text: cleanedContent } }));
       }
 
       // Generate title after first exchange

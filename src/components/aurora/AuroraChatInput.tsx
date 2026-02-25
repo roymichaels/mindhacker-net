@@ -4,6 +4,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
+import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnergy } from '@/hooks/useGameState';
@@ -13,6 +14,8 @@ import { ENERGY_COSTS } from '@/lib/energyCosts';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import EnergySpendModal from '@/components/energy/EnergySpendModal';
 import VoiceRecordingButton from './VoiceRecordingButton';
+import VoiceModeButton from './VoiceModeButton';
+import AuroraVoiceMode from './AuroraVoiceMode';
 import { cn } from '@/lib/utils';
 
 interface AuroraChatInputProps {
@@ -32,6 +35,12 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { canAfford } = useEnergy();
   const { spendEnergy } = useGameState();
+
+  // Voice mode
+  const voiceMode = useAuroraVoiceMode({
+    onSend,
+    useGlobalResponseEvent: true,
+  });
 
   const handleTranscription = (text: string) => {
     setIsTranscribing(false);
@@ -139,8 +148,13 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
               style={{ maxHeight: '200px' }}
             />
 
-            {/* Voice Recording Button Inside Input */}
-            <div className="absolute end-2 bottom-1.5">
+            {/* Voice buttons inside input */}
+            <div className="absolute end-2 bottom-1.5 flex items-center gap-0.5">
+              <VoiceModeButton
+                onClick={voiceMode.open}
+                disabled={disabled || isRecording}
+                className="h-8 w-8"
+              />
               <VoiceRecordingButton
                 isRecording={isRecording}
                 isTranscribing={isTranscribing}
@@ -193,6 +207,15 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
         source="aurora_message"
         onConfirm={handleEnergyConfirm}
         onCancel={() => { setEnergyModalOpen(false); setPendingMessage(''); }}
+      />
+      <AuroraVoiceMode
+        isActive={voiceMode.isActive}
+        state={voiceMode.state}
+        userTranscript={voiceMode.userTranscript}
+        auroraResponse={voiceMode.auroraResponse}
+        error={voiceMode.error}
+        onClose={voiceMode.close}
+        onStopListening={voiceMode.stopListening}
       />
     </div>
   );
