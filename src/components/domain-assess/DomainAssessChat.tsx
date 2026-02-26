@@ -476,7 +476,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
       <div className={cn("flex flex-col", (asModal || asDock) ? "h-full" : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header — Aurora style */}
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
-          {!asModal && (
+          {!asModal && !asDock && (
             <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))} className="shrink-0">
               <BackIcon className="w-5 h-5" />
             </Button>
