@@ -51,7 +51,7 @@ export default function CombatHome() {
 
   useEffect(() => {
     if (!isLoading && isUnlocked && !latest) {
-      setAssessOpen(true);
+      startAssessment('combat');
     }
   }, [isLoading, isUnlocked, latest]);
 
