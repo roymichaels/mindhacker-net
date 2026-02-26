@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 const SUBSYSTEM_ICONS: Record<string, string> = {
   learning_depth: '📚',

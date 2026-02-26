@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 export default function PowerHome() {
   const navigate = useNavigate();
