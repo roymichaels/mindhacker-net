@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useVitalityEngine } from '@/hooks/useVitalityEngine';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 const SUBSYSTEM_LABELS: Record<string, string> = {
   sleep_quality: 'vitality.sub.sleepQuality',
