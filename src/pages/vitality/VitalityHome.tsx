@@ -30,7 +30,7 @@ export default function VitalityHome() {
   const { t, isRTL } = useTranslation();
   const { latestAssessment, config, isLoading, hasData, runAssessment, isSaving } = useVitalityEngine();
   const [computing, setComputing] = useState(false);
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   // Auto-open modal when no assessment exists
   useEffect(() => {
