@@ -66,7 +66,7 @@ export default function PowerHome() {
           <p className="text-sm text-muted-foreground mb-4">
             {t('power.assessmentDesc')}
           </p>
-          <Button onClick={() => setAssessOpen(true)} className="w-full bg-red-600 hover:bg-red-700" size="lg">
+          <Button onClick={() => startAssessment('power')} className="w-full bg-red-600 hover:bg-red-700" size="lg">
             {latest ? t('power.reAssess') : t('power.beginAssessment')} <ChevronIcon className="w-4 h-4 ms-1" />
           </Button>
         </div>
