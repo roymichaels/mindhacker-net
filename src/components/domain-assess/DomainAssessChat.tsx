@@ -240,7 +240,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
     setSaving(true);
     try {
       await saveAssessment(result);
-      if (asModal && onClose) {
+      if ((asModal || asDock) && onClose) {
         onClose();
       } else {
         navigate(`${getBasePath(domainId)}/${domainId}/results`);
