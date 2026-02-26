@@ -37,7 +37,7 @@ export default function ExpansionHome() {
   const history = config.history ?? [];
 
   useEffect(() => {
-    if (!isLoading && !latest) setAssessOpen(true);
+    if (!isLoading && !latest) startAssessment('expansion');
   }, [isLoading, latest]);
 
   if (isLoading) {
