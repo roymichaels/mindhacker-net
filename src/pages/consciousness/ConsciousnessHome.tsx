@@ -95,7 +95,7 @@ export default function ConsciousnessHome() {
                   <Button onClick={() => navigate('/life/consciousness/results')} className="flex-1 bg-violet-600 hover:bg-violet-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('consciousness.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline" className="border-violet-500/40">
+                  <Button onClick={() => startAssessment('consciousness')} variant="outline" className="border-violet-500/40">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('consciousness.reassess')}
                   </Button>
                 </div>
