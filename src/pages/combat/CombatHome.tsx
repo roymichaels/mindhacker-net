@@ -154,7 +154,7 @@ export default function CombatHome() {
                   <Button onClick={() => navigate('/life/combat/results')} className="flex-1">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('combat.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline">
+                  <Button onClick={() => startAssessment('combat')} variant="outline">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('combat.reassess')}
                   </Button>
                 </div>
