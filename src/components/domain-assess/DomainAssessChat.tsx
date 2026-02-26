@@ -447,7 +447,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
 
   const Icon = domain?.icon;
 
-  const Wrapper = asModal ? 'div' : PageShell;
+  const Wrapper = asDock ? 'div' : asModal ? 'div' : PageShell;
 
   if (saving) {
     return (
