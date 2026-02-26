@@ -71,7 +71,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const { statusMap, getDomain: getDomainRow } = useLifeDomains();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
-  const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
+  const { startAssessment } = useAuroraChatContext();
   const { openHypnosis } = useAuroraActions();
 
   // Determine which plan IDs to query
