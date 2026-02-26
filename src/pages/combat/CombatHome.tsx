@@ -35,7 +35,7 @@ export default function CombatHome() {
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useCombatCoach();
   const { statusMap } = useLifeDomains();
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
