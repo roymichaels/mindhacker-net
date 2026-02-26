@@ -139,7 +139,7 @@ export default function ExpansionHome() {
               <Brain className="w-10 h-10 text-indigo-500 mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('expansion.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('expansion.startDesc')}</p>
-              <Button onClick={() => setAssessOpen(true)} className="bg-indigo-600 hover:bg-indigo-700" size="lg">
+              <Button onClick={() => startAssessment('expansion')} className="bg-indigo-600 hover:bg-indigo-700" size="lg">
                 {t('expansion.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('expansion.noPlanNote')}</p>
