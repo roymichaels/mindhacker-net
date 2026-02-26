@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 function scoreColor(v: number): string {
   if (v >= 70) return 'text-emerald-400';
