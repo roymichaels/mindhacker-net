@@ -199,6 +199,15 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [handleNewChat]);
 
+  const startAssessment = useCallback((domainId: string) => {
+    setAssessmentDomainId(domainId);
+    setIsChatExpanded(true);
+  }, []);
+
+  const endAssessment = useCallback(() => {
+    setAssessmentDomainId(null);
+  }, []);
+
   return (
     <AuroraChatContext.Provider
       value={{
@@ -226,6 +235,9 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         activePillar,
         setActivePillar,
         pillarConversationId: pillarConversationId || null,
+        assessmentDomainId,
+        startAssessment,
+        endAssessment,
       }}
     >
       {children}
