@@ -35,7 +35,7 @@ export default function VitalityHome() {
   // Auto-open modal when no assessment exists
   useEffect(() => {
     if (!isLoading && !latestAssessment) {
-      setAssessOpen(true);
+      startAssessment('vitality');
     }
   }, [isLoading, latestAssessment]);
 
