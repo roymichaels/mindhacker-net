@@ -29,7 +29,7 @@ export default function ExpansionHome() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useExpansionCoach();
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
