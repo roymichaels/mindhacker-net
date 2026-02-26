@@ -241,8 +241,6 @@ export default function ArenaDomainPage() {
         </div>
       </div>
 
-      {/* Assessment modal */}
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId={domain.id} />
     </PageShell>
   );
 }
