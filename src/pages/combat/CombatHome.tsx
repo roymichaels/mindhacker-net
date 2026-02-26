@@ -195,7 +195,7 @@ export default function CombatHome() {
               <Swords className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('combat.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('combat.startDesc')}</p>
-              <Button onClick={() => setAssessOpen(true)} size="lg">
+              <Button onClick={() => startAssessment('combat')} size="lg">
                 {t('combat.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('combat.noPlanNote')}</p>
