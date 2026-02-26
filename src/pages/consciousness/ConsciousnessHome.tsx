@@ -39,7 +39,7 @@ export default function ConsciousnessHome() {
   const history = config.history ?? [];
 
   useEffect(() => {
-    if (!isLoading && !latest) setAssessOpen(true);
+    if (!isLoading && !latest) startAssessment('consciousness');
   }, [isLoading, latest]);
 
   if (isLoading) {
