@@ -472,8 +472,8 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
   }
 
   return (
-    <Wrapper className={asModal ? 'flex flex-col h-full' : undefined}>
-      <div className={cn("flex flex-col", asModal ? "h-full" : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
+    <Wrapper className={(asModal || asDock) ? 'flex flex-col h-full' : undefined}>
+      <div className={cn("flex flex-col", (asModal || asDock) ? "h-full" : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header — Aurora style */}
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
           {!asModal && (
