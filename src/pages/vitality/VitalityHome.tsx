@@ -159,7 +159,7 @@ export default function VitalityHome() {
               <RefreshCw className={cn('w-4 h-4 me-2', computing && 'animate-spin')} />
               {t('vitality.recompute')}
             </Button>
-            <Button variant="outline" className="flex-1" onClick={() => setAssessOpen(true)}>
+            <Button variant="outline" className="flex-1" onClick={() => startAssessment('vitality')}>
               <ClipboardList className="w-4 h-4 me-2" />
               {t('vitality.retakeIntake')}
             </Button>
