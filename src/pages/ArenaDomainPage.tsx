@@ -47,7 +47,7 @@ export default function ArenaDomainPage() {
   // Auto-open assessment if unconfigured or needs reassessment
   useEffect(() => {
     if (!isLoading && domain && (status === 'unconfigured' || status === 'needs_reassessment')) {
-      setAssessOpen(true);
+      startAssessment(domain.id);
     }
   }, [isLoading, domain, status]);
 
