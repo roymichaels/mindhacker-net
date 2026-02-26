@@ -294,7 +294,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
               <button
                 key={d.id}
                 onClick={() => {
-                  if (!completed) setAssessDomainId(d.id);
+                  if (!completed) startAssessment(d.id);
                 }}
                 disabled={completed}
                 className={cn(
