@@ -41,7 +41,7 @@ export default function FocusHome() {
 
   useEffect(() => {
     if (!isLoading && !latest) {
-      setAssessOpen(true);
+      startAssessment('focus');
     }
   }, [isLoading, latest]);
 
