@@ -44,6 +44,10 @@ interface AuroraChatContextType {
   activePillar: string | null;
   setActivePillar: (pillar: string | null) => void;
   pillarConversationId: string | null;
+  // Assessment mode — opens assessment in the dock
+  assessmentDomainId: string | null;
+  startAssessment: (domainId: string) => void;
+  endAssessment: () => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
