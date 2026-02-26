@@ -106,7 +106,7 @@ export default function FocusHome() {
                   <Button onClick={() => navigate('/life/focus/results')} className="flex-1 bg-cyan-600 hover:bg-cyan-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('focus.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline" className="border-cyan-500/40">
+                  <Button onClick={() => startAssessment('focus')} variant="outline" className="border-cyan-500/40">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('focus.reassess')}
                   </Button>
                 </div>
