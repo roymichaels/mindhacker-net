@@ -164,7 +164,7 @@ export default function FocusHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="focus" />
+      
     </PageShell>
   );
 }

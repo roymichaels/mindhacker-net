@@ -190,7 +190,7 @@ export default function VitalityHome() {
 
         <p className="text-xs text-muted-foreground text-center">{t('vitality.disclaimer')}</p>
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="vitality" />
+      
     </PageShell>
   );
 }
