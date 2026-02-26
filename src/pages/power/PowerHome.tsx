@@ -29,7 +29,7 @@ export default function PowerHome() {
 
   useEffect(() => {
     if (!isLoading && !latest && status === 'unconfigured') {
-      setAssessOpen(true);
+      startAssessment('power');
     }
   }, [isLoading, latest, status]);
 
