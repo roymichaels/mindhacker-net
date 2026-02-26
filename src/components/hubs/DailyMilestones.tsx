@@ -365,14 +365,6 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           )}
         </Button>
 
-        {/* Assessment popup */}
-        {assessDomainId && (
-          <DomainAssessModal
-            open={!!assessDomainId}
-            onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
-            domainId={assessDomainId}
-          />
-        )}
       </div>
     );
   }
