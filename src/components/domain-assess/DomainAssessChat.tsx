@@ -103,10 +103,11 @@ function getBasePath(domainId: string): string {
 interface Props {
   domainId: string;
   asModal?: boolean;
+  asDock?: boolean;
   onClose?: () => void;
 }
 
-export default function DomainAssessChat({ domainId, asModal, onClose }: Props) {
+export default function DomainAssessChat({ domainId, asModal, asDock, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
