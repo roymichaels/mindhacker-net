@@ -487,14 +487,6 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         onComplete={() => {}}
       />
 
-      {/* Assessment popup for pillars that haven't completed assessment */}
-      {assessDomainId && (
-        <DomainAssessModal
-          open={!!assessDomainId}
-          onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
-          domainId={assessDomainId}
-        />
-      )}
     </div>
   );
 }
