@@ -150,7 +150,7 @@ export default function FocusHome() {
               <Crosshair className="w-10 h-10 text-cyan-500 mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('focus.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('focus.startDesc')}</p>
-              <Button onClick={() => setAssessOpen(true)} className="bg-cyan-600 hover:bg-cyan-700" size="lg">
+              <Button onClick={() => startAssessment('focus')} className="bg-cyan-600 hover:bg-cyan-700" size="lg">
                 {t('focus.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('focus.noPlanNote')}</p>
