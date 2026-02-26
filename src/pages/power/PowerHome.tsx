@@ -25,7 +25,7 @@ export default function PowerHome() {
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   useEffect(() => {
     if (!isLoading && !latest && status === 'unconfigured') {
