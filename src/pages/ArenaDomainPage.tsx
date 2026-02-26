@@ -36,7 +36,7 @@ export default function ArenaDomainPage() {
 
   const domain = domainId ? getDomainById(domainId) : undefined;
   const isArena = domain ? ARENA_DOMAINS.some(d => d.id === domain.id) : false;
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   // Scope Aurora chat to this pillar so history persists
   usePillarContext(domainId || '');
