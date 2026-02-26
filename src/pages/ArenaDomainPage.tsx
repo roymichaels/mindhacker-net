@@ -228,7 +228,7 @@ export default function ArenaDomainPage() {
         <div className="flex flex-wrap gap-3">
           {assessment && (
             <>
-              <Button variant="outline" onClick={() => setAssessOpen(true)}>
+              <Button variant="outline" onClick={() => startAssessment(domain.id)}>
                 <RefreshCw className="w-4 h-4 me-2" />
                 {isHe ? 'אבחון מחדש' : 'Reassess'}
               </Button>
