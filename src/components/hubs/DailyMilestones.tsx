@@ -18,7 +18,7 @@ import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeD
 import { Calendar, Play, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
 const domainColorMap: Record<string, string> = {
