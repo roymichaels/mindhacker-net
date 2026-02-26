@@ -98,7 +98,7 @@ export default function ExpansionHome() {
                   <Button onClick={() => navigate('/life/expansion/results')} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('expansion.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline" className="border-indigo-500/40">
+                  <Button onClick={() => startAssessment('expansion')} variant="outline" className="border-indigo-500/40">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('expansion.reassess')}
                   </Button>
                 </div>
