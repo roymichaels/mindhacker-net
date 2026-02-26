@@ -112,7 +112,7 @@ export default function ArenaDomainPage() {
                 ? 'שיחה קצרה עם AI כדי לאבחן את המצב שלך בתחום הזה.'
                 : 'A short AI conversation to diagnose your current state in this domain.'}
             </p>
-            <Button onClick={() => setAssessOpen(true)} size="lg" className="mt-2">
+            <Button onClick={() => startAssessment(domain.id)} size="lg" className="mt-2">
               <Play className="w-4 h-4 me-2" />
               {isHe ? 'התחל אבחון' : 'Start Assessment'}
             </Button>
