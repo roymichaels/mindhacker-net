@@ -31,7 +31,7 @@ export default function ConsciousnessHome() {
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useConsciousnessCoach();
   usePillarContext('consciousness');
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
