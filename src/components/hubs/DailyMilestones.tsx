@@ -341,7 +341,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                 const row = getDomainRow(d.id);
                 return !isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
               })?.id;
-              if (fallbackPillar) setAssessDomainId(fallbackPillar);
+              if (fallbackPillar) startAssessment(fallbackPillar);
             };
 
             generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
