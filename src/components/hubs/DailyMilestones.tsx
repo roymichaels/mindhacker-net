@@ -205,7 +205,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     
     if (!hasAssessment) {
       // Open assessment modal instead — pillar needs diagnosis first
-      setAssessDomainId(dm.pillarId);
+      startAssessment(dm.pillarId);
       return;
     }
 
