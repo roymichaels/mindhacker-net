@@ -153,7 +153,7 @@ export default function ExpansionHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="expansion" />
+      
     </PageShell>
   );
 }

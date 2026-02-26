@@ -150,7 +150,7 @@ export default function ConsciousnessHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="consciousness" />
+      
     </PageShell>
   );
 }

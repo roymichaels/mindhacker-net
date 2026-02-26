@@ -209,7 +209,7 @@ export default function CombatHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="combat" />
+      
     </PageShell>
   );
 }

@@ -130,7 +130,7 @@ export default function PowerHome() {
           {t('power.plansNote')}
         </p>
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="power" />
+      
     </PageShell>
   );
 }
