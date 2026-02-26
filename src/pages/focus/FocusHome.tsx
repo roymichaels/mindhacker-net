@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 const SUBSYSTEM_ICONS: Record<string, string> = {
   breath_control: '🫁',
@@ -32,7 +32,7 @@ export default function FocusHome() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useFocusCoach();
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
@@ -41,7 +41,7 @@ export default function FocusHome() {
 
   useEffect(() => {
     if (!isLoading && !latest) {
-      setAssessOpen(true);
+      startAssessment('focus');
     }
   }, [isLoading, latest]);
 
@@ -106,7 +106,7 @@ export default function FocusHome() {
                   <Button onClick={() => navigate('/life/focus/results')} className="flex-1 bg-cyan-600 hover:bg-cyan-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('focus.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline" className="border-cyan-500/40">
+                  <Button onClick={() => startAssessment('focus')} variant="outline" className="border-cyan-500/40">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('focus.reassess')}
                   </Button>
                 </div>
@@ -150,7 +150,7 @@ export default function FocusHome() {
               <Crosshair className="w-10 h-10 text-cyan-500 mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('focus.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('focus.startDesc')}</p>
-              <Button onClick={() => setAssessOpen(true)} className="bg-cyan-600 hover:bg-cyan-700" size="lg">
+              <Button onClick={() => startAssessment('focus')} className="bg-cyan-600 hover:bg-cyan-700" size="lg">
                 {t('focus.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('focus.noPlanNote')}</p>
@@ -164,7 +164,7 @@ export default function FocusHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="focus" />
+      
     </PageShell>
   );
 }

@@ -44,6 +44,10 @@ interface AuroraChatContextType {
   activePillar: string | null;
   setActivePillar: (pillar: string | null) => void;
   pillarConversationId: string | null;
+  // Assessment mode — opens assessment in the dock
+  assessmentDomainId: string | null;
+  startAssessment: (domainId: string) => void;
+  endAssessment: () => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
@@ -71,6 +75,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
   const [activePillar, setActivePillar] = useState<string | null>(null);
+  const [assessmentDomainId, setAssessmentDomainId] = useState<string | null>(null);
   const sendMessageRef = useRef<((message: string, imageBase64?: string) => void) | null>(null);
   const commandHandlerRef = useRef<((command: AuroraCommand) => void) | null>(null);
 
@@ -194,6 +199,15 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [handleNewChat]);
 
+  const startAssessment = useCallback((domainId: string) => {
+    setAssessmentDomainId(domainId);
+    setIsChatExpanded(true);
+  }, []);
+
+  const endAssessment = useCallback(() => {
+    setAssessmentDomainId(null);
+  }, []);
+
   return (
     <AuroraChatContext.Provider
       value={{
@@ -221,6 +235,9 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         activePillar,
         setActivePillar,
         pillarConversationId: pillarConversationId || null,
+        assessmentDomainId,
+        startAssessment,
+        endAssessment,
       }}
     >
       {children}

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 const SUBSYSTEM_ICONS: Record<string, string> = {
   soul_intent_clarity: '🔮', mask_awareness: '🎭',
@@ -31,7 +31,7 @@ export default function ConsciousnessHome() {
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useConsciousnessCoach();
   usePillarContext('consciousness');
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
@@ -39,7 +39,7 @@ export default function ConsciousnessHome() {
   const history = config.history ?? [];
 
   useEffect(() => {
-    if (!isLoading && !latest) setAssessOpen(true);
+    if (!isLoading && !latest) startAssessment('consciousness');
   }, [isLoading, latest]);
 
   if (isLoading) {
@@ -95,7 +95,7 @@ export default function ConsciousnessHome() {
                   <Button onClick={() => navigate('/life/consciousness/results')} className="flex-1 bg-violet-600 hover:bg-violet-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('consciousness.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline" className="border-violet-500/40">
+                  <Button onClick={() => startAssessment('consciousness')} variant="outline" className="border-violet-500/40">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('consciousness.reassess')}
                   </Button>
                 </div>
@@ -136,7 +136,7 @@ export default function ConsciousnessHome() {
               <Waves className="w-10 h-10 text-violet-500 mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('consciousness.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('consciousness.startDesc')}</p>
-              <Button onClick={() => setAssessOpen(true)} className="bg-violet-600 hover:bg-violet-700" size="lg">
+              <Button onClick={() => startAssessment('consciousness')} className="bg-violet-600 hover:bg-violet-700" size="lg">
                 {t('consciousness.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('consciousness.noPlanNote')}</p>
@@ -150,7 +150,7 @@ export default function ConsciousnessHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="consciousness" />
+      
     </PageShell>
   );
 }

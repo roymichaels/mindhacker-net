@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 export default function PowerHome() {
   const navigate = useNavigate();
@@ -25,11 +25,11 @@ export default function PowerHome() {
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   useEffect(() => {
     if (!isLoading && !latest && status === 'unconfigured') {
-      setAssessOpen(true);
+      startAssessment('power');
     }
   }, [isLoading, latest, status]);
 
@@ -66,7 +66,7 @@ export default function PowerHome() {
           <p className="text-sm text-muted-foreground mb-4">
             {t('power.assessmentDesc')}
           </p>
-          <Button onClick={() => setAssessOpen(true)} className="w-full bg-red-600 hover:bg-red-700" size="lg">
+          <Button onClick={() => startAssessment('power')} className="w-full bg-red-600 hover:bg-red-700" size="lg">
             {latest ? t('power.reAssess') : t('power.beginAssessment')} <ChevronIcon className="w-4 h-4 ms-1" />
           </Button>
         </div>
@@ -95,7 +95,7 @@ export default function PowerHome() {
               <Button variant="outline" size="sm" onClick={() => navigate('/life/power/results')} className="flex-1">
                 {t('power.viewResults')}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setAssessOpen(true)} className="flex-1">
+              <Button variant="outline" size="sm" onClick={() => startAssessment('power')} className="flex-1">
                 {t('power.reAssess')}
               </Button>
             </div>
@@ -130,7 +130,7 @@ export default function PowerHome() {
           {t('power.plansNote')}
         </p>
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="power" />
+      
     </PageShell>
   );
 }

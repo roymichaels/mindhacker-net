@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 function scoreColor(v: number): string {
   if (v >= 70) return 'text-emerald-400';
@@ -36,7 +36,7 @@ export default function ArenaDomainPage() {
 
   const domain = domainId ? getDomainById(domainId) : undefined;
   const isArena = domain ? ARENA_DOMAINS.some(d => d.id === domain.id) : false;
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   // Scope Aurora chat to this pillar so history persists
   usePillarContext(domainId || '');
@@ -47,7 +47,7 @@ export default function ArenaDomainPage() {
   // Auto-open assessment if unconfigured or needs reassessment
   useEffect(() => {
     if (!isLoading && domain && (status === 'unconfigured' || status === 'needs_reassessment')) {
-      setAssessOpen(true);
+      startAssessment(domain.id);
     }
   }, [isLoading, domain, status]);
 
@@ -112,7 +112,7 @@ export default function ArenaDomainPage() {
                 ? 'שיחה קצרה עם AI כדי לאבחן את המצב שלך בתחום הזה.'
                 : 'A short AI conversation to diagnose your current state in this domain.'}
             </p>
-            <Button onClick={() => setAssessOpen(true)} size="lg" className="mt-2">
+            <Button onClick={() => startAssessment(domain.id)} size="lg" className="mt-2">
               <Play className="w-4 h-4 me-2" />
               {isHe ? 'התחל אבחון' : 'Start Assessment'}
             </Button>
@@ -228,7 +228,7 @@ export default function ArenaDomainPage() {
         <div className="flex flex-wrap gap-3">
           {assessment && (
             <>
-              <Button variant="outline" onClick={() => setAssessOpen(true)}>
+              <Button variant="outline" onClick={() => startAssessment(domain.id)}>
                 <RefreshCw className="w-4 h-4 me-2" />
                 {isHe ? 'אבחון מחדש' : 'Reassess'}
               </Button>
@@ -241,8 +241,6 @@ export default function ArenaDomainPage() {
         </div>
       </div>
 
-      {/* Assessment modal */}
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId={domain.id} />
     </PageShell>
   );
 }

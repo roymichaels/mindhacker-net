@@ -103,10 +103,11 @@ function getBasePath(domainId: string): string {
 interface Props {
   domainId: string;
   asModal?: boolean;
+  asDock?: boolean;
   onClose?: () => void;
 }
 
-export default function DomainAssessChat({ domainId, asModal, onClose }: Props) {
+export default function DomainAssessChat({ domainId, asModal, asDock, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
@@ -239,7 +240,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
     setSaving(true);
     try {
       await saveAssessment(result);
-      if (asModal && onClose) {
+      if ((asModal || asDock) && onClose) {
         onClose();
       } else {
         navigate(`${getBasePath(domainId)}/${domainId}/results`);
@@ -446,7 +447,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
 
   const Icon = domain?.icon;
 
-  const Wrapper = asModal ? 'div' : PageShell;
+  const Wrapper = asDock ? 'div' : asModal ? 'div' : PageShell;
 
   if (saving) {
     return (
@@ -471,11 +472,11 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
   }
 
   return (
-    <Wrapper className={asModal ? 'flex flex-col h-full' : undefined}>
-      <div className={cn("flex flex-col", asModal ? "h-full" : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
+    <Wrapper className={(asModal || asDock) ? 'flex flex-col h-full' : undefined}>
+      <div className={cn("flex flex-col", (asModal || asDock) ? "h-full" : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header — Aurora style */}
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
-          {!asModal && (
+          {!asModal && !asDock && (
             <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))} className="shrink-0">
               <BackIcon className="w-5 h-5" />
             </Button>

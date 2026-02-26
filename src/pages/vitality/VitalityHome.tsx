@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useVitalityEngine } from '@/hooks/useVitalityEngine';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 const SUBSYSTEM_LABELS: Record<string, string> = {
   sleep_quality: 'vitality.sub.sleepQuality',
@@ -30,12 +30,12 @@ export default function VitalityHome() {
   const { t, isRTL } = useTranslation();
   const { latestAssessment, config, isLoading, hasData, runAssessment, isSaving } = useVitalityEngine();
   const [computing, setComputing] = useState(false);
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   // Auto-open modal when no assessment exists
   useEffect(() => {
     if (!isLoading && !latestAssessment) {
-      setAssessOpen(true);
+      startAssessment('vitality');
     }
   }, [isLoading, latestAssessment]);
 
@@ -142,7 +142,7 @@ export default function VitalityHome() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">{t('vitality.startIntakeDesc')}</p>
             <Button
-              onClick={() => setAssessOpen(true)}
+              onClick={() => startAssessment('vitality')}
               className="w-full bg-amber-600 hover:bg-amber-700"
               size="lg"
             >
@@ -159,7 +159,7 @@ export default function VitalityHome() {
               <RefreshCw className={cn('w-4 h-4 me-2', computing && 'animate-spin')} />
               {t('vitality.recompute')}
             </Button>
-            <Button variant="outline" className="flex-1" onClick={() => setAssessOpen(true)}>
+            <Button variant="outline" className="flex-1" onClick={() => startAssessment('vitality')}>
               <ClipboardList className="w-4 h-4 me-2" />
               {t('vitality.retakeIntake')}
             </Button>
@@ -190,7 +190,7 @@ export default function VitalityHome() {
 
         <p className="text-xs text-muted-foreground text-center">{t('vitality.disclaimer')}</p>
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="vitality" />
+      
     </PageShell>
   );
 }

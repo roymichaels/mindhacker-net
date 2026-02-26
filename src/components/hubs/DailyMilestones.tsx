@@ -18,7 +18,7 @@ import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeD
 import { Calendar, Play, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
 const domainColorMap: Record<string, string> = {
@@ -71,7 +71,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const { statusMap, getDomain: getDomainRow } = useLifeDomains();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
-  const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
+  const { startAssessment } = useAuroraChatContext();
   const { openHypnosis } = useAuroraActions();
 
   // Determine which plan IDs to query
@@ -205,7 +205,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     
     if (!hasAssessment) {
       // Open assessment modal instead — pillar needs diagnosis first
-      setAssessDomainId(dm.pillarId);
+      startAssessment(dm.pillarId);
       return;
     }
 
@@ -294,7 +294,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
               <button
                 key={d.id}
                 onClick={() => {
-                  if (!completed) setAssessDomainId(d.id);
+                  if (!completed) startAssessment(d.id);
                 }}
                 disabled={completed}
                 className={cn(
@@ -341,7 +341,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                 const row = getDomainRow(d.id);
                 return !isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
               })?.id;
-              if (fallbackPillar) setAssessDomainId(fallbackPillar);
+              if (fallbackPillar) startAssessment(fallbackPillar);
             };
 
             generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
@@ -365,14 +365,6 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           )}
         </Button>
 
-        {/* Assessment popup */}
-        {assessDomainId && (
-          <DomainAssessModal
-            open={!!assessDomainId}
-            onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
-            domainId={assessDomainId}
-          />
-        )}
       </div>
     );
   }
@@ -495,14 +487,6 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         onComplete={() => {}}
       />
 
-      {/* Assessment popup for pillars that haven't completed assessment */}
-      {assessDomainId && (
-        <DomainAssessModal
-          open={!!assessDomainId}
-          onOpenChange={(open) => { if (!open) setAssessDomainId(null); }}
-          domainId={assessDomainId}
-        />
-      )}
     </div>
   );
 }

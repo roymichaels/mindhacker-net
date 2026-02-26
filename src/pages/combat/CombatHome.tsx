@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 
 const SUBSYSTEM_ICONS: Record<string, string> = {
   striking_skill: '🥊',
@@ -35,7 +35,7 @@ export default function CombatHome() {
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useCombatCoach();
   const { statusMap } = useLifeDomains();
-  const [assessOpen, setAssessOpen] = useState(false);
+  const { startAssessment } = useAuroraChatContext();
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
@@ -51,7 +51,7 @@ export default function CombatHome() {
 
   useEffect(() => {
     if (!isLoading && isUnlocked && !latest) {
-      setAssessOpen(true);
+      startAssessment('combat');
     }
   }, [isLoading, isUnlocked, latest]);
 
@@ -154,7 +154,7 @@ export default function CombatHome() {
                   <Button onClick={() => navigate('/life/combat/results')} className="flex-1">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('combat.viewResults')}
                   </Button>
-                  <Button onClick={() => setAssessOpen(true)} variant="outline">
+                  <Button onClick={() => startAssessment('combat')} variant="outline">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('combat.reassess')}
                   </Button>
                 </div>
@@ -195,7 +195,7 @@ export default function CombatHome() {
               <Swords className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('combat.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('combat.startDesc')}</p>
-              <Button onClick={() => setAssessOpen(true)} size="lg">
+              <Button onClick={() => startAssessment('combat')} size="lg">
                 {t('combat.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('combat.noPlanNote')}</p>
@@ -209,7 +209,7 @@ export default function CombatHome() {
           </Badge>
         )}
       </div>
-      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="combat" />
+      
     </PageShell>
   );
 }
