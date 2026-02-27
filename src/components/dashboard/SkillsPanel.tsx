@@ -20,6 +20,7 @@ export function SkillsPanel({ compact = false }: SkillsPanelProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { topSkills, todayGains, totalTodayXP, isLoading } = useSkillsProgress();
+  const [selectedSkill, setSelectedSkill] = useState<SkillProgress | null>(null);
 
   if (isLoading) {
     return (
