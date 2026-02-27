@@ -77,6 +77,7 @@ export function MergedIdentityModal({ open, onOpenChange, language, values, prin
         <DialogHeader
           title={language === 'he' ? 'זהות' : 'Identity'}
           icon={<UserCircle className="h-5 w-5" />}
+          showBackArrow={false}
         />
         <Tabs defaultValue="identity" className="w-full">
           <TabsList className="w-full grid grid-cols-4">
