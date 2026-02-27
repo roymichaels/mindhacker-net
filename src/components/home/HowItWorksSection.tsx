@@ -17,10 +17,10 @@ const steps = [
   },
   {
     icon: Map,
-    titleHe: 'קבל תוכנית 90 יום',
-    titleEn: 'Get Your 90-Day Plan',
-    descHe: 'Aurora בונה לך תוכנית מותאמת אישית עם אבני דרך שבועיות ומשימות יומיות.',
-    descEn: 'Aurora builds a personalized plan with weekly milestones and daily actions.',
+    titleHe: 'קבל תוכנית 100 יום',
+    titleEn: 'Get Your 100-Day Plan',
+    descHe: 'Aurora בונה לך תוכנית מותאמת אישית עם 10 פאזות, אבני דרך ומשימות יומיות.',
+    descEn: 'Aurora builds a personalized plan with 10 phases, milestones, and daily actions.',
     badge: 'AI-Powered',
   },
   {

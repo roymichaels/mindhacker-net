@@ -1,5 +1,5 @@
 /**
- * FeatureShowcaseSection — Sidebar navigation + detail card for 13 features
+ * FeatureShowcaseSection — Sidebar navigation + detail card for 15 features
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,8 +30,8 @@ export default function FeatureShowcaseSection() {
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             {isRTL
-              ? '13 מערכות שמשנות את אופן הניהול של החיים שלך.'
-              : '13 systems that change how you run your life.'}
+              ? '15 מערכות שמשנות את אופן הניהול של החיים שלך.'
+              : '15 systems that change how you run your life.'}
           </p>
         </motion.div>
 

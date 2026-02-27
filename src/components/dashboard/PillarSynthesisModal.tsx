@@ -1,6 +1,6 @@
 /**
  * PillarSynthesisModal — Auto-triggered when all 14 domains are complete.
- * Calls generate-pillar-synthesis to create a new comprehensive 90-day plan.
+ * Calls generate-pillar-synthesis to create a new comprehensive 100-day plan.
  */
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -71,7 +71,7 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
       queryClient.invalidateQueries({ queryKey: ['life-plan'] });
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
 
-      toast.success(isHe ? '🎯 תוכנית 90 הימים החדשה שלך מוכנה!' : '🎯 Your new 90-day plan is ready!');
+      toast.success(isHe ? '🎯 תוכנית 100 הימים החדשה שלך מוכנה!' : '🎯 Your new 100-day plan is ready!');
     } catch (error) {
       clearInterval(interval);
       console.error('[PillarSynthesisModal] Error:', error);
@@ -102,8 +102,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {isHe
-                    ? 'סיימת את ההערכה בכל 14 תחומי החיים. עכשיו המערכת תנתח את כל המידע ותבנה תוכנית 90 ימים חדשה ומקיפה — עם זהות, כיוון ותובנות מעודכנים.'
-                    : 'You completed assessments across all 14 life domains. The system will now synthesize everything into a comprehensive new 90-day plan — with updated identity, direction, and insights.'}
+                    ? 'סיימת את ההערכה בכל 14 תחומי החיים. עכשיו המערכת תנתח את כל המידע ותבנה תוכנית 100 ימים חדשה ומקיפה — עם זהות, כיוון ותובנות מעודכנים.'
+                    : 'You completed assessments across all 14 life domains. The system will now synthesize everything into a comprehensive new 100-day plan — with updated identity, direction, and insights.'}
                 </p>
               </div>
 
@@ -172,7 +172,7 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                   { threshold: 10, text: isHe ? 'קורא נתוני פילרים...' : 'Reading pillar data...' },
                   { threshold: 30, text: isHe ? 'מזהה תבניות חוצות-תחומים...' : 'Detecting cross-domain patterns...' },
                   { threshold: 50, text: isHe ? 'בונה פרופיל זהות...' : 'Building identity profile...' },
-                  { threshold: 70, text: isHe ? 'מייצר תוכנית 90 ימים...' : 'Generating 90-day plan...' },
+                  { threshold: 70, text: isHe ? 'מייצר תוכנית 100 ימים...' : 'Generating 100-day plan...' },
                   { threshold: 90, text: isHe ? 'שומר תוצאות...' : 'Saving results...' },
                 ].map(({ threshold, text }) => (
                   <div key={threshold} className="flex items-center gap-2">
@@ -208,8 +208,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                 </h2>
                 <p className="text-muted-foreground">
                   {isHe
-                    ? 'הזהות, הכיוון והתובנות שלך עודכנו. תוכנית 90 הימים החדשה מוכנה.'
-                    : 'Your identity, direction, and insights have been updated. New 90-day plan is ready.'}
+                    ? 'הזהות, הכיוון והתובנות שלך עודכנו. תוכנית 100 הימים החדשה מוכנה.'
+                    : 'Your identity, direction, and insights have been updated. New 100-day plan is ready.'}
                 </p>
               </div>
 
@@ -231,8 +231,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
               {result?.milestones_count && (
                 <p className="text-sm text-muted-foreground">
                   {isHe
-                    ? `${result.milestones_count} אבני דרך נוצרו ל-90 הימים הקרובים`
-                    : `${result.milestones_count} milestones created for the next 90 days`}
+                    ? `${result.milestones_count} אבני דרך נוצרו ל-100 הימים הקרובים`
+                    : `${result.milestones_count} milestones created for the next 100 days`}
                 </p>
               )}
 

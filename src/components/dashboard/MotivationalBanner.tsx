@@ -29,8 +29,8 @@ const banners: Banner[] = [
   },
   {
     icon: <Target className="w-4 h-4" />,
-    textHe: 'הגדר יעדים בתוכנית 90 יום כדי לעקוב אחרי ההתקדמות שלך',
-    textEn: 'Set goals in your 90-day plan to track your progress',
+    textHe: 'הגדר יעדים בתוכנית 100 יום כדי לעקוב אחרי ההתקדמות שלך',
+    textEn: 'Set goals in your 100-day plan to track your progress',
     gradient: 'from-chart-2/20 via-chart-2/5 to-transparent',
   },
   {

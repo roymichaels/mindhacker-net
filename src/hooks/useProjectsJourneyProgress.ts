@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 export const PROJECTS_JOURNEY_STEPS = [
   { id: 1, title: 'חזון ניהול פרויקטים', titleEn: 'Project Management Vision', subtitle: 'איך תרצה לארגן?', subtitleEn: 'How do you want to organize?', icon: '🗺️' },
   { id: 2, title: 'פרויקט ראשון', titleEn: 'First Project', subtitle: 'הקמת הפרויקט הראשון', subtitleEn: 'Set up your first project', icon: '🏗️' },
-  { id: 3, title: 'יישור מטרות', titleEn: 'Goals Alignment', subtitle: 'חיבור לתוכנית 90 יום', subtitleEn: 'Map to 90-day goals', icon: '🎯' },
+  { id: 3, title: 'יישור מטרות', titleEn: 'Goals Alignment', subtitle: 'חיבור לתוכנית 100 יום', subtitleEn: 'Map to 100-day goals', icon: '🎯' },
   { id: 4, title: 'פירוק משימות', titleEn: 'Task Breakdown', subtitle: 'מפרויקט למשימות', subtitleEn: 'Decompose into tasks', icon: '📋' },
   { id: 5, title: 'אבני דרך', titleEn: 'Milestones & Timeline', subtitle: 'ציוני דרך ולוחות זמנים', subtitleEn: 'Key milestones & deadlines', icon: '🏆' },
   { id: 6, title: 'שיתוף פעולה', titleEn: 'Collaboration', subtitle: 'בעלי עניין ומשאבים', subtitleEn: 'Stakeholders & resources', icon: '🤝' },
