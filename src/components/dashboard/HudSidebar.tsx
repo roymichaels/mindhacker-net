@@ -113,7 +113,7 @@ export function HudSidebar() {
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                 Lv.{xp.level}
               </span>
-              {/* MapleStory-style EXP bar */}
+              {/* EXP bar */}
               <div className="w-full px-0.5">
                 <div className="relative w-full h-3 rounded-sm border border-primary/30 bg-background/80 overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]">
                   <div
