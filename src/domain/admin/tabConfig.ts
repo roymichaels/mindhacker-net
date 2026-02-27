@@ -45,6 +45,7 @@ const Testimonials      = lazy(() => import('@/pages/admin/Testimonials'));
 const BugReports        = lazy(() => import('@/pages/admin/BugReports'));
 const ChatAssistant     = lazy(() => import('@/pages/admin/ChatAssistant'));
 const AdminSettings     = lazy(() => import('@/pages/admin/Settings'));
+const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoveragePanel'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
