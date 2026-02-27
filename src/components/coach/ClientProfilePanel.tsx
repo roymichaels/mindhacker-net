@@ -180,6 +180,14 @@ const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
           <p className="mt-3 text-sm text-muted-foreground border-t border-border/30 pt-3">{client.notes}</p>
         )}
       </div>
+
+      {/* AI Plans Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            {isHebrew ? 'תוכניות אימון' : 'Coaching Plans'}
+          </h3>
           <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white">
