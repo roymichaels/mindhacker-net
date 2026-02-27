@@ -67,7 +67,7 @@ export function HudSidebar() {
       setRecalibrating(false);
     }
   }, [user?.id, recalibrating, isHe, queryClient]);
-  type ModalType = 'identity' | 'direction' | 'insights' | null;
+  type ModalType = 'identity' | 'direction' | 'insights' | 'skills' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [insightsTab, setInsightsTab] = useState<string | undefined>();
 
