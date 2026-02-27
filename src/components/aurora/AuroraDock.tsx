@@ -62,8 +62,12 @@ export function AuroraDock() {
   }, []);
 
   const handleDragEnd = useCallback(() => {
+    if (dragRef.current && chatHeightVh <= CLOSE_THRESHOLD_VH) {
+      setIsChatExpanded(false);
+      setChatHeightVh(DEFAULT_CHAT_VH);
+    }
     dragRef.current = null;
-  }, []);
+  }, [chatHeightVh, setIsChatExpanded]);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     handleDragStart(e.touches[0].clientY);
