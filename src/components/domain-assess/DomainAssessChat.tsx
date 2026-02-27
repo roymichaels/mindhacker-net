@@ -104,10 +104,11 @@ interface Props {
   domainId: string;
   asModal?: boolean;
   asDock?: boolean;
+  dockHeightVh?: number;
   onClose?: () => void;
 }
 
-export default function DomainAssessChat({ domainId, asModal, asDock, onClose }: Props) {
+export default function DomainAssessChat({ domainId, asModal, asDock, dockHeightVh, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
@@ -449,7 +450,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
 
   const Wrapper = asDock ? 'div' : asModal ? 'div' : PageShell;
   const isEmbedded = asModal || asDock;
-  const embeddedHeightClass = asDock ? 'max-h-[55vh]' : 'h-full';
+  const embeddedHeightClass = asDock ? '' : 'h-full';
 
   if (saving) {
     return (
@@ -475,7 +476,11 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
 
   return (
     <Wrapper className={isEmbedded ? cn('flex flex-col', embeddedHeightClass) : undefined}>
-      <div className={cn("flex flex-col", isEmbedded ? embeddedHeightClass : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div
+        className={cn("flex flex-col", isEmbedded ? embeddedHeightClass : "h-[calc(100vh-120px)]")}
+        style={asDock && dockHeightVh ? { height: `${dockHeightVh}vh` } : undefined}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
         {/* Header — Aurora style */}
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
           {!asModal && !asDock && (
