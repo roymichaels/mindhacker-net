@@ -59,20 +59,10 @@ export function useSkillsProgress() {
     queryKey: ['skill-today-gains', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const today = new Date().toISOString().slice(0, 10);
       const { data, error } = await supabase
-        .from('skill_xp_events')
-        .select('skill_id, amount')
-        .eq('user_id', user.id)
-        .gte('created_at', `${today}T00:00:00`)
-        .lt('created_at', `${today}T23:59:59`);
+        .rpc('get_skill_gains_today', { p_user_id: user.id, p_tz: 'Asia/Jerusalem' });
       if (error) throw error;
-      // Aggregate by skill_id
-      const map = new Map<string, number>();
-      (data || []).forEach((e: any) => {
-        map.set(e.skill_id, (map.get(e.skill_id) || 0) + e.amount);
-      });
-      return Array.from(map.entries()).map(([skill_id, total]) => ({ skill_id, total })) as TodaySkillGain[];
+      return (data || []).map((r: any) => ({ skill_id: r.skill_id, total: Number(r.total) })) as TodaySkillGain[];
     },
     enabled: !!user?.id,
   });
