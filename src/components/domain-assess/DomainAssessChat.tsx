@@ -104,6 +104,7 @@ interface Props {
   domainId: string;
   asModal?: boolean;
   asDock?: boolean;
+  dockHeightVh?: number;
   onClose?: () => void;
 }
 
