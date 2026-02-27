@@ -9,6 +9,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
+function getUserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+}
+
 export interface SkillProgress {
   user_id: string;
   skill_id: string;
@@ -60,7 +68,7 @@ export function useSkillsProgress() {
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
-        .rpc('get_skill_gains_today', { p_user_id: user.id, p_tz: 'Asia/Jerusalem' });
+        .rpc('get_skill_gains_today', { p_user_id: user.id, p_tz: getUserTimezone() });
       if (error) throw error;
       return (data || []).map((r: any) => ({ skill_id: r.skill_id, total: Number(r.total) })) as TodaySkillGain[];
     },
