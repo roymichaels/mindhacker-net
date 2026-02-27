@@ -2,12 +2,15 @@
  * SkillsPanel — MVP skills display component.
  * SSOT: Reads from user_skill_progress via useSkillsProgress hook.
  * Shows top 12 skills by level/XP with progress bars.
+ * Clicking a skill opens SkillDetailModal (Phase 4).
  */
-import { useSkillsProgress } from '@/hooks/useSkillsProgress';
+import { useState } from 'react';
+import { useSkillsProgress, type SkillProgress } from '@/hooks/useSkillsProgress';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Progress } from '@/components/ui/progress';
 import { Loader2, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SkillDetailModal } from './SkillDetailModal';
 
 interface SkillsPanelProps {
   compact?: boolean;
