@@ -1,5 +1,5 @@
 /**
- * GameHeroSection - Aurora HoloOrb hero with all 11 life domains orbiting
+ * GameHeroSection - Aurora HoloOrb hero with all 14 life domains orbiting
  */
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
