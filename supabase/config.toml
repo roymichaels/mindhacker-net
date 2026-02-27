@@ -126,3 +126,9 @@ verify_jwt = false
 
 [functions.generate-execution-steps]
 verify_jwt = false
+
+[functions.generate-weekly-build]
+verify_jwt = false
+
+[functions.generate-daily-quests]
+verify_jwt = false
