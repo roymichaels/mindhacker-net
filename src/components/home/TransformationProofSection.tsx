@@ -156,8 +156,8 @@ export default function TransformationProofSection() {
             >
               <p className="text-emerald-500 font-bold">
                 {isRTL 
-                  ? '✨ 30 יום = חיים חדשים לגמרי'
-                  : '✨ 30 days = a completely new life'
+                  ? '✨ 100 יום = חיים חדשים לגמרי'
+                  : '✨ 100 days = a completely new life'
                 }
               </p>
             </motion.div>

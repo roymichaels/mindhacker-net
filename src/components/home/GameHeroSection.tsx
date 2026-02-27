@@ -77,8 +77,8 @@ export default function GameHeroSection() {
             className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
             {isRTL
-              ? 'מאמן AI אישי שמכיר אותך, תוכנית 90 יום מותאמת, ומערכת שלמה ל-11 תחומים בחייך — הכל במקום אחד.'
-              : 'A personal AI coach that knows you, a tailored 90-day plan, and a complete system for 11 areas of your life — all in one place.'}
+              ? 'מאמן AI אישי שמכיר אותך, תוכנית 100 יום מותאמת, ומערכת שלמה ל-14 תחומים בחייך — הכל במקום אחד.'
+              : 'A personal AI coach that knows you, a tailored 100-day plan, and a complete system for 14 areas of your life — all in one place.'}
           </motion.p>
 
           {/* Central Orb with Orbiting Domains */}

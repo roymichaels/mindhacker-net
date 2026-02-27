@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
 
 const checklist = [
   { he: 'מאמן AI אישי 24/7', en: 'Personal AI Coach 24/7' },
-  { he: 'תוכנית 90 יום מותאמת', en: 'Tailored 90-Day Plan' },
-  { he: '11 תחומי חיים', en: '11 Life Domains' },
+  { he: 'תוכנית 100 יום מותאמת', en: 'Tailored 100-Day Plan' },
+  { he: '14 תחומי חיים', en: '14 Life Domains' },
   { he: 'היפנוזה מותאמת אישית', en: 'Custom Hypnosis Sessions' },
   { he: 'גיימיפיקציה מלאה', en: 'Full Gamification' },
   { he: 'אווטאר Orb אישי', en: 'Personalized Orb Avatar' },

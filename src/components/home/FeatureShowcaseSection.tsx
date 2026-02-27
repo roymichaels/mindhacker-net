@@ -1,5 +1,5 @@
 /**
- * FeatureShowcaseSection — Sidebar navigation + detail card for 13 features
+ * FeatureShowcaseSection — Sidebar navigation + detail card for 15 features
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
