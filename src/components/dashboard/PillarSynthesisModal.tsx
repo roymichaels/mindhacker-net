@@ -208,8 +208,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                 </h2>
                 <p className="text-muted-foreground">
                   {isHe
-                    ? 'הזהות, הכיוון והתובנות שלך עודכנו. תוכנית 90 הימים החדשה מוכנה.'
-                    : 'Your identity, direction, and insights have been updated. New 90-day plan is ready.'}
+                    ? 'הזהות, הכיוון והתובנות שלך עודכנו. תוכנית 100 הימים החדשה מוכנה.'
+                    : 'Your identity, direction, and insights have been updated. New 100-day plan is ready.'}
                 </p>
               </div>
 
