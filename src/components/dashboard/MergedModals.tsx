@@ -155,6 +155,7 @@ export function MergedDirectionModal({ open, onOpenChange, language, commitments
         <DialogHeader
           title={language === 'he' ? 'כיוון' : 'Direction'}
           icon={<Compass className="h-5 w-5" />}
+          showBackArrow={false}
         />
         <Tabs defaultValue="commitments" className="w-full">
           <TabsList className="w-full grid grid-cols-2">
