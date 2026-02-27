@@ -14,9 +14,10 @@ import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
 
 /** Min/max height for the expanded chat area (vh units) */
-const MIN_CHAT_VH = 30;
+const MIN_CHAT_VH = 15;
 const MAX_CHAT_VH = 85;
 const DEFAULT_CHAT_VH = 55;
+const CLOSE_THRESHOLD_VH = 20;
 
 export function AuroraDock() {
   const location = useLocation();
