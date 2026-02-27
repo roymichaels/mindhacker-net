@@ -4194,6 +4194,109 @@ export type Database = {
           },
         ]
       }
+      loot_catalog: {
+        Row: {
+          created_at: string | null
+          effects: Json
+          icon_url: string | null
+          loot_id: string
+          name: string
+          rarity: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          effects?: Json
+          icon_url?: string | null
+          loot_id: string
+          name: string
+          rarity: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          effects?: Json
+          icon_url?: string | null
+          loot_id?: string
+          name?: string
+          rarity?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      loot_events: {
+        Row: {
+          action_item_id: string | null
+          created_at: string | null
+          id: string
+          loot_id: string
+          rarity: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          action_item_id?: string | null
+          created_at?: string | null
+          id?: string
+          loot_id: string
+          rarity: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          action_item_id?: string | null
+          created_at?: string | null
+          id?: string
+          loot_id?: string
+          rarity?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loot_events_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loot_events_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loot_events_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loot_events_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loot_events_loot_id_fkey"
+            columns: ["loot_id"]
+            isOneToOne: false
+            referencedRelation: "loot_catalog"
+            referencedColumns: ["loot_id"]
+          },
+          {
+            foreignKeyName: "loot_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           action_type: string
@@ -6447,6 +6550,44 @@ export type Database = {
           },
         ]
       }
+      user_builds: {
+        Row: {
+          build_data: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          user_id: string
+          valid_from: string
+          valid_to: string
+        }
+        Insert: {
+          build_data: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          user_id: string
+          valid_from: string
+          valid_to: string
+        }
+        Update: {
+          build_data?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          user_id?: string
+          valid_from?: string
+          valid_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_builds_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_feature_unlocks: {
         Row: {
           feature_key: string
@@ -6475,6 +6616,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_feature_unlocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_inventory: {
+        Row: {
+          loot_id: string
+          qty: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          loot_id: string
+          qty?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          loot_id?: string
+          qty?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_inventory_loot_id_fkey"
+            columns: ["loot_id"]
+            isOneToOne: false
+            referencedRelation: "loot_catalog"
+            referencedColumns: ["loot_id"]
+          },
+          {
+            foreignKeyName: "user_inventory_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
