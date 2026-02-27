@@ -16,6 +16,7 @@ import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
+import { SkillsModal } from '@/components/modals/SkillsModal';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
   Target, UserCircle, Compass, RefreshCw, Loader2, Play,
