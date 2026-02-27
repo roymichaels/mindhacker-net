@@ -71,7 +71,7 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
       queryClient.invalidateQueries({ queryKey: ['life-plan'] });
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
 
-      toast.success(isHe ? '🎯 תוכנית 90 הימים החדשה שלך מוכנה!' : '🎯 Your new 90-day plan is ready!');
+      toast.success(isHe ? '🎯 תוכנית 100 הימים החדשה שלך מוכנה!' : '🎯 Your new 100-day plan is ready!');
     } catch (error) {
       clearInterval(interval);
       console.error('[PillarSynthesisModal] Error:', error);
