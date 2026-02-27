@@ -98,6 +98,9 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
       {/* ===== JOB (SSOT: user_jobs) ===== */}
       <JobPanel compact />
 
+      {/* ===== SKILLS (SSOT: skill_xp_events → user_skill_progress) ===== */}
+      <SkillsPanel compact />
+
       {/* ===== CAREER + TRANSFORMATION ===== */}
       <div className="grid grid-cols-2 gap-3">
         {(launchpadData?.firstWeek?.career_status || launchpadData?.firstWeek?.career_goal) && (
