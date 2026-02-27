@@ -673,4 +673,92 @@ Cannot verify from types.ts alone — requires `supabase--linter` check. Key tab
 
 ---
 
+## APPENDIX: VERIFICATION GATES (2026-02-27)
+
+### Gate 1: action_skill_weights pillar fallback
+
+**FOUND** — All 35 rows use `mapping_type='pillar'` and `mapping_key=<pillar_name>`.
+
+Previous audit incorrectly stated `mapping_type IS NULL` for pillar rows. **Corrected.**
+
+```sql
+SELECT mapping_type, mapping_key, pillar, COUNT(*) FROM action_skill_weights GROUP BY 1,2,3;
+-- Result: 35 rows, all mapping_type='pillar', mapping_key matches pillar column exactly
+-- Example: mapping_type='pillar', mapping_key='mind', pillar='mind', skill_id='f025f794-...', weight=0.8
+```
+
+Columns: `id, created_at, mapping_key, mapping_type, pillar, skill_id, weight`
+
+### Gate 2: Coach plan injection
+
+**FOUND** — `supabase/functions/generate-coach-plan/index.ts`
+
+Line 109-121: Only insert target is `coach_client_plans`:
+```ts
+const { data: plan, error: insertError } = await supabaseClient
+  .from('coach_client_plans')
+  .insert({
+    coach_id: coachId,
+    client_name: clientName,
+    plan_data: planData,
+    // ...
+  })
+```
+
+**NOT FOUND:** Any insert to `action_items` for the client. Confirmed disconnected.
+
+### Gate 3: generate-phase-actions
+
+**FOUND** — `supabase/functions/generate-phase-actions/index.ts`
+
+Line 269-271: Inserts ONLY `mini_milestones`:
+```ts
+const { error: insertError } = await supabase
+  .from("mini_milestones")
+  .insert(miniRows);
+```
+
+**NOT FOUND:** Any insert to `action_items`. This function generates mini-milestones only — action_items are not created from phase actions.
+
+### Gate 4: enforce_execution_template trigger
+
+**FOUND** — Trigger `trg_enforce_execution_template` on `action_items`.
+
+- **Event:** BEFORE INSERT (row-level). tgtype=7 → BEFORE + INSERT + ROW.
+- **NOT** on UPDATE — only fires on INSERT.
+- **`execution_template_source` column:** NOT FOUND on `action_items`. The trigger does not track derivation source.
+
+Function excerpt (verified from `pg_get_functiondef`):
+```sql
+-- Skip if already has execution_template
+IF NEW.metadata IS NOT NULL
+   AND NEW.metadata->>'execution_template' IS NOT NULL
+   AND NEW.metadata->>'execution_template' != '' THEN
+  RETURN NEW;
+END IF;
+-- Derive from pillar
+v_template := CASE COALESCE(NEW.pillar, '')
+  WHEN 'vitality' THEN 'step_by_step'
+  WHEN 'power' THEN 'sets_reps_timer'
+  ...
+  ELSE 'step_by_step'
+END;
+NEW.metadata := COALESCE(NEW.metadata, '{}'::jsonb) || jsonb_build_object('execution_template', v_template);
+```
+
+---
+
+## Delta Since Last Audit
+
+| # | Item | Previous Claim | Verified Reality | Severity |
+|---|------|---------------|-----------------|----------|
+| 1 | `action_skill_weights` pillar rows | "mapping_type IS NULL" fallback | All rows use `mapping_type='pillar'`, `mapping_key=<pillar>` | 🔴 Audit error corrected |
+| 2 | `action_skill_weights` template rows | "uses mapping_type='execution_template'" | Zero rows exist with this mapping_type — feature is unpopulated | 🟡 New finding |
+| 3 | `enforce_execution_template` trigger | Not mentioned in original audit | Exists as BEFORE INSERT on action_items. No UPDATE event. No `execution_template_source` column. | 🟡 Missing from audit, now added |
+| 4 | `generate-phase-actions` targets | Listed as writing "action_items" | Writes ONLY `mini_milestones` — never touches `action_items` | 🔴 Audit error corrected |
+| 5 | `generate-coach-plan` targets | "NO automatic injection" (vague) | Verified: writes only `coach_client_plans`, exact line refs provided | ✅ Confirmed, made precise |
+| 6 | `handle_action_item_completion` skill XP | "template→pillar fallback" | Correct logic, but template path is dead code (0 template weight rows) | 🟡 Clarified |
+
+---
+
 *End of audit.*
