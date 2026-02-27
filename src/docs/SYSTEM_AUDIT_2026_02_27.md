@@ -555,10 +555,14 @@ action_items UPDATE (status='done')
 
 ### 7.4 execution_template Derivation vs Explicit Override
 
-- `action_skill_weights` uses `mapping_type='execution_template'` for template-based lookup
-- Falls back to `pillar` mapping if no template match
-- If an action_item has `metadata.execution_template` set but no corresponding weight row exists, it silently falls through to pillar default
-- **Risk:** Silent skill XP miscalculation with no warning or logging
+**VERIFIED** — `trg_enforce_execution_template` (BEFORE INSERT on `action_items`) auto-derives `metadata.execution_template` from pillar using a CASE mapping. It skips if the field is already set (explicit override).
+
+**However:** There is NO `execution_template_source` column on `action_items`. The trigger does not record whether the template was explicit or derived. This makes debugging silent — you cannot tell from the data whether a template was user-set or auto-assigned.
+
+- `handle_action_item_completion` then uses `metadata->>'execution_template'` to look up `action_skill_weights` with `mapping_type='execution_template'`.
+- **Current DB state:** All 35 `action_skill_weights` rows use `mapping_type='pillar'`. There are ZERO rows with `mapping_type='execution_template'`.
+- **Implication:** The template→skill lookup path ALWAYS returns no rows, and the trigger falls back to pillar mapping every time. The execution_template skill mapping feature is **defined but unpopulated** — effectively dead code in the trigger.
+- **Risk:** Silent — no error, no logging. Template-based skill weighting is architecturally ready but has zero data.
 
 ---
 
