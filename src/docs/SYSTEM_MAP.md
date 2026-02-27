@@ -474,10 +474,39 @@ No "Job" entity exists beyond the computed archetype blend stored in the orb pro
 1. ✅ **action_items IS the unified task store** — tasks, habits, sessions, milestones, schedule blocks all in one table
 2. ✅ **xp_events IS the XP ledger** — `award_unified_xp` is the canonical entry point
 3. ✅ **energy_events IS the energy ledger** — `award_energy`/`spend_energy` RPCs with idempotency
-4. ⚠️ **VIOLATED: Legacy checklists still queried** — `useMissionsRoadmap` reads `aurora_checklists` instead of `action_items`
-5. ⚠️ **VIOLATED: XP awarded outside unified path** — `check_streak_bonus` and `handle_hypnosis_session_complete` directly update `profiles.experience` bypassing `xp_events`
-6. ⚠️ **VIOLATED: Two tier systems coexist** — progression tiers (clarity→mastery) and subscription tiers (free→apex) are independent, with subscription being primary
+4. ✅ **RESOLVED (Phase 1): Roadmap reads action_items only** — `useMissionsRoadmap` refactored, `aurora_checklists` marked legacy
+5. ✅ **RESOLVED (Phase 1): XP guardrail enforced** — `guard_xp_direct_update` trigger blocks non-RPC updates, `check_streak_bonus` dropped
+6. ⚠️ **Two tier systems coexist (by design)** — progression tiers (clarity→mastery) and subscription tiers (free→apex) serve different purposes
 7. ✅ **life_domains IS the assessment store** — all 14 domain diagnostics stored in `domain_config.latest_assessment`
 8. ✅ **orb_profiles IS the avatar store** — single row per user with full visual DNA
 9. ✅ **profiles IS the user state store** — experience, level, tokens, streak, selected_pillars all on profiles
-10. ⚠️ **VIOLATED: Archetype/Job has no first-class entity** — computed transiently and stored only in orb's `computed_from` JSONB, not queryable or progressible
+10. ✅ **RESOLVED (Phase 2): Job is a first-class entity** — `jobs` catalog + `user_jobs` assignment history. SSOT = `user_jobs WHERE is_primary = true`. `orb_profiles.computed_from` remains informational only.
+
+---
+
+## Job SSOT Spec (Phase 2)
+
+### Tables
+- **`jobs`** — Catalog of 6 archetype-based jobs (Warrior, Mystic, Creator, Sage, Healer, Explorer). Public read access.
+- **`user_jobs`** — Assignment history. `is_primary = true` marks the current job. One primary per user enforced by `assign_user_job()` RPC.
+
+### Write Paths
+1. **Onboarding completion** → `generate-launchpad-summary` edge function → calls `assign_user_job(user_id, job_name, 'ai', metadata)` → maps `suggested_ego_state` to job name
+2. **User self-change** → `JobPanel` component → calls `assign_user_job(user_id, job_name, 'user')`
+3. **Coach recommendation** → (future) Coach can call `assign_user_job(client_id, job_name, 'coach')`
+4. **Re-onboarding** → Creates new `user_jobs` record; previous `is_primary` demoted to `false`. Full history preserved.
+
+### Read Paths
+- **`useUserJob` hook** — Reads `user_jobs` joined with `jobs` where `is_primary = true`
+- **`JobPanel` component** — Displays current job in ProfileContent
+- **Coach `ClientProfilePanel`** — Reads client's primary job for coach visibility
+- **`orb_profiles.computed_from`** — Informational only; NOT the SSOT for job
+
+### Backfill
+- Existing users with `orb_profiles.computed_from` populated were backfilled into `user_jobs` during migration
+- Legacy `egoState` values mapped: guardian→Warrior, visionary→Explorer, achiever→Warrior, nurturer→Healer, analyst→Sage, rebel→Explorer
+
+### Edge Cases
+- User with no orb_profile → No job assigned until they complete onboarding
+- Job name not recognized → Falls back to Explorer
+- Multiple onboarding completions → New job record created, history preserved

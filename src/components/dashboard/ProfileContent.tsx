@@ -23,6 +23,7 @@ import {
 } from '@/components/dashboard/MergedModals';
 import { PillChips } from '@/components/aurora-ui/PillChips';
 import { GradientCTAButton } from '@/components/aurora-ui/GradientCTAButton';
+import { JobPanel } from '@/components/dashboard/JobPanel';
 
 interface ProfileContentProps {
   onClose?: () => void;
@@ -93,7 +94,8 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   return (
     <div className="space-y-4">
 
-
+      {/* ===== JOB (SSOT: user_jobs) ===== */}
+      <JobPanel compact />
 
       {/* ===== CAREER + TRANSFORMATION ===== */}
       <div className="grid grid-cols-2 gap-3">

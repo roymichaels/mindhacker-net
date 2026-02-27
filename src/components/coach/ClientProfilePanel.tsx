@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  ArrowRight, ArrowLeft, Calendar, Sparkles, FileText, Eye, User,
+  ArrowRight, ArrowLeft, Calendar, Sparkles, FileText, Eye, User, Briefcase,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -56,6 +56,21 @@ const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
       return data;
     },
     enabled: !!myProfile?.id,
+  });
+
+  // Fetch client's primary job (SSOT: user_jobs)
+  const { data: clientJob } = useQuery({
+    queryKey: ['client-job', client.client_user_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_jobs')
+        .select('*, jobs(*)')
+        .eq('user_id', client.client_user_id)
+        .eq('is_primary', true)
+        .maybeSingle();
+      if (error) throw error;
+      return data as any;
+    },
   });
 
   const generateMutation = useMutation({
@@ -149,6 +164,18 @@ const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
             </p>
           </div>
         </div>
+        {/* Client Job */}
+        {clientJob?.jobs && (
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/30">
+            <Briefcase className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium">
+              {clientJob.jobs.icon} {isHebrew ? (clientJob.jobs.name_he || clientJob.jobs.name) : clientJob.jobs.name}
+            </span>
+            <Badge variant="outline" className="text-xs ms-auto">
+              {clientJob.assigned_by === 'ai' ? 'AI' : clientJob.assigned_by === 'coach' ? (isHebrew ? 'מאמן' : 'Coach') : (isHebrew ? 'אישי' : 'Self')}
+            </Badge>
+          </div>
+        )}
         {client.notes && (
           <p className="mt-3 text-sm text-muted-foreground border-t border-border/30 pt-3">{client.notes}</p>
         )}

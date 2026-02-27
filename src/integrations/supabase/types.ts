@@ -3496,6 +3496,42 @@ export type Database = {
         }
         Relationships: []
       }
+      jobs: {
+        Row: {
+          created_at: string
+          description: string | null
+          description_he: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          name_he: string | null
+          role_tags: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          description_he?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          name_he?: string | null
+          role_tags?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          description_he?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_he?: string | null
+          role_tags?: string[] | null
+        }
+        Relationships: []
+      }
       landing_pages: {
         Row: {
           benefits: Json | null
@@ -6260,6 +6296,51 @@ export type Database = {
           },
         ]
       }
+      user_jobs: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          id: string
+          is_primary: boolean
+          job_id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string
+          id?: string
+          is_primary?: boolean
+          job_id: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          id?: string
+          is_primary?: boolean
+          job_id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_jobs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_jobs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_notifications: {
         Row: {
           created_at: string | null
@@ -7137,6 +7218,15 @@ export type Database = {
       }
     }
     Functions: {
+      assign_user_job: {
+        Args: {
+          p_assigned_by?: string
+          p_job_name: string
+          p_metadata?: Json
+          p_user_id: string
+        }
+        Returns: string
+      }
       aurora_award_xp:
         | {
             Args: { p_amount: number; p_reason: string; p_user_id: string }

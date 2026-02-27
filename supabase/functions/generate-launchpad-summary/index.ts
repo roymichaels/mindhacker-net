@@ -462,6 +462,32 @@ Deno.serve(async (req) => {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
+    // 7. Assign Job (SSOT: user_jobs)
+    console.log('Assigning user job...');
+    const egoState = summary.identity_profile?.suggested_ego_state || 'explorer';
+    // Map legacy ego state names to archetype job names
+    const jobNameMap: Record<string, string> = {
+      warrior: 'Warrior', guardian: 'Warrior', achiever: 'Warrior',
+      mystic: 'Mystic', seeker: 'Mystic',
+      creator: 'Creator',
+      sage: 'Sage', analyst: 'Sage',
+      healer: 'Healer', nurturer: 'Healer',
+      explorer: 'Explorer', visionary: 'Explorer',
+    };
+    const resolvedJobName = jobNameMap[egoState.toLowerCase()] || 'Explorer';
+    await supabase.rpc('assign_user_job', {
+      p_user_id: userId,
+      p_job_name: resolvedJobName,
+      p_assigned_by: 'ai',
+      p_metadata: {
+        source: 'launchpad_summary',
+        suggested_ego_state: egoState,
+        archetype_data: summary.identity_profile?.archetype || null,
+        traits: summary.identity_profile?.dominant_traits || [],
+      },
+    });
+    console.log(`Job assigned: ${resolvedJobName} (from ego_state: ${egoState})`);
+
     console.log('Life Model tables fully populated!');
 
     return new Response(JSON.stringify({
