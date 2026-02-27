@@ -89,7 +89,7 @@ export function useUserJob() {
         p_user_id: user!.id,
         p_job_name: jobName,
         p_assigned_by: assignedBy,
-        p_metadata: metadata,
+        p_metadata: metadata as any,
       });
       if (error) throw error;
       return data;
