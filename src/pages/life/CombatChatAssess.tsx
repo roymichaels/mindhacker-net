@@ -1,2 +1,2 @@
-import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
-export default function CombatChatAssess() { return <DomainAssessChat domainId="combat" />; }
+import { Navigate } from 'react-router-dom';
+export default function CombatChatAssess() { return <Navigate to="/life/combat" replace />; }

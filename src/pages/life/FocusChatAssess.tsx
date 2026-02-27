@@ -1,2 +1,2 @@
-import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
-export default function FocusChatAssess() { return <DomainAssessChat domainId="focus" />; }
+import { Navigate } from 'react-router-dom';
+export default function FocusChatAssess() { return <Navigate to="/life/focus" replace />; }
