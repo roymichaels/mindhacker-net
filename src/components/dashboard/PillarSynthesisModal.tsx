@@ -102,8 +102,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {isHe
-                    ? 'סיימת את ההערכה בכל 14 תחומי החיים. עכשיו המערכת תנתח את כל המידע ותבנה תוכנית 90 ימים חדשה ומקיפה — עם זהות, כיוון ותובנות מעודכנים.'
-                    : 'You completed assessments across all 14 life domains. The system will now synthesize everything into a comprehensive new 90-day plan — with updated identity, direction, and insights.'}
+                    ? 'סיימת את ההערכה בכל 14 תחומי החיים. עכשיו המערכת תנתח את כל המידע ותבנה תוכנית 100 ימים חדשה ומקיפה — עם זהות, כיוון ותובנות מעודכנים.'
+                    : 'You completed assessments across all 14 life domains. The system will now synthesize everything into a comprehensive new 100-day plan — with updated identity, direction, and insights.'}
                 </p>
               </div>
 
