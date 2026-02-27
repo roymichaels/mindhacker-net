@@ -68,9 +68,10 @@ export function SkillsPanel({ compact = false }: SkillsPanelProps) {
           const displayName = isHe ? (sp.skill.name_he || sp.skill.name) : sp.skill.name;
 
           return (
-            <div
+            <button
               key={sp.skill_id}
-              className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/40 transition-colors"
+              onClick={() => setSelectedSkill(sp)}
+              className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/40 transition-colors text-start w-full"
             >
               <span className="text-lg shrink-0">{sp.skill.icon}</span>
               <div className="flex-1 min-w-0">
@@ -85,7 +86,7 @@ export function SkillsPanel({ compact = false }: SkillsPanelProps) {
                   <span className="text-[10px] text-primary mt-0.5 block">+{todayGain}</span>
                 )}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
