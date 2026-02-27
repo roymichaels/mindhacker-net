@@ -1,3 +1,8 @@
+/**
+ * LEGACY WRAPPER: This hook still reads aurora_checklists via useChecklistsData.
+ * TODO: Migrate useChecklistsData to action_items in Phase 2.
+ * useMissionsRoadmap has already been migrated to action_items (Phase 1 SSOT).
+ */
 import { useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
