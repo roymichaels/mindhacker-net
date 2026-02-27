@@ -112,27 +112,27 @@
    * Activated by next-themes adding .dark class to <html>
    */
   html.dark, .dark {
-    /* Dark backgrounds - Deep purple-black */
-    --background: 260 60% 5%;
-    --background-end: 260 50% 8%;
+    /* Dark backgrounds - Deep blue-black */
+    --background: 220 30% 6%;
+    --background-end: 220 25% 9%;
     --foreground: 0 0% 100%;
 
-    --card: 260 45% 10%;
+    --card: 220 25% 11%;
     --card-foreground: 0 0% 100%;
-    --popover: 260 45% 10%;
+    --popover: 220 25% 11%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Rose/Pink */
-    --primary: 340 85% 70%;
-    --primary-foreground: 260 60% 5%;
-    --primary-glow: 340 90% 77%;
+    /* Primary - Twitter Blue */
+    --primary: 204 88% 53%;
+    --primary-foreground: 220 30% 6%;
+    --primary-glow: 204 92% 62%;
 
-    /* Secondary - Purple/Violet */
-    --secondary: 270 95% 65%;
-    --secondary-foreground: 260 60% 5%;
+    /* Secondary - Lighter Blue */
+    --secondary: 204 80% 58%;
+    --secondary-foreground: 220 30% 6%;
 
-    --muted: 260 40% 15%;
-    --muted-foreground: 292 30% 85%;
+    --muted: 220 25% 16%;
+    --muted-foreground: 210 20% 75%;
 
     /* Accent - Gold/Amber */
     --accent: 38 95% 50%;
