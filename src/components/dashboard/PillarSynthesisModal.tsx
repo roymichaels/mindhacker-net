@@ -172,7 +172,7 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                   { threshold: 10, text: isHe ? 'קורא נתוני פילרים...' : 'Reading pillar data...' },
                   { threshold: 30, text: isHe ? 'מזהה תבניות חוצות-תחומים...' : 'Detecting cross-domain patterns...' },
                   { threshold: 50, text: isHe ? 'בונה פרופיל זהות...' : 'Building identity profile...' },
-                  { threshold: 70, text: isHe ? 'מייצר תוכנית 90 ימים...' : 'Generating 90-day plan...' },
+                  { threshold: 70, text: isHe ? 'מייצר תוכנית 100 ימים...' : 'Generating 100-day plan...' },
                   { threshold: 90, text: isHe ? 'שומר תוצאות...' : 'Saving results...' },
                 ].map(({ threshold, text }) => (
                   <div key={threshold} className="flex items-center gap-2">
