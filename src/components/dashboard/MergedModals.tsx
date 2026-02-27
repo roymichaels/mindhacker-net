@@ -244,6 +244,7 @@ export function MergedInsightsModal({ open, onOpenChange, language, initialTab }
         <DialogHeader
           title={language === 'he' ? 'תובנות' : 'Insights'}
           icon={<Brain className="h-5 w-5" />}
+          showBackArrow={false}
         />
         <Tabs defaultValue={defaultTab} key={defaultTab} className="w-full">
           <TabsList className="w-full grid grid-cols-4">
