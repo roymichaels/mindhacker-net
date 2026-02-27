@@ -101,7 +101,8 @@ const SubscriptionsModal = () => {
       >
         <button
           onClick={closeSubscriptions}
-          className="absolute top-4 end-4 z-50 rounded-full bg-muted/80 p-2 hover:bg-muted transition-colors"
+          className="absolute top-4 start-4 z-50 rounded-full bg-muted/80 p-2 hover:bg-muted transition-colors"
+          aria-label="Close"
         >
           <X className="h-5 w-5" />
         </button>

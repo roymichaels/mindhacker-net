@@ -149,6 +149,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
           className="px-6 pt-6 pb-2"
           title={t('common.settings')}
           icon={<Settings className="h-5 w-5" />}
+          showBackArrow={false}
         />
 
         <Tabs defaultValue="profile" className="flex flex-col flex-1 min-h-0" dir={isRTL ? 'rtl' : 'ltr'}>
