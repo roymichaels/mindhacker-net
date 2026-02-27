@@ -43,54 +43,55 @@ export function SkillsPanel({ compact = false }: SkillsPanelProps) {
   const todayGainMap = new Map(todayGains.map(g => [g.skill_id, g.total]));
 
   return (
-    <div className="rounded-2xl bg-card border border-border overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-primary" />
-          <h3 className="font-semibold text-sm text-foreground">
-            {isHe ? 'כישורים' : 'Skills'}
-          </h3>
+    <>
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            <h3 className="font-semibold text-sm text-foreground">
+              {isHe ? 'כישורים' : 'Skills'}
+            </h3>
+          </div>
+          {totalTodayXP > 0 && (
+            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+              +{totalTodayXP} {isHe ? 'היום' : 'today'}
+            </span>
+          )}
         </div>
-        {totalTodayXP > 0 && (
-          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-            +{totalTodayXP} {isHe ? 'היום' : 'today'}
-          </span>
-        )}
-      </div>
 
-      {/* Skills grid */}
-      <div className={cn("p-3 grid gap-2", compact ? "grid-cols-1" : "grid-cols-2")}>
-        {topSkills.map((sp) => {
-          const xpInLevel = sp.xp_total % 100;
-          const progressPct = Math.min(xpInLevel, 100);
-          const todayGain = todayGainMap.get(sp.skill_id) || 0;
-          const displayName = isHe ? (sp.skill.name_he || sp.skill.name) : sp.skill.name;
+        {/* Skills grid */}
+        <div className={cn("p-3 grid gap-2", compact ? "grid-cols-1" : "grid-cols-2")}>
+          {topSkills.map((sp) => {
+            const xpInLevel = sp.xp_total % 100;
+            const progressPct = Math.min(xpInLevel, 100);
+            const todayGain = todayGainMap.get(sp.skill_id) || 0;
+            const displayName = isHe ? (sp.skill.name_he || sp.skill.name) : sp.skill.name;
 
-          return (
-            <button
-              key={sp.skill_id}
-              onClick={() => setSelectedSkill(sp)}
-              className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/40 transition-colors text-start w-full"
-            >
-              <span className="text-lg shrink-0">{sp.skill.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-medium text-foreground truncate">{displayName}</span>
-                  <span className="text-[10px] font-semibold text-muted-foreground ml-1 shrink-0">
-                    Lv.{sp.level}
-                  </span>
+            return (
+              <button
+                key={sp.skill_id}
+                onClick={() => setSelectedSkill(sp)}
+                className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/40 transition-colors text-start w-full"
+              >
+                <span className="text-lg shrink-0">{sp.skill.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-xs font-medium text-foreground truncate">{displayName}</span>
+                    <span className="text-[10px] font-semibold text-muted-foreground ml-1 shrink-0">
+                      Lv.{sp.level}
+                    </span>
+                  </div>
+                  <Progress value={progressPct} className="h-1.5" />
+                  {todayGain > 0 && (
+                    <span className="text-[10px] text-primary mt-0.5 block">+{todayGain}</span>
+                  )}
                 </div>
-                <Progress value={progressPct} className="h-1.5" />
-                {todayGain > 0 && (
-                  <span className="text-[10px] text-primary mt-0.5 block">+{todayGain}</span>
-                )}
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
 
       <SkillDetailModal
         open={!!selectedSkill}
@@ -99,7 +100,7 @@ export function SkillsPanel({ compact = false }: SkillsPanelProps) {
         todayGain={selectedSkill ? (todayGainMap.get(selectedSkill.skill_id) || 0) : 0}
         isHe={isHe}
       />
-    </div>
+    </>
   );
 }
 
