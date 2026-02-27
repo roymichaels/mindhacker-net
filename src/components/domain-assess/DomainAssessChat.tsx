@@ -450,7 +450,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
 
   const Wrapper = asDock ? 'div' : asModal ? 'div' : PageShell;
   const isEmbedded = asModal || asDock;
-  const embeddedHeightClass = asDock ? 'max-h-[55vh]' : 'h-full';
+  const embeddedHeightClass = asDock ? '' : 'h-full';
 
   if (saving) {
     return (
