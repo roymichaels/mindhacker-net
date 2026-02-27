@@ -231,8 +231,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
               {result?.milestones_count && (
                 <p className="text-sm text-muted-foreground">
                   {isHe
-                    ? `${result.milestones_count} אבני דרך נוצרו ל-90 הימים הקרובים`
-                    : `${result.milestones_count} milestones created for the next 90 days`}
+                    ? `${result.milestones_count} אבני דרך נוצרו ל-100 הימים הקרובים`
+                    : `${result.milestones_count} milestones created for the next 100 days`}
                 </p>
               )}
 
