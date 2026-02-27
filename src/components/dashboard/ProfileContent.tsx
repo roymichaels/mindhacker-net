@@ -23,6 +23,7 @@ import {
 } from '@/components/dashboard/MergedModals';
 import { PillChips } from '@/components/aurora-ui/PillChips';
 import { GradientCTAButton } from '@/components/aurora-ui/GradientCTAButton';
+import { JobPanel } from '@/components/dashboard/JobPanel';
 
 interface ProfileContentProps {
   onClose?: () => void;
