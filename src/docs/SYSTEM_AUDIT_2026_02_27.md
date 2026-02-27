@@ -372,14 +372,17 @@ Total tables identified: **~85+** (from types.ts schema)
 
 ### 3.8 Coach-Injected Task
 
+**VERIFIED** against `supabase/functions/generate-coach-plan/index.ts`:
+
 ```
-1. Coach uses generate-coach-plan edge function
-2. AI generates plan → INSERT coach_client_plans
-3. Plan data stored as JSON in plan_data column
-4. NO automatic injection into client's action_items
-5. Coach must manually create action_items for client (if implemented)
-⚠️ GAP: coach_client_plans.plan_data is disconnected from action_items
+1. Coach calls generate-coach-plan edge function
+2. AI generates plan structure as JSON
+3. INSERT → coach_client_plans (line 109-121: supabaseClient.from('coach_client_plans').insert({...}))
+4. ❌ NO INSERT to action_items — plan stays as JSON blob in plan_data
+5. ❌ NO INSERT to life_plan_milestones or mini_milestones
 ```
+
+**CONFIRMED GAP:** `generate-coach-plan` writes ONLY to `coach_client_plans`. The `plan_data` JSON is never materialized into the client's `action_items`. Coach plans are display-only.
 
 ---
 
