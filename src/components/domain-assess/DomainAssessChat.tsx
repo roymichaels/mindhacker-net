@@ -108,7 +108,7 @@ interface Props {
   onClose?: () => void;
 }
 
-export default function DomainAssessChat({ domainId, asModal, asDock, onClose }: Props) {
+export default function DomainAssessChat({ domainId, asModal, asDock, dockHeightVh, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
