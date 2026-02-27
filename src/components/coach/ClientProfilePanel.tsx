@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  ArrowRight, ArrowLeft, Calendar, Sparkles, FileText, Eye, User,
+  ArrowRight, ArrowLeft, Calendar, Sparkles, FileText, Eye, User, Briefcase,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
