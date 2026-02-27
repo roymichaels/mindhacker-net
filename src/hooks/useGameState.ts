@@ -1,3 +1,10 @@
+/**
+ * SSOT: All XP must flow through award_unified_xp RPC.
+ * profiles.experience is a derived cache — xp_events is the ledger of truth.
+ * profiles.tokens is a derived cache — energy_events is the ledger of truth.
+ * Tier system: Subscription tiers (free/plus/apex) gate features via useSubscriptionGate.
+ *              Progression tiers (clarity/structure/consistency/mastery) are gamification via get_user_tier RPC.
+ */
 import { useGameState as useGameStateContext } from '@/contexts/GameStateContext';
 import { calculateXpProgress } from '@/lib/achievements';
 

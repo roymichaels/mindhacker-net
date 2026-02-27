@@ -1,3 +1,8 @@
+/**
+ * SSOT: action_items is the single source of truth for all tasks, habits, sessions, milestones.
+ * All XP must flow through award_unified_xp (handled by DB trigger handle_action_item_completion).
+ * Do NOT read/write aurora_checklists for new features — that table is LEGACY.
+ */
 import { supabase } from '@/integrations/supabase/client';
 
 export type ActionItemType = 'task' | 'habit' | 'session' | 'milestone' | 'reflection';
