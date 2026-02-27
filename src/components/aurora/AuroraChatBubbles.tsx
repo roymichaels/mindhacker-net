@@ -117,6 +117,11 @@ const AuroraChatBubbles = () => {
       if (inputArea && inputArea.contains(e.target as Node)) {
         return; // Don't close if clicking on input
       }
+      // Check if clicking on the dock drag handle or dock controls
+      const dockContainer = document.querySelector('[data-aurora-dock]');
+      if (dockContainer && dockContainer.contains(e.target as Node)) {
+        return; // Don't close if clicking on dock controls (drag handle, bug report, etc.)
+      }
       setIsChatExpanded(false);
     }
   }, [setIsChatExpanded]);
