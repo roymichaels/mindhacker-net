@@ -195,7 +195,7 @@ export function HudSidebar() {
             </span>
           </div>
 
-          {/* MapleStory-style EXP bar — expanded */}
+          {/* EXP bar — expanded */}
           <div className="w-full">
             <div className="relative w-full h-4 rounded-sm border border-primary/30 bg-background/80 overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]">
               <div
