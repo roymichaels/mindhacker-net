@@ -343,6 +343,7 @@ const App = () => (
                           <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
                           {/* Quests */}
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
+                          <Route path="/maple" element={<MapleStory />} />
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
                           <Route path="/coaching/journey/:journeyId" element={<CoachingJourney />} />
