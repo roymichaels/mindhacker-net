@@ -2,7 +2,7 @@
  * SkillsModal — Shows top skills from user_skill_progress.
  * Opened from HudSidebar. No route, no page — modal only.
  */
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { useSkillsProgress } from '@/hooks/useSkillsProgress';
 import { useTranslation } from '@/hooks/useTranslation';
