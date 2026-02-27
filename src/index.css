@@ -65,13 +65,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
 
-    /* Primary - Rose/Pink */
-    --primary: 340 82% 65%;
+    /* Primary - Twitter Blue */
+    --primary: 204 88% 53%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 340 90% 72%;
+    --primary-glow: 204 92% 60%;
 
-    /* Secondary - Purple/Violet */
-    --secondary: 270 85% 55%;
+    /* Secondary - Lighter Blue */
+    --secondary: 204 70% 45%;
     --secondary-foreground: 0 0% 100%;
 
     /* Muted elements */
