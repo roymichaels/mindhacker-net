@@ -209,22 +209,24 @@ export const useCommandBus = () => {
         return makeReceipt('task', 'reschedule', ok, command.identifier, `→ ${command.newDate}`);
       }
 
-      // ── Habits ──
+      // ── Habits (SSOT: action_items with type='habit') ──
       case 'createHabit': {
         if (!user?.id) return null;
-        let habitsChecklist = checklists.find(c => c.title === '🔄 הרגלים יומיים' || c.title === '🔄 Daily Habits');
-        if (!habitsChecklist) {
-          habitsChecklist = await createChecklist('🔄 הרגלים יומיים', 'aurora') as any;
-        }
-        if (!habitsChecklist) return makeReceipt('habit', 'create', false, command.name);
-        const { error } = await supabase.from('aurora_checklist_items').insert({
-          checklist_id: habitsChecklist.id,
-          content: command.name,
-          is_recurring: true,
-          is_completed: false,
-          order_index: 0,
+        const { error } = await supabase.from('action_items').insert({
+          user_id: user.id,
+          type: 'habit',
+          source: 'aurora',
+          status: 'todo',
+          title: command.name,
+          recurrence_rule: 'daily',
+          xp_reward: 10,
+          metadata: {
+            execution_template: 'step_by_step',
+            execution_template_source: 'explicit',
+          },
         });
         queryClient.invalidateQueries({ queryKey: ['daily-habits'] });
+        queryClient.invalidateQueries({ queryKey: ['action-items'] });
         return makeReceipt('habit', 'create', !error, command.name);
       }
       case 'completeHabit': {
@@ -239,6 +241,22 @@ export const useCommandBus = () => {
         return makeReceipt('habit', 'complete', ok, habit.content);
       }
       case 'removeHabit': {
+        if (!user?.id) return null;
+        // Try action_items first (SSOT), fallback to legacy
+        const { data: actionHabit } = await supabase.from('action_items')
+          .select('id, title')
+          .eq('user_id', user.id)
+          .eq('type', 'habit')
+          .ilike('title', `%${command.name}%`)
+          .limit(1)
+          .maybeSingle();
+        if (actionHabit) {
+          const { error } = await supabase.from('action_items').delete().eq('id', actionHabit.id);
+          queryClient.invalidateQueries({ queryKey: ['action-items'] });
+          queryClient.invalidateQueries({ queryKey: ['daily-habits'] });
+          return makeReceipt('habit', 'remove', !error, actionHabit.title);
+        }
+        // Legacy fallback
         const matching = habits.find(h =>
           h.content.toLowerCase().includes(command.name.toLowerCase()) ||
           command.name.toLowerCase().includes(h.content.toLowerCase())

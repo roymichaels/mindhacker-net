@@ -7609,6 +7609,16 @@ export type Database = {
           with_template: number
         }[]
       }
+      get_template_missing_breakdown: {
+        Args: { p_days?: number }
+        Returns: {
+          coverage_pct: number
+          dimension: string
+          dimension_value: string
+          missing_template: number
+          total_items: number
+        }[]
+      }
       get_user_tier: { Args: { p_user_id: string }; Returns: string }
       has_permission: {
         Args: { _permission_key: string; _user_id: string }
