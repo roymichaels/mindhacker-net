@@ -7600,6 +7600,15 @@ export type Database = {
           total_xp: number
         }[]
       }
+      get_template_coverage_stats: {
+        Args: { p_days?: number }
+        Returns: {
+          coverage_pct: number
+          day: string
+          total_items: number
+          with_template: number
+        }[]
+      }
       get_user_tier: { Args: { p_user_id: string }; Returns: string }
       has_permission: {
         Args: { _permission_key: string; _user_id: string }
