@@ -163,6 +163,38 @@ export type Database = {
           },
         ]
       }
+      action_skill_weights: {
+        Row: {
+          created_at: string
+          id: string
+          pillar: string
+          skill_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pillar: string
+          skill_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pillar?: string
+          skill_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_skill_weights_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_journeys: {
         Row: {
           ai_summary: string | null
@@ -3496,6 +3528,39 @@ export type Database = {
         }
         Relationships: []
       }
+      job_skill_weights: {
+        Row: {
+          job_id: string
+          multiplier: number
+          skill_id: string
+        }
+        Insert: {
+          job_id: string
+          multiplier?: number
+          skill_id: string
+        }
+        Update: {
+          job_id?: string
+          multiplier?: number
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_skill_weights_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_skill_weights_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           created_at: string
@@ -5951,6 +6016,80 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_xp_events: {
+        Row: {
+          action_item_id: string | null
+          amount: number
+          created_at: string
+          id: string
+          reason: string | null
+          skill_id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          action_item_id?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          skill_id: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          action_item_id?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          skill_id?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_xp_events_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skills: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          name_he: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          name_he?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_he?: string | null
+        }
+        Relationships: []
+      }
       subscription_tiers: {
         Row: {
           access_level: Database["public"]["Enums"]["content_access_level"]
@@ -6583,6 +6722,38 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_skill_progress: {
+        Row: {
+          level: number
+          skill_id: string
+          updated_at: string
+          user_id: string
+          xp_total: number
+        }
+        Insert: {
+          level?: number
+          skill_id: string
+          updated_at?: string
+          user_id: string
+          xp_total?: number
+        }
+        Update: {
+          level?: number
+          skill_id?: string
+          updated_at?: string
+          user_id?: string
+          xp_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skill_progress_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_subscriptions: {
         Row: {
@@ -7246,6 +7417,17 @@ export type Database = {
           p_amount: number
           p_idempotency_key?: string
           p_reason?: string
+          p_source: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      award_skill_xp: {
+        Args: {
+          p_action_item_id?: string
+          p_amount: number
+          p_reason?: string
+          p_skill_id: string
           p_source: string
           p_user_id: string
         }
