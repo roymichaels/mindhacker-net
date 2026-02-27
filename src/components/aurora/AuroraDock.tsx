@@ -56,8 +56,7 @@ export function AuroraDock() {
           isMobile
             ? "bottom-14"
             : "bottom-0",
-          // When assessing, take full remaining height
-          isAssessing && (isMobile ? "top-0" : "top-0")
+          // No full-height override for assessments — keep normal dock size
         )}
       >
         {/* Assessment mode: full-height DomainAssessChat */}
