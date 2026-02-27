@@ -30,8 +30,8 @@ export default function FeatureShowcaseSection() {
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             {isRTL
-              ? '13 מערכות שמשנות את אופן הניהול של החיים שלך.'
-              : '13 systems that change how you run your life.'}
+              ? '15 מערכות שמשנות את אופן הניהול של החיים שלך.'
+              : '15 systems that change how you run your life.'}
           </p>
         </motion.div>
 
