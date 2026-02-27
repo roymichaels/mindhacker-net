@@ -56,7 +56,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
                     isComingSoon
                       ? "text-muted-foreground/40 opacity-60 grayscale cursor-default pointer-events-none"
                       : active
-                        ? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
+                        ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
