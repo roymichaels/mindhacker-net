@@ -119,6 +119,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     subTabs: [
       { id: 'bug-reports', labelHe: 'דיווחי באגים', labelEn: 'Bug Reports', component: BugReports },
       { id: 'chat-assistant', labelHe: 'עוזר צ\'אט', labelEn: 'Chat Assistant', component: ChatAssistant },
+      { id: 'template-coverage', labelHe: 'כיסוי תבניות', labelEn: 'Template Coverage', component: TemplateCoverage },
       { id: 'settings', labelHe: 'הגדרות', labelEn: 'Settings', component: AdminSettings },
     ],
   },
