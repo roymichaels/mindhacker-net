@@ -89,7 +89,7 @@
     /* Borders and inputs */
     --border: 220 13% 85%;
     --input: 220 13% 90%;
-    --ring: 340 82% 65%;
+    --ring: 204 88% 53%;
 
     /* Glass panel - solid white in light mode */
     --glass-bg: 0 0% 100%;
@@ -98,12 +98,12 @@
     /* Sidebar tokens */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 340 82% 65%;
+    --sidebar-primary: 204 88% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 340 82% 65%;
+    --sidebar-ring: 204 88% 53%;
   }
 
   /* 
