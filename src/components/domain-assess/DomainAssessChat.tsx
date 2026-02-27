@@ -530,8 +530,8 @@ export default function DomainAssessChat({ domainId, asModal, asDock, onClose }:
           </div>
         </ScrollArea>
 
-        {/* Input — Aurora style */}
-        <AuroraChatInput onSend={sendMessage} disabled={isStreaming} />
+        {/* Input — Aurora style (hidden when docked, uses root GlobalChatInput instead) */}
+        {!asDock && <AuroraChatInput onSend={sendMessage} disabled={isStreaming} />}
       </div>
     </Wrapper>
   );
