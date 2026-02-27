@@ -45,6 +45,7 @@ const Testimonials      = lazy(() => import('@/pages/admin/Testimonials'));
 const BugReports        = lazy(() => import('@/pages/admin/BugReports'));
 const ChatAssistant     = lazy(() => import('@/pages/admin/ChatAssistant'));
 const AdminSettings     = lazy(() => import('@/pages/admin/Settings'));
+const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoveragePanel'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
@@ -118,6 +119,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     subTabs: [
       { id: 'bug-reports', labelHe: 'דיווחי באגים', labelEn: 'Bug Reports', component: BugReports },
       { id: 'chat-assistant', labelHe: 'עוזר צ\'אט', labelEn: 'Chat Assistant', component: ChatAssistant },
+      { id: 'template-coverage', labelHe: 'כיסוי תבניות', labelEn: 'Template Coverage', component: TemplateCoverage },
       { id: 'settings', labelHe: 'הגדרות', labelEn: 'Settings', component: AdminSettings },
     ],
   },

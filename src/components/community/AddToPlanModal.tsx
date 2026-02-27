@@ -58,7 +58,10 @@ export default function AddToPlanModal({ thread, open, onClose }: AddToPlanModal
         description: `${isHe ? 'מתוך שרשור קהילה' : 'From community thread'}: ${thread.title || thread.content.slice(0, 50)}`,
         pillar: thread.pillar,
         status: 'todo',
-        metadata: { community_thread_id: thread.id },
+        metadata: {
+          community_thread_id: thread.id,
+          // execution_template auto-filled by DB trigger from pillar
+        },
       });
 
       if (error) throw error;
