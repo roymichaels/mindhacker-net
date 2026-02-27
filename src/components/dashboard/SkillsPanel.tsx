@@ -91,6 +91,15 @@ export function SkillsPanel({ compact = false }: SkillsPanelProps) {
         })}
       </div>
     </div>
+
+      <SkillDetailModal
+        open={!!selectedSkill}
+        onOpenChange={(v) => !v && setSelectedSkill(null)}
+        skill={selectedSkill}
+        todayGain={selectedSkill ? (todayGainMap.get(selectedSkill.skill_id) || 0) : 0}
+        isHe={isHe}
+      />
+    </div>
   );
 }
 
