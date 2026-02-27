@@ -112,6 +112,7 @@ export function AuroraDock() {
       <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
 
       <div
+        data-aurora-dock
         className={cn(
           "fixed left-0 right-0 z-40 flex flex-col",
           "bg-background/100 backdrop-blur-none border-t border-border shadow-[0_-4px_16px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.5)]",
