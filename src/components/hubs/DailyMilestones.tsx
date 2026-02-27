@@ -286,6 +286,42 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           </div>
         </div>
 
+        {/* Generate button — below progress, above pillar cards */}
+        <Button
+          size="sm"
+          className="gap-1.5 w-full"
+          disabled={isGenerating}
+          onClick={() => {
+            const openFirstMissing = (missingPillars?: any[]) => {
+              const firstMissing = missingPillars?.[0]?.pillarId || missingPillars?.[0]?.pillar;
+              const fallbackPillar = firstMissing || allDomains.find(d => {
+                const row = getDomainRow(d.id);
+                return !isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
+              })?.id;
+              if (fallbackPillar) startAssessment(fallbackPillar);
+            };
+
+            generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
+              onSuccess: (data: any) => {
+                if (data?.error === 'MISSING_ASSESSMENT_DATA') {
+                  openFirstMissing(data.missing_pillars);
+                }
+              },
+              onError: (err: any) => {
+                if (err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') {
+                  openFirstMissing(err.missingPillars);
+                }
+              },
+            });
+          }}
+        >
+          {isGenerating ? (
+            <><Loader2 className="w-3.5 h-3.5 animate-spin" />{isHe ? 'מייצר...' : 'Generating...'}</>
+          ) : (
+            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}</>
+          )}
+        </Button>
+
         {/* Pillar cards grid */}
         <div className="grid grid-cols-2 gap-2">
           {pillarStatuses.map(({ domain: d, completed }) => {
@@ -328,42 +364,6 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
             );
           })}
         </div>
-
-        {/* Generate button */}
-        <Button
-          size="sm"
-          className="gap-1.5 w-full"
-          disabled={isGenerating}
-          onClick={() => {
-            const openFirstMissing = (missingPillars?: any[]) => {
-              const firstMissing = missingPillars?.[0]?.pillarId || missingPillars?.[0]?.pillar;
-              const fallbackPillar = firstMissing || allDomains.find(d => {
-                const row = getDomainRow(d.id);
-                return !isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
-              })?.id;
-              if (fallbackPillar) startAssessment(fallbackPillar);
-            };
-
-            generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
-              onSuccess: (data: any) => {
-                if (data?.error === 'MISSING_ASSESSMENT_DATA') {
-                  openFirstMissing(data.missing_pillars);
-                }
-              },
-              onError: (err: any) => {
-                if (err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') {
-                  openFirstMissing(err.missingPillars);
-                }
-              },
-            });
-          }}
-        >
-          {isGenerating ? (
-            <><Loader2 className="w-3.5 h-3.5 animate-spin" />{isHe ? 'מייצר...' : 'Generating...'}</>
-          ) : (
-            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}</>
-          )}
-        </Button>
 
       </div>
     );
