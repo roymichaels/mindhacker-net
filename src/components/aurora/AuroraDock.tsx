@@ -36,12 +36,6 @@ export function AuroraDock() {
 
   const isHe = language === 'he';
 
-  // Hide dock on non-dashboard pages (panels, etc.)
-  const isPanel = location.pathname.startsWith('/panel') ||
-    location.pathname.startsWith('/coach') ||
-    location.pathname.startsWith('/affiliate');
-  if (isPanel) return null;
-
   const isAssessing = !!assessmentDomainId;
 
   // Get pillar label if active
@@ -59,10 +53,9 @@ export function AuroraDock() {
 
   const handleDragMove = useCallback((clientY: number) => {
     if (!dragRef.current) return;
-    const deltaY = dragRef.current.startY - clientY; // dragging up = positive
-    const deltaPx = deltaY;
+    const deltaY = dragRef.current.startY - clientY;
     const viewportH = window.innerHeight;
-    const deltaVh = (deltaPx / viewportH) * 100;
+    const deltaVh = (deltaY / viewportH) * 100;
     const newVh = Math.min(MAX_CHAT_VH, Math.max(MIN_CHAT_VH, dragRef.current.startVh + deltaVh));
     setChatHeightVh(newVh);
   }, []);
@@ -71,7 +64,6 @@ export function AuroraDock() {
     dragRef.current = null;
   }, []);
 
-  // Touch handlers
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     handleDragStart(e.touches[0].clientY);
   }, [handleDragStart]);
@@ -83,7 +75,6 @@ export function AuroraDock() {
 
   const onTouchEnd = useCallback(() => handleDragEnd(), [handleDragEnd]);
 
-  // Mouse handlers
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientY);
@@ -92,6 +83,12 @@ export function AuroraDock() {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
   }, [handleDragStart, handleDragMove, handleDragEnd]);
+
+  // Hide dock on non-dashboard pages (panels, etc.)
+  const isPanel = location.pathname.startsWith('/panel') ||
+    location.pathname.startsWith('/coach') ||
+    location.pathname.startsWith('/affiliate');
+  if (isPanel) return null;
 
   const dragHandle = isChatExpanded ? (
     <div

@@ -476,7 +476,11 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
 
   return (
     <Wrapper className={isEmbedded ? cn('flex flex-col', embeddedHeightClass) : undefined}>
-      <div className={cn("flex flex-col", isEmbedded ? embeddedHeightClass : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div
+        className={cn("flex flex-col", isEmbedded ? embeddedHeightClass : "h-[calc(100vh-120px)]")}
+        style={asDock && dockHeightVh ? { height: `${dockHeightVh}vh` } : undefined}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
         {/* Header — Aurora style */}
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
           {!asModal && !asDock && (
