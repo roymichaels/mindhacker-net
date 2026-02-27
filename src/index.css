@@ -65,13 +65,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
 
-    /* Primary - Rose/Pink */
-    --primary: 340 82% 65%;
+    /* Primary - Twitter Blue */
+    --primary: 204 88% 53%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 340 90% 72%;
+    --primary-glow: 204 92% 60%;
 
-    /* Secondary - Purple/Violet */
-    --secondary: 270 85% 55%;
+    /* Secondary - Lighter Blue */
+    --secondary: 204 70% 45%;
     --secondary-foreground: 0 0% 100%;
 
     /* Muted elements */
@@ -89,7 +89,7 @@
     /* Borders and inputs */
     --border: 220 13% 85%;
     --input: 220 13% 90%;
-    --ring: 340 82% 65%;
+    --ring: 204 88% 53%;
 
     /* Glass panel - solid white in light mode */
     --glass-bg: 0 0% 100%;
@@ -98,12 +98,12 @@
     /* Sidebar tokens */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 340 82% 65%;
+    --sidebar-primary: 204 88% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 340 82% 65%;
+    --sidebar-ring: 204 88% 53%;
   }
 
   /* 
@@ -112,27 +112,27 @@
    * Activated by next-themes adding .dark class to <html>
    */
   html.dark, .dark {
-    /* Dark backgrounds - Deep purple-black */
-    --background: 260 60% 5%;
-    --background-end: 260 50% 8%;
+    /* Dark backgrounds - Deep blue-black */
+    --background: 220 30% 6%;
+    --background-end: 220 25% 9%;
     --foreground: 0 0% 100%;
 
-    --card: 260 45% 10%;
+    --card: 220 25% 11%;
     --card-foreground: 0 0% 100%;
-    --popover: 260 45% 10%;
+    --popover: 220 25% 11%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Rose/Pink */
-    --primary: 340 85% 70%;
-    --primary-foreground: 260 60% 5%;
-    --primary-glow: 340 90% 77%;
+    /* Primary - Twitter Blue */
+    --primary: 204 88% 53%;
+    --primary-foreground: 220 30% 6%;
+    --primary-glow: 204 92% 62%;
 
-    /* Secondary - Purple/Violet */
-    --secondary: 270 95% 65%;
-    --secondary-foreground: 260 60% 5%;
+    /* Secondary - Lighter Blue */
+    --secondary: 204 80% 58%;
+    --secondary-foreground: 220 30% 6%;
 
-    --muted: 260 40% 15%;
-    --muted-foreground: 292 30% 85%;
+    --muted: 220 25% 16%;
+    --muted-foreground: 210 20% 75%;
 
     /* Accent - Gold/Amber */
     --accent: 38 95% 50%;
@@ -141,21 +141,21 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 340 50% 30%;
-    --input: 260 40% 18%;
-    --ring: 340 85% 70%;
+    --border: 210 30% 25%;
+    --input: 220 25% 18%;
+    --ring: 204 88% 53%;
 
-    --glass-bg: 260 50% 10%;
-    --glass-border: 340 85% 70%;
+    --glass-bg: 220 25% 11%;
+    --glass-border: 204 88% 53%;
 
-    --sidebar-background: 260 50% 5%;
+    --sidebar-background: 220 30% 6%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 340 85% 70%;
-    --sidebar-primary-foreground: 260 60% 5%;
-    --sidebar-accent: 260 40% 15%;
+    --sidebar-primary: 204 88% 53%;
+    --sidebar-primary-foreground: 220 30% 6%;
+    --sidebar-accent: 220 25% 16%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 340 50% 30%;
-    --sidebar-ring: 340 85% 70%;
+    --sidebar-border: 210 30% 25%;
+    --sidebar-ring: 204 88% 53%;
   }
 }
 
