@@ -1,6 +1,6 @@
 # MINDOS FULL SYSTEM AUDIT
 
-> Generated: 2026-02-27 | Auditor: AI | Status: COMPLETE
+> Generated: 2026-02-27 | **Updated: 2026-02-27 (verified pass)** | Auditor: AI | Status: VERIFIED
 
 ---
 
@@ -34,7 +34,7 @@ Total tables identified: **~85+** (from types.ts schema)
 | `skill_xp_events` | Skill XP ledger | Per-skill XP transactions | **Active (SSOT)** |
 | `user_skill_progress` | Skill XP cache | Derived skill totals | **Active (derived cache)** |
 | `skills` | Skill catalog | Skill definitions | **Active** |
-| `action_skill_weights` | Pillar→skill mappings | XP distribution weights | **Active** |
+| `action_skill_weights` | Pillar→skill + template→skill mappings | XP distribution weights | **Active** — all 35 rows use `mapping_type='pillar'`, `mapping_key=<pillar>` |
 | `jobs` | Job/role catalog | Job definitions | **Active** |
 | `job_skill_weights` | Job→skill multipliers | Skill multiplier by job | **Active** |
 | `user_jobs` | User's assigned jobs | User-job assignments | **Active** |
@@ -372,14 +372,17 @@ Total tables identified: **~85+** (from types.ts schema)
 
 ### 3.8 Coach-Injected Task
 
+**VERIFIED** against `supabase/functions/generate-coach-plan/index.ts`:
+
 ```
-1. Coach uses generate-coach-plan edge function
-2. AI generates plan → INSERT coach_client_plans
-3. Plan data stored as JSON in plan_data column
-4. NO automatic injection into client's action_items
-5. Coach must manually create action_items for client (if implemented)
-⚠️ GAP: coach_client_plans.plan_data is disconnected from action_items
+1. Coach calls generate-coach-plan edge function
+2. AI generates plan structure as JSON
+3. INSERT → coach_client_plans (line 109-121: supabaseClient.from('coach_client_plans').insert({...}))
+4. ❌ NO INSERT to action_items — plan stays as JSON blob in plan_data
+5. ❌ NO INSERT to life_plan_milestones or mini_milestones
 ```
+
+**CONFIRMED GAP:** `generate-coach-plan` writes ONLY to `coach_client_plans`. The `plan_data` JSON is never materialized into the client's `action_items`. Coach plans are display-only.
 
 ---
 
@@ -397,7 +400,8 @@ Total tables identified: **~85+** (from types.ts schema)
 | `notify_new_user_welcome` | profiles | INSERT | No | No dedup | ⚠️ |
 | `guard_xp_direct_update` | profiles | BEFORE UPDATE | No | N/A | ✅ |
 | `handle_hypnosis_session_complete` | hypnosis_sessions | INSERT | award_unified_xp, award_energy | No idempotency key | ⚠️ |
-| `handle_action_item_completion` | action_items | UPDATE | award_unified_xp, award_skill_xp | Partial (skill_xp has unique constraint) | ⚠️ |
+| `handle_action_item_completion` | action_items | BEFORE UPDATE | award_unified_xp, award_skill_xp | Partial (skill_xp has unique constraint) | ⚠️ |
+| `trg_enforce_execution_template` | action_items | BEFORE INSERT (row) | No | Yes (idempotent — only sets if missing) | ✅ |
 | `handle_mini_milestone_completion` | mini_milestones | UPDATE | award_unified_xp | No dedup | ⚠️ |
 | `check_milestone_from_minis` | mini_milestones | UPDATE | No | Yes (conditional) | ✅ |
 | `check_mission_completion` | life_plan_milestones | UPDATE | No | Yes (conditional) | ✅ |
@@ -554,10 +558,14 @@ action_items UPDATE (status='done')
 
 ### 7.4 execution_template Derivation vs Explicit Override
 
-- `action_skill_weights` uses `mapping_type='execution_template'` for template-based lookup
-- Falls back to `pillar` mapping if no template match
-- If an action_item has `metadata.execution_template` set but no corresponding weight row exists, it silently falls through to pillar default
-- **Risk:** Silent skill XP miscalculation with no warning or logging
+**VERIFIED** — `trg_enforce_execution_template` (BEFORE INSERT on `action_items`) auto-derives `metadata.execution_template` from pillar using a CASE mapping. It skips if the field is already set (explicit override).
+
+**However:** There is NO `execution_template_source` column on `action_items`. The trigger does not record whether the template was explicit or derived. This makes debugging silent — you cannot tell from the data whether a template was user-set or auto-assigned.
+
+- `handle_action_item_completion` then uses `metadata->>'execution_template'` to look up `action_skill_weights` with `mapping_type='execution_template'`.
+- **Current DB state:** All 35 `action_skill_weights` rows use `mapping_type='pillar'`. There are ZERO rows with `mapping_type='execution_template'`.
+- **Implication:** The template→skill lookup path ALWAYS returns no rows, and the trigger falls back to pillar mapping every time. The execution_template skill mapping feature is **defined but unpopulated** — effectively dead code in the trigger.
+- **Risk:** Silent — no error, no logging. Template-based skill weighting is architecturally ready but has zero data.
 
 ---
 
@@ -665,6 +673,94 @@ Cannot verify from types.ts alone — requires `supabase--linter` check. Key tab
 - `award_unified_xp` / `award_energy` / `spend_energy` / `award_skill_xp` — These RPCs are the canonical write paths. Never bypass them.
 - `guard_xp_direct_update` — This trigger enforces SSOT integrity. Never disable it.
 - `profiles.id` as user identifier — All FKs reference this. Never change the PK strategy.
+
+---
+
+## APPENDIX: VERIFICATION GATES (2026-02-27)
+
+### Gate 1: action_skill_weights pillar fallback
+
+**FOUND** — All 35 rows use `mapping_type='pillar'` and `mapping_key=<pillar_name>`.
+
+Previous audit incorrectly stated `mapping_type IS NULL` for pillar rows. **Corrected.**
+
+```sql
+SELECT mapping_type, mapping_key, pillar, COUNT(*) FROM action_skill_weights GROUP BY 1,2,3;
+-- Result: 35 rows, all mapping_type='pillar', mapping_key matches pillar column exactly
+-- Example: mapping_type='pillar', mapping_key='mind', pillar='mind', skill_id='f025f794-...', weight=0.8
+```
+
+Columns: `id, created_at, mapping_key, mapping_type, pillar, skill_id, weight`
+
+### Gate 2: Coach plan injection
+
+**FOUND** — `supabase/functions/generate-coach-plan/index.ts`
+
+Line 109-121: Only insert target is `coach_client_plans`:
+```ts
+const { data: plan, error: insertError } = await supabaseClient
+  .from('coach_client_plans')
+  .insert({
+    coach_id: coachId,
+    client_name: clientName,
+    plan_data: planData,
+    // ...
+  })
+```
+
+**NOT FOUND:** Any insert to `action_items` for the client. Confirmed disconnected.
+
+### Gate 3: generate-phase-actions
+
+**FOUND** — `supabase/functions/generate-phase-actions/index.ts`
+
+Line 269-271: Inserts ONLY `mini_milestones`:
+```ts
+const { error: insertError } = await supabase
+  .from("mini_milestones")
+  .insert(miniRows);
+```
+
+**NOT FOUND:** Any insert to `action_items`. This function generates mini-milestones only — action_items are not created from phase actions.
+
+### Gate 4: enforce_execution_template trigger
+
+**FOUND** — Trigger `trg_enforce_execution_template` on `action_items`.
+
+- **Event:** BEFORE INSERT (row-level). tgtype=7 → BEFORE + INSERT + ROW.
+- **NOT** on UPDATE — only fires on INSERT.
+- **`execution_template_source` column:** NOT FOUND on `action_items`. The trigger does not track derivation source.
+
+Function excerpt (verified from `pg_get_functiondef`):
+```sql
+-- Skip if already has execution_template
+IF NEW.metadata IS NOT NULL
+   AND NEW.metadata->>'execution_template' IS NOT NULL
+   AND NEW.metadata->>'execution_template' != '' THEN
+  RETURN NEW;
+END IF;
+-- Derive from pillar
+v_template := CASE COALESCE(NEW.pillar, '')
+  WHEN 'vitality' THEN 'step_by_step'
+  WHEN 'power' THEN 'sets_reps_timer'
+  ...
+  ELSE 'step_by_step'
+END;
+NEW.metadata := COALESCE(NEW.metadata, '{}'::jsonb) || jsonb_build_object('execution_template', v_template);
+```
+
+---
+
+## Delta Since Last Audit
+
+| # | Item | Previous Claim | Verified Reality | Severity |
+|---|------|---------------|-----------------|----------|
+| 1 | `action_skill_weights` pillar rows | "mapping_type IS NULL" fallback | All rows use `mapping_type='pillar'`, `mapping_key=<pillar>` | 🔴 Audit error corrected |
+| 2 | `action_skill_weights` template rows | "uses mapping_type='execution_template'" | Zero rows exist with this mapping_type — feature is unpopulated | 🟡 New finding |
+| 3 | `enforce_execution_template` trigger | Not mentioned in original audit | Exists as BEFORE INSERT on action_items. No UPDATE event. No `execution_template_source` column. | 🟡 Missing from audit, now added |
+| 4 | `generate-phase-actions` targets | Listed as writing "action_items" | Writes ONLY `mini_milestones` — never touches `action_items` | 🔴 Audit error corrected |
+| 5 | `generate-coach-plan` targets | "NO automatic injection" (vague) | Verified: writes only `coach_client_plans`, exact line refs provided | ✅ Confirmed, made precise |
+| 6 | `handle_action_item_completion` skill XP | "template→pillar fallback" | Correct logic, but template path is dead code (0 template weight rows) | 🟡 Clarified |
 
 ---
 
