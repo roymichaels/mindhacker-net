@@ -1,6 +1,6 @@
 /**
  * PillarSynthesisModal — Auto-triggered when all 14 domains are complete.
- * Calls generate-pillar-synthesis to create a new comprehensive 90-day plan.
+ * Calls generate-pillar-synthesis to create a new comprehensive 100-day plan.
  */
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
