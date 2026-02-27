@@ -160,6 +160,9 @@ export function HudSidebar() {
               <button onClick={() => setActiveModal('insights')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
                 <Brain className="w-4 h-4 text-chart-3" />
               </button>
+              <button onClick={() => setActiveModal('skills')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
+                <Star className="w-4 h-4 text-chart-1" />
+              </button>
             </div>
           </div>
         )}
