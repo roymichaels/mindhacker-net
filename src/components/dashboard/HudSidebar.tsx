@@ -16,6 +16,7 @@ import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
+import { SkillsModal } from '@/components/modals/SkillsModal';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
   Target, UserCircle, Compass, RefreshCw, Loader2, Play,
@@ -66,7 +67,7 @@ export function HudSidebar() {
       setRecalibrating(false);
     }
   }, [user?.id, recalibrating, isHe, queryClient]);
-  type ModalType = 'identity' | 'direction' | 'insights' | null;
+  type ModalType = 'identity' | 'direction' | 'insights' | 'skills' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [insightsTab, setInsightsTab] = useState<string | undefined>();
 
@@ -112,7 +113,7 @@ export function HudSidebar() {
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                 Lv.{xp.level}
               </span>
-              {/* MapleStory-style EXP bar */}
+              {/* EXP bar */}
               <div className="w-full px-0.5">
                 <div className="relative w-full h-3 rounded-sm border border-primary/30 bg-background/80 overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]">
                   <div
@@ -159,6 +160,9 @@ export function HudSidebar() {
               <button onClick={() => setActiveModal('insights')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
                 <Brain className="w-4 h-4 text-chart-3" />
               </button>
+              <button onClick={() => setActiveModal('skills')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
+                <Star className="w-4 h-4 text-chart-1" />
+              </button>
             </div>
           </div>
         )}
@@ -191,7 +195,7 @@ export function HudSidebar() {
             </span>
           </div>
 
-          {/* MapleStory-style EXP bar — expanded */}
+          {/* EXP bar — expanded */}
           <div className="w-full">
             <div className="relative w-full h-4 rounded-sm border border-primary/30 bg-background/80 overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]">
               <div
@@ -243,7 +247,7 @@ export function HudSidebar() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
                 <UserCircle className="w-4 h-4 text-chart-5" />
                 <span className="text-xs font-medium">{t('dashboard.identity')}</span>
@@ -255,6 +259,10 @@ export function HudSidebar() {
               <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
                 <Brain className="w-4 h-4 text-chart-3" />
                 <span className="text-xs font-medium">{t('dashboard.insights')}</span>
+              </button>
+              <button onClick={() => setActiveModal('skills')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
+                <Star className="w-4 h-4 text-chart-1" />
+                <span className="text-xs font-medium">{isHe ? 'כישורים' : 'Skills'}</span>
               </button>
             </div>
           </div>
@@ -297,6 +305,9 @@ export function HudSidebar() {
       <MergedInsightsModal
         open={activeModal === 'insights'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
         initialTab={insightsTab}
+      />
+      <SkillsModal
+        open={activeModal === 'skills'} onOpenChange={(o) => !o && setActiveModal(null)}
       />
       
     </>

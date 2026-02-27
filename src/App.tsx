@@ -139,7 +139,7 @@ const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsL
 const ArenaLayoutWrapper = lazy(() => import("./components/arena/ArenaLayoutWrapper"));
 const ArenaDomainPage = lazy(() => import("./pages/ArenaDomainPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
-const MapleStory = lazy(() => import("./pages/MapleStory"));
+
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
 const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashboard"));
@@ -343,7 +343,7 @@ const App = () => (
                           <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
                           {/* Quests */}
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
-                          <Route path="/maple" element={<MapleStory />} />
+                          
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
                           <Route path="/coaching/journey/:journeyId" element={<CoachingJourney />} />
