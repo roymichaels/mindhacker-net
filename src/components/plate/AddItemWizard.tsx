@@ -99,6 +99,7 @@ export function AddItemWizard({ open, onOpenChange, hub }: AddItemWizardProps) {
         });
       } else {
         // goal, habit, task → action_items
+        // execution_template auto-filled by DB trigger from pillar
         await supabase.from('action_items').insert({
           user_id: user!.id,
           title: toolArgs.title,
