@@ -34,7 +34,7 @@ Total tables identified: **~85+** (from types.ts schema)
 | `skill_xp_events` | Skill XP ledger | Per-skill XP transactions | **Active (SSOT)** |
 | `user_skill_progress` | Skill XP cache | Derived skill totals | **Active (derived cache)** |
 | `skills` | Skill catalog | Skill definitions | **Active** |
-| `action_skill_weights` | Pillar→skill mappings | XP distribution weights | **Active** |
+| `action_skill_weights` | Pillar→skill + template→skill mappings | XP distribution weights | **Active** — all 35 rows use `mapping_type='pillar'`, `mapping_key=<pillar>` |
 | `jobs` | Job/role catalog | Job definitions | **Active** |
 | `job_skill_weights` | Job→skill multipliers | Skill multiplier by job | **Active** |
 | `user_jobs` | User's assigned jobs | User-job assignments | **Active** |
