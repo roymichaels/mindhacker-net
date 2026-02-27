@@ -1,7 +1,13 @@
+/**
+ * SSOT: All roadmap data comes from action_items table ONLY.
+ * aurora_checklists is LEGACY — do not read or write from production code.
+ * All XP must flow through award_unified_xp RPC (handled by action_items completion trigger).
+ */
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { startOfDay, endOfDay, addDays, format, isSameDay, isBefore, startOfWeek, endOfWeek, differenceInDays } from 'date-fns';
+import { startOfDay, endOfDay, addDays, format, isSameDay, isBefore, startOfWeek, differenceInDays } from 'date-fns';
+import { toggleActionStatus, createAction } from '@/services/actionItems';
 
 export type MissionCategory = 'personal' | 'business' | 'health';
 export type MissionTimeScope = 'daily' | 'weekly' | 'monthly';
@@ -95,6 +101,15 @@ export interface CalendarData {
   overdueTasks: MissionItem[];
 }
 
+// Map pillar strings to roadmap categories
+function pillarToCategory(pillar: string | null): MissionCategory {
+  if (!pillar) return 'personal';
+  const lower = pillar.toLowerCase();
+  if (['business', 'career', 'finance', 'money'].includes(lower)) return 'business';
+  if (['body', 'health', 'fitness', 'combat'].includes(lower)) return 'health';
+  return 'personal';
+}
+
 export function useMissionsRoadmap() {
   const { user } = useAuth();
   const [missions, setMissions] = useState<Mission[]>([]);
@@ -110,15 +125,37 @@ export function useMissionsRoadmap() {
     if (!user?.id) return;
 
     try {
-      // Fetch checklists with items
-      const { data: checklists, error } = await supabase
-        .from('aurora_checklists')
-        .select('*, aurora_checklist_items(*)')
+      // SSOT: Read from action_items ONLY
+      // Fetch parent items (missions/groups) — parent_id IS NULL, type='task'
+      const { data: parentItems, error: parentError } = await supabase
+        .from('action_items')
+        .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('priority', { ascending: false });
+        .eq('type', 'task')
+        .is('parent_id', null)
+        .in('status', ['todo', 'doing', 'done'])
+        .order('order_index');
 
-      if (error) throw error;
+      if (parentError) throw parentError;
+
+      // Fetch child items (sub-tasks under parents)
+      const parentIds = (parentItems || []).map(p => p.id);
+      let childItems: any[] = [];
+      if (parentIds.length > 0) {
+        const { data: children, error: childError } = await supabase
+          .from('action_items')
+          .select('*')
+          .in('parent_id', parentIds)
+          .in('status', ['todo', 'doing', 'done'])
+          .order('order_index');
+        if (childError) throw childError;
+        childItems = children || [];
+      }
+
+      // Also fetch standalone tasks (no parent, no children) for today view
+      const standaloneIds = parentIds.filter(
+        pid => !childItems.some(c => c.parent_id === pid)
+      );
 
       // Fetch life plan and milestones
       const { data: lifePlan } = await supabase
@@ -143,7 +180,6 @@ export function useMissionsRoadmap() {
         setCurrentWeek(weekNum);
         setCurrentMonth(monthNum);
 
-        // Fetch ALL milestones for the plan
         const { data: allMilestones } = await supabase
           .from('life_plan_milestones')
           .select('id, week_number, month_number, title, title_en, goal, goal_en, is_completed, tasks, tasks_en')
@@ -163,49 +199,64 @@ export function useMissionsRoadmap() {
         }
       }
 
-      // Transform checklists to missions + collect all items with metadata
+      // Build missions from parent items that have children
       const transformedMissions: Mission[] = [];
       const collectedItems: MissionItem[] = [];
+      const childrenByParent = new Map<string, any[]>();
+      
+      childItems.forEach(child => {
+        const list = childrenByParent.get(child.parent_id) || [];
+        list.push(child);
+        childrenByParent.set(child.parent_id, list);
+      });
 
-      (checklists || []).forEach((checklist: any) => {
-        const items = checklist.aurora_checklist_items || [];
-        const completedCount = items.filter((i: any) => i.is_completed).length;
-        const totalCount = items.length;
-        const category = (checklist.category || 'personal') as MissionCategory;
-
-        transformedMissions.push({
-          id: checklist.id,
-          title: checklist.title,
-          category,
-          time_scope: (checklist.time_scope || 'weekly') as MissionTimeScope,
-          origin: checklist.origin,
-          priority: checklist.priority || 0,
-          milestone_id: checklist.milestone_id,
-          items: items.map((item: any) => ({
-            id: item.id,
-            content: item.content,
-            is_completed: item.is_completed,
-            due_date: item.due_date,
-            order_index: item.order_index,
-            is_recurring: item.is_recurring || false,
-          })),
-          completedCount,
-          totalCount,
-          progress: totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0,
-        });
-
-        items.forEach((item: any) => {
-          collectedItems.push({
-            id: item.id,
-            content: item.content,
-            is_completed: item.is_completed,
-            due_date: item.due_date,
-            order_index: item.order_index,
-            is_recurring: item.is_recurring || false,
-            checklist_title: checklist.title,
+      (parentItems || []).forEach((parent: any) => {
+        const children = childrenByParent.get(parent.id) || [];
+        const category = pillarToCategory(parent.pillar);
+        const timeScope = (parent.metadata?.time_scope || 'weekly') as MissionTimeScope;
+        
+        // If parent has children, treat as mission group
+        if (children.length > 0) {
+          const items: MissionItem[] = children.map((child: any) => ({
+            id: child.id,
+            content: child.title,
+            is_completed: child.status === 'done',
+            due_date: child.scheduled_date || (child.due_at ? child.due_at.slice(0, 10) : null),
+            order_index: child.order_index,
+            is_recurring: !!child.recurrence_rule,
+            checklist_title: parent.title,
             category,
+          }));
+
+          const completedCount = items.filter(i => i.is_completed).length;
+          transformedMissions.push({
+            id: parent.id,
+            title: parent.title,
+            category,
+            time_scope: timeScope,
+            origin: parent.source === 'aurora' ? 'aurora' : 'manual',
+            priority: parent.priority_score || parent.order_index || 0,
+            milestone_id: parent.milestone_id,
+            items,
+            completedCount,
+            totalCount: items.length,
+            progress: items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0,
           });
-        });
+
+          collectedItems.push(...items);
+        } else {
+          // Standalone task — treat as single-item mission
+          const item: MissionItem = {
+            id: parent.id,
+            content: parent.title,
+            is_completed: parent.status === 'done',
+            due_date: parent.scheduled_date || (parent.due_at ? parent.due_at.slice(0, 10) : null),
+            order_index: parent.order_index,
+            is_recurring: !!parent.recurrence_rule,
+            category,
+          };
+          collectedItems.push(item);
+        }
       });
 
       setMissions(transformedMissions);
@@ -221,10 +272,10 @@ export function useMissionsRoadmap() {
     fetchMissions();
     if (!user?.id) return;
 
+    // SSOT: Subscribe to action_items changes only
     const channel = supabase
       .channel('missions-roadmap')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_checklists', filter: `user_id=eq.${user.id}` }, () => fetchMissions())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_checklist_items' }, () => fetchMissions())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'action_items', filter: `user_id=eq.${user.id}` }, () => fetchMissions())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -233,7 +284,6 @@ export function useMissionsRoadmap() {
   // Build calendar data from items and milestones
   const calendarData = useMemo<CalendarData>(() => {
     const today = new Date();
-    const todayStr = format(today, 'yyyy-MM-dd');
 
     const getItemsForDate = (date: Date): MissionItem[] => {
       const dateStr = format(date, 'yyyy-MM-dd');
@@ -258,20 +308,15 @@ export function useMissionsRoadmap() {
       };
     };
 
-    // Today
     const todayData = buildDayData(today);
-
-    // Current week
     const weekStart = startOfWeek(today, { weekStartsOn: 0 });
     const currentWeekDays = Array.from({ length: 7 }, (_, i) => buildDayData(addDays(weekStart, i)));
 
-    // Overdue tasks
     const overdueTasks = allItems.filter(item => {
       if (item.is_completed || !item.due_date) return false;
       return isBefore(new Date(item.due_date), startOfDay(today));
     });
 
-    // 90-day timeline: 3 months, each with ~4 weeks
     const months: MonthData[] = [];
     if (planStartDate) {
       for (let m = 0; m < 3; m++) {
@@ -343,45 +388,77 @@ export function useMissionsRoadmap() {
     return structure;
   }, [missions, currentMilestone, currentWeek, currentMonth]);
 
+  // SSOT: Toggle uses action_items status. XP is awarded automatically by DB trigger.
   const toggleItem = useCallback(async (itemId: string, isCompleted: boolean) => {
-    const { error } = await supabase
-      .from('aurora_checklist_items')
-      .update({ is_completed: isCompleted, completed_at: isCompleted ? new Date().toISOString() : null })
-      .eq('id', itemId);
-
-    if (error) { console.error('Error toggling item:', error); return false; }
-
-    if (isCompleted && user?.id) {
-      await supabase.rpc('aurora_award_xp', { p_user_id: user.id, p_amount: 10, p_reason: 'Mission item completed' });
+    try {
+      await toggleActionStatus(itemId, isCompleted);
+      return true;
+    } catch (error) {
+      console.error('Error toggling item:', error);
+      return false;
     }
-    return true;
-  }, [user?.id]);
+  }, []);
 
+  // SSOT: Create mission as action_item with type='task'
   const createMission = useCallback(async (title: string, category: MissionCategory, timeScope: MissionTimeScope, items?: string[]) => {
     if (!user?.id) return null;
-    const { data: checklist, error } = await supabase
-      .from('aurora_checklists')
-      .insert({ user_id: user.id, title, category, time_scope: timeScope, origin: 'manual', status: 'active' })
-      .select().single();
-    if (error) { console.error('Error creating mission:', error); return null; }
-    if (items?.length && checklist) {
-      await supabase.from('aurora_checklist_items').insert(items.map((content, index) => ({ checklist_id: checklist.id, content, order_index: index, is_completed: false })));
+    try {
+      const parent = await createAction({
+        user_id: user.id,
+        type: 'task',
+        title,
+        source: 'user',
+        pillar: category,
+        metadata: { time_scope: timeScope },
+      });
+
+      if (items?.length && parent) {
+        for (let i = 0; i < items.length; i++) {
+          await createAction({
+            user_id: user.id,
+            type: 'task',
+            title: items[i],
+            source: 'user',
+            parent_id: parent.id,
+            order_index: i,
+          });
+        }
+      }
+      return parent;
+    } catch (error) {
+      console.error('Error creating mission:', error);
+      return null;
     }
-    return checklist;
   }, [user?.id]);
 
+  // Update category via action_items
   const updateMissionCategory = useCallback(async (missionId: string, category: MissionCategory) => {
-    const { error } = await supabase.from('aurora_checklists').update({ category }).eq('id', missionId);
+    const { error } = await supabase
+      .from('action_items')
+      .update({ pillar: category } as any)
+      .eq('id', missionId);
     return !error;
   }, []);
 
+  // Update time scope via action_items metadata
   const updateMissionTimeScope = useCallback(async (missionId: string, timeScope: MissionTimeScope) => {
-    const { error } = await supabase.from('aurora_checklists').update({ time_scope: timeScope }).eq('id', missionId);
+    // Read current metadata, merge time_scope
+    const { data } = await supabase
+      .from('action_items')
+      .select('metadata')
+      .eq('id', missionId)
+      .single();
+    
+    const currentMeta = (data?.metadata as Record<string, any>) || {};
+    const { error } = await supabase
+      .from('action_items')
+      .update({ metadata: { ...currentMeta, time_scope: timeScope } } as any)
+      .eq('id', missionId);
     return !error;
   }, []);
 
   const stats = useMemo(() => {
-    const items = missions.flatMap(m => m.items);
+    const items = allItems;
     const completed = items.filter(i => i.is_completed).length;
     const total = items.length;
     const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -394,7 +471,7 @@ export function useMissionsRoadmap() {
       todayTotal: todayItems.length, todayCompleted,
       todayRemaining: todayItems.length - todayCompleted,
     };
-  }, [missions]);
+  }, [allItems]);
 
   return {
     roadmap, calendarData, missions, loading, stats,
