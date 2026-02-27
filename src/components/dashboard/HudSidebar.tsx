@@ -247,7 +247,7 @@ export function HudSidebar() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
                 <UserCircle className="w-4 h-4 text-chart-5" />
                 <span className="text-xs font-medium">{t('dashboard.identity')}</span>
@@ -259,6 +259,10 @@ export function HudSidebar() {
               <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
                 <Brain className="w-4 h-4 text-chart-3" />
                 <span className="text-xs font-medium">{t('dashboard.insights')}</span>
+              </button>
+              <button onClick={() => setActiveModal('skills')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
+                <Star className="w-4 h-4 text-chart-1" />
+                <span className="text-xs font-medium">{isHe ? 'כישורים' : 'Skills'}</span>
               </button>
             </div>
           </div>
