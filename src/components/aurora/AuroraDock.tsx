@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Bug, X } from 'lucide-react';
+import { Bug, GripHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -12,6 +12,11 @@ import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
+
+/** Min/max height for the expanded chat area (vh units) */
+const MIN_CHAT_VH = 30;
+const MAX_CHAT_VH = 85;
+const DEFAULT_CHAT_VH = 55;
 
 export function AuroraDock() {
   const location = useLocation();
@@ -26,6 +31,8 @@ export function AuroraDock() {
     endAssessment,
   } = useAuroraChatContext();
   const [bugReportOpen, setBugReportOpen] = useState(false);
+  const [chatHeightVh, setChatHeightVh] = useState(DEFAULT_CHAT_VH);
+  const dragRef = useRef<{ startY: number; startVh: number } | null>(null);
 
   const isHe = language === 'he';
 
@@ -45,6 +52,59 @@ export function AuroraDock() {
   const assessDomain = assessmentDomainId ? LIFE_DOMAINS.find(d => d.id === assessmentDomainId) : null;
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
 
+  // Drag handle logic for resizing
+  const handleDragStart = useCallback((clientY: number) => {
+    dragRef.current = { startY: clientY, startVh: chatHeightVh };
+  }, [chatHeightVh]);
+
+  const handleDragMove = useCallback((clientY: number) => {
+    if (!dragRef.current) return;
+    const deltaY = dragRef.current.startY - clientY; // dragging up = positive
+    const deltaPx = deltaY;
+    const viewportH = window.innerHeight;
+    const deltaVh = (deltaPx / viewportH) * 100;
+    const newVh = Math.min(MAX_CHAT_VH, Math.max(MIN_CHAT_VH, dragRef.current.startVh + deltaVh));
+    setChatHeightVh(newVh);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    dragRef.current = null;
+  }, []);
+
+  // Touch handlers
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    handleDragStart(e.touches[0].clientY);
+  }, [handleDragStart]);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    handleDragMove(e.touches[0].clientY);
+  }, [handleDragMove]);
+
+  const onTouchEnd = useCallback(() => handleDragEnd(), [handleDragEnd]);
+
+  // Mouse handlers
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    handleDragStart(e.clientY);
+    const onMove = (ev: MouseEvent) => handleDragMove(ev.clientY);
+    const onUp = () => { handleDragEnd(); window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [handleDragStart, handleDragMove, handleDragEnd]);
+
+  const dragHandle = isChatExpanded ? (
+    <div
+      className="flex items-center justify-center py-1 cursor-row-resize touch-none select-none shrink-0"
+      onMouseDown={onMouseDown}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <GripHorizontal className="w-5 h-5 text-muted-foreground/40" />
+    </div>
+  ) : null;
+
   return (
     <>
       <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
@@ -56,15 +116,17 @@ export function AuroraDock() {
           isMobile
             ? "bottom-14"
             : "bottom-0",
-          // No full-height override for assessments — keep normal dock size
         )}
       >
         {/* Assessment mode: full-height DomainAssessChat */}
         {isAssessing && assessmentDomainId ? (
           <>
+            {/* Drag handle */}
+            {dragHandle}
+
             {/* Assessment indicator + close (visible when expanded) */}
             {isChatExpanded && (
-              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-1.5 mb-0.5">
+              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-0.5 mb-0.5 shrink-0">
                 <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
                   {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
                 </span>
@@ -86,11 +148,13 @@ export function AuroraDock() {
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="w-full overflow-hidden max-h-[55vh]"
+                  className="w-full overflow-hidden"
+                  style={{ maxHeight: `${chatHeightVh}vh` }}
                 >
                   <DomainAssessChat
                     domainId={assessmentDomainId}
                     asDock
+                    dockHeightVh={chatHeightVh}
                     onClose={() => endAssessment()}
                   />
                 </motion.div>
@@ -102,9 +166,12 @@ export function AuroraDock() {
           </>
         ) : (
           <>
+            {/* Drag handle */}
+            {dragHandle}
+
             {/* Bug report + pillar indicator (visible only when expanded) */}
             {isChatExpanded && (
-              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-1.5 mb-0.5">
+              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-0.5 mb-0.5 shrink-0">
                 {pillarLabel ? (
                   <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
                     {pillarLabel}
@@ -131,6 +198,7 @@ export function AuroraDock() {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
                   className="w-full overflow-hidden"
+                  style={{ maxHeight: `${chatHeightVh}vh` }}
                 >
                   <AuroraChatBubbles />
                 </motion.div>
