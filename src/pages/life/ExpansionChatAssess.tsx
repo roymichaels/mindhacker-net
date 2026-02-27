@@ -1,2 +1,2 @@
-import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
-export default function ExpansionChatAssess() { return <DomainAssessChat domainId="expansion" />; }
+import { Navigate } from 'react-router-dom';
+export default function ExpansionChatAssess() { return <Navigate to="/life/expansion" replace />; }

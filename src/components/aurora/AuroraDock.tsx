@@ -56,34 +56,50 @@ export function AuroraDock() {
           isMobile
             ? "bottom-14"
             : "bottom-0",
-          // When assessing, take full remaining height
-          isAssessing && (isMobile ? "top-0" : "top-0")
+          // No full-height override for assessments — keep normal dock size
         )}
       >
         {/* Assessment mode: full-height DomainAssessChat */}
         {isAssessing && assessmentDomainId ? (
-          <div className="flex flex-col h-full">
-            {/* Close button for assessment */}
-            <div className="flex items-center justify-between px-3 pt-2 pb-1 shrink-0">
-              <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
-                {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
-              </span>
-              <button
-                onClick={() => endAssessment()}
-                className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-                title={isHe ? 'סגור' : 'Close'}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <DomainAssessChat
-                domainId={assessmentDomainId}
-                asDock
-                onClose={() => endAssessment()}
-              />
-            </div>
-          </div>
+          <>
+            {/* Assessment indicator + close (visible when expanded) */}
+            {isChatExpanded && (
+              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-1.5 mb-0.5">
+                <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
+                  {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
+                </span>
+                <button
+                  onClick={() => endAssessment()}
+                  className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                  title={isHe ? 'סגור' : 'Close'}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Assessment chat bubbles (expanded only) */}
+            <AnimatePresence>
+              {isChatExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="w-full overflow-hidden"
+                >
+                  <DomainAssessChat
+                    domainId={assessmentDomainId}
+                    asDock
+                    onClose={() => endAssessment()}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Assessment input (always visible) */}
+            <GlobalChatInput />
+          </>
         ) : (
           <>
             {/* Bug report + pillar indicator (visible only when expanded) */}
