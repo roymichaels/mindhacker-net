@@ -306,6 +306,9 @@ export function HudSidebar() {
         open={activeModal === 'insights'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
         initialTab={insightsTab}
       />
+      <SkillsModal
+        open={activeModal === 'skills'} onOpenChange={(o) => !o && setActiveModal(null)}
+      />
       
     </>
   );
