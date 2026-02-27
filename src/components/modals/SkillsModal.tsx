@@ -2,7 +2,7 @@
  * SkillsModal — Shows top skills from user_skill_progress.
  * Opened from HudSidebar. No route, no page — modal only.
  */
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { useSkillsProgress } from '@/hooks/useSkillsProgress';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -23,12 +23,11 @@ export function SkillsModal({ open, onOpenChange }: SkillsModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto" dir={isHe ? 'rtl' : 'ltr'}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            {isHe ? 'כישורים' : 'Skills'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader
+          title={isHe ? 'כישורים' : 'Skills'}
+          icon={<Sparkles className="h-5 w-5" />}
+          showBackArrow={false}
+        />
 
         {totalTodayXP > 0 && (
           <p className="text-xs text-muted-foreground">

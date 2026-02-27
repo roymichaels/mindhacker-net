@@ -77,6 +77,7 @@ export function MergedIdentityModal({ open, onOpenChange, language, values, prin
         <DialogHeader
           title={language === 'he' ? 'זהות' : 'Identity'}
           icon={<UserCircle className="h-5 w-5" />}
+          showBackArrow={false}
         />
         <Tabs defaultValue="identity" className="w-full">
           <TabsList className="w-full grid grid-cols-4">
@@ -154,6 +155,7 @@ export function MergedDirectionModal({ open, onOpenChange, language, commitments
         <DialogHeader
           title={language === 'he' ? 'כיוון' : 'Direction'}
           icon={<Compass className="h-5 w-5" />}
+          showBackArrow={false}
         />
         <Tabs defaultValue="commitments" className="w-full">
           <TabsList className="w-full grid grid-cols-2">
@@ -242,6 +244,7 @@ export function MergedInsightsModal({ open, onOpenChange, language, initialTab }
         <DialogHeader
           title={language === 'he' ? 'תובנות' : 'Insights'}
           icon={<Brain className="h-5 w-5" />}
+          showBackArrow={false}
         />
         <Tabs defaultValue={defaultTab} key={defaultTab} className="w-full">
           <TabsList className="w-full grid grid-cols-4">
