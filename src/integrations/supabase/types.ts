@@ -167,6 +167,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          mapping_key: string | null
+          mapping_type: string | null
           pillar: string
           skill_id: string
           weight: number
@@ -174,6 +176,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          mapping_key?: string | null
+          mapping_type?: string | null
           pillar: string
           skill_id: string
           weight?: number
@@ -181,6 +185,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          mapping_key?: string | null
+          mapping_type?: string | null
           pillar?: string
           skill_id?: string
           weight?: number
@@ -7529,6 +7535,13 @@ export type Database = {
       get_practitioner_id_for_user: {
         Args: { user_uuid: string }
         Returns: string
+      }
+      get_skill_gains_today: {
+        Args: { p_tz?: string; p_user_id: string }
+        Returns: {
+          skill_id: string
+          total: number
+        }[]
       }
       get_user_tier: { Args: { p_user_id: string }; Returns: string }
       has_permission: {
