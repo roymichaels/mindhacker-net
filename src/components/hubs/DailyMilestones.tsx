@@ -323,7 +323,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         </Button>
 
         {/* Pillar cards grid */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {pillarStatuses.map(({ domain: d, completed }) => {
             const Icon = d.icon;
             return (
