@@ -397,7 +397,8 @@ Total tables identified: **~85+** (from types.ts schema)
 | `notify_new_user_welcome` | profiles | INSERT | No | No dedup | ⚠️ |
 | `guard_xp_direct_update` | profiles | BEFORE UPDATE | No | N/A | ✅ |
 | `handle_hypnosis_session_complete` | hypnosis_sessions | INSERT | award_unified_xp, award_energy | No idempotency key | ⚠️ |
-| `handle_action_item_completion` | action_items | UPDATE | award_unified_xp, award_skill_xp | Partial (skill_xp has unique constraint) | ⚠️ |
+| `handle_action_item_completion` | action_items | BEFORE UPDATE | award_unified_xp, award_skill_xp | Partial (skill_xp has unique constraint) | ⚠️ |
+| `trg_enforce_execution_template` | action_items | BEFORE INSERT (row) | No | Yes (idempotent — only sets if missing) | ✅ |
 | `handle_mini_milestone_completion` | mini_milestones | UPDATE | award_unified_xp | No dedup | ⚠️ |
 | `check_milestone_from_minis` | mini_milestones | UPDATE | No | Yes (conditional) | ✅ |
 | `check_mission_completion` | life_plan_milestones | UPDATE | No | Yes (conditional) | ✅ |
