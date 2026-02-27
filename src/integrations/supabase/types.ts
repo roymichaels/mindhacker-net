@@ -6022,6 +6022,47 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_unlocks: {
+        Row: {
+          created_at: string
+          id: string
+          level_required: number
+          reward_label: string
+          reward_label_he: string | null
+          reward_payload: Json | null
+          reward_type: string
+          skill_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level_required?: number
+          reward_label: string
+          reward_label_he?: string | null
+          reward_payload?: Json | null
+          reward_type?: string
+          skill_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level_required?: number
+          reward_label?: string
+          reward_label_he?: string | null
+          reward_payload?: Json | null
+          reward_type?: string
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_unlocks_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skill_xp_events: {
         Row: {
           action_item_id: string | null
@@ -7496,6 +7537,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_job_skill_multipliers: {
+        Args: { p_user_id: string }
+        Returns: {
+          multiplier: number
+          skill_id: string
+        }[]
+      }
       get_or_create_ai_conversation: {
         Args: { user_id: string }
         Returns: string
@@ -7541,6 +7589,15 @@ export type Database = {
         Returns: {
           skill_id: string
           total: number
+        }[]
+      }
+      get_skill_sources: {
+        Args: { p_limit?: number; p_skill_id: string; p_user_id: string }
+        Returns: {
+          action_count: number
+          label: string
+          last_seen_at: string
+          total_xp: number
         }[]
       }
       get_user_tier: { Args: { p_user_id: string }; Returns: string }
