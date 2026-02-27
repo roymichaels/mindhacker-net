@@ -58,6 +58,21 @@ const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
     enabled: !!myProfile?.id,
   });
 
+  // Fetch client's primary job (SSOT: user_jobs)
+  const { data: clientJob } = useQuery({
+    queryKey: ['client-job', client.client_user_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_jobs')
+        .select('*, jobs(*)')
+        .eq('user_id', client.client_user_id)
+        .eq('is_primary', true)
+        .maybeSingle();
+      if (error) throw error;
+      return data as any;
+    },
+  });
+
   const generateMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('generate-coach-plan', {
