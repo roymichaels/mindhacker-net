@@ -455,6 +455,7 @@ const App = () => (
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       <PWAInstallBanner />
+                      <PWAUpdatePrompt />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
                       <SubscriptionsModal />
