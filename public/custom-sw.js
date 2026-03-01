@@ -164,10 +164,9 @@ self.addEventListener('message', (event) => {
 
 // ==================== SERVICE WORKER LIFECYCLE ====================
 
-// Skip waiting and claim clients immediately
+// Do NOT skipWaiting automatically — wait for user to accept the update
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
-  self.skipWaiting();
+  console.log('[SW] Installing service worker... waiting for activation prompt.');
 });
 
 self.addEventListener('activate', (event) => {
