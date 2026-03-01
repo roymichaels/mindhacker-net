@@ -116,9 +116,50 @@ export function OnboardingFlow() {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [textareaValue, setTextareaValue] = useState('');
   const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
+  const [isRestoring, setIsRestoring] = useState(true);
   const advanceTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   const steps = onboardingFlowSpec.steps;
+
+  // Restore saved progress on mount
+  useEffect(() => {
+    if (!user?.id) { setIsRestoring(false); return; }
+    
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('launchpad_progress')
+          .select('step_1_intention, step_2_profile_data, current_step')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data) {
+          const restored: FlowAnswers = {};
+          if (data.step_1_intention && typeof data.step_1_intention === 'object') {
+            Object.assign(restored, data.step_1_intention as Record<string, unknown>);
+          }
+          if (data.step_2_profile_data && typeof data.step_2_profile_data === 'object') {
+            Object.assign(restored, data.step_2_profile_data as Record<string, unknown>);
+          }
+          
+          if (Object.keys(restored).length > 0) {
+            setAnswers(restored);
+            // Restore step position — go to saved step (0-indexed)
+            const savedStep = typeof data.current_step === 'number' ? Math.max(0, data.current_step - 1) : 0;
+            if (savedStep > 0) {
+              setCurrentStepIdx(savedStep);
+              setCurrentMiniIdx(0);
+              setShowIntro(false);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Restore onboarding error:', e);
+      } finally {
+        setIsRestoring(false);
+      }
+    })();
+  }, [user?.id]);
   const currentStep = steps[currentStepIdx];
   const visibleMiniSteps = currentStep ? getVisibleMiniSteps(currentStep, answers) : [];
   const currentMini: MiniStep | undefined = visibleMiniSteps[currentMiniIdx];
