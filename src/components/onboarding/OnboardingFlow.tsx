@@ -364,6 +364,16 @@ export function OnboardingFlow() {
     };
   }, []);
 
+  if (isRestoring) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground text-sm">
+          {isHe ? 'טוען...' : 'Loading...'}
+        </div>
+      </div>
+    );
+  }
+
   if (showIntro) {
     return (
       <OnboardingIntro
