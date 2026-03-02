@@ -95,6 +95,18 @@ export default function CoachLandingPagesTab() {
     queryClient.invalidateQueries({ queryKey: ['coach-landing-pages'] });
   };
 
+  const handleEditComplete = (updatedPage: LandingPage) => {
+    setEditingPage(null);
+    queryClient.invalidateQueries({ queryKey: ['coach-landing-pages'] });
+  };
+
+  const copyPageLink = (slug: string) => {
+    const url = `${window.location.origin}/p/${slug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(isHe ? 'הקישור הועתק!' : 'Link copied!');
+    });
+  };
+
   const templateLabels: Record<string, { he: string; en: string }> = {
     'lead-capture': { he: 'לכידת לידים', en: 'Lead Capture' },
     'webinar': { he: 'וובינר', en: 'Webinar' },
