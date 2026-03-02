@@ -155,7 +155,7 @@ export default function CurriculumWizard({ onComplete, onClose }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-[80vh]">
+    <div className="flex flex-col h-[80vh]" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="px-6 py-4 border-b bg-gradient-to-r from-orange-500/10 to-red-500/10">
         <h3 className="font-bold flex items-center gap-2">
