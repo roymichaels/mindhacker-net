@@ -1,10 +1,11 @@
 /**
- * LandingPagePreview — Renders a coach landing page from JSON content.
- * Supports all template sections: hero, benefits, about, testimonials, offer, faq, cta.
+ * LandingPagePreview — React-Native-inspired coach landing page renderer.
+ * Clean card-based layout with generous spacing, rounded corners, and smooth feel.
  */
-import { Star, Heart, Target, Zap, CheckCircle, ChevronDown } from 'lucide-react';
+import { Star, Heart, Target, Zap, CheckCircle, ChevronDown, Quote } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
   page: {
@@ -26,19 +27,25 @@ export default function LandingPagePreview({ page }: Props) {
   const c = page.content || {};
 
   return (
-    <div className="bg-background min-h-[60vh]">
+    <div className="bg-background min-h-[60vh] pb-8">
       {/* Hero */}
       {c.hero && (
-        <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background px-6 py-16 md:py-24 text-center">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight">{c.hero.headline}</h1>
+        <section className="relative overflow-hidden bg-gradient-to-b from-primary/15 via-primary/5 to-transparent px-4 pt-12 pb-10 sm:px-6 sm:pt-20 sm:pb-16">
+          <div className="max-w-2xl mx-auto text-center space-y-5">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold leading-snug tracking-tight">
+              {c.hero.headline}
+            </h1>
             {c.hero.subheadline && (
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">{c.hero.subheadline}</p>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                {c.hero.subheadline}
+              </p>
             )}
             {c.hero.cta_text && (
-              <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg">
-                {c.hero.cta_text}
-              </Button>
+              <div className="pt-2">
+                <Button size="lg" className="text-base px-8 h-12 rounded-2xl shadow-lg shadow-primary/20">
+                  {c.hero.cta_text}
+                </Button>
+              </div>
             )}
           </div>
         </section>
@@ -46,17 +53,20 @@ export default function LandingPagePreview({ page }: Props) {
 
       {/* Benefits */}
       {c.benefits?.length > 0 && (
-        <section className="px-6 py-12 md:py-16">
-          <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-6">
+        <section className="px-4 sm:px-6 py-8 sm:py-12">
+          <div className="max-w-lg sm:max-w-4xl mx-auto space-y-4 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-4">
             {c.benefits.map((b: any, i: number) => {
               const Icon = ICON_MAP[b.icon] || Star;
               return (
-                <div key={i} className="rounded-xl border bg-card p-6 text-center space-y-3">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-primary" />
+                <div
+                  key={i}
+                  className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-sm"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Icon className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-lg">{b.title}</h3>
-                  <p className="text-sm text-muted-foreground">{b.description}</p>
+                  <h3 className="font-semibold">{b.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{b.description}</p>
                 </div>
               );
             })}
@@ -66,15 +76,15 @@ export default function LandingPagePreview({ page }: Props) {
 
       {/* About */}
       {c.about && (
-        <section className="px-6 py-12 md:py-16 bg-muted/30">
-          <div className="max-w-3xl mx-auto text-center space-y-4">
-            <h2 className="text-2xl md:text-3xl font-bold">{c.about.headline}</h2>
-            <p className="text-muted-foreground leading-relaxed">{c.about.text}</p>
+        <section className="px-4 sm:px-6 py-8 sm:py-12">
+          <div className="max-w-lg sm:max-w-2xl mx-auto rounded-2xl border border-border/60 bg-card p-6 sm:p-8 space-y-4 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-bold">{c.about.headline}</h2>
+            <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{c.about.text}</p>
             {c.about.credentials?.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 pt-2">
+              <div className="flex flex-wrap gap-2 pt-1">
                 {c.about.credentials.map((cred: string, i: number) => (
-                  <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                    <CheckCircle className="h-3.5 w-3.5" /> {cred}
+                  <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                    <CheckCircle className="h-3 w-3" /> {cred}
                   </span>
                 ))}
               </div>
@@ -85,21 +95,24 @@ export default function LandingPagePreview({ page }: Props) {
 
       {/* Testimonials */}
       {c.testimonials?.length > 0 && (
-        <section className="px-6 py-12 md:py-16">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h2 className="text-2xl font-bold text-center">
-              {c.testimonials_headline || ''}
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
+        <section className="px-4 sm:px-6 py-8 sm:py-12">
+          <div className="max-w-lg sm:max-w-3xl mx-auto space-y-4">
+            {c.testimonials_headline && (
+              <h2 className="text-xl sm:text-2xl font-bold text-center mb-2">{c.testimonials_headline}</h2>
+            )}
+            <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
               {c.testimonials.map((t: any, i: number) => (
-                <div key={i} className="rounded-xl border bg-card p-5 space-y-3">
-                  <p className="text-sm italic text-muted-foreground leading-relaxed">"{t.text}"</p>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                <div key={i} className="rounded-2xl border border-border/60 bg-card p-5 space-y-3 shadow-sm">
+                  <Quote className="h-4 w-4 text-primary/40" />
+                  <p className="text-sm text-muted-foreground leading-relaxed italic">
+                    {t.text}
+                  </p>
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
                       {t.name?.[0] || '?'}
                     </div>
                     <div>
-                      <p className="text-sm font-medium">{t.name}</p>
+                      <p className="text-sm font-medium leading-tight">{t.name}</p>
                       {t.role && <p className="text-xs text-muted-foreground">{t.role}</p>}
                     </div>
                   </div>
@@ -112,21 +125,21 @@ export default function LandingPagePreview({ page }: Props) {
 
       {/* Offer */}
       {c.offer && (
-        <section className="px-6 py-12 md:py-16 bg-gradient-to-br from-primary/5 to-primary/10">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h2 className="text-2xl md:text-3xl font-bold">{c.offer.headline}</h2>
+        <section className="px-4 sm:px-6 py-8 sm:py-12">
+          <div className="max-w-lg sm:max-w-2xl mx-auto rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-6 sm:p-8 space-y-5 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-bold text-center">{c.offer.headline}</h2>
             {c.offer.items?.length > 0 && (
-              <ul className="space-y-2 text-start max-w-md mx-auto">
+              <ul className="space-y-2.5 max-w-md mx-auto">
                 {c.offer.items.map((item: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-2.5 text-sm">
+                    <CheckCircle className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             )}
             {c.offer.price_text && (
-              <p className="text-xl font-bold text-primary">{c.offer.price_text}</p>
+              <p className="text-center text-lg sm:text-xl font-bold text-primary">{c.offer.price_text}</p>
             )}
           </div>
         </section>
@@ -134,9 +147,9 @@ export default function LandingPagePreview({ page }: Props) {
 
       {/* FAQ */}
       {c.faq?.length > 0 && (
-        <section className="px-6 py-12 md:py-16">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-2xl font-bold text-center mb-6">FAQ</h2>
+        <section className="px-4 sm:px-6 py-8 sm:py-12">
+          <div className="max-w-lg sm:max-w-2xl mx-auto space-y-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-center mb-4">FAQ</h2>
             {c.faq.map((item: any, i: number) => (
               <FaqItem key={i} question={item.question} answer={item.answer} />
             ))}
@@ -146,16 +159,18 @@ export default function LandingPagePreview({ page }: Props) {
 
       {/* Final CTA */}
       {c.cta_final && (
-        <section className="px-6 py-16 md:py-20 bg-gradient-to-br from-primary/10 to-primary/20 text-center">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-2xl md:text-3xl font-bold">{c.cta_final.headline}</h2>
+        <section className="px-4 sm:px-6 py-10 sm:py-14">
+          <div className="max-w-lg sm:max-w-2xl mx-auto rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 p-8 sm:p-10 text-center space-y-4 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-bold">{c.cta_final.headline}</h2>
             {c.cta_final.text && (
-              <p className="text-muted-foreground">{c.cta_final.text}</p>
+              <p className="text-muted-foreground text-sm sm:text-base">{c.cta_final.text}</p>
             )}
             {c.cta_final.button_text && (
-              <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg">
-                {c.cta_final.button_text}
-              </Button>
+              <div className="pt-2">
+                <Button size="lg" className="text-base px-8 h-12 rounded-2xl shadow-lg shadow-primary/20">
+                  {c.cta_final.button_text}
+                </Button>
+              </div>
             )}
           </div>
         </section>
@@ -167,17 +182,27 @@ export default function LandingPagePreview({ page }: Props) {
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-xl border bg-card overflow-hidden">
+    <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-5 py-4 text-start font-medium text-sm hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center justify-between px-5 py-4 text-start font-medium text-sm hover:bg-muted/30 transition-colors"
       >
         {question}
-        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && (
-        <div className="px-5 pb-4 text-sm text-muted-foreground">{answer}</div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">{answer}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
