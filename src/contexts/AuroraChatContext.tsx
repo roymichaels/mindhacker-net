@@ -228,6 +228,8 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         registerSendMessage,
         isStreaming,
         setIsStreaming,
+        isDockVisible,
+        setIsDockVisible,
         isChatExpanded,
         setIsChatExpanded,
         toggleChatExpanded,
