@@ -178,7 +178,7 @@ export default function CurriculumWizard({ onComplete, onClose }: Props) {
                   : 'bg-muted border border-border/40'
               }`} style={{ textAlign: isHe ? 'right' : 'left', direction: isHe ? 'rtl' : 'ltr' }}>
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 text-foreground" style={{ textAlign: isHe ? 'right' : 'left' }}>
+                  <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 text-foreground [direction:inherit] [&>*]:text-start" style={{ textAlign: isHe ? 'right' : 'left' }}>
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : msg.content}

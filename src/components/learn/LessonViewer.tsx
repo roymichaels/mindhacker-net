@@ -188,10 +188,10 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
       {/* Content */}
       <ScrollArea className="flex-1 px-6 py-4">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-6 text-start">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
-            <div className="prose prose-sm dark:prose-invert max-w-none text-start">
+           <div className="prose prose-sm dark:prose-invert max-w-none [direction:inherit] [&>*]:text-start">
               <ReactMarkdown>{lesson.content?.body || ''}</ReactMarkdown>
               
               {lesson.content?.key_concepts?.length > 0 && (
@@ -344,7 +344,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       </ScrollArea>
 
       {/* Actions */}
-      <div className="border-t px-6 py-4 flex justify-end gap-3">
+      <div className="border-t px-6 py-4 flex justify-end gap-3" dir={isHe ? 'rtl' : 'ltr'}>
         <Button variant="outline" onClick={() => { tts.stop(); onClose(); }}>
           {isHe ? 'סגור' : 'Close'}
         </Button>
