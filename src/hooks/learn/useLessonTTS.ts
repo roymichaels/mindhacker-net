@@ -1,0 +1,164 @@
+/**
+ * useLessonTTS — Plays lesson content aloud via ElevenLabs TTS.
+ * Extracts readable text from lesson content based on type, 
+ * then streams it through Aurora's voice.
+ */
+import { useState, useRef, useCallback } from 'react';
+
+interface UseLessonTTSOptions {
+  voice?: string;
+  speed?: number;
+}
+
+function extractText(lesson: { lesson_type: string; title: string; content: any }): string {
+  const parts: string[] = [lesson.title + '.'];
+
+  switch (lesson.lesson_type) {
+    case 'theory': {
+      if (lesson.content?.body) {
+        // Strip markdown formatting for cleaner speech
+        const clean = lesson.content.body
+          .replace(/#{1,6}\s*/g, '')
+          .replace(/\*\*([^*]+)\*\*/g, '$1')
+          .replace(/\*([^*]+)\*/g, '$1')
+          .replace(/`([^`]+)`/g, '$1')
+          .replace(/```[\s\S]*?```/g, '')
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+          .replace(/!\[.*?\]\(.*?\)/g, '')
+          .replace(/[-*]\s/g, '');
+        parts.push(clean);
+      }
+      if (lesson.content?.key_concepts?.length) {
+        parts.push('Key concepts: ' + lesson.content.key_concepts.join('. ') + '.');
+      }
+      break;
+    }
+    case 'practice': {
+      if (lesson.content?.instructions) {
+        parts.push(lesson.content.instructions.replace(/#{1,6}\s*/g, '').replace(/\*\*([^*]+)\*\*/g, '$1'));
+      }
+      if (lesson.content?.exercises?.length) {
+        lesson.content.exercises.forEach((ex: any, i: number) => {
+          parts.push(`Exercise ${i + 1}: ${ex.title || ''}. ${ex.description || ''}`);
+        });
+      }
+      break;
+    }
+    case 'quiz': {
+      parts.push('Let me read the quiz questions.');
+      if (lesson.content?.questions?.length) {
+        lesson.content.questions.forEach((q: any, i: number) => {
+          parts.push(`Question ${i + 1}: ${q.q}. The options are: ${(q.options || []).map((o: string, j: number) => `${String.fromCharCode(65 + j)}, ${o}`).join('. ')}.`);
+        });
+      }
+      break;
+    }
+    case 'project': {
+      if (lesson.content?.brief) parts.push('Project brief: ' + lesson.content.brief);
+      if (lesson.content?.requirements?.length) {
+        parts.push('Requirements: ' + lesson.content.requirements.join('. ') + '.');
+      }
+      break;
+    }
+  }
+
+  return parts.join('\n\n');
+}
+
+export function useLessonTTS(options: UseLessonTTSOptions = {}) {
+  const { voice = 'sarah', speed = 1.0 } = options;
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const stop = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      URL.revokeObjectURL(audioRef.current.src);
+      audioRef.current = null;
+    }
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsPlaying(false);
+    setIsLoading(false);
+  }, []);
+
+  const play = useCallback(async (lesson: { lesson_type: string; title: string; content: any }) => {
+    // If already playing, stop
+    if (isPlaying || isLoading) {
+      stop();
+      return;
+    }
+
+    const text = extractText(lesson);
+    if (!text.trim()) return;
+
+    // Limit to 5000 chars for TTS
+    const truncated = text.length > 5000 ? text.substring(0, 5000) : text;
+
+    setIsLoading(true);
+    abortRef.current = new AbortController();
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text: truncated, voiceId: voice, speed }),
+          signal: abortRef.current.signal,
+        }
+      );
+
+      if (!response.ok) {
+        // Check for fallback/quota
+        const errData = await response.json().catch(() => ({}));
+        if (errData.fallback) {
+          // Use browser TTS fallback
+          speakWithBrowserFallback(truncated, speed);
+          return;
+        }
+        throw new Error(`TTS failed: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      
+      audio.onplay = () => { setIsPlaying(true); setIsLoading(false); };
+      audio.onended = () => { stop(); };
+      audio.onerror = () => { 
+        stop();
+        // fallback to browser
+        speakWithBrowserFallback(truncated, speed);
+      };
+      
+      await audio.play();
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      console.warn('ElevenLabs TTS error, falling back to browser:', err);
+      setIsLoading(false);
+      speakWithBrowserFallback(truncated, speed);
+    }
+  }, [isPlaying, isLoading, voice, speed, stop]);
+
+  const speakWithBrowserFallback = useCallback((text: string, rate: number) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = rate;
+    utterance.onstart = () => { setIsPlaying(true); setIsLoading(false); };
+    utterance.onend = () => { setIsPlaying(false); };
+    utterance.onerror = () => { setIsPlaying(false); };
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  return { play, stop, isPlaying, isLoading };
+}
