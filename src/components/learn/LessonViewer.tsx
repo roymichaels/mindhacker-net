@@ -205,24 +205,9 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   return (
     <div className="flex flex-col h-full bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="px-6 py-4 border-b">
+      <div className="px-6 py-4 border-b space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            {lesson.lesson_type === 'theory' && <BookOpen className="h-5 w-5 text-primary shrink-0" />}
-            {lesson.lesson_type === 'practice' && <Target className="h-5 w-5 text-primary shrink-0" />}
-            {lesson.lesson_type === 'quiz' && <Brain className="h-5 w-5 text-primary shrink-0" />}
-            {lesson.lesson_type === 'project' && <Trophy className="h-5 w-5 text-primary shrink-0" />}
-            <h3 className="font-bold text-base truncate">{lesson.title}</h3>
-          </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Badge variant="outline" className="gap-1">
-              <Clock className="h-3 w-3" />
-              {lesson.time_estimate_minutes}{isHe ? ' דק\'' : ' min'}
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <Zap className="h-3 w-3" />
-              +{lesson.xp_reward} XP
-            </Badge>
             <Button
               variant="ghost"
               size="icon"
@@ -239,6 +224,23 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               )}
             </Button>
           </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="outline" className="gap-1">
+              <Clock className="h-3 w-3" />
+              {lesson.time_estimate_minutes}{isHe ? ' דק\'' : ' min'}
+            </Badge>
+            <Badge variant="outline" className="gap-1">
+              <Zap className="h-3 w-3" />
+              +{lesson.xp_reward} XP
+            </Badge>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {lesson.lesson_type === 'theory' && <BookOpen className="h-5 w-5 text-primary shrink-0" />}
+          {lesson.lesson_type === 'practice' && <Target className="h-5 w-5 text-primary shrink-0" />}
+          {lesson.lesson_type === 'quiz' && <Brain className="h-5 w-5 text-primary shrink-0" />}
+          {lesson.lesson_type === 'project' && <Trophy className="h-5 w-5 text-primary shrink-0" />}
+          <h3 className="font-bold text-base text-start">{lesson.title}</h3>
         </div>
       </div>
 
