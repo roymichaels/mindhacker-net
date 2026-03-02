@@ -191,7 +191,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
         <div className="max-w-2xl mx-auto space-y-6">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
-            <div className="prose prose-sm dark:prose-invert max-w-none text-start">
+           <div className="prose prose-sm dark:prose-invert max-w-none [direction:inherit] [&>*]:text-start">
               <ReactMarkdown>{lesson.content?.body || ''}</ReactMarkdown>
               
               {lesson.content?.key_concepts?.length > 0 && (
