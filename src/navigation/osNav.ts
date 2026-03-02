@@ -31,9 +31,9 @@ export const OS_TABS: OsTab[] = [
 /** Coach-only tab, appended when user has 'practitioner' role */
 export const COACH_TAB: OsTab = {
   id: 'coach',
-  path: '/coach',
+  path: '/coaches',
   icon: Briefcase,
-  labelEn: 'Coach',
+  labelEn: 'Coaches',
   labelHe: 'מאמנים',
   requiredRole: 'practitioner',
 };
