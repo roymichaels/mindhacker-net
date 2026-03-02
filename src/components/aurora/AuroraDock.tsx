@@ -246,8 +246,15 @@ export function AuroraDock() {
               )}
             </AnimatePresence>
 
-            {/* Input bar (always visible) */}
-            <GlobalChatInput />
+            {/* Input bar with orb */}
+            <div className="flex items-end gap-2 w-full">
+              <div className="flex-1 min-w-0">
+                <GlobalChatInput />
+              </div>
+              <div className="shrink-0 pb-3 pe-3">
+                <AuroraDockOrb onClick={closeDock} />
+              </div>
+            </div>
           </>
         )}
       </div>
