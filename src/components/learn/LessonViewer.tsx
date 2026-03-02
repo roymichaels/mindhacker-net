@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, ArrowRight } from 'lucide-react';
+import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, ArrowRight, Volume2, VolumeX, AudioLines } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ReactMarkdown from 'react-markdown';
+import { useLessonTTS } from '@/hooks/learn/useLessonTTS';
 
 interface Lesson {
   id: string;
@@ -45,6 +46,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [projectText, setProjectText] = useState('');
   const [feedback, setFeedback] = useState<any>(lesson.feedback);
   const [score, setScore] = useState<number | null>(lesson.score);
+  const tts = useLessonTTS();
 
   const markComplete = async (submissionData?: any, scoreVal?: number, feedbackData?: any) => {
     setIsSubmitting(true);
@@ -164,6 +166,21 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               <Zap className="h-3 w-3" />
               +{lesson.xp_reward} XP
             </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full"
+              onClick={() => tts.isPlaying || tts.isLoading ? tts.stop() : tts.play(lesson)}
+              title={tts.isPlaying ? (isHe ? 'עצור הקראה' : 'Stop reading') : (isHe ? 'Aurora תקריא לך' : 'Aurora reads aloud')}
+            >
+              {tts.isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : tts.isPlaying ? (
+                <VolumeX className="h-4 w-4 text-primary" />
+              ) : (
+                <AudioLines className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
           </div>
         </div>
       </div>
@@ -325,7 +342,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
       {/* Actions */}
       <div className="border-t px-6 py-4 flex justify-end gap-3">
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={() => { tts.stop(); onClose(); }}>
           {isHe ? 'סגור' : 'Close'}
         </Button>
         
