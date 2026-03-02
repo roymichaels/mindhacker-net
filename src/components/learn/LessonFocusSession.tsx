@@ -100,7 +100,7 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
         dir={isHe ? 'rtl' : 'ltr'}
       >
         {/* ── Top Bar ── */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-background/95 backdrop-blur-sm shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-background shrink-0">
           {/* Exit button */}
           <Button
             variant="ghost"
