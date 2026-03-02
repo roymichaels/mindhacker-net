@@ -28,6 +28,16 @@ export const OS_TABS: OsTab[] = [
   { id: 'community', path: '/community', icon: Crosshair, labelEn: 'Community', labelHe: 'קומיוניטי' },
 ];
 
+/** Coach-only tab, appended when user has 'practitioner' role */
+export const COACH_TAB: OsTab = {
+  id: 'coach',
+  path: '/coach',
+  icon: Briefcase,
+  labelEn: 'Coach',
+  labelHe: 'מאמנים',
+  requiredRole: 'practitioner',
+};
+
 /** Admin-only tab, appended when user has 'admin' role */
 export const ADMIN_TAB: OsTab = {
   id: 'admin',
