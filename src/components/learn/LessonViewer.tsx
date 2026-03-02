@@ -369,6 +369,52 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               )}
             </div>
           )}
+
+          {/* ── COMPREHENSION QUESTIONS (for theory, practice, project) ── */}
+          {hasCompQuestions && !isAlreadyDone && (
+            <div className="space-y-4 mt-8 pt-6 border-t text-start">
+              <h4 className="font-bold flex items-center gap-2">
+                <Brain className="h-4 w-4 text-primary" />
+                {isHe ? 'שאלות הבנה — ענה לפני שתמשיך' : 'Comprehension Check — Answer before continuing'}
+              </h4>
+              {compQuestions.map((q: any, qi: number) => {
+                const fb = compFeedback?.[qi];
+                return (
+                  <div key={qi} className={`p-4 rounded-xl border space-y-3 ${
+                    fb !== undefined ? (fb ? 'border-green-500/40 bg-green-500/5' : 'border-red-500/40 bg-red-500/5') : 'bg-card'
+                  }`}>
+                    <p className="font-medium text-sm">{qi + 1}. {q.q}</p>
+                    <RadioGroup
+                      value={compAnswers[qi]?.toString()}
+                      onValueChange={val => { setCompAnswers(prev => ({ ...prev, [qi]: parseInt(val) })); setCompFeedback(null); setCompPassed(false); }}
+                      dir={isHe ? 'rtl' : 'ltr'}
+                    >
+                      {q.options?.map((opt: string, oi: number) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <RadioGroupItem value={oi.toString()} id={`comp-q${qi}-o${oi}`} />
+                          <Label htmlFor={`comp-q${qi}-o${oi}`} className="text-sm cursor-pointer flex-1">{opt}</Label>
+                          {fb !== undefined && oi === q.correct && <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />}
+                          {fb === false && oi === compAnswers[qi] && oi !== q.correct && <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />}
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    {fb === false && q.explanation && (
+                      <p className="text-xs text-muted-foreground italic">💡 {q.explanation}</p>
+                    )}
+                  </div>
+                );
+              })}
+              {!compPassed && (
+                <Button onClick={checkComprehension} variant="secondary" className="gap-2">
+                  <Brain className="h-4 w-4" />
+                  {isHe ? 'בדוק תשובות' : 'Check Answers'}
+                </Button>
+              )}
+              {compPassed && (
+                <p className="text-sm text-green-500 font-medium">✅ {isHe ? 'מצוין! עכשיו אפשר לסמן כהושלם.' : 'Great! You can now mark as complete.'}</p>
+              )}
+            </div>
+          )}
         </div>
       </ScrollArea>
 
