@@ -46,6 +46,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [projectText, setProjectText] = useState('');
   const [feedback, setFeedback] = useState<any>(lesson.feedback);
   const [score, setScore] = useState<number | null>(lesson.score);
+  const tts = useLessonTTS();
 
   const markComplete = async (submissionData?: any, scoreVal?: number, feedbackData?: any) => {
     setIsSubmitting(true);
