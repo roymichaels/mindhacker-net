@@ -170,17 +170,50 @@ RULES:
         raw = raw.substring(jsonStart, jsonEnd + 1);
       }
 
+      // Robust JSON fixer: escape control characters inside string values
+      function fixJson(str: string): string {
+        // Remove BOM
+        str = str.replace(/^\uFEFF/, '');
+        // Extract between first { and last }
+        const start = str.indexOf('{');
+        const end = str.lastIndexOf('}');
+        if (start === -1 || end === -1) return str;
+        str = str.substring(start, end + 1);
+        // Escape control characters inside JSON string values
+        let result = '';
+        let inString = false;
+        let escaped = false;
+        for (let i = 0; i < str.length; i++) {
+          const ch = str[i];
+          if (escaped) { result += ch; escaped = false; continue; }
+          if (ch === '\\' && inString) { result += ch; escaped = true; continue; }
+          if (ch === '"') { inString = !inString; result += ch; continue; }
+          if (inString) {
+            const code = ch.charCodeAt(0);
+            if (code < 0x20) {
+              // Escape control chars inside strings
+              if (ch === '\n') result += '\\n';
+              else if (ch === '\r') result += '\\r';
+              else if (ch === '\t') result += '\\t';
+              else result += '\\u' + code.toString(16).padStart(4, '0');
+              continue;
+            }
+          }
+          result += ch;
+        }
+        return result;
+      }
+
       let curriculum;
       try { 
         curriculum = JSON.parse(raw); 
       } catch (e1) {
-        console.error("Parse failed:", (e1 as Error).message, "first 500:", raw.substring(0, 500));
-        // Last resort: remove all control chars except \n \r \t, then retry
-        const cleaned = raw.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+        console.error("Parse failed:", (e1 as Error).message);
         try {
-          curriculum = JSON.parse(cleaned);
+          curriculum = JSON.parse(fixJson(raw));
+          console.log("fixJson recovered the parse successfully");
         } catch (e2) {
-          console.error("Cleaned parse also failed:", (e2 as Error).message);
+          console.error("fixJson also failed:", (e2 as Error).message);
           throw new Error("Failed to parse curriculum JSON from AI response");
         }
       }
