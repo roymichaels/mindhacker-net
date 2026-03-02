@@ -345,6 +345,8 @@ const App = () => (
                           <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
                           {/* Quests */}
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
+                          {/* Learn */}
+                          <Route path="/learn" element={<Learn />} />
                           
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
