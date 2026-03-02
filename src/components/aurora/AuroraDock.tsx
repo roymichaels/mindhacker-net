@@ -98,6 +98,7 @@ export function AuroraDock() {
     location.pathname.startsWith('/coach') ||
     location.pathname.startsWith('/affiliate');
   if (isPanel) return null;
+  if (!isDockVisible) return null;
 
   const dragHandle = isChatExpanded ? (
     <div
