@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, ChevronRight, Play, CheckCircle, Lock,
   FileText, Brain, Target, Flame, ArrowLeft, Clock, Zap, ChevronDown, ChevronUp, Plus,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -109,35 +110,40 @@ export default function Learn() {
     enabled: !!user?.id,
   });
 
-  // Fetch modules for selected curriculum
+  // Auto-select first active curriculum for inline display
+  const activeCurrId = selectedCurriculum || curricula?.find(c => c.status === 'active')?.id || curricula?.[0]?.id || null;
+
+  // Fetch modules for active curriculum
   const { data: modules } = useQuery({
-    queryKey: ['learning-modules', selectedCurriculum],
+    queryKey: ['learning-modules', activeCurrId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('learning_modules')
         .select('*')
-        .eq('curriculum_id', selectedCurriculum!)
+        .eq('curriculum_id', activeCurrId!)
         .order('order_index');
       if (error) throw error;
       return data as Module[];
     },
-    enabled: !!selectedCurriculum,
+    enabled: !!activeCurrId,
   });
 
-  // Fetch lessons for selected curriculum
+  // Fetch lessons for active curriculum
   const { data: lessons } = useQuery({
-    queryKey: ['learning-lessons', selectedCurriculum],
+    queryKey: ['learning-lessons', activeCurrId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('learning_lessons')
         .select('*')
-        .eq('curriculum_id', selectedCurriculum!)
+        .eq('curriculum_id', activeCurrId!)
         .order('order_index');
       if (error) throw error;
       return data as Lesson[];
     },
-    enabled: !!selectedCurriculum,
+    enabled: !!activeCurrId,
   });
+
+  const [recalibrating, setRecalibrating] = useState(false);
 
   const handleWizardComplete = (curriculumId: string) => {
     setShowWizard(false);
@@ -147,13 +153,36 @@ export default function Learn() {
   };
 
   const handleLessonComplete = () => {
-    queryClient.invalidateQueries({ queryKey: ['learning-lessons', selectedCurriculum] });
-    queryClient.invalidateQueries({ queryKey: ['learning-modules', selectedCurriculum] });
+    queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
+    queryClient.invalidateQueries({ queryKey: ['learning-modules', activeCurrId] });
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
     setSelectedLesson(null);
   };
 
-  const activeCurriculum = curricula?.find(c => c.id === selectedCurriculum);
+  const activeCurriculum = curricula?.find(c => c.id === activeCurrId);
+
+  const handleRecalibrate = async () => {
+    if (!activeCurriculum) return;
+    setRecalibrating(true);
+    try {
+      // Delete existing curriculum and recreate via wizard
+      await supabase
+        .from('learning_curricula')
+        .delete()
+        .eq('id', activeCurriculum.id);
+      queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
+      queryClient.invalidateQueries({ queryKey: ['learning-modules'] });
+      queryClient.invalidateQueries({ queryKey: ['learning-lessons'] });
+      setSelectedCurriculum(null);
+      setShowWizard(true);
+      toast.success(isHe ? 'הקורס נמחק — בוא ניצור חדש!' : 'Course deleted — let\'s create a new one!');
+    } catch (e) {
+      console.error('Recalibrate failed:', e);
+      toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+    } finally {
+      setRecalibrating(false);
+    }
+  };
 
   // Find next unlocked lesson
   const nextLesson = useMemo(() => {
@@ -186,211 +215,195 @@ export default function Learn() {
     });
   };
 
-  // ── Curricula List View ──
-  if (!selectedCurriculum || !activeCurriculum) {
+  // ── Curriculum Detail View (selected via arrow) ──
+  if (selectedCurriculum && activeCurriculum) {
     return (
-      <div className="min-h-screen pb-24" dir={isHe ? 'rtl' : 'ltr'}>
-        {/* Header */}
-        <div className="px-4 pt-4 pb-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-bold flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              {isHe ? 'Aurora מלמדת' : 'Aurora Teaches'}
-            </h1>
+      <div className="min-h-screen pb-20" dir={isHe ? 'rtl' : 'ltr'}>
+        {/* Sticky header */}
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/20 px-4 py-3 space-y-2">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setShowWizard(true)}
-              className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center active:bg-primary/20 transition-colors"
+              onClick={() => setSelectedCurriculum(null)}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/40 active:bg-muted/60 transition-colors shrink-0"
             >
-              <Plus className="h-4.5 w-4.5 text-primary" />
+              <ArrowLeft className={cn("h-4 w-4", isHe && "rotate-180")} />
             </button>
+            <h1 className="text-sm font-bold truncate flex-1">{activeCurriculum.title}</h1>
+            <span className="text-xs font-bold text-primary shrink-0">{activeCurriculum.progress_percentage}%</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isHe ? 'מאפס למקצוען' : 'From zero to pro'}
-          </p>
+          <div className="flex items-center gap-2">
+            <Progress value={activeCurriculum.progress_percentage} className="h-1 flex-1" />
+            <span className="text-[10px] text-muted-foreground shrink-0">
+              {activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons}
+            </span>
+          </div>
         </div>
 
-        {isLoading ? (
-          <div className="text-center py-16 text-muted-foreground text-sm">{isHe ? 'טוען...' : 'Loading...'}</div>
-        ) : !curricula?.length ? (
-          <div className="px-4 py-16 text-center space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-              <Flame className="h-7 w-7 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold">{isHe ? 'מוכן להתחיל ללמוד?' : 'Ready to learn?'}</h3>
-              <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
-                {isHe
-                  ? 'ספר ל-Aurora מה אתה רוצה ללמוד והיא תבנה לך תוכנית אינטנסיבית.'
-                  : "Tell Aurora what you want to learn and she'll build an intensive curriculum."}
-              </p>
-            </div>
-            <Button onClick={() => setShowWizard(true)} className="gap-2 rounded-full px-6">
-              <Sparkles className="h-4 w-4" />
-              {isHe ? 'בואי נתחיל' : "Let's start"}
-            </Button>
-          </div>
-        ) : (
-          <div>
-            {curricula.map((curr, i) => (
-              <button
-                key={curr.id}
-                onClick={() => setSelectedCurriculum(curr.id)}
-                className={cn(
-                  "w-full text-start px-4 py-4 flex items-center gap-3 active:bg-muted/40 transition-colors",
-                  i < curricula.length - 1 && "border-b border-border/15"
-                )}
-              >
-                <div className="flex-1 min-w-0 space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold truncate flex-1">{curr.title}</p>
-                    <Badge variant={curr.status === 'completed' ? 'default' : 'secondary'} className="text-[10px] h-5 shrink-0">
-                      {curr.status === 'completed'
-                        ? (isHe ? 'הושלם' : 'Done')
-                        : curr.status === 'active'
-                          ? (isHe ? 'פעיל' : 'Active')
-                          : (isHe ? 'טיוטה' : 'Draft')}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                    <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" />{curr.total_modules}</span>
-                    <span className="flex items-center gap-1"><FileText className="h-3 w-3" />{curr.total_lessons}</span>
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{curr.estimated_days}{isHe ? ' ימים' : 'd'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Progress value={curr.progress_percentage} className="h-1 flex-1" />
-                    <span className="text-[10px] font-bold text-primary w-8 text-end">{curr.progress_percentage}%</span>
-                  </div>
-                </div>
-                <ChevronRight className={cn("h-4 w-4 text-muted-foreground/50 shrink-0", isHe && "rotate-180")} />
-              </button>
-            ))}
+        {/* Modules & Lessons */}
+        <ModulesLessonsTree
+          modules={modules}
+          lessons={lessons}
+          nextLesson={nextLesson}
+          expandedModules={expandedModules}
+          toggleModule={toggleModule}
+          onSelectLesson={setSelectedLesson}
+          isHe={isHe}
+        />
+
+        {/* All done */}
+        {!nextLesson && lessons && lessons.length > 0 && (
+          <div className="py-16 text-center space-y-3">
+            <Trophy className="h-10 w-10 mx-auto text-amber-400" />
+            <h3 className="text-base font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
           </div>
         )}
 
-        <Dialog open={showWizard} onOpenChange={setShowWizard}>
-          <DialogContent className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
-            <CurriculumWizard
-              onComplete={handleWizardComplete}
-              onClose={() => setShowWizard(false)}
-            />
-          </DialogContent>
-        </Dialog>
+        {selectedLesson && (
+          <LessonFocusSession
+            lesson={selectedLesson}
+            onComplete={handleLessonComplete}
+            onClose={() => setSelectedLesson(null)}
+          />
+        )}
       </div>
     );
   }
 
-  // ── Curriculum Detail View — React Native flat list ──
+  // ── Main List View (default) ──
   return (
-    <div className="min-h-screen pb-20" dir={isHe ? 'rtl' : 'ltr'}>
-      {/* Sticky header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/20 px-4 py-3 space-y-2">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen pb-24" dir={isHe ? 'rtl' : 'ltr'}>
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-bold flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-primary" />
+            {isHe ? 'Aurora מלמדת' : 'Aurora Teaches'}
+          </h1>
           <button
-            onClick={() => setSelectedCurriculum(null)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/40 active:bg-muted/60 transition-colors shrink-0"
+            onClick={() => setShowWizard(true)}
+            className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center active:bg-primary/20 transition-colors"
           >
-            <ArrowLeft className={cn("h-4 w-4", isHe && "rotate-180")} />
+            <Plus className="h-4.5 w-4.5 text-primary" />
           </button>
-          <h1 className="text-sm font-bold truncate flex-1">{activeCurriculum.title}</h1>
-          <span className="text-xs font-bold text-primary shrink-0">{activeCurriculum.progress_percentage}%</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Progress value={activeCurriculum.progress_percentage} className="h-1 flex-1" />
-          <span className="text-[10px] text-muted-foreground shrink-0">
-            {activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons}
-          </span>
-        </div>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {isHe ? 'מאפס למקצוען' : 'From zero to pro'}
+        </p>
       </div>
 
-      {/* Modules & Lessons — flat rows */}
-      <div>
-        {modules?.map((mod, modIdx) => {
-          const isLocked = mod.status === 'locked';
-          const isDone = mod.status === 'completed';
-          const isActive = mod.status === 'in_progress' || mod.status === 'unlocked';
-          const isOpen = expandedModules.has(mod.id);
-          const modLessons = lessons?.filter(l => l.module_id === mod.id) || [];
-
-          return (
-            <div key={mod.id}>
-              {/* Module row */}
+      {isLoading ? (
+        <div className="text-center py-16 text-muted-foreground text-sm">{isHe ? 'טוען...' : 'Loading...'}</div>
+      ) : !curricula?.length ? (
+        <div className="px-4 py-16 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+            <Flame className="h-7 w-7 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold">{isHe ? 'מוכן להתחיל ללמוד?' : 'Ready to learn?'}</h3>
+            <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
+              {isHe
+                ? 'ספר ל-Aurora מה אתה רוצה ללמוד והיא תבנה לך תוכנית אינטנסיבית.'
+                : "Tell Aurora what you want to learn and she'll build an intensive curriculum."}
+            </p>
+          </div>
+          <Button onClick={() => setShowWizard(true)} className="gap-2 rounded-full px-6">
+            <Sparkles className="h-4 w-4" />
+            {isHe ? 'בואי נתחיל' : "Let's start"}
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* Active Curriculum Header */}
+          {activeCurriculum && (
+            <div className="px-4 pb-2">
               <button
-                onClick={() => !isLocked && toggleModule(mod.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 px-4 py-4 transition-colors border-b border-border/15",
-                  isLocked ? "opacity-35 cursor-not-allowed" : "active:bg-muted/40",
-                )}
+                onClick={() => setSelectedCurriculum(activeCurrId!)}
+                className="w-full text-start flex items-center gap-3 py-2"
               >
-                {isLocked ? (
-                  <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
-                ) : isDone ? (
-                  <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                ) : (
-                  <Play className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
-                )}
-                <div className="flex-1 min-w-0 text-start">
-                  <p className="text-[13px] font-semibold leading-tight">{mod.title}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{mod.completed_lessons}/{mod.total_lessons}</p>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold truncate flex-1">{activeCurriculum.title}</p>
+                    <ChevronRight className={cn("h-4 w-4 text-muted-foreground/50 shrink-0", isHe && "rotate-180")} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Progress value={activeCurriculum.progress_percentage} className="h-1 flex-1" />
+                    <span className="text-[10px] font-bold text-primary w-8 text-end">{activeCurriculum.progress_percentage}%</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" />{activeCurriculum.total_modules}</span>
+                    <span className="flex items-center gap-1"><FileText className="h-3 w-3" />{activeCurriculum.total_lessons}</span>
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{activeCurriculum.estimated_days}{isHe ? ' ימים' : 'd'}</span>
+                  </div>
                 </div>
-                {!isLocked && (
-                  isOpen
-                    ? <ChevronUp className="h-4 w-4 text-muted-foreground/50 shrink-0" />
-                    : <ChevronDown className="h-4 w-4 text-muted-foreground/50 shrink-0" />
-                )}
               </button>
-
-              {/* Lesson rows */}
-              {isOpen && !isLocked && modLessons.map((lesson, lesIdx) => {
-                const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
-                const isNext = lesson.id === nextLesson?.id;
-                const lessonDone = lesson.status === 'completed';
-                const lessonLocked = lesson.status === 'locked';
-
-                return (
-                  <button
-                    key={lesson.id}
-                    disabled={lessonLocked}
-                    onClick={() => !lessonLocked && setSelectedLesson(lesson)}
-                    className={cn(
-                      "w-full flex items-center gap-3 ps-10 pe-4 py-3 transition-colors text-start",
-                      lesIdx < modLessons.length - 1 && "border-b border-border/8",
-                      lessonLocked && "opacity-20 cursor-not-allowed",
-                      lessonDone && "text-muted-foreground",
-                      isNext && "bg-primary/5",
-                      !isNext && !lessonDone && !lessonLocked && "active:bg-muted/30",
-                    )}
-                  >
-                    {lessonLocked ? (
-                      <Lock className="h-3.5 w-3.5 shrink-0" />
-                    ) : lessonDone ? (
-                      <CheckCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    ) : (
-                      <Icon className={cn("h-3.5 w-3.5 shrink-0", isNext ? "text-primary" : "text-muted-foreground/60")} />
-                    )}
-                    <span className="text-[13px] flex-1 leading-tight">{lesson.title}</span>
-                    {isNext && (
-                      <Badge className="text-[9px] h-4 px-1.5 bg-primary/15 text-primary border-0 shrink-0">
-                        {isHe ? 'הבא' : 'Next'}
-                      </Badge>
-                    )}
-                    {lesson.score !== null && (
-                      <span className="text-[11px] text-primary shrink-0">{lesson.score}%</span>
-                    )}
-                  </button>
-                );
-              })}
             </div>
-          );
-        })}
-      </div>
+          )}
 
-      {/* All done */}
-      {!nextLesson && lessons && lessons.length > 0 && (
-        <div className="py-16 text-center space-y-3">
-          <Trophy className="h-10 w-10 mx-auto text-amber-400" />
-          <h3 className="text-base font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
-        </div>
+          {/* Inline Modules & Lessons */}
+          {activeCurriculum && modules && (
+            <ModulesLessonsTree
+              modules={modules}
+              lessons={lessons}
+              nextLesson={nextLesson}
+              expandedModules={expandedModules}
+              toggleModule={toggleModule}
+              onSelectLesson={setSelectedLesson}
+              isHe={isHe}
+            />
+          )}
+
+          {/* Other curricula */}
+          {curricula.length > 1 && (
+            <div className="px-4 pt-4 pb-2">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+                {isHe ? 'קורסים נוספים' : 'Other courses'}
+              </p>
+              {curricula.filter(c => c.id !== activeCurrId).map((curr) => (
+                <button
+                  key={curr.id}
+                  onClick={() => setSelectedCurriculum(curr.id)}
+                  className="w-full text-start py-3 flex items-center gap-3 border-b border-border/10 active:bg-muted/40 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold truncate">{curr.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Progress value={curr.progress_percentage} className="h-1 flex-1" />
+                      <span className="text-[10px] font-bold text-primary">{curr.progress_percentage}%</span>
+                    </div>
+                  </div>
+                  <ChevronRight className={cn("h-4 w-4 text-muted-foreground/50 shrink-0", isHe && "rotate-180")} />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* כיול מחדש button */}
+          {activeCurriculum && (
+            <div className="px-4 pt-6 pb-4">
+              <Button
+                onClick={handleRecalibrate}
+                disabled={recalibrating}
+                variant="outline"
+                className="w-full gap-2 rounded-xl h-12 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <RefreshCw className={cn("h-4 w-4", recalibrating && "animate-spin")} />
+                {recalibrating
+                  ? (isHe ? 'מכייל מחדש...' : 'Recalibrating...')
+                  : (isHe ? 'כיול מחדש' : 'Recalibrate')}
+              </Button>
+            </div>
+          )}
+        </>
       )}
+
+      <Dialog open={showWizard} onOpenChange={setShowWizard}>
+        <DialogContent className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+          <CurriculumWizard
+            onComplete={handleWizardComplete}
+            onClose={() => setShowWizard(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {selectedLesson && (
         <LessonFocusSession
@@ -399,6 +412,98 @@ export default function Learn() {
           onClose={() => setSelectedLesson(null)}
         />
       )}
+    </div>
+  );
+}
+
+// ── Shared Modules/Lessons Tree Component ──
+function ModulesLessonsTree({ modules, lessons, nextLesson, expandedModules, toggleModule, onSelectLesson, isHe }: {
+  modules: Module[] | undefined;
+  lessons: Lesson[] | undefined;
+  nextLesson: Lesson | null;
+  expandedModules: Set<string>;
+  toggleModule: (id: string) => void;
+  onSelectLesson: (lesson: Lesson) => void;
+  isHe: boolean;
+}) {
+  return (
+    <div>
+      {modules?.map((mod) => {
+        const isLocked = mod.status === 'locked';
+        const isDone = mod.status === 'completed';
+        const isActive = mod.status === 'in_progress' || mod.status === 'unlocked';
+        const isOpen = expandedModules.has(mod.id);
+        const modLessons = lessons?.filter(l => l.module_id === mod.id) || [];
+
+        return (
+          <div key={mod.id}>
+            <button
+              onClick={() => !isLocked && toggleModule(mod.id)}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-4 transition-colors border-b border-border/15",
+                isLocked ? "opacity-35 cursor-not-allowed" : "active:bg-muted/40",
+              )}
+            >
+              {isLocked ? (
+                <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
+              ) : isDone ? (
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+              ) : (
+                <Play className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
+              )}
+              <div className="flex-1 min-w-0 text-start">
+                <p className="text-[13px] font-semibold leading-tight">{mod.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{mod.completed_lessons}/{mod.total_lessons}</p>
+              </div>
+              {!isLocked && (
+                isOpen
+                  ? <ChevronUp className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+                  : <ChevronDown className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+              )}
+            </button>
+
+            {isOpen && !isLocked && modLessons.map((lesson, lesIdx) => {
+              const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
+              const isNext = lesson.id === nextLesson?.id;
+              const lessonDone = lesson.status === 'completed';
+              const lessonLocked = lesson.status === 'locked';
+
+              return (
+                <button
+                  key={lesson.id}
+                  disabled={lessonLocked}
+                  onClick={() => !lessonLocked && onSelectLesson(lesson)}
+                  className={cn(
+                    "w-full flex items-center gap-3 ps-10 pe-4 py-3 transition-colors text-start",
+                    lesIdx < modLessons.length - 1 && "border-b border-border/8",
+                    lessonLocked && "opacity-20 cursor-not-allowed",
+                    lessonDone && "text-muted-foreground",
+                    isNext && "bg-primary/5",
+                    !isNext && !lessonDone && !lessonLocked && "active:bg-muted/30",
+                  )}
+                >
+                  {lessonLocked ? (
+                    <Lock className="h-3.5 w-3.5 shrink-0" />
+                  ) : lessonDone ? (
+                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  ) : (
+                    <Icon className={cn("h-3.5 w-3.5 shrink-0", isNext ? "text-primary" : "text-muted-foreground/60")} />
+                  )}
+                  <span className="text-[13px] flex-1 leading-tight">{lesson.title}</span>
+                  {isNext && (
+                    <Badge className="text-[9px] h-4 px-1.5 bg-primary/15 text-primary border-0 shrink-0">
+                      {isHe ? 'הבא' : 'Next'}
+                    </Badge>
+                  )}
+                  {lesson.score !== null && (
+                    <span className="text-[11px] text-primary shrink-0">{lesson.score}%</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
