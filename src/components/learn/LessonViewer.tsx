@@ -243,7 +243,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1 px-6 py-4">
+      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-6 py-4">
         <div className="max-w-2xl mx-auto space-y-6 text-start">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
