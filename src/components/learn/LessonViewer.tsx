@@ -3,7 +3,7 @@
  * Handles completion, quiz submission, and project evaluation.
  * RTL-optimized with logical properties.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
