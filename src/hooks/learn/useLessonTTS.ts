@@ -79,6 +79,10 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
       URL.revokeObjectURL(audioRef.current.src);
       audioRef.current = null;
     }
+    // Cancel browser TTS fallback if active
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     abortRef.current?.abort();
     abortRef.current = null;
     setIsPlaying(false);
