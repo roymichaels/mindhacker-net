@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { LayoutDashboard, Flame, Swords, Shield, Crosshair, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Flame, Swords, Shield, Crosshair, Briefcase, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
@@ -27,6 +27,16 @@ export const OS_TABS: OsTab[] = [
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Arena',     labelHe: 'זירה' },
   { id: 'community', path: '/community', icon: Crosshair, labelEn: 'Community', labelHe: 'קומיוניטי' },
 ];
+
+/** Coach-only tab, appended when user has 'practitioner' role */
+export const COACH_TAB: OsTab = {
+  id: 'coach',
+  path: '/coach',
+  icon: Briefcase,
+  labelEn: 'Coach',
+  labelHe: 'מאמנים',
+  requiredRole: 'practitioner',
+};
 
 /** Admin-only tab, appended when user has 'admin' role */
 export const ADMIN_TAB: OsTab = {
@@ -78,6 +88,9 @@ export const PROJECTS_SUB_ROUTES: SubRoute[] = [
  */
 export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
   const tabs = [...OS_TABS];
+  if (roles.hasRole('practitioner')) {
+    tabs.push(COACH_TAB);
+  }
   if (roles.hasRole('admin')) {
     tabs.push(ADMIN_TAB);
   }
