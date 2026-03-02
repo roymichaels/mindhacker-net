@@ -168,25 +168,23 @@ export default function Learn() {
     return modules.find(m => m.id === nextLesson.module_id);
   }, [nextLesson, modules]);
 
-  // ── Inject curriculum sidebar into the global left HUD slot ──
-  const leftSidebar = useMemo(() => {
-    if (!activeCurriculum || !modules || !lessons) return null;
-    return (
-      <LearnCurriculumSidebar
-        curriculumTitle={activeCurriculum.title}
-        progress={activeCurriculum.progress_percentage}
-        completedLessons={activeCurriculum.completed_lessons}
-        totalLessons={activeCurriculum.total_lessons}
-        modules={modules}
-        lessons={lessons}
-        nextLessonId={nextLesson?.id || null}
-        onSelectLesson={(lesson) => setSelectedLesson(lesson)}
-        onBack={() => setSelectedCurriculum(null)}
-      />
-    );
-  }, [activeCurriculum, modules, lessons, nextLesson?.id]);
+  // Track which modules are expanded
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(() => {
+    // Auto-expand module containing next lesson
+    if (nextLesson && modules) {
+      return new Set([nextLesson.module_id]);
+    }
+    return new Set();
+  });
 
-  useSidebars(leftSidebar, null);
+  const toggleModule = (modId: string) => {
+    setExpandedModules(prev => {
+      const next = new Set(prev);
+      if (next.has(modId)) next.delete(modId);
+      else next.add(modId);
+      return next;
+    });
+  };
 
   // ── Curricula List View ──
   if (!selectedCurriculum || !activeCurriculum) {
