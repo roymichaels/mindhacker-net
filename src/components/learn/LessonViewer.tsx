@@ -427,13 +427,13 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
         {!isAlreadyDone && (
           <>
             {lesson.lesson_type === 'theory' && (
-              <Button onClick={() => markComplete()} disabled={isSubmitting} className="gap-2">
+              <Button onClick={() => markComplete()} disabled={isSubmitting || (hasCompQuestions && !compPassed)} className="gap-2">
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                 {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
               </Button>
             )}
             {lesson.lesson_type === 'practice' && (
-              <Button onClick={() => markComplete()} disabled={isSubmitting} className="gap-2">
+              <Button onClick={() => markComplete()} disabled={isSubmitting || (hasCompQuestions && !compPassed)} className="gap-2">
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                 {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
               </Button>
