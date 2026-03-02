@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMyCoachProfile } from '@/domain/coaches';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { Plus, Sparkles, FileText, Eye, Trash2, Globe, Edit, Send, Loader2, ExternalLink } from 'lucide-react';
+import { Plus, Sparkles, FileText, Eye, Trash2, Globe, Edit, Send, Loader2, ExternalLink, Link2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +45,7 @@ export default function CoachLandingPagesTab() {
 
   const [showWizard, setShowWizard] = useState(false);
   const [previewPage, setPreviewPage] = useState<LandingPage | null>(null);
+  const [editingPage, setEditingPage] = useState<LandingPage | null>(null);
 
   // Fetch existing pages
   const { data: pages, isLoading } = useQuery({
@@ -92,6 +93,18 @@ export default function CoachLandingPagesTab() {
   const handleWizardComplete = () => {
     setShowWizard(false);
     queryClient.invalidateQueries({ queryKey: ['coach-landing-pages'] });
+  };
+
+  const handleEditComplete = (updatedPage: LandingPage) => {
+    setEditingPage(null);
+    queryClient.invalidateQueries({ queryKey: ['coach-landing-pages'] });
+  };
+
+  const copyPageLink = (slug: string) => {
+    const url = `${window.location.origin}/p/${slug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(isHe ? 'הקישור הועתק!' : 'Link copied!');
+    });
   };
 
   const templateLabels: Record<string, { he: string; en: string }> = {
@@ -165,6 +178,22 @@ export default function CoachLandingPagesTab() {
                 <Button
                   size="sm"
                   variant="outline"
+                  onClick={() => setEditingPage(page)}
+                >
+                  <Wand2 className="h-3.5 w-3.5 me-1" />
+                  {isHe ? 'ערוך עם Aurora' : 'Edit with Aurora'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyPageLink(page.slug)}
+                >
+                  <Link2 className="h-3.5 w-3.5 me-1" />
+                  {isHe ? 'העתק קישור' : 'Copy Link'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => togglePublish.mutate({ id: page.id, publish: page.status !== 'published' })}
                 >
                   <Globe className="h-3.5 w-3.5 me-1" />
@@ -192,6 +221,20 @@ export default function CoachLandingPagesTab() {
             onComplete={handleWizardComplete}
             onClose={() => setShowWizard(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingPage} onOpenChange={open => !open && setEditingPage(null)}>
+        <DialogContent className="max-w-4xl max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+          {editingPage && (
+            <AuroraPageEditor
+              page={editingPage}
+              coachProfile={coachProfile}
+              onComplete={handleEditComplete}
+              onClose={() => setEditingPage(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
@@ -446,6 +489,130 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
           />
           <Button size="icon" onClick={sendMessage} disabled={!input.trim() || isStreaming || isGenerating}>
             <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Aurora Page Editor (Prompt-based editing) ──────────────────────────────
+
+interface EditorProps {
+  page: LandingPage;
+  coachProfile: any;
+  onComplete: (page: LandingPage) => void;
+  onClose: () => void;
+}
+
+function AuroraPageEditor({ page, coachProfile, onComplete, onClose }: EditorProps) {
+  const { language } = useTranslation();
+  const isHe = language === 'he';
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentContent, setCurrentContent] = useState(page.content);
+  const [history, setHistory] = useState<any[]>([page.content]);
+
+  const applyEdit = async () => {
+    if (!editPrompt.trim() || isEditing) return;
+    setIsEditing(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+
+      const resp = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          action: 'edit',
+          currentContent,
+          editPrompt: editPrompt.trim(),
+          coachProfile: coachProfile ? { display_name: coachProfile.display_name, title: coachProfile.title, bio: coachProfile.bio } : null,
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Edit failed');
+      const data = await resp.json();
+      if (!data.success || !data.content) throw new Error('Invalid response');
+
+      setCurrentContent(data.content);
+      setHistory(prev => [...prev, data.content]);
+      setEditPrompt('');
+      toast.success(isHe ? 'הדף עודכן!' : 'Page updated!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to edit');
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const saveChanges = async () => {
+    try {
+      const { error } = await supabase
+        .from('coach_landing_pages')
+        .update({ content: currentContent, updated_at: new Date().toISOString() })
+        .eq('id', page.id);
+      if (error) throw error;
+      toast.success(isHe ? 'נשמר בהצלחה!' : 'Saved successfully!');
+      onComplete({ ...page, content: currentContent });
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save');
+    }
+  };
+
+  const undo = () => {
+    if (history.length > 1) {
+      const newHistory = history.slice(0, -1);
+      setHistory(newHistory);
+      setCurrentContent(newHistory[newHistory.length - 1]);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[90vh]">
+      {/* Header */}
+      <div className="px-6 py-4 border-b bg-gradient-to-r from-primary/10 to-primary/5 flex items-center justify-between">
+        <div>
+          <h3 className="font-bold flex items-center gap-2">
+            <Wand2 className="h-5 w-5 text-primary" />
+            {isHe ? 'עריכה עם Aurora' : 'Edit with Aurora'}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">{page.title}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {history.length > 1 && (
+            <Button size="sm" variant="ghost" onClick={undo}>
+              {isHe ? 'בטל' : 'Undo'}
+            </Button>
+          )}
+          <Button size="sm" onClick={saveChanges}>
+            {isHe ? 'שמור שינויים' : 'Save Changes'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Live Preview */}
+      <ScrollArea className="flex-1">
+        <LandingPagePreview page={{ ...page, content: currentContent }} />
+      </ScrollArea>
+
+      {/* Prompt Input */}
+      <div className="px-4 py-3 border-t space-y-2">
+        <div className="flex gap-2">
+          <Input
+            value={editPrompt}
+            onChange={e => setEditPrompt(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && applyEdit()}
+            placeholder={isHe ? 'תארו מה לשנות... (למשל: שנה את הכותרת, הוסף עדות, שנה צבעים)' : 'Describe what to change... (e.g., change headline, add testimonial, update CTA)'}
+            disabled={isEditing}
+          />
+          <Button size="icon" onClick={applyEdit} disabled={!editPrompt.trim() || isEditing}>
+            {isEditing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
       </div>

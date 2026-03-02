@@ -27,7 +27,66 @@ serve(async (req) => {
       });
     }
 
-    const { messages, action, pageId, coachProfile } = await req.json();
+    const { messages, action, pageId, coachProfile, currentContent, editPrompt } = await req.json();
+
+    // Action: edit — Aurora modifies existing landing page content based on a prompt
+    if (action === "edit") {
+      if (!currentContent || !editPrompt) {
+        return new Response(JSON.stringify({ error: "Missing currentContent or editPrompt" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const editSystemPrompt = `You are Aurora, an expert landing page editor. You will receive the current landing page JSON content and a user instruction. Apply the requested changes and return the COMPLETE updated JSON.
+
+IMPORTANT: Return ONLY raw JSON, no markdown, no explanations. Keep the same structure. Only modify what the user asked for, preserve everything else.
+
+Current page content:
+${JSON.stringify(currentContent, null, 2)}
+
+Coach profile context:
+${coachProfile ? JSON.stringify(coachProfile) : "Not provided"}`;
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: editSystemPrompt },
+            { role: "user", content: editPrompt },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const status = response.status;
+        if (status === 429) return new Response(JSON.stringify({ error: "Rate limited" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (status === 402) return new Response(JSON.stringify({ error: "Credits required" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        throw new Error(`AI error: ${status}`);
+      }
+
+      const aiData = await response.json();
+      let raw = aiData.choices?.[0]?.message?.content || "";
+      raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+      let updatedContent;
+      try { updatedContent = JSON.parse(raw); } catch {
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          updatedContent = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error("Failed to parse AI edit response as JSON");
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, content: updatedContent }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Action: generate — Aurora builds the landing page from conversation
     if (action === "generate") {
