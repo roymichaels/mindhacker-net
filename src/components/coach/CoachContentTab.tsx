@@ -50,12 +50,12 @@ const CoachContentTab = () => {
       const { error } = await supabase.from('content_products').insert({
         title: form.title,
         description: form.description,
-        type: form.type,
+        type: form.type as any,
         content_url: form.content_url || null,
-        status: form.status,
+        status: form.status as any,
         slug,
         created_by: user.id,
-        access_level: 'free',
+        access_level: 'free' as const,
       });
       if (error) throw error;
     },
