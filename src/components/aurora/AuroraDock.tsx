@@ -12,6 +12,7 @@ import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
+import { AuroraDockOrb } from '@/components/aurora/AuroraFloatingOrb';
 
 /** Min/max height for the expanded chat area (vh units) */
 const MIN_CHAT_VH = 15;
