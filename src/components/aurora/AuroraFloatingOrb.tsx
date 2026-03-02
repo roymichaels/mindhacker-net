@@ -49,9 +49,20 @@ export function AuroraFloatingOrb() {
     if (isMobile) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Center the orb on the cursor
-      mouseX.set(e.clientX - HALF);
-      mouseY.set(e.clientY - HALF);
+      // Offset toward cursor but stop ~60px away
+      const targetX = e.clientX - HALF;
+      const targetY = e.clientY - HALF;
+      const curX = mouseX.get();
+      const curY = mouseY.get();
+      const dx = targetX - curX;
+      const dy = targetY - curY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const deadZone = 60;
+      if (dist > deadZone) {
+        const ratio = 1 - deadZone / dist;
+        mouseX.set(curX + dx * ratio);
+        mouseY.set(curY + dy * ratio);
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
