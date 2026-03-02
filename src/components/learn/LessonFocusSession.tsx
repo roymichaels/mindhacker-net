@@ -1,17 +1,17 @@
 /**
  * LessonFocusSession — Full-screen immersive lesson overlay.
  * Covers the entire viewport (including root layout).
- * Features: upward timer, TTS button, exit confirmation.
+ * Features: upward timer, TTS button, exit confirmation, lazy content generation.
  * Renders via React Portal to document.body.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, AudioLines, VolumeX, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Clock, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { supabase } from '@/integrations/supabase/client';
 import LessonViewer from './LessonViewer';
 
 interface Lesson {
@@ -57,6 +57,58 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
 
   // Exit confirmation
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+
+  // Lazy content generation
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [enrichedLesson, setEnrichedLesson] = useState(lesson);
+  const [contentError, setContentError] = useState<string | null>(null);
+
+  const hasContent = (content: any) => {
+    if (!content || typeof content !== 'object') return false;
+    return !!(content.body || content.questions || content.instructions || content.brief);
+  };
+
+  // Generate content lazily if missing
+  useEffect(() => {
+    if (hasContent(lesson.content)) {
+      setEnrichedLesson(lesson);
+      return;
+    }
+
+    let cancelled = false;
+    const generateContent = async () => {
+      setIsGeneratingContent(true);
+      setContentError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-curriculum`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            action: 'generate-lesson-content',
+            lessonId: lesson.id,
+          }),
+        });
+
+        if (!resp.ok) throw new Error(`Error ${resp.status}`);
+        const data = await resp.json();
+        if (!cancelled && data.content) {
+          setEnrichedLesson({ ...lesson, content: data.content });
+        }
+      } catch (err: any) {
+        if (!cancelled) setContentError(err.message || 'Failed to generate content');
+      } finally {
+        if (!cancelled) setIsGeneratingContent(false);
+      }
+    };
+
+    generateContent();
+    return () => { cancelled = true; };
+  }, [lesson.id]);
 
   // Start timer on mount
   useEffect(() => {
@@ -126,11 +178,35 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
 
         {/* ── Lesson Content ── */}
         <div className="flex-1 overflow-hidden bg-background">
-          <LessonViewer
-            lesson={lesson}
-            onComplete={handleComplete}
-            onClose={handleExitAttempt}
-          />
+          {isGeneratingContent ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 px-6">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="font-bold text-base">
+                  {isHe ? 'Aurora מכינה את השיעור...' : 'Aurora is preparing your lesson...'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isHe ? 'יוצרת תוכן מותאם אישית' : 'Generating personalized content'}
+                </p>
+              </div>
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          ) : contentError ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 px-6">
+              <p className="text-destructive text-sm">{contentError}</p>
+              <Button variant="outline" onClick={onClose}>
+                {isHe ? 'חזרה' : 'Go back'}
+              </Button>
+            </div>
+          ) : (
+            <LessonViewer
+              lesson={enrichedLesson}
+              onComplete={handleComplete}
+              onClose={handleExitAttempt}
+            />
+          )}
         </div>
 
         {/* ── Exit Confirmation Overlay ── */}
