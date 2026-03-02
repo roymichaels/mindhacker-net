@@ -44,10 +44,39 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const isHe = language === 'he';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [compAnswers, setCompAnswers] = useState<Record<number, number>>({});
+  const [compFeedback, setCompFeedback] = useState<Record<number, boolean> | null>(null);
+  const [compPassed, setCompPassed] = useState(false);
   const [projectText, setProjectText] = useState('');
   const [feedback, setFeedback] = useState<any>(lesson.feedback);
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
+
+  const compQuestions = lesson.content?.comprehension_questions || [];
+  const hasCompQuestions = compQuestions.length > 0 && lesson.lesson_type !== 'quiz';
+
+  const checkComprehension = () => {
+    if (Object.keys(compAnswers).length < compQuestions.length) {
+      toast.error(isHe ? 'ענה על כל השאלות' : 'Answer all questions first');
+      return false;
+    }
+    const results: Record<number, boolean> = {};
+    let correct = 0;
+    compQuestions.forEach((q: any, i: number) => {
+      const isCorrect = compAnswers[i] === q.correct;
+      results[i] = isCorrect;
+      if (isCorrect) correct++;
+    });
+    setCompFeedback(results);
+    const passed = correct === compQuestions.length;
+    if (passed) {
+      setCompPassed(true);
+      toast.success(isHe ? '✅ כל התשובות נכונות!' : '✅ All answers correct!');
+    } else {
+      toast.error(isHe ? `${correct}/${compQuestions.length} נכון — תקן ונסה שוב` : `${correct}/${compQuestions.length} correct — fix and retry`);
+    }
+    return passed;
+  };
 
   const markComplete = async (submissionData?: any, scoreVal?: number, feedbackData?: any) => {
     setIsSubmitting(true);
