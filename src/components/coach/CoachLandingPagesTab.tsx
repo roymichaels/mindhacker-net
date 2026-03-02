@@ -352,7 +352,7 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
         // Auto-create a practitioner profile for the user
         const { data: newCoach, error: coachErr } = await supabase
           .from('practitioners')
-          .insert({ user_id: user!.id, display_name: user!.email?.split('@')[0] || 'Coach', slug: `coach-${Date.now()}` })
+          .insert({ user_id: user!.id, display_name: user!.email?.split('@')[0] || 'Coach', title: 'Coach', slug: `coach-${Date.now()}` })
           .select('id')
           .single();
         if (coachErr || !newCoach) throw new Error('Could not create coach profile');
