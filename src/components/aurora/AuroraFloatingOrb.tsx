@@ -20,8 +20,8 @@ export function AuroraFloatingOrb() {
   const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth - 80 : 300);
   const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight - 80 : 300);
 
-  // Smooth spring — soft, organic lag
-  const springConfig = { stiffness: 90, damping: 18, mass: 0.8 };
+  // Smooth spring — soft, organic lag with loose follow (doesn't reach cursor fully)
+  const springConfig = { stiffness: 40, damping: 12, mass: 1.2 };
   const springX = useSpring(mouseX, springConfig);
   const springY = useSpring(mouseY, springConfig);
 
