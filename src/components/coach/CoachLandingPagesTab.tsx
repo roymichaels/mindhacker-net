@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMyCoachProfile } from '@/domain/coaches';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { Plus, Sparkles, FileText, Eye, Trash2, Globe, Edit, Send, Loader2, ExternalLink } from 'lucide-react';
+import { Plus, Sparkles, FileText, Eye, Trash2, Globe, Edit, Send, Loader2, ExternalLink, Link2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
