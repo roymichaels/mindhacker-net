@@ -3,7 +3,7 @@
  * Handles completion, quiz submission, and project evaluation.
  * RTL-optimized with logical properties.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
@@ -51,8 +51,29 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [feedback, setFeedback] = useState<any>(lesson.feedback);
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Stop TTS when component unmounts (e.g. dialog closed)
+  // Detect scroll-to-bottom
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Check if scrolled within 40px of bottom
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    if (atBottom && !hasScrolledToBottom) setHasScrolledToBottom(true);
+  }, [hasScrolledToBottom]);
+
+  // Also check on mount (content might be shorter than viewport)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // If content doesn't overflow, treat as already scrolled
+    if (el.scrollHeight <= el.clientHeight + 40) {
+      setHasScrolledToBottom(true);
+    }
+  }, [lesson.id]);
+
+  // Stop TTS when component unmounts
   useEffect(() => {
     return () => { tts.stop(); window.speechSynthesis?.cancel(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,7 +203,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const isAlreadyDone = lesson.status === 'completed';
 
   return (
-    <div className="flex flex-col h-[85vh]" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col h-[85vh] bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="px-6 py-4 border-b">
         <div className="flex items-center justify-between">
@@ -222,7 +243,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1 px-6 py-4">
+      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-6 py-4">
         <div className="max-w-2xl mx-auto space-y-6 text-start">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
@@ -422,43 +443,45 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
             </div>
           )}
         </div>
-      </ScrollArea>
-
-      {/* Actions */}
-      <div className="border-t px-6 py-4 flex justify-end gap-3" dir={isHe ? 'rtl' : 'ltr'}>
-        <Button variant="outline" onClick={() => { tts.stop(); onClose(); }}>
-          {isHe ? 'סגור' : 'Close'}
-        </Button>
-        
-        {!isAlreadyDone && (
-          <>
-            {lesson.lesson_type === 'theory' && (
-              <Button onClick={() => markComplete()} disabled={isSubmitting || (hasCompQuestions && !compPassed)} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
-              </Button>
-            )}
-            {lesson.lesson_type === 'practice' && (
-              <Button onClick={() => markComplete()} disabled={isSubmitting || (hasCompQuestions && !compPassed)} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
-              </Button>
-            )}
-            {lesson.lesson_type === 'quiz' && (
-              <Button onClick={submitQuiz} disabled={isSubmitting} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
-                {isHe ? 'בדוק תשובות' : 'Submit Quiz'}
-              </Button>
-            )}
-            {lesson.lesson_type === 'project' && (
-              <Button onClick={submitProject} disabled={isSubmitting || !projectText.trim() || (hasCompQuestions && !compPassed)} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
-                {isHe ? 'הגש פרויקט' : 'Submit Project'}
-              </Button>
-            )}
-          </>
-        )}
       </div>
+
+      {/* Actions — no close button, only action buttons */}
+      {!isAlreadyDone && (
+        <div className="border-t border-border/30 px-6 py-4 flex justify-end gap-3 bg-background" dir={isHe ? 'rtl' : 'ltr'}>
+          {lesson.lesson_type === 'theory' && (
+            <Button
+              onClick={() => markComplete()}
+              disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom}
+              className="gap-2 flex-1 sm:flex-initial"
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
+            </Button>
+          )}
+          {lesson.lesson_type === 'practice' && (
+            <Button
+              onClick={() => markComplete()}
+              disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom}
+              className="gap-2 flex-1 sm:flex-initial"
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
+            </Button>
+          )}
+          {lesson.lesson_type === 'quiz' && (
+            <Button onClick={submitQuiz} disabled={isSubmitting} className="gap-2 flex-1 sm:flex-initial">
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+              {isHe ? 'בדוק תשובות' : 'Submit Quiz'}
+            </Button>
+          )}
+          {lesson.lesson_type === 'project' && (
+            <Button onClick={submitProject} disabled={isSubmitting || !projectText.trim() || (hasCompQuestions && !compPassed)} className="gap-2 flex-1 sm:flex-initial">
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
+              {isHe ? 'הגש פרויקט' : 'Submit Project'}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
