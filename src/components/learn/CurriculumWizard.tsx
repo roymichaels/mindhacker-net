@@ -171,14 +171,14 @@ export default function CurriculumWizard({ onComplete, onClose }: Props) {
       <ScrollArea className="flex-1 px-4" ref={scrollRef}>
         <div className="py-4 space-y-4 max-w-xl mx-auto">
           {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+            <div key={i} className={`flex ${msg.role === 'user' ? (isHe ? 'justify-start' : 'justify-end') : (isHe ? 'justify-end' : 'justify-start')}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm text-foreground ${
                 msg.role === 'user'
                   ? 'bg-primary/20 border border-primary/40'
                   : 'bg-muted border border-border/40'
-              }`}>
+              }`} style={{ textAlign: isHe ? 'right' : 'left', direction: isHe ? 'rtl' : 'ltr' }}>
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 text-foreground">
+                  <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 text-foreground" style={{ textAlign: isHe ? 'right' : 'left' }}>
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : msg.content}
@@ -186,7 +186,7 @@ export default function CurriculumWizard({ onComplete, onClose }: Props) {
             </div>
           ))}
           {isStreaming && (
-            <div className="flex justify-start">
+            <div className={`flex ${isHe ? 'justify-end' : 'justify-start'}`}>
               <div className="bg-muted/30 rounded-2xl px-4 py-3">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
@@ -217,16 +217,17 @@ export default function CurriculumWizard({ onComplete, onClose }: Props) {
             )}
           </Button>
         )}
-        <form onSubmit={e => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
+        <form onSubmit={e => { e.preventDefault(); sendMessage(); }} className={`flex gap-2 ${isHe ? 'flex-row-reverse' : ''}`}>
           <Input
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder={isHe ? 'ספר לי מה תרצה ללמוד...' : 'Tell me what you want to learn...'}
             disabled={isStreaming || isGenerating}
             className="rounded-xl"
+            dir={isHe ? 'rtl' : 'ltr'}
           />
           <Button type="submit" size="icon" disabled={!input.trim() || isStreaming || isGenerating} className="rounded-xl shrink-0">
-            <Send className="h-4 w-4" />
+            <Send className={`h-4 w-4 ${isHe ? 'rotate-180' : ''}`} />
           </Button>
         </form>
       </div>
