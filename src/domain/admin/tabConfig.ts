@@ -27,6 +27,7 @@ const Users             = lazy(() => import('@/pages/admin/Users'));
 
 const Leads             = lazy(() => import('@/pages/admin/Leads'));
 const Businesses        = lazy(() => import('@/pages/admin/Businesses'));
+const AdminCoaches      = lazy(() => import('@/pages/admin/Coaches'));
 const AuroraInsights    = lazy(() => import('@/pages/admin/AuroraInsights'));
 const AdminAffiliates   = lazy(() => import('@/pages/admin/Affiliates'));
 const Newsletter        = lazy(() => import('@/pages/admin/Newsletter'));
@@ -68,6 +69,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     icon: Shield,
     subTabs: [
       { id: 'users', labelHe: 'משתמשים', labelEn: 'Users', component: Users },
+      { id: 'coaches', labelHe: 'מאמנים', labelEn: 'Coaches', component: AdminCoaches },
       { id: 'leads', labelHe: 'לידים', labelEn: 'Leads', component: Leads },
       { id: 'businesses', labelHe: 'עסקים', labelEn: 'Businesses', component: Businesses },
       { id: 'aurora-insights', labelHe: 'תובנות', labelEn: 'Insights', component: AuroraInsights },
