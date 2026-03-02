@@ -26,6 +26,9 @@ interface AuroraChatContextType {
   registerSendMessage: (fn: (message: string, imageBase64?: string) => void) => void;
   isStreaming: boolean;
   setIsStreaming: (streaming: boolean) => void;
+  // Dock visibility — controlled by floating FAB
+  isDockVisible: boolean;
+  setIsDockVisible: (visible: boolean) => void;
   // Chat expanded state - shows message bubbles when focused
   isChatExpanded: boolean;
   setIsChatExpanded: (expanded: boolean) => void;
@@ -71,6 +74,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isDockVisible, setIsDockVisible] = useState(false);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
@@ -169,6 +173,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const openChatAndScrollToMessage = useCallback((conversationId: string, messageId: string) => {
     setCurrentConversationId(conversationId);
     setScrollToMessageId(messageId);
+    setIsDockVisible(true);
     setIsChatExpanded(true);
   }, []);
 
@@ -201,6 +206,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
 
   const startAssessment = useCallback((domainId: string) => {
     setAssessmentDomainId(domainId);
+    setIsDockVisible(true);
     setIsChatExpanded(true);
   }, []);
 
@@ -222,6 +228,8 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         registerSendMessage,
         isStreaming,
         setIsStreaming,
+        isDockVisible,
+        setIsDockVisible,
         isChatExpanded,
         setIsChatExpanded,
         toggleChatExpanded,
