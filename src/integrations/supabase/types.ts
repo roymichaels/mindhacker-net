@@ -1658,6 +1658,69 @@ export type Database = {
           },
         ]
       }
+      coach_leads: {
+        Row: {
+          coach_id: string
+          created_at: string
+          email: string
+          id: string
+          landing_page_id: string | null
+          metadata: Json | null
+          name: string
+          notes: string | null
+          phone: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          email: string
+          id?: string
+          landing_page_id?: string | null
+          metadata?: Json | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          landing_page_id?: string | null
+          metadata?: Json | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_leads_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coach_leads_landing_page_id_fkey"
+            columns: ["landing_page_id"]
+            isOneToOne: false
+            referencedRelation: "coach_landing_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_journeys: {
         Row: {
           ai_summary: string | null
