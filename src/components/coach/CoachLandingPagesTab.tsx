@@ -118,14 +118,14 @@ export default function CoachLandingPagesTab() {
 
   return (
     <div className="space-y-6 pt-6" dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">{isHe ? 'דפי נחיתה' : 'Landing Pages'}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">{isHe ? 'דפי נחיתה' : 'Landing Pages'}</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {isHe ? 'צרו דפי נחיתה מקצועיים בעזרת Aurora' : 'Create professional landing pages with Aurora'}
           </p>
         </div>
-        <Button onClick={() => setShowWizard(true)} className="gap-2">
+        <Button onClick={() => setShowWizard(true)} className="gap-2 w-full sm:w-auto">
           <Sparkles className="h-4 w-4" />
           {isHe ? 'דף חדש עם Aurora' : 'New Page with Aurora'}
         </Button>
@@ -151,20 +151,20 @@ export default function CoachLandingPagesTab() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {pages.map(page => (
             <Card key={page.id}>
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base">{page.title}</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-1">/{page.slug}</p>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <CardTitle className="text-base truncate">{page.title}</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1 truncate">/{page.slug}</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Badge variant={page.status === 'published' ? 'default' : 'secondary'}>
                       {page.status === 'published' ? (isHe ? 'פורסם' : 'Published') : (isHe ? 'טיוטה' : 'Draft')}
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="hidden sm:inline-flex">
                       {templateLabels[page.template_id]?.[isHe ? 'he' : 'en'] || page.template_id}
                     </Badge>
                   </div>
@@ -177,11 +177,13 @@ export default function CoachLandingPagesTab() {
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setEditingPage(page)}>
                   <Wand2 className="h-3.5 w-3.5 me-1" />
-                  {isHe ? 'ערוך עם Aurora' : 'Edit with Aurora'}
+                  <span className="hidden sm:inline">{isHe ? 'ערוך עם Aurora' : 'Edit with Aurora'}</span>
+                  <span className="sm:hidden">{isHe ? 'ערוך' : 'Edit'}</span>
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => copyPageLink(page.slug)}>
                   <Link2 className="h-3.5 w-3.5 me-1" />
-                  {isHe ? 'העתק קישור' : 'Copy Link'}
+                  <span className="hidden sm:inline">{isHe ? 'העתק קישור' : 'Copy Link'}</span>
+                  <span className="sm:hidden">{isHe ? 'קישור' : 'Link'}</span>
                 </Button>
                 <Button
                   size="sm"
@@ -189,7 +191,8 @@ export default function CoachLandingPagesTab() {
                   onClick={() => togglePublish.mutate({ id: page.id, publish: page.status !== 'published' })}
                 >
                   <Globe className="h-3.5 w-3.5 me-1" />
-                  {page.status === 'published' ? (isHe ? 'הסר פרסום' : 'Unpublish') : (isHe ? 'פרסם' : 'Publish')}
+                  <span className="hidden sm:inline">{page.status === 'published' ? (isHe ? 'הסר פרסום' : 'Unpublish') : (isHe ? 'פרסם' : 'Publish')}</span>
+                  <span className="sm:hidden">{page.status === 'published' ? '✕' : '✓'}</span>
                 </Button>
                 <Button
                   size="sm"
