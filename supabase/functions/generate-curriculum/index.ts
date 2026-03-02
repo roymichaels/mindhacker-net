@@ -77,6 +77,11 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
             "instructions": "Detailed practice instructions",
             "exercises": [
               { "title": "Exercise 1", "description": "What to do", "difficulty": "easy|medium|hard", "expected_output": "What the result should look like" }
+            ],
+            "comprehension_questions": [
+              { "q": "Question about the practice", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Explanation" },
+              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" },
+              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" }
             ]
           }
         },
