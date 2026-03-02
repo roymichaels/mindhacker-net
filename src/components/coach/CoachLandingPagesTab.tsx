@@ -221,7 +221,7 @@ export default function CoachLandingPagesTab() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingPage} onOpenChange={open => !open && setEditingPage(null)}>
-        <DialogContent className="max-w-4xl max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+        <DialogContent className="max-w-4xl h-[95vh] sm:max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
           {editingPage && (
             <AuroraPageEditor
               page={editingPage}
