@@ -124,7 +124,7 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
         </div>
 
         {/* ── Lesson Content ── */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden bg-background">
           <LessonViewer
             lesson={lesson}
             onComplete={handleComplete}

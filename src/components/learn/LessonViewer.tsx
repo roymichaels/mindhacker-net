@@ -203,7 +203,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const isAlreadyDone = lesson.status === 'completed';
 
   return (
-    <div className="flex flex-col h-[85vh] bg-background" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col h-full bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="px-6 py-4 border-b">
         <div className="flex items-center justify-between">
