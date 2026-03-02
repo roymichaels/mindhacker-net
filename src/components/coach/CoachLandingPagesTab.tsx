@@ -422,7 +422,7 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
   };
 
   return (
-    <div className="flex flex-col h-[80vh]">
+    <div className="flex flex-col h-[85vh] sm:h-[80vh]">
       <div className="px-6 py-4 border-b bg-gradient-to-r from-purple-500/10 to-indigo-500/10">
         <h3 className="font-bold flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-purple-400" />
