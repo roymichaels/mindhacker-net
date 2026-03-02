@@ -105,7 +105,12 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
             "brief": "Project brief",
             "requirements": ["Req 1", "Req 2"],
             "deliverables": ["Deliverable 1"],
-            "rubric": { "excellent": "Criteria for 90+", "good": "Criteria for 70-89", "passing": "Criteria for 50-69" }
+            "rubric": { "excellent": "Criteria for 90+", "good": "Criteria for 70-89", "passing": "Criteria for 50-69" },
+            "comprehension_questions": [
+              { "q": "Question about project concepts", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Explanation" },
+              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" },
+              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" }
+            ]
           }
         }
       ]
