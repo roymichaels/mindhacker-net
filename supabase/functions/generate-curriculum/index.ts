@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Robust JSON fixer: escape control characters inside string values
+// Robust JSON fixer
 function fixJson(str: string): string {
   str = str.replace(/^\uFEFF/, '');
   const start = str.indexOf('{');
@@ -41,12 +41,190 @@ function safeParseJson(raw: string) {
   const jsonStart = raw.indexOf('{');
   const jsonEnd = raw.lastIndexOf('}');
   if (jsonStart !== -1 && jsonEnd !== -1) raw = raw.substring(jsonStart, jsonEnd + 1);
-
   try { return JSON.parse(raw); } catch {
     try { return JSON.parse(fixJson(raw)); } catch (e2) {
       throw new Error("Failed to parse JSON from AI response: " + (e2 as Error).message);
     }
   }
+}
+
+// ─── Fetch user's full brain context for personalization ───
+async function fetchUserBrainContext(supabase: any, userId: string): Promise<string> {
+  const [
+    profileRes,
+    onboardingRes,
+    launchpadRes,
+    lifeDomainsRes,
+    directionRes,
+    identityRes,
+    energyRes,
+    visionsRes,
+    hypnosisRes,
+    projectsRes,
+    lifePlanRes,
+  ] = await Promise.all([
+    supabase.from("profiles").select("full_name, display_name, bio, gender, preferred_tone, challenge_intensity, level, experience").eq("id", userId).single(),
+    supabase.from("aurora_onboarding_progress").select("direction_clarity, identity_understanding, energy_patterns_status, energy_level, mood_signals").eq("user_id", userId).maybeSingle(),
+    supabase.from("launchpad_progress").select("step_1_intention, step_2_profile_data, step_3_lifestyle_data, launchpad_complete").eq("user_id", userId).maybeSingle(),
+    supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
+    supabase.from("aurora_life_direction").select("content, clarity_score").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
+    supabase.from("aurora_identity_elements").select("element_type, content").eq("user_id", userId).limit(20),
+    supabase.from("aurora_energy_patterns").select("pattern_type, description").eq("user_id", userId).limit(10),
+    supabase.from("aurora_life_visions").select("timeframe, title, description, focus_areas").eq("user_id", userId).limit(5),
+    supabase.from("hypnosis_sessions").select("ego_state, action, duration_seconds, created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
+    supabase.from("user_projects").select("name, category, progress_percentage, status").eq("user_id", userId).in("status", ["active", "paused"]).limit(10),
+    supabase.from("life_plans").select("title, status, progress_percentage, current_week, total_weeks").eq("user_id", userId).eq("status", "active").maybeSingle(),
+  ]);
+
+  const profile = profileRes.data;
+  const onboarding = onboardingRes.data;
+  const launchpad = launchpadRes.data;
+  const lifeDomains = lifeDomainsRes.data || [];
+  const direction = directionRes.data?.[0];
+  const identity = identityRes.data || [];
+  const energy = energyRes.data || [];
+  const visions = visionsRes.data || [];
+  const hypnosis = hypnosisRes.data || [];
+  const projects = projectsRes.data || [];
+  const lifePlan = lifePlanRes.data;
+
+  // Extract consciousness pillar data
+  const consciousnessDomain = lifeDomains.find((d: any) => d.domain_id === 'consciousness');
+  const consciousnessAssessment = consciousnessDomain?.domain_config?.latest_assessment;
+  
+  // Extract vitality / biological profile
+  const vitalityDomain = lifeDomains.find((d: any) => d.domain_id === 'vitality');
+  const vitalityData = vitalityDomain?.domain_config?.latest_assessment?.rawInputsUsed || {};
+
+  // Extract all domain scores
+  const domainScores = lifeDomains.map((d: any) => {
+    const score = d.domain_config?.latest_assessment?.scores?.overall ?? d.domain_config?.latest_assessment?.overallScore;
+    return { domain: d.domain_id, score, status: d.status };
+  }).filter((d: any) => d.score != null);
+
+  // Launchpad diagnostic scores
+  const diagnosticScores = launchpad?.step_1_intention?.diagnostic_scores;
+  const selectedPillar = launchpad?.step_1_intention?.selected_pillar;
+  const profileData = launchpad?.step_2_profile_data || {};
+  const lifestyleData = launchpad?.step_3_lifestyle_data || {};
+
+  // Build willingness map from domains
+  const willingness: Record<string, any> = {};
+  for (const d of lifeDomains) {
+    const raw = d.domain_config?.latest_assessment?.rawInputsUsed;
+    if (raw?.willing || raw?.not_willing || raw?.constraints) {
+      willingness[d.domain_id] = { willing: raw.willing || [], not_willing: raw.not_willing || [], constraints: raw.constraints || [] };
+    }
+  }
+
+  // Identity elements
+  const values = identity.filter((i: any) => i.element_type === 'value').map((i: any) => i.content);
+  const principles = identity.filter((i: any) => i.element_type === 'principle').map((i: any) => i.content);
+  const selfConcepts = identity.filter((i: any) => i.element_type === 'self_concept').map((i: any) => i.content);
+
+  // Hypnosis summary (consciousness + ego states)
+  const hypnosisSummary = hypnosis.length > 0
+    ? `Recent hypnosis sessions (${hypnosis.length}): ${[...new Set(hypnosis.map((h: any) => h.ego_state))].join(', ')}. Latest actions: ${hypnosis.slice(0, 3).map((h: any) => h.action).filter(Boolean).join('; ')}`
+    : 'No hypnosis sessions yet.';
+
+  const lines: string[] = [];
+  lines.push('=== USER BRAIN CONTEXT (Living System) ===');
+  
+  if (profile) {
+    lines.push(`\nUser: ${profile.full_name || profile.display_name || 'Unknown'}`);
+    lines.push(`Level: ${profile.level || 1} | XP: ${profile.experience || 0}`);
+    if (profile.bio) lines.push(`Bio: ${profile.bio}`);
+    if (profile.gender) lines.push(`Gender: ${profile.gender}`);
+    lines.push(`Tone: ${profile.preferred_tone || 'default'} | Challenge intensity: ${profile.challenge_intensity || 'balanced'}`);
+  }
+
+  if (selectedPillar) lines.push(`\nPrimary pillar: ${selectedPillar}`);
+
+  if (diagnosticScores) {
+    lines.push(`\nDiagnostic scores:`);
+    for (const [k, v] of Object.entries(diagnosticScores)) {
+      lines.push(`  ${k}: ${v}%`);
+    }
+  }
+
+  if (profileData.age_bracket) lines.push(`Age bracket: ${profileData.age_bracket}`);
+  if (profileData.activity_level) lines.push(`Activity level: ${profileData.activity_level}`);
+
+  if (lifestyleData.sleep_quality) lines.push(`Sleep quality: ${lifestyleData.sleep_quality}`);
+  if (lifestyleData.stress_level) lines.push(`Stress level: ${lifestyleData.stress_level}`);
+
+  if (direction) {
+    lines.push(`\nLife direction: ${direction.content}`);
+    if (direction.clarity_score) lines.push(`Direction clarity: ${direction.clarity_score}%`);
+  }
+
+  if (values.length) lines.push(`\nCore values: ${values.join(', ')}`);
+  if (principles.length) lines.push(`Principles: ${principles.join(', ')}`);
+  if (selfConcepts.length) lines.push(`Self-concepts: ${selfConcepts.join(', ')}`);
+
+  if (visions.length) {
+    lines.push(`\nLife visions:`);
+    visions.forEach((v: any) => lines.push(`  [${v.timeframe}] ${v.title}${v.focus_areas?.length ? ` — focus: ${v.focus_areas.join(', ')}` : ''}`));
+  }
+
+  if (energy.length) {
+    lines.push(`\nEnergy patterns:`);
+    energy.forEach((e: any) => lines.push(`  [${e.pattern_type}] ${e.description}`));
+  }
+
+  if (onboarding) {
+    lines.push(`\nOnboarding state: direction=${onboarding.direction_clarity}, identity=${onboarding.identity_understanding}, energy=${onboarding.energy_patterns_status}`);
+    if (onboarding.energy_level) lines.push(`Energy level: ${onboarding.energy_level}`);
+  }
+
+  if (domainScores.length) {
+    lines.push(`\nDomain scores:`);
+    domainScores.forEach((d: any) => lines.push(`  ${d.domain}: ${d.score}/100 (${d.status})`));
+  }
+
+  if (consciousnessAssessment) {
+    lines.push(`\nConsciousness pillar:`);
+    if (consciousnessAssessment.mirror_statement) lines.push(`  Mirror statement: ${consciousnessAssessment.mirror_statement}`);
+    if (consciousnessAssessment.scores) {
+      for (const [k, v] of Object.entries(consciousnessAssessment.scores)) {
+        lines.push(`  ${k}: ${v}`);
+      }
+    }
+  }
+
+  lines.push(`\n${hypnosisSummary}`);
+
+  if (Object.keys(willingness).length) {
+    lines.push(`\nWillingness boundaries:`);
+    for (const [domain, w] of Object.entries(willingness) as any) {
+      const parts = [];
+      if (w.willing?.length) parts.push(`willing: ${w.willing.join(', ')}`);
+      if (w.not_willing?.length) parts.push(`NOT willing: ${w.not_willing.join(', ')}`);
+      if (w.constraints?.length) parts.push(`constraints: ${w.constraints.join(', ')}`);
+      if (parts.length) lines.push(`  [${domain}] ${parts.join(' | ')}`);
+    }
+  }
+
+  // Biological profile
+  if (vitalityData.diet_type || profileData.activity_level) {
+    lines.push(`\nBiological profile:`);
+    if (vitalityData.diet_type) lines.push(`  Diet: ${Array.isArray(vitalityData.diet_type) ? vitalityData.diet_type.join(', ') : vitalityData.diet_type}`);
+    if (vitalityData.sleep_time) lines.push(`  Sleep: ${vitalityData.sleep_time} — ${vitalityData.wake_time || '?'}`);
+    if (vitalityData.caffeine) lines.push(`  Caffeine: ${vitalityData.caffeine}`);
+  }
+
+  if (projects.length) {
+    lines.push(`\nActive projects:`);
+    projects.forEach((p: any) => lines.push(`  ${p.name} (${p.category || '?'}) — ${p.progress_percentage || 0}%`));
+  }
+
+  if (lifePlan) {
+    lines.push(`\n100-day plan: "${lifePlan.title}" — week ${lifePlan.current_week}/${lifePlan.total_weeks}, ${lifePlan.progress_percentage || 0}% complete`);
+  }
+
+  lines.push('\n=== END BRAIN CONTEXT ===');
+
+  return lines.join('\n');
 }
 
 serve(async (req) => {
@@ -73,9 +251,22 @@ serve(async (req) => {
     const body = await req.json();
     const { messages, action } = body;
 
+    // ── Fetch brain context for ALL actions ──
+    const brainContext = await fetchUserBrainContext(supabase, user.id);
+
     // ── ACTION: generate — Build curriculum SKELETON (no lesson content) ──
     if (action === "generate") {
       const systemPrompt = `You are Aurora, an elite curriculum architect. Generate a SKELETON for an intensive boot-camp curriculum.
+
+${brainContext}
+
+USE THE BRAIN CONTEXT ABOVE TO PERSONALIZE:
+- Adapt difficulty based on user's level, domain scores, and diagnostic results
+- Respect willingness boundaries and biological constraints (e.g., if vegan — no meat examples)
+- Link to user's active projects, life direction, and consciousness insights
+- If the topic relates to a life pillar, use the user's domain scores to calibrate starting point
+- If consciousness data exists, weave identity/self-awareness elements into personal-growth curricula
+- If hypnosis ego states are present, reference them for emotional regulation or mindset modules
 
 IMPORTANT: Generate ONLY metadata — NO lesson content/body. Content will be generated lazily later.
 
@@ -179,7 +370,6 @@ RULES:
       const curriculumDbId = currData.id;
       let totalLessons = 0;
 
-      // Save modules and lessons (no content)
       for (let mi = 0; mi < (curriculum.modules || []).length; mi++) {
         const mod = curriculum.modules[mi];
         const { data: modData, error: modErr } = await supabase
@@ -198,10 +388,7 @@ RULES:
           .select("id")
           .single();
 
-        if (modErr || !modData) {
-          console.error("Module insert error:", modErr);
-          continue;
-        }
+        if (modErr || !modData) { console.error("Module insert error:", modErr); continue; }
 
         for (let li = 0; li < (mod.lessons || []).length; li++) {
           const lesson = mod.lessons[li];
@@ -214,7 +401,7 @@ RULES:
             lesson_type: lesson.lesson_type || "theory",
             order_index: li,
             status: mi === 0 && li === 0 ? "active" : "locked",
-            content: {}, // Empty — will be generated lazily
+            content: {},
             xp_reward: lesson.xp_reward || 10,
             time_estimate_minutes: lesson.time_estimate_minutes || 15,
           });
@@ -222,13 +409,9 @@ RULES:
         }
       }
 
-      // Update total lessons count
-      await supabase
-        .from("learning_curricula")
-        .update({ total_lessons: totalLessons })
-        .eq("id", curriculumDbId);
+      await supabase.from("learning_curricula").update({ total_lessons: totalLessons }).eq("id", curriculumDbId);
 
-      // Create action items for plan integration
+      // Create action items
       for (let mi = 0; mi < (curriculum.modules || []).length; mi++) {
         const mod = curriculum.modules[mi];
         await supabase.from("action_items").insert({
@@ -240,12 +423,7 @@ RULES:
           description: mod.description,
           pillar: curriculum.pillar || "focus",
           xp_reward: 50,
-          metadata: {
-            curriculum_id: curriculumDbId,
-            module_index: mi,
-            difficulty: mod.difficulty,
-            lesson_count: mod.lessons?.length || 0,
-          },
+          metadata: { curriculum_id: curriculumDbId, module_index: mi, difficulty: mod.difficulty, lesson_count: mod.lessons?.length || 0 },
         });
       }
 
@@ -259,7 +437,6 @@ RULES:
       const { lessonId } = body;
       if (!lessonId) throw new Error("lessonId required");
 
-      // Fetch lesson + curriculum context
       const { data: lesson, error: lessonErr } = await supabase
         .from("learning_lessons")
         .select("id, title, title_en, lesson_type, order_index, module_id, curriculum_id, content")
@@ -268,7 +445,6 @@ RULES:
 
       if (lessonErr || !lesson) throw new Error("Lesson not found");
 
-      // If content already exists and has body/questions, return it
       const existingContent = lesson.content as Record<string, unknown> | null;
       if (existingContent && (existingContent.body || existingContent.questions || existingContent.instructions || existingContent.brief)) {
         return new Response(JSON.stringify({ success: true, content: existingContent, cached: true }), {
@@ -276,14 +452,12 @@ RULES:
         });
       }
 
-      // Get curriculum info for context
       const { data: curriculum } = await supabase
         .from("learning_curricula")
         .select("title, topic, description, curriculum_data")
         .eq("id", lesson.curriculum_id)
         .single();
 
-      // Get module info
       const { data: mod } = await supabase
         .from("learning_modules")
         .select("title, difficulty, description")
@@ -292,6 +466,15 @@ RULES:
 
       const lessonType = lesson.lesson_type;
       const contentPrompt = `You are Aurora, an elite instructor. Generate FULL content for a single ${lessonType} lesson.
+
+${brainContext}
+
+USE THE BRAIN CONTEXT ABOVE TO PERSONALIZE:
+- Reference user's real projects, goals, or life direction in examples when relevant
+- Respect biological constraints (diet, sleep patterns) in health/wellness content
+- If consciousness data exists, integrate self-awareness angles into practice exercises
+- Adapt language complexity and metaphors to user's challenge_intensity and tone preference
+- If this relates to a pillar the user has assessed, use their actual scores as baseline references
 
 Course: "${curriculum?.title || 'Unknown'}"
 Topic: "${curriculum?.topic || 'Unknown'}"  
@@ -302,7 +485,7 @@ Generate content based on lesson type:
 
 ${lessonType === 'theory' ? `Return JSON:
 {
-  "body": "Full lesson content in markdown. 400-800 words. Clear, practical, with examples.",
+  "body": "Full lesson content in markdown. 400-800 words. Clear, practical, with examples personalized to the user.",
   "key_concepts": ["concept1", "concept2", "concept3"],
   "examples": ["Example 1 description", "Example 2 description"],
   "comprehension_questions": [
@@ -333,7 +516,7 @@ Include 5-8 questions testing knowledge from this module.` : ''}
 
 ${lessonType === 'project' ? `Return JSON:
 {
-  "brief": "Project description — what to build/create",
+  "brief": "Project description — what to build/create. Personalize to user's real goals/projects if relevant.",
   "requirements": ["Requirement 1", "Requirement 2", "Requirement 3"],
   "rubric": { "completeness": 40, "quality": 30, "creativity": 30 },
   "comprehension_questions": [
@@ -346,6 +529,7 @@ RULES:
 - If Hebrew: include nikud (נִקּוּד) on titles and key terms
 - Be demanding but clear
 - Content should be practical and actionable
+- Personalize examples to the user's actual life context when possible
 - Return ONLY valid JSON`;
 
       const controller = new AbortController();
@@ -362,26 +546,20 @@ RULES:
           model: "google/gemini-2.5-flash",
           response_format: { type: "json_object" },
           messages: [
-            { role: "system", content: "You are Aurora, an expert instructor. Generate lesson content. Return ONLY valid JSON." },
+            { role: "system", content: "You are Aurora, an expert instructor. Generate lesson content personalized to the user. Return ONLY valid JSON." },
             { role: "user", content: contentPrompt },
           ],
         }),
       });
 
       clearTimeout(timeout);
-
       if (!response.ok) throw new Error(`AI error: ${response.status}`);
 
       const aiData = await response.json();
       const raw = aiData.choices?.[0]?.message?.content || "";
       const content = safeParseJson(raw);
 
-      // Save content to lesson
-      const { error: updateErr } = await supabase
-        .from("learning_lessons")
-        .update({ content })
-        .eq("id", lessonId);
-
+      const { error: updateErr } = await supabase.from("learning_lessons").update({ content }).eq("id", lessonId);
       if (updateErr) throw new Error("Failed to save lesson content: " + updateErr.message);
 
       return new Response(JSON.stringify({ success: true, content }), {
@@ -389,7 +567,7 @@ RULES:
       });
     }
 
-    // ── ACTION: evaluate — Aurora evaluates a quiz/project submission ──
+    // ── ACTION: evaluate ──
     if (action === "evaluate") {
       const { lessonId, submission, lessonContent, lessonType } = body;
 
@@ -440,13 +618,22 @@ RULES:
     // ── DEFAULT: Chat — Aurora asks questions to understand what to teach ──
     const systemPrompt = `You are Aurora, an elite instructor and curriculum architect. You're helping a user design a personalized, DEMANDING learning curriculum.
 
+${brainContext}
+
+USE THE BRAIN CONTEXT ABOVE TO:
+- Reference the user's goals, projects, and life direction when asking questions
+- Suggest topics that align with their active pillars, consciousness insights, or current 100-day plan
+- Adapt your tone to their preferred_tone and challenge_intensity
+- If they're working on something (projects, business), suggest related learning paths
+- If consciousness/hypnosis data exists, suggest personal development angles
+
 Your goal: Through 3-5 focused questions, understand exactly what to teach and build a boot-camp-level curriculum with ~50 lessons.
 
-Questions to explore (adapt based on answers):
-1. What do you want to master? (be specific — "Python for data science", not just "programming")
-2. What's your current level? (complete beginner, some experience, intermediate)
-3. What's your goal? (career change, side project, freelancing, personal mastery)
-4. How intense do you want it? (Aurora pushes for maximum intensity)
+Questions to explore (adapt based on context — you may already know some answers from brain context):
+1. What do you want to master? (be specific — suggest options based on their projects/pillars)
+2. What's your current level? (check domain scores if relevant)
+3. What's your goal? (reference their life direction or visions)
+4. How intense do you want it? (check their challenge_intensity preference)
 5. How much time daily can you dedicate? (minimum 30 min/day expected)
 
 Keep responses short (2-3 sentences + question). Be encouraging but DEMANDING — make it clear this won't be easy.
