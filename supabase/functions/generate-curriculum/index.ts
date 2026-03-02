@@ -143,39 +143,27 @@ RULES:
       let raw = aiData.choices?.[0]?.message?.content || "";
       console.log("Raw AI response length:", raw.length, "first 200 chars:", raw.substring(0, 200));
       
-      // Strip markdown code fences anywhere in the string
+      // Strip markdown code fences if present
       raw = raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
       
-      // Extract the JSON object from the response
+      // Extract JSON object
       const jsonStart = raw.indexOf('{');
       const jsonEnd = raw.lastIndexOf('}');
-      if (jsonStart === -1 || jsonEnd === -1) {
-        console.error("No JSON object found in response. Raw:", raw.substring(0, 500));
-        throw new Error("AI did not return valid JSON");
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        raw = raw.substring(jsonStart, jsonEnd + 1);
       }
-      raw = raw.substring(jsonStart, jsonEnd + 1);
-
-      // Fix common JSON issues from AI: control chars inside string values
-      // We need to escape control characters that appear inside JSON string values
-      const fixJson = (s: string) => {
-        // Replace unescaped control characters inside strings
-        return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-                .replace(/\t/g, '    ')  // tabs to spaces
-                // Fix unescaped newlines inside JSON string values
-                .replace(/"(?:[^"\\]|\\.)*"/g, (match) => {
-                  return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-                });
-      };
 
       let curriculum;
       try { 
         curriculum = JSON.parse(raw); 
       } catch (e1) {
-        console.log("First parse failed:", (e1 as Error).message);
-        try { 
-          curriculum = JSON.parse(fixJson(raw)); 
+        console.error("Parse failed:", (e1 as Error).message, "first 500:", raw.substring(0, 500));
+        // Last resort: remove all control chars except \n \r \t, then retry
+        const cleaned = raw.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+        try {
+          curriculum = JSON.parse(cleaned);
         } catch (e2) {
-          console.error("Second parse failed:", (e2 as Error).message, "JSON start:", raw.substring(0, 300));
+          console.error("Cleaned parse also failed:", (e2 as Error).message);
           throw new Error("Failed to parse curriculum JSON from AI response");
         }
       }
