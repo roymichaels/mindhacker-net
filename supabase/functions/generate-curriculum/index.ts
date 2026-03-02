@@ -110,6 +110,7 @@ RULES:
 - Practice exercises must be DEMANDING — push the user hard
 - Quizzes must have 5-10 questions each with 4 options
 - Projects must require REAL deliverables, not theoretical exercises
+- EVERY theory, practice, and project lesson MUST include 3-5 "comprehension_questions" — multiple-choice questions about the lesson material that the user must answer correctly before completing the lesson
 - Total curriculum should be 25-50 lessons
 - XP rewards scale with difficulty: theory=10, practice=20, quiz=15, project=50
 - Generate content in the SAME LANGUAGE the user used in conversation
