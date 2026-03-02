@@ -285,133 +285,120 @@ export default function Learn() {
     );
   }
 
-  // ── Curriculum Detail View — main content only (sidebar injected via useSidebars) ──
+  // ── Curriculum Detail View — React Native style inline list ──
   return (
     <div className="min-h-screen pb-20" dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Curriculum progress card */}
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <CardContent className="py-5 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                <Flame className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="font-bold text-sm sm:text-base truncate">{activeCurriculum.title}</h2>
-                <p className="text-xs text-muted-foreground">{activeCurriculum.description}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" />{activeCurriculum.total_modules} {isHe ? 'מודולים' : 'modules'}</span>
-              <span className="flex items-center gap-1"><FileText className="h-3 w-3" />{activeCurriculum.total_lessons} {isHe ? 'שיעורים' : 'lessons'}</span>
-              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{activeCurriculum.estimated_days} {isHe ? 'ימים' : 'days'}</span>
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span>{activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons}</span>
-                <span className="font-bold text-primary">{activeCurriculum.progress_percentage}%</span>
-              </div>
-              <Progress value={activeCurriculum.progress_percentage} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-0">
+        {/* Back + Header */}
+        <button
+          onClick={() => setSelectedCurriculum(null)}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-3"
+        >
+          <ArrowLeft className={cn("h-3.5 w-3.5", isHe && "rotate-180")} />
+          {isHe ? 'חזרה לרשימה' : 'Back to list'}
+        </button>
 
-        {/* Next Lesson Card */}
-        {nextLesson ? (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              {isHe ? 'השיעור הבא שלך' : 'Your Next Lesson'}
-            </h3>
-            <Card className="border-primary/30 hover:border-primary/50 transition-colors cursor-pointer" onClick={() => setSelectedLesson(nextLesson)}>
-              <CardContent className="py-6 space-y-4">
-                <div className="flex items-start gap-4">
-                  {(() => {
-                    const Icon = LESSON_TYPE_ICONS[nextLesson.lesson_type] || FileText;
-                    return (
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Icon className="h-6 w-6 text-primary" />
-                      </div>
-                    );
-                  })()}
-                  <div className="flex-1 min-w-0">
-                    {nextLessonModule && (
-                      <p className="text-xs text-muted-foreground mb-1">
-                        {nextLessonModule.title} · {isHe ? 'שלב' : 'Step'} {nextLesson.order_index + 1}
-                      </p>
-                    )}
-                    <h3 className="text-lg font-bold">{nextLesson.title}</h3>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <Badge variant="outline">
-                        {LESSON_TYPE_LABELS[nextLesson.lesson_type]?.[isHe ? 'he' : 'en'] || nextLesson.lesson_type}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />{nextLesson.time_estimate_minutes} {isHe ? 'דק\'' : 'min'}
-                      </span>
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Zap className="h-3 w-3" />+{nextLesson.xp_reward} XP
-                      </span>
-                    </div>
+        {/* Compact progress header */}
+        <div className="space-y-2 mb-4">
+          <h1 className="text-base font-bold leading-tight">{activeCurriculum.title}</h1>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons} {isHe ? 'שיעורים' : 'lessons'}</span>
+            <span className="font-bold text-primary">{activeCurriculum.progress_percentage}%</span>
+          </div>
+          <Progress value={activeCurriculum.progress_percentage} className="h-1.5" />
+        </div>
+
+        {/* ── Modules & Lessons — flat list ── */}
+        <div className="space-y-0">
+          {modules?.map(mod => {
+            const isLocked = mod.status === 'locked';
+            const isDone = mod.status === 'completed';
+            const isActive = mod.status === 'in_progress' || mod.status === 'unlocked';
+            const isOpen = expandedModules.has(mod.id);
+            const modLessons = lessons?.filter(l => l.module_id === mod.id) || [];
+
+            return (
+              <div key={mod.id}>
+                {/* Module header row */}
+                <button
+                  onClick={() => !isLocked && toggleModule(mod.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-3.5 transition-colors border-b border-border/20",
+                    isLocked ? "opacity-40 cursor-not-allowed" : "hover:bg-muted/30 active:bg-muted/50",
+                  )}
+                >
+                  {isLocked ? (
+                    <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
+                  ) : isDone ? (
+                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                  ) : (
+                    <Play className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
+                  )}
+                  <div className="flex-1 min-w-0 text-start">
+                    <p className="text-sm font-semibold truncate">{mod.title}</p>
+                    <p className="text-[11px] text-muted-foreground">{mod.completed_lessons}/{mod.total_lessons}</p>
                   </div>
-                </div>
+                  {!isLocked && (
+                    isOpen
+                      ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                      : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                  )}
+                </button>
 
-                {nextLesson.content && (
-                  <div className="bg-muted/30 rounded-xl p-4 text-sm text-muted-foreground line-clamp-4">
-                    {typeof nextLesson.content === 'string'
-                      ? nextLesson.content.slice(0, 200) + '...'
-                      : nextLesson.content.intro || nextLesson.content.theory?.slice(0, 200) || (isHe ? 'לחצו להתחיל' : 'Click to start')}
+                {/* Expanded lessons */}
+                {isOpen && !isLocked && (
+                  <div className="bg-muted/10">
+                    {modLessons.map(lesson => {
+                      const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
+                      const isNext = lesson.id === nextLesson?.id;
+                      const lessonDone = lesson.status === 'completed';
+                      const lessonLocked = lesson.status === 'locked';
+
+                      return (
+                        <button
+                          key={lesson.id}
+                          disabled={lessonLocked}
+                          onClick={() => !lessonLocked && setSelectedLesson(lesson)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-5 py-3 transition-colors text-start border-b border-border/10",
+                            lessonLocked && "opacity-25 cursor-not-allowed",
+                            lessonDone && "text-muted-foreground",
+                            isNext && "bg-primary/5 border-s-2 border-s-primary",
+                            !isNext && !lessonDone && !lessonLocked && "hover:bg-muted/20 active:bg-muted/40",
+                          )}
+                        >
+                          {lessonLocked ? (
+                            <Lock className="h-3.5 w-3.5 shrink-0" />
+                          ) : lessonDone ? (
+                            <CheckCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                          ) : (
+                            <Icon className={cn("h-3.5 w-3.5 shrink-0", isNext ? "text-primary" : "text-muted-foreground")} />
+                          )}
+                          <span className="text-sm truncate flex-1">{lesson.title}</span>
+                          {isNext && (
+                            <Badge className="text-[9px] h-4 px-1.5 bg-primary/20 text-primary border-0 shrink-0">
+                              {isHe ? 'הבא' : 'Next'}
+                            </Badge>
+                          )}
+                          {lesson.score !== null && (
+                            <span className="text-xs text-primary shrink-0">{lesson.score}%</span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
+              </div>
+            );
+          })}
+        </div>
 
-                <Button className="w-full gap-2" size="lg">
-                  <Play className="h-4 w-4" />
-                  {isHe ? 'התחל שיעור' : 'Start Lesson'}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="py-12 text-center space-y-4">
-              <Trophy className="h-12 w-12 mx-auto text-amber-400" />
-              <h3 className="text-lg font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
-              <p className="text-sm text-muted-foreground">{isHe ? 'עבודה מעולה! סיימת את כל תוכנית הלימודים.' : 'Great work! You\'ve finished the entire curriculum.'}</p>
-              <Button variant="outline" onClick={() => setSelectedCurriculum(null)}>
-                {isHe ? 'חזרה לרשימה' : 'Back to list'}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Recent completed lessons */}
-        {lessons && lessons.filter(l => l.status === 'completed').length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-emerald-500" />
-              {isHe ? 'שיעורים שהושלמו לאחרונה' : 'Recently Completed'}
-            </h3>
-            <div className="space-y-2">
-              {lessons.filter(l => l.status === 'completed').slice(-3).reverse().map(lesson => {
-                const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
-                return (
-                  <button
-                    key={lesson.id}
-                    onClick={() => setSelectedLesson(lesson)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors text-start"
-                  >
-                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{lesson.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {LESSON_TYPE_LABELS[lesson.lesson_type]?.[isHe ? 'he' : 'en']} · +{lesson.xp_reward} XP
-                        {lesson.score !== null && ` · ${lesson.score}%`}
-                      </p>
-                    </div>
-                    <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 ${isHe ? 'rotate-180' : ''}`} />
-                  </button>
-                );
-              })}
-            </div>
+        {/* All done state */}
+        {!nextLesson && lessons && lessons.length > 0 && (
+          <div className="py-12 text-center space-y-3">
+            <Trophy className="h-10 w-10 mx-auto text-amber-400" />
+            <h3 className="text-base font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
+            <p className="text-sm text-muted-foreground">{isHe ? 'עבודה מעולה!' : 'Great work!'}</p>
           </div>
         )}
       </div>
