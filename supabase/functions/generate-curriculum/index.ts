@@ -60,7 +60,12 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
           "content": {
             "body": "Full lesson text with markdown. Be thorough — 800+ words. Include examples, diagrams described in text, analogies.",
             "key_concepts": ["concept1", "concept2"],
-            "examples": ["Concrete example 1", "Concrete example 2"]
+            "examples": ["Concrete example 1", "Concrete example 2"],
+            "comprehension_questions": [
+              { "q": "Question about the material", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Why this is correct" },
+              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" },
+              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" }
+            ]
           }
         },
         {
@@ -72,6 +77,11 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
             "instructions": "Detailed practice instructions",
             "exercises": [
               { "title": "Exercise 1", "description": "What to do", "difficulty": "easy|medium|hard", "expected_output": "What the result should look like" }
+            ],
+            "comprehension_questions": [
+              { "q": "Question about the practice", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Explanation" },
+              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" },
+              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" }
             ]
           }
         },
@@ -95,7 +105,12 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
             "brief": "Project brief",
             "requirements": ["Req 1", "Req 2"],
             "deliverables": ["Deliverable 1"],
-            "rubric": { "excellent": "Criteria for 90+", "good": "Criteria for 70-89", "passing": "Criteria for 50-69" }
+            "rubric": { "excellent": "Criteria for 90+", "good": "Criteria for 70-89", "passing": "Criteria for 50-69" },
+            "comprehension_questions": [
+              { "q": "Question about project concepts", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Explanation" },
+              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" },
+              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" }
+            ]
           }
         }
       ]
@@ -110,6 +125,7 @@ RULES:
 - Practice exercises must be DEMANDING — push the user hard
 - Quizzes must have 5-10 questions each with 4 options
 - Projects must require REAL deliverables, not theoretical exercises
+- EVERY theory, practice, and project lesson MUST include 3-5 "comprehension_questions" — multiple-choice questions about the lesson material that the user must answer correctly before completing the lesson
 - Total curriculum should be 25-50 lessons
 - XP rewards scale with difficulty: theory=10, practice=20, quiz=15, project=50
 - Generate content in the SAME LANGUAGE the user used in conversation
