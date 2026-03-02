@@ -33,7 +33,7 @@ const CoachProductsTab = () => {
   const createServiceMutation = useMutation({
     mutationFn: async () => {
       if (!myProfile?.id) throw new Error('No coach profile');
-      const { error } = await supabase.from('practitioner_services').insert({
+      const { error } = await supabase.from('practitioner_services').insert([{
         practitioner_id: myProfile.id,
         title: serviceForm.title,
         title_en: serviceForm.title_en || null,
@@ -42,7 +42,7 @@ const CoachProductsTab = () => {
         duration_minutes: parseInt(serviceForm.duration_minutes) || 60,
         is_active: true,
         order_index: (services?.length || 0) + 1,
-      });
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {

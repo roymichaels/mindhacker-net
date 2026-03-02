@@ -47,7 +47,7 @@ const CoachContentTab = () => {
     mutationFn: async () => {
       if (!user?.id) throw new Error('Not authenticated');
       const slug = form.title.toLowerCase().replace(/[^a-z0-9א-ת]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now();
-      const { error } = await supabase.from('content_products').insert({
+      const { error } = await supabase.from('content_products').insert([{
         title: form.title,
         description: form.description,
         type: form.type as any,
@@ -56,7 +56,7 @@ const CoachContentTab = () => {
         slug,
         created_by: user.id,
         access_level: 'free' as const,
-      });
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {
