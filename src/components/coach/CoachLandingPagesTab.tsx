@@ -210,7 +210,7 @@ export default function CoachLandingPagesTab() {
 
       {/* Aurora Wizard Dialog */}
       <Dialog open={showWizard} onOpenChange={setShowWizard}>
-        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+        <DialogContent className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
           <AuroraLandingWizard
             coachProfile={coachProfile}
             onComplete={handleWizardComplete}
