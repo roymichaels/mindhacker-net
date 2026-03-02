@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { LayoutDashboard, Flame, Swords, Shield, Crosshair, Briefcase, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Flame, Swords, Shield, Crosshair, Briefcase, GraduationCap, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
@@ -20,12 +20,13 @@ export interface OsTab {
   comingSoon?: boolean;
 }
 
-/** The 3 tabs visible to every authenticated user */
+/** The main tabs visible to every authenticated user */
 export const OS_TABS: OsTab[] = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'core',      path: '/life',      icon: Flame,          labelEn: 'Core',      labelHe: 'ליבה' },
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Arena',     labelHe: 'זירה' },
   { id: 'community', path: '/community', icon: Crosshair, labelEn: 'Community', labelHe: 'קומיוניטי' },
+  { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
 ];
 
 /** Coach-only tab, appended when user has 'practitioner' role */
@@ -38,7 +39,7 @@ export const COACH_TAB: OsTab = {
   requiredRole: 'practitioner',
 };
 
-/** Admin-only tab, appended when user has 'admin' role */
+/** Admin-only tab — now used only in the app dropdown, NOT in bottom tab bar */
 export const ADMIN_TAB: OsTab = {
   id: 'admin',
   path: '/admin-hub',
@@ -86,14 +87,12 @@ export const PROJECTS_SUB_ROUTES: SubRoute[] = [
 
 /**
  * Build the visible tabs array based on user roles.
+ * Admin tab is no longer in the bottom nav — it's accessed via the app dropdown.
  */
 export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
   const tabs = [...OS_TABS];
   if (roles.hasRole('practitioner')) {
     tabs.push(COACH_TAB);
-  }
-  if (roles.hasRole('admin')) {
-    tabs.push(ADMIN_TAB);
   }
   return tabs;
 }

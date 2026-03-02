@@ -77,7 +77,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
       <PageShell>
         <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full">
 
-          {/* Pillar header + controls row */}
+          {/* Pillar header + new thread button */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-bold text-foreground truncate">
@@ -91,34 +91,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Feed mode toggle */}
-              <div className="flex bg-muted/40 rounded-lg p-0.5">
-                <button
-                  onClick={() => setFeedMode('latest')}
-                  className={cn(
-                    "flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
-                    feedMode === 'latest'
-                      ? "bg-background shadow-sm text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Clock className="h-3 w-3" />
-                  {isHe ? 'חדש' : 'New'}
-                </button>
-                <button
-                  onClick={() => setFeedMode('trending')}
-                  className={cn(
-                    "flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
-                    feedMode === 'trending'
-                      ? "bg-background shadow-sm text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Flame className="h-3 w-3" />
-                  {isHe ? 'חם' : 'Hot'}
-                </button>
-              </div>
-
               {/* Suggest topic */}
               <button
                 onClick={() => setSuggestOpen(true)}
@@ -128,6 +100,34 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
                 <span className="hidden sm:inline">{isHe ? 'בקש נושא' : 'Suggest'}</span>
               </button>
             </div>
+          </div>
+
+          {/* Feed mode toggle — חדש / חם */}
+          <div className="flex bg-muted/40 rounded-lg p-0.5 w-fit">
+            <button
+              onClick={() => setFeedMode('latest')}
+              className={cn(
+                "flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
+                feedMode === 'latest'
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Clock className="h-3 w-3" />
+              {isHe ? 'חדש' : 'New'}
+            </button>
+            <button
+              onClick={() => setFeedMode('trending')}
+              className={cn(
+                "flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
+                feedMode === 'trending'
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Flame className="h-3 w-3" />
+              {isHe ? 'חם' : 'Hot'}
+            </button>
           </div>
 
           {/* Topic Boards — only for specific pillar, not "all" */}
