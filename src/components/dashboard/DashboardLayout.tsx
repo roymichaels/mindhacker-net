@@ -61,6 +61,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
             {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
           </div>
 
+          <AuroraFloatingOrb />
           <AuroraDock />
           {isMobile && <BottomTabBar />}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
