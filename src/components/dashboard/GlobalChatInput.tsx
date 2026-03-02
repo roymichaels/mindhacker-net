@@ -225,6 +225,13 @@ const GlobalChatInput = () => {
 
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         <div className="relative flex items-end gap-2">
+          {/* Voice Mode Button — outermost, closest to page edge */}
+          <VoiceModeButton
+            onClick={voiceMode.open}
+            disabled={isStreaming || isRecording}
+            className="h-9 w-9 shrink-0 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg"
+          />
+
           {/* Plus Button with Attach Menu */}
           <div className="relative" ref={menuRef}>
             <button
@@ -294,8 +301,6 @@ const GlobalChatInput = () => {
             />
           </div>
 
-
-
           {/* Input Container */}
           <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
             <textarea
@@ -318,13 +323,8 @@ const GlobalChatInput = () => {
               style={{ maxHeight: '36px' }}
             />
 
-            {/* Voice buttons inside input */}
+            {/* Voice recording button inside input */}
             <div className="absolute end-1 flex items-center gap-0.5">
-              <VoiceModeButton
-                onClick={voiceMode.open}
-                disabled={isStreaming || isRecording}
-                className="h-7 w-7"
-              />
               <VoiceRecordingButton
                 isRecording={isRecording}
                 isTranscribing={isTranscribing}
