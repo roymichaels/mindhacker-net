@@ -60,7 +60,12 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
           "content": {
             "body": "Full lesson text with markdown. Be thorough — 800+ words. Include examples, diagrams described in text, analogies.",
             "key_concepts": ["concept1", "concept2"],
-            "examples": ["Concrete example 1", "Concrete example 2"]
+            "examples": ["Concrete example 1", "Concrete example 2"],
+            "comprehension_questions": [
+              { "q": "Question about the material", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Why this is correct" },
+              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" },
+              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" }
+            ]
           }
         },
         {
