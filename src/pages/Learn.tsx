@@ -19,7 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import CurriculumWizard from '@/components/learn/CurriculumWizard';
-import LessonViewer from '@/components/learn/LessonViewer';
+import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
 
 interface Curriculum {
