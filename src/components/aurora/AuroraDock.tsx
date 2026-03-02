@@ -100,17 +100,42 @@ export function AuroraDock() {
   if (isPanel) return null;
   if (!isDockVisible) return null;
 
+  const closeDock = useCallback(() => {
+    setIsChatExpanded(false);
+    setIsDockVisible(false);
+    setChatHeightVh(DEFAULT_CHAT_VH);
+  }, [setIsChatExpanded, setIsDockVisible]);
+
   const dragHandle = isChatExpanded ? (
-    <div
-      className="flex items-center justify-center py-1 cursor-row-resize touch-none select-none shrink-0"
-      onMouseDown={onMouseDown}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      <GripHorizontal className="w-5 h-5 text-muted-foreground/40" />
+    <div className="flex items-center justify-center py-1 shrink-0 relative">
+      <div
+        className="flex-1 flex items-center justify-center cursor-row-resize touch-none select-none"
+        onMouseDown={onMouseDown}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <GripHorizontal className="w-5 h-5 text-muted-foreground/40" />
+      </div>
+      <button
+        onClick={closeDock}
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+        title={isHe ? 'מזער' : 'Minimize'}
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
     </div>
-  ) : null;
+  ) : (
+    <div className="flex items-center justify-end px-2 py-0.5 shrink-0">
+      <button
+        onClick={closeDock}
+        className="p-1 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+        title={isHe ? 'מזער' : 'Minimize'}
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
 
   return (
     <>
