@@ -63,14 +63,17 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
     if (atBottom && !hasScrolledToBottom) setHasScrolledToBottom(true);
   }, [hasScrolledToBottom]);
 
-  // Also check on mount (content might be shorter than viewport)
+  // Check after content renders (content might be shorter than viewport)
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    // If content doesn't overflow, treat as already scrolled
-    if (el.scrollHeight <= el.clientHeight + 40) {
-      setHasScrolledToBottom(true);
-    }
+    setHasScrolledToBottom(false);
+    const timer = setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      if (el.scrollHeight <= el.clientHeight + 40) {
+        setHasScrolledToBottom(true);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
   }, [lesson.id]);
 
   // Stop TTS when component unmounts
