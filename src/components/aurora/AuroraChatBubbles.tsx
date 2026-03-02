@@ -159,16 +159,16 @@ const AuroraChatBubbles = () => {
         >
           <div className="relative bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-lg overflow-hidden">
             {/* Header with close button */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border/30" dir={isRTL ? 'rtl' : 'ltr'}>
+              <div className="flex items-center gap-2 min-w-0">
                 <AuroraHoloOrb size={24} glow="none" />
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-sm font-bold text-foreground truncate">
                   {language === 'he' ? 'אורורה' : 'Aurora'}
                 </span>
               </div>
               <button
                 onClick={() => setIsChatExpanded(false)}
-                className="p-1 rounded-md hover:bg-muted/50 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
                 aria-label={language === 'he' ? 'סגור' : 'Close'}
               >
                 <X className="w-4 h-4 text-muted-foreground" />
