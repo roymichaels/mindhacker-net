@@ -10,53 +10,72 @@ interface UseLessonTTSOptions {
   speed?: number;
 }
 
+const hebrewNumbers: Record<number, string> = {
+  1: 'אֶחָד', 2: 'שְׁנַיִם', 3: 'שְׁלוֹשָׁה', 4: 'אַרְבָּעָה', 5: 'חֲמִשָּׁה',
+  6: 'שִׁשָּׁה', 7: 'שִׁבְעָה', 8: 'שְׁמוֹנָה', 9: 'תִּשְׁעָה', 10: 'עֲשָׂרָה',
+  11: 'אַחַד עָשָׂר', 12: 'שְׁנֵים עָשָׂר', 13: 'שְׁלוֹשָׁה עָשָׂר',
+  14: 'אַרְבָּעָה עָשָׂר', 15: 'חֲמִשָּׁה עָשָׂר', 16: 'שִׁשָּׁה עָשָׂר',
+  17: 'שִׁבְעָה עָשָׂר', 18: 'שְׁמוֹנָה עָשָׂר', 19: 'תִּשְׁעָה עָשָׂר', 20: 'עֶשְׂרִים',
+};
+
+function numToHebrew(n: number): string {
+  return hebrewNumbers[n] || String(n);
+}
+
+const hebrewLetters = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י'];
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/#{1,6}\s*/g, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/!\[.*?\]\(.*?\)/g, '')
+    .replace(/[-*]\s/g, '');
+}
+
 function extractText(lesson: { lesson_type: string; title: string; content: any }): string {
   const parts: string[] = [lesson.title + '.'];
 
   switch (lesson.lesson_type) {
     case 'theory': {
       if (lesson.content?.body) {
-        // Strip markdown formatting for cleaner speech
-        const clean = lesson.content.body
-          .replace(/#{1,6}\s*/g, '')
-          .replace(/\*\*([^*]+)\*\*/g, '$1')
-          .replace(/\*([^*]+)\*/g, '$1')
-          .replace(/`([^`]+)`/g, '$1')
-          .replace(/```[\s\S]*?```/g, '')
-          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-          .replace(/!\[.*?\]\(.*?\)/g, '')
-          .replace(/[-*]\s/g, '');
-        parts.push(clean);
+        parts.push(stripMarkdown(lesson.content.body));
       }
       if (lesson.content?.key_concepts?.length) {
-        parts.push('Key concepts: ' + lesson.content.key_concepts.join('. ') + '.');
+        parts.push('מוּשָׂגֵי מַפְתֵּחַ: ' + lesson.content.key_concepts.join('. ') + '.');
       }
       break;
     }
     case 'practice': {
       if (lesson.content?.instructions) {
-        parts.push(lesson.content.instructions.replace(/#{1,6}\s*/g, '').replace(/\*\*([^*]+)\*\*/g, '$1'));
+        parts.push(stripMarkdown(lesson.content.instructions));
       }
       if (lesson.content?.exercises?.length) {
         lesson.content.exercises.forEach((ex: any, i: number) => {
-          parts.push(`Exercise ${i + 1}: ${ex.title || ''}. ${ex.description || ''}`);
+          parts.push(`תִּרְגּוּל ${numToHebrew(i + 1)}: ${ex.title || ''}. ${ex.description || ''}`);
         });
       }
       break;
     }
     case 'quiz': {
-      parts.push('Let me read the quiz questions.');
+      parts.push('בּוֹאוּ נִקְרָא אֶת שְׁאֵלוֹת הַבֹּחַן.');
       if (lesson.content?.questions?.length) {
         lesson.content.questions.forEach((q: any, i: number) => {
-          parts.push(`Question ${i + 1}: ${q.q}. The options are: ${(q.options || []).map((o: string, j: number) => `${String.fromCharCode(65 + j)}, ${o}`).join('. ')}.`);
+          const optionsStr = (q.options || [])
+            .map((o: string, j: number) => `${hebrewLetters[j] || String(j + 1)}, ${o}`)
+            .join('. ');
+          parts.push(`שְׁאֵלָה ${numToHebrew(i + 1)}: ${q.q}. הָאֶפְשָׁרוּיוֹת הֵן: ${optionsStr}.`);
         });
       }
       break;
     }
     case 'project': {
-      if (lesson.content?.brief) parts.push('Project brief: ' + lesson.content.brief);
+      if (lesson.content?.brief) parts.push('תֵּאוּר הַפְּרוֹיֶקְט: ' + lesson.content.brief);
       if (lesson.content?.requirements?.length) {
-        parts.push('Requirements: ' + lesson.content.requirements.join('. ') + '.');
+        parts.push('דְּרִישׁוֹת: ' + lesson.content.requirements.join('. ') + '.');
       }
       break;
     }
