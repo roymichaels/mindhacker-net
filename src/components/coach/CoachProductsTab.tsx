@@ -42,6 +42,7 @@ const CoachProductsTab = () => {
         duration_minutes: parseInt(serviceForm.duration_minutes) || 60,
         is_active: true,
         order_index: (services?.length || 0) + 1,
+        service_type: 'session',
       }]);
       if (error) throw error;
     },
