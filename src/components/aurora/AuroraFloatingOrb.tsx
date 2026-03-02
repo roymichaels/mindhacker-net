@@ -20,8 +20,8 @@ export function AuroraFloatingOrb() {
   const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth - 80 : 300);
   const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight - 80 : 300);
 
-  // Smooth spring — soft, organic lag
-  const springConfig = { stiffness: 90, damping: 18, mass: 0.8 };
+  // Smooth spring — soft, organic lag with loose follow (doesn't reach cursor fully)
+  const springConfig = { stiffness: 40, damping: 12, mass: 1.2 };
   const springX = useSpring(mouseX, springConfig);
   const springY = useSpring(mouseY, springConfig);
 
@@ -49,9 +49,20 @@ export function AuroraFloatingOrb() {
     if (isMobile) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Center the orb on the cursor
-      mouseX.set(e.clientX - HALF);
-      mouseY.set(e.clientY - HALF);
+      // Offset toward cursor but stop ~60px away
+      const targetX = e.clientX - HALF;
+      const targetY = e.clientY - HALF;
+      const curX = mouseX.get();
+      const curY = mouseY.get();
+      const dx = targetX - curX;
+      const dy = targetY - curY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const deadZone = 60;
+      if (dist > deadZone) {
+        const ratio = 1 - deadZone / dist;
+        mouseX.set(curX + dx * ratio);
+        mouseY.set(curY + dy * ratio);
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
