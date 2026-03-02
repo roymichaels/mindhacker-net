@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { LayoutDashboard, Flame, Swords, Shield, Crosshair, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Flame, Swords, Shield, Crosshair, Briefcase, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
