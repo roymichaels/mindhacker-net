@@ -1,17 +1,17 @@
 /**
  * LessonFocusSession — Full-screen immersive lesson overlay.
  * Covers the entire viewport (including root layout).
- * Features: upward timer, TTS button, exit confirmation.
+ * Features: upward timer, TTS button, exit confirmation, lazy content generation.
  * Renders via React Portal to document.body.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, AudioLines, VolumeX, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Clock, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { supabase } from '@/integrations/supabase/client';
 import LessonViewer from './LessonViewer';
 
 interface Lesson {
