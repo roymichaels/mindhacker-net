@@ -123,10 +123,11 @@ RULES:
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
+          response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
-            { role: "user", content: "Based on our conversation, generate the complete curriculum JSON now. Make it demanding and thorough." },
+            { role: "user", content: "Based on our conversation, generate the complete curriculum JSON now. Make it demanding and thorough. Return ONLY valid JSON, no markdown." },
           ],
         }),
       });
