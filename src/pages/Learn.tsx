@@ -19,7 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import CurriculumWizard from '@/components/learn/CurriculumWizard';
-import LessonViewer from '@/components/learn/LessonViewer';
+import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
 
 interface Curriculum {
@@ -476,18 +476,14 @@ export default function Learn() {
         </main>
       </div>
 
-      {/* Lesson Viewer */}
-      <Dialog open={!!selectedLesson} onOpenChange={open => !open && setSelectedLesson(null)}>
-        <DialogContent className="max-w-3xl h-[95vh] sm:max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
-          {selectedLesson && (
-            <LessonViewer
-              lesson={selectedLesson}
-              onComplete={handleLessonComplete}
-              onClose={() => setSelectedLesson(null)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Full-screen Lesson Focus Session */}
+      {selectedLesson && (
+        <LessonFocusSession
+          lesson={selectedLesson}
+          onComplete={handleLessonComplete}
+          onClose={() => setSelectedLesson(null)}
+        />
+      )}
     </div>
   );
 }
