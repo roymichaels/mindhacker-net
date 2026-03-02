@@ -158,7 +158,7 @@ export default function Learn() {
           {/* Header */}
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => setSelectedCurriculum(null)}>
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className={`h-5 w-5 ${isHe ? 'rotate-180' : ''}`} />
             </Button>
             <div className="flex-1">
               <h1 className="text-xl font-bold">{activeCurriculum.title}</h1>
