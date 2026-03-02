@@ -26,6 +26,9 @@ interface AuroraChatContextType {
   registerSendMessage: (fn: (message: string, imageBase64?: string) => void) => void;
   isStreaming: boolean;
   setIsStreaming: (streaming: boolean) => void;
+  // Dock visibility — controlled by floating FAB
+  isDockVisible: boolean;
+  setIsDockVisible: (visible: boolean) => void;
   // Chat expanded state - shows message bubbles when focused
   isChatExpanded: boolean;
   setIsChatExpanded: (expanded: boolean) => void;
