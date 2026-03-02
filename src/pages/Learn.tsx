@@ -110,35 +110,40 @@ export default function Learn() {
     enabled: !!user?.id,
   });
 
-  // Fetch modules for selected curriculum
+  // Auto-select first active curriculum for inline display
+  const activeCurrId = selectedCurriculum || curricula?.find(c => c.status === 'active')?.id || curricula?.[0]?.id || null;
+
+  // Fetch modules for active curriculum
   const { data: modules } = useQuery({
-    queryKey: ['learning-modules', selectedCurriculum],
+    queryKey: ['learning-modules', activeCurrId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('learning_modules')
         .select('*')
-        .eq('curriculum_id', selectedCurriculum!)
+        .eq('curriculum_id', activeCurrId!)
         .order('order_index');
       if (error) throw error;
       return data as Module[];
     },
-    enabled: !!selectedCurriculum,
+    enabled: !!activeCurrId,
   });
 
-  // Fetch lessons for selected curriculum
+  // Fetch lessons for active curriculum
   const { data: lessons } = useQuery({
-    queryKey: ['learning-lessons', selectedCurriculum],
+    queryKey: ['learning-lessons', activeCurrId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('learning_lessons')
         .select('*')
-        .eq('curriculum_id', selectedCurriculum!)
+        .eq('curriculum_id', activeCurrId!)
         .order('order_index');
       if (error) throw error;
       return data as Lesson[];
     },
-    enabled: !!selectedCurriculum,
+    enabled: !!activeCurrId,
   });
+
+  const [recalibrating, setRecalibrating] = useState(false);
 
   const handleWizardComplete = (curriculumId: string) => {
     setShowWizard(false);
