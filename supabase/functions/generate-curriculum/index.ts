@@ -129,6 +129,7 @@ RULES:
 - Total curriculum should be 25-50 lessons
 - XP rewards scale with difficulty: theory=10, practice=20, quiz=15, project=50
 - Generate content in the SAME LANGUAGE the user used in conversation
+- **CRITICAL**: If generating in Hebrew, ALL Hebrew text MUST include full nikud (נִקּוּד מָלֵא) — every single word must have proper vowel marks (פַּתָּח, קָמָץ, צֵירֵי, סֶגוֹל, חִירִיק, שׁוּרוּק, חוֹלָם, קוּבּוּץ, שְׁוָא, דָּגֵשׁ). No exceptions. This applies to titles, descriptions, lesson bodies, questions, options, explanations — everything.
 - Make it progressively harder — mastery level should be genuinely challenging`;
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
