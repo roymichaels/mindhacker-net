@@ -78,8 +78,12 @@ RULES:
 - If Hebrew: include nikud on titles and key terms (not every word)
 - XP: theory=10, practice=20, quiz=15, project=50`;
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
+
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
+        signal: controller.signal,
         headers: {
           Authorization: `Bearer ${LOVABLE_API_KEY}`,
           "Content-Type": "application/json",
@@ -90,10 +94,12 @@ RULES:
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
-            { role: "user", content: "Based on our conversation, generate the complete curriculum JSON now. Make it demanding and thorough. Return ONLY valid JSON, no markdown." },
+            { role: "user", content: "Generate the complete curriculum JSON now. Return ONLY valid JSON." },
           ],
         }),
       });
+
+      clearTimeout(timeout);
 
       if (!response.ok) {
         const status = response.status;
