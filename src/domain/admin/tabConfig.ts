@@ -69,6 +69,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     icon: Shield,
     subTabs: [
       { id: 'users', labelHe: 'משתמשים', labelEn: 'Users', component: Users },
+      { id: 'coaches', labelHe: 'מאמנים', labelEn: 'Coaches', component: AdminCoaches },
       { id: 'leads', labelHe: 'לידים', labelEn: 'Leads', component: Leads },
       { id: 'businesses', labelHe: 'עסקים', labelEn: 'Businesses', component: Businesses },
       { id: 'aurora-insights', labelHe: 'תובנות', labelEn: 'Insights', component: AuroraInsights },
