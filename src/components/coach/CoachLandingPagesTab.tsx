@@ -346,9 +346,22 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
 
       const page = data.page;
 
+      // Get coach ID — required field
+      let coachId = coachProfile?.id;
+      if (!coachId) {
+        // Auto-create a practitioner profile for the user
+        const { data: newCoach, error: coachErr } = await supabase
+          .from('practitioners')
+          .insert({ user_id: user!.id, display_name: user!.email?.split('@')[0] || 'Coach', title: 'Coach', slug: `coach-${Date.now()}` })
+          .select('id')
+          .single();
+        if (coachErr || !newCoach) throw new Error('Could not create coach profile');
+        coachId = newCoach.id;
+      }
+
       // Save to database
       const { error } = await supabase.from('coach_landing_pages').insert({
-        coach_id: coachProfile?.id,
+        coach_id: coachId,
         user_id: user!.id,
         title: page.title || 'Landing Page',
         slug: page.slug || `page-${Date.now()}`,
