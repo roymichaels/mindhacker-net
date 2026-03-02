@@ -206,6 +206,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
 
   const startAssessment = useCallback((domainId: string) => {
     setAssessmentDomainId(domainId);
+    setIsDockVisible(true);
     setIsChatExpanded(true);
   }, []);
 
