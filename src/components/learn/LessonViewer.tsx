@@ -51,8 +51,29 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [feedback, setFeedback] = useState<any>(lesson.feedback);
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Stop TTS when component unmounts (e.g. dialog closed)
+  // Detect scroll-to-bottom
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Check if scrolled within 40px of bottom
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    if (atBottom && !hasScrolledToBottom) setHasScrolledToBottom(true);
+  }, [hasScrolledToBottom]);
+
+  // Also check on mount (content might be shorter than viewport)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // If content doesn't overflow, treat as already scrolled
+    if (el.scrollHeight <= el.clientHeight + 40) {
+      setHasScrolledToBottom(true);
+    }
+  }, [lesson.id]);
+
+  // Stop TTS when component unmounts
   useEffect(() => {
     return () => { tts.stop(); window.speechSynthesis?.cancel(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
