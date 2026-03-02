@@ -26,6 +26,8 @@ export function AuroraDock() {
   const {
     isChatExpanded,
     setIsChatExpanded,
+    isDockVisible,
+    setIsDockVisible,
     isStreaming,
     activePillar,
     assessmentDomainId,
