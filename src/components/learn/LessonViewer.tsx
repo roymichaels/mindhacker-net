@@ -166,6 +166,21 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               <Zap className="h-3 w-3" />
               +{lesson.xp_reward} XP
             </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full"
+              onClick={() => tts.isPlaying || tts.isLoading ? tts.stop() : tts.play(lesson)}
+              title={tts.isPlaying ? (isHe ? 'עצור הקראה' : 'Stop reading') : (isHe ? 'Aurora תקריא לך' : 'Aurora reads aloud')}
+            >
+              {tts.isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : tts.isPlaying ? (
+                <VolumeX className="h-4 w-4 text-primary" />
+              ) : (
+                <AudioLines className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
           </div>
         </div>
       </div>
