@@ -173,6 +173,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const openChatAndScrollToMessage = useCallback((conversationId: string, messageId: string) => {
     setCurrentConversationId(conversationId);
     setScrollToMessageId(messageId);
+    setIsDockVisible(true);
     setIsChatExpanded(true);
   }, []);
 
