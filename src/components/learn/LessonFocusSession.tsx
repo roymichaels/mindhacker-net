@@ -58,6 +58,58 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
   // Exit confirmation
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
+  // Lazy content generation
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [enrichedLesson, setEnrichedLesson] = useState(lesson);
+  const [contentError, setContentError] = useState<string | null>(null);
+
+  const hasContent = (content: any) => {
+    if (!content || typeof content !== 'object') return false;
+    return !!(content.body || content.questions || content.instructions || content.brief);
+  };
+
+  // Generate content lazily if missing
+  useEffect(() => {
+    if (hasContent(lesson.content)) {
+      setEnrichedLesson(lesson);
+      return;
+    }
+
+    let cancelled = false;
+    const generateContent = async () => {
+      setIsGeneratingContent(true);
+      setContentError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-curriculum`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            action: 'generate-lesson-content',
+            lessonId: lesson.id,
+          }),
+        });
+
+        if (!resp.ok) throw new Error(`Error ${resp.status}`);
+        const data = await resp.json();
+        if (!cancelled && data.content) {
+          setEnrichedLesson({ ...lesson, content: data.content });
+        }
+      } catch (err: any) {
+        if (!cancelled) setContentError(err.message || 'Failed to generate content');
+      } finally {
+        if (!cancelled) setIsGeneratingContent(false);
+      }
+    };
+
+    generateContent();
+    return () => { cancelled = true; };
+  }, [lesson.id]);
+
   // Start timer on mount
   useEffect(() => {
     startTimeRef.current = Date.now();
