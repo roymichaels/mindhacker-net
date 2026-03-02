@@ -88,6 +88,9 @@ export const PROJECTS_SUB_ROUTES: SubRoute[] = [
  */
 export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
   const tabs = [...OS_TABS];
+  if (roles.hasRole('practitioner')) {
+    tabs.push(COACH_TAB);
+  }
   if (roles.hasRole('admin')) {
     tabs.push(ADMIN_TAB);
   }
