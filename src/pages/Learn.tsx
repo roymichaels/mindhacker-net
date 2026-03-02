@@ -153,13 +153,36 @@ export default function Learn() {
   };
 
   const handleLessonComplete = () => {
-    queryClient.invalidateQueries({ queryKey: ['learning-lessons', selectedCurriculum] });
-    queryClient.invalidateQueries({ queryKey: ['learning-modules', selectedCurriculum] });
+    queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
+    queryClient.invalidateQueries({ queryKey: ['learning-modules', activeCurrId] });
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
     setSelectedLesson(null);
   };
 
-  const activeCurriculum = curricula?.find(c => c.id === selectedCurriculum);
+  const activeCurriculum = curricula?.find(c => c.id === activeCurrId);
+
+  const handleRecalibrate = async () => {
+    if (!activeCurriculum) return;
+    setRecalibrating(true);
+    try {
+      // Delete existing curriculum and recreate via wizard
+      await supabase
+        .from('learning_curricula')
+        .delete()
+        .eq('id', activeCurriculum.id);
+      queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
+      queryClient.invalidateQueries({ queryKey: ['learning-modules'] });
+      queryClient.invalidateQueries({ queryKey: ['learning-lessons'] });
+      setSelectedCurriculum(null);
+      setShowWizard(true);
+      toast.success(isHe ? 'הקורס נמחק — בוא ניצור חדש!' : 'Course deleted — let\'s create a new one!');
+    } catch (e) {
+      console.error('Recalibrate failed:', e);
+      toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+    } finally {
+      setRecalibrating(false);
+    }
+  };
 
   // Find next unlocked lesson
   const nextLesson = useMemo(() => {
