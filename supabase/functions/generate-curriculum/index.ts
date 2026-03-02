@@ -347,7 +347,9 @@ Questions to explore (adapt based on answers):
 Keep responses short (2-3 sentences + question). Be encouraging but DEMANDING — make it clear this won't be easy.
 After gathering enough info (3-5 exchanges), say "🔥 אני מוכנה לבנות את תוכנית הלימודים!" or "🔥 I'm ready to build your curriculum!" and summarize the boot camp you'll create.
 
-IMPORTANT: This is NOT a gentle course. Aurora builds BOOT CAMPS. Push the user to commit to intensity.`;
+IMPORTANT: This is NOT a gentle course. Aurora builds BOOT CAMPS. Push the user to commit to intensity.
+
+CRITICAL HEBREW RULE: If the user writes in Hebrew, you MUST respond with full nikud (נִקּוּד מָלֵא) on every Hebrew word — no exceptions.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
