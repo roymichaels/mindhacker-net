@@ -31,85 +31,35 @@ serve(async (req) => {
 
     // ── ACTION: generate — Build full curriculum from conversation ──
     if (action === "generate") {
-      const systemPrompt = `You are Aurora, an elite instructor and curriculum architect. Based on the conversation, generate a DEMANDING, intensive curriculum that will transform the user from absolute beginner to professional.
+      const systemPrompt = `You are Aurora, an elite curriculum architect. Generate a COMPACT but intensive boot-camp curriculum.
 
-This is NOT a casual learning experience. This is a BOOT CAMP. Make it rigorous, structured, and results-driven.
-
-Return a JSON object with this EXACT structure (no markdown, just raw JSON):
+Return a JSON object with this structure:
 {
   "title": "Curriculum title",
   "title_en": "English title",
-  "description": "2-3 sentence description of the transformation journey",
+  "description": "Short description",
   "topic": "Core topic",
-  "category": "one of: technology, business, creative, health, personal_growth, custom",
-  "estimated_days": 30-90,
-  "pillar": "closest matching pillar: consciousness, presence, power, vitality, focus, combat, expansion, wealth, influence, relationships, business, projects, play, order",
+  "category": "technology|business|creative|health|personal_growth|custom",
+  "estimated_days": 30,
+  "pillar": "focus",
   "modules": [
     {
       "title": "Module title",
       "title_en": "English title",
       "description": "Module description",
-      "difficulty": "beginner|intermediate|advanced|mastery",
+      "difficulty": "beginner|intermediate|advanced",
       "lessons": [
         {
           "title": "Lesson title",
           "title_en": "English title",
-          "lesson_type": "theory",
+          "lesson_type": "theory|practice|quiz|project",
           "time_estimate_minutes": 15,
           "xp_reward": 10,
           "content": {
-            "body": "Full lesson text with markdown. Be thorough — 800+ words. Include examples, diagrams described in text, analogies.",
+            "body": "Lesson content (200-400 words). Clear and practical.",
             "key_concepts": ["concept1", "concept2"],
-            "examples": ["Concrete example 1", "Concrete example 2"],
             "comprehension_questions": [
-              { "q": "Question about the material", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Why this is correct" },
-              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" },
-              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" }
-            ]
-          }
-        },
-        {
-          "title": "Practice: [topic]",
-          "lesson_type": "practice",
-          "time_estimate_minutes": 30,
-          "xp_reward": 20,
-          "content": {
-            "instructions": "Detailed practice instructions",
-            "exercises": [
-              { "title": "Exercise 1", "description": "What to do", "difficulty": "easy|medium|hard", "expected_output": "What the result should look like" }
-            ],
-            "comprehension_questions": [
-              { "q": "Question about the practice", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Explanation" },
-              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" },
-              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" }
-            ]
-          }
-        },
-        {
-          "title": "Quiz: [topic]",
-          "lesson_type": "quiz",
-          "time_estimate_minutes": 10,
-          "xp_reward": 15,
-          "content": {
-            "questions": [
-              { "q": "Question text", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Why this is correct" }
-            ]
-          }
-        },
-        {
-          "title": "Project: [deliverable]",
-          "lesson_type": "project",
-          "time_estimate_minutes": 60,
-          "xp_reward": 50,
-          "content": {
-            "brief": "Project brief",
-            "requirements": ["Req 1", "Req 2"],
-            "deliverables": ["Deliverable 1"],
-            "rubric": { "excellent": "Criteria for 90+", "good": "Criteria for 70-89", "passing": "Criteria for 50-69" },
-            "comprehension_questions": [
-              { "q": "Question about project concepts", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Explanation" },
-              { "q": "Another question", "options": ["A", "B", "C", "D"], "correct": 1, "explanation": "Explanation" },
-              { "q": "Third question", "options": ["A", "B", "C", "D"], "correct": 2, "explanation": "Explanation" }
+              { "q": "Question", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Why" }
             ]
           }
         }
@@ -119,18 +69,14 @@ Return a JSON object with this EXACT structure (no markdown, just raw JSON):
 }
 
 RULES:
-- Generate 4-6 modules progressing from beginner to mastery
-- Each module should have 4-8 lessons mixing theory, practice, quiz, and project
-- Theory lessons must be THOROUGH (800+ words) — teach properly
-- Practice exercises must be DEMANDING — push the user hard
-- Quizzes must have 5-10 questions each with 4 options
-- Projects must require REAL deliverables, not theoretical exercises
-- EVERY theory, practice, and project lesson MUST include 3-5 "comprehension_questions" — multiple-choice questions about the lesson material that the user must answer correctly before completing the lesson
-- Total curriculum should be 25-50 lessons
-- XP rewards scale with difficulty: theory=10, practice=20, quiz=15, project=50
-- Generate content in the SAME LANGUAGE the user used in conversation
-- **CRITICAL**: If generating in Hebrew, ALL Hebrew text MUST include full nikud (נִקּוּד מָלֵא) — every single word must have proper vowel marks (פַּתָּח, קָמָץ, צֵירֵי, סֶגוֹל, חִירִיק, שׁוּרוּק, חוֹלָם, קוּבּוּץ, שְׁוָא, דָּגֵשׁ). No exceptions. This applies to titles, descriptions, lesson bodies, questions, options, explanations — everything.
-- Make it progressively harder — mastery level should be genuinely challenging`;
+- Generate exactly 3 modules (beginner, intermediate, advanced)
+- Each module: 3-4 lessons mixing theory, practice, quiz
+- Keep lesson content CONCISE: 200-400 words max per body
+- Each lesson has 2-3 comprehension_questions
+- Total: 9-12 lessons
+- Generate in the SAME LANGUAGE as conversation
+- If Hebrew: include nikud on titles and key terms (not every word)
+- XP: theory=10, practice=20, quiz=15, project=50`;
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
