@@ -1,12 +1,13 @@
 /**
  * LessonViewer — Renders lesson content based on type (theory, practice, quiz, project).
  * Handles completion, quiz submission, and project evaluation.
+ * RTL-optimized with logical properties.
  */
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, ArrowRight, Volume2, VolumeX, AudioLines } from 'lucide-react';
+import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, AudioLines, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -146,18 +147,18 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const isAlreadyDone = lesson.status === 'completed';
 
   return (
-    <div className="flex flex-col h-[85vh]">
+    <div className="flex flex-col h-[85vh]" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="px-6 py-4 border-b">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {lesson.lesson_type === 'theory' && <BookOpen className="h-5 w-5 text-blue-400" />}
-            {lesson.lesson_type === 'practice' && <Target className="h-5 w-5 text-green-400" />}
-            {lesson.lesson_type === 'quiz' && <Brain className="h-5 w-5 text-purple-400" />}
-            {lesson.lesson_type === 'project' && <Trophy className="h-5 w-5 text-yellow-400" />}
-            <h3 className="font-bold text-base">{lesson.title}</h3>
+          <div className="flex items-center gap-2 min-w-0">
+            {lesson.lesson_type === 'theory' && <BookOpen className="h-5 w-5 text-primary shrink-0" />}
+            {lesson.lesson_type === 'practice' && <Target className="h-5 w-5 text-primary shrink-0" />}
+            {lesson.lesson_type === 'quiz' && <Brain className="h-5 w-5 text-primary shrink-0" />}
+            {lesson.lesson_type === 'project' && <Trophy className="h-5 w-5 text-primary shrink-0" />}
+            <h3 className="font-bold text-base truncate">{lesson.title}</h3>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Badge variant="outline" className="gap-1">
               <Clock className="h-3 w-3" />
               {lesson.time_estimate_minutes}{isHe ? ' דק\'' : ' min'}
@@ -190,12 +191,12 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
         <div className="max-w-2xl mx-auto space-y-6">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-start">
               <ReactMarkdown>{lesson.content?.body || ''}</ReactMarkdown>
               
               {lesson.content?.key_concepts?.length > 0 && (
-                <div className="mt-6 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
-                  <h4 className="text-blue-400 font-bold mb-2">{isHe ? 'מושגי מפתח' : 'Key Concepts'}</h4>
+                <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <h4 className="text-primary font-bold mb-2">{isHe ? 'מושגי מפתח' : 'Key Concepts'}</h4>
                   <ul className="space-y-1">
                     {lesson.content.key_concepts.map((c: string, i: number) => (
                       <li key={i} className="text-sm">{c}</li>
@@ -217,7 +218,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
           {/* ── PRACTICE ── */}
           {lesson.lesson_type === 'practice' && (
-            <div className="space-y-4">
+            <div className="space-y-4 text-start">
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown>{lesson.content?.instructions || ''}</ReactMarkdown>
               </div>
@@ -241,7 +242,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
           {/* ── QUIZ ── */}
           {lesson.lesson_type === 'quiz' && (
-            <div className="space-y-6">
+            <div className="space-y-6 text-start">
               {lesson.content?.questions?.map((q: any, qi: number) => {
                 const fb = Array.isArray(feedback) ? feedback.find((f: any) => f.question_index === qi) : null;
                 return (
@@ -253,13 +254,14 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                       value={quizAnswers[qi]?.toString()}
                       onValueChange={val => setQuizAnswers(prev => ({ ...prev, [qi]: parseInt(val) }))}
                       disabled={isAlreadyDone}
+                      dir={isHe ? 'rtl' : 'ltr'}
                     >
                       {q.options?.map((opt: string, oi: number) => (
                         <div key={oi} className="flex items-center gap-2">
                           <RadioGroupItem value={oi.toString()} id={`q${qi}-o${oi}`} />
-                          <Label htmlFor={`q${qi}-o${oi}`} className="text-sm cursor-pointer">{opt}</Label>
-                          {fb && oi === q.correct && <CheckCircle className="h-3.5 w-3.5 text-green-500" />}
-                          {fb && !fb.correct && oi === quizAnswers[qi] && <XCircle className="h-3.5 w-3.5 text-red-500" />}
+                          <Label htmlFor={`q${qi}-o${oi}`} className="text-sm cursor-pointer flex-1">{opt}</Label>
+                          {fb && oi === q.correct && <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />}
+                          {fb && !fb.correct && oi === quizAnswers[qi] && <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />}
                         </div>
                       ))}
                     </RadioGroup>
@@ -281,10 +283,10 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
           {/* ── PROJECT ── */}
           {lesson.lesson_type === 'project' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 space-y-2">
+            <div className="space-y-4 text-start">
+              <div className="p-4 rounded-xl bg-accent/10 border border-accent/20 space-y-2">
                 <h4 className="font-bold flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-yellow-400" />
+                  <Trophy className="h-4 w-4 text-accent-foreground" />
                   {isHe ? 'תיאור הפרויקט' : 'Project Brief'}
                 </h4>
                 <p className="text-sm">{lesson.content?.brief}</p>
@@ -297,7 +299,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                     {lesson.content.requirements.map((r: string, i: number) => (
                       <li key={i} className="text-sm flex items-start gap-2">
                         <CheckCircle className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
-                        {r}
+                        <span>{r}</span>
                       </li>
                     ))}
                   </ul>
@@ -313,6 +315,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                     placeholder={isHe ? 'כתוב את הפתרון שלך כאן...' : 'Write your solution here...'}
                     rows={8}
                     className="rounded-xl"
+                    dir={isHe ? 'rtl' : 'ltr'}
                   />
                 </div>
               )}
