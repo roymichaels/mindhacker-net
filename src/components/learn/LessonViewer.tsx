@@ -443,42 +443,45 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
             </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
-      {/* Actions */}
-      <div className="border-t px-6 py-4 flex justify-end gap-3" dir={isHe ? 'rtl' : 'ltr'}>
-        <Button variant="outline" onClick={() => { tts.stop(); onClose(); }}>
-          {isHe ? 'סגור' : 'Close'}
-        </Button>
-        
-        {!isAlreadyDone && (
-          <>
-            {lesson.lesson_type === 'theory' && (
-              <Button onClick={() => markComplete()} disabled={isSubmitting || (hasCompQuestions && !compPassed)} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
-              </Button>
-            )}
-            {lesson.lesson_type === 'practice' && (
-              <Button onClick={() => markComplete()} disabled={isSubmitting || (hasCompQuestions && !compPassed)} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
-              </Button>
-            )}
-            {lesson.lesson_type === 'quiz' && (
-              <Button onClick={submitQuiz} disabled={isSubmitting} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
-                {isHe ? 'בדוק תשובות' : 'Submit Quiz'}
-              </Button>
-            )}
-            {lesson.lesson_type === 'project' && (
-              <Button onClick={submitProject} disabled={isSubmitting || !projectText.trim() || (hasCompQuestions && !compPassed)} className="gap-2">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
-                {isHe ? 'הגש פרויקט' : 'Submit Project'}
-              </Button>
-            )}
-          </>
-        )}
+      {/* Actions — no close button, only action buttons */}
+      {!isAlreadyDone && (
+        <div className="border-t border-border/30 px-6 py-4 flex justify-end gap-3 bg-background" dir={isHe ? 'rtl' : 'ltr'}>
+          {lesson.lesson_type === 'theory' && (
+            <Button
+              onClick={() => markComplete()}
+              disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom}
+              className="gap-2 flex-1 sm:flex-initial"
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
+            </Button>
+          )}
+          {lesson.lesson_type === 'practice' && (
+            <Button
+              onClick={() => markComplete()}
+              disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom}
+              className="gap-2 flex-1 sm:flex-initial"
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
+            </Button>
+          )}
+          {lesson.lesson_type === 'quiz' && (
+            <Button onClick={submitQuiz} disabled={isSubmitting} className="gap-2 flex-1 sm:flex-initial">
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+              {isHe ? 'בדוק תשובות' : 'Submit Quiz'}
+            </Button>
+          )}
+          {lesson.lesson_type === 'project' && (
+            <Button onClick={submitProject} disabled={isSubmitting || !projectText.trim() || (hasCompQuestions && !compPassed)} className="gap-2 flex-1 sm:flex-initial">
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
+              {isHe ? 'הגש פרויקט' : 'Submit Project'}
+            </Button>
+          )}
+        </div>
+      )}
       </div>
     </div>
   );
