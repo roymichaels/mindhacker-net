@@ -142,13 +142,26 @@ RULES:
       let raw = aiData.choices?.[0]?.message?.content || "";
       raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
 
+      // Sanitize control characters that break JSON.parse
+      const sanitize = (s: string) => s.replace(/[\x00-\x1F\x7F]/g, (ch) => {
+        if (ch === '\n') return '\\n';
+        if (ch === '\r') return '\\r';
+        if (ch === '\t') return '\\t';
+        return '';
+      });
+
       let curriculum;
       try { curriculum = JSON.parse(raw); } catch {
-        const jsonMatch = raw.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          curriculum = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error("Failed to parse curriculum JSON");
+        // Try sanitizing control chars first
+        try { curriculum = JSON.parse(sanitize(raw)); } catch {
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try { curriculum = JSON.parse(jsonMatch[0]); } catch {
+              curriculum = JSON.parse(sanitize(jsonMatch[0]));
+            }
+          } else {
+            throw new Error("Failed to parse curriculum JSON");
+          }
         }
       }
 
