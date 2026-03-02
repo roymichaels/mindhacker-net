@@ -445,7 +445,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               </Button>
             )}
             {lesson.lesson_type === 'project' && (
-              <Button onClick={submitProject} disabled={isSubmitting || !projectText.trim()} className="gap-2">
+              <Button onClick={submitProject} disabled={isSubmitting || !projectText.trim() || (hasCompQuestions && !compPassed)} className="gap-2">
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
                 {isHe ? 'הגש פרויקט' : 'Submit Project'}
               </Button>
