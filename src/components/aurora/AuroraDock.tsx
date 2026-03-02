@@ -93,18 +93,18 @@ export function AuroraDock() {
     window.addEventListener('mouseup', onUp);
   }, [handleDragStart, handleDragMove, handleDragEnd]);
 
+  const closeDock = useCallback(() => {
+    setIsChatExpanded(false);
+    setIsDockVisible(false);
+    setChatHeightVh(DEFAULT_CHAT_VH);
+  }, [setIsChatExpanded, setIsDockVisible]);
+
   // Hide dock on non-dashboard pages (panels, etc.)
   const isPanel = location.pathname.startsWith('/panel') ||
     location.pathname.startsWith('/coach') ||
     location.pathname.startsWith('/affiliate');
   if (isPanel) return null;
   if (!isDockVisible) return null;
-
-  const closeDock = useCallback(() => {
-    setIsChatExpanded(false);
-    setIsDockVisible(false);
-    setChatHeightVh(DEFAULT_CHAT_VH);
-  }, [setIsChatExpanded, setIsDockVisible]);
 
   const dragHandle = isChatExpanded ? (
     <div className="flex items-center justify-center py-1 shrink-0 relative">
