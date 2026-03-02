@@ -170,24 +170,16 @@ export default function CoachLandingPagesTab() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="flex gap-2">
+              <CardContent className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => setPreviewPage(page)}>
                   <Eye className="h-3.5 w-3.5 me-1" />
                   {isHe ? 'תצוגה' : 'Preview'}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setEditingPage(page)}
-                >
+                <Button size="sm" variant="outline" onClick={() => setEditingPage(page)}>
                   <Wand2 className="h-3.5 w-3.5 me-1" />
                   {isHe ? 'ערוך עם Aurora' : 'Edit with Aurora'}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => copyPageLink(page.slug)}
-                >
+                <Button size="sm" variant="outline" onClick={() => copyPageLink(page.slug)}>
                   <Link2 className="h-3.5 w-3.5 me-1" />
                   {isHe ? 'העתק קישור' : 'Copy Link'}
                 </Button>
