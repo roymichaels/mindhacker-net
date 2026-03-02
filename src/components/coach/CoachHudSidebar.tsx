@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, User } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, User, FileText } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
 import { useMyCoachProfile, useCoach, useCoachReviewStats, useFirstCoachSlug } from '@/domain/coaches';
