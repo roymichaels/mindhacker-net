@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, ArrowRight } from 'lucide-react';
+import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, ArrowRight, Volume2, VolumeX, AudioLines } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ReactMarkdown from 'react-markdown';
+import { useLessonTTS } from '@/hooks/learn/useLessonTTS';
 
 interface Lesson {
   id: string;
