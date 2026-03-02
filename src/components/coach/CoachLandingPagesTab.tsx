@@ -569,7 +569,7 @@ function AuroraPageEditor({ page, coachProfile, onComplete, onClose }: EditorPro
   };
 
   return (
-    <div className="flex flex-col h-[90vh]">
+    <div className="flex flex-col h-[90vh] sm:h-[90vh]">
       {/* Header */}
       <div className="px-6 py-4 border-b bg-gradient-to-r from-primary/10 to-primary/5 flex items-center justify-between">
         <div>
