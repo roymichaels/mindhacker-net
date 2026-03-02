@@ -178,6 +178,22 @@ export default function CoachLandingPagesTab() {
                 <Button
                   size="sm"
                   variant="outline"
+                  onClick={() => setEditingPage(page)}
+                >
+                  <Wand2 className="h-3.5 w-3.5 me-1" />
+                  {isHe ? 'ערוך עם Aurora' : 'Edit with Aurora'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyPageLink(page.slug)}
+                >
+                  <Link2 className="h-3.5 w-3.5 me-1" />
+                  {isHe ? 'העתק קישור' : 'Copy Link'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => togglePublish.mutate({ id: page.id, publish: page.status !== 'published' })}
                 >
                   <Globe className="h-3.5 w-3.5 me-1" />
@@ -205,6 +221,20 @@ export default function CoachLandingPagesTab() {
             onComplete={handleWizardComplete}
             onClose={() => setShowWizard(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingPage} onOpenChange={open => !open && setEditingPage(null)}>
+        <DialogContent className="max-w-4xl max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+          {editingPage && (
+            <AuroraPageEditor
+              page={editingPage}
+              coachProfile={coachProfile}
+              onComplete={handleEditComplete}
+              onClose={() => setEditingPage(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
