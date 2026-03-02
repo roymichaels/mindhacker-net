@@ -12,6 +12,7 @@ import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
+import { AuroraDockOrb } from '@/components/aurora/AuroraFloatingOrb';
 
 /** Min/max height for the expanded chat area (vh units) */
 const MIN_CHAT_VH = 15;
@@ -194,8 +195,15 @@ export function AuroraDock() {
               )}
             </AnimatePresence>
 
-            {/* Assessment input (always visible) */}
-            <GlobalChatInput />
+            {/* Assessment input with orb */}
+            <div className="flex items-end gap-2 w-full">
+              <div className="flex-1 min-w-0">
+                <GlobalChatInput />
+              </div>
+              <div className="shrink-0 pb-3 pe-3">
+                <AuroraDockOrb onClick={closeDock} />
+              </div>
+            </div>
           </>
         ) : (
           <>
@@ -238,8 +246,15 @@ export function AuroraDock() {
               )}
             </AnimatePresence>
 
-            {/* Input bar (always visible) */}
-            <GlobalChatInput />
+            {/* Input bar with orb */}
+            <div className="flex items-end gap-2 w-full">
+              <div className="flex-1 min-w-0">
+                <GlobalChatInput />
+              </div>
+              <div className="shrink-0 pb-3 pe-3">
+                <AuroraDockOrb onClick={closeDock} />
+              </div>
+            </div>
           </>
         )}
       </div>
