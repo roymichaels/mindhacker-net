@@ -117,7 +117,7 @@ export default function CoachLandingPagesTab() {
   };
 
   return (
-    <div className="space-y-6" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="space-y-6 pt-6" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{isHe ? 'דפי נחיתה' : 'Landing Pages'}</h2>

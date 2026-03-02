@@ -179,11 +179,11 @@ export function AuroraDock() {
             </AnimatePresence>
 
             {/* Assessment input with orb */}
-            <div className="flex items-end gap-2 w-full">
+            <div className="flex items-center gap-2 w-full px-4 pb-2 pt-1">
               <div className="flex-1 min-w-0">
                 <GlobalChatInput />
               </div>
-              <div className="shrink-0 pb-3 pe-3">
+              <div className="shrink-0">
                 <AuroraDockOrb onClick={closeDock} />
               </div>
             </div>
@@ -230,11 +230,11 @@ export function AuroraDock() {
             </AnimatePresence>
 
             {/* Input bar with orb */}
-            <div className="flex items-end gap-2 w-full">
+            <div className="flex items-center gap-2 w-full px-4 pb-2 pt-1">
               <div className="flex-1 min-w-0">
                 <GlobalChatInput />
               </div>
-              <div className="shrink-0 pb-3 pe-3">
+              <div className="shrink-0">
                 <AuroraDockOrb onClick={closeDock} />
               </div>
             </div>
