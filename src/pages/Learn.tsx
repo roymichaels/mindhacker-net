@@ -252,7 +252,7 @@ export default function Learn() {
                           {lesson.score !== null && (
                             <span className="text-xs font-bold text-primary">{lesson.score}%</span>
                           )}
-                          {!lessonLocked && <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                          {!lessonLocked && <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 ${isHe ? 'rotate-180' : ''}`} />}
                         </button>
                       );
                     })}

@@ -344,7 +344,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       </ScrollArea>
 
       {/* Actions */}
-      <div className="border-t px-6 py-4 flex justify-end gap-3">
+      <div className="border-t px-6 py-4 flex justify-end gap-3" dir={isHe ? 'rtl' : 'ltr'}>
         <Button variant="outline" onClick={() => { tts.stop(); onClose(); }}>
           {isHe ? 'סגור' : 'Close'}
         </Button>
