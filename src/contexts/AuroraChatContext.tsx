@@ -74,6 +74,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isDockVisible, setIsDockVisible] = useState(false);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
