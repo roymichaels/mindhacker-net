@@ -1,51 +1,61 @@
 /**
- * AuroraFloatingOrb — A floating widget that follows the mouse and toggles the Aurora dock.
- * Always visible. Follows cursor with a smooth spring effect.
+ * AuroraFloatingOrb — Follows the mouse with organic, living motion.
+ * Always visible. Clicking toggles the bottom chat dock.
  */
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-const ORB_SIZE = 56;
+const ORB_SIZE = 52;
+const HALF = ORB_SIZE / 2;
 
 export function AuroraFloatingOrb() {
   const ctx = useAuroraChatContextSafe();
   const isMobile = useIsMobile();
 
-  // Raw mouse position
+  // Raw mouse coords (center of orb)
   const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth - 80 : 300);
   const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight - 80 : 300);
 
-  // Smooth spring follow
-  const springX = useSpring(mouseX, { stiffness: 150, damping: 20, mass: 0.5 });
-  const springY = useSpring(mouseY, { stiffness: 150, damping: 20, mass: 0.5 });
+  // Smooth spring — soft, organic lag
+  const springConfig = { stiffness: 90, damping: 18, mass: 0.8 };
+  const springX = useSpring(mouseX, springConfig);
+  const springY = useSpring(mouseY, springConfig);
 
-  const isIdle = useRef(false);
-  const idleTimer = useRef<ReturnType<typeof setTimeout>>();
+  // Organic breathing / idle animation
+  const [breathPhase, setBreathPhase] = useState(0);
+  const rafRef = useRef<number>();
 
   useEffect(() => {
-    if (isMobile) return; // On mobile, don't follow mouse
+    let t = 0;
+    const tick = () => {
+      t += 0.02;
+      setBreathPhase(t);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
+
+  // Organic offset that makes it feel alive
+  const breathOffsetX = Math.sin(breathPhase * 1.3) * 3 + Math.sin(breathPhase * 2.7) * 1.5;
+  const breathOffsetY = Math.cos(breathPhase * 1.1) * 4 + Math.cos(breathPhase * 3.1) * 1.2;
+  const breathScale = 1 + Math.sin(breathPhase * 0.8) * 0.04;
+
+  useEffect(() => {
+    if (isMobile) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Offset so orb sits beside cursor, not on top
-      mouseX.set(e.clientX - ORB_SIZE / 2);
-      mouseY.set(e.clientY - ORB_SIZE / 2);
-
-      isIdle.current = false;
-      clearTimeout(idleTimer.current);
-      idleTimer.current = setTimeout(() => {
-        isIdle.current = true;
-      }, 3000);
+      // Center the orb on the cursor
+      mouseX.set(e.clientX - HALF);
+      mouseY.set(e.clientY - HALF);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearTimeout(idleTimer.current);
-    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isMobile, mouseX, mouseY]);
 
   const handleClick = useCallback(() => {
@@ -55,7 +65,7 @@ export function AuroraFloatingOrb() {
 
   if (!ctx) return null;
 
-  // On mobile, use a fixed position instead of mouse follow
+  // Mobile: fixed position, no mouse follow
   if (isMobile) {
     return (
       <motion.button
@@ -64,21 +74,16 @@ export function AuroraFloatingOrb() {
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         className={cn(
           "fixed z-50 rounded-full cursor-pointer",
-          "shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30",
+          "shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40",
           "ring-2 ring-primary/20 hover:ring-primary/40 transition-shadow",
           "touch-none select-none",
-          "bg-background/80 backdrop-blur-sm p-1.5"
+          "bg-background/60 backdrop-blur-md p-1"
         )}
-        style={{
-          right: 16,
-          bottom: 80,
-          width: ORB_SIZE,
-          height: ORB_SIZE,
-        }}
+        style={{ right: 16, bottom: 80, width: ORB_SIZE, height: ORB_SIZE }}
         onClick={handleClick}
         aria-label="Toggle Aurora"
       >
-        <AuroraHoloOrb size={ORB_SIZE - 12} glow="full" />
+        <AuroraHoloOrb size={ORB_SIZE - 8} glow="full" />
       </motion.button>
     );
   }
@@ -90,21 +95,22 @@ export function AuroraFloatingOrb() {
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className={cn(
         "fixed z-50 rounded-full cursor-pointer pointer-events-auto",
-        "shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30",
-        "ring-2 ring-primary/20 hover:ring-primary/40 transition-shadow",
+        "shadow-[0_0_20px_4px_hsl(var(--primary)/0.25)] hover:shadow-[0_0_30px_8px_hsl(var(--primary)/0.4)]",
+        "ring-1 ring-primary/15 hover:ring-primary/30 transition-shadow duration-300",
         "select-none",
-        "bg-background/80 backdrop-blur-sm p-1.5"
+        "bg-background/40 backdrop-blur-sm p-0.5"
       )}
       style={{
         left: springX,
         top: springY,
         width: ORB_SIZE,
         height: ORB_SIZE,
+        transform: `translate(${breathOffsetX}px, ${breathOffsetY}px) scale(${breathScale})`,
       }}
       onClick={handleClick}
       aria-label="Toggle Aurora"
     >
-      <AuroraHoloOrb size={ORB_SIZE - 12} glow="full" />
+      <AuroraHoloOrb size={ORB_SIZE - 4} glow="full" />
     </motion.button>
   );
 }
