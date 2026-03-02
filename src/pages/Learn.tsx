@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import CurriculumWizard from '@/components/learn/CurriculumWizard';
-import { LearnCurriculumSidebar } from '@/components/learn/LearnCurriculumSidebar';
+
 import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
 
