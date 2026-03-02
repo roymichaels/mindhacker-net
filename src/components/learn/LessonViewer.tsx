@@ -482,7 +482,6 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
           )}
         </div>
       )}
-      </div>
     </div>
   );
 }
