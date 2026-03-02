@@ -45,6 +45,7 @@ export default function CoachLandingPagesTab() {
 
   const [showWizard, setShowWizard] = useState(false);
   const [previewPage, setPreviewPage] = useState<LandingPage | null>(null);
+  const [editingPage, setEditingPage] = useState<LandingPage | null>(null);
 
   // Fetch existing pages
   const { data: pages, isLoading } = useQuery({
