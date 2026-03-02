@@ -1599,6 +1599,65 @@ export type Database = {
           },
         ]
       }
+      coach_landing_pages: {
+        Row: {
+          coach_id: string
+          content: Json
+          created_at: string
+          hero_image_url: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          slug: string
+          status: string
+          template_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coach_id: string
+          content?: Json
+          created_at?: string
+          hero_image_url?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug: string
+          status?: string
+          template_id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coach_id?: string
+          content?: Json
+          created_at?: string
+          hero_image_url?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug?: string
+          status?: string
+          template_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_landing_pages_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_journeys: {
         Row: {
           ai_summary: string | null

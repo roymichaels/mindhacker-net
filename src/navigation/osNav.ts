@@ -59,11 +59,12 @@ export interface SubRoute {
 }
 
 export const COACH_SUB_ROUTES: SubRoute[] = [
-  { id: 'overview',   labelEn: 'Overview',   labelHe: 'סקירה',     segment: 'overview' },
-  { id: 'clients',    labelEn: 'Clients',    labelHe: 'מתאמנים',   segment: 'clients' },
-  { id: 'plans',      labelEn: 'Plans',      labelHe: 'תוכניות',   segment: 'plans' },
-  { id: 'marketing',  labelEn: 'Marketing',  labelHe: 'שיווק',     segment: 'marketing' },
-  { id: 'settings',   labelEn: 'Settings',   labelHe: 'הגדרות',    segment: 'settings' },
+  { id: 'overview',       labelEn: 'Overview',       labelHe: 'סקירה',        segment: 'overview' },
+  { id: 'clients',        labelEn: 'Clients',        labelHe: 'מתאמנים',      segment: 'clients' },
+  { id: 'plans',          labelEn: 'Plans',          labelHe: 'תוכניות',      segment: 'plans' },
+  { id: 'marketing',      labelEn: 'Marketing',      labelHe: 'שיווק',        segment: 'marketing' },
+  { id: 'landing-pages',  labelEn: 'Landing Pages',  labelHe: 'דפי נחיתה',    segment: 'landing-pages' },
+  { id: 'settings',       labelEn: 'Settings',       labelHe: 'הגדרות',       segment: 'settings' },
 ];
 
 export const ADMIN_SUB_ROUTES: SubRoute[] = [
