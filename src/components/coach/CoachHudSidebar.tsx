@@ -47,6 +47,7 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: isHe ? 'סקירה' : 'Overview', color: 'text-emerald-400' },
     { id: 'marketing', icon: Megaphone, label: isHe ? 'שיווק' : 'Marketing', color: 'text-purple-400' },
+    { id: 'landing-pages', icon: FileText, label: isHe ? 'דפי נחיתה' : 'Landing Pages', color: 'text-amber-400' },
     { id: 'settings', icon: Settings, label: isHe ? 'הגדרות' : 'Settings', color: 'text-indigo-400' },
   ];
 

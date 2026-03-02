@@ -384,9 +384,9 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/60 border border-border/50'
               }`}>
-                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
-                  {msg.content}
-                </ReactMarkdown>
+                <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
               </div>
             </div>
           ))}
