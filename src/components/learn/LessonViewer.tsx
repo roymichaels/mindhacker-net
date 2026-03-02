@@ -3,7 +3,7 @@
  * Handles completion, quiz submission, and project evaluation.
  * RTL-optimized with logical properties.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
@@ -51,6 +51,12 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [feedback, setFeedback] = useState<any>(lesson.feedback);
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
+
+  // Stop TTS when component unmounts (e.g. dialog closed)
+  useEffect(() => {
+    return () => { tts.stop(); window.speechSynthesis?.cancel(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const compQuestions = lesson.content?.comprehension_questions || [];
   const hasCompQuestions = compQuestions.length > 0 && lesson.lesson_type !== 'quiz';
