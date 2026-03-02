@@ -178,11 +178,35 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
 
         {/* ── Lesson Content ── */}
         <div className="flex-1 overflow-hidden bg-background">
-          <LessonViewer
-            lesson={lesson}
-            onComplete={handleComplete}
-            onClose={handleExitAttempt}
-          />
+          {isGeneratingContent ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 px-6">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="font-bold text-base">
+                  {isHe ? 'Aurora מכינה את השיעור...' : 'Aurora is preparing your lesson...'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isHe ? 'יוצרת תוכן מותאם אישית' : 'Generating personalized content'}
+                </p>
+              </div>
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          ) : contentError ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 px-6">
+              <p className="text-destructive text-sm">{contentError}</p>
+              <Button variant="outline" onClick={onClose}>
+                {isHe ? 'חזרה' : 'Go back'}
+              </Button>
+            </div>
+          ) : (
+            <LessonViewer
+              lesson={enrichedLesson}
+              onComplete={handleComplete}
+              onClose={handleExitAttempt}
+            />
+          )}
         </div>
 
         {/* ── Exit Confirmation Overlay ── */}
