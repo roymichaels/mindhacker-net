@@ -102,7 +102,7 @@ export function AuroraDock() {
 
   // Hide dock on non-dashboard pages (panels, etc.)
   const isPanel = location.pathname.startsWith('/panel') ||
-    location.pathname.startsWith('/coach') ||
+    location.pathname.startsWith('/coach/') ||
     location.pathname.startsWith('/affiliate');
   if (isPanel) return null;
   if (!isDockVisible) return null;
