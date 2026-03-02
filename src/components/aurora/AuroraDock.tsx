@@ -67,9 +67,11 @@ export function AuroraDock() {
     if (dragRef.current && chatHeightVh <= CLOSE_THRESHOLD_VH) {
       setIsChatExpanded(false);
       setChatHeightVh(DEFAULT_CHAT_VH);
+      // Also hide dock when dragged below threshold
+      setIsDockVisible(false);
     }
     dragRef.current = null;
-  }, [chatHeightVh, setIsChatExpanded]);
+  }, [chatHeightVh, setIsChatExpanded, setIsDockVisible]);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     handleDragStart(e.touches[0].clientY);
