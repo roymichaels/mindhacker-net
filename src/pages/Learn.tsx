@@ -476,18 +476,14 @@ export default function Learn() {
         </main>
       </div>
 
-      {/* Lesson Viewer */}
-      <Dialog open={!!selectedLesson} onOpenChange={open => !open && setSelectedLesson(null)}>
-        <DialogContent className="max-w-3xl h-[95vh] sm:max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
-          {selectedLesson && (
-            <LessonViewer
-              lesson={selectedLesson}
-              onComplete={handleLessonComplete}
-              onClose={() => setSelectedLesson(null)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Full-screen Lesson Focus Session */}
+      {selectedLesson && (
+        <LessonFocusSession
+          lesson={selectedLesson}
+          onComplete={handleLessonComplete}
+          onClose={() => setSelectedLesson(null)}
+        />
+      )}
     </div>
   );
 }
