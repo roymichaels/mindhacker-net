@@ -188,7 +188,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
       {/* Content */}
       <ScrollArea className="flex-1 px-6 py-4">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-6 text-start">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
            <div className="prose prose-sm dark:prose-invert max-w-none [direction:inherit] [&>*]:text-start">
