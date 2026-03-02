@@ -1,24 +1,25 @@
 /**
  * Learn — Aurora Teaches You. Full curriculum system.
- * 3-column layout: left sidebar (curriculum outline), center (next lesson intro), right sidebar (app HUD).
+ * Uses useSidebars() to inject curriculum outline into the global left HUD sidebar slot.
  */
 import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSidebars } from '@/hooks/useSidebars';
 import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, ChevronRight, Play, CheckCircle, Lock,
-  FileText, Brain, Target, Flame, ArrowLeft, Clock, Zap, ChevronDown, ChevronUp, Menu, X, Plus,
+  FileText, Brain, Target, Flame, ArrowLeft, Clock, Zap, ChevronDown, ChevronUp, Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import CurriculumWizard from '@/components/learn/CurriculumWizard';
+import { LearnCurriculumSidebar } from '@/components/learn/LearnCurriculumSidebar';
 import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
 
@@ -69,13 +70,6 @@ interface Lesson {
   curriculum_id: string;
 }
 
-const DIFFICULTY_COLORS: Record<string, string> = {
-  beginner: 'bg-green-500/20 text-green-400',
-  intermediate: 'bg-yellow-500/20 text-yellow-400',
-  advanced: 'bg-orange-500/20 text-orange-400',
-  mastery: 'bg-red-500/20 text-red-400',
-};
-
 const LESSON_TYPE_ICONS: Record<string, React.ElementType> = {
   theory: BookOpen,
   practice: Target,
@@ -99,7 +93,6 @@ export default function Learn() {
   const [showWizard, setShowWizard] = useState(false);
   const [selectedCurriculum, setSelectedCurriculum] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch curricula
   const { data: curricula, isLoading } = useQuery({
@@ -174,6 +167,26 @@ export default function Learn() {
     if (!nextLesson || !modules) return null;
     return modules.find(m => m.id === nextLesson.module_id);
   }, [nextLesson, modules]);
+
+  // ── Inject curriculum sidebar into the global left HUD slot ──
+  const leftSidebar = useMemo(() => {
+    if (!activeCurriculum || !modules || !lessons) return null;
+    return (
+      <LearnCurriculumSidebar
+        curriculumTitle={activeCurriculum.title}
+        progress={activeCurriculum.progress_percentage}
+        completedLessons={activeCurriculum.completed_lessons}
+        totalLessons={activeCurriculum.total_lessons}
+        modules={modules}
+        lessons={lessons}
+        nextLessonId={nextLesson?.id || null}
+        onSelectLesson={(lesson) => setSelectedLesson(lesson)}
+        onBack={() => setSelectedCurriculum(null)}
+      />
+    );
+  }, [activeCurriculum, modules, lessons, nextLesson?.id]);
+
+  useSidebars(leftSidebar, null);
 
   // ── Curricula List View ──
   if (!selectedCurriculum || !activeCurriculum) {
@@ -274,206 +287,135 @@ export default function Learn() {
     );
   }
 
-  // ── Curriculum Detail View with Sidebar ──
+  // ── Curriculum Detail View — main content only (sidebar injected via useSidebars) ──
   return (
     <div className="min-h-screen pb-20" dir={isHe ? 'rtl' : 'ltr'}>
-      {/* Mobile header with toggle */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 py-3 flex items-center gap-3 lg:hidden">
-        <Button variant="ghost" size="icon" onClick={() => setSelectedCurriculum(null)} className="shrink-0">
-          <ArrowLeft className={`h-5 w-5 ${isHe ? 'rotate-180' : ''}`} />
-        </Button>
-        <h1 className="text-sm font-bold truncate flex-1">{activeCurriculum.title}</h1>
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="shrink-0">
-          {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
-      </div>
-
-      <div className="flex relative">
-        {/* ── Left Sidebar: Curriculum Outline ── */}
-        <aside className={cn(
-          "fixed lg:sticky top-0 lg:top-0 z-30 lg:z-auto h-[100dvh] lg:h-screen w-72 sm:w-80 border-e bg-card/95 backdrop-blur-sm transition-transform duration-300",
-          isHe ? 'right-0 lg:right-auto' : 'left-0 lg:left-auto',
-          sidebarOpen ? 'translate-x-0' : (isHe ? 'translate-x-full lg:translate-x-0' : '-translate-x-full lg:translate-x-0'),
-        )}>
-          {/* Sidebar header */}
-          <div className="px-4 py-4 border-b space-y-2">
-            <div className="hidden lg:flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => setSelectedCurriculum(null)} className="shrink-0">
-                <ArrowLeft className={`h-5 w-5 ${isHe ? 'rotate-180' : ''}`} />
-              </Button>
-              <h2 className="text-sm font-bold truncate">{activeCurriculum.title}</h2>
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* Curriculum progress card */}
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <CardContent className="py-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                <Flame className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="font-bold text-sm sm:text-base truncate">{activeCurriculum.title}</h2>
+                <p className="text-xs text-muted-foreground">{activeCurriculum.description}</p>
+              </div>
             </div>
-            <div className="lg:hidden flex items-center justify-between">
-              <h2 className="text-sm font-bold">{isHe ? 'תוכנית לימודים' : 'Curriculum'}</h2>
-              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
-                <X className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" />{activeCurriculum.total_modules} {isHe ? 'מודולים' : 'modules'}</span>
+              <span className="flex items-center gap-1"><FileText className="h-3 w-3" />{activeCurriculum.total_lessons} {isHe ? 'שיעורים' : 'lessons'}</span>
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{activeCurriculum.estimated_days} {isHe ? 'ימים' : 'days'}</span>
             </div>
             <div className="space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons} {isHe ? 'שיעורים' : 'lessons'}</span>
+              <div className="flex justify-between text-xs">
+                <span>{activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons}</span>
                 <span className="font-bold text-primary">{activeCurriculum.progress_percentage}%</span>
               </div>
-              <Progress value={activeCurriculum.progress_percentage} className="h-1.5" />
+              <Progress value={activeCurriculum.progress_percentage} className="h-2" />
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Modules / Lessons tree */}
-          <ScrollArea className="h-[calc(100dvh-120px)]">
-            <div className="py-2">
-              {modules?.map(mod => (
-                <SidebarModule
-                  key={mod.id}
-                  mod={mod}
-                  lessons={lessons?.filter(l => l.module_id === mod.id) || []}
-                  isHe={isHe}
-                  nextLessonId={nextLesson?.id || null}
-                  onSelectLesson={(lesson) => {
-                    setSelectedLesson(lesson);
-                    setSidebarOpen(false);
-                  }}
-                />
-              ))}
-            </div>
-          </ScrollArea>
-        </aside>
-
-        {/* Backdrop for mobile sidebar */}
-        {sidebarOpen && (
-          <div className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setSidebarOpen(false)} />
-        )}
-
-        {/* ── Main Content: Next Lesson Intro ── */}
-        <main className="flex-1 min-w-0 px-4 py-6 lg:px-8">
-          <div className="max-w-2xl mx-auto space-y-6">
-            {/* Curriculum progress card */}
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardContent className="py-5 space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                    <Flame className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <h2 className="font-bold text-sm sm:text-base truncate">{activeCurriculum.title}</h2>
-                    <p className="text-xs text-muted-foreground">{activeCurriculum.description}</p>
+        {/* Next Lesson Card */}
+        {nextLesson ? (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              {isHe ? 'השיעור הבא שלך' : 'Your Next Lesson'}
+            </h3>
+            <Card className="border-primary/30 hover:border-primary/50 transition-colors cursor-pointer" onClick={() => setSelectedLesson(nextLesson)}>
+              <CardContent className="py-6 space-y-4">
+                <div className="flex items-start gap-4">
+                  {(() => {
+                    const Icon = LESSON_TYPE_ICONS[nextLesson.lesson_type] || FileText;
+                    return (
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Icon className="h-6 w-6 text-primary" />
+                      </div>
+                    );
+                  })()}
+                  <div className="flex-1 min-w-0">
+                    {nextLessonModule && (
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {nextLessonModule.title} · {isHe ? 'שלב' : 'Step'} {nextLesson.order_index + 1}
+                      </p>
+                    )}
+                    <h3 className="text-lg font-bold">{nextLesson.title}</h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <Badge variant="outline">
+                        {LESSON_TYPE_LABELS[nextLesson.lesson_type]?.[isHe ? 'he' : 'en'] || nextLesson.lesson_type}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" />{nextLesson.time_estimate_minutes} {isHe ? 'דק\'' : 'min'}
+                      </span>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Zap className="h-3 w-3" />+{nextLesson.xp_reward} XP
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" />{activeCurriculum.total_modules} {isHe ? 'מודולים' : 'modules'}</span>
-                  <span className="flex items-center gap-1"><FileText className="h-3 w-3" />{activeCurriculum.total_lessons} {isHe ? 'שיעורים' : 'lessons'}</span>
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{activeCurriculum.estimated_days} {isHe ? 'ימים' : 'days'}</span>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span>{activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons}</span>
-                    <span className="font-bold text-primary">{activeCurriculum.progress_percentage}%</span>
+
+                {nextLesson.content && (
+                  <div className="bg-muted/30 rounded-xl p-4 text-sm text-muted-foreground line-clamp-4">
+                    {typeof nextLesson.content === 'string'
+                      ? nextLesson.content.slice(0, 200) + '...'
+                      : nextLesson.content.intro || nextLesson.content.theory?.slice(0, 200) || (isHe ? 'לחצו להתחיל' : 'Click to start')}
                   </div>
-                  <Progress value={activeCurriculum.progress_percentage} className="h-2" />
-                </div>
+                )}
+
+                <Button className="w-full gap-2" size="lg">
+                  <Play className="h-4 w-4" />
+                  {isHe ? 'התחל שיעור' : 'Start Lesson'}
+                </Button>
               </CardContent>
             </Card>
-
-            {/* Next Lesson Card */}
-            {nextLesson ? (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-primary" />
-                  {isHe ? 'השיעור הבא שלך' : 'Your Next Lesson'}
-                </h3>
-                <Card className="border-primary/30 hover:border-primary/50 transition-colors cursor-pointer" onClick={() => setSelectedLesson(nextLesson)}>
-                  <CardContent className="py-6 space-y-4">
-                    <div className="flex items-start gap-4">
-                      {(() => {
-                        const Icon = LESSON_TYPE_ICONS[nextLesson.lesson_type] || FileText;
-                        return (
-                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                            <Icon className="h-6 w-6 text-primary" />
-                          </div>
-                        );
-                      })()}
-                      <div className="flex-1 min-w-0">
-                        {nextLessonModule && (
-                          <p className="text-xs text-muted-foreground mb-1">
-                            {nextLessonModule.title} · {isHe ? 'שלב' : 'Step'} {nextLesson.order_index + 1}
-                          </p>
-                        )}
-                        <h3 className="text-lg font-bold">{nextLesson.title}</h3>
-                        <div className="flex flex-wrap items-center gap-2 mt-2">
-                          <Badge variant="outline">
-                            {LESSON_TYPE_LABELS[nextLesson.lesson_type]?.[isHe ? 'he' : 'en'] || nextLesson.lesson_type}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="h-3 w-3" />{nextLesson.time_estimate_minutes} {isHe ? 'דק\'' : 'min'}
-                          </span>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Zap className="h-3 w-3" />+{nextLesson.xp_reward} XP
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Lesson content preview */}
-                    {nextLesson.content && (
-                      <div className="bg-muted/30 rounded-xl p-4 text-sm text-muted-foreground line-clamp-4">
-                        {typeof nextLesson.content === 'string'
-                          ? nextLesson.content.slice(0, 200) + '...'
-                          : nextLesson.content.intro || nextLesson.content.theory?.slice(0, 200) || (isHe ? 'לחצו להתחיל' : 'Click to start')}
-                      </div>
-                    )}
-
-                    <Button className="w-full gap-2" size="lg">
-                      <Play className="h-4 w-4" />
-                      {isHe ? 'התחל שיעור' : 'Start Lesson'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="py-12 text-center space-y-4">
-                  <Trophy className="h-12 w-12 mx-auto text-amber-400" />
-                  <h3 className="text-lg font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
-                  <p className="text-sm text-muted-foreground">{isHe ? 'עבודה מעולה! סיימת את כל תוכנית הלימודים.' : 'Great work! You\'ve finished the entire curriculum.'}</p>
-                  <Button variant="outline" onClick={() => setSelectedCurriculum(null)}>
-                    {isHe ? 'חזרה לרשימה' : 'Back to list'}
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Recent completed lessons */}
-            {lessons && lessons.filter(l => l.status === 'completed').length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-500" />
-                  {isHe ? 'שיעורים שהושלמו לאחרונה' : 'Recently Completed'}
-                </h3>
-                <div className="space-y-2">
-                  {lessons.filter(l => l.status === 'completed').slice(-3).reverse().map(lesson => {
-                    const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
-                    return (
-                      <button
-                        key={lesson.id}
-                        onClick={() => setSelectedLesson(lesson)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors text-start"
-                      >
-                        <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{lesson.title}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {LESSON_TYPE_LABELS[lesson.lesson_type]?.[isHe ? 'he' : 'en']} · +{lesson.xp_reward} XP
-                            {lesson.score !== null && ` · ${lesson.score}%`}
-                          </p>
-                        </div>
-                        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 ${isHe ? 'rotate-180' : ''}`} />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
-        </main>
+        ) : (
+          <Card>
+            <CardContent className="py-12 text-center space-y-4">
+              <Trophy className="h-12 w-12 mx-auto text-amber-400" />
+              <h3 className="text-lg font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
+              <p className="text-sm text-muted-foreground">{isHe ? 'עבודה מעולה! סיימת את כל תוכנית הלימודים.' : 'Great work! You\'ve finished the entire curriculum.'}</p>
+              <Button variant="outline" onClick={() => setSelectedCurriculum(null)}>
+                {isHe ? 'חזרה לרשימה' : 'Back to list'}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Recent completed lessons */}
+        {lessons && lessons.filter(l => l.status === 'completed').length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              {isHe ? 'שיעורים שהושלמו לאחרונה' : 'Recently Completed'}
+            </h3>
+            <div className="space-y-2">
+              {lessons.filter(l => l.status === 'completed').slice(-3).reverse().map(lesson => {
+                const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
+                return (
+                  <button
+                    key={lesson.id}
+                    onClick={() => setSelectedLesson(lesson)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors text-start"
+                  >
+                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{lesson.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {LESSON_TYPE_LABELS[lesson.lesson_type]?.[isHe ? 'he' : 'en']} · +{lesson.xp_reward} XP
+                        {lesson.score !== null && ` · ${lesson.score}%`}
+                      </p>
+                    </div>
+                    <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 ${isHe ? 'rotate-180' : ''}`} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Full-screen Lesson Focus Session */}
@@ -483,84 +425,6 @@ export default function Learn() {
           onComplete={handleLessonComplete}
           onClose={() => setSelectedLesson(null)}
         />
-      )}
-    </div>
-  );
-}
-
-// ── Sidebar Module Component ──
-function SidebarModule({ mod, lessons, isHe, nextLessonId, onSelectLesson }: {
-  mod: Module;
-  lessons: Lesson[];
-  isHe: boolean;
-  nextLessonId: string | null;
-  onSelectLesson: (l: Lesson) => void;
-}) {
-  const hasNext = lessons.some(l => l.id === nextLessonId);
-  const [open, setOpen] = useState(hasNext || mod.status === 'in_progress' || mod.status === 'unlocked');
-  const isLocked = mod.status === 'locked';
-  const isDone = mod.status === 'completed';
-
-  return (
-    <div className="border-b border-border/30 last:border-b-0">
-      <button
-        onClick={() => !isLocked && setOpen(!open)}
-        className={cn(
-          "w-full flex items-center gap-2 px-4 py-3 text-start transition-colors",
-          isLocked ? "opacity-40 cursor-not-allowed" : "hover:bg-muted/50",
-        )}
-      >
-        {isLocked ? (
-          <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        ) : isDone ? (
-          <CheckCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-        ) : (
-          <Play className="h-3.5 w-3.5 text-primary shrink-0" />
-        )}
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold truncate">{mod.title}</p>
-          <p className="text-[10px] text-muted-foreground">{mod.completed_lessons}/{mod.total_lessons}</p>
-        </div>
-        {!isLocked && (
-          open ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        )}
-      </button>
-
-      {open && !isLocked && (
-        <div className="pb-2 px-2">
-          {lessons.map(lesson => {
-            const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
-            const isNext = lesson.id === nextLessonId;
-            const isDone = lesson.status === 'completed';
-            const isLessonLocked = lesson.status === 'locked';
-
-            return (
-              <button
-                key={lesson.id}
-                disabled={isLessonLocked}
-                onClick={() => !isLessonLocked && onSelectLesson(lesson)}
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-start transition-colors text-xs",
-                  isLessonLocked && "opacity-30 cursor-not-allowed",
-                  isDone && "text-muted-foreground",
-                  isNext && "bg-primary/10 border border-primary/20 font-medium",
-                  !isNext && !isDone && !isLessonLocked && "hover:bg-muted/50",
-                )}
-              >
-                {isLessonLocked ? (
-                  <Lock className="h-3 w-3 shrink-0" />
-                ) : isDone ? (
-                  <CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />
-                ) : (
-                  <Icon className={cn("h-3 w-3 shrink-0", isNext ? "text-primary" : "text-muted-foreground")} />
-                )}
-                <span className="truncate flex-1">{lesson.title}</span>
-                {isNext && <Badge className="text-[9px] h-4 px-1 bg-primary/20 text-primary border-0 shrink-0">{isHe ? 'הבא' : 'Next'}</Badge>}
-                {lesson.score !== null && <span className="text-[10px] text-primary shrink-0">{lesson.score}%</span>}
-              </button>
-            );
-          })}
-        </div>
       )}
     </div>
   );
