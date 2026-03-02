@@ -4006,6 +4006,96 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_curricula: {
+        Row: {
+          category: string | null
+          completed_lessons: number | null
+          completed_modules: number | null
+          created_at: string
+          curriculum_data: Json | null
+          description: string | null
+          difficulty_progression: string[] | null
+          estimated_days: number | null
+          id: string
+          pillar: string | null
+          plan_id: string | null
+          progress_percentage: number | null
+          skill_mappings: string[] | null
+          status: string
+          title: string
+          title_en: string | null
+          topic: string
+          total_lessons: number | null
+          total_modules: number | null
+          updated_at: string
+          user_id: string
+          wizard_conversation_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          completed_lessons?: number | null
+          completed_modules?: number | null
+          created_at?: string
+          curriculum_data?: Json | null
+          description?: string | null
+          difficulty_progression?: string[] | null
+          estimated_days?: number | null
+          id?: string
+          pillar?: string | null
+          plan_id?: string | null
+          progress_percentage?: number | null
+          skill_mappings?: string[] | null
+          status?: string
+          title: string
+          title_en?: string | null
+          topic: string
+          total_lessons?: number | null
+          total_modules?: number | null
+          updated_at?: string
+          user_id: string
+          wizard_conversation_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          completed_lessons?: number | null
+          completed_modules?: number | null
+          created_at?: string
+          curriculum_data?: Json | null
+          description?: string | null
+          difficulty_progression?: string[] | null
+          estimated_days?: number | null
+          id?: string
+          pillar?: string | null
+          plan_id?: string | null
+          progress_percentage?: number | null
+          skill_mappings?: string[] | null
+          status?: string
+          title?: string
+          title_en?: string | null
+          topic?: string
+          total_lessons?: number | null
+          total_modules?: number | null
+          updated_at?: string
+          user_id?: string
+          wizard_conversation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_curricula_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_curricula_wizard_conversation_id_fkey"
+            columns: ["wizard_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learning_journeys: {
         Row: {
           ai_summary: string | null
@@ -4059,6 +4149,149 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      learning_lessons: {
+        Row: {
+          action_item_id: string | null
+          completed_at: string | null
+          content: Json | null
+          created_at: string
+          curriculum_id: string
+          deadline: string | null
+          feedback: Json | null
+          id: string
+          lesson_type: string
+          module_id: string
+          order_index: number
+          score: number | null
+          status: string
+          time_estimate_minutes: number | null
+          title: string
+          title_en: string | null
+          updated_at: string
+          user_id: string
+          user_submission: Json | null
+          xp_reward: number | null
+        }
+        Insert: {
+          action_item_id?: string | null
+          completed_at?: string | null
+          content?: Json | null
+          created_at?: string
+          curriculum_id: string
+          deadline?: string | null
+          feedback?: Json | null
+          id?: string
+          lesson_type?: string
+          module_id: string
+          order_index?: number
+          score?: number | null
+          status?: string
+          time_estimate_minutes?: number | null
+          title: string
+          title_en?: string | null
+          updated_at?: string
+          user_id: string
+          user_submission?: Json | null
+          xp_reward?: number | null
+        }
+        Update: {
+          action_item_id?: string | null
+          completed_at?: string | null
+          content?: Json | null
+          created_at?: string
+          curriculum_id?: string
+          deadline?: string | null
+          feedback?: Json | null
+          id?: string
+          lesson_type?: string
+          module_id?: string
+          order_index?: number
+          score?: number | null
+          status?: string
+          time_estimate_minutes?: number | null
+          title?: string
+          title_en?: string | null
+          updated_at?: string
+          user_id?: string
+          user_submission?: Json | null
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_lessons_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "learning_curricula"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "learning_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_modules: {
+        Row: {
+          completed_lessons: number | null
+          created_at: string
+          curriculum_id: string
+          description: string | null
+          difficulty: string
+          id: string
+          mission_id: string | null
+          order_index: number
+          status: string
+          title: string
+          title_en: string | null
+          total_lessons: number | null
+          updated_at: string
+          xp_reward: number | null
+        }
+        Insert: {
+          completed_lessons?: number | null
+          created_at?: string
+          curriculum_id: string
+          description?: string | null
+          difficulty?: string
+          id?: string
+          mission_id?: string | null
+          order_index?: number
+          status?: string
+          title: string
+          title_en?: string | null
+          total_lessons?: number | null
+          updated_at?: string
+          xp_reward?: number | null
+        }
+        Update: {
+          completed_lessons?: number | null
+          created_at?: string
+          curriculum_id?: string
+          description?: string | null
+          difficulty?: string
+          id?: string
+          mission_id?: string | null
+          order_index?: number
+          status?: string
+          title?: string
+          title_en?: string | null
+          total_lessons?: number | null
+          updated_at?: string
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_modules_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "learning_curricula"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       life_domains: {
         Row: {
