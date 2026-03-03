@@ -56,7 +56,7 @@ export default function ArenaDomainPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <p className="text-muted-foreground">{isHe ? 'תחום לא נמצא' : 'Domain not found'}</p>
-          <Button variant="outline" onClick={() => navigate('/arena')}>
+          <Button variant="outline" onClick={() => navigate('/life')}>
             {isHe ? 'חזור' : 'Go Back'}
           </Button>
         </div>
@@ -75,7 +75,7 @@ export default function ArenaDomainPage() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Back button */}
         <button
-          onClick={() => navigate('/arena')}
+          onClick={() => navigate('/life')}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <BackArrow className="w-4 h-4" />
@@ -232,7 +232,7 @@ export default function ArenaDomainPage() {
                 <RefreshCw className="w-4 h-4 me-2" />
                 {isHe ? 'אבחון מחדש' : 'Reassess'}
               </Button>
-              <Button variant="outline" onClick={() => navigate(`/arena/${domain.id}/results`)}>
+              <Button variant="outline" onClick={() => navigate(`/life/${domain.id}/results`)}>
                 <Map className="w-4 h-4 me-2" />
                 {isHe ? 'צפה בתוצאות' : 'View Results'}
               </Button>

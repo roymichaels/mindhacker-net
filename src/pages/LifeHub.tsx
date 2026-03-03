@@ -22,7 +22,7 @@ export default function LifeHub() {
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80 flex items-center gap-2">
             <Calendar className="h-4 w-4 text-primary" />
-            {isHe ? '⚡ משימות ליבה להיום' : '⚡ Core Missions Today'}
+            {isHe ? '⚡ משימות להיום' : '⚡ Today\'s Missions'}
           </h3>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -38,7 +38,7 @@ export default function LifeHub() {
           </motion.button>
         </div>
 
-        <DailyMilestones hub="core" hideHeader />
+        <DailyMilestones hub="both" hideHeader />
       </div>
       <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} hub="core" />
     </div>

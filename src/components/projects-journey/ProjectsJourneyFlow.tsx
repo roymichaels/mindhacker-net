@@ -37,7 +37,7 @@ export function ProjectsJourneyFlow({ className, journeyId, onComplete, onClose 
   }, [viewingStep, currentStep, totalSteps, completeStep, onComplete]);
 
   const handleAutoSave = useCallback((step: number, data: Record<string, unknown>) => { saveStepData(step, data); }, [saveStepData]);
-  const handleClose = () => { if (onClose) onClose(); else navigate('/arena'); };
+  const handleClose = () => { if (onClose) onClose(); else navigate('/life'); };
   const handleNavigatePrev = () => { if (displayedStep > 1) setViewingStep(displayedStep - 1); };
   const handleNavigateNext = () => { if (displayedStep < currentStep) setViewingStep(displayedStep + 1 === currentStep ? null : displayedStep + 1); };
   const canGoPrev = displayedStep > 1;

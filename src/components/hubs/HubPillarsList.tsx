@@ -43,10 +43,10 @@ const cardBgMap: Record<string, string> = {
 };
 
 interface HubPillarsListProps {
-  hub: 'core' | 'arena';
+  hub?: 'core' | 'arena';
 }
 
-export function HubPillarsList({ hub }: HubPillarsListProps) {
+export function HubPillarsList({ hub = 'core' }: HubPillarsListProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
@@ -55,13 +55,12 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
   const { isPillarSelected, isApex, needsSelection } = usePillarAccess();
   const [selectionOpen, setSelectionOpen] = useState(false);
 
-  const domains: LifeDomain[] = hub === 'core' ? CORE_DOMAINS : ARENA_DOMAINS;
-  const plan = hub === 'core' ? corePlan : arenaPlan;
-  const basePath = hub === 'core' ? '/life' : '/arena';
+  // Always show all domains now
+  const domains: LifeDomain[] = CORE_DOMAINS;
+  const plan = corePlan || arenaPlan;
+  const basePath = '/life';
 
-  const sectionTitle = hub === 'core'
-    ? (isHe ? 'תחומי הליבה' : 'Core Pillars')
-    : (isHe ? 'תחומי הזירה' : 'Arena Pillars');
+  const sectionTitle = isHe ? 'כל הפילרים' : 'All Pillars';
 
   // Fetch missions for this plan
   const { data: missions } = useQuery({

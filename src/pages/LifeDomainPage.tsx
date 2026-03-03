@@ -118,12 +118,7 @@ export default function LifeDomainPage() {
                 : '7 focused questions to build a personalized 90-day plan for this domain.'}
             </p>
             <Button onClick={() => {
-              const isArena = ARENA_DOMAINS.some(d => d.id === domain.id);
-              if (isArena) {
-                navigate(`/arena/${domain.id}/assess`);
-              } else {
-                navigate(`/life/${domain.id}/assess`);
-              }
+              navigate(`/life/${domain.id}/assess`);
             }} size="lg" className="mt-2">
               <Play className="w-4 h-4 mr-2" />
               {isHebrew ? 'התחל הגדרה' : 'Start Configuration'}
@@ -157,8 +152,7 @@ export default function LifeDomainPage() {
         <div className="flex flex-wrap gap-3">
           {status !== 'unconfigured' && (
             <Button variant="outline" onClick={() => {
-              const isArena = ARENA_DOMAINS.some(d => d.id === domain.id);
-              navigate(isArena ? `/arena/${domain.id}/assess` : `/life/${domain.id}/assess`);
+              navigate(`/life/${domain.id}/assess`);
             }}>
               <RefreshCw className="w-4 h-4 mr-2" />
               {isHebrew ? 'הגדר מחדש' : 'Reconfigure'}

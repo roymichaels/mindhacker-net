@@ -163,6 +163,13 @@ const queryClient = new QueryClient({
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
+// Redirect /arena/:domainId/* → /life/:domainId/*
+function ArenaToLifeRedirect() {
+  const loc = window.location.pathname;
+  const newPath = loc.replace(/^\/arena/, '/life');
+  return <Navigate to={newPath} replace />;
+}
+
 // Background effect wrapper component
 const BackgroundEffect = () => {
   const { theme } = useThemeSettings();
@@ -319,24 +326,24 @@ const App = () => (
                           <Route path="/life/consciousness/assess" element={<ConsciousnessAssess />} />
                           <Route path="/life/consciousness/results" element={<ConsciousnessResults />} />
                           <Route path="/life/consciousness/history" element={<ConsciousnessHistory />} />
-                          {/* Arena domain assessments */}
-                          <Route path="/arena/wealth/assess" element={<WealthAssess />} />
-                          <Route path="/arena/wealth/results" element={<WealthResults />} />
-                          <Route path="/arena/influence/assess" element={<InfluenceAssess />} />
-                          <Route path="/arena/influence/results" element={<InfluenceResults />} />
-                          <Route path="/arena/relationships/assess" element={<RelationshipsAssess />} />
-                          <Route path="/arena/relationships/results" element={<RelationshipsResults />} />
-                          <Route path="/arena/business/assess" element={<BusinessAssess />} />
-                          <Route path="/arena/business/results" element={<BusinessResults />} />
-                          <Route path="/arena/projects/assess" element={<ProjectsAssess />} />
-                          <Route path="/arena/projects/results" element={<ProjectsResults />} />
-                          <Route path="/arena/play/assess" element={<PlayAssess />} />
-                          <Route path="/arena/play/results" element={<PlayResults />} />
-                          <Route path="/arena/:domainId" element={<ArenaDomainPage />} />
+                          {/* Arena domain routes — now under /life */}
+                          <Route path="/life/wealth/assess" element={<WealthAssess />} />
+                          <Route path="/life/wealth/results" element={<WealthResults />} />
+                          <Route path="/life/influence/assess" element={<InfluenceAssess />} />
+                          <Route path="/life/influence/results" element={<InfluenceResults />} />
+                          <Route path="/life/relationships/assess" element={<RelationshipsAssess />} />
+                          <Route path="/life/relationships/results" element={<RelationshipsResults />} />
+                          <Route path="/life/business/assess" element={<BusinessAssess />} />
+                          <Route path="/life/business/results" element={<BusinessResults />} />
+                          <Route path="/life/projects/assess" element={<ProjectsAssess />} />
+                          <Route path="/life/projects/results" element={<ProjectsResults />} />
+                          <Route path="/life/play/assess" element={<PlayAssess />} />
+                          <Route path="/life/play/results" element={<PlayResults />} />
                           {/* Life domain catch-all */}
                           <Route path="/life/:domainId" element={<LifeDomainPage />} />
-                          {/* Arena hub */}
-                          <Route path="/arena" element={<ArenaLayoutWrapper />} />
+                          {/* Arena redirects to Core */}
+                          <Route path="/arena/:domainId/*" element={<ArenaToLifeRedirect />} />
+                          <Route path="/arena" element={<Navigate to="/life" replace />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                           {/* Admin Hub */}
@@ -373,17 +380,11 @@ const App = () => (
                         <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/me" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
-                        <Route path="/projects" element={<Navigate to="/arena" replace />} />
-                        <Route path="/launchpad" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/quests" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/hypnosis" element={<Navigate to="/dashboard" replace />} />
-                        {/* Legacy arena redirects */}
-                        <Route path="/life/wealth" element={<Navigate to="/arena/wealth" replace />} />
-                        <Route path="/life/influence" element={<Navigate to="/arena/influence" replace />} />
-                        <Route path="/life/relationships" element={<Navigate to="/arena/relationships" replace />} />
-                        <Route path="/life/wealth/assess" element={<Navigate to="/arena/wealth/assess" replace />} />
-                        <Route path="/life/influence/assess" element={<Navigate to="/arena/influence/assess" replace />} />
-                        <Route path="/life/relationships/assess" element={<Navigate to="/arena/relationships/assess" replace />} />
+                        <Route path="/projects" element={<Navigate to="/life" replace />} />
+                        {/* Legacy arena redirects — all point to /life now */}
+                        <Route path="/life/wealth" element={<Navigate to="/life/wealth" replace />} />
+                        <Route path="/life/influence" element={<Navigate to="/life/influence" replace />} />
+                        <Route path="/life/relationships" element={<Navigate to="/life/relationships" replace />} />
                         {/* Old pillar routes */}
                         <Route path="/consciousness" element={<Navigate to="/life" replace />} />
                         <Route path="/health" element={<Navigate to="/life" replace />} />

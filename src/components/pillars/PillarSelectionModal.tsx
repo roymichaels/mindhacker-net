@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { usePillarAccess } from '@/hooks/usePillarAccess';
-import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { CheckCircle2, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -46,27 +46,27 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { selectedPillars, limits, togglePillar, updateSelection } = usePillarAccess();
+  const totalLimit = limits.core + limits.arena;
   
-  const [localCore, setLocalCore] = useState<string[]>(selectedPillars.core);
-  const [localArena, setLocalArena] = useState<string[]>(selectedPillars.arena);
+  const [localSelected, setLocalSelected] = useState<string[]>([...selectedPillars.core, ...selectedPillars.arena]);
   const [saving, setSaving] = useState(false);
 
-  const handleToggle = (domain: LifeDomain, hub: 'core' | 'arena') => {
-    const list = hub === 'core' ? localCore : localArena;
-    const setList = hub === 'core' ? setLocalCore : setLocalArena;
-    const limit = limits[hub];
-
-    if (list.includes(domain.id)) {
-      setList(list.filter(id => id !== domain.id));
-    } else if (list.length < limit) {
-      setList([...list, domain.id]);
+  const handleToggle = (domain: LifeDomain) => {
+    if (localSelected.includes(domain.id)) {
+      setLocalSelected(localSelected.filter(id => id !== domain.id));
+    } else if (localSelected.length < totalLimit) {
+      setLocalSelected([...localSelected, domain.id]);
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateSelection.mutateAsync({ core: localCore, arena: localArena });
+      // Split back into core/arena for backwards compat
+      const coreIds = ['consciousness','presence','power','vitality','focus','combat','expansion'];
+      const core = localSelected.filter(id => coreIds.includes(id));
+      const arena = localSelected.filter(id => !coreIds.includes(id));
+      await updateSelection.mutateAsync({ core, arena });
       onComplete?.();
       onOpenChange(false);
     } finally {
@@ -74,13 +74,13 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
     }
   };
 
-  const canSave = localCore.length > 0 && localArena.length > 0;
+  const canSave = localSelected.length > 0;
 
-  const renderGrid = (domains: LifeDomain[], hub: 'core' | 'arena', selected: string[], limit: number) => (
+  const renderGrid = (domains: LifeDomain[], selected: string[], limit: number) => (
     <div>
       <div className="flex items-center justify-between mb-2">
         <h4 className="text-sm font-bold text-foreground/90">
-          {hub === 'core' ? (isHe ? 'ליבה' : 'Core') : (isHe ? 'זירה' : 'Arena')}
+          {isHe ? 'כל הפילרים' : 'All Pillars'}
         </h4>
         <span className={cn(
           "text-xs font-medium px-2 py-0.5 rounded-full",
@@ -101,7 +101,7 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03 }}
-              onClick={() => handleToggle(domain, hub)}
+              onClick={() => handleToggle(domain)}
               disabled={!isSelected && atLimit}
               className={cn(
                 'flex flex-col items-center gap-1.5 rounded-xl border bg-gradient-to-br p-3 text-center transition-all cursor-pointer relative',
@@ -141,14 +141,13 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
           </DialogTitle>
           <DialogDescription className="text-xs">
             {isHe
-              ? `בחר ${limits.core} פילר${limits.core > 1 ? 'ים' : ''} מהליבה ו-${limits.arena} מהזירה. תוכל לשנות מאוחר יותר.`
-              : `Select ${limits.core} Core pillar${limits.core > 1 ? 's' : ''} and ${limits.arena} Arena pillar${limits.arena > 1 ? 's' : ''}. You can change later.`}
+              ? `בחר עד ${totalLimit} פילרים. תוכל לשנות מאוחר יותר.`
+              : `Select up to ${totalLimit} pillars. You can change later.`}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
-          {renderGrid(CORE_DOMAINS, 'core', localCore, limits.core)}
-          {renderGrid(ARENA_DOMAINS, 'arena', localArena, limits.arena)}
+          {renderGrid(CORE_DOMAINS, localSelected, totalLimit)}
         </div>
 
         <Button

@@ -12,7 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useHabits, useSessionsToday } from '@/hooks/useActionItems';
 import { useMilestones } from '@/hooks/useLifePlan';
@@ -39,10 +39,13 @@ export function LifeActivitySidebar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
-  const { corePlan, coreStrategy, isLoading: stratLoading, generateStrategy, isGenerating: recalibrating } = useStrategyPlans();
+  const { corePlan, arenaPlan, coreStrategy, isLoading: stratLoading, generateStrategy, isGenerating: recalibrating } = useStrategyPlans();
   const { data: habits } = useHabits();
   const { data: sessionsToday } = useSessionsToday();
-  const { data: allMilestones, isLoading: msLoading } = useMilestones(corePlan?.id || null);
+  
+  // Use both plans for milestones
+  const activePlanId = corePlan?.id || arenaPlan?.id || null;
+  const { data: allMilestones, isLoading: msLoading } = useMilestones(activePlanId);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
   const [expandedPhase, setExpandedPhase] = useState<number | null>(null);
   const { user } = useAuth();
@@ -50,17 +53,17 @@ export function LifeActivitySidebar() {
 
   const isLoading = stratLoading || msLoading;
 
-  const coreDomainIds = CORE_DOMAINS.map(d => d.id);
-  const coreEntries = Object.entries(statusMap).filter(([id]) => coreDomainIds.includes(id));
-  const totalDomains = CORE_DOMAINS.length;
-  const activeDomains = coreEntries.filter(([, s]) => s === 'active' || s === 'configured').length;
+  const allDomainIds = LIFE_DOMAINS.map(d => d.id);
+  const allEntries = Object.entries(statusMap).filter(([id]) => allDomainIds.includes(id));
+  const totalDomains = LIFE_DOMAINS.length;
+  const activeDomains = allEntries.filter(([, s]) => s === 'active' || s === 'configured').length;
 
-  const coreHabits = (habits || []).filter(h => {
+  const activeHabits = (habits || []).filter(h => {
     const pillar = (h as any).pillar;
-    return !pillar || coreDomainIds.includes(pillar);
+    return !pillar || allDomainIds.includes(pillar);
   });
-  const completedHabits = coreHabits.filter(h => h.status === 'done').length;
-  const totalHabits = coreHabits.length;
+  const completedHabits = activeHabits.filter(h => h.status === 'done').length;
+  const totalHabits = activeHabits.length;
 
   const getCurrentPhase = () => {
     if (!corePlan?.start_date) return 1;
@@ -114,7 +117,7 @@ export function LifeActivitySidebar() {
   const handleRecalibrate = async () => {
     if (!user?.id || recalibrating) return;
     try {
-      await generateStrategy.mutateAsync({ hub: 'core', forceRegenerate: true });
+      await generateStrategy.mutateAsync({ hub: 'both', forceRegenerate: true });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
         queryClient.invalidateQueries({ queryKey: ['milestones'] }),

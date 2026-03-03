@@ -9,7 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +22,7 @@ export function LifeHudSidebar() {
   const isHe = language === 'he';
   const navigate = useNavigate();
   const { statusMap } = useLifeDomains();
-  const { corePlan } = useStrategyPlans();
+  const { corePlan, arenaPlan } = useStrategyPlans();
 
   const domainColorMap: Record<string, string> = {
     rose: 'text-rose-400', red: 'text-red-400', amber: 'text-amber-400',
@@ -59,31 +59,38 @@ export function LifeHudSidebar() {
     cyan: 'bg-cyan-500/8 border-cyan-500/15 hover:bg-cyan-500/15',
   };
 
+  const planIds = useMemo(() => {
+    const ids: string[] = [];
+    if (corePlan?.id) ids.push(corePlan.id);
+    if (arenaPlan?.id) ids.push(arenaPlan.id);
+    return ids;
+  }, [corePlan?.id, arenaPlan?.id]);
+
   // Fetch missions for progress display
   const { data: missions } = useQuery({
-    queryKey: ['plan-missions', corePlan?.id],
+    queryKey: ['plan-missions', planIds],
     queryFn: async () => {
-      if (!corePlan?.id) return [];
+      if (planIds.length === 0) return [];
       const { data } = await supabase
         .from('plan_missions').select('*')
-        .eq('plan_id', corePlan.id).order('mission_number');
+        .in('plan_id', planIds).order('mission_number');
       return data || [];
     },
-    enabled: !!corePlan?.id,
+    enabled: planIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: milestones } = useQuery({
-    queryKey: ['mission-milestones', corePlan?.id],
+    queryKey: ['mission-milestones', planIds],
     queryFn: async () => {
-      if (!corePlan?.id) return [];
+      if (planIds.length === 0) return [];
       const { data } = await supabase
         .from('life_plan_milestones')
         .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area')
-        .eq('plan_id', corePlan.id).not('mission_id', 'is', null).order('milestone_number');
+        .in('plan_id', planIds).not('mission_id', 'is', null).order('milestone_number');
       return data || [];
     },
-    enabled: !!corePlan?.id,
+    enabled: planIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -147,7 +154,7 @@ export function LifeHudSidebar() {
           <SidebarOrbWidget collapsed />
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {CORE_DOMAINS.map((domain) => {
+            {LIFE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               return (
                 <button
@@ -181,7 +188,7 @@ export function LifeHudSidebar() {
                 {isHe ? 'ליבה' : 'Core'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? `${CORE_DOMAINS.length} תחומי ביצוע` : `${CORE_DOMAINS.length} execution domains`}
+                {isHe ? `${LIFE_DOMAINS.length} תחומי ביצוע` : `${LIFE_DOMAINS.length} execution domains`}
               </p>
             </div>
           </div>
@@ -190,7 +197,7 @@ export function LifeHudSidebar() {
 
           {/* Domain nav items — navigate to results */}
           <div className="flex flex-col gap-1 w-full">
-            {CORE_DOMAINS.map((domain) => {
+            {LIFE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const isActive = status === 'active' || status === 'configured';
               const progress = getPillarProgress(domain.id);
