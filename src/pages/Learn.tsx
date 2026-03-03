@@ -2,7 +2,7 @@
  * Learn — Aurora Teaches You. Full curriculum system.
  * Uses the Aurora Dock for curriculum wizard chat (no modals).
  */
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
