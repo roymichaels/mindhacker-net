@@ -152,8 +152,7 @@ export default function LifeDomainPage() {
         <div className="flex flex-wrap gap-3">
           {status !== 'unconfigured' && (
             <Button variant="outline" onClick={() => {
-              const isArena = ARENA_DOMAINS.some(d => d.id === domain.id);
-              navigate(isArena ? `/arena/${domain.id}/assess` : `/life/${domain.id}/assess`);
+              navigate(`/life/${domain.id}/assess`);
             }}>
               <RefreshCw className="w-4 h-4 mr-2" />
               {isHebrew ? 'הגדר מחדש' : 'Reconfigure'}
