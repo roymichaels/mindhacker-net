@@ -76,11 +76,11 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
 
   const canSave = localSelected.length > 0;
 
-  const renderGrid = (domains: LifeDomain[], hub: 'core' | 'arena', selected: string[], limit: number) => (
+  const renderGrid = (domains: LifeDomain[], selected: string[], limit: number) => (
     <div>
       <div className="flex items-center justify-between mb-2">
         <h4 className="text-sm font-bold text-foreground/90">
-          {hub === 'core' ? (isHe ? 'ליבה' : 'Core') : (isHe ? 'זירה' : 'Arena')}
+          {isHe ? 'כל הפילרים' : 'All Pillars'}
         </h4>
         <span className={cn(
           "text-xs font-medium px-2 py-0.5 rounded-full",
@@ -101,7 +101,7 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03 }}
-              onClick={() => handleToggle(domain, hub)}
+              onClick={() => handleToggle(domain)}
               disabled={!isSelected && atLimit}
               className={cn(
                 'flex flex-col items-center gap-1.5 rounded-xl border bg-gradient-to-br p-3 text-center transition-all cursor-pointer relative',
