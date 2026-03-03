@@ -27,7 +27,9 @@ const AuroraChatBubbles = () => {
     scrollToMessageId,
     setScrollToMessageId,
     pendingProactiveMessage,
-    setPendingProactiveMessage
+    setPendingProactiveMessage,
+    pendingAssistantGreeting,
+    setPendingAssistantGreeting
   } = useAuroraChatContext();
   
   const { 
