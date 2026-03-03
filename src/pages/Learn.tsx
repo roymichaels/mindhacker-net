@@ -350,7 +350,7 @@ export default function Learn() {
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/20 px-4 py-3 space-y-2">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSelectedCurriculum(null)}
+              onClick={() => selectCurriculum(null)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/40 active:bg-muted/60 transition-colors shrink-0"
             >
               <ArrowLeft className={cn("h-4 w-4", isHe && "rotate-180")} />
