@@ -244,6 +244,8 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         registerCommandHandler,
         pendingProactiveMessage,
         setPendingProactiveMessage,
+        pendingAssistantGreeting,
+        setPendingAssistantGreeting,
         activePillar,
         setActivePillar,
         pillarConversationId: pillarConversationId || null,
