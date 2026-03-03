@@ -74,7 +74,7 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
     }
   };
 
-  const canSave = localCore.length > 0 && localArena.length > 0;
+  const canSave = localSelected.length > 0;
 
   const renderGrid = (domains: LifeDomain[], hub: 'core' | 'arena', selected: string[], limit: number) => (
     <div>
