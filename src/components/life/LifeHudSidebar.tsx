@@ -154,7 +154,7 @@ export function LifeHudSidebar() {
           <SidebarOrbWidget collapsed />
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {CORE_DOMAINS.map((domain) => {
+            {LIFE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               return (
                 <button
