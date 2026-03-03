@@ -147,7 +147,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
           <SidebarOrbWidget collapsed />
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {ARENA_DOMAINS.map((domain) => {
+            {CORE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               return (
                 <button
