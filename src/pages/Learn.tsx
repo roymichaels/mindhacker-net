@@ -2,7 +2,7 @@
  * Learn — Aurora Teaches You. Full curriculum system.
  * Uses the Aurora Dock for curriculum wizard chat (no modals).
  */
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -175,12 +175,11 @@ export default function Learn() {
   // Generate curriculum from dock conversation messages
   const handleGenerateFromDock = useCallback(async () => {
     if (!auroraChat || !user?.id) return;
-    setIsGenerating(true);
+    auroraChat.setPillarActionLoading(true);
     try {
       const convId = auroraChat.pillarConversationId;
       if (!convId) throw new Error('No conversation found');
 
-      // Fetch messages from the learn conversation
       const { data: dbMessages, error: msgErr } = await supabase
         .from('messages')
         .select('content, sender_id')
@@ -224,9 +223,20 @@ export default function Learn() {
     } catch (err: any) {
       toast.error(err.message || (isHe ? 'שגיאה ביצירת תוכנית לימודים' : 'Failed to generate curriculum'));
     } finally {
-      setIsGenerating(false);
+      auroraChat?.setPillarActionLoading(false);
     }
   }, [auroraChat, user?.id, isHe]);
+
+  // Register/unregister the pillar action button in the dock
+  useEffect(() => {
+    if (isWizardActive && auroraChat) {
+      const label = isHe ? '🔥 בנה את תוכנית הלימודים!' : '🔥 Build the Curriculum!';
+      auroraChat.setPillarAction(label, handleGenerateFromDock);
+    }
+    return () => {
+      auroraChat?.setPillarAction(null, null);
+    };
+  }, [isWizardActive, auroraChat, handleGenerateFromDock, isHe]);
 
   const handleLessonComplete = () => {
     queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
@@ -472,29 +482,8 @@ export default function Learn() {
         </>
       )}
 
-      {/* Floating Generate Curriculum button when wizard is active */}
-      {isWizardActive && (
-        <div className="fixed bottom-24 inset-x-0 z-40 flex justify-center px-4">
-          <Button
-            onClick={handleGenerateFromDock}
-            disabled={isGenerating}
-            size="lg"
-            className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {isHe ? 'בונה תוכנית לימודים...' : 'Building curriculum...'}
-              </>
-            ) : (
-              <>
-                <GraduationCap className="h-4 w-4" />
-                {isHe ? '🔥 בנה את תוכנית הלימודים!' : '🔥 Build the Curriculum!'}
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+
+
 
       {selectedLesson && (
         <LessonFocusSession

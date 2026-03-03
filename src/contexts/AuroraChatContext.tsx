@@ -54,6 +54,12 @@ interface AuroraChatContextType {
   assessmentDomainId: string | null;
   startAssessment: (domainId: string) => void;
   endAssessment: () => void;
+  // Pillar action button (e.g. "Build Curriculum" inside chat)
+  pillarActionCallback: (() => void) | null;
+  pillarActionLabel: string | null;
+  pillarActionLoading: boolean;
+  setPillarAction: (label: string | null, callback: (() => void) | null) => void;
+  setPillarActionLoading: (loading: boolean) => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
@@ -84,8 +90,16 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [pendingAssistantGreeting, setPendingAssistantGreeting] = useState<string | null>(null);
   const [activePillar, setActivePillar] = useState<string | null>(null);
   const [assessmentDomainId, setAssessmentDomainId] = useState<string | null>(null);
+  const [pillarActionCallback, setPillarActionCallbackState] = useState<(() => void) | null>(null);
+  const [pillarActionLabel, setPillarActionLabel] = useState<string | null>(null);
+  const [pillarActionLoading, setPillarActionLoading] = useState(false);
   const sendMessageRef = useRef<((message: string, imageBase64?: string) => void) | null>(null);
   const commandHandlerRef = useRef<((command: AuroraCommand) => void) | null>(null);
+
+  const setPillarAction = useCallback((label: string | null, callback: (() => void) | null) => {
+    setPillarActionLabel(label);
+    setPillarActionCallbackState(() => callback);
+  }, []);
 
   const toggleChatExpanded = useCallback(() => {
     setIsChatExpanded(prev => !prev);
@@ -252,6 +266,11 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         assessmentDomainId,
         startAssessment,
         endAssessment,
+        pillarActionCallback,
+        pillarActionLabel,
+        pillarActionLoading,
+        setPillarAction,
+        setPillarActionLoading,
       }}
     >
       {children}
