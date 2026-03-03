@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Volume2, Square } from 'lucide-react';
+import { X, Copy, Volume2, Square, Loader2, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
