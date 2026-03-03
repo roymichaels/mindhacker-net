@@ -1,25 +1,24 @@
 /**
  * Learn — Aurora Teaches You. Full curriculum system.
- * Uses useSidebars() to inject curriculum outline into the global left HUD sidebar slot.
+ * Uses the Aurora Dock for curriculum wizard chat (no modals).
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 
 import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, ChevronRight, Play, CheckCircle, Lock,
   FileText, Brain, Target, Flame, ArrowLeft, Clock, Zap, ChevronDown, ChevronUp, Plus,
-  RefreshCw,
+  RefreshCw, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import CurriculumWizard from '@/components/learn/CurriculumWizard';
 
 import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
@@ -90,10 +89,11 @@ export default function Learn() {
   const isHe = language === 'he';
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const auroraChat = useAuroraChatContextSafe();
 
-  const [showWizard, setShowWizard] = useState(false);
   const [selectedCurriculum, setSelectedCurriculum] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch curricula
   const { data: curricula, isLoading } = useQuery({
@@ -146,11 +146,87 @@ export default function Learn() {
   const [recalibrating, setRecalibrating] = useState(false);
 
   const handleWizardComplete = (curriculumId: string) => {
-    setShowWizard(false);
+    // Clear learn pillar context from dock
+    if (auroraChat) {
+      auroraChat.setActivePillar(null);
+    }
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
     setSelectedCurriculum(curriculumId);
     toast.success(isHe ? '🔥 תוכנית הלימודים נוצרה!' : '🔥 Curriculum created!');
   };
+
+  // Open Aurora Dock for curriculum wizard chat
+  const openWizardInDock = useCallback(() => {
+    if (!auroraChat) return;
+    auroraChat.setActivePillar('learn');
+    auroraChat.setIsDockVisible(true);
+    auroraChat.setIsChatExpanded(true);
+    // Set a proactive greeting to kick off the wizard
+    auroraChat.setPendingProactiveMessage(
+      isHe
+        ? '🔥 שלום! אני Aurora, ואני הולכת לבנות לך תוכנית לימודים אינטנסיבית.\n\nזה לא קורס רגיל — זה **Boot Camp**. אני אדחוף אותך מאפס למקצוען.\n\n**מה אתה רוצה ללמוד?**\n\nתהיה ספציפי — "Python לData Science", "גיטרה קלאסית", "שיווק דיגיטלי" — כל מה שתרצה.'
+        : "🔥 Hey! I'm Aurora, and I'm about to build you an intensive learning curriculum.\n\nThis isn't a casual course — this is a **Boot Camp**. I'll push you from zero to pro.\n\n**What do you want to learn?**\n\nBe specific — \"Python for Data Science\", \"Classical Guitar\", \"Digital Marketing\" — anything you want to master."
+    );
+  }, [auroraChat, isHe]);
+
+  // Check if learn pillar is active (wizard mode)
+  const isWizardActive = auroraChat?.activePillar === 'learn';
+
+  // Generate curriculum from dock conversation messages
+  const handleGenerateFromDock = useCallback(async () => {
+    if (!auroraChat || !user?.id) return;
+    setIsGenerating(true);
+    try {
+      const convId = auroraChat.pillarConversationId;
+      if (!convId) throw new Error('No conversation found');
+
+      // Fetch messages from the learn conversation
+      const { data: dbMessages, error: msgErr } = await supabase
+        .from('messages')
+        .select('content, sender_id')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true });
+
+      if (msgErr) throw msgErr;
+
+      const chatMessages = (dbMessages || []).map((m: any) => ({
+        role: m.sender_id === user.id ? 'user' : 'assistant',
+        content: m.content,
+      }));
+
+      if (chatMessages.length < 2) {
+        toast.error(isHe ? 'דבר עם Aurora קודם כדי לתאר מה תרצה ללמוד' : 'Chat with Aurora first to describe what you want to learn');
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-curriculum`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          action: 'generate',
+          messages: chatMessages,
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Generation failed');
+
+      const data = await resp.json();
+      if (!data.success || !data.curriculum_id) throw new Error('Invalid response');
+
+      handleWizardComplete(data.curriculum_id);
+    } catch (err: any) {
+      toast.error(err.message || (isHe ? 'שגיאה ביצירת תוכנית לימודים' : 'Failed to generate curriculum'));
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [auroraChat, user?.id, isHe]);
 
   const handleLessonComplete = () => {
     queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
@@ -174,7 +250,7 @@ export default function Learn() {
       queryClient.invalidateQueries({ queryKey: ['learning-modules'] });
       queryClient.invalidateQueries({ queryKey: ['learning-lessons'] });
       setSelectedCurriculum(null);
-      setShowWizard(true);
+      openWizardInDock();
       toast.success(isHe ? 'הקורס נמחק — בוא ניצור חדש!' : 'Course deleted — let\'s create a new one!');
     } catch (e) {
       console.error('Recalibrate failed:', e);
@@ -280,7 +356,7 @@ export default function Learn() {
             {isHe ? 'Aurora מלמדת' : 'Aurora Teaches'}
           </h1>
           <button
-            onClick={() => setShowWizard(true)}
+            onClick={openWizardInDock}
             className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center active:bg-primary/20 transition-colors"
           >
             <Plus className="h-4.5 w-4.5 text-primary" />
@@ -306,7 +382,7 @@ export default function Learn() {
                 : "Tell Aurora what you want to learn and she'll build an intensive curriculum."}
             </p>
           </div>
-          <Button onClick={() => setShowWizard(true)} className="gap-2 rounded-full px-6">
+          <Button onClick={openWizardInDock} className="gap-2 rounded-full px-6">
             <Sparkles className="h-4 w-4" />
             {isHe ? 'בואי נתחיל' : "Let's start"}
           </Button>
@@ -396,14 +472,29 @@ export default function Learn() {
         </>
       )}
 
-      <Dialog open={showWizard} onOpenChange={setShowWizard}>
-        <DialogContent className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
-          <CurriculumWizard
-            onComplete={handleWizardComplete}
-            onClose={() => setShowWizard(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Floating Generate Curriculum button when wizard is active */}
+      {isWizardActive && (
+        <div className="fixed bottom-24 inset-x-0 z-40 flex justify-center px-4">
+          <Button
+            onClick={handleGenerateFromDock}
+            disabled={isGenerating}
+            size="lg"
+            className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {isHe ? 'בונה תוכנית לימודים...' : 'Building curriculum...'}
+              </>
+            ) : (
+              <>
+                <GraduationCap className="h-4 w-4" />
+                {isHe ? '🔥 בנה את תוכנית הלימודים!' : '🔥 Build the Curriculum!'}
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       {selectedLesson && (
         <LessonFocusSession
