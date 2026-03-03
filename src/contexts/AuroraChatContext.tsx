@@ -81,6 +81,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
+  const [pendingAssistantGreeting, setPendingAssistantGreeting] = useState<string | null>(null);
   const [activePillar, setActivePillar] = useState<string | null>(null);
   const [assessmentDomainId, setAssessmentDomainId] = useState<string | null>(null);
   const sendMessageRef = useRef<((message: string, imageBase64?: string) => void) | null>(null);
