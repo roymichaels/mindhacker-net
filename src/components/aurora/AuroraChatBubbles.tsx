@@ -91,18 +91,20 @@ const AuroraChatBubbles = () => {
       greetingHandled.current = true;
       const greeting = pendingAssistantGreeting;
       setPendingAssistantGreeting(null);
-      // Insert directly as an assistant message in DB
-      supabase.from('messages').insert({
-        conversation_id: activeConversationId,
-        sender_id: null,
-        content: greeting,
-        is_ai_message: true,
-        is_read: true,
-      }).then(({ error }) => {
-        if (error) console.error('Failed to inject assistant greeting:', error);
-      });
+      // Only inject if conversation is empty (no existing messages)
+      if (messages.length === 0) {
+        supabase.from('messages').insert({
+          conversation_id: activeConversationId,
+          sender_id: null,
+          content: greeting,
+          is_ai_message: true,
+          is_read: true,
+        }).then(({ error }) => {
+          if (error) console.error('Failed to inject assistant greeting:', error);
+        });
+      }
     }
-  }, [pendingAssistantGreeting, activeConversationId, isChatExpanded, setPendingAssistantGreeting]);
+  }, [pendingAssistantGreeting, activeConversationId, isChatExpanded, setPendingAssistantGreeting, messages.length]);
 
   useEffect(() => {
     if (!pendingAssistantGreeting) greetingHandled.current = false;
