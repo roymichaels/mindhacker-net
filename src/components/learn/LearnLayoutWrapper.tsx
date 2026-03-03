@@ -61,12 +61,6 @@ function LearnLayoutInner() {
   }, []);
 
   useSidebars(
-    <LearnCurriculumSidebar
-      selectedCurriculumId={selectedCurriculumId}
-      onSelectLesson={handleSelectLesson}
-      onRecalibrate={handleRecalibrate}
-      recalibrating={recalibrating}
-    />,
     <LearnCoursesSidebar
       selectedCurriculumId={selectedCurriculumId}
       onSelectCurriculum={(id) => {
@@ -74,6 +68,12 @@ function LearnLayoutInner() {
         window.dispatchEvent(new CustomEvent('learn:select-curriculum', { detail: id }));
       }}
       onNewCourse={openWizardInDock}
+    />,
+    <LearnCurriculumSidebar
+      selectedCurriculumId={selectedCurriculumId}
+      onSelectLesson={handleSelectLesson}
+      onRecalibrate={handleRecalibrate}
+      recalibrating={recalibrating}
     />
   );
 
