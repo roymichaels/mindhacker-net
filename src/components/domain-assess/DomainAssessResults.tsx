@@ -59,11 +59,9 @@ export default function DomainAssessResults({ domainId }: Props) {
   const lang = language === 'he' ? 'he' : 'en';
   const isHe = language === 'he';
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
-  const isCore = isCoreDomain(domainId);
-
   // Fetch plan data for the PillarModal roadmap
   const { corePlan, arenaPlan } = useStrategyPlans();
-  const activePlan = isCore ? corePlan : arenaPlan;
+  const activePlan = corePlan || arenaPlan;
 
   const { data: missions } = useQuery({
     queryKey: ['plan-missions', activePlan?.id],
