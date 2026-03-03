@@ -382,7 +382,7 @@ export default function Learn() {
                 : "Tell Aurora what you want to learn and she'll build an intensive curriculum."}
             </p>
           </div>
-          <Button onClick={() => setShowWizard(true)} className="gap-2 rounded-full px-6">
+          <Button onClick={openWizardInDock} className="gap-2 rounded-full px-6">
             <Sparkles className="h-4 w-4" />
             {isHe ? 'בואי נתחיל' : "Let's start"}
           </Button>
