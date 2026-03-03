@@ -472,14 +472,29 @@ export default function Learn() {
         </>
       )}
 
-      <Dialog open={showWizard} onOpenChange={setShowWizard}>
-        <DialogContent className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
-          <CurriculumWizard
-            onComplete={handleWizardComplete}
-            onClose={() => setShowWizard(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Floating Generate Curriculum button when wizard is active */}
+      {isWizardActive && (
+        <div className="fixed bottom-24 inset-x-0 z-40 flex justify-center px-4">
+          <Button
+            onClick={handleGenerateFromDock}
+            disabled={isGenerating}
+            size="lg"
+            className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {isHe ? 'בונה תוכנית לימודים...' : 'Building curriculum...'}
+              </>
+            ) : (
+              <>
+                <GraduationCap className="h-4 w-4" />
+                {isHe ? '🔥 בנה את תוכנית הלימודים!' : '🔥 Build the Curriculum!'}
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       {selectedLesson && (
         <LessonFocusSession
