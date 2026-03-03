@@ -356,7 +356,7 @@ export default function Learn() {
             {isHe ? 'Aurora מלמדת' : 'Aurora Teaches'}
           </h1>
           <button
-            onClick={() => setShowWizard(true)}
+            onClick={openWizardInDock}
             className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center active:bg-primary/20 transition-colors"
           >
             <Plus className="h-4.5 w-4.5 text-primary" />
