@@ -163,6 +163,13 @@ const queryClient = new QueryClient({
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
+// Redirect /arena/:domainId/* → /life/:domainId/*
+function ArenaToLifeRedirect() {
+  const loc = window.location.pathname;
+  const newPath = loc.replace(/^\/arena/, '/life');
+  return <Navigate to={newPath} replace />;
+}
+
 // Background effect wrapper component
 const BackgroundEffect = () => {
   const { theme } = useThemeSettings();

@@ -147,8 +147,7 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
-          {renderGrid(CORE_DOMAINS, 'core', localCore, limits.core)}
-          {renderGrid(ARENA_DOMAINS, 'arena', localArena, limits.arena)}
+          {renderGrid(CORE_DOMAINS, localSelected, totalLimit)}
         </div>
 
         <Button
