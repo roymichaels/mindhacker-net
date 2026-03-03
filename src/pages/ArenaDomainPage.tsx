@@ -56,7 +56,7 @@ export default function ArenaDomainPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <p className="text-muted-foreground">{isHe ? 'תחום לא נמצא' : 'Domain not found'}</p>
-          <Button variant="outline" onClick={() => navigate('/arena')}>
+          <Button variant="outline" onClick={() => navigate('/life')}>
             {isHe ? 'חזור' : 'Go Back'}
           </Button>
         </div>
