@@ -141,8 +141,8 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
           </DialogTitle>
           <DialogDescription className="text-xs">
             {isHe
-              ? `בחר ${limits.core} פילר${limits.core > 1 ? 'ים' : ''} מהליבה ו-${limits.arena} מהזירה. תוכל לשנות מאוחר יותר.`
-              : `Select ${limits.core} Core pillar${limits.core > 1 ? 's' : ''} and ${limits.arena} Arena pillar${limits.arena > 1 ? 's' : ''}. You can change later.`}
+              ? `בחר עד ${totalLimit} פילרים. תוכל לשנות מאוחר יותר.`
+              : `Select up to ${totalLimit} pillars. You can change later.`}
           </DialogDescription>
         </DialogHeader>
 
