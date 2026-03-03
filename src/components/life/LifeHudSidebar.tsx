@@ -22,7 +22,7 @@ export function LifeHudSidebar() {
   const isHe = language === 'he';
   const navigate = useNavigate();
   const { statusMap } = useLifeDomains();
-  const { corePlan } = useStrategyPlans();
+  const { corePlan, arenaPlan } = useStrategyPlans();
 
   const domainColorMap: Record<string, string> = {
     rose: 'text-rose-400', red: 'text-red-400', amber: 'text-amber-400',
