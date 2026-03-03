@@ -14,7 +14,7 @@ import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { isAssessmentReady } from '@/utils/assessmentQuality';
 import { supabase } from '@/integrations/supabase/client';
-import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { Calendar, Play, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
