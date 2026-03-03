@@ -89,10 +89,11 @@ export default function Learn() {
   const isHe = language === 'he';
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const auroraChat = useAuroraChatContextSafe();
 
-  const [showWizard, setShowWizard] = useState(false);
   const [selectedCurriculum, setSelectedCurriculum] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch curricula
   const { data: curricula, isLoading } = useQuery({
