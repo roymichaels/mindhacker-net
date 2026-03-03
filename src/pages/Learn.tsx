@@ -146,11 +146,87 @@ export default function Learn() {
   const [recalibrating, setRecalibrating] = useState(false);
 
   const handleWizardComplete = (curriculumId: string) => {
-    setShowWizard(false);
+    // Clear learn pillar context from dock
+    if (auroraChat) {
+      auroraChat.setActivePillar(null);
+    }
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
     setSelectedCurriculum(curriculumId);
     toast.success(isHe ? '🔥 תוכנית הלימודים נוצרה!' : '🔥 Curriculum created!');
   };
+
+  // Open Aurora Dock for curriculum wizard chat
+  const openWizardInDock = useCallback(() => {
+    if (!auroraChat) return;
+    auroraChat.setActivePillar('learn');
+    auroraChat.setIsDockVisible(true);
+    auroraChat.setIsChatExpanded(true);
+    // Set a proactive greeting to kick off the wizard
+    auroraChat.setPendingProactiveMessage(
+      isHe
+        ? '🔥 שלום! אני Aurora, ואני הולכת לבנות לך תוכנית לימודים אינטנסיבית.\n\nזה לא קורס רגיל — זה **Boot Camp**. אני אדחוף אותך מאפס למקצוען.\n\n**מה אתה רוצה ללמוד?**\n\nתהיה ספציפי — "Python לData Science", "גיטרה קלאסית", "שיווק דיגיטלי" — כל מה שתרצה.'
+        : "🔥 Hey! I'm Aurora, and I'm about to build you an intensive learning curriculum.\n\nThis isn't a casual course — this is a **Boot Camp**. I'll push you from zero to pro.\n\n**What do you want to learn?**\n\nBe specific — \"Python for Data Science\", \"Classical Guitar\", \"Digital Marketing\" — anything you want to master."
+    );
+  }, [auroraChat, isHe]);
+
+  // Check if learn pillar is active (wizard mode)
+  const isWizardActive = auroraChat?.activePillar === 'learn';
+
+  // Generate curriculum from dock conversation messages
+  const handleGenerateFromDock = useCallback(async () => {
+    if (!auroraChat || !user?.id) return;
+    setIsGenerating(true);
+    try {
+      const convId = auroraChat.pillarConversationId;
+      if (!convId) throw new Error('No conversation found');
+
+      // Fetch messages from the learn conversation
+      const { data: dbMessages, error: msgErr } = await supabase
+        .from('messages')
+        .select('content, sender_id')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true });
+
+      if (msgErr) throw msgErr;
+
+      const chatMessages = (dbMessages || []).map((m: any) => ({
+        role: m.sender_id === user.id ? 'user' : 'assistant',
+        content: m.content,
+      }));
+
+      if (chatMessages.length < 2) {
+        toast.error(isHe ? 'דבר עם Aurora קודם כדי לתאר מה תרצה ללמוד' : 'Chat with Aurora first to describe what you want to learn');
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-curriculum`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          action: 'generate',
+          messages: chatMessages,
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Generation failed');
+
+      const data = await resp.json();
+      if (!data.success || !data.curriculum_id) throw new Error('Invalid response');
+
+      handleWizardComplete(data.curriculum_id);
+    } catch (err: any) {
+      toast.error(err.message || (isHe ? 'שגיאה ביצירת תוכנית לימודים' : 'Failed to generate curriculum'));
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [auroraChat, user?.id, isHe]);
 
   const handleLessonComplete = () => {
     queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
