@@ -140,6 +140,12 @@ export default function Learn() {
   // Auto-select first active curriculum for inline display
   const activeCurrId = selectedCurriculum || curricula?.find(c => c.status === 'active')?.id || curricula?.[0]?.id || null;
 
+  // Auto-broadcast selection when curricula loads
+  useEffect(() => {
+    if (activeCurrId && !selectedCurriculum) {
+      window.dispatchEvent(new CustomEvent('learn:select-curriculum', { detail: activeCurrId }));
+    }
+  }, [activeCurrId, selectedCurriculum]);
   // Fetch modules for active curriculum
   const { data: modules } = useQuery({
     queryKey: ['learning-modules', activeCurrId],
