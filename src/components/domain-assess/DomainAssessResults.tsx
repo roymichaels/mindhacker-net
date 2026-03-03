@@ -260,7 +260,7 @@ export default function DomainAssessResults({ domainId }: Props) {
         <PillarModal
           open={showRoadmap}
           onOpenChange={setShowRoadmap}
-          hub={isCore ? 'core' : 'arena'}
+          hub={'core'}
           pillar={domain}
           missions={pillarMissions}
           milestonesByMission={milestonesByMission}
