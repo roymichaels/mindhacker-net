@@ -373,17 +373,11 @@ const App = () => (
                         <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/me" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
-                        <Route path="/projects" element={<Navigate to="/arena" replace />} />
-                        <Route path="/launchpad" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/quests" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/hypnosis" element={<Navigate to="/dashboard" replace />} />
-                        {/* Legacy arena redirects */}
-                        <Route path="/life/wealth" element={<Navigate to="/arena/wealth" replace />} />
-                        <Route path="/life/influence" element={<Navigate to="/arena/influence" replace />} />
-                        <Route path="/life/relationships" element={<Navigate to="/arena/relationships" replace />} />
-                        <Route path="/life/wealth/assess" element={<Navigate to="/arena/wealth/assess" replace />} />
-                        <Route path="/life/influence/assess" element={<Navigate to="/arena/influence/assess" replace />} />
-                        <Route path="/life/relationships/assess" element={<Navigate to="/arena/relationships/assess" replace />} />
+                        <Route path="/projects" element={<Navigate to="/life" replace />} />
+                        {/* Legacy arena redirects — all point to /life now */}
+                        <Route path="/life/wealth" element={<Navigate to="/life/wealth" replace />} />
+                        <Route path="/life/influence" element={<Navigate to="/life/influence" replace />} />
+                        <Route path="/life/relationships" element={<Navigate to="/life/relationships" replace />} />
                         {/* Old pillar routes */}
                         <Route path="/consciousness" element={<Navigate to="/life" replace />} />
                         <Route path="/health" element={<Navigate to="/life" replace />} />
