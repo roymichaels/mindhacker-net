@@ -197,7 +197,7 @@ export function LifeHudSidebar() {
 
           {/* Domain nav items — navigate to results */}
           <div className="flex flex-col gap-1 w-full">
-            {CORE_DOMAINS.map((domain) => {
+            {LIFE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const isActive = status === 'active' || status === 'configured';
               const progress = getPillarProgress(domain.id);
