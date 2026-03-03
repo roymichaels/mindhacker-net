@@ -40,11 +40,7 @@ export function AnalysisProgressBar() {
     const s = statusMap[d.id];
     return s !== 'active' && s !== 'configured';
   });
-  const nextRoute = nextDomain
-    ? CORE_DOMAINS.some(c => c.id === nextDomain.id)
-      ? `/life/${nextDomain.id}`
-      : `/arena/${nextDomain.id}`
-    : null;
+  const nextRoute = nextDomain ? `/life/${nextDomain.id}` : null;
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 

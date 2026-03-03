@@ -96,8 +96,8 @@ function isCoreDomain(domainId: string): boolean {
   return CORE_DOMAINS.some(d => d.id === domainId);
 }
 
-function getBasePath(domainId: string): string {
-  return isCoreDomain(domainId) ? '/life' : '/arena';
+function getBasePath(_domainId: string): string {
+  return '/life';
 }
 
 interface Props {
