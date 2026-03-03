@@ -46,9 +46,9 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { selectedPillars, limits, togglePillar, updateSelection } = usePillarAccess();
+  const totalLimit = limits.core + limits.arena;
   
-  const [localCore, setLocalCore] = useState<string[]>(selectedPillars.core);
-  const [localArena, setLocalArena] = useState<string[]>(selectedPillars.arena);
+  const [localSelected, setLocalSelected] = useState<string[]>([...selectedPillars.core, ...selectedPillars.arena]);
   const [saving, setSaving] = useState(false);
 
   const handleToggle = (domain: LifeDomain, hub: 'core' | 'arena') => {
