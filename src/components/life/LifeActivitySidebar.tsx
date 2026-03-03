@@ -117,7 +117,7 @@ export function LifeActivitySidebar() {
   const handleRecalibrate = async () => {
     if (!user?.id || recalibrating) return;
     try {
-      await generateStrategy.mutateAsync({ hub: 'core', forceRegenerate: true });
+      await generateStrategy.mutateAsync({ hub: 'both', forceRegenerate: true });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
         queryClient.invalidateQueries({ queryKey: ['milestones'] }),
