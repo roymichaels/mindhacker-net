@@ -1721,6 +1721,48 @@ export type Database = {
           },
         ]
       }
+      coach_subscriptions: {
+        Row: {
+          client_limit: number
+          coupon_code: string | null
+          created_at: string
+          current_period_end: string | null
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_limit?: number
+          coupon_code?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_limit?: number
+          coupon_code?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       coaching_journeys: {
         Row: {
           ai_summary: string | null
@@ -2730,6 +2772,95 @@ export type Database = {
           session_id?: string
           source?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      coupon_usages: {
+        Row: {
+          coupon_id: string
+          id: string
+          order_context: Json | null
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          id?: string
+          order_context?: Json | null
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          id?: string
+          order_context?: Json | null
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_usages_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          applicable_to: string[] | null
+          code: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          current_uses: number
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          metadata: Json | null
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          applicable_to?: string[] | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          metadata?: Json | null
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          applicable_to?: string[] | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          metadata?: Json | null
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
         }
         Relationships: []
       }
@@ -8193,6 +8324,7 @@ export type Database = {
         }
         Returns: Json
       }
+      use_coupon: { Args: { p_code: string; p_user_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user" | "practitioner" | "affiliate"
