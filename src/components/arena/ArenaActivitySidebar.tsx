@@ -12,7 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useProjects } from '@/hooks/useProjects';
 import { useMilestones } from '@/hooks/useLifePlan';
