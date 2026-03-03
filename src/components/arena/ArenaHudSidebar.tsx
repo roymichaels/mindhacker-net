@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PanelRightClose, PanelRightOpen, Plus } from 'lucide-react';
-import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useProjects } from '@/hooks/useProjects';
@@ -147,7 +147,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
           <SidebarOrbWidget collapsed />
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {ARENA_DOMAINS.map((domain) => {
+            {CORE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               return (
                 <button
@@ -188,10 +188,10 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
           <div className="w-full rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/20 p-3 flex items-center justify-between">
             <div className="text-center flex-1">
               <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                {isHe ? 'זירה' : 'Arena'}
+                {isHe ? 'זירה — ביצוע חי' : 'Arena — Live Execution'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? 'עושר, השפעה, קשרים ופרויקטים' : 'Wealth, influence, relationships & projects'}
+                {isHe ? 'כל 14 התחומים בפעולה' : 'All 14 pillars in action'}
               </p>
             </div>
           </div>
@@ -203,7 +203,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
             {isHe ? 'תחומים' : 'Domains'}
           </span>
           <div className="flex flex-col gap-1 w-full">
-            {ARENA_DOMAINS.map((domain) => {
+            {CORE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const isActive = status === 'active' || status === 'configured';
               const progress = getPillarProgress(domain.id);

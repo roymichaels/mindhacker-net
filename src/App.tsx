@@ -341,9 +341,10 @@ const App = () => (
                           <Route path="/life/play/results" element={<PlayResults />} />
                           {/* Life domain catch-all */}
                           <Route path="/life/:domainId" element={<LifeDomainPage />} />
-                          {/* Arena redirects to Core */}
+                          {/* Arena — execution layer */}
+                          <Route path="/arena" element={<ArenaLayoutWrapper />} />
+                          {/* Arena domain sub-routes redirect to Core assessment pages */}
                           <Route path="/arena/:domainId/*" element={<ArenaToLifeRedirect />} />
-                          <Route path="/arena" element={<Navigate to="/life" replace />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                           {/* Admin Hub */}
