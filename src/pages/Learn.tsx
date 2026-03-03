@@ -247,11 +247,11 @@ export default function Learn() {
 
   const activeCurriculum = curricula?.find(c => c.id === activeCurrId);
 
-  const handleRecalibrate = async () => {
+  const handleRecalibrate = useCallback(async () => {
     if (!activeCurriculum) return;
     setRecalibrating(true);
+    window.dispatchEvent(new CustomEvent('learn:recalibrating', { detail: true }));
     try {
-      // Delete existing curriculum and recreate via wizard
       await supabase
         .from('learning_curricula')
         .delete()
@@ -267,8 +267,16 @@ export default function Learn() {
       toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
     } finally {
       setRecalibrating(false);
+      window.dispatchEvent(new CustomEvent('learn:recalibrating', { detail: false }));
     }
-  };
+  }, [activeCurriculum, queryClient, isHe, openWizardInDock]);
+
+  // Listen for recalibrate event from sidebar
+  useEffect(() => {
+    const handler = () => handleRecalibrate();
+    window.addEventListener('learn:recalibrate', handler);
+    return () => window.removeEventListener('learn:recalibrate', handler);
+  }, [handleRecalibrate]);
 
   // Find next unlocked lesson
   const nextLesson = useMemo(() => {
