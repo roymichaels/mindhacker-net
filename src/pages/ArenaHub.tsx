@@ -56,7 +56,7 @@ export default function ArenaHub() {
     <div className="flex flex-col w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-5 flex-1 px-1 pt-2">
 
-        {/* ── Pillar Filter Strip ── */}
+        {hasPlan && (<>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
