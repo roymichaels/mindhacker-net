@@ -37,8 +37,9 @@ export default function ArenaHub() {
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
 
-  const { queue, isLoading, refetch, tier, energyLevel, dayIntensity } = useNowEngine();
+  const { queue, isLoading, refetch, tier, energyLevel, dayIntensity, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
   const completeMutation = useCompleteNowAction();
+  const hasPlan = hasCoreStrategy || hasArenaStrategy;
 
   // Filter queue by selected pillar
   const filteredQueue = useMemo(() => {
