@@ -184,7 +184,7 @@ export default function Learn() {
       auroraChat.setActivePillar(null);
     }
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
-    setSelectedCurriculum(curriculumId);
+    selectCurriculum(curriculumId);
     toast.success(isHe ? '🔥 תוכנית הלימודים נוצרה!' : '🔥 Curriculum created!');
   };
 
