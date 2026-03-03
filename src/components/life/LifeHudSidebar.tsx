@@ -59,31 +59,38 @@ export function LifeHudSidebar() {
     cyan: 'bg-cyan-500/8 border-cyan-500/15 hover:bg-cyan-500/15',
   };
 
+  const planIds = useMemo(() => {
+    const ids: string[] = [];
+    if (corePlan?.id) ids.push(corePlan.id);
+    if (arenaPlan?.id) ids.push(arenaPlan.id);
+    return ids;
+  }, [corePlan?.id, arenaPlan?.id]);
+
   // Fetch missions for progress display
   const { data: missions } = useQuery({
-    queryKey: ['plan-missions', corePlan?.id],
+    queryKey: ['plan-missions', planIds],
     queryFn: async () => {
-      if (!corePlan?.id) return [];
+      if (planIds.length === 0) return [];
       const { data } = await supabase
         .from('plan_missions').select('*')
-        .eq('plan_id', corePlan.id).order('mission_number');
+        .in('plan_id', planIds).order('mission_number');
       return data || [];
     },
-    enabled: !!corePlan?.id,
+    enabled: planIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: milestones } = useQuery({
-    queryKey: ['mission-milestones', corePlan?.id],
+    queryKey: ['mission-milestones', planIds],
     queryFn: async () => {
-      if (!corePlan?.id) return [];
+      if (planIds.length === 0) return [];
       const { data } = await supabase
         .from('life_plan_milestones')
         .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area')
-        .eq('plan_id', corePlan.id).not('mission_id', 'is', null).order('milestone_number');
+        .in('plan_id', planIds).not('mission_id', 'is', null).order('milestone_number');
       return data || [];
     },
-    enabled: !!corePlan?.id,
+    enabled: planIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
