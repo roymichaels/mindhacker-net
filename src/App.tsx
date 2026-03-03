@@ -319,24 +319,24 @@ const App = () => (
                           <Route path="/life/consciousness/assess" element={<ConsciousnessAssess />} />
                           <Route path="/life/consciousness/results" element={<ConsciousnessResults />} />
                           <Route path="/life/consciousness/history" element={<ConsciousnessHistory />} />
-                          {/* Arena domain assessments */}
-                          <Route path="/arena/wealth/assess" element={<WealthAssess />} />
-                          <Route path="/arena/wealth/results" element={<WealthResults />} />
-                          <Route path="/arena/influence/assess" element={<InfluenceAssess />} />
-                          <Route path="/arena/influence/results" element={<InfluenceResults />} />
-                          <Route path="/arena/relationships/assess" element={<RelationshipsAssess />} />
-                          <Route path="/arena/relationships/results" element={<RelationshipsResults />} />
-                          <Route path="/arena/business/assess" element={<BusinessAssess />} />
-                          <Route path="/arena/business/results" element={<BusinessResults />} />
-                          <Route path="/arena/projects/assess" element={<ProjectsAssess />} />
-                          <Route path="/arena/projects/results" element={<ProjectsResults />} />
-                          <Route path="/arena/play/assess" element={<PlayAssess />} />
-                          <Route path="/arena/play/results" element={<PlayResults />} />
-                          <Route path="/arena/:domainId" element={<ArenaDomainPage />} />
+                          {/* Arena domain routes — now under /life */}
+                          <Route path="/life/wealth/assess" element={<WealthAssess />} />
+                          <Route path="/life/wealth/results" element={<WealthResults />} />
+                          <Route path="/life/influence/assess" element={<InfluenceAssess />} />
+                          <Route path="/life/influence/results" element={<InfluenceResults />} />
+                          <Route path="/life/relationships/assess" element={<RelationshipsAssess />} />
+                          <Route path="/life/relationships/results" element={<RelationshipsResults />} />
+                          <Route path="/life/business/assess" element={<BusinessAssess />} />
+                          <Route path="/life/business/results" element={<BusinessResults />} />
+                          <Route path="/life/projects/assess" element={<ProjectsAssess />} />
+                          <Route path="/life/projects/results" element={<ProjectsResults />} />
+                          <Route path="/life/play/assess" element={<PlayAssess />} />
+                          <Route path="/life/play/results" element={<PlayResults />} />
                           {/* Life domain catch-all */}
                           <Route path="/life/:domainId" element={<LifeDomainPage />} />
-                          {/* Arena hub */}
-                          <Route path="/arena" element={<ArenaLayoutWrapper />} />
+                          {/* Arena redirects to Core */}
+                          <Route path="/arena/:domainId/*" element={<ArenaToLifeRedirect />} />
+                          <Route path="/arena" element={<Navigate to="/life" replace />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                           {/* Admin Hub */}
