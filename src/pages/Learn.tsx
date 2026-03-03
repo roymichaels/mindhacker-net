@@ -471,22 +471,6 @@ export default function Learn() {
             </div>
           )}
 
-          {/* כיול מחדש button */}
-          {activeCurriculum && (
-            <div className="px-4 pt-6 pb-4">
-              <Button
-                onClick={handleRecalibrate}
-                disabled={recalibrating}
-                variant="outline"
-                className="w-full gap-2 rounded-xl h-12 border-primary/30 text-primary hover:bg-primary/10"
-              >
-                <RefreshCw className={cn("h-4 w-4", recalibrating && "animate-spin")} />
-                {recalibrating
-                  ? (isHe ? 'מכייל מחדש...' : 'Recalibrating...')
-                  : (isHe ? 'כיול מחדש' : 'Recalibrate')}
-              </Button>
-            </div>
-          )}
         </>
       )}
 
