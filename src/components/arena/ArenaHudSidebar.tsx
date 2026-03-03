@@ -188,10 +188,10 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
           <div className="w-full rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/20 p-3 flex items-center justify-between">
             <div className="text-center flex-1">
               <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                {isHe ? 'זירה' : 'Arena'}
+                {isHe ? 'זירה — ביצוע חי' : 'Arena — Live Execution'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? 'עושר, השפעה, קשרים ופרויקטים' : 'Wealth, influence, relationships & projects'}
+                {isHe ? 'כל 14 התחומים בפעולה' : 'All 14 pillars in action'}
               </p>
             </div>
           </div>
