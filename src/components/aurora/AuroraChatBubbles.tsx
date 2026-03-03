@@ -30,7 +30,11 @@ const AuroraChatBubbles = () => {
     pendingProactiveMessage,
     setPendingProactiveMessage,
     pendingAssistantGreeting,
-    setPendingAssistantGreeting
+    setPendingAssistantGreeting,
+    activePillar,
+    pillarActionCallback,
+    pillarActionLabel,
+    pillarActionLoading,
   } = useAuroraChatContext();
   
   const { 
