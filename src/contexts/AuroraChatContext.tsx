@@ -54,6 +54,12 @@ interface AuroraChatContextType {
   assessmentDomainId: string | null;
   startAssessment: (domainId: string) => void;
   endAssessment: () => void;
+  // Pillar action button (e.g. "Build Curriculum" inside chat)
+  pillarActionCallback: (() => void) | null;
+  pillarActionLabel: string | null;
+  pillarActionLoading: boolean;
+  setPillarAction: (label: string | null, callback: (() => void) | null) => void;
+  setPillarActionLoading: (loading: boolean) => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
