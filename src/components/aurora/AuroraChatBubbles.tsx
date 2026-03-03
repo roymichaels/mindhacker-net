@@ -91,31 +91,16 @@ const AuroraChatBubbles = () => {
       greetingHandled.current = true;
       const greeting = pendingAssistantGreeting;
       setPendingAssistantGreeting(null);
-      // Insert directly as an assistant message
-      (async () => {
-        try {
-          await supabase.from('messages').insert({
-            conversation_id: activeConversationId,
-            sender_id: null,
-            content: greeting,
-            is_ai_message: true,
-            is_read: true,
-          });
-          // Refresh messages
-          const { data } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('conversation_id', activeConversationId)
-            .order('created_at', { ascending: true });
-          if (data) {
-            // Force re-render by triggering the query invalidation
-            const queryClient = (await import('@tanstack/react-query')).useQueryClient;
-            // Simpler: just rely on the messages refetch in useAuroraChat
-          }
-        } catch (err) {
-          console.error('Failed to inject assistant greeting:', err);
-        }
-      })();
+      // Insert directly as an assistant message in DB
+      supabase.from('messages').insert({
+        conversation_id: activeConversationId,
+        sender_id: null,
+        content: greeting,
+        is_ai_message: true,
+        is_read: true,
+      }).then(({ error }) => {
+        if (error) console.error('Failed to inject assistant greeting:', error);
+      });
     }
   }, [pendingAssistantGreeting, activeConversationId, isChatExpanded, setPendingAssistantGreeting]);
 
