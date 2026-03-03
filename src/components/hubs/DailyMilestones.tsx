@@ -119,12 +119,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     staleTime: 5 * 60 * 1000,
   });
 
-  const allDomains = useMemo(() => {
-    const domains: LifeDomain[] = [];
-    if (hub === 'core' || hub === 'both') domains.push(...CORE_DOMAINS);
-    if (hub === 'arena' || hub === 'both') domains.push(...ARENA_DOMAINS);
-    return domains;
-  }, [hub]);
+  const allDomains = useMemo(() => CORE_DOMAINS, []);
 
   const dailyMilestones = useMemo(() => {
     const results: DailyMilestone[] = [];
