@@ -188,7 +188,7 @@ export function LifeHudSidebar() {
                 {isHe ? 'ליבה' : 'Core'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? `${CORE_DOMAINS.length} תחומי ביצוע` : `${CORE_DOMAINS.length} execution domains`}
+                {isHe ? `${LIFE_DOMAINS.length} תחומי ביצוע` : `${LIFE_DOMAINS.length} execution domains`}
               </p>
             </div>
           </div>
