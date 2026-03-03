@@ -75,7 +75,7 @@ export default function ArenaDomainPage() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Back button */}
         <button
-          onClick={() => navigate('/arena')}
+          onClick={() => navigate('/life')}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <BackArrow className="w-4 h-4" />
