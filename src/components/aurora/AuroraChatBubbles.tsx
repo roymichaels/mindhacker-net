@@ -4,6 +4,7 @@ import { X, Copy, Volume2, Square } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
@@ -27,7 +28,9 @@ const AuroraChatBubbles = () => {
     scrollToMessageId,
     setScrollToMessageId,
     pendingProactiveMessage,
-    setPendingProactiveMessage
+    setPendingProactiveMessage,
+    pendingAssistantGreeting,
+    setPendingAssistantGreeting
   } = useAuroraChatContext();
   
   const { 
@@ -80,6 +83,32 @@ const AuroraChatBubbles = () => {
   useEffect(() => {
     if (!pendingProactiveMessage) proactiveHandled.current = false;
   }, [pendingProactiveMessage]);
+
+  // Inject assistant greeting as a DB message (not sent as user prompt)
+  const greetingHandled = useRef(false);
+  useEffect(() => {
+    if (pendingAssistantGreeting && !greetingHandled.current && activeConversationId && isChatExpanded) {
+      greetingHandled.current = true;
+      const greeting = pendingAssistantGreeting;
+      setPendingAssistantGreeting(null);
+      // Only inject if conversation is empty (no existing messages)
+      if (messages.length === 0) {
+        supabase.from('messages').insert({
+          conversation_id: activeConversationId,
+          sender_id: null,
+          content: greeting,
+          is_ai_message: true,
+          is_read: true,
+        }).then(({ error }) => {
+          if (error) console.error('Failed to inject assistant greeting:', error);
+        });
+      }
+    }
+  }, [pendingAssistantGreeting, activeConversationId, isChatExpanded, setPendingAssistantGreeting, messages.length]);
+
+  useEffect(() => {
+    if (!pendingAssistantGreeting) greetingHandled.current = false;
+  }, [pendingAssistantGreeting]);
 
   // Auto-scroll to bottom when new messages arrive (only if not searching)
   useEffect(() => {

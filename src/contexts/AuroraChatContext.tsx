@@ -43,6 +43,9 @@ interface AuroraChatContextType {
   // Proactive messages
   pendingProactiveMessage: string | null;
   setPendingProactiveMessage: (message: string | null) => void;
+  // Inject a greeting as an assistant message (not sent as user prompt)
+  pendingAssistantGreeting: string | null;
+  setPendingAssistantGreeting: (message: string | null) => void;
   // Pillar context
   activePillar: string | null;
   setActivePillar: (pillar: string | null) => void;
@@ -78,6 +81,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
+  const [pendingAssistantGreeting, setPendingAssistantGreeting] = useState<string | null>(null);
   const [activePillar, setActivePillar] = useState<string | null>(null);
   const [assessmentDomainId, setAssessmentDomainId] = useState<string | null>(null);
   const sendMessageRef = useRef<((message: string, imageBase64?: string) => void) | null>(null);
@@ -240,6 +244,8 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         registerCommandHandler,
         pendingProactiveMessage,
         setPendingProactiveMessage,
+        pendingAssistantGreeting,
+        setPendingAssistantGreeting,
         activePillar,
         setActivePillar,
         pillarConversationId: pillarConversationId || null,
