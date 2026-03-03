@@ -354,7 +354,7 @@ const App = () => (
                           {/* Quests */}
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
                           {/* Learn */}
-                          <Route path="/learn" element={<Learn />} />
+                          <Route path="/learn" element={<LearnLayoutWrapper />} />
                           
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
