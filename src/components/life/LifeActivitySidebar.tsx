@@ -62,8 +62,8 @@ export function LifeActivitySidebar() {
     const pillar = (h as any).pillar;
     return !pillar || allDomainIds.includes(pillar);
   });
-  const completedHabits = coreHabits.filter(h => h.status === 'done').length;
-  const totalHabits = coreHabits.length;
+  const completedHabits = activeHabits.filter(h => h.status === 'done').length;
+  const totalHabits = activeHabits.length;
 
   const getCurrentPhase = () => {
     if (!corePlan?.start_date) return 1;
