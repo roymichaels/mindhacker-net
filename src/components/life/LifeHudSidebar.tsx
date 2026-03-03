@@ -9,7 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { supabase } from '@/integrations/supabase/client';
