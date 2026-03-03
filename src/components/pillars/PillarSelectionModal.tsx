@@ -51,22 +51,22 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
   const [localSelected, setLocalSelected] = useState<string[]>([...selectedPillars.core, ...selectedPillars.arena]);
   const [saving, setSaving] = useState(false);
 
-  const handleToggle = (domain: LifeDomain, hub: 'core' | 'arena') => {
-    const list = hub === 'core' ? localCore : localArena;
-    const setList = hub === 'core' ? setLocalCore : setLocalArena;
-    const limit = limits[hub];
-
-    if (list.includes(domain.id)) {
-      setList(list.filter(id => id !== domain.id));
-    } else if (list.length < limit) {
-      setList([...list, domain.id]);
+  const handleToggle = (domain: LifeDomain) => {
+    if (localSelected.includes(domain.id)) {
+      setLocalSelected(localSelected.filter(id => id !== domain.id));
+    } else if (localSelected.length < totalLimit) {
+      setLocalSelected([...localSelected, domain.id]);
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateSelection.mutateAsync({ core: localCore, arena: localArena });
+      // Split back into core/arena for backwards compat
+      const coreIds = ['consciousness','presence','power','vitality','focus','combat','expansion'];
+      const core = localSelected.filter(id => coreIds.includes(id));
+      const arena = localSelected.filter(id => !coreIds.includes(id));
+      await updateSelection.mutateAsync({ core, arena });
       onComplete?.();
       onOpenChange(false);
     } finally {
