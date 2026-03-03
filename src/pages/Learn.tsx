@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, ChevronRight, Play, CheckCircle, Lock,
   FileText, Brain, Target, Flame, ArrowLeft, Clock, Zap, ChevronDown, ChevronUp, Plus,
-  RefreshCw, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -247,11 +246,11 @@ export default function Learn() {
 
   const activeCurriculum = curricula?.find(c => c.id === activeCurrId);
 
-  const handleRecalibrate = async () => {
+  const handleRecalibrate = useCallback(async () => {
     if (!activeCurriculum) return;
     setRecalibrating(true);
+    window.dispatchEvent(new CustomEvent('learn:recalibrating', { detail: true }));
     try {
-      // Delete existing curriculum and recreate via wizard
       await supabase
         .from('learning_curricula')
         .delete()
@@ -267,8 +266,16 @@ export default function Learn() {
       toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
     } finally {
       setRecalibrating(false);
+      window.dispatchEvent(new CustomEvent('learn:recalibrating', { detail: false }));
     }
-  };
+  }, [activeCurriculum, queryClient, isHe, openWizardInDock]);
+
+  // Listen for recalibrate event from sidebar
+  useEffect(() => {
+    const handler = () => handleRecalibrate();
+    window.addEventListener('learn:recalibrate', handler);
+    return () => window.removeEventListener('learn:recalibrate', handler);
+  }, [handleRecalibrate]);
 
   // Find next unlocked lesson
   const nextLesson = useMemo(() => {
@@ -463,22 +470,6 @@ export default function Learn() {
             </div>
           )}
 
-          {/* כיול מחדש button */}
-          {activeCurriculum && (
-            <div className="px-4 pt-6 pb-4">
-              <Button
-                onClick={handleRecalibrate}
-                disabled={recalibrating}
-                variant="outline"
-                className="w-full gap-2 rounded-xl h-12 border-primary/30 text-primary hover:bg-primary/10"
-              >
-                <RefreshCw className={cn("h-4 w-4", recalibrating && "animate-spin")} />
-                {recalibrating
-                  ? (isHe ? 'מכייל מחדש...' : 'Recalibrating...')
-                  : (isHe ? 'כיול מחדש' : 'Recalibrate')}
-              </Button>
-            </div>
-          )}
         </>
       )}
 
