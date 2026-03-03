@@ -175,12 +175,11 @@ export default function Learn() {
   // Generate curriculum from dock conversation messages
   const handleGenerateFromDock = useCallback(async () => {
     if (!auroraChat || !user?.id) return;
-    setIsGenerating(true);
+    auroraChat.setPillarActionLoading(true);
     try {
       const convId = auroraChat.pillarConversationId;
       if (!convId) throw new Error('No conversation found');
 
-      // Fetch messages from the learn conversation
       const { data: dbMessages, error: msgErr } = await supabase
         .from('messages')
         .select('content, sender_id')
@@ -224,9 +223,20 @@ export default function Learn() {
     } catch (err: any) {
       toast.error(err.message || (isHe ? 'שגיאה ביצירת תוכנית לימודים' : 'Failed to generate curriculum'));
     } finally {
-      setIsGenerating(false);
+      auroraChat?.setPillarActionLoading(false);
     }
   }, [auroraChat, user?.id, isHe]);
+
+  // Register/unregister the pillar action button in the dock
+  useEffect(() => {
+    if (isWizardActive && auroraChat) {
+      const label = isHe ? '🔥 בנה את תוכנית הלימודים!' : '🔥 Build the Curriculum!';
+      auroraChat.setPillarAction(label, handleGenerateFromDock);
+    }
+    return () => {
+      auroraChat?.setPillarAction(null, null);
+    };
+  }, [isWizardActive, auroraChat, handleGenerateFromDock, isHe]);
 
   const handleLessonComplete = () => {
     queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
