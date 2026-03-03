@@ -1,61 +1,19 @@
 /**
- * LearnCurriculumSidebar — Injected into the left HUD sidebar slot on the Learn page.
- * Shows curriculum modules + lessons tree with progress tracking.
+ * LearnCurriculumSidebar - Right sidebar showing modules & lessons for the selected course.
+ * Self-contained: fetches its own data based on selectedCurriculumId.
  */
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
-  PanelRightClose, PanelRightOpen,
-  BookOpen, Target, Brain, Trophy, FileText,
-  CheckCircle, Lock, Play, ChevronDown, ChevronUp,
-  GraduationCap, ArrowRight,
+  PanelRightClose, PanelRightOpen, BookOpen, CheckCircle, Lock,
+  Play, FileText, Brain, Target, Trophy, ChevronDown, ChevronUp,
+  Zap, RefreshCw, Loader2, GraduationCap,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
-interface Module {
-  id: string;
-  title: string;
-  title_en: string | null;
-  description: string | null;
-  difficulty: string;
-  order_index: number;
-  status: string;
-  total_lessons: number;
-  completed_lessons: number;
-}
-
-interface Lesson {
-  id: string;
-  title: string;
-  title_en: string | null;
-  lesson_type: string;
-  order_index: number;
-  status: string;
-  content: any;
-  score: number | null;
-  xp_reward: number;
-  time_estimate_minutes: number;
-  completed_at: string | null;
-  user_submission: any;
-  feedback: any;
-  module_id: string;
-  curriculum_id: string;
-}
-
-interface LearnCurriculumSidebarProps {
-  curriculumTitle: string;
-  progress: number;
-  completedLessons: number;
-  totalLessons: number;
-  modules: Module[];
-  lessons: Lesson[];
-  nextLessonId: string | null;
-  onSelectLesson: (lesson: Lesson) => void;
-  onBack: () => void;
-}
+import { Badge } from '@/components/ui/badge';
 
 const LESSON_TYPE_ICONS: Record<string, React.ElementType> = {
   theory: BookOpen,
@@ -64,30 +22,102 @@ const LESSON_TYPE_ICONS: Record<string, React.ElementType> = {
   project: Trophy,
 };
 
-export function LearnCurriculumSidebar({
-  curriculumTitle,
-  progress,
-  completedLessons,
-  totalLessons,
-  modules,
-  lessons,
-  nextLessonId,
-  onSelectLesson,
-  onBack,
-}: LearnCurriculumSidebarProps) {
+interface LearnCurriculumSidebarProps {
+  selectedCurriculumId: string | null;
+  onSelectLesson?: (lesson: any) => void;
+  onRecalibrate?: () => void;
+  recalibrating?: boolean;
+}
+
+export function LearnCurriculumSidebar({ selectedCurriculumId, onSelectLesson, onRecalibrate, recalibrating }: LearnCurriculumSidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
 
+  const { data: curriculum } = useQuery({
+    queryKey: ['learning-curriculum-detail', selectedCurriculumId],
+    queryFn: async () => {
+      if (!selectedCurriculumId) return null;
+      const { data, error } = await supabase
+        .from('learning_curricula')
+        .select('*')
+        .eq('id', selectedCurriculumId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedCurriculumId,
+  });
+
+  const { data: modules } = useQuery({
+    queryKey: ['learning-modules', selectedCurriculumId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('learning_modules')
+        .select('*')
+        .eq('curriculum_id', selectedCurriculumId!)
+        .order('order_index');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedCurriculumId,
+  });
+
+  const { data: lessons } = useQuery({
+    queryKey: ['learning-lessons', selectedCurriculumId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('learning_lessons')
+        .select('*')
+        .eq('curriculum_id', selectedCurriculumId!)
+        .order('order_index');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedCurriculumId,
+  });
+
+  const nextLesson = useMemo(() => {
+    if (!lessons) return null;
+    return lessons.find((l: any) => l.status === 'unlocked' || l.status === 'in_progress') ||
+           lessons.find((l: any) => l.status !== 'completed' && l.status !== 'locked') || null;
+  }, [lessons]);
+
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (nextLesson) {
+      setExpandedModules(prev => {
+        const next = new Set(prev);
+        next.add((nextLesson as any).module_id);
+        return next;
+      });
+    }
+  }, [nextLesson]);
+
+  const toggleModule = (id: string) => {
+    setExpandedModules(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const totalXp = useMemo(() => {
+    if (!lessons) return 0;
+    return lessons.filter((l: any) => l.status === 'completed').reduce((s: number, l: any) => s + (l.xp_reward || 0), 0);
+  }, [lessons]);
+
   return (
-    <aside className={cn(
-      "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
-      "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-      "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-      "ltr:border-e rtl:border-s border-border/50 dark:border-primary/15",
-      collapsed ? "w-16 min-w-[64px]" : "fixed top-14 bottom-14 inset-x-0 z-50 w-full lg:relative lg:top-auto lg:bottom-auto lg:inset-x-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
-    )}>
-      {/* Collapse toggle */}
+    <aside
+      className={cn(
+        "flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
+        "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
+        "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
+        "ltr:border-s rtl:border-e border-border/50 dark:border-cyan-500/15",
+        collapsed ? "w-[54px] min-w-[54px]" : "fixed top-14 bottom-14 inset-x-0 z-50 w-full lg:relative lg:top-auto lg:bottom-auto lg:inset-x-auto lg:z-auto lg:w-[280px] xl:w-[320px]"
+      )}
+    >
       <button
         onClick={() => setCollapsed(!collapsed)}
         className={cn(
@@ -104,162 +134,167 @@ export function LearnCurriculumSidebar({
         }
       </button>
 
-      {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
-        <div className="flex flex-col items-center gap-2 h-full pt-8 pb-4 px-1 overflow-hidden">
-          <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
-            <GraduationCap className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-[10px] font-bold text-primary text-center leading-tight">
-            {progress}%
-          </span>
-
-          {/* Mini module dots */}
-          <div className="flex flex-col items-center gap-1.5 mt-2">
-            {modules.map(mod => {
-              const isDone = mod.status === 'completed';
-              const isLocked = mod.status === 'locked';
-              const isActive = mod.status === 'in_progress' || mod.status === 'unlocked';
-              return (
-                <div
-                  key={mod.id}
-                  className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-colors",
-                    isDone && "bg-emerald-500",
-                    isActive && "bg-primary animate-pulse",
-                    isLocked && "bg-muted-foreground/20",
-                  )}
-                  title={mod.title}
-                />
-              );
-            })}
-          </div>
+        <div className="flex flex-col items-center pt-8 pb-3 px-0.5 gap-1.5">
+          {curriculum && (
+            <span className="text-[9px] font-bold text-cyan-400">{curriculum.progress_percentage || 0}%</span>
+          )}
+          {modules?.map((mod: any) => {
+            const isDone = mod.status === 'completed';
+            const isActive = mod.status === 'in_progress' || mod.status === 'unlocked';
+            const isLocked = mod.status === 'locked';
+            return (
+              <div
+                key={mod.id}
+                className={cn(
+                  "w-8 h-1.5 rounded-full",
+                  isDone ? "bg-emerald-500/60" : isActive ? "bg-cyan-400/50" : isLocked ? "bg-muted/20" : "bg-muted/30"
+                )}
+              />
+            );
+          })}
+          {onRecalibrate && curriculum && (
+            <button
+              onClick={onRecalibrate}
+              disabled={recalibrating}
+              className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors mt-2"
+              title={isHe ? 'כיול מחדש' : 'Recalibrate'}
+            >
+              {recalibrating
+                ? <Loader2 className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
+                : <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
+              }
+            </button>
+          )}
         </div>
       )}
 
-      {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
-        <div className="flex flex-col h-full pt-8">
-          {/* Header */}
-          <div className="px-3 pb-3 space-y-2 border-b border-border/30">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowRight className={cn("h-3.5 w-3.5", !isRTL && "rotate-180")} />
-              {isHe ? 'חזרה לרשימה' : 'Back to list'}
-            </button>
-            <h2 className="text-sm font-bold truncate" dir={isRTL ? 'rtl' : 'ltr'}>{curriculumTitle}</h2>
-            <div className="space-y-1">
-              <div className="flex justify-between text-[10px] text-muted-foreground">
-                <span>{completedLessons}/{totalLessons} {isHe ? 'שיעורים' : 'lessons'}</span>
-                <span className="font-bold text-primary">{progress}%</span>
+        <div className="flex flex-col h-full p-3 pt-8 overflow-y-auto scrollbar-hide">
+          {!selectedCurriculumId || !curriculum ? (
+            <div className="flex flex-col items-center justify-center flex-1 text-center gap-3 py-8">
+              <GraduationCap className="w-8 h-8 text-muted-foreground/40" />
+              <p className="text-xs text-muted-foreground">
+                {isHe ? 'בחר קורס כדי לראות את התוכנית' : 'Select a course to see the curriculum'}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-3">
+                <h3 className="text-xs font-bold text-foreground leading-tight">{curriculum.title}</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{curriculum.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Progress value={curriculum.progress_percentage || 0} className="h-1.5 flex-1" />
+                  <span className="text-[10px] font-bold text-cyan-400">{curriculum.progress_percentage || 0}%</span>
+                </div>
+                <div className="flex items-center gap-3 mt-2 text-[9px] text-muted-foreground">
+                  <span className="flex items-center gap-0.5"><BookOpen className="w-2.5 h-2.5" />{curriculum.total_modules} {isHe ? 'מודולים' : 'modules'}</span>
+                  <span className="flex items-center gap-0.5"><FileText className="w-2.5 h-2.5" />{curriculum.completed_lessons}/{curriculum.total_lessons}</span>
+                  <span className="flex items-center gap-0.5"><Zap className="w-2.5 h-2.5 text-amber-400" />{totalXp} XP</span>
+                </div>
               </div>
-              <Progress value={progress} className="h-1.5" />
-            </div>
-          </div>
 
-          {/* Modules & Lessons tree */}
-          <ScrollArea className="flex-1">
-            <div className="py-1">
-              {modules.map(mod => (
-                <SidebarModule
-                  key={mod.id}
-                  mod={mod}
-                  lessons={lessons.filter(l => l.module_id === mod.id)}
-                  isHe={isHe}
-                  nextLessonId={nextLessonId}
-                  onSelectLesson={onSelectLesson}
-                />
-              ))}
-            </div>
-          </ScrollArea>
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent mb-2" />
+
+              <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
+                {isHe ? 'תוכנית הלימודים' : 'Curriculum'}
+              </span>
+
+              <div className="flex-1 space-y-0.5">
+                {modules?.map((mod: any) => {
+                  const isLocked = mod.status === 'locked';
+                  const isDone = mod.status === 'completed';
+                  const isActive = mod.status === 'in_progress' || mod.status === 'unlocked';
+                  const isOpen = expandedModules.has(mod.id);
+                  const modLessons = lessons?.filter((l: any) => l.module_id === mod.id) || [];
+
+                  return (
+                    <div key={mod.id}>
+                      <button
+                        onClick={() => !isLocked && toggleModule(mod.id)}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-2 py-2 rounded-lg transition-colors text-start",
+                          isLocked ? "opacity-35 cursor-not-allowed" : "hover:bg-muted/30",
+                          isOpen && "bg-muted/20"
+                        )}
+                      >
+                        {isLocked ? (
+                          <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+                        ) : isDone ? (
+                          <CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />
+                        ) : (
+                          <Play className={cn("h-3 w-3 shrink-0", isActive ? "text-cyan-400" : "text-muted-foreground")} />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold leading-tight truncate">{mod.title}</p>
+                          <p className="text-[9px] text-muted-foreground">{mod.completed_lessons}/{mod.total_lessons}</p>
+                        </div>
+                        {!isLocked && (
+                          isOpen
+                            ? <ChevronUp className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                            : <ChevronDown className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                        )}
+                      </button>
+
+                      {isOpen && !isLocked && modLessons.map((lesson: any) => {
+                        const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
+                        const isNext = lesson.id === nextLesson?.id;
+                        const lessonDone = lesson.status === 'completed';
+                        const lessonLocked = lesson.status === 'locked';
+
+                        return (
+                          <button
+                            key={lesson.id}
+                            disabled={lessonLocked}
+                            onClick={() => !lessonLocked && onSelectLesson?.(lesson)}
+                            className={cn(
+                              "w-full flex items-center gap-2 ps-7 pe-2 py-1.5 rounded-md transition-colors text-start",
+                              lessonLocked && "opacity-20 cursor-not-allowed",
+                              lessonDone && "text-muted-foreground",
+                              isNext && "bg-cyan-500/10",
+                              !isNext && !lessonDone && !lessonLocked && "hover:bg-muted/20",
+                            )}
+                          >
+                            {lessonLocked ? (
+                              <Lock className="h-2.5 w-2.5 shrink-0" />
+                            ) : lessonDone ? (
+                              <CheckCircle className="h-2.5 w-2.5 text-emerald-500 shrink-0" />
+                            ) : (
+                              <Icon className={cn("h-2.5 w-2.5 shrink-0", isNext ? "text-cyan-400" : "text-muted-foreground/60")} />
+                            )}
+                            <span className="text-[10px] flex-1 leading-tight truncate">{lesson.title}</span>
+                            {isNext && (
+                              <Badge className="text-[8px] h-3.5 px-1 bg-cyan-500/15 text-cyan-400 border-0 shrink-0">
+                                {isHe ? 'הבא' : 'Next'}
+                              </Badge>
+                            )}
+                            {lesson.score !== null && (
+                              <span className="text-[9px] text-cyan-400 shrink-0">{lesson.score}%</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {onRecalibrate && (
+                <button
+                  onClick={onRecalibrate}
+                  disabled={recalibrating}
+                  className="w-full flex items-center justify-center gap-1.5 p-2 mt-3 rounded-lg text-[11px] font-semibold bg-muted/40 border border-border/30 text-muted-foreground hover:bg-muted/60 transition-colors"
+                >
+                  <RefreshCw className={cn("w-3.5 h-3.5", recalibrating && "animate-spin")} />
+                  {recalibrating
+                    ? (isHe ? 'מכייל מחדש...' : 'Recalibrating...')
+                    : (isHe ? 'כיול מחדש' : 'Recalibrate')}
+                </button>
+              )}
+            </>
+          )}
         </div>
       )}
     </aside>
-  );
-}
-
-// ── Sidebar Module ──
-function SidebarModule({ mod, lessons, isHe, nextLessonId, onSelectLesson }: {
-  mod: Module;
-  lessons: Lesson[];
-  isHe: boolean;
-  nextLessonId: string | null;
-  onSelectLesson: (l: Lesson) => void;
-}) {
-  const hasNext = lessons.some(l => l.id === nextLessonId);
-  const [open, setOpen] = useState(hasNext || mod.status === 'in_progress' || mod.status === 'unlocked');
-  const isLocked = mod.status === 'locked';
-  const isDone = mod.status === 'completed';
-
-  return (
-    <div className="border-b border-border/20 last:border-b-0">
-      <button
-        onClick={() => !isLocked && setOpen(!open)}
-        className={cn(
-          "w-full flex items-center gap-2 px-3 py-2.5 text-start transition-colors",
-          isLocked ? "opacity-35 cursor-not-allowed" : "hover:bg-muted/40",
-        )}
-      >
-        {isLocked ? (
-          <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        ) : isDone ? (
-          <CheckCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-        ) : (
-          <Play className="h-3.5 w-3.5 text-primary shrink-0" />
-        )}
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold truncate">{mod.title}</p>
-          <p className="text-[10px] text-muted-foreground">{mod.completed_lessons}/{mod.total_lessons}</p>
-        </div>
-        {!isLocked && (
-          open ? <ChevronUp className="h-3 w-3 text-muted-foreground shrink-0" /> : <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
-        )}
-      </button>
-
-      {open && !isLocked && (
-        <div className="pb-1.5 px-1.5">
-          {lessons.map(lesson => {
-            const Icon = LESSON_TYPE_ICONS[lesson.lesson_type] || FileText;
-            const isNext = lesson.id === nextLessonId;
-            const lessonDone = lesson.status === 'completed';
-            const lessonLocked = lesson.status === 'locked';
-
-            return (
-              <button
-                key={lesson.id}
-                disabled={lessonLocked}
-                onClick={() => !lessonLocked && onSelectLesson(lesson)}
-                className={cn(
-                  "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-start transition-colors text-[11px]",
-                  lessonLocked && "opacity-25 cursor-not-allowed",
-                  lessonDone && "text-muted-foreground",
-                  isNext && "bg-primary/10 border border-primary/20 font-medium",
-                  !isNext && !lessonDone && !lessonLocked && "hover:bg-muted/30",
-                )}
-              >
-                {lessonLocked ? (
-                  <Lock className="h-3 w-3 shrink-0" />
-                ) : lessonDone ? (
-                  <CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />
-                ) : (
-                  <Icon className={cn("h-3 w-3 shrink-0", isNext ? "text-primary" : "text-muted-foreground")} />
-                )}
-                <span className="truncate flex-1">{lesson.title}</span>
-                {isNext && (
-                  <Badge className="text-[8px] h-3.5 px-1 bg-primary/20 text-primary border-0 shrink-0">
-                    {isHe ? 'הבא' : 'Next'}
-                  </Badge>
-                )}
-                {lesson.score !== null && (
-                  <span className="text-[10px] text-primary shrink-0">{lesson.score}%</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
   );
 }

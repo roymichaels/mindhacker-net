@@ -94,6 +94,34 @@ export default function Learn() {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Sync curriculum selection with sidebars via custom events
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent).detail;
+      setSelectedCurriculum(id);
+    };
+    window.addEventListener('learn:select-curriculum', handler);
+    return () => window.removeEventListener('learn:select-curriculum', handler);
+  }, []);
+
+  // Listen for lesson open from right sidebar
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const lesson = (e as CustomEvent).detail;
+      if (lesson) setSelectedLesson(lesson);
+    };
+    window.addEventListener('learn:open-lesson', handler);
+    return () => window.removeEventListener('learn:open-lesson', handler);
+  }, []);
+
+  // Broadcast curriculum selection changes to sidebars
+  const selectCurriculum = useCallback((id: string | null) => {
+    setSelectedCurriculum(id);
+    if (id) {
+      window.dispatchEvent(new CustomEvent('learn:select-curriculum', { detail: id }));
+    }
+  }, []);
+
   // Fetch curricula
   const { data: curricula, isLoading } = useQuery({
     queryKey: ['learning-curricula', user?.id],
@@ -112,6 +140,12 @@ export default function Learn() {
   // Auto-select first active curriculum for inline display
   const activeCurrId = selectedCurriculum || curricula?.find(c => c.status === 'active')?.id || curricula?.[0]?.id || null;
 
+  // Auto-broadcast selection when curricula loads
+  useEffect(() => {
+    if (activeCurrId && !selectedCurriculum) {
+      window.dispatchEvent(new CustomEvent('learn:select-curriculum', { detail: activeCurrId }));
+    }
+  }, [activeCurrId, selectedCurriculum]);
   // Fetch modules for active curriculum
   const { data: modules } = useQuery({
     queryKey: ['learning-modules', activeCurrId],
@@ -150,7 +184,7 @@ export default function Learn() {
       auroraChat.setActivePillar(null);
     }
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
-    setSelectedCurriculum(curriculumId);
+    selectCurriculum(curriculumId);
     toast.success(isHe ? '🔥 תוכנית הלימודים נוצרה!' : '🔥 Curriculum created!');
   };
 
@@ -258,7 +292,7 @@ export default function Learn() {
       queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
       queryClient.invalidateQueries({ queryKey: ['learning-modules'] });
       queryClient.invalidateQueries({ queryKey: ['learning-lessons'] });
-      setSelectedCurriculum(null);
+      selectCurriculum(null);
       openWizardInDock();
       toast.success(isHe ? 'הקורס נמחק — בוא ניצור חדש!' : 'Course deleted — let\'s create a new one!');
     } catch (e) {
@@ -316,7 +350,7 @@ export default function Learn() {
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/20 px-4 py-3 space-y-2">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSelectedCurriculum(null)}
+              onClick={() => selectCurriculum(null)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/40 active:bg-muted/60 transition-colors shrink-0"
             >
               <ArrowLeft className={cn("h-4 w-4", isHe && "rotate-180")} />
@@ -410,7 +444,7 @@ export default function Learn() {
           {activeCurriculum && (
             <div className="px-4 pb-2">
               <button
-                onClick={() => setSelectedCurriculum(activeCurrId!)}
+                onClick={() => selectCurriculum(activeCurrId!)}
                 className="w-full text-start flex items-center gap-3 py-2"
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
@@ -454,7 +488,7 @@ export default function Learn() {
               {curricula.filter(c => c.id !== activeCurrId).map((curr) => (
                 <button
                   key={curr.id}
-                  onClick={() => setSelectedCurriculum(curr.id)}
+                  onClick={() => selectCurriculum(curr.id)}
                   className="w-full text-start py-3 flex items-center gap-3 border-b border-border/10 active:bg-muted/40 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
