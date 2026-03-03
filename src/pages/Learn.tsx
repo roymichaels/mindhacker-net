@@ -94,6 +94,34 @@ export default function Learn() {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Sync curriculum selection with sidebars via custom events
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent).detail;
+      setSelectedCurriculum(id);
+    };
+    window.addEventListener('learn:select-curriculum', handler);
+    return () => window.removeEventListener('learn:select-curriculum', handler);
+  }, []);
+
+  // Listen for lesson open from right sidebar
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const lesson = (e as CustomEvent).detail;
+      if (lesson) setSelectedLesson(lesson);
+    };
+    window.addEventListener('learn:open-lesson', handler);
+    return () => window.removeEventListener('learn:open-lesson', handler);
+  }, []);
+
+  // Broadcast curriculum selection changes to sidebars
+  const selectCurriculum = useCallback((id: string | null) => {
+    setSelectedCurriculum(id);
+    if (id) {
+      window.dispatchEvent(new CustomEvent('learn:select-curriculum', { detail: id }));
+    }
+  }, []);
+
   // Fetch curricula
   const { data: curricula, isLoading } = useQuery({
     queryKey: ['learning-curricula', user?.id],
