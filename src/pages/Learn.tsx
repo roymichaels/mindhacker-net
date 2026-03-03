@@ -342,59 +342,7 @@ export default function Learn() {
     });
   };
 
-  // ── Curriculum Detail View (selected via arrow) ──
-  if (selectedCurriculum && activeCurriculum) {
-    return (
-      <div className="min-h-screen pb-20" dir={isHe ? 'rtl' : 'ltr'}>
-        {/* Sticky header */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/20 px-4 py-3 space-y-2">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => selectCurriculum(null)}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/40 active:bg-muted/60 transition-colors shrink-0"
-            >
-              <ArrowLeft className={cn("h-4 w-4", isHe && "rotate-180")} />
-            </button>
-            <h1 className="text-sm font-bold truncate flex-1">{activeCurriculum.title}</h1>
-            <span className="text-xs font-bold text-primary shrink-0">{activeCurriculum.progress_percentage}%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Progress value={activeCurriculum.progress_percentage} className="h-1 flex-1" />
-            <span className="text-[10px] text-muted-foreground shrink-0">
-              {activeCurriculum.completed_lessons}/{activeCurriculum.total_lessons}
-            </span>
-          </div>
-        </div>
-
-        {/* Modules & Lessons */}
-        <ModulesLessonsTree
-          modules={modules}
-          lessons={lessons}
-          nextLesson={nextLesson}
-          expandedModules={expandedModules}
-          toggleModule={toggleModule}
-          onSelectLesson={setSelectedLesson}
-          isHe={isHe}
-        />
-
-        {/* All done */}
-        {!nextLesson && lessons && lessons.length > 0 && (
-          <div className="py-16 text-center space-y-3">
-            <Trophy className="h-10 w-10 mx-auto text-amber-400" />
-            <h3 className="text-base font-bold">{isHe ? 'כל השיעורים הושלמו!' : 'All lessons completed!'}</h3>
-          </div>
-        )}
-
-        {selectedLesson && (
-          <LessonFocusSession
-            lesson={selectedLesson}
-            onComplete={handleLessonComplete}
-            onClose={() => setSelectedLesson(null)}
-          />
-        )}
-      </div>
-    );
-  }
+  // Curriculum detail view removed — now handled by sidebars
 
   // ── Motivational quotes ──
   const quotes = isHe
