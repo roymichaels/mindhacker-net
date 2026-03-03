@@ -232,7 +232,7 @@ export default function ArenaDomainPage() {
                 <RefreshCw className="w-4 h-4 me-2" />
                 {isHe ? 'אבחון מחדש' : 'Reassess'}
               </Button>
-              <Button variant="outline" onClick={() => navigate(`/arena/${domain.id}/results`)}>
+              <Button variant="outline" onClick={() => navigate(`/life/${domain.id}/results`)}>
                 <Map className="w-4 h-4 me-2" />
                 {isHe ? 'צפה בתוצאות' : 'View Results'}
               </Button>
