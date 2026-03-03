@@ -292,7 +292,7 @@ export default function Learn() {
       queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
       queryClient.invalidateQueries({ queryKey: ['learning-modules'] });
       queryClient.invalidateQueries({ queryKey: ['learning-lessons'] });
-      setSelectedCurriculum(null);
+      selectCurriculum(null);
       openWizardInDock();
       toast.success(isHe ? 'הקורס נמחק — בוא ניצור חדש!' : 'Course deleted — let\'s create a new one!');
     } catch (e) {
