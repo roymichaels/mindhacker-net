@@ -49,9 +49,9 @@ export function ArenaActivitySidebar() {
 
   const isLoading = stratLoading || msLoading;
 
-  const arenaDomainIds = ARENA_DOMAINS.map(d => d.id);
+  const arenaDomainIds = CORE_DOMAINS.map(d => d.id);
   const arenaEntries = Object.entries(statusMap).filter(([id]) => arenaDomainIds.includes(id));
-  const totalDomains = ARENA_DOMAINS.length;
+  const totalDomains = CORE_DOMAINS.length;
   const activeDomains = arenaEntries.filter(([, s]) => s === 'active' || s === 'configured').length;
 
   const activeProjects = projects.filter(p => p.status === 'active').length;

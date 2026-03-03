@@ -196,7 +196,7 @@ export default function ArenaHub() {
         </div>
       </div>
 
-      <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} />
+      <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} hub="core" />
 
       <ExecutionModal
         open={executionOpen}

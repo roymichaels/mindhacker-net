@@ -203,7 +203,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
             {isHe ? 'תחומים' : 'Domains'}
           </span>
           <div className="flex flex-col gap-1 w-full">
-            {ARENA_DOMAINS.map((domain) => {
+            {CORE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const isActive = status === 'active' || status === 'configured';
               const progress = getPillarProgress(domain.id);
