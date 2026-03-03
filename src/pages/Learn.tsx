@@ -444,7 +444,7 @@ export default function Learn() {
           {activeCurriculum && (
             <div className="px-4 pb-2">
               <button
-                onClick={() => setSelectedCurriculum(activeCurrId!)}
+                onClick={() => selectCurriculum(activeCurrId!)}
                 className="w-full text-start flex items-center gap-3 py-2"
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
