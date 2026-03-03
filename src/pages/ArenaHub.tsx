@@ -37,8 +37,9 @@ export default function ArenaHub() {
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
 
-  const { queue, isLoading, refetch, tier, energyLevel, dayIntensity } = useNowEngine();
+  const { queue, isLoading, refetch, tier, energyLevel, dayIntensity, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
   const completeMutation = useCompleteNowAction();
+  const hasPlan = hasCoreStrategy || hasArenaStrategy;
 
   // Filter queue by selected pillar
   const filteredQueue = useMemo(() => {
@@ -55,7 +56,7 @@ export default function ArenaHub() {
     <div className="flex flex-col w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-5 flex-1 px-1 pt-2">
 
-        {/* ── Pillar Filter Strip ── */}
+        {hasPlan && (<>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
@@ -190,7 +191,7 @@ export default function ArenaHub() {
           )}
         </div>
 
-        {/* ── Daily Milestones (Missions Today) ── */}
+        </>)}
         <div className="flex flex-col gap-2">
           <DailyMilestones hub="both" />
         </div>
