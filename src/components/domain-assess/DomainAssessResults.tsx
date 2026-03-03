@@ -249,8 +249,8 @@ export default function DomainAssessResults({ domainId }: Props) {
             <RefreshCw className="w-4 h-4" />
             {isHe ? 'אבחון מחדש' : 'Retake'}
           </Button>
-          <Button onClick={() => navigate(getBasePath(domainId))} className="flex-1">
-            {isHe ? (isCore ? 'חזור לליבה' : 'חזור לזירה') : (isCore ? 'Back to Core' : 'Back to Arena')}
+          <Button onClick={() => navigate('/life')} className="flex-1">
+            {isHe ? 'חזור לליבה' : 'Back to Core'}
           </Button>
         </div>
       </div>
