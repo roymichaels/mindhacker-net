@@ -43,6 +43,9 @@ interface AuroraChatContextType {
   // Proactive messages
   pendingProactiveMessage: string | null;
   setPendingProactiveMessage: (message: string | null) => void;
+  // Inject a greeting as an assistant message (not sent as user prompt)
+  pendingAssistantGreeting: string | null;
+  setPendingAssistantGreeting: (message: string | null) => void;
   // Pillar context
   activePillar: string | null;
   setActivePillar: (pillar: string | null) => void;
