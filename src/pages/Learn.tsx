@@ -488,7 +488,7 @@ export default function Learn() {
               {curricula.filter(c => c.id !== activeCurrId).map((curr) => (
                 <button
                   key={curr.id}
-                  onClick={() => setSelectedCurriculum(curr.id)}
+                  onClick={() => selectCurriculum(curr.id)}
                   className="w-full text-start py-3 flex items-center gap-3 border-b border-border/10 active:bg-muted/40 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
