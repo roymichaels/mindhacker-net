@@ -325,6 +325,29 @@ const AuroraChatBubbles = () => {
                     </div>
                   </motion.div>
                 )}
+
+                {/* Pillar action button (e.g. Build Curriculum) */}
+                {activePillar && pillarActionCallback && pillarActionLabel && messages.length >= 2 && !isStreaming && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex justify-center pt-2 pb-1"
+                  >
+                    <Button
+                      onClick={pillarActionCallback}
+                      disabled={pillarActionLoading}
+                      size="lg"
+                      className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+                    >
+                      {pillarActionLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <GraduationCap className="h-4 w-4" />
+                      )}
+                      {pillarActionLabel}
+                    </Button>
+                  </motion.div>
+                )}
               </div>
             </ScrollArea>
           </div>
