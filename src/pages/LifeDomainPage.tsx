@@ -118,12 +118,7 @@ export default function LifeDomainPage() {
                 : '7 focused questions to build a personalized 90-day plan for this domain.'}
             </p>
             <Button onClick={() => {
-              const isArena = ARENA_DOMAINS.some(d => d.id === domain.id);
-              if (isArena) {
-                navigate(`/arena/${domain.id}/assess`);
-              } else {
-                navigate(`/life/${domain.id}/assess`);
-              }
+              navigate(`/life/${domain.id}/assess`);
             }} size="lg" className="mt-2">
               <Play className="w-4 h-4 mr-2" />
               {isHebrew ? 'התחל הגדרה' : 'Start Configuration'}
