@@ -115,7 +115,7 @@ export function LearnCurriculumSidebar({ selectedCurriculumId, onSelectLesson, o
         "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
         "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
         "ltr:border-s rtl:border-e border-border/50 dark:border-cyan-500/15",
-        collapsed ? "w-[54px] min-w-[54px]" : "fixed top-14 bottom-14 z-50 ltr:right-0 rtl:left-0 w-[320px] max-w-[80vw] lg:relative lg:top-auto lg:bottom-auto lg:left-auto lg:right-auto lg:z-auto lg:w-[280px] xl:w-[320px] lg:max-w-none"
+        collapsed ? "w-[54px] min-w-[54px]" : "w-[280px] min-w-[220px] xl:w-[320px]"
       )}
     >
       <button
