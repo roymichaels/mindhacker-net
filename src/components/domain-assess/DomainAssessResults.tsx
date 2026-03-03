@@ -35,8 +35,7 @@ const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = 
   teal:     { border: 'border-teal-500/30',     bg: 'from-teal-500/10',     text: 'text-teal-400' },
 };
 
-function isCoreDomain(id: string) { return CORE_DOMAINS.some(d => d.id === id); }
-function getBasePath(id: string) { return isCoreDomain(id) ? '/life' : '/arena'; }
+function getBasePath(_id: string) { return '/life'; }
 
 function scoreColor(v: number): string {
   if (v >= 70) return 'text-emerald-400';
@@ -60,11 +59,9 @@ export default function DomainAssessResults({ domainId }: Props) {
   const lang = language === 'he' ? 'he' : 'en';
   const isHe = language === 'he';
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
-  const isCore = isCoreDomain(domainId);
-
   // Fetch plan data for the PillarModal roadmap
   const { corePlan, arenaPlan } = useStrategyPlans();
-  const activePlan = isCore ? corePlan : arenaPlan;
+  const activePlan = corePlan || arenaPlan;
 
   const { data: missions } = useQuery({
     queryKey: ['plan-missions', activePlan?.id],
@@ -252,8 +249,8 @@ export default function DomainAssessResults({ domainId }: Props) {
             <RefreshCw className="w-4 h-4" />
             {isHe ? 'אבחון מחדש' : 'Retake'}
           </Button>
-          <Button onClick={() => navigate(getBasePath(domainId))} className="flex-1">
-            {isHe ? (isCore ? 'חזור לליבה' : 'חזור לזירה') : (isCore ? 'Back to Core' : 'Back to Arena')}
+          <Button onClick={() => navigate('/life')} className="flex-1">
+            {isHe ? 'חזור לליבה' : 'Back to Core'}
           </Button>
         </div>
       </div>
@@ -263,7 +260,7 @@ export default function DomainAssessResults({ domainId }: Props) {
         <PillarModal
           open={showRoadmap}
           onOpenChange={setShowRoadmap}
-          hub={isCore ? 'core' : 'arena'}
+          hub={'core'}
           pillar={domain}
           missions={pillarMissions}
           milestonesByMission={milestonesByMission}

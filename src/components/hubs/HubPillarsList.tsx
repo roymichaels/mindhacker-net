@@ -13,7 +13,7 @@ import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { supabase } from '@/integrations/supabase/client';
-import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Lock, Settings } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { PillarSelectionModal } from '@/components/pillars/PillarSelectionModal';
