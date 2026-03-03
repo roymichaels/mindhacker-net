@@ -266,6 +266,11 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         assessmentDomainId,
         startAssessment,
         endAssessment,
+        pillarActionCallback,
+        pillarActionLabel,
+        pillarActionLoading,
+        setPillarAction,
+        setPillarActionLoading,
       }}
     >
       {children}
