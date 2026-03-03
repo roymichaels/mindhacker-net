@@ -1,25 +1,24 @@
 /**
  * Learn — Aurora Teaches You. Full curriculum system.
- * Uses useSidebars() to inject curriculum outline into the global left HUD sidebar slot.
+ * Uses the Aurora Dock for curriculum wizard chat (no modals).
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 
 import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, ChevronRight, Play, CheckCircle, Lock,
   FileText, Brain, Target, Flame, ArrowLeft, Clock, Zap, ChevronDown, ChevronUp, Plus,
-  RefreshCw,
+  RefreshCw, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import CurriculumWizard from '@/components/learn/CurriculumWizard';
 
 import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
