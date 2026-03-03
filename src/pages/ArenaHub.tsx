@@ -191,7 +191,7 @@ export default function ArenaHub() {
           )}
         </div>
 
-        {/* ── Daily Milestones (Missions Today) ── */}
+        </>)}
         <div className="flex flex-col gap-2">
           <DailyMilestones hub="both" />
         </div>
