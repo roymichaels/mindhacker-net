@@ -41,11 +41,71 @@ function safeParseJson(raw: string) {
   const jsonStart = raw.indexOf('{');
   const jsonEnd = raw.lastIndexOf('}');
   if (jsonStart !== -1 && jsonEnd !== -1) raw = raw.substring(jsonStart, jsonEnd + 1);
-  try { return JSON.parse(raw); } catch {
-    try { return JSON.parse(fixJson(raw)); } catch (e2) {
-      throw new Error("Failed to parse JSON from AI response: " + (e2 as Error).message);
+  
+  // Attempt 1: direct parse
+  try { return JSON.parse(raw); } catch {}
+  
+  // Attempt 2: fix control chars
+  try { return JSON.parse(fixJson(raw)); } catch {}
+  
+  // Attempt 3: truncation repair — find the last valid closing bracket
+  // This handles AI responses that got cut off mid-string or have trailing garbage
+  const fixed = fixJson(raw);
+  for (let attempts = 0; attempts < 5; attempts++) {
+    try {
+      // Try to close any open strings and brackets
+      let repaired = fixed;
+      // Count open braces/brackets
+      let braces = 0, brackets = 0, inStr = false, esc = false;
+      for (let i = 0; i < repaired.length; i++) {
+        const c = repaired[i];
+        if (esc) { esc = false; continue; }
+        if (c === '\\' && inStr) { esc = true; continue; }
+        if (c === '"') { inStr = !inStr; continue; }
+        if (!inStr) {
+          if (c === '{') braces++;
+          else if (c === '}') braces--;
+          else if (c === '[') brackets++;
+          else if (c === ']') brackets--;
+        }
+      }
+      // If we're inside a string, close it
+      if (inStr) repaired += '"';
+      // Close any open brackets/braces
+      while (brackets > 0) { repaired += ']'; brackets--; }
+      while (braces > 0) { repaired += '}'; braces--; }
+      
+      // Remove trailing comma before closing brackets
+      repaired = repaired.replace(/,\s*([\]}])/g, '$1');
+      
+      return JSON.parse(repaired);
+    } catch {
+      // Trim from the last comma/incomplete value and retry
+      const lastComma = fixed.lastIndexOf(',', fixed.length - (attempts * 200) - 1);
+      if (lastComma > fixed.length / 2) {
+        // Truncate at last comma and close everything
+        let truncated = fixed.substring(0, lastComma);
+        let b = 0, br = 0, iS = false, es = false;
+        for (let i = 0; i < truncated.length; i++) {
+          const c = truncated[i];
+          if (es) { es = false; continue; }
+          if (c === '\\' && iS) { es = true; continue; }
+          if (c === '"') { iS = !iS; continue; }
+          if (!iS) {
+            if (c === '{') b++; else if (c === '}') b--;
+            if (c === '[') br++; else if (c === ']') br--;
+          }
+        }
+        if (iS) truncated += '"';
+        while (br > 0) { truncated += ']'; br--; }
+        while (b > 0) { truncated += '}'; b--; }
+        truncated = truncated.replace(/,\s*([\]}])/g, '$1');
+        try { return JSON.parse(truncated); } catch {}
+      }
     }
   }
+  
+  throw new Error("Failed to parse JSON from AI response after repair attempts. Response length: " + raw.length);
 }
 
 // ─── Fetch user's full brain context for personalization ───
