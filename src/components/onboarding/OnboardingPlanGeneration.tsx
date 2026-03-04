@@ -84,8 +84,17 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       if (upsertError) throw upsertError;
 
       try {
+        // Split selected pillars into core/arena for the edge function
+        const CORE_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
+        const corePillars = selectedPillars.filter(p => CORE_IDS.includes(p));
+        const arenaPillars = selectedPillars.filter(p => !CORE_IDS.includes(p));
+        
         await supabase.functions.invoke('generate-90day-strategy', {
-          body: { userId: user.id, pillars: selectedPillars },
+          body: { 
+            user_id: user.id, 
+            hub: 'both',
+            selected_pillars: { core: corePillars, arena: arenaPillars },
+          },
         });
       } catch {
         // Strategy generation is optional

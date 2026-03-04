@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { NowQueueItem } from '@/hooks/useNowEngine';
 import { TodayScheduleCard } from './TodayScheduleCard';
 import { MovementScoreCard } from './MovementScoreCard';
@@ -42,6 +43,8 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
     generateStrategy, isGenerating,
   } = useStrategyPlans();
 
+  const { selectedPillars: userSelectedPillars } = usePillarAccess();
+
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
@@ -52,7 +55,7 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
   };
 
   const handleGenerateStrategy = () => {
-    generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
+    generateStrategy.mutate({ hub: 'both', forceRegenerate: false, selectedPillars: userSelectedPillars }, {
       onError: (err: any) => {
         if (err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') {
           const firstMissing = err.missingPillars?.[0]?.pillarId || err.missingPillars?.[0]?.pillar || 'consciousness';
