@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useRef } from 'react';
 
 interface SidebarContextType {
   leftSidebar: ReactNode | null | undefined;
@@ -17,14 +17,31 @@ const SidebarContext = createContext<SidebarContextType>({
 export const useSidebarContext = () => useContext(SidebarContext);
 
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
-  const [leftSidebar, setLeftRaw] = useState<ReactNode | null | undefined>(undefined);
-  const [rightSidebar, setRightRaw] = useState<ReactNode | null | undefined>(undefined);
+  const [version, setVersion] = useState(0);
+  const leftRef = useRef<ReactNode | null | undefined>(undefined);
+  const rightRef = useRef<ReactNode | null | undefined>(undefined);
 
-  const setLeftSidebar = useCallback((node: ReactNode | null | undefined) => setLeftRaw(node), []);
-  const setRightSidebar = useCallback((node: ReactNode | null | undefined) => setRightRaw(node), []);
+  const setLeftSidebar = useCallback((node: ReactNode | null | undefined) => {
+    leftRef.current = node;
+    setVersion(v => v + 1);
+  }, []);
+
+  const setRightSidebar = useCallback((node: ReactNode | null | undefined) => {
+    rightRef.current = node;
+    setVersion(v => v + 1);
+  }, []);
+
+  // Use version to ensure consumers re-render when sidebars change
+  // but avoid infinite loops since refs don't cause re-renders in the setter's caller
+  void version;
 
   return (
-    <SidebarContext.Provider value={{ leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar }}>
+    <SidebarContext.Provider value={{ 
+      leftSidebar: leftRef.current, 
+      rightSidebar: rightRef.current, 
+      setLeftSidebar, 
+      setRightSidebar 
+    }}>
       {children}
     </SidebarContext.Provider>
   );
