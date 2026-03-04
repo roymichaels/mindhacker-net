@@ -1,0 +1,2 @@
+ALTER TABLE public.action_items DROP CONSTRAINT action_items_source_check;
+ALTER TABLE public.action_items ADD CONSTRAINT action_items_source_check CHECK (source = ANY (ARRAY['plan','user','aurora','coach','system','learn']));
