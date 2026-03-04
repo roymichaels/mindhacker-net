@@ -211,7 +211,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
 
     init();
     return () => { cancelled = true; };
-  }, [user?.id, domainId, isHe, saveMessageToDB]);
+  }, [user?.id, domainId, saveMessageToDB]);
 
   const handleToolCall = useCallback(async (toolArgs: any) => {
     const subscores = toolArgs.subscores as Record<string, number>;
