@@ -498,16 +498,21 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
             </Button>
           )}
-          {lesson.lesson_type === 'practice' && (
-            <Button
-              onClick={() => markComplete()}
-              disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom}
-              className="gap-2 flex-1 sm:flex-initial"
-            >
-              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-              {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
-            </Button>
-          )}
+          {lesson.lesson_type === 'practice' && (() => {
+            const totalExercises = lesson.content?.exercises?.length || 0;
+            const checkedCount = Object.values(checkedExercises).filter(Boolean).length;
+            const allChecked = totalExercises === 0 || checkedCount >= totalExercises;
+            return (
+              <Button
+                onClick={() => markComplete()}
+                disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom || !allChecked}
+                className="gap-2 flex-1 sm:flex-initial"
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
+              </Button>
+            );
+          })()}
           {lesson.lesson_type === 'quiz' && (
             <Button onClick={submitQuiz} disabled={isSubmitting} className="gap-2 flex-1 sm:flex-initial">
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
