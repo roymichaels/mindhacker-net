@@ -288,34 +288,51 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               </div>
               
               {lesson.content?.exercises?.map((ex: any, i: number) => {
-                const isDone = !!checkedExercises[i];
+                const steps: string[] = ex.steps || [];
+                const hasSteps = steps.length > 0;
+                const stepsForEx = checkedSteps[i] || {};
+                const checkedCount = Object.values(stepsForEx).filter(Boolean).length;
+                const allStepsDone = hasSteps ? checkedCount >= steps.length : !!checkedExercises[i];
+                const progress = hasSteps ? Math.round((checkedCount / steps.length) * 100) : (allStepsDone ? 100 : 0);
+
+                // Auto-mark exercise done when all steps checked
+                if (hasSteps && allStepsDone && !checkedExercises[i]) {
+                  setTimeout(() => setCheckedExercises(prev => ({ ...prev, [i]: true })), 300);
+                }
+                // Unmark if steps unchecked
+                if (hasSteps && !allStepsDone && checkedExercises[i]) {
+                  setTimeout(() => setCheckedExercises(prev => ({ ...prev, [i]: false })), 100);
+                }
+
                 return (
                   <div 
                     key={i} 
-                    className={`p-4 rounded-xl border space-y-2 transition-colors cursor-pointer ${
-                      isDone ? 'bg-green-500/5 border-green-500/30' : 'bg-card hover:border-primary/30'
+                    className={`p-4 rounded-xl border space-y-3 transition-colors ${
+                      allStepsDone ? 'bg-green-500/5 border-green-500/30' : 'bg-card'
                     }`}
-                    onClick={() => setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] }))}
                   >
+                    {/* Exercise header */}
                     <div className="flex items-start gap-3">
-                      <button 
-                        className="mt-0.5 shrink-0 transition-colors"
-                        onClick={e => { e.stopPropagation(); setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] })); }}
-                      >
-                        {isDone ? (
-                          <CheckSquare className="h-5 w-5 text-green-500" />
-                        ) : (
-                          <Square className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </button>
+                      {!hasSteps && (
+                        <button 
+                          className="mt-0.5 shrink-0 transition-colors"
+                          onClick={() => setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] }))}
+                        >
+                          {allStepsDone ? (
+                            <CheckSquare className="h-5 w-5 text-green-500" />
+                          ) : (
+                            <Square className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </button>
+                      )}
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center justify-between">
-                          <h4 className={`font-bold text-sm ${isDone ? 'line-through text-muted-foreground' : ''}`}>
-                            {ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
+                          <h4 className={`font-bold text-sm ${allStepsDone ? 'text-green-600 dark:text-green-400' : ''}`}>
+                            {allStepsDone ? '✅ ' : ''}{ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
                           </h4>
                           <Badge variant="outline" className="text-xs">{ex.difficulty}</Badge>
                         </div>
-                        <p className={`text-sm ${isDone ? 'text-muted-foreground' : ''}`}>{ex.description}</p>
+                        <p className="text-sm text-muted-foreground">{ex.description}</p>
                         {ex.expected_output && (
                           <p className="text-xs text-muted-foreground italic">
                             {isHe ? 'תוצאה צפויה: ' : 'Expected: '}{ex.expected_output}
@@ -323,6 +340,53 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                         )}
                       </div>
                     </div>
+
+                    {/* Inner step checklist */}
+                    {hasSteps && (
+                      <div className="space-y-1.5 ps-1">
+                        {/* Progress bar */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div 
+                              className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-muted-foreground font-mono shrink-0">
+                            {checkedCount}/{steps.length}
+                          </span>
+                        </div>
+
+                        {steps.map((step: string, si: number) => {
+                          const isStepDone = !!stepsForEx[si];
+                          return (
+                            <button
+                              key={si}
+                              className={`w-full flex items-start gap-2.5 p-2 rounded-lg text-start transition-colors ${
+                                isStepDone 
+                                  ? 'bg-green-500/5' 
+                                  : 'hover:bg-muted/50'
+                              }`}
+                              onClick={() => {
+                                setCheckedSteps(prev => ({
+                                  ...prev,
+                                  [i]: { ...(prev[i] || {}), [si]: !isStepDone }
+                                }));
+                              }}
+                            >
+                              {isStepDone ? (
+                                <CheckSquare className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                              ) : (
+                                <Square className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                              )}
+                              <span className={`text-sm ${isStepDone ? 'line-through text-muted-foreground' : ''}`}>
+                                {step}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })}
