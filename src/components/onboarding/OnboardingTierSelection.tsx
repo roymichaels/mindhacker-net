@@ -67,7 +67,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-lg w-full space-y-6 py-6"
+        className="max-w-5xl w-full space-y-6 py-6"
       >
         {/* Header */}
         <div className="text-center space-y-2">
@@ -80,7 +80,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
         </div>
 
         {/* Tier Cards */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {tiers.map(({ tier, icon: Icon, accent, borderAccent, bgAccent }, i) => {
             const config = TIER_CONFIGS[tier];
             const features = isHe ? TIER_FEATURES[tier].he : TIER_FEATURES[tier].en;
@@ -107,15 +107,11 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
                 )}
 
                 {/* Title + Price */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className={cn('w-5 h-5', accent)} />
-                    <div>
-                      <h3 className="text-lg font-bold">{config.label[isHe ? 'he' : 'en']}</h3>
-                      <p className="text-xs text-muted-foreground">{config.subtitle[isHe ? 'he' : 'en']}</p>
-                    </div>
-                  </div>
-                  <div className="text-end">
+                <div className="text-center space-y-2">
+                  <Icon className={cn('w-6 h-6 mx-auto', accent)} />
+                  <h3 className="text-lg font-bold">{config.label[isHe ? 'he' : 'en']}</h3>
+                  <p className="text-xs text-muted-foreground">{config.subtitle[isHe ? 'he' : 'en']}</p>
+                  <div>
                     {config.priceUSD === 0 ? (
                       <span className="text-xl font-black text-foreground">{t('onboarding.tier.free')}</span>
                     ) : (
