@@ -19,8 +19,8 @@ const tiers = [
     color: 'text-blue-500',
     border: 'border-blue-500/30',
     bg: 'bg-blue-500/5',
-    featuresHe: ['מבנה בסיסי + XP', '5 הודעות Aurora ליום', '2 פילרים לבחירתך', 'אבחון מלא'],
-    featuresEn: ['Basic structure + XP', '5 Aurora messages/day', '2 pillars of your choice', 'Full assessment'],
+    featuresHe: ['2 פילרים מתוך 14 תחומים', '5 הודעות Aurora ליום', 'אבחון מלא', 'דאשבורד ומבנה יומי'],
+    featuresEn: ['2 of 14 life pillars', '5 Aurora messages/day', 'Full assessment', 'Dashboard & daily structure'],
   },
   {
     id: 'plus',
@@ -33,8 +33,8 @@ const tiers = [
     border: 'border-primary/40',
     bg: 'bg-primary/5',
     featured: true,
-    featuresHe: ['Aurora ללא הגבלה + זיכרון', '6 פילרים לבחירתך', 'תוכנית 100 יום', 'היפנוזה AI'],
-    featuresEn: ['Unlimited Aurora + memory', '6 pillars of your choice', '100-Day Plan', 'AI Hypnosis'],
+    featuresHe: ['6 פילרים מתוך 14 תחומים', 'Aurora ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
+    featuresEn: ['6 of 14 life pillars', 'Unlimited Aurora + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
   },
   {
     id: 'apex',
@@ -46,8 +46,8 @@ const tiers = [
     color: 'text-amber-500',
     border: 'border-amber-500/30',
     bg: 'bg-amber-500/5',
-    featuresHe: ['גישה מלאה ל-14 עמודים', 'מנוע Jarvis פרואקטיבי', 'עדכוני תוכנית מודולריים', 'לימוד מותאם אישית'],
-    featuresEn: ['Full access to 14 pillars', 'Proactive Jarvis engine', 'Modular plan updates', 'Personalized learning'],
+    featuresHe: ['כל 14 הפילרים פתוחים', 'מנוע Jarvis פרואקטיבי', 'פרויקטים + עסקים מתקדם', 'Orb DNA מלא'],
+    featuresEn: ['All 14 pillars unlocked', 'Proactive Jarvis engine', 'Projects + Business Advanced', 'Full Orb DNA profile'],
   },
 ];
 
