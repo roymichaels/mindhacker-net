@@ -317,6 +317,23 @@ serve(async (req) => {
         const sub = event.data.object as Stripe.Subscription;
         log("customer.subscription.deleted", { subId: sub.id });
 
+        // Check if coach subscription
+        const { data: coachSubDel } = await supabase
+          .from("coach_subscriptions")
+          .select("id, user_id")
+          .eq("stripe_subscription_id", sub.id)
+          .maybeSingle();
+
+        if (coachSubDel) {
+          await supabase
+            .from("coach_subscriptions")
+            .update({ status: "cancelled", updated_at: new Date().toISOString() })
+            .eq("id", coachSubDel.id);
+          log("Coach subscription cancelled", { userId: coachSubDel.user_id });
+          break;
+        }
+
+        // Regular subscription
         const { data: existingSub } = await supabase
           .from("user_subscriptions")
           .select("user_id")

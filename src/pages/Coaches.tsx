@@ -1,12 +1,14 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMyCoachProfile } from '@/domain/coaches';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCoachSubscription } from '@/hooks/useCoachSubscription';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { CoachHudSidebar } from '@/components/coach/CoachHudSidebar';
 import { CoachActivitySidebar } from '@/components/coach/CoachActivitySidebar';
+import { toast } from 'sonner';
 
 const CoachHub = lazy(() => import('./CoachHub'));
 const CoachesLanding = lazy(() => import('@/components/coach/CoachesLanding'));
