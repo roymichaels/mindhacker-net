@@ -1,15 +1,15 @@
 /**
  * usePillarAccess — Manages pillar selection and access based on subscription tier.
- * Free: 1 core + 1 arena (user picks)
- * Plus: 3 core + 3 arena (user picks)
- * Apex: all pillars, auto-adds on assessment
+ * Free: 2 pillars (user picks)
+ * Plus: 6 pillars (user picks)
+ * Apex: all 14 pillars
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useSubscriptionGate } from './useSubscriptionGate';
 import { TIER_PILLAR_LIMITS, type SubscriptionTier } from '@/lib/subscriptionTiers';
-import { CORE_DOMAINS, ARENA_DOMAINS } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useCallback } from 'react';
 
 export interface SelectedPillars {
@@ -17,14 +17,15 @@ export interface SelectedPillars {
   arena: string[];
 }
 
-const ALL_CORE_IDS = CORE_DOMAINS.map(d => d.id);
-const ALL_ARENA_IDS = ARENA_DOMAINS.map(d => d.id);
+const ALL_IDS = CORE_DOMAINS.map(d => d.id);
 
 export function usePillarAccess() {
   const { user } = useAuth();
   const { tier, isApex } = useSubscriptionGate();
   const queryClient = useQueryClient();
   const limits = TIER_PILLAR_LIMITS[tier];
+  // Total unified limit (core + arena fields combined)
+  const totalLimit = limits.core + limits.arena;
 
   const { data: selectedPillars, isLoading } = useQuery({
     queryKey: ['selected-pillars', user?.id],
@@ -39,7 +40,7 @@ export function usePillarAccess() {
       
       // Apex gets all pillars automatically
       if (isApex) {
-        return { core: ALL_CORE_IDS, arena: ALL_ARENA_IDS };
+        return { core: ALL_IDS, arena: [] };
       }
       return { core: sp.core || [], arena: sp.arena || [] };
     },
@@ -47,20 +48,27 @@ export function usePillarAccess() {
     staleTime: 5 * 60 * 1000,
   });
 
+  /** All selected pillar IDs (unified from both arrays) */
+  const allSelected = useCallback((): string[] => {
+    if (isApex) return ALL_IDS;
+    if (!selectedPillars) return [];
+    return [...selectedPillars.core, ...selectedPillars.arena];
+  }, [selectedPillars, isApex]);
+
   const updateSelection = useMutation({
     mutationFn: async (newSelection: SelectedPillars) => {
       if (!user?.id) throw new Error('Not authenticated');
       
-      // Enforce limits
-      const coreSlice = newSelection.core.slice(0, limits.core);
-      const arenaSlice = newSelection.arena.slice(0, limits.arena);
+      // Enforce total limit
+      const all = [...newSelection.core, ...newSelection.arena].slice(0, totalLimit);
+      const payload = { core: all, arena: [] as string[] };
       
       const { error } = await supabase
         .from('profiles')
-        .update({ selected_pillars: { core: coreSlice, arena: arenaSlice } })
+        .update({ selected_pillars: payload })
         .eq('id', user.id);
       if (error) throw error;
-      return { core: coreSlice, arena: arenaSlice };
+      return payload;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['selected-pillars', user?.id] });
@@ -73,50 +81,42 @@ export function usePillarAccess() {
     return [...selectedPillars.core, ...selectedPillars.arena].includes(pillarId);
   }, [selectedPillars, isApex]);
 
-  const canSelectMore = useCallback((hub: 'core' | 'arena'): boolean => {
+  const canSelectMore = useCallback((_hub?: 'core' | 'arena'): boolean => {
     if (isApex) return true;
     if (!selectedPillars) return true;
-    const current = hub === 'core' ? selectedPillars.core : selectedPillars.arena;
-    return current.length < limits[hub];
-  }, [selectedPillars, limits, isApex]);
+    const total = selectedPillars.core.length + selectedPillars.arena.length;
+    return total < totalLimit;
+  }, [selectedPillars, totalLimit, isApex]);
 
-  const togglePillar = useCallback(async (pillarId: string, hub: 'core' | 'arena') => {
-    if (isApex) return; // Apex has all pillars
+  const togglePillar = useCallback(async (pillarId: string, _hub?: 'core' | 'arena') => {
+    if (isApex) return;
     
     const current = selectedPillars || { core: [], arena: [] };
-    const hubPillars = hub === 'core' ? [...current.core] : [...current.arena];
+    const all = [...current.core, ...current.arena];
     
-    const idx = hubPillars.indexOf(pillarId);
+    const idx = all.indexOf(pillarId);
     if (idx >= 0) {
-      hubPillars.splice(idx, 1);
+      all.splice(idx, 1);
     } else {
-      if (hubPillars.length >= limits[hub]) return; // at limit
-      hubPillars.push(pillarId);
+      if (all.length >= totalLimit) return; // at limit
+      all.push(pillarId);
     }
     
-    const newSelection = hub === 'core'
-      ? { core: hubPillars, arena: current.arena }
-      : { core: current.core, arena: hubPillars };
-    
-    await updateSelection.mutateAsync(newSelection);
-  }, [selectedPillars, limits, isApex, updateSelection]);
+    await updateSelection.mutateAsync({ core: all, arena: [] });
+  }, [selectedPillars, totalLimit, isApex, updateSelection]);
 
   // Add a single pillar (used by Apex auto-add on assessment)
-  const addPillar = useCallback(async (pillarId: string, hub: 'core' | 'arena') => {
+  const addPillar = useCallback(async (pillarId: string, _hub?: 'core' | 'arena') => {
     const current = selectedPillars || { core: [], arena: [] };
-    const hubPillars = hub === 'core' ? [...current.core] : [...current.arena];
-    if (hubPillars.includes(pillarId)) return;
-    hubPillars.push(pillarId);
+    const all = [...current.core, ...current.arena];
+    if (all.includes(pillarId)) return;
+    all.push(pillarId);
     
-    const newSelection = hub === 'core'
-      ? { core: hubPillars, arena: current.arena }
-      : { core: current.core, arena: hubPillars };
-    
-    await updateSelection.mutateAsync(newSelection);
+    await updateSelection.mutateAsync({ core: all, arena: [] });
   }, [selectedPillars, updateSelection]);
 
-  const needsSelection = !isApex && selectedPillars && 
-    (selectedPillars.core.length === 0 && selectedPillars.arena.length === 0);
+  const selectedCount = (selectedPillars?.core?.length || 0) + (selectedPillars?.arena?.length || 0);
+  const needsSelection = !isApex && selectedPillars && selectedCount === 0;
 
   return {
     selectedPillars: selectedPillars || { core: [], arena: [] },
@@ -127,6 +127,7 @@ export function usePillarAccess() {
     addPillar,
     updateSelection,
     limits,
+    totalLimit,
     tier,
     isApex,
     needsSelection,
