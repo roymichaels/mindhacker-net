@@ -26,7 +26,9 @@ export default function ArenaLayoutWrapper() {
 
   if (!isLoading && !canAccessArenaFull) {
     return (
-      <div className="flex items-start justify-center overflow-y-auto flex-1 min-h-0">
+      <div className="flex items-start justify-center overflow-y-auto flex-1 min-h-0"
+        style={{ background: 'linear-gradient(135deg, hsl(270 60% 12%) 0%, hsl(280 50% 8%) 30%, hsl(40 60% 10%) 70%, hsl(35 70% 14%) 100%)' }}
+      >
         <ProGateOverlay feature="arena" targetTier="plus" className="rounded-none h-full" />
       </div>
     );
