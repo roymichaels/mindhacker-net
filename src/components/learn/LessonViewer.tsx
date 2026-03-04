@@ -52,6 +52,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [checkedExercises, setCheckedExercises] = useState<Record<number, boolean>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Detect scroll-to-bottom
