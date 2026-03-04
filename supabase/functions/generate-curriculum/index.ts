@@ -558,12 +558,14 @@ ${lessonType === 'practice' ? `Return JSON:
 {
   "instructions": "Practice session instructions in markdown. What to do and why.",
   "exercises": [
-    { "title": "Exercise 1", "description": "What to do", "difficulty": "easy|medium|hard", "expected_output": "What success looks like" }
+    { "title": "Exercise 1", "description": "What to do", "difficulty": "easy|medium|hard", "expected_output": "What success looks like",
+      "steps": ["Step 1: specific action to take", "Step 2: next action", "Step 3: final action"] }
   ],
   "comprehension_questions": [
     { "q": "Question?", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Why" }
   ]
 }
+IMPORTANT for exercises: Each exercise MUST include a "steps" array with 2-6 concrete, checkable micro-actions the user must perform. Break the exercise into individual physical actions. For example, if the exercise says "listen to 3 clips 3 times each", the steps should be: ["Find clip 1", "Listen to clip 1 — round 1", "Listen to clip 1 — round 2", "Listen to clip 1 — round 3", "Find clip 2", ...]. Make every step a single, unambiguous action.
 Include 2-4 exercises and 2 comprehension questions.` : ''}
 
 ${lessonType === 'quiz' ? `Return JSON:

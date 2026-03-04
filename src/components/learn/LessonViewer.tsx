@@ -52,6 +52,8 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  // Track per-exercise sub-step completion: { exerciseIndex: { stepIndex: boolean } }
+  const [checkedSteps, setCheckedSteps] = useState<Record<number, Record<number, boolean>>>({});
   const [checkedExercises, setCheckedExercises] = useState<Record<number, boolean>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
