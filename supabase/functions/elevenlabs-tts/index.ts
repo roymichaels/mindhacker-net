@@ -11,6 +11,8 @@ interface ElevenLabsTTSRequest {
   similarityBoost?: number;
   style?: number;
   speed?: number;
+  previousText?: string;
+  nextText?: string;
 }
 
 // Top ElevenLabs voice IDs
