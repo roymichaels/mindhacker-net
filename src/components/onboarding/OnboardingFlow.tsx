@@ -592,6 +592,14 @@ export function OnboardingFlow() {
           setShowTierSelection(true);
           savePhase('tier_selection');
         }}
+        onBack={() => {
+          setShowReveal(false);
+          // Go back to last calibration step
+          setCurrentStepIdx(steps.length - 1);
+          const lastStep = steps[steps.length - 1];
+          const lastVisible = getVisibleMiniSteps(lastStep, answers);
+          setCurrentMiniIdx(Math.max(0, lastVisible.length - 1));
+        }}
       />
     );
   }
