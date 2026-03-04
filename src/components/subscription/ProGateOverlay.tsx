@@ -59,7 +59,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-0 p-0 rounded-2xl overflow-hidden mx-auto w-full max-w-sm sm:max-w-md',
+        'flex flex-col items-center justify-center gap-0 p-0 rounded-2xl overflow-hidden mx-auto w-full max-w-[380px] sm:max-w-[420px]',
         className
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
