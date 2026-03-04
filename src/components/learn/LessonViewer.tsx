@@ -134,6 +134,72 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
     return passed;
   };
 
+  // Detect if exercise text implies recurring/daily action
+  const isRecurringExercise = useCallback((text: string): string | null => {
+    const patterns = [
+      /כל (בוקר|יום|ערב|שבוע)/i, /every\s*(day|morning|evening|week)/i,
+      /חזור על (כך|זה)/i, /repeat\s*(this|daily)/i,
+      /באופן יומי/i, /daily/i, /יומית/i, /שגרת/i, /routine/i,
+    ];
+    for (const p of patterns) {
+      if (p.test(text)) return 'daily';
+    }
+    if (/כל שבוע/i.test(text) || /weekly/i.test(text)) return 'weekly';
+    return null;
+  }, []);
+
+  // Save practice exercises as action_items in the user's plan
+  const saveExercisesToPlan = useCallback(async () => {
+    if (!user?.id || lesson.lesson_type !== 'practice') return;
+    const exercises = lesson.content?.exercises;
+    if (!exercises?.length) return;
+
+    try {
+      const items = exercises.map((ex: any, i: number) => {
+        const desc = ex.description || '';
+        const steps: string[] = ex.steps || extractStepsFromDescription(desc);
+        const recurrence = isRecurringExercise(desc + ' ' + (ex.title || '') + ' ' + steps.join(' '));
+
+        return {
+          user_id: user.id,
+          type: recurrence ? 'habit' : 'task',
+          source: 'learn',
+          title: ex.title || `${lesson.title} — ${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`,
+          description: desc,
+          pillar: 'learn',
+          status: 'todo',
+          recurrence_rule: recurrence || null,
+          metadata: {
+            lesson_id: lesson.id,
+            lesson_title: lesson.title,
+            curriculum_id: lesson.curriculum_id,
+            exercise_index: i,
+            steps: steps.length > 0 ? steps : undefined,
+          },
+        };
+      });
+
+      const { error } = await supabase.from('action_items').insert(items);
+      if (error) {
+        console.error('Failed to save exercises to plan:', error);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['unified-dashboard'] });
+        const recurringCount = items.filter((it: any) => it.recurrence_rule).length;
+        if (recurringCount > 0) {
+          toast.success(
+            isHe 
+              ? `📋 ${items.length} משימות נוספו לתוכנית (${recurringCount} חוזרות יומית!)`
+              : `📋 ${items.length} tasks added to plan (${recurringCount} recurring daily!)`
+          );
+        } else {
+          toast.success(isHe ? `📋 ${items.length} משימות נוספו לתוכנית` : `📋 ${items.length} tasks added to plan`);
+        }
+      }
+    } catch (err) {
+      console.error('Error saving exercises to plan:', err);
+    }
+  }, [user?.id, lesson, isHe, queryClient, extractStepsFromDescription, isRecurringExercise]);
+
   const markComplete = async (submissionData?: any, scoreVal?: number, feedbackData?: any) => {
     setIsSubmitting(true);
     try {
@@ -151,6 +217,12 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
         .eq('id', lesson.id);
 
       if (error) throw error;
+
+      // Save practice exercises to plan
+      if (lesson.lesson_type === 'practice') {
+        await saveExercisesToPlan();
+      }
+
       toast.success(`+${lesson.xp_reward} XP! ${isHe ? 'שיעור הושלם!' : 'Lesson completed!'}`);
       onComplete();
     } catch (err: any) {
