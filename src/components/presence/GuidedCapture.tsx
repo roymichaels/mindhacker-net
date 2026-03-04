@@ -5,6 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
+import guideFaceFront from "@/assets/guide-face-front.png";
+import guideFaceProfile from "@/assets/guide-face-profile.png";
+import guideBodyFront from "@/assets/guide-body-front.png";
+import guideBodySide from "@/assets/guide-body-side.png";
+
+const GUIDE_IMAGES: Record<string, string> = {
+  face_front: guideFaceFront,
+  face_profile: guideFaceProfile,
+  body_front: guideBodyFront,
+  body_side: guideBodySide,
+};
+
 const STEPS = [
   { key: "face_front", label: "Face — Front", instruction: "Neutral expression, good lighting, looking straight at camera" },
   { key: "face_profile", label: "Face — Profile", instruction: "Turn head to show left or right side" },
