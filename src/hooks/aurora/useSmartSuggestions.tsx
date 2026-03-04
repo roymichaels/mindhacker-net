@@ -40,7 +40,8 @@ export function useSmartSuggestions() {
         { data: dailyHabits },
         { data: habitLogs },
         { data: hypnosisToday },
-        { data: launchpadComplete }
+        { data: launchpadComplete },
+        { data: existingCurricula }
       ] = await Promise.all([
         // Overdue tasks
         supabase
@@ -96,6 +97,13 @@ export function useSmartSuggestions() {
         // Launchpad completion
         supabase
           .from('launchpad_summaries')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1),
+
+        // Existing curricula (to suggest creation if none)
+        supabase
+          .from('learning_curricula')
           .select('id')
           .eq('user_id', user.id)
           .limit(1)
