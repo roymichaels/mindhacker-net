@@ -58,6 +58,17 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
   const streamRef = useRef<MediaStream | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Persist state to sessionStorage on changes
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY_IMAGES, JSON.stringify(images));
+  }, [images]);
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY_PREVIEWS, JSON.stringify(previews));
+  }, [previews]);
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY_STEP, String(step));
+  }, [step]);
+
   const current = STEPS[step];
   const isLastStep = step === STEPS.length - 1;
   const canProceed = !!images[current.key];
