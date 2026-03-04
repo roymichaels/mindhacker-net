@@ -463,7 +463,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
           {/* Recovery + Training */}
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-cyan-500/5 border border-cyan-500/20 p-3 space-y-1">
-              <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">{isHe ? '🛡️ ריקברי' : '🛡️ Recovery'}</span>
+              <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">🛡️ {t('onboarding.reveal.recovery')}</span>
               <p className="text-xs text-muted-foreground">{week1.recoveryBlock}</p>
             </div>
             <div className="rounded-xl bg-green-500/5 border border-green-500/20 p-3 space-y-1">
