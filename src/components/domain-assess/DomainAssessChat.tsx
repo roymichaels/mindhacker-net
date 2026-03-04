@@ -499,7 +499,14 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
               {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
             </p>
           </div>
-        </div>
+          <button
+            onClick={() => setLanguage(language === 'he' ? 'en' : 'he')}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium flex items-center gap-1"
+            aria-label="Switch language"
+          >
+            <Globe className="w-4 h-4" />
+            {language === 'he' ? 'EN' : 'עב'}
+          </button>
 
         {/* Chat messages — Aurora style */}
         <ScrollArea className="flex-1 min-h-0">
