@@ -377,7 +377,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
 
           {/* ── PRACTICE ── */}
           {lesson.lesson_type === 'practice' && (
-            <div className="space-y-4 text-start">
+            <div className="space-y-5 text-start">
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown>{lesson.content?.instructions || ''}</ReactMarkdown>
               </div>
@@ -390,11 +390,9 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                 const allStepsDone = hasSteps ? checkedCount >= steps.length : !!checkedExercises[i];
                 const progress = hasSteps ? Math.round((checkedCount / steps.length) * 100) : (allStepsDone ? 100 : 0);
 
-                // Auto-mark exercise done when all steps checked
                 if (hasSteps && allStepsDone && !checkedExercises[i]) {
                   setTimeout(() => setCheckedExercises(prev => ({ ...prev, [i]: true })), 300);
                 }
-                // Unmark if steps unchecked
                 if (hasSteps && !allStepsDone && checkedExercises[i]) {
                   setTimeout(() => setCheckedExercises(prev => ({ ...prev, [i]: false })), 100);
                 }
@@ -402,84 +400,136 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                 return (
                   <div 
                     key={i} 
-                    className={`p-4 rounded-xl border space-y-3 transition-colors ${
-                      allStepsDone ? 'bg-green-500/5 border-green-500/30' : 'bg-card'
+                    className={`rounded-xl border overflow-hidden transition-colors ${
+                      allStepsDone ? 'border-primary/40 bg-primary/5' : 'bg-card border-border'
                     }`}
                   >
-                    {/* Exercise header */}
-                    <div className="flex items-start gap-3">
-                      {!hasSteps && (
-                        <button 
-                          className="mt-0.5 shrink-0 transition-colors"
-                          onClick={() => setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] }))}
-                        >
-                          {allStepsDone ? (
-                            <CheckSquare className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <Square className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </button>
-                      )}
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className={`font-bold text-sm ${allStepsDone ? 'text-green-600 dark:text-green-400' : ''}`}>
-                            {allStepsDone ? '✅ ' : ''}{ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
-                          </h4>
-                          <Badge variant="outline" className="text-xs">{ex.difficulty}</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{ex.description}</p>
-                        {ex.expected_output && (
-                          <p className="text-xs text-muted-foreground italic">
-                            {isHe ? 'תוצאה צפויה: ' : 'Expected: '}{ex.expected_output}
-                          </p>
+                    {/* Exercise header with progress */}
+                    <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+                      <div className="flex items-center gap-2.5">
+                        {!hasSteps ? (
+                          <button 
+                            className="shrink-0 transition-colors"
+                            onClick={() => setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] }))}
+                          >
+                            {allStepsDone ? (
+                              <CheckSquare className="h-5 w-5 text-primary" />
+                            ) : (
+                              <Square className="h-5 w-5 text-muted-foreground" />
+                            )}
+                          </button>
+                        ) : (
+                          <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                            allStepsDone ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {allStepsDone ? '✓' : i + 1}
+                          </div>
                         )}
+                        <h4 className={`font-bold text-sm ${allStepsDone ? 'text-primary' : ''}`}>
+                          {ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {hasSteps && (
+                          <span className="text-xs text-muted-foreground font-mono">
+                            {checkedCount}/{steps.length}
+                          </span>
+                        )}
+                        <Badge variant="outline" className="text-xs">{ex.difficulty}</Badge>
                       </div>
                     </div>
 
-                    {/* Inner step checklist */}
+                    {/* Progress bar */}
                     {hasSteps && (
-                      <div className="space-y-1.5 ps-1">
-                        {/* Progress bar */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                            <div 
-                              className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
-                              style={{ width: `${progress}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-muted-foreground font-mono shrink-0">
-                            {checkedCount}/{steps.length}
-                          </span>
-                        </div>
+                      <div className="h-1 bg-muted">
+                        <div 
+                          className="h-full bg-primary transition-all duration-500 ease-out"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    )}
 
-                        {steps.map((step: string, si: number) => {
-                          const isStepDone = !!stepsForEx[si];
-                          return (
-                            <button
-                              key={si}
-                              className={`w-full flex items-start gap-2.5 p-2 rounded-lg text-start transition-colors ${
-                                isStepDone 
-                                  ? 'bg-green-500/5' 
-                                  : 'hover:bg-muted/50'
-                              }`}
-                              onClick={() => {
-                                setCheckedSteps(prev => ({
-                                  ...prev,
-                                  [i]: { ...(prev[i] || {}), [si]: !isStepDone }
-                                }));
-                              }}
-                            >
-                              {isStepDone ? (
-                                <CheckSquare className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                              ) : (
-                                <Square className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                              )}
-                              <span className={`text-sm ${isStepDone ? 'line-through text-muted-foreground' : ''}`}>
-                                {step}
-                              </span>
-                            </button>
-                          );
-                        })}
+                    {/* Description — only show if no steps (avoid duplication) */}
+                    {!hasSteps && ex.description && (
+                      <div className="px-4 py-3">
+                        <p className="text-sm text-muted-foreground">{ex.description}</p>
+                      </div>
+                    )}
+
+                    {/* Expected output */}
+                    {ex.expected_output && (
+                      <div className="px-4 py-2 bg-accent/5 border-b border-border/30">
+                        <p className="text-xs text-muted-foreground italic">
+                          {isHe ? '🎯 תוצאה צפויה: ' : '🎯 Expected: '}{ex.expected_output}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Inner roadmap timeline */}
+                    {hasSteps && (
+                      <div className="px-4 py-3">
+                        <div className="relative">
+                          {/* Vertical timeline line */}
+                          <div className="absolute top-2 bottom-2 start-[11px] w-0.5 bg-border rounded-full" />
+
+                          <div className="space-y-0">
+                            {steps.map((step: string, si: number) => {
+                              const isStepDone = !!stepsForEx[si];
+                              const isNextStep = !isStepDone && (si === 0 || !!stepsForEx[si - 1]);
+                              return (
+                                <button
+                                  key={si}
+                                  className={`relative w-full flex items-start gap-3 py-2.5 ps-0 text-start transition-all rounded-lg ${
+                                    isStepDone 
+                                      ? 'opacity-70' 
+                                      : isNextStep 
+                                        ? 'bg-primary/5 px-2 -mx-2 rounded-lg'
+                                        : ''
+                                  }`}
+                                  onClick={() => {
+                                    setCheckedSteps(prev => ({
+                                      ...prev,
+                                      [i]: { ...(prev[i] || {}), [si]: !isStepDone }
+                                    }));
+                                  }}
+                                >
+                                  {/* Timeline node */}
+                                  <div className={`relative z-10 h-6 w-6 rounded-full flex items-center justify-center shrink-0 transition-all border-2 ${
+                                    isStepDone 
+                                      ? 'bg-primary border-primary text-primary-foreground' 
+                                      : isNextStep
+                                        ? 'bg-background border-primary text-primary animate-pulse'
+                                        : 'bg-background border-muted-foreground/30 text-muted-foreground'
+                                  }`}>
+                                    {isStepDone ? (
+                                      <CheckCircle className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <span className="text-[10px] font-bold">{si + 1}</span>
+                                    )}
+                                  </div>
+
+                                  {/* Step content */}
+                                  <span className={`text-sm pt-0.5 flex-1 ${
+                                    isStepDone 
+                                      ? 'line-through text-muted-foreground' 
+                                      : isNextStep
+                                        ? 'font-medium text-foreground'
+                                        : 'text-muted-foreground'
+                                  }`}>
+                                    {step}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Completion banner */}
+                    {allStepsDone && (
+                      <div className="px-4 py-2 bg-primary/10 text-primary text-center text-xs font-medium">
+                        {isHe ? '✅ הושלם — ייווסף לתוכנית שלך!' : '✅ Complete — will be added to your plan!'}
                       </div>
                     )}
                   </div>
@@ -487,12 +537,16 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               })}
 
               {(lesson.content?.exercises?.length || 0) > 0 && (
-                <p className="text-xs text-muted-foreground text-center">
-                  {isHe 
-                    ? `✅ ${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} תרגילים הושלמו — סמן הכל כדי להמשיך`
-                    : `✅ ${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} exercises done — check all to continue`
-                  }
-                </p>
+                <div className="flex items-center justify-center gap-2 py-1">
+                  <div className="flex-1 h-px bg-border" />
+                  <p className="text-xs text-muted-foreground px-2">
+                    {isHe 
+                      ? `${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} משימות הושלמו`
+                      : `${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} missions complete`
+                    }
+                  </p>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
               )}
             </div>
           )}
