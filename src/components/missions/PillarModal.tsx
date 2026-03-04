@@ -65,6 +65,7 @@ export function PillarModal({ open, onOpenChange, hub, pillar, missions, milesto
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { generateStrategy, isGenerating } = useStrategyPlans();
+  const { selectedPillars } = usePillarAccess();
 
   const label = isHe ? pillar.labelHe : pillar.labelEn;
   const desc = isHe ? pillar.descriptionHe : pillar.description;
@@ -78,7 +79,7 @@ export function PillarModal({ open, onOpenChange, hub, pillar, missions, milesto
   const completedMissions = missions.filter(m => m.is_completed).length;
 
   const handleGenerate = () => {
-    generateStrategy.mutate({ hub: 'both' }, {
+    generateStrategy.mutate({ hub: 'both', selectedPillars }, {
       onError: (err: any) => {
         if ((err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') && err.missingPillars?.length > 0) {
           // Close this modal and let parent handle assessment
