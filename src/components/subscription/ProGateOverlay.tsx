@@ -59,9 +59,10 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-0 p-0 rounded-2xl overflow-hidden mx-auto w-full max-w-[380px] sm:max-w-[420px]',
+        'flex flex-col items-center justify-center rounded-2xl overflow-hidden w-full',
         className
       )}
+      style={{ maxWidth: 420 }}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Premium gradient card */}
