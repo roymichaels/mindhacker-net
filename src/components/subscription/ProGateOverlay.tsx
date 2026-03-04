@@ -65,7 +65,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Premium gradient card */}
-      <div className="relative w-full rounded-2xl overflow-hidden"
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 dark:border-white/10 border-black/5"
         style={{
           background: 'linear-gradient(135deg, hsl(270 60% 12%) 0%, hsl(280 50% 8%) 30%, hsl(40 60% 10%) 70%, hsl(35 70% 14%) 100%)',
         }}
