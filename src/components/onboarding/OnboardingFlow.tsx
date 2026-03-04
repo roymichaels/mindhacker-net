@@ -217,10 +217,17 @@ export function OnboardingFlow() {
             // Skip analyzing animation, go straight to reveal
             setShowIntro(false);
             setShowReveal(true);
-          } else if (savedPhase === 'calibration' || (Object.keys(restored).length > 0 && typeof data.current_step === 'number' && data.current_step > 0)) {
-            // Restore calibration step position
-            const savedStep = typeof data.current_step === 'number' ? Math.max(0, data.current_step - 1) : 0;
-            if (savedStep > 0) {
+          } else if (Object.keys(restored).length > 0 && typeof data.current_step === 'number' && data.current_step > 0) {
+            // User has answers and a saved step position
+            const totalSteps = onboardingFlowSpec.steps.length;
+            const savedStep = Math.max(0, data.current_step - 1);
+            
+            if (savedStep >= totalSteps) {
+              // Calibration was fully completed before phase persistence existed — skip to reveal
+              setShowIntro(false);
+              setShowReveal(true);
+            } else if (savedStep > 0) {
+              // Restore calibration step position
               setCurrentStepIdx(savedStep);
               setCurrentMiniIdx(0);
               setShowIntro(false);
