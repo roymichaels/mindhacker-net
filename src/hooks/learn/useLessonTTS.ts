@@ -223,10 +223,15 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
       return;
     }
 
-    const text = extractText(lesson);
-    if (!text.trim()) return;
+    const rawText = extractText(lesson);
+    if (!rawText.trim()) return;
+
+    // Strip nikud to reduce character count — TTS handles Hebrew fine without them
+    const text = stripNikud(rawText);
+    console.log('[TTS] Text prepared:', { rawLen: rawText.length, cleanLen: text.length });
 
     const chunks = splitTextIntoChunks(text);
+    console.log('[TTS] Split into', chunks.length, 'chunks:', chunks.map(c => c.length));
 
     setIsLoading(true);
     playingRef.current = true;
@@ -239,8 +244,6 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
         const success = await playChunk(
           chunks[i],
           abortRef.current!.signal,
-          i > 0 ? chunks[i - 1].slice(-200) : undefined,
-          i < chunks.length - 1 ? chunks[i + 1].slice(0, 200) : undefined,
         );
 
         if (!success) {
