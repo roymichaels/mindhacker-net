@@ -556,6 +556,11 @@ export function OnboardingFlow() {
           setShowAssessments(true);
           savePhase('assessments', { __selected_pillars: pillars, __chosen_tier: chosenTier });
         }}
+        onBack={() => {
+          setShowPillarSelection(false);
+          setShowTierSelection(true);
+          savePhase('tier_selection');
+        }}
       />
     );
   }
