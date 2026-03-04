@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 
