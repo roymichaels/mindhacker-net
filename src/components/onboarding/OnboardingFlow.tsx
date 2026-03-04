@@ -454,12 +454,14 @@ export function OnboardingFlow() {
     return (
       <OnboardingIntro
         onComplete={(basicInfo) => {
-          setAnswers(prev => ({
-            ...prev,
+          const updated = {
+            ...answers,
             gender: basicInfo.gender,
             age_bracket: basicInfo.ageBracket,
-          }));
+          };
+          setAnswers(updated);
           setShowIntro(false);
+          savePhase('calibration');
         }}
       />
     );
