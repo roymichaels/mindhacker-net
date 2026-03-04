@@ -97,7 +97,7 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   if (!canAccessProjects) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4" dir={isRTL ? 'rtl' : 'ltr'}>
-        <ProGateOverlay feature="projects" className="max-w-md w-full" />
+        <ProGateOverlay feature="projects" />
       </div>
     );
   }

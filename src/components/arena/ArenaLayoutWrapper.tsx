@@ -27,7 +27,7 @@ export default function ArenaLayoutWrapper() {
   if (!isLoading && !canAccessArenaFull) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
-        <ProGateOverlay feature="arena" targetTier="plus" className="max-w-md w-full" />
+        <ProGateOverlay feature="arena" targetTier="plus" />
       </div>
     );
   }
