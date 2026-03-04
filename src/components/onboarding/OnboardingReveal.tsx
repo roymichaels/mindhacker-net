@@ -451,7 +451,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
 
           {/* Focus Blocks */}
           <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 space-y-2">
-            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{isHe ? '🎯 בלוקי מיקוד' : '🎯 Focus Blocks'}</span>
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">🎯 {t('onboarding.reveal.focusBlocks')}</span>
             {week1.focusBlocks.map((f, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
