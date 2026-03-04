@@ -375,13 +375,14 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
     </div>
   );
 
+  const { t } = useTranslation();
   const scores = [
-    { key: 'energy', icon: Zap, label: isHe ? 'יציבות אנרגיה' : 'Energy Stability', value: diagnostics.energyStability, color: 'text-amber-500', barColor: 'bg-amber-500', inverted: false },
-    { key: 'recovery', icon: Heart, label: isHe ? 'חוב ריקברי' : 'Recovery Debt', value: diagnostics.recoveryDebt, color: 'text-red-500', barColor: 'bg-red-500', inverted: true },
-    { key: 'dopamine', icon: Zap, label: isHe ? 'עומס דופמין' : 'Dopamine Load', value: diagnostics.dopamineLoad, color: 'text-purple-500', barColor: 'bg-purple-500', inverted: true },
-    { key: 'execution', icon: Target, label: isHe ? 'אמינות ביצוע' : 'Execution Reliability', value: diagnostics.executionReliability, color: 'text-green-500', barColor: 'bg-green-500', inverted: false },
-    { key: 'time', icon: Clock, label: isHe ? 'מינוף זמן' : 'Time Leverage', value: diagnostics.timeLeverage, color: 'text-blue-500', barColor: 'bg-blue-500', inverted: false },
-    { key: 'hormonal', icon: Shield, label: isHe ? 'סיכון הורמונלי' : 'Hormonal Risk', value: diagnostics.hormonalRisk, color: 'text-orange-500', barColor: 'bg-orange-500', inverted: true },
+    { key: 'energy', icon: Zap, label: t('onboarding.reveal.energyStability'), value: diagnostics.energyStability, color: 'text-amber-500', barColor: 'bg-amber-500', inverted: false },
+    { key: 'recovery', icon: Heart, label: t('onboarding.reveal.recoveryDebt'), value: diagnostics.recoveryDebt, color: 'text-red-500', barColor: 'bg-red-500', inverted: true },
+    { key: 'dopamine', icon: Zap, label: t('onboarding.reveal.dopamineLoad'), value: diagnostics.dopamineLoad, color: 'text-purple-500', barColor: 'bg-purple-500', inverted: true },
+    { key: 'execution', icon: Target, label: t('onboarding.reveal.executionReliability'), value: diagnostics.executionReliability, color: 'text-green-500', barColor: 'bg-green-500', inverted: false },
+    { key: 'time', icon: Clock, label: t('onboarding.reveal.timeLeverage'), value: diagnostics.timeLeverage, color: 'text-blue-500', barColor: 'bg-blue-500', inverted: false },
+    { key: 'hormonal', icon: Shield, label: t('onboarding.reveal.hormonalRisk'), value: diagnostics.hormonalRisk, color: 'text-orange-500', barColor: 'bg-orange-500', inverted: true },
   ];
 
   return (
