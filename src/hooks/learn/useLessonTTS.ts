@@ -1,7 +1,6 @@
 /**
  * useLessonTTS — Plays lesson content aloud via ElevenLabs TTS.
- * Extracts readable text from lesson content based on type, 
- * then streams it through Aurora's voice.
+ * Splits long text into chunks and plays them sequentially.
  */
 import { useState, useRef, useCallback } from 'react';
 
@@ -12,7 +11,7 @@ interface UseLessonTTSOptions {
 
 const hebrewNumbers: Record<number, string> = {
   1: 'אֶחָד', 2: 'שְׁנַיִם', 3: 'שְׁלוֹשָׁה', 4: 'אַרְבָּעָה', 5: 'חֲמִשָּׁה',
-  6: 'שִׁשָּׁה', 7: 'שִׁבְעָה', 8: 'שְׁמוֹנָה', 9: 'תִּשְׁעָה', 10: 'עֲשָׂרָה',
+  6: 'שִׁשָּׁה', 7: 'שִׁבְעָה', 8: 'שְׁמוֹنָה', 9: 'תִּשְׁעָה', 10: 'עֲשָׂרָה',
   11: 'אַחַד עָשָׂר', 12: 'שְׁנֵים עָשָׂר', 13: 'שְׁלוֹשָׁה עָשָׂר',
   14: 'אַרְבָּעָה עָשָׂר', 15: 'חֲמִשָּׁה עָשָׂר', 16: 'שִׁשָּׁה עָשָׂר',
   17: 'שִׁבְעָה עָשָׂר', 18: 'שְׁמוֹנָה עָשָׂר', 19: 'תִּשְׁעָה עָשָׂר', 20: 'עֶשְׂרִים',
@@ -84,21 +83,58 @@ function extractText(lesson: { lesson_type: string; title: string; content: any 
   return parts.join('\n\n');
 }
 
+/** Split text into chunks of ~maxLen characters at sentence boundaries */
+function splitTextIntoChunks(text: string, maxLen = 4500): string[] {
+  if (text.length <= maxLen) return [text];
+
+  const chunks: string[] = [];
+  let remaining = text;
+
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLen) {
+      chunks.push(remaining);
+      break;
+    }
+
+    // Find the last sentence-ending punctuation within maxLen
+    let splitAt = -1;
+    const searchWindow = remaining.substring(0, maxLen);
+    
+    // Look for sentence boundaries: period, newline, question mark, exclamation
+    for (let i = searchWindow.length - 1; i >= Math.floor(maxLen * 0.5); i--) {
+      const ch = searchWindow[i];
+      if (ch === '.' || ch === '?' || ch === '!' || ch === '\n') {
+        splitAt = i + 1;
+        break;
+      }
+    }
+
+    // If no good split point found, just split at maxLen
+    if (splitAt === -1) splitAt = maxLen;
+
+    chunks.push(remaining.substring(0, splitAt).trim());
+    remaining = remaining.substring(splitAt).trim();
+  }
+
+  return chunks.filter(c => c.length > 0);
+}
+
 export function useLessonTTS(options: UseLessonTTSOptions = {}) {
   const { voice = 'sarah', speed = 1.0 } = options;
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const playingRef = useRef(false);
 
   const stop = useCallback(() => {
+    playingRef.current = false;
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       URL.revokeObjectURL(audioRef.current.src);
       audioRef.current = null;
     }
-    // Cancel browser TTS fallback if active
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
@@ -108,8 +144,63 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     setIsLoading(false);
   }, []);
 
+  /** Fetch and play a single chunk. Returns a promise that resolves when done. */
+  const playChunk = useCallback(async (
+    text: string, 
+    signal: AbortSignal,
+    previousText?: string,
+    nextText?: string,
+  ): Promise<boolean> => {
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ text, voiceId: voice, speed }),
+        signal,
+      }
+    );
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      if (errData.fallback) return false; // signal to use browser fallback
+      throw new Error(`TTS failed: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    
+    return new Promise<boolean>((resolve, reject) => {
+      if (!playingRef.current) {
+        URL.revokeObjectURL(url);
+        resolve(true);
+        return;
+      }
+
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onplay = () => { setIsPlaying(true); setIsLoading(false); };
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+        resolve(true);
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+        resolve(false); // fallback
+      };
+
+      audio.play().catch(reject);
+    });
+  }, [voice, speed]);
+
   const play = useCallback(async (lesson: { lesson_type: string; title: string; content: any }) => {
-    // If already playing, stop
     if (isPlaying || isLoading) {
       stop();
       return;
@@ -118,59 +209,44 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     const text = extractText(lesson);
     if (!text.trim()) return;
 
-    // Limit to 5000 chars for TTS
-    const truncated = text.length > 5000 ? text.substring(0, 5000) : text;
+    const chunks = splitTextIntoChunks(text);
 
     setIsLoading(true);
+    playingRef.current = true;
     abortRef.current = new AbortController();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ text: truncated, voiceId: voice, speed }),
-          signal: abortRef.current.signal,
-        }
-      );
+      for (let i = 0; i < chunks.length; i++) {
+        if (!playingRef.current) break;
 
-      if (!response.ok) {
-        // Check for fallback/quota
-        const errData = await response.json().catch(() => ({}));
-        if (errData.fallback) {
-          // Use browser TTS fallback
-          speakWithBrowserFallback(truncated, speed);
+        const success = await playChunk(
+          chunks[i],
+          abortRef.current!.signal,
+          i > 0 ? chunks[i - 1].slice(-200) : undefined,
+          i < chunks.length - 1 ? chunks[i + 1].slice(0, 200) : undefined,
+        );
+
+        if (!success) {
+          // Fallback: play remaining text with browser TTS
+          const remainingText = chunks.slice(i).join('\n\n');
+          speakWithBrowserFallback(remainingText, speed);
           return;
         }
-        throw new Error(`TTS failed: ${response.status}`);
       }
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      
-      audio.onplay = () => { setIsPlaying(true); setIsLoading(false); };
-      audio.onended = () => { stop(); };
-      audio.onerror = () => { 
-        stop();
-        // fallback to browser
-        speakWithBrowserFallback(truncated, speed);
-      };
-      
-      await audio.play();
+      // All chunks done
+      if (playingRef.current) {
+        playingRef.current = false;
+        setIsPlaying(false);
+      }
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       console.warn('ElevenLabs TTS error, falling back to browser:', err);
       setIsLoading(false);
-      speakWithBrowserFallback(truncated, speed);
+      const remainingText = text;
+      speakWithBrowserFallback(remainingText, speed);
     }
-  }, [isPlaying, isLoading, voice, speed, stop]);
+  }, [isPlaying, isLoading, speed, stop, playChunk]);
 
   const speakWithBrowserFallback = useCallback((text: string, rate: number) => {
     if (!window.speechSynthesis) return;
@@ -178,8 +254,8 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = rate;
     utterance.onstart = () => { setIsPlaying(true); setIsLoading(false); };
-    utterance.onend = () => { setIsPlaying(false); };
-    utterance.onerror = () => { setIsPlaying(false); };
+    utterance.onend = () => { setIsPlaying(false); playingRef.current = false; };
+    utterance.onerror = () => { setIsPlaying(false); playingRef.current = false; };
     window.speechSynthesis.speak(utterance);
   }, []);
 
