@@ -21,9 +21,10 @@ import { cn } from '@/lib/utils';
 interface AuroraChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
+  bypassLimits?: boolean;
 }
 
-const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
+const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProps) => {
   const queryClient = useQueryClient();
   const { t, tg, isRTL } = useGenderedTranslation();
   const { user } = useAuth();
@@ -69,7 +70,8 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
     const message = input.trim();
 
     // Subscription gate check: if free user out of messages, offer energy spend
-    if (!canSendMessage && !isPro) {
+    // Skip limits during onboarding assessments
+    if (!bypassLimits && !canSendMessage && !isPro) {
       if (canAfford(ENERGY_COSTS.AURORA_MESSAGE)) {
         setPendingMessage(message);
         setEnergyModalOpen(true);
@@ -86,8 +88,8 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
     onSend(message);
     setInput('');
 
-    // Increment daily message count for free users
-    if (!isPro && user?.id) {
+    // Increment daily message count for free users (skip during onboarding)
+    if (!bypassLimits && !isPro && user?.id) {
       supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {
         queryClient.invalidateQueries({ queryKey: ['daily-message-count', user.id] });
       });
