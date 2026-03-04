@@ -516,3 +516,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
             )}
           </button>
         </motion.div>
+      </motion.div>
+    </div>
+  );
+}
