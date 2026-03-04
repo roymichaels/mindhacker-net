@@ -212,11 +212,26 @@ export default function Learn() {
     return () => window.removeEventListener('learn:select-curriculum', handleWizardCompleteFromEvent);
   }, [handleWizardCompleteFromEvent]);
 
-  const handleLessonComplete = () => {
-    queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
+  const handleLessonComplete = async () => {
+    // Close current lesson immediately
+    const completedId = selectedLesson?.id;
+    setSelectedLesson(null);
+
+    // Refetch lessons and auto-advance to the next one
+    await queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
     queryClient.invalidateQueries({ queryKey: ['learning-modules', activeCurrId] });
     queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
-    setSelectedLesson(null);
+
+    // Wait a tick for data to settle, then find next lesson
+    setTimeout(() => {
+      const fresh = queryClient.getQueryData<any[]>(['learning-lessons', activeCurrId]);
+      if (!fresh) return;
+      const next = fresh.find((l: any) => (l.status === 'unlocked' || l.status === 'in_progress') && l.id !== completedId)
+        || fresh.find((l: any) => l.status !== 'completed' && l.status !== 'locked' && l.id !== completedId);
+      if (next) {
+        setSelectedLesson(next);
+      }
+    }, 600);
   };
 
   const activeCurriculum = curricula?.find(c => c.id === activeCurrId);
