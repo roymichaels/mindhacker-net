@@ -112,7 +112,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
                 initial={{ opacity: 0, x: isRTL ? 8 : -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 + i * 0.06 }}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]"
               >
                 <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                   style={{ background: 'linear-gradient(135deg, hsl(270 70% 50%), hsl(40 80% 55%))' }}
