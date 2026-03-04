@@ -537,6 +537,11 @@ export function OnboardingFlow() {
           setShowPlanGeneration(true);
           savePhase('plan_generation', { __selected_pillars: selectedPillars, __chosen_tier: chosenTier });
         }}
+        onBack={() => {
+          setShowAssessments(false);
+          setShowPillarSelection(true);
+          savePhase('pillar_selection', { __chosen_tier: chosenTier });
+        }}
       />
     );
   }
