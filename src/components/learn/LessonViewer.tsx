@@ -231,7 +231,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       }
 
       toast.success(`+${lesson.xp_reward} XP! ${isHe ? 'שיעור הושלם!' : 'Lesson completed!'}`);
-      onComplete();
+      setShowCompletionDialog(true);
     } catch (err: any) {
       toast.error(err.message || 'Failed to complete lesson');
     } finally {
