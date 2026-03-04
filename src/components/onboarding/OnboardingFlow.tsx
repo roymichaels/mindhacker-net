@@ -337,9 +337,10 @@ export function OnboardingFlow() {
       setCurrentStepIdx(currentStepIdx + 1);
       setCurrentMiniIdx(0);
     } else {
+      savePhase('calibration_done');
       setShowAnalyzing(true);
     }
-  }, [currentMiniIdx, visibleMiniSteps.length, currentStepIdx, steps.length]);
+  }, [currentMiniIdx, visibleMiniSteps.length, currentStepIdx, steps.length, savePhase]);
 
   const handleSelect = useCallback((value: string) => {
     if (!currentMini) return;
