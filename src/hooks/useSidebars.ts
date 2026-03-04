@@ -5,32 +5,44 @@ import { useSidebarContext } from '@/contexts/SidebarContext';
  * Hook for hub pages to set their custom sidebars into the root layout.
  * Pass `null` to explicitly hide a sidebar, or `undefined`/omit to use defaults.
  *
- * Uses refs to track sidebar content and only updates context when
- * the component mounts/unmounts, avoiding infinite render loops.
+ * Uses a ref + queueMicrotask pattern to batch sidebar updates and avoid
+ * infinite re-render loops caused by setting context state during effects.
  */
 export function useSidebars(left?: ReactNode | null, right?: ReactNode | null) {
   const { setLeftSidebar, setRightSidebar } = useSidebarContext();
-  const leftRef = useRef(left);
-  const rightRef = useRef(right);
+  const leftRef = useRef<ReactNode | null | undefined>(left);
+  const rightRef = useRef<ReactNode | null | undefined>(right);
+  const mountedRef = useRef(false);
 
-  // Keep refs current
+  // Always keep refs in sync with latest JSX
   leftRef.current = left;
   rightRef.current = right;
 
-  // Set sidebars on mount and whenever left/right identity changes
-  // We use a layout-safe approach: update via ref on each render,
-  // but only call setState in a controlled effect
+  // Set sidebars on mount
   useEffect(() => {
+    mountedRef.current = true;
     setLeftSidebar(leftRef.current);
     setRightSidebar(rightRef.current);
-  }); // intentionally no deps — runs after each render but refs prevent loop
 
-  // Cleanup on unmount
-  useEffect(() => {
     return () => {
+      mountedRef.current = false;
       setLeftSidebar(undefined);
       setRightSidebar(undefined);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Update sidebars when content changes — use a microtask to avoid
+  // synchronous setState-during-render. Only run after mount.
+  useEffect(() => {
+    if (!mountedRef.current) return;
+    // Deferred update to break the render cycle
+    const id = requestAnimationFrame(() => {
+      if (mountedRef.current) {
+        setLeftSidebar(leftRef.current);
+        setRightSidebar(rightRef.current);
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  });
 }
