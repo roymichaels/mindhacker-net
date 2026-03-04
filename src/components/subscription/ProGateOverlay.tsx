@@ -65,7 +65,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Premium gradient card */}
-      <div className="relative w-full rounded-2xl overflow-hidden"
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 dark:border-white/10 border-black/5"
         style={{
           background: 'linear-gradient(135deg, hsl(270 60% 12%) 0%, hsl(280 50% 8%) 30%, hsl(40 60% 10%) 70%, hsl(35 70% 14%) 100%)',
         }}
@@ -76,7 +76,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
           <div className="absolute bottom-0 right-0 w-[200px] h-[200px] rounded-full bg-amber-500/10 blur-[60px]" />
         </div>
 
-        <div className="relative z-10 p-6 sm:p-8 space-y-6">
+        <div className="relative z-10 p-5 sm:p-8 space-y-4 sm:space-y-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -112,7 +112,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
                 initial={{ opacity: 0, x: isRTL ? 8 : -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 + i * 0.06 }}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]"
               >
                 <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                   style={{ background: 'linear-gradient(135deg, hsl(270 70% 50%), hsl(40 80% 55%))' }}
