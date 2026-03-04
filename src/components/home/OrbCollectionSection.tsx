@@ -230,7 +230,7 @@ export default function OrbCollectionSection() {
                   zIndex: isCenter ? 10 : 5 - Math.abs(distFromCenter),
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                onClick={() => goTo(presetIdx)}
+                onClick={() => { goTo(presetIdx); setModalPresetIdx(presetIdx); }}
                 className={cn(
                   'flex flex-col items-center cursor-pointer rounded-2xl overflow-hidden',
                   'bg-card/60 backdrop-blur-sm border border-border/30',
