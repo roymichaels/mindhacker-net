@@ -42,6 +42,8 @@ serve(async (req) => {
       similarityBoost = 0.75,
       style = 0.5,
       speed = 1.0,
+      previousText,
+      nextText,
     } = body;
 
     if (!text || text.trim().length === 0) {
