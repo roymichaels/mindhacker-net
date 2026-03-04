@@ -151,6 +151,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     previousText?: string,
     nextText?: string,
   ): Promise<boolean> => {
+    console.log('[TTS] Playing chunk:', { length: text.length, hasPrev: !!previousText, hasNext: !!nextText });
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
       {
@@ -160,18 +161,26 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ text, voiceId: voice, speed }),
+        body: JSON.stringify({ 
+          text, 
+          voiceId: voice, 
+          speed,
+          previousText: previousText?.slice(-200),
+          nextText: nextText?.slice(0, 200),
+        }),
         signal,
       }
     );
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      if (errData.fallback) return false; // signal to use browser fallback
+      console.warn('[TTS] Chunk fetch failed:', response.status, errData);
+      if (errData.fallback) return false;
       throw new Error(`TTS failed: ${response.status}`);
     }
 
     const blob = await response.blob();
+    console.log('[TTS] Chunk audio received:', { size: blob.size });
     const url = URL.createObjectURL(blob);
     
     return new Promise<boolean>((resolve, reject) => {
@@ -184,19 +193,29 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
       const audio = new Audio(url);
       audioRef.current = audio;
 
-      audio.onplay = () => { setIsPlaying(true); setIsLoading(false); };
+      audio.onplay = () => { 
+        console.log('[TTS] Audio playing');
+        setIsPlaying(true); 
+        setIsLoading(false); 
+      };
       audio.onended = () => {
+        console.log('[TTS] Audio chunk ended naturally');
         URL.revokeObjectURL(url);
         audioRef.current = null;
         resolve(true);
       };
-      audio.onerror = () => {
+      audio.onerror = (e) => {
+        console.warn('[TTS] Audio element error:', e);
         URL.revokeObjectURL(url);
         audioRef.current = null;
-        resolve(false); // fallback
+        resolve(false);
       };
 
-      audio.play().catch(reject);
+      audio.play().catch((err) => {
+        console.warn('[TTS] play() rejected:', err);
+        URL.revokeObjectURL(url);
+        reject(err);
+      });
     });
   }, [voice, speed]);
 
