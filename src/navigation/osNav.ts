@@ -30,7 +30,7 @@ export const OS_TABS: OsTab[] = [
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
 ];
 
-/** Coach tab — visible to all authenticated users */
+/** Coach tab — now nested under FM, not a top-level tab */
 export const COACH_TAB: OsTab = {
   id: 'coach',
   path: '/coaches',
@@ -90,6 +90,5 @@ export const PROJECTS_SUB_ROUTES: SubRoute[] = [
  * Admin tab is no longer in the bottom nav — it's accessed via the app dropdown.
  */
 export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
-  const tabs = [...OS_TABS, COACH_TAB];
-  return tabs;
+  return [...OS_TABS];
 }
