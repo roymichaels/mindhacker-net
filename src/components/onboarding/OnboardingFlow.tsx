@@ -404,9 +404,9 @@ export function OnboardingFlow() {
   }
 
   if (showAnalyzing && !showReveal) {
-    const analysisSteps = isHe
-      ? ['מנתח דפוסי שינה...', 'מחשב עומס דופמין...', 'מעריך יציבות אנרגיה...', 'בונה פרופיל ביולוגי...', 'מכוון תוכנית 100 יום...']
-      : ['Analyzing sleep patterns...', 'Computing dopamine load...', 'Evaluating energy stability...', 'Building biological profile...', 'Calibrating 100-day plan...'];
+    const analysisSteps = [
+      t('onboarding.flow.analyzingSleep'), t('onboarding.flow.computingDopamine'), t('onboarding.flow.evaluatingEnergy'), t('onboarding.flow.buildingProfile'), t('onboarding.flow.calibrating100Day')
+    ];
     
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6" dir={isRTL ? 'rtl' : 'ltr'}>
