@@ -30,7 +30,7 @@ export const OS_TABS: OsTab[] = [
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
 ];
 
-/** Coach tab — visible to all authenticated users */
+/** Coach tab — now nested under FM, not a top-level tab */
 export const COACH_TAB: OsTab = {
   id: 'coach',
   path: '/coaches',
