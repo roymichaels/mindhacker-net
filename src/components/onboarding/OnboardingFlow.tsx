@@ -135,6 +135,33 @@ export function OnboardingFlow() {
 
   const steps = onboardingFlowSpec.steps;
 
+  // ─── Save phase to DB ───
+  const savePhase = useCallback(async (phase: string, extra?: Record<string, unknown>) => {
+    if (!user?.id) return;
+    try {
+      const phaseData: Record<string, unknown> = { __onboarding_phase: phase, ...extra };
+      // Merge with existing step_3_lifestyle_data
+      const { data: existing } = await supabase
+        .from('launchpad_progress')
+        .select('step_3_lifestyle_data')
+        .eq('user_id', user.id)
+        .single();
+      
+      const merged = {
+        ...(existing?.step_3_lifestyle_data && typeof existing.step_3_lifestyle_data === 'object' ? existing.step_3_lifestyle_data as Record<string, unknown> : {}),
+        ...phaseData,
+      };
+      
+      await supabase.from('launchpad_progress').upsert({
+        user_id: user.id,
+        step_3_lifestyle_data: merged as any,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+    } catch (e) {
+      console.error('Save phase error:', e);
+    }
+  }, [user?.id]);
+
   // Restore saved progress on mount
   useEffect(() => {
     if (!user?.id) { setIsRestoring(false); return; }
@@ -143,7 +170,7 @@ export function OnboardingFlow() {
       try {
         const { data } = await supabase
           .from('launchpad_progress')
-          .select('step_1_intention, step_2_profile_data, current_step')
+          .select('step_1_intention, step_2_profile_data, step_3_lifestyle_data, current_step')
           .eq('user_id', user.id)
           .single();
         
@@ -158,7 +185,40 @@ export function OnboardingFlow() {
           
           if (Object.keys(restored).length > 0) {
             setAnswers(restored);
-            // Restore step position — go to saved step (0-indexed)
+          }
+
+          // Restore onboarding phase
+          const phaseData = data.step_3_lifestyle_data && typeof data.step_3_lifestyle_data === 'object'
+            ? data.step_3_lifestyle_data as Record<string, unknown>
+            : null;
+          const savedPhase = phaseData?.__onboarding_phase as string | undefined;
+
+          if (savedPhase === 'plan_generation') {
+            setShowIntro(false);
+            setShowPlanGeneration(true);
+            setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
+            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+          } else if (savedPhase === 'assessments') {
+            setShowIntro(false);
+            setShowAssessments(true);
+            setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
+            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+          } else if (savedPhase === 'pillar_selection') {
+            setShowIntro(false);
+            setShowPillarSelection(true);
+            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+          } else if (savedPhase === 'tier_selection') {
+            setShowIntro(false);
+            setShowTierSelection(true);
+          } else if (savedPhase === 'reveal') {
+            setShowIntro(false);
+            setShowReveal(true);
+          } else if (savedPhase === 'analyzing' || savedPhase === 'calibration_done') {
+            // Skip analyzing animation, go straight to reveal
+            setShowIntro(false);
+            setShowReveal(true);
+          } else if (savedPhase === 'calibration' || (Object.keys(restored).length > 0 && typeof data.current_step === 'number' && data.current_step > 0)) {
+            // Restore calibration step position
             const savedStep = typeof data.current_step === 'number' ? Math.max(0, data.current_step - 1) : 0;
             if (savedStep > 0) {
               setCurrentStepIdx(savedStep);
@@ -166,6 +226,7 @@ export function OnboardingFlow() {
               setShowIntro(false);
             }
           }
+          // If no phase saved and no answers, stay at intro (default)
         }
       } catch (e) {
         console.error('Restore onboarding error:', e);
@@ -276,9 +337,10 @@ export function OnboardingFlow() {
       setCurrentStepIdx(currentStepIdx + 1);
       setCurrentMiniIdx(0);
     } else {
+      savePhase('calibration_done');
       setShowAnalyzing(true);
     }
-  }, [currentMiniIdx, visibleMiniSteps.length, currentStepIdx, steps.length]);
+  }, [currentMiniIdx, visibleMiniSteps.length, currentStepIdx, steps.length, savePhase]);
 
   const handleSelect = useCallback((value: string) => {
     if (!currentMini) return;
@@ -392,12 +454,14 @@ export function OnboardingFlow() {
     return (
       <OnboardingIntro
         onComplete={(basicInfo) => {
-          setAnswers(prev => ({
-            ...prev,
+          const updated = {
+            ...answers,
             gender: basicInfo.gender,
             age_bracket: basicInfo.ageBracket,
-          }));
+          };
+          setAnswers(updated);
           setShowIntro(false);
+          savePhase('calibration');
         }}
       />
     );
@@ -464,6 +528,7 @@ export function OnboardingFlow() {
         onComplete={() => {
           setShowAssessments(false);
           setShowPlanGeneration(true);
+          savePhase('plan_generation', { __selected_pillars: selectedPillars, __chosen_tier: chosenTier });
         }}
       />
     );
@@ -477,6 +542,7 @@ export function OnboardingFlow() {
           setSelectedPillars(pillars);
           setShowPillarSelection(false);
           setShowAssessments(true);
+          savePhase('assessments', { __selected_pillars: pillars, __chosen_tier: chosenTier });
         }}
       />
     );
@@ -489,6 +555,7 @@ export function OnboardingFlow() {
           setChosenTier(tier);
           setShowTierSelection(false);
           setShowPillarSelection(true);
+          savePhase('pillar_selection', { __chosen_tier: tier });
         }}
       />
     );
@@ -501,6 +568,7 @@ export function OnboardingFlow() {
         onContinue={() => {
           setShowReveal(false);
           setShowTierSelection(true);
+          savePhase('tier_selection');
         }}
       />
     );
