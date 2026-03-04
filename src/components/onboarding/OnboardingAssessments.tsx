@@ -6,6 +6,7 @@ import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
+import OnboardingPresenceScan from '@/components/onboarding/OnboardingPresenceScan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -96,14 +97,22 @@ export function OnboardingAssessments({ selectedPillars, onComplete }: Onboardin
         </div>
       </div>
 
-      {/* Assessment Chat */}
+      {/* Assessment — bio-scan for presence, chat for everything else */}
       <div className="flex-1 min-h-0">
-        <DomainAssessChat
-          key={currentPillarId}
-          domainId={currentPillarId}
-          asModal
-          onClose={handlePillarComplete}
-        />
+        {currentPillarId === 'presence' ? (
+          <OnboardingPresenceScan
+            key={currentPillarId}
+            onComplete={handlePillarComplete}
+            onCancel={handlePillarComplete}
+          />
+        ) : (
+          <DomainAssessChat
+            key={currentPillarId}
+            domainId={currentPillarId}
+            asModal
+            onClose={handlePillarComplete}
+          />
+        )}
       </div>
     </div>
   );
