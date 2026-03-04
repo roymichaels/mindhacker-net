@@ -122,6 +122,7 @@ export function useSmartSuggestions() {
         incompleteHabits,
         didHypnosisToday: (hypnosisToday?.length || 0) > 0,
         hasCompletedLaunchpad: (launchpadComplete?.length || 0) > 0,
+        hasNoCurricula: (existingCurricula?.length || 0) === 0,
       };
     },
     enabled: !!user?.id,
