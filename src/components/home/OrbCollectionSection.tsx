@@ -11,6 +11,7 @@ import { Orb } from '@/components/orb/Orb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PresetOrbDNAModal } from './PresetOrbDNAModal';
 
 interface ArchMeta {
   nameEn: string; nameHe: string;
@@ -122,6 +123,7 @@ export default function OrbCollectionSection() {
   const isMobile = useIsMobile();
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [modalPresetIdx, setModalPresetIdx] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = ORB_PRESETS.length;
 
@@ -228,7 +230,7 @@ export default function OrbCollectionSection() {
                   zIndex: isCenter ? 10 : 5 - Math.abs(distFromCenter),
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                onClick={() => goTo(presetIdx)}
+                onClick={() => { goTo(presetIdx); setModalPresetIdx(presetIdx); }}
                 className={cn(
                   'flex flex-col items-center cursor-pointer rounded-2xl overflow-hidden',
                   'bg-card/60 backdrop-blur-sm border border-border/30',
@@ -323,6 +325,13 @@ export default function OrbCollectionSection() {
           </Button>
         </motion.div>
       </div>
+
+      <PresetOrbDNAModal
+        open={modalPresetIdx !== null}
+        onOpenChange={(open) => { if (!open) setModalPresetIdx(null); }}
+        preset={modalPresetIdx !== null ? ORB_PRESETS[modalPresetIdx] : null}
+        meta={modalPresetIdx !== null ? ARCH_DATA[ORB_PRESETS[modalPresetIdx].id] : null}
+      />
     </section>
   );
 }
