@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 
@@ -29,6 +30,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  useLearnPillarAction();
 
   // Read from SidebarContext (set by hub pages via useSidebars hook)
   // Props take priority > context > defaults

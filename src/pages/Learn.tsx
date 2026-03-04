@@ -178,15 +178,7 @@ export default function Learn() {
 
   const [recalibrating, setRecalibrating] = useState(false);
 
-  const handleWizardComplete = (curriculumId: string) => {
-    // Clear learn pillar context from dock
-    if (auroraChat) {
-      auroraChat.setActivePillar(null);
-    }
-    queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
-    selectCurriculum(curriculumId);
-    toast.success(isHe ? '🔥 תוכנית הלימודים נוצרה!' : '🔥 Curriculum created!');
-  };
+  // handleWizardComplete is now handled globally via useLearnPillarAction hook
 
   // Open Aurora Dock for curriculum wizard chat
   const openWizardInDock = useCallback(() => {
@@ -205,71 +197,20 @@ export default function Learn() {
   // Check if learn pillar is active (wizard mode)
   const isWizardActive = auroraChat?.activePillar === 'learn';
 
-  // Generate curriculum from dock conversation messages
-  const handleGenerateFromDock = useCallback(async () => {
-    if (!auroraChat || !user?.id) return;
-    auroraChat.setPillarActionLoading(true);
-    try {
-      const convId = auroraChat.pillarConversationId;
-      if (!convId) throw new Error('No conversation found');
+  // Pillar action (Build Curriculum button) is now registered globally
+  // via useLearnPillarAction in DashboardLayout — no need to duplicate here.
 
-      const { data: dbMessages, error: msgErr } = await supabase
-        .from('messages')
-        .select('content, sender_id')
-        .eq('conversation_id', convId)
-        .order('created_at', { ascending: true });
-
-      if (msgErr) throw msgErr;
-
-      const chatMessages = (dbMessages || []).map((m: any) => ({
-        role: m.sender_id === user.id ? 'user' : 'assistant',
-        content: m.content,
-      }));
-
-      if (chatMessages.length < 2) {
-        toast.error(isHe ? 'דבר עם Aurora קודם כדי לתאר מה תרצה ללמוד' : 'Chat with Aurora first to describe what you want to learn');
-        return;
-      }
-
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error('Not authenticated');
-
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-curriculum`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({
-          action: 'generate',
-          messages: chatMessages,
-        }),
-      });
-
-      if (!resp.ok) throw new Error('Generation failed');
-
-      const data = await resp.json();
-      if (!data.success || !data.curriculum_id) throw new Error('Invalid response');
-
-      handleWizardComplete(data.curriculum_id);
-    } catch (err: any) {
-      toast.error(err.message || (isHe ? 'שגיאה ביצירת תוכנית לימודים' : 'Failed to generate curriculum'));
-    } finally {
-      auroraChat?.setPillarActionLoading(false);
+  const handleWizardCompleteFromEvent = useCallback((e: Event) => {
+    const curriculumId = (e as CustomEvent).detail;
+    if (curriculumId) {
+      selectCurriculum(curriculumId);
     }
-  }, [auroraChat, user?.id, isHe]);
+  }, []);
 
-  // Register/unregister the pillar action button in the dock
   useEffect(() => {
-    if (isWizardActive && auroraChat) {
-      const label = isHe ? '🔥 בנה את תוכנית הלימודים!' : '🔥 Build the Curriculum!';
-      auroraChat.setPillarAction(label, handleGenerateFromDock);
-    }
-    return () => {
-      auroraChat?.setPillarAction(null, null);
-    };
-  }, [isWizardActive, auroraChat, handleGenerateFromDock, isHe]);
+    window.addEventListener('learn:select-curriculum', handleWizardCompleteFromEvent);
+    return () => window.removeEventListener('learn:select-curriculum', handleWizardCompleteFromEvent);
+  }, [handleWizardCompleteFromEvent]);
 
   const handleLessonComplete = () => {
     queryClient.invalidateQueries({ queryKey: ['learning-lessons', activeCurrId] });
