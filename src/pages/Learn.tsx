@@ -178,15 +178,7 @@ export default function Learn() {
 
   const [recalibrating, setRecalibrating] = useState(false);
 
-  const handleWizardComplete = (curriculumId: string) => {
-    // Clear learn pillar context from dock
-    if (auroraChat) {
-      auroraChat.setActivePillar(null);
-    }
-    queryClient.invalidateQueries({ queryKey: ['learning-curricula'] });
-    selectCurriculum(curriculumId);
-    toast.success(isHe ? '🔥 תוכנית הלימודים נוצרה!' : '🔥 Curriculum created!');
-  };
+  // handleWizardComplete is now handled globally via useLearnPillarAction hook
 
   // Open Aurora Dock for curriculum wizard chat
   const openWizardInDock = useCallback(() => {
