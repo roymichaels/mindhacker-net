@@ -74,7 +74,8 @@ function LearnLayoutInner() {
       onSelectLesson={handleSelectLesson}
       onRecalibrate={handleRecalibrate}
       recalibrating={recalibrating}
-    />
+    />,
+    [selectedCurriculumId, recalibrating]
   );
 
   return <Learn />;
