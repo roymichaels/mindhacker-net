@@ -1,7 +1,7 @@
 /**
- * OrbCollectionSection - NFT-style gallery showcasing the 10 real WebGL orb archetypes
- * that combine to form each user's unique Visual DNA orb.
+ * OrbCollectionSection - Auto-sliding carousel showcasing WebGL orb archetypes
  */
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Orb } from '@/components/orb/Orb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ArchMeta {
   nameEn: string; nameHe: string;
@@ -111,11 +112,44 @@ const ARCH_DATA: Record<string, ArchMeta> = {
   },
 };
 
+const AUTO_SLIDE_INTERVAL = 3000;
+
 export default function OrbCollectionSection() {
   const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const lang = language === 'he' ? 'he' : 'en';
   const NextArrow = isRTL ? ArrowLeft : ArrowRight;
+  const isMobile = useIsMobile();
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const total = ORB_PRESETS.length;
+
+  const visibleCount = isMobile ? 3 : 5;
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % total);
+    }, AUTO_SLIDE_INTERVAL);
+  }, [total]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [resetTimer]);
+
+  const goTo = (idx: number) => {
+    setActiveIndex(((idx % total) + total) % total);
+    resetTimer();
+  };
+
+  // Build visible indices (wrapping)
+  const visibleIndices: number[] = [];
+  const half = Math.floor(visibleCount / 2);
+  for (let i = -half; i <= half; i++) {
+    visibleIndices.push(((activeIndex + i) % total + total) % total);
+  }
 
   return (
     <section className="relative py-24 overflow-hidden">
@@ -170,70 +204,65 @@ export default function OrbCollectionSection() {
           ))}
         </motion.div>
 
-        {/* NFT Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
-          {ORB_PRESETS.map((preset, index) => {
+        {/* Carousel row */}
+        <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[320px] sm:min-h-[360px]">
+          {visibleIndices.map((presetIdx, slotIdx) => {
+            const preset = ORB_PRESETS[presetIdx];
             const meta = ARCH_DATA[preset.id];
             if (!meta) return null;
 
-            const colors = preset.profile.gradientStops?.slice(0, 4) || [];
+            const distFromCenter = slotIdx - half;
+            const isCenter = distFromCenter === 0;
+            const scale = isCenter ? 1 : 0.78 - Math.abs(distFromCenter) * 0.05;
+            const opacity = isCenter ? 1 : 0.55 - Math.abs(distFromCenter) * 0.08;
+            const orbSize = isMobile ? (isCenter ? 120 : 90) : (isCenter ? 160 : 120);
 
             return (
               <motion.div
                 key={preset.id}
-                initial={{ opacity: 0, y: 40, scale: 0.9 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.5, delay: index * 0.06 }}
-                whileHover={{ y: -6, scale: 1.02 }}
+                layout
+                initial={false}
+                animate={{
+                  scale,
+                  opacity,
+                  zIndex: isCenter ? 10 : 5 - Math.abs(distFromCenter),
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                onClick={() => goTo(presetIdx)}
                 className={cn(
-                  'group relative flex flex-col items-center rounded-2xl overflow-hidden',
+                  'flex flex-col items-center cursor-pointer rounded-2xl overflow-hidden',
                   'bg-card/60 backdrop-blur-sm border border-border/30',
-                  'shadow-lg hover:shadow-xl hover:border-primary/20',
-                  'transition-all duration-300'
+                  'transition-shadow duration-300',
+                  isCenter ? 'shadow-2xl border-primary/30' : 'shadow-md',
+                  isMobile ? 'w-[110px]' : 'w-[180px]',
                 )}
               >
-                {/* Real WebGL Orb */}
+                {/* Orb */}
                 <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden">
                   <Orb
                     profile={preset.profile}
-                    size={140}
+                    size={orbSize}
                     state="breathing"
                     renderer="webgl"
                     showGlow={false}
                   />
                 </div>
 
-                {/* Info */}
-                <div className="w-full px-3 pb-3 space-y-1.5">
-                  {/* Color swatches */}
-                  <div className="flex gap-1 justify-center">
-                    {colors.map((stop, j) => (
-                      <div
-                        key={j}
-                        className="w-3 h-3 rounded-full border border-border/20"
-                        style={{ backgroundColor: `hsl(${stop})` }}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Name */}
-                  <h3 className="text-sm font-bold text-foreground text-center truncate">
+                {/* Info — only shown for center */}
+                <div className={cn(
+                  'w-full px-2 pb-3 space-y-1 transition-all duration-300',
+                  isCenter ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'
+                )}>
+                  <h3 className="text-xs sm:text-sm font-bold text-foreground text-center truncate">
                     {lang === 'he' ? meta.nameHe : meta.nameEn}
                   </h3>
-
-                  {/* Description */}
-                  <p className="text-[10px] text-muted-foreground text-center leading-tight line-clamp-2 min-h-[24px]">
+                  <p className="text-[10px] text-muted-foreground text-center leading-tight line-clamp-2">
                     {lang === 'he' ? meta.descHe : meta.descEn}
                   </p>
-
-                  {/* DNA influence */}
-                  <p className="text-[9px] text-primary/70 text-center leading-tight italic">
-                    {lang === 'he' ? `מושפע מ: ${meta.dnaHe}` : `Influenced by: ${meta.dnaEn}`}
+                  <p className="text-[9px] text-primary/70 text-center italic">
+                    {lang === 'he' ? meta.dnaHe : meta.dnaEn}
                   </p>
-
-                  {/* Trait pills */}
-                  <div className="flex flex-wrap gap-1 justify-center pt-0.5">
+                  <div className="flex flex-wrap gap-1 justify-center">
                     {(lang === 'he' ? meta.traitsHe : meta.traitsEn).map((trait) => (
                       <span key={trait} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
                         {trait}
@@ -243,12 +272,31 @@ export default function OrbCollectionSection() {
                 </div>
 
                 {/* Number badge */}
-                <div className="absolute top-2 end-2 text-[10px] font-mono text-muted-foreground/40 tabular-nums">
-                  #{String(index + 1).padStart(2, '0')}
+                <div className={cn(
+                  'absolute top-2 text-[10px] font-mono text-muted-foreground/40 tabular-nums',
+                  isRTL ? 'left-2' : 'right-2'
+                )}>
+                  #{String(presetIdx + 1).padStart(2, '0')}
                 </div>
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex items-center justify-center gap-1.5 mt-6">
+          {ORB_PRESETS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => goTo(idx)}
+              className={cn(
+                'rounded-full transition-all duration-300',
+                idx === activeIndex
+                  ? 'w-6 h-2 bg-primary'
+                  : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              )}
+            />
+          ))}
         </div>
 
         {/* Bottom CTA */}
