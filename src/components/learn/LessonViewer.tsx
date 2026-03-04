@@ -308,7 +308,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               </div>
               
               {lesson.content?.exercises?.map((ex: any, i: number) => {
-                const steps: string[] = ex.steps || [];
+                const steps: string[] = ex.steps || extractStepsFromDescription(ex.description || '');
                 const hasSteps = steps.length > 0;
                 const stepsForEx = checkedSteps[i] || {};
                 const checkedCount = Object.values(stepsForEx).filter(Boolean).length;
