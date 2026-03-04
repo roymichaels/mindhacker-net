@@ -4,6 +4,10 @@ export { default as TwoWorldsSection } from './TwoWorldsSection';
 export { default as HowItWorksSection } from './HowItWorksSection';
 export { default as AuroraCoachSection } from './AuroraCoachSection';
 export { default as FeatureShowcaseSection } from './FeatureShowcaseSection';
+export { default as LearningEngineSection } from './LearningEngineSection';
+export { default as CoachMarketplaceSection } from './CoachMarketplaceSection';
+export { default as CommunitySection } from './CommunitySection';
+export { default as PricingPreviewSection } from './PricingPreviewSection';
 export { default as TransformationProofSection } from './TransformationProofSection';
 export { default as FinalCTASection } from './FinalCTASection';
 
