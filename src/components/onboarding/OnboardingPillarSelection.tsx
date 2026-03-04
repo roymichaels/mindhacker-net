@@ -41,7 +41,7 @@ interface OnboardingPillarSelectionProps {
   onBack?: () => void;
 }
 
-export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillarSelectionProps) {
+export function OnboardingPillarSelection({ tier, onComplete, onBack }: OnboardingPillarSelectionProps) {
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const isHe = language === 'he';

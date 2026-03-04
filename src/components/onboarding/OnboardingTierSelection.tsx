@@ -18,7 +18,7 @@ interface OnboardingTierSelectionProps {
   onBack?: () => void;
 }
 
-export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelectionProps) {
+export function OnboardingTierSelection({ onTierSelected, onBack }: OnboardingTierSelectionProps) {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();

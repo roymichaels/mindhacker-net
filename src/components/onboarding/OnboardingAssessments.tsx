@@ -17,7 +17,7 @@ interface OnboardingAssessmentsProps {
   onBack?: () => void;
 }
 
-export function OnboardingAssessments({ selectedPillars, onComplete }: OnboardingAssessmentsProps) {
+export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: OnboardingAssessmentsProps) {
   const { t, language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [currentIndex, setCurrentIndex] = useState(0);
