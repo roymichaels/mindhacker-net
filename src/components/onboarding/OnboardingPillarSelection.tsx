@@ -109,7 +109,7 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
         </div>
 
         {/* Pillar Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {CORE_DOMAINS.map((domain, i) => {
             const isSelected = selected.includes(domain.id);
             const atLimit = !isApex && selected.length >= totalLimit;
@@ -124,7 +124,7 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
                 onClick={() => handleToggle(domain)}
                 disabled={isApex || (!isSelected && atLimit)}
                 className={cn(
-                  'flex flex-col items-center gap-1.5 rounded-xl border bg-gradient-to-br p-3.5 text-center transition-all relative',
+                  'flex flex-col items-center gap-1.5 rounded-xl border bg-gradient-to-br p-4 text-center transition-all relative',
                   isApex ? 'cursor-default' : 'cursor-pointer',
                   isSelected
                     ? cardBgMap[domain.color]
@@ -141,10 +141,13 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
                 )}
                 <Icon className={cn('w-6 h-6', isSelected ? domainColorMap[domain.color] : 'text-muted-foreground/50')} />
                 <span className={cn(
-                  'text-[10px] font-semibold leading-tight',
+                  'text-[11px] font-semibold leading-tight',
                   isSelected ? domainColorMap[domain.color] : 'text-foreground/50'
                 )}>
                   {isHe ? domain.labelHe : domain.labelEn}
+                </span>
+                <span className="text-[9px] leading-snug text-muted-foreground/70 line-clamp-2">
+                  {isHe ? domain.descriptionHe : domain.description}
                 </span>
               </motion.button>
             );
