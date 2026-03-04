@@ -11,6 +11,8 @@ interface ElevenLabsTTSRequest {
   similarityBoost?: number;
   style?: number;
   speed?: number;
+  previousText?: string;
+  nextText?: string;
 }
 
 // Top ElevenLabs voice IDs
@@ -40,6 +42,8 @@ serve(async (req) => {
       similarityBoost = 0.75,
       style = 0.5,
       speed = 1.0,
+      previousText,
+      nextText,
     } = body;
 
     if (!text || text.trim().length === 0) {
@@ -87,6 +91,8 @@ serve(async (req) => {
             use_speaker_boost: true,
             speed,
           },
+          ...(previousText ? { previous_text: previousText } : {}),
+          ...(nextText ? { next_text: nextText } : {}),
         }),
       }
     );
