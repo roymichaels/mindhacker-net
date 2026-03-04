@@ -26,8 +26,8 @@ export default function ArenaLayoutWrapper() {
 
   if (!isLoading && !canAccessArenaFull) {
     return (
-      <div className="flex items-start justify-center px-4 py-6 overflow-y-auto flex-1 min-h-0">
-        <ProGateOverlay feature="arena" targetTier="plus" />
+      <div className="flex items-start justify-center overflow-y-auto flex-1 min-h-0">
+        <ProGateOverlay feature="arena" targetTier="plus" className="rounded-none h-full" />
       </div>
     );
   }

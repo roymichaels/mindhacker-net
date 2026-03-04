@@ -56,16 +56,22 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
     f !== (isHe ? 'הכל מ-Plus' : 'Everything in Plus')
   );
 
+  const isFullScreen = className?.includes('rounded-none');
+
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-2xl overflow-hidden w-full mx-auto',
+        'flex flex-col items-center justify-center overflow-hidden w-full mx-auto',
+        isFullScreen ? '' : 'rounded-2xl',
         className
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Premium gradient card */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 dark:border-white/10 border-black/5"
+      <div className={cn(
+        "relative w-full overflow-hidden shadow-2xl border border-white/10 dark:border-white/10 border-black/5",
+        isFullScreen ? 'h-full' : 'rounded-2xl'
+      )}
         style={{
           background: 'linear-gradient(135deg, hsl(270 60% 12%) 0%, hsl(280 50% 8%) 30%, hsl(40 60% 10%) 70%, hsl(35 70% 14%) 100%)',
         }}
