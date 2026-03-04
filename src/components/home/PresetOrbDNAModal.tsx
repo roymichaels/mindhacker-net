@@ -44,7 +44,7 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
 
   const stats = [
     { labelEn: 'Material', labelHe: 'חומר', value: profile.materialType || 'glass' },
-    { labelEn: 'Geometry', labelHe: 'גיאומטריה', value: profile.geometryType || 'sphere' },
+    { labelEn: 'Geometry', labelHe: 'גיאומטריה', value: profile.geometryFamily || 'sphere' },
     { labelEn: 'Texture', labelHe: 'טקסטורה', value: profile.textureType || 'none' },
     { labelEn: 'Complexity', labelHe: 'מורכבות', value: String(profile.geometryDetail || 64) },
   ];
