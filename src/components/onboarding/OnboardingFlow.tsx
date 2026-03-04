@@ -137,32 +137,8 @@ export function OnboardingFlow() {
 
   const steps = onboardingFlowSpec.steps;
 
-  const GUEST_ONBOARDING_KEY = 'guest_onboarding_state';
-
-  // Save guest state to localStorage
-  const saveGuestState = useCallback((state: Record<string, unknown>) => {
-    try {
-      const existing = JSON.parse(localStorage.getItem(GUEST_ONBOARDING_KEY) || '{}');
-      localStorage.setItem(GUEST_ONBOARDING_KEY, JSON.stringify({ ...existing, ...state }));
-    } catch { /* ignore */ }
-  }, []);
-
-  const loadGuestState = useCallback((): Record<string, unknown> | null => {
-    try {
-      const raw = localStorage.getItem(GUEST_ONBOARDING_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  }, []);
-
-  const clearGuestState = useCallback(() => {
-    localStorage.removeItem(GUEST_ONBOARDING_KEY);
-  }, []);
-
-  // ─── Save phase to DB (and localStorage for guests) ───
+  // ─── Save phase to DB ───
   const savePhase = useCallback(async (phase: string, extra?: Record<string, unknown>) => {
-    // Always save to localStorage as backup
-    saveGuestState({ __onboarding_phase: phase, ...extra });
-
     if (!user?.id) return;
     try {
       const phaseData: Record<string, unknown> = { __onboarding_phase: phase, ...extra };
@@ -185,7 +161,7 @@ export function OnboardingFlow() {
     } catch (e) {
       console.error('Save phase error:', e);
     }
-  }, [user?.id, saveGuestState]);
+  }, [user?.id]);
 
   // Helper to apply restored phase state
   const applyPhaseState = useCallback((savedPhase: string | undefined, phaseData: Record<string, unknown> | null, restored: FlowAnswers, savedStep?: number) => {
