@@ -503,6 +503,18 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         <ScrollArea className="flex-1 min-h-0">
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
             <div className="space-y-6">
+              {/* Dynamic intro — always rendered in current language */}
+              {DOMAIN_INTROS[domainId] && (
+                <AuroraChatMessage
+                  key={`intro-${language}`}
+                  id={`intro-${language}`}
+                  content={isHe ? DOMAIN_INTROS[domainId].he : DOMAIN_INTROS[domainId].en}
+                  isOwn={false}
+                  isAI
+                  timestamp={new Date().toISOString()}
+                />
+              )}
+
               {messages.map((message) => (
                 <AuroraChatMessage
                   key={message.id}
