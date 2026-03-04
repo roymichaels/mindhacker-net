@@ -3,10 +3,12 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const LanguagePrompt = () => {
   const { isFirstVisit, setLanguage, setFirstVisitComplete, language } = useLanguage();
   const { theme } = useThemeSettings();
+  const { session } = useAuth();
 
   const brandName = language === 'he' ? theme.brand_name : theme.brand_name_en;
 
@@ -15,7 +17,8 @@ export const LanguagePrompt = () => {
     setFirstVisitComplete();
   };
 
-  if (!isFirstVisit) return null;
+  // Only show for authenticated users
+  if (!isFirstVisit || !session) return null;
 
   return (
     <Dialog open={isFirstVisit} onOpenChange={() => {}}>

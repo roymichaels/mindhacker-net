@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { usePWA } from '@/hooks/usePWA';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { X, Bell, BellRing } from 'lucide-react';
@@ -12,6 +13,7 @@ const DISMISS_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days
 
 export const NotificationPermissionPrompt = () => {
   const { user } = useAuth();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
   const { isStandalone, isIOS } = usePWA();
   const { t, isRTL } = useTranslation();
   const { 
@@ -27,8 +29,8 @@ export const NotificationPermissionPrompt = () => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    // Only show for logged-in users
-    if (!user) return;
+    // Only show for logged-in users who completed onboarding
+    if (!user || !isLaunchpadComplete) return;
 
     // Don't show if already subscribed or permission denied
     if (isSubscribed || permission === 'denied') return;
@@ -55,7 +57,7 @@ export const NotificationPermissionPrompt = () => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [user, isSubscribed, permission, isSupported, isIOS, isPWA, isStandalone]);
+  }, [user, isLaunchpadComplete, isSubscribed, permission, isSupported, isIOS, isPWA, isStandalone]);
 
   const handleDismiss = () => {
     setIsAnimating(false);

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { usePWA } from '@/hooks/usePWA';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { Button } from '@/components/ui/button';
 import { X, Download, Smartphone } from 'lucide-react';
 import { PWAInstallModal } from './PWAInstallModal';
@@ -9,11 +11,16 @@ const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export const PWAInstallBanner = () => {
   const { isInstalled, isInstallable, isIOS, isAndroid, canPromptInstall, promptInstall } = usePWA();
+  const { session } = useAuth();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    // Only show for logged-in users who completed onboarding
+    if (!session || !isLaunchpadComplete) return;
+
     // Check if already dismissed
     const dismissedAt = localStorage.getItem(DISMISSED_KEY);
     if (dismissedAt) {
@@ -33,7 +40,7 @@ export const PWAInstallBanner = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [isInstalled, isInstallable, isIOS, isAndroid]);
+  }, [isInstalled, isInstallable, isIOS, isAndroid, session, isLaunchpadComplete]);
 
   const handleDismiss = () => {
     setIsAnimating(false);
