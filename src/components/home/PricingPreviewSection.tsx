@@ -46,8 +46,8 @@ const tiers = [
     color: 'text-amber-500',
     border: 'border-amber-500/30',
     bg: 'bg-amber-500/5',
-    featuresHe: ['גישה מלאה ל-14 עמודים', 'מנוע Jarvis פרואקטיבי', 'עדכוני תוכנית מודולריים', 'לימוד מותאם אישית'],
-    featuresEn: ['Full access to 14 pillars', 'Proactive Jarvis engine', 'Modular plan updates', 'Personalized learning'],
+    featuresHe: ['כל 14 הפילרים פתוחים', 'מנוע Jarvis פרואקטיבי', 'פרויקטים + עסקים מתקדם', 'Orb DNA מלא'],
+    featuresEn: ['All 14 pillars unlocked', 'Proactive Jarvis engine', 'Projects + Business Advanced', 'Full Orb DNA profile'],
   },
 ];
 

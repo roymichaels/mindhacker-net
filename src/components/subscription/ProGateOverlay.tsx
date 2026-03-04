@@ -27,8 +27,8 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
       en: 'Unlock full pillar depth',
     },
     arena: {
-      he: 'הזירה — מנוע ההשפעה החיצונית שלך',
-      en: 'Arena — Your external impact engine',
+      he: 'הזירה — מנוע הביצוע היומי שלך',
+      en: 'Arena — Your daily execution engine',
     },
     hypnosis: {
       he: 'היפנוזה AI מותאמת אישית כל יום',

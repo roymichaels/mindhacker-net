@@ -97,20 +97,20 @@ export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena:
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "2 pillars of your choice",
-      "Dashboard & 100-day overview",
+      "2 pillars from 14 life domains",
+      "Full diagnostic assessment",
       "5 Aurora messages/day",
+      "Dashboard & daily structure",
       "3 active habits",
       "XP, leveling & streaks",
-      "Basic Orb",
     ],
     he: [
-      "2 פילרים לבחירתך",
-      "דאשבורד וסקירת 100 יום",
+      "2 פילרים מתוך 14 תחומי חיים",
+      "אבחון מלא",
       "5 הודעות יומיות לאורורה",
+      "דאשבורד ומבנה יומי",
       "3 הרגלים פעילים",
       "XP, רמות ורצפים",
-      "אורב בסיסי",
     ],
   },
   plus: {
