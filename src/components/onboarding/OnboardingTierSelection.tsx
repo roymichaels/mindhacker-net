@@ -9,15 +9,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { supabase } from '@/integrations/supabase/client';
 import { TIER_CONFIGS, TIER_FEATURES, type SubscriptionTier } from '@/lib/subscriptionTiers';
-import { Zap, Crown, ArrowRight, Check } from 'lucide-react';
+import { Zap, Crown, ArrowRight, Check, ChevronLeft } from 'lucide-react';
 import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards';
 import { cn } from '@/lib/utils';
 
 interface OnboardingTierSelectionProps {
   onTierSelected: (tier: SubscriptionTier) => void;
+  onBack?: () => void;
 }
 
-export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelectionProps) {
+export function OnboardingTierSelection({ onTierSelected, onBack }: OnboardingTierSelectionProps) {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
@@ -182,6 +183,19 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
               </>
             )}
           </motion.button>
+        )}
+
+        {/* Back button */}
+        {onBack && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {isHe ? 'חזרה' : 'Back'}
+            </button>
+          </div>
         )}
       </motion.div>
     </div>

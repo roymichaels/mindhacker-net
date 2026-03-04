@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { TIER_PILLAR_LIMITS, type SubscriptionTier } from '@/lib/subscriptionTiers';
 import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, Lock, ArrowRight, Loader2, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const domainColorMap: Record<string, string> = {
@@ -38,9 +38,10 @@ const cardBgMap: Record<string, string> = {
 interface OnboardingPillarSelectionProps {
   tier: SubscriptionTier;
   onComplete: (selectedPillars: string[]) => void;
+  onBack?: () => void;
 }
 
-export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillarSelectionProps) {
+export function OnboardingPillarSelection({ tier, onComplete, onBack }: OnboardingPillarSelectionProps) {
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const isHe = language === 'he';
@@ -172,6 +173,19 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
               </>
             )}
           </motion.button>
+        )}
+
+        {/* Back button */}
+        {onBack && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {isHe ? 'חזרה' : 'Back'}
+            </button>
+          </div>
         )}
       </motion.div>
     </div>

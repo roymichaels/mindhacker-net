@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, ArrowRight, Zap, Brain, Heart, Clock, Target, Shield, Activity, Sun, Moon, Dumbbell, BookOpen, Coffee } from 'lucide-react';
+import { Loader2, ArrowRight, ChevronLeft, Zap, Brain, Heart, Clock, Target, Shield, Activity, Sun, Moon, Dumbbell, BookOpen, Coffee } from 'lucide-react';
 import { FRICTION_PILLAR_MAP, PILLAR_LABELS } from '@/flows/onboardingFlowSpec';
 import type { FlowAnswers } from '@/lib/flow/types';
 import { flowAudit } from '@/lib/flowAudit';
@@ -21,6 +21,7 @@ import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards'
 interface OnboardingRevealProps {
   answers: FlowAnswers;
   onContinue?: () => void;
+  onBack?: () => void;
 }
 
 // ─── Score computation helpers ───
@@ -256,7 +257,7 @@ function getInterpretation(key: string, value: number, isHe: boolean, inverted =
   return isHe ? 'דורש טיפול מיידי' : 'Needs immediate attention';
 }
 
-export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps) {
+export function OnboardingReveal({ answers, onContinue, onBack }: OnboardingRevealProps) {
   const navigate = useNavigate();
   const { language } = useTranslation();
   const { user } = useAuth();
@@ -517,6 +518,19 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
             )}
           </button>
         </motion.div>
+
+        {/* Back button */}
+        {onBack && (
+          <div className="flex justify-center pt-3">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {isHe ? 'חזרה' : 'Back'}
+            </button>
+          </div>
+        )}
       </motion.div>
     </div>
   );

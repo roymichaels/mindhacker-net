@@ -537,6 +537,11 @@ export function OnboardingFlow() {
           setShowPlanGeneration(true);
           savePhase('plan_generation', { __selected_pillars: selectedPillars, __chosen_tier: chosenTier });
         }}
+        onBack={() => {
+          setShowAssessments(false);
+          setShowPillarSelection(true);
+          savePhase('pillar_selection', { __chosen_tier: chosenTier });
+        }}
       />
     );
   }
@@ -551,6 +556,11 @@ export function OnboardingFlow() {
           setShowAssessments(true);
           savePhase('assessments', { __selected_pillars: pillars, __chosen_tier: chosenTier });
         }}
+        onBack={() => {
+          setShowPillarSelection(false);
+          setShowTierSelection(true);
+          savePhase('tier_selection');
+        }}
       />
     );
   }
@@ -564,6 +574,11 @@ export function OnboardingFlow() {
           setShowPillarSelection(true);
           savePhase('pillar_selection', { __chosen_tier: tier });
         }}
+        onBack={() => {
+          setShowTierSelection(false);
+          setShowReveal(true);
+          savePhase('reveal');
+        }}
       />
     );
   }
@@ -576,6 +591,14 @@ export function OnboardingFlow() {
           setShowReveal(false);
           setShowTierSelection(true);
           savePhase('tier_selection');
+        }}
+        onBack={() => {
+          setShowReveal(false);
+          // Go back to last calibration step
+          setCurrentStepIdx(steps.length - 1);
+          const lastStep = steps[steps.length - 1];
+          const lastVisible = getVisibleMiniSteps(lastStep, answers);
+          setCurrentMiniIdx(Math.max(0, lastVisible.length - 1));
         }}
       />
     );
