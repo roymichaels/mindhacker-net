@@ -507,11 +507,11 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isHe ? 'טוען...' : 'Loading...'}
+                {t('common.loading')}
               </>
             ) : (
               <>
-                {isHe ? 'המשך — בחר מסלול ופילרים' : 'Continue — Choose Path & Pillars'}
+                {t('onboarding.reveal.continueToPath')}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

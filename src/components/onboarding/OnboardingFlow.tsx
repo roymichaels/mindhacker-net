@@ -421,8 +421,8 @@ export function OnboardingFlow() {
             className="w-20 h-20 rounded-full border-4 border-primary/30 border-t-primary"
           />
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-foreground">{isHe ? 'מנתח את הנתונים שלך' : 'Analyzing Your Data'}</h2>
-            <p className="text-sm text-muted-foreground">{isHe ? 'יוצר דוח אבחון מותאם אישית...' : 'Creating your personalized diagnostic report...'}</p>
+            <h2 className="text-xl font-bold text-foreground">{t('onboarding.flow.analyzingData')}</h2>
+            <p className="text-sm text-muted-foreground">{t('onboarding.flow.creatingReport')}</p>
           </div>
           <div className="w-full space-y-2">
             {analysisSteps.map((step, i) => (
