@@ -65,41 +65,8 @@ const Footer = () => {
 
 
   return (
-    <footer className="relative py-12 md:py-20 px-4 border-t border-border bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <footer className="relative py-12 md:py-20 px-4 border-t border-border/30" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto text-center">
-        
-
-
-        <div className="flex justify-center gap-4 md:gap-8 mb-8 md:mb-12">
-          {socialLinks.instagram_enabled && (
-            <a
-              href={socialLinks.instagram_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
-            >
-              <Instagram className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
-            </a>
-          )}
-          {socialLinks.telegram_enabled && (
-            <a
-              href={socialLinks.telegram_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
-            >
-              <Send className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
-            </a>
-          )}
-          {socialLinks.email_enabled && (
-            <a
-              href={`mailto:${socialLinks.email}`}
-              className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
-            >
-              <Mail className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
-            </a>
-          )}
-        </div>
 
         {/* Legal Links */}
         <div className="flex justify-center gap-4 md:gap-6 mb-4 text-sm">
@@ -121,14 +88,6 @@ const Footer = () => {
         <div className="text-sm text-muted-foreground">
           <p>{t('footer.copyright')}</p>
         </div>
-      </div>
-
-      {/* Particle effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute top-10 left-10 w-2 h-2 bg-primary rounded-full animate-ping" style={{ animationDelay: "0s" }} />
-        <div className="absolute top-20 right-20 w-2 h-2 bg-secondary rounded-full animate-ping" style={{ animationDelay: "1s" }} />
-        <div className="absolute bottom-20 left-1/3 w-2 h-2 bg-primary-glow rounded-full animate-ping" style={{ animationDelay: "2s" }} />
-        <div className="absolute bottom-10 right-1/3 w-2 h-2 bg-primary rounded-full animate-ping" style={{ animationDelay: "3s" }} />
       </div>
     </footer>
   );
