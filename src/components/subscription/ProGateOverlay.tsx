@@ -133,10 +133,11 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
+            className="flex justify-center"
           >
             <button
               onClick={openSubscriptions}
-              className="w-full py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-[0.98]"
+              className="w-full max-w-xs py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-[0.98]"
               style={{ background: 'linear-gradient(135deg, hsl(270 70% 50%), hsl(310 60% 45%), hsl(40 80% 50%))' }}
             >
               <Sparkles className="w-4 h-4" />
