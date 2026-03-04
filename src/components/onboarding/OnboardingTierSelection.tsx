@@ -80,7 +80,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
         </div>
 
         {/* Tier Cards */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {tiers.map(({ tier, icon: Icon, accent, borderAccent, bgAccent }, i) => {
             const config = TIER_CONFIGS[tier];
             const features = isHe ? TIER_FEATURES[tier].he : TIER_FEATURES[tier].en;
