@@ -7,7 +7,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, AudioLines, VolumeX } from 'lucide-react';
+import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, AudioLines, VolumeX, Square, CheckSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
