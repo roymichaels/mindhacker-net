@@ -137,32 +137,8 @@ export function OnboardingFlow() {
 
   const steps = onboardingFlowSpec.steps;
 
-  const GUEST_ONBOARDING_KEY = 'guest_onboarding_state';
-
-  // Save guest state to localStorage
-  const saveGuestState = useCallback((state: Record<string, unknown>) => {
-    try {
-      const existing = JSON.parse(localStorage.getItem(GUEST_ONBOARDING_KEY) || '{}');
-      localStorage.setItem(GUEST_ONBOARDING_KEY, JSON.stringify({ ...existing, ...state }));
-    } catch { /* ignore */ }
-  }, []);
-
-  const loadGuestState = useCallback((): Record<string, unknown> | null => {
-    try {
-      const raw = localStorage.getItem(GUEST_ONBOARDING_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  }, []);
-
-  const clearGuestState = useCallback(() => {
-    localStorage.removeItem(GUEST_ONBOARDING_KEY);
-  }, []);
-
-  // ─── Save phase to DB (and localStorage for guests) ───
+  // ─── Save phase to DB ───
   const savePhase = useCallback(async (phase: string, extra?: Record<string, unknown>) => {
-    // Always save to localStorage as backup
-    saveGuestState({ __onboarding_phase: phase, ...extra });
-
     if (!user?.id) return;
     try {
       const phaseData: Record<string, unknown> = { __onboarding_phase: phase, ...extra };
@@ -185,7 +161,7 @@ export function OnboardingFlow() {
     } catch (e) {
       console.error('Save phase error:', e);
     }
-  }, [user?.id, saveGuestState]);
+  }, [user?.id]);
 
   // Helper to apply restored phase state
   const applyPhaseState = useCallback((savedPhase: string | undefined, phaseData: Record<string, unknown> | null, restored: FlowAnswers, savedStep?: number) => {
@@ -230,68 +206,15 @@ export function OnboardingFlow() {
     }
   }, []);
 
-  // Persist guest localStorage state to DB when user authenticates
-  const persistGuestStateToDB = useCallback(async (userId: string) => {
-    const guest = loadGuestState();
-    if (!guest) return false;
-    
-    const guestAnswers = (guest.__answers as FlowAnswers) || {};
-    const guestPhase = guest.__onboarding_phase as string | undefined;
-    const guestStep = guest.__current_step as number | undefined;
-    
-    if (!guestPhase && Object.keys(guestAnswers).length === 0) return false;
-
-    try {
-      const step1Data: Record<string, unknown> = {};
-      const step2Data: Record<string, unknown> = {};
-      STEP1_KEYS.forEach(key => { if (guestAnswers[key] !== undefined) step1Data[key] = guestAnswers[key]; });
-      if (guestAnswers.pressure_zone) {
-        step1Data.selected_pillar = FRICTION_PILLAR_MAP[guestAnswers.pressure_zone as string] || 'mind';
-      }
-      STEP2_KEYS.forEach(key => { if (guestAnswers[key] !== undefined) step2Data[key] = guestAnswers[key]; });
-
-      const phaseData: Record<string, unknown> = {};
-      if (guestPhase) phaseData.__onboarding_phase = guestPhase;
-      if (guest.__selected_pillars) phaseData.__selected_pillars = guest.__selected_pillars;
-      if (guest.__chosen_tier) phaseData.__chosen_tier = guest.__chosen_tier;
-
-      await supabase.from('launchpad_progress').upsert({
-        user_id: userId,
-        step_1_intention: Object.keys(step1Data).length > 0 ? step1Data as any : undefined,
-        step_2_profile_data: Object.keys(step2Data).length > 0 ? step2Data as any : undefined,
-        step_3_lifestyle_data: Object.keys(phaseData).length > 0 ? phaseData as any : undefined,
-        current_step: guestStep || 1,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
-      
-      clearGuestState();
-      return true;
-    } catch (e) {
-      console.error('Persist guest state error:', e);
-      return false;
-    }
-  }, [loadGuestState, clearGuestState]);
-
   // Restore saved progress on mount or when user changes
   useEffect(() => {
     if (!user?.id) {
-      // Guest: try to restore from localStorage
-      const guest = loadGuestState();
-      if (guest) {
-        const guestAnswers = (guest.__answers as FlowAnswers) || {};
-        const guestPhase = guest.__onboarding_phase as string | undefined;
-        const guestStep = guest.__current_step as number | undefined;
-        applyPhaseState(guestPhase, guest, guestAnswers, guestStep);
-      }
       setIsRestoring(false);
       return;
     }
     
     (async () => {
       try {
-        // First, try to persist any guest state to DB
-        await persistGuestStateToDB(user.id);
-
         const { data } = await supabase
           .from('launchpad_progress')
           .select('step_1_intention, step_2_profile_data, step_3_lifestyle_data, current_step')
@@ -381,11 +304,8 @@ export function OnboardingFlow() {
     }
   }, [currentMini?.id, isPriorityRank]);
 
-  // Auto-save on every change (DB for authenticated, localStorage for guests)
+  // Auto-save to DB (user is always authenticated at this point)
   const autoSave = useCallback(async (updatedAnswers: FlowAnswers) => {
-    // Always save to localStorage for guest resilience
-    saveGuestState({ __answers: updatedAnswers, __current_step: currentStepIdx + 1 });
-
     if (!user?.id) return;
     try {
       const step1Data: Record<string, unknown> = {};
@@ -414,7 +334,7 @@ export function OnboardingFlow() {
     } catch (e) {
       console.error('Auto-save error:', e);
     }
-  }, [user?.id, currentStepIdx, saveGuestState]);
+  }, [user?.id, currentStepIdx]);
 
   const advanceToNext = useCallback(() => {
     setSelectedValue(null);
