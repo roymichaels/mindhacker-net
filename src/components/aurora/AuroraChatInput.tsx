@@ -21,9 +21,10 @@ import { cn } from '@/lib/utils';
 interface AuroraChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
+  bypassLimits?: boolean;
 }
 
-const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
+const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProps) => {
   const queryClient = useQueryClient();
   const { t, tg, isRTL } = useGenderedTranslation();
   const { user } = useAuth();
