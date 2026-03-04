@@ -154,10 +154,8 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
   const playChunk = useCallback(async (
     text: string, 
     signal: AbortSignal,
-    previousText?: string,
-    nextText?: string,
   ): Promise<boolean> => {
-    console.log('[TTS] Playing chunk:', { length: text.length, hasPrev: !!previousText, hasNext: !!nextText });
+    console.log('[TTS] Playing chunk:', { length: text.length });
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
       {
@@ -167,13 +165,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ 
-          text, 
-          voiceId: voice, 
-          speed,
-          previousText: previousText?.slice(-200),
-          nextText: nextText?.slice(0, 200),
-        }),
+        body: JSON.stringify({ text, voiceId: voice, speed }),
         signal,
       }
     );
