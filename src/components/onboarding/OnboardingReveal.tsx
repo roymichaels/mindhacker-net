@@ -576,7 +576,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isHe ? 'בונה תוכנית 90 יום...' : 'Building your 90-day plan...'}
+                {isHe ? 'בונה תוכנית 100 יום...' : 'Building your 100-day plan...'}
               </>
             ) : (
               <>

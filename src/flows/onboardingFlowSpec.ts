@@ -319,35 +319,6 @@ const onboardingFlowSpec: FlowSpec = {
       renderer: 'card',
       miniSteps: [
         {
-          id: 'age_bracket',
-          title_he: 'מה טווח הגילאים שלך?',
-          title_en: 'What is your age bracket?',
-          inputType: 'single_select',
-          options: [
-            { value: '16_18', label_he: '16-18', label_en: '16-18', icon: '🌱' },
-            { value: '19_24', label_he: '19-24', label_en: '19-24', icon: '🌿' },
-            { value: '25_34', label_he: '25-34', label_en: '25-34', icon: '🌳' },
-            { value: '35_44', label_he: '35-44', label_en: '35-44', icon: '🏔️' },
-            { value: '45_54', label_he: '45-54', label_en: '45-54', icon: '🌄' },
-            { value: '55_plus', label_he: '55+', label_en: '55+', icon: '🏛️' },
-          ],
-          validation: { required: true },
-          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'age_bracket' },
-        },
-        {
-          id: 'gender',
-          title_he: 'מין ביולוגי',
-          title_en: 'Sex at birth',
-          inputType: 'single_select',
-          options: [
-            { value: 'male', label_he: 'זכר', label_en: 'Male', icon: '♂️' },
-            { value: 'female', label_he: 'נקבה', label_en: 'Female', icon: '♀️' },
-            { value: 'prefer_not', label_he: 'מעדיף לא לומר', label_en: 'Prefer not to say', icon: '⚧' },
-          ],
-          validation: { required: true },
-          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'gender' },
-        },
-        {
           id: 'body_fat_estimate',
           title_he: 'הערכת שומן גוף נוכחית',
           title_en: 'Current body fat estimate',

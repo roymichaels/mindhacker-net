@@ -262,7 +262,7 @@ export function OnboardingFlow() {
       setCurrentStepIdx(currentStepIdx + 1);
       setCurrentMiniIdx(0);
     } else {
-      setShowReveal(true);
+      setShowAnalyzing(true);
     }
   }, [currentMiniIdx, visibleMiniSteps.length, currentStepIdx, steps.length]);
 
