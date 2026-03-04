@@ -61,20 +61,23 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center overflow-hidden w-full mx-auto',
-        isFullScreen ? '' : 'rounded-2xl',
+        'flex flex-col items-center overflow-hidden w-full mx-auto',
+        isFullScreen ? 'min-h-full' : 'justify-center rounded-2xl',
         className
       )}
+      style={isFullScreen ? {
+        background: 'linear-gradient(135deg, hsl(270 60% 12%) 0%, hsl(280 50% 8%) 30%, hsl(40 60% 10%) 70%, hsl(35 70% 14%) 100%)',
+      } : undefined}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Premium gradient card */}
       <div className={cn(
-        "relative w-full overflow-hidden shadow-2xl border border-white/10 dark:border-white/10 border-black/5",
-        isFullScreen ? 'h-full' : 'rounded-2xl'
+        "relative w-full overflow-hidden",
+        isFullScreen ? 'flex-1' : 'rounded-2xl shadow-2xl border border-white/10 dark:border-white/10 border-black/5'
       )}
-        style={{
+        style={!isFullScreen ? {
           background: 'linear-gradient(135deg, hsl(270 60% 12%) 0%, hsl(280 50% 8%) 30%, hsl(40 60% 10%) 70%, hsl(35 70% 14%) 100%)',
-        }}
+        } : undefined}
       >
         {/* Subtle glow overlays */}
         <div className="absolute inset-0 pointer-events-none">
