@@ -325,6 +325,13 @@ export default function OrbCollectionSection() {
           </Button>
         </motion.div>
       </div>
+
+      <PresetOrbDNAModal
+        open={modalPresetIdx !== null}
+        onOpenChange={(open) => { if (!open) setModalPresetIdx(null); }}
+        preset={modalPresetIdx !== null ? ORB_PRESETS[modalPresetIdx] : null}
+        meta={modalPresetIdx !== null ? ARCH_DATA[ORB_PRESETS[modalPresetIdx].id] : null}
+      />
     </section>
   );
 }
