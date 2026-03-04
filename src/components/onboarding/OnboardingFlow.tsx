@@ -568,6 +568,7 @@ export function OnboardingFlow() {
         onContinue={() => {
           setShowReveal(false);
           setShowTierSelection(true);
+          savePhase('tier_selection');
         }}
       />
     );
