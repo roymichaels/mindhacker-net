@@ -121,7 +121,11 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     staleTime: 5 * 60 * 1000,
   });
 
-  const allDomains = useMemo(() => CORE_DOMAINS, []);
+  // Filter domains to only show user's selected pillars (Apex sees all)
+  const allDomains = useMemo(() => {
+    if (isApex) return CORE_DOMAINS;
+    return CORE_DOMAINS.filter(d => isPillarSelected(d.id));
+  }, [isApex, isPillarSelected]);
 
   const dailyMilestones = useMemo(() => {
     const results: DailyMilestone[] = [];
