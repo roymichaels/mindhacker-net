@@ -85,6 +85,10 @@ const Index = () => {
         <HowItWorksSection />
         <AuroraCoachSection />
         <FeatureShowcaseSection />
+        <LearningEngineSection />
+        <CoachMarketplaceSection />
+        <CommunitySection />
+        <PricingPreviewSection />
         <TransformationProofSection />
         <FinalCTASection />
       </main>
