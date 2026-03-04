@@ -313,6 +313,8 @@ export default function AdminCoaches() {
           )}
         </DialogContent>
       </Dialog>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
