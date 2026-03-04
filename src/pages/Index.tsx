@@ -14,6 +14,7 @@ import {
   HowItWorksSection,
   AuroraCoachSection,
   FeatureShowcaseSection,
+  OrbCollectionSection,
   LearningEngineSection,
   CoachMarketplaceSection,
   CommunitySection,
@@ -85,6 +86,7 @@ const Index = () => {
         <HowItWorksSection />
         <AuroraCoachSection />
         <FeatureShowcaseSection />
+        <OrbCollectionSection />
         <LearningEngineSection />
         <CoachMarketplaceSection />
         <CommunitySection />

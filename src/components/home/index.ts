@@ -10,6 +10,7 @@ export { default as CommunitySection } from './CommunitySection';
 export { default as PricingPreviewSection } from './PricingPreviewSection';
 export { default as TransformationProofSection } from './TransformationProofSection';
 export { default as FinalCTASection } from './FinalCTASection';
+export { default as OrbCollectionSection } from './OrbCollectionSection';
 
 // Legacy — kept for backwards compat but no longer used on homepage
 export { default as SystemArchitectureSection } from './SystemArchitectureSection';
