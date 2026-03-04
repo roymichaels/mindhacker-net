@@ -78,7 +78,27 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
 
         <div className="relative z-10 p-5 sm:p-8 space-y-4 sm:space-y-6">
           {/* Header */}
-{/* ... keep existing code ... */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-3"
+          >
+            <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, hsl(270 70% 50%), hsl(40 80% 55%))' }}
+            >
+              <Crown className="w-7 h-7 text-white" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white">
+              {isHe ? `שדרג ל-${config.label.he}` : `Upgrade to ${config.label.en}`}
+            </h2>
+            <p className="text-xs text-white/40 font-medium uppercase tracking-widest">
+              {isHe ? config.subtitle.he : config.subtitle.en}
+            </p>
+            <p className="text-sm text-white/60 max-w-xs mx-auto">
+              {isHe ? msg.he : msg.en}
+            </p>
+          </motion.div>
+
           {/* Features list */}
           <motion.div
             initial={{ opacity: 0 }}
