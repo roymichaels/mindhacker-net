@@ -334,7 +334,7 @@ export function OnboardingFlow() {
     } catch (e) {
       console.error('Auto-save error:', e);
     }
-  }, [user?.id, currentStepIdx, saveGuestState]);
+  }, [user?.id, currentStepIdx]);
 
   const advanceToNext = useCallback(() => {
     setSelectedValue(null);
