@@ -16,8 +16,10 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Search, Star, Shield, Users, Edit, ExternalLink } from 'lucide-react';
+import { Search, Star, Shield, Users, Edit, ExternalLink, Ticket } from 'lucide-react';
+import AdminCouponsPanel from '@/components/admin/AdminCouponsPanel';
 
 interface Coach {
   id: string;
