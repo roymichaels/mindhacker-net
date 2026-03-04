@@ -59,7 +59,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-2xl overflow-hidden w-full max-w-[92vw] sm:max-w-[380px] md:max-w-[420px] mx-auto',
+        'flex flex-col items-center justify-center rounded-2xl overflow-hidden w-full mx-auto',
         className
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
@@ -78,41 +78,21 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
 
         <div className="relative z-10 p-5 sm:p-8 space-y-4 sm:space-y-6">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-3"
-          >
-            <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, hsl(270 70% 50%), hsl(40 80% 55%))' }}
-            >
-              <Crown className="w-7 h-7 text-white" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white">
-              {isHe ? `שדרג ל-${config.label.he}` : `Upgrade to ${config.label.en}`}
-            </h2>
-            <p className="text-xs text-white/40 font-medium uppercase tracking-widest">
-              {isHe ? config.subtitle.he : config.subtitle.en}
-            </p>
-            <p className="text-sm text-white/60 max-w-xs mx-auto">
-              {isHe ? msg.he : msg.en}
-            </p>
-          </motion.div>
-
+{/* ... keep existing code ... */}
           {/* Features list */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15 }}
-            className="space-y-2"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"
           >
             {filteredFeatures.map((feat, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: isRTL ? 8 : -8 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + i * 0.06 }}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06]"
               >
                 <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                   style={{ background: 'linear-gradient(135deg, hsl(270 70% 50%), hsl(40 80% 55%))' }}
