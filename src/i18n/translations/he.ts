@@ -2135,10 +2135,10 @@ export const he = {
     },
     chat: {
       // Gendered placeholders
-      placeholder: "שתף/י את מה שעובר עלייך...",
-      placeholder_male: "שתף את מה שעובר עליך...",
-      placeholder_female: "שתפי את מה שעובר עלייך...",
-      placeholder_neutral: "שתף/י את מה שעובר עלייך...",
+      placeholder: "מה עובר עלייך?",
+      placeholder_male: "מה עובר עליך?",
+      placeholder_female: "מה עובר עלייך?",
+      placeholder_neutral: "מה עובר עלייך?",
       startRecording: "התחל הקלטה",
       stopRecording: "עצור הקלטה"
     },
