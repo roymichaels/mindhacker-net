@@ -476,7 +476,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
         {/* ─── Section 3: Daily Structure 8-8-8 ─── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0 }} className="space-y-3">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
-            {isHe ? 'מבנה יום 8-8-8' : 'Daily Structure 8-8-8'}
+            {t('onboarding.reveal.dailyStructure')} 8-8-8
           </h2>
           <div className="rounded-xl bg-card border border-border p-3 space-y-2">
             {dailyStructure.map((block, i) => (
