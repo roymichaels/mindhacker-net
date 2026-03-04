@@ -44,7 +44,7 @@ export default function CoachesLanding() {
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
           {isHe
             ? 'מצא את המאמן שיעזור לך לצמוח — או הפוך בעצמך למאמן על הפלטפורמה'
-            : 'Find the coach who'll help you grow — or become one yourself'}
+            : 'Find the coach who will help you grow — or become one yourself'}
         </p>
       </div>
 
