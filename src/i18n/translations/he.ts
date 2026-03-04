@@ -2906,6 +2906,213 @@ export const he = {
     // NEW: Hero - Mind OS Focus
     mindOsTitle: "מערכת ההפעלה של התודעה",
     mindOsSubtitle: "8 תחומי חיים. מוח אחד משולב. AI + היפנוזה + גיימיפיקציה עובדים יחד.",
+
+    // GameHeroSection
+    gameHero: {
+      badge: 'מערכת הפעלה לחיים',
+      title: 'החיים שלך, משודרגים עם AI',
+      subtitle: 'מאמן AI אישי שמכיר אותך, תוכנית 100 יום מותאמת, ומערכת שלמה ל-14 תחומים בחייך — הכל במקום אחד.',
+      cta: '🚀 התחל את האבחון שלך',
+      ctaMeta: '⏱️ 5 דקות • מותאם אישית מהיום הראשון',
+      scrollDown: 'גלול למטה',
+    },
+
+    // AuroraCoachSection
+    auroraCoach: {
+      badge: 'הכירו את Aurora',
+      title: 'המאמנת שמכירה אותך',
+      subtitle: 'Aurora מבינה את כל התמונה — גוף, נפש, עסקים, יחסים — ויודעת לחבר ביניהם.',
+      coaching247Title: 'אימון 24/7',
+      coaching247Desc: 'תמיד שם, תמיד מותאם',
+      voiceTitle: 'קול לטקסט',
+      voiceDesc: 'דבר במקום לכתוב',
+      memoryTitle: 'זיכרון מלא',
+      memoryDesc: 'זוכרת כל שיחה ודפוס',
+      hypnosisTitle: 'סשני היפנוזה',
+      hypnosisDesc: 'נוצרים בזמן אמת מהשיחה',
+      chatPreviewTitle: 'Aurora יודעת לומר:',
+      chatExample1: 'שמתי לב שהאנרגיה שלך נמוכה השבוע. בוא נבדוק מה השתנה בשינה...',
+      chatExample2: 'ההתמדה שלך בלחימה עלתה ב-40% החודש! זה משפיע גם על הביטחון העצמי.',
+      chatExample3: 'רוצה שאכין לך סשן היפנוזה למיקוד לפני הפגישה העסקית מחר?',
+    },
+
+    // CommunitySection
+    community: {
+      badge: 'קומיוניטי',
+      title: 'קהילה של ',
+      titleHighlight: 'אנשים שמתפתחים',
+      subtitle: 'שתף, למד מאחרים, השתתף באירועים, צבור נקודות ועלה ברמות — ביחד.',
+      posts: 'פוסטים ודיונים',
+      events: 'אירועים חיים',
+      leaderboard: 'לוח מובילים',
+      levels: 'רמות ותגים',
+      streaks: 'רצפים ונקודות',
+      userCommunity: 'קהילת משתמשים',
+    },
+
+    // FreeJourneyBannerSection
+    freeJourney: {
+      title: '🚀 מסע הטרנספורמציה האישי שלך',
+      subtitle: 'ניתוח תודעה מבוסס AI, תוכנית 90 יום ופרופיל זהות מותאם אישית',
+      aiAnalysis: 'ניתוח AI',
+      plan90: 'תוכנית 90 יום',
+      pdfDownload: 'PDF להורדה',
+      cta: 'התחל עכשיו',
+    },
+
+    // HowItWorksSection
+    howItWorks: {
+      title: 'איך זה עובד?',
+      subtitle: 'שלושה צעדים. בלי סיבוכים.',
+      step1Title: 'עבור את האבחון',
+      step1Desc: '5 דקות של שאלות ממוקדות שמגלות את נקודות החוזק, האתגרים וסדר העדיפויות שלך.',
+      step2Title: 'קבל תוכנית 100 יום',
+      step2Desc: 'Aurora בונה לך תוכנית מותאמת אישית עם 10 פאזות, אבני דרך ומשימות יומיות.',
+      step3Title: 'בצע יומי עם Aurora',
+      step3Desc: 'מאמן AI 24/7 שמלווה, מזכיר, מתאים ושומר אותך על המסלול.',
+    },
+
+    // FinalCTASection
+    finalCta: {
+      title: 'מוכן לשנות את הכל?',
+      subtitle: 'הצטרף ותתחיל את המסע שלך היום',
+      cta: '🚀 התחל את האבחון שלך',
+      personalCoach: 'מאמן AI אישי 24/7',
+      plan100: 'תוכנית 100 יום מותאמת',
+      domains14: '14 תחומי חיים',
+      hypnosis: 'היפנוזה מותאמת אישית',
+      gamification: 'גיימיפיקציה מלאה',
+      orbAvatar: 'אווטאר Orb אישי',
+      personalJourney: 'מסע מותאם אישית',
+      fiveMinutes: '5 דקות להתחיל',
+      cancelAnytime: 'ביטול בכל רגע',
+    },
+
+    // FearOfMissingOutSection
+    fomo: {
+      badge: 'הזמן לא מחכה',
+      hours: 'שעות',
+      minutes: 'דקות',
+      seconds: 'שניות',
+      title: 'כמה שעות נשארו להיום - מה תעשה איתן?',
+      subtitle: 'כל יום הוא הזדמנות חדשה. התחל את המסע שלך עכשיו.',
+      cta: 'התחל עכשיו',
+    },
+
+    // FeatureShowcaseSection
+    featureShowcase: {
+      title: 'כל מה שבפנים',
+      subtitle: '15 מערכות שמשנות את אופן הניהול של החיים שלך.',
+      seeMore: 'קרא עוד',
+    },
+
+    // HandsFreeSection
+    handsFree: {
+      badge: 'חוויה ללא ידיים',
+      title: 'דבר. אורורה עושה.',
+      subtitle: 'לא צריך ללכת לשום מקום. לא צריך ללחוץ על כלום. פשוט תגיד מה אתה רוצה ואורורה תעשה את זה.',
+      chatTitle: 'הכל קורה בצ\'אט',
+      chatDesc: 'אורורה היא לא רק צ\'אטבוט - היא ממשק הפעלה מלא למערכת כולה. כל מה שאפשר לעשות בדאשבורד, אפשר לעשות פשוט על ידי דיבור או הקלדה לאורורה.',
+      voiceMessage: 'הקלטה קולית',
+      typeOrRecord: 'הקלד או הקלט...',
+      createTasks: 'יצירת משימות',
+      markComplete: 'סימון הושלם',
+      hypnosisSession: 'סשן היפנוזה',
+      checkProgress: 'בדיקת התקדמות',
+      voiceTitle: 'הקלטה קולית בעברית ואנגלית',
+      voiceDesc: 'פשוט תקליט את עצמך מדבר ואורורה תבין אותך. תמלול מדויק, הבנה עמוקה, וביצוע מיידי.',
+      cta: 'נסה את החוויה הקולית',
+    },
+
+    // LearningEngineSection
+    learningEngine: {
+      badge: 'מנוע לימוד',
+      title: 'למידה ',
+      titleHighlight: 'שנבנית בשבילך',
+      subtitle: 'מערכת לימוד שמייצרת קורסים מותאמים אישית על סמך הנתונים שלך — כל שיעור קשור ישירות לתחום חיים ומזין את התוכנית שלך.',
+      aiCourses: 'קורסים מותאמים אישית ב-AI',
+      aiCoursesDesc: 'Aurora בונה לך קוריקולום מותאם על סמך האבחון שלך',
+      interactive: 'שיעורים אינטראקטיביים',
+      interactiveDesc: 'שיעורים עם תרגילים, שאלות ותוכן מותאם',
+      pillarModules: 'מודולים לפי עמוד',
+      pillarModulesDesc: 'כל קורס מחובר לתחום חיים ומזין את התוכנית שלך',
+      exercises: 'תרגילי יישום',
+      exercisesDesc: 'תרגילים שהופכים ללמידה שנכנסת ישירות לתוכנית היומית',
+    },
+
+    // TwoWorldsSection
+    twoWorlds: {
+      title: 'מערכת שלמה ל',
+      titleHighlight: '14 תחומי חיים',
+      subtitle: 'מערכת אחת. 14 פילרים. שני מצבים — מפה ותנועה.',
+      coreTitle: '🧠 ליבה — המפה',
+      coreSubtitle: 'אבחון, אסטרטגיה ותכנון 100 יום',
+      coreDesc: 'אבחן את כל 14 התחומים, בנה תוכנית 100 יום מותאמת אישית, וצפה בתוצאות.',
+      arenaTitle: '⚔️ זירה — התנועה',
+      arenaSubtitle: 'ביצוע יומי, משימות חיות ומומנטום',
+      arenaDesc: 'בצע את המשימות שלך היום — תור פעולות, הרגלים, ומשוב בזמן אמת.',
+      pillarsTitle: '14 הפילרים',
+      pillarsSubtitle: 'בחר את הפילרים שלך לפי המנוי — חינם: 2, Plus: 6, Apex: הכל',
+    },
+
+    // CoachMarketplaceSection
+    coachMarketplace: {
+      badge: 'Coach OS',
+      title: 'שוק מאמנים ו',
+      titleHighlight: 'מערכת ניהול עסקית',
+      subtitle: 'מאמנים? בנו את העסק שלכם ישירות בתוך המערכת — CRM, דפי נחיתה, מוצרים דיגיטליים ועוד.',
+      clientCrm: 'ניהול מתאמנים CRM',
+      analytics: 'דאשבורד אנליטיקס',
+      landingPages: 'דפי נחיתה מותאמים',
+      aiPlans: 'תוכניות אימון AI',
+      digitalProducts: 'חנות מוצרים דיגיטליים',
+      businessMgmt: 'מנוי וניהול עסקי',
+    },
+
+    // LifePillarsSection
+    lifePillars: {
+      badge: '8 תחומי החיים',
+      title: 'מערכת אחת. שמונה תחומים. שליטה מלאה.',
+      subtitle: 'כל תחומי החיים שלך מחוברים ומסונכרנים סביב הזהות הדיגיטלית שלך',
+      yourIdentity: 'הזהות שלך',
+      startBuilding: 'התחל לבנות את המערכת שלך',
+      buildPlan: 'בניית תוכנית אישית מותאמת',
+      startJourney: 'התחל את המסע',
+    },
+
+    // TransformationProofSection
+    transformationProof: {
+      badge: 'לפני ואחרי',
+      title: 'זה ההבדל בין',
+      stayingStuck: 'להישאר תקוע',
+      vs: 'לבין',
+      breakingThrough: 'להתקדם',
+      before: '😔 לפני',
+      after: '🚀 אחרי',
+      beforeItem1: 'מרגיש תקוע באותם דפוסים',
+      beforeItem2: 'מסתובב באותם מעגלים',
+      beforeItem3: 'מתוסכל מחוסר התקדמות',
+      beforeItem4: 'מבזבז זמן יקר',
+      afterItem1: 'בהירות מוחלטת לגבי הכיוון',
+      afterItem2: 'אנרגיה ומוטיבציה גבוהה',
+      afterItem3: 'פוקוס חד על מה שחשוב',
+      afterItem4: 'התקדמות מדידה כל יום',
+      beforeMessage: '⏰ כל יום שעובר = יום שלא תחזור אליו',
+      afterMessage: '✨ 100 יום = חיים חדשים לגמרי',
+    },
+
+    // PricingPreviewSection
+    pricing: {
+      title: 'בחר את הרמה שלך',
+      subtitle: 'התחל בחינם. שדרג כשמוכן.',
+      mostPopular: '⭐ הכי פופולרי',
+      getStarted: 'התחל עכשיו',
+    },
+
+    // LifeHub
+    lifeHub: {
+      todaysMissions: '⚡ משימות להיום',
+    },
   },
 
   practitionerLanding: {

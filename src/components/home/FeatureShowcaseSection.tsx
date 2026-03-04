@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function FeatureShowcaseSection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const [activeIdx, setActiveIdx] = useState(0);
   const active = FEATURES[activeIdx];
@@ -18,7 +18,6 @@ export default function FeatureShowcaseSection() {
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-muted/30 via-transparent to-muted/30 dark:from-gray-900/30 dark:via-transparent dark:to-gray-900/30">
       <div className="container mx-auto max-w-6xl" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -26,18 +25,14 @@ export default function FeatureShowcaseSection() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
-            {isRTL ? 'כל מה שבפנים' : 'Everything Inside'}
+            {t('home.featureShowcase.title')}
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            {isRTL
-              ? '15 מערכות שמשנות את אופן הניהול של החיים שלך.'
-              : '15 systems that change how you run your life.'}
+            {t('home.featureShowcase.subtitle')}
           </p>
         </motion.div>
 
-        {/* Sidebar + Content layout */}
         <div className="flex flex-col md:flex-row gap-0 rounded-2xl border border-border/60 bg-card overflow-hidden">
-          {/* Sidebar */}
           <nav className="md:w-64 lg:w-72 shrink-0 border-b md:border-b-0 md:border-e border-border/60 bg-muted/30">
             <div className="flex md:flex-col overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:max-h-[520px] scrollbar-hide">
               {FEATURES.map((f, i) => (
@@ -60,7 +55,6 @@ export default function FeatureShowcaseSection() {
             </div>
           </nav>
 
-          {/* Content area */}
           <div className="flex-1 min-h-[400px] md:min-h-[520px] flex items-start">
             <AnimatePresence mode="wait">
               <motion.div
@@ -71,7 +65,6 @@ export default function FeatureShowcaseSection() {
                 transition={{ duration: 0.2 }}
                 className="p-8 md:p-10 space-y-6 w-full"
               >
-                {/* Icon + Title */}
                 <div className="flex items-center gap-4">
                   <span className="text-4xl">{active.icon}</span>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -79,22 +72,19 @@ export default function FeatureShowcaseSection() {
                   </h3>
                 </div>
 
-                {/* Hook */}
                 <p className="text-lg font-semibold text-primary">
                   {isRTL ? active.hookHe : active.hookEn}
                 </p>
 
-                {/* Description */}
                 <p className="text-muted-foreground leading-relaxed text-base max-w-2xl">
                   {isRTL ? active.descHe : active.descEn}
                 </p>
 
-                {/* See More CTA */}
                 <button
                   onClick={() => navigate(`/features/${active.slug}`)}
                   className="inline-flex items-center gap-2 text-primary font-semibold hover:underline transition-colors"
                 >
-                  {isRTL ? 'קרא עוד' : 'See More'}
+                  {t('home.featureShowcase.seeMore')}
                   {isRTL ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
                 </button>
               </motion.div>

@@ -1,8 +1,6 @@
 /**
  * FearOfMissingOutSection - Urgency section with countdown
- * NO FAKE DATA - only authentic messaging
  */
-
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +10,9 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
 export default function FearOfMissingOutSection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   
-  // Countdown to midnight (time left in the day)
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   
   useEffect(() => {
@@ -23,16 +20,13 @@ export default function FearOfMissingOutSection() {
       const now = new Date();
       const midnight = new Date();
       midnight.setHours(24, 0, 0, 0);
-      
       const diff = midnight.getTime() - now.getTime();
-      
       return {
         hours: Math.floor(diff / (1000 * 60 * 60)),
         minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((diff % (1000 * 60)) / 1000),
       };
     };
-    
     setTimeLeft(calculateTimeLeft());
     const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
     return () => clearInterval(timer);
@@ -40,7 +34,6 @@ export default function FearOfMissingOutSection() {
 
   return (
     <section className="py-16 px-4 bg-gradient-to-r from-muted/80 via-muted/50 to-muted/80 dark:from-gray-950/80 dark:via-gray-900/70 dark:to-gray-950/80 relative overflow-hidden">
-      {/* Animated background pulse - subtle */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5"
         animate={{ opacity: [0.3, 0.6, 0.3] }}
@@ -49,7 +42,6 @@ export default function FearOfMissingOutSection() {
       
       <div className="container mx-auto max-w-4xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center space-y-6">
-          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -58,11 +50,10 @@ export default function FearOfMissingOutSection() {
           >
             <TrendingUp className="h-4 w-4 text-primary animate-pulse" />
             <span className="text-sm font-bold text-primary">
-              {isRTL ? 'הזמן לא מחכה' : 'Time Waits for No One'}
+              {t('home.fomo.badge')}
             </span>
           </motion.div>
 
-          {/* Countdown Timer - Time left today */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -70,9 +61,9 @@ export default function FearOfMissingOutSection() {
             className="flex justify-center gap-4"
           >
             {[
-              { value: timeLeft.hours, label: isRTL ? 'שעות' : 'Hours' },
-              { value: timeLeft.minutes, label: isRTL ? 'דקות' : 'Min' },
-              { value: timeLeft.seconds, label: isRTL ? 'שניות' : 'Sec' },
+              { value: timeLeft.hours, label: t('home.fomo.hours') },
+              { value: timeLeft.minutes, label: t('home.fomo.minutes') },
+              { value: timeLeft.seconds, label: t('home.fomo.seconds') },
             ].map((item, index) => (
               <div key={index} className="flex flex-col items-center">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-primary/30 flex items-center justify-center shadow-lg shadow-black/10 dark:shadow-black/30">
@@ -85,7 +76,6 @@ export default function FearOfMissingOutSection() {
             ))}
           </motion.div>
 
-          {/* Main Message */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -93,20 +83,13 @@ export default function FearOfMissingOutSection() {
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-foreground">
-              {isRTL 
-                ? 'כמה שעות נשארו להיום - מה תעשה איתן?'
-                : 'Hours Left Today - What Will You Do With Them?'
-              }
+              {t('home.fomo.title')}
             </h2>
             <p className="text-lg text-muted-foreground">
-              {isRTL 
-                ? 'כל יום הוא הזדמנות חדשה. התחל את המסע שלך עכשיו.'
-                : 'Every day is a new opportunity. Start your journey now.'
-              }
+              {t('home.fomo.subtitle')}
             </p>
           </motion.div>
 
-          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -125,11 +108,8 @@ export default function FearOfMissingOutSection() {
                 hover:shadow-[0_0_50px_hsl(var(--primary)/0.3)]"
             >
               <Clock className={cn("h-5 w-5 text-primary", isRTL ? "ml-2" : "mr-2")} />
-              {isRTL ? 'התחל עכשיו' : 'Start Now'}
-              <ArrowRight className={cn(
-                "h-5 w-5",
-                isRTL ? "mr-2 rotate-180" : "ml-2"
-              )} />
+              {t('home.fomo.cta')}
+              <ArrowRight className={cn("h-5 w-5", isRTL ? "me-2 rotate-180" : "ms-2")} />
             </Button>
           </motion.div>
         </div>
