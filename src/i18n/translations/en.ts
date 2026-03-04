@@ -2852,6 +2852,213 @@ export const en: TranslationKeys = {
     // NEW: Hero - Mind OS Focus
     mindOsTitle: "Your Mind's Operating System",
     mindOsSubtitle: "8 life domains. One integrated brain. AI + Hypnosis + Gamification working together.",
+
+    // GameHeroSection
+    gameHero: {
+      badge: 'Life Operating System',
+      title: 'Your Life, Upgraded by AI',
+      subtitle: 'A personal AI coach that knows you, a tailored 100-day plan, and a complete system for 14 areas of your life — all in one place.',
+      cta: '🚀 Start Your Assessment',
+      ctaMeta: '⏱️ 5 minutes • Personalized from day 1',
+      scrollDown: 'Scroll Down',
+    },
+
+    // AuroraCoachSection
+    auroraCoach: {
+      badge: 'Meet Aurora',
+      title: 'The Coach That Knows You',
+      subtitle: 'Aurora sees the full picture — body, mind, business, relationships — and connects them.',
+      coaching247Title: '24/7 Coaching',
+      coaching247Desc: 'Always there, always adapted',
+      voiceTitle: 'Voice-to-Text',
+      voiceDesc: 'Talk instead of typing',
+      memoryTitle: 'Full Memory',
+      memoryDesc: 'Remembers every conversation & pattern',
+      hypnosisTitle: 'Hypnosis Sessions',
+      hypnosisDesc: 'Generated in real time from your chat',
+      chatPreviewTitle: 'Aurora knows how to say:',
+      chatExample1: "I noticed your energy dropped this week. Let's check what changed in your sleep...",
+      chatExample2: 'Your combat consistency is up 40% this month! This is also boosting your confidence.',
+      chatExample3: 'Want me to prepare a focus hypnosis session before your business meeting tomorrow?',
+    },
+
+    // CommunitySection
+    community: {
+      badge: 'Community',
+      title: 'A Community of ',
+      titleHighlight: 'People Who Grow',
+      subtitle: 'Share, learn from others, join events, earn points and level up — together.',
+      posts: 'Posts & Discussions',
+      events: 'Live Events',
+      leaderboard: 'Leaderboard',
+      levels: 'Levels & Badges',
+      streaks: 'Streaks & Points',
+      userCommunity: 'User Community',
+    },
+
+    // FreeJourneyBannerSection
+    freeJourney: {
+      title: '🚀 Your Personal Transformation Journey',
+      subtitle: 'AI consciousness analysis, 90-day plan & personalized identity profile',
+      aiAnalysis: 'AI Analysis',
+      plan90: '90-Day Plan',
+      pdfDownload: 'PDF Download',
+      cta: 'Start Now',
+    },
+
+    // HowItWorksSection
+    howItWorks: {
+      title: 'How It Works',
+      subtitle: 'Three steps. No complexity.',
+      step1Title: 'Take the Assessment',
+      step1Desc: '5 minutes of focused questions that uncover your strengths, challenges, and priorities.',
+      step2Title: 'Get Your 100-Day Plan',
+      step2Desc: 'Aurora builds a personalized plan with 10 phases, milestones, and daily actions.',
+      step3Title: 'Execute Daily with Aurora',
+      step3Desc: '24/7 AI coach that guides, reminds, adapts, and keeps you on track.',
+    },
+
+    // FinalCTASection
+    finalCta: {
+      title: 'Ready to Change Everything?',
+      subtitle: 'Join and start your journey today',
+      cta: '🚀 Start Your Assessment',
+      personalCoach: 'Personal AI Coach 24/7',
+      plan100: 'Tailored 100-Day Plan',
+      domains14: '14 Life Domains',
+      hypnosis: 'Custom Hypnosis Sessions',
+      gamification: 'Full Gamification',
+      orbAvatar: 'Personalized Orb Avatar',
+      personalJourney: 'Personalized journey',
+      fiveMinutes: '5 minutes to start',
+      cancelAnytime: 'Cancel anytime',
+    },
+
+    // FearOfMissingOutSection
+    fomo: {
+      badge: 'Time Waits for No One',
+      hours: 'Hours',
+      minutes: 'Min',
+      seconds: 'Sec',
+      title: 'Hours Left Today - What Will You Do With Them?',
+      subtitle: 'Every day is a new opportunity. Start your journey now.',
+      cta: 'Start Now',
+    },
+
+    // FeatureShowcaseSection
+    featureShowcase: {
+      title: 'Everything Inside',
+      subtitle: '15 systems that change how you run your life.',
+      seeMore: 'See More',
+    },
+
+    // HandsFreeSection
+    handsFree: {
+      badge: 'Hands-Free Experience',
+      title: 'Speak. Aurora Does.',
+      subtitle: "No need to navigate anywhere. No need to click anything. Just say what you want and Aurora will do it.",
+      chatTitle: 'Everything Happens in Chat',
+      chatDesc: "Aurora isn't just a chatbot - she's a complete operating interface for the entire system. Everything you can do in the dashboard, you can do simply by speaking or typing to Aurora.",
+      voiceMessage: 'Voice message',
+      typeOrRecord: 'Type or record...',
+      createTasks: 'Create tasks',
+      markComplete: 'Mark complete',
+      hypnosisSession: 'Hypnosis session',
+      checkProgress: 'Check progress',
+      voiceTitle: 'Voice Recording in Hebrew & English',
+      voiceDesc: 'Simply record yourself speaking and Aurora will understand you. Accurate transcription, deep understanding, and immediate execution.',
+      cta: 'Try the Voice Experience',
+    },
+
+    // LearningEngineSection
+    learningEngine: {
+      badge: 'Learning Engine',
+      title: 'Learning ',
+      titleHighlight: 'Built for You',
+      subtitle: 'A learning system that generates personalized courses from your data — every lesson ties to a life domain and feeds your plan.',
+      aiCourses: 'AI-Personalized Courses',
+      aiCoursesDesc: 'Aurora builds a tailored curriculum based on your assessment',
+      interactive: 'Interactive Lessons',
+      interactiveDesc: 'Lessons with exercises, quizzes, and adaptive content',
+      pillarModules: 'Pillar-Based Modules',
+      pillarModulesDesc: 'Every course ties to a life domain and feeds your plan',
+      exercises: 'Application Exercises',
+      exercisesDesc: 'Exercises that integrate directly into your daily plan',
+    },
+
+    // TwoWorldsSection
+    twoWorlds: {
+      title: 'A Complete System for ',
+      titleHighlight: '14 Life Domains',
+      subtitle: 'One system. 14 pillars. Two modes — Map and Movement.',
+      coreTitle: '🧠 Core — The Map',
+      coreSubtitle: 'Assessment, strategy & 100-day planning',
+      coreDesc: 'Diagnose all 14 domains, build a personalized 100-day plan, and track results.',
+      arenaTitle: '⚔️ Arena — The Movement',
+      arenaSubtitle: 'Daily execution, live tasks & momentum',
+      arenaDesc: 'Execute your tasks today — action queue, habits, and real-time feedback.',
+      pillarsTitle: 'The 14 Pillars',
+      pillarsSubtitle: 'Choose your pillars by plan — Free: 2, Plus: 6, Apex: all',
+    },
+
+    // CoachMarketplaceSection
+    coachMarketplace: {
+      badge: 'Coach OS',
+      title: 'Coach Marketplace & ',
+      titleHighlight: 'Business Management',
+      subtitle: 'Coaches — build your business directly inside the platform — CRM, landing pages, digital products & more.',
+      clientCrm: 'Client CRM Management',
+      analytics: 'Analytics Dashboard',
+      landingPages: 'Custom Landing Pages',
+      aiPlans: 'AI Coaching Plans',
+      digitalProducts: 'Digital Products Store',
+      businessMgmt: 'Subscription & Business Mgmt',
+    },
+
+    // LifePillarsSection
+    lifePillars: {
+      badge: '8 Life Domains',
+      title: 'One System. Eight Domains. Complete Mastery.',
+      subtitle: 'All your life domains connected and synchronized around your digital identity',
+      yourIdentity: 'Your Identity',
+      startBuilding: 'Start Building Your System',
+      buildPlan: 'Build your personalized plan',
+      startJourney: 'Start the Journey',
+    },
+
+    // TransformationProofSection
+    transformationProof: {
+      badge: 'Before & After',
+      title: 'This Is The Difference Between',
+      stayingStuck: 'Staying Stuck',
+      vs: 'vs',
+      breakingThrough: 'Breaking Through',
+      before: '😔 Before',
+      after: '🚀 After',
+      beforeItem1: 'Feeling stuck in the same patterns',
+      beforeItem2: 'Going in circles',
+      beforeItem3: 'Frustrated by lack of progress',
+      beforeItem4: 'Wasting precious time',
+      afterItem1: 'Complete clarity on direction',
+      afterItem2: 'High energy and motivation',
+      afterItem3: 'Sharp focus on what matters',
+      afterItem4: 'Measurable progress every day',
+      beforeMessage: '⏰ Every passing day = a day you never get back',
+      afterMessage: '✨ 100 days = a completely new life',
+    },
+
+    // PricingPreviewSection
+    pricing: {
+      title: 'Choose Your Level',
+      subtitle: 'Start free. Upgrade when ready.',
+      mostPopular: '⭐ Most Popular',
+      getStarted: 'Get Started',
+    },
+
+    // LifeHub
+    lifeHub: {
+      todaysMissions: "⚡ Today's Missions",
+    },
   },
 
   practitionerLanding: {
