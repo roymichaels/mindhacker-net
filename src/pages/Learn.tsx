@@ -389,10 +389,21 @@ export default function Learn() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 gap-8">
-          {/* Motivational quote */}
-          <div className="max-w-md text-center space-y-2">
-            <Sparkles className="h-5 w-5 text-primary mx-auto opacity-60" />
-            <p className="text-sm italic text-muted-foreground leading-relaxed">"{dailyQuote}"</p>
+          {/* New Course button + Motivational quote */}
+          <div className="max-w-md text-center space-y-3">
+            <Button
+              onClick={openWizardInDock}
+              variant="outline"
+              size="sm"
+              className="gap-2 rounded-full border-primary/30 text-primary hover:bg-primary/10"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {isHe ? 'קורס חדש' : 'New Course'}
+            </Button>
+            <div className="space-y-2">
+              <Sparkles className="h-5 w-5 text-primary mx-auto opacity-60" />
+              <p className="text-sm italic text-muted-foreground leading-relaxed">"{dailyQuote}"</p>
+            </div>
           </div>
 
           {/* Active curriculum info */}
