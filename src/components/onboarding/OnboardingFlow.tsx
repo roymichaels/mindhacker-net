@@ -187,12 +187,111 @@ export function OnboardingFlow() {
     }
   }, [user?.id, saveGuestState]);
 
-  // Restore saved progress on mount
+  // Helper to apply restored phase state
+  const applyPhaseState = useCallback((savedPhase: string | undefined, phaseData: Record<string, unknown> | null, restored: FlowAnswers, savedStep?: number) => {
+    if (Object.keys(restored).length > 0) {
+      setAnswers(restored);
+    }
+
+    if (savedPhase === 'plan_generation') {
+      setShowIntro(false);
+      setShowPlanGeneration(true);
+      setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
+      setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+    } else if (savedPhase === 'assessments') {
+      setShowIntro(false);
+      setShowAssessments(true);
+      setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
+      setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+    } else if (savedPhase === 'pillar_selection') {
+      setShowIntro(false);
+      setShowPillarSelection(true);
+      setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+    } else if (savedPhase === 'tier_selection') {
+      setShowIntro(false);
+      setShowTierSelection(true);
+    } else if (savedPhase === 'reveal') {
+      setShowIntro(false);
+      setShowReveal(true);
+    } else if (savedPhase === 'analyzing' || savedPhase === 'calibration_done') {
+      setShowIntro(false);
+      setShowReveal(true);
+    } else if (Object.keys(restored).length > 0 && typeof savedStep === 'number' && savedStep > 0) {
+      const totalSteps = onboardingFlowSpec.steps.length;
+      const step = Math.max(0, savedStep - 1);
+      if (step >= totalSteps) {
+        setShowIntro(false);
+        setShowReveal(true);
+      } else if (step > 0) {
+        setCurrentStepIdx(step);
+        setCurrentMiniIdx(0);
+        setShowIntro(false);
+      }
+    }
+  }, []);
+
+  // Persist guest localStorage state to DB when user authenticates
+  const persistGuestStateToDB = useCallback(async (userId: string) => {
+    const guest = loadGuestState();
+    if (!guest) return false;
+    
+    const guestAnswers = (guest.__answers as FlowAnswers) || {};
+    const guestPhase = guest.__onboarding_phase as string | undefined;
+    const guestStep = guest.__current_step as number | undefined;
+    
+    if (!guestPhase && Object.keys(guestAnswers).length === 0) return false;
+
+    try {
+      const step1Data: Record<string, unknown> = {};
+      const step2Data: Record<string, unknown> = {};
+      STEP1_KEYS.forEach(key => { if (guestAnswers[key] !== undefined) step1Data[key] = guestAnswers[key]; });
+      if (guestAnswers.pressure_zone) {
+        step1Data.selected_pillar = FRICTION_PILLAR_MAP[guestAnswers.pressure_zone as string] || 'mind';
+      }
+      STEP2_KEYS.forEach(key => { if (guestAnswers[key] !== undefined) step2Data[key] = guestAnswers[key]; });
+
+      const phaseData: Record<string, unknown> = {};
+      if (guestPhase) phaseData.__onboarding_phase = guestPhase;
+      if (guest.__selected_pillars) phaseData.__selected_pillars = guest.__selected_pillars;
+      if (guest.__chosen_tier) phaseData.__chosen_tier = guest.__chosen_tier;
+
+      await supabase.from('launchpad_progress').upsert({
+        user_id: userId,
+        step_1_intention: Object.keys(step1Data).length > 0 ? step1Data as any : undefined,
+        step_2_profile_data: Object.keys(step2Data).length > 0 ? step2Data as any : undefined,
+        step_3_lifestyle_data: Object.keys(phaseData).length > 0 ? phaseData as any : undefined,
+        current_step: guestStep || 1,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+      
+      clearGuestState();
+      return true;
+    } catch (e) {
+      console.error('Persist guest state error:', e);
+      return false;
+    }
+  }, [loadGuestState, clearGuestState]);
+
+  // Restore saved progress on mount or when user changes
   useEffect(() => {
-    if (!user?.id) { setIsRestoring(false); return; }
+    if (!user?.id) {
+      // Guest: try to restore from localStorage
+      const guest = loadGuestState();
+      if (guest) {
+        const guestAnswers = (guest.__answers as FlowAnswers) || {};
+        const guestPhase = guest.__onboarding_phase as string | undefined;
+        const guestStep = guest.__current_step as number | undefined;
+        applyPhaseState(guestPhase, guest, guestAnswers, guestStep);
+      }
+      setIsRestoring(false);
+      return;
+    }
     
     (async () => {
       try {
+        // First, try to persist any guest state to DB
+        await persistGuestStateToDB(user.id);
+
         const { data } = await supabase
           .from('launchpad_progress')
           .select('step_1_intention, step_2_profile_data, step_3_lifestyle_data, current_step')
@@ -207,58 +306,13 @@ export function OnboardingFlow() {
           if (data.step_2_profile_data && typeof data.step_2_profile_data === 'object') {
             Object.assign(restored, data.step_2_profile_data as Record<string, unknown>);
           }
-          
-          if (Object.keys(restored).length > 0) {
-            setAnswers(restored);
-          }
 
-          // Restore onboarding phase
           const phaseData = data.step_3_lifestyle_data && typeof data.step_3_lifestyle_data === 'object'
             ? data.step_3_lifestyle_data as Record<string, unknown>
             : null;
           const savedPhase = phaseData?.__onboarding_phase as string | undefined;
 
-          if (savedPhase === 'plan_generation') {
-            setShowIntro(false);
-            setShowPlanGeneration(true);
-            setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
-            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
-          } else if (savedPhase === 'assessments') {
-            setShowIntro(false);
-            setShowAssessments(true);
-            setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
-            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
-          } else if (savedPhase === 'pillar_selection') {
-            setShowIntro(false);
-            setShowPillarSelection(true);
-            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
-          } else if (savedPhase === 'tier_selection') {
-            setShowIntro(false);
-            setShowTierSelection(true);
-          } else if (savedPhase === 'reveal') {
-            setShowIntro(false);
-            setShowReveal(true);
-          } else if (savedPhase === 'analyzing' || savedPhase === 'calibration_done') {
-            // Skip analyzing animation, go straight to reveal
-            setShowIntro(false);
-            setShowReveal(true);
-          } else if (Object.keys(restored).length > 0 && typeof data.current_step === 'number' && data.current_step > 0) {
-            // User has answers and a saved step position
-            const totalSteps = onboardingFlowSpec.steps.length;
-            const savedStep = Math.max(0, data.current_step - 1);
-            
-            if (savedStep >= totalSteps) {
-              // Calibration was fully completed before phase persistence existed — skip to reveal
-              setShowIntro(false);
-              setShowReveal(true);
-            } else if (savedStep > 0) {
-              // Restore calibration step position
-              setCurrentStepIdx(savedStep);
-              setCurrentMiniIdx(0);
-              setShowIntro(false);
-            }
-          }
-          // If no phase saved and no answers, stay at intro (default)
+          applyPhaseState(savedPhase, phaseData, restored, data.current_step ?? undefined);
         }
       } catch (e) {
         console.error('Restore onboarding error:', e);
