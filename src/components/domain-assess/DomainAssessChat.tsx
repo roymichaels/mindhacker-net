@@ -548,7 +548,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         </ScrollArea>
 
         {/* Input — Aurora style (hidden when docked, uses root GlobalChatInput instead) */}
-        {!asDock && <AuroraChatInput onSend={sendMessage} disabled={isStreaming} />}
+        {!asDock && <AuroraChatInput onSend={sendMessage} disabled={isStreaming} bypassLimits={asModal} />}
       </div>
     </Wrapper>
   );
