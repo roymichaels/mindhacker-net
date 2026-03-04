@@ -41,7 +41,7 @@ interface OnboardingPillarSelectionProps {
 }
 
 export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillarSelectionProps) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const isHe = language === 'he';
 
@@ -49,14 +49,13 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
   const totalLimit = limits.core + limits.arena;
   const isApex = tier === 'apex';
 
-  // Apex auto-selects all
   const [selected, setSelected] = useState<string[]>(
     isApex ? CORE_DOMAINS.map(d => d.id) : []
   );
   const [saving, setSaving] = useState(false);
 
   const handleToggle = (domain: LifeDomain) => {
-    if (isApex) return; // Apex can't deselect
+    if (isApex) return;
     if (selected.includes(domain.id)) {
       setSelected(selected.filter(id => id !== domain.id));
     } else if (selected.length < totalLimit) {
@@ -68,7 +67,6 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
     if (!user?.id) return;
     setSaving(true);
     try {
-      // Save to profiles
       const { error } = await supabase
         .from('profiles')
         .update({ selected_pillars: { core: selected, arena: [] } })
@@ -92,15 +90,12 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-            {isHe ? 'בחר את הפילרים שלך' : 'Choose Your Pillars'}
+            {t('onboarding.pillars.chooseYourPillars')}
           </h1>
           <p className="text-sm text-muted-foreground">
             {isApex
-              ? (isHe ? 'כל 14 הפילרים פתוחים עבורך' : 'All 14 pillars are unlocked for you')
-              : (isHe
-                ? `בחר עד ${totalLimit} פילרים לאבחון ותכנון מותאם אישית`
-                : `Select up to ${totalLimit} pillars for personalized assessment & planning`
-              )
+              ? t('onboarding.pillars.allUnlocked')
+              : `${t('onboarding.pillars.selectUpTo')} ${totalLimit} ${t('onboarding.pillars.pillarsForAssessment')}`
             }
           </p>
           {!isApex && (
@@ -169,7 +164,7 @@ export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillar
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                {isHe ? 'התחל אבחון פילרים' : 'Start Pillar Assessments'}
+                {t('onboarding.pillars.startAssessments')}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

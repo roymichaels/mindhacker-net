@@ -375,13 +375,14 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
     </div>
   );
 
+  const { t } = useTranslation();
   const scores = [
-    { key: 'energy', icon: Zap, label: isHe ? 'יציבות אנרגיה' : 'Energy Stability', value: diagnostics.energyStability, color: 'text-amber-500', barColor: 'bg-amber-500', inverted: false },
-    { key: 'recovery', icon: Heart, label: isHe ? 'חוב ריקברי' : 'Recovery Debt', value: diagnostics.recoveryDebt, color: 'text-red-500', barColor: 'bg-red-500', inverted: true },
-    { key: 'dopamine', icon: Zap, label: isHe ? 'עומס דופמין' : 'Dopamine Load', value: diagnostics.dopamineLoad, color: 'text-purple-500', barColor: 'bg-purple-500', inverted: true },
-    { key: 'execution', icon: Target, label: isHe ? 'אמינות ביצוע' : 'Execution Reliability', value: diagnostics.executionReliability, color: 'text-green-500', barColor: 'bg-green-500', inverted: false },
-    { key: 'time', icon: Clock, label: isHe ? 'מינוף זמן' : 'Time Leverage', value: diagnostics.timeLeverage, color: 'text-blue-500', barColor: 'bg-blue-500', inverted: false },
-    { key: 'hormonal', icon: Shield, label: isHe ? 'סיכון הורמונלי' : 'Hormonal Risk', value: diagnostics.hormonalRisk, color: 'text-orange-500', barColor: 'bg-orange-500', inverted: true },
+    { key: 'energy', icon: Zap, label: t('onboarding.reveal.energyStability'), value: diagnostics.energyStability, color: 'text-amber-500', barColor: 'bg-amber-500', inverted: false },
+    { key: 'recovery', icon: Heart, label: t('onboarding.reveal.recoveryDebt'), value: diagnostics.recoveryDebt, color: 'text-red-500', barColor: 'bg-red-500', inverted: true },
+    { key: 'dopamine', icon: Zap, label: t('onboarding.reveal.dopamineLoad'), value: diagnostics.dopamineLoad, color: 'text-purple-500', barColor: 'bg-purple-500', inverted: true },
+    { key: 'execution', icon: Target, label: t('onboarding.reveal.executionReliability'), value: diagnostics.executionReliability, color: 'text-green-500', barColor: 'bg-green-500', inverted: false },
+    { key: 'time', icon: Clock, label: t('onboarding.reveal.timeLeverage'), value: diagnostics.timeLeverage, color: 'text-blue-500', barColor: 'bg-blue-500', inverted: false },
+    { key: 'hormonal', icon: Shield, label: t('onboarding.reveal.hormonalRisk'), value: diagnostics.hormonalRisk, color: 'text-orange-500', barColor: 'bg-orange-500', inverted: true },
   ];
 
   return (
@@ -434,12 +435,12 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
         {/* ─── Section 2: Week 1 Protocol ─── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="space-y-3">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
-            {isHe ? 'פרוטוקול שבוע 1' : 'Week 1 Protocol'}
+            {t('onboarding.reveal.week1Protocol')}
           </h2>
 
           {/* Anchor Habits */}
           <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 space-y-2">
-            <span className="text-xs font-bold text-primary">{isHe ? '⚓ הרגלי עוגן' : '⚓ Anchor Habits'}</span>
+            <span className="text-xs font-bold text-primary">⚓ {t('onboarding.reveal.anchorHabits')}</span>
             {week1.anchorHabits.map((h, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
@@ -450,7 +451,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
 
           {/* Focus Blocks */}
           <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 space-y-2">
-            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{isHe ? '🎯 בלוקי מיקוד' : '🎯 Focus Blocks'}</span>
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">🎯 {t('onboarding.reveal.focusBlocks')}</span>
             {week1.focusBlocks.map((f, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
@@ -462,11 +463,11 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
           {/* Recovery + Training */}
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-cyan-500/5 border border-cyan-500/20 p-3 space-y-1">
-              <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">{isHe ? '🛡️ ריקברי' : '🛡️ Recovery'}</span>
+              <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">🛡️ {t('onboarding.reveal.recovery')}</span>
               <p className="text-xs text-muted-foreground">{week1.recoveryBlock}</p>
             </div>
             <div className="rounded-xl bg-green-500/5 border border-green-500/20 p-3 space-y-1">
-              <span className="text-xs font-bold text-green-600 dark:text-green-400">{isHe ? '💪 אימון' : '💪 Training'}</span>
+              <span className="text-xs font-bold text-green-600 dark:text-green-400">💪 {t('onboarding.reveal.training')}</span>
               <p className="text-xs text-muted-foreground">{week1.trainingSuggestion}</p>
             </div>
           </div>
@@ -475,7 +476,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
         {/* ─── Section 3: Daily Structure 8-8-8 ─── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0 }} className="space-y-3">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
-            {isHe ? 'מבנה יום 8-8-8' : 'Daily Structure 8-8-8'}
+            {t('onboarding.reveal.dailyStructure')} 8-8-8
           </h2>
           <div className="rounded-xl bg-card border border-border p-3 space-y-2">
             {dailyStructure.map((block, i) => (
@@ -506,11 +507,11 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isHe ? 'טוען...' : 'Loading...'}
+                {t('common.loading')}
               </>
             ) : (
               <>
-                {isHe ? 'המשך — בחר מסלול ופילרים' : 'Continue — Choose Path & Pillars'}
+                {t('onboarding.reveal.continueToPath')}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

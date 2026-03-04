@@ -108,7 +108,7 @@ const STEP2_KEYS = [
 ];
 
 export function OnboardingFlow() {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isHe = language === 'he';
@@ -382,7 +382,7 @@ export function OnboardingFlow() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground text-sm">
-          {isHe ? 'טוען...' : 'Loading...'}
+          {t('onboarding.flow.loading')}
         </div>
       </div>
     );
@@ -404,9 +404,9 @@ export function OnboardingFlow() {
   }
 
   if (showAnalyzing && !showReveal) {
-    const analysisSteps = isHe
-      ? ['מנתח דפוסי שינה...', 'מחשב עומס דופמין...', 'מעריך יציבות אנרגיה...', 'בונה פרופיל ביולוגי...', 'מכוון תוכנית 100 יום...']
-      : ['Analyzing sleep patterns...', 'Computing dopamine load...', 'Evaluating energy stability...', 'Building biological profile...', 'Calibrating 100-day plan...'];
+    const analysisSteps = [
+      t('onboarding.flow.analyzingSleep'), t('onboarding.flow.computingDopamine'), t('onboarding.flow.evaluatingEnergy'), t('onboarding.flow.buildingProfile'), t('onboarding.flow.calibrating100Day')
+    ];
     
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -421,8 +421,8 @@ export function OnboardingFlow() {
             className="w-20 h-20 rounded-full border-4 border-primary/30 border-t-primary"
           />
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-foreground">{isHe ? 'מנתח את הנתונים שלך' : 'Analyzing Your Data'}</h2>
-            <p className="text-sm text-muted-foreground">{isHe ? 'יוצר דוח אבחון מותאם אישית...' : 'Creating your personalized diagnostic report...'}</p>
+            <h2 className="text-xl font-bold text-foreground">{t('onboarding.flow.analyzingData')}</h2>
+            <p className="text-sm text-muted-foreground">{t('onboarding.flow.creatingReport')}</p>
           </div>
           <div className="w-full space-y-2">
             {analysisSteps.map((step, i) => (

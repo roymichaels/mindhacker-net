@@ -17,31 +17,30 @@ interface OnboardingIntroProps {
   onComplete: (basicInfo: { name: string; gender: string; ageBracket: string }) => void;
 }
 
-const GENDER_OPTIONS = [
-  { value: 'male', label_he: 'גבר', label_en: 'Male', icon: '👤' },
-  { value: 'female', label_he: 'אישה', label_en: 'Female', icon: '👤' },
-  { value: 'other', label_he: 'אחר', label_en: 'Other', icon: '👤' },
-];
-
-const AGE_OPTIONS = [
-  { value: '18-24', label_he: '18-24', label_en: '18-24' },
-  { value: '25-30', label_he: '25-30', label_en: '25-30' },
-  { value: '31-40', label_he: '31-40', label_en: '31-40' },
-  { value: '41-50', label_he: '41-50', label_en: '41-50' },
-  { value: '51+', label_he: '51+', label_en: '51+' },
-];
-
 export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isHe = language === 'he';
 
   const [phase, setPhase] = useState<'splash' | 'info'>('splash');
   const [name, setName] = useState('');
   const [gender, setGender] = useState('');
   const [ageBracket, setAgeBracket] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const GENDER_OPTIONS = [
+    { value: 'male', label: t('onboarding.intro.male'), icon: '👤' },
+    { value: 'female', label: t('onboarding.intro.female'), icon: '👤' },
+    { value: 'other', label: t('onboarding.intro.other'), icon: '👤' },
+  ];
+
+  const AGE_OPTIONS = [
+    { value: '18-24', label: '18-24' },
+    { value: '25-30', label: '25-30' },
+    { value: '31-40', label: '31-40' },
+    { value: '41-50', label: '41-50' },
+    { value: '51+', label: '51+' },
+  ];
 
   const handleBegin = () => setPhase('info');
 
@@ -50,7 +49,6 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
     setIsSaving(true);
 
     try {
-      // Save display_name to profiles
       if (user?.id) {
         await supabase
           .from('profiles')
@@ -67,6 +65,15 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
   }, [name, gender, ageBracket, user?.id, onComplete]);
 
   const isFormValid = name.trim().length >= 2 && gender && ageBracket;
+
+  const featurePills = [
+    { icon: '🧠', text: t('onboarding.intro.neuralCalibration') },
+    { icon: '⚡', text: t('onboarding.intro.energyOptimization') },
+    { icon: '🎯', text: t('onboarding.intro.hundredDayPlan') },
+    { icon: '🤖', text: t('onboarding.intro.personalAICoach') },
+    { icon: '🧬', text: t('onboarding.intro.fourteenDomains') },
+    { icon: '🔮', text: t('onboarding.intro.customHypnosis') },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center relative" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -105,12 +112,10 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               className="space-y-3"
             >
               <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-                {isHe ? 'ברוכים הבאים ל-MindOS' : 'Welcome to MindOS'}
+                {t('onboarding.intro.welcomeToMindOS')}
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                {isHe
-                  ? 'מערכת ההפעלה שתשנה את החיים שלך תוך 100 יום — גוף, מיקוד, אנרגיה, כסף ותודעה.'
-                  : 'The operating system that will transform your life in 100 days — body, focus, energy, wealth & consciousness.'}
+                {t('onboarding.intro.description')}
               </p>
             </motion.div>
 
@@ -121,14 +126,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               transition={{ delay: 0.7, duration: 0.5 }}
               className="flex flex-wrap justify-center gap-2"
             >
-              {[
-                { icon: '🧠', text: isHe ? 'כיול נוירולוגי' : 'Neural Calibration' },
-                { icon: '⚡', text: isHe ? 'אופטימיזציית אנרגיה' : 'Energy Optimization' },
-                { icon: '🎯', text: isHe ? 'תוכנית 100 יום' : '100-Day Plan' },
-                { icon: '🤖', text: isHe ? 'מאמן AI אישי' : 'Personal AI Coach' },
-                { icon: '🧬', text: isHe ? '14 תחומי חיים' : '14 Life Domains' },
-                { icon: '🔮', text: isHe ? 'היפנוזה מותאמת' : 'Custom Hypnosis' },
-              ].map((pill) => (
+              {featurePills.map((pill) => (
                 <span
                   key={pill.text}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20"
@@ -151,7 +149,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                   <span key={i} className="w-6 h-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">{c}</span>
                 ))}
               </span>
-              <span>{isHe ? 'מצטרפים כל יום למסע' : 'Joining the journey every day'}</span>
+              <span>{t('onboarding.intro.joiningDaily')}</span>
             </motion.div>
 
             {/* CTA */}
@@ -164,7 +162,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               className="w-full max-w-xs py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
             >
               <Sparkles className="w-5 h-5" />
-              {isHe ? 'בוא נתחיל' : "Let's Begin"}
+              {t('onboarding.intro.letsBegin')}
             </motion.button>
 
             {/* Subtle note */}
@@ -174,7 +172,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               transition={{ delay: 1.2 }}
               className="text-xs text-muted-foreground"
             >
-              {isHe ? '⏱ 5-7 דקות • שאלון אישי מדויק • 100% חינם' : '⏱ 5-7 minutes • Precision personal intake • 100% free'}
+              {t('onboarding.intro.timeNote')}
             </motion.p>
           </motion.div>
         ) : (
@@ -190,10 +188,10 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               {/* Title */}
               <div className="text-center space-y-2">
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                  {isHe ? 'קצת עליך' : 'A bit about you'}
+                  {t('onboarding.intro.aboutYou')}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {isHe ? 'כדי שנוכל להתאים את המערכת בדיוק אליך' : 'So we can tailor the system precisely to you'}
+                  {t('onboarding.intro.tailorSystem')}
                 </p>
               </div>
 
@@ -201,13 +199,13 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <User className="w-4 h-4 text-primary" />
-                  {isHe ? 'שם פרטי' : 'First name'}
+                  {t('onboarding.intro.firstName')}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={isHe ? 'הכנס שם פרטי' : 'Enter your first name'}
+                  placeholder={t('onboarding.intro.enterFirstName')}
                   maxLength={50}
                   className="w-full px-4 py-3 rounded-xl bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                   dir={isRTL ? 'rtl' : 'ltr'}
@@ -218,7 +216,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Users className="w-4 h-4 text-primary" />
-                  {isHe ? 'מגדר' : 'Gender'}
+                  {t('onboarding.intro.gender')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {GENDER_OPTIONS.map((opt) => (
@@ -232,7 +230,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                           : 'bg-muted/50 border-border text-foreground/80 hover:bg-muted'
                       )}
                     >
-                      {isHe ? opt.label_he : opt.label_en}
+                      {opt.label}
                     </button>
                   ))}
                 </div>
@@ -242,7 +240,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-primary" />
-                  {isHe ? 'טווח גיל' : 'Age range'}
+                  {t('onboarding.intro.ageRange')}
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {AGE_OPTIONS.map((opt) => (
@@ -275,8 +273,8 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                     className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
                     {isSaving
-                      ? (isHe ? 'שומר...' : 'Saving...')
-                      : (isHe ? 'המשך לכיול' : 'Continue to Calibration')}
+                      ? t('onboarding.intro.saving')
+                      : t('onboarding.intro.continueToCalibration')}
                     {!isSaving && (isRTL ? <ChevronLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />)}
                   </motion.button>
                 )}
@@ -290,7 +288,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {isRTL ? <ArrowRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-                {isHe ? 'חזרה' : 'Back'}
+                {t('common.back')}
               </button>
             </div>
           </motion.div>
