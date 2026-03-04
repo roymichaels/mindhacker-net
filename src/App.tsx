@@ -362,6 +362,10 @@ const App = () => (
                           <Route path="/learn" element={<LearnLayoutWrapper />} />
                           {/* FM — Free Market */}
                           <Route path="/fm" element={<FMHome />} />
+                          <Route path="/fm/earn" element={<FMEarn />} />
+                          <Route path="/fm/work" element={<FMWork />} />
+                          <Route path="/fm/contribute" element={<FMContribute />} />
+                          <Route path="/fm/wallet" element={<FMWalletPage />} />
                           
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
