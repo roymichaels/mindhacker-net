@@ -1,42 +1,24 @@
 /**
- * PWAUpdatePrompt — Shows a toast when a new version is available.
- * User decides when to reload, preventing mid-flow interruptions.
+ * PWAUpdatePrompt — With autoUpdate, the new SW activates immediately.
+ * This component periodically checks for updates and reloads if one is ready.
  */
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { toast } from 'sonner';
-import { useEffect, useRef } from 'react';
 
 export function PWAUpdatePrompt() {
-  const toastShown = useRef(false);
-
-  const {
-    needRefresh: [needRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegisteredSW(swUrl, registration) {
-      // Check for updates every 30 minutes
+  useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      // Check for updates every 15 minutes
       if (registration) {
         setInterval(() => {
           registration.update();
-        }, 30 * 60 * 1000);
+        }, 15 * 60 * 1000);
       }
     },
+    onNeedRefresh() {
+      // autoUpdate + skipWaiting handles activation; just reload
+      window.location.reload();
+    },
   });
-
-  useEffect(() => {
-    if (needRefresh && !toastShown.current) {
-      toastShown.current = true;
-      toast('גרסה חדשה זמינה', {
-        description: 'לחץ לעדכון',
-        action: {
-          label: 'עדכן עכשיו',
-          onClick: () => updateServiceWorker(true),
-        },
-        duration: Infinity,
-        dismissible: true,
-      });
-    }
-  }, [needRefresh, updateServiceWorker]);
 
   return null;
 }
