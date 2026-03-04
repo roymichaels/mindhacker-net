@@ -2250,6 +2250,7 @@ export const he = {
     newChat: "שיחה חדשה",
     recentConversations: "שיחות אחרונות",
     footerNote: "אורורה זוכרת את השיחות שלך וצומחת איתך לאורך זמן",
+    messagesLeft: "נותרו",
     you: "אתה",
     regenerate: "נסה שוב",
     account: {

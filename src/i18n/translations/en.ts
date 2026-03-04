@@ -2196,6 +2196,7 @@ export const en: TranslationKeys = {
     newChat: "New chat",
     recentConversations: "Recent conversations",
     footerNote: "Aurora remembers your conversations and grows with you over time",
+    messagesLeft: "left",
     you: "You",
     regenerate: "Regenerate",
     account: {
