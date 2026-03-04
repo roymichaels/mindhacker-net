@@ -381,173 +381,72 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown>{lesson.content?.instructions || ''}</ReactMarkdown>
               </div>
-              
-              {lesson.content?.exercises?.map((ex: any, i: number) => {
-                const steps: string[] = ex.steps || extractStepsFromDescription(ex.description || '');
-                const hasSteps = steps.length > 0;
-                const stepsForEx = checkedSteps[i] || {};
-                const checkedCount = Object.values(stepsForEx).filter(Boolean).length;
-                const allStepsDone = hasSteps ? checkedCount >= steps.length : !!checkedExercises[i];
-                const progress = hasSteps ? Math.round((checkedCount / steps.length) * 100) : (allStepsDone ? 100 : 0);
 
-                if (hasSteps && allStepsDone && !checkedExercises[i]) {
-                  setTimeout(() => setCheckedExercises(prev => ({ ...prev, [i]: true })), 300);
-                }
-                if (hasSteps && !allStepsDone && checkedExercises[i]) {
-                  setTimeout(() => setCheckedExercises(prev => ({ ...prev, [i]: false })), 100);
-                }
+              {/* Plan integration summary */}
+              <div className="rounded-xl border border-primary/20 bg-primary/5 overflow-hidden">
+                <div className="px-4 py-3 border-b border-primary/10 flex items-center gap-2">
+                  <CalendarPlus className="h-4 w-4 text-primary" />
+                  <h4 className="font-bold text-sm text-primary">
+                    {isHe ? 'יתווסף לתוכנית היומית שלך' : 'Will be added to your daily plan'}
+                  </h4>
+                </div>
 
-                return (
-                  <div 
-                    key={i} 
-                    className={`rounded-xl border overflow-hidden transition-colors ${
-                      allStepsDone ? 'border-primary/40 bg-primary/5' : 'bg-card border-border'
-                    }`}
-                  >
-                    {/* Exercise header with progress */}
-                    <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-                      <div className="flex items-center gap-2.5">
-                        {!hasSteps ? (
-                          <button 
-                            className="shrink-0 transition-colors"
-                            onClick={() => setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] }))}
-                          >
-                            {allStepsDone ? (
-                              <CheckSquare className="h-5 w-5 text-primary" />
-                            ) : (
-                              <Square className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </button>
-                        ) : (
-                          <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                            allStepsDone ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {allStepsDone ? '✓' : i + 1}
+                <div className="divide-y divide-border/50">
+                  {lesson.content?.exercises?.map((ex: any, i: number) => {
+                    const desc = ex.description || '';
+                    const recurrence = isRecurringExercise(desc + ' ' + (ex.title || ''));
+                    const isHabit = !!recurrence;
+
+                    return (
+                      <div key={i} className="px-4 py-3 flex items-start gap-3">
+                        <div className={`mt-0.5 h-6 w-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                          isHabit ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-sm text-foreground">
+                              {ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
+                            </span>
+                            <Badge variant={isHabit ? 'default' : 'outline'} className="text-[10px] h-5">
+                              {isHabit 
+                                ? (isHe ? '🔄 הרגל יומי' : '🔄 Daily Habit')
+                                : (isHe ? 'משימה' : 'Task')
+                              }
+                            </Badge>
                           </div>
-                        )}
-                        <h4 className={`font-bold text-sm ${allStepsDone ? 'text-primary' : ''}`}>
-                          {ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
-                        </h4>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {hasSteps && (
-                          <span className="text-xs text-muted-foreground font-mono">
-                            {checkedCount}/{steps.length}
-                          </span>
-                        )}
-                        <Badge variant="outline" className="text-xs">{ex.difficulty}</Badge>
-                      </div>
-                    </div>
-
-                    {/* Progress bar */}
-                    {hasSteps && (
-                      <div className="h-1 bg-muted">
-                        <div 
-                          className="h-full bg-primary transition-all duration-500 ease-out"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                    )}
-
-                    {/* Description — only show if no steps (avoid duplication) */}
-                    {!hasSteps && ex.description && (
-                      <div className="px-4 py-3">
-                        <p className="text-sm text-muted-foreground">{ex.description}</p>
-                      </div>
-                    )}
-
-                    {/* Expected output */}
-                    {ex.expected_output && (
-                      <div className="px-4 py-2 bg-accent/5 border-b border-border/30">
-                        <p className="text-xs text-muted-foreground italic">
-                          {isHe ? '🎯 תוצאה צפויה: ' : '🎯 Expected: '}{ex.expected_output}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Inner roadmap timeline */}
-                    {hasSteps && (
-                      <div className="px-4 py-3">
-                        <div className="relative">
-                          {/* Vertical timeline line */}
-                          <div className="absolute top-2 bottom-2 start-[11px] w-0.5 bg-border rounded-full" />
-
-                          <div className="space-y-0">
-                            {steps.map((step: string, si: number) => {
-                              const isStepDone = !!stepsForEx[si];
-                              const isNextStep = !isStepDone && (si === 0 || !!stepsForEx[si - 1]);
-                              return (
-                                <button
-                                  key={si}
-                                  className={`relative w-full flex items-start gap-3 py-2.5 ps-0 text-start transition-all rounded-lg ${
-                                    isStepDone 
-                                      ? 'opacity-70' 
-                                      : isNextStep 
-                                        ? 'bg-primary/5 px-2 -mx-2 rounded-lg'
-                                        : ''
-                                  }`}
-                                  onClick={() => {
-                                    setCheckedSteps(prev => ({
-                                      ...prev,
-                                      [i]: { ...(prev[i] || {}), [si]: !isStepDone }
-                                    }));
-                                  }}
-                                >
-                                  {/* Timeline node */}
-                                  <div className={`relative z-10 h-6 w-6 rounded-full flex items-center justify-center shrink-0 transition-all border-2 ${
-                                    isStepDone 
-                                      ? 'bg-primary border-primary text-primary-foreground' 
-                                      : isNextStep
-                                        ? 'bg-background border-primary text-primary animate-pulse'
-                                        : 'bg-background border-muted-foreground/30 text-muted-foreground'
-                                  }`}>
-                                    {isStepDone ? (
-                                      <CheckCircle className="h-3.5 w-3.5" />
-                                    ) : (
-                                      <span className="text-[10px] font-bold">{si + 1}</span>
-                                    )}
-                                  </div>
-
-                                  {/* Step content */}
-                                  <span className={`text-sm pt-0.5 flex-1 ${
-                                    isStepDone 
-                                      ? 'line-through text-muted-foreground' 
-                                      : isNextStep
-                                        ? 'font-medium text-foreground'
-                                        : 'text-muted-foreground'
-                                  }`}>
-                                    {step}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
+                          {desc && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{desc}</p>
+                          )}
                         </div>
                       </div>
-                    )}
-
-                    {/* Completion banner */}
-                    {allStepsDone && (
-                      <div className="px-4 py-2 bg-primary/10 text-primary text-center text-xs font-medium">
-                        {isHe ? '✅ הושלם — ייווסף לתוכנית שלך!' : '✅ Complete — will be added to your plan!'}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              {(lesson.content?.exercises?.length || 0) > 0 && (
-                <div className="flex items-center justify-center gap-2 py-1">
-                  <div className="flex-1 h-px bg-border" />
-                  <p className="text-xs text-muted-foreground px-2">
-                    {isHe 
-                      ? `${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} משימות הושלמו`
-                      : `${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} missions complete`
-                    }
-                  </p>
-                  <div className="flex-1 h-px bg-border" />
+                    );
+                  })}
                 </div>
-              )}
+
+                <div className="px-4 py-2.5 bg-primary/10 text-center">
+                  <p className="text-xs text-primary font-medium">
+                    {(() => {
+                      const exercises = lesson.content?.exercises || [];
+                      const habitsCount = exercises.filter((ex: any) => 
+                        isRecurringExercise((ex.description || '') + ' ' + (ex.title || ''))
+                      ).length;
+                      const tasksCount = exercises.length - habitsCount;
+                      if (isHe) {
+                        const parts = [];
+                        if (tasksCount > 0) parts.push(`${tasksCount} משימות`);
+                        if (habitsCount > 0) parts.push(`${habitsCount} הרגלים יומיים`);
+                        return `📋 סה"כ: ${parts.join(' + ')} יתווספו בסיום השיעור`;
+                      }
+                      const parts = [];
+                      if (tasksCount > 0) parts.push(`${tasksCount} task${tasksCount > 1 ? 's' : ''}`);
+                      if (habitsCount > 0) parts.push(`${habitsCount} daily habit${habitsCount > 1 ? 's' : ''}`);
+                      return `📋 Total: ${parts.join(' + ')} will sync on completion`;
+                    })()}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
