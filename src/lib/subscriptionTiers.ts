@@ -116,7 +116,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   plus: {
     en: [
       "Everything in Awakening",
-      "3 Core pillars + 3 Arena pillars",
+      "6 pillars of your choice",
       "Unlimited Aurora with memory",
       "AI hypnosis & daily scripts",
       "Basic proactive nudges",
