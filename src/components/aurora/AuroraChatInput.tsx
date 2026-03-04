@@ -190,17 +190,19 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
           </p>
         )}
 
-        {/* Footer Note + Message Counter */}
-        <div className="flex items-center justify-center gap-2 mt-3">
-          <p className="text-xs text-muted-foreground">
-            {t('aurora.footerNote')}
-          </p>
-          {!isPro && (
-            <span className="text-xs text-muted-foreground">
-              · {messagesRemaining} {isRTL ? 'נותרו' : 'left'}
-            </span>
-          )}
-        </div>
+        {/* Footer Note + Message Counter — hidden during onboarding */}
+        {!bypassLimits && (
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <p className="text-xs text-muted-foreground">
+              {t('aurora.footerNote')}
+            </p>
+            {!isPro && (
+              <span className="text-xs text-muted-foreground">
+                · {messagesRemaining} {t('aurora.messagesLeft')}
+              </span>
+            )}
+          </div>
+        )}
       </form>
       <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
       <EnergySpendModal
