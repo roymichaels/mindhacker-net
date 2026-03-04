@@ -14,6 +14,7 @@ import {
   HowItWorksSection,
   AuroraCoachSection,
   FeatureShowcaseSection,
+  OrbCollectionSection,
   LearningEngineSection,
   CoachMarketplaceSection,
   CommunitySection,
