@@ -43,12 +43,31 @@ interface CoachesProps {
 
 export default function Marketplace({ selectedClientId, onClearClient, activeTab = 'dashboard' }: CoachesProps) {
   const { data: myProfile, isLoading: profileLoading } = useMyCoachProfile();
-  const { hasRole, loading: rolesLoading } = useUserRoles();
+  const { hasRole, loading: rolesLoading, refetch: refetchRoles } = useUserRoles();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get('tab');
+  const checkoutStatus = searchParams.get('checkout');
+  const { data: coachSub, refetch: refetchCoachSub } = useCoachSubscription();
 
   const isPractitioner = hasRole('practitioner');
+
+  // Handle post-checkout success
+  useEffect(() => {
+    if (checkoutStatus === 'success') {
+      toast.success('Subscription activated! Setting up your coach profile...');
+      // Poll for subscription + role provisioning
+      const interval = setInterval(async () => {
+        const { data } = await refetchCoachSub();
+        if (data?.subscribed) {
+          await refetchRoles();
+          clearInterval(interval);
+          setSearchParams({});
+        }
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [checkoutStatus]);
 
   if (rolesLoading || profileLoading) {
     return <PageSkeleton />;
