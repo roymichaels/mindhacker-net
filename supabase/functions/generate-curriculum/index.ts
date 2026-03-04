@@ -305,7 +305,7 @@ RULES:
 - Total target: ~50 lessons
 - DO NOT include "content" field in lessons — only title, title_en, lesson_type, time_estimate_minutes, xp_reward
 - Generate in the SAME LANGUAGE as conversation
-- If Hebrew: include nikud on titles and key terms
+- If Hebrew: write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י for chirik/tsere, ו for holam/shuruk) to maximize readability. For example: "לִימוּד" → "ליימוד", "תִּרְגּוּל" → "תירגול", "מוּשָׂג" → "מושג". Never use nikud dots.
 - XP: theory=10, practice=20, quiz=15, project=50
 - Keep module descriptions to 1 sentence
 - This is a SKELETON — keep it lean and fast`;
