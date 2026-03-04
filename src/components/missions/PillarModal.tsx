@@ -4,6 +4,7 @@
  */
 import { useTranslation } from '@/hooks/useTranslation';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
