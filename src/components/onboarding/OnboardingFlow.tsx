@@ -108,7 +108,7 @@ const STEP2_KEYS = [
 ];
 
 export function OnboardingFlow() {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isHe = language === 'he';
