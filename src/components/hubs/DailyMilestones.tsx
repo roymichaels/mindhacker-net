@@ -5,6 +5,7 @@
  * If a pillar hasn't completed its assessment, clicking opens DomainAssessModal first.
  */
 import { useMemo, useState } from 'react';
+import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
