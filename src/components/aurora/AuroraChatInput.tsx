@@ -70,7 +70,8 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
     const message = input.trim();
 
     // Subscription gate check: if free user out of messages, offer energy spend
-    if (!canSendMessage && !isPro) {
+    // Skip limits during onboarding assessments
+    if (!bypassLimits && !canSendMessage && !isPro) {
       if (canAfford(ENERGY_COSTS.AURORA_MESSAGE)) {
         setPendingMessage(message);
         setEnergyModalOpen(true);
