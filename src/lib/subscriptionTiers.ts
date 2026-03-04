@@ -88,16 +88,16 @@ export function tierIncludes(userTier: SubscriptionTier, requiredTier: Subscript
 
 /** Pillar limits per tier per hub */
 export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena: number }> = {
-  free: { core: 1, arena: 1 },
-  plus: { core: 3, arena: 3 },
-  apex: { core: 7, arena: 7 }, // all pillars
+  free: { core: 2, arena: 0 },   // 2 total pillars
+  plus: { core: 6, arena: 0 },   // 6 total pillars
+  apex: { core: 14, arena: 0 },  // all pillars
 };
 
 /** Features list for each tier (for UI display) */
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "1 Core pillar + 1 Arena pillar (your choice)",
+      "2 pillars of your choice",
       "Dashboard & 100-day overview",
       "5 Aurora messages/day",
       "3 active habits",
@@ -105,7 +105,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "Basic Orb",
     ],
     he: [
-      "פילר ליבה 1 + פילר זירה 1 (לבחירתך)",
+      "2 פילרים לבחירתך",
       "דאשבורד וסקירת 100 יום",
       "5 הודעות יומיות לאורורה",
       "3 הרגלים פעילים",
@@ -116,7 +116,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   plus: {
     en: [
       "Everything in Awakening",
-      "3 Core pillars + 3 Arena pillars",
+      "6 pillars of your choice",
       "Unlimited Aurora with memory",
       "AI hypnosis & daily scripts",
       "Basic proactive nudges",
@@ -127,7 +127,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     ],
     he: [
       "הכל מ-Awakening",
-      "3 פילרי ליבה + 3 פילרי זירה",
+      "6 פילרים לבחירתך",
       "אורורה ללא הגבלה עם זיכרון",
       "היפנוזה AI ותסריטים יומיים",
       "נאדג׳ים פרואקטיביים בסיסיים",

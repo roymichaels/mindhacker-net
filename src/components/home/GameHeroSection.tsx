@@ -7,10 +7,10 @@ import { Sparkles, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
-import { CORE_DOMAINS, ARENA_DOMAINS } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { cn } from '@/lib/utils';
 
-const ALL_DOMAINS = [...CORE_DOMAINS, ...ARENA_DOMAINS];
+const ALL_DOMAINS = CORE_DOMAINS;
 
 export default function GameHeroSection() {
   const { isRTL } = useTranslation();
