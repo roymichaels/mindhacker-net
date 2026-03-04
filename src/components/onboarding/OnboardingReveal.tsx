@@ -20,6 +20,7 @@ import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards'
 
 interface OnboardingRevealProps {
   answers: FlowAnswers;
+  onContinue?: () => void;
 }
 
 // ─── Score computation helpers ───
@@ -255,7 +256,7 @@ function getInterpretation(key: string, value: number, isHe: boolean, inverted =
   return isHe ? 'דורש טיפול מיידי' : 'Needs immediate attention';
 }
 
-export function OnboardingReveal({ answers }: OnboardingRevealProps) {
+export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps) {
   const navigate = useNavigate();
   const { language } = useTranslation();
   const { user } = useAuth();
@@ -487,100 +488,29 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           </div>
         </motion.div>
 
-        {/* ─── Plus Upgrade: Deep Onboarding Continuation ─── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-          className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-primary/5 to-accent/10 border-2 border-amber-500/30 p-6 space-y-5"
-        >
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
-              <Zap className="w-3.5 h-3.5" />
-              {isHe ? 'המשך כיול מעמיק' : 'Continue Deep Calibration'}
-            </div>
-            <h3 className="text-lg font-bold text-foreground">
-              {isHe ? 'מה שגילינו עכשיו זו רק ההתחלה' : 'What we discovered is just the beginning'}
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {isHe
-                ? 'עם Plus, אורורה ממשיכה לכייל את המערכת שלך כל יום — היפנוזה מותאמת אישית, ליווי פרואקטיבי, וכלים מתקדמים שמתאימים את עצמם אליך.'
-                : 'With Plus, Aurora continues calibrating your system daily — personalized hypnosis, proactive coaching, and advanced tools that adapt to you.'
-              }
-            </p>
-          </div>
-
-          {/* Plus Features Grid */}
-          <div className="space-y-2">
-            {(isHe ? TIER_FEATURES.plus.he : TIER_FEATURES.plus.en).filter(f => f !== (isHe ? 'הכל מ-Free' : 'Everything in Free')).map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: isHe ? 10 : -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.4 + i * 0.08 }}
-                className="flex items-center gap-3 p-2.5 rounded-xl bg-card/60 border border-border/50"
-              >
-                <div className="w-6 h-6 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
-                  <Zap className="w-3 h-3 text-amber-500" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Pricing */}
-          <div className="text-center space-y-1">
-            <div className="flex items-baseline justify-center gap-2">
-              <span className="text-3xl font-black text-amber-500">
-                {isHe ? `₪${TIER_CONFIGS.plus.priceILS}` : `$${TIER_CONFIGS.plus.priceUSD}`}
-              </span>
-              <span className="text-sm text-muted-foreground">/{isHe ? 'חודש' : 'mo'}</span>
-            </div>
-            {TIER_CONFIGS.plus.trial && (
-              <p className="text-xs text-amber-500 font-medium">
-                {isHe ? `${TIER_CONFIGS.plus.trial} ימי ניסיון חינם` : `${TIER_CONFIGS.plus.trial}-day free trial`}
-              </p>
-            )}
-          </div>
-
-          {/* CTA */}
-          <button
-            onClick={async () => {
-              if (!requireAuthOrOpenModal(user, openAuthModal, {
-                reason: 'upgrade_plus',
-                nextActionName: 'onboarding_upgrade',
-              })) return;
-              const result = await supabase.functions.invoke('create-checkout-session', {
-                body: { tier: 'plus' },
-              });
-              const url = requireCheckoutUrlOrToast(result, isHe);
-              if (url) window.location.href = url;
-            }}
-            className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-colors"
-          >
-            {isHe ? '🚀 שדרג ל-Plus והמשך את הכיול' : '🚀 Upgrade to Plus & Continue Calibration'}
-          </button>
-        </motion.div>
-
-        {/* ─── CTA: Start Free ─── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 }}>
+        {/* ─── CTA: Continue to Tier Selection ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
           <button
             onClick={() => {
-              sessionStorage.setItem('just_completed_onboarding', '1');
-              handleEnterSystem();
+              if (onContinue) {
+                onContinue();
+              } else {
+                // Fallback: legacy behavior
+                sessionStorage.setItem('just_completed_onboarding', '1');
+                handleEnterSystem();
+              }
             }}
             disabled={isLoading}
-            className="w-full py-4 rounded-2xl bg-card border-2 border-border hover:border-primary/50 text-foreground font-bold text-lg flex items-center justify-center gap-2 hover:bg-primary/5 transition-all disabled:opacity-50"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isHe ? 'בונה תוכנית 100 יום...' : 'Building your 100-day plan...'}
+                {isHe ? 'טוען...' : 'Loading...'}
               </>
             ) : (
               <>
-                {isHe ? 'התחל חינם' : 'Start Free'}
+                {isHe ? 'המשך — בחר מסלול ופילרים' : 'Continue — Choose Path & Pillars'}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

@@ -1,7 +1,7 @@
 /**
  * OnboardingFlow — Full-screen neural architecture intake orchestrator.
  * 
- * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal
+ * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal → Tier Selection → Pillar Selection → Assessments → Plan Generation
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +14,12 @@ import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowS
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { OnboardingReveal } from './OnboardingReveal';
 import { OnboardingIntro } from './OnboardingIntro';
+import { OnboardingTierSelection } from './OnboardingTierSelection';
+import { OnboardingPillarSelection } from './OnboardingPillarSelection';
+import { OnboardingAssessments } from './OnboardingAssessments';
+import { OnboardingPlanGeneration } from './OnboardingPlanGeneration';
 import { Slider } from '@/components/ui/slider';
+import type { SubscriptionTier } from '@/lib/subscriptionTiers';
 import { Textarea } from '@/components/ui/textarea';
 import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
 import {
@@ -114,6 +119,14 @@ export function OnboardingFlow() {
   const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
   const [showReveal, setShowReveal] = useState(false);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
+  // New onboarding phases
+  const [showTierSelection, setShowTierSelection] = useState(false);
+  const [showPillarSelection, setShowPillarSelection] = useState(false);
+  const [showAssessments, setShowAssessments] = useState(false);
+  const [showPlanGeneration, setShowPlanGeneration] = useState(false);
+  const [chosenTier, setChosenTier] = useState<SubscriptionTier>('free');
+  const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
+  
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [textareaValue, setTextareaValue] = useState('');
   const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
@@ -440,8 +453,57 @@ export function OnboardingFlow() {
     );
   }
 
+  if (showPlanGeneration) {
+    return <OnboardingPlanGeneration answers={answers} selectedPillars={selectedPillars} />;
+  }
+
+  if (showAssessments) {
+    return (
+      <OnboardingAssessments
+        selectedPillars={selectedPillars}
+        onComplete={() => {
+          setShowAssessments(false);
+          setShowPlanGeneration(true);
+        }}
+      />
+    );
+  }
+
+  if (showPillarSelection) {
+    return (
+      <OnboardingPillarSelection
+        tier={chosenTier}
+        onComplete={(pillars) => {
+          setSelectedPillars(pillars);
+          setShowPillarSelection(false);
+          setShowAssessments(true);
+        }}
+      />
+    );
+  }
+
+  if (showTierSelection) {
+    return (
+      <OnboardingTierSelection
+        onTierSelected={(tier) => {
+          setChosenTier(tier);
+          setShowTierSelection(false);
+          setShowPillarSelection(true);
+        }}
+      />
+    );
+  }
+
   if (showReveal) {
-    return <OnboardingReveal answers={answers} />;
+    return (
+      <OnboardingReveal
+        answers={answers}
+        onContinue={() => {
+          setShowReveal(false);
+          setShowTierSelection(true);
+        }}
+      />
+    );
   }
 
   if (!currentMini) return null;
