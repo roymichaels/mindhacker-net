@@ -18,6 +18,13 @@ const PRODUCT_TIER_MAP: Record<string, string> = {
   "prod_U00oHca1mJzxl1": "business",
 };
 
+// Coach tier price IDs → tier + client limit
+const COACH_PRICE_TIER: Record<string, { tier: string; clientLimit: number }> = {
+  "price_1T74WWL9lVJ44TbRziR03haW": { tier: "starter", clientLimit: 10 },
+  "price_1T74WqL9lVJ44TbRx0uGMNOY": { tier: "growth", clientLimit: 100 },
+  "price_1T74XEL9lVJ44TbR8R5h76R9": { tier: "scale", clientLimit: 500 },
+};
+
 const log = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}`, details ? JSON.stringify(details) : "");
 };
@@ -212,7 +219,78 @@ serve(async (req) => {
 
         const subId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
         const sub = await stripe.subscriptions.retrieve(subId);
-        await upsertSub(sub, userId);
+
+        // Check if this is a coach subscription
+        const priceId = sub.items.data[0]?.price?.id;
+        const coachTier = priceId ? COACH_PRICE_TIER[priceId] : null;
+
+        if (coachTier) {
+          log("Coach subscription detected", { priceId, tier: coachTier.tier });
+
+          // Upsert coach_subscriptions
+          const { data: existingCoach } = await supabase
+            .from("coach_subscriptions")
+            .select("id")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+          const coachSubData = {
+            user_id: userId,
+            tier: coachTier.tier,
+            client_limit: coachTier.clientLimit,
+            status: "active",
+            stripe_subscription_id: sub.id,
+            stripe_customer_id: customerId,
+            current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+          };
+
+          if (existingCoach) {
+            await supabase.from("coach_subscriptions").update(coachSubData).eq("id", existingCoach.id);
+            log("Updated coach subscription", { id: existingCoach.id });
+          } else {
+            await supabase.from("coach_subscriptions").insert(coachSubData);
+            log("Created coach subscription", { userId, tier: coachTier.tier });
+          }
+
+          // Ensure practitioner record exists
+          const { data: existingPractitioner } = await supabase
+            .from("practitioners")
+            .select("id")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+          if (!existingPractitioner) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("full_name, display_name, avatar_url")
+              .eq("id", userId)
+              .maybeSingle();
+
+            await supabase.from("practitioners").insert({
+              user_id: userId,
+              title: profile?.full_name || profile?.display_name || "Coach",
+              title_en: profile?.full_name || profile?.display_name || "Coach",
+              bio: "",
+              bio_en: "",
+              specialty: "general",
+              status: "active",
+              is_featured: false,
+              is_verified: false,
+              avatar_url: profile?.avatar_url || null,
+            });
+            log("Created practitioner record", { userId });
+          }
+
+          // Grant practitioner role
+          await supabase.from("user_roles").upsert(
+            { user_id: userId, role: "practitioner" },
+            { onConflict: "user_id,role" }
+          );
+          log("Granted practitioner role", { userId });
+        } else {
+          // Regular subscription
+          await upsertSub(sub, userId);
+        }
         break;
       }
 
@@ -239,6 +317,23 @@ serve(async (req) => {
         const sub = event.data.object as Stripe.Subscription;
         log("customer.subscription.deleted", { subId: sub.id });
 
+        // Check if coach subscription
+        const { data: coachSubDel } = await supabase
+          .from("coach_subscriptions")
+          .select("id, user_id")
+          .eq("stripe_subscription_id", sub.id)
+          .maybeSingle();
+
+        if (coachSubDel) {
+          await supabase
+            .from("coach_subscriptions")
+            .update({ status: "cancelled", updated_at: new Date().toISOString() })
+            .eq("id", coachSubDel.id);
+          log("Coach subscription cancelled", { userId: coachSubDel.user_id });
+          break;
+        }
+
+        // Regular subscription
         const { data: existingSub } = await supabase
           .from("user_subscriptions")
           .select("user_id")
