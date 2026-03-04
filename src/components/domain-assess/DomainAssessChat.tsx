@@ -180,32 +180,32 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       if (cancelled) return;
 
       if (!msgErr && existing && existing.length > 0) {
-        const loaded: ChatMessage[] = existing.map((m: any) => ({
-          id: m.id,
-          role: m.is_ai_message ? 'assistant' as const : 'user' as const,
-          content: m.content,
-          created_at: m.created_at,
-        }));
+        // Filter out any previously saved intro messages — we render them dynamically
+        const loaded: ChatMessage[] = existing
+          .filter((m: any) => {
+            // Skip saved intro messages (first assistant message that matches an intro pattern)
+            if (m.is_ai_message && existing.indexOf(m) === 0) {
+              const introText = DOMAIN_INTROS[domainId];
+              if (introText && (m.content === introText.he || m.content === introText.en)) {
+                return false;
+              }
+            }
+            return true;
+          })
+          .map((m: any) => ({
+            id: m.id,
+            role: m.is_ai_message ? 'assistant' as const : 'user' as const,
+            content: m.content,
+            created_at: m.created_at,
+          }));
         msgCounter.current = loaded.length;
         setMessages(loaded);
-        setStarted(true);
-        startedRef.current = true;
-      } else {
-        // No history — add intro message and auto-start
-        const introText = DOMAIN_INTROS[domainId];
-        if (introText) {
-          const introContent = isHe ? introText.he : introText.en;
-          const introMsg: ChatMessage = {
-            id: 'intro-static',
-            role: 'assistant',
-            content: introContent,
-            created_at: new Date().toISOString(),
-          };
-          setMessages([introMsg]);
-          // Save intro to DB
-          await saveMessageToDB(convId, 'assistant', introContent);
+        if (loaded.length > 0) {
+          setStarted(true);
+          startedRef.current = true;
         }
       }
+      // No else — intro is always rendered dynamically based on current language
       setLoadingHistory(false);
     };
 
