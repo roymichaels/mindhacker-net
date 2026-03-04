@@ -121,11 +121,11 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     staleTime: 5 * 60 * 1000,
   });
 
-  // Filter domains to only show user's selected pillars (Apex sees all)
-  const allDomains = useMemo(() => {
-    if (isApex) return CORE_DOMAINS;
-    return CORE_DOMAINS.filter(d => isPillarSelected(d.id));
-  }, [isApex, isPillarSelected]);
+  // Show ALL 14 pillars — tier limits control how many can be assessed
+  const allDomains = CORE_DOMAINS;
+
+  // Total pillars the user can select based on tier
+  const { limits, selectedPillars, togglePillar, canSelectMore } = usePillarAccess();
 
   const dailyMilestones = useMemo(() => {
     const results: DailyMilestone[] = [];
