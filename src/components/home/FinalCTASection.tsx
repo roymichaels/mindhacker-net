@@ -9,24 +9,24 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { cn } from '@/lib/utils';
 
-const checklist = [
-  { he: 'מאמן AI אישי 24/7', en: 'Personal AI Coach 24/7' },
-  { he: 'תוכנית 100 יום מותאמת', en: 'Tailored 100-Day Plan' },
-  { he: '14 תחומי חיים', en: '14 Life Domains' },
-  { he: 'היפנוזה מותאמת אישית', en: 'Custom Hypnosis Sessions' },
-  { he: 'גיימיפיקציה מלאה', en: 'Full Gamification' },
-  { he: 'אווטאר Orb אישי', en: 'Personalized Orb Avatar' },
-];
-
-const guarantees = [
-  { icon: Shield, he: 'מסע מותאם אישית', en: 'Personalized journey' },
-  { icon: Clock, he: '5 דקות להתחיל', en: '5 minutes to start' },
-  { icon: Star, he: 'ביטול בכל רגע', en: 'Cancel anytime' },
-];
-
 export default function FinalCTASection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+
+  const checklist = [
+    t('home.finalCta.personalCoach'),
+    t('home.finalCta.plan100'),
+    t('home.finalCta.domains14'),
+    t('home.finalCta.hypnosis'),
+    t('home.finalCta.gamification'),
+    t('home.finalCta.orbAvatar'),
+  ];
+
+  const guarantees = [
+    { icon: Shield, text: t('home.finalCta.personalJourney') },
+    { icon: Clock, text: t('home.finalCta.fiveMinutes') },
+    { icon: Star, text: t('home.finalCta.cancelAnytime') },
+  ];
 
   return (
     <section className="py-24 px-4 bg-gradient-to-b from-muted via-muted/70 to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 relative overflow-hidden">
@@ -45,7 +45,6 @@ export default function FinalCTASection() {
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/10 via-primary/20 to-primary/10 blur-xl" />
 
           <div className="relative z-10 text-center space-y-8">
-            {/* Orb */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -58,29 +57,24 @@ export default function FinalCTASection() {
               </div>
             </motion.div>
 
-            {/* Heading */}
             <div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground mb-3">
-                {isRTL ? 'מוכן לשנות את הכל?' : 'Ready to Change Everything?'}
+                {t('home.finalCta.title')}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                {isRTL
-                  ? 'הצטרף ותתחיל את המסע שלך היום'
-                  : 'Join and start your journey today'}
+                {t('home.finalCta.subtitle')}
               </p>
             </div>
 
-            {/* Checklist */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-start max-w-lg mx-auto">
               {checklist.map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span className="text-sm text-foreground">{isRTL ? item.he : item.en}</span>
+                  <span className="text-sm text-foreground">{item}</span>
                 </div>
               ))}
             </div>
 
-            {/* CTA */}
             <Button
               size="lg"
               onClick={() => navigate('/onboarding')}
@@ -92,15 +86,14 @@ export default function FinalCTASection() {
                 border-0 transition-all duration-300 hover:scale-105"
             >
               <Rocket className={cn('h-6 w-6', isRTL ? 'ml-3' : 'mr-3')} />
-              {isRTL ? '🚀 התחל את האבחון שלך' : '🚀 Start Your Assessment'}
+              {t('home.finalCta.cta')}
             </Button>
 
-            {/* Guarantees */}
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               {guarantees.map((item, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                   <item.icon className="h-4 w-4 text-emerald-500" />
-                  <span>{isRTL ? item.he : item.en}</span>
+                  <span>{item.text}</span>
                 </div>
               ))}
             </div>

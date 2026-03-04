@@ -7,21 +7,21 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { cn } from '@/lib/utils';
 
-const auroraFeatures = [
-  { icon: Bot, titleHe: 'אימון 24/7', titleEn: '24/7 Coaching', descHe: 'תמיד שם, תמיד מותאם', descEn: 'Always there, always adapted' },
-  { icon: Mic, titleHe: 'קול לטקסט', titleEn: 'Voice-to-Text', descHe: 'דבר במקום לכתוב', descEn: 'Talk instead of typing' },
-  { icon: Brain, titleHe: 'זיכרון מלא', titleEn: 'Full Memory', descHe: 'זוכרת כל שיחה ודפוס', descEn: 'Remembers every conversation & pattern' },
-  { icon: Headphones, titleHe: 'סשני היפנוזה', titleEn: 'Hypnosis Sessions', descHe: 'נוצרים בזמן אמת מהשיחה', descEn: 'Generated in real time from your chat' },
-];
-
-const conversationExamples = [
-  { he: 'שמתי לב שהאנרגיה שלך נמוכה השבוע. בוא נבדוק מה השתנה בשינה...', en: "I noticed your energy dropped this week. Let's check what changed in your sleep..." },
-  { he: 'ההתמדה שלך בלחימה עלתה ב-40% החודש! זה משפיע גם על הביטחון העצמי.', en: 'Your combat consistency is up 40% this month! This is also boosting your confidence.' },
-  { he: 'רוצה שאכין לך סשן היפנוזה למיקוד לפני הפגישה העסקית מחר?', en: 'Want me to prepare a focus hypnosis session before your business meeting tomorrow?' },
-];
-
 export default function AuroraCoachSection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
+
+  const auroraFeatures = [
+    { icon: Bot, title: t('home.auroraCoach.coaching247Title'), desc: t('home.auroraCoach.coaching247Desc') },
+    { icon: Mic, title: t('home.auroraCoach.voiceTitle'), desc: t('home.auroraCoach.voiceDesc') },
+    { icon: Brain, title: t('home.auroraCoach.memoryTitle'), desc: t('home.auroraCoach.memoryDesc') },
+    { icon: Headphones, title: t('home.auroraCoach.hypnosisTitle'), desc: t('home.auroraCoach.hypnosisDesc') },
+  ];
+
+  const conversationExamples = [
+    t('home.auroraCoach.chatExample1'),
+    t('home.auroraCoach.chatExample2'),
+    t('home.auroraCoach.chatExample3'),
+  ];
 
   return (
     <section className="py-24 px-4 bg-gradient-to-b from-muted/50 via-muted/20 to-transparent dark:from-gray-900/50 dark:via-gray-950/30 dark:to-transparent overflow-hidden relative">
@@ -61,22 +61,19 @@ export default function AuroraCoachSection() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <Bot className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-primary">
-                {isRTL ? 'הכירו את Aurora' : 'Meet Aurora'}
+                {t('home.auroraCoach.badge')}
               </span>
             </div>
 
             <div className="space-y-3">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
-                {isRTL ? 'המאמנת שמכירה אותך' : 'The Coach That Knows You'}
+                {t('home.auroraCoach.title')}
               </h2>
               <p className="text-lg text-muted-foreground">
-                {isRTL
-                  ? 'Aurora מבינה את כל התמונה — גוף, נפש, עסקים, יחסים — ויודעת לחבר ביניהם.'
-                  : 'Aurora sees the full picture — body, mind, business, relationships — and connects them.'}
+                {t('home.auroraCoach.subtitle')}
               </p>
             </div>
 
-            {/* Feature bullets */}
             <div className="grid grid-cols-2 gap-3">
               {auroraFeatures.map((f, i) => {
                 const Icon = f.icon;
@@ -91,15 +88,14 @@ export default function AuroraCoachSection() {
                   >
                     <Icon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{isRTL ? f.titleHe : f.titleEn}</p>
-                      <p className="text-xs text-muted-foreground">{isRTL ? f.descHe : f.descEn}</p>
+                      <p className="text-sm font-semibold text-foreground">{f.title}</p>
+                      <p className="text-xs text-muted-foreground">{f.desc}</p>
                     </div>
                   </motion.div>
                 );
               })}
             </div>
 
-            {/* Chat preview */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -109,7 +105,7 @@ export default function AuroraCoachSection() {
             >
               <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 text-primary" />
-                {isRTL ? 'Aurora יודעת לומר:' : 'Aurora knows how to say:'}
+                {t('home.auroraCoach.chatPreviewTitle')}
               </h3>
               <div className="space-y-2">
                 {conversationExamples.map((ex, i) => (
@@ -123,7 +119,7 @@ export default function AuroraCoachSection() {
                   >
                     <AuroraHoloOrb size={24} glow="subtle" animate={false} className="mt-1 shrink-0" />
                     <div className="flex-1 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm text-foreground/80 italic">
-                      {isRTL ? ex.he : ex.en}
+                      {ex}
                     </div>
                   </motion.div>
                 ))}

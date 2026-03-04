@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 const ALL_DOMAINS = CORE_DOMAINS;
 
 export default function GameHeroSection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
 
   const scrollToContent = () => {
@@ -53,7 +53,7 @@ export default function GameHeroSection() {
           >
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'מערכת הפעלה לחיים' : 'Life Operating System'}
+              {t('home.gameHero.badge')}
             </span>
           </motion.div>
 
@@ -65,7 +65,7 @@ export default function GameHeroSection() {
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1]"
           >
             <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'החיים שלך, משודרגים עם AI' : 'Your Life, Upgraded by AI'}
+              {t('home.gameHero.title')}
             </span>
           </motion.h1>
 
@@ -76,9 +76,7 @@ export default function GameHeroSection() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            {isRTL
-              ? 'מאמן AI אישי שמכיר אותך, תוכנית 100 יום מותאמת, ומערכת שלמה ל-14 תחומים בחייך — הכל במקום אחד.'
-              : 'A personal AI coach that knows you, a tailored 100-day plan, and a complete system for 14 areas of your life — all in one place.'}
+            {t('home.gameHero.subtitle')}
           </motion.p>
 
           {/* Central Orb with Orbiting Domains */}
@@ -182,7 +180,7 @@ export default function GameHeroSection() {
                   border-0 transition-all duration-300"
               >
                 <Sparkles className={cn('h-6 w-6', isRTL ? 'ml-3' : 'mr-3')} />
-                {isRTL ? '🚀 התחל את האבחון שלך' : '🚀 Start Your Assessment'}
+                {t('home.gameHero.cta')}
                 <motion.div
                   className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/25 to-white/0"
                   animate={{ x: ['-100%', '200%'] }}
@@ -192,7 +190,7 @@ export default function GameHeroSection() {
             </motion.div>
 
             <p className="text-sm text-muted-foreground">
-              {isRTL ? '⏱️ 5 דקות • מותאם אישית מהיום הראשון' : '⏱️ 5 minutes • Personalized from day 1'}
+              {t('home.gameHero.ctaMeta')}
             </p>
           </motion.div>
 
@@ -204,7 +202,7 @@ export default function GameHeroSection() {
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span className="text-sm font-medium">{isRTL ? 'גלול למטה' : 'Scroll Down'}</span>
+              <span className="text-sm font-medium">{t('home.gameHero.scrollDown')}</span>
               <ChevronDown className="h-5 w-5" />
             </motion.button>
           </motion.div>
