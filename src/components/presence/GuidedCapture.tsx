@@ -5,6 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
+import guideFaceFront from "@/assets/guide-face-front.png";
+import guideFaceProfile from "@/assets/guide-face-profile.png";
+import guideBodyFront from "@/assets/guide-body-front.png";
+import guideBodySide from "@/assets/guide-body-side.png";
+
+const GUIDE_IMAGES: Record<string, string> = {
+  face_front: guideFaceFront,
+  face_profile: guideFaceProfile,
+  body_front: guideBodyFront,
+  body_side: guideBodySide,
+};
+
 const STEPS = [
   { key: "face_front", label: "Face — Front", instruction: "Neutral expression, good lighting, looking straight at camera" },
   { key: "face_profile", label: "Face — Profile", instruction: "Turn head to show left or right side" },
@@ -169,34 +181,57 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
         <p className="text-sm text-muted-foreground">{current.instruction}</p>
       </div>
 
-      {/* Viewfinder / Preview */}
-      <div className="relative aspect-[3/4] max-h-[45vh] rounded-2xl border-2 border-border bg-black overflow-hidden">
-        {previews[current.key] ? (
-          <img src={previews[current.key]} alt={current.label} className="w-full h-full object-cover" />
-        ) : (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-full object-cover mirror"
-            style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
+      {/* Viewfinder + Guide side by side */}
+      <div className="flex gap-3 items-stretch">
+        {/* Guide image */}
+        <div className="hidden sm:flex w-28 shrink-0 flex-col items-center gap-1.5">
+          <img
+            src={GUIDE_IMAGES[current.key]}
+            alt={`Guide: ${current.label}`}
+            className="w-full rounded-xl border border-border bg-muted/30 object-contain"
           />
-        )}
-        {uploading && (
-          <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        )}
-        {/* Flip camera button */}
-        {cameraActive && !previews[current.key] && (
-          <button
-            onClick={toggleCamera}
-            className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-          >
-            <SwitchCamera className="w-5 h-5" />
-          </button>
-        )}
+          <span className="text-[10px] text-muted-foreground text-center leading-tight">Example pose</span>
+        </div>
+
+        {/* Camera / Preview */}
+        <div className="relative flex-1 aspect-[3/4] max-h-[45vh] rounded-2xl border-2 border-border bg-black overflow-hidden">
+          {previews[current.key] ? (
+            <img src={previews[current.key]} alt={current.label} className="w-full h-full object-cover" />
+          ) : (
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover mirror"
+              style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
+            />
+          )}
+          {uploading && (
+            <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          )}
+          {/* Flip camera button */}
+          {cameraActive && !previews[current.key] && (
+            <button
+              onClick={toggleCamera}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            >
+              <SwitchCamera className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile guide — shown below on small screens */}
+      <div className="flex sm:hidden items-center gap-3 p-2 rounded-xl border border-border bg-muted/20">
+        <img
+          src={GUIDE_IMAGES[current.key]}
+          alt={`Guide: ${current.label}`}
+          className="w-16 h-20 rounded-lg object-contain"
+        />
+        <span className="text-xs text-muted-foreground leading-tight">Stand like the example for best results</span>
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
