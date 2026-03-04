@@ -109,8 +109,8 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 {isHe
-                  ? 'מערכת הפעלה אישית שמכיילת את החיים שלך — גוף, ביצוע, אנרגיה ותודעה.'
-                  : 'A personal operating system that calibrates your life — body, performance, energy & consciousness.'}
+                  ? 'מערכת ההפעלה שתשנה את החיים שלך תוך 100 יום — גוף, מיקוד, אנרגיה, כסף ותודעה.'
+                  : 'The operating system that will transform your life in 100 days — body, focus, energy, wealth & consciousness.'}
               </p>
             </motion.div>
 
@@ -124,7 +124,10 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               {[
                 { icon: '🧠', text: isHe ? 'כיול נוירולוגי' : 'Neural Calibration' },
                 { icon: '⚡', text: isHe ? 'אופטימיזציית אנרגיה' : 'Energy Optimization' },
-                { icon: '🎯', text: isHe ? 'תוכנית 90 יום' : '90-Day Plan' },
+                { icon: '🎯', text: isHe ? 'תוכנית 100 יום' : '100-Day Plan' },
+                { icon: '🤖', text: isHe ? 'מאמן AI אישי' : 'Personal AI Coach' },
+                { icon: '🧬', text: isHe ? '14 תחומי חיים' : '14 Life Domains' },
+                { icon: '🔮', text: isHe ? 'היפנוזה מותאמת' : 'Custom Hypnosis' },
               ].map((pill) => (
                 <span
                   key={pill.text}
@@ -134,6 +137,21 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                   {pill.text}
                 </span>
               ))}
+            </motion.div>
+
+            {/* Social proof */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.5 }}
+              className="flex items-center gap-3 text-sm text-muted-foreground"
+            >
+              <span className="flex -space-x-2 rtl:space-x-reverse">
+                {['🟢', '🔵', '🟣', '🟡'].map((c, i) => (
+                  <span key={i} className="w-6 h-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">{c}</span>
+                ))}
+              </span>
+              <span>{isHe ? 'מצטרפים כל יום למסע' : 'Joining the journey every day'}</span>
             </motion.div>
 
             {/* CTA */}
@@ -156,7 +174,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               transition={{ delay: 1.2 }}
               className="text-xs text-muted-foreground"
             >
-              {isHe ? '⏱ 5-7 דקות • שאלון אישי מדויק' : '⏱ 5-7 minutes • Precision personal intake'}
+              {isHe ? '⏱ 5-7 דקות • שאלון אישי מדויק • 100% חינם' : '⏱ 5-7 minutes • Precision personal intake • 100% free'}
             </motion.p>
           </motion.div>
         ) : (
