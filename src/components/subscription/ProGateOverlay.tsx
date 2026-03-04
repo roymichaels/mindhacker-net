@@ -76,7 +76,7 @@ const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOver
           <div className="absolute bottom-0 right-0 w-[200px] h-[200px] rounded-full bg-amber-500/10 blur-[60px]" />
         </div>
 
-        <div className="relative z-10 p-6 sm:p-8 space-y-6">
+        <div className="relative z-10 p-5 sm:p-8 space-y-4 sm:space-y-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
