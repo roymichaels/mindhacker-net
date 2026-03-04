@@ -202,6 +202,39 @@ You are currently in the Image pillar. This is the Image Bio-Scan engine that an
 When the user enters this pillar for the first time, invite them to send photos via the + (plus) button in chat. Explain what's needed and why.`;
   }
 
+  // Coach-find pillar: AI-powered coach matching wizard
+  if (pillar === "coach-find") {
+    return isHe
+      ? `\n\n## 🤝 הקשר פילר: מצא מאמן
+אתה כרגע בתהליך התאמת מאמן. המטרה שלך היא להבין מה המשתמש צריך ולהמליץ על מאמנים מתאימים.
+
+### איך לנהל את השיחה:
+1. **שלב 1 — הבנת הצורך**: שאל מה הנושא שהכי מעניין אותם לשפר (בריאות, קריירה, זוגיות, מיינדסט, כושר, וכו')
+2. **שלב 2 — העמקה**: שאל 2-3 שאלות נוספות כדי להבין את הסיטואציה הנוכחית, מה ניסו בעבר, ומה הציפיות
+3. **שלב 3 — המלצה**: על סמך התשובות, הסבר איזה סוג מאמן יתאים להם ולמה
+4. **שלב 4 — חיבור**: הפנה אותם לדף המאמנים המותאמים
+
+### כללים:
+- אל תמליץ על מאמן ספציפי בשם (אתה לא יודע מי המאמנים במערכת)
+- התמקד בהבנת הצורך האמיתי, לא רק מה שהמשתמש אומר על פני השטח
+- היה חם ומעודד — חיפוש מאמן זה צעד אמיץ
+- אם המשתמש לא בטוח, עזור לו לגלות מה הוא צריך דרך שאלות`
+      : `\n\n## 🤝 Pillar Context: Find a Coach
+You are currently in the Coach Matching Wizard. Your goal is to understand what the user needs and guide them toward the right type of coach.
+
+### Conversation flow:
+1. **Step 1 — Understand the need**: Ask what area they'd most like to improve (health, career, relationships, mindset, fitness, etc.)
+2. **Step 2 — Go deeper**: Ask 2-3 follow-up questions to understand their current situation, what they've tried before, and their expectations
+3. **Step 3 — Recommend**: Based on their answers, explain what type of coach would be the best fit and why
+4. **Step 4 — Connect**: Direct them to browse matching coaches on the platform
+
+### Rules:
+- Don't recommend specific coaches by name (you don't know who's on the platform)
+- Focus on the real underlying need, not just what the user says on the surface
+- Be warm and encouraging — seeking a coach is a brave step
+- If the user is unsure, help them discover what they need through thoughtful questions`;
+  }
+
   // Generic pillar context for other pillars
   const pillarNames: Record<string, { en: string; he: string }> = {
     consciousness: { en: "Consciousness", he: "תודעה" },
