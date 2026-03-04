@@ -16,23 +16,26 @@ export function AuroraFloatingOrb() {
   const ctx = useAuroraChatContextSafe();
   const isMobile = useIsMobile();
 
-  // Organic breathing animation
-  const [breathPhase, setBreathPhase] = useState(0);
+  // Organic breathing animation — driven by refs to avoid re-render storms
+  const breathPhaseRef = useRef(0);
   const rafRef = useRef<number>();
+  const orbRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    let t = 0;
     const tick = () => {
-      t += 0.018;
-      setBreathPhase(t);
+      breathPhaseRef.current += 0.018;
+      const t = breathPhaseRef.current;
+      const scale = 1 + Math.sin(t * 0.8) * 0.05;
+      const glow = 0.2 + Math.sin(t * 1.2) * 0.1;
+      if (orbRef.current) {
+        orbRef.current.style.transform = `scale(${scale})`;
+        orbRef.current.style.setProperty('--glow-pulse', `${glow}`);
+      }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
-
-  const breathScale = 1 + Math.sin(breathPhase * 0.8) * 0.05;
-  const glowPulse = 0.2 + Math.sin(breathPhase * 1.2) * 0.1;
 
   // Drag state
   const defaultPos = useRef({ x: 0, y: 0 });
