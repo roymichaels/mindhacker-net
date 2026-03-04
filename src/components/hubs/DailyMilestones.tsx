@@ -318,7 +318,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
               if (fallbackPillar) startAssessment(fallbackPillar);
             };
 
-            generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
+            generateStrategy.mutate({ hub: 'both', forceRegenerate: false, selectedPillars }, {
               onSuccess: (data: any) => {
                 if (data?.error === 'MISSING_ASSESSMENT_DATA') {
                   openFirstMissing(data.missing_pillars);
