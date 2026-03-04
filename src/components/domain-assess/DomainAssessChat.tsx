@@ -507,7 +507,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
             <Globe className="w-4 h-4" />
             {language === 'he' ? 'EN' : 'עב'}
           </button>
-
+        </div>
         {/* Chat messages — Aurora style */}
         <ScrollArea className="flex-1 min-h-0">
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
