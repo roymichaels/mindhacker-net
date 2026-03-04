@@ -68,8 +68,8 @@ export const PWAInstallBanner = () => {
   return (
     <>
       <div 
-        className={`fixed top-20 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-40 transition-all duration-300 ${
-          isAnimating ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
+        className={`fixed bottom-20 left-3 right-3 md:left-auto md:right-4 md:max-w-xs z-40 transition-all duration-300 ${
+          isAnimating ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
         <div className="bg-background/95 backdrop-blur-xl border border-primary/30 rounded-full px-3 py-2 shadow-lg shadow-primary/10">
