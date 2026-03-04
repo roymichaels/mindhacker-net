@@ -33,8 +33,8 @@ const tiers = [
     border: 'border-primary/40',
     bg: 'bg-primary/5',
     featured: true,
-    featuresHe: ['Aurora ללא הגבלה + זיכרון', '6 פילרים לבחירתך', 'תוכנית 100 יום', 'היפנוזה AI'],
-    featuresEn: ['Unlimited Aurora + memory', '6 pillars of your choice', '100-Day Plan', 'AI Hypnosis'],
+    featuresHe: ['6 פילרים מתוך 14 תחומים', 'Aurora ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
+    featuresEn: ['6 of 14 life pillars', 'Unlimited Aurora + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
   },
   {
     id: 'apex',
