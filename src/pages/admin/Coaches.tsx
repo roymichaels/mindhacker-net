@@ -16,8 +16,10 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Search, Star, Shield, Users, Edit, ExternalLink } from 'lucide-react';
+import { Search, Star, Shield, Users, Edit, ExternalLink, Ticket } from 'lucide-react';
+import AdminCouponsPanel from '@/components/admin/AdminCouponsPanel';
 
 interface Coach {
   id: string;
@@ -97,6 +99,23 @@ export default function AdminCoaches() {
 
   return (
     <div className="space-y-6" dir={isHe ? 'rtl' : 'ltr'}>
+      <Tabs defaultValue="coaches" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="coaches" className="gap-1">
+            <Users className="h-4 w-4" />
+            {isHe ? 'מאמנים' : 'Coaches'}
+          </TabsTrigger>
+          <TabsTrigger value="coupons" className="gap-1">
+            <Ticket className="h-4 w-4" />
+            {isHe ? 'קופונים' : 'Coupons'}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="coupons">
+          <AdminCouponsPanel />
+        </TabsContent>
+
+        <TabsContent value="coaches">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{isHe ? 'ניהול מאמנים' : 'Coaches Management'}</h2>
         <Badge variant="secondary" className="text-sm">
@@ -294,6 +313,8 @@ export default function AdminCoaches() {
           )}
         </DialogContent>
       </Dialog>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

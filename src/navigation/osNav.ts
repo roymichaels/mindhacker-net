@@ -29,14 +29,13 @@ export const OS_TABS: OsTab[] = [
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
 ];
 
-/** Coach-only tab, appended when user has 'practitioner' role */
+/** Coach tab — visible to all authenticated users */
 export const COACH_TAB: OsTab = {
   id: 'coach',
   path: '/coaches',
   icon: Briefcase,
   labelEn: 'Coaches',
   labelHe: 'מאמנים',
-  requiredRole: 'practitioner',
 };
 
 /** Admin-only tab — now used only in the app dropdown, NOT in bottom tab bar */
@@ -90,9 +89,6 @@ export const PROJECTS_SUB_ROUTES: SubRoute[] = [
  * Admin tab is no longer in the bottom nav — it's accessed via the app dropdown.
  */
 export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
-  const tabs = [...OS_TABS];
-  if (roles.hasRole('practitioner')) {
-    tabs.push(COACH_TAB);
-  }
+  const tabs = [...OS_TABS, COACH_TAB];
   return tabs;
 }
