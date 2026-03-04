@@ -40,7 +40,8 @@ export function useSmartSuggestions() {
         { data: dailyHabits },
         { data: habitLogs },
         { data: hypnosisToday },
-        { data: launchpadComplete }
+        { data: launchpadComplete },
+        { data: existingCurricula }
       ] = await Promise.all([
         // Overdue tasks
         supabase
@@ -98,6 +99,13 @@ export function useSmartSuggestions() {
           .from('launchpad_summaries')
           .select('id')
           .eq('user_id', user.id)
+          .limit(1),
+
+        // Existing curricula (to suggest creation if none)
+        supabase
+          .from('learning_curricula')
+          .select('id')
+          .eq('user_id', user.id)
           .limit(1)
       ]);
 
@@ -114,6 +122,7 @@ export function useSmartSuggestions() {
         incompleteHabits,
         didHypnosisToday: (hypnosisToday?.length || 0) > 0,
         hasCompletedLaunchpad: (launchpadComplete?.length || 0) > 0,
+        hasNoCurricula: (existingCurricula?.length || 0) === 0,
       };
     },
     enabled: !!user?.id,
@@ -228,6 +237,24 @@ export function useSmartSuggestions() {
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 5,
         icon: 'milestone',
+      });
+    }
+
+    // Priority 2.5: Post-onboarding curriculum suggestion (expansion pillar)
+    if (userState.hasNoCurricula) {
+      result.push({
+        id: 'create-curriculum',
+        text: isHebrew 
+          ? '📚 בנה קורס מותאם אישית להתרחבות שלך'
+          : '📚 Build a personalized Expansion course',
+        action: { 
+          type: 'send_message', 
+          prompt: isHebrew 
+            ? 'אני רוצה ליצור קורס מותאם אישית בתחום ההתרחבות. עזור לי לבנות תוכנית לימודים שמתאימה לי, מבוססת על מה שאתה כבר יודע עליי.' 
+            : 'I want to create a personalized course in the Expansion domain. Help me build a curriculum that fits me, based on what you already know about me.'
+        },
+        priority: 2,
+        icon: 'plan',
       });
     }
 
