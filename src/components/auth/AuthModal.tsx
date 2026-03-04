@@ -132,23 +132,42 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
         </DialogHeader>
 
         {step === 'otp' ? (
-          <form onSubmit={handleVerifyOtp} className="space-y-6">
-            <div className="flex justify-center">
-              <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={isLoading}>
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
+          <div className="space-y-6">
+            <div className="flex flex-col items-center gap-3 py-2">
+              <div className="rounded-full bg-primary/10 p-3">
+                <Mail className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-sm text-center text-muted-foreground">
+                שלחנו לך קישור התחברות למייל.<br />
+                לחץ על הקישור במייל כדי להתחבר.
+              </p>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || otp.length < 6} size="lg">
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <ArrowRight className="h-4 w-4 me-2" />}
-              אימות וכניסה
-            </Button>
+
+            {/* Optional OTP fallback */}
+            <div className="border-t pt-4">
+              <p className="text-xs text-center text-muted-foreground mb-3">
+                או הזן את הקוד בן 6 הספרות (אם מופיע במייל):
+              </p>
+              <form onSubmit={handleVerifyOtp} className="space-y-3">
+                <div className="flex justify-center" dir="ltr">
+                  <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={isLoading}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading || otp.length < 6} size="lg">
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <ArrowRight className="h-4 w-4 me-2" />}
+                  אימות וכניסה
+                </Button>
+              </form>
+            </div>
+
             <button
               type="button"
               onClick={() => { setStep('entry'); setOtp(''); }}
@@ -156,7 +175,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
             >
               חזרה
             </button>
-          </form>
+          </div>
         ) : (
           <div className="space-y-4">
             {/* Social buttons */}
