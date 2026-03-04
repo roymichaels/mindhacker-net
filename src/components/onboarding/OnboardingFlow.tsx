@@ -114,6 +114,7 @@ export function OnboardingFlow() {
   const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
   const [showReveal, setShowReveal] = useState(false);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [textareaValue, setTextareaValue] = useState('');
   const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
   const [isRestoring, setIsRestoring] = useState(true);
