@@ -9,7 +9,15 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, AudioLines, VolumeX, Square, CheckSquare, CalendarPlus } from 'lucide-react';
+import { BookOpen, Target, Brain, Trophy, CheckCircle, XCircle, Loader2, Clock, Zap, AudioLines, VolumeX, CalendarPlus, ArrowRight, ArrowLeft, RotateCcw } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +64,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const [checkedExercises, setCheckedExercises] = useState<Record<number, boolean>>({});
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Detect scroll-to-bottom
@@ -223,7 +231,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       }
 
       toast.success(`+${lesson.xp_reward} XP! ${isHe ? 'שיעור הושלם!' : 'Lesson completed!'}`);
-      onComplete();
+      setShowCompletionDialog(true);
     } catch (err: any) {
       toast.error(err.message || 'Failed to complete lesson');
     } finally {
@@ -611,21 +619,16 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               {isHe ? 'סיימתי לקרוא' : 'Mark as Read'}
             </Button>
           )}
-          {lesson.lesson_type === 'practice' && (() => {
-            const totalExercises = lesson.content?.exercises?.length || 0;
-            const checkedCount = Object.values(checkedExercises).filter(Boolean).length;
-            const allChecked = totalExercises === 0 || checkedCount >= totalExercises;
-            return (
-              <Button
-                onClick={() => markComplete()}
-                disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom || !allChecked}
-                className="gap-2 flex-1 sm:flex-initial"
-              >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
-              </Button>
-            );
-          })()}
+          {lesson.lesson_type === 'practice' && (
+            <Button
+              onClick={() => markComplete()}
+              disabled={isSubmitting || (hasCompQuestions && !compPassed) || !hasScrolledToBottom}
+              className="gap-2 flex-1 sm:flex-initial"
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              {isHe ? 'סיימתי לתרגל' : 'Mark as Done'}
+            </Button>
+          )}
           {lesson.lesson_type === 'quiz' && (
             <Button onClick={submitQuiz} disabled={isSubmitting} className="gap-2 flex-1 sm:flex-initial">
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
@@ -640,6 +643,43 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
           )}
         </div>
       )}
+
+      {/* Completion Dialog */}
+      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <AlertDialogContent dir={isHe ? 'rtl' : 'ltr'}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-lg">
+              🎉 {isHe ? 'שיעור הושלם!' : 'Lesson Complete!'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              +{lesson.xp_reward} XP — {isHe ? 'מה תרצה לעשות עכשיו?' : 'What would you like to do next?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              className="gap-2 flex-1"
+              onClick={() => {
+                setShowCompletionDialog(false);
+                onClose();
+              }}
+            >
+              {isHe ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
+              {isHe ? 'חזרה לקורס' : 'Back to Course'}
+            </Button>
+            <Button
+              className="gap-2 flex-1"
+              onClick={() => {
+                setShowCompletionDialog(false);
+                onComplete();
+              }}
+            >
+              {isHe ? 'שיעור הבא' : 'Next Lesson'}
+              {isHe ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
