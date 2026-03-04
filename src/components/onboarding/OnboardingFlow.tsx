@@ -453,8 +453,57 @@ export function OnboardingFlow() {
     );
   }
 
+  if (showPlanGeneration) {
+    return <OnboardingPlanGeneration answers={answers} selectedPillars={selectedPillars} />;
+  }
+
+  if (showAssessments) {
+    return (
+      <OnboardingAssessments
+        selectedPillars={selectedPillars}
+        onComplete={() => {
+          setShowAssessments(false);
+          setShowPlanGeneration(true);
+        }}
+      />
+    );
+  }
+
+  if (showPillarSelection) {
+    return (
+      <OnboardingPillarSelection
+        tier={chosenTier}
+        onComplete={(pillars) => {
+          setSelectedPillars(pillars);
+          setShowPillarSelection(false);
+          setShowAssessments(true);
+        }}
+      />
+    );
+  }
+
+  if (showTierSelection) {
+    return (
+      <OnboardingTierSelection
+        onTierSelected={(tier) => {
+          setChosenTier(tier);
+          setShowTierSelection(false);
+          setShowPillarSelection(true);
+        }}
+      />
+    );
+  }
+
   if (showReveal) {
-    return <OnboardingReveal answers={answers} />;
+    return (
+      <OnboardingReveal
+        answers={answers}
+        onContinue={() => {
+          setShowReveal(false);
+          setShowTierSelection(true);
+        }}
+      />
+    );
   }
 
   if (!currentMini) return null;
