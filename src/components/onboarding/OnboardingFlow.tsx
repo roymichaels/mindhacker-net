@@ -1,7 +1,7 @@
 /**
  * OnboardingFlow — Full-screen neural architecture intake orchestrator.
  * 
- * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal
+ * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal → Tier Selection → Pillar Selection → Assessments → Plan Generation
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +14,12 @@ import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowS
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { OnboardingReveal } from './OnboardingReveal';
 import { OnboardingIntro } from './OnboardingIntro';
+import { OnboardingTierSelection } from './OnboardingTierSelection';
+import { OnboardingPillarSelection } from './OnboardingPillarSelection';
+import { OnboardingAssessments } from './OnboardingAssessments';
+import { OnboardingPlanGeneration } from './OnboardingPlanGeneration';
 import { Slider } from '@/components/ui/slider';
+import type { SubscriptionTier } from '@/lib/subscriptionTiers';
 import { Textarea } from '@/components/ui/textarea';
 import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
 import {
