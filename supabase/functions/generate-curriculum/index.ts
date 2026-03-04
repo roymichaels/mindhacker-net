@@ -526,7 +526,7 @@ ${lessonType === 'project' ? `Return JSON:
 
 RULES:
 - Write in the SAME LANGUAGE as the lesson title
-- If Hebrew: include nikud (נִקּוּד) on titles and key terms
+- If Hebrew: write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י for chirik/tsere, ו for holam/shuruk) to maximize readability. Example: "לִימוּד" → "ליימוד", "תִּרְגּוּל" → "תירגול". Never use nikud dots.
 - Be demanding but clear
 - Content should be practical and actionable
 - Personalize examples to the user's actual life context when possible
