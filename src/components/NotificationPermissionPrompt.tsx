@@ -57,7 +57,7 @@ export const NotificationPermissionPrompt = () => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [user, isSubscribed, permission, isSupported, isIOS, isPWA, isStandalone]);
+  }, [user, isLaunchpadComplete, isSubscribed, permission, isSupported, isIOS, isPWA, isStandalone]);
 
   const handleDismiss = () => {
     setIsAnimating(false);
