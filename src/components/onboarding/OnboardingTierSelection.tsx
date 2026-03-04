@@ -132,17 +132,12 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
 
                 {/* Features */}
                 <div className="space-y-1.5">
-                  {features.slice(0, 5).map((feature, fi) => (
+                {features.map((feature, fi) => (
                     <div key={fi} className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Check className={cn('w-3.5 h-3.5 shrink-0', accent)} />
                       <span>{feature}</span>
                     </div>
                   ))}
-                  {features.length > 5 && (
-                    <p className="text-[10px] text-muted-foreground/60 ps-5">
-                      +{features.length - 5} {t('onboarding.tier.more')}
-                    </p>
-                  )}
                 </div>
 
                 {/* Pillar count badge */}
