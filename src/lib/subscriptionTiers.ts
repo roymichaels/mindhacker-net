@@ -127,7 +127,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     ],
     he: [
       "הכל מ-Awakening",
-      "3 פילרי ליבה + 3 פילרי זירה",
+      "6 פילרים לבחירתך",
       "אורורה ללא הגבלה עם זיכרון",
       "היפנוזה AI ותסריטים יומיים",
       "נאדג׳ים פרואקטיביים בסיסיים",
