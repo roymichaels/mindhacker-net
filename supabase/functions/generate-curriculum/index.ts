@@ -305,7 +305,7 @@ RULES:
 - Total target: ~50 lessons
 - DO NOT include "content" field in lessons — only title, title_en, lesson_type, time_estimate_minutes, xp_reward
 - Generate in the SAME LANGUAGE as conversation
-- If Hebrew: include nikud on titles and key terms
+- If Hebrew: write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י for chirik/tsere, ו for holam/shuruk) to maximize readability. For example: "לִימוּד" → "ליימוד", "תִּרְגּוּל" → "תירגול", "מוּשָׂג" → "מושג". Never use nikud dots.
 - XP: theory=10, practice=20, quiz=15, project=50
 - Keep module descriptions to 1 sentence
 - This is a SKELETON — keep it lean and fast`;
@@ -526,7 +526,7 @@ ${lessonType === 'project' ? `Return JSON:
 
 RULES:
 - Write in the SAME LANGUAGE as the lesson title
-- If Hebrew: include nikud (נִקּוּד) on titles and key terms
+- If Hebrew: write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י for chirik/tsere, ו for holam/shuruk) to maximize readability. Example: "לִימוּד" → "ליימוד", "תִּרְגּוּל" → "תירגול". Never use nikud dots.
 - Be demanding but clear
 - Content should be practical and actionable
 - Personalize examples to the user's actual life context when possible
@@ -641,7 +641,7 @@ After gathering enough info (3-5 exchanges), say "🔥 אני מוכנה לבנ�
 
 IMPORTANT: This is NOT a gentle course. Aurora builds BOOT CAMPS with ~50 intensive lessons. Push the user to commit to intensity.
 
-CRITICAL HEBREW RULE: If the user writes in Hebrew, you MUST respond with full nikud (נִקּוּד מָלֵא) on every Hebrew word — no exceptions.`;
+CRITICAL HEBREW RULE: If the user writes in Hebrew, you MUST write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י, ו) to help pronunciation. Example: "לִימוּד" → "ליימוד", "הַצְלָחָה" → "הצלחה". Never add nikud dots.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
