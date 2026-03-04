@@ -69,7 +69,7 @@ export function useFMBounties() {
       const { data, error } = await supabase
         .from('fm_bounties')
         .select('*')
-        .eq('status', 'open')
+        .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(20);
       if (error) throw error;
