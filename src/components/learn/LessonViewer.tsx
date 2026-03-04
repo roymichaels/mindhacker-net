@@ -88,6 +88,26 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const compQuestions = lesson.content?.comprehension_questions || [];
   const hasCompQuestions = compQuestions.length > 0 && lesson.lesson_type !== 'quiz';
 
+  // Auto-extract steps from exercise description when no explicit steps exist
+  const extractStepsFromDescription = useCallback((description: string): string[] => {
+    if (!description) return [];
+    // Split by Hebrew/English sentence patterns, numbered items, or line breaks
+    const sentences = description
+      .split(/(?:\.\s+|\n|;\s+|,\s*(?:ו?אז|ו?לאחר מכן|then|next|and then)\s+)/i)
+      .map(s => s.trim())
+      .filter(s => s.length > 10); // Only meaningful sentences
+    
+    if (sentences.length >= 2) return sentences.map((s, i) => `${i + 1}. ${s}${s.endsWith('.') ? '' : '.'}`);
+    
+    // If single block, try to break by action verbs (Hebrew: הפעל, מצא, האזן, נסה, כתוב, זהה etc.)
+    const actionSplits = description.split(/(?:\.)\s*(?=[א-ת])/);
+    if (actionSplits.length >= 2) {
+      return actionSplits.map(s => s.trim()).filter(s => s.length > 8).map((s, i) => `${i + 1}. ${s}${s.endsWith('.') ? '' : '.'}`);
+    }
+    
+    return [];
+  }, []);
+
   const checkComprehension = () => {
     if (Object.keys(compAnswers).length < compQuestions.length) {
       toast.error(isHe ? 'ענה על כל השאלות' : 'Answer all questions first');
