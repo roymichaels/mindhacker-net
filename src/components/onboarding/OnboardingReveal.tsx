@@ -440,7 +440,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
 
           {/* Anchor Habits */}
           <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 space-y-2">
-            <span className="text-xs font-bold text-primary">{isHe ? '⚓ הרגלי עוגן' : '⚓ Anchor Habits'}</span>
+            <span className="text-xs font-bold text-primary">⚓ {t('onboarding.reveal.anchorHabits')}</span>
             {week1.anchorHabits.map((h, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
