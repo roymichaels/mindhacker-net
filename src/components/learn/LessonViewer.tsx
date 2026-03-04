@@ -285,20 +285,54 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                 <ReactMarkdown>{lesson.content?.instructions || ''}</ReactMarkdown>
               </div>
               
-              {lesson.content?.exercises?.map((ex: any, i: number) => (
-                <div key={i} className="p-4 rounded-xl border bg-card space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-sm">{ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}</h4>
-                    <Badge variant="outline" className="text-xs">{ex.difficulty}</Badge>
+              {lesson.content?.exercises?.map((ex: any, i: number) => {
+                const isDone = !!checkedExercises[i];
+                return (
+                  <div 
+                    key={i} 
+                    className={`p-4 rounded-xl border space-y-2 transition-colors cursor-pointer ${
+                      isDone ? 'bg-green-500/5 border-green-500/30' : 'bg-card hover:border-primary/30'
+                    }`}
+                    onClick={() => setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] }))}
+                  >
+                    <div className="flex items-start gap-3">
+                      <button 
+                        className="mt-0.5 shrink-0 transition-colors"
+                        onClick={e => { e.stopPropagation(); setCheckedExercises(prev => ({ ...prev, [i]: !prev[i] })); }}
+                      >
+                        {isDone ? (
+                          <CheckSquare className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <Square className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </button>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className={`font-bold text-sm ${isDone ? 'line-through text-muted-foreground' : ''}`}>
+                            {ex.title || `${isHe ? 'תרגיל' : 'Exercise'} ${i + 1}`}
+                          </h4>
+                          <Badge variant="outline" className="text-xs">{ex.difficulty}</Badge>
+                        </div>
+                        <p className={`text-sm ${isDone ? 'text-muted-foreground' : ''}`}>{ex.description}</p>
+                        {ex.expected_output && (
+                          <p className="text-xs text-muted-foreground italic">
+                            {isHe ? 'תוצאה צפויה: ' : 'Expected: '}{ex.expected_output}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{ex.description}</p>
-                  {ex.expected_output && (
-                    <p className="text-xs text-muted-foreground italic">
-                      {isHe ? 'תוצאה צפויה: ' : 'Expected: '}{ex.expected_output}
-                    </p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
+
+              {(lesson.content?.exercises?.length || 0) > 0 && (
+                <p className="text-xs text-muted-foreground text-center">
+                  {isHe 
+                    ? `✅ ${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} תרגילים הושלמו — סמן הכל כדי להמשיך`
+                    : `✅ ${Object.values(checkedExercises).filter(Boolean).length}/${lesson.content.exercises.length} exercises done — check all to continue`
+                  }
+                </p>
+              )}
             </div>
           )}
 
