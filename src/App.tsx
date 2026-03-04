@@ -70,6 +70,10 @@ const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Business = lazy(() => import("./pages/Business"));
 const FMHome = lazy(() => import("./pages/FMHome"));
+const FMEarn = lazy(() => import("./pages/fm/FMEarn"));
+const FMWork = lazy(() => import("./pages/fm/FMWork"));
+const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
+const FMWalletPage = lazy(() => import("./pages/fm/FMWallet"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
@@ -358,6 +362,10 @@ const App = () => (
                           <Route path="/learn" element={<LearnLayoutWrapper />} />
                           {/* FM — Free Market */}
                           <Route path="/fm" element={<FMHome />} />
+                          <Route path="/fm/earn" element={<FMEarn />} />
+                          <Route path="/fm/work" element={<FMWork />} />
+                          <Route path="/fm/contribute" element={<FMContribute />} />
+                          <Route path="/fm/wallet" element={<FMWalletPage />} />
                           
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
