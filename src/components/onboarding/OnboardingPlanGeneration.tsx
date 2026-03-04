@@ -19,33 +19,22 @@ interface OnboardingPlanGenerationProps {
 }
 
 export function OnboardingPlanGeneration({ answers, selectedPillars }: OnboardingPlanGenerationProps) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isHe = language === 'he';
 
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState(false);
 
-  const analysisSteps = isHe
-    ? [
-        'מנתח תוצאות אבחון פילרים...',
-        'מזהה דפוסים חוצי-תחומים...',
-        'מחשב סדרי עדיפויות...',
-        'בונה מיסיות אסטרטגיות...',
-        'יוצר אבני דרך שבועיות...',
-        'מכוון פעולות יומיות...',
-        'משלים תוכנית 100 יום...',
-      ]
-    : [
-        'Analyzing pillar assessment results...',
-        'Identifying cross-domain patterns...',
-        'Computing priority matrix...',
-        'Building strategic missions...',
-        'Creating weekly milestones...',
-        'Calibrating daily actions...',
-        'Finalizing 100-day plan...',
-      ];
+  const analysisSteps = [
+    t('onboarding.planGeneration.analyzingResults'),
+    t('onboarding.planGeneration.identifyingPatterns'),
+    t('onboarding.planGeneration.computingPriority'),
+    t('onboarding.planGeneration.buildingMissions'),
+    t('onboarding.planGeneration.creatingMilestones'),
+    t('onboarding.planGeneration.calibratingActions'),
+    t('onboarding.planGeneration.finalizingPlan'),
+  ];
 
   const completeOnboarding = useCallback(async () => {
     if (!user?.id) return;
@@ -54,7 +43,6 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       const pressureZone = answers.pressure_zone as string;
       const pillar = FRICTION_PILLAR_MAP[pressureZone] || 'mind';
 
-      // Compute diagnostic scores
       const step1Data: Record<string, unknown> = {};
       const step2Data: Record<string, unknown> = {};
 
@@ -81,7 +69,6 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
         if (answers[key] !== undefined) step2Data[key] = answers[key];
       });
 
-      // Save launchpad progress
       const { error: upsertError } = await supabase
         .from('launchpad_progress')
         .upsert({
@@ -96,16 +83,14 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
       if (upsertError) throw upsertError;
 
-      // Try to generate strategy (non-blocking if fails)
       try {
         await supabase.functions.invoke('generate-90day-strategy', {
           body: { userId: user.id, pillars: selectedPillars },
         });
       } catch {
-        // Strategy generation is optional — user can recalibrate later
+        // Strategy generation is optional
       }
 
-      // Also try launchpad summary (non-blocking)
       supabase.functions.invoke('generate-launchpad-summary', {
         body: { userId: user.id },
       }).catch(() => {});
@@ -115,11 +100,10 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
     } catch (err) {
       console.error('Error completing onboarding:', err);
       setError(true);
-      toast.error(isHe ? 'שגיאה בשמירה, נסה שוב' : 'Error saving, please try again');
+      toast.error(t('onboarding.planGeneration.saveError'));
     }
-  }, [user?.id, answers, selectedPillars, navigate, isHe]);
+  }, [user?.id, answers, selectedPillars, navigate, t]);
 
-  // Animate steps, then trigger completion
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentStep < analysisSteps.length - 1) {
@@ -137,12 +121,12 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       <div className="min-h-screen bg-background flex items-center justify-center px-6" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center space-y-4 max-w-sm">
           <Brain className="w-12 h-12 text-destructive mx-auto" />
-          <h2 className="text-xl font-bold">{isHe ? 'שגיאה בהפקת התוכנית' : 'Plan Generation Error'}</h2>
+          <h2 className="text-xl font-bold">{t('onboarding.planGeneration.error')}</h2>
           <button
             onClick={() => { setError(false); setCurrentStep(0); }}
             className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold"
           >
-            {isHe ? 'נסה שוב' : 'Try Again'}
+            {t('onboarding.planGeneration.tryAgain')}
           </button>
         </div>
       </div>
@@ -165,13 +149,10 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
         <div className="space-y-2">
           <h2 className="text-xl font-bold text-foreground">
-            {isHe ? 'בונה את תוכנית ה-100 יום שלך' : 'Building Your 100-Day Plan'}
+            {t('onboarding.planGeneration.buildingPlan')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {isHe
-              ? `${selectedPillars.length} פילרים נבחרו • מנתח ומתכנן...`
-              : `${selectedPillars.length} pillars selected • Analyzing & planning...`
-            }
+            {selectedPillars.length} {t('onboarding.planGeneration.pillarsSelected')}
           </p>
         </div>
 

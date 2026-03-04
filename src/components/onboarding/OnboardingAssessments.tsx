@@ -16,7 +16,7 @@ interface OnboardingAssessmentsProps {
 }
 
 export function OnboardingAssessments({ selectedPillars, onComplete }: OnboardingAssessmentsProps) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedPillars, setCompletedPillars] = useState<string[]>([]);
@@ -29,7 +29,6 @@ export function OnboardingAssessments({ selectedPillars, onComplete }: Onboardin
     setCompletedPillars(prev => [...prev, currentPillarId]);
     
     if (currentIndex + 1 >= selectedPillars.length) {
-      // All done
       setTimeout(() => onComplete(), 500);
     } else {
       setCurrentIndex(currentIndex + 1);
@@ -45,8 +44,8 @@ export function OnboardingAssessments({ selectedPillars, onComplete }: Onboardin
           className="text-center space-y-4"
         >
           <CheckCircle2 className="w-16 h-16 text-primary mx-auto" />
-          <h2 className="text-xl font-bold">{isHe ? 'כל האבחונים הושלמו!' : 'All Assessments Complete!'}</h2>
-          <p className="text-sm text-muted-foreground">{isHe ? 'מכין את התוכנית שלך...' : 'Preparing your plan...'}</p>
+          <h2 className="text-xl font-bold">{t('onboarding.assessments.allComplete')}</h2>
+          <p className="text-sm text-muted-foreground">{t('onboarding.assessments.preparingPlan')}</p>
         </motion.div>
       </div>
     );
@@ -58,7 +57,7 @@ export function OnboardingAssessments({ selectedPillars, onComplete }: Onboardin
       <div className="px-4 pt-4 pb-2 space-y-3 shrink-0 border-b border-border/30">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground">
-            {isHe ? 'אבחון פילרים' : 'Pillar Assessment'}
+            {t('onboarding.assessments.pillarAssessment')}
           </h2>
           <span className="text-xs text-muted-foreground font-medium">
             {currentIndex + 1}/{selectedPillars.length}
@@ -100,7 +99,7 @@ export function OnboardingAssessments({ selectedPillars, onComplete }: Onboardin
       {/* Assessment Chat */}
       <div className="flex-1 min-h-0">
         <DomainAssessChat
-          key={currentPillarId} // Force remount on pillar change
+          key={currentPillarId}
           domainId={currentPillarId}
           asModal
           onClose={handlePillarComplete}

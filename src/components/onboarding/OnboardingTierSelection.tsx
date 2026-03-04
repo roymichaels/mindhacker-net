@@ -18,7 +18,7 @@ interface OnboardingTierSelectionProps {
 }
 
 export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelectionProps) {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const isHe = language === 'he';
@@ -46,7 +46,6 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
       });
       const url = requireCheckoutUrlOrToast(result, isHe);
       if (url) {
-        // Store chosen tier so we can continue after payment
         sessionStorage.setItem('onboarding_chosen_tier', tier);
         window.location.href = url;
       }
@@ -73,10 +72,10 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-            {isHe ? 'בחר את המסלול שלך' : 'Choose Your Path'}
+            {t('onboarding.tier.chooseYourPath')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isHe ? 'כל מסלול כולל אבחון פילרים מותאם אישית' : 'Every path includes personalized pillar assessments'}
+            {t('onboarding.tier.everyPathIncludes')}
           </p>
         </div>
 
@@ -103,7 +102,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
               >
                 {isPopular && (
                   <div className="absolute -top-3 start-4 px-3 py-0.5 rounded-full bg-amber-500 text-white text-xs font-bold">
-                    {isHe ? 'הכי פופולרי' : 'Most Popular'}
+                    {t('onboarding.tier.mostPopular')}
                   </div>
                 )}
 
@@ -118,18 +117,18 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
                   </div>
                   <div className="text-end">
                     {config.priceUSD === 0 ? (
-                      <span className="text-xl font-black text-foreground">{isHe ? 'חינם' : 'Free'}</span>
+                      <span className="text-xl font-black text-foreground">{t('onboarding.tier.free')}</span>
                     ) : (
                       <div>
                         <span className={cn('text-xl font-black', accent)}>
                           {isHe ? `₪${config.priceILS}` : `$${config.priceUSD}`}
                         </span>
-                        <span className="text-xs text-muted-foreground">/{isHe ? 'חודש' : 'mo'}</span>
+                        <span className="text-xs text-muted-foreground">/{t('onboarding.tier.month')}</span>
                       </div>
                     )}
                     {config.trial && (
                       <p className={cn('text-[10px] font-medium', accent)}>
-                        {isHe ? `${config.trial} ימי ניסיון חינם` : `${config.trial}-day free trial`}
+                        {isHe ? `${config.trial} ${t('onboarding.tier.freeTrialDays')}` : `${config.trial}${t('onboarding.tier.freeTrialDays')}`}
                       </p>
                     )}
                   </div>
@@ -145,7 +144,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
                   ))}
                   {features.length > 5 && (
                     <p className="text-[10px] text-muted-foreground/60 ps-5">
-                      {isHe ? `+${features.length - 5} עוד...` : `+${features.length - 5} more...`}
+                      +{features.length - 5} {t('onboarding.tier.more')}
                     </p>
                   )}
                 </div>
@@ -153,7 +152,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
                 {/* Pillar count badge */}
                 <div className="flex items-center gap-2">
                   <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full bg-muted', accent)}>
-                    {tier === 'free' ? '2' : tier === 'plus' ? '6' : '14'} {isHe ? 'פילרים' : 'pillars'}
+                    {tier === 'free' ? '2' : tier === 'plus' ? '6' : '14'} {t('onboarding.tier.pillars')}
                   </span>
                 </div>
               </motion.div>
@@ -182,12 +181,12 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
               <span className="animate-spin">⏳</span>
             ) : selectedTier === 'free' ? (
               <>
-                {isHe ? 'המשך לבחירת פילרים' : 'Continue to Pillar Selection'}
+                {t('onboarding.tier.continueToPillars')}
                 <ArrowRight className="w-5 h-5" />
               </>
             ) : (
               <>
-                {isHe ? `שדרג ל-${TIER_CONFIGS[selectedTier].label.en}` : `Upgrade to ${TIER_CONFIGS[selectedTier].label.en}`}
+                {t('onboarding.tier.upgradeTo')}{TIER_CONFIGS[selectedTier].label.en}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

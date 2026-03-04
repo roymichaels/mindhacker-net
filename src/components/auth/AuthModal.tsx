@@ -61,7 +61,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
       toast({ title: t('auth.loginError'), description: error.message, variant: 'destructive' });
       return;
     }
-    toast({ title: 'קוד נשלח! ✉️', description: 'בדוק את תיבת המייל שלך' });
+    toast({ title: t('auth.codeSent'), description: t('auth.checkEmail') });
     setStep('otp');
   };
 
@@ -76,7 +76,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
     });
     setIsLoading(false);
     if (error) {
-      toast({ title: 'שגיאה', description: error.message, variant: 'destructive' });
+      toast({ title: t('common.error'), description: error.message, variant: 'destructive' });
       return;
     }
     if (data.user) {
@@ -122,12 +122,12 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
       <DialogContent className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-primary text-center">
-            {step === 'otp' ? 'הזן את הקוד' : 'התחבר ל-MindOS'}
+            {step === 'otp' ? t('auth.enterCode') : t('auth.connectToMindOS')}
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
             {step === 'otp'
-              ? `שלחנו קוד בן 6 ספרות אל ${email}`
-              : 'התחבר כדי להמשיך את המסע שלך'}
+              ? `${t('auth.codeSentTo')} ${email}`
+              : t('auth.connectToContinue')}
           </DialogDescription>
         </DialogHeader>
 
@@ -138,15 +138,15 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
                 <Mail className="h-6 w-6 text-primary" />
               </div>
               <p className="text-sm text-center text-muted-foreground">
-                שלחנו לך קישור התחברות למייל.<br />
-                לחץ על הקישור במייל כדי להתחבר.
+                {t('auth.magicLinkSent')}<br />
+                {t('auth.clickLinkToLogin')}
               </p>
             </div>
 
             {/* Optional OTP fallback */}
             <div className="border-t pt-4">
               <p className="text-xs text-center text-muted-foreground mb-3">
-                או הזן את הקוד בן 6 הספרות (אם מופיע במייל):
+                {t('auth.orEnterCode')}
               </p>
               <form onSubmit={handleVerifyOtp} className="space-y-3">
                 <div className="flex justify-center" dir="ltr">
@@ -163,7 +163,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading || otp.length < 6} size="lg">
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <ArrowRight className="h-4 w-4 me-2" />}
-                  אימות וכניסה
+                  {t('auth.verifyAndLogin')}
                 </Button>
               </form>
             </div>
@@ -173,7 +173,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
               onClick={() => { setStep('entry'); setOtp(''); }}
               className="w-full text-sm text-muted-foreground hover:text-foreground text-center"
             >
-              חזרה
+              {t('common.back')}
             </button>
           </div>
         ) : (
@@ -194,7 +194,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
             <div className="relative">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">או עם אימייל</span>
+                <span className="bg-background px-2 text-muted-foreground">{t('auth.orWithEmail')}</span>
               </div>
             </div>
 
@@ -214,15 +214,15 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
               </div>
               <Button type="submit" className="w-full gap-2" disabled={isLoading} size="lg">
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                שלח קוד למייל
+                {t('auth.sendCodeToEmail')}
               </Button>
             </form>
 
             <p className="text-xs text-center text-muted-foreground pt-2">
-              בלחיצה על המשך אתה מסכים ל
-              <a href="/terms-of-service" target="_blank" className="text-primary hover:underline mx-1">תנאי השימוש</a>
-              ול
-              <a href="/privacy-policy" target="_blank" className="text-primary hover:underline mx-1">מדיניות הפרטיות</a>
+              {t('auth.termsAgreement')}
+              <a href="/terms-of-service" target="_blank" className="text-primary hover:underline mx-1">{t('auth.termsOfService')}</a>
+              {t('auth.andThe')}
+              <a href="/privacy-policy" target="_blank" className="text-primary hover:underline mx-1">{t('auth.privacyPolicy')}</a>
             </p>
           </div>
         )}
