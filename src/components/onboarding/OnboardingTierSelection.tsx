@@ -67,7 +67,7 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-lg w-full space-y-6 py-6"
+        className="max-w-5xl w-full space-y-6 py-6"
       >
         {/* Header */}
         <div className="text-center space-y-2">
