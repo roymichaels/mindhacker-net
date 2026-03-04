@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Camera, RotateCcw, ChevronRight, Upload, Loader2, SwitchCamera } from "lucide-react";
+import { Camera, RotateCcw, ChevronRight, ChevronLeft, Upload, Loader2, SwitchCamera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import guideFaceFront from "@/assets/guide-face-front.png";
 import guideFaceProfile from "@/assets/guide-face-profile.png";
@@ -17,11 +18,11 @@ const GUIDE_IMAGES: Record<string, string> = {
   body_side: guideBodySide,
 };
 
-const STEPS = [
-  { key: "face_front", label: "Face — Front", instruction: "Neutral expression, good lighting, looking straight at camera" },
-  { key: "face_profile", label: "Face — Profile", instruction: "Turn head to show left or right side" },
-  { key: "body_front", label: "Body — Front", instruction: "Clothed, neutral stance, arms at sides" },
-  { key: "body_side", label: "Body — Side", instruction: "Clothed, neutral stance, standing sideways" },
+const STEP_KEYS = [
+  { key: "face_front", labelKey: "presence.faceFront", instructKey: "presence.instructFaceFront" },
+  { key: "face_profile", labelKey: "presence.faceProfile", instructKey: "presence.instructFaceProfile" },
+  { key: "body_front", labelKey: "presence.bodyFront", instructKey: "presence.instructBodyFront" },
+  { key: "body_side", labelKey: "presence.bodySide", instructKey: "presence.instructBodySide" },
 ];
 
 interface GuidedCaptureProps {
@@ -46,6 +47,7 @@ function loadPersistedState() {
 
 export default function GuidedCapture({ onComplete, onCancel }: GuidedCaptureProps) {
   const { user } = useAuth();
+  const { t, isRTL } = useTranslation();
   const persisted = useRef(loadPersistedState());
   const [step, setStep] = useState(persisted.current.stp);
   const [images, setImages] = useState<Record<string, string>>(persisted.current.imgs);
@@ -69,10 +71,12 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
     sessionStorage.setItem(STORAGE_KEY_STEP, String(step));
   }, [step]);
 
-  const current = STEPS[step];
-  const isLastStep = step === STEPS.length - 1;
+  const current = STEP_KEYS[step];
+  const isLastStep = step === STEP_KEYS.length - 1;
   const canProceed = !!images[current.key];
-  const allComplete = STEPS.every((s) => images[s.key]);
+  const allComplete = STEP_KEYS.every((s) => images[s.key]);
+
+  const NextIcon = isRTL ? ChevronLeft : ChevronRight;
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -96,14 +100,14 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
       }
       setCameraActive(true);
     } catch {
-      toast.error("Could not access camera. Please allow camera permissions or upload a photo instead.");
+      toast.error(t('presence.cameraError'));
       setCameraActive(false);
     }
-  }, [facingMode, stopCamera]);
+  }, [facingMode, stopCamera, t]);
 
   // Start camera when component mounts or step changes (if no preview yet)
   useEffect(() => {
-    if (!previews[STEPS[step].key]) {
+    if (!previews[STEP_KEYS[step].key]) {
       startCamera();
     }
     return () => stopCamera();
@@ -111,7 +115,6 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
 
   const toggleCamera = () => {
     setFacingMode((m) => (m === "user" ? "environment" : "user"));
-    // Restart with new facing after state updates
     setTimeout(() => startCamera(), 100);
   };
 
@@ -128,7 +131,6 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
     setPreviews((p) => ({ ...p, [current.key]: dataUrl }));
     stopCamera();
 
-    // Upload
     setUploading(true);
     const blob = await (await fetch(dataUrl)).blob();
     const path = `${user.id}/${Date.now()}_${current.key}.jpg`;
@@ -137,14 +139,14 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
       upsert: false,
     });
     if (error) {
-      toast.error("Upload failed. Please try again.");
+      toast.error(t('presence.uploadFailed'));
       setPreviews((p) => { const n = { ...p }; delete n[current.key]; return n; });
       startCamera();
     } else {
       setImages((p) => ({ ...p, [current.key]: path }));
     }
     setUploading(false);
-  }, [current.key, user, stopCamera, startCamera]);
+  }, [current.key, user, stopCamera, startCamera, t]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -160,7 +162,7 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
       upsert: false,
     });
     if (error) {
-      toast.error("Upload failed. Please try again.");
+      toast.error(t('presence.uploadFailed'));
       setPreviews((p) => { const n = { ...p }; delete n[current.key]; return n; });
     } else {
       setImages((p) => ({ ...p, [current.key]: path }));
@@ -180,7 +182,6 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
   const handleNext = () => {
     if (isLastStep) {
       stopCamera();
-      // Clear persisted state on successful completion
       sessionStorage.removeItem(STORAGE_KEY_IMAGES);
       sessionStorage.removeItem(STORAGE_KEY_PREVIEWS);
       sessionStorage.removeItem(STORAGE_KEY_STEP);
@@ -190,11 +191,15 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
     }
   };
 
+  const stepLabel = t('presence.stepOf')
+    .replace('{current}', String(step + 1))
+    .replace('{total}', String(STEP_KEYS.length));
+
   return (
-    <div className="max-w-lg mx-auto space-y-4">
+    <div className="max-w-lg mx-auto space-y-4" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Progress */}
       <div className="flex items-center gap-1">
-        {STEPS.map((s, i) => (
+        {STEP_KEYS.map((s, i) => (
           <div
             key={s.key}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -206,35 +211,25 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
 
       <div className="text-center space-y-1">
         <p className="text-xs text-muted-foreground uppercase tracking-wider">
-          Step {step + 1} of {STEPS.length}
+          {stepLabel}
         </p>
-        <h3 className="text-xl font-bold text-foreground">{current.label}</h3>
-        <p className="text-sm text-muted-foreground">{current.instruction}</p>
+        <h3 className="text-xl font-bold text-foreground">{t(current.labelKey)}</h3>
+        <p className="text-sm text-muted-foreground">{t(current.instructKey)}</p>
       </div>
 
       {/* Viewfinder + Guide side by side */}
       <div className="flex gap-3 items-stretch">
-        {/* Guide image */}
-        <div className="hidden sm:flex w-28 shrink-0 flex-col items-center gap-1.5">
-          <img
-            src={GUIDE_IMAGES[current.key]}
-            alt={`Guide: ${current.label}`}
-            className="w-full rounded-xl border border-border bg-muted/30 object-contain"
-          />
-          <span className="text-[10px] text-muted-foreground text-center leading-tight">Example pose</span>
-        </div>
-
-        {/* Camera / Preview */}
-        <div className="relative flex-1 aspect-[3/4] max-h-[45vh] rounded-2xl border-2 border-border bg-black overflow-hidden">
+        {/* Camera / Preview — always first visually */}
+        <div className="relative flex-1 aspect-[3/4] max-h-[45vh] rounded-2xl border-2 border-border bg-black overflow-hidden order-first">
           {previews[current.key] ? (
-            <img src={previews[current.key]} alt={current.label} className="w-full h-full object-cover" />
+            <img src={previews[current.key]} alt={t(current.labelKey)} className="w-full h-full object-cover" />
           ) : (
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover mirror"
+              className="w-full h-full object-cover"
               style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
             />
           )}
@@ -243,26 +238,35 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           )}
-          {/* Flip camera button */}
           {cameraActive && !previews[current.key] && (
             <button
               onClick={toggleCamera}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              className="absolute top-3 end-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             >
               <SwitchCamera className="w-5 h-5" />
             </button>
           )}
         </div>
+
+        {/* Guide image */}
+        <div className="hidden sm:flex w-28 shrink-0 flex-col items-center gap-1.5 order-last">
+          <img
+            src={GUIDE_IMAGES[current.key]}
+            alt={t(current.labelKey)}
+            className="w-full rounded-xl border border-border bg-muted/30 object-contain"
+          />
+          <span className="text-[10px] text-muted-foreground text-center leading-tight">{t('presence.examplePose')}</span>
+        </div>
       </div>
 
-      {/* Mobile guide — shown below on small screens */}
+      {/* Mobile guide */}
       <div className="flex sm:hidden items-center gap-3 p-2 rounded-xl border border-border bg-muted/20">
         <img
           src={GUIDE_IMAGES[current.key]}
-          alt={`Guide: ${current.label}`}
+          alt={t(current.labelKey)}
           className="w-16 h-20 rounded-lg object-contain"
         />
-        <span className="text-xs text-muted-foreground leading-tight">Stand like the example for best results</span>
+        <span className="text-xs text-muted-foreground leading-tight">{t('presence.mobileGuide')}</span>
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
@@ -280,23 +284,21 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
         {previews[current.key] ? (
           <>
             <Button variant="outline" onClick={handleRetake} className="flex-1">
-              <RotateCcw className="w-4 h-4 mr-2" /> Retake
+              <RotateCcw className="w-4 h-4 me-2" /> {t('presence.retake')}
             </Button>
             <Button onClick={handleNext} disabled={!canProceed} className="flex-1">
-              {isLastStep && allComplete ? "Analyze" : "Next"} <ChevronRight className="w-4 h-4 ml-1" />
+              {isLastStep && allComplete ? t('presence.analyze') : t('presence.next')} <NextIcon className="w-4 h-4 ms-1" />
             </Button>
           </>
         ) : (
           <>
-            {/* Capture button */}
             <Button
               onClick={capturePhoto}
               disabled={!cameraActive || uploading}
               className="flex-1"
             >
-              <Camera className="w-4 h-4 mr-2" /> Capture
+              <Camera className="w-4 h-4 me-2" /> {t('presence.capture')}
             </Button>
-            {/* Fallback upload */}
             <Button
               variant="outline"
               onClick={() => inputRef.current?.click()}
@@ -310,7 +312,7 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
       </div>
 
       <Button variant="ghost" size="sm" onClick={() => { stopCamera(); onCancel(); }} className="w-full text-muted-foreground">
-        Cancel Scan
+        {t('presence.cancelScan')}
       </Button>
     </div>
   );
