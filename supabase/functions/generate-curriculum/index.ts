@@ -641,7 +641,7 @@ After gathering enough info (3-5 exchanges), say "🔥 אני מוכנה לבנ�
 
 IMPORTANT: This is NOT a gentle course. Aurora builds BOOT CAMPS with ~50 intensive lessons. Push the user to commit to intensity.
 
-CRITICAL HEBREW RULE: If the user writes in Hebrew, you MUST respond with full nikud (נִקּוּד מָלֵא) on every Hebrew word — no exceptions.`;
+CRITICAL HEBREW RULE: If the user writes in Hebrew, you MUST write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י, ו) to help pronunciation. Example: "לִימוּד" → "ליימוד", "הַצְלָחָה" → "הצלחה". Never add nikud dots.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
