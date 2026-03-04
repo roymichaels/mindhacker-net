@@ -805,7 +805,12 @@ WILLINGNESS EXTRACTION (CRITICAL — applies to ALL domains):
 - NEVER ASSUME willingness. If they didn't say it, don't include it.
 - This data DIRECTLY controls their 100-day plan. Wrong data = irrelevant plan.`;
 
-    const systemContent = `${config.systemPrompt}\n${willingnessBlock}\n\nUser's preferred language: ${langLabel}. Always respond in that language.\n\nSTART with: "${language === "he" ? config.startQuestion.he : config.startQuestion.en}"`;
+    const systemContent = `${config.systemPrompt}\n${willingnessBlock}\n\nUser's preferred language: ${langLabel}. You MUST respond in ${langLabel} regardless of what language previous messages are in.\n\nSTART with: "${language === "he" ? config.startQuestion.he : config.startQuestion.en}"`;
+
+    // Add language reminder if there are existing messages to prevent language drift
+    const conversationMessages = messages.length > 0
+      ? [...messages, { role: "system", content: `IMPORTANT: The user's current language is ${langLabel}. Respond ONLY in ${langLabel}.` }]
+      : messages;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -817,7 +822,7 @@ WILLINGNESS EXTRACTION (CRITICAL — applies to ALL domains):
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          messages: [{ role: "system", content: systemContent }, ...messages],
+          messages: [{ role: "system", content: systemContent }, ...conversationMessages],
           tools: [buildExtractTool(domainId)],
           stream: true,
         }),
