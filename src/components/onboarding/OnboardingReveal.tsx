@@ -467,7 +467,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
               <p className="text-xs text-muted-foreground">{week1.recoveryBlock}</p>
             </div>
             <div className="rounded-xl bg-green-500/5 border border-green-500/20 p-3 space-y-1">
-              <span className="text-xs font-bold text-green-600 dark:text-green-400">{isHe ? '💪 אימון' : '💪 Training'}</span>
+              <span className="text-xs font-bold text-green-600 dark:text-green-400">💪 {t('onboarding.reveal.training')}</span>
               <p className="text-xs text-muted-foreground">{week1.trainingSuggestion}</p>
             </div>
           </div>
