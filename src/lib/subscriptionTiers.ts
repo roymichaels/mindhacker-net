@@ -97,7 +97,7 @@ export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena:
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "1 Core pillar + 1 Arena pillar (your choice)",
+      "2 pillars of your choice",
       "Dashboard & 100-day overview",
       "5 Aurora messages/day",
       "3 active habits",
