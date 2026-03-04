@@ -99,6 +99,23 @@ export default function AdminCoaches() {
 
   return (
     <div className="space-y-6" dir={isHe ? 'rtl' : 'ltr'}>
+      <Tabs defaultValue="coaches" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="coaches" className="gap-1">
+            <Users className="h-4 w-4" />
+            {isHe ? 'מאמנים' : 'Coaches'}
+          </TabsTrigger>
+          <TabsTrigger value="coupons" className="gap-1">
+            <Ticket className="h-4 w-4" />
+            {isHe ? 'קופונים' : 'Coupons'}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="coupons">
+          <AdminCouponsPanel />
+        </TabsContent>
+
+        <TabsContent value="coaches">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{isHe ? 'ניהול מאמנים' : 'Coaches Management'}</h2>
         <Badge variant="secondary" className="text-sm">
