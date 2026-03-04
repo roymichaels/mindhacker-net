@@ -30,6 +30,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  useLearnPillarAction();
 
   // Read from SidebarContext (set by hub pages via useSidebars hook)
   // Props take priority > context > defaults
