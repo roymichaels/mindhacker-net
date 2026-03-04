@@ -74,6 +74,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const [executionOpen, setExecutionOpen] = useState(false);
   const { startAssessment } = useAuroraChatContext();
   const { openHypnosis } = useAuroraActions();
+  const { isPillarSelected, isApex } = usePillarAccess();
 
   // Determine which plan IDs to query
   const planIds = useMemo(() => {
