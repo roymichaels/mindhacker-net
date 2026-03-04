@@ -3343,6 +3343,418 @@ export type Database = {
         }
         Relationships: []
       }
+      fm_bounties: {
+        Row: {
+          active_claims: number
+          category: string
+          completed_claims: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty: string
+          estimated_minutes: number | null
+          expires_at: string | null
+          id: string
+          max_claims: number
+          metadata: Json | null
+          reward_mos: number
+          status: Database["public"]["Enums"]["fm_bounty_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active_claims?: number
+          category?: string
+          completed_claims?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          estimated_minutes?: number | null
+          expires_at?: string | null
+          id?: string
+          max_claims?: number
+          metadata?: Json | null
+          reward_mos: number
+          status?: Database["public"]["Enums"]["fm_bounty_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active_claims?: number
+          category?: string
+          completed_claims?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          estimated_minutes?: number | null
+          expires_at?: string | null
+          id?: string
+          max_claims?: number
+          metadata?: Json | null
+          reward_mos?: number
+          status?: Database["public"]["Enums"]["fm_bounty_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fm_bounty_claims: {
+        Row: {
+          bounty_id: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submission_data: Json | null
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bounty_id: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_data?: Json | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bounty_id?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submission_data?: Json | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_bounty_claims_bounty_id_fkey"
+            columns: ["bounty_id"]
+            isOneToOne: false
+            referencedRelation: "fm_bounties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_bounty_claims_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "fm_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_data_contributions: {
+        Row: {
+          consent_hash: string
+          created_at: string
+          data_type: string
+          days_shared: number
+          id: string
+          revoked_at: string | null
+          reward_mos: number
+          status: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_hash: string
+          created_at?: string
+          data_type: string
+          days_shared: number
+          id?: string
+          revoked_at?: string | null
+          reward_mos: number
+          status?: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_hash?: string
+          created_at?: string
+          data_type?: string
+          days_shared?: number
+          id?: string
+          revoked_at?: string | null
+          reward_mos?: number
+          status?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_data_contributions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "fm_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_gig_proposals: {
+        Row: {
+          created_at: string
+          gig_id: string
+          id: string
+          pitch: string | null
+          proposed_amount: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gig_id: string
+          id?: string
+          pitch?: string | null
+          proposed_amount: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gig_id?: string
+          id?: string
+          pitch?: string | null
+          proposed_amount?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_gig_proposals_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "fm_gigs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_gigs: {
+        Row: {
+          accepted_proposal_id: string | null
+          budget_mos: number
+          category: string
+          completed_at: string | null
+          created_at: string
+          deliverable_url: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          poster_id: string
+          status: Database["public"]["Enums"]["fm_gig_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_proposal_id?: string | null
+          budget_mos: number
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          deliverable_url?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          poster_id: string
+          status?: Database["public"]["Enums"]["fm_gig_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_proposal_id?: string | null
+          budget_mos?: number
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          deliverable_url?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          poster_id?: string
+          status?: Database["public"]["Enums"]["fm_gig_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fm_settlement_outbox: {
+        Row: {
+          amount_fiat_cents: number | null
+          amount_mos: number
+          attempts: number
+          channel: Database["public"]["Enums"]["fm_settlement_channel"]
+          created_at: string
+          error_message: string | null
+          external_ref: string | null
+          id: string
+          last_attempt_at: string | null
+          metadata: Json | null
+          status: Database["public"]["Enums"]["fm_settlement_status"]
+          transaction_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_fiat_cents?: number | null
+          amount_mos: number
+          attempts?: number
+          channel: Database["public"]["Enums"]["fm_settlement_channel"]
+          created_at?: string
+          error_message?: string | null
+          external_ref?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["fm_settlement_status"]
+          transaction_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_fiat_cents?: number | null
+          amount_mos?: number
+          attempts?: number
+          channel?: Database["public"]["Enums"]["fm_settlement_channel"]
+          created_at?: string
+          error_message?: string | null
+          external_ref?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["fm_settlement_status"]
+          transaction_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_settlement_outbox_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "fm_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          idempotency_key: string | null
+          metadata: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          status: Database["public"]["Enums"]["fm_tx_status"]
+          type: Database["public"]["Enums"]["fm_tx_type"]
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: Database["public"]["Enums"]["fm_tx_status"]
+          type: Database["public"]["Enums"]["fm_tx_type"]
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: Database["public"]["Enums"]["fm_tx_status"]
+          type?: Database["public"]["Enums"]["fm_tx_type"]
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "fm_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_wallets: {
+        Row: {
+          created_at: string
+          id: string
+          lifetime_earned: number
+          lifetime_spent: number
+          mode: Database["public"]["Enums"]["fm_wallet_mode"]
+          mos_balance: number
+          onboarding_complete: boolean
+          solana_address: string | null
+          solana_pubkey_encrypted: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          mode?: Database["public"]["Enums"]["fm_wallet_mode"]
+          mos_balance?: number
+          onboarding_complete?: boolean
+          solana_address?: string | null
+          solana_pubkey_encrypted?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          mode?: Database["public"]["Enums"]["fm_wallet_mode"]
+          mos_balance?: number
+          onboarding_complete?: boolean
+          solana_address?: string | null
+          solana_pubkey_encrypted?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_analyses: {
         Row: {
           analysis_summary: string
@@ -8190,6 +8602,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      fm_post_transaction: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_idempotency_key?: string
+          p_metadata?: Json
+          p_reference_id?: string
+          p_reference_type?: string
+          p_status?: Database["public"]["Enums"]["fm_tx_status"]
+          p_type: Database["public"]["Enums"]["fm_tx_type"]
+          p_user_id: string
+        }
+        Returns: Json
+      }
       get_job_skill_multipliers: {
         Args: { p_user_id: string }
         Returns: {
@@ -8322,6 +8748,32 @@ export type Database = {
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
       conversation_type: "direct" | "ai"
+      fm_bounty_status: "active" | "paused" | "completed" | "expired"
+      fm_gig_status:
+        | "draft"
+        | "open"
+        | "in_progress"
+        | "delivered"
+        | "completed"
+        | "cancelled"
+        | "disputed"
+      fm_settlement_channel: "stripe" | "moonpay" | "solana" | "internal"
+      fm_settlement_status: "pending" | "processing" | "completed" | "failed"
+      fm_tx_status: "completed" | "pending" | "failed"
+      fm_tx_type:
+        | "earn_bounty"
+        | "earn_gig"
+        | "earn_data"
+        | "earn_reward"
+        | "spend_purchase"
+        | "escrow_hold"
+        | "escrow_release"
+        | "escrow_refund"
+        | "withdraw_fiat"
+        | "withdraw_crypto"
+        | "deposit"
+        | "adjustment"
+      fm_wallet_mode: "simple" | "advanced"
       notification_priority: "low" | "medium" | "high" | "urgent"
       notification_type:
         | "new_user"
@@ -8488,6 +8940,34 @@ export const Constants = {
       content_status: ["draft", "published", "archived"],
       content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],
       conversation_type: ["direct", "ai"],
+      fm_bounty_status: ["active", "paused", "completed", "expired"],
+      fm_gig_status: [
+        "draft",
+        "open",
+        "in_progress",
+        "delivered",
+        "completed",
+        "cancelled",
+        "disputed",
+      ],
+      fm_settlement_channel: ["stripe", "moonpay", "solana", "internal"],
+      fm_settlement_status: ["pending", "processing", "completed", "failed"],
+      fm_tx_status: ["completed", "pending", "failed"],
+      fm_tx_type: [
+        "earn_bounty",
+        "earn_gig",
+        "earn_data",
+        "earn_reward",
+        "spend_purchase",
+        "escrow_hold",
+        "escrow_release",
+        "escrow_refund",
+        "withdraw_fiat",
+        "withdraw_crypto",
+        "deposit",
+        "adjustment",
+      ],
+      fm_wallet_mode: ["simple", "advanced"],
       notification_priority: ["low", "medium", "high", "urgent"],
       notification_type: [
         "new_user",
