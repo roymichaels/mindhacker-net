@@ -349,10 +349,10 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
 
       if (upsertError) throw upsertError;
 
-      // Trigger AI summary generation
-      await supabase.functions.invoke('generate-launchpad-summary', {
+      // Trigger AI summary generation (non-blocking, may not exist yet)
+      supabase.functions.invoke('generate-launchpad-summary', {
         body: { userId: user.id },
-      });
+      }).catch(() => { /* silently ignore if function doesn't exist */ });
 
       navigate('/dashboard', { replace: true });
     } catch (error) {
@@ -576,7 +576,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isHe ? 'בונה תוכנית 90 יום...' : 'Building your 90-day plan...'}
+                {isHe ? 'בונה תוכנית 100 יום...' : 'Building your 100-day plan...'}
               </>
             ) : (
               <>

@@ -113,6 +113,7 @@ export function OnboardingFlow() {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
   const [showReveal, setShowReveal] = useState(false);
+  const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [textareaValue, setTextareaValue] = useState('');
   const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
@@ -262,7 +263,7 @@ export function OnboardingFlow() {
       setCurrentStepIdx(currentStepIdx + 1);
       setCurrentMiniIdx(0);
     } else {
-      setShowReveal(true);
+      setShowAnalyzing(true);
     }
   }, [currentMiniIdx, visibleMiniSteps.length, currentStepIdx, steps.length]);
 
@@ -386,6 +387,56 @@ export function OnboardingFlow() {
           setShowIntro(false);
         }}
       />
+    );
+  }
+
+  if (showAnalyzing && !showReveal) {
+    const analysisSteps = isHe
+      ? ['מנתח דפוסי שינה...', 'מחשב עומס דופמין...', 'מעריך יציבות אנרגיה...', 'בונה פרופיל ביולוגי...', 'מכוון תוכנית 100 יום...']
+      : ['Analyzing sleep patterns...', 'Computing dopamine load...', 'Evaluating energy stability...', 'Building biological profile...', 'Calibrating 100-day plan...'];
+    
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6" dir={isRTL ? 'rtl' : 'ltr'}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-8 max-w-sm text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+            className="w-20 h-20 rounded-full border-4 border-primary/30 border-t-primary"
+          />
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-foreground">{isHe ? 'מנתח את הנתונים שלך' : 'Analyzing Your Data'}</h2>
+            <p className="text-sm text-muted-foreground">{isHe ? 'יוצר דוח אבחון מותאם אישית...' : 'Creating your personalized diagnostic report...'}</p>
+          </div>
+          <div className="w-full space-y-2">
+            {analysisSteps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.8, duration: 0.4 }}
+                onAnimationComplete={() => {
+                  if (i === analysisSteps.length - 1) {
+                    setTimeout(() => setShowReveal(true), 600);
+                  }
+                }}
+                className="flex items-center gap-2 text-sm text-muted-foreground"
+              >
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: i * 0.8 + 0.3 }}
+                  className="text-primary"
+                >✓</motion.span>
+                {step}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     );
   }
 
