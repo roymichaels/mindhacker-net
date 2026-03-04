@@ -105,7 +105,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "Basic Orb",
     ],
     he: [
-      "פילר ליבה 1 + פילר זירה 1 (לבחירתך)",
+      "2 פילרים לבחירתך",
       "דאשבורד וסקירת 100 יום",
       "5 הודעות יומיות לאורורה",
       "3 הרגלים פעילים",
