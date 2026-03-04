@@ -1,10 +1,11 @@
-import { Target, Briefcase, BarChart3, Wallet } from 'lucide-react';
+import { Target, Briefcase, BarChart3, Wallet, Users } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 
 const ACTIONS = [
   { id: 'earn',       icon: Target,     labelEn: 'Earn',    labelHe: 'הרוויח',  descEn: 'Bounties & tasks', descHe: 'באונטיז ומשימות',     path: '/fm/earn' },
   { id: 'work',       icon: Briefcase,  labelEn: 'Work',    labelHe: 'עבודה',   descEn: 'Freelance gigs',   descHe: 'עבודות פרילנס',       path: '/fm/work' },
+  { id: 'coaches',    icon: Users,      labelEn: 'Coaches', labelHe: 'מאמנים',  descEn: 'Find a coach',     descHe: 'מצא מאמן',            path: '/coaches' },
   { id: 'contribute', icon: BarChart3,   labelEn: 'Share',   labelHe: 'שתף',     descEn: 'Anonymous data',   descHe: 'נתונים אנונימיים',   path: '/fm/contribute' },
   { id: 'wallet',     icon: Wallet,     labelEn: 'Wallet',  labelHe: 'ארנק',    descEn: 'Balance & withdraw', descHe: 'יתרה ומשיכה',       path: '/fm/wallet' },
 ];

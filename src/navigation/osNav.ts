@@ -90,6 +90,5 @@ export const PROJECTS_SUB_ROUTES: SubRoute[] = [
  * Admin tab is no longer in the bottom nav — it's accessed via the app dropdown.
  */
 export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
-  const tabs = [...OS_TABS, COACH_TAB];
-  return tabs;
+  return [...OS_TABS];
 }
