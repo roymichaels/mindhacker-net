@@ -35,6 +35,12 @@ function stripMarkdown(text: string): string {
     .replace(/[-*]\s/g, '');
 }
 
+/** Strip Hebrew nikud (vowel marks) to reduce character count for TTS */
+function stripNikud(text: string): string {
+  // Hebrew nikud range: U+0591–U+05C7
+  return text.replace(/[\u0591-\u05C7]/g, '');
+}
+
 function extractText(lesson: { lesson_type: string; title: string; content: any }): string {
   const parts: string[] = [lesson.title + '.'];
 
