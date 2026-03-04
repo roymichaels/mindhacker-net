@@ -240,6 +240,24 @@ export function useSmartSuggestions() {
       });
     }
 
+    // Priority 2.5: Post-onboarding curriculum suggestion (expansion pillar)
+    if (userState.hasNoCurricula) {
+      result.push({
+        id: 'create-curriculum',
+        text: isHebrew 
+          ? '📚 בנה קורס מותאם אישית להתרחבות שלך'
+          : '📚 Build a personalized Expansion course',
+        action: { 
+          type: 'send_message', 
+          prompt: isHebrew 
+            ? 'אני רוצה ליצור קורס מותאם אישית בתחום ההתרחבות. עזור לי לבנות תוכנית לימודים שמתאימה לי, מבוססת על מה שאתה כבר יודע עליי.' 
+            : 'I want to create a personalized course in the Expansion domain. Help me build a curriculum that fits me, based on what you already know about me.'
+        },
+        priority: 2,
+        icon: 'plan',
+      });
+    }
+
     // Priority 6: Health-based suggestions (time-aware)
     const currentHour = new Date().getHours();
     if (currentHour >= 20 || currentHour < 6) {
