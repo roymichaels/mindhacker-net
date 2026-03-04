@@ -14,6 +14,10 @@ import {
   HowItWorksSection,
   AuroraCoachSection,
   FeatureShowcaseSection,
+  LearningEngineSection,
+  CoachMarketplaceSection,
+  CommunitySection,
+  PricingPreviewSection,
   TransformationProofSection,
   FinalCTASection,
 } from "@/components/home";
@@ -81,6 +85,10 @@ const Index = () => {
         <HowItWorksSection />
         <AuroraCoachSection />
         <FeatureShowcaseSection />
+        <LearningEngineSection />
+        <CoachMarketplaceSection />
+        <CommunitySection />
+        <PricingPreviewSection />
         <TransformationProofSection />
         <FinalCTASection />
       </main>
