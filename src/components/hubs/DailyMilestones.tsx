@@ -250,13 +250,18 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     }
 
     // Build pillar assessment status for all relevant domains
+    const totalLimit = limits.core + limits.arena; // Free=2, Plus=6, Apex=14
+    const selectedCount = selectedPillars.core.length + selectedPillars.arena.length;
+    
     const pillarStatuses = allDomains.map(d => {
       const row = getDomainRow(d.id);
       const completed = isAssessmentReady(d.id, row?.domain_config as Record<string, any> | undefined);
-      return { domain: d, completed };
+      const selected = isPillarSelected(d.id);
+      const locked = !isApex && !selected && selectedCount >= totalLimit;
+      return { domain: d, completed, selected, locked };
     });
-    const completedAssessments = pillarStatuses.filter(p => p.completed).length;
-    const totalAssessments = pillarStatuses.length;
+    const completedAssessments = pillarStatuses.filter(p => p.completed && p.selected).length;
+    const totalAssessments = isApex ? allDomains.length : totalLimit;
 
     return (
       <div dir={isRTL ? 'rtl' : 'ltr'} className="flex flex-col gap-4 py-4 px-4 rounded-2xl border border-border/40 bg-card/30">
@@ -269,7 +274,9 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
               : `Generate your 100-day plan for ${missingHubs.map(h => h === 'core' ? 'Core' : 'Arena').join(' & ')}`}
           </p>
           <p className="text-xs text-muted-foreground text-center max-w-xs">
-            {isHe ? 'התוכנית תייצר משימות יומיות מותאמות אישית לכל תחום' : 'The plan will create personalized daily missions for every pillar'}
+            {isHe 
+              ? `בחר ${totalLimit} פילרים ואבחן אותם לפני יצירת התוכנית`
+              : `Choose ${totalLimit} pillars and assess them before generating`}
           </p>
         </div>
 
@@ -287,7 +294,16 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           </div>
         </div>
 
-        {/* Generate button — below progress, above pillar cards */}
+        {/* Selection hint */}
+        {!isApex && (
+          <p className="text-[11px] text-muted-foreground text-center">
+            {isHe 
+              ? `נבחרו ${selectedCount}/${totalLimit} — לחץ על פילר כדי לבחור/לבטל`
+              : `${selectedCount}/${totalLimit} selected — tap a pillar to select/deselect`}
+          </p>
+        )}
+
+        {/* Generate button */}
         <Button
           size="sm"
           className="gap-1.5 w-full"
@@ -323,42 +339,70 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           )}
         </Button>
 
-        {/* Pillar cards grid */}
+        {/* Pillar cards grid — all 14 shown, locked ones greyed out */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          {pillarStatuses.map(({ domain: d, completed }) => {
+          {pillarStatuses.map(({ domain: d, completed, selected, locked }) => {
             const Icon = d.icon;
+            const isArena = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order'].includes(d.id);
+            const hub = isArena ? 'arena' as const : 'core' as const;
+
+            const handleClick = () => {
+              if (isApex) {
+                // Apex: all selected, just start assessment if not done
+                if (!completed) startAssessment(d.id);
+                return;
+              }
+              if (selected && completed) return; // already done
+              if (selected && !completed) {
+                startAssessment(d.id);
+                return;
+              }
+              // Not selected — toggle selection (if within limit)
+              if (!locked) {
+                togglePillar(d.id, hub);
+              }
+            };
+
             return (
               <button
                 key={d.id}
-                onClick={() => {
-                  if (!completed) startAssessment(d.id);
-                }}
-                disabled={completed}
+                onClick={handleClick}
+                disabled={locked}
                 className={cn(
                   "flex items-center gap-2 p-2.5 rounded-xl border transition-all text-start",
-                  completed
-                    ? "border-primary/20 bg-primary/5 opacity-60 cursor-default"
-                    : "border-border/50 bg-card/50 hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
+                  locked
+                    ? "border-border/20 bg-muted/20 opacity-40 cursor-not-allowed"
+                    : completed && selected
+                      ? "border-primary/20 bg-primary/5 opacity-70 cursor-default"
+                      : selected
+                        ? "border-primary/40 bg-primary/5 hover:bg-primary/10 cursor-pointer ring-1 ring-primary/30"
+                        : "border-border/50 bg-card/50 hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
                 )}
               >
                 <div className={cn(
                   "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                  completed ? 'bg-primary/10' : (dotBgMap[d.color] || 'bg-muted')
+                  locked ? 'bg-muted/30' : completed && selected ? 'bg-primary/10' : (dotBgMap[d.color] || 'bg-muted')
                 )}>
-                  {completed ? (
+                  {locked ? (
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground/50" />
+                  ) : completed && selected ? (
                     <CheckCircle2 className="w-4 h-4 text-primary" />
                   ) : (
                     <Icon className={cn('w-4 h-4', domainColorMap[d.color])} />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={cn("text-xs font-medium truncate", completed && "text-muted-foreground")}>
+                  <p className={cn("text-xs font-medium truncate", (locked || (completed && selected)) && "text-muted-foreground")}>
                     {isHe ? d.labelHe : d.labelEn}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    {completed
-                      ? (isHe ? '✓ הושלם' : '✓ Done')
-                      : (isHe ? 'נדרש אבחון' : 'Needs assessment')}
+                    {locked
+                      ? (isHe ? '🔒 שדרג לפתיחה' : '🔒 Upgrade to unlock')
+                      : completed && selected
+                        ? (isHe ? '✓ הושלם' : '✓ Done')
+                        : selected
+                          ? (isHe ? 'נדרש אבחון — לחץ להתחלה' : 'Needs assessment — tap to start')
+                          : (isHe ? 'לחץ לבחירה' : 'Tap to select')}
                   </p>
                 </div>
               </button>
