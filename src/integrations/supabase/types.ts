@@ -8143,26 +8143,16 @@ export type Database = {
         }
         Returns: Json
       }
-      award_unified_xp:
-        | {
-            Args: {
-              p_amount: number
-              p_reason?: string
-              p_source: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_amount: number
-              p_idempotency_key?: string
-              p_reason?: string
-              p_source: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
+      award_unified_xp: {
+        Args: {
+          p_amount: number
+          p_idempotency_key?: string
+          p_reason?: string
+          p_source: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       check_expiring_access: { Args: never; Returns: undefined }
       check_xp_integrity: {
         Args: never
