@@ -107,15 +107,11 @@ export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelect
                 )}
 
                 {/* Title + Price */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className={cn('w-5 h-5', accent)} />
-                    <div>
-                      <h3 className="text-lg font-bold">{config.label[isHe ? 'he' : 'en']}</h3>
-                      <p className="text-xs text-muted-foreground">{config.subtitle[isHe ? 'he' : 'en']}</p>
-                    </div>
-                  </div>
-                  <div className="text-end">
+                <div className="text-center space-y-2">
+                  <Icon className={cn('w-6 h-6 mx-auto', accent)} />
+                  <h3 className="text-lg font-bold">{config.label[isHe ? 'he' : 'en']}</h3>
+                  <p className="text-xs text-muted-foreground">{config.subtitle[isHe ? 'he' : 'en']}</p>
+                  <div>
                     {config.priceUSD === 0 ? (
                       <span className="text-xl font-black text-foreground">{t('onboarding.tier.free')}</span>
                     ) : (
