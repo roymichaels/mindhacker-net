@@ -131,6 +131,7 @@ export function OnboardingFlow() {
   const [textareaValue, setTextareaValue] = useState('');
   const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
   const [isRestoring, setIsRestoring] = useState(true);
+  const advanceTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   const steps = onboardingFlowSpec.steps;
 
