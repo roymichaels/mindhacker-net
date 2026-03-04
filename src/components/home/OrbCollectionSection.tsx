@@ -11,6 +11,7 @@ import { Orb } from '@/components/orb/Orb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PresetOrbDNAModal } from './PresetOrbDNAModal';
 
 interface ArchMeta {
   nameEn: string; nameHe: string;
