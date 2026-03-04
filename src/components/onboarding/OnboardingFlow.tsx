@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, ArrowRight, X, GripVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, X, GripVertical, Globe } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
@@ -109,6 +110,7 @@ const STEP2_KEYS = [
 
 export function OnboardingFlow() {
   const { t, language, isRTL } = useTranslation();
+  const { setLanguage } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isHe = language === 'he';
@@ -651,13 +653,23 @@ export function OnboardingFlow() {
           <span className="text-xs uppercase tracking-wider text-primary font-semibold">
             {isHe ? currentPhase?.he : currentPhase?.en}
           </span>
-          <button
-            onClick={() => navigate(user ? '/today' : '/')}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Exit"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setLanguage(language === 'he' ? 'en' : 'he')}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium flex items-center gap-1"
+              aria-label="Switch language"
+            >
+              <Globe className="w-4 h-4" />
+              {language === 'he' ? 'EN' : 'עב'}
+            </button>
+            <button
+              onClick={() => navigate(user ? '/today' : '/')}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Exit"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         <div className="flex gap-1">
           {steps.map((_, idx) => (

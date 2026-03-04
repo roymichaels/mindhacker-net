@@ -7,9 +7,10 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AnimatePresence } from 'framer-motion';
@@ -111,6 +112,7 @@ interface Props {
 export default function DomainAssessChat({ domainId, asModal, asDock, dockHeightVh, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
+  const { setLanguage } = useLanguage();
   const { saveAssessment } = useDomainAssessment(domainId);
   const { user } = useAuth();
 
@@ -497,8 +499,15 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
               {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
             </p>
           </div>
+          <button
+            onClick={() => setLanguage(language === 'he' ? 'en' : 'he')}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium flex items-center gap-1"
+            aria-label="Switch language"
+          >
+            <Globe className="w-4 h-4" />
+            {language === 'he' ? 'EN' : 'עב'}
+          </button>
         </div>
-
         {/* Chat messages — Aurora style */}
         <ScrollArea className="flex-1 min-h-0">
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
