@@ -435,7 +435,7 @@ export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps)
         {/* ─── Section 2: Week 1 Protocol ─── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="space-y-3">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
-            {isHe ? 'פרוטוקול שבוע 1' : 'Week 1 Protocol'}
+            {t('onboarding.reveal.week1Protocol')}
           </h2>
 
           {/* Anchor Habits */}
