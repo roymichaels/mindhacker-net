@@ -97,6 +97,7 @@ export function AuroraFloatingOrb() {
 
   return (
     <motion.div
+      ref={orbRef as any}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0, opacity: 0 }}
@@ -112,8 +113,6 @@ export function AuroraFloatingOrb() {
         ...positionStyle,
         width: ORB_SIZE,
         height: ORB_SIZE,
-        transform: `scale(${breathScale})`,
-        boxShadow: `0 0 ${16 + glowPulse * 20}px ${4 + glowPulse * 8}px hsl(var(--primary) / ${glowPulse})`,
       }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
