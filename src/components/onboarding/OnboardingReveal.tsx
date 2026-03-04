@@ -20,6 +20,7 @@ import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards'
 
 interface OnboardingRevealProps {
   answers: FlowAnswers;
+  onContinue?: () => void;
 }
 
 // ─── Score computation helpers ───
