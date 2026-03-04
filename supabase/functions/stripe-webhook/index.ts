@@ -18,6 +18,13 @@ const PRODUCT_TIER_MAP: Record<string, string> = {
   "prod_U00oHca1mJzxl1": "business",
 };
 
+// Coach tier price IDs → tier + client limit
+const COACH_PRICE_TIER: Record<string, { tier: string; clientLimit: number }> = {
+  "price_1T74WWL9lVJ44TbRziR03haW": { tier: "starter", clientLimit: 10 },
+  "price_1T74WqL9lVJ44TbRx0uGMNOY": { tier: "growth", clientLimit: 100 },
+  "price_1T74XEL9lVJ44TbR8R5h76R9": { tier: "scale", clientLimit: 500 },
+};
+
 const log = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}`, details ? JSON.stringify(details) : "");
 };
