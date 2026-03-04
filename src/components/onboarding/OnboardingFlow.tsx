@@ -304,11 +304,8 @@ export function OnboardingFlow() {
     }
   }, [currentMini?.id, isPriorityRank]);
 
-  // Auto-save on every change (DB for authenticated, localStorage for guests)
+  // Auto-save to DB (user is always authenticated at this point)
   const autoSave = useCallback(async (updatedAnswers: FlowAnswers) => {
-    // Always save to localStorage for guest resilience
-    saveGuestState({ __answers: updatedAnswers, __current_step: currentStepIdx + 1 });
-
     if (!user?.id) return;
     try {
       const step1Data: Record<string, unknown> = {};
