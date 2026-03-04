@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { TIER_PILLAR_LIMITS, type SubscriptionTier } from '@/lib/subscriptionTiers';
 import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, Lock, ArrowRight, Loader2, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const domainColorMap: Record<string, string> = {

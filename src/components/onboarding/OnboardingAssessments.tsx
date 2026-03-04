@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import OnboardingPresenceScan from '@/components/onboarding/OnboardingPresenceScan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OnboardingAssessmentsProps {

@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { supabase } from '@/integrations/supabase/client';
 import { TIER_CONFIGS, TIER_FEATURES, type SubscriptionTier } from '@/lib/subscriptionTiers';
-import { Zap, Crown, ArrowRight, Check } from 'lucide-react';
+import { Zap, Crown, ArrowRight, Check, ChevronLeft } from 'lucide-react';
 import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards';
 import { cn } from '@/lib/utils';
 
