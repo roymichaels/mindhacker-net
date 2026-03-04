@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 
 interface OnboardingTierSelectionProps {
   onTierSelected: (tier: SubscriptionTier) => void;
+  onBack?: () => void;
 }
 
 export function OnboardingTierSelection({ onTierSelected }: OnboardingTierSelectionProps) {

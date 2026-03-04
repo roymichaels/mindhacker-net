@@ -38,6 +38,7 @@ const cardBgMap: Record<string, string> = {
 interface OnboardingPillarSelectionProps {
   tier: SubscriptionTier;
   onComplete: (selectedPillars: string[]) => void;
+  onBack?: () => void;
 }
 
 export function OnboardingPillarSelection({ tier, onComplete }: OnboardingPillarSelectionProps) {

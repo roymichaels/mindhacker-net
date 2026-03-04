@@ -21,6 +21,7 @@ import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards'
 interface OnboardingRevealProps {
   answers: FlowAnswers;
   onContinue?: () => void;
+  onBack?: () => void;
 }
 
 // ─── Score computation helpers ───

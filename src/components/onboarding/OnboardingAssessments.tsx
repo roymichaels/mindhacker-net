@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 interface OnboardingAssessmentsProps {
   selectedPillars: string[];
   onComplete: () => void;
+  onBack?: () => void;
 }
 
 export function OnboardingAssessments({ selectedPillars, onComplete }: OnboardingAssessmentsProps) {
