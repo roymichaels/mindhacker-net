@@ -123,6 +123,7 @@ export default function OrbCollectionSection() {
   const isMobile = useIsMobile();
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [modalPresetIdx, setModalPresetIdx] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = ORB_PRESETS.length;
 
