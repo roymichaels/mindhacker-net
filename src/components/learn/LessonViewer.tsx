@@ -643,6 +643,43 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
           )}
         </div>
       )}
+
+      {/* Completion Dialog */}
+      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <AlertDialogContent dir={isHe ? 'rtl' : 'ltr'}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-lg">
+              🎉 {isHe ? 'שיעור הושלם!' : 'Lesson Complete!'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              +{lesson.xp_reward} XP — {isHe ? 'מה תרצה לעשות עכשיו?' : 'What would you like to do next?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              className="gap-2 flex-1"
+              onClick={() => {
+                setShowCompletionDialog(false);
+                onClose();
+              }}
+            >
+              {isHe ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
+              {isHe ? 'חזרה לקורס' : 'Back to Course'}
+            </Button>
+            <Button
+              className="gap-2 flex-1"
+              onClick={() => {
+                setShowCompletionDialog(false);
+                onComplete();
+              }}
+            >
+              {isHe ? 'שיעור הבא' : 'Next Lesson'}
+              {isHe ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
