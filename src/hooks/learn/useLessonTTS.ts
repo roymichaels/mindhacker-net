@@ -84,7 +84,7 @@ function extractText(lesson: { lesson_type: string; title: string; content: any 
 }
 
 /** Split text into chunks of ~maxLen characters at sentence boundaries */
-function splitTextIntoChunks(text: string, maxLen = 4500): string[] {
+function splitTextIntoChunks(text: string, maxLen = 2000): string[] {
   if (text.length <= maxLen) return [text];
 
   const chunks: string[] = [];
