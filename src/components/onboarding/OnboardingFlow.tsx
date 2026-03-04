@@ -470,6 +470,8 @@ export function OnboardingFlow() {
           };
           setAnswers(updated);
           setShowIntro(false);
+          // Persist basic info to DB immediately
+          autoSave(updated);
           savePhase('calibration');
         }}
       />
