@@ -88,9 +88,9 @@ export function tierIncludes(userTier: SubscriptionTier, requiredTier: Subscript
 
 /** Pillar limits per tier per hub */
 export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena: number }> = {
-  free: { core: 1, arena: 1 },
-  plus: { core: 3, arena: 3 },
-  apex: { core: 7, arena: 7 }, // all pillars
+  free: { core: 2, arena: 0 },   // 2 total pillars
+  plus: { core: 6, arena: 0 },   // 6 total pillars
+  apex: { core: 14, arena: 0 },  // all pillars
 };
 
 /** Features list for each tier (for UI display) */
