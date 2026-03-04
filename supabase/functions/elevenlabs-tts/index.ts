@@ -91,6 +91,8 @@ serve(async (req) => {
             use_speaker_boost: true,
             speed,
           },
+          ...(previousText ? { previous_text: previousText } : {}),
+          ...(nextText ? { next_text: nextText } : {}),
         }),
       }
     );
