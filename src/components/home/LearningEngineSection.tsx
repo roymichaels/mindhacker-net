@@ -6,45 +6,20 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { GraduationCap, BookOpen, Brain, Lightbulb, Layers, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const learningFeatures = [
-  {
-    icon: Brain,
-    he: 'קורסים מותאמים אישית ב-AI',
-    en: 'AI-Personalized Courses',
-    descHe: 'Aurora בונה לך קוריקולום מותאם על סמך האבחון שלך',
-    descEn: 'Aurora builds a tailored curriculum based on your assessment',
-  },
-  {
-    icon: BookOpen,
-    he: 'שיעורים אינטראקטיביים',
-    en: 'Interactive Lessons',
-    descHe: 'שיעורים עם תרגילים, שאלות ותוכן מותאם',
-    descEn: 'Lessons with exercises, quizzes, and adaptive content',
-  },
-  {
-    icon: Layers,
-    he: 'מודולים לפי עמוד',
-    en: 'Pillar-Based Modules',
-    descHe: 'כל קורס מחובר לתחום חיים ומזין את התוכנית שלך',
-    descEn: 'Every course ties to a life domain and feeds your plan',
-  },
-  {
-    icon: Target,
-    he: 'תרגילי יישום',
-    en: 'Application Exercises',
-    descHe: 'תרגילים שהופכים ללמידה שנכנסת ישירות לתוכנית היומית',
-    descEn: 'Exercises that integrate directly into your daily plan',
-  },
-];
-
 export default function LearningEngineSection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
+
+  const learningFeatures = [
+    { icon: Brain, title: t('home.learningEngine.aiCourses'), desc: t('home.learningEngine.aiCoursesDesc') },
+    { icon: BookOpen, title: t('home.learningEngine.interactive'), desc: t('home.learningEngine.interactiveDesc') },
+    { icon: Layers, title: t('home.learningEngine.pillarModules'), desc: t('home.learningEngine.pillarModulesDesc') },
+    { icon: Target, title: t('home.learningEngine.exercises'), desc: t('home.learningEngine.exercisesDesc') },
+  ];
 
   return (
     <section className="py-20 px-4">
       <div className="container mx-auto max-w-6xl" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: isRTL ? 30 : -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -54,25 +29,22 @@ export default function LearningEngineSection() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20">
               <GraduationCap className="h-4 w-4 text-indigo-500" />
               <span className="text-sm font-medium text-indigo-500">
-                {isRTL ? 'מנוע לימוד' : 'Learning Engine'}
+                {t('home.learningEngine.badge')}
               </span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
-              {isRTL ? 'למידה ' : 'Learning '}
+              {t('home.learningEngine.title')}
               <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-                {isRTL ? 'שנבנית בשבילך' : 'Built for You'}
+                {t('home.learningEngine.titleHighlight')}
               </span>
             </h2>
 
             <p className="text-lg text-muted-foreground">
-              {isRTL
-                ? 'מערכת לימוד שמייצרת קורסים מותאמים אישית על סמך הנתונים שלך — כל שיעור קשור ישירות לתחום חיים ומזין את התוכנית שלך.'
-                : 'A learning system that generates personalized courses from your data — every lesson ties to a life domain and feeds your plan.'}
+              {t('home.learningEngine.subtitle')}
             </p>
           </motion.div>
 
-          {/* Feature cards */}
           <motion.div
             initial={{ opacity: 0, x: isRTL ? -30 : 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -93,8 +65,8 @@ export default function LearningEngineSection() {
                   <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center">
                     <Icon className="h-5 w-5 text-indigo-500" />
                   </div>
-                  <h3 className="font-bold text-foreground text-sm">{isRTL ? f.he : f.en}</h3>
-                  <p className="text-xs text-muted-foreground">{isRTL ? f.descHe : f.descEn}</p>
+                  <h3 className="font-bold text-foreground text-sm">{f.title}</h3>
+                  <p className="text-xs text-muted-foreground">{f.desc}</p>
                 </motion.div>
               );
             })}
