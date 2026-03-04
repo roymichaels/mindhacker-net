@@ -69,6 +69,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Business = lazy(() => import("./pages/Business"));
+const FMHome = lazy(() => import("./pages/FMHome"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
@@ -355,6 +356,8 @@ const App = () => (
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
                           {/* Learn */}
                           <Route path="/learn" element={<LearnLayoutWrapper />} />
+                          {/* FM — Free Market */}
+                          <Route path="/fm" element={<FMHome />} />
                           
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />
