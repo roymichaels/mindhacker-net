@@ -25,7 +25,8 @@ export const OS_TABS: OsTab[] = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'core',      path: '/life',      icon: Flame,          labelEn: 'Core',      labelHe: 'ליבה' },
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Arena',     labelHe: 'זירה' },
-  { id: 'community', path: '/community', icon: Crosshair, labelEn: 'Community', labelHe: 'קומיוניטי' },
+  { id: 'community', path: '/community', icon: Crosshair,      labelEn: 'Community', labelHe: 'קומיוניטי' },
+  { id: 'fm',        path: '/fm',        icon: Coins,          labelEn: 'FM',        labelHe: 'FM' },
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
 ];
 
