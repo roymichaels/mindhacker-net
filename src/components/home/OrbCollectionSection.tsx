@@ -11,126 +11,103 @@ import { Orb } from '@/components/orb/Orb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { cn } from '@/lib/utils';
 
-/** Metadata per archetype: what DNA dimension it maps to */
-const ARCH_META: Record<string, {
+interface ArchMeta {
+  nameEn: string; nameHe: string;
+  descEn: string; descHe: string;
   dnaEn: string; dnaHe: string;
   traitsEn: string[]; traitsHe: string[];
-}> = {
+}
+
+const ARCH_DATA: Record<string, ArchMeta> = {
   'abyss-glass': {
+    nameEn: 'Abyss Glass', nameHe: 'זכוכית התהום',
+    descEn: 'Born from deep introspection. Transparent layers reveal inner clarity.',
+    descHe: 'נולד מהתבוננות עמוקה. שכבות שקופות חושפות בהירות פנימית.',
     dnaEn: 'Mindfulness · Self-awareness',
     dnaHe: 'מיינדפולנס · מודעות עצמית',
     traitsEn: ['Glass', 'Cellular', 'Deep Ocean'],
     traitsHe: ['זכוכית', 'תאי', 'אוקיינוס עמוק'],
   },
   'solar-metal': {
+    nameEn: 'Solar Metal', nameHe: 'מתכת השמש',
+    descEn: 'Forged by ambition and drive. A golden surface that commands attention.',
+    descHe: 'מחושל על ידי שאיפה ודחף. משטח זהוב שמושך את העין.',
     dnaEn: 'Goal completion · Streak consistency',
     dnaHe: 'השלמת מטרות · עקביות רצף',
     traitsEn: ['Metal', 'Shards', 'Golden Fire'],
     traitsHe: ['מתכת', 'רסיסים', 'אש זהובה'],
   },
   'violet-iridescence': {
+    nameEn: 'Violet Iridescence', nameHe: 'זוהר סגול',
+    descEn: 'Reflects creative vision. Shifting colors reveal infinite possibilities.',
+    descHe: 'משקף חזון יצירתי. צבעים משתנים חושפים אפשרויות אינסופיות.',
     dnaEn: 'Creativity · Vision clarity',
     dnaHe: 'יצירתיות · בהירות חזון',
     traitsEn: ['Iridescent', 'Voronoi', 'Cosmic'],
     traitsHe: ['אופלסנט', 'וורונוי', 'קוסמי'],
   },
-  'emerald-plasma': {
+  'jade-nexus': {
+    nameEn: 'Jade Nexus', nameHe: 'נקודת הירקן',
+    descEn: 'A crystalline core of growth and balance. Calm energy radiating outward.',
+    descHe: 'ליבה קריסטלית של צמיחה ואיזון. אנרגיה רגועה שמקרינה החוצה.',
     dnaEn: 'Health habits · Energy patterns',
     dnaHe: 'הרגלי בריאות · דפוסי אנרגיה',
-    traitsEn: ['Plasma', 'Swirl', 'Living Energy'],
-    traitsHe: ['פלזמה', 'מערבולת', 'אנרגיה חיה'],
+    traitsEn: ['Glass', 'Swirl', 'Growth Core'],
+    traitsHe: ['זכוכית', 'מערבולת', 'ליבת צמיחה'],
   },
   'arctic-stone': {
+    nameEn: 'Arctic Stone', nameHe: 'אבן ארקטית',
+    descEn: 'Quiet resilience carved from patience. Still surface, deep foundation.',
+    descHe: 'חוסן שקט שנחצב מסבלנות. משטח שקט, יסוד עמוק.',
     dnaEn: 'Emotional stability · Patience',
     dnaHe: 'יציבות רגשית · סבלנות',
     traitsEn: ['Stone', 'Strata', 'Calm Strength'],
     traitsHe: ['אבן', 'שכבות', 'כוח שקט'],
   },
-  'neon-reactor': {
+  'midnight-prism': {
+    nameEn: 'Midnight Prism', nameHe: 'פריזמת חצות',
+    descEn: 'Refracts hidden dimensions of self. Deep colors that shift with perspective.',
+    descHe: 'שובר ממדים נסתרים של העצמי. צבעים עמוקים שמשתנים עם הפרספקטיבה.',
     dnaEn: 'Transformation rate · Challenge completion',
     dnaHe: 'קצב טרנספורמציה · השלמת אתגרים',
-    traitsEn: ['Plasma', 'Fractal', 'Electric'],
-    traitsHe: ['פלזמה', 'פרקטלי', 'חשמלי'],
+    traitsEn: ['Iridescent', 'Fractal', 'Deep Shift'],
+    traitsHe: ['אופלסנט', 'פרקטלי', 'שינוי עמוק'],
   },
   'rose-quartz': {
+    nameEn: 'Rose Quartz', nameHe: 'קוורץ ורוד',
+    descEn: 'Gentle power of empathy and connection. Soft yet unbreakable.',
+    descHe: 'כוח עדין של אמפתיה וחיבור. רך אך בלתי שביר.',
     dnaEn: 'Relationship quality · Empathy',
     dnaHe: 'איכות מערכות יחסים · אמפתיה',
     traitsEn: ['Glass', 'Voronoi', 'Soft Power'],
     traitsHe: ['זכוכית', 'וורונוי', 'כוח רך'],
   },
   'obsidian-wire': {
+    nameEn: 'Obsidian Wire', nameHe: 'שלד אובסידיאן',
+    descEn: 'The skeleton of raw potential. Structure before surface, depth before shine.',
+    descHe: 'השלד של פוטנציאל גולמי. מבנה לפני משטח, עומק לפני ברק.',
     dnaEn: 'Analytical thinking · Strategy',
     dnaHe: 'חשיבה אנליטית · אסטרטגיה',
     traitsEn: ['Wireframe', 'Shards', 'Dark Core'],
     traitsHe: ['שלד', 'רסיסים', 'ליבה אפלה'],
   },
   'aurora-skin': {
+    nameEn: 'Aurora Skin', nameHe: 'עור אורורה',
+    descEn: 'Ever-shifting like the northern lights. Embraces change as identity.',
+    descHe: 'משתנה תמיד כמו הזוהר הצפוני. מחבק שינוי כזהות.',
     dnaEn: 'Adaptability · Growth mindset',
     dnaHe: 'גמישות · חשיבה צמיחתית',
     traitsEn: ['Iridescent', 'Cellular', 'Aurora'],
     traitsHe: ['אופלסנט', 'תאי', 'אורורה'],
   },
   'sunset-marble': {
+    nameEn: 'Sunset Marble', nameHe: 'שיש שקיעה',
+    descEn: 'Warmth of experience etched in stone. Wisdom earned through living.',
+    descHe: 'חום הניסיון חרוט באבן. חוכמה שנרכשה מהחיים.',
     dnaEn: 'Life experience · Wisdom',
     dnaHe: 'ניסיון חיים · חוכמה',
     traitsEn: ['Metal', 'Strata', 'Warm Dusk'],
     traitsHe: ['מתכת', 'שכבות', 'שקיעה חמה'],
-  },
-};
-
-const NAMES: Record<string, { en: string; he: string }> = {
-  'abyss-glass': { en: 'Abyss Glass', he: 'זכוכית התהום' },
-  'solar-metal': { en: 'Solar Metal', he: 'מתכת השמש' },
-  'violet-iridescence': { en: 'Violet Iridescence', he: 'זוהר סגול' },
-  'emerald-plasma': { en: 'Emerald Plasma', he: 'פלזמה אמרלד' },
-  'arctic-stone': { en: 'Arctic Stone', he: 'אבן ארקטית' },
-  'neon-reactor': { en: 'Neon Reactor', he: 'כור ניאון' },
-  'rose-quartz': { en: 'Rose Quartz', he: 'קוורץ ורוד' },
-  'obsidian-wire': { en: 'Obsidian Wire', he: 'שלד אובסידיאן' },
-  'aurora-skin': { en: 'Aurora Skin', he: 'עור אורורה' },
-  'sunset-marble': { en: 'Sunset Marble', he: 'שיש שקיעה' },
-};
-
-const DESCS: Record<string, { en: string; he: string }> = {
-  'abyss-glass': {
-    en: 'Born from deep introspection. Transparent layers reveal inner clarity.',
-    he: 'נולד מהתבוננות עמוקה. שכבות שקופות חושפות בהירות פנימית.',
-  },
-  'solar-metal': {
-    en: 'Forged by ambition and drive. A golden surface that commands attention.',
-    he: 'מחושל על ידי שאיפה ודחף. משטח זהוב שמושך את העין.',
-  },
-  'violet-iridescence': {
-    en: 'Reflects creative vision. Shifting colors reveal infinite possibilities.',
-    he: 'משקף חזון יצירתי. צבעים משתנים חושפים אפשרויות אינסופיות.',
-  },
-  'emerald-plasma': {
-    en: 'Pure life force in motion. Radiates growth, healing, and renewal.',
-    he: 'כוח חיים טהור בתנועה. מקרין צמיחה, ריפוי והתחדשות.',
-  },
-  'arctic-stone': {
-    en: 'Quiet resilience carved from patience. Still surface, deep foundation.',
-    he: 'חוסן שקט שנחצב מסבלנות. משטח שקט, יסוד עמוק.',
-  },
-  'neon-reactor': {
-    en: 'Explosive energy and radical transformation. Nothing stays the same.',
-    he: 'אנרגיה נפיצה ושינוי רדיקלי. שום דבר לא נשאר אותו דבר.',
-  },
-  'rose-quartz': {
-    en: 'Gentle power of empathy and connection. Soft yet unbreakable.',
-    he: 'כוח עדין של אמפתיה וחיבור. רך אך בלתי שביר.',
-  },
-  'obsidian-wire': {
-    en: 'The skeleton of raw potential. Structure before surface, depth before shine.',
-    he: 'השלד של פוטנציאל גולמי. מבנה לפני משטח, עומק לפני ברק.',
-  },
-  'aurora-skin': {
-    en: 'Ever-shifting like the northern lights. Embraces change as identity.',
-    he: 'משתנה תמיד כמו הזוהר הצפוני. מחבק שינוי כזהות.',
-  },
-  'sunset-marble': {
-    en: 'Warmth of experience etched in stone. Wisdom earned through living.',
-    he: 'חום הניסיון חרוט באבן. חוכמה שנרכשה מהחיים.',
   },
 };
 
@@ -193,13 +170,11 @@ export default function OrbCollectionSection() {
           ))}
         </motion.div>
 
-        {/* NFT Grid — real WebGL orbs */}
+        {/* NFT Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
           {ORB_PRESETS.map((preset, index) => {
-            const meta = ARCH_META[preset.id];
-            const name = NAMES[preset.id];
-            const desc = DESCS[preset.id];
-            if (!meta || !name) return null;
+            const meta = ARCH_DATA[preset.id];
+            if (!meta) return null;
 
             const colors = preset.profile.gradientStops?.slice(0, 4) || [];
 
@@ -244,12 +219,12 @@ export default function OrbCollectionSection() {
 
                   {/* Name */}
                   <h3 className="text-sm font-bold text-foreground text-center truncate">
-                    {name[lang]}
+                    {lang === 'he' ? meta.nameHe : meta.nameEn}
                   </h3>
 
                   {/* Description */}
                   <p className="text-[10px] text-muted-foreground text-center leading-tight line-clamp-2 min-h-[24px]">
-                    {desc?.[lang]}
+                    {lang === 'he' ? meta.descHe : meta.descEn}
                   </p>
 
                   {/* DNA influence */}
