@@ -6,19 +6,8 @@ import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const LanguagePrompt = () => {
-  const { isFirstVisit, setLanguage, setFirstVisitComplete, language } = useLanguage();
-  const { theme } = useThemeSettings();
-  const { session } = useAuth();
-
-  const brandName = language === 'he' ? theme.brand_name : theme.brand_name_en;
-
-  const handleSelect = (lang: 'he' | 'en') => {
-    setLanguage(lang);
-    setFirstVisitComplete();
-  };
-
-  // Only show for authenticated users
-  if (!isFirstVisit || !session) return null;
+  // Language prompt is disabled — language selection is available in settings
+  return null;
 
   return (
     <Dialog open={isFirstVisit} onOpenChange={() => {}}>
