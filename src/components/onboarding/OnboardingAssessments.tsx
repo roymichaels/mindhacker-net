@@ -97,14 +97,22 @@ export function OnboardingAssessments({ selectedPillars, onComplete }: Onboardin
         </div>
       </div>
 
-      {/* Assessment Chat */}
+      {/* Assessment — bio-scan for presence, chat for everything else */}
       <div className="flex-1 min-h-0">
-        <DomainAssessChat
-          key={currentPillarId}
-          domainId={currentPillarId}
-          asModal
-          onClose={handlePillarComplete}
-        />
+        {currentPillarId === 'presence' ? (
+          <OnboardingPresenceScan
+            key={currentPillarId}
+            onComplete={handlePillarComplete}
+            onCancel={handlePillarComplete}
+          />
+        ) : (
+          <DomainAssessChat
+            key={currentPillarId}
+            domainId={currentPillarId}
+            asModal
+            onClose={handlePillarComplete}
+          />
+        )}
       </div>
     </div>
   );
