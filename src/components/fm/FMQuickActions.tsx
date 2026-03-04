@@ -1,22 +1,25 @@
 import { Target, Briefcase, BarChart3, Wallet } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useNavigate } from 'react-router-dom';
 
 const ACTIONS = [
-  { id: 'earn',       icon: Target,     labelEn: 'Earn',    labelHe: 'הרוויח',  descEn: 'Bounties & tasks', descHe: 'באונטיז ומשימות',     hash: '#earn' },
-  { id: 'work',       icon: Briefcase,  labelEn: 'Work',    labelHe: 'עבודה',   descEn: 'Freelance gigs',   descHe: 'עבודות פרילנס',       hash: '#work' },
-  { id: 'contribute', icon: BarChart3,   labelEn: 'Share',   labelHe: 'שתף',     descEn: 'Anonymous data',   descHe: 'נתונים אנונימיים',   hash: '#contribute' },
-  { id: 'wallet',     icon: Wallet,     labelEn: 'Wallet',  labelHe: 'ארנק',    descEn: 'Balance & withdraw', descHe: 'יתרה ומשיכה',       hash: '#wallet' },
+  { id: 'earn',       icon: Target,     labelEn: 'Earn',    labelHe: 'הרוויח',  descEn: 'Bounties & tasks', descHe: 'באונטיז ומשימות',     path: '/fm/earn' },
+  { id: 'work',       icon: Briefcase,  labelEn: 'Work',    labelHe: 'עבודה',   descEn: 'Freelance gigs',   descHe: 'עבודות פרילנס',       path: '/fm/work' },
+  { id: 'contribute', icon: BarChart3,   labelEn: 'Share',   labelHe: 'שתף',     descEn: 'Anonymous data',   descHe: 'נתונים אנונימיים',   path: '/fm/contribute' },
+  { id: 'wallet',     icon: Wallet,     labelEn: 'Wallet',  labelHe: 'ארנק',    descEn: 'Balance & withdraw', descHe: 'יתרה ומשיכה',       path: '/fm/wallet' },
 ];
 
 export function FMQuickActions() {
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const navigate = useNavigate();
 
   return (
     <div className="grid grid-cols-2 gap-3">
       {ACTIONS.map((a) => (
         <button
           key={a.id}
+          onClick={() => navigate(a.path)}
           className="bg-card border border-border rounded-xl p-4 text-start hover:border-accent/40 transition-colors group"
         >
           <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center mb-2 group-hover:bg-accent/15 transition-colors">
