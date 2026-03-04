@@ -184,6 +184,19 @@ export function OnboardingTierSelection({ onTierSelected, onBack }: OnboardingTi
             )}
           </motion.button>
         )}
+
+        {/* Back button */}
+        {onBack && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {isHe ? 'חזרה' : 'Back'}
+            </button>
+          </div>
+        )}
       </motion.div>
     </div>
   );

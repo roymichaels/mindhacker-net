@@ -58,9 +58,19 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
       {/* Progress Header */}
       <div className="px-4 pt-4 pb-2 space-y-3 shrink-0 border-b border-border/30">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">
-            {t('onboarding.assessments.pillarAssessment')}
-          </h2>
+          {onBack && currentIndex === 0 ? (
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {isHe ? 'חזרה' : 'Back'}
+            </button>
+          ) : (
+            <h2 className="text-sm font-bold text-foreground">
+              {t('onboarding.assessments.pillarAssessment')}
+            </h2>
+          )}
           <span className="text-xs text-muted-foreground font-medium">
             {currentIndex + 1}/{selectedPillars.length}
           </span>
