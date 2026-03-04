@@ -29,11 +29,27 @@ interface GuidedCaptureProps {
   onCancel: () => void;
 }
 
+const STORAGE_KEY_IMAGES = 'guided_capture_images';
+const STORAGE_KEY_PREVIEWS = 'guided_capture_previews';
+const STORAGE_KEY_STEP = 'guided_capture_step';
+
+function loadPersistedState() {
+  try {
+    const imgs = JSON.parse(sessionStorage.getItem(STORAGE_KEY_IMAGES) || '{}');
+    const prvs = JSON.parse(sessionStorage.getItem(STORAGE_KEY_PREVIEWS) || '{}');
+    const stp = parseInt(sessionStorage.getItem(STORAGE_KEY_STEP) || '0', 10);
+    return { imgs, prvs, stp: isNaN(stp) ? 0 : stp };
+  } catch {
+    return { imgs: {}, prvs: {}, stp: 0 };
+  }
+}
+
 export default function GuidedCapture({ onComplete, onCancel }: GuidedCaptureProps) {
   const { user } = useAuth();
-  const [step, setStep] = useState(0);
-  const [images, setImages] = useState<Record<string, string>>({});
-  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const persisted = useRef(loadPersistedState());
+  const [step, setStep] = useState(persisted.current.stp);
+  const [images, setImages] = useState<Record<string, string>>(persisted.current.imgs);
+  const [previews, setPreviews] = useState<Record<string, string>>(persisted.current.prvs);
   const [uploading, setUploading] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
