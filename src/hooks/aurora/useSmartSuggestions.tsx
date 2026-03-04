@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Action types for smart suggestions
 export type SuggestionAction = 
@@ -23,7 +24,7 @@ export interface SmartSuggestion {
 export function useSmartSuggestions() {
   const { user } = useAuth();
   const { tg, language } = useGenderedTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
 
   // Fetch user's current state
   const { data: userState } = useQuery({
@@ -43,7 +44,6 @@ export function useSmartSuggestions() {
         { data: launchpadComplete },
         { data: existingCurricula }
       ] = await Promise.all([
-        // Overdue tasks
         supabase
           .from('aurora_checklist_items')
           .select('id, content, aurora_checklists!inner(user_id)')
@@ -52,7 +52,6 @@ export function useSmartSuggestions() {
           .eq('aurora_checklists.user_id', user.id)
           .limit(5),
         
-        // Today's tasks
         supabase
           .from('aurora_checklist_items')
           .select('id, content, aurora_checklists!inner(user_id)')
@@ -61,7 +60,6 @@ export function useSmartSuggestions() {
           .eq('aurora_checklists.user_id', user.id)
           .limit(5),
         
-        // Current milestone
         supabase
           .from('life_plan_milestones')
           .select('id, title, week_number, life_plans!inner(user_id, status)')
@@ -72,21 +70,18 @@ export function useSmartSuggestions() {
           .limit(1)
           .maybeSingle(),
         
-        // Daily habits
         supabase
           .from('aurora_daily_minimums')
           .select('id, title')
           .eq('user_id', user.id)
           .eq('is_active', true),
         
-        // Today's habit logs
         supabase
           .from('daily_habit_logs')
           .select('habit_item_id, is_completed')
           .eq('user_id', user.id)
           .eq('track_date', today),
         
-        // Hypnosis session today
         supabase
           .from('hypnosis_sessions')
           .select('id')
@@ -94,14 +89,12 @@ export function useSmartSuggestions() {
           .gte('created_at', `${today}T00:00:00`)
           .limit(1),
         
-        // Launchpad completion
         supabase
           .from('launchpad_summaries')
           .select('id')
           .eq('user_id', user.id)
           .limit(1),
 
-        // Existing curricula (to suggest creation if none)
         supabase
           .from('learning_curricula')
           .select('id')
@@ -109,7 +102,6 @@ export function useSmartSuggestions() {
           .limit(1)
       ]);
 
-      // Calculate incomplete habits
       const completedHabitIds = new Set(
         (habitLogs || []).filter(l => l.is_completed).map(l => l.habit_item_id)
       );
@@ -126,46 +118,45 @@ export function useSmartSuggestions() {
       };
     },
     enabled: !!user?.id,
-    staleTime: 30000, // 30 seconds
+    staleTime: 30000,
   });
 
   const suggestions = useMemo<SmartSuggestion[]>(() => {
     if (!userState) {
-      // Default suggestions for new/loading users
       return [
         {
           id: 'start-hypnosis',
-          text: isHebrew ? '🧘 התחל את ההיפנוזה היומית שלך' : '🧘 Start your daily hypnosis',
+          text: t('smartSuggestions.startHypnosis'),
           action: { type: 'open_hypnosis' },
           priority: 1,
           icon: 'hypnosis',
         },
         {
           id: 'whats-today',
-          text: isHebrew ? '📋 מה יש לי היום?' : "📋 What's on my plate today?",
+          text: t('smartSuggestions.whatsToday'),
           action: { 
             type: 'send_message', 
-            prompt: isHebrew ? 'מה יש לי היום? תן לי סיכום של המשימות וההרגלים' : "What do I have today? Give me a summary of tasks and habits"
+            prompt: t('smartSuggestions.whatsTodayPrompt')
           },
           priority: 2,
           icon: 'task',
         },
         {
           id: 'progress-check',
-          text: isHebrew ? '📊 איך אני מתקדם בתוכנית?' : '📊 How am I progressing?',
+          text: t('smartSuggestions.progressCheck'),
           action: { 
             type: 'send_message', 
-            prompt: isHebrew ? 'איך אני מתקדם בתוכנית ה-90 ימים שלי? תן לי סקירה' : 'How am I progressing in my 90-day plan? Give me an overview'
+            prompt: t('smartSuggestions.progressCheckPrompt')
           },
           priority: 3,
           icon: 'plan',
         },
         {
           id: 'feeling-stuck',
-          text: isHebrew ? '🤔 אני מרגיש תקוע...' : "🤔 I'm feeling stuck...",
+          text: t('smartSuggestions.feelingStuck'),
           action: { 
             type: 'send_message', 
-            prompt: isHebrew ? 'אני מרגיש קצת תקוע היום, בוא נדבר על זה' : "I'm feeling a bit stuck today, let's talk about it"
+            prompt: t('smartSuggestions.feelingStuckPrompt')
           },
           priority: 4,
           icon: 'reflection',
@@ -175,135 +166,113 @@ export function useSmartSuggestions() {
 
     const result: SmartSuggestion[] = [];
 
-    // Priority 1: Overdue tasks (highest urgency) - Opens dashboard
     if (userState.overdueTasks.length > 0) {
       result.push({
         id: 'overdue-task',
-        text: isHebrew 
-          ? `⚠️ יש ${userState.overdueTasks.length} משימות באיחור - בוא נטפל!`
-          : `⚠️ ${userState.overdueTasks.length} overdue tasks - let's handle them!`,
+        text: t('smartSuggestions.overdueTasks').replace('{count}', String(userState.overdueTasks.length)),
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 1,
         icon: 'task',
       });
     }
 
-    // Priority 2: Daily hypnosis (if not done today) - Opens hypnosis modal
     if (!userState.didHypnosisToday) {
       result.push({
         id: 'daily-hypnosis',
-        text: isHebrew ? '🧘 התחל את ההיפנוזה היומית שלך' : '🧘 Start your daily hypnosis',
+        text: t('smartSuggestions.startHypnosis'),
         action: { type: 'open_hypnosis' },
         priority: 2,
         icon: 'hypnosis',
       });
     }
 
-    // Priority 3: Incomplete daily habits - Opens dashboard
     if (userState.incompleteHabits.length > 0) {
       const habitCount = userState.incompleteHabits.length;
       result.push({
         id: 'daily-habits',
-        text: isHebrew 
-          ? `✨ ${habitCount} הרגלים יומיים מחכים לך`
-          : `✨ ${habitCount} daily habits waiting for you`,
+        text: t('smartSuggestions.dailyHabitsWaiting').replace('{count}', String(habitCount)),
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 3,
         icon: 'habit',
       });
     }
 
-    // Priority 4: Today's tasks - Opens dashboard
     if (userState.todayTasks.length > 0) {
       const task = userState.todayTasks[0];
       result.push({
         id: 'today-task',
-        text: isHebrew 
-          ? `📋 המשימה הבאה שלך: ${task.content.substring(0, 30)}...`
-          : `📋 Your next task: ${task.content.substring(0, 30)}...`,
+        text: t('smartSuggestions.nextTask').replace('{task}', task.content.substring(0, 30)),
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 4,
         icon: 'task',
       });
     }
 
-    // Priority 5: Current milestone progress - Opens dashboard
     if (userState.currentMilestone) {
       result.push({
         id: 'milestone-progress',
-        text: isHebrew 
-          ? `🎯 שבוע ${userState.currentMilestone.week_number}: ${userState.currentMilestone.title?.substring(0, 25)}...`
-          : `🎯 Week ${userState.currentMilestone.week_number}: ${userState.currentMilestone.title?.substring(0, 25)}...`,
+        text: t('smartSuggestions.milestoneWeek')
+          .replace('{week}', String(userState.currentMilestone.week_number))
+          .replace('{title}', userState.currentMilestone.title?.substring(0, 25) || ''),
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 5,
         icon: 'milestone',
       });
     }
 
-    // Priority 2.5: Post-onboarding curriculum suggestion (expansion pillar)
     if (userState.hasNoCurricula) {
       result.push({
         id: 'create-curriculum',
-        text: isHebrew 
-          ? '📚 בנה קורס מותאם אישית להתרחבות שלך'
-          : '📚 Build a personalized Expansion course',
+        text: t('smartSuggestions.buildCurriculum'),
         action: { 
           type: 'send_message', 
-          prompt: isHebrew 
-            ? 'אני רוצה ליצור קורס מותאם אישית בתחום ההתרחבות. עזור לי לבנות תוכנית לימודים שמתאימה לי, מבוססת על מה שאתה כבר יודע עליי.' 
-            : 'I want to create a personalized course in the Expansion domain. Help me build a curriculum that fits me, based on what you already know about me.'
+          prompt: t('smartSuggestions.buildCurriculumPrompt')
         },
         priority: 2,
         icon: 'plan',
       });
     }
 
-    // Priority 6: Health-based suggestions (time-aware)
     const currentHour = new Date().getHours();
     if (currentHour >= 20 || currentHour < 6) {
-      // Evening/night: sleep hypnosis
       result.push({
         id: 'health-sleep',
-        text: isHebrew ? '🌙 היפנוזה לשינה עמוקה' : '🌙 Deep sleep hypnosis',
+        text: t('smartSuggestions.sleepHypnosis'),
         action: { type: 'open_hypnosis', goal: 'sleep' },
         priority: 6,
         icon: 'health',
       });
     } else if (currentHour >= 6 && currentHour < 10) {
-      // Morning: energy boost
       result.push({
         id: 'health-energy',
-        text: isHebrew ? '⚡ היפנוזה לאנרגיה בוקרית' : '⚡ Morning energy hypnosis',
+        text: t('smartSuggestions.morningEnergy'),
         action: { type: 'open_hypnosis', goal: 'energy' },
         priority: 6,
         icon: 'energy',
       });
     } else if (currentHour >= 14 && currentHour < 16) {
-      // Afternoon slump: quick recharge
       result.push({
         id: 'health-recharge',
-        text: isHebrew ? '🔋 טעינה מהירה של 5 דקות' : '🔋 Quick 5-minute recharge',
+        text: t('smartSuggestions.quickRecharge'),
         action: { type: 'navigate', path: '/health' },
         priority: 6,
         icon: 'energy',
       });
     }
 
-    // Priority 7: General reflection (always available) - Sends message
     result.push({
       id: 'reflection',
-      text: isHebrew ? '💭 אני רוצה לשתף משהו...' : '💭 I want to share something...',
+      text: t('smartSuggestions.wantToShare'),
       action: { 
         type: 'send_message', 
-        prompt: isHebrew ? 'אני רוצה לשתף אותך במשהו שעובר עליי' : 'I want to share something that I\'m going through'
+        prompt: t('smartSuggestions.wantToSharePrompt')
       },
       priority: 7,
       icon: 'reflection',
     });
 
-    // Sort by priority and take top 4
     return result.sort((a, b) => a.priority - b.priority).slice(0, 4);
-  }, [userState, isHebrew]);
+  }, [userState, t]);
 
   return {
     suggestions,

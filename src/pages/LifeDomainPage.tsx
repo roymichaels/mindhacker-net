@@ -20,7 +20,7 @@ export default function LifeDomainPage() {
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
   const { getDomain: getDomainRow, isLoading } = useLifeDomains();
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
   const [intakeOpen, setIntakeOpen] = useState(false);
 
@@ -33,9 +33,9 @@ export default function LifeDomainPage() {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <p className="text-muted-foreground">{isHebrew ? 'תחום לא נמצא' : 'Domain not found'}</p>
+          <p className="text-muted-foreground">{t('lifeDomain.notFound')}</p>
           <Button variant="outline" onClick={() => navigate('/life')}>
-            {isHebrew ? 'חזור' : 'Go Back'}
+            {t('lifeDomain.goBack')}
           </Button>
         </div>
       </PageShell>
@@ -49,7 +49,7 @@ export default function LifeDomainPage() {
   const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   const handlePlaceholder = (action: string) => {
-    toast.info(isHebrew ? `${action} — יגיע בקרוב` : `${action} — coming soon`);
+    toast.info(`${action} ${t('lifeDomain.comingSoon')}`);
   };
 
   // Intake flow mode
@@ -84,7 +84,7 @@ export default function LifeDomainPage() {
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <BackArrow className="w-4 h-4" />
-          {isHebrew ? 'חזרה למערכת חיים' : 'Back to Life System'}
+          {t('lifeDomain.backToLifeSystem')}
         </button>
 
         {/* Header */}
@@ -98,10 +98,10 @@ export default function LifeDomainPage() {
             </h1>
             <p className="text-muted-foreground text-sm">{isHebrew ? domain.descriptionHe : domain.description}</p>
           </div>
-          <Badge variant={status === 'active' ? 'default' : status === 'configured' ? 'secondary' : 'outline'} className="ml-auto">
-            {status === 'active' ? (isHebrew ? '✓ פעיל' : '✓ Active') :
-             status === 'configured' ? (isHebrew ? '✓ נותח' : '✓ Analyzed') :
-             (isHebrew ? 'לא הוגדר' : 'Not Set Up')}
+          <Badge variant={status === 'active' ? 'default' : status === 'configured' ? 'secondary' : 'outline'} className="ms-auto">
+            {status === 'active' ? t('lifeDomain.statusActive') :
+             status === 'configured' ? t('lifeDomain.statusAnalyzed') :
+             t('lifeDomain.statusNotSetUp')}
           </Badge>
         </div>
 
@@ -110,18 +110,16 @@ export default function LifeDomainPage() {
           <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-8 flex flex-col items-center gap-4 text-center">
             <Settings className="w-10 h-10 text-primary/60" />
             <h2 className="text-lg font-semibold text-foreground">
-              {isHebrew ? 'התחל הגדרה' : 'Start Configuration'}
+              {t('lifeDomain.startConfiguration')}
             </h2>
             <p className="text-sm text-muted-foreground max-w-md">
-              {isHebrew
-                ? '7 שאלות ממוקדות כדי לבנות תוכנית 90 יום מותאמת אישית לתחום הזה.'
-                : '7 focused questions to build a personalized 90-day plan for this domain.'}
+              {t('lifeDomain.configDescription')}
             </p>
             <Button onClick={() => {
               navigate(`/life/${domain.id}/assess`);
             }} size="lg" className="mt-2">
-              <Play className="w-4 h-4 mr-2" />
-              {isHebrew ? 'התחל הגדרה' : 'Start Configuration'}
+              <Play className="w-4 h-4 me-2" />
+              {t('lifeDomain.startConfiguration')}
             </Button>
           </div>
         )}
@@ -130,7 +128,7 @@ export default function LifeDomainPage() {
         {(status === 'configured' || status === 'active') && (
           <div className="rounded-2xl border bg-card p-6 space-y-4">
             <h3 className="font-semibold text-foreground">
-              {isHebrew ? 'הגדרות תחום' : 'Domain Configuration'}
+              {t('lifeDomain.domainConfiguration')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               {Object.entries(config).map(([key, value]) => (
@@ -142,7 +140,7 @@ export default function LifeDomainPage() {
                 </div>
               ))}
               {Object.keys(config).length === 0 && (
-                <p className="text-muted-foreground col-span-2">{isHebrew ? 'אין נתונים עדיין' : 'No configuration data yet'}</p>
+                <p className="text-muted-foreground col-span-2">{t('lifeDomain.noDataYet')}</p>
               )}
             </div>
           </div>
@@ -154,17 +152,17 @@ export default function LifeDomainPage() {
             <Button variant="outline" onClick={() => {
               navigate(`/life/${domain.id}/assess`);
             }}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              {isHebrew ? 'הגדר מחדש' : 'Reconfigure'}
+              <RefreshCw className="w-4 h-4 me-2" />
+              {t('lifeDomain.reconfigure')}
             </Button>
           )}
-          <Button variant="outline" onClick={() => handlePlaceholder('View Roadmap')}>
-            <Map className="w-4 h-4 mr-2" />
-            {isHebrew ? 'מפת דרכים' : 'View Roadmap'}
+          <Button variant="outline" onClick={() => handlePlaceholder(t('lifeDomain.viewRoadmap'))}>
+            <Map className="w-4 h-4 me-2" />
+            {t('lifeDomain.viewRoadmap')}
           </Button>
-          <Button variant="outline" onClick={() => handlePlaceholder("Today's Execution")}>
-            <Play className="w-4 h-4 mr-2" />
-            {isHebrew ? 'ביצוע יומי' : "Today's Execution"}
+          <Button variant="outline" onClick={() => handlePlaceholder(t('lifeDomain.todaysExecution'))}>
+            <Play className="w-4 h-4 me-2" />
+            {t('lifeDomain.todaysExecution')}
           </Button>
         </div>
       </div>

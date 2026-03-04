@@ -5,23 +5,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MetricCard } from '@/components/aurora-ui/MetricCard';
 
 const CoachDashboardTab = () => {
-  const { t, language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
   const { stats, isLoading } = useCoachClientStats();
 
   const statCards = [
     {
-      label: isHebrew ? 'מתאמנים פעילים' : 'Active Clients',
+      label: t('coachDashboard.activeClients'),
       value: stats.active,
       icon: <Users className="h-4 w-4" />,
     },
     {
-      label: isHebrew ? 'סה"כ מתאמנים' : 'Total Clients',
+      label: t('coachDashboard.totalClients'),
       value: stats.total,
       icon: <Calendar className="h-4 w-4" />,
     },
     {
-      label: isHebrew ? 'הושלמו' : 'Completed',
+      label: t('coachDashboard.completed'),
       value: stats.completed,
       icon: <TrendingUp className="h-4 w-4" />,
     },
@@ -50,19 +49,19 @@ const CoachDashboardTab = () => {
       <div className="grid gap-4 md:grid-cols-2">
         <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
           <h3 className="text-lg font-semibold mb-2">
-            {isHebrew ? 'פגישות קרובות' : 'Upcoming Sessions'}
+            {t('coachDashboard.upcomingSessions')}
           </h3>
           <p className="text-muted-foreground text-sm">
-            {isHebrew ? 'אין פגישות מתוכננות' : 'No scheduled sessions'}
+            {t('coachDashboard.noScheduledSessions')}
           </p>
         </div>
 
         <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
           <h3 className="text-lg font-semibold mb-2">
-            {isHebrew ? 'פעילות אחרונה' : 'Recent Activity'}
+            {t('coachDashboard.recentActivity')}
           </h3>
           <p className="text-muted-foreground text-sm">
-            {isHebrew ? 'אין פעילות אחרונה' : 'No recent activity'}
+            {t('coachDashboard.noRecentActivity')}
           </p>
         </div>
       </div>

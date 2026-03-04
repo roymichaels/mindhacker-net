@@ -14,27 +14,21 @@ interface Props {
   onAutoSave?: (data: Record<string, unknown>) => void;
 }
 
-const AGE_OPTIONS = {
-  he: [
-    { id: '18-25', label: '18-25' }, { id: '25-35', label: '25-35' },
-    { id: '35-45', label: '35-45' }, { id: '45-55', label: '45-55' },
-    { id: '55+', label: '55+' }, { id: 'all', label: 'כל הגילאים' },
-  ],
-  en: [
-    { id: '18-25', label: '18-25' }, { id: '25-35', label: '25-35' },
-    { id: '35-45', label: '35-45' }, { id: '45-55', label: '45-55' },
-    { id: '55+', label: '55+' }, { id: 'all', label: 'All Ages' },
-  ],
-};
+const AGE_OPTIONS = [
+  { id: '18-25', label: '18-25' }, { id: '25-35', label: '25-35' },
+  { id: '35-45', label: '35-45' }, { id: '45-55', label: '45-55' },
+  { id: '55+', label: '55+' },
+];
 
 export function CoachIdealClientStep({ onComplete, isCompleting, savedData, onAutoSave }: Props) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const [ageGroups, setAgeGroups] = useState<string[]>((savedData?.ageGroups as string[]) || []);
   const [painPoints, setPainPoints] = useState<string>((savedData?.painPoints as string) || '');
   const [desiredOutcome, setDesiredOutcome] = useState<string>((savedData?.desiredOutcome as string) || '');
   const [clientDescription, setClientDescription] = useState<string>((savedData?.clientDescription as string) || '');
 
-  const ages = language === 'he' ? AGE_OPTIONS.he : AGE_OPTIONS.en;
+  const allAgesOption = { id: 'all', label: t('coachIdealClient.allAges') };
+  const ages = [...AGE_OPTIONS, allAgesOption];
   const isValid = ageGroups.length > 0 && painPoints.trim().length > 5;
 
   useEffect(() => {
@@ -54,13 +48,13 @@ export function CoachIdealClientStep({ onComplete, isCompleting, savedData, onAu
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 mb-4">
           <User className="w-8 h-8 text-white" />
         </div>
-        <h2 className="text-2xl font-bold">{language === 'he' ? 'הלקוח האידיאלי שלך' : 'Your Ideal Client'}</h2>
-        <p className="text-muted-foreground">{language === 'he' ? 'מי האדם שאתה רוצה לעזור לו?' : 'Who is the person you want to help?'}</p>
+        <h2 className="text-2xl font-bold">{t('coachIdealClient.title')}</h2>
+        <p className="text-muted-foreground">{t('coachIdealClient.subtitle')}</p>
       </motion.div>
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <h3 className="font-semibold">{language === 'he' ? 'קבוצת גיל' : 'Age Group'}</h3>
+          <h3 className="font-semibold">{t('coachIdealClient.ageGroup')}</h3>
           <div className="grid grid-cols-3 gap-2">
             {ages.map((option) => (
               <button key={option.id} onClick={() => toggleAge(option.id)}
@@ -75,31 +69,31 @@ export function CoachIdealClientStep({ onComplete, isCompleting, savedData, onAu
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <h3 className="font-semibold">{language === 'he' ? 'נקודות הכאב שלהם' : 'Their Pain Points'}</h3>
+          <h3 className="font-semibold">{t('coachIdealClient.painPoints')}</h3>
           <Textarea value={painPoints} onChange={(e) => setPainPoints(e.target.value)}
-            placeholder={language === 'he' ? 'מה הבעיות שהמתאמנים שלך מתמודדים איתן?' : 'What problems do your coachees face?'} className="min-h-[80px]" />
+            placeholder={t('coachIdealClient.painPointsPlaceholder')} className="min-h-[80px]" />
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <h3 className="font-semibold">{language === 'he' ? 'התוצאה הרצויה' : 'Desired Outcome'}</h3>
+          <h3 className="font-semibold">{t('coachIdealClient.desiredOutcome')}</h3>
           <Textarea value={desiredOutcome} onChange={(e) => setDesiredOutcome(e.target.value)}
-            placeholder={language === 'he' ? 'מה הם רוצים להשיג?' : 'What do they want to achieve?'} className="min-h-[80px]" />
+            placeholder={t('coachIdealClient.desiredOutcomePlaceholder')} className="min-h-[80px]" />
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <h3 className="font-semibold">{language === 'he' ? 'תאר את הלקוח האידיאלי' : 'Describe your ideal client'}</h3>
+          <h3 className="font-semibold">{t('coachIdealClient.describeClient')}</h3>
           <Textarea value={clientDescription} onChange={(e) => setClientDescription(e.target.value)}
-            placeholder={language === 'he' ? 'תאר בכמה משפטים את הלקוח המושלם שלך...' : 'Describe your perfect client in a few sentences...'} className="min-h-[80px]" />
+            placeholder={t('coachIdealClient.describeClientPlaceholder')} className="min-h-[80px]" />
         </CardContent>
       </Card>
 
       <Button onClick={() => onComplete({ ageGroups, painPoints, desiredOutcome, clientDescription })} disabled={!isValid || isCompleting}
         className="w-full bg-gradient-to-r from-orange-500 to-amber-400 text-white hover:from-orange-600 hover:to-amber-500" size="lg">
-        {isCompleting ? (<><Loader2 className="w-4 h-4 animate-spin me-2" />{language === 'he' ? 'שומר...' : 'Saving...'}</>) : (language === 'he' ? 'המשך' : 'Continue')}
+        {isCompleting ? (<><Loader2 className="w-4 h-4 animate-spin me-2" />{t('common.saving')}</>) : t('common.next')}
       </Button>
     </div>
   );

@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 export function PlanProgressCard() {
-  const { isRTL, language } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -74,17 +74,15 @@ export function PlanProgressCard() {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Target className="h-4 w-4 text-amber-500" />
-            {language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
+            {t('planProgress.ninetyDayPlan')}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-6">
           <p className="text-sm text-muted-foreground mb-3">
-            {language === 'he' 
-              ? 'עדיין אין לך תוכנית פעילה' 
-              : "You don't have an active plan yet"}
+            {t('planProgress.noActivePlan')}
           </p>
           <Button size="sm" onClick={() => navigate('/onboarding')}>
-            {language === 'he' ? 'צור תוכנית' : 'Create Plan'}
+            {t('planProgress.createPlan')}
           </Button>
         </CardContent>
       </Card>
@@ -99,13 +97,11 @@ export function PlanProgressCard() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Target className="h-4 w-4 text-amber-500" />
-            {language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
+            {t('planProgress.ninetyDayPlan')}
           </CardTitle>
           <Badge variant="secondary" className="gap-1">
             <Calendar className="h-3 w-3" />
-            {language === 'he' 
-              ? `שבוע ${planData.currentWeek}` 
-              : `Week ${planData.currentWeek}`}
+            {t('planProgress.week')} {planData.currentWeek}
           </Badge>
         </div>
       </CardHeader>
@@ -114,7 +110,7 @@ export function PlanProgressCard() {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {planData.completedCount}/{planData.totalCount} {language === 'he' ? 'אבני דרך' : 'milestones'}
+              {planData.completedCount}/{planData.totalCount} {t('planProgress.milestones')}
             </span>
             <span className="font-medium text-amber-600">{progressPercent}%</span>
           </div>
@@ -125,7 +121,7 @@ export function PlanProgressCard() {
         {planData.currentMilestone && (
           <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
             <p className="text-xs text-muted-foreground mb-0.5">
-              {language === 'he' ? 'אבן הדרך הנוכחית' : 'Current Milestone'}
+              {t('planProgress.currentMilestone')}
             </p>
             <p className="text-sm font-medium line-clamp-2">
               {planData.currentMilestone.title}
@@ -140,7 +136,7 @@ export function PlanProgressCard() {
           className="w-full gap-1"
           onClick={() => navigate('/life-plan')}
         >
-          {language === 'he' ? 'צפה בתוכנית המלאה' : 'View Full Plan'}
+          {t('planProgress.viewFullPlan')}
           <ChevronRight className={cn("h-4 w-4", isRTL && "rotate-180")} />
         </Button>
       </CardContent>

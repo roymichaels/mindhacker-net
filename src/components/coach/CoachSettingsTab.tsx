@@ -15,8 +15,7 @@ import {
 } from 'lucide-react';
 
 const CoachSettingsTab = () => {
-  const { t, isRTL, language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t, isRTL } = useTranslation();
   const { user } = useAuth();
 
   const { practitioner, settings, isLoading } = useCoachSettings(user?.id);
@@ -72,7 +71,7 @@ const CoachSettingsTab = () => {
   const previewUrl = practitioner?.slug ? `${window.location.origin}/p/${practitioner.slug}` : '';
   const copyUrl = () => {
     navigator.clipboard.writeText(previewUrl);
-    toast.success(isHebrew ? 'הקישור הועתק' : 'URL copied');
+    toast.success(t('coachSettings.urlCopied'));
   };
 
   if (isLoading) {
@@ -87,21 +86,21 @@ const CoachSettingsTab = () => {
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold">{isHebrew ? 'הגדרות חנות' : 'Storefront Settings'}</h2>
-          <p className="text-sm text-muted-foreground">{isHebrew ? 'התאימו את החנות שלכם' : 'Customize your storefront'}</p>
+          <h2 className="text-xl font-bold">{t('coachSettings.storefrontSettings')}</h2>
+          <p className="text-sm text-muted-foreground">{t('coachSettings.customizeStorefront')}</p>
         </div>
         <div className="flex gap-2">
           {previewUrl && (
             <Button variant="outline" size="sm" asChild>
               <a href={previewUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="me-2 h-4 w-4" />
-                {isHebrew ? 'תצוגה מקדימה' : 'Preview'}
+                {t('coachSettings.preview')}
               </a>
             </Button>
           )}
           <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending}>
             {saveMutation.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <CheckCircle className="me-2 h-4 w-4" />}
-            {isHebrew ? 'שמור' : 'Save'}
+            {t('common.save')}
           </Button>
         </div>
       </div>
@@ -113,7 +112,7 @@ const CoachSettingsTab = () => {
             <div className="flex items-center gap-3">
               <Globe className="h-6 w-6 text-primary shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">{isHebrew ? 'כתובת החנות' : 'Storefront URL'}</p>
+                <p className="text-xs text-muted-foreground">{t('coachSettings.storefrontUrl')}</p>
                 <p className="font-mono text-xs truncate">{previewUrl}</p>
               </div>
               <Button variant="ghost" size="icon" onClick={copyUrl} className="shrink-0">
@@ -129,19 +128,19 @@ const CoachSettingsTab = () => {
           <TabsList className="inline-flex w-auto min-w-full sm:grid sm:w-full sm:grid-cols-4">
             <TabsTrigger value="branding" className="gap-1 text-xs sm:text-sm whitespace-nowrap">
               <Palette className="h-3.5 w-3.5" />
-              {isHebrew ? 'מיתוג' : 'Branding'}
+              {t('coachSettings.branding')}
             </TabsTrigger>
             <TabsTrigger value="landing" className="gap-1 text-xs sm:text-sm whitespace-nowrap">
               <Layout className="h-3.5 w-3.5" />
-              {isHebrew ? 'דף נחיתה' : 'Landing'}
+              {t('coachSettings.landing')}
             </TabsTrigger>
             <TabsTrigger value="domain" className="gap-1 text-xs sm:text-sm whitespace-nowrap">
               <Globe className="h-3.5 w-3.5" />
-              {isHebrew ? 'דומיין' : 'Domain'}
+              {t('coachSettings.domain')}
             </TabsTrigger>
             <TabsTrigger value="features" className="gap-1 text-xs sm:text-sm whitespace-nowrap">
               <Settings className="h-3.5 w-3.5" />
-              {isHebrew ? 'תכונות' : 'Features'}
+              {t('coachSettings.features')}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -149,16 +148,16 @@ const CoachSettingsTab = () => {
         <TabsContent value="branding">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{isHebrew ? 'הגדרות מיתוג' : 'Branding'}</CardTitle>
+              <CardTitle className="text-lg">{t('coachSettings.brandingSettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>{isHebrew ? 'לוגו' : 'Logo URL'}</Label>
+                  <Label>{t('coachSettings.logo')}</Label>
                   <Input value={formData.logo_url} onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))} placeholder="https://..." />
                 </div>
                 <div className="space-y-2">
-                  <Label>{isHebrew ? 'צבע ראשי' : 'Primary Color'}</Label>
+                  <Label>{t('coachSettings.primaryColor')}</Label>
                   <div className="flex gap-2">
                     <Input type="color" value={formData.brand_color} onChange={(e) => setFormData(prev => ({ ...prev, brand_color: e.target.value }))} className="w-14 h-10 p-1" />
                     <Input value={formData.brand_color} onChange={(e) => setFormData(prev => ({ ...prev, brand_color: e.target.value }))} className="flex-1" />
@@ -167,11 +166,11 @@ const CoachSettingsTab = () => {
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>{isHebrew ? 'אימייל' : 'Contact Email'}</Label>
+                  <Label>{t('coachSettings.contactEmail')}</Label>
                   <Input type="email" value={formData.contact_email} onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{isHebrew ? 'טלפון' : 'Phone'}</Label>
+                  <Label>{t('coachSettings.phone')}</Label>
                   <Input type="tel" value={formData.contact_phone} onChange={(e) => setFormData(prev => ({ ...prev, contact_phone: e.target.value }))} />
                 </div>
               </div>
@@ -182,20 +181,20 @@ const CoachSettingsTab = () => {
         <TabsContent value="landing">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{isHebrew ? 'דף נחיתה' : 'Landing Page'}</CardTitle>
+              <CardTitle className="text-lg">{t('coachSettings.landingPage')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>{isHebrew ? 'תמונת גיבור' : 'Hero Image'}</Label>
+                <Label>{t('coachSettings.heroImage')}</Label>
                 <Input value={formData.hero_image_url} onChange={(e) => setFormData(prev => ({ ...prev, hero_image_url: e.target.value }))} placeholder="https://..." />
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>{isHebrew ? 'כותרת (עברית)' : 'Heading (Hebrew)'}</Label>
+                  <Label>{t('coachSettings.headingHe')}</Label>
                   <Input value={formData.hero_heading_he} onChange={(e) => setFormData(prev => ({ ...prev, hero_heading_he: e.target.value }))} dir="rtl" />
                 </div>
                 <div className="space-y-2">
-                  <Label>{isHebrew ? 'כותרת (English)' : 'Heading (English)'}</Label>
+                  <Label>{t('coachSettings.headingEn')}</Label>
                   <Input value={formData.hero_heading_en} onChange={(e) => setFormData(prev => ({ ...prev, hero_heading_en: e.target.value }))} dir="ltr" />
                 </div>
               </div>
@@ -206,18 +205,18 @@ const CoachSettingsTab = () => {
         <TabsContent value="domain">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{isHebrew ? 'הגדרות דומיין' : 'Domain Settings'}</CardTitle>
+              <CardTitle className="text-lg">{t('coachSettings.domainSettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>{isHebrew ? 'תת-דומיין' : 'Subdomain'}</Label>
+                <Label>{t('coachSettings.subdomain')}</Label>
                 <div className="flex items-center gap-2">
                   <Input value={formData.subdomain} onChange={(e) => setFormData(prev => ({ ...prev, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))} className="max-w-xs" />
                   <span className="text-sm text-muted-foreground">.mindos.app</span>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>{isHebrew ? 'דומיין מותאם' : 'Custom Domain'}</Label>
+                <Label>{t('coachSettings.customDomain')}</Label>
                 <Input value={formData.custom_domain} onChange={(e) => setFormData(prev => ({ ...prev, custom_domain: e.target.value }))} placeholder="coaching.example.com" />
               </div>
             </CardContent>
@@ -227,14 +226,14 @@ const CoachSettingsTab = () => {
         <TabsContent value="features">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{isHebrew ? 'תכונות' : 'Features'}</CardTitle>
+              <CardTitle className="text-lg">{t('coachSettings.features')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {[
-                { key: 'enable_courses', label: isHebrew ? 'קורסים' : 'Courses' },
-                { key: 'enable_services', label: isHebrew ? 'שירותים' : 'Services' },
-                { key: 'enable_products', label: isHebrew ? 'מוצרים' : 'Products' },
-                { key: 'enable_community', label: isHebrew ? 'קהילה' : 'Community' },
+                { key: 'enable_courses', label: t('coachSettings.courses') },
+                { key: 'enable_services', label: t('coachSettings.services') },
+                { key: 'enable_products', label: t('coachSettings.products') },
+                { key: 'enable_community', label: t('coachSettings.community') },
               ].map((feature) => (
                 <div key={feature.key} className="flex items-center justify-between">
                   <Label>{feature.label}</Label>
