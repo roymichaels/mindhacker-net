@@ -180,6 +180,10 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
   const handleNext = () => {
     if (isLastStep) {
       stopCamera();
+      // Clear persisted state on successful completion
+      sessionStorage.removeItem(STORAGE_KEY_IMAGES);
+      sessionStorage.removeItem(STORAGE_KEY_PREVIEWS);
+      sessionStorage.removeItem(STORAGE_KEY_STEP);
       onComplete(images);
     } else {
       setStep((s) => s + 1);
