@@ -1,9 +1,10 @@
 /**
  * OnboardingPresenceScan — Wraps the existing GuidedCapture + analysis flow
- * for use inside the onboarding assessment sequence.
+ * then opens the presence assessment chat, for use inside onboarding.
  */
 import { useState, useRef, useEffect } from 'react';
 import GuidedCapture from '@/components/presence/GuidedCapture';
+import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import { usePresenceScans } from '@/hooks/usePresenceScans';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
 import { buildScanResult } from '@/lib/presence/scoring';
@@ -20,7 +21,7 @@ export default function OnboardingPresenceScan({ onComplete, onCancel }: Onboard
   const { analyze } = usePresenceScans();
   const { saveScanResult } = usePresenceCoach();
   const { t, isRTL } = useTranslation();
-  const [phase, setPhase] = useState<'capture' | 'analyzing'>('capture');
+  const [phase, setPhase] = useState<'capture' | 'analyzing' | 'chat'>('capture');
   const [messageIndex, setMessageIndex] = useState(0);
   const started = useRef(false);
 
@@ -50,14 +51,24 @@ export default function OnboardingPresenceScan({ onComplete, onCancel }: Onboard
       const scanData = await analyze(images);
       const result = buildScanResult(scanData.scores, scanData.derived_metrics, scanData.id);
       await saveScanResult(result);
-      toast.success(t('presence.scanComplete') || 'Presence scan complete!');
-      onComplete();
+      // Move to the chat assessment phase
+      setPhase('chat');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed. Please try again.');
       started.current = false;
       setPhase('capture');
     }
   };
+
+  if (phase === 'chat') {
+    return (
+      <DomainAssessChat
+        domainId="presence"
+        asModal
+        onClose={onComplete}
+      />
+    );
+  }
 
   if (phase === 'analyzing') {
     return (
