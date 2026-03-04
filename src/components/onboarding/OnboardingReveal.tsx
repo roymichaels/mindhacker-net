@@ -256,7 +256,7 @@ function getInterpretation(key: string, value: number, isHe: boolean, inverted =
   return isHe ? 'דורש טיפול מיידי' : 'Needs immediate attention';
 }
 
-export function OnboardingReveal({ answers }: OnboardingRevealProps) {
+export function OnboardingReveal({ answers, onContinue }: OnboardingRevealProps) {
   const navigate = useNavigate();
   const { language } = useTranslation();
   const { user } = useAuth();
