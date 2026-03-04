@@ -23,8 +23,7 @@ import ReactMarkdown from 'react-markdown';
 
 const CoachPlansTab = () => {
   const { data: myProfile } = useMyCoachProfile();
-  const { language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [generateOpen, setGenerateOpen] = useState(false);
   const [clientName, setClientName] = useState('');
@@ -61,7 +60,7 @@ const CoachPlansTab = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success(isHebrew ? 'תוכנית נוצרה בהצלחה!' : 'Plan generated successfully!');
+      toast.success(t('coachPlans.planGenerated'));
       queryClient.invalidateQueries({ queryKey: ['coach-client-plans'] });
       setGenerateOpen(false);
       setClientName('');
@@ -102,42 +101,42 @@ const CoachPlansTab = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">{isHebrew ? 'תוכניות אימון AI' : 'AI Coaching Plans'}</h2>
+          <h2 className="text-xl font-bold">{t('coachPlans.aiCoachingPlans')}</h2>
           <p className="text-sm text-muted-foreground">
-            {isHebrew ? 'צרו תוכניות מותאמות אישית עם בינה מלאכותית' : 'Generate personalized plans with AI'}
+            {t('coachPlans.generatePersonalized')}
           </p>
         </div>
         <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white">
               <Sparkles className="h-4 w-4 me-2" />
-              {isHebrew ? 'צור תוכנית' : 'Generate Plan'}
+              {t('coachPlans.generatePlan')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{isHebrew ? 'צור תוכנית אימון חדשה' : 'Generate New Coaching Plan'}</DialogTitle>
+              <DialogTitle>{t('coachPlans.generateNewPlan')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>{isHebrew ? 'שם הלקוח' : 'Client Name'}</Label>
+                <Label>{t('coachPlans.clientName')}</Label>
                 <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
               </div>
               <div>
-                <Label>{isHebrew ? 'רקע הלקוח' : 'Client Background'}</Label>
+                <Label>{t('coachPlans.clientBackground')}</Label>
                 <Textarea
                   value={clientBackground}
                   onChange={(e) => setClientBackground(e.target.value)}
-                  placeholder={isHebrew ? 'גיל, מצב משפחתי, תעסוקה, רקע רלוונטי...' : 'Age, family status, occupation, relevant background...'}
+                  placeholder={t('coachPlans.clientBackgroundPlaceholder')}
                   rows={2}
                 />
               </div>
               <div>
-                <Label>{isHebrew ? 'מטרות ואתגרים' : 'Goals & Challenges'}</Label>
+                <Label>{t('coachPlans.goalsAndChallenges')}</Label>
                 <Textarea
                   value={clientGoals}
                   onChange={(e) => setClientGoals(e.target.value)}
-                  placeholder={isHebrew ? 'תאר את המטרות והאתגרים של הלקוח...' : 'Describe client goals and challenges...'}
+                  placeholder={t('coachPlans.goalsPlaceholder')}
                   rows={4}
                 />
               </div>
@@ -147,8 +146,8 @@ const CoachPlansTab = () => {
                 className="w-full"
               >
                 {generateMutation.isPending
-                  ? (isHebrew ? 'מייצר...' : 'Generating...')
-                  : (isHebrew ? 'צור תוכנית עם AI' : 'Generate with AI')}
+                  ? t('coachPlans.generating')
+                  : t('coachPlans.generateWithAI')}
               </Button>
             </div>
           </DialogContent>
@@ -165,7 +164,7 @@ const CoachPlansTab = () => {
             <Card key={plan.id} className="bg-card/80 backdrop-blur-sm rounded-2xl border-border/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{plan.client_name || (isHebrew ? 'לקוח' : 'Client')}</CardTitle>
+                  <CardTitle className="text-lg">{plan.client_name || t('coachPlans.client')}</CardTitle>
                   <Badge variant={plan.status === 'active' ? 'default' : 'secondary'}>
                     {plan.status}
                   </Badge>
@@ -181,7 +180,7 @@ const CoachPlansTab = () => {
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => setViewPlan(plan)}>
                     <Eye className="h-4 w-4 me-1" />
-                    {isHebrew ? 'צפה' : 'View'}
+                    {t('coachPlans.view')}
                   </Button>
                 </div>
               </CardContent>
@@ -193,10 +192,10 @@ const CoachPlansTab = () => {
           <CardContent>
             <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">
-              {isHebrew ? 'אין תוכניות עדיין' : 'No plans yet'}
+              {t('coachPlans.noPlansYet')}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {isHebrew ? 'צרו את תוכנית האימון הראשונה שלכם' : 'Create your first coaching plan'}
+              {t('coachPlans.createFirstPlan')}
             </p>
           </CardContent>
         </Card>
@@ -207,7 +206,7 @@ const CoachPlansTab = () => {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {viewPlan?.client_name || (isHebrew ? 'תוכנית אימון' : 'Coaching Plan')}
+              {viewPlan?.client_name || t('coachPlans.coachingPlan')}
             </DialogTitle>
           </DialogHeader>
           {viewPlan?.plan_data && renderPlanContent(viewPlan.plan_data)}

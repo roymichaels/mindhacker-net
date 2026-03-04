@@ -31,43 +31,36 @@ interface TraitsCardProps {
   archetypeData?: ArchetypeData | null;
   roleModels?: string;
   className?: string;
-  // Legacy props - kept for backwards compatibility
   traitIds?: string[];
   traitMetadata?: Record<string, { priority?: number; isCore?: boolean }>;
 }
 
 export function TraitsCard({ archetypeData, roleModels, className, traitIds, traitMetadata }: TraitsCardProps) {
-  const { isRTL, language } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
   const isHebrew = language === 'he';
 
-  // If no archetype data and no legacy traits, show empty state
   if (!archetypeData && (!traitIds || traitIds.length === 0)) {
     return (
       <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
             <Sparkles className="h-5 w-5 text-violet-500" />
-            {isHebrew ? 'תכונות אופי' : 'Character Traits'}
+            {t('traitsCard.characterTraits')}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-6">
           <Sparkles className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground mb-2">
-            {isHebrew 
-              ? 'עדיין אין ניתוח תכונות' 
-              : 'No traits analysis yet'}
+            {t('traitsCard.noTraitsYet')}
           </p>
           <p className="text-xs text-muted-foreground/70">
-            {isHebrew 
-              ? 'השלם את ה-Launchpad כדי לגלות את הארכיטייפ שלך'
-              : 'Complete the Launchpad to discover your archetype'}
+            {t('traitsCard.completeLaunchpad')}
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  // Render AI-generated archetype
   if (archetypeData) {
     return (
       <Card className={cn("overflow-hidden", className)} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -76,7 +69,7 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
             <span className="text-3xl">{archetypeData.archetype.icon}</span>
             <div>
               <p className="text-xs text-muted-foreground font-normal mb-0.5">
-                {isHebrew ? 'הארכיטייפ שלך' : 'Your Archetype'}
+                {t('traitsCard.yourArchetype')}
               </p>
               <span className="text-lg bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                 {isHebrew ? archetypeData.archetype.name : archetypeData.archetype.nameEn}
@@ -85,17 +78,15 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
-          {/* Description */}
           <p className="text-sm text-muted-foreground leading-relaxed">
             {isHebrew ? archetypeData.archetype.description : archetypeData.archetype.descriptionEn}
           </p>
 
-          {/* Core Traits */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isHebrew ? 'תכונות ליבה' : 'Core Traits'}
+                {t('traitsCard.coreTraits')}
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -111,12 +102,11 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
             </div>
           </div>
 
-          {/* Unique Strength */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-violet-500" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isHebrew ? 'הכוח הייחודי' : 'Unique Strength'}
+                {t('traitsCard.uniqueStrength')}
               </span>
             </div>
             <p className="text-sm text-foreground font-medium bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-3 rounded-lg border border-amber-500/20">
@@ -124,13 +114,12 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
             </p>
           </div>
 
-          {/* Growth Edges */}
           {archetypeData.growthEdges && archetypeData.growthEdges.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-emerald-500" />
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  {isHebrew ? 'תחומי צמיחה' : 'Growth Areas'}
+                  {t('traitsCard.growthAreas')}
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -147,13 +136,12 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
             </div>
           )}
 
-          {/* Role Models */}
           {roleModels && roleModels.trim() && (
             <div className="pt-2 border-t space-y-2">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span className="text-xs font-medium text-muted-foreground">
-                  {isHebrew ? 'דמויות השראה' : 'Role Models'}
+                  {t('traitsCard.roleModels')}
                 </span>
               </div>
               <p className="text-sm text-foreground/80 italic line-clamp-3 whitespace-pre-line">
@@ -166,21 +154,17 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
     );
   }
 
-  // Legacy fallback - simple trait list
   return (
     <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
           <Sparkles className="h-5 w-5 text-violet-500" />
-          {isHebrew ? 'הזהות שאני בונה' : 'Identity I\'m Building'}
+          {t('traitsCard.identityBuilding')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          {isHebrew 
-            ? 'השלם את שלב בניית הזהות כדי לראות את הארכיטייפ שלך'
-            : 'Complete the identity building step to see your archetype'
-          }
+          {t('traitsCard.completeIdentity')}
         </p>
       </CardContent>
     </Card>

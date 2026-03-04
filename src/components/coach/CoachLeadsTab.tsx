@@ -17,7 +17,7 @@ import { he } from 'date-fns/locale';
 const STATUS_OPTIONS = ['new', 'contacted', 'qualified', 'converted', 'lost'] as const;
 
 const CoachLeadsTab = () => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const isHe = language === 'he';
   const { data: leads, isLoading } = useCoachLeads();
   const { stats } = useCoachLeadStats();
@@ -54,22 +54,22 @@ const CoachLeadsTab = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold">{isHe ? 'ניהול לידים' : 'Lead Management'}</h2>
-          <p className="text-sm text-muted-foreground">{isHe ? 'לידים מדפי נחיתה ומקורות נוספים' : 'Leads from landing pages and other sources'}</p>
+          <h2 className="text-xl font-bold">{t('coachLeads.leadManagement')}</h2>
+          <p className="text-sm text-muted-foreground">{t('coachLeads.leadsFromSources')}</p>
         </div>
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm"><UserPlus className="h-4 w-4 me-2" />{isHe ? 'הוסף ליד' : 'Add Lead'}</Button>
+            <Button size="sm"><UserPlus className="h-4 w-4 me-2" />{t('coachLeads.addLead')}</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>{isHe ? 'הוסף ליד חדש' : 'Add New Lead'}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t('coachLeads.addNewLead')}</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <div><Label>{isHe ? 'שם' : 'Name'}</Label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
-              <div><Label>{isHe ? 'אימייל' : 'Email'}</Label><Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} /></div>
-              <div><Label>{isHe ? 'טלפון' : 'Phone'}</Label><Input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} /></div>
-              <div><Label>{isHe ? 'הערות' : 'Notes'}</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} rows={2} /></div>
+              <div><Label>{t('coachLeads.name')}</Label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
+              <div><Label>{t('coachLeads.email')}</Label><Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} /></div>
+              <div><Label>{t('coachLeads.phoneLbl')}</Label><Input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} /></div>
+              <div><Label>{t('coachLeads.notes')}</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} rows={2} /></div>
               <Button onClick={handleAdd} disabled={!form.name || !form.email || addLead.isPending} className="w-full">
-                {addLead.isPending ? '...' : isHe ? 'שמור' : 'Save'}
+                {addLead.isPending ? '...' : t('common.save')}
               </Button>
             </div>
           </DialogContent>
@@ -79,11 +79,11 @@ const CoachLeadsTab = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          { label: isHe ? 'סה"כ' : 'Total', value: stats.total, color: 'border-border/50' },
-          { label: isHe ? 'חדשים' : 'New', value: stats.new, color: 'border-blue-500/30 bg-blue-500/5' },
-          { label: isHe ? 'פנייה' : 'Contacted', value: stats.contacted, color: 'border-amber-500/30 bg-amber-500/5' },
-          { label: isHe ? 'הומרו' : 'Converted', value: stats.converted, color: 'border-emerald-500/30 bg-emerald-500/5' },
-          { label: isHe ? 'אבדו' : 'Lost', value: stats.lost, color: 'border-red-500/30 bg-red-500/5' },
+          { label: t('coachLeads.total'), value: stats.total, color: 'border-border/50' },
+          { label: t('coachLeads.new'), value: stats.new, color: 'border-blue-500/30 bg-blue-500/5' },
+          { label: t('coachLeads.contacted'), value: stats.contacted, color: 'border-amber-500/30 bg-amber-500/5' },
+          { label: t('coachLeads.converted'), value: stats.converted, color: 'border-emerald-500/30 bg-emerald-500/5' },
+          { label: t('coachLeads.lost'), value: stats.lost, color: 'border-red-500/30 bg-red-500/5' },
         ].map(s => (
           <div key={s.label} className={`rounded-xl border ${s.color} p-3 text-center`}>
             <div className="text-xl font-bold">{s.value}</div>
@@ -98,7 +98,7 @@ const CoachLeadsTab = () => {
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{isHe ? 'הכל' : 'All'}</SelectItem>
+            <SelectItem value="all">{t('coachLeads.all')}</SelectItem>
             {STATUS_OPTIONS.map(s => (
               <SelectItem key={s} value={s}>{s}</SelectItem>
             ))}
@@ -113,7 +113,7 @@ const CoachLeadsTab = () => {
         ) : !filteredLeads?.length ? (
           <div className="text-center py-12">
             <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">{isHe ? 'אין לידים עדיין' : 'No leads yet'}</p>
+            <p className="text-muted-foreground">{t('coachLeads.noLeadsYet')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -142,11 +142,11 @@ const CoachLeadsTab = () => {
                     <DropdownMenuContent align="end">
                       {STATUS_OPTIONS.filter(s => s !== lead.status).map(s => (
                         <DropdownMenuItem key={s} onClick={() => updateLead.mutate({ id: lead.id, updates: { status: s } })}>
-                          <Edit className="h-4 w-4 me-2" />{isHe ? `שנה ל-${s}` : `Mark as ${s}`}
+                          <Edit className="h-4 w-4 me-2" />{t('coachLeads.changeTo')}{s}
                         </DropdownMenuItem>
                       ))}
                       <DropdownMenuItem className="text-destructive" onClick={() => deleteLead.mutate(lead.id)}>
-                        <Trash2 className="h-4 w-4 me-2" />{isHe ? 'מחק' : 'Delete'}
+                        <Trash2 className="h-4 w-4 me-2" />{t('coachLeads.deleteLead')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
