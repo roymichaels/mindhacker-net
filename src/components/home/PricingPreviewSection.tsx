@@ -19,8 +19,8 @@ const tiers = [
     color: 'text-blue-500',
     border: 'border-blue-500/30',
     bg: 'bg-blue-500/5',
-    featuresHe: ['מבנה בסיסי + XP', '5 הודעות Aurora ליום', 'עמוד אחד ליבה + אחד זירה', 'אבחון מלא'],
-    featuresEn: ['Basic structure + XP', '5 Aurora messages/day', '1 Core + 1 Arena pillar', 'Full assessment'],
+    featuresHe: ['מבנה בסיסי + XP', '5 הודעות Aurora ליום', '2 פילרים לבחירתך', 'אבחון מלא'],
+    featuresEn: ['Basic structure + XP', '5 Aurora messages/day', '2 pillars of your choice', 'Full assessment'],
   },
   {
     id: 'plus',
