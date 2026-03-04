@@ -88,8 +88,8 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
     onSend(message);
     setInput('');
 
-    // Increment daily message count for free users
-    if (!isPro && user?.id) {
+    // Increment daily message count for free users (skip during onboarding)
+    if (!bypassLimits && !isPro && user?.id) {
       supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {
         queryClient.invalidateQueries({ queryKey: ['daily-message-count', user.id] });
       });
