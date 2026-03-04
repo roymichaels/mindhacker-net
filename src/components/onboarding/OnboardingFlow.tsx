@@ -119,11 +119,18 @@ export function OnboardingFlow() {
   const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
   const [showReveal, setShowReveal] = useState(false);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
+  // New onboarding phases
+  const [showTierSelection, setShowTierSelection] = useState(false);
+  const [showPillarSelection, setShowPillarSelection] = useState(false);
+  const [showAssessments, setShowAssessments] = useState(false);
+  const [showPlanGeneration, setShowPlanGeneration] = useState(false);
+  const [chosenTier, setChosenTier] = useState<SubscriptionTier>('free');
+  const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
+  
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [textareaValue, setTextareaValue] = useState('');
   const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
   const [isRestoring, setIsRestoring] = useState(true);
-  const advanceTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   const steps = onboardingFlowSpec.steps;
 
