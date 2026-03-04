@@ -112,6 +112,7 @@ interface Props {
 export default function DomainAssessChat({ domainId, asModal, asDock, dockHeightVh, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
+  const { setLanguage } = useLanguage();
   const { saveAssessment } = useDomainAssessment(domainId);
   const { user } = useAuth();
 
