@@ -9,7 +9,7 @@ import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
-import PillarTopicBoards from '@/components/community/PillarTopicBoards';
+
 
 
 import AddToPlanModal from '@/components/community/AddToPlanModal';
