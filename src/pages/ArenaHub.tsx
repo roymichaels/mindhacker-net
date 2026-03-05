@@ -13,6 +13,7 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { getDomainById } from '@/navigation/lifeDomains';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
+import { usePhaseActions } from '@/hooks/usePhaseActions';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { useNavigate } from 'react-router-dom';
 
