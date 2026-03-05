@@ -48,6 +48,7 @@ export default function FMEarn() {
   const isHe = language === 'he';
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const initialTab = (searchParams.get('tab') as EarnTab) || 'bounties';
