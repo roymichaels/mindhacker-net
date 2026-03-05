@@ -760,6 +760,35 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
                 }).select('id').single();
               if (missionError) continue;
               totalMissions++;
+
+              // Create skill from mission (modular mode)
+              const _mCatMap: Record<string, string> = {
+                consciousness: 'spirit', presence: 'social', power: 'body', vitality: 'body',
+                focus: 'mind', combat: 'body', expansion: 'mind', wealth: 'wealth',
+                influence: 'social', relationships: 'social', business: 'wealth',
+                projects: 'wealth', play: 'spirit', order: 'mind',
+              };
+              const _mIconMap: Record<string, string> = {
+                consciousness: '🧠', presence: '👁️', power: '💪', vitality: '🌿',
+                focus: '🎯', combat: '🥊', expansion: '🚀', wealth: '💰',
+                influence: '🌐', relationships: '❤️', business: '📈',
+                projects: '🏗️', play: '🎮', order: '📋',
+              };
+              const modSkillName = mission.mission_en || mission.goal_en || `Skill ${mi + 1}`;
+              const { data: modSkillRow } = await supabase.from('skills').insert({
+                name: modSkillName,
+                name_he: mission.mission_he || mission.goal_he || modSkillName,
+                description: modSkillName,
+                category: _mCatMap[pillarId] || 'mind',
+                icon: _mIconMap[pillarId] || '⭐',
+                is_active: true, mission_id: missionRow.id, user_id: user_id,
+              }).select('id').single();
+              if (modSkillRow) {
+                await supabase.from('user_skill_progress').upsert({
+                  user_id, skill_id: modSkillRow.id, xp_total: 0, level: 1,
+                  updated_at: new Date().toISOString(),
+                }, { onConflict: 'user_id,skill_id' });
+              }
               
               const milestones = mission.milestones || mission.sub_goals || [];
               for (let si = 0; si < Math.min(milestones.length, 5); si++) {
