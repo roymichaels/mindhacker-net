@@ -52,7 +52,7 @@ export default function FMAppShell() {
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* FM Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 pb-16">
+      <div className="flex-1 overflow-y-auto px-4 pb-14">
         <Outlet />
       </div>
 
