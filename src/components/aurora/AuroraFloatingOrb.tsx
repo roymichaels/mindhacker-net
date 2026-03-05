@@ -92,7 +92,9 @@ export function AuroraFloatingOrb() {
   }, [ctx]);
 
   if (!ctx) return null;
-  if (ctx.isDockVisible) return null;
+  // On FM pages, show orb even when dock is "visible" (since dock bar is hidden on FM)
+  if (ctx.isDockVisible && !isFM) return null;
+  if (ctx.isChatExpanded) return null;
 
   const positionStyle = pos
     ? { left: pos.x, top: pos.y, right: 'auto' as const, bottom: 'auto' as const }
