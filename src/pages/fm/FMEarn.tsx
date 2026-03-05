@@ -581,7 +581,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
         </div>
       )}
 
-      {tab === 'activity' && (
+      {!showDashboard && tab === 'activity' && (
         <div className="space-y-3">
           {claims.length === 0 ? (
             <div className="text-center py-12">
