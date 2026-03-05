@@ -83,42 +83,27 @@ export default function ArenaHub() {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative overflow-hidden rounded-2xl border border-border/40 bg-card p-5 cursor-pointer group active:scale-[0.99] transition-transform"
+                  className="relative overflow-hidden rounded-2xl border border-border/40 bg-card px-4 py-2.5 cursor-pointer group active:scale-[0.99] transition-transform"
                   onClick={() => handleExecute(nextAction)}
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-1.5">
-                      <Crosshair className="h-4 w-4 text-destructive" />
-                      <span className="text-xs font-bold text-destructive uppercase tracking-wider">
-                        {isHe ? 'הפעולה הבאה' : 'Next Action'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" />
-                      {nextAction.durationMin} {isHe ? 'דקות' : 'min'}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
-                      {Icon && <Icon className="w-6 h-6 text-foreground/70" />}
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
+                      {Icon && <Icon className="w-4.5 h-4.5 text-foreground/70" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {isHe ? (domain?.labelHe || nextAction.pillarId) : (domain?.labelEn || nextAction.pillarId)}
+                        <span className="mx-1.5 text-border">·</span>
+                        {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
                       </p>
-                      <h2 className="text-base font-bold text-foreground leading-snug">
+                      <h2 className="text-sm font-bold text-foreground leading-snug truncate">
                         {isHe ? nextAction.title : nextAction.titleEn}
                       </h2>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0 group-hover:bg-destructive/20 transition-colors">
-                      <Play className="w-5 h-5 text-destructive" />
+                    <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0 group-hover:bg-destructive/20 transition-colors">
+                      <Play className="w-4 h-4 text-destructive" />
                     </div>
                   </div>
-
-                  {nextAction.reason && (
-                    <p className="text-xs text-muted-foreground mt-3 border-t border-border/30 pt-3">{nextAction.reason}</p>
-                  )}
                 </motion.div>
               );
             })() : (
