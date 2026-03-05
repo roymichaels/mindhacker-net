@@ -3,7 +3,6 @@
  * Manages tab + category filter state, sets sidebars via useSidebars hook.
  */
 import { Suspense, lazy, useState, useCallback, useMemo } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { EarnHudSidebar } from '@/components/fm/EarnHudSidebar';
 import { EarnActivitySidebar } from '@/components/fm/EarnActivitySidebar';
 import { useFMClaims } from '@/hooks/useFMWallet';
@@ -15,7 +14,6 @@ const FMEarn = lazy(() => import('@/pages/fm/FMEarn'));
 export default function EarnLayoutWrapper() {
   const [activeTab, setActiveTab] = useState('bounties');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const isMobile = useIsMobile();
   const { data: claims = [] } = useFMClaims();
 
   const handleTabChange = useCallback((tab: string) => {
@@ -27,22 +25,22 @@ export default function EarnLayoutWrapper() {
   const completedClaims = claims.filter((c: any) => c.status === 'approved').length;
   const totalEarned = claims.filter((c: any) => c.status === 'approved').reduce((sum: number, c: any) => sum + (c.fm_bounties?.reward_mos || 0), 0);
 
-  const left = useMemo(() => isMobile ? null : (
+  const left = useMemo(() => (
     <EarnHudSidebar
       activeTab={activeTab}
       onTabChange={handleTabChange}
       stats={{ totalEarned, activeClaims, completedBounties: completedClaims }}
     />
-  ), [isMobile, activeTab, handleTabChange, totalEarned, activeClaims, completedClaims]);
+  ), [activeTab, handleTabChange, totalEarned, activeClaims, completedClaims]);
 
-  const right = useMemo(() => isMobile ? null : (
+  const right = useMemo(() => (
     <EarnActivitySidebar
       activeTab={activeTab}
       categoryFilter={categoryFilter}
       onCategoryChange={setCategoryFilter}
       onGoToBounties={() => handleTabChange('bounties')}
     />
-  ), [isMobile, activeTab, categoryFilter, handleTabChange]);
+  ), [activeTab, categoryFilter, handleTabChange]);
 
   useSidebars(left, right, [left, right]);
 
