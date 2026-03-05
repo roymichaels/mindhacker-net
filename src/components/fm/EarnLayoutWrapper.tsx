@@ -1,13 +1,13 @@
 /**
  * EarnLayoutWrapper — wraps FMEarn with sidebar HUD architecture.
- * Manages tab + category filter state, sets sidebars via context.
+ * Manages tab + category filter state, sets sidebars via useSidebars hook.
  */
-import { Suspense, lazy, useState, useEffect, useCallback } from 'react';
-import { useSidebarContext } from '@/contexts/SidebarContext';
+import { Suspense, lazy, useState, useCallback, useMemo } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EarnHudSidebar } from '@/components/fm/EarnHudSidebar';
 import { EarnActivitySidebar } from '@/components/fm/EarnActivitySidebar';
 import { useFMClaims } from '@/hooks/useFMWallet';
+import { useSidebars } from '@/hooks/useSidebars';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
 const FMEarn = lazy(() => import('@/pages/fm/FMEarn'));
@@ -17,7 +17,6 @@ export default function EarnLayoutWrapper() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const isMobile = useIsMobile();
   const { data: claims = [] } = useFMClaims();
-  const { setLeftSidebar, setRightSidebar } = useSidebarContext();
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
@@ -28,38 +27,24 @@ export default function EarnLayoutWrapper() {
   const completedClaims = claims.filter((c: any) => c.status === 'approved').length;
   const totalEarned = claims.filter((c: any) => c.status === 'approved').reduce((sum: number, c: any) => sum + (c.fm_bounties?.reward_mos || 0), 0);
 
-  // Set sidebars when relevant state changes
-  useEffect(() => {
-    if (!isMobile) {
-      setLeftSidebar(
-        <EarnHudSidebar
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          stats={{ totalEarned, activeClaims, completedBounties: completedClaims }}
-        />
-      );
-      setRightSidebar(
-        <EarnActivitySidebar
-          activeTab={activeTab}
-          categoryFilter={categoryFilter}
-          onCategoryChange={setCategoryFilter}
-          onGoToBounties={() => handleTabChange('bounties')}
-        />
-      );
-    } else {
-      setLeftSidebar(null);
-      setRightSidebar(null);
-    }
-  }, [isMobile, activeTab, categoryFilter, activeClaims, completedClaims, totalEarned, setLeftSidebar, setRightSidebar, handleTabChange]);
+  const left = useMemo(() => isMobile ? null : (
+    <EarnHudSidebar
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+      stats={{ totalEarned, activeClaims, completedBounties: completedClaims }}
+    />
+  ), [isMobile, activeTab, handleTabChange, totalEarned, activeClaims, completedClaims]);
 
-  // Clear on unmount
-  useEffect(() => {
-    return () => {
-      setLeftSidebar(undefined);
-      setRightSidebar(undefined);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const right = useMemo(() => isMobile ? null : (
+    <EarnActivitySidebar
+      activeTab={activeTab}
+      categoryFilter={categoryFilter}
+      onCategoryChange={setCategoryFilter}
+      onGoToBounties={() => handleTabChange('bounties')}
+    />
+  ), [isMobile, activeTab, categoryFilter, handleTabChange]);
+
+  useSidebars(left, right, [left, right]);
 
   return (
     <Suspense fallback={<PageSkeleton />}>
