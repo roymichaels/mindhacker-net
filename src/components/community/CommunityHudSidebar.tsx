@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import { PanelRightClose, PanelRightOpen, Users } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
 
