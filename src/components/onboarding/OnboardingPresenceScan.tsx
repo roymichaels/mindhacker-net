@@ -170,7 +170,7 @@ export default function OnboardingPresenceScan({ onComplete, onCancel }: Onboard
   }
 
   return (
-    <div className="pb-8">
+    <div className="h-full min-h-0 flex flex-col">
       <GuidedCapture
         onComplete={handleCaptureComplete}
         onCancel={onCancel}
