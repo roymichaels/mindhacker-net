@@ -10,6 +10,7 @@ import {
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
   Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle,
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
