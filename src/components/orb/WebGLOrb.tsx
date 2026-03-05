@@ -373,10 +373,17 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 7. Brightness floor — NEVER allow dark orbs ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
+    // First pass: boost toward base color
     if (brightness < 0.35) {
-      // Boost toward base color to maintain hue, not just inject blue
-      finalColor = mix(finalColor, baseColor * 1.2, (0.35 - brightness) / 0.35);
-      finalColor = max(finalColor, baseColor * 0.5);
+      finalColor = mix(finalColor, baseColor * 1.5, (0.35 - brightness) / 0.35);
+      finalColor = max(finalColor, baseColor * 0.6);
+    }
+    // Second pass: if STILL dark (baseColor was also dark), inject absolute minimum light
+    brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
+    if (brightness < 0.15) {
+      // Use gradient first color as rescue, boosted significantly
+      vec3 rescue = u_colors[0] * 1.8 + vec3(0.1, 0.15, 0.2);
+      finalColor = max(finalColor, rescue * 0.6);
     }
 
     gl_FragColor = vec4(finalColor, 0.92);
