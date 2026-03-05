@@ -3,13 +3,10 @@
  * Shows the active plan roadmap, or a "Create Plan" CTA when no plan exists.
  */
 import { useState } from 'react';
-import { Flame, Sparkles, Calendar, Plus } from 'lucide-react';
+import { Flame, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
-import { DailyMilestones } from '@/components/hubs/DailyMilestones';
-import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { useQueryClient } from '@tanstack/react-query';
 
