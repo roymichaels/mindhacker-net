@@ -52,11 +52,32 @@ interface ProactiveSnapshot {
   next_pending_task_title: string | null;
 }
 
-function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
+async function fetchPulseData(supabase: SupabaseClient<any, any, any>, userId: string): Promise<{ today: DailyPulseData | null; weekAvgEnergy: number | null; weekAvgConfidence: number | null; dominantMood: string | null; sleepRate: number | null }> {
+  const today = new Date().toISOString().split('T')[0];
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
+
+  const [{ data: todayPulse }, { data: weekPulses }] = await Promise.all([
+    supabase.from('daily_pulse_logs').select('*').eq('user_id', userId).eq('log_date', today).maybeSingle(),
+    supabase.from('daily_pulse_logs').select('*').eq('user_id', userId).gte('log_date', weekAgo).order('log_date', { ascending: false }),
+  ]);
+
+  const pulses = (weekPulses || []) as DailyPulseData[];
+  const len = pulses.length;
+  if (len === 0) return { today: todayPulse, weekAvgEnergy: null, weekAvgConfidence: null, dominantMood: null, sleepRate: null };
+
+  const avgEnergy = pulses.reduce((s, p) => s + p.energy_rating, 0) / len;
+  const avgConf = pulses.reduce((s, p) => s + p.task_confidence, 0) / len;
+  const sleepRate = pulses.filter(p => p.sleep_compliance === 'yes').length / len;
+  const moodCounts: Record<string, number> = {};
+  pulses.forEach(p => { moodCounts[p.mood_signal] = (moodCounts[p.mood_signal] || 0) + 1; });
+  const dominantMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+  return { today: todayPulse, weekAvgEnergy: Math.round(avgEnergy * 10) / 10, weekAvgConfidence: Math.round(avgConf * 10) / 10, dominantMood, sleepRate: Math.round(sleepRate * 100) / 100 };
+}
+
+function toProactiveSnapshot(ctx: AuroraContext, pulse: Awaited<ReturnType<typeof fetchPulseData>>, nextTask: string | null): ProactiveSnapshot {
   const completedHabits = ctx.action_items.habits.filter(h => h.completed_today).length;
   const currentMilestone = ctx.action_items.milestones.find(m => !m.is_completed);
-  
-  // Estimate streak from habits (simplified — context builder could add this later)
   const maxStreak = ctx.action_items.habits.reduce((max, h) => Math.max(max, h.streak), 0);
 
   return {
@@ -67,7 +88,7 @@ function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
     incomplete_habits: ctx.action_items.habits.length - completedHabits,
     streak_days: maxStreak,
     last_active: null,
-    energy_level: 'medium',
+    energy_level: pulse.today ? (pulse.today.energy_rating >= 7 ? 'high' : pulse.today.energy_rating >= 4 ? 'medium' : 'low') : 'medium',
     current_week: ctx.life_plan?.current_week || 1,
     milestone_title: currentMilestone?.title || '',
     milestone_progress: currentMilestone ? (currentMilestone.is_completed ? 100 : 0) : 0,
@@ -80,6 +101,14 @@ function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
       })
       .filter(p => p.days_left >= 0 && p.days_left <= 14),
     projects_without_milestones: ctx.projects.filter(p => p.progress === 0).map(p => p.name),
+    // Pulse context
+    pulse: pulse.today,
+    pulse_logged_today: !!pulse.today,
+    pulse_week_avg_energy: pulse.weekAvgEnergy,
+    pulse_week_avg_confidence: pulse.weekAvgConfidence,
+    pulse_dominant_mood: pulse.dominantMood,
+    pulse_sleep_compliance_rate: pulse.sleepRate,
+    next_pending_task_title: nextTask,
   };
 }
 
