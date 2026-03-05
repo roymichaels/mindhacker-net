@@ -1,8 +1,8 @@
 /**
  * EarnLayoutWrapper — wraps FMEarn with sidebar HUD architecture.
- * Manages tab + category filter state, sets sidebars directly via context.
+ * Manages tab + category filter state, sets sidebars via context.
  */
-import { Suspense, lazy, useState, useEffect } from 'react';
+import { Suspense, lazy, useState, useEffect, useCallback } from 'react';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EarnHudSidebar } from '@/components/fm/EarnHudSidebar';
@@ -19,24 +19,24 @@ export default function EarnLayoutWrapper() {
   const { data: claims = [] } = useFMClaims();
   const { setLeftSidebar, setRightSidebar } = useSidebarContext();
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     setCategoryFilter('all');
-  };
+  }, []);
 
   const activeClaims = claims.filter((c: any) => c.status === 'claimed').length;
   const completedClaims = claims.filter((c: any) => c.status === 'approved').length;
-  const stats = {
-    totalEarned: claims.filter((c: any) => c.status === 'approved').reduce((sum: number, c: any) => sum + (c.fm_bounties?.reward_mos || 0), 0),
-    activeClaims,
-    completedBounties: completedClaims,
-  };
+  const totalEarned = claims.filter((c: any) => c.status === 'approved').reduce((sum: number, c: any) => sum + (c.fm_bounties?.reward_mos || 0), 0);
 
-  // Set sidebars directly
+  // Set sidebars when relevant state changes
   useEffect(() => {
     if (!isMobile) {
       setLeftSidebar(
-        <EarnHudSidebar activeTab={activeTab} onTabChange={handleTabChange} stats={stats} />
+        <EarnHudSidebar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          stats={{ totalEarned, activeClaims, completedBounties: completedClaims }}
+        />
       );
       setRightSidebar(
         <EarnActivitySidebar
@@ -50,7 +50,7 @@ export default function EarnLayoutWrapper() {
       setLeftSidebar(null);
       setRightSidebar(null);
     }
-  });
+  }, [isMobile, activeTab, categoryFilter, activeClaims, completedClaims, totalEarned, setLeftSidebar, setRightSidebar, handleTabChange]);
 
   // Clear on unmount
   useEffect(() => {
