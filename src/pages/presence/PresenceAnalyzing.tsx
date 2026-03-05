@@ -59,7 +59,7 @@ export default function PresenceAnalyzing() {
           scanData.id,
         );
         await saveScanResult(result);
-        navigate('/life/presence/results', { replace: true });
+        navigate('/strategy/presence/results', { replace: true });
       })
       .catch((err: any) => {
         toast.error(err.message || 'Analysis failed. Please try again.');
