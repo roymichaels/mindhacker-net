@@ -10,7 +10,7 @@ import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
 import PillarTopicBoards from '@/components/community/PillarTopicBoards';
-import CommunityForumBoard from '@/components/community/CommunityForumBoard';
+
 
 import AddToPlanModal from '@/components/community/AddToPlanModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
