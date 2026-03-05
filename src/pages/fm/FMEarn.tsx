@@ -10,8 +10,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
-  Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle,
+  Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle, Pickaxe,
 } from 'lucide-react';
+import { MiningDashboard } from '@/components/fm/MiningDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
