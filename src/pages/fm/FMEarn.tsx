@@ -128,8 +128,9 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   };
 
   // ──── Gig state ────
-  const [gigMode, setGigMode] = useState<'browse' | 'post'>('browse');
-  const [gFilter, setGFilter] = useState('all');
+  const [gFilterInternal, setGFilterInternal] = useState('all');
+  const gFilter = (tab === 'gigs' ? externalCatFilter : undefined) ?? gFilterInternal;
+  const setGFilter = (tab === 'gigs' ? onCategoryChange : undefined) ?? setGFilterInternal;
   const [applyingId, setApplyingId] = useState<string | null>(null);
   const [pitch, setPitch] = useState('');
   const [proposedAmount, setProposedAmount] = useState('');
