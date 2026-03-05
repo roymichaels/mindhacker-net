@@ -158,7 +158,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             <Flame className="h-3 w-3" /> {streak.streak}
           </span>
           <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-            <TrendingUp className="h-3 w-3" /> {xp.totalXp} XP
+            <TrendingUp className="h-3 w-3" /> {xp.experience} XP
           </span>
         </div>
 
