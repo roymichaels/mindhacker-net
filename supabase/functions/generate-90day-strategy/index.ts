@@ -861,6 +861,48 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
           }
           totalMissions++;
 
+          // === CREATE SKILL FROM MISSION ===
+          const skillName = mission.mission_en || mission.goal_en || `Skill ${mi + 1}`;
+          const skillNameHe = mission.mission_he || mission.goal_he || skillName;
+          const _catMap: Record<string, string> = {
+            consciousness: 'spirit', presence: 'social', power: 'body', vitality: 'body',
+            focus: 'mind', combat: 'body', expansion: 'mind', wealth: 'wealth',
+            influence: 'social', relationships: 'social', business: 'wealth',
+            projects: 'wealth', play: 'spirit', order: 'mind',
+          };
+          const _iconMap: Record<string, string> = {
+            consciousness: '🧠', presence: '👁️', power: '💪', vitality: '🌿',
+            focus: '🎯', combat: '🥊', expansion: '🚀', wealth: '💰',
+            influence: '🌐', relationships: '❤️', business: '📈',
+            projects: '🏗️', play: '🎮', order: '📋',
+          };
+          const { data: skillRow } = await supabase
+            .from('skills')
+            .insert({
+              name: skillName,
+              name_he: skillNameHe,
+              description: mission.mission_en || mission.goal_en,
+              category: _catMap[pillarId] || 'mind',
+              icon: _iconMap[pillarId] || '⭐',
+              is_active: true,
+              mission_id: missionRow.id,
+              user_id: user_id,
+            })
+            .select('id')
+            .single();
+          if (skillRow) {
+            await supabase
+              .from('user_skill_progress')
+              .upsert({
+                user_id: user_id,
+                skill_id: skillRow.id,
+                xp_total: 0,
+                level: 1,
+                updated_at: new Date().toISOString(),
+              }, { onConflict: 'user_id,skill_id' });
+            console.log(`  🎯 Skill created: "${skillName}" → ${skillRow.id}`);
+          }
+
           const milestones = mission.milestones || mission.sub_goals || [];
           for (let si = 0; si < Math.min(milestones.length, 5); si++) {
             const ms = milestones[si];
