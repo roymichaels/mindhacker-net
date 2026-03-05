@@ -128,6 +128,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   };
 
   // ──── Gig state ────
+  const [gigMode, setGigMode] = useState<'browse' | 'post'>('browse');
   const [gFilterInternal, setGFilterInternal] = useState('all');
   const gFilter = (tab === 'gigs' ? externalCatFilter : undefined) ?? gFilterInternal;
   const setGFilter = (tab === 'gigs' ? onCategoryChange : undefined) ?? setGFilterInternal;
