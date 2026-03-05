@@ -365,12 +365,12 @@ const App = () => (
                           {/* FM — Free Market (self-contained app shell) */}
                           <Route path="/fm" element={<FMAppShell />}>
                             <Route index element={<Navigate to="/fm/home" replace />} />
-                            <Route path="home" element={<FMHome />} />
+                            <Route path="home" element={<FMHomeLayoutWrapper />} />
                             <Route path="earn" element={<EarnLayoutWrapper />} />
-                            <Route path="work" element={<FMWork />} />
+                            <Route path="work" element={<FMWorkLayoutWrapper />} />
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
-                            <Route path="wallet" element={<FMWalletPage />} />
+                            <Route path="wallet" element={<FMWalletLayoutWrapper />} />
                             <Route path="coaches" element={<Navigate to="/coaches" replace />} />
                           </Route>
                           
