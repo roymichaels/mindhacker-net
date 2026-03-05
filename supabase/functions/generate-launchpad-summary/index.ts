@@ -6,7 +6,7 @@ import {
   type PlanData 
 } from '../_shared/launchpad-defaults.ts';
 import { LAUNCHPAD_SYSTEM_PROMPT } from '../_shared/launchpad-ai-prompt.ts';
-import { createWeekOneChecklists, createChecklistsFromActions } from '../_shared/launchpad-checklist-helpers.ts';
+// checklist helpers removed — plan creation handled by generate-90day-strategy
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -116,156 +116,17 @@ Deno.serve(async (req) => {
 
     console.log('Summary saved:', summaryRecord.id);
 
-    // Delete old life plans, milestones, and related data before creating new ones
-    const { data: oldPlans } = await supabase
-      .from('life_plans')
-      .select('id')
-      .eq('user_id', userId);
-
-    const oldPlanIds = (oldPlans || []).map((p: any) => p.id);
-    if (oldPlanIds.length > 0) {
-      await supabase.from('life_plan_milestones').delete().in('plan_id', oldPlanIds);
-      await supabase.from('action_items').delete().eq('user_id', userId).eq('source', 'plan');
-      await supabase.from('action_items').delete().eq('user_id', userId).eq('source', 'aurora');
-      await supabase.from('life_plans').delete().in('id', oldPlanIds);
-    }
-
-    // Delete old aurora checklists and their items
-    const { data: oldChecklists } = await supabase
-      .from('aurora_checklists')
-      .select('id')
-      .eq('user_id', userId);
-    const oldChecklistIds = (oldChecklists || []).map((c: any) => c.id);
-    if (oldChecklistIds.length > 0) {
-      await supabase.from('aurora_checklist_items').delete().in('checklist_id', oldChecklistIds);
-      await supabase.from('aurora_checklists').delete().in('id', oldChecklistIds);
-    }
-
-    // Create life plan
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 90);
-
-    // Determine user tier for schedule generation
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('subscription_tier')
-      .eq('id', userId)
-      .single();
+    // NOTE: Plan creation is handled by generate-90day-strategy.
+    // This function ONLY generates identity/summary data.
+    // DO NOT create or delete life_plans here — it would nuke the strategy plan.
     
-    // Also check active subscription
-    const { data: activeSub } = await supabase
-      .from('user_subscriptions')
-      .select('product_id')
-      .eq('user_id', userId)
-      .in('status', ['active', 'trialing'])
-      .limit(1)
-      .maybeSingle();
-    
-    const hasPlus = !!activeSub; // Any active subscription = Plus or above
+    console.log('Skipping plan creation (handled by generate-90day-strategy)');
 
-    // Extract schedule-relevant data from onboarding
-    const lifestyleData = launchpadData.lifestyleRoutine || {};
-    const wakeTime = lifestyleData.wake_time || '06:00';
-    const sleepTime = lifestyleData.sleep_time || '22:00';
-    const workStart = lifestyleData.work_start || '09:00';
-    const workEnd = lifestyleData.work_end || '17:00';
-    const trainingWindow = lifestyleData.training_window || '07:30';
-    const energyPeak = lifestyleData.energy_peak || 'morning';
-
-    // Build schedule template for Plus/Apex
-    let scheduleTemplate = null;
-    if (hasPlus) {
-      scheduleTemplate = buildScheduleTemplate(wakeTime, sleepTime, workStart, workEnd, trainingWindow, energyPeak);
-    }
-
-    const { data: planRecord, error: planError } = await supabase
-      .from('life_plans')
-      .insert({
-        user_id: userId,
-        summary_id: summaryRecord.id,
-        duration_months: 3,
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        plan_data: plan,
-        status: 'active',
-        schedule_settings: scheduleTemplate
-          ? { schedule_template_week: { blocks: scheduleTemplate }, schedule_committed: false }
-          : {},
-      })
-      .select()
-      .single();
-
-    if (planError) {
-      console.error('Error saving plan:', planError);
-      throw planError;
-    }
-
-    console.log('Life plan saved:', planRecord.id);
-
-    // Create milestones for each week
-    const milestones = [];
-    for (const month of plan.months) {
-      for (const week of month.weeks) {
-        milestones.push({
-          plan_id: planRecord.id,
-          week_number: week.number,
-          month_number: month.number,
-          title: week.title,
-          title_en: week.title_en || week.title,
-          description: week.description,
-          description_en: week.description_en || week.description,
-          focus_area: month.focus,
-          tasks: week.tasks,
-          tasks_en: week.tasks_en || week.tasks,
-          goal: week.goal,
-          goal_en: week.goal_en || week.goal,
-          challenge: week.challenge,
-          hypnosis_recommendation: week.hypnosis_recommendation,
-          xp_reward: 50,
-          tokens_reward: 5,
-        });
-      }
-    }
-
-    const { error: milestonesError } = await supabase
-      .from('life_plan_milestones')
-      .insert(milestones);
-
-    if (milestonesError) {
-      console.error('Error saving milestones:', milestonesError);
-      throw milestonesError;
-    }
-
-    console.log(`Created ${milestones.length} milestones`);
-
-    // ========== CLEANUP OLD DATA BEFORE CREATING NEW ==========
-    console.log('Cleaning up old launchpad-generated data...');
-    
-    // Clear old checklists created from launchpad
-    await supabase
-      .from('aurora_checklists')
-      .delete()
-      .eq('user_id', userId)
-      .eq('origin', 'launchpad');
-
-    // Create checklists for week 1
-    await createWeekOneChecklists(supabase, userId, plan.months[0]?.weeks[0]);
-    
-    // Create additional checklists from step 6 actions
-    const { data: step6Progress } = await supabase
-      .from('launchpad_progress')
-      .select('step_6_actions')
-      .eq('user_id', userId)
-      .single();
-    
-    if (step6Progress?.step_6_actions) {
-      await createChecklistsFromActions(supabase, userId, step6Progress.step_6_actions);
-    }
-
-    // Award XP for completing launchpad
-    await supabase.rpc('increment_user_xp', { user_id: userId, xp_amount: 100 });
-    await supabase.rpc('increment_user_tokens', { user_id: userId, token_amount: 15 });
+    // Award XP for completing launchpad (only if not already awarded)
+    try {
+      await supabase.rpc('award_unified_xp', { p_user_id: userId, p_amount: 100, p_source: 'launchpad', p_reason: 'Launchpad complete' });
+      await supabase.rpc('award_energy', { p_user_id: userId, p_amount: 15, p_source: 'launchpad', p_reason: 'Launchpad complete' });
+    } catch { /* idempotent — may already be awarded */ }
 
     // ========== POPULATE LIFE MODEL TABLES ==========
     
@@ -493,8 +354,6 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       summary_id: summaryRecord.id,
-      plan_id: planRecord.id,
-      milestones_count: milestones.length,
       scores,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
