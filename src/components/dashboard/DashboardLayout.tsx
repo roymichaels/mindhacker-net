@@ -1,8 +1,10 @@
 import { ReactNode, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSidebarContext } from '@/contexts/SidebarContext';
+import { FMTopNav } from '@/components/fm/FMTopNav';
 
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
@@ -40,7 +42,9 @@ function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onCl
 const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRight }: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
+  const location = useLocation();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
   useLearnPillarAction();
 
   // Read from SidebarContext (set by hub pages via useSidebars hook)
@@ -60,6 +64,8 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
                 <HeaderActions compact />
               </div>
             </header>
+          ) : isFM ? (
+            <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
             <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
           )}
