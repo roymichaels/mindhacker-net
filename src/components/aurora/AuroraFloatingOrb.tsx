@@ -4,6 +4,7 @@
  * Clicking it opens the dock; clicking again closes it back to orb.
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
