@@ -1,16 +1,24 @@
 /**
- * CommunityActivitySidebar - Right sidebar: Trending, Top Contributors, Weekly Highlight.
+ * CommunityActivitySidebar - Right sidebar: Topics for selected pillar + Trending, Top Contributors.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelLeftClose, PanelLeftOpen, TrendingUp, Award, Star, Users, Crown } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, TrendingUp, Award, Crown, Users, MessageSquare } from 'lucide-react';
 import { useTopContributors, useWeeklyHighlight, useActiveToday } from '@/hooks/useCommunityFeed';
-import { getReputationTier, calculateReputation } from '@/lib/communityHelpers';
+import { getReputationTier, calculateReputation, PILLAR_SUBCATEGORIES, type PillarSubcategory } from '@/lib/communityHelpers';
 import { Badge } from '@/components/ui/badge';
 import CommunityOrb from './CommunityOrb';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-export function CommunityActivitySidebar() {
+interface CommunityActivitySidebarProps {
+  selectedPillar?: string;
+  selectedTopic?: string | null;
+  onSelectTopic?: (topicId: string | null) => void;
+}
+
+export function CommunityActivitySidebar({ selectedPillar = 'all', selectedTopic = null, onSelectTopic }: CommunityActivitySidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
@@ -18,6 +26,31 @@ export function CommunityActivitySidebar() {
   const { data: topContributors } = useTopContributors(5);
   const { data: highlight } = useWeeklyHighlight();
   const { data: activeCount } = useActiveToday();
+
+  const isAll = selectedPillar === 'all';
+  const subcategories = PILLAR_SUBCATEGORIES[selectedPillar] || [];
+
+  // Fetch thread counts per subcategory
+  const { data: topicCounts } = useQuery({
+    queryKey: ['topic-thread-counts', selectedPillar],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('community_posts')
+        .select('category_id')
+        .eq('pillar', selectedPillar)
+        .eq('status', 'approved');
+      if (!data) return {};
+      const counts: Record<string, number> = {};
+      for (const post of data) {
+        if (post.category_id) {
+          counts[post.category_id] = (counts[post.category_id] || 0) + 1;
+        }
+      }
+      return counts;
+    },
+    enabled: !isAll && subcategories.length > 0,
+    staleTime: 60_000,
+  });
 
   return (
     <aside
@@ -67,6 +100,55 @@ export function CommunityActivitySidebar() {
       {/* ===== EXPANDED ===== */}
       {!collapsed && (
         <div className="flex flex-col h-full overflow-y-auto scrollbar-hide p-3 pt-8 gap-4">
+
+          {/* ── Topic boards for selected pillar ── */}
+          {!isAll && subcategories.length > 0 && (
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
+                📋 {isHe ? 'נושאים' : 'Topics'}
+              </span>
+              <div className="flex flex-col gap-1 mt-1.5">
+                {/* "All threads" option */}
+                <button
+                  onClick={() => onSelectTopic?.(null)}
+                  className={cn(
+                    "w-full rounded-lg p-2 flex items-center gap-2 text-start transition-all border text-xs font-medium",
+                    selectedTopic === null
+                      ? "bg-primary/10 border-primary/30 text-primary"
+                      : "bg-muted/20 border-border/20 text-foreground hover:bg-accent/10"
+                  )}
+                >
+                  🌐 {isHe ? 'כל השרשורים' : 'All threads'}
+                </button>
+                {subcategories.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => onSelectTopic?.(sub.id)}
+                    className={cn(
+                      "w-full rounded-lg p-2 flex items-center gap-2 text-start transition-all border",
+                      selectedTopic === sub.id
+                        ? "bg-primary/10 border-primary/30"
+                        : "bg-muted/20 border-border/20 hover:bg-accent/10"
+                    )}
+                  >
+                    <span className="text-sm flex-shrink-0">{sub.icon}</span>
+                    <span className={cn(
+                      "text-xs font-medium flex-1 truncate",
+                      selectedTopic === sub.id ? "text-primary" : "text-foreground"
+                    )}>
+                      {isHe ? sub.he : sub.en}
+                    </span>
+                    <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground flex-shrink-0">
+                      <MessageSquare className="h-2.5 w-2.5" />
+                      <span>{topicCounts?.[sub.id] || 0}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-violet-500/20 to-transparent mt-3" />
+            </div>
+          )}
+
           {/* Active Now */}
           {activeCount !== undefined && activeCount > 0 && (
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 flex items-center gap-2">
