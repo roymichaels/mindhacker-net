@@ -13,6 +13,7 @@ import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { AuroraFloatingOrb } from '@/components/aurora/AuroraFloatingOrb';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
+import { BottomHudBar } from '@/components/navigation/BottomHudBar';
 import { SettingsModal } from '@/components/settings';
 import { HudSidebar } from '@/components/dashboard/HudSidebar';
 import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
