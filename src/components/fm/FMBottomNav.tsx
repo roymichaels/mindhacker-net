@@ -23,10 +23,8 @@ export function FMBottomNav() {
       <div className="flex items-center justify-around max-w-md mx-auto h-14">
         {FM_TABS.map((tab) => {
           const isActive =
-            (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
             (tab.id === 'earn' && activePath.startsWith('/fm/earn')) ||
-            (tab.id === 'work' && (activePath.startsWith('/fm/work') || activePath.startsWith('/coaches') || activePath.startsWith('/business'))) ||
-            (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
+            (tab.id === 'work' && (activePath.startsWith('/fm/work') || activePath.startsWith('/coaches') || activePath.startsWith('/business')));
           return (
             <button
               key={tab.id}
