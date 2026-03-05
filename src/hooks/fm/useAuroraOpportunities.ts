@@ -53,12 +53,12 @@ export function useAuroraOpportunities() {
       return {
         balance: wallet?.mos_balance ?? 0,
         lifetimeEarned: wallet?.lifetime_earned ?? 0,
-        hasBounties: (activeBounties?.length ?? 0) > 0,
-        hasClaimed: (myClaims?.length ?? 0) > 0,
-        hasPostedGig: (myGigs?.length ?? 0) > 0,
-        hasSharingData: (dataContribs?.length ?? 0) > 0,
-        didHabitsToday: (completedHabits?.length ?? 0) > 0,
-        didSessionToday: (recentSessions?.length ?? 0) > 0,
+        hasBounties: (bountiesRes.data?.length ?? 0) > 0,
+        hasClaimed: (claimsRes.data?.length ?? 0) > 0,
+        hasPostedGig: gigsCount > 0,
+        hasSharingData: dataCount > 0,
+        didHabitsToday: (habitsRes.data?.length ?? 0) > 0,
+        didSessionToday: (sessionsRes.data?.length ?? 0) > 0,
       };
     },
     enabled: !!user?.id,
