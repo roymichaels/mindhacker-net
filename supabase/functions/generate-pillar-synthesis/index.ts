@@ -259,65 +259,27 @@ Deno.serve(async (req) => {
 
     if (summaryError) throw summaryError;
 
-    // 6. Delete old plans, milestones, action items
-    const { data: oldPlans } = await supabase.from('life_plans').select('id').eq('user_id', userId);
-    const oldPlanIds = (oldPlans || []).map((p: any) => p.id);
-    if (oldPlanIds.length > 0) {
-      await supabase.from('life_plan_milestones').delete().in('plan_id', oldPlanIds);
-      await supabase.from('action_items').delete().eq('user_id', userId).eq('source', 'plan');
-      await supabase.from('action_items').delete().eq('user_id', userId).eq('source', 'aurora');
-      await supabase.from('life_plans').delete().in('id', oldPlanIds);
-    }
-
-    // 7. Create new life plan
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 90);
-
-    const { data: planRecord, error: planError } = await supabase
-      .from('life_plans')
-      .insert({
-        user_id: userId,
-        summary_id: summaryRecord.id,
-        duration_months: 3,
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        plan_data: plan,
-        status: 'active',
-      })
-      .select()
-      .single();
-
-    if (planError) throw planError;
-
-    // 8. Create milestones
-    const milestones = [];
-    for (const month of plan.months || []) {
-      for (const week of month.weeks || []) {
-        milestones.push({
-          plan_id: planRecord.id,
-          week_number: week.number,
-          month_number: month.number,
-          title: week.title,
-          title_en: week.title_en || week.title,
-          description: week.description,
-          description_en: week.description_en || week.description,
-          focus_area: month.focus,
-          focus_area_en: month.focus_en || month.focus,
-          tasks: week.tasks,
-          tasks_en: week.tasks_en || week.tasks,
-          goal: week.goal,
-          goal_en: week.goal_en || week.goal,
-          challenge: week.challenge,
-          hypnosis_recommendation: week.hypnosis_recommendation,
-          xp_reward: 50,
-          tokens_reward: 5,
-        });
-      }
-    }
-
-    if (milestones.length > 0) {
-      await supabase.from('life_plan_milestones').insert(milestones);
+    // Plan creation is handled by generate-90day-strategy (the SSOT for plans).
+    // Trigger it with force_regenerate to create a fresh plan from all domain data.
+    console.log('[pillar-synthesis] Triggering generate-90day-strategy with force_regenerate...');
+    try {
+      const strategyUrl = `${supabaseUrl}/functions/v1/generate-90day-strategy`;
+      await fetch(strategyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          hub: 'both',
+          force_regenerate: true,
+          skip_quality_gate: false, // We have all assessments now
+        }),
+      });
+      console.log('[pillar-synthesis] Strategy regeneration triggered');
+    } catch (stratErr) {
+      console.error('[pillar-synthesis] Strategy regeneration failed:', stratErr);
     }
 
     // 9. Replace identity elements
