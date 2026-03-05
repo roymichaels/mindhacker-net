@@ -22,6 +22,8 @@ export default function CommunityLayoutWrapper() {
     <CommunityHudSidebar
       selectedPillar={selectedPillar}
       onPillarSelect={handlePillarSelect}
+      selectedTopic={selectedTopic}
+      onSelectTopic={setSelectedTopic}
       onCreateThread={() => setCreateOpen(true)}
     />,
     <CommunityActivitySidebar
