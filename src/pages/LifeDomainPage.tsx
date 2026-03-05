@@ -116,7 +116,7 @@ export default function LifeDomainPage() {
               {t('lifeDomain.configDescription')}
             </p>
             <Button onClick={() => {
-              navigate(`/life/${domain.id}/assess`);
+              navigate(`/strategy/${domain.id}/assess`);
             }} size="lg" className="mt-2">
               <Play className="w-4 h-4 me-2" />
               {t('lifeDomain.startConfiguration')}
