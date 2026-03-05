@@ -352,7 +352,7 @@ const App = () => (
                           {/* Arena domain sub-routes redirect to Core assessment pages */}
                           <Route path="/arena/:domainId/*" element={<ArenaToLifeRedirect />} />
                           {/* Coaches */}
-                          <Route path="/coaches" element={<Navigate to="/fm/coaches" replace />} />
+                          <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                           {/* Admin Hub */}
                           <Route path="/admin-hub" element={<AdminLayoutWrapper />} />
                           {/* Launchpad */}
