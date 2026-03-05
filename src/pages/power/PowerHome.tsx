@@ -92,7 +92,7 @@ export default function PowerHome() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/life/power/results')} className="flex-1">
+              <Button variant="outline" size="sm" onClick={() => navigate('/strategy/power/results')} className="flex-1">
                 {t('power.viewResults')}
               </Button>
               <Button variant="outline" size="sm" onClick={() => startAssessment('power')} className="flex-1">
