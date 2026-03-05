@@ -436,8 +436,29 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
   // Get profile visual params with defaults + validation
-  const _rawStops = profile?.gradientStops ?? ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
-  const gradientStops = _rawStops.length >= 3 ? _rawStops : ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
+  // Build gradient stops: prefer profile's explicit gradientStops,
+  // but if they're the bland defaults, derive them from the profile's vivid primary/secondary/accent colors
+  const defaultStops = ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
+  const _rawStops = profile?.gradientStops ?? defaultStops;
+  const isDefaultStops = _rawStops.length === 3 &&
+    _rawStops[0] === defaultStops[0] && _rawStops[1] === defaultStops[1] && _rawStops[2] === defaultStops[2];
+  
+  // If gradient stops are just defaults but profile has real colors, use profile colors as gradient
+  const gradientStops = (() => {
+    if (!isDefaultStops && _rawStops.length >= 3) return _rawStops;
+    // Derive from profile's primary/secondary/accent colors for a vivid orb
+    if (profile?.primaryColor) {
+      const stops = [
+        profile.primaryColor,
+        ...(profile.secondaryColors?.length ? profile.secondaryColors : []),
+        profile.accentColor || profile.primaryColor,
+      ];
+      // Ensure at least 3 stops
+      while (stops.length < 3) stops.push(stops[stops.length - 1]);
+      return stops.slice(0, 7);
+    }
+    return defaultStops;
+  })();
   const gradientMode = profile?.gradientMode ?? 'vertical';
   const materialType = profile?.materialType ?? 'glass';
   const _rawParams = profile?.materialParams ?? { metalness: 0.1, roughness: 0.4, clearcoat: 0.3, transmission: 0.2, ior: 1.5, emissiveIntensity: 0.3 };
