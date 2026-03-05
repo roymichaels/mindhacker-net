@@ -69,6 +69,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Business = lazy(() => import("./pages/Business"));
+const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 const FMHome = lazy(() => import("./pages/FMHome"));
 const FMEarn = lazy(() => import("./pages/fm/FMEarn"));
 const FMWork = lazy(() => import("./pages/fm/FMWork"));
