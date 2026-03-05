@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
