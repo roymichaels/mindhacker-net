@@ -2099,10 +2099,10 @@ export const en: TranslationKeys = {
       identity: "Who am I really?"
     },
     chat: {
-      placeholder: "Share what's on your mind...",
-      placeholder_male: "Share what's on your mind...",
-      placeholder_female: "Share what's on your mind...",
-      placeholder_neutral: "Share what's on your mind...",
+      placeholder: "Share...",
+      placeholder_male: "Share...",
+      placeholder_female: "Share...",
+      placeholder_neutral: "Share...",
       startRecording: "Start recording",
       stopRecording: "Stop recording"
     },
