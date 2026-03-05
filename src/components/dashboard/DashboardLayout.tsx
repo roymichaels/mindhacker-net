@@ -64,6 +64,8 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
                 <HeaderActions compact />
               </div>
             </header>
+          ) : isFM ? (
+            <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
             <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
           )}
