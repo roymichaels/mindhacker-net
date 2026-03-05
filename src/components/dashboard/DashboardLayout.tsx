@@ -1,8 +1,10 @@
 import { ReactNode, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSidebarContext } from '@/contexts/SidebarContext';
+import { FMTopNav } from '@/components/fm/FMTopNav';
 
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
