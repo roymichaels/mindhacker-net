@@ -23,6 +23,8 @@ import type { ThreadData } from '@/components/community/ThreadCard';
 interface CommunityProps {
   selectedPillar?: string;
   onPillarSelect?: (pillar: string) => void;
+  selectedTopic?: string | null;
+  onSelectTopic?: (topic: string | null) => void;
   createOpen?: boolean;
   onCreateOpenChange?: (open: boolean) => void;
 }
