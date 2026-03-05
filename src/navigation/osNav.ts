@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { LayoutDashboard, Flame, Swords, Shield, Crosshair, Briefcase, GraduationCap, Coins, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Flame, Swords, Shield, Crosshair, Briefcase, GraduationCap, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@ export const OS_TABS: OsTab[] = [
   { id: 'core',      path: '/life',      icon: Flame,          labelEn: 'Core',      labelHe: 'ליבה' },
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Arena',     labelHe: 'זירה' },
   { id: 'community', path: '/community', icon: Crosshair,      labelEn: 'Community', labelHe: 'קומיוניטי' },
-  { id: 'fm',        path: '/fm',        icon: Coins,          labelEn: 'FM',        labelHe: 'FM' },
+  
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
 ];
 
