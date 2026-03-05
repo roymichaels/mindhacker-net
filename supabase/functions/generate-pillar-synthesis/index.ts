@@ -368,8 +368,6 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       summary_id: summaryRecord.id,
-      plan_id: planRecord.id,
-      milestones_count: milestones.length,
       scores,
       cross_domain_insights: (summary as any).cross_domain_insights || null,
     }), {
