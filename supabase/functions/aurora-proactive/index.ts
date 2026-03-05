@@ -258,6 +258,45 @@ const generateFallbackMessage = (snapshot: ProactiveSnapshot, triggerType: strin
         ? `"${snapshot.projects_without_milestones[0]}" עדיין ב-0%. בואי נתחיל לתכנן!`
         : 'יש פרויקט חדש שמחכה לתכנון.',
     },
+    // Pulse-aware nudges
+    pulse_low_energy: {
+      title: '🔋 אנרגיה נמוכה היום',
+      body: snapshot.pulse
+        ? `דיווחת על אנרגיה ${snapshot.pulse.energy_rating}/10. ${snapshot.next_pending_task_title ? `מה דעתך להתחיל עם "${snapshot.next_pending_task_title}" בקטן?` : 'אולי נתחיל עם משימה קלה?'}`
+        : 'נראה שהאנרגיה שלך נמוכה. בואי נתאים את היום.',
+    },
+    pulse_drained_mood: {
+      title: '💙 מרגיש מרוקן?',
+      body: 'זה בסדר לקחת צעד אחורה. מה דעתך על הפסקה קצרה ואז נחזור חזקים יותר?',
+    },
+    pulse_flow_state: {
+      title: '⚡ אתה במצב flow!',
+      body: snapshot.next_pending_task_title
+        ? `מעולה! האנרגיה שלך גבוהה. הזמן המושלם להתמודד עם "${snapshot.next_pending_task_title}"!`
+        : 'האנרגיה שלך ברמה מעולה! זה הזמן לקפוץ למשימה מאתגרת.',
+    },
+    pulse_poor_sleep: {
+      title: '😴 שינה לא מספקת',
+      body: snapshot.pulse_sleep_compliance_rate !== null && snapshot.pulse_sleep_compliance_rate < 0.5
+        ? `השבוע רק ${Math.round(snapshot.pulse_sleep_compliance_rate * 100)}% ציות שינה. בואי נתאים את העומס.`
+        : 'דיווחת על שינה חלקית. אולי נעדיף משימות קלות היום?',
+    },
+    pulse_low_confidence: {
+      title: '💪 אתה יכול!',
+      body: snapshot.next_pending_task_title
+        ? `אני מאמינה בך! מה דעתך להתחיל עם "${snapshot.next_pending_task_title}" - צעד אחד בכל פעם.`
+        : 'כל צעד קטן הוא התקדמות. בואי נבחר משימה אחת קלה להתחיל.',
+    },
+    pulse_reminder: {
+      title: '📋 דופק יומי',
+      body: 'עדיין לא מילאת את הדופק היומי שלך. זה לוקח 30 שניות ועוזר לי להתאים את היום! 💜',
+    },
+    next_task_nudge: {
+      title: '🎯 המשימה הבאה שלך',
+      body: snapshot.next_pending_task_title
+        ? `"${snapshot.next_pending_task_title}" מחכה לך. מוכן להתחיל?`
+        : 'יש לך משימות שמחכות! בואי נבחר אחת.',
+    },
   };
 
   return messages[triggerType] || messages.morning_briefing;
