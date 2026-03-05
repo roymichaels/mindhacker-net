@@ -317,6 +317,8 @@ export default function FMContribute() {
         <Shield className="w-4 h-4 shrink-0" />
         <span>{isHe ? 'MindOS לא מוכרת מידע אישי. לעולם.' : 'MindOS never sells personal data. Ever.'}</span>
       </div>
+      </>
+      )}
     </div>
   );
 }
