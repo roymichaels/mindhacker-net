@@ -8602,6 +8602,11 @@ export type Database = {
         }
         Returns: undefined
       }
+      fm_approve_bounty_claim: {
+        Args: { p_action?: string; p_claim_id: string }
+        Returns: Json
+      }
+      fm_claim_bounty: { Args: { p_bounty_id: string }; Returns: Json }
       fm_post_transaction: {
         Args: {
           p_amount: number
@@ -8614,6 +8619,10 @@ export type Database = {
           p_type: Database["public"]["Enums"]["fm_tx_type"]
           p_user_id: string
         }
+        Returns: Json
+      }
+      fm_submit_bounty_claim: {
+        Args: { p_claim_id: string; p_submission: Json }
         Returns: Json
       }
       get_job_skill_multipliers: {
