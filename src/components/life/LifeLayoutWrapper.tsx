@@ -1,10 +1,9 @@
 /**
- * LifeLayoutWrapper - Sets sidebars for the Life hub.
- * Core hub is OPEN to all tiers (assessment for Free, full depth for Plus+).
+ * LifeLayoutWrapper - Sets sidebars for the Strategy hub.
+ * Left sidebar = 100-day roadmap. No right sidebar.
  */
 import { Suspense, lazy } from 'react';
-import { LifeHudSidebar } from '@/components/life/LifeHudSidebar';
-import { LifeActivitySidebar } from '@/components/life/LifeActivitySidebar';
+import { StrategyRoadmapSidebar } from '@/components/sidebars/StrategyRoadmapSidebar';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useSidebars } from '@/hooks/useSidebars';
 
@@ -14,8 +13,8 @@ export default function LifeLayoutWrapper() {
   const { isLaunchpadComplete } = useLaunchpadProgress();
 
   useSidebars(
-    isLaunchpadComplete ? <LifeHudSidebar /> : null,
-    isLaunchpadComplete ? <LifeActivitySidebar /> : null
+    isLaunchpadComplete ? <StrategyRoadmapSidebar /> : null,
+    null
   );
 
   return (

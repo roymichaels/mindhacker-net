@@ -1,6 +1,6 @@
 /**
- * DashboardLayoutWrapper - Sets default sidebars for the Dashboard hub.
- * Auto-triggers PillarSynthesisModal when all 14 domains are complete.
+ * DashboardLayoutWrapper - Sets sidebars for the Dashboard (Now) hub.
+ * Left sidebar = daily roadmap. Right sidebar = HUD stats.
  */
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
@@ -8,8 +8,8 @@ import { useAllDomainsComplete } from '@/hooks/useAllDomainsComplete';
 import { PillarSynthesisModal } from '@/components/dashboard/PillarSynthesisModal';
 import { useSidebars } from '@/hooks/useSidebars';
 import { flowAudit } from '@/lib/flowAudit';
+import { DailyRoadmapSidebar } from '@/components/sidebars/DailyRoadmapSidebar';
 import { HudSidebar } from '@/components/dashboard/HudSidebar';
-import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
 
 const UserDashboard = lazy(() => import('@/pages/UserDashboard'));
 
@@ -18,10 +18,9 @@ export default function DashboardLayoutWrapper() {
   const { shouldTriggerSynthesis } = useAllDomainsComplete();
   const [synthesisOpen, setSynthesisOpen] = useState(false);
 
-  // Explicitly set sidebars like Arena/Core do
   useSidebars(
-    isLaunchpadComplete ? <HudSidebar /> : null,
-    isLaunchpadComplete ? <RoadmapSidebar /> : null
+    isLaunchpadComplete ? <DailyRoadmapSidebar /> : null,
+    isLaunchpadComplete ? <HudSidebar /> : null
   );
 
   useEffect(() => {
