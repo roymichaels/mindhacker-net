@@ -9,6 +9,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { useSidebars } from '@/hooks/useSidebars';
+import { FMHudSidebar } from '@/components/fm/FMHudSidebar';
+import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
 
 const FM_TABS = [
   { id: 'home',  path: '/fm/home',    icon: Home,      labelEn: 'Home',   labelHe: 'בית' },
