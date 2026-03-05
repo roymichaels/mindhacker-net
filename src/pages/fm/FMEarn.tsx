@@ -28,7 +28,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
 
-type EarnTab = 'bounties' | 'gigs' | 'data' | 'activity';
+type EarnTab = 'overview' | 'bounties' | 'gigs' | 'data' | 'activity';
 
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
@@ -62,7 +62,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'bounties';
+  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'overview';
   const [internalTab, setInternalTab] = useState<EarnTab>(initialTab as EarnTab);
   const tab = (externalTab as EarnTab) || internalTab;
 
@@ -283,17 +283,14 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   const isMobile = useIsMobile();
   const hasSidebarNav = !!externalTab && !isMobile;
 
-  // Dashboard mode: show overview unless a tab is drilled into
-  const [drilled, setDrilled] = useState(false);
-  const showDashboard = !externalTab && !drilled;
+  const showDashboard = tab === 'overview';
 
   const enterTab = (t: EarnTab) => {
     switchTab(t);
-    setDrilled(true);
   };
 
   const backToDashboard = () => {
-    setDrilled(false);
+    switchTab('overview');
   };
 
   return (
@@ -338,7 +335,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
       )}
 
       {/* ═══════ DRILLED TAB VIEW ═══════ */}
-      {!showDashboard && !externalTab && (
+      {!showDashboard && (
         <div className="flex items-center gap-2">
           <button onClick={backToDashboard} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
