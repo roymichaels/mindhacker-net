@@ -80,13 +80,13 @@ export default function FMWalletPage() {
 
           {/* Action buttons */}
           <div className="flex gap-2 pt-1">
-            <Button className="flex-1 gap-1.5" size="sm" onClick={() => toast.info(isHe ? 'משיכות יהיו זמינות בקרוב' : 'Withdrawals coming soon')}>
+            <Button className="flex-1 gap-1.5" size="sm" onClick={() => navigate('/fm/cashout')}>
               <ArrowUpRight className="w-4 h-4" />
               {isHe ? 'משיכה' : 'Withdraw'}
             </Button>
-            <Button variant="outline" className="flex-1 gap-1.5" size="sm" onClick={() => toast.info(isHe ? 'הפקדות יהיו זמינות בקרוב' : 'Deposits coming soon')}>
+            <Button variant="outline" className="flex-1 gap-1.5" size="sm" onClick={() => navigate('/fm/bridge')}>
               <Coins className="w-4 h-4" />
-              {isHe ? 'הפקדה' : 'Deposit'}
+              {isHe ? 'גשר' : 'Bridge'}
             </Button>
           </div>
         </div>
