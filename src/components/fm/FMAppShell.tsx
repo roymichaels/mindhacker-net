@@ -60,9 +60,11 @@ export default function FMAppShell() {
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around max-w-md mx-auto h-14">
           {FM_TABS.map((tab) => {
-            const isActive = activePath === tab.path || 
-              (tab.id === 'home' && activePath === '/fm') ||
-              (tab.id === 'earn' && activePath.startsWith('/fm/earn'));
+            const isActive = 
+              (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
+              (tab.id === 'earn' && activePath.startsWith('/fm/earn') && !new URLSearchParams(location.search).get('tab')?.startsWith('work')) ||
+              (tab.id === 'work' && activePath.startsWith('/fm/earn') && new URLSearchParams(location.search).get('tab') === 'work') ||
+              (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
             return (
               <button
                 key={tab.id}
