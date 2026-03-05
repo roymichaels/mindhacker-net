@@ -15,15 +15,20 @@ import { FMBottomNav } from '@/components/fm/FMBottomNav';
 
 export default function FMAppShell() {
   const { language } = useTranslation();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
 
+  // Sub-routes that manage their own sidebars
+  const hasOwnSidebars = location.pathname.startsWith('/fm/earn');
+
   // Register FM-specific sidebars — mobile: none, desktop: right only
+  // Skip when a child route manages its own sidebars
   const needsOnboarding = !wallet || !wallet.onboarding_complete;
   useSidebars(
-    null, // no left sidebar
-    !isLoading && !needsOnboarding && !isMobile ? <FMActivitySidebar /> : null,
-    [isLoading, needsOnboarding, isMobile]
+    hasOwnSidebars ? undefined : null,
+    hasOwnSidebars ? undefined : (!isLoading && !needsOnboarding && !isMobile ? <FMActivitySidebar /> : null),
+    [isLoading, needsOnboarding, isMobile, hasOwnSidebars]
   );
 
   if (isLoading) return <PageSkeleton />;
