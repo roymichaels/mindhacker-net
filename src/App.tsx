@@ -172,10 +172,10 @@ const queryClient = new QueryClient({
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
-// Redirect /arena/:domainId/* → /life/:domainId/*
-function ArenaToLifeRedirect() {
+// Redirect old /arena/:domainId/* → /strategy/:domainId/*
+function ArenaToStrategyRedirect() {
   const loc = window.location.pathname;
-  const newPath = loc.replace(/^\/arena/, '/life');
+  const newPath = loc.replace(/^\/arena/, '/strategy');
   return <Navigate to={newPath} replace />;
 }
 
