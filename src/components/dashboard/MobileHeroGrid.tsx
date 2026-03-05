@@ -109,27 +109,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
             {/* ── Today's Action Queue ── */}
             <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => refetch()}
-                    disabled={isLoading}
-                    className="p-1.5 rounded-lg bg-muted/30 border border-border/30 hover:bg-muted/50 transition-colors"
-                  >
-                    {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" /> : <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setWizardOpen(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    {isHe ? 'הוסף' : 'Add'}
-                  </motion.button>
-                </div>
-              </div>
 
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">

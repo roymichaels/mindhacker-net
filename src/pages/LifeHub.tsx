@@ -59,39 +59,31 @@ export default function LifeHub() {
             </motion.button>
           </div>
         ) : (
-          /* Has plan — show missions/milestones */
-          <>
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80 flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                {isHe ? 'משימות להיום' : "Today's Missions"}
-              </h3>
-              <div className="flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setWizardOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-accent/10 text-accent-foreground border border-accent/20 hover:bg-accent/20 transition-colors"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  {isHe ? 'כיול מחדש' : 'Recalibrate'}
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setAddItemOpen(true)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium',
-                    'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors'
-                  )}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  {isHe ? 'הוסף' : 'Add'}
-                </motion.button>
-              </div>
+          /* Has plan — show recalibrate option */
+          <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Flame className="w-8 h-8 text-primary" />
             </div>
-            <DailyMilestones hub="both" hideHeader />
-          </>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">
+                {isHe ? 'תוכנית 100 יום פעילה' : '100-Day Plan Active'}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
+                {isHe
+                  ? 'המשימות היומיות שלך מופיעות בעמוד עכשיו'
+                  : 'Your daily missions appear in the Now page'}
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setWizardOpen(true)}
+              className="px-6 py-3 rounded-2xl bg-accent/10 text-accent-foreground border border-accent/20 font-bold text-sm flex items-center gap-2 hover:bg-accent/20 transition-colors"
+            >
+              <Sparkles className="w-4 h-4" />
+              {isHe ? 'כיול מחדש' : 'Recalibrate'}
+            </motion.button>
+          </div>
         )}
       </div>
 
