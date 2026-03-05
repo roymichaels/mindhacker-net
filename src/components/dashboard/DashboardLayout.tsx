@@ -42,7 +42,9 @@ function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onCl
 const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRight }: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
+  const location = useLocation();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
   useLearnPillarAction();
 
   // Read from SidebarContext (set by hub pages via useSidebars hook)
