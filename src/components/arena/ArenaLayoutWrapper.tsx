@@ -16,8 +16,8 @@ export default function ArenaLayoutWrapper() {
   const showSidebars = isLaunchpadComplete;
 
   useSidebars(
-    showSidebars ? <TacticsRoadmapSidebar /> : null,
-    showSidebars ? <ArenaActivitySidebar /> : null
+    showSidebars ? <ArenaActivitySidebar /> : null,
+    showSidebars ? <TacticsRoadmapSidebar /> : null
   );
 
   return (
