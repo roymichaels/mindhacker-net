@@ -10,8 +10,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
-  Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle,
+  Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle, Pickaxe,
 } from 'lucide-react';
+import { MiningDashboard } from '@/components/fm/MiningDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
 
-type EarnTab = 'overview' | 'bounties' | 'gigs' | 'data' | 'activity';
+type EarnTab = 'overview' | 'bounties' | 'gigs' | 'data' | 'activity' | 'mining';
 
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
@@ -278,6 +279,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
     { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-6 h-6" />, color: 'from-blue-50 to-sky-50 dark:from-blue-950/30 dark:to-sky-950/20', borderColor: 'border-blue-200 dark:border-blue-800/40', iconColor: 'text-blue-500', statValue: gigs.length, statLabelEn: 'open', statLabelHe: 'פתוחים' },
     { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-6 h-6" />, color: 'from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20', borderColor: 'border-emerald-200 dark:border-emerald-800/40', iconColor: 'text-emerald-500', statValue: DATA_OFFERS.length, statLabelEn: 'offers', statLabelHe: 'הצעות' },
     { id: 'activity', labelEn: 'Activity', labelHe: 'פעילות', icon: <ListChecks className="w-6 h-6" />, color: 'from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/20', borderColor: 'border-violet-200 dark:border-violet-800/40', iconColor: 'text-violet-500', statValue: claims.length, statLabelEn: 'claims', statLabelHe: 'הגשות' },
+    { id: 'mining', labelEn: 'Mining', labelHe: 'כרייה', icon: <Pickaxe className="w-6 h-6" />, color: 'from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20', borderColor: 'border-orange-200 dark:border-orange-800/40', iconColor: 'text-orange-500', statValue: 0, statLabelEn: 'mined today', statLabelHe: 'נכרו היום' },
   ];
 
   const isMobile = useIsMobile();
@@ -608,6 +610,11 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             ))
           )}
         </div>
+      )}
+
+      {/* ═══════ MINING TAB ═══════ */}
+      {!showDashboard && tab === 'mining' && (
+        <MiningDashboard />
       )}
     </div>
   );

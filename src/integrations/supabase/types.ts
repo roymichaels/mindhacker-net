@@ -3454,6 +3454,39 @@ export type Database = {
           },
         ]
       }
+      fm_data_consent: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_opted_in: boolean
+          opted_in_at: string | null
+          opted_out_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_opted_in?: boolean
+          opted_in_at?: string | null
+          opted_out_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_opted_in?: boolean
+          opted_in_at?: string | null
+          opted_out_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fm_data_contributions: {
         Row: {
           consent_hash: string
@@ -3586,6 +3619,98 @@ export type Database = {
           poster_id?: string
           status?: Database["public"]["Enums"]["fm_gig_status"]
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fm_mining_logs: {
+        Row: {
+          activity_type: string
+          id: string
+          idempotency_key: string | null
+          metadata: Json | null
+          mined_at: string
+          mos_awarded: number
+          rule_id: string
+          source_id: string | null
+          source_table: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          mined_at?: string
+          mos_awarded: number
+          rule_id: string
+          source_id?: string | null
+          source_table?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          mined_at?: string
+          mos_awarded?: number
+          rule_id?: string
+          source_id?: string | null
+          source_table?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_mining_logs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "fm_mining_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_mining_rules: {
+        Row: {
+          activity_type: string
+          base_reward: number
+          cooldown_minutes: number
+          created_at: string
+          id: string
+          is_active: boolean
+          label_en: string
+          label_he: string
+          max_daily: number
+          metadata: Json | null
+          min_duration_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          activity_type: string
+          base_reward?: number
+          cooldown_minutes?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_he: string
+          max_daily?: number
+          metadata?: Json | null
+          min_duration_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          activity_type?: string
+          base_reward?: number
+          cooldown_minutes?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_he?: string
+          max_daily?: number
+          metadata?: Json | null
+          min_duration_seconds?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -8607,6 +8732,16 @@ export type Database = {
         Returns: Json
       }
       fm_claim_bounty: { Args: { p_bounty_id: string }; Returns: Json }
+      fm_mine_activity: {
+        Args: {
+          p_activity_type: string
+          p_metadata?: Json
+          p_source_id?: string
+          p_source_table?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       fm_post_transaction: {
         Args: {
           p_amount: number
@@ -8782,6 +8917,7 @@ export type Database = {
         | "withdraw_crypto"
         | "deposit"
         | "adjustment"
+        | "mining_reward"
       fm_wallet_mode: "simple" | "advanced"
       notification_priority: "low" | "medium" | "high" | "urgent"
       notification_type:
@@ -8975,6 +9111,7 @@ export const Constants = {
         "withdraw_crypto",
         "deposit",
         "adjustment",
+        "mining_reward",
       ],
       fm_wallet_mode: ["simple", "advanced"],
       notification_priority: ["low", "medium", "high", "urgent"],
