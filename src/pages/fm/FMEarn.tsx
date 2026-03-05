@@ -410,7 +410,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
       )}
 
       {/* ═══════ GIGS TAB ═══════ */}
-      {tab === 'gigs' && (
+      {!showDashboard && tab === 'gigs' && (
         <>
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">{isHe ? 'מצא עבודה או פרסם משימה' : 'Find work or post a gig'}</p>
