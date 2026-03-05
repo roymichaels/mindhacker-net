@@ -16,6 +16,8 @@ const ORB_SIZE = 48;
 export function AuroraFloatingOrb() {
   const ctx = useAuroraChatContextSafe();
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const isFM = location.pathname.startsWith('/fm');
 
   // Organic breathing animation — driven by refs to avoid re-render storms
   const breathPhaseRef = useRef(0);
