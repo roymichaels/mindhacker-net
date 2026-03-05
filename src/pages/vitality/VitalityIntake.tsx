@@ -81,7 +81,7 @@ export default function VitalityIntake() {
           <CheckCircle className="w-16 h-16 text-emerald-500" />
           <h2 className="text-2xl font-bold text-foreground">{t('vitality.intakeComplete')}</h2>
           <p className="text-muted-foreground text-center max-w-md">{t('vitality.intakeCompleteDesc')}</p>
-          <Button onClick={() => navigate('/life/vitality/results')} className="bg-amber-600 hover:bg-amber-700">
+          <Button onClick={() => navigate('/strategy/vitality/results')} className="bg-amber-600 hover:bg-amber-700">
             {t('vitality.viewResults')}
           </Button>
         </div>
