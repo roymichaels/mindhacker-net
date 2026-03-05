@@ -73,6 +73,7 @@ import { BusinessIndexWrapper, BusinessDashboardWrapper } from './components/bus
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 const FMHome = lazy(() => import("./pages/FMHome"));
 const FMEarn = lazy(() => import("./pages/fm/FMEarn"));
+const EarnLayoutWrapper = lazy(() => import("./components/fm/EarnLayoutWrapper"));
 const FMWork = lazy(() => import("./pages/fm/FMWork"));
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMWalletPage = lazy(() => import("./pages/fm/FMWallet"));
@@ -366,7 +367,7 @@ const App = () => (
                           <Route path="/fm" element={<FMAppShell />}>
                             <Route index element={<Navigate to="/fm/home" replace />} />
                             <Route path="home" element={<FMHome />} />
-                            <Route path="earn" element={<FMEarn />} />
+                            <Route path="earn" element={<EarnLayoutWrapper />} />
                             <Route path="work" element={<FMWork />} />
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />

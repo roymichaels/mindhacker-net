@@ -10,6 +10,7 @@ import {
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
   Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle,
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -43,7 +44,12 @@ const DATA_OFFERS: DataOffer[] = [
   { id: 'training', type: 'training_results', icon: '💪', labelEn: 'Training & Session Data', labelHe: 'נתוני אימון וסשנים', descEn: 'Help optimize coaching and training programs', descHe: 'עזור לשפר תכניות אימון וקואצ׳ינג', days: 60, reward: 180, fieldsEn: ['Session completion rates', 'Engagement metrics', 'Outcome scores'], fieldsHe: ['שיעורי השלמת סשנים', 'מדדי מעורבות', 'ציוני תוצאה'] },
 ];
 
-export default function FMEarn() {
+interface FMEarnProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
+export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -51,14 +57,19 @@ export default function FMEarn() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const initialTab = (searchParams.get('tab') as EarnTab) || 'bounties';
-  const [tab, setTab] = useState<EarnTab>(initialTab);
+  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'bounties';
+  const [internalTab, setInternalTab] = useState<EarnTab>(initialTab as EarnTab);
+  const tab = (externalTab as EarnTab) || internalTab;
 
   const switchTab = (t: EarnTab) => {
-    setTab(t);
-    if (t === 'bounties') searchParams.delete('tab');
-    else searchParams.set('tab', t);
-    setSearchParams(searchParams, { replace: true });
+    if (onTabChange) {
+      onTabChange(t);
+    } else {
+      setInternalTab(t);
+      if (t === 'bounties') searchParams.delete('tab');
+      else searchParams.set('tab', t);
+      setSearchParams(searchParams, { replace: true });
+    }
   };
 
   // ──── Bounty state ────
@@ -260,6 +271,9 @@ export default function FMEarn() {
     { id: 'activity', labelEn: 'My Activity', labelHe: 'פעילות', icon: <ListChecks className="w-3.5 h-3.5" /> },
   ];
 
+  const isMobile = useIsMobile();
+  const hasSidebarNav = !!externalTab && !isMobile;
+
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
       <div>
@@ -267,18 +281,20 @@ export default function FMEarn() {
         <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
       </div>
 
-      {/* Internal tabs */}
-      <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => switchTab(t.id)}
-            className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
-              tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
-            }`}
-          >
-            {t.icon} {isHe ? t.labelHe : t.labelEn}
-          </button>
-        ))}
-      </div>
+      {/* Internal tabs — only on mobile when sidebar isn't managing tabs */}
+      {!hasSidebarNav && (
+        <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
+          {TABS.map((t) => (
+            <button key={t.id} onClick={() => switchTab(t.id)}
+              className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
+                tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              {t.icon} {isHe ? t.labelHe : t.labelEn}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ═══════ BOUNTIES TAB ═══════ */}
       {tab === 'bounties' && (
