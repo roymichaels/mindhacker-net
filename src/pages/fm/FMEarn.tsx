@@ -273,29 +273,78 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   };
 
   // ──── TAB CONFIG ────
-  const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode }[] = [
-    { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-3.5 h-3.5" /> },
-    { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-3.5 h-3.5" /> },
-    { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-3.5 h-3.5" /> },
-    { id: 'activity', labelEn: 'My Activity', labelHe: 'פעילות', icon: <ListChecks className="w-3.5 h-3.5" /> },
+  const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode; color: string; borderColor: string; iconColor: string; statValue: number; statLabelEn: string; statLabelHe: string }[] = [
+    { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-6 h-6" />, color: 'from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20', borderColor: 'border-amber-200 dark:border-amber-800/40', iconColor: 'text-amber-500', statValue: filteredBounties.length, statLabelEn: 'available', statLabelHe: 'זמינים' },
+    { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-6 h-6" />, color: 'from-blue-50 to-sky-50 dark:from-blue-950/30 dark:to-sky-950/20', borderColor: 'border-blue-200 dark:border-blue-800/40', iconColor: 'text-blue-500', statValue: gigs.length, statLabelEn: 'open', statLabelHe: 'פתוחים' },
+    { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-6 h-6" />, color: 'from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20', borderColor: 'border-emerald-200 dark:border-emerald-800/40', iconColor: 'text-emerald-500', statValue: DATA_OFFERS.length, statLabelEn: 'offers', statLabelHe: 'הצעות' },
+    { id: 'activity', labelEn: 'Activity', labelHe: 'פעילות', icon: <ListChecks className="w-6 h-6" />, color: 'from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/20', borderColor: 'border-violet-200 dark:border-violet-800/40', iconColor: 'text-violet-500', statValue: claims.length, statLabelEn: 'claims', statLabelHe: 'הגשות' },
   ];
 
   const isMobile = useIsMobile();
   const hasSidebarNav = !!externalTab && !isMobile;
+
+  // Dashboard mode: show overview unless a tab is drilled into
+  const [drilled, setDrilled] = useState(false);
+  const showDashboard = !externalTab && !drilled;
+
+  const enterTab = (t: EarnTab) => {
+    switchTab(t);
+    setDrilled(true);
+  };
+
+  const backToDashboard = () => {
+    setDrilled(false);
+  };
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
       {/* Aurora suggestion */}
       <FMAuroraCard opportunities={opportunities} />
 
-      {/* Internal tabs — only when no external tab control (standalone mode) */}
-      {!externalTab && (
-        <>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{isHe ? 'הרוויח MOS' : 'Earn MOS'}</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
+      {/* ═══════ DASHBOARD OVERVIEW ═══════ */}
+      {showDashboard && (
+        <div className="space-y-4">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-foreground flex items-center justify-center gap-2">
+              <Coins className="w-5 h-5 text-amber-500" />
+              {isHe ? 'הרוויח MOS' : 'Earn MOS'}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isHe ? 'בחר קטגוריה והתחל להרוויח' : 'Pick a category and start earning'}
+            </p>
           </div>
-          <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
+
+          <div className="grid grid-cols-2 gap-3">
+            {TABS.map((t, i) => (
+              <motion.button
+                key={t.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.07 }}
+                onClick={() => enterTab(t.id)}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border bg-gradient-to-br ${t.color} ${t.borderColor} hover:scale-[1.02] active:scale-[0.98] transition-transform`}
+              >
+                <div className="w-12 h-12 rounded-xl bg-background/80 flex items-center justify-center">
+                  <span className={t.iconColor}>{t.icon}</span>
+                </div>
+                <h3 className="font-semibold text-sm text-foreground">{isHe ? t.labelHe : t.labelEn}</h3>
+                <span className="text-xs text-muted-foreground">
+                  {t.statValue} {isHe ? t.statLabelHe : t.statLabelEn}
+                </span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══════ DRILLED TAB VIEW ═══════ */}
+      {!showDashboard && !externalTab && (
+        <div className="flex items-center gap-2">
+          <button onClick={backToDashboard} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
+            {isHe ? 'חזרה' : 'Back'}
+          </button>
+          <div className="flex gap-0.5 flex-1 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
             {TABS.map((t) => (
               <button key={t.id} onClick={() => switchTab(t.id)}
                 className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
@@ -306,7 +355,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
               </button>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {/* ═══════ BOUNTIES TAB ═══════ */}
