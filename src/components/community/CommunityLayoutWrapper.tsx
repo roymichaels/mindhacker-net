@@ -28,7 +28,8 @@ export default function CommunityLayoutWrapper() {
       selectedPillar={selectedPillar}
       selectedTopic={selectedTopic}
       onSelectTopic={setSelectedTopic}
-    />
+    />,
+    [selectedPillar, selectedTopic]
   );
 
   return (
