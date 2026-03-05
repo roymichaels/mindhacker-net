@@ -21,14 +21,6 @@ export function useCoachSidebars(
   activeTab?: string,
   onTabChange?: (tab: string) => void,
 ) {
-  const { hasRole, loading } = useUserRoles();
-  const { user } = useAuth();
-  const isPractitioner = !loading && user && hasRole('practitioner');
-
-  if (!isPractitioner) {
-    return { leftSidebar: undefined, rightSidebar: undefined };
-  }
-
   return {
     leftSidebar: <CoachHudSidebar activeTab={activeTab} onTabChange={onTabChange} />,
     rightSidebar: <CoachActivitySidebar selectedClientId={selectedClientId} onSelectClient={onSelectClient} />,
