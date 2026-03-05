@@ -54,7 +54,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
   useEffect(() => {
     setActivePillar(selectedPillar);
-    setSelectedTopic(null);
     return () => {
       setActivePillar(null);
     };
