@@ -1,11 +1,10 @@
-import { ShoppingBag, Briefcase, Wallet } from 'lucide-react';
+import { Target, Wallet } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 
 const ACTIONS = [
-  { id: 'market', icon: ShoppingBag, labelEn: 'Market',  labelHe: 'שוק',    descEn: 'Bounties & data',      descHe: 'באונטיז ונתונים',    path: '/fm/earn' },
-  { id: 'work',   icon: Briefcase,   labelEn: 'Work',    labelHe: 'עבודה',   descEn: 'Freelance gigs',       descHe: 'עבודות פרילנס',      path: '/fm/work' },
-  { id: 'wallet', icon: Wallet,      labelEn: 'Wallet',  labelHe: 'ארנק',    descEn: 'Balance & withdraw',   descHe: 'יתרה ומשיכה',        path: '/fm/wallet' },
+  { id: 'earn',   icon: Target,  labelEn: 'Earn',    labelHe: 'הרוויח', descEn: 'Bounties, gigs & data', descHe: 'באונטיז, עבודות ונתונים', path: '/fm/earn' },
+  { id: 'wallet', icon: Wallet,  labelEn: 'Wallet',  labelHe: 'ארנק',   descEn: 'Balance & withdraw',    descHe: 'יתרה ומשיכה',            path: '/fm/wallet' },
 ];
 
 export function FMQuickActions() {
@@ -14,7 +13,7 @@ export function FMQuickActions() {
   const navigate = useNavigate();
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-2 gap-3">
       {ACTIONS.map((a) => (
         <button
           key={a.id}

@@ -4,7 +4,7 @@
  * Wraps all /fm/* routes via <Outlet />.
  */
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, ShoppingBag, Briefcase, Wallet } from 'lucide-react';
+import { Home, Target, Wallet } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
@@ -15,8 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const FM_TABS = [
   { id: 'home',   path: '/fm/home',   icon: Home,        labelEn: 'Home',   labelHe: 'בית' },
-  { id: 'market', path: '/fm/earn',   icon: ShoppingBag, labelEn: 'Market', labelHe: 'שוק' },
-  { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Work',   labelHe: 'עבודה' },
+  { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
@@ -62,7 +61,7 @@ export default function FMAppShell() {
           {FM_TABS.map((tab) => {
             const isActive = activePath === tab.path || 
               (tab.id === 'home' && activePath === '/fm') ||
-              (tab.id === 'market' && activePath.startsWith('/fm/earn'));
+              (tab.id === 'earn' && activePath.startsWith('/fm/earn'));
             return (
               <button
                 key={tab.id}
