@@ -39,7 +39,7 @@ export default function ExpansionHistory() {
           <div className="space-y-3">
             {history.map((h, i) => (
               <Card key={i} className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => navigate(`/life/expansion/results?idx=${i}`)}>
+                onClick={() => navigate(`/strategy/expansion/results?idx=${i}`)}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-lg font-bold text-foreground">{h.expansion_index}/100</p>

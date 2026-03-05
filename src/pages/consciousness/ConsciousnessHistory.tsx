@@ -41,7 +41,7 @@ export default function ConsciousnessHistory() {
           <div className="space-y-3">
             {history.map((h, i) => (
               <Card key={i} className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => navigate(`/life/consciousness/results?idx=${i}`)}>
+                onClick={() => navigate(`/strategy/consciousness/results?idx=${i}`)}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-lg font-bold text-foreground">{h.consciousness_index}/100</p>

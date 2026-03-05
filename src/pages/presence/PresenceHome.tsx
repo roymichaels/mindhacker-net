@@ -159,7 +159,7 @@ export default function PresenceHome() {
                     )}
                     {t('presence.rescan')}
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => navigate('/life/presence/results')} className="flex-1">
+                  <Button variant="outline" size="sm" onClick={() => navigate('/strategy/presence/results')} className="flex-1">
                     {t('presence.viewResults')}
                   </Button>
                 </div>

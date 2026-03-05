@@ -24,7 +24,7 @@ export default function FocusHistory() {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/focus')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/focus')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('focus.historyTitle')}</h1>
@@ -39,7 +39,7 @@ export default function FocusHistory() {
           <div className="space-y-3">
             {history.map((h, i) => (
               <Card key={i} className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => navigate(`/life/focus/results?idx=${i}`)}>
+                onClick={() => navigate(`/strategy/focus/results?idx=${i}`)}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-lg font-bold text-foreground">{h.overall_index}/100</p>

@@ -79,7 +79,7 @@ export default function CombatHistory() {
               <Card
                 key={i}
                 className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => navigate(`/life/combat/history?idx=${i}`)}
+                onClick={() => navigate(`/strategy/combat/history?idx=${i}`)}
               >
                 <div>
                   <p className="text-lg font-bold text-foreground">{h.warrior_index}/100</p>

@@ -90,13 +90,13 @@ export default function CombatHome() {
                   icon={<Sun className={cn("w-5 h-5", vitalityComplete ? "text-emerald-400" : "text-amber-400")} />}
                   label={t('combat.reqVitality')}
                   done={vitalityComplete}
-                  onClick={() => !vitalityComplete && navigate('/life/vitality')}
+                  onClick={() => !vitalityComplete && navigate('/strategy/vitality')}
                 />
                 <GateRow
                   icon={<Crosshair className={cn("w-5 h-5", focusComplete ? "text-emerald-400" : "text-cyan-400")} />}
                   label={t('combat.reqFocus')}
                   done={focusComplete}
-                  onClick={() => !focusComplete && navigate('/life/focus')}
+                  onClick={() => !focusComplete && navigate('/strategy/focus')}
                 />
               </div>
             </Card>
@@ -151,7 +151,7 @@ export default function CombatHome() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={() => navigate('/life/combat/results')} className="flex-1">
+                  <Button onClick={() => navigate('/strategy/combat/results')} className="flex-1">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('combat.viewResults')}
                   </Button>
                   <Button onClick={() => startAssessment('combat')} variant="outline">
@@ -170,14 +170,14 @@ export default function CombatHome() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">{t('combat.previousScans')}</h3>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/life/combat/history')} className="text-xs">
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/strategy/combat/history')} className="text-xs">
                     {t('combat.seeAll')} <ForwardIcon className="w-3 h-3 ms-1" />
                   </Button>
                 </div>
                 <div className="space-y-2">
                   {history.slice(0, 3).map((h, i) => (
                     <Card key={i} className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => navigate(`/life/combat/history?idx=${i}`)}>
+                      onClick={() => navigate(`/strategy/combat/history?idx=${i}`)}>
                       <div>
                         <p className="text-sm font-medium">{h.warrior_index}/100</p>
                         <p className="text-xs text-muted-foreground">{new Date(h.assessed_at).toLocaleDateString(isRTL ? 'he-IL' : 'en-US')}</p>

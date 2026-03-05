@@ -121,7 +121,7 @@ export function LifeHudSidebar() {
   };
 
   const handlePillarClick = (domainId: string) => {
-    navigate(`/life/${domainId}/results`);
+    navigate(`/strategy/${domainId}/results`);
   };
 
   return (
@@ -152,27 +152,6 @@ export function LifeHudSidebar() {
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
           <SidebarOrbWidget collapsed />
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
-          <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {LIFE_DOMAINS.map((domain) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              return (
-                <button
-                  key={domain.id}
-                  onClick={() => handlePillarClick(domain.id)}
-                  className={cn(
-                    "p-2 rounded-lg border transition-colors",
-                    status === 'active'
-                      ? activeColorMap[domain.color]
-                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
-                  )}
-                  title={isHe ? domain.labelHe : domain.labelEn}
-                >
-                  <domain.icon className={cn("w-4 h-4", domainColorMap[domain.color])} />
-                </button>
-              );
-            })}
-          </div>
         </div>
       )}
 
@@ -194,53 +173,6 @@ export function LifeHudSidebar() {
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
-
-          {/* Domain nav items — navigate to results */}
-          <div className="flex flex-col gap-1 w-full">
-            {LIFE_DOMAINS.map((domain) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              const isActive = status === 'active' || status === 'configured';
-              const progress = getPillarProgress(domain.id);
-              const hasMissions = (missionsByPillar[domain.id] || []).length > 0;
-              return (
-                <button
-                  key={domain.id}
-                  onClick={() => handlePillarClick(domain.id)}
-                  className={cn(
-                    "w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start",
-                    isActive
-                      ? `${activeColorMap[domain.color]} shadow-sm`
-                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
-                  )}
-                >
-                  <domain.icon className={cn("w-4 h-4 shrink-0", domainColorMap[domain.color])} />
-                  <div className="flex-1 min-w-0">
-                    <span className={cn("text-xs font-semibold", domainColorMap[domain.color])}>
-                      {isHe ? domain.labelHe : domain.labelEn}
-                    </span>
-                    {hasMissions && (
-                      <Progress value={progress} className="h-1 mt-1" />
-                    )}
-                  </div>
-                  {status !== 'unconfigured' && (
-                    <span className={cn(
-                      "text-[9px] px-1.5 py-0.5 rounded-full border shrink-0",
-                      isActive
-                        ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
-                        : status === 'needs_reassessment'
-                          ? "bg-amber-500/20 text-amber-400 border-amber-500/20"
-                          : "bg-muted/40 text-muted-foreground border-border/20"
-                    )}>
-                      {isHe
-                        ? (isActive ? 'פעיל' : status === 'needs_reassessment' ? 'נדרש כיול' : 'הוגדר')
-                        : (isActive ? 'Active' : status === 'needs_reassessment' ? 'Needs Update' : 'Set')
-                      }
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
         </div>
       )}
     </aside>
