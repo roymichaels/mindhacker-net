@@ -76,6 +76,8 @@ import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
 import FMWorkLayoutWrapper from "./components/fm/FMWorkLayoutWrapper";
 import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
+const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
+const FMBridge = lazy(() => import("./pages/fm/FMBridge"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
