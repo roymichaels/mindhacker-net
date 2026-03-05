@@ -4,7 +4,7 @@
  * Route: /fm/earn — bottom tab label "Earn"
  */
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
