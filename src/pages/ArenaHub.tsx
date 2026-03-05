@@ -4,7 +4,7 @@
  * Weekly roadmap is in the left sidebar.
  */
 import { useState } from 'react';
-import { Swords, Sparkles, Crosshair, Clock, Play, Flame } from 'lucide-react';
+import { Swords, Sparkles, Crosshair, Clock, Play, Flame, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -13,6 +13,7 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { getDomainById } from '@/navigation/lifeDomains';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
+import { usePhaseActions } from '@/hooks/usePhaseActions';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,6 +33,9 @@ export default function ArenaHub() {
   const { queue, refetch } = useNowEngine();
   const nextAction = queue[0] || null;
   const phaseLabel = PHASE_LABELS[(currentPhase || 1) - 1] || '?';
+
+  // Auto-trigger lazy phase action generation for current phase milestones
+  const { generating: phaseGenerating, totalMilestones: phaseTotalMs, generatedMilestones: phaseGenMs } = usePhaseActions();
 
   const handleExecute = (item: NowQueueItem) => {
     setExecutionAction(item);
@@ -106,7 +110,14 @@ export default function ArenaHub() {
                   </div>
                 </motion.div>
               );
-            })() : (
+            })() : phaseGenerating ? (
+              <div className="flex flex-col items-center gap-2 py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-destructive" />
+                <p className="text-xs text-muted-foreground">
+                  {isHe ? `מייצר תוכנית שבועית (${phaseGenMs}/${phaseTotalMs})...` : `Generating weekly plan (${phaseGenMs}/${phaseTotalMs})...`}
+                </p>
+              </div>
+            ) : (
               <div className="text-center py-8 text-sm text-muted-foreground">
                 {isHe ? 'אין פעולה הבאה כרגע' : 'No next action right now'}
               </div>
