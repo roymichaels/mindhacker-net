@@ -390,13 +390,15 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             </motion.div>
           ) : (
             <>
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                {GIG_CATEGORIES.map((cat) => (
-                  <button key={cat} onClick={() => setGFilter(cat)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${gFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                  >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
-                ))}
-              </div>
+              {!hasSidebarNav && (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {GIG_CATEGORIES.map((cat) => (
+                    <button key={cat} onClick={() => setGFilter(cat)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${gFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                    >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+                  ))}
+                </div>
+              )}
               {gLoading ? (
                 <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-28 bg-muted/50 rounded-xl animate-pulse" />)}</div>
               ) : filteredGigs.length === 0 ? (
