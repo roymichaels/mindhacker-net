@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Briefcase, Palette, Code, ArrowRight, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion } from 'framer-motion';
-import { FMAuroraCard } from '@/components/fm/FMAuroraCard';
-import { useAuroraOpportunities } from '@/hooks/fm/useAuroraOpportunities';
+
+
 
 const PROFESSIONAL_PATHS = [
   {
