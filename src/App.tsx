@@ -361,12 +361,16 @@ const App = () => (
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
                           {/* Learn */}
                           <Route path="/learn" element={<LearnLayoutWrapper />} />
-                          {/* FM — Free Market */}
-                          <Route path="/fm" element={<FMHome />} />
-                          <Route path="/fm/earn" element={<FMEarn />} />
-                          <Route path="/fm/work" element={<FMWork />} />
-                          <Route path="/fm/contribute" element={<FMContribute />} />
-                          <Route path="/fm/wallet" element={<FMWalletPage />} />
+                          {/* FM — Free Market (self-contained app shell) */}
+                          <Route path="/fm" element={<FMAppShell />}>
+                            <Route index element={<Navigate to="/fm/home" replace />} />
+                            <Route path="home" element={<FMHome />} />
+                            <Route path="earn" element={<FMEarn />} />
+                            <Route path="work" element={<FMWork />} />
+                            <Route path="share" element={<FMContribute />} />
+                            <Route path="contribute" element={<Navigate to="/fm/share" replace />} />
+                            <Route path="wallet" element={<FMWalletPage />} />
+                          </Route>
                           
                           {/* Journeys */}
                           <Route path="/coaching/journey" element={<CoachingJourney />} />

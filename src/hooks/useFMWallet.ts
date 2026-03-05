@@ -10,13 +10,22 @@ export function useFMWallet() {
     queryKey: ['fm-wallet', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
+      // Try to fetch existing wallet
       const { data, error } = await supabase
         .from('fm_wallets')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (data) return data;
+      // Auto-create wallet if it doesn't exist
+      const { data: created, error: createErr } = await supabase
+        .from('fm_wallets')
+        .upsert({ user_id: user.id }, { onConflict: 'user_id' })
+        .select()
+        .single();
+      if (createErr) throw createErr;
+      return created;
     },
     enabled: !!user?.id,
   });
