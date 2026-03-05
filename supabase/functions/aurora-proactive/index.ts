@@ -451,8 +451,12 @@ serve(async (req) => {
       let processed = 0;
       for (const user of (activeUsers || []) as { user_id: string }[]) {
         try {
-          const ctx = await buildContext(supabase, user.user_id, 'he');
-          const snapshot = toProactiveSnapshot(ctx);
+          const [ctx, pulse] = await Promise.all([
+            buildContext(supabase, user.user_id, 'he'),
+            fetchPulseData(supabase, user.user_id),
+          ]);
+          const nextTask = ctx.action_items.today_tasks.find(t => t.status !== 'done')?.title || null;
+          const snapshot = toProactiveSnapshot(ctx, pulse, nextTask);
           await analyzeAndQueue(supabase, user.user_id, snapshot);
           processed++;
         } catch (e) {
