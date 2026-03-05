@@ -309,13 +309,16 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input className="pl-9" placeholder={isHe ? 'חפש באונטיז...' : 'Search bounties...'} value={bSearch} onChange={(e) => setBSearch(e.target.value)} />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {BOUNTY_CATEGORIES.map((cat) => (
-              <button key={cat} onClick={() => setBFilter(cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-              >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
-            ))}
-          </div>
+          {/* Category filters — only on mobile (sidebar handles desktop) */}
+          {!hasSidebarNav && (
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {BOUNTY_CATEGORIES.map((cat) => (
+                <button key={cat} onClick={() => setBFilter(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+              ))}
+            </div>
+          )}
           {bLoading ? (
             <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted/50 rounded-xl animate-pulse" />)}</div>
           ) : filteredBounties.length === 0 ? (
