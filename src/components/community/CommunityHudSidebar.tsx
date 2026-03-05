@@ -56,13 +56,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-1 h-full pt-7 pb-4 px-0.5 overflow-y-auto scrollbar-hide">
-          <div className="flex flex-col items-center gap-1 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white shadow-lg">
-              <Users className="w-5 h-5" />
-            </div>
-          </div>
-
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent my-1" />
 
           <button
             onClick={() => onPillarSelect('all')}
