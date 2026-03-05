@@ -89,7 +89,7 @@ export default function LifeHub() {
         onOpenChange={setWizardOpen}
         onPlanGenerated={handlePlanGenerated}
       />
-      <AddItemWizard open={addItemOpen} onOpenChange={setAddItemOpen} hub="core" />
+      
     </div>
   );
 }
