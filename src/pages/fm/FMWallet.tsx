@@ -30,6 +30,7 @@ export default function FMWalletPage() {
   const { wallet, isLoading } = useFMWallet();
   const { data: transactions = [], isLoading: txLoading } = useFMTransactions();
   const [balanceHidden, setBalanceHidden] = useState(false);
+  const navigate = useNavigate();
 
   if (isLoading) return <PageSkeleton />;
 
