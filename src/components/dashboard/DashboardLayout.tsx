@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,9 +41,10 @@ function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onCl
 }
 
 const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRight }: DashboardLayoutProps) => {
-  const { isRTL } = useTranslation();
+  const { isRTL, language } = useTranslation();
   const isMobile = useIsMobile();
   const location = useLocation();
+  const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
   useLearnPillarAction();
@@ -60,7 +62,18 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
           {isMobile ? (
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
               <div className="flex h-14 items-center justify-between px-3">
-                <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
+                <div className="flex items-center gap-1">
+                  {isFM && (
+                    <button
+                      onClick={() => navigate('/dashboard')}
+                      className="p-2 -ms-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                      aria-label="Back to dashboard"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+                  )}
+                  <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
+                </div>
                 <HeaderActions compact />
               </div>
             </header>
