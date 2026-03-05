@@ -34,6 +34,9 @@ export default function ArenaHub() {
   const nextAction = queue[0] || null;
   const phaseLabel = PHASE_LABELS[(currentPhase || 1) - 1] || '?';
 
+  // Auto-trigger lazy phase action generation for current phase milestones
+  const { generating: phaseGenerating, totalMilestones: phaseTotalMs, generatedMilestones: phaseGenMs } = usePhaseActions();
+
   const handleExecute = (item: NowQueueItem) => {
     setExecutionAction(item);
     setExecutionOpen(true);
