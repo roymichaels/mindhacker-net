@@ -83,7 +83,7 @@ export default function ArenaHub() {
         </div>
 
         {/* Daily Milestones */}
-        <DailyMilestones hub="both" pillarFilter={selectedPillar} />
+        <DailyMilestones hub="both" />
       </div>
 
       <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} hub="core" />
