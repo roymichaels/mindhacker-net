@@ -335,7 +335,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
       )}
 
       {/* ═══════ DRILLED TAB VIEW ═══════ */}
-      {!showDashboard && !externalTab && (
+      {!showDashboard && (
         <div className="flex items-center gap-2">
           <button onClick={backToDashboard} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
