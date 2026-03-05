@@ -44,7 +44,7 @@ export default function PresenceAnalyzing() {
     const raw = sessionStorage.getItem('presence_scan_images');
     if (!raw) {
       toast.error('No scan images found. Please try again.');
-      navigate('/life/presence');
+      navigate('/strategy/presence');
       return;
     }
 
