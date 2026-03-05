@@ -1,17 +1,14 @@
 /**
- * CommunityHudSidebar - Left sidebar for community pillar navigation + topic boards.
+ * CommunityHudSidebar - Left sidebar for community pillar navigation.
  * Includes the Player Card HUD at the top.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import { PanelRightClose, PanelRightOpen, MessageSquare } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
-import { PILLAR_SUBCATEGORIES } from '@/lib/communityHelpers';
 import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 interface CommunityHudSidebarProps {
   selectedPillar: string;
@@ -27,36 +24,11 @@ const PILLAR_ICONS: Record<string, string> = {
   influence: '👑', relationships: '🤝', business: '💼', projects: '📋', play: '🎮',
 };
 
-export function CommunityHudSidebar({ selectedPillar, onPillarSelect, selectedTopic = null, onSelectTopic, onCreateThread }: CommunityHudSidebarProps) {
+export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateThread }: CommunityHudSidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
-
-  const isAll = selectedPillar === 'all';
-  const subcategories = PILLAR_SUBCATEGORIES[selectedPillar] || [];
-
-  // Fetch thread counts per subcategory
-  const { data: topicCounts } = useQuery({
-    queryKey: ['topic-thread-counts-hud', selectedPillar],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('community_posts')
-        .select('category_id')
-        .eq('pillar', selectedPillar)
-        .eq('status', 'approved');
-      if (!data) return {};
-      const counts: Record<string, number> = {};
-      for (const post of data) {
-        if (post.category_id) {
-          counts[post.category_id] = (counts[post.category_id] || 0) + 1;
-        }
-      }
-      return counts;
-    },
-    enabled: !isAll && subcategories.length > 0,
-    staleTime: 60_000,
-  });
 
   return (
     <aside className={cn(
@@ -86,7 +58,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, selectedTo
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-1 h-full pt-7 pb-4 px-0.5 overflow-y-auto scrollbar-hide">
-
           <button
             onClick={() => onPillarSelect('all')}
             className={cn(
@@ -115,40 +86,16 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, selectedTo
               {PILLAR_ICONS[domain.id] || '⚡'}
             </button>
           ))}
-
-          {/* Topic icons when pillar selected */}
-          {!isAll && subcategories.length > 0 && (
-            <>
-              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
-              {subcategories.map((sub) => (
-                <button
-                  key={sub.id}
-                  onClick={() => onSelectTopic?.(sub.id)}
-                  className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-colors",
-                    selectedTopic === sub.id
-                      ? "bg-primary/20 border border-primary/40"
-                      : "bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10"
-                  )}
-                  title={isHe ? sub.he : sub.en}
-                >
-                  {sub.icon}
-                </button>
-              ))}
-            </>
-          )}
         </div>
       )}
 
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col gap-2 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
-          {/* Player Card HUD — same as dashboard */}
           {user && <CommunityPlayerCard userId={user.id} />}
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
 
-          {/* Pillar list */}
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
             {isHe ? 'עמודים' : 'Pillars'}
           </span>
@@ -191,53 +138,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, selectedTo
               </button>
             ))}
           </div>
-
-          {/* ── Topic boards for selected pillar ── */}
-          {!isAll && subcategories.length > 0 && (
-            <>
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1">
-                📋 {isHe ? 'נושאים' : 'Topics'}
-              </span>
-              <div className="flex flex-col gap-1 w-full">
-                <button
-                  onClick={() => onSelectTopic?.(null)}
-                  className={cn(
-                    "w-full rounded-xl p-2 flex items-center gap-2 text-start transition-all border text-xs font-medium",
-                    selectedTopic === null
-                      ? "bg-primary/10 border-primary/30 text-primary"
-                      : "bg-muted/20 border-border/20 text-foreground hover:bg-accent/10"
-                  )}
-                >
-                  🌐 {isHe ? 'כל השרשורים' : 'All threads'}
-                </button>
-                {subcategories.map((sub) => (
-                  <button
-                    key={sub.id}
-                    onClick={() => onSelectTopic?.(sub.id)}
-                    className={cn(
-                      "w-full rounded-xl p-2 flex items-center gap-2 text-start transition-all border",
-                      selectedTopic === sub.id
-                        ? "bg-primary/10 border-primary/30"
-                        : "bg-muted/20 border-border/20 hover:bg-accent/10"
-                    )}
-                  >
-                    <span className="text-sm flex-shrink-0">{sub.icon}</span>
-                    <span className={cn(
-                      "text-xs font-medium flex-1 truncate",
-                      selectedTopic === sub.id ? "text-primary" : "text-foreground"
-                    )}>
-                      {isHe ? sub.he : sub.en}
-                    </span>
-                    <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground flex-shrink-0">
-                      <MessageSquare className="h-2.5 w-2.5" />
-                      <span>{topicCounts?.[sub.id] || 0}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
         </div>
