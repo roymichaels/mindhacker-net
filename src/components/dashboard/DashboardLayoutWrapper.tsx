@@ -19,8 +19,8 @@ export default function DashboardLayoutWrapper() {
   const [synthesisOpen, setSynthesisOpen] = useState(false);
 
   useSidebars(
-    isLaunchpadComplete ? <DailyRoadmapSidebar /> : null,
-    isLaunchpadComplete ? <HudSidebar /> : null
+    isLaunchpadComplete ? <HudSidebar /> : null,
+    isLaunchpadComplete ? <RoadmapSidebar /> : null
   );
 
   useEffect(() => {
