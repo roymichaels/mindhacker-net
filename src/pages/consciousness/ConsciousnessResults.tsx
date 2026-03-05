@@ -61,7 +61,7 @@ export default function ConsciousnessResults() {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{t('consciousness.noResults')}</p>
-          <Button onClick={() => navigate('/life/consciousness/assess')} className="mt-4">{t('consciousness.beginScan')}</Button>
+          <Button onClick={() => navigate('/strategy/consciousness/assess')} className="mt-4">{t('consciousness.beginScan')}</Button>
         </div>
       </PageShell>
     );
