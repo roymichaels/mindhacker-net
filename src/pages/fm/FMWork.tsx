@@ -108,14 +108,6 @@ export default function FMWork() {
         })}
       </div>
 
-      {/* Gig marketplace teaser */}
-      <div className="bg-card border border-border rounded-xl p-4 text-center space-y-2">
-        <p className="text-sm text-muted-foreground">
-          {isHe
-            ? '🔜 שוק העבודות — בקרוב תוכל לפרסם ולמצוא עבודות בתוך הפלטפורמה'
-            : '🔜 Gig Marketplace — post & find gigs coming soon'}
-        </p>
-      </div>
     </div>
   );
 }
