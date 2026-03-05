@@ -611,6 +611,11 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
           )}
         </div>
       )}
+
+      {/* ═══════ MINING TAB ═══════ */}
+      {!showDashboard && tab === 'mining' && (
+        <MiningDashboard />
+      )}
     </div>
   );
 }
