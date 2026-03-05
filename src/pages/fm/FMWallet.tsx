@@ -35,7 +35,7 @@ export default function FMWalletPage() {
   const balance = wallet?.mos_balance ?? 0;
   const earned = wallet?.lifetime_earned ?? 0;
   const spent = wallet?.lifetime_spent ?? 0;
-  const isAdvanced = wallet?.wallet_mode === 'advanced';
+  const isAdvanced = wallet?.mode === 'advanced';
 
   const fiatValue = (balance * MOS_TO_USD).toFixed(2);
 
