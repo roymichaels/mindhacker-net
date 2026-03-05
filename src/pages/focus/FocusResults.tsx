@@ -56,7 +56,7 @@ export default function FocusResults() {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{t('focus.noResults')}</p>
-          <Button onClick={() => navigate('/life/focus/assess')} className="mt-4">{t('focus.beginScan')}</Button>
+          <Button onClick={() => navigate('/strategy/focus/assess')} className="mt-4">{t('focus.beginScan')}</Button>
         </div>
       </PageShell>
     );
