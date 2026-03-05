@@ -100,11 +100,12 @@ export function AuroraDock() {
     setChatHeightVh(DEFAULT_CHAT_VH);
   }, [setIsChatExpanded, setIsDockVisible]);
 
-  // Hide dock on non-dashboard pages (panels, etc.)
+  // Hide dock on non-dashboard pages (panels, FM, etc.)
+  const isFM = location.pathname.startsWith('/fm');
   const isPanel = location.pathname.startsWith('/panel') ||
     location.pathname.startsWith('/coach/') ||
     location.pathname.startsWith('/affiliate');
-  if (isPanel) return null;
+  if (isPanel || isFM) return null;
   if (!isDockVisible) return null;
 
   const dragHandle = isChatExpanded ? (
