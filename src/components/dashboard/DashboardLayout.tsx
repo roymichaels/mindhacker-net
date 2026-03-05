@@ -71,13 +71,13 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
           )}
 
           <div className="flex-1 min-h-0 flex !flex-row [&>aside]:pb-16 lg:[&>aside]:pb-14 [&>aside]:flex-shrink-0 [&>aside]:transition-all [&>aside]:duration-300" dir="ltr">
-            {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
+            {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
 
             <main className="flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 pb-16 md:pb-0 flex flex-col transition-all duration-300">
               {children}
             </main>
 
-            {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
+            {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
           </div>
 
           <AuroraFloatingOrb />
