@@ -9,7 +9,7 @@ import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
-import PillarTopicBoards from '@/components/community/PillarTopicBoards';
+
 
 
 import AddToPlanModal from '@/components/community/AddToPlanModal';
@@ -23,18 +23,19 @@ import type { ThreadData } from '@/components/community/ThreadCard';
 interface CommunityProps {
   selectedPillar?: string;
   onPillarSelect?: (pillar: string) => void;
+  selectedTopic?: string | null;
+  onSelectTopic?: (topic: string | null) => void;
   createOpen?: boolean;
   onCreateOpenChange?: (open: boolean) => void;
 }
 
-const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false, onCreateOpenChange }: CommunityProps) => {
+const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { setActivePillar } = useAuroraChatContext();
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const { language } = useTranslation();
   const isHe = language === 'he';
@@ -52,7 +53,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
 
   useEffect(() => {
     setActivePillar(selectedPillar);
-    setSelectedTopic(null);
     return () => {
       setActivePillar(null);
     };
@@ -130,14 +130,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
             </button>
           </div>
 
-          {/* Topic Boards — only for specific pillar, not "all" */}
-          {!isAll && (
-            <PillarTopicBoards
-              pillar={selectedPillar}
-              selectedTopic={selectedTopic}
-              onSelectTopic={setSelectedTopic}
-            />
-          )}
+          {/* Thread Feed */}
 
           {/* Thread Feed */}
           <ThreadList

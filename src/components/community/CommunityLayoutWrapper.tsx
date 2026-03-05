@@ -10,22 +10,34 @@ const Community = lazy(() => import('@/pages/Community'));
 
 export default function CommunityLayoutWrapper() {
   const [selectedPillar, setSelectedPillar] = useState('all');
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+
+  const handlePillarSelect = (pillar: string) => {
+    setSelectedPillar(pillar);
+    setSelectedTopic(null);
+  };
 
   useSidebars(
     <CommunityHudSidebar
       selectedPillar={selectedPillar}
-      onPillarSelect={setSelectedPillar}
+      onPillarSelect={handlePillarSelect}
       onCreateThread={() => setCreateOpen(true)}
     />,
-    <CommunityActivitySidebar />
+    <CommunityActivitySidebar
+      selectedPillar={selectedPillar}
+      selectedTopic={selectedTopic}
+      onSelectTopic={setSelectedTopic}
+    />
   );
 
   return (
     <Suspense fallback={null}>
       <Community
         selectedPillar={selectedPillar}
-        onPillarSelect={setSelectedPillar}
+        onPillarSelect={handlePillarSelect}
+        selectedTopic={selectedTopic}
+        onSelectTopic={setSelectedTopic}
         createOpen={createOpen}
         onCreateOpenChange={setCreateOpen}
       />
