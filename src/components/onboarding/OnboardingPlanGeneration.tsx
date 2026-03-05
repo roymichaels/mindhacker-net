@@ -107,6 +107,82 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
         body: { userId: user.id },
       }).catch(() => {});
 
+      // Generate personalized orb avatar from onboarding answers
+      try {
+        const seed = hashUserId(user.id);
+        const orbProfile = generateOrbProfile({
+          hobbies: (step2Data.hobbies as string[]) || [],
+          decisionStyle: step2Data.decision_style as string,
+          conflictStyle: step2Data.conflict_handling as string,
+          problemSolvingStyle: step2Data.problem_approach as string,
+          priorities: (step2Data.life_priorities as string[]) || [],
+          selectedTraitIds: (step2Data.traits as string[]) || [],
+          level: 1,
+          experience: 0,
+          streak: 0,
+          egoState: step2Data.execution_pattern as string || 'guardian',
+          seed,
+          userId: user.id,
+          step1Intention: step1Data as Record<string, unknown>,
+          step2ProfileData: step2Data as Record<string, unknown>,
+        });
+
+        const orbRow = {
+          user_id: user.id,
+          primary_color: orbProfile.primaryColor,
+          secondary_colors: orbProfile.secondaryColors,
+          accent_color: orbProfile.accentColor,
+          morph_intensity: orbProfile.morphIntensity,
+          morph_speed: orbProfile.morphSpeed,
+          core_intensity: orbProfile.coreIntensity,
+          layer_count: orbProfile.layerCount,
+          particle_enabled: orbProfile.particleEnabled,
+          particle_count: orbProfile.particleCount,
+          geometry_detail: orbProfile.geometryDetail,
+          computed_from: {
+            dominantArchetype: orbProfile.computedFrom.dominantArchetype,
+            secondaryArchetype: orbProfile.computedFrom.secondaryArchetype,
+            archetypeWeights: orbProfile.computedFrom.archetypeWeights,
+            dominantHobbies: orbProfile.computedFrom.dominantHobbies,
+            level: 1,
+            streak: 0,
+            egoState: orbProfile.computedFrom.egoState,
+            topTraitCategories: orbProfile.computedFrom.topTraitCategories,
+            clarityScore: orbProfile.computedFrom.clarityScore,
+            orb_profile_version: orbProfile.computedFrom.orb_profile_version,
+            motionSpeed: orbProfile.motionSpeed,
+            pulseRate: orbProfile.pulseRate,
+            smoothness: orbProfile.smoothness,
+            textureType: orbProfile.textureType,
+            textureIntensity: orbProfile.textureIntensity,
+            seed,
+            geometryFamily: orbProfile.geometryFamily,
+            visualDNA: {
+              gradientStops: orbProfile.gradientStops ?? VISUAL_DEFAULTS.gradientStops,
+              gradientMode: orbProfile.gradientMode ?? VISUAL_DEFAULTS.gradientMode,
+              coreGradient: orbProfile.coreGradient ?? VISUAL_DEFAULTS.coreGradient,
+              rimLightColor: orbProfile.rimLightColor ?? VISUAL_DEFAULTS.rimLightColor,
+              materialType: orbProfile.materialType ?? VISUAL_DEFAULTS.materialType,
+              materialParams: orbProfile.materialParams ?? VISUAL_DEFAULTS.materialParams,
+              patternType: orbProfile.patternType ?? VISUAL_DEFAULTS.patternType,
+              patternIntensity: typeof orbProfile.patternIntensity === 'number' ? orbProfile.patternIntensity : VISUAL_DEFAULTS.patternIntensity,
+              particlePalette: orbProfile.particlePalette ?? VISUAL_DEFAULTS.particlePalette,
+              particleMode: orbProfile.particleMode ?? VISUAL_DEFAULTS.particleMode,
+              particleBehavior: orbProfile.particleBehavior ?? VISUAL_DEFAULTS.particleBehavior,
+              bloomStrength: typeof orbProfile.bloomStrength === 'number' ? orbProfile.bloomStrength : VISUAL_DEFAULTS.bloomStrength,
+              chromaShift: typeof orbProfile.chromaShift === 'number' ? orbProfile.chromaShift : VISUAL_DEFAULTS.chromaShift,
+              dayNightBias: typeof orbProfile.dayNightBias === 'number' ? orbProfile.dayNightBias : VISUAL_DEFAULTS.dayNightBias,
+            },
+          },
+        };
+
+        await supabase
+          .from('orb_profiles')
+          .upsert([orbRow as any], { onConflict: 'user_id' });
+      } catch {
+        // Orb generation is non-blocking
+      }
+
       sessionStorage.setItem('just_completed_onboarding', '1');
       navigate('/dashboard', { replace: true });
     } catch (err) {
