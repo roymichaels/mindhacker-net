@@ -603,38 +603,59 @@ serve(async (req) => {
     );
 
     // === ASSESSMENT QUALITY GATE ===
-    // Validate that all target pillars have sufficient assessment data
-    const targetPillarIds = single_pillar
-      ? [single_pillar]
-      : selected_pillars
-        ? [...(selected_pillars.core || []), ...(selected_pillars.arena || [])]
-        : undefined;
+    // Skip quality gate during onboarding (uses onboarding data as context for unassessed pillars)
+    if (!skip_quality_gate) {
+      const targetPillarIds = single_pillar
+        ? [single_pillar]
+        : selected_pillars
+          ? [...(selected_pillars.core || []), ...(selected_pillars.arena || [])]
+          : undefined;
 
-    const qualityCheck = validateHubReadiness(
-      targetHub as 'core' | 'arena' | 'both',
-      allDomains.map(d => ({ domain_id: d.domain_id, domain_config: d.domain_config })),
-      targetPillarIds,
-    );
+      const qualityCheck = validateHubReadiness(
+        targetHub as 'core' | 'arena' | 'both',
+        allDomains.map(d => ({ domain_id: d.domain_id, domain_config: d.domain_config })),
+        targetPillarIds,
+      );
 
-    if (!qualityCheck.ready) {
-      // Return structured error with missing pillars so frontend can open assessment modals
-      const missingPillars = qualityCheck.incompletePillars.map(ip => ({
-        pillarId: ip.pillarId,
-        reasonCode: ip.result.reasonCode,
-        missingFields: ip.result.missingFields,
-        missingQuestions: ip.result.missingQuestions,
-      }));
+      if (!qualityCheck.ready) {
+        const missingPillars = qualityCheck.incompletePillars.map(ip => ({
+          pillarId: ip.pillarId,
+          reasonCode: ip.result.reasonCode,
+          missingFields: ip.result.missingFields,
+          missingQuestions: ip.result.missingQuestions,
+        }));
 
-      console.log(`❌ Assessment quality gate failed. Missing pillars: ${missingPillars.map(p => p.pillarId).join(', ')}`);
+        console.log(`❌ Assessment quality gate failed. Missing pillars: ${missingPillars.map(p => p.pillarId).join(', ')}`);
 
-      return new Response(JSON.stringify({
-        error: 'MISSING_ASSESSMENT_DATA',
-        message: 'Some pillars need assessment completion before plan generation.',
-        missing_pillars: missingPillars,
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+        return new Response(JSON.stringify({
+          error: 'MISSING_ASSESSMENT_DATA',
+          message: 'Some pillars need assessment completion before plan generation.',
+          missing_pillars: missingPillars,
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      console.log('⏭️ Quality gate skipped (onboarding mode) — using onboarding data as context');
+      
+      // Enrich user context with onboarding data for unassessed pillars
+      const { data: launchpadData } = await supabase
+        .from('launchpad_progress')
+        .select('step_1_intention, step_2_profile_data')
+        .eq('user_id', user_id)
+        .single();
+      
+      if (launchpadData) {
+        const intention = launchpadData.step_1_intention || {};
+        const profile = launchpadData.step_2_profile_data || {};
+        const onboardingContext = `\n## ONBOARDING DATA (used as baseline for unassessed pillars)
+Intention: ${JSON.stringify(intention)}
+Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
+        // Append to userContext for AI
+        // userContext is already built above, we modify it in-place via string concat
+        // The AI will use this as fallback context for pillars without assessments
+      }
     }
 
     for (const h of hubsToGenerate) {

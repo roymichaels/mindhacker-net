@@ -86,26 +86,32 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
       if (upsertError) throw upsertError;
 
-      try {
-        // Split selected pillars into core/arena for the edge function
-        const CORE_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
-        const corePillars = selectedPillars.filter(p => CORE_IDS.includes(p));
-        const arenaPillars = selectedPillars.filter(p => !CORE_IDS.includes(p));
-        
-        await supabase.functions.invoke('generate-90day-strategy', {
+      // Generate 100-day plan + identity summary in parallel
+      const CORE_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
+      const corePillars = selectedPillars.filter(p => CORE_IDS.includes(p));
+      const arenaPillars = selectedPillars.filter(p => !CORE_IDS.includes(p));
+      
+      // Both run concurrently — strategy creates the plan, launchpad-summary creates identity data
+      const [strategyResult] = await Promise.allSettled([
+        supabase.functions.invoke('generate-90day-strategy', {
           body: { 
             user_id: user.id, 
             hub: 'both',
+            skip_quality_gate: true, // Use onboarding data, don't require pillar assessments
             selected_pillars: { core: corePillars, arena: arenaPillars },
           },
-        });
-      } catch {
-        // Strategy generation is optional
+        }),
+        supabase.functions.invoke('generate-launchpad-summary', {
+          body: { userId: user.id },
+        }),
+      ]);
+      
+      // Log strategy result for debugging but don't block
+      if (strategyResult.status === 'rejected') {
+        console.warn('Strategy generation failed:', strategyResult.reason);
+      } else if (strategyResult.value?.error) {
+        console.warn('Strategy generation error:', strategyResult.value.error);
       }
-
-      supabase.functions.invoke('generate-launchpad-summary', {
-        body: { userId: user.id },
-      }).catch(() => {});
 
       // Generate personalized orb avatar from onboarding answers
       try {
