@@ -47,9 +47,11 @@ const DATA_OFFERS: DataOffer[] = [
 interface FMEarnProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
+  categoryFilter?: string;
+  onCategoryChange?: (cat: string) => void;
 }
 
-export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnProps) {
+export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFilter: externalCatFilter, onCategoryChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -75,7 +77,9 @@ export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnPr
   // ──── Bounty state ────
   const { data: bounties = [], isLoading: bLoading } = useFMBounties();
   const { data: claims = [] } = useFMClaims();
-  const [bFilter, setBFilter] = useState('all');
+  const [bFilterInternal, setBFilterInternal] = useState('all');
+  const bFilter = externalCatFilter ?? bFilterInternal;
+  const setBFilter = onCategoryChange ?? setBFilterInternal;
   const [bSearch, setBSearch] = useState('');
   const [submittingClaimId, setSubmittingClaimId] = useState<string | null>(null);
   const [submission, setSubmission] = useState('');
@@ -125,7 +129,9 @@ export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnPr
 
   // ──── Gig state ────
   const [gigMode, setGigMode] = useState<'browse' | 'post'>('browse');
-  const [gFilter, setGFilter] = useState('all');
+  const [gFilterInternal, setGFilterInternal] = useState('all');
+  const gFilter = (tab === 'gigs' ? externalCatFilter : undefined) ?? gFilterInternal;
+  const setGFilter = (tab === 'gigs' ? onCategoryChange : undefined) ?? setGFilterInternal;
   const [applyingId, setApplyingId] = useState<string | null>(null);
   const [pitch, setPitch] = useState('');
   const [proposedAmount, setProposedAmount] = useState('');
@@ -303,13 +309,16 @@ export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnPr
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input className="pl-9" placeholder={isHe ? 'חפש באונטיז...' : 'Search bounties...'} value={bSearch} onChange={(e) => setBSearch(e.target.value)} />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {BOUNTY_CATEGORIES.map((cat) => (
-              <button key={cat} onClick={() => setBFilter(cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-              >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
-            ))}
-          </div>
+          {/* Category filters — only on mobile (sidebar handles desktop) */}
+          {!hasSidebarNav && (
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {BOUNTY_CATEGORIES.map((cat) => (
+                <button key={cat} onClick={() => setBFilter(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+              ))}
+            </div>
+          )}
           {bLoading ? (
             <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted/50 rounded-xl animate-pulse" />)}</div>
           ) : filteredBounties.length === 0 ? (
@@ -381,13 +390,15 @@ export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnPr
             </motion.div>
           ) : (
             <>
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                {GIG_CATEGORIES.map((cat) => (
-                  <button key={cat} onClick={() => setGFilter(cat)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${gFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                  >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
-                ))}
-              </div>
+              {!hasSidebarNav && (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {GIG_CATEGORIES.map((cat) => (
+                    <button key={cat} onClick={() => setGFilter(cat)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${gFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                    >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+                  ))}
+                </div>
+              )}
               {gLoading ? (
                 <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-28 bg-muted/50 rounded-xl animate-pulse" />)}</div>
               ) : filteredGigs.length === 0 ? (
