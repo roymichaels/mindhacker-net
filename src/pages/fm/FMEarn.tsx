@@ -271,6 +271,9 @@ export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnPr
     { id: 'activity', labelEn: 'My Activity', labelHe: 'פעילות', icon: <ListChecks className="w-3.5 h-3.5" /> },
   ];
 
+  const isMobile = useIsMobile();
+  const hasSidebarNav = !!externalTab && !isMobile;
+
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
       <div>
@@ -278,18 +281,20 @@ export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnPr
         <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
       </div>
 
-      {/* Internal tabs */}
-      <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => switchTab(t.id)}
-            className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
-              tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
-            }`}
-          >
-            {t.icon} {isHe ? t.labelHe : t.labelEn}
-          </button>
-        ))}
-      </div>
+      {/* Internal tabs — only on mobile when sidebar isn't managing tabs */}
+      {!hasSidebarNav && (
+        <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
+          {TABS.map((t) => (
+            <button key={t.id} onClick={() => switchTab(t.id)}
+              className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
+                tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              {t.icon} {isHe ? t.labelHe : t.labelEn}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ═══════ BOUNTIES TAB ═══════ */}
       {tab === 'bounties' && (
