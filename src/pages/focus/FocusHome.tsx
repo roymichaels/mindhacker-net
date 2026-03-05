@@ -103,7 +103,7 @@ export default function FocusHome() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={() => navigate('/life/focus/results')} className="flex-1 bg-cyan-600 hover:bg-cyan-700">
+                  <Button onClick={() => navigate('/strategy/focus/results')} className="flex-1 bg-cyan-600 hover:bg-cyan-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('focus.viewResults')}
                   </Button>
                   <Button onClick={() => startAssessment('focus')} variant="outline" className="border-cyan-500/40">
