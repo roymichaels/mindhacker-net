@@ -7,7 +7,6 @@ import { Target, Briefcase, ArrowLeft, Wallet, Store } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
-import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,    labelEn: 'Earn',   labelHe: 'הרוויח' },
