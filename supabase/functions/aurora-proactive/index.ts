@@ -394,8 +394,12 @@ serve(async (req) => {
 
     if (action === 'analyze') {
       if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      const ctx = await buildContext(supabase, user_id, 'he');
-      const snapshot = toProactiveSnapshot(ctx);
+      const [ctx, pulse] = await Promise.all([
+        buildContext(supabase, user_id, 'he'),
+        fetchPulseData(supabase, user_id),
+      ]);
+      const nextTask = ctx.action_items.today_tasks.find(t => t.status !== 'done')?.title || null;
+      const snapshot = toProactiveSnapshot(ctx, pulse, nextTask);
       await analyzeAndQueue(supabase, user_id, snapshot);
       return new Response(JSON.stringify({ success: true, context: snapshot }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
