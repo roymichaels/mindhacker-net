@@ -25,9 +25,9 @@ export const OS_TABS: OsTab[] = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Now', labelHe: 'עכשיו' },
   { id: 'core',      path: '/life',      icon: Flame,          labelEn: 'Strategy',  labelHe: 'אסטרטגיה' },
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Tactics',   labelHe: 'טקטיקה' },
-  { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קומיוניטי' },
+  { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
   
-  { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'לימוד' },
+  { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
 ];
 
 /** Coach tab — now nested under FM, not a top-level tab */
