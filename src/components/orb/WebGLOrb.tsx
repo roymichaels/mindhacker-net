@@ -104,12 +104,13 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
   const normalized = normalizeHsl(colorStr);
   const m = normalized.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%$/);
   if (m) {
-    const [r, g, b] = hslToRgbDirect(parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]));
-    // Set RGB directly, bypassing THREE.js color management entirely
-    const color = new THREE.Color(r, g, b);
-    return color;
+    let h = parseFloat(m[1]), s = parseFloat(m[2]), l = parseFloat(m[3]);
+    // BLACK PREVENTION: ensure minimum saturation and lightness
+    if (s < 20 && l < 25) { s = Math.max(s, 60); l = Math.max(l, 40); }
+    if (l < 20) l = 35;
+    const [r, g, b] = hslToRgbDirect(h, s, l);
+    return new THREE.Color(r, g, b);
   }
-  // No valid HSL match — return fallback directly (never use THREE.Color constructor with raw strings)
   return new THREE.Color(...FALLBACK_RGB);
 }
 
@@ -118,8 +119,12 @@ function parseHslToVec3(colorStr: string): THREE.Vector3 {
   const normalized = normalizeHsl(colorStr);
   const m = normalized.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%$/);
   if (m) {
-    const [r, g, b] = hslToRgbDirect(parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]));
-    if (r + g + b < 0.1) return new THREE.Vector3(...FALLBACK_RGB);
+    let h = parseFloat(m[1]), s = parseFloat(m[2]), l = parseFloat(m[3]);
+    // BLACK PREVENTION: ensure minimum saturation and lightness
+    if (s < 20 && l < 25) { s = Math.max(s, 60); l = Math.max(l, 40); }
+    if (l < 20) l = 35;
+    const [r, g, b] = hslToRgbDirect(h, s, l);
+    if (r + g + b < 0.15) return new THREE.Vector3(...FALLBACK_RGB);
     return new THREE.Vector3(r, g, b);
   }
   return new THREE.Vector3(...FALLBACK_RGB);
@@ -369,10 +374,17 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 7. Brightness floor — NEVER allow dark orbs ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
+    // First pass: boost toward base color
     if (brightness < 0.35) {
-      // Boost toward base color to maintain hue, not just inject blue
-      finalColor = mix(finalColor, baseColor * 1.2, (0.35 - brightness) / 0.35);
-      finalColor = max(finalColor, baseColor * 0.5);
+      finalColor = mix(finalColor, baseColor * 1.5, (0.35 - brightness) / 0.35);
+      finalColor = max(finalColor, baseColor * 0.6);
+    }
+    // Second pass: if STILL dark (baseColor was also dark), inject absolute minimum light
+    brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
+    if (brightness < 0.15) {
+      // Use gradient first color as rescue, boosted significantly
+      vec3 rescue = u_colors[0] * 1.8 + vec3(0.1, 0.15, 0.2);
+      finalColor = max(finalColor, rescue * 0.6);
     }
 
     gl_FragColor = vec4(finalColor, 0.92);
