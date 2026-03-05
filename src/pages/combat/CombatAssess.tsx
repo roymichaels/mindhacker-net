@@ -96,7 +96,7 @@ export default function CombatAssess() {
     try {
       const result = buildCombatAssessment(answers);
       await saveAssessment(result);
-      navigate('/life/combat/results');
+      navigate('/strategy/combat/results');
     } catch {
       setIsSaving(false);
     }
