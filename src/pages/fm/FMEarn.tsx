@@ -25,7 +25,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
 
-type EarnTab = 'bounties' | 'gigs' | 'data' | 'activity' | 'work';
+type EarnTab = 'bounties' | 'gigs' | 'data' | 'activity';
 
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
@@ -256,7 +256,6 @@ export default function FMEarn() {
   const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode }[] = [
     { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-3.5 h-3.5" /> },
     { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-3.5 h-3.5" /> },
-    { id: 'work', labelEn: 'Work', labelHe: 'עבודה', icon: <Rocket className="w-3.5 h-3.5" /> },
     { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-3.5 h-3.5" /> },
     { id: 'activity', labelEn: 'My Activity', labelHe: 'פעילות', icon: <ListChecks className="w-3.5 h-3.5" /> },
   ];
@@ -496,104 +495,6 @@ export default function FMEarn() {
             })}
           </div>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground/50 pt-2"><Shield className="w-4 h-4 shrink-0" /><span>{isHe ? 'MindOS לא מוכרת מידע אישי. לעולם.' : 'MindOS never sells personal data. Ever.'}</span></div>
-        </div>
-      )}
-
-      {/* ═══════ WORK TAB ═══════ */}
-      {tab === 'work' && (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {isHe ? 'בנה את הנוכחות המקצועית שלך ב-MindOS' : 'Build your professional presence on MindOS'}
-          </p>
-          <div className="grid gap-3">
-            {/* Coach */}
-            <motion.button
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}
-              onClick={() => navigate('/coaches')}
-              className="bg-card border border-border rounded-xl p-5 text-start hover:border-primary/40 hover:shadow-md transition-all group"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <UserCircle className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm text-foreground">{isHe ? 'קואצ׳' : 'Coach'}</h3>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {isHe ? 'נהל לקוחות, צור תכניות אימון, ובנה את העסק שלך' : 'Manage clients, create training plans, and build your coaching business'}
-                  </p>
-                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    {isHe ? 'זמין עכשיו' : 'Available now'}
-                  </span>
-                </div>
-              </div>
-            </motion.button>
-
-            {/* Business */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-              className="bg-card border border-border rounded-xl p-5 opacity-75"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Rocket className="w-5 h-5 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm text-foreground">{isHe ? 'עסק' : 'Business'}</h3>
-                    <span className="text-[10px] text-muted-foreground font-medium px-2 py-0.5 rounded-full bg-muted">{isHe ? 'בקרוב' : 'Coming soon'}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {isHe ? 'צור חנות דיגיטלית, מכור מוצרים ושירותים, ונהל הזמנות' : 'Create a digital storefront, sell products & services, and manage orders'}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Freelancer */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-              className="bg-card border border-border rounded-xl p-5 opacity-75"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <PenTool className="w-5 h-5 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm text-foreground">{isHe ? 'פרילנסר' : 'Freelancer'}</h3>
-                    <span className="text-[10px] text-muted-foreground font-medium px-2 py-0.5 rounded-full bg-muted">{isHe ? 'בקרוב' : 'Coming soon'}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {isHe ? 'הצג את הכישורים שלך, קבל פרויקטים, ובנה פורטפוליו' : 'Showcase your skills, get projects, and build a portfolio'}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Creator */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-              className="bg-card border border-border rounded-xl p-5 opacity-75"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Palette className="w-5 h-5 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm text-foreground">{isHe ? 'יוצר' : 'Creator'}</h3>
-                    <span className="text-[10px] text-muted-foreground font-medium px-2 py-0.5 rounded-full bg-muted">{isHe ? 'בקרוב' : 'Coming soon'}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {isHe ? 'צור תוכן, קורסים ומדיה דיגיטלית ומכור לקהילה' : 'Create content, courses & digital media and sell to the community'}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
         </div>
       )}
 
