@@ -12,7 +12,7 @@ export default function PresenceScan() {
   const handleComplete = (images: Record<string, string>) => {
     // Store images temporarily in sessionStorage for the analyzing page
     sessionStorage.setItem('presence_scan_images', JSON.stringify(images));
-    navigate('/life/presence/analyzing');
+    navigate('/strategy/presence/analyzing');
   };
 
   return (
