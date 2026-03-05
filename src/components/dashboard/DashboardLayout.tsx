@@ -26,6 +26,17 @@ interface DashboardLayoutProps {
   onSelectConversation?: (id: string) => void;
 }
 
+/** On mobile, wrap sidebar in a full-screen overlay */
+function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[60] bg-background flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRight }: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
@@ -53,7 +64,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
             <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
           )}
 
-          <div className="flex-1 min-h-0 flex [&>aside]:pb-16 lg:[&>aside]:pb-14 [&>aside]:flex-shrink-0 [&>aside]:transition-all [&>aside]:duration-300">
+          <div className="flex-1 min-h-0 flex [&>aside]:pb-16 lg:[&>aside]:pb-14 [&>aside]:flex-shrink-0 [&>aside]:transition-all [&>aside]:duration-300 [&>aside]:max-md:fixed [&>aside]:max-md:inset-0 [&>aside]:max-md:z-[60] [&>aside]:max-md:w-full [&>aside]:max-md:max-w-full [&>aside]:max-md:min-w-full [&>aside]:max-md:bg-background">
             {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
 
             <main className="flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 pb-28 md:pb-14 flex flex-col transition-all duration-300">
