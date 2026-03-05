@@ -128,7 +128,7 @@ export default function VitalityHome() {
               </div>
             )}
 
-            <Button onClick={() => navigate('/life/vitality/results')} className="w-full bg-amber-600 hover:bg-amber-700" size="lg">
+            <Button onClick={() => navigate('/strategy/vitality/results')} className="w-full bg-amber-600 hover:bg-amber-700" size="lg">
               {t('vitality.viewResults')} <ChevronIcon className="w-4 h-4 ms-1" />
             </Button>
           </div>
