@@ -3,6 +3,7 @@ import { useCoachSidebars } from '@/pages/Coaches';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSidebars } from '@/hooks/useSidebars';
+import { FMBottomNav } from '@/components/fm/FMBottomNav';
 
 const Coaches = lazy(() => import('@/pages/Coaches'));
 
@@ -33,19 +34,25 @@ export default function CoachesLayoutWrapper() {
 
   if (!loading && !isPractitioner) {
     return (
-      <Suspense fallback={null}>
-        <Coaches />
-      </Suspense>
+      <>
+        <Suspense fallback={null}>
+          <Coaches />
+        </Suspense>
+        <FMBottomNav />
+      </>
     );
   }
 
   return (
-    <Suspense fallback={null}>
-      <Coaches
-        selectedClientId={selectedClientId}
-        onClearClient={() => setSelectedClientId(null)}
-        activeTab={activeTab}
-      />
-    </Suspense>
+    <>
+      <Suspense fallback={null}>
+        <Coaches
+          selectedClientId={selectedClientId}
+          onClearClient={() => setSelectedClientId(null)}
+          activeTab={activeTab}
+        />
+      </Suspense>
+      <FMBottomNav />
+    </>
   );
 }
