@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Eye, EyeOff, Coins, CheckCircle2, XCircle, Lock, BarChart3 } from 'lucide-react';
+import { Shield, Eye, EyeOff, Coins, CheckCircle2, XCircle, Lock, BarChart3, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import DataMarketplaceDashboard from '@/components/fm/DataMarketplaceDashboard';
 
 interface DataOffer {
   id: string;
@@ -68,6 +69,7 @@ export default function FMContribute() {
   const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'offers' | 'marketplace'>('offers');
 
   const { data: existing = [] } = useQuery({
     queryKey: ['fm-data-contributions', user?.id],
@@ -131,6 +133,29 @@ export default function FMContribute() {
           {isHe ? 'הנתונים שלך, הערך שלך.' : 'Your data, your value.'}
         </p>
       </div>
+
+      {/* Tab switcher */}
+      <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
+        <button
+          onClick={() => setActiveTab('offers')}
+          className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'offers' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
+        >
+          <Coins className="w-3.5 h-3.5 inline mr-1" />
+          {isHe ? 'הצעות שיתוף' : 'Share Offers'}
+        </button>
+        <button
+          onClick={() => setActiveTab('marketplace')}
+          className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'marketplace' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
+        >
+          <Database className="w-3.5 h-3.5 inline mr-1" />
+          {isHe ? 'שוק הנתונים' : 'Data Marketplace'}
+        </button>
+      </div>
+
+      {activeTab === 'marketplace' ? (
+        <DataMarketplaceDashboard />
+      ) : (
+      <>
 
       {/* Stats bar */}
       <div className="flex gap-3">
@@ -292,6 +317,8 @@ export default function FMContribute() {
         <Shield className="w-4 h-4 shrink-0" />
         <span>{isHe ? 'MindOS לא מוכרת מידע אישי. לעולם.' : 'MindOS never sells personal data. Ever.'}</span>
       </div>
+      </>
+      )}
     </div>
   );
 }

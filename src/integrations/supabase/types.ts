@@ -3534,6 +3534,202 @@ export type Database = {
           },
         ]
       }
+      fm_data_listings: {
+        Row: {
+          category: string
+          contributor_count: number | null
+          created_at: string
+          data_points_count: number | null
+          description: string | null
+          id: string
+          price_mos: number
+          sample_schema: Json | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          contributor_count?: number | null
+          created_at?: string
+          data_points_count?: number | null
+          description?: string | null
+          id?: string
+          price_mos?: number
+          sample_schema?: Json | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          contributor_count?: number | null
+          created_at?: string
+          data_points_count?: number | null
+          description?: string | null
+          id?: string
+          price_mos?: number
+          sample_schema?: Json | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fm_data_purchases: {
+        Row: {
+          access_expires_at: string | null
+          access_token: string | null
+          buyer_email: string | null
+          buyer_id: string
+          buyer_org: string | null
+          created_at: string
+          downloaded_at: string | null
+          id: string
+          listing_id: string | null
+          price_mos: number
+          price_usd: number | null
+          snapshot_id: string | null
+          status: string
+        }
+        Insert: {
+          access_expires_at?: string | null
+          access_token?: string | null
+          buyer_email?: string | null
+          buyer_id: string
+          buyer_org?: string | null
+          created_at?: string
+          downloaded_at?: string | null
+          id?: string
+          listing_id?: string | null
+          price_mos: number
+          price_usd?: number | null
+          snapshot_id?: string | null
+          status?: string
+        }
+        Update: {
+          access_expires_at?: string | null
+          access_token?: string | null
+          buyer_email?: string | null
+          buyer_id?: string
+          buyer_org?: string | null
+          created_at?: string
+          downloaded_at?: string | null
+          id?: string
+          listing_id?: string | null
+          price_mos?: number
+          price_usd?: number | null
+          snapshot_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_data_purchases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "fm_data_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_data_purchases_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "fm_data_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_data_revenue_shares: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          paid_at: string | null
+          purchase_id: string | null
+          share_mos: number
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          purchase_id?: string | null
+          share_mos?: number
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          purchase_id?: string | null
+          share_mos?: number
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_data_revenue_shares_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "fm_data_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_data_snapshots: {
+        Row: {
+          category: string
+          contributor_count: number
+          data_points: number
+          date_range_end: string | null
+          date_range_start: string | null
+          expires_at: string | null
+          generated_at: string
+          id: string
+          listing_id: string | null
+          quality_score: number | null
+          snapshot_data: Json
+        }
+        Insert: {
+          category: string
+          contributor_count?: number
+          data_points?: number
+          date_range_end?: string | null
+          date_range_start?: string | null
+          expires_at?: string | null
+          generated_at?: string
+          id?: string
+          listing_id?: string | null
+          quality_score?: number | null
+          snapshot_data?: Json
+        }
+        Update: {
+          category?: string
+          contributor_count?: number
+          data_points?: number
+          date_range_end?: string | null
+          date_range_start?: string | null
+          expires_at?: string | null
+          generated_at?: string
+          id?: string
+          listing_id?: string | null
+          quality_score?: number | null
+          snapshot_data?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_data_snapshots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "fm_data_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fm_gig_proposals: {
         Row: {
           created_at: string
@@ -8732,6 +8928,14 @@ export type Database = {
         Returns: Json
       }
       fm_claim_bounty: { Args: { p_bounty_id: string }; Returns: Json }
+      fm_distribute_revenue: {
+        Args: { p_purchase_id: string }
+        Returns: number
+      }
+      fm_generate_snapshot: {
+        Args: { p_category: string; p_listing_id?: string }
+        Returns: string
+      }
       fm_mine_activity: {
         Args: {
           p_activity_type: string

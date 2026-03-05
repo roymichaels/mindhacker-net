@@ -135,3 +135,9 @@ verify_jwt = false
 
 [functions.generate-landing-page]
 verify_jwt = false
+
+[functions.generate-data-snapshot]
+verify_jwt = false
+
+[functions.data-marketplace-api]
+verify_jwt = false
