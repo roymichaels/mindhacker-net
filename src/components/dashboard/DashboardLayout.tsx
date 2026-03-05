@@ -62,7 +62,18 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
           {isMobile ? (
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
               <div className="flex h-14 items-center justify-between px-3">
-                <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
+                <div className="flex items-center gap-1">
+                  {isFM && (
+                    <button
+                      onClick={() => navigate('/dashboard')}
+                      className="p-2 -ms-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                      aria-label="Back to dashboard"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+                  )}
+                  <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
+                </div>
                 <HeaderActions compact />
               </div>
             </header>
