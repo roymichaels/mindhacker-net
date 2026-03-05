@@ -256,7 +256,6 @@ export default function FMEarn() {
   const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode }[] = [
     { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-3.5 h-3.5" /> },
     { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-3.5 h-3.5" /> },
-    { id: 'work', labelEn: 'Work', labelHe: 'עבודה', icon: <Rocket className="w-3.5 h-3.5" /> },
     { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-3.5 h-3.5" /> },
     { id: 'activity', labelEn: 'My Activity', labelHe: 'פעילות', icon: <ListChecks className="w-3.5 h-3.5" /> },
   ];
