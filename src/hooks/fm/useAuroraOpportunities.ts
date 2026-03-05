@@ -42,8 +42,8 @@ export function useAuroraOpportunities() {
         supabase.from('fm_wallets').select('mos_balance, lifetime_earned').eq('user_id', user.id).maybeSingle(),
         supabase.from('fm_bounties').select('id').eq('status', 'active').limit(5),
         supabase.from('fm_bounty_claims').select('id').eq('user_id', user.id).limit(1),
-        supabase.from('fm_gigs').select('id').eq('posted_by', user.id).limit(1),
-        supabase.from('fm_data_contributions').select('id').eq('user_id', user.id).eq('is_active', true).limit(1),
+        supabase.from('fm_gigs').select('id').eq('posted_by', user.id).limit(1) as any,
+        supabase.from('fm_data_contributions').select('id').eq('user_id', user.id).eq('is_active', true).limit(1) as any,
         supabase
           .from('daily_habit_logs')
           .select('id')
