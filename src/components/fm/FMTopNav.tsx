@@ -3,7 +3,7 @@
  * Mirrors FMBottomNav tabs + back-to-OS button + notification bell.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Target, Briefcase, ArrowLeft, Wallet } from 'lucide-react';
+import { Target, Briefcase, ArrowLeft, Wallet, Store } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
