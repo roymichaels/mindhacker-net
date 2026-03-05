@@ -95,7 +95,7 @@ export default function ExpansionHome() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={() => navigate('/life/expansion/results')} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
+                  <Button onClick={() => navigate('/strategy/expansion/results')} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('expansion.viewResults')}
                   </Button>
                   <Button onClick={() => startAssessment('expansion')} variant="outline" className="border-indigo-500/40">
