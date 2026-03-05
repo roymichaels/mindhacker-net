@@ -55,8 +55,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const hasPlan = !!plan;
 
   // Today stats
-  const todayCompleted = execution.completed || 0;
-  const todayTotal = execution.total || 0;
+  const todayCompleted = execution.queue?.filter((a: any) => a.status === 'done').length || 0;
+  const todayTotal = execution.queue?.length || 0;
 
   const hubs: HubCard[] = [
     {
