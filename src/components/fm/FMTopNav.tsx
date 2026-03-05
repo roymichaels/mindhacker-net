@@ -3,17 +3,15 @@
  * Mirrors FMBottomNav tabs + back-to-OS button + notification bell.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Coins, Target, Wallet, Briefcase, ArrowLeft } from 'lucide-react';
+import { Target, Briefcase, ArrowLeft, Wallet } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const FM_TABS = [
-  { id: 'home',   path: '/fm/home',   icon: Coins,     labelEn: 'FM',     labelHe: 'FM' },
   { id: 'earn',   path: '/fm/earn',   icon: Target,    labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'work',   path: '/fm/work',   icon: Briefcase, labelEn: 'Work',   labelHe: 'עבודה' },
-  { id: 'wallet', path: '/fm/wallet', icon: Wallet,    labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
 interface FMTopNavProps {
@@ -28,10 +26,8 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
 
   const isTabActive = (tab: typeof FM_TABS[number]) => {
     const p = location.pathname;
-    if (tab.id === 'home') return p === '/fm' || p === '/fm/home';
     if (tab.id === 'earn') return p.startsWith('/fm/earn');
     if (tab.id === 'work') return p.startsWith('/fm/work') || p.startsWith('/coaches') || p.startsWith('/business');
-    if (tab.id === 'wallet') return p.startsWith('/fm/wallet');
     return false;
   };
 

@@ -364,13 +364,13 @@ const App = () => (
                           <Route path="/learn" element={<LearnLayoutWrapper />} />
                           {/* FM — Free Market (self-contained app shell) */}
                           <Route path="/fm" element={<FMAppShell />}>
-                            <Route index element={<Navigate to="/fm/home" replace />} />
-                            <Route path="home" element={<FMHomeLayoutWrapper />} />
+                            <Route index element={<Navigate to="/fm/earn" replace />} />
+                            <Route path="home" element={<Navigate to="/fm/earn" replace />} />
                             <Route path="earn" element={<EarnLayoutWrapper />} />
                             <Route path="work" element={<FMWorkLayoutWrapper />} />
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
-                            <Route path="wallet" element={<FMWalletLayoutWrapper />} />
+                            <Route path="wallet" element={<Navigate to="/fm/earn" replace />} />
                             <Route path="coaches" element={<Navigate to="/coaches" replace />} />
                           </Route>
                           

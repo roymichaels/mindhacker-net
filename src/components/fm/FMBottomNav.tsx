@@ -3,14 +3,12 @@
  * Used by FMAppShell and also rendered standalone on /coaches, /business, etc.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Coins, Target, Wallet, Briefcase } from 'lucide-react';
+import { Target, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 const FM_TABS = [
-  { id: 'home',   path: '/fm/home',   icon: Coins,       labelEn: 'FM',     labelHe: 'FM' },
   { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Work',   labelHe: 'עבודה' },
-  { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
 export function FMBottomNav() {
@@ -25,10 +23,8 @@ export function FMBottomNav() {
       <div className="flex items-center justify-around max-w-md mx-auto h-14">
         {FM_TABS.map((tab) => {
           const isActive =
-            (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
             (tab.id === 'earn' && activePath.startsWith('/fm/earn')) ||
-            (tab.id === 'work' && (activePath.startsWith('/fm/work') || activePath.startsWith('/coaches') || activePath.startsWith('/business'))) ||
-            (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
+            (tab.id === 'work' && (activePath.startsWith('/fm/work') || activePath.startsWith('/coaches') || activePath.startsWith('/business')));
           return (
             <button
               key={tab.id}
