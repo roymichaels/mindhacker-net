@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Eye, EyeOff, Coins, CheckCircle2, XCircle, Lock, BarChart3 } from 'lucide-react';
+import { Shield, Eye, EyeOff, Coins, CheckCircle2, XCircle, Lock, BarChart3, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import DataMarketplaceDashboard from '@/components/fm/DataMarketplaceDashboard';
 
 interface DataOffer {
   id: string;
