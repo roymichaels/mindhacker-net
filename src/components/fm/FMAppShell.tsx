@@ -3,8 +3,7 @@
  * Renders its own bottom tab navigation while sharing the global auth session.
  * Wraps all /fm/* routes via <Outlet />.
  */
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Coins, Target, Wallet, Briefcase } from 'lucide-react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
@@ -12,19 +11,10 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
 import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const FM_TABS = [
-  { id: 'home',   path: '/fm/home',   icon: Coins,       labelEn: 'FM',     labelHe: 'FM' },
-  { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
-  { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Work',   labelHe: 'עבודה' },
-  { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
-] as const;
+import { FMBottomNav } from '@/components/fm/FMBottomNav';
 
 export default function FMAppShell() {
   const { language } = useTranslation();
-  const isHe = language === 'he';
-  const location = useLocation();
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
 
@@ -46,9 +36,6 @@ export default function FMAppShell() {
     );
   }
 
-  // Determine active tab
-  const activePath = location.pathname;
-
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* FM Content Area */}
@@ -57,33 +44,7 @@ export default function FMAppShell() {
       </div>
 
       {/* FM Bottom Tab Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border safe-area-bottom">
-        <div className="flex items-center justify-around max-w-md mx-auto h-14">
-          {FM_TABS.map((tab) => {
-            const isActive = 
-              (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
-              (tab.id === 'earn' && activePath.startsWith('/fm/earn')) ||
-              (tab.id === 'work' && activePath.startsWith('/fm/work')) ||
-              (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
-            return (
-              <button
-                key={tab.id}
-                onClick={() => navigate(tab.path)}
-                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[56px] ${
-                  isActive
-                    ? 'text-accent'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <tab.icon className={`w-5 h-5 ${isActive ? 'text-accent' : ''}`} />
-                <span className="text-[10px] font-medium leading-tight">
-                  {isHe ? tab.labelHe : tab.labelEn}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      <FMBottomNav />
     </div>
   );
 }

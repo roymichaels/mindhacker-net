@@ -16,8 +16,8 @@ export function BottomTabBar() {
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
 
-  // Hide global bottom nav when inside FM (it has its own nav)
-  if (location.pathname.startsWith('/fm')) return null;
+  // Hide global bottom nav when inside FM or FM-related hubs (they have their own nav)
+  if (location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
