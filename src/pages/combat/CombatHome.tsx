@@ -90,7 +90,7 @@ export default function CombatHome() {
                   icon={<Sun className={cn("w-5 h-5", vitalityComplete ? "text-emerald-400" : "text-amber-400")} />}
                   label={t('combat.reqVitality')}
                   done={vitalityComplete}
-                  onClick={() => !vitalityComplete && navigate('/life/vitality')}
+                  onClick={() => !vitalityComplete && navigate('/strategy/vitality')}
                 />
                 <GateRow
                   icon={<Crosshair className={cn("w-5 h-5", focusComplete ? "text-emerald-400" : "text-cyan-400")} />}
