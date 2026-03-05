@@ -506,7 +506,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { user_id, hub, force_regenerate, selected_pillars, single_pillar } = body;
+    const { user_id, hub, force_regenerate, selected_pillars, single_pillar, skip_quality_gate } = body;
 
     if (!user_id) {
       return new Response(JSON.stringify({ error: "user_id required" }), {
