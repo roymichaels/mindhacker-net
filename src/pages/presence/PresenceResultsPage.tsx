@@ -38,7 +38,7 @@ export default function PresenceResultsPage() {
   }
 
   if (!latest) {
-    navigate('/life/presence');
+    navigate('/strategy/presence');
     return null;
   }
 
