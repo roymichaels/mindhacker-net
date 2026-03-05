@@ -110,7 +110,14 @@ export default function ArenaHub() {
                   </div>
                 </motion.div>
               );
-            })() : (
+            })() : phaseGenerating ? (
+              <div className="flex flex-col items-center gap-2 py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-destructive" />
+                <p className="text-xs text-muted-foreground">
+                  {isHe ? `מייצר תוכנית שבועית (${phaseGenMs}/${phaseTotalMs})...` : `Generating weekly plan (${phaseGenMs}/${phaseTotalMs})...`}
+                </p>
+              </div>
+            ) : (
               <div className="text-center py-8 text-sm text-muted-foreground">
                 {isHe ? 'אין פעולה הבאה כרגע' : 'No next action right now'}
               </div>
