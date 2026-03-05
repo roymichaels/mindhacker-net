@@ -43,7 +43,12 @@ const DATA_OFFERS: DataOffer[] = [
   { id: 'training', type: 'training_results', icon: '💪', labelEn: 'Training & Session Data', labelHe: 'נתוני אימון וסשנים', descEn: 'Help optimize coaching and training programs', descHe: 'עזור לשפר תכניות אימון וקואצ׳ינג', days: 60, reward: 180, fieldsEn: ['Session completion rates', 'Engagement metrics', 'Outcome scores'], fieldsHe: ['שיעורי השלמת סשנים', 'מדדי מעורבות', 'ציוני תוצאה'] },
 ];
 
-export default function FMEarn() {
+interface FMEarnProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
+export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -51,14 +56,19 @@ export default function FMEarn() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const initialTab = (searchParams.get('tab') as EarnTab) || 'bounties';
-  const [tab, setTab] = useState<EarnTab>(initialTab);
+  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'bounties';
+  const [internalTab, setInternalTab] = useState<EarnTab>(initialTab as EarnTab);
+  const tab = (externalTab as EarnTab) || internalTab;
 
   const switchTab = (t: EarnTab) => {
-    setTab(t);
-    if (t === 'bounties') searchParams.delete('tab');
-    else searchParams.set('tab', t);
-    setSearchParams(searchParams, { replace: true });
+    if (onTabChange) {
+      onTabChange(t);
+    } else {
+      setInternalTab(t);
+      if (t === 'bounties') searchParams.delete('tab');
+      else searchParams.set('tab', t);
+      setSearchParams(searchParams, { replace: true });
+    }
   };
 
   // ──── Bounty state ────
