@@ -96,7 +96,7 @@ export default function ArenaHub() {
                         <span className="mx-1.5 text-border">·</span>
                         {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
                       </p>
-                      <h2 className="text-sm font-bold text-foreground leading-snug truncate">
+                      <h2 className="text-sm font-bold text-foreground leading-snug">
                         {isHe ? nextAction.title : nextAction.titleEn}
                       </h2>
                     </div>
