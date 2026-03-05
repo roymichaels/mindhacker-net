@@ -111,7 +111,7 @@ export default function ConsciousnessHome() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">{t('consciousness.previousScans')}</h3>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/life/consciousness/history')} className="text-xs">
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/strategy/consciousness/history')} className="text-xs">
                     {t('consciousness.seeAll')} <ForwardIcon className="w-3 h-3 ms-1" />
                   </Button>
                 </div>

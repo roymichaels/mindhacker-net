@@ -36,7 +36,7 @@ export default function PresenceHistory() {
         {all.length === 0 ? (
           <div className="text-center py-12 space-y-3">
             <p className="text-muted-foreground">No scans yet.</p>
-            <Button onClick={() => navigate('/life/presence/scan')}>Start Scan</Button>
+            <Button onClick={() => navigate('/strategy/presence/scan')}>Start Scan</Button>
           </div>
         ) : (
           <div className="space-y-3">

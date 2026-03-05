@@ -263,7 +263,7 @@ export default function ConsciousnessAssess() {
       <div className="flex flex-col h-[calc(100vh-120px)]" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3 py-3 shrink-0">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/consciousness')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/consciousness')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">

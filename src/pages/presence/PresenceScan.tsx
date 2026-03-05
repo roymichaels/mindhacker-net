@@ -20,7 +20,7 @@ export default function PresenceScan() {
       <div className="pb-8">
         <GuidedCapture
           onComplete={handleComplete}
-          onCancel={() => navigate('/life/presence')}
+          onCancel={() => navigate('/strategy/presence')}
         />
       </div>
     </PageShell>

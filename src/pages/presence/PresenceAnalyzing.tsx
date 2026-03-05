@@ -63,7 +63,7 @@ export default function PresenceAnalyzing() {
       })
       .catch((err: any) => {
         toast.error(err.message || 'Analysis failed. Please try again.');
-        navigate('/life/presence');
+        navigate('/strategy/presence');
       });
   }, []);
 

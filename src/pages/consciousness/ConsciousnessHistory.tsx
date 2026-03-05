@@ -26,7 +26,7 @@ export default function ConsciousnessHistory() {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/consciousness')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/consciousness')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('consciousness.historyTitle')}</h1>
