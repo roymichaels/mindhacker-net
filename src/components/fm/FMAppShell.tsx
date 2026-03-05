@@ -28,6 +28,14 @@ export default function FMAppShell() {
   const navigate = useNavigate();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
 
+  // Register FM-specific sidebars
+  const needsOnboarding = !wallet || !wallet.onboarding_complete;
+  useSidebars(
+    !isLoading && !needsOnboarding ? <FMHudSidebar /> : null,
+    !isLoading && !needsOnboarding ? <FMActivitySidebar /> : null,
+    [isLoading, needsOnboarding]
+  );
+
   if (isLoading) return <PageSkeleton />;
 
   // Onboarding gate — show onboarding before any FM content
