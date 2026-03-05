@@ -124,6 +124,17 @@ const generateAICoachingMessage = async (
   }
 
   try {
+    const pulseSection = snapshot.pulse ? `
+- דופק יומי (היום): אנרגיה ${snapshot.pulse.energy_rating}/10, שינה: ${snapshot.pulse.sleep_compliance}, ביטחון במשימות: ${snapshot.pulse.task_confidence}/10, מצב רוח: ${snapshot.pulse.mood_signal}, משמעת מסכים: ${snapshot.pulse.screen_discipline ? 'כן' : 'לא'}` : '- דופק יומי: לא דווח היום';
+
+    const weekPulseSection = snapshot.pulse_week_avg_energy !== null ? `
+- ממוצע אנרגיה שבועי: ${snapshot.pulse_week_avg_energy}/10
+- ממוצע ביטחון שבועי: ${snapshot.pulse_week_avg_confidence}/10
+- ציות שינה שבועי: ${Math.round((snapshot.pulse_sleep_compliance_rate || 0) * 100)}%
+- מצב רוח דומיננטי: ${snapshot.pulse_dominant_mood}` : '';
+
+    const nextTaskSection = snapshot.next_pending_task_title ? `\n- משימה הבאה שמחכה: "${snapshot.next_pending_task_title}"` : '';
+
     const prompt = `אתה אורורה, מאמנת חיים אישית בעברית. צרי הודעת מוטיבציה קצרה ואישית למשתמש.
 
 סוג ההודעה: ${triggerType}
@@ -135,8 +146,18 @@ const generateAICoachingMessage = async (
 - שבוע נוכחי בתוכנית: ${snapshot.current_week}/12
 - אבן דרך: ${snapshot.milestone_title}
 - רמת אנרגיה: ${snapshot.energy_level}
+${pulseSection}${weekPulseSection}${nextTaskSection}
 ${snapshot.stalled_projects.length > 0 ? `- פרויקטים תקועים: ${snapshot.stalled_projects.map(p => `${p.name} (${p.days_stalled} ימים)`).join(', ')}` : ''}
 ${snapshot.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים: ${snapshot.approaching_deadlines.map(p => `${p.name} (${p.days_left} ימים)`).join(', ')}` : ''}
+
+הנחיות לפי סוג:
+- pulse_low_energy: התייחסי לאנרגיה נמוכה, הציעי משימה קלה או הפסקה
+- pulse_drained_mood: התייחסי למצב רוח "drained", עודדי בעדינות
+- pulse_flow_state: נצלי את מצב ה-flow, הציעי להתחיל משימה מאתגרת
+- pulse_poor_sleep: התייחסי לשינה לא מספקת, הציעי התאמת עומס
+- pulse_low_confidence: חזקי את הביטחון, הזכירי הצלחות קודמות
+- pulse_reminder: הזכירי למלא דופק יומי
+- next_task_nudge: עודדי להתחיל את המשימה הבאה בשם
 
 כתבי תגובה בפורמט JSON בלבד:
 {"title": "כותרת קצרה עם אימוג'י", "body": "הודעה אישית מעודדת של 1-2 משפטים"}`;
