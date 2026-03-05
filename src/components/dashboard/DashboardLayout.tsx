@@ -71,8 +71,15 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
                     >
                       <ArrowLeft className="h-4 w-4" />
                     </button>
+                   )}
+                  {isFM ? (
+                    <div className="flex items-center gap-1.5">
+                      <Store className="h-5 w-5 text-primary" />
+                      <span className="text-sm font-bold text-foreground">{language === 'he' ? 'פרי-מארקט' : 'FreeMarket'}</span>
+                    </div>
+                  ) : (
+                    <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
                   )}
-                  <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
                 </div>
                 <HeaderActions compact />
               </div>
