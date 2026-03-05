@@ -282,10 +282,13 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">{isHe ? 'הרוויח MOS' : 'Earn MOS'}</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
-      </div>
+      {/* Header — only on mobile */}
+      {!hasSidebarNav && (
+        <div>
+          <h1 className="text-xl font-bold text-foreground">{isHe ? 'הרוויח MOS' : 'Earn MOS'}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
+        </div>
+      )}
 
       {/* Internal tabs — only on mobile when sidebar isn't managing tabs */}
       {!hasSidebarNav && (
