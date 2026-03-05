@@ -282,27 +282,25 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* Header — only on mobile */}
-      {!hasSidebarNav && (
-        <div>
-          <h1 className="text-xl font-bold text-foreground">{isHe ? 'הרוויח MOS' : 'Earn MOS'}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
-        </div>
-      )}
-
-      {/* Internal tabs — only on mobile when sidebar isn't managing tabs */}
-      {!hasSidebarNav && (
-        <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
-          {TABS.map((t) => (
-            <button key={t.id} onClick={() => switchTab(t.id)}
-              className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
-                tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
-              }`}
-            >
-              {t.icon} {isHe ? t.labelHe : t.labelEn}
-            </button>
-          ))}
-        </div>
+      {/* Internal tabs — only when no external tab control (standalone mode) */}
+      {!externalTab && (
+        <>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">{isHe ? 'הרוויח MOS' : 'Earn MOS'}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{isHe ? 'באונטיז, עבודות, ושיתוף נתונים' : 'Bounties, gigs, and data sharing'}</p>
+          </div>
+          <div className="flex gap-0.5 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
+            {TABS.map((t) => (
+              <button key={t.id} onClick={() => switchTab(t.id)}
+                className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
+                  tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+                }`}
+              >
+                {t.icon} {isHe ? t.labelHe : t.labelEn}
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       {/* ═══════ BOUNTIES TAB ═══════ */}
@@ -313,7 +311,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             <Input className="pl-9" placeholder={isHe ? 'חפש באונטיז...' : 'Search bounties...'} value={bSearch} onChange={(e) => setBSearch(e.target.value)} />
           </div>
           {/* Category filters — only on mobile (sidebar handles desktop) */}
-          {!hasSidebarNav && (
+          {!externalTab && (
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {BOUNTY_CATEGORIES.map((cat) => (
                 <button key={cat} onClick={() => setBFilter(cat)}
@@ -393,7 +391,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             </motion.div>
           ) : (
             <>
-              {!hasSidebarNav && (
+              {!externalTab && (
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                   {GIG_CATEGORIES.map((cat) => (
                     <button key={cat} onClick={() => setGFilter(cat)}
