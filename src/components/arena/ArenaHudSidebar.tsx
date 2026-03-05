@@ -145,30 +145,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
           <SidebarOrbWidget collapsed />
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
-          <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {CORE_DOMAINS.map((domain) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              return (
-                <button
-                  key={domain.id}
-                  onClick={() => handlePillarClick(domain.id)}
-                  className={cn(
-                    "p-2 rounded-lg border transition-colors",
-                    status === 'active'
-                      ? activeColorMap[domain.color]
-                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
-                  )}
-                  title={isHe ? domain.labelHe : domain.labelEn}
-                >
-                  <domain.icon className={cn("w-4 h-4", domainColorMap[domain.color])} />
-                </button>
-              );
-            })}
-          </div>
-
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
-
           <button
             onClick={onNewProject}
             className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 transition-colors"
