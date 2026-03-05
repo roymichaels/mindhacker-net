@@ -61,8 +61,7 @@ export default function FMAppShell() {
           {FM_TABS.map((tab) => {
             const isActive = 
               (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
-              (tab.id === 'earn' && activePath.startsWith('/fm/earn') && !new URLSearchParams(location.search).get('tab')?.startsWith('work')) ||
-              (tab.id === 'work' && activePath.startsWith('/fm/earn') && new URLSearchParams(location.search).get('tab') === 'work') ||
+              (tab.id === 'earn' && activePath.startsWith('/fm/earn')) ||
               (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
             return (
               <button
