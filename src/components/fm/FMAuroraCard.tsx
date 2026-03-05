@@ -100,12 +100,12 @@ export function FMAuroraCard({ opportunities, suggestion, onAction, onSkip }: Pr
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <Button size="sm" className="gap-1" onClick={handleAction}>
+            <div className="flex gap-1.5">
+              <Button size="sm" className="gap-1 h-7 text-[11px] px-2.5" onClick={handleAction}>
                 {isHe ? 'בוא נעשה' : 'Let\'s go'}
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight className="w-3 h-3" />
               </Button>
-              <Button size="sm" variant="ghost" onClick={handleSkip}>
+              <Button size="sm" variant="ghost" className="h-7 text-[11px] px-2" onClick={handleSkip}>
                 {isHe ? 'דלג' : 'Skip'}
               </Button>
             </div>
