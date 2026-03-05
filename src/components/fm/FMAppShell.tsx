@@ -9,6 +9,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { useSidebars } from '@/hooks/useSidebars';
+import { FMHudSidebar } from '@/components/fm/FMHudSidebar';
+import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
 
 const FM_TABS = [
   { id: 'home',  path: '/fm/home',    icon: Home,      labelEn: 'Home',   labelHe: 'בית' },
@@ -25,10 +28,16 @@ export default function FMAppShell() {
   const navigate = useNavigate();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
 
+  // Register FM-specific sidebars
+  const needsOnboarding = !wallet || !wallet.onboarding_complete;
+  useSidebars(
+    !isLoading && !needsOnboarding ? <FMHudSidebar /> : null,
+    !isLoading && !needsOnboarding ? <FMActivitySidebar /> : null,
+    [isLoading, needsOnboarding]
+  );
+
   if (isLoading) return <PageSkeleton />;
 
-  // Onboarding gate — show onboarding before any FM content
-  const needsOnboarding = !wallet || !wallet.onboarding_complete;
   if (needsOnboarding) {
     return (
       <div className="max-w-2xl mx-auto w-full py-8 px-4">
