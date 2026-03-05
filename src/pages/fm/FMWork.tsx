@@ -84,7 +84,7 @@ export default function FMWork() {
       </div>
 
       {/* Professional Path Cards */}
-      <div className="grid gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {PROFESSIONAL_PATHS.map((path, i) => {
           const Icon = path.icon;
           return (
@@ -94,20 +94,19 @@ export default function FMWork() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
               onClick={() => navigate(path.path)}
-              className={`w-full text-left bg-gradient-to-r ${path.color} border ${path.borderColor} rounded-xl p-4 flex items-center gap-4 hover:scale-[1.01] active:scale-[0.99] transition-transform`}
+              className={`w-full text-start bg-gradient-to-br ${path.color} border ${path.borderColor} rounded-xl p-4 flex flex-col items-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform`}
             >
-              <div className={`w-12 h-12 rounded-xl bg-background/80 flex items-center justify-center shrink-0`}>
+              <div className="w-12 h-12 rounded-xl bg-background/80 flex items-center justify-center shrink-0">
                 <Icon className={`w-6 h-6 ${path.iconColor}`} />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="text-center min-w-0">
                 <h3 className="font-semibold text-sm text-foreground">
                   {isHe ? path.titleHe : path.titleEn}
                 </h3>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
                   {isHe ? path.descHe : path.descEn}
                 </p>
               </div>
-              <ArrowRight className={`w-4 h-4 text-muted-foreground shrink-0 ${isHe ? 'rotate-180' : ''}`} />
             </motion.button>
           );
         })}
