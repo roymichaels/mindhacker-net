@@ -115,6 +115,28 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, selectedTo
               {PILLAR_ICONS[domain.id] || '⚡'}
             </button>
           ))}
+
+          {/* Topic icons when pillar selected */}
+          {!isAll && subcategories.length > 0 && (
+            <>
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
+              {subcategories.map((sub) => (
+                <button
+                  key={sub.id}
+                  onClick={() => onSelectTopic?.(sub.id)}
+                  className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-colors",
+                    selectedTopic === sub.id
+                      ? "bg-primary/20 border border-primary/40"
+                      : "bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10"
+                  )}
+                  title={isHe ? sub.he : sub.en}
+                >
+                  {sub.icon}
+                </button>
+              ))}
+            </>
+          )}
         </div>
       )}
 
