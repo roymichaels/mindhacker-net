@@ -52,7 +52,7 @@ export default function CombatResults() {
 
   const handleComplete = async () => {
     await markComplete();
-    navigate('/life/combat');
+    navigate('/strategy/combat');
   };
 
   return (
