@@ -30,34 +30,25 @@ export function useAuroraOpportunities() {
 
       const today = new Date().toISOString().split('T')[0];
 
-      const [
-        { data: wallet },
-        { data: activeBounties },
-        { data: myClaims },
-        { data: myGigs },
-        { data: dataContribs },
-        { data: completedHabits },
-        { data: recentSessions },
-      ] = await Promise.all([
-        supabase.from('fm_wallets').select('mos_balance, lifetime_earned').eq('user_id', user.id).maybeSingle(),
-        supabase.from('fm_bounties').select('id').eq('status', 'active').limit(5),
-        supabase.from('fm_bounty_claims').select('id').eq('user_id', user.id).limit(1),
-        supabase.from('fm_gigs').select('id').eq('posted_by', user.id).limit(1) as any,
-        supabase.from('fm_data_contributions').select('id').eq('user_id', user.id).eq('is_active', true).limit(1) as any,
-        supabase
-          .from('daily_habit_logs')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('track_date', today)
-          .eq('is_completed', true)
-          .limit(1),
-        supabase
-          .from('hypnosis_sessions')
-          .select('id')
-          .eq('user_id', user.id)
-          .gte('created_at', `${today}T00:00:00`)
-          .limit(1),
-      ]);
+      const walletRes = await supabase.from('fm_wallets').select('mos_balance, lifetime_earned').eq('user_id', user.id).maybeSingle();
+      const bountiesRes = await supabase.from('fm_bounties').select('id').eq('status', 'active').limit(5);
+      const claimsRes = await supabase.from('fm_bounty_claims').select('id').eq('user_id', user.id).limit(1);
+      const habitsRes = await supabase.from('daily_habit_logs').select('id').eq('user_id', user.id).eq('track_date', today).eq('is_completed', true).limit(1);
+      const sessionsRes = await supabase.from('hypnosis_sessions').select('id').eq('user_id', user.id).gte('created_at', `${today}T00:00:00`).limit(1);
+
+      // These tables may not be in generated types yet — use untyped access
+      let gigsCount = 0;
+      let dataCount = 0;
+      try {
+        const gigsRes = await (supabase as any).from('fm_gigs').select('id').eq('posted_by', user.id).limit(1);
+        gigsCount = gigsRes.data?.length ?? 0;
+      } catch {}
+      try {
+        const dataRes = await (supabase as any).from('fm_data_contributions').select('id').eq('user_id', user.id).eq('is_active', true).limit(1);
+        dataCount = dataRes.data?.length ?? 0;
+      } catch {}
+
+      const wallet = walletRes.data;
 
       return {
         balance: wallet?.mos_balance ?? 0,
