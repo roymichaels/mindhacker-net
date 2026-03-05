@@ -62,7 +62,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'bounties';
+  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'overview';
   const [internalTab, setInternalTab] = useState<EarnTab>(initialTab as EarnTab);
   const tab = (externalTab as EarnTab) || internalTab;
 
