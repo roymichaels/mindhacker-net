@@ -4,7 +4,7 @@
  * Wraps all /fm/* routes via <Outlet />.
  */
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Target, Wallet } from 'lucide-react';
+import { Coins, Target, Wallet, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
@@ -14,8 +14,9 @@ import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const FM_TABS = [
-  { id: 'home',   path: '/fm/home',   icon: Home,        labelEn: 'Home',   labelHe: 'בית' },
+  { id: 'home',   path: '/fm/home',   icon: Coins,       labelEn: 'FM',     labelHe: 'FM' },
   { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
+  { id: 'work',   path: '/fm/earn?tab=work', icon: Briefcase, labelEn: 'Work', labelHe: 'עבודה' },
   { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
@@ -59,9 +60,11 @@ export default function FMAppShell() {
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around max-w-md mx-auto h-14">
           {FM_TABS.map((tab) => {
-            const isActive = activePath === tab.path || 
-              (tab.id === 'home' && activePath === '/fm') ||
-              (tab.id === 'earn' && activePath.startsWith('/fm/earn'));
+            const isActive = 
+              (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
+              (tab.id === 'earn' && activePath.startsWith('/fm/earn') && !new URLSearchParams(location.search).get('tab')?.startsWith('work')) ||
+              (tab.id === 'work' && activePath.startsWith('/fm/earn') && new URLSearchParams(location.search).get('tab') === 'work') ||
+              (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
             return (
               <button
                 key={tab.id}
