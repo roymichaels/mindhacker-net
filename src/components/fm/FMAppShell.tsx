@@ -4,7 +4,7 @@
  * Wraps all /fm/* routes via <Outlet />.
  */
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Target, Briefcase, BarChart3, Wallet } from 'lucide-react';
+import { Home, Target, Briefcase, BarChart3, Wallet, Users } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
