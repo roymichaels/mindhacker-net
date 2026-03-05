@@ -310,7 +310,7 @@ export default function FocusAssess() {
         const structured = buildStructuredAnswers();
         const result = buildFocusAssessment(structured);
         await saveAssessment(result);
-        navigate('/life/focus/results');
+        navigate('/strategy/focus/results');
       } catch (err) {
         console.error(err);
         setPhase('flow');

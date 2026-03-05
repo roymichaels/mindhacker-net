@@ -104,7 +104,7 @@ export default function PowerHome() {
 
         {/* History */}
         {config.history && config.history.length > 0 && (
-          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/life/power/history')}>
+          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/strategy/power/history')}>
             <span>{t('power.assessmentHistory')}</span>
             <ChevronIcon className="w-4 h-4" />
           </Button>

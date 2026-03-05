@@ -175,7 +175,7 @@ export default function VitalityHome() {
 
         {/* History link */}
         {config.history && config.history.length > 0 && (
-          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/life/vitality/history')}>
+          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/strategy/vitality/history')}>
             <span>{t('vitality.assessmentHistory')}</span>
             <ChevronIcon className="w-4 h-4" />
           </Button>

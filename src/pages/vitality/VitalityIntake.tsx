@@ -100,7 +100,7 @@ export default function VitalityIntake() {
             if (currentStepIdx > 0) {
               setCurrentStepIdx(currentStepIdx - 1);
             } else {
-              navigate('/life/vitality');
+              navigate('/strategy/vitality');
             }
           }}
           className="gap-1"
