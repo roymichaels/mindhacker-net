@@ -352,7 +352,7 @@ const App = () => (
                           {/* Arena domain sub-routes redirect to Core assessment pages */}
                           <Route path="/arena/:domainId/*" element={<ArenaToLifeRedirect />} />
                           {/* Coaches */}
-                          <Route path="/coaches" element={<Navigate to="/fm/coaches" replace />} />
+                          <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                           {/* Admin Hub */}
                           <Route path="/admin-hub" element={<AdminLayoutWrapper />} />
                           {/* Launchpad */}
@@ -367,10 +367,10 @@ const App = () => (
                             <Route path="home" element={<FMHome />} />
                             <Route path="earn" element={<FMEarn />} />
                             <Route path="work" element={<FMWork />} />
-                            <Route path="share" element={<FMContribute />} />
-                            <Route path="contribute" element={<Navigate to="/fm/share" replace />} />
+                            <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
+                            <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="wallet" element={<FMWalletPage />} />
-                            <Route path="coaches" element={<CoachesLayoutWrapper />} />
+                            <Route path="coaches" element={<Navigate to="/coaches" replace />} />
                           </Route>
                           
                           {/* Journeys */}
@@ -455,8 +455,8 @@ const App = () => (
                         <Route path="/panel/settings" element={<Navigate to="/admin-hub?tab=system&sub=settings" replace />} />
                         <Route path="/panel/*" element={<Navigate to="/admin-hub" replace />} />
                         {/* Coach panel redirects */}
-                        <Route path="/coach" element={<Navigate to="/fm/coaches" replace />} />
-                        <Route path="/coach/*" element={<Navigate to="/fm/coaches" replace />} />
+                        <Route path="/coach" element={<Navigate to="/coaches" replace />} />
+                        <Route path="/coach/*" element={<Navigate to="/coaches" replace />} />
                         {/* Affiliate Panel */}
                         <Route
                           path="/affiliate"
