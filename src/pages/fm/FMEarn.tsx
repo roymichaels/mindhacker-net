@@ -25,7 +25,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
 
-type EarnTab = 'bounties' | 'gigs' | 'data' | 'activity' | 'work';
+type EarnTab = 'bounties' | 'gigs' | 'data' | 'activity';
 
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
