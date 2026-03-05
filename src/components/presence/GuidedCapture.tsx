@@ -196,33 +196,46 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
     .replace('{total}', String(STEP_KEYS.length));
 
   return (
-    <div className="max-w-lg mx-auto space-y-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Progress */}
-      <div className="flex items-center gap-1">
-        {STEP_KEYS.map((s, i) => (
-          <div
-            key={s.key}
-            className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i < step ? "bg-primary" : i === step ? "bg-primary/60" : "bg-muted"
-            }`}
-          />
-        ))}
+    <div
+      className="flex flex-col h-full max-w-lg mx-auto w-full"
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
+      {/* ── Top: Step indicator tabs ── */}
+      <div className="flex items-center gap-2 px-4 pt-3 pb-2 shrink-0">
+        {STEP_KEYS.map((s, i) => {
+          const done = !!images[s.key];
+          const active = i === step;
+          return (
+            <button
+              key={s.key}
+              onClick={() => setStep(i)}
+              className={`
+                flex-1 h-1.5 rounded-full transition-all duration-300
+                ${done ? 'bg-primary' : active ? 'bg-primary/60' : 'bg-muted'}
+              `}
+            />
+          );
+        })}
       </div>
 
-      <div className="text-center space-y-1">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider">
+      {/* ── Step title ── */}
+      <div className="text-center px-4 pb-2 shrink-0">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">
           {stepLabel}
         </p>
-        <h3 className="text-xl font-bold text-foreground">{t(current.labelKey)}</h3>
-        <p className="text-sm text-muted-foreground">{t(current.instructKey)}</p>
+        <h3 className="text-lg font-bold text-foreground leading-tight">{t(current.labelKey)}</h3>
+        <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{t(current.instructKey)}</p>
       </div>
 
-      {/* Viewfinder + Guide side by side */}
-      <div className="flex gap-3 items-stretch">
-        {/* Camera / Preview — always first visually */}
-        <div className="relative flex-1 aspect-[3/4] max-h-[45vh] rounded-2xl border-2 border-border bg-black overflow-hidden order-first">
+      {/* ── Viewfinder area — takes remaining space ── */}
+      <div className="flex-1 min-h-0 px-3 pb-2">
+        <div className="relative w-full h-full max-h-[55vh] sm:max-h-[50vh] rounded-2xl border-2 border-border/60 bg-black overflow-hidden">
           {previews[current.key] ? (
-            <img src={previews[current.key]} alt={t(current.labelKey)} className="w-full h-full object-cover" />
+            <img
+              src={previews[current.key]}
+              alt={t(current.labelKey)}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <video
               ref={videoRef}
@@ -233,44 +246,39 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
               style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
             />
           )}
+
+          {/* Upload overlay */}
           {uploading && (
-            <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           )}
+
+          {/* Camera flip button */}
           {cameraActive && !previews[current.key] && (
             <button
               onClick={toggleCamera}
-              className="absolute top-3 end-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              className="absolute top-3 end-3 p-2.5 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors active:scale-95"
             >
               <SwitchCamera className="w-5 h-5" />
             </button>
           )}
         </div>
-
-        {/* Guide image */}
-        <div className="hidden sm:flex w-28 shrink-0 flex-col items-center gap-1.5 order-last">
-          <img
-            src={GUIDE_IMAGES[current.key]}
-            alt={t(current.labelKey)}
-            className="w-full rounded-xl border border-border bg-muted/30 object-contain"
-          />
-          <span className="text-[10px] text-muted-foreground text-center leading-tight">{t('presence.examplePose')}</span>
-        </div>
       </div>
 
-      {/* Mobile guide */}
-      <div className="flex sm:hidden items-center gap-3 p-2 rounded-xl border border-border bg-muted/20">
+      {/* ── Guide reference (compact) ── */}
+      <div className="flex items-center gap-3 px-4 py-2 shrink-0">
         <img
           src={GUIDE_IMAGES[current.key]}
           alt={t(current.labelKey)}
-          className="w-16 h-20 rounded-lg object-contain"
+          className="w-12 h-14 sm:w-14 sm:h-16 rounded-xl border border-border/50 bg-muted/20 object-contain shrink-0"
         />
-        <span className="text-xs text-muted-foreground leading-tight">{t('presence.mobileGuide')}</span>
+        <span className="text-[11px] text-muted-foreground leading-snug flex-1">
+          {t('presence.mobileGuide')}
+        </span>
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
-
       <input
         ref={inputRef}
         type="file"
@@ -279,41 +287,45 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
         onChange={handleFileSelect}
       />
 
-      {/* Actions */}
-      <div className="flex gap-2">
+      {/* ── Bottom action bar ── */}
+      <div className="px-4 pb-3 pt-1 space-y-2 shrink-0">
         {previews[current.key] ? (
-          <>
-            <Button variant="outline" onClick={handleRetake} className="flex-1">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleRetake} className="flex-1 h-12 rounded-xl text-sm">
               <RotateCcw className="w-4 h-4 me-2" /> {t('presence.retake')}
             </Button>
-            <Button onClick={handleNext} disabled={!canProceed} className="flex-1">
-              {isLastStep && allComplete ? t('presence.analyze') : t('presence.next')} <NextIcon className="w-4 h-4 ms-1" />
+            <Button onClick={handleNext} disabled={!canProceed} className="flex-1 h-12 rounded-xl text-sm">
+              {isLastStep && allComplete ? t('presence.analyze') : t('presence.next')}
+              <NextIcon className="w-4 h-4 ms-1" />
             </Button>
-          </>
+          </div>
         ) : (
-          <>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              variant="outline"
+              className="shrink-0 h-12 w-12 rounded-xl p-0"
+            >
+              <Upload className="w-5 h-5" />
+            </Button>
             <Button
               onClick={capturePhoto}
               disabled={!cameraActive || uploading}
-              className="flex-1"
+              className="flex-1 h-12 rounded-xl text-sm font-semibold"
             >
               <Camera className="w-4 h-4 me-2" /> {t('presence.capture')}
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading}
-              className="shrink-0"
-            >
-              <Upload className="w-4 h-4" />
-            </Button>
-          </>
+          </div>
         )}
-      </div>
 
-      <Button variant="ghost" size="sm" onClick={() => { stopCamera(); onCancel(); }} className="w-full text-muted-foreground">
-        {t('presence.cancelScan')}
-      </Button>
+        <button
+          onClick={() => { stopCamera(); onCancel(); }}
+          className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
+        >
+          {t('presence.cancelScan')}
+        </button>
+      </div>
     </div>
   );
 }
