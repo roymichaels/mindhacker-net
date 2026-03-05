@@ -79,10 +79,30 @@ export function useFMBounties() {
         .from('fm_bounties')
         .select('*')
         .eq('status', 'active')
+        .order('reward_mos', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useFMClaims() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['fm-claims', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('fm_bounty_claims')
+        .select('*, fm_bounties(title, reward_mos, category)')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
       if (error) throw error;
       return data ?? [];
     },
+    enabled: !!user?.id,
   });
 }
