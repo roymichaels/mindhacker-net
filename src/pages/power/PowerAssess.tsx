@@ -180,7 +180,7 @@ export default function PowerAssess() {
         status: 'configured',
       });
 
-      navigate('/life/power/results');
+      navigate('/strategy/power/results');
     } catch (err) {
       console.error(err);
     } finally {
