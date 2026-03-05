@@ -16,6 +16,9 @@ export function BottomTabBar() {
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
 
+  // Hide global bottom nav when inside FM (it has its own nav)
+  if (location.pathname.startsWith('/fm')) return null;
+
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isActive = (path: string) => {
