@@ -39,7 +39,10 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
         {/* Left: App name + FM tabs */}
         <div className="flex items-center gap-6">
-          <AppNameDropdown onOpenSettings={onOpenSettings} />
+          <div className="flex items-center gap-1.5">
+            <Store className="h-5 w-5 text-primary" />
+            <span className="text-base font-bold text-foreground">{isHe ? 'פרי-מארקט' : 'FreeMarket'}</span>
+          </div>
 
           <nav className="flex items-center gap-1">
             {FM_TABS.map((tab) => {
