@@ -3,14 +3,12 @@
  * Used by FMAppShell and also rendered standalone on /coaches, /business, etc.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Coins, Target, Wallet, Briefcase } from 'lucide-react';
+import { Target, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 const FM_TABS = [
-  { id: 'home',   path: '/fm/home',   icon: Coins,       labelEn: 'FM',     labelHe: 'FM' },
   { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Work',   labelHe: 'עבודה' },
-  { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
 export function FMBottomNav() {
