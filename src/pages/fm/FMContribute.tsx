@@ -69,6 +69,7 @@ export default function FMContribute() {
   const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'offers' | 'marketplace'>('offers');
 
   const { data: existing = [] } = useQuery({
     queryKey: ['fm-data-contributions', user?.id],
