@@ -7434,8 +7434,10 @@ export type Database = {
           icon: string
           id: string
           is_active: boolean
+          mission_id: string | null
           name: string
           name_he: string | null
+          user_id: string | null
         }
         Insert: {
           category: string
@@ -7444,8 +7446,10 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
+          mission_id?: string | null
           name: string
           name_he?: string | null
+          user_id?: string | null
         }
         Update: {
           category?: string
@@ -7454,10 +7458,20 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
+          mission_id?: string | null
           name?: string
           name_he?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "skills_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "plan_missions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_tiers: {
         Row: {
