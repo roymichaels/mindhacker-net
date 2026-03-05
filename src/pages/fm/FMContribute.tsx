@@ -134,6 +134,29 @@ export default function FMContribute() {
         </p>
       </div>
 
+      {/* Tab switcher */}
+      <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
+        <button
+          onClick={() => setActiveTab('offers')}
+          className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'offers' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
+        >
+          <Coins className="w-3.5 h-3.5 inline mr-1" />
+          {isHe ? 'הצעות שיתוף' : 'Share Offers'}
+        </button>
+        <button
+          onClick={() => setActiveTab('marketplace')}
+          className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'marketplace' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
+        >
+          <Database className="w-3.5 h-3.5 inline mr-1" />
+          {isHe ? 'שוק הנתונים' : 'Data Marketplace'}
+        </button>
+      </div>
+
+      {activeTab === 'marketplace' ? (
+        <DataMarketplaceDashboard />
+      ) : (
+      <>
+
       {/* Stats bar */}
       <div className="flex gap-3">
         <div className="flex-1 bg-card border border-border rounded-xl p-3 text-center">
