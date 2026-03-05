@@ -18,7 +18,6 @@ export default function LifeHub() {
   const queryClient = useQueryClient();
 
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [addItemOpen, setAddItemOpen] = useState(false);
 
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
