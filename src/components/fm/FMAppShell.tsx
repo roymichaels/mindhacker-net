@@ -38,8 +38,6 @@ export default function FMAppShell() {
 
   if (isLoading) return <PageSkeleton />;
 
-  // Onboarding gate — show onboarding before any FM content
-  const needsOnboarding = !wallet || !wallet.onboarding_complete;
   if (needsOnboarding) {
     return (
       <div className="max-w-2xl mx-auto w-full py-8 px-4">
