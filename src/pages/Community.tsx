@@ -131,14 +131,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </button>
           </div>
 
-          {/* Topic Boards — only for specific pillar, not "all" */}
-          {!isAll && (
-            <PillarTopicBoards
-              pillar={selectedPillar}
-              selectedTopic={selectedTopic}
-              onSelectTopic={setSelectedTopic}
-            />
-          )}
+          {/* Thread Feed */}
 
           {/* Thread Feed */}
           <ThreadList
