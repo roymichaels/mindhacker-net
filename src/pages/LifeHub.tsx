@@ -1,11 +1,11 @@
 /**
  * LifeHub — Strategy page (אסטרטגיה).
- * Same layout style as Tactics: stats grid + current phase roadmap in body.
- * No sidebars.
+ * Same layout style as Tactics/Now.
+ * Roadmap section shows the FULL 100-day plan (all 10 phases A-J).
  */
 import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, BookOpen } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
@@ -16,6 +16,7 @@ import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+const TOTAL_PHASES = 10;
 
 export default function LifeHub() {
   const { language, isRTL } = useTranslation();
@@ -24,13 +25,11 @@ export default function LifeHub() {
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
   const [wizardOpen, setWizardOpen] = useState(false);
-
-  const phaseLabel = PHASE_LABELS[(currentPhase || 1) - 1] || '?';
+  const [expandedPhase, setExpandedPhase] = useState<number | null>(null);
 
   // Stats
   const { statusMap } = useLifeDomains();
   const { coreStrategy } = useStrategyPlans();
-
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
   const pillarGoals = coreStrategy?.pillars || {};
@@ -43,29 +42,33 @@ export default function LifeHub() {
     return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, [plan?.start_date]);
 
-  // Current phase milestones grouped by pillar
-  const currentPhaseMilestones = useMemo(
-    () => milestones.filter(m => m.week_number === currentPhase),
-    [milestones, currentPhase]
-  );
-  const pillarGroups = useMemo(() => {
-    const groups: Record<string, any[]> = {};
-    for (const m of currentPhaseMilestones) {
-      const key = m.focus_area || 'other';
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(m);
-    }
-    return groups;
-  }, [currentPhaseMilestones]);
-
-  const phaseCompleted = currentPhaseMilestones.filter(m => m.is_completed).length;
-  const phaseTotal = currentPhaseMilestones.length;
-  const phasePct = phaseTotal > 0 ? Math.round((phaseCompleted / phaseTotal) * 100) : 0;
-
   // Overall progress
   const allCompleted = milestones.filter(m => m.is_completed).length;
   const allTotal = milestones.length || 1;
   const overallPct = Math.round((allCompleted / allTotal) * 100);
+
+  // Phase groups for full 100-day roadmap
+  const phaseGroups = useMemo(() => {
+    const map = new Map<number, { phase: number; label: string; milestones: any[]; completed: number; total: number; focusAreas: string[] }>();
+    for (const m of milestones) {
+      const p = m.week_number;
+      if (!map.has(p)) {
+        map.set(p, { phase: p, label: PHASE_LABELS[p - 1] || String(p), milestones: [], completed: 0, total: 0, focusAreas: [] });
+      }
+      const g = map.get(p)!;
+      g.total++;
+      if (m.is_completed) g.completed++;
+      g.milestones.push(m);
+      const area = isHe ? m.focus_area : (m.focus_area_en || m.focus_area);
+      if (area && !g.focusAreas.includes(area)) g.focusAreas.push(area);
+    }
+    for (let p = 1; p <= TOTAL_PHASES; p++) {
+      if (!map.has(p)) {
+        map.set(p, { phase: p, label: PHASE_LABELS[p - 1] || String(p), milestones: [], completed: 0, total: 0, focusAreas: [] });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.phase - b.phase);
+  }, [milestones, isHe]);
 
   const statItems = [
     { icon: Flame, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
@@ -85,7 +88,6 @@ export default function LifeHub() {
       <div className="flex flex-col gap-4 max-w-xl w-full px-4 pt-4">
 
         {!hasPlan && !isLoading ? (
-          /* ── NO PLAN STATE ── */
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
               <Flame className="w-8 h-8 text-primary" />
@@ -95,9 +97,7 @@ export default function LifeHub() {
                 {isHe ? 'טרם יצרת תוכנית 100 יום' : 'No 100-Day Plan Yet'}
               </h2>
               <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
-                {isHe
-                  ? 'בחר עמודים, אבחן אותם, וצור את תוכנית הטרנספורמציה שלך'
-                  : 'Select pillars, assess them, and create your transformation plan'}
+                {isHe ? 'בחר עמודים, אבחן אותם, וצור את תוכנית הטרנספורמציה שלך' : 'Select pillars, assess them, and create your transformation plan'}
               </p>
             </div>
             <motion.button
@@ -123,7 +123,7 @@ export default function LifeHub() {
               ))}
             </div>
 
-            {/* ── RECALIBRATE BUTTON ── */}
+            {/* ── Recalibrate ── */}
             <div className="flex justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -136,20 +136,20 @@ export default function LifeHub() {
               </motion.button>
             </div>
 
-            {/* ── CURRENT PHASE ROADMAP ── */}
+            {/* ── FULL 100-DAY ROADMAP ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-              {/* Phase header */}
+              {/* Header */}
               <div className="px-4 py-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">{phaseLabel}</span>
+                    <Trophy className="w-4 h-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-foreground">
-                      {isHe ? `שלב ${phaseLabel} — מפת אסטרטגיה` : `Phase ${phaseLabel} — Strategy Map`}
+                      {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
-                      {phaseCompleted}/{phaseTotal} {isHe ? 'אבני דרך' : 'milestones'} · {phasePct}%
+                      {allCompleted}/{allTotal} {isHe ? 'אבני דרך' : 'milestones'} · {overallPct}%
                     </p>
                   </div>
                 </div>
@@ -157,69 +157,141 @@ export default function LifeHub() {
                   <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70"
                     initial={{ width: 0 }}
-                    animate={{ width: `${phasePct}%` }}
+                    animate={{ width: `${overallPct}%` }}
                     transition={{ duration: 0.5 }}
                   />
                 </div>
               </div>
 
-              {/* Milestones by pillar */}
-              <div className="px-4 py-3 space-y-3">
-                {phaseTotal === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    {isHe ? 'אין אבני דרך בשלב הנוכחי' : 'No milestones in this phase'}
-                  </p>
-                ) : (
-                  Object.entries(pillarGroups).map(([pillarKey, pMilestones]) => {
-                    const domain = getDomainById(pillarKey);
-                    const Icon = domain?.icon;
-                    const pillarDone = pMilestones.filter((m: any) => m.is_completed).length;
+              {/* Phase timeline */}
+              <div className="px-4 py-3 space-y-0.5">
+                {phaseGroups.map((g, idx) => {
+                  const isDone = g.total > 0 && g.completed === g.total;
+                  const isCurrent = g.phase === currentPhase;
+                  const isPast = (currentPhase || 0) > g.phase;
+                  const isExpanded = expandedPhase === g.phase;
+                  const phasePct = g.total > 0 ? Math.round((g.completed / g.total) * 100) : 0;
 
-                    return (
-                      <div key={pillarKey} className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-muted/40 border border-border/20 flex items-center justify-center">
-                            {Icon ? <Icon className="w-3.5 h-3.5 text-foreground/60" /> : <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />}
-                          </div>
-                          <span className="text-xs font-bold text-foreground/80 flex-1">
-                            {isHe ? (domain?.labelHe || pillarKey) : (domain?.labelEn || pillarKey)}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {pillarDone}/{pMilestones.length}
-                          </span>
-                        </div>
+                  return (
+                    <div key={g.phase} className="relative">
+                      {/* Connecting line */}
+                      {idx < phaseGroups.length - 1 && (
+                        <div className={cn(
+                          "absolute top-7 start-[11px] w-0.5",
+                          isExpanded ? "h-[calc(100%-8px)]" : "h-[calc(100%-4px)]",
+                          isDone || isPast ? "bg-primary/40" : "bg-muted-foreground/15"
+                        )} />
+                      )}
 
-                        <div className="space-y-0.5 ps-3">
-                          {pMilestones.map((m: any) => (
-                            <div key={m.id} className={cn(
-                              "flex items-start gap-2 py-1.5 px-2 rounded-lg",
-                              m.is_completed ? "opacity-50" : "hover:bg-muted/20 transition-colors"
-                            )}>
-                              {m.is_completed ? (
-                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                              ) : (
-                                <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className={cn(
-                                  "text-xs leading-snug",
-                                  m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
-                                )}>
-                                  {isHe ? (m.title || m.title_en) : (m.title_en || m.title)}
-                                </p>
-                                {m.goal && (
-                                  <span className="text-[10px] text-muted-foreground/50 leading-tight block mt-0.5">
-                                    {isHe ? m.goal : (m.goal_en || m.goal)}
-                                  </span>
-                                )}
-                              </div>
+                      <button
+                        onClick={() => setExpandedPhase(isExpanded ? null : g.phase)}
+                        className={cn(
+                          "relative w-full flex items-start gap-2 p-2 rounded-lg text-start transition-all",
+                          isCurrent && "bg-primary/10 border border-primary/20",
+                          !isCurrent && !isDone && "hover:bg-muted/30",
+                          isDone && "opacity-80",
+                        )}
+                      >
+                        <div className="mt-0.5 shrink-0">
+                          {isDone ? (
+                            <CheckCircle2 className="w-[18px] h-[18px] text-primary" />
+                          ) : isCurrent ? (
+                            <div className="w-[18px] h-[18px] rounded-full border-2 border-primary bg-primary/20 flex items-center justify-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             </div>
-                          ))}
+                          ) : (
+                            <Circle className="w-[18px] h-[18px] text-muted-foreground/30" />
+                          )}
                         </div>
-                      </div>
-                    );
-                  })
-                )}
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={cn("text-[10px] font-bold", isCurrent ? "text-primary" : "text-muted-foreground")}>
+                              {isHe ? `שלב ${g.label}` : `Phase ${g.label}`}
+                            </span>
+                            {isCurrent && (
+                              <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
+                                {isHe ? 'עכשיו' : 'NOW'}
+                              </span>
+                            )}
+                            <span className="text-[9px] text-muted-foreground ms-auto">
+                              {g.completed}/{g.total}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {g.focusAreas.slice(0, 3).map((area) => (
+                              <span key={area} className={cn(
+                                "text-[9px] px-1.5 py-0.5 rounded-md",
+                                isCurrent ? "bg-primary/15 text-primary" : "bg-muted/60 text-muted-foreground"
+                              )}>
+                                {area}
+                              </span>
+                            ))}
+                            {g.focusAreas.length > 3 && (
+                              <span className="text-[9px] text-muted-foreground/60">+{g.focusAreas.length - 3}</span>
+                            )}
+                          </div>
+                          {g.total > 0 && (
+                            <div className="h-1 rounded-full bg-muted/40 overflow-hidden mt-1.5">
+                              <div className={cn("h-full rounded-full transition-all", isDone ? "bg-primary" : "bg-primary/50")} style={{ width: `${phasePct}%` }} />
+                            </div>
+                          )}
+                        </div>
+
+                        {g.total > 0 && (
+                          <div className="mt-1 shrink-0">
+                            {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
+                          </div>
+                        )}
+                      </button>
+
+                      {/* Expanded milestones */}
+                      <AnimatePresence>
+                        {isExpanded && g.milestones.length > 0 && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="ps-7 pe-1 py-1 space-y-0.5">
+                              {g.milestones.map((m: any) => {
+                                const domain = getDomainById(m.focus_area);
+                                const Icon = domain?.icon;
+                                return (
+                                  <div key={m.id} className={cn(
+                                    "flex items-start gap-2 py-1.5 px-2 rounded-lg",
+                                    m.is_completed ? "opacity-50" : "hover:bg-muted/20 transition-colors"
+                                  )}>
+                                    {m.is_completed ? (
+                                      <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                    ) : (
+                                      <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <p className={cn(
+                                        "text-xs leading-snug",
+                                        m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
+                                      )}>
+                                        {isHe ? (m.title || m.title_en) : (m.title_en || m.title)}
+                                      </p>
+                                      {m.goal && (
+                                        <span className="text-[10px] text-muted-foreground/50 leading-tight block mt-0.5">
+                                          {isHe ? m.goal : (m.goal_en || m.goal)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </>
