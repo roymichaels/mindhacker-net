@@ -18,6 +18,15 @@ const corsHeaders = {
 
 // ─── Adapt AuroraContext to proactive needs ────────────────
 
+interface DailyPulseData {
+  energy_rating: number;
+  sleep_compliance: string;
+  task_confidence: number;
+  screen_discipline: boolean;
+  mood_signal: string;
+  log_date: string;
+}
+
 interface ProactiveSnapshot {
   overdue_tasks: number;
   overdue_task_names: string[];
@@ -33,13 +42,42 @@ interface ProactiveSnapshot {
   stalled_projects: { name: string; days_stalled: number }[];
   approaching_deadlines: { name: string; days_left: number }[];
   projects_without_milestones: string[];
+  // Daily Pulse context
+  pulse: DailyPulseData | null;
+  pulse_logged_today: boolean;
+  pulse_week_avg_energy: number | null;
+  pulse_week_avg_confidence: number | null;
+  pulse_dominant_mood: string | null;
+  pulse_sleep_compliance_rate: number | null;
+  next_pending_task_title: string | null;
 }
 
-function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
+async function fetchPulseData(supabase: SupabaseClient<any, any, any>, userId: string): Promise<{ today: DailyPulseData | null; weekAvgEnergy: number | null; weekAvgConfidence: number | null; dominantMood: string | null; sleepRate: number | null }> {
+  const today = new Date().toISOString().split('T')[0];
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
+
+  const [{ data: todayPulse }, { data: weekPulses }] = await Promise.all([
+    supabase.from('daily_pulse_logs').select('*').eq('user_id', userId).eq('log_date', today).maybeSingle(),
+    supabase.from('daily_pulse_logs').select('*').eq('user_id', userId).gte('log_date', weekAgo).order('log_date', { ascending: false }),
+  ]);
+
+  const pulses = (weekPulses || []) as DailyPulseData[];
+  const len = pulses.length;
+  if (len === 0) return { today: todayPulse, weekAvgEnergy: null, weekAvgConfidence: null, dominantMood: null, sleepRate: null };
+
+  const avgEnergy = pulses.reduce((s, p) => s + p.energy_rating, 0) / len;
+  const avgConf = pulses.reduce((s, p) => s + p.task_confidence, 0) / len;
+  const sleepRate = pulses.filter(p => p.sleep_compliance === 'yes').length / len;
+  const moodCounts: Record<string, number> = {};
+  pulses.forEach(p => { moodCounts[p.mood_signal] = (moodCounts[p.mood_signal] || 0) + 1; });
+  const dominantMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+  return { today: todayPulse, weekAvgEnergy: Math.round(avgEnergy * 10) / 10, weekAvgConfidence: Math.round(avgConf * 10) / 10, dominantMood, sleepRate: Math.round(sleepRate * 100) / 100 };
+}
+
+function toProactiveSnapshot(ctx: AuroraContext, pulse: Awaited<ReturnType<typeof fetchPulseData>>, nextTask: string | null): ProactiveSnapshot {
   const completedHabits = ctx.action_items.habits.filter(h => h.completed_today).length;
   const currentMilestone = ctx.action_items.milestones.find(m => !m.is_completed);
-  
-  // Estimate streak from habits (simplified — context builder could add this later)
   const maxStreak = ctx.action_items.habits.reduce((max, h) => Math.max(max, h.streak), 0);
 
   return {
@@ -50,7 +88,7 @@ function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
     incomplete_habits: ctx.action_items.habits.length - completedHabits,
     streak_days: maxStreak,
     last_active: null,
-    energy_level: 'medium',
+    energy_level: pulse.today ? (pulse.today.energy_rating >= 7 ? 'high' : pulse.today.energy_rating >= 4 ? 'medium' : 'low') : 'medium',
     current_week: ctx.life_plan?.current_week || 1,
     milestone_title: currentMilestone?.title || '',
     milestone_progress: currentMilestone ? (currentMilestone.is_completed ? 100 : 0) : 0,
@@ -63,6 +101,14 @@ function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
       })
       .filter(p => p.days_left >= 0 && p.days_left <= 14),
     projects_without_milestones: ctx.projects.filter(p => p.progress === 0).map(p => p.name),
+    // Pulse context
+    pulse: pulse.today,
+    pulse_logged_today: !!pulse.today,
+    pulse_week_avg_energy: pulse.weekAvgEnergy,
+    pulse_week_avg_confidence: pulse.weekAvgConfidence,
+    pulse_dominant_mood: pulse.dominantMood,
+    pulse_sleep_compliance_rate: pulse.sleepRate,
+    next_pending_task_title: nextTask,
   };
 }
 
@@ -78,6 +124,17 @@ const generateAICoachingMessage = async (
   }
 
   try {
+    const pulseSection = snapshot.pulse ? `
+- דופק יומי (היום): אנרגיה ${snapshot.pulse.energy_rating}/10, שינה: ${snapshot.pulse.sleep_compliance}, ביטחון במשימות: ${snapshot.pulse.task_confidence}/10, מצב רוח: ${snapshot.pulse.mood_signal}, משמעת מסכים: ${snapshot.pulse.screen_discipline ? 'כן' : 'לא'}` : '- דופק יומי: לא דווח היום';
+
+    const weekPulseSection = snapshot.pulse_week_avg_energy !== null ? `
+- ממוצע אנרגיה שבועי: ${snapshot.pulse_week_avg_energy}/10
+- ממוצע ביטחון שבועי: ${snapshot.pulse_week_avg_confidence}/10
+- ציות שינה שבועי: ${Math.round((snapshot.pulse_sleep_compliance_rate || 0) * 100)}%
+- מצב רוח דומיננטי: ${snapshot.pulse_dominant_mood}` : '';
+
+    const nextTaskSection = snapshot.next_pending_task_title ? `\n- משימה הבאה שמחכה: "${snapshot.next_pending_task_title}"` : '';
+
     const prompt = `אתה אורורה, מאמנת חיים אישית בעברית. צרי הודעת מוטיבציה קצרה ואישית למשתמש.
 
 סוג ההודעה: ${triggerType}
@@ -89,8 +146,18 @@ const generateAICoachingMessage = async (
 - שבוע נוכחי בתוכנית: ${snapshot.current_week}/12
 - אבן דרך: ${snapshot.milestone_title}
 - רמת אנרגיה: ${snapshot.energy_level}
+${pulseSection}${weekPulseSection}${nextTaskSection}
 ${snapshot.stalled_projects.length > 0 ? `- פרויקטים תקועים: ${snapshot.stalled_projects.map(p => `${p.name} (${p.days_stalled} ימים)`).join(', ')}` : ''}
 ${snapshot.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים: ${snapshot.approaching_deadlines.map(p => `${p.name} (${p.days_left} ימים)`).join(', ')}` : ''}
+
+הנחיות לפי סוג:
+- pulse_low_energy: התייחסי לאנרגיה נמוכה, הציעי משימה קלה או הפסקה
+- pulse_drained_mood: התייחסי למצב רוח "drained", עודדי בעדינות
+- pulse_flow_state: נצלי את מצב ה-flow, הציעי להתחיל משימה מאתגרת
+- pulse_poor_sleep: התייחסי לשינה לא מספקת, הציעי התאמת עומס
+- pulse_low_confidence: חזקי את הביטחון, הזכירי הצלחות קודמות
+- pulse_reminder: הזכירי למלא דופק יומי
+- next_task_nudge: עודדי להתחיל את המשימה הבאה בשם
 
 כתבי תגובה בפורמט JSON בלבד:
 {"title": "כותרת קצרה עם אימוג'י", "body": "הודעה אישית מעודדת של 1-2 משפטים"}`;
@@ -191,6 +258,45 @@ const generateFallbackMessage = (snapshot: ProactiveSnapshot, triggerType: strin
         ? `"${snapshot.projects_without_milestones[0]}" עדיין ב-0%. בואי נתחיל לתכנן!`
         : 'יש פרויקט חדש שמחכה לתכנון.',
     },
+    // Pulse-aware nudges
+    pulse_low_energy: {
+      title: '🔋 אנרגיה נמוכה היום',
+      body: snapshot.pulse
+        ? `דיווחת על אנרגיה ${snapshot.pulse.energy_rating}/10. ${snapshot.next_pending_task_title ? `מה דעתך להתחיל עם "${snapshot.next_pending_task_title}" בקטן?` : 'אולי נתחיל עם משימה קלה?'}`
+        : 'נראה שהאנרגיה שלך נמוכה. בואי נתאים את היום.',
+    },
+    pulse_drained_mood: {
+      title: '💙 מרגיש מרוקן?',
+      body: 'זה בסדר לקחת צעד אחורה. מה דעתך על הפסקה קצרה ואז נחזור חזקים יותר?',
+    },
+    pulse_flow_state: {
+      title: '⚡ אתה במצב flow!',
+      body: snapshot.next_pending_task_title
+        ? `מעולה! האנרגיה שלך גבוהה. הזמן המושלם להתמודד עם "${snapshot.next_pending_task_title}"!`
+        : 'האנרגיה שלך ברמה מעולה! זה הזמן לקפוץ למשימה מאתגרת.',
+    },
+    pulse_poor_sleep: {
+      title: '😴 שינה לא מספקת',
+      body: snapshot.pulse_sleep_compliance_rate !== null && snapshot.pulse_sleep_compliance_rate < 0.5
+        ? `השבוע רק ${Math.round(snapshot.pulse_sleep_compliance_rate * 100)}% ציות שינה. בואי נתאים את העומס.`
+        : 'דיווחת על שינה חלקית. אולי נעדיף משימות קלות היום?',
+    },
+    pulse_low_confidence: {
+      title: '💪 אתה יכול!',
+      body: snapshot.next_pending_task_title
+        ? `אני מאמינה בך! מה דעתך להתחיל עם "${snapshot.next_pending_task_title}" - צעד אחד בכל פעם.`
+        : 'כל צעד קטן הוא התקדמות. בואי נבחר משימה אחת קלה להתחיל.',
+    },
+    pulse_reminder: {
+      title: '📋 דופק יומי',
+      body: 'עדיין לא מילאת את הדופק היומי שלך. זה לוקח 30 שניות ועוזר לי להתאים את היום! 💜',
+    },
+    next_task_nudge: {
+      title: '🎯 המשימה הבאה שלך',
+      body: snapshot.next_pending_task_title
+        ? `"${snapshot.next_pending_task_title}" מחכה לך. מוכן להתחיל?`
+        : 'יש לך משימות שמחכות! בואי נבחר אחת.',
+    },
   };
 
   return messages[triggerType] || messages.morning_briefing;
@@ -209,6 +315,7 @@ const analyzeAndQueue = async (
   interface QueueItem { trigger_type: string; priority: number; }
   const items: QueueItem[] = [];
 
+  // ── Original triggers ──
   if (hour >= 7 && hour <= 10) items.push({ trigger_type: 'morning_briefing', priority: 7 });
   if (snapshot.overdue_tasks > 0) items.push({ trigger_type: 'missed_task_nudge', priority: 8 });
   if (hour >= 14 && hour <= 18 && snapshot.today_total > 0) items.push({ trigger_type: 'progress_check', priority: 5 });
@@ -218,6 +325,29 @@ const analyzeAndQueue = async (
   if (snapshot.stalled_projects.length > 0) items.push({ trigger_type: 'project_stalled', priority: 7 });
   if (snapshot.approaching_deadlines.length > 0) items.push({ trigger_type: 'project_deadline', priority: 8 });
   if (snapshot.projects_without_milestones.length > 0) items.push({ trigger_type: 'project_setup', priority: 5 });
+
+  // ── Pulse-aware triggers ──
+  if (snapshot.pulse_logged_today && snapshot.pulse) {
+    const p = snapshot.pulse;
+    // Low energy → gentle nudge
+    if (p.energy_rating <= 3) items.push({ trigger_type: 'pulse_low_energy', priority: 7 });
+    // Drained mood → empathetic check-in
+    if (p.mood_signal === 'drained') items.push({ trigger_type: 'pulse_drained_mood', priority: 6 });
+    // Flow state → capitalize on momentum
+    if (p.mood_signal === 'flow' || (p.energy_rating >= 8 && p.task_confidence >= 8)) items.push({ trigger_type: 'pulse_flow_state', priority: 8 });
+    // Poor sleep → adjust expectations
+    if (p.sleep_compliance === 'no') items.push({ trigger_type: 'pulse_poor_sleep', priority: 6 });
+    // Low task confidence → encouragement
+    if (p.task_confidence <= 3) items.push({ trigger_type: 'pulse_low_confidence', priority: 7 });
+  } else if (!snapshot.pulse_logged_today && hour >= 9 && hour <= 14) {
+    // Reminder to log daily pulse
+    items.push({ trigger_type: 'pulse_reminder', priority: 5 });
+  }
+
+  // ── Next task nudge (after pulse or mid-day) ──
+  if (snapshot.next_pending_task_title && snapshot.today_completed < snapshot.today_total) {
+    if (hour >= 10 && hour <= 16) items.push({ trigger_type: 'next_task_nudge', priority: 6 });
+  }
 
   for (const item of items) {
     // Generate deterministic idempotency key: user:trigger:date
@@ -264,8 +394,12 @@ serve(async (req) => {
 
     if (action === 'analyze') {
       if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      const ctx = await buildContext(supabase, user_id, 'he');
-      const snapshot = toProactiveSnapshot(ctx);
+      const [ctx, pulse] = await Promise.all([
+        buildContext(supabase, user_id, 'he'),
+        fetchPulseData(supabase, user_id),
+      ]);
+      const nextTask = ctx.action_items.today_tasks.find(t => t.status !== 'done')?.title || null;
+      const snapshot = toProactiveSnapshot(ctx, pulse, nextTask);
       await analyzeAndQueue(supabase, user_id, snapshot);
       return new Response(JSON.stringify({ success: true, context: snapshot }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -317,8 +451,12 @@ serve(async (req) => {
       let processed = 0;
       for (const user of (activeUsers || []) as { user_id: string }[]) {
         try {
-          const ctx = await buildContext(supabase, user.user_id, 'he');
-          const snapshot = toProactiveSnapshot(ctx);
+          const [ctx, pulse] = await Promise.all([
+            buildContext(supabase, user.user_id, 'he'),
+            fetchPulseData(supabase, user.user_id),
+          ]);
+          const nextTask = ctx.action_items.today_tasks.find(t => t.status !== 'done')?.title || null;
+          const snapshot = toProactiveSnapshot(ctx, pulse, nextTask);
           await analyzeAndQueue(supabase, user.user_id, snapshot);
           processed++;
         } catch (e) {
