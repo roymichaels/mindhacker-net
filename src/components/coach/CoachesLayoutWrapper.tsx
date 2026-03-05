@@ -27,7 +27,8 @@ export default function CoachesLayoutWrapper() {
 
   useSidebars(
     !loading && !isPractitioner ? null : leftSidebar,
-    !loading && !isPractitioner ? null : rightSidebar
+    !loading && !isPractitioner ? null : rightSidebar,
+    [loading, isPractitioner, activeTab, selectedClientId]
   );
 
   if (!loading && !isPractitioner) {
