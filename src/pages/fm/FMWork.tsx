@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Briefcase, Palette, Code, ArrowRight, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion } from 'framer-motion';
-import { FMAuroraCard } from '@/components/fm/FMAuroraCard';
-import { useAuroraOpportunities } from '@/hooks/fm/useAuroraOpportunities';
+
+
 
 const PROFESSIONAL_PATHS = [
   {
@@ -64,12 +64,12 @@ export default function FMWork() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
-  const { opportunities } = useAuroraOpportunities();
+  
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto w-full py-4">
-      {/* Aurora suggestion */}
-      <FMAuroraCard opportunities={opportunities} />
+
+
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
