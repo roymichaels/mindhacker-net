@@ -311,7 +311,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             <Input className="pl-9" placeholder={isHe ? 'חפש באונטיז...' : 'Search bounties...'} value={bSearch} onChange={(e) => setBSearch(e.target.value)} />
           </div>
           {/* Category filters — only on mobile (sidebar handles desktop) */}
-          {!hasSidebarNav && (
+          {!externalTab && (
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {BOUNTY_CATEGORIES.map((cat) => (
                 <button key={cat} onClick={() => setBFilter(cat)}
