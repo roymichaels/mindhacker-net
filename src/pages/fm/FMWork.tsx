@@ -68,8 +68,8 @@ export default function FMWork() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto w-full py-4">
-      {/* Aurora suggestion */}
-      <FMAuroraCard opportunities={opportunities} />
+
+
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
