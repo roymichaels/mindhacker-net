@@ -12,6 +12,9 @@ import { toast } from 'sonner';
 import { Brain, Loader2 } from 'lucide-react';
 import type { FlowAnswers } from '@/lib/flow/types';
 import { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
+import { generateOrbProfile, type OrbProfile } from '@/lib/orbProfileGenerator';
+import { hashUserId } from '@/lib/orbSeed';
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
 
 interface OnboardingPlanGenerationProps {
   answers: FlowAnswers;
