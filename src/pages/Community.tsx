@@ -29,14 +29,14 @@ interface CommunityProps {
   onCreateOpenChange?: (open: boolean) => void;
 }
 
-const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false, onCreateOpenChange }: CommunityProps) => {
+const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { setActivePillar } = useAuroraChatContext();
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const { language } = useTranslation();
   const isHe = language === 'he';
