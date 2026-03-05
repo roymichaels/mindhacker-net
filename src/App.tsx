@@ -76,6 +76,8 @@ import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
 import FMWorkLayoutWrapper from "./components/fm/FMWorkLayoutWrapper";
 import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
+const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
+const FMBridge = lazy(() => import("./pages/fm/FMBridge"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
@@ -371,6 +373,8 @@ const App = () => (
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="wallet" element={<Navigate to="/fm/earn" replace />} />
+                            <Route path="cashout" element={<FMCashout />} />
+                            <Route path="bridge" element={<FMBridge />} />
                             <Route path="coaches" element={<Navigate to="/coaches" replace />} />
                           </Route>
                           
