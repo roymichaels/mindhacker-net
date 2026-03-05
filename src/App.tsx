@@ -73,6 +73,7 @@ import { BusinessIndexWrapper, BusinessDashboardWrapper } from './components/bus
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 const FMHome = lazy(() => import("./pages/FMHome"));
 const FMEarn = lazy(() => import("./pages/fm/FMEarn"));
+const EarnLayoutWrapper = lazy(() => import("./components/fm/EarnLayoutWrapper"));
 const FMWork = lazy(() => import("./pages/fm/FMWork"));
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMWalletPage = lazy(() => import("./pages/fm/FMWallet"));
