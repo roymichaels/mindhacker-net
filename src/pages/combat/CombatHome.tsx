@@ -96,7 +96,7 @@ export default function CombatHome() {
                   icon={<Crosshair className={cn("w-5 h-5", focusComplete ? "text-emerald-400" : "text-cyan-400")} />}
                   label={t('combat.reqFocus')}
                   done={focusComplete}
-                  onClick={() => !focusComplete && navigate('/life/focus')}
+                  onClick={() => !focusComplete && navigate('/strategy/focus')}
                 />
               </div>
             </Card>
