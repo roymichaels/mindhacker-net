@@ -4,6 +4,7 @@
  * Clicking it opens the dock; clicking again closes it back to orb.
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -15,6 +16,8 @@ const ORB_SIZE = 48;
 export function AuroraFloatingOrb() {
   const ctx = useAuroraChatContextSafe();
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const isFM = location.pathname.startsWith('/fm');
 
   // Organic breathing animation — driven by refs to avoid re-render storms
   const breathPhaseRef = useRef(0);
@@ -89,7 +92,9 @@ export function AuroraFloatingOrb() {
   }, [ctx]);
 
   if (!ctx) return null;
-  if (ctx.isDockVisible) return null;
+  // On FM pages, show orb even when dock is "visible" (since dock bar is hidden on FM)
+  if (ctx.isDockVisible && !isFM) return null;
+  if (ctx.isChatExpanded) return null;
 
   const positionStyle = pos
     ? { left: pos.x, top: pos.y, right: 'auto' as const, bottom: 'auto' as const }

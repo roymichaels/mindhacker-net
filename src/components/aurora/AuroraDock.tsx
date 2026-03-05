@@ -100,13 +100,15 @@ export function AuroraDock() {
     setChatHeightVh(DEFAULT_CHAT_VH);
   }, [setIsChatExpanded, setIsDockVisible]);
 
-  // Hide dock on non-dashboard pages (panels, FM, etc.)
+  // Hide dock on non-dashboard pages (panels, etc.)
   const isFM = location.pathname.startsWith('/fm');
   const isPanel = location.pathname.startsWith('/panel') ||
     location.pathname.startsWith('/coach/') ||
     location.pathname.startsWith('/affiliate');
-  if (isPanel || isFM) return null;
+  // On FM pages: hide the dock bar but let the floating orb remain
+  if (isPanel) return null;
   if (!isDockVisible) return null;
+  if (isFM && !isChatExpanded) return null;
 
   const dragHandle = isChatExpanded ? (
     <div className="flex items-center justify-center py-1 shrink-0">
