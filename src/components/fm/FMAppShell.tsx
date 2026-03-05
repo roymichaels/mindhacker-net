@@ -14,11 +14,11 @@ import { FMHudSidebar } from '@/components/fm/FMHudSidebar';
 import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
 
 const FM_TABS = [
-  { id: 'home',  path: '/fm/home',    icon: Home,      labelEn: 'Home',   labelHe: 'בית' },
-  { id: 'earn',  path: '/fm/earn',    icon: Target,    labelEn: 'Earn',   labelHe: 'הרוויח' },
-  { id: 'work',  path: '/fm/work',    icon: Briefcase, labelEn: 'Work',   labelHe: 'עבודה' },
-  { id: 'share', path: '/fm/share',   icon: BarChart3, labelEn: 'Share',  labelHe: 'שתף' },
-  { id: 'wallet',path: '/fm/wallet',  icon: Wallet,    labelEn: 'Wallet', labelHe: 'ארנק' },
+  { id: 'home',    path: '/fm/home',    icon: Home,      labelEn: 'Home',    labelHe: 'בית' },
+  { id: 'earn',    path: '/fm/earn',    icon: Target,    labelEn: 'Earn',    labelHe: 'הרוויח' },
+  { id: 'coaches', path: '/fm/coaches', icon: Users,     labelEn: 'Coaches', labelHe: 'מאמנים' },
+  { id: 'work',    path: '/fm/work',    icon: Briefcase, labelEn: 'Work',    labelHe: 'עבודה' },
+  { id: 'wallet',  path: '/fm/wallet',  icon: Wallet,    labelEn: 'Wallet',  labelHe: 'ארנק' },
 ] as const;
 
 export default function FMAppShell() {
