@@ -21,8 +21,8 @@ export function useSidebars(
 
   // Set sidebars when depsKey changes (mount + deps changes)
   useEffect(() => {
-    if (left !== undefined) setLeftSidebar(left);
-    if (right !== undefined) setRightSidebar(right);
+    setLeftSidebar(left);
+    setRightSidebar(right);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depsKey, setLeftSidebar, setRightSidebar]);
 

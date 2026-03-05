@@ -3,33 +3,52 @@
  * Renders its own bottom tab navigation while sharing the global auth session.
  * Wraps all /fm/* routes via <Outlet />.
  */
+import { useEffect, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import { useSidebars } from '@/hooks/useSidebars';
+import { useSidebarContext } from '@/contexts/SidebarContext';
 import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { FMBottomNav } from '@/components/fm/FMBottomNav';
+
+/** Routes within FM that register their own sidebars */
+const SELF_SIDEBAR_ROUTES = ['/fm/earn'];
 
 export default function FMAppShell() {
   const { language } = useTranslation();
   const location = useLocation();
   const isMobile = useIsMobile();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
+  const { setLeftSidebar, setRightSidebar } = useSidebarContext();
 
-  // Sub-routes that manage their own sidebars
-  const hasOwnSidebars = location.pathname.startsWith('/fm/earn');
-
-  // Register FM-specific sidebars — mobile: none, desktop: right only
-  // Skip when a child route manages its own sidebars
   const needsOnboarding = !wallet || !wallet.onboarding_complete;
-  useSidebars(
-    hasOwnSidebars ? undefined : null,
-    hasOwnSidebars ? undefined : (!isLoading && !needsOnboarding && !isMobile ? <FMActivitySidebar /> : null),
-    [isLoading, needsOnboarding, isMobile, hasOwnSidebars]
-  );
+  const hasOwnSidebars = SELF_SIDEBAR_ROUTES.some(r => location.pathname.startsWith(r));
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const depsKey = useMemo(() => ({}), [isLoading, needsOnboarding, isMobile, hasOwnSidebars]);
+
+  // Set FM sidebars only when the child route doesn't manage its own
+  useEffect(() => {
+    if (!hasOwnSidebars) {
+      setLeftSidebar(null);
+      setRightSidebar(
+        !isLoading && !needsOnboarding && !isMobile ? <FMActivitySidebar /> : null
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [depsKey, setLeftSidebar, setRightSidebar]);
+
+  // Clear on unmount
+  useEffect(() => {
+    return () => {
+      setLeftSidebar(undefined);
+      setRightSidebar(undefined);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading) return <PageSkeleton />;
 
