@@ -8917,6 +8917,7 @@ export type Database = {
         | "withdraw_crypto"
         | "deposit"
         | "adjustment"
+        | "mining_reward"
       fm_wallet_mode: "simple" | "advanced"
       notification_priority: "low" | "medium" | "high" | "urgent"
       notification_type:
@@ -9110,6 +9111,7 @@ export const Constants = {
         "withdraw_crypto",
         "deposit",
         "adjustment",
+        "mining_reward",
       ],
       fm_wallet_mode: ["simple", "advanced"],
       notification_priority: ["low", "medium", "high", "urgent"],
