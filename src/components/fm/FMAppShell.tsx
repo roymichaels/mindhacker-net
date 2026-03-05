@@ -63,6 +63,7 @@ export default function FMAppShell() {
             const isActive = 
               (tab.id === 'home' && (activePath === '/fm' || activePath === '/fm/home')) ||
               (tab.id === 'earn' && activePath.startsWith('/fm/earn')) ||
+              (tab.id === 'work' && activePath.startsWith('/fm/work')) ||
               (tab.id === 'wallet' && activePath.startsWith('/fm/wallet'));
             return (
               <button
