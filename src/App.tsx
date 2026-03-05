@@ -373,6 +373,8 @@ const App = () => (
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="wallet" element={<Navigate to="/fm/earn" replace />} />
+                            <Route path="cashout" element={<FMCashout />} />
+                            <Route path="bridge" element={<FMBridge />} />
                             <Route path="coaches" element={<Navigate to="/coaches" replace />} />
                           </Route>
                           
