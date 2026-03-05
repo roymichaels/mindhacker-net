@@ -370,6 +370,7 @@ const App = () => (
                             <Route path="share" element={<FMContribute />} />
                             <Route path="contribute" element={<Navigate to="/fm/share" replace />} />
                             <Route path="wallet" element={<FMWalletPage />} />
+                            <Route path="coaches" element={<CoachesLayoutWrapper />} />
                           </Route>
                           
                           {/* Journeys */}
