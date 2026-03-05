@@ -4,7 +4,7 @@
  * Weekly roadmap is in the left sidebar.
  */
 import { useState } from 'react';
-import { Swords, Sparkles, Crosshair, Clock, Play, Flame } from 'lucide-react';
+import { Swords, Sparkles, Crosshair, Clock, Play, Flame, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
