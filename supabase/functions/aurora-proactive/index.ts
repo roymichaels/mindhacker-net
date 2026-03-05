@@ -18,6 +18,15 @@ const corsHeaders = {
 
 // ─── Adapt AuroraContext to proactive needs ────────────────
 
+interface DailyPulseData {
+  energy_rating: number;
+  sleep_compliance: string;
+  task_confidence: number;
+  screen_discipline: boolean;
+  mood_signal: string;
+  log_date: string;
+}
+
 interface ProactiveSnapshot {
   overdue_tasks: number;
   overdue_task_names: string[];
@@ -33,6 +42,14 @@ interface ProactiveSnapshot {
   stalled_projects: { name: string; days_stalled: number }[];
   approaching_deadlines: { name: string; days_left: number }[];
   projects_without_milestones: string[];
+  // Daily Pulse context
+  pulse: DailyPulseData | null;
+  pulse_logged_today: boolean;
+  pulse_week_avg_energy: number | null;
+  pulse_week_avg_confidence: number | null;
+  pulse_dominant_mood: string | null;
+  pulse_sleep_compliance_rate: number | null;
+  next_pending_task_title: string | null;
 }
 
 function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
