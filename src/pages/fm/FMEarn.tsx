@@ -77,7 +77,9 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   // ──── Bounty state ────
   const { data: bounties = [], isLoading: bLoading } = useFMBounties();
   const { data: claims = [] } = useFMClaims();
-  const [bFilter, setBFilter] = useState('all');
+  const [bFilterInternal, setBFilterInternal] = useState('all');
+  const bFilter = externalCatFilter ?? bFilterInternal;
+  const setBFilter = onCategoryChange ?? setBFilterInternal;
   const [bSearch, setBSearch] = useState('');
   const [submittingClaimId, setSubmittingClaimId] = useState<string | null>(null);
   const [submission, setSubmission] = useState('');
