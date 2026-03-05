@@ -302,7 +302,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
           </div>
         </>
       )}
-      )}
 
       {/* ═══════ BOUNTIES TAB ═══════ */}
       {tab === 'bounties' && (
