@@ -391,7 +391,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             </motion.div>
           ) : (
             <>
-              {!hasSidebarNav && (
+              {!externalTab && (
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                   {GIG_CATEGORIES.map((cat) => (
                     <button key={cat} onClick={() => setGFilter(cat)}
