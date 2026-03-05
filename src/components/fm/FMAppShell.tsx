@@ -4,21 +4,20 @@
  * Wraps all /fm/* routes via <Outlet />.
  */
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Target, Briefcase, BarChart3, Wallet, Users } from 'lucide-react';
+import { Home, ShoppingBag, Briefcase, Wallet } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
-import { FMHudSidebar } from '@/components/fm/FMHudSidebar';
 import { FMActivitySidebar } from '@/components/fm/FMActivitySidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const FM_TABS = [
-  { id: 'home',    path: '/fm/home',    icon: Home,      labelEn: 'Home',    labelHe: 'בית' },
-  { id: 'earn',    path: '/fm/earn',    icon: Target,    labelEn: 'Earn',    labelHe: 'הרוויח' },
-  { id: 'coaches', path: '/fm/coaches', icon: Users,     labelEn: 'Coaches', labelHe: 'מאמנים' },
-  { id: 'work',    path: '/fm/work',    icon: Briefcase, labelEn: 'Work',    labelHe: 'עבודה' },
-  { id: 'wallet',  path: '/fm/wallet',  icon: Wallet,    labelEn: 'Wallet',  labelHe: 'ארנק' },
+  { id: 'home',   path: '/fm/home',   icon: Home,        labelEn: 'Home',   labelHe: 'בית' },
+  { id: 'market', path: '/fm/earn',   icon: ShoppingBag, labelEn: 'Market', labelHe: 'שוק' },
+  { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Work',   labelHe: 'עבודה' },
+  { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
 export default function FMAppShell() {
@@ -26,14 +25,15 @@ export default function FMAppShell() {
   const isHe = language === 'he';
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
 
-  // Register FM-specific sidebars
+  // Register FM-specific sidebars — mobile: none, desktop: right only
   const needsOnboarding = !wallet || !wallet.onboarding_complete;
   useSidebars(
-    !isLoading && !needsOnboarding ? <FMHudSidebar /> : null,
-    !isLoading && !needsOnboarding ? <FMActivitySidebar /> : null,
-    [isLoading, needsOnboarding]
+    null, // no left sidebar
+    !isLoading && !needsOnboarding && !isMobile ? <FMActivitySidebar /> : null,
+    [isLoading, needsOnboarding, isMobile]
   );
 
   if (isLoading) return <PageSkeleton />;
@@ -58,10 +58,11 @@ export default function FMAppShell() {
 
       {/* FM Bottom Tab Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border safe-area-bottom">
-        <div className="flex items-center justify-around max-w-2xl mx-auto h-14">
+        <div className="flex items-center justify-around max-w-md mx-auto h-14">
           {FM_TABS.map((tab) => {
             const isActive = activePath === tab.path || 
-              (tab.id === 'home' && activePath === '/fm');
+              (tab.id === 'home' && activePath === '/fm') ||
+              (tab.id === 'market' && activePath.startsWith('/fm/earn'));
             return (
               <button
                 key={tab.id}

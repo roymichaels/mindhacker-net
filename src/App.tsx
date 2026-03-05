@@ -455,8 +455,8 @@ const App = () => (
                         <Route path="/panel/settings" element={<Navigate to="/admin-hub?tab=system&sub=settings" replace />} />
                         <Route path="/panel/*" element={<Navigate to="/admin-hub" replace />} />
                         {/* Coach panel redirects */}
-                        <Route path="/coach" element={<Navigate to="/fm/coaches" replace />} />
-                        <Route path="/coach/*" element={<Navigate to="/fm/coaches" replace />} />
+                        <Route path="/coach" element={<Navigate to="/coaches" replace />} />
+                        <Route path="/coach/*" element={<Navigate to="/coaches" replace />} />
                         {/* Affiliate Panel */}
                         <Route
                           path="/affiliate"
