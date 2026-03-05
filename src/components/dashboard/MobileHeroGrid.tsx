@@ -1,23 +1,40 @@
 /**
- * MobileHeroGrid — Hub action cards dashboard.
- * Shows a mini-dashboard card per hub with key stats + CTA.
+ * MobileHeroGrid — "Now" page (עכשיו).
+ * Shows Today's Action Queue (moved from Arena) + hub summary cards.
  */
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
+import { useNowEngine, useCompleteNowAction, type NowQueueItem } from '@/hooks/useNowEngine';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { getDomainById } from '@/navigation/lifeDomains';
+import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { AddItemWizard } from '@/components/plate/AddItemWizard';
+import { DailyMilestones } from '@/components/hubs/DailyMilestones';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import {
   Flame, Swords, Users, GraduationCap, Store,
-  ChevronRight, CheckCircle2, Target, Zap, TrendingUp,
-  BookOpen, MessageSquare, Play
+  ChevronRight, Target, Zap, TrendingUp,
+  Play, Plus, Loader2, RefreshCw
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const domainColorMap: Record<string, string> = {
+  blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
+  amber: 'text-amber-400', cyan: 'text-cyan-400', slate: 'text-slate-400',
+  indigo: 'text-indigo-400', emerald: 'text-emerald-400', purple: 'text-purple-400',
+  sky: 'text-sky-400', rose: 'text-rose-400', violet: 'text-violet-400', teal: 'text-teal-400',
+};
+
+const dotBgMap: Record<string, string> = {
+  blue: 'bg-blue-500/15', fuchsia: 'bg-fuchsia-500/15', red: 'bg-red-500/15',
+  amber: 'bg-amber-500/15', cyan: 'bg-cyan-500/15', slate: 'bg-slate-500/15',
+  indigo: 'bg-indigo-500/15', emerald: 'bg-emerald-500/15', purple: 'bg-purple-500/15',
+  sky: 'bg-sky-500/15', rose: 'bg-rose-500/15', violet: 'bg-violet-500/15', teal: 'bg-teal-500/15',
+};
 
 interface MobileHeroGridProps {
   planData: any;
@@ -25,127 +42,36 @@ interface MobileHeroGridProps {
 
 export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
   const xp = useXpProgress();
   const streak = useStreak();
   const tokens = useEnergy();
-  const { isLaunchpadComplete } = useLaunchpadProgress();
-  const { plan, milestones } = useLifePlanWithMilestones();
-  const execution = useTodayExecution();
 
-  // Community stats
-  const { data: communityStats } = useQuery({
-    queryKey: ['community-stats', user?.id],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('community_posts')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user!.id);
-      return { postsCount: count || 0 };
-    },
-    enabled: !!user?.id,
-    staleTime: 120_000,
-  });
+  // Now Engine (today's action queue)
+  const { queue, isLoading, refetch } = useNowEngine();
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
+  const [executionOpen, setExecutionOpen] = useState(false);
 
-  // Plan stats
-  const completedMilestones = milestones?.filter((m: any) => m.is_completed).length || 0;
-  const totalMilestones = milestones?.length || 0;
-  const hasPlan = !!plan;
+  const handleExecute = (item: NowQueueItem) => {
+    setExecutionAction(item);
+    setExecutionOpen(true);
+  };
 
-  // Today stats
-  const todayCompleted = execution.queue?.filter((a: any) => a.status === 'done').length || 0;
-  const todayTotal = execution.queue?.length || 0;
-
-  const hubs: HubCard[] = [
-    {
-      id: 'core',
-      icon: Flame,
-      labelEn: 'Core',
-      labelHe: 'ליבה',
-      descEn: 'Assessment & Planning',
-      descHe: 'אבחון ותכנון',
-      path: '/life',
-      color: 'from-orange-500/15 to-amber-500/10 border-orange-500/25',
-      iconColor: 'text-orange-500',
-      stats: hasPlan
-        ? [
-            { labelEn: 'Milestones', labelHe: 'אבני דרך', value: `${completedMilestones}/${totalMilestones}` },
-            { labelEn: 'Progress', labelHe: 'התקדמות', value: `${planData?.progressPercent || 0}%` },
-          ]
-        : [{ labelEn: 'Status', labelHe: 'סטטוס', value: isHe ? 'טרם הוגדר' : 'Not started' }],
-      ctaEn: hasPlan ? 'Continue Plan' : (isLaunchpadComplete ? 'Create 100-Day Plan' : 'Start Assessment'),
-      ctaHe: hasPlan ? 'המשך תוכנית' : (isLaunchpadComplete ? 'צור תוכנית 100 יום' : 'התחל אבחון'),
-    },
-    {
-      id: 'arena',
-      icon: Swords,
-      labelEn: 'Arena',
-      labelHe: 'זירה',
-      descEn: 'Daily Execution',
-      descHe: 'ביצוע יומי',
-      path: '/arena',
-      color: 'from-red-500/15 to-rose-500/10 border-red-500/25',
-      iconColor: 'text-red-500',
-      stats: [
-        { labelEn: 'Today', labelHe: 'היום', value: `${todayCompleted}/${todayTotal}` },
-        { labelEn: 'Streak', labelHe: 'רצף', value: `🔥 ${streak.streak}` },
-      ],
-      ctaEn: todayTotal > 0 ? 'Execute Now' : 'View Arena',
-      ctaHe: todayTotal > 0 ? 'בצע עכשיו' : 'צפה בזירה',
-    },
-    {
-      id: 'community',
-      icon: Users,
-      labelEn: 'Community',
-      labelHe: 'קומיוניטי',
-      descEn: '14 pillars. One civilization.',
-      descHe: '14 עמודים. ציוויליזציה אחת.',
-      path: '/community',
-      color: 'from-violet-500/15 to-purple-500/10 border-violet-500/25',
-      iconColor: 'text-violet-500',
-      stats: [
-        { labelEn: 'Your Posts', labelHe: 'הפוסטים שלך', value: String(communityStats?.postsCount || 0) },
-      ],
-      ctaEn: 'Browse Feed',
-      ctaHe: 'גלוש בפיד',
-    },
-    {
-      id: 'study',
-      icon: GraduationCap,
-      labelEn: 'Study',
-      labelHe: 'לימוד',
-      descEn: 'AI-powered learning',
-      descHe: 'למידה מונעת AI',
-      path: '/learn',
-      color: 'from-emerald-500/15 to-green-500/10 border-emerald-500/25',
-      iconColor: 'text-emerald-500',
-      stats: [],
-      ctaEn: 'Explore Courses',
-      ctaHe: 'חקור קורסים',
-    },
-    {
-      id: 'fm',
-      icon: Store,
-      labelEn: 'Free Market',
-      labelHe: 'שוק חופשי',
-      descEn: 'Earn, trade & grow',
-      descHe: 'הרווח, סחור וצמח',
-      path: '/fm',
-      color: 'from-cyan-500/15 to-sky-500/10 border-cyan-500/25',
-      iconColor: 'text-cyan-500',
-      stats: [
-        { labelEn: 'Tokens', labelHe: 'טוקנים', value: `⚡ ${tokens.balance}` },
-      ],
-      ctaEn: 'Open Market',
-      ctaHe: 'פתח שוק',
-    },
+  // Quick-nav hub cards (compact)
+  const quickHubs = [
+    { id: 'core', icon: Flame, labelEn: 'Strategy', labelHe: 'אסטרטגיה', path: '/life', iconColor: 'text-orange-500', bg: 'bg-orange-500/10 border-orange-500/20' },
+    { id: 'arena', icon: Swords, labelEn: 'Tactics', labelHe: 'טקטיקות', path: '/arena', iconColor: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
+    { id: 'community', icon: Users, labelEn: 'Community', labelHe: 'קומיוניטי', path: '/community', iconColor: 'text-violet-500', bg: 'bg-violet-500/10 border-violet-500/20' },
+    { id: 'study', icon: GraduationCap, labelEn: 'Study', labelHe: 'לימוד', path: '/learn', iconColor: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+    { id: 'fm', icon: Store, labelEn: 'FM', labelHe: 'FM', path: '/fm', iconColor: 'text-cyan-500', bg: 'bg-cyan-500/10 border-cyan-500/20' },
   ];
 
   return (
     <PageShell>
-      <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-8">
+      <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Quick stats bar */}
         <div className="flex items-center justify-center gap-3 py-2">
           <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25">
@@ -162,84 +88,121 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           </span>
         </div>
 
-        {/* Hub cards */}
-        <div className="flex flex-col gap-3">
-          {hubs.map((hub) => (
-            <HubActionCard key={hub.id} hub={hub} isHe={isHe} onNavigate={() => navigate(hub.path)} />
-          ))}
+        {/* Quick hub navigation row */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {quickHubs.map((hub) => {
+            const Icon = hub.icon;
+            return (
+              <button
+                key={hub.id}
+                onClick={() => navigate(hub.path)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all whitespace-nowrap",
+                  "hover:shadow-sm active:scale-[0.97]",
+                  hub.bg
+                )}
+              >
+                <Icon className={cn("h-3.5 w-3.5", hub.iconColor)} />
+                <span className={hub.iconColor}>{isHe ? hub.labelHe : hub.labelEn}</span>
+              </button>
+            );
+          })}
         </div>
+
+        {/* ── Today's Action Queue ── */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <Zap className="h-4 w-4 text-amber-400" />
+              {isHe ? '⚡ תור הפעולה של היום' : '⚡ Today\'s Action Queue'}
+            </h3>
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="p-1.5 rounded-lg bg-muted/30 border border-border/30 hover:bg-muted/50 transition-colors"
+              >
+                {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" /> : <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />}
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setWizardOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                {isHe ? 'הוסף' : 'Add'}
+              </motion.button>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : queue.length === 0 ? (
+            <div className="text-center py-6 text-sm text-muted-foreground">
+              {isHe ? 'אין פעולות בתור. רענן או הוסף חדשות.' : 'Queue empty. Refresh or add new actions.'}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {queue.map((item, idx) => {
+                const domain = getDomainById(item.pillarId);
+                const Icon = domain?.icon;
+                const color = domain?.color || 'amber';
+                return (
+                  <motion.div
+                    key={`${item.pillarId}-${item.title}-${idx}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.03 }}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-xl border transition-all group cursor-pointer hover:shadow-sm",
+                      "bg-card/60 border-border/40 hover:border-primary/30"
+                    )}
+                    onClick={() => handleExecute(item)}
+                  >
+                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", dotBgMap[color])}>
+                      {Icon && <Icon className={cn("w-4 h-4", domainColorMap[color])} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className={cn("text-[10px] font-bold uppercase tracking-wider", domainColorMap[color])}>
+                          {isHe ? (domain?.labelHe || item.pillarId) : (domain?.labelEn || item.pillarId)}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground">
+                          {item.durationMin}{isHe ? 'ד' : 'm'}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium leading-snug truncate">
+                        {isHe ? item.title : item.titleEn}
+                      </p>
+                      {item.reason && (
+                        <p className="text-[10px] text-muted-foreground/60 truncate mt-0.5">{item.reason}</p>
+                      )}
+                    </div>
+                    <Play className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary transition-colors shrink-0" />
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Daily Milestones */}
+        <DailyMilestones hub="both" />
+
+        {/* Modals */}
+        <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} hub="core" />
+        <ExecutionModal
+          open={executionOpen}
+          onOpenChange={setExecutionOpen}
+          action={executionAction}
+          onComplete={() => refetch()}
+        />
       </div>
     </PageShell>
-  );
-}
-
-interface HubStat {
-  labelEn: string;
-  labelHe: string;
-  value: string;
-}
-
-interface HubCard {
-  id: string;
-  icon: any;
-  labelEn: string;
-  labelHe: string;
-  descEn: string;
-  descHe: string;
-  path: string;
-  color: string;
-  iconColor: string;
-  stats: HubStat[];
-  ctaEn: string;
-  ctaHe: string;
-}
-
-function HubActionCard({ hub, isHe, onNavigate }: { hub: HubCard; isHe: boolean; onNavigate: () => void }) {
-  const Icon = hub.icon;
-
-  return (
-    <button
-      onClick={onNavigate}
-      className={cn(
-        "w-full rounded-2xl border p-4 flex items-center gap-4 text-start",
-        "bg-gradient-to-br transition-all hover:shadow-md active:scale-[0.99]",
-        hub.color
-      )}
-    >
-      {/* Icon */}
-      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-background/60 backdrop-blur-sm border border-border/30")}>
-        <Icon className={cn("h-6 w-6", hub.iconColor)} />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-bold text-foreground">
-          {isHe ? hub.labelHe : hub.labelEn}
-        </h3>
-        <p className="text-[11px] text-muted-foreground mt-0.5">
-          {isHe ? hub.descHe : hub.descEn}
-        </p>
-
-        {/* Stats */}
-        {hub.stats.length > 0 && (
-          <div className="flex items-center gap-3 mt-1.5">
-            {hub.stats.map((stat, i) => (
-              <span key={i} className="text-[10px] text-muted-foreground">
-                <span className="font-semibold text-foreground">{stat.value}</span>
-                {' '}{isHe ? stat.labelHe : stat.labelEn}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* CTA */}
-        <div className="flex items-center gap-1 mt-2">
-          <span className={cn("text-xs font-semibold", hub.iconColor)}>
-            {isHe ? hub.ctaHe : hub.ctaEn}
-          </span>
-          <ChevronRight className={cn("h-3.5 w-3.5", hub.iconColor, isHe && "rotate-180")} />
-        </div>
-      </div>
-    </button>
   );
 }
