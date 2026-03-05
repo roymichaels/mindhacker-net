@@ -139,25 +139,13 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false,
             />
           )}
 
-          {/* FXP-style Forum Board — shown for "all" when no topic selected */}
-          {isAll && !selectedTopic && (
-            <CommunityForumBoard
-              onNavigate={(pillarId, topicId) => {
-                onPillarSelect?.(pillarId);
-                setSelectedTopic(topicId);
-              }}
-            />
-          )}
-
-          {/* Thread Feed — when a specific topic is selected */}
-          {((!isAll && selectedTopic) || (isAll && selectedTopic)) && (
-            <ThreadList
-              pillarFilter={selectedPillar}
-              topicFilter={selectedTopic}
-              mode={feedMode}
-              onProfileClick={setProfileUserId}
-            />
-          )}
+          {/* Thread Feed */}
+          <ThreadList
+            pillarFilter={selectedPillar}
+            topicFilter={selectedTopic}
+            mode={feedMode}
+            onProfileClick={setProfileUserId}
+          />
         </div>
 
         <CreateThreadModal
