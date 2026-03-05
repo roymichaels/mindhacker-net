@@ -35,7 +35,7 @@ const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = 
   teal:     { border: 'border-teal-500/30',     bg: 'from-teal-500/10',     text: 'text-teal-400' },
 };
 
-function getBasePath(_id: string) { return '/life'; }
+function getBasePath(_id: string) { return '/strategy'; }
 
 function scoreColor(v: number): string {
   if (v >= 70) return 'text-emerald-400';
