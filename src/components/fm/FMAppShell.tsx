@@ -15,8 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const FM_TABS = [
   { id: 'home',   path: '/fm/home',   icon: Home,        labelEn: 'Home',   labelHe: 'בית' },
-  { id: 'market', path: '/fm/earn',   icon: ShoppingBag, labelEn: 'Market', labelHe: 'שוק' },
-  { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Work',   labelHe: 'עבודה' },
+  { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
