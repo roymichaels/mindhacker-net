@@ -315,6 +315,7 @@ const analyzeAndQueue = async (
   interface QueueItem { trigger_type: string; priority: number; }
   const items: QueueItem[] = [];
 
+  // ── Original triggers ──
   if (hour >= 7 && hour <= 10) items.push({ trigger_type: 'morning_briefing', priority: 7 });
   if (snapshot.overdue_tasks > 0) items.push({ trigger_type: 'missed_task_nudge', priority: 8 });
   if (hour >= 14 && hour <= 18 && snapshot.today_total > 0) items.push({ trigger_type: 'progress_check', priority: 5 });
@@ -324,6 +325,29 @@ const analyzeAndQueue = async (
   if (snapshot.stalled_projects.length > 0) items.push({ trigger_type: 'project_stalled', priority: 7 });
   if (snapshot.approaching_deadlines.length > 0) items.push({ trigger_type: 'project_deadline', priority: 8 });
   if (snapshot.projects_without_milestones.length > 0) items.push({ trigger_type: 'project_setup', priority: 5 });
+
+  // ── Pulse-aware triggers ──
+  if (snapshot.pulse_logged_today && snapshot.pulse) {
+    const p = snapshot.pulse;
+    // Low energy → gentle nudge
+    if (p.energy_rating <= 3) items.push({ trigger_type: 'pulse_low_energy', priority: 7 });
+    // Drained mood → empathetic check-in
+    if (p.mood_signal === 'drained') items.push({ trigger_type: 'pulse_drained_mood', priority: 6 });
+    // Flow state → capitalize on momentum
+    if (p.mood_signal === 'flow' || (p.energy_rating >= 8 && p.task_confidence >= 8)) items.push({ trigger_type: 'pulse_flow_state', priority: 8 });
+    // Poor sleep → adjust expectations
+    if (p.sleep_compliance === 'no') items.push({ trigger_type: 'pulse_poor_sleep', priority: 6 });
+    // Low task confidence → encouragement
+    if (p.task_confidence <= 3) items.push({ trigger_type: 'pulse_low_confidence', priority: 7 });
+  } else if (!snapshot.pulse_logged_today && hour >= 9 && hour <= 14) {
+    // Reminder to log daily pulse
+    items.push({ trigger_type: 'pulse_reminder', priority: 5 });
+  }
+
+  // ── Next task nudge (after pulse or mid-day) ──
+  if (snapshot.next_pending_task_title && snapshot.today_completed < snapshot.today_total) {
+    if (hour >= 10 && hour <= 16) items.push({ trigger_type: 'next_task_nudge', priority: 6 });
+  }
 
   for (const item of items) {
     // Generate deterministic idempotency key: user:trigger:date
