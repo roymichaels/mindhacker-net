@@ -44,7 +44,7 @@ export default function CombatResults() {
       <PageShell>
         <div className="p-6 text-center">
           <p className="text-muted-foreground">{t('combat.noResults')}</p>
-          <Button className="mt-4" onClick={() => navigate('/life/combat/assess')}>{t('combat.beginScan')}</Button>
+          <Button className="mt-4" onClick={() => navigate('/strategy/combat/assess')}>{t('combat.beginScan')}</Button>
         </div>
       </PageShell>
     );
