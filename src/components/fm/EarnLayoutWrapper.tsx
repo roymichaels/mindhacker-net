@@ -12,7 +12,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 const FMEarn = lazy(() => import('@/pages/fm/FMEarn'));
 
 export default function EarnLayoutWrapper() {
-  const [activeTab, setActiveTab] = useState('bounties');
+  const [activeTab, setActiveTab] = useState('overview');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const { data: claims = [] } = useFMClaims();
 

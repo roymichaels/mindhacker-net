@@ -283,17 +283,14 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   const isMobile = useIsMobile();
   const hasSidebarNav = !!externalTab && !isMobile;
 
-  // Dashboard mode: show overview unless a tab is drilled into
-  const [drilled, setDrilled] = useState(false);
-  const showDashboard = !externalTab && !drilled;
+  const showDashboard = tab === 'overview';
 
   const enterTab = (t: EarnTab) => {
     switchTab(t);
-    setDrilled(true);
   };
 
   const backToDashboard = () => {
-    setDrilled(false);
+    switchTab('overview');
   };
 
   return (
