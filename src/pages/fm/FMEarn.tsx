@@ -505,7 +505,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
       )}
 
       {/* ═══════ DATA TAB ═══════ */}
-      {tab === 'data' && (
+      {!showDashboard && tab === 'data' && (
         <div className="space-y-4">
           <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 flex items-start gap-3">
             <BarChart3 className="w-5 h-5 text-accent shrink-0 mt-0.5" />
