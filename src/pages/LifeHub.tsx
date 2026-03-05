@@ -1,114 +1,19 @@
 /**
  * LifeHub — Strategy page (אסטרטגיה).
  * Before plan: CTA to create plan.
- * After plan: Shows the full strategic overview — WHY we chose this strategy, per pillar.
+ * After plan: Shows NEXT strategic focus hero + visual pillar flowchart.
  */
-import { useState } from 'react';
-import { Flame, Sparkles, ChevronDown, ChevronUp, Target } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo } from 'react';
+import { Flame, Sparkles, Target, ChevronRight, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useLifePlanWithMilestones, useLifePlan } from '@/hooks/useLifePlan';
-import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { getDomainById } from '@/navigation/lifeDomains';
-import { useQueryClient } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-
-function StrategyPillarCard({ pillarId, data, isHe }: { pillarId: string; data: any; isHe: boolean }) {
-  const [expanded, setExpanded] = useState(false);
-  const domain = getDomainById(pillarId);
-  if (!domain) return null;
-  const Icon = domain.icon;
-
-  const goals = data?.goals || [];
-  const missions = data?.missions || [];
-
-  return (
-    <div className="rounded-xl border border-border/40 bg-card/40 overflow-hidden">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 p-4 text-start hover:bg-muted/20 transition-colors"
-      >
-        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-primary/10")}>
-          <Icon className="w-4.5 h-4.5 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-bold text-foreground">
-            {isHe ? domain.labelHe : domain.labelEn}
-          </h4>
-          {goals.length > 0 && (
-            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-              {isHe ? goals[0]?.goal_he : goals[0]?.goal_en}
-            </p>
-          )}
-        </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />}
-      </button>
-
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 space-y-3 border-t border-border/20 pt-3">
-              {/* Strategic Goals */}
-              {goals.length > 0 && (
-                <div>
-                  <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                    {isHe ? 'מטרות אסטרטגיות' : 'Strategic Goals'}
-                  </h5>
-                  <div className="space-y-2">
-                    {goals.map((goal: any, i: number) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <Target className="w-3 h-3 text-primary mt-0.5 shrink-0" />
-                        <p className="text-xs text-foreground/80 leading-relaxed">
-                          {isHe ? goal.goal_he : goal.goal_en}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Missions Overview */}
-              {missions.length > 0 && (
-                <div>
-                  <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                    {isHe ? 'משימות ראשיות' : 'Main Missions'}
-                  </h5>
-                  <div className="space-y-1.5">
-                    {missions.map((mission: any, i: number) => (
-                      <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-muted/20">
-                        <span className="text-[10px] font-bold text-primary mt-0.5">{i + 1}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-foreground">
-                            {isHe ? (mission.mission_he || mission.mission_en) : mission.mission_en}
-                          </p>
-                          {mission.milestones?.length > 0 && (
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {mission.milestones.length} {isHe ? 'אבני דרך' : 'milestones'}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 export default function LifeHub() {
   const { language, isRTL } = useTranslation();
@@ -117,10 +22,9 @@ export default function LifeHub() {
   const { plan, isLoading } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
-
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
 
-  // Fetch all active plans to get strategy data per pillar
   const { data: allPlans } = useQuery({
     queryKey: ['all-active-plans', user?.id],
     queryFn: async () => {
@@ -134,7 +38,6 @@ export default function LifeHub() {
     enabled: !!user?.id && hasPlan,
   });
 
-  // Extract all pillar strategies from all active plans
   const pillarStrategies: Record<string, any> = {};
   allPlans?.forEach((p: any) => {
     const pillars = p.plan_data?.strategy?.pillars || {};
@@ -145,15 +48,29 @@ export default function LifeHub() {
 
   const pillarIds = Object.keys(pillarStrategies);
 
+  // Find the "next" pillar — one with incomplete missions
+  const nextPillar = useMemo(() => {
+    for (const id of pillarIds) {
+      const data = pillarStrategies[id];
+      const missions = data?.missions || [];
+      if (missions.length > 0) return { id, data };
+    }
+    return pillarIds.length > 0 ? { id: pillarIds[0], data: pillarStrategies[pillarIds[0]] } : null;
+  }, [pillarIds, pillarStrategies]);
+
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
   };
 
+  const activePillarId = selectedPillar || nextPillar?.id || null;
+  const activePillarData = activePillarId ? pillarStrategies[activePillarId] : null;
+  const activeDomain = activePillarId ? getDomainById(activePillarId) : null;
+
   return (
     <div className="flex flex-col w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex flex-col gap-5 flex-1 px-1 pt-2">
+      <div className="flex flex-col gap-4 flex-1 px-1 pt-2 max-w-3xl mx-auto w-full">
 
         {!hasPlan && !isLoading ? (
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
@@ -199,16 +116,112 @@ export default function LifeHub() {
               </motion.button>
             </div>
 
-            {/* Pillar Strategy Cards */}
-            <div className="flex flex-col gap-2">
-              {pillarIds.map((pillarId) => (
-                <StrategyPillarCard
-                  key={pillarId}
-                  pillarId={pillarId}
-                  data={pillarStrategies[pillarId]}
-                  isHe={isHe}
-                />
-              ))}
+            {/* ── NEXT STRATEGIC FOCUS (Hero Card) ── */}
+            {activeDomain && activePillarData && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5"
+              >
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Target className="h-4 w-4 text-primary" />
+                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                    {isHe ? 'מיקוד אסטרטגי' : 'Strategic Focus'}
+                  </span>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                    <activeDomain.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-foreground">
+                      {isHe ? activeDomain.labelHe : activeDomain.labelEn}
+                    </h2>
+                    {activePillarData.goals?.[0] && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        {isHe ? activePillarData.goals[0].goal_he : activePillarData.goals[0].goal_en}
+                      </p>
+                    )}
+                    {activePillarData.missions?.length > 0 && (
+                      <div className="mt-3 space-y-1.5">
+                        {activePillarData.missions.slice(0, 3).map((m: any, i: number) => (
+                          <div key={i} className="flex items-center gap-2 text-xs">
+                            <ArrowRight className="w-3 h-3 text-primary/60 shrink-0" />
+                            <span className="text-foreground/80">
+                              {isHe ? (m.mission_he || m.mission_en) : m.mission_en}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── PILLAR FLOWCHART ── */}
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+                {isHe ? 'כל התחומים' : 'All Pillars'}
+              </span>
+              <div className="relative">
+                {pillarIds.map((pillarId, idx) => {
+                  const domain = getDomainById(pillarId);
+                  if (!domain) return null;
+                  const data = pillarStrategies[pillarId];
+                  const goals = data?.goals || [];
+                  const missions = data?.missions || [];
+                  const isActive = pillarId === activePillarId;
+                  const Icon = domain.icon;
+
+                  return (
+                    <div key={pillarId} className="relative">
+                      {/* Connecting line */}
+                      {idx < pillarIds.length - 1 && (
+                        <div className="absolute top-10 ltr:left-[15px] rtl:right-[15px] w-0.5 h-[calc(100%-16px)] bg-border/40" />
+                      )}
+
+                      <button
+                        onClick={() => setSelectedPillar(pillarId === selectedPillar ? null : pillarId)}
+                        className={cn(
+                          "relative w-full flex items-center gap-3 p-3 rounded-xl text-start transition-all",
+                          isActive
+                            ? "bg-primary/10 border border-primary/25 shadow-sm"
+                            : "hover:bg-muted/30 border border-transparent"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                          isActive ? "bg-primary/20" : "bg-muted/40"
+                        )}>
+                          <Icon className={cn("w-4 h-4", isActive ? "text-primary" : "text-muted-foreground")} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={cn("text-sm font-semibold", isActive ? "text-foreground" : "text-foreground/70")}>
+                              {isHe ? domain.labelHe : domain.labelEn}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {missions.length} {isHe ? 'משימות' : 'missions'}
+                            </span>
+                          </div>
+                          {goals[0] && (
+                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                              {isHe ? goals[0].goal_he : goals[0].goal_en}
+                            </p>
+                          )}
+                        </div>
+                        <ChevronRight className={cn(
+                          "w-4 h-4 shrink-0 transition-transform",
+                          isActive ? "text-primary rotate-90" : "text-muted-foreground/40",
+                          isRTL && !isActive && "rotate-180",
+                          isRTL && isActive && "rotate-90"
+                        )} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {pillarIds.length === 0 && (

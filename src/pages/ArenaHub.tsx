@@ -1,11 +1,11 @@
 /**
  * ArenaHub — Tactics page (טקטיקה).
  * Before plan: Same CTA as Strategy.
- * After plan: Shows tactical breakdown — the HOW for each pillar.
+ * After plan: Shows NEXT tactical action hero + visual mission flowchart.
  */
-import { useState } from 'react';
-import { Swords, Sparkles, ChevronDown, ChevronUp, Crosshair, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo } from 'react';
+import { Swords, Sparkles, Crosshair, ChevronRight, Clock, ArrowRight, Play } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
@@ -14,91 +14,8 @@ import { getDomainById } from '@/navigation/lifeDomains';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-
-function TacticsPillarCard({ pillarId, data, isHe }: { pillarId: string; data: any; isHe: boolean }) {
-  const [expanded, setExpanded] = useState(false);
-  const domain = getDomainById(pillarId);
-  if (!domain) return null;
-  const Icon = domain.icon;
-
-  const missions = data?.missions || [];
-
-  // Count total daily actions
-  const totalActions = missions.reduce((sum: number, m: any) => {
-    return sum + (m.milestones || []).reduce((mSum: number, ms: any) => {
-      return mSum + (ms.minis?.length || 0);
-    }, 0);
-  }, 0);
-
-  return (
-    <div className="rounded-xl border border-border/40 bg-card/40 overflow-hidden">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 p-4 text-start hover:bg-muted/20 transition-colors"
-      >
-        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-destructive/10")}>
-          <Icon className="w-4.5 h-4.5 text-destructive" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-bold text-foreground">
-            {isHe ? domain.labelHe : domain.labelEn}
-          </h4>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {missions.length} {isHe ? 'משימות' : 'missions'} · {totalActions} {isHe ? 'פעולות יומיות' : 'daily actions'}
-          </p>
-        </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />}
-      </button>
-
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 space-y-3 border-t border-border/20 pt-3">
-              {missions.map((mission: any, mi: number) => (
-                <div key={mi} className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <Crosshair className="w-3.5 h-3.5 text-destructive mt-0.5 shrink-0" />
-                    <h5 className="text-xs font-bold text-foreground">
-                      {isHe ? (mission.mission_he || mission.mission_en) : mission.mission_en}
-                    </h5>
-                  </div>
-
-                  {/* Milestones with their daily actions */}
-                  {(mission.milestones || []).map((ms: any, si: number) => (
-                    <div key={si} className="ms-5 space-y-1">
-                      <p className="text-[11px] font-semibold text-foreground/70">
-                        <span className="text-destructive/70">{mi + 1}.{si + 1}</span>{' '}
-                        {isHe ? (ms.title_he || ms.title_en) : ms.title_en}
-                      </p>
-                      {ms.minis?.length > 0 && (
-                        <div className="ms-3 space-y-0.5">
-                          {ms.minis.map((mini: any, di: number) => (
-                            <div key={di} className="flex items-center gap-1.5 py-0.5">
-                              <Clock className="w-2.5 h-2.5 text-muted-foreground/50 shrink-0" />
-                              <span className="text-[10px] text-muted-foreground">
-                                {isHe ? mini.title_he : mini.title_en}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
+import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 
 export default function ArenaHub() {
   const { language, isRTL } = useTranslation();
@@ -107,10 +24,13 @@ export default function ArenaHub() {
   const { plan, isLoading } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
-
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
+  const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
+  const [executionOpen, setExecutionOpen] = useState(false);
 
-  // Fetch all active plans to get tactic data
+  const { queue, refetch } = useNowEngine();
+
   const { data: allPlans } = useQuery({
     queryKey: ['all-active-plans', user?.id],
     queryFn: async () => {
@@ -134,15 +54,27 @@ export default function ArenaHub() {
 
   const pillarIds = Object.keys(pillarStrategies);
 
+  // Next action from the NowEngine queue
+  const nextAction = queue[0] || null;
+
+  const handleExecute = (item: NowQueueItem) => {
+    setExecutionAction(item);
+    setExecutionOpen(true);
+  };
+
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
   };
 
+  const activePillarId = selectedPillar || (nextAction ? nextAction.pillarId : pillarIds[0]) || null;
+  const activePillarData = activePillarId ? pillarStrategies[activePillarId] : null;
+  const activeDomain = activePillarId ? getDomainById(activePillarId) : null;
+
   return (
     <div className="flex flex-col w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex flex-col gap-5 flex-1 px-1 pt-2">
+      <div className="flex flex-col gap-4 flex-1 px-1 pt-2 max-w-3xl mx-auto w-full">
 
         {!hasPlan && !isLoading ? (
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
@@ -171,6 +103,7 @@ export default function ArenaHub() {
           </div>
         ) : hasPlan ? (
           <>
+            {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80 flex items-center gap-2">
                 <Swords className="h-4 w-4 text-destructive" />
@@ -187,15 +120,138 @@ export default function ArenaHub() {
               </motion.button>
             </div>
 
-            <div className="flex flex-col gap-2">
-              {pillarIds.map((pillarId) => (
-                <TacticsPillarCard
-                  key={pillarId}
-                  pillarId={pillarId}
-                  data={pillarStrategies[pillarId]}
-                  isHe={isHe}
-                />
-              ))}
+            {/* ── NEXT TACTICAL ACTION (Hero Card) ── */}
+            {nextAction && (() => {
+              const domain = getDomainById(nextAction.pillarId);
+              const Icon = domain?.icon;
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative overflow-hidden rounded-2xl border-2 border-destructive/30 bg-gradient-to-br from-destructive/15 via-destructive/5 to-transparent p-5 cursor-pointer group"
+                  onClick={() => handleExecute(nextAction)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer pointer-events-none" />
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Crosshair className="h-4 w-4 text-destructive" />
+                    <span className="text-xs font-bold text-destructive uppercase tracking-wider">
+                      {isHe ? 'הפעולה הבאה' : 'Next Action'}
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center shrink-0">
+                      {Icon && <Icon className="w-6 h-6 text-destructive" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-destructive/70 mb-0.5">
+                        {isHe ? (domain?.labelHe || nextAction.pillarId) : (domain?.labelEn || nextAction.pillarId)}
+                      </p>
+                      <h2 className="text-base font-bold text-foreground">
+                        {isHe ? nextAction.title : nextAction.titleEn}
+                      </h2>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {nextAction.durationMin} {isHe ? 'דקות' : 'min'}
+                        </span>
+                        {nextAction.reason && (
+                          <span className="text-[10px] text-muted-foreground/60">{nextAction.reason}</span>
+                        )}
+                      </div>
+                    </div>
+                    <Play className="w-5 h-5 text-destructive/40 group-hover:text-destructive transition-colors shrink-0 mt-2" />
+                  </div>
+                </motion.div>
+              );
+            })()}
+
+            {/* ── PILLAR TACTICAL FLOWCHART ── */}
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+                {isHe ? 'פירוט טקטי לפי תחום' : 'Tactical Breakdown'}
+              </span>
+              <div className="relative">
+                {pillarIds.map((pillarId, idx) => {
+                  const domain = getDomainById(pillarId);
+                  if (!domain) return null;
+                  const data = pillarStrategies[pillarId];
+                  const missions = data?.missions || [];
+                  const totalActions = missions.reduce((sum: number, m: any) =>
+                    sum + (m.milestones || []).reduce((mSum: number, ms: any) =>
+                      mSum + (ms.minis?.length || 0), 0), 0);
+                  const isActive = pillarId === activePillarId;
+                  const Icon = domain.icon;
+
+                  return (
+                    <div key={pillarId} className="relative">
+                      {idx < pillarIds.length - 1 && (
+                        <div className="absolute top-10 ltr:left-[15px] rtl:right-[15px] w-0.5 h-[calc(100%-16px)] bg-border/40" />
+                      )}
+
+                      <button
+                        onClick={() => setSelectedPillar(pillarId === selectedPillar ? null : pillarId)}
+                        className={cn(
+                          "relative w-full flex items-center gap-3 p-3 rounded-xl text-start transition-all",
+                          isActive
+                            ? "bg-destructive/10 border border-destructive/25 shadow-sm"
+                            : "hover:bg-muted/30 border border-transparent"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                          isActive ? "bg-destructive/20" : "bg-muted/40"
+                        )}>
+                          <Icon className={cn("w-4 h-4", isActive ? "text-destructive" : "text-muted-foreground")} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={cn("text-sm font-semibold", isActive ? "text-foreground" : "text-foreground/70")}>
+                              {isHe ? domain.labelHe : domain.labelEn}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {missions.length} {isHe ? 'משימות' : 'missions'} · {totalActions} {isHe ? 'פעולות' : 'actions'}
+                            </span>
+                          </div>
+                          {missions[0] && (
+                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                              {isHe ? (missions[0].mission_he || missions[0].mission_en) : missions[0].mission_en}
+                            </p>
+                          )}
+                        </div>
+                        <ChevronRight className={cn(
+                          "w-4 h-4 shrink-0 transition-transform",
+                          isActive ? "text-destructive rotate-90" : "text-muted-foreground/40",
+                          isRTL && !isActive && "rotate-180",
+                          isRTL && isActive && "rotate-90"
+                        )} />
+                      </button>
+
+                      {/* Expanded mission details */}
+                      {isActive && missions.length > 0 && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          className="overflow-hidden ltr:pl-14 rtl:pr-14 pb-2"
+                        >
+                          {missions.map((m: any, mi: number) => (
+                            <div key={mi} className="flex items-start gap-2 py-1.5">
+                              <ArrowRight className="w-3 h-3 text-destructive/50 mt-0.5 shrink-0" />
+                              <div className="min-w-0">
+                                <p className="text-xs font-medium text-foreground/80">
+                                  {isHe ? (m.mission_he || m.mission_en) : m.mission_en}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {(m.milestones || []).length} {isHe ? 'אבני דרך' : 'milestones'}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {pillarIds.length === 0 && (
@@ -211,6 +267,12 @@ export default function ArenaHub() {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         onPlanGenerated={handlePlanGenerated}
+      />
+      <ExecutionModal
+        open={executionOpen}
+        onOpenChange={setExecutionOpen}
+        action={executionAction}
+        onComplete={() => refetch()}
       />
     </div>
   );
