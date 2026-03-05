@@ -121,7 +121,7 @@ export default function ExpansionHome() {
                 <div className="space-y-2">
                   {history.slice(0, 3).map((h, i) => (
                     <Card key={i} className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => navigate(`/life/expansion/history?idx=${i}`)}>
+                      onClick={() => navigate(`/strategy/expansion/history?idx=${i}`)}>
                       <div>
                         <p className="text-sm font-medium">{h.expansion_index}/100</p>
                         <p className="text-xs text-muted-foreground">{new Date(h.assessed_at).toLocaleDateString(isRTL ? 'he-IL' : 'en-US')}</p>

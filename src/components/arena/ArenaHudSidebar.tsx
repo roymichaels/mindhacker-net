@@ -114,7 +114,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   };
 
   const handlePillarClick = (domainId: string) => {
-    navigate(`/life/${domainId}/results`);
+    navigate(`/strategy/${domainId}/results`);
   };
 
   return (

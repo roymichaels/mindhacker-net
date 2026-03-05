@@ -118,7 +118,7 @@ export default function ConsciousnessHome() {
                 <div className="space-y-2">
                   {history.slice(0, 3).map((h, i) => (
                     <Card key={i} className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => navigate(`/life/consciousness/results?idx=${i}`)}>
+                      onClick={() => navigate(`/strategy/consciousness/results?idx=${i}`)}>
                       <div>
                         <p className="text-sm font-medium">{h.consciousness_index}/100</p>
                         <p className="text-xs text-muted-foreground">{new Date(h.assessed_at).toLocaleDateString(isRTL ? 'he-IL' : 'en-US')}</p>

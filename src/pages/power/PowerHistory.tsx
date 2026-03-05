@@ -41,7 +41,7 @@ export default function PowerHistory() {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/power')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/power')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <Dumbbell className="w-5 h-5 text-red-500" />
