@@ -47,9 +47,11 @@ const DATA_OFFERS: DataOffer[] = [
 interface FMEarnProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
+  categoryFilter?: string;
+  onCategoryChange?: (cat: string) => void;
 }
 
-export default function FMEarn({ activeTab: externalTab, onTabChange }: FMEarnProps) {
+export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFilter: externalCatFilter, onCategoryChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
