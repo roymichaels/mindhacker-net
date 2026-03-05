@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
-  Plus, X, Users,
+  Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
