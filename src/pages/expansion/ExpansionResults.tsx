@@ -55,7 +55,7 @@ export default function ExpansionResults() {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{t('expansion.noResults')}</p>
-          <Button onClick={() => navigate('/life/expansion/assess')} className="mt-4">{t('expansion.beginScan')}</Button>
+          <Button onClick={() => navigate('/strategy/expansion/assess')} className="mt-4">{t('expansion.beginScan')}</Button>
         </div>
       </PageShell>
     );
