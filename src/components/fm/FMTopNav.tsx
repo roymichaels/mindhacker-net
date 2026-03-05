@@ -3,11 +3,10 @@
  * Mirrors FMBottomNav tabs + back-to-OS button + notification bell.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Target, Briefcase, ArrowLeft, Wallet } from 'lucide-react';
+import { Target, Briefcase, ArrowLeft, Wallet, Store } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
-import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,    labelEn: 'Earn',   labelHe: 'הרוויח' },
@@ -39,7 +38,10 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
         {/* Left: App name + FM tabs */}
         <div className="flex items-center gap-6">
-          <AppNameDropdown onOpenSettings={onOpenSettings} />
+          <div className="flex items-center gap-1.5">
+            <Store className="h-5 w-5 text-primary" />
+            <span className="text-base font-bold text-foreground">{isHe ? 'פרי-מארקט' : 'FreeMarket'}</span>
+          </div>
 
           <nav className="flex items-center gap-1">
             {FM_TABS.map((tab) => {
