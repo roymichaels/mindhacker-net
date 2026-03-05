@@ -112,31 +112,69 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   // Visual DNA overrides the base archetype profile
   const merged = { ...baseProfile, ...visualDNA };
   
-  // === Validate merged profile: prevent black orb ===
+  // === BLACK ORB PREVENTION: Validate all color fields ===
+  const ensureVisibleHSL = (hsl: string, fallback: string): string => {
+    if (!hsl || hsl.includes('NaN') || hsl.includes('undefined')) return fallback;
+    const m = hsl.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?$/);
+    if (!m) return fallback;
+    const s = parseFloat(m[2]);
+    const l = parseFloat(m[3]);
+    // If saturation < 15% AND lightness < 20%, the color is effectively black/dark gray
+    if (s < 15 && l < 20) return fallback;
+    // If lightness alone is too low, bump it
+    if (l < 15) {
+      return `${m[1]} ${Math.max(50, s)}% 35%`;
+    }
+    return hsl;
+  };
+
+  // Validate gradient stops
   if (!merged.gradientStops || merged.gradientStops.length < 3) {
     merged.gradientStops = VISUAL_DEFAULTS.gradientStops;
   }
-  // Scan gradient stops for NaN and replace broken ones
   merged.gradientStops = merged.gradientStops.map((stop: string, i: number) => 
-    (!stop || stop.includes('NaN')) ? (VISUAL_DEFAULTS.gradientStops[i] || '200 80% 50%') : stop
+    ensureVisibleHSL(stop, VISUAL_DEFAULTS.gradientStops[i] || '200 80% 50%')
   );
-  // Also validate coreGradient
+  
+  // Validate core gradient
   if (merged.coreGradient) {
     merged.coreGradient = merged.coreGradient.map((stop: string, i: number) =>
-      (!stop || stop.includes('NaN')) ? (VISUAL_DEFAULTS.coreGradient[i] || '200 80% 50%') : stop
+      ensureVisibleHSL(stop, VISUAL_DEFAULTS.coreGradient[i] || '200 80% 50%')
     ) as [string, string];
   }
+
+  // Validate primary/secondary/accent colors
+  if (merged.primaryColor) {
+    merged.primaryColor = ensureVisibleHSL(merged.primaryColor, '200 80% 50%');
+  }
+  if (merged.secondaryColors) {
+    merged.secondaryColors = merged.secondaryColors.map((c: string) => ensureVisibleHSL(c, '220 70% 55%'));
+  }
+  if (merged.accentColor) {
+    merged.accentColor = ensureVisibleHSL(merged.accentColor, '180 75% 60%');
+  }
+  if (merged.particleColor) {
+    merged.particleColor = ensureVisibleHSL(merged.particleColor, '200 80% 50%');
+  }
+  if (merged.rimLightColor) {
+    merged.rimLightColor = ensureVisibleHSL(merged.rimLightColor, '40 80% 65%');
+  }
+  if (merged.particlePalette) {
+    merged.particlePalette = merged.particlePalette.map((c: string) => ensureVisibleHSL(c, '200 70% 55%'));
+  }
+
+  // Validate material params
   if (merged.materialType !== 'wire' && merged.materialParams) {
-    merged.materialParams = { ...merged.materialParams, emissiveIntensity: Math.max(0.05, merged.materialParams.emissiveIntensity) };
+    merged.materialParams = { ...merged.materialParams, emissiveIntensity: Math.max(0.1, merged.materialParams.emissiveIntensity) };
   }
   if (merged.bloomStrength !== undefined) {
-    merged.bloomStrength = Math.max(0, Math.min(1.5, merged.bloomStrength));
+    merged.bloomStrength = Math.max(0.1, Math.min(1.5, merged.bloomStrength)); // Min 0.1 instead of 0
   }
   if (merged.chromaShift !== undefined) {
     merged.chromaShift = Math.max(0, Math.min(0.8, merged.chromaShift));
   }
   if (merged.patternIntensity !== undefined) {
-    merged.patternIntensity = Math.max(0, Math.min(1, merged.patternIntensity));
+    merged.patternIntensity = Math.max(0.1, Math.min(1, merged.patternIntensity)); // Min 0.1 instead of 0
   }
   
   return merged as OrbProfile;

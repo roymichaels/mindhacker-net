@@ -159,7 +159,7 @@ export function buildVisualDNA(input: VisualDNAInput): Partial<OrbProfile> {
   const baseHue = (seed % 360);
   const hueSpread = 30 + dopamineLoad * 60 + seedFloat(seed, 24) * 30; // 30-120° spread
   const baseSat = 60 + (sleepQuality / 5) * 25 + seedFloat(seed, 25) * 10;
-  const baseLit = 35 + (1 - dopamineLoad) * 15 + seedFloat(seed, 26) * 10;
+  const baseLit = 40 + (1 - dopamineLoad) * 15 + seedFloat(seed, 26) * 10; // Floor raised to 40 to prevent dark orbs
 
   // Temperature bias from gender/sunlight
   const warmBias = (sunlightAfterWaking === 'yes' ? 15 : -10) + (gender === 'male' ? 5 : gender === 'female' ? -5 : 0);
@@ -168,8 +168,8 @@ export function buildVisualDNA(input: VisualDNAInput): Partial<OrbProfile> {
   for (let i = 0; i < stopCount; i++) {
     const t = i / (stopCount - 1);
     const hue = (baseHue + warmBias + t * hueSpread + seedFloat(seed, 30 + i) * 20) % 360;
-    const sat = clamp(baseSat + (t - 0.5) * 20 + seedFloat(seed, 40 + i) * 15, 40, 100);
-    const lit = clamp(baseLit + Math.sin(t * Math.PI) * 15 + seedFloat(seed, 50 + i) * 10, 20, 75);
+    const sat = clamp(baseSat + (t - 0.5) * 20 + seedFloat(seed, 40 + i) * 15, 50, 100); // Raised min saturation from 40→50
+    const lit = clamp(baseLit + Math.sin(t * Math.PI) * 15 + seedFloat(seed, 50 + i) * 10, 30, 75); // Raised min lightness from 20→30
     gradientStops.push(makeHSL(hue, sat, lit));
   }
 
