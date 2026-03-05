@@ -58,7 +58,7 @@ export function HubPillarsList({ hub = 'core' }: HubPillarsListProps) {
   // Always show all domains now
   const domains: LifeDomain[] = CORE_DOMAINS;
   const plan = corePlan || arenaPlan;
-  const basePath = '/life';
+  const basePath = '/strategy';
 
   const sectionTitle = isHe ? 'כל הפילרים' : 'All Pillars';
 

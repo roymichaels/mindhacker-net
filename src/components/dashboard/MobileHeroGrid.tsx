@@ -71,7 +71,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               </p>
             </div>
             <button
-              onClick={() => navigate('/life')}
+              onClick={() => navigate('/strategy')}
               className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               {isHe ? 'עבור לאסטרטגיה' : 'Go to Strategy'}

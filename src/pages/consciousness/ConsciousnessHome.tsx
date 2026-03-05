@@ -56,7 +56,7 @@ export default function ConsciousnessHome() {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export default function ConsciousnessHome() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={() => navigate('/life/consciousness/results')} className="flex-1 bg-violet-600 hover:bg-violet-700">
+                  <Button onClick={() => navigate('/strategy/consciousness/results')} className="flex-1 bg-violet-600 hover:bg-violet-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('consciousness.viewResults')}
                   </Button>
                   <Button onClick={() => startAssessment('consciousness')} variant="outline" className="border-violet-500/40">
@@ -111,7 +111,7 @@ export default function ConsciousnessHome() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">{t('consciousness.previousScans')}</h3>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/life/consciousness/history')} className="text-xs">
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/strategy/consciousness/history')} className="text-xs">
                     {t('consciousness.seeAll')} <ForwardIcon className="w-3 h-3 ms-1" />
                   </Button>
                 </div>

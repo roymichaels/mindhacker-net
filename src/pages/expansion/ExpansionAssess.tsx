@@ -217,7 +217,7 @@ export default function ExpansionAssess() {
         const structured = buildStructuredAnswers();
         const result = buildExpansionAssessment(structured);
         await saveAssessment(result);
-        navigate('/life/expansion/results');
+        navigate('/strategy/expansion/results');
       } catch (err) {
         console.error(err);
         setPhase('flow');

@@ -89,7 +89,7 @@ export default function PresenceHome() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => phase === 'home' ? navigate('/life') : setPhase('home')}>
+          <Button variant="ghost" size="icon" onClick={() => phase === 'home' ? navigate('/strategy') : setPhase('home')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <Eye className="w-6 h-6 text-rose-500" />

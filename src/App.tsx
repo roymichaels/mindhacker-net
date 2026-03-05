@@ -172,10 +172,10 @@ const queryClient = new QueryClient({
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
-// Redirect /arena/:domainId/* → /life/:domainId/*
-function ArenaToLifeRedirect() {
+// Redirect old /arena/:domainId/* → /strategy/:domainId/*
+function ArenaToStrategyRedirect() {
   const loc = window.location.pathname;
-  const newPath = loc.replace(/^\/arena/, '/life');
+  const newPath = loc.replace(/^\/arena/, '/strategy');
   return <Navigate to={newPath} replace />;
 }
 
@@ -290,70 +290,71 @@ const App = () => (
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
                           {/* Dashboard */}
                           <Route path="/dashboard" element={<DashboardLayoutWrapper />} />
-                          {/* Life System */}
-                          <Route path="/life" element={<LifeLayoutWrapper />} />
-                          <Route path="/life/presence" element={<PresenceHome />} />
-                          <Route path="/life/presence/scan" element={<PresenceScan />} />
-                          <Route path="/life/presence/analyzing" element={<PresenceAnalyzing />} />
-                          <Route path="/life/presence/results" element={<PresenceResultsPage />} />
-                          <Route path="/life/presence/assess" element={<PresenceChatAssess />} />
-                          <Route path="/life/presence/chat-results" element={<PresenceChatResults />} />
-                          <Route path="/life/presence/history" element={<PresenceHistory />} />
+                          {/* Strategy (was /life) */}
+                          <Route path="/strategy" element={<LifeLayoutWrapper />} />
+                          <Route path="/strategy/presence" element={<PresenceHome />} />
+                          <Route path="/strategy/presence/scan" element={<PresenceScan />} />
+                          <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
+                          <Route path="/strategy/presence/results" element={<PresenceResultsPage />} />
+                          <Route path="/strategy/presence/assess" element={<PresenceChatAssess />} />
+                          <Route path="/strategy/presence/chat-results" element={<PresenceChatResults />} />
+                          <Route path="/strategy/presence/history" element={<PresenceHistory />} />
                           {/* Power */}
-                          <Route path="/life/power" element={<PowerHome />} />
-                          <Route path="/life/power/assess" element={<PowerChatAssess />} />
-                          <Route path="/life/power/chat-results" element={<PowerChatResults />} />
-                          <Route path="/life/power/results" element={<PowerResultsPage />} />
-                          <Route path="/life/power/history" element={<PowerHistory />} />
+                          <Route path="/strategy/power" element={<PowerHome />} />
+                          <Route path="/strategy/power/assess" element={<PowerChatAssess />} />
+                          <Route path="/strategy/power/chat-results" element={<PowerChatResults />} />
+                          <Route path="/strategy/power/results" element={<PowerResultsPage />} />
+                          <Route path="/strategy/power/history" element={<PowerHistory />} />
                           {/* Vitality */}
-                          <Route path="/life/vitality" element={<VitalityHome />} />
-                          <Route path="/life/vitality/assess" element={<VitalityChatAssess />} />
-                          <Route path="/life/vitality/chat-results" element={<VitalityChatResults />} />
-                          <Route path="/life/vitality/intake" element={<VitalityIntake />} />
-                          <Route path="/life/vitality/results" element={<VitalityResults />} />
-                          <Route path="/life/vitality/history" element={<VitalityHistory />} />
+                          <Route path="/strategy/vitality" element={<VitalityHome />} />
+                          <Route path="/strategy/vitality/assess" element={<VitalityChatAssess />} />
+                          <Route path="/strategy/vitality/chat-results" element={<VitalityChatResults />} />
+                          <Route path="/strategy/vitality/intake" element={<VitalityIntake />} />
+                          <Route path="/strategy/vitality/results" element={<VitalityResults />} />
+                          <Route path="/strategy/vitality/history" element={<VitalityHistory />} />
                           {/* Focus */}
-                          <Route path="/life/focus" element={<FocusHome />} />
-                          <Route path="/life/focus/assess" element={<FocusChatAssess />} />
-                          <Route path="/life/focus/chat-results" element={<FocusChatResults />} />
-                          <Route path="/life/focus/results" element={<FocusResults />} />
-                          <Route path="/life/focus/history" element={<FocusHistory />} />
+                          <Route path="/strategy/focus" element={<FocusHome />} />
+                          <Route path="/strategy/focus/assess" element={<FocusChatAssess />} />
+                          <Route path="/strategy/focus/chat-results" element={<FocusChatResults />} />
+                          <Route path="/strategy/focus/results" element={<FocusResults />} />
+                          <Route path="/strategy/focus/history" element={<FocusHistory />} />
                           {/* Combat */}
-                          <Route path="/life/combat" element={<CombatHome />} />
-                          <Route path="/life/combat/assess" element={<CombatChatAssess />} />
-                          <Route path="/life/combat/chat-results" element={<CombatChatResults />} />
-                          <Route path="/life/combat/results" element={<CombatResults />} />
-                          <Route path="/life/combat/history" element={<CombatHistory />} />
+                          <Route path="/strategy/combat" element={<CombatHome />} />
+                          <Route path="/strategy/combat/assess" element={<CombatChatAssess />} />
+                          <Route path="/strategy/combat/chat-results" element={<CombatChatResults />} />
+                          <Route path="/strategy/combat/results" element={<CombatResults />} />
+                          <Route path="/strategy/combat/history" element={<CombatHistory />} />
                           {/* Expansion */}
-                          <Route path="/life/expansion" element={<ExpansionHome />} />
-                          <Route path="/life/expansion/assess" element={<ExpansionChatAssess />} />
-                          <Route path="/life/expansion/chat-results" element={<ExpansionChatResults />} />
-                          <Route path="/life/expansion/results" element={<ExpansionResults />} />
-                          <Route path="/life/expansion/history" element={<ExpansionHistory />} />
+                          <Route path="/strategy/expansion" element={<ExpansionHome />} />
+                          <Route path="/strategy/expansion/assess" element={<ExpansionChatAssess />} />
+                          <Route path="/strategy/expansion/chat-results" element={<ExpansionChatResults />} />
+                          <Route path="/strategy/expansion/results" element={<ExpansionResults />} />
+                          <Route path="/strategy/expansion/history" element={<ExpansionHistory />} />
                           {/* Consciousness */}
-                          <Route path="/life/consciousness" element={<ConsciousnessHome />} />
-                          <Route path="/life/consciousness/assess" element={<ConsciousnessAssess />} />
-                          <Route path="/life/consciousness/results" element={<ConsciousnessResults />} />
-                          <Route path="/life/consciousness/history" element={<ConsciousnessHistory />} />
-                          {/* Arena domain routes — now under /life */}
-                          <Route path="/life/wealth/assess" element={<WealthAssess />} />
-                          <Route path="/life/wealth/results" element={<WealthResults />} />
-                          <Route path="/life/influence/assess" element={<InfluenceAssess />} />
-                          <Route path="/life/influence/results" element={<InfluenceResults />} />
-                          <Route path="/life/relationships/assess" element={<RelationshipsAssess />} />
-                          <Route path="/life/relationships/results" element={<RelationshipsResults />} />
-                          <Route path="/life/business/assess" element={<BusinessAssess />} />
-                          <Route path="/life/business/results" element={<BusinessResults />} />
-                          <Route path="/life/projects/assess" element={<ProjectsAssess />} />
-                          <Route path="/life/projects/results" element={<ProjectsResults />} />
-                          <Route path="/life/play/assess" element={<PlayAssess />} />
-                          <Route path="/life/play/results" element={<PlayResults />} />
-                          {/* Life domain catch-all */}
-                          <Route path="/life/:domainId" element={<LifeDomainPage />} />
-                          {/* Arena — execution layer */}
-                          <Route path="/arena" element={<ArenaLayoutWrapper />} />
-                          {/* Arena domain sub-routes redirect to Core assessment pages */}
-                          <Route path="/arena/:domainId/*" element={<ArenaToLifeRedirect />} />
+                          <Route path="/strategy/consciousness" element={<ConsciousnessHome />} />
+                          <Route path="/strategy/consciousness/assess" element={<ConsciousnessAssess />} />
+                          <Route path="/strategy/consciousness/results" element={<ConsciousnessResults />} />
+                          <Route path="/strategy/consciousness/history" element={<ConsciousnessHistory />} />
+                          {/* Arena domain routes — now under /strategy */}
+                          <Route path="/strategy/wealth/assess" element={<WealthAssess />} />
+                          <Route path="/strategy/wealth/results" element={<WealthResults />} />
+                          <Route path="/strategy/influence/assess" element={<InfluenceAssess />} />
+                          <Route path="/strategy/influence/results" element={<InfluenceResults />} />
+                          <Route path="/strategy/relationships/assess" element={<RelationshipsAssess />} />
+                          <Route path="/strategy/relationships/results" element={<RelationshipsResults />} />
+                          <Route path="/strategy/business/assess" element={<BusinessAssess />} />
+                          <Route path="/strategy/business/results" element={<BusinessResults />} />
+                          <Route path="/strategy/projects/assess" element={<ProjectsAssess />} />
+                          <Route path="/strategy/projects/results" element={<ProjectsResults />} />
+                          <Route path="/strategy/play/assess" element={<PlayAssess />} />
+                          <Route path="/strategy/play/results" element={<PlayResults />} />
+                          {/* Strategy domain catch-all */}
+                          <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
+                          {/* Tactics (was /arena) */}
+                          <Route path="/tactics" element={<ArenaLayoutWrapper />} />
+                          {/* Legacy /arena redirects */}
+                          <Route path="/arena" element={<Navigate to="/tactics" replace />} />
+                          <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                           {/* Admin Hub */}
@@ -403,32 +404,31 @@ const App = () => (
                         <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/me" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
-                        <Route path="/projects" element={<Navigate to="/life" replace />} />
-                        {/* Legacy arena redirects — all point to /life now */}
-                        <Route path="/life/wealth" element={<Navigate to="/life/wealth" replace />} />
-                        <Route path="/life/influence" element={<Navigate to="/life/influence" replace />} />
-                        <Route path="/life/relationships" element={<Navigate to="/life/relationships" replace />} />
+                        <Route path="/projects" element={<Navigate to="/strategy" replace />} />
+                        {/* Legacy /life redirects → /strategy */}
+                        <Route path="/life" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/life/*" element={<Navigate to="/strategy" replace />} />
                         {/* Old pillar routes */}
-                        <Route path="/consciousness" element={<Navigate to="/life" replace />} />
-                        <Route path="/health" element={<Navigate to="/life" replace />} />
-                        <Route path="/health/journey" element={<Navigate to="/life" replace />} />
-                        <Route path="/health/journey/:id" element={<Navigate to="/life" replace />} />
-                        <Route path="/health/plan" element={<Navigate to="/life" replace />} />
-                        <Route path="/relationships" element={<Navigate to="/life" replace />} />
-                        <Route path="/relationships/journey" element={<Navigate to="/life" replace />} />
-                        <Route path="/relationships/journey/:id" element={<Navigate to="/life" replace />} />
-                        <Route path="/finances" element={<Navigate to="/life" replace />} />
-                        <Route path="/finances/journey" element={<Navigate to="/life" replace />} />
-                        <Route path="/finances/journey/:id" element={<Navigate to="/life" replace />} />
-                        <Route path="/learning" element={<Navigate to="/life" replace />} />
-                        <Route path="/learning/journey" element={<Navigate to="/life" replace />} />
-                        <Route path="/learning/journey/:id" element={<Navigate to="/life" replace />} />
-                        <Route path="/purpose" element={<Navigate to="/life" replace />} />
-                        <Route path="/purpose/journey" element={<Navigate to="/life" replace />} />
-                        <Route path="/purpose/journey/:id" element={<Navigate to="/life" replace />} />
-                        <Route path="/hobbies" element={<Navigate to="/life" replace />} />
-                        <Route path="/hobbies/journey" element={<Navigate to="/life" replace />} />
-                        <Route path="/hobbies/journey/:id" element={<Navigate to="/life" replace />} />
+                        <Route path="/consciousness" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/health" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/health/journey" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/health/journey/:id" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/health/plan" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/relationships" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/relationships/journey" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/relationships/journey/:id" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/finances" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/finances/journey" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/finances/journey/:id" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/learning" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/learning/journey" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/learning/journey/:id" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/purpose" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/purpose/journey" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/purpose/journey/:id" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/hobbies" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/hobbies/journey" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/hobbies/journey/:id" element={<Navigate to="/strategy" replace />} />
                         {/* Admin redirects */}
                         <Route path="/admin" element={<Navigate to="/admin-hub" replace />} />
                         <Route path="/admin/*" element={<Navigate to="/admin-hub" replace />} />

@@ -61,7 +61,7 @@ export default function ConsciousnessResults() {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{t('consciousness.noResults')}</p>
-          <Button onClick={() => navigate('/life/consciousness/assess')} className="mt-4">{t('consciousness.beginScan')}</Button>
+          <Button onClick={() => navigate('/strategy/consciousness/assess')} className="mt-4">{t('consciousness.beginScan')}</Button>
         </div>
       </PageShell>
     );
@@ -71,7 +71,7 @@ export default function ConsciousnessResults() {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/consciousness')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/consciousness')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('consciousness.resultsTitle')}</h1>

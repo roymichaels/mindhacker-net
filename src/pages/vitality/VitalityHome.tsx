@@ -79,7 +79,7 @@ export default function VitalityHome() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <Sun className="w-6 h-6 text-amber-500" />
@@ -128,7 +128,7 @@ export default function VitalityHome() {
               </div>
             )}
 
-            <Button onClick={() => navigate('/life/vitality/results')} className="w-full bg-amber-600 hover:bg-amber-700" size="lg">
+            <Button onClick={() => navigate('/strategy/vitality/results')} className="w-full bg-amber-600 hover:bg-amber-700" size="lg">
               {t('vitality.viewResults')} <ChevronIcon className="w-4 h-4 ms-1" />
             </Button>
           </div>
@@ -175,7 +175,7 @@ export default function VitalityHome() {
 
         {/* History link */}
         {config.history && config.history.length > 0 && (
-          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/life/vitality/history')}>
+          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/strategy/vitality/history')}>
             <span>{t('vitality.assessmentHistory')}</span>
             <ChevronIcon className="w-4 h-4" />
           </Button>

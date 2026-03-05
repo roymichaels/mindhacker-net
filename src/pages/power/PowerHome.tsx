@@ -48,7 +48,7 @@ export default function PowerHome() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <Dumbbell className="w-6 h-6 text-red-500" />
@@ -92,7 +92,7 @@ export default function PowerHome() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/life/power/results')} className="flex-1">
+              <Button variant="outline" size="sm" onClick={() => navigate('/strategy/power/results')} className="flex-1">
                 {t('power.viewResults')}
               </Button>
               <Button variant="outline" size="sm" onClick={() => startAssessment('power')} className="flex-1">
@@ -104,7 +104,7 @@ export default function PowerHome() {
 
         {/* History */}
         {config.history && config.history.length > 0 && (
-          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/life/power/history')}>
+          <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/strategy/power/history')}>
             <span>{t('power.assessmentHistory')}</span>
             <ChevronIcon className="w-4 h-4" />
           </Button>

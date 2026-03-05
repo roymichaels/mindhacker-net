@@ -44,7 +44,7 @@ export default function PresenceAnalyzing() {
     const raw = sessionStorage.getItem('presence_scan_images');
     if (!raw) {
       toast.error('No scan images found. Please try again.');
-      navigate('/life/presence');
+      navigate('/strategy/presence');
       return;
     }
 
@@ -59,11 +59,11 @@ export default function PresenceAnalyzing() {
           scanData.id,
         );
         await saveScanResult(result);
-        navigate('/life/presence/results', { replace: true });
+        navigate('/strategy/presence/results', { replace: true });
       })
       .catch((err: any) => {
         toast.error(err.message || 'Analysis failed. Please try again.');
-        navigate('/life/presence');
+        navigate('/strategy/presence');
       });
   }, []);
 

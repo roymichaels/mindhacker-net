@@ -56,7 +56,7 @@ export default function FocusResults() {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{t('focus.noResults')}</p>
-          <Button onClick={() => navigate('/life/focus/assess')} className="mt-4">{t('focus.beginScan')}</Button>
+          <Button onClick={() => navigate('/strategy/focus/assess')} className="mt-4">{t('focus.beginScan')}</Button>
         </div>
       </PageShell>
     );
@@ -67,7 +67,7 @@ export default function FocusResults() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/focus')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/focus')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('focus.resultsTitle')}</h1>

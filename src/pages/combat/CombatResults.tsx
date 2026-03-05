@@ -44,7 +44,7 @@ export default function CombatResults() {
       <PageShell>
         <div className="p-6 text-center">
           <p className="text-muted-foreground">{t('combat.noResults')}</p>
-          <Button className="mt-4" onClick={() => navigate('/life/combat/assess')}>{t('combat.beginScan')}</Button>
+          <Button className="mt-4" onClick={() => navigate('/strategy/combat/assess')}>{t('combat.beginScan')}</Button>
         </div>
       </PageShell>
     );
@@ -52,7 +52,7 @@ export default function CombatResults() {
 
   const handleComplete = async () => {
     await markComplete();
-    navigate('/life/combat');
+    navigate('/strategy/combat');
   };
 
   return (
@@ -60,7 +60,7 @@ export default function CombatResults() {
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/combat')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/combat')}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">

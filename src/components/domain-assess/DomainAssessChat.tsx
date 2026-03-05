@@ -98,7 +98,7 @@ function isCoreDomain(domainId: string): boolean {
 }
 
 function getBasePath(_domainId: string): string {
-  return '/life';
+  return '/strategy';
 }
 
 interface Props {

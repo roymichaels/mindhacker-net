@@ -27,7 +27,7 @@ export default function PresenceHistory() {
     <PageShell>
       <div className="space-y-6 pb-8">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/life/presence')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/strategy/presence')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">Scan History</h1>
@@ -36,7 +36,7 @@ export default function PresenceHistory() {
         {all.length === 0 ? (
           <div className="text-center py-12 space-y-3">
             <p className="text-muted-foreground">No scans yet.</p>
-            <Button onClick={() => navigate('/life/presence/scan')}>Start Scan</Button>
+            <Button onClick={() => navigate('/strategy/presence/scan')}>Start Scan</Button>
           </div>
         ) : (
           <div className="space-y-3">
