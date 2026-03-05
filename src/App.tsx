@@ -69,6 +69,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Business = lazy(() => import("./pages/Business"));
+import { BusinessIndexWrapper, BusinessDashboardWrapper } from './components/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 const FMHome = lazy(() => import("./pages/FMHome"));
 const FMEarn = lazy(() => import("./pages/fm/FMEarn"));
@@ -381,10 +382,10 @@ const App = () => (
                           <Route path="/projects/journey" element={<ProjectsJourney />} />
                           <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
                           {/* Business */}
-                          <Route path="/business" element={<Business />} />
+                          <Route path="/business" element={<BusinessIndexWrapper />} />
                           <Route path="/business/journey" element={<BusinessJourney />} />
                           <Route path="/business/journey/:journeyId" element={<BusinessJourney />} />
-                          <Route path="/business/:businessId" element={<BusinessDashboard />} />
+                          <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
                           {/* Personal Hypnosis */}
                           <Route path="/personal-hypnosis/success" element={<PersonalHypnosisSuccess />} />
                           <Route path="/personal-hypnosis/pending" element={<PersonalHypnosisPending />} />
