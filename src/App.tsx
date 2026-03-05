@@ -367,10 +367,10 @@ const App = () => (
                             <Route path="home" element={<FMHome />} />
                             <Route path="earn" element={<FMEarn />} />
                             <Route path="work" element={<FMWork />} />
-                            <Route path="share" element={<FMContribute />} />
-                            <Route path="contribute" element={<Navigate to="/fm/share" replace />} />
+                            <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
+                            <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="wallet" element={<FMWalletPage />} />
-                            <Route path="coaches" element={<CoachesLayoutWrapper />} />
+                            <Route path="coaches" element={<Navigate to="/coaches" replace />} />
                           </Route>
                           
                           {/* Journeys */}
