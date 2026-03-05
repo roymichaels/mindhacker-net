@@ -88,13 +88,11 @@ export function AuroraFloatingOrb() {
     dragging.current = false;
     if (!didDrag.current && ctx) {
       ctx.setIsDockVisible(true);
-      ctx.setIsChatExpanded(true);
     }
   }, [ctx]);
 
   if (!ctx) return null;
-  // On FM pages, show orb even when dock is "visible" (since dock bar is hidden on FM)
-  if (ctx.isDockVisible && !isFM) return null;
+  if (ctx.isDockVisible) return null;
   if (ctx.isChatExpanded) return null;
 
   const positionStyle = pos
