@@ -64,7 +64,7 @@ export default function FMWork() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
-  const { opportunities } = useAuroraOpportunities();
+  
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto w-full py-4">
