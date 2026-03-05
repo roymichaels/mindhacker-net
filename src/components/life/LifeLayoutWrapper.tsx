@@ -3,7 +3,8 @@
  * Left sidebar = 100-day roadmap. No right sidebar.
  */
 import { Suspense, lazy } from 'react';
-import { StrategyRoadmapSidebar } from '@/components/sidebars/StrategyRoadmapSidebar';
+import { LifeHudSidebar } from '@/components/life/LifeHudSidebar';
+import { LifeActivitySidebar } from '@/components/life/LifeActivitySidebar';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useSidebars } from '@/hooks/useSidebars';
 
@@ -13,8 +14,8 @@ export default function LifeLayoutWrapper() {
   const { isLaunchpadComplete } = useLaunchpadProgress();
 
   useSidebars(
-    isLaunchpadComplete ? <StrategyRoadmapSidebar /> : null,
-    null
+    isLaunchpadComplete ? <LifeHudSidebar /> : null,
+    isLaunchpadComplete ? <LifeActivitySidebar /> : null
   );
 
   return (

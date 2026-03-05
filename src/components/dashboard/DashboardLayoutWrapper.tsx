@@ -8,8 +8,8 @@ import { useAllDomainsComplete } from '@/hooks/useAllDomainsComplete';
 import { PillarSynthesisModal } from '@/components/dashboard/PillarSynthesisModal';
 import { useSidebars } from '@/hooks/useSidebars';
 import { flowAudit } from '@/lib/flowAudit';
-import { DailyRoadmapSidebar } from '@/components/sidebars/DailyRoadmapSidebar';
 import { HudSidebar } from '@/components/dashboard/HudSidebar';
+import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
 
 const UserDashboard = lazy(() => import('@/pages/UserDashboard'));
 
