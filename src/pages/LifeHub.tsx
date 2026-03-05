@@ -1,11 +1,11 @@
 /**
  * LifeHub — Strategy page (אסטרטגיה).
  * Before plan: CTA to create plan.
- * After plan: Shows NEXT strategic focus hero + visual pillar flowchart.
+ * After plan: Shows visual 100-day roadmap with phases, missions, milestones.
  */
 import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, ChevronRight, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Flame, Sparkles, Target, ChevronDown, ChevronRight, CheckCircle2, Circle, MapPin, Milestone } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
@@ -23,14 +23,15 @@ export default function LifeHub() {
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
+  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+  const [expandedMission, setExpandedMission] = useState<string | null>(null);
 
   const { data: allPlans } = useQuery({
     queryKey: ['all-active-plans', user?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('life_plans')
-        .select('id, plan_data')
+        .select('id, plan_data, start_date')
         .eq('user_id', user!.id)
         .eq('status', 'active');
       return data || [];
@@ -39,7 +40,9 @@ export default function LifeHub() {
   });
 
   const pillarStrategies: Record<string, any> = {};
+  let planStartDate: string | null = null;
   allPlans?.forEach((p: any) => {
+    if (!planStartDate && p.start_date) planStartDate = p.start_date;
     const pillars = p.plan_data?.strategy?.pillars || {};
     Object.entries(pillars).forEach(([id, data]) => {
       pillarStrategies[id] = data;
@@ -48,15 +51,14 @@ export default function LifeHub() {
 
   const pillarIds = Object.keys(pillarStrategies);
 
-  // Find the "next" pillar — one with incomplete missions
-  const nextPillar = useMemo(() => {
-    for (const id of pillarIds) {
-      const data = pillarStrategies[id];
-      const missions = data?.missions || [];
-      if (missions.length > 0) return { id, data };
-    }
-    return pillarIds.length > 0 ? { id: pillarIds[0], data: pillarStrategies[pillarIds[0]] } : null;
-  }, [pillarIds, pillarStrategies]);
+  // Compute current day of plan
+  const currentDay = useMemo(() => {
+    if (!planStartDate) return 1;
+    const diff = Date.now() - new Date(planStartDate).getTime();
+    return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
+  }, [planStartDate]);
+
+  const currentPhase = Math.ceil(currentDay / 10); // 1-10
 
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
@@ -64,13 +66,16 @@ export default function LifeHub() {
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
   };
 
-  const activePillarId = selectedPillar || nextPillar?.id || null;
-  const activePillarData = activePillarId ? pillarStrategies[activePillarId] : null;
-  const activeDomain = activePillarId ? getDomainById(activePillarId) : null;
+  // Total missions and milestones count
+  const totalMissions = pillarIds.reduce((acc, id) => acc + (pillarStrategies[id]?.missions?.length || 0), 0);
+  const totalMilestones = pillarIds.reduce((acc, id) => {
+    const missions = pillarStrategies[id]?.missions || [];
+    return acc + missions.reduce((ma: number, m: any) => ma + (m.milestones?.length || 0), 0);
+  }, 0);
 
   return (
     <div className="flex flex-col w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex flex-col gap-4 flex-1 px-1 pt-2 max-w-3xl mx-auto w-full">
+      <div className="flex flex-col gap-4 flex-1 px-1 pt-2 max-w-3xl mx-auto w-full pb-8">
 
         {!hasPlan && !isLoading ? (
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
@@ -116,112 +121,166 @@ export default function LifeHub() {
               </motion.button>
             </div>
 
-            {/* ── NEXT STRATEGIC FOCUS (Hero Card) ── */}
-            {activeDomain && activePillarData && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5"
-              >
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Target className="h-4 w-4 text-primary" />
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                    {isHe ? 'מיקוד אסטרטגי' : 'Strategic Focus'}
+            {/* ── PLAN OVERVIEW STATS ── */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-muted/30 border border-border/40 p-3 text-center">
+                <span className="text-lg font-bold text-primary">{pillarIds.length}</span>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'תחומים' : 'Pillars'}</p>
+              </div>
+              <div className="rounded-xl bg-muted/30 border border-border/40 p-3 text-center">
+                <span className="text-lg font-bold text-primary">{totalMissions}</span>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'משימות' : 'Missions'}</p>
+              </div>
+              <div className="rounded-xl bg-muted/30 border border-border/40 p-3 text-center">
+                <span className="text-lg font-bold text-primary">{totalMilestones}</span>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'אבני דרך' : 'Milestones'}</p>
+              </div>
+            </div>
+
+            {/* ── PHASE INDICATOR ── */}
+            <div className="rounded-xl bg-primary/5 border border-primary/15 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-bold text-primary">
+                    {isHe ? `שלב ${String.fromCharCode(64 + currentPhase)} — יום ${currentDay}/100` : `Phase ${String.fromCharCode(64 + currentPhase)} — Day ${currentDay}/100`}
                   </span>
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                    <activeDomain.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-bold text-foreground">
-                      {isHe ? activeDomain.labelHe : activeDomain.labelEn}
-                    </h2>
-                    {activePillarData.goals?.[0] && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                        {isHe ? activePillarData.goals[0].goal_he : activePillarData.goals[0].goal_en}
-                      </p>
-                    )}
-                    {activePillarData.missions?.length > 0 && (
-                      <div className="mt-3 space-y-1.5">
-                        {activePillarData.missions.slice(0, 3).map((m: any, i: number) => (
-                          <div key={i} className="flex items-center gap-2 text-xs">
-                            <ArrowRight className="w-3 h-3 text-primary/60 shrink-0" />
-                            <span className="text-foreground/80">
-                              {isHe ? (m.mission_he || m.mission_en) : m.mission_en}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── PILLAR FLOWCHART ── */}
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
-                {isHe ? 'כל התחומים' : 'All Pillars'}
-              </span>
-              <div className="relative">
-                {pillarIds.map((pillarId, idx) => {
-                  const domain = getDomainById(pillarId);
-                  if (!domain) return null;
-                  const data = pillarStrategies[pillarId];
-                  const goals = data?.goals || [];
-                  const missions = data?.missions || [];
-                  const isActive = pillarId === activePillarId;
-                  const Icon = domain.icon;
-
-                  return (
-                    <div key={pillarId} className="relative">
-                      {/* Connecting line */}
-                      {idx < pillarIds.length - 1 && (
-                        <div className="absolute top-10 ltr:left-[15px] rtl:right-[15px] w-0.5 h-[calc(100%-16px)] bg-border/40" />
-                      )}
-
-                      <button
-                        onClick={() => setSelectedPillar(pillarId === selectedPillar ? null : pillarId)}
-                        className={cn(
-                          "relative w-full flex items-center gap-3 p-3 rounded-xl text-start transition-all",
-                          isActive
-                            ? "bg-primary/10 border border-primary/25 shadow-sm"
-                            : "hover:bg-muted/30 border border-transparent"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                          isActive ? "bg-primary/20" : "bg-muted/40"
-                        )}>
-                          <Icon className={cn("w-4 h-4", isActive ? "text-primary" : "text-muted-foreground")} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className={cn("text-sm font-semibold", isActive ? "text-foreground" : "text-foreground/70")}>
-                              {isHe ? domain.labelHe : domain.labelEn}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
-                              {missions.length} {isHe ? 'משימות' : 'missions'}
-                            </span>
-                          </div>
-                          {goals[0] && (
-                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                              {isHe ? goals[0].goal_he : goals[0].goal_en}
-                            </p>
-                          )}
-                        </div>
-                        <ChevronRight className={cn(
-                          "w-4 h-4 shrink-0 transition-transform",
-                          isActive ? "text-primary rotate-90" : "text-muted-foreground/40",
-                          isRTL && !isActive && "rotate-180",
-                          isRTL && isActive && "rotate-90"
-                        )} />
-                      </button>
-                    </div>
-                  );
-                })}
+                <span className="text-xs text-muted-foreground">{currentDay}%</span>
               </div>
+              <div className="w-full h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${currentDay}%` }} />
+              </div>
+            </div>
+
+            {/* ── PILLAR ROADMAP ── */}
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+                {isHe ? 'מפת הדרכים' : 'Roadmap'}
+              </span>
+
+              {pillarIds.map((pillarId) => {
+                const domain = getDomainById(pillarId);
+                if (!domain) return null;
+                const data = pillarStrategies[pillarId];
+                const missions = data?.missions || [];
+                const isExpanded = expandedPillar === pillarId;
+                const Icon = domain.icon;
+
+                return (
+                  <div key={pillarId} className="rounded-xl border border-border/40 overflow-hidden bg-card/50">
+                    {/* Pillar header */}
+                    <button
+                      onClick={() => setExpandedPillar(isExpanded ? null : pillarId)}
+                      className="w-full flex items-center gap-3 p-3 text-start hover:bg-muted/20 transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-foreground">
+                            {isHe ? domain.labelHe : domain.labelEn}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground">
+                            {missions.length} {isHe ? 'משימות' : 'missions'}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronDown className={cn(
+                        "w-4 h-4 text-muted-foreground/50 transition-transform",
+                        isExpanded && "rotate-180"
+                      )} />
+                    </button>
+
+                    {/* Expanded: missions + milestones */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-3 pb-3 space-y-2">
+                            {missions.map((mission: any, mIdx: number) => {
+                              const mKey = `${pillarId}-${mIdx}`;
+                              const isMissionExpanded = expandedMission === mKey;
+                              const milestones = mission.milestones || [];
+                              const missionTitle = isHe
+                                ? (mission.mission_he || mission.mission_en || '')
+                                : (mission.mission_en || '');
+
+                              return (
+                                <div key={mIdx} className="rounded-lg border border-border/30 overflow-hidden">
+                                  {/* Mission header - truncated */}
+                                  <button
+                                    onClick={() => setExpandedMission(isMissionExpanded ? null : mKey)}
+                                    className="w-full flex items-start gap-2.5 p-2.5 text-start hover:bg-muted/10 transition-colors"
+                                  >
+                                    <div className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                                      <Target className="w-3 h-3 text-primary" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium text-foreground line-clamp-2">
+                                        {missionTitle}
+                                      </p>
+                                      <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                                        {milestones.length} {isHe ? 'אבני דרך' : 'milestones'}
+                                      </span>
+                                    </div>
+                                    <ChevronRight className={cn(
+                                      "w-3.5 h-3.5 text-muted-foreground/40 shrink-0 mt-1 transition-transform",
+                                      isMissionExpanded && "rotate-90",
+                                      isRTL && !isMissionExpanded && "rotate-180"
+                                    )} />
+                                  </button>
+
+                                  {/* Milestones timeline */}
+                                  <AnimatePresence>
+                                    {isMissionExpanded && milestones.length > 0 && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="px-2.5 pb-2.5 space-y-1">
+                                          {milestones.map((ms: any, msIdx: number) => {
+                                            const msTitle = isHe
+                                              ? (ms.title_he || ms.title_en || '')
+                                              : (ms.title_en || '');
+                                            return (
+                                              <div key={msIdx} className="flex items-start gap-2 py-1.5 relative">
+                                                {/* Timeline connector */}
+                                                {msIdx < milestones.length - 1 && (
+                                                  <div className="absolute top-4 ltr:left-[7px] rtl:right-[7px] w-0.5 h-[calc(100%-4px)] bg-border/30" />
+                                                )}
+                                                <div className="w-4 h-4 rounded-full border-2 border-primary/30 bg-background flex items-center justify-center shrink-0 z-10 mt-0.5">
+                                                  <Circle className="w-1.5 h-1.5 text-primary/50" />
+                                                </div>
+                                                <p className="text-[11px] text-foreground/70 leading-snug line-clamp-2">
+                                                  {msTitle}
+                                                </p>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
 
             {pillarIds.length === 0 && (
