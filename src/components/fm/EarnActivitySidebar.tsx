@@ -78,7 +78,7 @@ export function EarnActivitySidebar({ activeTab = 'bounties', categoryFilter = '
       "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
       "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
       "ltr:border-e rtl:border-s border-border/50 dark:border-amber-500/15",
-      collapsed ? "w-[54px] min-w-[54px]" : "w-[260px] min-w-[200px] xl:w-[280px]"
+      collapsed ? "w-[54px] min-w-[54px]" : "w-full md:w-[260px] md:min-w-[200px] xl:w-[280px] fixed md:relative inset-x-0 top-14 bottom-0 z-[55] md:z-auto md:top-auto md:inset-x-auto bg-background md:bg-transparent"
     )}>
       {/* Collapse toggle */}
       <button
