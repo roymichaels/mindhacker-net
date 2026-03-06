@@ -402,6 +402,7 @@ function TraitsTab({ isHe }: { isHe: boolean }) {
               {(traits || []).map((trait, i) => {
                 const pillarColor = PILLAR_COLORS[trait.pillar] || '200 70% 50%';
                 const displayName = isHe ? trait.displayName : getTraitDisplayName(trait.name, trait.name_he, false);
+                const isUnlocked = trait.xp_total > 0 || trait.level > 1;
                 return (
                   <motion.button
                     key={trait.id}
@@ -410,25 +411,32 @@ function TraitsTab({ isHe }: { isHe: boolean }) {
                     transition={{ delay: i * 0.03, duration: 0.2 }}
                     onClick={() => setSelectedTraitId(trait.id)}
                     className={cn(
-                      "relative aspect-square rounded-xl border border-border/40 p-2",
+                      "relative aspect-square rounded-xl border p-2",
                       "flex flex-col items-center justify-center gap-1",
                       "transition-all duration-200 cursor-pointer group",
                       "hover:scale-[1.03] active:scale-[0.97]",
-                      "bg-card/60 backdrop-blur-sm",
+                      isUnlocked
+                        ? "bg-card/60 backdrop-blur-sm border-border/40"
+                        : "bg-muted/30 border-border/20 grayscale opacity-50",
                     )}
                     style={{
-                      boxShadow: `0 0 16px hsla(${pillarColor}, 0.12), inset 0 1px 0 hsla(${pillarColor}, 0.08)`,
+                      boxShadow: isUnlocked
+                        ? `0 0 16px hsla(${pillarColor}, 0.12), inset 0 1px 0 hsla(${pillarColor}, 0.08)`
+                        : 'none',
                     }}
                   >
                     <span className="text-2xl">{trait.icon}</span>
-                    <span className="text-[10px] font-bold text-foreground text-center leading-tight line-clamp-2">
+                    <span className={cn(
+                      "text-[10px] font-bold text-center leading-tight line-clamp-2",
+                      isUnlocked ? "text-foreground" : "text-muted-foreground"
+                    )}>
                       {displayName || (isHe ? 'תכונה' : 'Trait')}
                     </span>
                     <span
                       className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full"
                       style={{
-                        backgroundColor: `hsla(${pillarColor}, 0.12)`,
-                        color: `hsl(${pillarColor})`,
+                        backgroundColor: isUnlocked ? `hsla(${pillarColor}, 0.12)` : 'hsla(0, 0%, 50%, 0.1)',
+                        color: isUnlocked ? `hsl(${pillarColor})` : 'hsl(var(--muted-foreground))',
                       }}
                     >
                       {isHe ? PILLAR_LABELS_HE[trait.pillar] : PILLAR_LABELS_EN[trait.pillar] || trait.pillar}
