@@ -246,13 +246,13 @@ function StatWheel({ isHe }: { isHe: boolean }) {
       try {
         const { data } = await supabase
           .from('launchpad_summaries')
-          .select('summary_data')
+          .select('summary_data, consciousness_score, clarity_score, transformation_readiness')
           .eq('user_id', user!.id)
           .order('generated_at', { ascending: false })
           .limit(1)
           .maybeSingle();
-        if (data?.summary_data) {
-          const sd = data.summary_data as any;
+        if (data) {
+          const sd = (data.summary_data as any) || {};
           const diag = sd.diagnostics || sd.diagnostic_scores || {};
           setScores([
             { key: 'energy', score: diag.energy_stability?.score ?? 0, color: '45 95% 55%' },
@@ -260,6 +260,9 @@ function StatWheel({ isHe }: { isHe: boolean }) {
             { key: 'dopamine', score: diag.dopamine_load?.score ?? 0, color: '270 70% 55%' },
             { key: 'execution', score: diag.execution_reliability?.score ?? 0, color: '150 70% 45%' },
             { key: 'time', score: diag.time_leverage?.score ?? 0, color: '210 100% 50%' },
+            { key: 'consciousness', score: data.consciousness_score ?? 0, color: '168 70% 55%' },
+            { key: 'clarity', score: data.clarity_score ?? 0, color: '210 80% 55%' },
+            { key: 'readiness', score: data.transformation_readiness ?? 0, color: '150 60% 50%' },
           ]);
         }
       } catch {}
@@ -273,23 +276,26 @@ function StatWheel({ isHe }: { isHe: boolean }) {
     dopamine: { he: 'דופמין', en: 'Dopamine' },
     execution: { he: 'ביצוע', en: 'Execution' },
     time: { he: 'זמן', en: 'Time' },
+    consciousness: { he: 'תודעה', en: 'Mind' },
+    clarity: { he: 'בהירות', en: 'Clarity' },
+    readiness: { he: 'מוכנות', en: 'Ready' },
   };
 
   if (scores.length === 0) return null;
 
   return (
     <EmpireCard className="mb-3">
-      <div className="flex items-center justify-around">
+      <div className="grid grid-cols-4 gap-3">
         {scores.map((s, i) => (
           <motion.div
             key={s.key}
             className="flex flex-col items-center gap-1.5"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.08 }}
+            transition={{ delay: i * 0.06 }}
           >
             <div
-              className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold border-2"
+              className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-2"
               style={{
                 borderColor: `hsl(${s.color})`,
                 color: `hsl(${s.color})`,
@@ -299,7 +305,7 @@ function StatWheel({ isHe }: { isHe: boolean }) {
             >
               {s.score}
             </div>
-            <span className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
+            <span className="text-[9px] text-white/40 font-medium uppercase tracking-wider text-center">
               {isHe ? labels[s.key]?.he : labels[s.key]?.en}
             </span>
           </motion.div>
