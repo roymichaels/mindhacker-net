@@ -69,6 +69,7 @@ export default function LifeHub() {
   const isHe = language === 'he';
   const { plan, isLoading } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
+  const allPlanIds: string[] = (plan as any)?.all_plan_ids || (plan?.id ? [plan.id] : []);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { isPillarSelected } = usePillarAccess();
@@ -83,18 +84,19 @@ export default function LifeHub() {
 
   // ========== DATA ==========
   const { data: traits } = useQuery({
-    queryKey: ['strategy-traits', user?.id, plan?.id],
+    queryKey: ['strategy-traits', user?.id, allPlanIds],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('skills')
         .select('id, name, name_he, icon, pillar, category, trait_type')
         .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .in('life_plan_id', allPlanIds);
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id && !!plan?.id,
+    enabled: !!user?.id && allPlanIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -113,35 +115,35 @@ export default function LifeHub() {
   });
 
   const { data: missions } = useQuery({
-    queryKey: ['strategy-missions', plan?.id],
+    queryKey: ['strategy-missions', allPlanIds],
     queryFn: async () => {
-      if (!plan?.id) return [];
+      if (allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('plan_missions')
         .select('id, pillar, title, title_en, is_completed, mission_number, primary_skill_id')
-        .eq('plan_id', plan.id)
+        .in('plan_id', allPlanIds)
         .order('mission_number');
       if (error) throw error;
       return data || [];
     },
-    enabled: !!plan?.id,
+    enabled: allPlanIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: milestones } = useQuery({
-    queryKey: ['strategy-milestones', plan?.id],
+    queryKey: ['strategy-milestones', allPlanIds],
     queryFn: async () => {
-      if (!plan?.id) return [];
+      if (allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('life_plan_milestones')
         .select('id, title, title_en, is_completed, mission_id, milestone_number')
-        .eq('plan_id', plan.id)
+        .in('plan_id', allPlanIds)
         .not('mission_id', 'is', null)
         .order('milestone_number');
       if (error) throw error;
       return data || [];
     },
-    enabled: !!plan?.id,
+    enabled: allPlanIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
