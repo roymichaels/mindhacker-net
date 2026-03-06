@@ -71,7 +71,7 @@ export function useStrategyPlans() {
   const query = useQuery({
     queryKey: ['strategy-plans', user?.id],
     queryFn: async () => {
-      if (!user?.id) return { core: null, arena: null, _legacyFound: false, _needsHeal: false };
+      if (!user?.id) return { core: null, arena: null, _legacyFound: false };
 
       const { data, error } = await supabase
         .from('life_plans')
@@ -103,75 +103,46 @@ export function useStrategyPlans() {
         supabase.from('life_plans').update({ status: 'archived' }).in('id', duplicateIds).then(() => {});
       }
       
-      // Self-healing flags
+      // Legacy detection flag (for auto-archival only — no auto-regeneration)
       const hasLegacy = legacyPlans.length > 0;
-      const missingHub = (core && !arena) || (!core && arena);
-      const needsHeal = hasLegacy || (missingHub && hubPlans.length > 0);
 
-      return { core, arena, _legacyFound: hasLegacy, _needsHeal: needsHeal };
+      return { core, arena, _legacyFound: hasLegacy };
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
   });
 
-  // Self-healing effect: auto-archive legacy plans and trigger regeneration
+  // Self-healing effect: ONLY auto-archive legacy plans (no hub field).
+  // Never auto-regenerate — regeneration only happens via explicit user action.
   useEffect(() => {
     if (!query.data || !user?.id || healingRef.current) return;
-    const { _legacyFound, _needsHeal, core, arena } = query.data;
+    const { _legacyFound } = query.data;
     
-    if (!_needsHeal && !_legacyFound) return;
-
-    // Prevent re-healing across refreshes within the same session
-    const sessionKey = `strategy_healed_${user.id}`;
-    if (sessionStorage.getItem(sessionKey)) return;
+    if (!_legacyFound) return;
     
-    // Prevent multiple heal attempts within this mount
     healingRef.current = true;
-    sessionStorage.setItem(sessionKey, Date.now().toString());
     
-    const heal = async () => {
+    const archiveLegacy = async () => {
       try {
-        // Archive legacy plans first
-        if (_legacyFound) {
-          const { data: legacies } = await supabase
-            .from('life_plans')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('status', 'active')
-            .is('plan_data->hub', null);
-          
-          if (legacies?.length) {
-            const ids = legacies.map(l => l.id);
-            await supabase.from('life_plans').update({ status: 'archived' }).in('id', ids);
-          }
-        }
+        const { data: legacies } = await supabase
+          .from('life_plans')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .is('plan_data->hub', null);
         
-        // If missing one or both hubs, trigger generation for the missing hub(s)
-        const missingHub = !core && !arena ? 'both' : !core ? 'core' : !arena ? 'arena' : null;
-        if (missingHub) {
-          await supabase.functions.invoke('generate-90day-strategy', {
-            body: {
-              user_id: user.id,
-              hub: missingHub,
-              force_regenerate: false,
-            },
-          });
-          queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
-          queryClient.invalidateQueries({ queryKey: ['milestones'] });
-          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
-          queryClient.invalidateQueries({ queryKey: ['daily-missions'] });
-          queryClient.invalidateQueries({ queryKey: ['daily-milestones'] });
-        } else if (_legacyFound) {
-          // Just refresh after archiving legacy
+        if (legacies?.length) {
+          const ids = legacies.map(l => l.id);
+          await supabase.from('life_plans').update({ status: 'archived' }).in('id', ids);
           queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
           queryClient.invalidateQueries({ queryKey: ['life-plan'] });
         }
       } catch (e) {
-        console.error('[Self-Heal] Strategy orchestration fix failed:', e);
+        console.error('[Self-Heal] Legacy plan archival failed:', e);
       }
     };
     
-    heal();
+    archiveLegacy();
   }, [query.data, user?.id]);
 
   const generateStrategy = useMutation({
@@ -324,7 +295,7 @@ export function useStrategyPlans() {
     arenaWeek: arenaPlan ? getCurrentWeek(arenaPlan.start_date) : null,
     hasAnyStrategy: !!(corePlan || arenaPlan),
     isLoading: query.isLoading,
-    isHealing: query.data?._needsHeal || query.data?._legacyFound || false,
+    isHealing: query.data?._legacyFound || false,
     generateStrategy,
     isGenerating: generateStrategy.isPending,
   };
