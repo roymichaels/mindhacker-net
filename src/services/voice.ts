@@ -523,6 +523,8 @@ export async function playAudioUrl(
     onStart?: () => void;
     onEnd?: () => void;
     onError?: (error: Error) => void;
+    /** Minimum duration in seconds to consider audio valid. Default 0 (no check). */
+    minDuration?: number;
   } = {}
 ): Promise<void> {
   return new Promise((resolve, reject) => {
