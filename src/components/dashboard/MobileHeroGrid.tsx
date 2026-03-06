@@ -1,7 +1,7 @@
 /**
  * MobileHeroGrid — "Now" page (עכשיו).
- * Derives ALL content from today's tactical schedule blocks.
- * Active block = expanded, past = collapsed/muted, future = collapsed/grayed.
+ * Each tactical block = a "journey" in today's adventure.
+ * No graying, no exact times — just themed quests to tackle.
  */
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,29 +15,21 @@ import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, CheckCircle2, Circle, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// ── Block category labels ──
-const BLOCK_LABELS: Record<string, { he: string; en: string; emoji: string }> = {
-  morning:   { he: 'שגרת בוקר', en: 'Morning Routine', emoji: '🌅' },
-  training:  { he: 'אימון ותנועה', en: 'Training & Movement', emoji: '💪' },
-  deepwork:  { he: 'מיקוד עמוק', en: 'Deep Focus', emoji: '🎯' },
-  midday:    { he: 'פעולה', en: 'Action', emoji: '⚡' },
-  admin:     { he: 'יצירה', en: 'Creation', emoji: '✨' },
-  recovery:  { he: 'סקירה', en: 'Review', emoji: '📊' },
-  social:    { he: 'חברתי', en: 'Social', emoji: '🤝' },
-  evening:   { he: 'ערב', en: 'Evening', emoji: '🌙' },
-  play:      { he: 'משחק', en: 'Play', emoji: '🎮' },
+// ── Adventure-themed block labels ──
+const JOURNEY_THEMES: Record<string, { he: string; en: string; emoji: string; accent: string }> = {
+  morning:   { he: 'שגרת בוקר',      en: 'Morning Ritual',         emoji: '🌅', accent: 'from-amber-500/15 to-orange-500/10 border-amber-500/25' },
+  training:  { he: 'אימון ותנועה',    en: 'Training & Movement',    emoji: '⚔️', accent: 'from-red-500/15 to-rose-500/10 border-red-500/25' },
+  deepwork:  { he: 'מיקוד עמוק',      en: 'Deep Focus',             emoji: '🧠', accent: 'from-violet-500/15 to-purple-500/10 border-violet-500/25' },
+  midday:    { he: 'פעולה וביצוע',     en: 'Action & Execution',     emoji: '⚡', accent: 'from-sky-500/15 to-blue-500/10 border-sky-500/25' },
+  admin:     { he: 'יצירה ובנייה',     en: 'Creation & Building',    emoji: '✨', accent: 'from-emerald-500/15 to-teal-500/10 border-emerald-500/25' },
+  recovery:  { he: 'סקירה והתבוננות',  en: 'Review & Reflection',    emoji: '🔮', accent: 'from-indigo-500/15 to-blue-500/10 border-indigo-500/25' },
+  social:    { he: 'חיבור ומערכות יחסים', en: 'Connection & Bonds',  emoji: '🤝', accent: 'from-pink-500/15 to-rose-500/10 border-pink-500/25' },
+  evening:   { he: 'סיום היום',        en: 'Evening Wind-down',      emoji: '🌙', accent: 'from-slate-500/15 to-zinc-500/10 border-slate-500/25' },
+  play:      { he: 'משחק וחקירה',      en: 'Play & Explore',         emoji: '🎮', accent: 'from-lime-500/15 to-green-500/10 border-lime-500/25' },
 };
-
-function classifySlot(slot: ScheduleSlot, nowStr: string): 'active' | 'past' | 'future' {
-  const start = slot.startTime || '00:00';
-  const end = slot.endTime || '23:59';
-  if (nowStr >= start && nowStr < end) return 'active';
-  if (nowStr >= end) return 'past';
-  return 'future';
-}
 
 interface MobileHeroGridProps {
   planData: any;
@@ -57,15 +49,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
-  const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
+  const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
-  // Current time string for block classification
-  const nowStr = useMemo(() => {
-    const d = new Date();
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  }, []);
-
-  // Current day
   const currentDay = useMemo(() => {
     if (!plan?.start_date) return 1;
     const diff = Date.now() - new Date(plan.start_date).getTime();
@@ -89,13 +74,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   };
 
   const toggleBlock = (slotId: string) => {
-    setManualOpen(prev => ({ ...prev, [slotId]: !prev[slotId] }));
+    setOpenBlocks(prev => ({ ...prev, [slotId]: !prev[slotId] }));
   };
 
-  const isSlotOpen = (slot: ScheduleSlot) => {
-    if (manualOpen[slot.id] !== undefined) return manualOpen[slot.id];
-    return classifySlot(slot, nowStr) === 'active';
-  };
+  // All blocks start collapsed — user opens what they want
+  const isBlockOpen = (slotId: string) => !!openBlocks[slotId];
 
   return (
     <div className="flex flex-col w-full items-center min-h-[60vh] pb-40 overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -166,16 +149,19 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               </div>
             </motion.div>
 
-            {/* ── TACTICAL TIME BLOCKS ── */}
+            {/* ── TODAY'S ADVENTURE — Journey Blocks ── */}
             {schedule.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {/* Header */}
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" />
+                    <Compass className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-bold text-foreground">
-                      {isHe ? 'תור הפעולה היומי' : "Today's Action Queue"}
+                      {isHe ? 'המסע של היום' : "Today's Journey"}
                     </h3>
+                    <span className="text-[10px] text-muted-foreground">
+                      {schedule.length} {isHe ? 'מסלולים' : 'paths'}
+                    </span>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -188,74 +174,45 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </motion.button>
                 </div>
 
-                {/* Time blocks */}
-                {schedule.map((slot) => {
-                  const status = classifySlot(slot, nowStr);
-                  const isActive = status === 'active';
-                  const isPast = status === 'past';
-                  const isFuture = status === 'future';
-                  const open = isSlotOpen(slot);
-                  const blockInfo = BLOCK_LABELS[slot.timeBlock] || BLOCK_LABELS.midday;
-                  const label = isHe ? blockInfo.he : blockInfo.en;
+                {/* Journey blocks — all equal, no graying */}
+                {schedule.map((slot, idx) => {
+                  const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
+                  const open = isBlockOpen(slot.id);
+                  const label = isHe ? theme.he : theme.en;
 
                   return (
-                    <div
+                    <motion.div
                       key={slot.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05, duration: 0.3 }}
                       className={cn(
                         "rounded-2xl border overflow-hidden transition-all duration-300",
-                        isActive && "border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-sm",
-                        isPast && "border-border/30 bg-muted/20 opacity-60",
-                        isFuture && "border-border/20 bg-muted/10 opacity-40",
+                        `bg-gradient-to-br ${theme.accent}`,
                       )}
                     >
-                      {/* Block Header */}
+                      {/* Journey Header */}
                       <button
                         onClick={() => toggleBlock(slot.id)}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 text-start transition-colors",
-                          isActive && "hover:bg-primary/5",
-                          !isActive && "hover:bg-muted/30",
-                        )}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 text-start hover:bg-foreground/[0.02] active:scale-[0.995] transition-all"
                       >
-                        <div className="flex flex-col items-center min-w-[40px]">
-                          <span className="text-lg">{blockInfo.emoji}</span>
-                          <span className={cn(
-                            "text-[10px] font-mono tabular-nums mt-0.5",
-                            isActive ? "text-primary font-bold" : "text-muted-foreground",
-                          )}>
-                            {slot.startTime}
-                          </span>
-                        </div>
+                        <span className="text-xl shrink-0">{theme.emoji}</span>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className={cn(
-                            "text-sm font-semibold",
-                            isActive && "text-foreground",
-                            isPast && "text-muted-foreground line-through",
-                            isFuture && "text-muted-foreground",
-                          )}>
-                            {label}
-                          </h3>
+                          <h3 className="text-sm font-bold text-foreground">{label}</h3>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
-                            {slot.actions.length} {isHe ? 'משימות' : 'tasks'}
-                            {slot.endTime && ` · ${slot.startTime}–${slot.endTime}`}
+                            {slot.actions.length} {isHe ? 'משימות' : 'quests'}
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          {isActive && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
-                              <Play className="h-2.5 w-2.5 fill-primary" />
-                              {isHe ? 'עכשיו' : 'Now'}
-                            </span>
-                          )}
-                          {isPast && <CheckCircle2 className="h-4 w-4 text-muted-foreground/50" />}
-                          {isFuture && <Lock className="h-3.5 w-3.5 text-muted-foreground/30" />}
-                          {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                        </div>
+                        {open ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                        )}
                       </button>
 
-                      {/* Block Content — collapsible */}
+                      {/* Quest list — collapsible */}
                       <AnimatePresence initial={false}>
                         {open && (
                           <motion.div
@@ -265,7 +222,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                             transition={{ duration: 0.25, ease: 'easeInOut' }}
                             className="overflow-hidden"
                           >
-                            <div className="px-4 pb-3 space-y-1.5 border-t border-border/20 pt-2">
+                            <div className="px-4 pb-3 space-y-1.5 border-t border-border/15 pt-2">
                               {slot.actions.map((action, i) => {
                                 const domain = getDomainById(action.pillarId);
                                 const DomainIcon = domain?.icon;
@@ -273,17 +230,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                   <button
                                     key={`${action.actionType}-${i}`}
                                     onClick={() => handleExecute(action)}
-                                    className={cn(
-                                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all",
-                                      "border border-border/30 hover:border-primary/30",
-                                      isActive
-                                        ? "bg-card/80 hover:bg-accent/10 active:scale-[0.99]"
-                                        : "bg-card/40",
-                                    )}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/20 bg-card/60 hover:bg-card hover:border-primary/30 active:scale-[0.99]"
                                   >
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-1.5 mb-0.5">
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/50 text-muted-foreground">
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/40 text-muted-foreground">
                                           {DomainIcon && <DomainIcon className="h-2.5 w-2.5" />}
                                           {isHe ? (domain?.labelHe || action.pillarId) : (domain?.labelEn || action.pillarId)}
                                         </span>
@@ -298,9 +249,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                         {action.durationMin}{isHe ? '′' : 'm'}
                                       </span>
                                     )}
-                                    {isActive && (
-                                      <Play className="h-3.5 w-3.5 text-primary shrink-0" />
-                                    )}
+                                    <Play className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
                                   </button>
                                 );
                               })}
@@ -308,13 +257,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
             ) : (
               <div className="text-center py-8 text-sm text-muted-foreground">
-                {isHe ? 'אין בלוקים מתוכננים להיום' : 'No blocks scheduled for today'}
+                {isHe ? 'אין מסלולים מתוכננים להיום' : 'No journeys planned for today'}
               </div>
             )}
           </>
