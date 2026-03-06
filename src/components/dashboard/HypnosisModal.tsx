@@ -635,6 +635,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         // For browser TTS, the progress is handled inside playAudioUrl via speakWithBrowser
         // which now has smooth word-level interpolation
         await playAudioUrl(result.audioUrl, {
+          minDuration: 10,
           onTimeUpdate,
           onStart,
           onEnd,
