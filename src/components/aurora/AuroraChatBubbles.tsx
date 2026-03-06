@@ -181,7 +181,7 @@ const AuroraChatBubbles = () => {
 
   return (
     <ScrollArea className="h-full overflow-y-auto" ref={scrollRef as any}>
-      <div className="w-full max-w-3xl mx-auto p-4 space-y-4">
+      <div className="w-full px-4 space-y-4">
         {messages.length === 0 && !streamingContent && (
           <div className="text-center text-muted-foreground text-sm py-8">
             {language === 'he' 
