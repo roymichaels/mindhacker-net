@@ -1,7 +1,6 @@
 /**
  * LifeHub — Strategy page (אסטרטגיה).
- * Hierarchy: Pillar → Skills (missions) → Milestones (goals).
- * Selected pillars show 3 skills each; others show 1 skill.
+ * Hierarchy: Pillar → Skills (from skills table) → Milestones (goals).
  */
 import { useState, useMemo } from 'react';
 import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
@@ -14,6 +13,7 @@ import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { useMissionSkills } from '@/hooks/useMissionSkills';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function LifeHub() {
@@ -27,27 +27,20 @@ export default function LifeHub() {
 
   // Stats
   const { statusMap } = useLifeDomains();
-  const { coreStrategy } = useStrategyPlans();
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
-  const pillarGoals = coreStrategy?.pillars || {};
-  const totalGoals = Object.values(pillarGoals).reduce((sum: number, p: any) => sum + (p.goals?.length || 0), 0);
 
-  // Current day
-  const currentDay = useMemo(() => {
-    if (!plan?.start_date) return 1;
-    const diff = Date.now() - new Date(plan.start_date).getTime();
-    return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
-  }, [plan?.start_date]);
+  // Mission skills (skills table linked to plan_missions)
+  const { data: missionSkills, isLoading: skillsLoading } = useMissionSkills();
 
-  // Fetch skills (missions) for the plan
-  const { data: skills } = useQuery({
+  // Fetch missions to get pillar info
+  const { data: missions } = useQuery({
     queryKey: ['strategy-missions', plan?.id],
     queryFn: async () => {
       if (!plan?.id) return [];
       const { data, error } = await supabase
         .from('plan_missions')
-        .select('*')
+        .select('id, pillar, title, title_en, description, description_en, is_completed, mission_number')
         .eq('plan_id', plan.id)
         .order('mission_number');
       if (error) throw error;
@@ -57,65 +50,50 @@ export default function LifeHub() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch milestones (goals) linked to skills
-  const { data: milestones } = useQuery({
-    queryKey: ['strategy-milestones', plan?.id],
-    queryFn: async () => {
-      if (!plan?.id) return [];
-      const { data, error } = await supabase
-        .from('life_plan_milestones')
-        .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area, goal, goal_en')
-        .eq('plan_id', plan.id)
-        .not('mission_id', 'is', null)
-        .order('milestone_number');
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!plan?.id,
-    staleTime: 5 * 60 * 1000,
-  });
+  // Current day
+  const currentDay = useMemo(() => {
+    if (!plan?.start_date) return 1;
+    const diff = Date.now() - new Date(plan.start_date).getTime();
+    return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
+  }, [plan?.start_date]);
 
-  // Group skills by pillar, milestones by skill
-  const pillarGroups = useMemo(() => {
-    if (!skills) return [];
-    const byPillar: Record<string, typeof skills> = {};
-    for (const s of skills) {
-      if (!byPillar[s.pillar]) byPillar[s.pillar] = [];
-      byPillar[s.pillar]!.push(s);
+  // Build mission→pillar map
+  const missionPillarMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of (missions || [])) {
+      map.set(m.id, m.pillar);
     }
-    const msBySkill: Record<string, NonNullable<typeof milestones>> = {};
-    for (const ms of (milestones || [])) {
-      if (!ms.mission_id) continue;
-      if (!msBySkill[ms.mission_id]) msBySkill[ms.mission_id] = [];
-      msBySkill[ms.mission_id]!.push(ms);
+    return map;
+  }, [missions]);
+
+  // Group skills by pillar
+  const pillarGroups = useMemo(() => {
+    if (!missionSkills || !missions) return [];
+    const byPillar: Record<string, typeof missionSkills> = {};
+    for (const skill of missionSkills) {
+      const pillar = missionPillarMap.get(skill.mission_id);
+      if (!pillar) continue;
+      if (!byPillar[pillar]) byPillar[pillar] = [];
+      byPillar[pillar]!.push(skill);
     }
     return Object.entries(byPillar).map(([pillarId, pillarSkills]) => {
       const domain = getDomainById(pillarId);
-      const totalMs = pillarSkills.reduce((s, m) => s + (msBySkill[m.id]?.length || 0), 0);
-      const completedMs = pillarSkills.reduce((s, m) => s + (msBySkill[m.id]?.filter(ms => ms.is_completed).length || 0), 0);
-      return {
-        pillarId,
-        domain,
-        skills: pillarSkills,
-        milestonesBySkill: msBySkill,
-        totalMilestones: totalMs,
-        completedMilestones: completedMs,
-        completedSkills: pillarSkills.filter(m => m.is_completed).length,
-      };
+      const totalGoals = pillarSkills.reduce((s, sk) => s + sk.milestones.length, 0);
+      const completedGoals = pillarSkills.reduce((s, sk) => s + sk.milestones.filter(m => m.is_completed).length, 0);
+      return { pillarId, domain, skills: pillarSkills, totalGoals, completedGoals };
     });
-  }, [skills, milestones]);
+  }, [missionSkills, missions, missionPillarMap]);
 
   // Overall stats
-  const totalSkillsCount = skills?.length || 0;
-  const completedSkillsCount = skills?.filter(s => s.is_completed).length || 0;
-  const totalMilestonesCount = milestones?.length || 0;
-  const completedMilestonesCount = milestones?.filter(m => m.is_completed).length || 0;
-  const overallPct = totalMilestonesCount > 0 ? Math.round((completedMilestonesCount / totalMilestonesCount) * 100) : 0;
+  const totalSkills = missionSkills?.length || 0;
+  const totalGoals = pillarGroups.reduce((s, g) => s + g.totalGoals, 0);
+  const completedGoals = pillarGroups.reduce((s, g) => s + g.completedGoals, 0);
+  const overallPct = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
   const statItems = [
     { icon: Flame, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
     { icon: MapPin, value: `${isHe ? 'יום' : 'Day'} ${currentDay}`, label: isHe ? 'מתוך 100' : 'of 100', color: 'text-orange-400' },
-    { icon: Target, value: totalMilestonesCount, label: isHe ? 'מטרות' : 'Goals', color: 'text-teal-400' },
+    { icon: Target, value: totalGoals, label: isHe ? 'מטרות' : 'Goals', color: 'text-teal-400' },
     { icon: Trophy, value: `${overallPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-emerald-400' },
   ];
 
@@ -124,7 +102,7 @@ export default function LifeHub() {
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
     queryClient.invalidateQueries({ queryKey: ['strategy-missions'] });
-    queryClient.invalidateQueries({ queryKey: ['strategy-milestones'] });
+    queryClient.invalidateQueries({ queryKey: ['mission-skills'] });
   };
 
   return (
@@ -169,7 +147,7 @@ export default function LifeHub() {
 
             {/* ── PLAN HEADER ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-              <div className="px-4 py-3 border-b border-border/30">
+              <div className="px-4 py-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center">
                     <Trophy className="w-4 h-4 text-primary" />
@@ -179,7 +157,7 @@ export default function LifeHub() {
                       {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
-                      {overallPct}% · {completedMilestonesCount}/{totalMilestonesCount} {isHe ? 'יעדים' : 'goals'}
+                      {overallPct}% · {completedGoals}/{totalGoals} {isHe ? 'יעדים' : 'goals'}
                     </p>
                   </div>
                   <motion.button
@@ -203,10 +181,10 @@ export default function LifeHub() {
               </div>
             </div>
 
-            {/* ── PILLAR CARDS ── */}
+            {/* ── PILLAR → SKILL → MILESTONE CARDS ── */}
             <div className="space-y-3">
               {pillarGroups.map((group) => {
-                const { pillarId, domain, skills: pillarSkills, milestonesBySkill, completedSkills } = group;
+                const { pillarId, domain, skills: pillarSkills, totalGoals: pGoals, completedGoals: pCompleted } = group;
                 const isPillarExpanded = expandedPillar === pillarId;
                 const Icon = domain?.icon;
 
@@ -222,7 +200,7 @@ export default function LifeHub() {
                         : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                       }
                       <span className="text-[9px] text-muted-foreground">
-                        {completedSkills}/{pillarSkills.length} {isHe ? 'כישורים' : 'skills'}
+                        {pCompleted}/{pGoals} {isHe ? 'יעדים' : 'goals'}
                       </span>
                       <div className="flex-1" />
                       <span className="text-sm font-bold text-foreground">
@@ -231,7 +209,7 @@ export default function LifeHub() {
                       {Icon && <Icon className={cn("w-5 h-5 shrink-0 text-primary")} />}
                     </button>
 
-                    {/* Expanded: Skills with their milestones inline */}
+                    {/* Expanded: Skills */}
                     <AnimatePresence>
                       {isPillarExpanded && (
                         <motion.div
@@ -241,73 +219,61 @@ export default function LifeHub() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-3 py-3 space-y-3">
+                          <div className="px-3 pb-3 space-y-3">
                             {pillarSkills.map((skill) => {
-                              const skillMilestones = milestonesBySkill[skill.id] || [];
-                              const msCompleted = skillMilestones.filter(ms => ms.is_completed).length;
-                              const skillDone = skill.is_completed;
+                              const msCompleted = skill.milestones.filter(m => m.is_completed).length;
+                              const msTotal = skill.milestones.length;
+                              const skillName = isHe ? (skill.skill_name_he || skill.skill_name) : skill.skill_name;
 
                               return (
                                 <div
-                                  key={skill.id}
-                                  className={cn(
-                                    "rounded-xl border bg-background/50 overflow-hidden",
-                                    skillDone ? "border-primary/20 bg-primary/5" : "border-border/30"
-                                  )}
+                                  key={skill.skill_id}
+                                  className="rounded-xl border border-border/30 bg-background/50 overflow-hidden"
                                 >
-                                  {/* Skill card header */}
-                                  <div className="px-4 py-3 border-b border-border/15">
-                                    <div className="flex items-center gap-2">
-                                      {skillDone ? (
-                                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                                      ) : (
-                                        <BookOpen className="w-5 h-5 text-accent shrink-0" />
-                                      )}
-                                      <h4 className={cn(
-                                        "text-sm font-bold flex-1",
-                                        skillDone ? "line-through text-muted-foreground" : "text-foreground"
-                                      )}>
-                                        {isHe ? (skill.title || skill.title_en) : (skill.title_en || skill.title)}
-                                      </h4>
-                                      <span className="text-[9px] text-muted-foreground shrink-0">
-                                        {msCompleted}/{skillMilestones.length} {isHe ? 'יעדים' : 'goals'}
-                                      </span>
-                                    </div>
-                                    {skill.description && (
-                                      <p className="text-xs text-muted-foreground/60 mt-1.5 leading-relaxed">
-                                        {isHe ? (skill.description || skill.description_en) : (skill.description_en || skill.description)}
+                                  {/* Skill header card */}
+                                  <div className="px-4 py-3 border-b border-border/15 flex items-center gap-2.5">
+                                    <span className="text-lg shrink-0">{skill.skill_icon}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-1.5">
+                                        <h4 className="text-sm font-bold text-foreground truncate">
+                                          {skillName}
+                                        </h4>
+                                        <span className="text-[9px] font-mono text-muted-foreground shrink-0 ms-auto">
+                                          Lv.{skill.level}
+                                        </span>
+                                      </div>
+                                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                                        {msCompleted}/{msTotal} {isHe ? 'יעדים' : 'goals'}
                                       </p>
-                                    )}
+                                    </div>
                                   </div>
 
-                                  {/* Milestones (Goals) inside skill card */}
-                                  {skillMilestones.length > 0 && (
+                                  {/* Milestones (Goals) */}
+                                  {skill.milestones.length > 0 && (
                                     <div className="px-4 py-2.5 space-y-1">
-                                      {skillMilestones.map((ms: any) => (
-                                        <div key={ms.id} className={cn(
-                                          "flex items-start gap-2 py-1.5",
-                                          ms.is_completed ? "opacity-50" : ""
-                                        )}>
-                                          {ms.is_completed ? (
-                                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                          ) : (
-                                            <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" />
-                                          )}
-                                          <div className="flex-1 min-w-0">
+                                      {skill.milestones.map((ms) => {
+                                        const msTitle = isHe
+                                          ? (ms.title || ms.title_en || '')
+                                          : (ms.title_en || ms.title || '');
+                                        return (
+                                          <div key={ms.id} className={cn(
+                                            "flex items-start gap-2 py-1.5",
+                                            ms.is_completed ? "opacity-50" : ""
+                                          )}>
+                                            {ms.is_completed ? (
+                                              <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                            ) : (
+                                              <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" />
+                                            )}
                                             <span className={cn(
                                               "text-xs leading-snug",
                                               ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/75"
                                             )}>
-                                              {isHe ? (ms.title || ms.title_en) : (ms.title_en || ms.title)}
+                                              {msTitle}
                                             </span>
-                                            {ms.goal && (
-                                              <p className="text-[10px] text-muted-foreground/40 mt-0.5 leading-snug">
-                                                {isHe ? (ms.goal || ms.goal_en) : (ms.goal_en || ms.goal)}
-                                              </p>
-                                            )}
                                           </div>
-                                        </div>
-                                      ))}
+                                        );
+                                      })}
                                     </div>
                                   )}
                                 </div>
