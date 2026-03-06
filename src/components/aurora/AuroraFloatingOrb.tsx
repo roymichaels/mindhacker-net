@@ -125,7 +125,7 @@ export function AuroraFloatingOrb() {
       role="button"
       tabIndex={0}
     >
-      <AuroraHoloOrb size={ORB_SIZE - 8} glow="full" />
+      <AuroraHoloOrb size={ORB_SIZE} glow="full" />
     </motion.div>
   );
 }
