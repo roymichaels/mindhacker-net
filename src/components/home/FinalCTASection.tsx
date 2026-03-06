@@ -61,19 +61,21 @@ export default function FinalCTASection() {
               {t('home.finalCta.epicTitle')}
             </h3>
 
-            <Button
-              size="lg"
-              onClick={() => navigate('/onboarding')}
-              className="group text-xl px-12 py-8 rounded-2xl
-                bg-gradient-to-r from-primary via-primary to-accent
-                hover:from-primary/90 hover:to-accent/90
-                text-primary-foreground font-black
-                shadow-[0_0_40px_rgba(0,0,0,0.3),0_0_60px_hsl(var(--primary)/0.3)]
-                border-0 transition-all duration-300 hover:scale-105"
-            >
-              <Rocket className={cn('h-6 w-6', isRTL ? 'ml-3' : 'mr-3')} />
-              {t('home.finalCta.cta')}
-            </Button>
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                onClick={() => navigate('/onboarding')}
+                className="group text-xl px-12 py-8 rounded-2xl
+                  bg-gradient-to-r from-primary via-primary to-accent
+                  hover:from-primary/90 hover:to-accent/90
+                  text-primary-foreground font-black
+                  shadow-[0_0_40px_rgba(0,0,0,0.3),0_0_60px_hsl(var(--primary)/0.3)]
+                  border-0 transition-all duration-300 hover:scale-105"
+              >
+                <Rocket className={cn('h-6 w-6', isRTL ? 'ml-3' : 'mr-3')} />
+                {t('home.finalCta.cta')}
+              </Button>
+            </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               {guarantees.map((item, i) => (
