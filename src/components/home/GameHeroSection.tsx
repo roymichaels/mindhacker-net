@@ -95,7 +95,7 @@ export default function GameHeroSection() {
                   transition={{ duration: 3, repeat: Infinity, delay: ring * 0.5 }}
                 />
               ))}
-              <Orb profile={DEFAULT_ORB_PROFILE} size={220} state="breathing" renderer="css" showGlow />
+              <AuroraHoloOrb size={220} glow="full" />
             </div>
           </motion.div>
 
