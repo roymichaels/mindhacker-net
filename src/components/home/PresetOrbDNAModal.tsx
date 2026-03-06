@@ -40,7 +40,22 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
   if (!preset || !meta) return null;
 
   const profile = preset.profile;
-  const colors = profile.gradientStops?.slice(0, 5) || [];
+
+  // Build actual orb colors from profile (same as what CSSOrb renders)
+  const orbColors: { color: string; label: string }[] = [];
+  const norm = (c: string | undefined) => {
+    if (!c) return null;
+    const t = c.trim();
+    if (/^\d+\s+\d+%\s+\d+%$/.test(t)) return `hsl(${t})`;
+    return t;
+  };
+  if (profile.primaryColor) orbColors.push({ color: norm(profile.primaryColor)!, label: isHe ? 'ראשי' : 'Primary' });
+  profile.secondaryColors?.forEach((c, i) => { if (c) orbColors.push({ color: norm(c)!, label: isHe ? `משני ${i+1}` : `Secondary ${i+1}` }); });
+  if (profile.accentColor) orbColors.push({ color: norm(profile.accentColor)!, label: isHe ? 'הדגשה' : 'Accent' });
+  // Fallback to gradientStops if no direct colors
+  if (orbColors.length === 0 && profile.gradientStops?.length) {
+    profile.gradientStops.slice(0, 5).forEach((stop, j) => orbColors.push({ color: `hsl(${stop})`, label: `${j+1}` }));
+  }
 
   const stats = [
     { labelEn: 'Material', labelHe: 'חומר', value: profile.materialType || 'glass' },
