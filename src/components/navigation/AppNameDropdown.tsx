@@ -21,7 +21,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
-import { ProfileModal } from '@/components/dashboard/ProfileModal';
+import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
