@@ -1,82 +1,145 @@
 /**
  * ArenaHub — Tactics page (טקטיקה).
- * Full page: stats grid + next action hero + current phase weekly roadmap.
- * No sidebars.
+ * Shows weekly tactical plan derived from Strategy milestones.
+ * Hierarchy: Trait → Mission → Milestone (from strategy chain)
  */
 import { useState, useMemo } from 'react';
-import { Swords, Sparkles, Play, Loader2, Target, FolderKanban, Briefcase, CheckCircle2, Circle, Trophy } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Swords, Sparkles, Play, Loader2, Target, Trophy, CheckCircle2, Circle, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
 import { usePhaseActions } from '@/hooks/usePhaseActions';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
-import { useProjects } from '@/hooks/useProjects';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+// Fetch missions + milestones for current phase with trait info
+function usePhaseMissions(planIds: string[], currentPhase: number | null) {
+  return useQuery({
+    queryKey: ['phase-missions', planIds, currentPhase],
+    queryFn: async () => {
+      if (!planIds.length || !currentPhase) return [];
+
+      // Get milestones for current phase with mission + trait info
+      const { data: milestones, error } = await supabase
+        .from('life_plan_milestones')
+        .select(`
+          id, title, title_en, focus_area, week_number, is_completed, mission_id,
+          plan_missions!life_plan_milestones_mission_id_fkey (
+            id, title, title_en, pillar, primary_skill_id, mission_number,
+            skills!plan_missions_primary_skill_id_fkey ( id, name, name_en )
+          )
+        `)
+        .in('plan_id', planIds)
+        .eq('week_number', currentPhase)
+        .order('mission_id')
+        .order('id');
+
+      if (error) throw error;
+      return milestones || [];
+    },
+    enabled: planIds.length > 0 && !!currentPhase,
+    staleTime: 2 * 60 * 1000,
+  });
+}
 
 export default function ArenaHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const { user } = useAuth();
   const { plan, milestones, isLoading, currentWeek: currentPhase } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [expandedMission, setExpandedMission] = useState<string | null>(null);
 
   const { queue, refetch } = useNowEngine();
   const nextAction = queue[0] || null;
   const phaseLabel = PHASE_LABELS[(currentPhase || 1) - 1] || '?';
 
-  const { generating: phaseGenerating, totalMilestones: phaseTotalMs, generatedMilestones: phaseGenMs } = usePhaseActions();
-
-  // Stats data
+  const { generating: phaseGenerating } = usePhaseActions();
   const { statusMap } = useLifeDomains();
-  const { arenaStrategy } = useStrategyPlans();
-  const { projects } = useProjects();
+  const { arenaStrategy, coreStrategy } = useStrategyPlans();
 
+  // Get all active plan IDs
+  const allPlanIds = useMemo(() => {
+    const ids: string[] = [];
+    if (coreStrategy?.id) ids.push(coreStrategy.id);
+    if (arenaStrategy?.id) ids.push(arenaStrategy.id);
+    return ids;
+  }, [coreStrategy?.id, arenaStrategy?.id]);
+
+  // Fetch phase missions with hierarchy
+  const { data: phaseMilestones } = usePhaseMissions(allPlanIds, currentPhase);
+
+  // Group milestones by mission → trait
+  const missionGroups = useMemo(() => {
+    if (!phaseMilestones?.length) return [];
+
+    const groups: Record<string, {
+      missionId: string;
+      missionTitle: string;
+      missionTitleEn: string;
+      pillar: string;
+      traitName: string;
+      traitNameEn: string;
+      milestones: any[];
+      completedCount: number;
+      totalCount: number;
+    }> = {};
+
+    for (const m of phaseMilestones) {
+      const mission = (m as any).plan_missions;
+      const missionId = mission?.id || m.mission_id || 'ungrouped';
+      const trait = mission?.skills;
+
+      if (!groups[missionId]) {
+        groups[missionId] = {
+          missionId,
+          missionTitle: mission?.title || m.title || 'משימה',
+          missionTitleEn: mission?.title_en || m.title_en || 'Mission',
+          pillar: mission?.pillar || m.focus_area || 'focus',
+          traitName: trait?.name || '',
+          traitNameEn: trait?.name_en || '',
+          milestones: [],
+          completedCount: 0,
+          totalCount: 0,
+        };
+      }
+
+      groups[missionId].milestones.push(m);
+      groups[missionId].totalCount++;
+      if (m.is_completed) groups[missionId].completedCount++;
+    }
+
+    return Object.values(groups);
+  }, [phaseMilestones]);
+
+  // Stats
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
-  const pillarGoals = arenaStrategy?.pillars || {};
-  const totalGoals = Object.values(pillarGoals).reduce((sum: number, p: any) => sum + (p.goals?.length || 0), 0);
-  const activeProjects = projects.filter(p => p.status === 'active').length;
-  const completedProjects = projects.filter(p => p.status === 'completed').length;
-
-  // Current phase milestones grouped by pillar
-  const currentPhaseMilestones = useMemo(
-    () => milestones.filter(m => m.week_number === currentPhase),
-    [milestones, currentPhase]
-  );
-  const pillarGroups = useMemo(() => {
-    const groups: Record<string, any[]> = {};
-    for (const m of currentPhaseMilestones) {
-      const key = m.focus_area || 'other';
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(m);
-    }
-    return groups;
-  }, [currentPhaseMilestones]);
-
-  const phaseCompleted = currentPhaseMilestones.filter(m => m.is_completed).length;
-  const phaseTotal = currentPhaseMilestones.length;
+  const phaseCompleted = (phaseMilestones || []).filter((m: any) => m.is_completed).length;
+  const phaseTotal = (phaseMilestones || []).length;
   const phasePct = phaseTotal > 0 ? Math.round((phaseCompleted / phaseTotal) * 100) : 0;
-
-  // Overall progress
   const allCompleted = milestones.filter(m => m.is_completed).length;
   const allTotal = milestones.length || 1;
   const overallPct = Math.round((allCompleted / allTotal) * 100);
 
   const statItems = [
     { icon: Swords, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
-    { icon: Target, value: totalGoals, label: isHe ? 'מטרות' : 'Goals', color: 'text-teal-400' },
-    { icon: FolderKanban, value: activeProjects, label: isHe ? 'פרויקטים' : 'Projects', color: 'text-orange-400' },
+    { icon: Target, value: missionGroups.length, label: isHe ? 'משימות' : 'Missions', color: 'text-teal-400' },
+    { icon: CheckCircle2, value: `${phaseCompleted}/${phaseTotal}`, label: isHe ? 'אבני דרך' : 'Milestones', color: 'text-orange-400' },
     { icon: Trophy, value: `${overallPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-emerald-400' },
   ];
 
@@ -89,6 +152,7 @@ export default function ArenaHub() {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
+    queryClient.invalidateQueries({ queryKey: ['phase-missions'] });
   };
 
   return (
@@ -96,7 +160,6 @@ export default function ArenaHub() {
       <div className="flex flex-col gap-4 max-w-xl w-full px-4 pt-4">
 
         {!hasPlan && !isLoading ? (
-          /* ── NO PLAN STATE ── */
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
             <div className="w-16 h-16 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
               <Swords className="w-8 h-8 text-destructive" />
@@ -132,9 +195,9 @@ export default function ArenaHub() {
               ))}
             </div>
 
-            {/* ── WEEKLY PLAN SECTION ── */}
+            {/* ── WEEKLY TACTICAL PLAN ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-              {/* Phase header with play button */}
+              {/* Phase header */}
               <div className="px-4 py-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
                   {nextAction ? (
@@ -168,59 +231,87 @@ export default function ArenaHub() {
                 </div>
               </div>
 
-              {/* Milestones by pillar */}
+              {/* Missions grouped by trait */}
               <div className="px-4 py-3 space-y-3">
-                {phaseTotal === 0 ? (
+                {missionGroups.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-4">
-                    {isHe ? 'אין אבני דרך בשלב הנוכחי' : 'No milestones in this phase'}
+                    {phaseGenerating
+                      ? (isHe ? 'מייצר פעולות...' : 'Generating actions...')
+                      : (isHe ? 'אין אבני דרך בשלב הנוכחי' : 'No milestones in this phase')}
                   </p>
                 ) : (
-                  Object.entries(pillarGroups).map(([pillarKey, pMilestones]) => {
-                    const domain = getDomainById(pillarKey);
+                  missionGroups.map((group) => {
+                    const domain = getDomainById(group.pillar);
                     const Icon = domain?.icon;
-                    const pillarDone = pMilestones.filter((m: any) => m.is_completed).length;
+                    const isExpanded = expandedMission === group.missionId;
 
                     return (
-                      <div key={pillarKey} className="space-y-1">
-                        <div className="flex items-center gap-2">
+                      <div key={group.missionId} className="space-y-1">
+                        {/* Mission header with trait badge */}
+                        <button
+                          onClick={() => setExpandedMission(isExpanded ? null : group.missionId)}
+                          className="flex items-center gap-2 w-full text-start hover:bg-muted/10 rounded-lg px-1 py-1 transition-colors"
+                        >
                           <div className="w-6 h-6 rounded-lg bg-muted/40 border border-border/20 flex items-center justify-center">
                             {Icon ? <Icon className="w-3.5 h-3.5 text-foreground/60" /> : <Swords className="w-3.5 h-3.5 text-muted-foreground" />}
                           </div>
-                          <span className="text-xs font-bold text-foreground/80 flex-1">
-                            {isHe ? (domain?.labelHe || pillarKey) : (domain?.labelEn || pillarKey)}
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs font-bold text-foreground/80 block truncate">
+                              {isHe ? group.missionTitle : group.missionTitleEn}
+                            </span>
+                            {group.traitName && (
+                              <span className="text-[9px] text-muted-foreground/60 block">
+                                {isHe ? group.traitName : group.traitNameEn}
+                                <span className="mx-1">·</span>
+                                {isHe ? (domain?.labelHe || group.pillar) : (domain?.labelEn || group.pillar)}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground me-1">
+                            {group.completedCount}/{group.totalCount}
                           </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {pillarDone}/{pMilestones.length}
-                          </span>
-                        </div>
+                          {isExpanded ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-muted-foreground/40" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/40" />
+                          )}
+                        </button>
 
-                        <div className="space-y-0.5 ps-3">
-                          {pMilestones.map((m: any) => (
-                            <div key={m.id} className={cn(
-                              "flex items-start gap-2 py-1.5 px-2 rounded-lg",
-                              m.is_completed ? "opacity-50" : "hover:bg-muted/20 transition-colors"
-                            )}>
-                              {m.is_completed ? (
-                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                              ) : (
-                                <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className={cn(
-                                  "text-xs leading-snug",
-                                  m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
-                                )}>
-                                  {isHe ? (m.title || m.title_en) : (m.title_en || m.title)}
-                                </p>
-                                {m.goal && (
-                                  <span className="text-[10px] text-muted-foreground/50 leading-tight block mt-0.5">
-                                    {isHe ? m.goal : (m.goal_en || m.goal)}
-                                  </span>
-                                )}
+                        {/* Milestones (expandable) */}
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="space-y-0.5 ps-3 pb-1">
+                                {group.milestones.map((m: any) => (
+                                  <div key={m.id} className={cn(
+                                    "flex items-start gap-2 py-1.5 px-2 rounded-lg",
+                                    m.is_completed ? "opacity-50" : "hover:bg-muted/20 transition-colors"
+                                  )}>
+                                    {m.is_completed ? (
+                                      <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                    ) : (
+                                      <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <p className={cn(
+                                        "text-xs leading-snug",
+                                        m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
+                                      )}>
+                                        {isHe ? (m.title || m.title_en) : (m.title_en || m.title)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     );
                   })
