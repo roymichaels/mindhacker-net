@@ -436,28 +436,39 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
   // Get profile visual params with defaults + validation
-  // Build gradient stops: prefer profile's explicit gradientStops,
-  // but if they're the bland defaults, derive them from the profile's vivid primary/secondary/accent colors
+  // Build gradient stops: ALWAYS incorporate profile's primary/secondary/accent colors
+  // since stored gradientStops may be monochromatic defaults that don't match the user's identity
   const defaultStops = ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
   const _rawStops = profile?.gradientStops ?? defaultStops;
-  const isDefaultStops = _rawStops.length === 3 &&
-    _rawStops[0] === defaultStops[0] && _rawStops[1] === defaultStops[1] && _rawStops[2] === defaultStops[2];
   
-  // If gradient stops are just defaults but profile has real colors, use profile colors as gradient
   const gradientStops = (() => {
-    if (!isDefaultStops && _rawStops.length >= 3) return _rawStops;
-    // Derive from profile's primary/secondary/accent colors for a vivid orb
+    // If profile has real personalized colors, ALWAYS use them as gradient stops
+    // This ensures the orb visually matches the user's identity DNA
     if (profile?.primaryColor) {
+      // Extract hue from gradient stops to check if they're monochromatic/default (all same hue ~200)
+      const hues = _rawStops.map(s => {
+        const m = s.match(/^(\d+(?:\.\d+)?)/);
+        return m ? parseFloat(m[1]) : 200;
+      });
+      const hueSpread = Math.max(...hues) - Math.min(...hues);
+      const avgHue = hues.reduce((a, b) => a + b, 0) / hues.length;
+      const isMonochromaticDefault = hueSpread < 30 && Math.abs(avgHue - 200) < 30;
+      
+      // If gradient stops show real color diversity AND differ from profile colors, use them
+      if (!isMonochromaticDefault && hueSpread > 30) {
+        return _rawStops;
+      }
+      
+      // Otherwise, build vivid gradient from the profile's identity colors
       const stops = [
         profile.primaryColor,
         ...(profile.secondaryColors?.length ? profile.secondaryColors : []),
         profile.accentColor || profile.primaryColor,
       ];
-      // Ensure at least 3 stops
       while (stops.length < 3) stops.push(stops[stops.length - 1]);
       return stops.slice(0, 7);
     }
-    return defaultStops;
+    return _rawStops.length >= 3 ? _rawStops : defaultStops;
   })();
   const gradientMode = profile?.gradientMode ?? 'vertical';
   const materialType = profile?.materialType ?? 'glass';
