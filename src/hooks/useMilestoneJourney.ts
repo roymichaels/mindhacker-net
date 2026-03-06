@@ -41,7 +41,7 @@ export function useMilestoneJourney(milestoneId: string | null) {
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
-      return data as MilestoneJourney | null;
+      return data as unknown as MilestoneJourney | null;
     },
     enabled: !!milestoneId && !!user?.id,
   });
