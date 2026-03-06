@@ -53,6 +53,14 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
   const isPending = thread.status === 'pending';
   const username = (thread.author as any)?.community_username;
 
+  // Auto-translate: show localized content based on user language
+  const displayTitle = isHe
+    ? (thread.title_he || thread.title)
+    : (thread.title || thread.title_he);
+  const displayContent = isHe
+    ? (thread.content_he || thread.content)
+    : (thread.content || thread.content_he || '');
+
   if (compact) {
     return (
       <Link to={`/community/post/${thread.id}`}>
