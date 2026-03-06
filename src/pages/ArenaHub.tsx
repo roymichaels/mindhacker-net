@@ -303,53 +303,6 @@ export default function ArenaHub() {
               </div>
             </div>
 
-            {/* ── PHASE OVERVIEW ── */}
-            <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-              <div className="px-4 py-3 border-b border-border/30">
-                <h3 className="text-xs font-bold text-foreground/70">
-                  {isHe ? 'סקירת עומס שלב' : 'Phase Load Overview'}
-                </h3>
-              </div>
-              <div className="px-4 py-3 space-y-1.5">
-                {days.map((day) => {
-                  const avgMins = totalMinutes > 0 ? totalMinutes / Math.max(1, activeDays) : 100;
-                  const loadPct = avgMins > 0 ? Math.min(100, Math.round((day.totalMinutes / avgMins) * 50)) : 0;
-
-                  return (
-                    <button
-                      key={day.dayIndex}
-                      onClick={() => setSelectedDay(day.dayIndex)}
-                      className="flex items-center gap-2 w-full hover:bg-muted/10 rounded-lg px-1 py-0.5 transition-colors"
-                    >
-                      <span className={cn(
-                        "text-[10px] w-8 text-start font-medium",
-                        day.isToday ? "text-primary font-bold" : "text-muted-foreground"
-                      )}>
-                        {isHe ? `${day.dayNumber}` : `D${day.dayNumber}`}
-                      </span>
-                      <div className="flex-1 h-2 rounded-full bg-muted/30 overflow-hidden">
-                        <motion.div
-                          className={cn(
-                            "h-full rounded-full",
-                            day.completedActions === day.totalActions && day.totalActions > 0
-                              ? "bg-emerald-500/60"
-                              : day.isToday
-                                ? "bg-primary/50"
-                                : "bg-foreground/15"
-                          )}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(100, loadPct)}%` }}
-                          transition={{ duration: 0.4 }}
-                        />
-                      </div>
-                      <span className="text-[9px] text-muted-foreground w-10 text-end">
-                        {day.totalMinutes > 0 ? `${day.totalMinutes}′` : '—'}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </>
         ) : null}
       </div>
