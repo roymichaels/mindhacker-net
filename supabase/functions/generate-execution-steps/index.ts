@@ -172,6 +172,7 @@ ${userContext}
 ## ABSOLUTE RULES:
 - NEVER use phrases like "think about", "consider", "reflect on", "ask yourself", "decide what", "analyze your", "write down your thoughts", "journal about"
 - NEVER give vague/philosophical instructions. NO introspection tasks.
+- NEVER invent topics or interests the user hasn't expressed. ONLY reference their ACTUAL projects, goals, values, and commitments from the context above.
 - Every step must be a CONCRETE PHYSICAL ACTION the user performs with their body: move, say, type, open, click, watch, read, eat, drink, stretch, breathe, walk, call, send
 - If the task sounds abstract (e.g. "define personal values", "set style"), YOU ALREADY KNOW the user's values/identity/projects — reference them BY NAME and give concrete actions based on what you know
 - Include EXACT quantities: grams, ml, minutes, reps, sets, meters, pages
