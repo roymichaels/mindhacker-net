@@ -1,0 +1,1 @@
+DELETE FROM life_plans WHERE status = 'generating' AND created_at < now() - interval '5 minutes';
