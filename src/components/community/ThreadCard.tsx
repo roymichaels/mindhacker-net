@@ -146,7 +146,7 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
       {/* Title */}
       <Link to={`/community/post/${thread.id}`}>
         <h3 className="font-semibold text-foreground mb-1 hover:text-primary transition-colors leading-tight">
-          {thread.title || thread.content.slice(0, 60)}
+          {displayTitle || displayContent.slice(0, 60)}
         </h3>
       </Link>
 
