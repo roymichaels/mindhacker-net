@@ -364,6 +364,20 @@ export default function ArenaHub() {
           queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
         }}
       />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.sourceMilestoneId || null}
+        milestoneTitle={journeyAction?.title || ''}
+        milestoneDescription={journeyAction?.description || undefined}
+        focusArea={journeyAction?.focusArea || undefined}
+        durationMinutes={journeyAction?.estimatedMinutes || 30}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+          queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+          queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
+        }}
+      />
     </div>
   );
 }
