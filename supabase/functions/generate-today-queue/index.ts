@@ -251,6 +251,7 @@ serve(async (req) => {
         title: habit.title,
         titleEn: habit.title,
         durationMin: 5,
+        isTimeBased: detectTimeBased(habit.title, "daily_habit"),
         urgencyScore: 8,
         reason: isHe ? "הרגל יומי" : "Daily habit",
         sourceType: "habit",
