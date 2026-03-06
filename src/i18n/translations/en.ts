@@ -2866,15 +2866,16 @@ export const en: TranslationKeys = {
 
     // TheSystemSection
     theSystem: {
-      title: 'How the System Works',
-      subtitle: 'Three phases that transform your life in 90 days.',
-      phaseLabel: 'Phase',
+      badge: 'The Quest Path',
+      title: '100-Day Transformation OS',
+      subtitle: 'Three quest phases that rebuild your life from the ground up.',
+      phaseLabel: 'Quest',
       phase1Title: 'Deep Assessment',
-      phase1Desc: 'Aurora scans all 14 life domains — health, career, relationships, finances, mindset and more — to build your complete life profile.',
-      phase2Title: '90-Day Strategy',
-      phase2Desc: 'AI generates a personalized plan with missions, milestones, and protocols tailored to your priorities and current state.',
+      phase1Desc: 'Aurora scans all 14 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
+      phase2Title: '100-Day Strategy',
+      phase2Desc: 'AI generates a personalized battle plan with missions, milestones, and daily protocols across every domain you unlock.',
       phase3Title: 'Daily Execution',
-      phase3Desc: 'Every morning you get a tactical queue — the exact actions to take today. Aurora adapts the plan as you progress.',
+      phase3Desc: 'Every morning your tactical queue drops — prioritized actions, habits, and protocols. Aurora adapts in real-time as you level up.',
     },
 
     // AppPreviewSection
