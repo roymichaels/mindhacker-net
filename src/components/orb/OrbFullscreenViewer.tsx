@@ -125,7 +125,7 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
             <PersonalizedOrb
               size={orbSize}
               state="breathing"
-              showGlow
+              showGlow={false}
               showLoadingSkeleton
             />
           </motion.div>
