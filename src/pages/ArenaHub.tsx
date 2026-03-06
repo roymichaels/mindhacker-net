@@ -1,10 +1,10 @@
 /**
  * ArenaHub — Tactics page (טקטיקה).
- * 10-day phase execution plan derived from strategy milestones.
+ * AI-generated 10-day phase schedule with fixed time blocks.
  * Clicking a milestone opens the ExecutionModal with full guided execution.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play, Wand2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -14,7 +14,7 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { useQueryClient } from '@tanstack/react-query';
 import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
+import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type TacticalBlock, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -57,8 +57,8 @@ function tacticalToNowItem(action: TacticalAction): NowQueueItem {
     urgencyScore: 80,
     reason: '',
     sourceType: 'milestone',
-    sourceId: action.sourceMilestoneId,
-    milestoneId: action.sourceMilestoneId,
+    sourceId: action.sourceMilestoneId || undefined,
+    milestoneId: action.sourceMilestoneId || undefined,
     milestoneTitle: action.title,
     missionId: action.missionId || undefined,
     executionTemplate: (action.executionTemplate as NowQueueItem['executionTemplate']) || undefined,
@@ -77,50 +77,25 @@ export default function ArenaHub() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
-  const [tacticalRecalibrating, setTacticalRecalibrating] = useState(false);
-
-  const handleTacticalRecalibrate = useCallback(async () => {
-    if (!user?.id || tacticalRecalibrating) return;
-    const phaseMilestones = milestones.filter(m => m.week_number === currentPhase);
-    if (phaseMilestones.length === 0) return;
-
-    setTacticalRecalibrating(true);
-    try {
-      const milestoneIds = phaseMilestones.map(m => m.id);
-      const { error: delError } = await supabase
-        .from('mini_milestones')
-        .delete()
-        .in('milestone_id', milestoneIds);
-      if (delError) throw delError;
-
-      for (let i = 0; i < phaseMilestones.length; i += 3) {
-        const batch = phaseMilestones.slice(i, i + 3);
-        await Promise.allSettled(
-          batch.map(m =>
-            supabase.functions.invoke('generate-phase-actions', {
-              body: { milestone_id: m.id, user_id: user.id },
-            })
-          )
-        );
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['phase-minis-check'] });
-      queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
-      queryClient.invalidateQueries({ queryKey: ['now-engine'] });
-      queryClient.invalidateQueries({ queryKey: ['action-items'] });
-      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
-
-      toast({ title: isHe ? '✅ הטקטיקה כוילה מחדש' : '✅ Tactics recalibrated' });
-    } catch (e) {
-      console.error('Tactical recalibration failed:', e);
-      toast({ title: isHe ? 'שגיאה בכיול' : 'Recalibration failed', variant: 'destructive' });
-    } finally {
-      setTacticalRecalibrating(false);
-    }
-  }, [user?.id, milestones, currentPhase, tacticalRecalibrating, queryClient, toast, isHe]);
+  const [scheduleGenerating, setScheduleGenerating] = useState(false);
 
   const phasePlan = useWeeklyTacticalPlan();
-  const { days, phase, totalActions, completedActions, totalMinutes, generating, isLoading } = phasePlan;
+  const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime } = phasePlan;
+
+  // Generate AI schedule
+  const handleGenerateSchedule = useCallback(async () => {
+    if (scheduleGenerating) return;
+    setScheduleGenerating(true);
+    try {
+      await generateSchedule();
+      queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
+      toast({ title: isHe ? '✅ לו"ז נוצר בהצלחה' : '✅ Schedule generated!' });
+    } catch {
+      toast({ title: isHe ? 'שגיאה ביצירת לו"ז' : 'Schedule generation failed', variant: 'destructive' });
+    } finally {
+      setScheduleGenerating(false);
+    }
+  }, [generateSchedule, scheduleGenerating, queryClient, toast, isHe]);
 
   // Find today's day index within the 10-day phase
   const todayIndex = useMemo(() => {
@@ -139,7 +114,7 @@ export default function ArenaHub() {
     { icon: Calendar, value: `${activeDays}/10`, label: isHe ? 'ימים פעילים' : 'Active Days', color: 'text-amber-400' },
     { icon: Target, value: activeBlocks, label: isHe ? 'בלוקים' : 'Blocks', color: 'text-teal-400' },
     { icon: CheckCircle2, value: `${completedActions}/${totalActions}`, label: isHe ? 'פעולות' : 'Actions', color: 'text-orange-400' },
-    { icon: Clock, value: `${Math.round(totalMinutes / 10)}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-emerald-400' },
+    { icon: Clock, value: `${totalMinutes > 0 ? Math.round(totalMinutes / Math.max(1, activeDays)) : 0}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-emerald-400' },
   ];
 
   const handleOpenExecution = useCallback((action: TacticalAction) => {
@@ -151,8 +126,7 @@ export default function ArenaHub() {
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
-    queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
-    queryClient.invalidateQueries({ queryKey: ['phase-minis-check'] });
+    queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
   };
 
   return (
@@ -208,17 +182,24 @@ export default function ArenaHub() {
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
                       {completedActions}/{totalActions} {isHe ? 'משימות' : 'missions'} · {completionPct}%
+                      {hasAiSchedule && <span className="ms-1.5 text-primary">⚡ AI</span>}
                     </p>
                   </div>
                   <button
-                    onClick={handleTacticalRecalibrate}
-                    disabled={tacticalRecalibrating || generating}
+                    onClick={handleGenerateSchedule}
+                    disabled={scheduleGenerating}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[hsl(204,88%,53%)]/10 border border-[hsl(204,88%,53%)]/25 hover:bg-[hsl(204,88%,53%)]/20 transition-all text-[hsl(204,88%,53%)] text-[11px] font-semibold disabled:opacity-50"
                   >
-                    <RefreshCw className={cn("w-3.5 h-3.5", tacticalRecalibrating && "animate-spin")} />
-                    {tacticalRecalibrating
-                      ? (isHe ? 'מכייל...' : 'Recalibrating...')
-                      : (isHe ? 'כיול מחדש' : 'Recalibrate')}
+                    {scheduleGenerating ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Wand2 className="w-3.5 h-3.5" />
+                    )}
+                    {scheduleGenerating
+                      ? (isHe ? 'יוצר לו"ז...' : 'Generating...')
+                      : hasAiSchedule
+                        ? (isHe ? 'כיול מחדש' : 'Recalibrate')
+                        : (isHe ? 'צור לו"ז AI' : 'Generate AI Schedule')}
                   </button>
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
@@ -278,13 +259,22 @@ export default function ArenaHub() {
 
               {/* ── DAY CONTENT ── */}
               <div className="px-4 py-3">
-                {(isLoading || generating) && totalActions === 0 ? (
+                {(isLoading || scheduleGenerating) && totalActions === 0 ? (
                   <div className="flex flex-col items-center gap-2 py-8">
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">
-                      {generating
-                        ? (isHe ? 'מייצר תוכנית שלב...' : 'Generating phase plan...')
+                      {scheduleGenerating
+                        ? (isHe ? 'Aurora יוצרת את הלו"ז שלך...' : 'Aurora is crafting your schedule...')
                         : (isHe ? 'טוען...' : 'Loading...')}
+                    </p>
+                  </div>
+                ) : !hasAiSchedule && totalActions === 0 ? (
+                  <div className="flex flex-col items-center gap-3 py-8">
+                    <Wand2 className="w-8 h-8 text-muted-foreground/30" />
+                    <p className="text-xs text-muted-foreground text-center max-w-xs">
+                      {isHe
+                        ? 'לחץ "צור לו"ז AI" כדי ש-Aurora תבנה לך תוכנית יומית עם שעות מדויקות'
+                        : 'Click "Generate AI Schedule" for Aurora to build your daily plan with exact time blocks'}
                     </p>
                   </div>
                 ) : (
@@ -292,6 +282,7 @@ export default function ArenaHub() {
                     day={days[activeDay]}
                     isHe={isHe}
                     onExecuteAction={handleOpenExecution}
+                    hasAiSchedule={hasAiSchedule}
                   />
                 )}
               </div>
@@ -306,7 +297,8 @@ export default function ArenaHub() {
               </div>
               <div className="px-4 py-3 space-y-1.5">
                 {days.map((day) => {
-                  const loadPct = totalMinutes > 0 ? Math.round((day.totalMinutes / (totalMinutes / 10)) * 50) : 0;
+                  const avgMins = totalMinutes > 0 ? totalMinutes / Math.max(1, activeDays) : 100;
+                  const loadPct = avgMins > 0 ? Math.min(100, Math.round((day.totalMinutes / avgMins) * 50)) : 0;
 
                   return (
                     <button
@@ -335,7 +327,7 @@ export default function ArenaHub() {
                           transition={{ duration: 0.4 }}
                         />
                       </div>
-                      <span className="text-[9px] text-muted-foreground w-8 text-end">
+                      <span className="text-[9px] text-muted-foreground w-10 text-end">
                         {day.totalMinutes > 0 ? `${day.totalMinutes}′` : '—'}
                       </span>
                     </button>
@@ -359,25 +351,26 @@ export default function ArenaHub() {
         onComplete={() => {
           queryClient.invalidateQueries({ queryKey: ['life-plan'] });
           queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+          queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
         }}
       />
     </div>
   );
 }
 
-// ── Day View Component ──
+// ── Day View Component with Time Blocks ──
 
 function DayView({
   day,
   isHe,
   onExecuteAction,
+  hasAiSchedule,
 }: {
   day: DayPlan;
   isHe: boolean;
   onExecuteAction: (action: TacticalAction) => void;
+  hasAiSchedule: boolean;
 }) {
-  const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
-
   if (!day || day.totalActions === 0) {
     return (
       <div className="text-center py-6">
@@ -389,9 +382,9 @@ function DayView({
   }
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-1">
       {/* Day summary */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-bold text-foreground/70">
           {isHe ? day.label : day.labelEn}
           {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
@@ -401,127 +394,92 @@ function DayView({
         </span>
       </div>
 
-      {/* Blocks */}
-      {day.blocks.map((block) => {
-        const Icon = BLOCK_ICONS[block.category] || Swords;
-        const color = BLOCK_COLORS[block.category] || 'text-foreground/60';
-        const isExpanded = expandedBlock === block.id;
-        const allDone = block.completedCount === block.actions.length;
+      {/* Time-block schedule */}
+      <div className="relative">
+        {/* Timeline line */}
+        {hasAiSchedule && (
+          <div className="absolute start-4 top-2 bottom-2 w-px bg-border/30" />
+        )}
 
-        return (
-          <div key={block.id} className={cn(
-            "rounded-xl border transition-colors",
-            allDone
-              ? "bg-emerald-500/5 border-emerald-500/15"
-              : "bg-muted/10 border-border/20"
-          )}>
-            {/* Block header */}
-            <button
-              onClick={() => setExpandedBlock(isExpanded ? null : block.id)}
-              className="flex items-center gap-2.5 w-full px-3 py-2.5 text-start"
-            >
-              <div className={cn(
-                "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                allDone ? "bg-emerald-500/15" : "bg-muted/30"
-              )}>
-                <Icon className={cn("w-3.5 h-3.5", allDone ? "text-emerald-500" : color)} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className={cn(
-                  "text-xs font-bold block",
-                  allDone ? "text-emerald-600 dark:text-emerald-400" : "text-foreground/80"
-                )}>
-                  {isHe ? block.title : block.titleEn}
-                </span>
-                <span className="text-[9px] text-muted-foreground">
-                  {block.completedCount}/{block.actions.length} · {block.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
-                </span>
-              </div>
-              {isExpanded ? (
-                <ChevronUp className="w-3.5 h-3.5 text-muted-foreground/40" />
-              ) : (
-                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/40" />
-              )}
-            </button>
+        <div className="space-y-1.5">
+          {day.blocks.map((block) => {
+            const action = block.actions[0];
+            if (!action) return null;
+            const Icon = BLOCK_ICONS[block.category] || Swords;
+            const color = BLOCK_COLORS[block.category] || 'text-foreground/60';
+            const diffStyle = DIFFICULTY_STYLES[action.difficulty];
 
-            {/* Actions */}
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-3 pb-2.5 space-y-1">
-                    {block.actions.map((action) => {
-                      const diffStyle = DIFFICULTY_STYLES[action.difficulty];
-                      return (
-                        <button
-                          key={action.id}
-                          onClick={() => onExecuteAction(action)}
-                          className={cn(
-                            "flex items-start gap-2 w-full text-start py-2 px-2.5 rounded-lg transition-all group",
-                            action.completed
-                              ? "opacity-50 bg-emerald-500/5"
-                              : "hover:bg-primary/5 hover:border-primary/20 border border-transparent"
-                          )}
-                        >
-                          {/* Play icon instead of checkbox */}
-                          <div className={cn(
-                            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                            action.completed
-                              ? "bg-emerald-500/15"
-                              : "bg-primary/10 group-hover:bg-primary/20"
-                          )}>
-                            {action.completed ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                            ) : (
-                              <Play className="w-3 h-3 text-primary ms-0.5" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={cn(
-                              "text-xs leading-snug font-medium",
-                              action.completed ? "line-through text-muted-foreground" : "text-foreground/80"
-                            )}>
-                              {isHe ? action.title : (action.titleEn || action.title)}
-                            </p>
-                            {action.description && (
-                              <p className="text-[10px] text-muted-foreground/60 mt-0.5 line-clamp-1">
-                                {isHe ? action.description : (action.descriptionEn || action.description)}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                              {/* Difficulty badge */}
-                              <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full", diffStyle.bg, diffStyle.text)}>
-                                {isHe ? diffStyle.label.he : diffStyle.label.en}
-                              </span>
-                              <span className="text-[8px] text-muted-foreground/50 flex items-center gap-0.5">
-                                <Flame className="w-2.5 h-2.5" />
-                                {action.xpReward} XP
-                              </span>
-                              <span className="text-[8px] text-muted-foreground/50">
-                                {action.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
-                              </span>
-                              {!action.completed && (
-                                <span className="text-[8px] text-primary/60 font-medium">
-                                  {isHe ? 'לחץ להתחיל ▶' : 'Tap to start ▶'}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+            return (
+              <button
+                key={block.id}
+                onClick={() => onExecuteAction(action)}
+                className={cn(
+                  "flex items-start gap-3 w-full text-start py-2.5 px-3 rounded-xl transition-all group",
+                  action.completed
+                    ? "opacity-50 bg-emerald-500/5 border border-emerald-500/10"
+                    : "hover:bg-primary/5 border border-border/20 hover:border-primary/20"
+                )}
+              >
+                {/* Time column */}
+                {hasAiSchedule && block.startTime ? (
+                  <div className="flex flex-col items-center shrink-0 w-12 pt-0.5">
+                    <span className="text-[11px] font-bold text-foreground/70 tabular-nums">
+                      {block.startTime}
+                    </span>
+                    <span className="text-[8px] text-muted-foreground/50 tabular-nums">
+                      {block.endTime}
+                    </span>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })}
+                ) : null}
+
+                {/* Icon */}
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                  action.completed
+                    ? "bg-emerald-500/15"
+                    : "bg-primary/10 group-hover:bg-primary/20"
+                )}>
+                  {action.completed ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <Play className="w-3.5 h-3.5 text-primary ms-0.5" />
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-2">
+                    <Icon className={cn("w-3.5 h-3.5 shrink-0 mt-0.5", action.completed ? "text-emerald-500" : color)} />
+                    <p className={cn(
+                      "text-xs leading-snug font-medium flex-1",
+                      action.completed ? "line-through text-muted-foreground" : "text-foreground/80"
+                    )}>
+                      {isHe ? action.title : (action.titleEn || action.title)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap ms-5">
+                    <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full", diffStyle.bg, diffStyle.text)}>
+                      {isHe ? diffStyle.label.he : diffStyle.label.en}
+                    </span>
+                    <span className="text-[8px] text-muted-foreground/50 flex items-center gap-0.5">
+                      <Flame className="w-2.5 h-2.5" />
+                      {action.xpReward} XP
+                    </span>
+                    <span className="text-[8px] text-muted-foreground/50">
+                      {action.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
+                    </span>
+                    {!action.completed && (
+                      <span className="text-[8px] text-primary/60 font-medium">
+                        {isHe ? 'לחץ להתחיל ▶' : 'Tap to start ▶'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

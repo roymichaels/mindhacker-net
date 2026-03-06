@@ -1,15 +1,17 @@
 /**
- * useWeeklyTacticalPlan — Transforms life_plan_milestones (strategy milestones)
- * into a 10-day phase plan.
+ * useWeeklyTacticalPlan — Consumes AI-generated tactical schedules from
+ * the tactical_schedules table. Falls back to local distribution if no
+ * AI schedule exists yet.
  *
- * Each milestone is a "Standing Order" (e.g. "3x/week HIIT sprints").
- * It appears ONCE in the 10-day phase, load-balanced across days so
- * every day has roughly equal workload.
+ * The schedule is a 10-day plan with fixed time blocks (e.g., 06:30-06:45).
+ * Each block references a milestone and includes execution metadata.
  */
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
-import { usePhaseActions } from '@/hooks/usePhaseActions';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 // ── Types ──
 
@@ -23,7 +25,7 @@ export interface TacticalAction {
   titleEn: string | null;
   description: string | null;
   descriptionEn: string | null;
-  sourceMilestoneId: string;
+  sourceMilestoneId: string | null;
   executionTemplate: string | null;
   actionType: string | null;
   estimatedMinutes: number;
@@ -37,6 +39,10 @@ export interface TacticalAction {
   calendarDate: string | null;
   focusArea: string | null;
   missionId: string | null;
+  /** Time block start (HH:MM) */
+  startTime: string | null;
+  /** Time block end (HH:MM) */
+  endTime: string | null;
 }
 
 export interface TacticalBlock {
@@ -47,6 +53,8 @@ export interface TacticalBlock {
   estimatedMinutes: number;
   actions: TacticalAction[];
   completedCount: number;
+  startTime: string | null;
+  endTime: string | null;
 }
 
 export interface DayPlan {
@@ -72,6 +80,9 @@ export interface PhasePlan {
   generating: boolean;
   phaseStart: string;
   phaseEnd: string;
+  hasAiSchedule: boolean;
+  wakeTime: string;
+  sleepTime: string;
 }
 
 // ── Constants ──
@@ -85,8 +96,6 @@ const BLOCK_LABELS: Record<BlockCategory, { he: string; en: string }> = {
   review:   { he: 'סקירה וניתוח', en: 'Review & Analysis' },
   social:   { he: 'חברתי ומערכות יחסים', en: 'Social & Relationships' },
 };
-
-const DIFFICULTY_XP: Record<Difficulty, number> = { easy: 5, medium: 10, hard: 15 };
 
 // ── Helpers ──
 
@@ -115,167 +124,188 @@ function getPhaseWindow(planStartDate: string, phaseNumber: number) {
   return { dates, start: dates[0], end: dates[9] };
 }
 
-// ── Classification ──
-
-export function classifyCadence(title: string, actionType: string | null, executionTemplate: string | null): Cadence {
-  const combined = `${title} ${actionType || ''} ${executionTemplate || ''}`.toLowerCase();
-  if (/נשימ|יציב|מדיטציה|breath|posture|meditation|journal|morning|anchor|עוגן|מיינדפול|mindful|daily|יומי/.test(combined)) return 'daily';
-  if (/אימון|כוח|לחימה|sparring|combat|strength|workout|hiit|calisthen|training|shadow/.test(combined)) return '3x_per_week';
-  if (/עבודה עמוקה|deep.?work|content|creation|study|למידה|sprint/.test(combined)) return '2x_per_week';
-  if (/סקירה|review|audit|מיפוי|mapping|analysis|ניתוח|שבוע|weekly/.test(combined)) return 'weekly';
-  if (/הקמ|setup|publish|launch|פרסום|build|בנייה|one.?time|חד.?פעמי/.test(combined)) return 'one_time';
-  if (executionTemplate === 'tts_guided' || executionTemplate === 'step_by_step') return 'daily';
-  if (executionTemplate === 'sets_reps_timer' || executionTemplate === 'video_embed') return '3x_per_week';
-  if (executionTemplate === 'timer_focus') return '2x_per_week';
-  if (executionTemplate === 'social_checklist') return 'weekly';
-  return '3x_per_week';
+function validCategory(cat: string): BlockCategory {
+  const valid: BlockCategory[] = ['health', 'training', 'focus', 'action', 'creation', 'review', 'social'];
+  return valid.includes(cat as BlockCategory) ? (cat as BlockCategory) : 'action';
 }
 
-export function classifyBlockCategory(actionType: string | null, executionTemplate: string | null, title: string, focusArea?: string | null): BlockCategory {
-  const combined = `${title} ${actionType || ''} ${executionTemplate || ''} ${focusArea || ''}`.toLowerCase();
-  if (/נשימ|breath|posture|יציב|health|בריאות|nutrition|תזונ|sleep|שינה|skin|עור|body.?scan|סריקת/.test(combined)) return 'health';
-  if (/אימון|combat|strength|כוח|shadow|boxing|hiit|training|לחימה|workout|חסימ|מכות|physical|פיזי/.test(combined)) return 'training';
-  if (/מדיטציה|meditation|focus|פוקוס|deep.?work|עמוקה|timer_focus|ויזואליז|consciousness|תודע/.test(combined)) return 'focus';
-  if (/יצירה|creation|content|build|בנייה|publish|פרסום|business|עסק/.test(combined)) return 'creation';
-  if (/סקירה|review|audit|ניתוח|analysis|מיפוי|mapping/.test(combined)) return 'review';
-  if (/social|חברת|relation|קשר|networking|outreach|dating|communication|תקשורת/.test(combined)) return 'social';
-  return 'action';
+function validDifficulty(d: string): Difficulty {
+  return ['easy', 'medium', 'hard'].includes(d) ? (d as Difficulty) : 'medium';
 }
 
-function classifyDifficulty(milestone: any): Difficulty {
-  const title = `${milestone.title || ''} ${milestone.title_en || ''}`.toLowerCase();
-  if (/master|intense|advanced|complex|deep|sprint|hard|קשה|עמוק|מתקדם/.test(title)) return 'hard';
-  if (/basic|simple|routine|habit|anchor|begin|easy|קל|בסיסי|הרגל/.test(title)) return 'easy';
-  return 'medium';
-}
+const DIFFICULTY_XP: Record<Difficulty, number> = { easy: 5, medium: 10, hard: 15 };
 
-function estimateMinutes(focusArea: string | null, title: string): number {
-  const combined = `${title} ${focusArea || ''}`.toLowerCase();
-  if (/נשימ|breath|meditation|מדיטציה|mindful|anchor/.test(combined)) return 10;
-  if (/אימון|combat|strength|workout|training|hiit/.test(combined)) return 25;
-  if (/deep.?work|עמוקה|sprint|content|creation/.test(combined)) return 30;
-  if (/review|סקירה|audit|analysis/.test(combined)) return 15;
-  if (/social|networking|relation/.test(combined)) return 15;
-  return 15;
-}
+// ── Parse AI schedule into DayPlans ──
 
-function inferExecutionTemplate(title: string, focusArea: string | null): string | null {
-  const combined = `${title} ${focusArea || ''}`.toLowerCase();
-  if (/נשימ|breath|meditation|מדיטציה|body.?scan|visuali|mindful|relaxation|הרפיה/.test(combined)) return 'tts_guided';
-  if (/yoga|tai.?chi|qigong|pilates|stretching|mobility|יוגה/.test(combined)) return 'video_embed';
-  if (/combat|shadow|boxing|strength|hiit|calisthen|push.?up|squat|אימון|כוח|לחימה/.test(combined)) return 'sets_reps_timer';
-  if (/deep.?work|business|project|sprint|study|content|עמוקה|עסק|למידה/.test(combined)) return 'timer_focus';
-  if (/social|networking|relation|outreach|dating|חברת|קשר/.test(combined)) return 'social_checklist';
-  return 'step_by_step';
-}
-
-// ── Block grouping ──
-
-function groupIntoBlocks(actions: TacticalAction[]): TacticalBlock[] {
-  const categoryGroups = new Map<BlockCategory, TacticalAction[]>();
-  for (const action of actions) {
-    const existing = categoryGroups.get(action.blockCategory) || [];
-    existing.push(action);
-    categoryGroups.set(action.blockCategory, existing);
-  }
-
-  const categoryOrder: BlockCategory[] = ['health', 'training', 'focus', 'action', 'creation', 'review', 'social'];
-  const blocks: TacticalBlock[] = [];
-  for (const cat of categoryOrder) {
-    const catActions = categoryGroups.get(cat);
-    if (!catActions || catActions.length === 0) continue;
-    const label = BLOCK_LABELS[cat];
-    blocks.push({
-      id: `block-${cat}-${catActions[0].id}`,
-      title: label.he,
-      titleEn: label.en,
-      category: cat,
-      estimatedMinutes: catActions.reduce((sum, a) => sum + a.estimatedMinutes, 0),
-      actions: catActions,
-      completedCount: catActions.filter(a => a.completed).length,
-    });
-  }
-  return blocks;
-}
-
-// ── Load-balanced distribution (each milestone appears ONCE) ──
-
-/**
- * Each milestone is a Standing Order — it appears exactly once in the
- * 10-day phase, assigned to the least-loaded day for even balance.
- */
-function distributeMilestonesToDays(
-  milestones: any[],
-  planStartDate: string,
+function parseAiSchedule(
+  scheduleDays: any[],
+  phaseDates: string[],
+  todayStr: string,
   phaseNumber: number,
-): TacticalAction[] {
+  planStartDate: string,
+): DayPlan[] {
+  const days: DayPlan[] = [];
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
 
-  const items = milestones.map(m => {
-    const title = m.title || '';
-    const focusArea = m.focus_area || null;
-    return {
-      raw: m,
-      title,
-      titleEn: m.title_en || title,
-      focusArea,
-      blockCat: classifyBlockCategory(null, null, title, focusArea),
-      difficulty: classifyDifficulty(m),
-      mins: estimateMinutes(focusArea, title),
-      execTemplate: inferExecutionTemplate(title, focusArea),
-    };
-  });
+  for (let d = 0; d < 10; d++) {
+    const aiDay = scheduleDays.find((sd: any) => sd.day_number === d + 1) || scheduleDays[d];
+    const date = phaseDates[d] || '';
+    const absDay = phaseStartDay + d;
 
-  // Sort heaviest first for better balance
+    if (!aiDay || !aiDay.blocks || aiDay.blocks.length === 0) {
+      days.push({
+        dayIndex: d, label: `יום ${d + 1}`, labelEn: `Day ${d + 1}`,
+        date, dayNumber: d + 1, blocks: [], totalActions: 0,
+        completedActions: 0, totalMinutes: 0, isToday: date === todayStr,
+      });
+      continue;
+    }
+
+    // Convert AI blocks into TacticalBlocks (each AI block = one action in one block)
+    const actions: TacticalAction[] = aiDay.blocks.map((b: any, idx: number) => ({
+      id: `ai-${d}-${idx}-${b.milestone_id || 'gen'}`,
+      title: b.title_he || b.title_en || 'משימה',
+      titleEn: b.title_en || b.title_he || 'Task',
+      description: null,
+      descriptionEn: null,
+      sourceMilestoneId: b.milestone_id || null,
+      executionTemplate: b.execution_template || 'step_by_step',
+      actionType: b.category || null,
+      estimatedMinutes: b.estimated_minutes || 15,
+      cadence: 'daily' as Cadence,
+      completed: false,
+      completedAt: null,
+      xpReward: b.xp_reward || DIFFICULTY_XP[validDifficulty(b.difficulty)] || 10,
+      blockCategory: validCategory(b.category),
+      difficulty: validDifficulty(b.difficulty),
+      scheduledDay: absDay,
+      calendarDate: date,
+      focusArea: b.category || null,
+      missionId: null,
+      startTime: b.start_time || null,
+      endTime: b.end_time || null,
+    }));
+
+    // Group actions by time slot into blocks — each action IS its own time block
+    const blocks: TacticalBlock[] = actions.map((action: TacticalAction) => {
+      const label = BLOCK_LABELS[action.blockCategory] || BLOCK_LABELS.action;
+      return {
+        id: `tblock-${d}-${action.id}`,
+        title: label.he,
+        titleEn: label.en,
+        category: action.blockCategory,
+        estimatedMinutes: action.estimatedMinutes,
+        actions: [action],
+        completedCount: action.completed ? 1 : 0,
+        startTime: action.startTime,
+        endTime: action.endTime,
+      };
+    });
+
+    days.push({
+      dayIndex: d,
+      label: `יום ${d + 1}`,
+      labelEn: `Day ${d + 1}`,
+      date,
+      dayNumber: d + 1,
+      blocks,
+      totalActions: actions.length,
+      completedActions: actions.filter(a => a.completed).length,
+      totalMinutes: aiDay.total_minutes || actions.reduce((s: number, a: TacticalAction) => s + a.estimatedMinutes, 0),
+      isToday: date === todayStr,
+    });
+  }
+
+  return days;
+}
+
+// ── Fallback: simple distribution (no AI schedule yet) ──
+
+function buildFallbackDays(
+  milestones: any[],
+  phaseDates: string[],
+  todayStr: string,
+  phaseNumber: number,
+  planStartDate: string,
+): DayPlan[] {
+  const phaseStartDay = (phaseNumber - 1) * 10 + 1;
+  const dayLoad = new Array(10).fill(0);
+  const dayActions: TacticalAction[][] = Array.from({ length: 10 }, () => []);
+
+  // Sort heaviest first
+  const items = milestones.map(m => ({
+    raw: m,
+    mins: 15,
+    blockCat: 'action' as BlockCategory,
+  }));
   items.sort((a, b) => b.mins - a.mins);
 
-  const dayLoad = new Array(10).fill(0);
-  const actions: TacticalAction[] = [];
-
   for (const mm of items) {
-    // Pick day with lowest load
     let bestDay = 0;
     for (let d = 1; d < 10; d++) {
       if (dayLoad[d] < dayLoad[bestDay]) bestDay = d;
     }
-
     dayLoad[bestDay] += mm.mins;
     const absDay = phaseStartDay + bestDay;
-    const calendarDate = planDayToDate(planStartDate, absDay);
-
-    actions.push({
+    dayActions[bestDay].push({
       id: `${mm.raw.id}-d${bestDay}`,
-      title: mm.title,
-      titleEn: mm.titleEn,
+      title: mm.raw.title || '',
+      titleEn: mm.raw.title_en || mm.raw.title || '',
       description: mm.raw.description || null,
       descriptionEn: mm.raw.description_en || null,
       sourceMilestoneId: mm.raw.id,
-      executionTemplate: mm.execTemplate,
+      executionTemplate: 'step_by_step',
       actionType: mm.raw.focus_area || null,
       estimatedMinutes: mm.mins,
-      cadence: classifyCadence(mm.title, null, null),
+      cadence: 'daily',
       completed: false,
       completedAt: null,
-      xpReward: DIFFICULTY_XP[mm.difficulty],
+      xpReward: 10,
       blockCategory: mm.blockCat,
-      difficulty: mm.difficulty,
+      difficulty: 'medium',
       scheduledDay: absDay,
-      calendarDate,
-      focusArea: mm.focusArea,
+      calendarDate: phaseDates[bestDay] || '',
+      focusArea: mm.raw.focus_area || null,
       missionId: mm.raw.mission_id || null,
+      startTime: null,
+      endTime: null,
     });
   }
 
-  return actions;
+  return phaseDates.map((date, d) => {
+    const actions = dayActions[d];
+    const blocks: TacticalBlock[] = actions.length > 0 ? [{
+      id: `fallback-block-${d}`,
+      title: BLOCK_LABELS.action.he,
+      titleEn: BLOCK_LABELS.action.en,
+      category: 'action',
+      estimatedMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
+      actions,
+      completedCount: 0,
+      startTime: null,
+      endTime: null,
+    }] : [];
+
+    return {
+      dayIndex: d, label: `יום ${d + 1}`, labelEn: `Day ${d + 1}`,
+      date, dayNumber: d + 1, blocks,
+      totalActions: actions.length,
+      completedActions: 0,
+      totalMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
+      isToday: date === todayStr,
+    };
+  });
 }
 
 // ── Hook ──
 
-export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean } {
+export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; generateSchedule: () => Promise<void>; isGenerating: boolean } {
   const { user } = useAuth();
   const { milestones, currentWeek: currentPhase, plan, isLoading: planLoading } = useLifePlanWithMilestones();
-  const { generating } = usePhaseActions();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
+  const planId = plan?.id || null;
   const planStartDate = plan?.start_date || null;
 
   const currentPhaseMilestones = useMemo(
@@ -291,88 +321,135 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean } {
 
   const todayStr = useMemo(() => toDateStr(new Date()), []);
 
+  // Fetch AI-generated schedule
+  const { data: aiSchedule, isLoading: scheduleLoading } = useQuery({
+    queryKey: ['tactical-schedule', planId, currentPhase],
+    queryFn: async () => {
+      if (!planId || !currentPhase || !user?.id) return null;
+      const { data, error } = await supabase
+        .from('tactical_schedules')
+        .select('schedule_data, wake_time, sleep_time, version, generated_at')
+        .eq('user_id', user.id)
+        .eq('plan_id', planId)
+        .eq('phase_number', currentPhase)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+    enabled: !!planId && !!currentPhase && !!user?.id,
+    staleTime: 5 * 60_000,
+  });
+
+  // Generate schedule function
+  const generateSchedule = useCallback(async () => {
+    if (!user?.id || !planId || !currentPhase) return;
+    try {
+      const { error } = await supabase.functions.invoke('generate-tactical-schedule', {
+        body: { user_id: user.id, plan_id: planId, phase_number: currentPhase },
+      });
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
+    } catch (e) {
+      console.error('Schedule generation failed:', e);
+      toast({ title: 'Schedule generation failed', variant: 'destructive' });
+    }
+  }, [user?.id, planId, currentPhase, queryClient, toast]);
+
+  // Track generating state
+  const { data: isGenerating = false } = useQuery({
+    queryKey: ['tactical-schedule-generating'],
+    queryFn: () => false,
+    staleTime: Infinity,
+  });
+
   const phasePlan = useMemo((): PhasePlan => {
     const phaseLabel = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'][(currentPhase || 1) - 1] || '?';
+    const wakeTime = aiSchedule?.wake_time || '06:30';
+    const sleepTime = aiSchedule?.sleep_time || '23:00';
+    
     const emptyPlan: PhasePlan = {
       phase: phaseLabel,
       phaseNumber: currentPhase || 1,
-      days: buildEmptyDays(phaseDates, todayStr),
+      days: phaseDates.map((date, i) => ({
+        dayIndex: i, label: `יום ${i + 1}`, labelEn: `Day ${i + 1}`,
+        date, dayNumber: i + 1, blocks: [], totalActions: 0,
+        completedActions: 0, totalMinutes: 0, isToday: date === todayStr,
+      })),
       totalActions: 0,
       completedActions: 0,
       totalMinutes: 0,
-      generating,
+      generating: false,
       phaseStart,
       phaseEnd,
+      hasAiSchedule: false,
+      wakeTime,
+      sleepTime,
     };
 
-    if (!planStartDate || phaseDates.length === 0 || currentPhaseMilestones.length === 0) return emptyPlan;
+    if (phaseDates.length === 0 || currentPhaseMilestones.length === 0) return emptyPlan;
 
-    const allActions = distributeMilestonesToDays(currentPhaseMilestones, planStartDate, currentPhase || 1);
+    let days: DayPlan[];
 
-    // Assign to day slots
-    const dayMap = new Map<number, TacticalAction[]>();
-    for (let d = 0; d < 10; d++) dayMap.set(d, []);
-
-    for (const action of allActions) {
-      if (action.calendarDate) {
-        const idx = phaseDates.indexOf(action.calendarDate);
-        if (idx >= 0) dayMap.get(idx)!.push(action);
-      }
+    if (aiSchedule?.schedule_data && Array.isArray(aiSchedule.schedule_data)) {
+      // Use AI-generated schedule
+      days = parseAiSchedule(
+        aiSchedule.schedule_data,
+        phaseDates,
+        todayStr,
+        currentPhase || 1,
+        planStartDate || '',
+      );
+    } else {
+      // Fallback to simple distribution
+      days = buildFallbackDays(
+        currentPhaseMilestones,
+        phaseDates,
+        todayStr,
+        currentPhase || 1,
+        planStartDate || '',
+      );
     }
 
-    const days = buildDayPlans(dayMap, phaseDates, todayStr);
+    const totalActions = days.reduce((s, d) => s + d.totalActions, 0);
+    const completedActions = days.reduce((s, d) => s + d.completedActions, 0);
 
     return {
       phase: phaseLabel,
       phaseNumber: currentPhase || 1,
       days,
-      totalActions: allActions.length,
-      completedActions: allActions.filter(a => a.completed).length,
+      totalActions,
+      completedActions,
       totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
-      generating,
+      generating: false,
       phaseStart,
       phaseEnd,
+      hasAiSchedule: !!aiSchedule?.schedule_data,
+      wakeTime,
+      sleepTime,
     };
-  }, [currentPhaseMilestones, currentPhase, generating, planStartDate, phaseDates, phaseStart, phaseEnd, todayStr]);
+  }, [currentPhaseMilestones, currentPhase, planStartDate, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule]);
 
-  return { ...phasePlan, isLoading: planLoading };
+  return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating };
 }
 
-// ── Build helpers ──
-
-function buildEmptyDays(phaseDates: string[], todayStr: string): DayPlan[] {
-  return phaseDates.map((date, i) => ({
-    dayIndex: i,
-    label: `יום ${i + 1}`,
-    labelEn: `Day ${i + 1}`,
-    date,
-    dayNumber: i + 1,
-    blocks: [],
-    totalActions: 0,
-    completedActions: 0,
-    totalMinutes: 0,
-    isToday: date === todayStr,
-  }));
+// Classification exports (used by other components)
+export function classifyCadence(title: string, _at: string | null, _et: string | null): Cadence {
+  const t = title.toLowerCase();
+  if (/daily|יומי|breath|נשימ|meditation|מדיטציה/.test(t)) return 'daily';
+  if (/3x|training|אימון|combat|לחימה/.test(t)) return '3x_per_week';
+  if (/2x|deep.?work|עמוקה/.test(t)) return '2x_per_week';
+  if (/weekly|שבוע|review|סקירה/.test(t)) return 'weekly';
+  if (/one.?time|חד.?פעמי/.test(t)) return 'one_time';
+  return '3x_per_week';
 }
 
-function buildDayPlans(dayMap: Map<number, TacticalAction[]>, phaseDates: string[], todayStr: string): DayPlan[] {
-  const days: DayPlan[] = [];
-  for (let d = 0; d < 10; d++) {
-    const actions = dayMap.get(d) || [];
-    const blocks = groupIntoBlocks(actions);
-    const date = phaseDates[d] || '';
-    days.push({
-      dayIndex: d,
-      label: `יום ${d + 1}`,
-      labelEn: `Day ${d + 1}`,
-      date,
-      dayNumber: d + 1,
-      blocks,
-      totalActions: actions.length,
-      completedActions: actions.filter(a => a.completed).length,
-      totalMinutes: actions.reduce((sum, a) => sum + a.estimatedMinutes, 0),
-      isToday: date === todayStr,
-    });
-  }
-  return days;
+export function classifyBlockCategory(_at: string | null, _et: string | null, title: string, focusArea?: string | null): BlockCategory {
+  const t = `${title} ${focusArea || ''}`.toLowerCase();
+  if (/health|בריאות|breath|נשימ|posture|יציב/.test(t)) return 'health';
+  if (/training|אימון|combat|לחימה|strength|כוח/.test(t)) return 'training';
+  if (/focus|פוקוס|deep.?work|עמוקה|meditation|מדיטציה/.test(t)) return 'focus';
+  if (/creation|יצירה|build|בנייה|content/.test(t)) return 'creation';
+  if (/review|סקירה|analysis|ניתוח/.test(t)) return 'review';
+  if (/social|חברת|relation|קשר/.test(t)) return 'social';
+  return 'action';
 }

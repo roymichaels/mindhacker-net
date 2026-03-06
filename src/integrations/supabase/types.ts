@@ -7574,6 +7574,56 @@ export type Database = {
         }
         Relationships: []
       }
+      tactical_schedules: {
+        Row: {
+          created_at: string
+          generated_at: string
+          id: string
+          phase_number: number
+          plan_id: string | null
+          schedule_data: Json
+          sleep_time: string
+          updated_at: string
+          user_id: string
+          version: number
+          wake_time: string
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string
+          id?: string
+          phase_number: number
+          plan_id?: string | null
+          schedule_data?: Json
+          sleep_time?: string
+          updated_at?: string
+          user_id: string
+          version?: number
+          wake_time?: string
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string
+          id?: string
+          phase_number?: number
+          plan_id?: string | null
+          schedule_data?: Json
+          sleep_time?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+          wake_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tactical_schedules_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       testimonials: {
         Row: {
           avatar_url: string | null
