@@ -1,9 +1,9 @@
 /**
- * useWeeklyTacticalPlan — Transforms mini_milestones into a structured weekly plan.
+ * useWeeklyTacticalPlan — Transforms mini_milestones into a 10-day phase plan.
  *
  * Pipeline:
  *   milestones → mini_milestones → map scheduled_day to calendar date
- *   → filter to current week → assign day-of-week → group into blocks → render
+ *   → filter to current 10-day phase window → assign day index → group into blocks → render
  */
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ import { usePhaseActions } from '@/hooks/usePhaseActions';
 
 export type Cadence = 'daily' | '3x_per_week' | '2x_per_week' | 'weekly' | 'one_time';
 export type BlockCategory = 'training' | 'action' | 'review' | 'creation' | 'health' | 'focus' | 'social';
-export type DayKey = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface TacticalAction {
   id: string;
@@ -33,6 +33,7 @@ export interface TacticalAction {
   completedAt: string | null;
   xpReward: number;
   blockCategory: BlockCategory;
+  difficulty: Difficulty;
   /** Absolute plan day (1-100) */
   scheduledDay: number | null;
   /** Resolved calendar date YYYY-MM-DD */
@@ -50,18 +51,19 @@ export interface TacticalBlock {
 }
 
 export interface DayPlan {
-  dayKey: DayKey;
   dayIndex: number;
   label: string;
   labelEn: string;
   date: string; // YYYY-MM-DD
+  dayNumber: number; // 1-10 within phase
   blocks: TacticalBlock[];
   totalActions: number;
   completedActions: number;
   totalMinutes: number;
+  isToday: boolean;
 }
 
-export interface WeeklyPlan {
+export interface PhasePlan {
   phase: string;
   phaseNumber: number;
   days: DayPlan[];
@@ -69,15 +71,11 @@ export interface WeeklyPlan {
   completedActions: number;
   totalMinutes: number;
   generating: boolean;
-  weekStart: string;
-  weekEnd: string;
+  phaseStart: string;
+  phaseEnd: string;
 }
 
 // ── Constants ──
-
-const DAY_KEYS: DayKey[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const DAY_LABELS_HE = ['יום א׳', 'יום ב׳', 'יום ג׳', 'יום ד׳', 'יום ה׳', 'יום ו׳', 'שבת'];
-const DAY_LABELS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const BLOCK_LABELS: Record<BlockCategory, { he: string; en: string }> = {
   health:   { he: 'בריאות ויציבה', en: 'Health & Posture' },
@@ -89,19 +87,13 @@ const BLOCK_LABELS: Record<BlockCategory, { he: string; en: string }> = {
   social:   { he: 'חברתי ומערכות יחסים', en: 'Social & Relationships' },
 };
 
-// ── Helpers ──
+const DIFFICULTY_XP: Record<Difficulty, number> = {
+  easy: 5,
+  medium: 10,
+  hard: 15,
+};
 
-/** Get the Sunday-based week window that contains `date`. */
-function getWeekWindow(date: Date): { start: Date; end: Date } {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const dayOfWeek = d.getDay(); // 0=Sun
-  const start = new Date(d);
-  start.setDate(d.getDate() - dayOfWeek);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  return { start, end };
-}
+// ── Helpers ──
 
 function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -114,6 +106,20 @@ function planDayToDate(planStartDate: string, scheduledDay: number): string {
   const target = new Date(start);
   target.setDate(start.getDate() + (scheduledDay - 1));
   return toDateStr(target);
+}
+
+/** Get the 10-day phase window dates from plan start. */
+function getPhaseWindow(planStartDate: string, phaseNumber: number): { dates: string[]; start: string; end: string } {
+  const planStart = new Date(planStartDate);
+  planStart.setHours(0, 0, 0, 0);
+  const phaseStartDay = (phaseNumber - 1) * 10 + 1;
+  const dates: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(planStart);
+    d.setDate(planStart.getDate() + (phaseStartDay - 1) + i);
+    dates.push(toDateStr(d));
+  }
+  return { dates, start: dates[0], end: dates[9] };
 }
 
 // ── Classification ──
@@ -154,6 +160,11 @@ export function classifyBlockCategory(
   if (/social|חברת|relation|קשר|networking|outreach|dating/.test(combined)) return 'social';
 
   return 'action';
+}
+
+function classifyDifficulty(raw: string | null): Difficulty {
+  if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw;
+  return 'medium';
 }
 
 function estimateMinutes(executionTemplate: string | null, _actionType: string | null): number {
@@ -201,16 +212,12 @@ function groupIntoBlocks(actions: TacticalAction[]): TacticalBlock[] {
 
 // ── Hook ──
 
-export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
+export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean } {
   const { user } = useAuth();
   const { milestones, currentWeek: currentPhase, plan } = useLifePlanWithMilestones();
   const { generating } = usePhaseActions();
 
   const planStartDate = plan?.start_date || null;
-
-  const allPlanIds = useMemo(() => {
-    return (plan as any)?.all_plan_ids as string[] || (plan?.id ? [plan.id] : []);
-  }, [plan]);
 
   // Current phase milestones
   const currentPhaseMilestones = useMemo(
@@ -223,18 +230,14 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
     [currentPhaseMilestones]
   );
 
-  // Current week window
-  const { weekStart, weekEnd, weekDates } = useMemo(() => {
-    const today = new Date();
-    const { start, end } = getWeekWindow(today);
-    const dates: string[] = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      dates.push(toDateStr(d));
-    }
-    return { weekStart: toDateStr(start), weekEnd: toDateStr(end), weekDates: dates };
-  }, []);
+  // 10-day phase window
+  const { phaseDates, phaseStart, phaseEnd } = useMemo(() => {
+    if (!planStartDate) return { phaseDates: [], phaseStart: '', phaseEnd: '' };
+    const { dates, start, end } = getPhaseWindow(planStartDate, currentPhase || 1);
+    return { phaseDates: dates, phaseStart: start, phaseEnd: end };
+  }, [planStartDate, currentPhase]);
+
+  const todayStr = useMemo(() => toDateStr(new Date()), []);
 
   // Fetch ALL mini_milestones for current phase
   const { data: allMiniMilestones, isLoading } = useQuery({
@@ -255,31 +258,30 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
     staleTime: 60_000,
   });
 
-  // Build the weekly plan
-  const weeklyPlan = useMemo((): WeeklyPlan => {
+  // Build the 10-day phase plan
+  const phasePlan = useMemo((): PhasePlan => {
     const phaseLabel = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'][(currentPhase || 1) - 1] || '?';
-    const emptyPlan: WeeklyPlan = {
+    const emptyPlan: PhasePlan = {
       phase: phaseLabel,
       phaseNumber: currentPhase || 1,
-      days: buildEmptyDays(weekDates),
+      days: buildEmptyDays(phaseDates, todayStr),
       totalActions: 0,
       completedActions: 0,
       totalMinutes: 0,
       generating,
-      weekStart,
-      weekEnd,
+      phaseStart,
+      phaseEnd,
     };
 
-    if (!planStartDate) return emptyPlan;
+    if (!planStartDate || phaseDates.length === 0) return emptyPlan;
 
     const source = allMiniMilestones && allMiniMilestones.length > 0
       ? allMiniMilestones
       : null;
 
     if (!source) {
-      // No mini_milestones — use milestones as fallback but still date-filter
       if (currentPhaseMilestones.length === 0) return emptyPlan;
-      return buildFromMilestones(currentPhaseMilestones, planStartDate, weekDates, phaseLabel, currentPhase || 1, generating, weekStart, weekEnd);
+      return buildFromMilestones(currentPhaseMilestones, planStartDate, phaseDates, phaseLabel, currentPhase || 1, generating, phaseStart, phaseEnd, todayStr);
     }
 
     // ── Main path: convert mini_milestones to TacticalActions with real dates ──
@@ -288,6 +290,7 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
       const cadence = classifyCadence(mm.title, mm.action_type, mm.execution_template);
       const blockCat = classifyBlockCategory(mm.action_type, mm.execution_template, mm.title);
       const mins = estimateMinutes(mm.execution_template, mm.action_type);
+      const difficulty = classifyDifficulty((mm as any).difficulty || null);
 
       return {
         id: mm.id,
@@ -302,81 +305,85 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
         cadence,
         completed: mm.is_completed || false,
         completedAt: mm.completed_at,
-        xpReward: mm.xp_reward || 10,
+        xpReward: DIFFICULTY_XP[difficulty],
         blockCategory: blockCat,
+        difficulty,
         scheduledDay: mm.scheduled_day,
         calendarDate,
       };
     });
 
-    // ── Filter to only actions that fall in THIS calendar week ──
-    const weekActions = actions.filter(a => {
+    // ── Filter to only actions in this 10-day phase ──
+    const phaseActions = actions.filter(a => {
       if (!a.calendarDate) return false;
-      return a.calendarDate >= weekStart && a.calendarDate <= weekEnd;
+      return a.calendarDate >= phaseStart && a.calendarDate <= phaseEnd;
     });
 
-    // ── Assign to day-of-week based on calendar date ──
+    // ── Assign to day index based on calendar date ──
     const dayMap = new Map<number, TacticalAction[]>();
-    for (let d = 0; d < 7; d++) dayMap.set(d, []);
+    for (let d = 0; d < 10; d++) dayMap.set(d, []);
 
-    for (const action of weekActions) {
+    for (const action of phaseActions) {
       if (action.calendarDate) {
-        const dow = new Date(action.calendarDate + 'T12:00:00').getDay();
-        dayMap.get(dow)!.push(action);
+        const idx = phaseDates.indexOf(action.calendarDate);
+        if (idx >= 0) dayMap.get(idx)!.push(action);
       }
     }
 
-    const days = buildDayPlans(dayMap, weekDates);
+    const days = buildDayPlans(dayMap, phaseDates, todayStr);
 
     return {
       phase: phaseLabel,
       phaseNumber: currentPhase || 1,
       days,
-      totalActions: weekActions.length,
-      completedActions: weekActions.filter(a => a.completed).length,
+      totalActions: phaseActions.length,
+      completedActions: phaseActions.filter(a => a.completed).length,
       totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
       generating,
-      weekStart,
-      weekEnd,
+      phaseStart,
+      phaseEnd,
     };
-  }, [allMiniMilestones, currentPhaseMilestones, currentPhase, generating, planStartDate, weekDates, weekStart, weekEnd]);
+  }, [allMiniMilestones, currentPhaseMilestones, currentPhase, generating, planStartDate, phaseDates, phaseStart, phaseEnd, todayStr]);
 
-  return { ...weeklyPlan, isLoading };
+  return { ...phasePlan, isLoading };
 }
 
 // ── Build helpers ──
 
-function buildEmptyDays(weekDates: string[]): DayPlan[] {
-  return weekDates.map((date, i) => ({
-    dayKey: DAY_KEYS[i],
+function buildEmptyDays(phaseDates: string[], todayStr: string): DayPlan[] {
+  return phaseDates.map((date, i) => ({
     dayIndex: i,
-    label: DAY_LABELS_HE[i],
-    labelEn: DAY_LABELS_EN[i],
+    label: `יום ${i + 1}`,
+    labelEn: `Day ${i + 1}`,
     date,
+    dayNumber: i + 1,
     blocks: [],
     totalActions: 0,
     completedActions: 0,
     totalMinutes: 0,
+    isToday: date === todayStr,
   }));
 }
 
-function buildDayPlans(dayMap: Map<number, TacticalAction[]>, weekDates: string[]): DayPlan[] {
+function buildDayPlans(dayMap: Map<number, TacticalAction[]>, phaseDates: string[], todayStr: string): DayPlan[] {
   const days: DayPlan[] = [];
 
-  for (let d = 0; d < 7; d++) {
+  for (let d = 0; d < 10; d++) {
     const actions = dayMap.get(d) || [];
     const blocks = groupIntoBlocks(actions);
+    const date = phaseDates[d] || '';
 
     days.push({
-      dayKey: DAY_KEYS[d],
       dayIndex: d,
-      label: DAY_LABELS_HE[d],
-      labelEn: DAY_LABELS_EN[d],
-      date: weekDates[d],
+      label: `יום ${d + 1}`,
+      labelEn: `Day ${d + 1}`,
+      date,
+      dayNumber: d + 1,
       blocks,
       totalActions: actions.length,
       completedActions: actions.filter(a => a.completed).length,
       totalMinutes: actions.reduce((sum, a) => sum + a.estimatedMinutes, 0),
+      isToday: date === todayStr,
     });
   }
 
@@ -387,15 +394,14 @@ function buildDayPlans(dayMap: Map<number, TacticalAction[]>, weekDates: string[
 function buildFromMilestones(
   milestones: any[],
   planStartDate: string,
-  weekDates: string[],
+  phaseDates: string[],
   phaseLabel: string,
   phaseNumber: number,
   generating: boolean,
-  weekStart: string,
-  weekEnd: string,
-): WeeklyPlan {
-  // Each milestone gets a synthetic scheduled_day based on its position in the phase
-  // Phase N starts at day (N-1)*10 + 1. Distribute milestones evenly across 10 days.
+  phaseStart: string,
+  phaseEnd: string,
+  todayStr: string,
+): PhasePlan {
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
   const milestonesPerDay = Math.max(1, Math.ceil(milestones.length / 10));
 
@@ -419,39 +425,39 @@ function buildFromMilestones(
       cadence,
       completed: m.is_completed,
       completedAt: m.completed_at,
-      xpReward: m.xp_reward || 10,
+      xpReward: DIFFICULTY_XP['medium'],
       blockCategory: blockCat,
+      difficulty: 'medium' as Difficulty,
       scheduledDay: absDay,
       calendarDate,
     };
   });
 
-  // Filter to current week
-  const weekActions = actions.filter(a =>
-    a.calendarDate && a.calendarDate >= weekStart && a.calendarDate <= weekEnd
+  const phaseActions = actions.filter(a =>
+    a.calendarDate && a.calendarDate >= phaseStart && a.calendarDate <= phaseEnd
   );
 
   const dayMap = new Map<number, TacticalAction[]>();
-  for (let d = 0; d < 7; d++) dayMap.set(d, []);
+  for (let d = 0; d < 10; d++) dayMap.set(d, []);
 
-  for (const action of weekActions) {
+  for (const action of phaseActions) {
     if (action.calendarDate) {
-      const dow = new Date(action.calendarDate + 'T12:00:00').getDay();
-      dayMap.get(dow)!.push(action);
+      const idx = phaseDates.indexOf(action.calendarDate);
+      if (idx >= 0) dayMap.get(idx)!.push(action);
     }
   }
 
-  const days = buildDayPlans(dayMap, weekDates);
+  const days = buildDayPlans(dayMap, phaseDates, todayStr);
 
   return {
     phase: phaseLabel,
     phaseNumber,
     days,
-    totalActions: weekActions.length,
-    completedActions: weekActions.filter(a => a.completed).length,
+    totalActions: phaseActions.length,
+    completedActions: phaseActions.filter(a => a.completed).length,
     totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
     generating,
-    weekStart,
-    weekEnd,
+    phaseStart,
+    phaseEnd,
   };
 }
