@@ -1,9 +1,10 @@
 /**
  * LifeHub — Strategy page (אסטרטגיה).
- * Hierarchy: Pillar → Skills (from skills table) → Milestones (goals).
+ * Hierarchy: Pillar → Traits (skills table) → Missions → Milestones.
+ * CRITICAL: Top-level cards are always TRAITS, never mission text.
  */
 import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -12,9 +13,46 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { useStrategyPlans } from '@/hooks/useStrategyPlans';
-import { useMissionSkills } from '@/hooks/useMissionSkills';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
+import { PILLAR_COLORS } from '@/hooks/useTraitGallery';
+
+// ========== TYPES ==========
+interface TraitView {
+  skill_id: string;
+  name: string;
+  name_he: string | null;
+  displayName: string;
+  icon: string;
+  pillar: string;
+  level: number;
+  xp_total: number;
+  missions: MissionView[];
+}
+
+interface MissionView {
+  id: string;
+  title: string;
+  title_en: string | null;
+  is_completed: boolean;
+  milestones: MilestoneView[];
+}
+
+interface MilestoneView {
+  id: string;
+  title: string;
+  title_en: string | null;
+  is_completed: boolean;
+}
+
+interface PillarGroup {
+  pillarId: string;
+  domain: ReturnType<typeof getDomainById>;
+  traits: TraitView[];
+  totalGoals: number;
+  completedGoals: number;
+}
 
 export default function LifeHub() {
   const { language, isRTL } = useTranslation();
@@ -22,25 +60,57 @@ export default function LifeHub() {
   const { plan, isLoading } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+  const [expandedTrait, setExpandedTrait] = useState<string | null>(null);
+  const [expandedMission, setExpandedMission] = useState<string | null>(null);
 
   // Stats
   const { statusMap } = useLifeDomains();
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
 
-  // Mission skills (skills table linked to plan_missions)
-  const { data: missionSkills, isLoading: skillsLoading } = useMissionSkills();
+  // ========== DATA: Traits (from skills table) ==========
+  const { data: traits } = useQuery({
+    queryKey: ['strategy-traits', user?.id, plan?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('skills')
+        .select('id, name, name_he, icon, pillar, category, trait_type')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id && !!plan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // Fetch missions to get pillar info
+  // ========== DATA: Skill progress ==========
+  const { data: skillProgress } = useQuery({
+    queryKey: ['strategy-skill-progress', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data } = await supabase
+        .from('user_skill_progress')
+        .select('skill_id, xp_total, level')
+        .eq('user_id', user.id);
+      return data || [];
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // ========== DATA: Missions ==========
   const { data: missions } = useQuery({
     queryKey: ['strategy-missions', plan?.id],
     queryFn: async () => {
       if (!plan?.id) return [];
       const { data, error } = await supabase
         .from('plan_missions')
-        .select('id, pillar, title, title_en, description, description_en, is_completed, mission_number')
+        .select('id, pillar, title, title_en, is_completed, mission_number, primary_skill_id')
         .eq('plan_id', plan.id)
         .order('mission_number');
       if (error) throw error;
@@ -50,7 +120,7 @@ export default function LifeHub() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch milestones linked to missions (fallback when no skills exist)
+  // ========== DATA: Milestones ==========
   const { data: milestones } = useQuery({
     queryKey: ['strategy-milestones', plan?.id],
     queryFn: async () => {
@@ -75,80 +145,111 @@ export default function LifeHub() {
     return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, [plan?.start_date]);
 
-  // Build mission→pillar map
-  const missionPillarMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const m of (missions || [])) {
-      map.set(m.id, m.pillar);
-    }
-    return map;
-  }, [missions]);
-
-  // Milestones grouped by mission_id (for fallback)
-  const milestonesByMissionId = useMemo(() => {
-    const map: Record<string, NonNullable<typeof milestones>> = {};
-    for (const ms of (milestones || [])) {
-      if (!ms.mission_id) continue;
-      if (!map[ms.mission_id]) map[ms.mission_id] = [];
-      map[ms.mission_id]!.push(ms);
-    }
-    return map;
-  }, [milestones]);
-
-  const hasSkillRecords = missionSkills && missionSkills.length > 0;
-
-  // Unified skill items: use skills table if available, else synthesize from missions
-  type SkillItem = {
-    id: string;
-    name: string;
-    icon: string;
-    level: number;
-    milestones: { id: string; title: string; title_en: string | null; is_completed: boolean }[];
-  };
-
-  const pillarGroups = useMemo(() => {
+  // ========== BUILD NORMALIZED VIEW MODEL ==========
+  const pillarGroups = useMemo((): PillarGroup[] => {
     if (!missions || missions.length === 0) return [];
 
-    const groups: { pillarId: string; domain: ReturnType<typeof getDomainById>; skills: SkillItem[]; totalGoals: number; completedGoals: number }[] = [];
-    const byPillar: Record<string, SkillItem[]> = {};
+    // Index progress
+    const progMap = new Map((skillProgress || []).map(p => [p.skill_id, p]));
 
-    if (hasSkillRecords) {
-      // Use real skills
-      for (const skill of missionSkills!) {
-        const pillar = missionPillarMap.get(skill.mission_id);
-        if (!pillar) continue;
-        if (!byPillar[pillar]) byPillar[pillar] = [];
-        byPillar[pillar]!.push({
-          id: skill.skill_id,
-          name: isHe ? (skill.skill_name_he || skill.skill_name) : skill.skill_name,
-          icon: skill.skill_icon,
-          level: skill.level,
-          milestones: skill.milestones,
+    // Index milestones by mission_id
+    const msByMission = new Map<string, MilestoneView[]>();
+    for (const ms of (milestones || [])) {
+      if (!ms.mission_id) continue;
+      if (!msByMission.has(ms.mission_id)) msByMission.set(ms.mission_id, []);
+      msByMission.get(ms.mission_id)!.push({
+        id: ms.id,
+        title: ms.title,
+        title_en: ms.title_en,
+        is_completed: ms.is_completed ?? false,
+      });
+    }
+
+    // Build MissionView list
+    const missionViews: MissionView[] = missions.map(m => ({
+      id: m.id,
+      title: m.title,
+      title_en: m.title_en,
+      is_completed: m.is_completed ?? false,
+      milestones: msByMission.get(m.id) || [],
+    }));
+
+    // Index traits by pillar
+    const traitsByPillar = new Map<string, TraitView[]>();
+
+    if (traits && traits.length > 0) {
+      // Group traits by pillar
+      for (const t of traits) {
+        const pillar = t.pillar || categoryToPillar(t.category) || 'mind';
+        if (!traitsByPillar.has(pillar)) traitsByPillar.set(pillar, []);
+        const prog = progMap.get(t.id);
+
+        // Find missions linked to this trait
+        const linkedMissions = missionViews.filter(m => {
+          const mData = missions.find(mm => mm.id === m.id);
+          return mData?.primary_skill_id === t.id;
+        });
+
+        // Also check legacy link (mission with same pillar if no primary_skill_id)
+        // Only if no missions found via primary_skill_id
+        let finalMissions = linkedMissions;
+        if (finalMissions.length === 0) {
+          // Legacy: find missions in same pillar that have mission_id matching skill
+          const legacyMissions = missionViews.filter(m => {
+            const mData = missions.find(mm => mm.id === m.id);
+            // Check if any skill has this mission_id via the old link
+            return mData?.pillar === pillar;
+          });
+          // Only use if there's a 1:1 ratio (3 traits, 3 missions per pillar)
+          const pillarTraits = traits.filter(tt => (tt.pillar || categoryToPillar(tt.category)) === pillar);
+          const traitIndex = pillarTraits.findIndex(tt => tt.id === t.id);
+          if (traitIndex >= 0 && traitIndex < legacyMissions.length) {
+            finalMissions = [legacyMissions[traitIndex]];
+          }
+        }
+
+        traitsByPillar.get(pillar)!.push({
+          skill_id: t.id,
+          name: t.name,
+          name_he: t.name_he,
+          displayName: getTraitDisplayName(t.name, t.name_he, isHe),
+          icon: t.icon || '⭐',
+          pillar,
+          level: prog?.level || 1,
+          xp_total: prog?.xp_total || 0,
+          missions: finalMissions,
         });
       }
     } else {
-      // Fallback: treat missions as skills
+      // No traits exist at all: synthesize from missions (absolute fallback)
       for (const m of missions) {
-        if (!byPillar[m.pillar]) byPillar[m.pillar] = [];
-        const ms = milestonesByMissionId[m.id] || [];
-        byPillar[m.pillar]!.push({
-          id: m.id,
-          name: isHe ? (m.title || m.title_en || '') : (m.title_en || m.title || ''),
+        if (!traitsByPillar.has(m.pillar)) traitsByPillar.set(m.pillar, []);
+        const mView = missionViews.find(mv => mv.id === m.id);
+        traitsByPillar.get(m.pillar)!.push({
+          skill_id: m.id,
+          name: m.title_en || m.title,
+          name_he: m.title,
+          // CRITICAL: Even in fallback, sanitize the name
+          displayName: getTraitDisplayName(m.title_en || m.title, m.title, isHe),
           icon: '🎯',
+          pillar: m.pillar,
           level: 1,
-          milestones: ms.map(x => ({ id: x.id, title: x.title, title_en: x.title_en, is_completed: x.is_completed ?? false })),
+          xp_total: 0,
+          missions: mView ? [mView] : [],
         });
       }
     }
 
-    for (const [pillarId, skills] of Object.entries(byPillar)) {
+    // Build groups
+    const groups: PillarGroup[] = [];
+    for (const [pillarId, pillarTraits] of traitsByPillar) {
       const domain = getDomainById(pillarId);
-      const totalGoals = skills.reduce((s, sk) => s + sk.milestones.length, 0);
-      const completedGoals = skills.reduce((s, sk) => s + sk.milestones.filter(m => m.is_completed).length, 0);
-      groups.push({ pillarId, domain, skills, totalGoals, completedGoals });
+      const totalGoals = pillarTraits.reduce((s, t) => s + t.missions.reduce((ms, m) => ms + m.milestones.length, 0), 0);
+      const completedGoals = pillarTraits.reduce((s, t) => s + t.missions.reduce((ms, m) => ms + m.milestones.filter(ml => ml.is_completed).length, 0), 0);
+      groups.push({ pillarId, domain, traits: pillarTraits, totalGoals, completedGoals });
     }
     return groups;
-  }, [missionSkills, missions, missionPillarMap, milestonesByMissionId, hasSkillRecords, isHe]);
+  }, [traits, skillProgress, missions, milestones, isHe]);
 
   // Overall stats
   const totalGoals = pillarGroups.reduce((s, g) => s + g.totalGoals, 0);
@@ -167,7 +268,10 @@ export default function LifeHub() {
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
     queryClient.invalidateQueries({ queryKey: ['strategy-missions'] });
-    queryClient.invalidateQueries({ queryKey: ['mission-skills'] });
+    queryClient.invalidateQueries({ queryKey: ['strategy-traits'] });
+    queryClient.invalidateQueries({ queryKey: ['strategy-milestones'] });
+    queryClient.invalidateQueries({ queryKey: ['strategy-skill-progress'] });
+    queryClient.invalidateQueries({ queryKey: ['trait-gallery'] });
   };
 
   return (
@@ -246,10 +350,10 @@ export default function LifeHub() {
               </div>
             </div>
 
-            {/* ── PILLAR → SKILL → MILESTONE CARDS ── */}
+            {/* ── PILLAR → TRAIT → MISSION → MILESTONE HIERARCHY ── */}
             <div className="space-y-3">
               {pillarGroups.map((group) => {
-                const { pillarId, domain, skills: pillarSkills, totalGoals: pGoals, completedGoals: pCompleted } = group;
+                const { pillarId, domain, traits: pillarTraits, totalGoals: pGoals, completedGoals: pCompleted } = group;
                 const isPillarExpanded = expandedPillar === pillarId;
                 const Icon = domain?.icon;
 
@@ -271,10 +375,10 @@ export default function LifeHub() {
                       <span className="text-sm font-bold text-foreground">
                         {isHe ? (domain?.labelHe || pillarId) : (domain?.labelEn || pillarId)}
                       </span>
-                      {Icon && <Icon className={cn("w-5 h-5 shrink-0 text-primary")} />}
+                      {Icon && <Icon className="w-5 h-5 shrink-0 text-primary" />}
                     </button>
 
-                    {/* Expanded: Skills */}
+                    {/* Expanded: TRAIT CARDS (top-level — NOT missions) */}
                     <AnimatePresence>
                       {isPillarExpanded && (
                         <motion.div
@@ -284,63 +388,140 @@ export default function LifeHub() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-3 pb-3 space-y-3">
-                            {pillarSkills.map((skill) => {
-                              const msCompleted = skill.milestones.filter(m => m.is_completed).length;
-                              const msTotal = skill.milestones.length;
-                              const skillName = skill.name;
+                          <div className="px-3 pb-3 space-y-2">
+                            {pillarTraits.map((trait) => {
+                              const isTraitExpanded = expandedTrait === trait.skill_id;
+                              const pillarColor = PILLAR_COLORS[pillarId] || '200 70% 50%';
+                              const traitMsTotal = trait.missions.reduce((s, m) => s + m.milestones.length, 0);
+                              const traitMsCompleted = trait.missions.reduce((s, m) => s + m.milestones.filter(ml => ml.is_completed).length, 0);
 
                               return (
                                 <div
-                                  key={skill.id}
+                                  key={trait.skill_id}
                                   className="rounded-xl border border-border/30 bg-background/50 overflow-hidden"
                                 >
-                                  {/* Skill header card */}
-                                  <div className="px-4 py-3 border-b border-border/15 flex items-center gap-2.5">
-                                    <span className="text-lg shrink-0">{skill.icon}</span>
+                                  {/* TRAIT header card — shows trait badge name, NEVER mission text */}
+                                  <button
+                                    onClick={() => setExpandedTrait(isTraitExpanded ? null : trait.skill_id)}
+                                    className="w-full px-4 py-3 flex items-center gap-2.5 text-start hover:bg-muted/10 transition-colors"
+                                  >
+                                    <span className="text-lg shrink-0">{trait.icon}</span>
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-1.5">
                                         <h4 className="text-sm font-bold text-foreground truncate">
-                                          {skillName}
+                                          {/* CRITICAL: Always sanitized trait display name */}
+                                          {trait.displayName}
                                         </h4>
-                                        <span className="text-[9px] font-mono text-muted-foreground shrink-0 ms-auto">
-                                          Lv.{skill.level}
+                                        <span
+                                          className="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 ms-auto"
+                                          style={{
+                                            backgroundColor: `hsla(${pillarColor}, 0.12)`,
+                                            color: `hsl(${pillarColor})`,
+                                          }}
+                                        >
+                                          Lv.{trait.level}
                                         </span>
                                       </div>
                                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                                        {msCompleted}/{msTotal} {isHe ? 'יעדים' : 'goals'}
+                                        {traitMsCompleted}/{traitMsTotal} {isHe ? 'יעדים' : 'goals'}
                                       </p>
                                     </div>
-                                  </div>
+                                    {isTraitExpanded
+                                      ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                      : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                    }
+                                  </button>
 
-                                  {/* Milestones (Goals) */}
-                                  {skill.milestones.length > 0 && (
-                                    <div className="px-4 py-2.5 space-y-1">
-                                      {skill.milestones.map((ms) => {
-                                        const msTitle = isHe
-                                          ? (ms.title || ms.title_en || '')
-                                          : (ms.title_en || ms.title || '');
-                                        return (
-                                          <div key={ms.id} className={cn(
-                                            "flex items-start gap-2 py-1.5",
-                                            ms.is_completed ? "opacity-50" : ""
-                                          )}>
-                                            {ms.is_completed ? (
-                                              <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                            ) : (
-                                              <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" />
-                                            )}
-                                            <span className={cn(
-                                              "text-xs leading-snug",
-                                              ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/75"
-                                            )}>
-                                              {msTitle}
-                                            </span>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
+                                  {/* Expanded trait → show MISSIONS */}
+                                  <AnimatePresence>
+                                    {isTraitExpanded && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="px-3 pb-3 space-y-2 border-t border-border/15">
+                                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold pt-2">
+                                            {isHe ? 'משימות אימון' : 'Training Missions'}
+                                          </p>
+                                          {trait.missions.map((mission) => {
+                                            const mTitle = isHe
+                                              ? (mission.title || mission.title_en || '')
+                                              : (mission.title_en || mission.title || '');
+                                            const isMissionExpanded = expandedMission === mission.id;
+                                            const msComp = mission.milestones.filter(m => m.is_completed).length;
+
+                                            return (
+                                              <div key={mission.id} className="rounded-lg border border-border/20 overflow-hidden bg-card/20">
+                                                <button
+                                                  onClick={() => setExpandedMission(isMissionExpanded ? null : mission.id)}
+                                                  className="w-full flex items-center gap-2 px-3 py-2 text-start hover:bg-muted/10 transition-colors"
+                                                >
+                                                  <div className="flex-1 min-w-0">
+                                                    <span className="text-xs font-medium text-foreground/80 line-clamp-2">{mTitle}</span>
+                                                    <span className="text-[9px] text-muted-foreground block mt-0.5">
+                                                      {msComp}/{mission.milestones.length} {isHe ? 'אבני דרך' : 'milestones'}
+                                                    </span>
+                                                  </div>
+                                                  {isMissionExpanded
+                                                    ? <ChevronUp className="w-3 h-3 text-muted-foreground shrink-0" />
+                                                    : <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0" />
+                                                  }
+                                                </button>
+
+                                                {/* Expanded mission → milestones */}
+                                                <AnimatePresence>
+                                                  {isMissionExpanded && (
+                                                    <motion.div
+                                                      initial={{ height: 0, opacity: 0 }}
+                                                      animate={{ height: 'auto', opacity: 1 }}
+                                                      exit={{ height: 0, opacity: 0 }}
+                                                      transition={{ duration: 0.15 }}
+                                                      className="overflow-hidden"
+                                                    >
+                                                      <div className="px-3 pb-2 space-y-1">
+                                                        {mission.milestones.map((ms) => {
+                                                          const msTitle = isHe
+                                                            ? (ms.title || ms.title_en || '')
+                                                            : (ms.title_en || ms.title || '');
+                                                          return (
+                                                            <div key={ms.id} className={cn(
+                                                              "flex items-start gap-2 py-1",
+                                                              ms.is_completed ? "opacity-50" : ""
+                                                            )}>
+                                                              {ms.is_completed ? (
+                                                                <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                                                              ) : (
+                                                                <Circle className="w-3.5 h-3.5 text-muted-foreground/25 shrink-0 mt-0.5" />
+                                                              )}
+                                                              <span className={cn(
+                                                                "text-[11px] leading-snug",
+                                                                ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
+                                                              )}>
+                                                                {msTitle}
+                                                              </span>
+                                                            </div>
+                                                          );
+                                                        })}
+                                                      </div>
+                                                    </motion.div>
+                                                  )}
+                                                </AnimatePresence>
+                                              </div>
+                                            );
+                                          })}
+
+                                          {trait.missions.length === 0 && (
+                                            <p className="text-[10px] text-muted-foreground/50 py-2 text-center">
+                                              {isHe ? 'אין משימות מקושרות' : 'No linked missions'}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </div>
                               );
                             })}
@@ -363,4 +544,15 @@ export default function LifeHub() {
       />
     </div>
   );
+}
+
+function categoryToPillar(category: string): string {
+  const map: Record<string, string> = {
+    spirit: 'consciousness',
+    social: 'presence',
+    body: 'power',
+    mind: 'focus',
+    wealth: 'wealth',
+  };
+  return map[category] || category;
 }
