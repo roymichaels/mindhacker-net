@@ -1,16 +1,20 @@
 /**
  * useTraitGallery — Fetches trait-based skills for the gallery view.
- * Traits are identity abilities (trait_type='trait') linked to pillars.
- * Falls back to legacy mission-based skills for old plans.
+ * CRITICAL: Card titles come ONLY from skills.name / skills.name_he.
+ * Never from plan_missions.title or any mission fallback.
+ * Legacy names are sanitized client-side via traitNameSanitizer.
  */
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
 
 export interface TraitCard {
   id: string;
   name: string;
   name_he: string | null;
+  /** Sanitized display name — always a short trait badge, never mission text */
+  displayName: string;
   description: string | null;
   icon: string;
   pillar: string;
@@ -19,7 +23,6 @@ export interface TraitCard {
   xp_in_level: number;
   xp_progress: number; // 0-100
   trait_type: 'trait' | 'legacy';
-  mission_id: string | null;
 }
 
 const XP_PER_LEVEL = 100;
@@ -50,10 +53,10 @@ export function useTraitGallery() {
     queryFn: async (): Promise<TraitCard[]> => {
       if (!user?.id) return [];
 
-      // Get all user skills with progress
+      // Get all user skills — ONLY from skills table, never missions
       const { data: skills, error: skillsErr } = await supabase
         .from('skills')
-        .select('id, name, name_he, description, icon, category, pillar, mission_id, trait_type')
+        .select('id, name, name_he, description, icon, category, pillar, trait_type')
         .eq('user_id', user.id)
         .eq('is_active', true);
 
@@ -84,6 +87,8 @@ export function useTraitGallery() {
           id: s.id,
           name: s.name,
           name_he: s.name_he,
+          // CRITICAL: display name is sanitized — never shows mission text
+          displayName: getTraitDisplayName(s.name, s.name_he, true),
           description: s.description,
           icon: s.icon || '⭐',
           pillar,
@@ -92,7 +97,6 @@ export function useTraitGallery() {
           xp_in_level: xpInLevel,
           xp_progress: xpProgress,
           trait_type: (s.trait_type as 'trait' | 'legacy') || 'legacy',
-          mission_id: s.mission_id,
         };
       }).sort((a, b) => {
         // Traits first, then by XP
