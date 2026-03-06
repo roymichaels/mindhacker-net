@@ -8944,6 +8944,10 @@ export type Database = {
         }
         Returns: Json
       }
+      calculate_level_from_xp: {
+        Args: { p_experience: number }
+        Returns: number
+      }
       check_expiring_access: { Args: never; Returns: undefined }
       check_xp_integrity: {
         Args: never
