@@ -248,7 +248,7 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
         open={journeyOpen}
         onOpenChange={setJourneyOpen}
         milestoneId={journeyAction?.milestoneId || null}
-        milestoneTitle={journeyAction ? (isHe ? journeyAction.title : journeyAction.titleEn) : ''}
+        milestoneTitle={journeyAction ? (language === 'he' ? journeyAction.title : journeyAction.titleEn) : ''}
         focusArea={journeyAction?.pillarId || undefined}
         durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
