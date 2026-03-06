@@ -228,6 +228,7 @@ serve(async (req) => {
         title: task.title,
         titleEn: task.title,
         durationMin: 15,
+        isTimeBased: detectTimeBased(task.title, "overdue_task"),
         urgencyScore: 10,
         reason: isHe ? "משימה באיחור" : "Overdue task",
         sourceType: "overdue",
