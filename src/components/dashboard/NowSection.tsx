@@ -9,7 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useNowEngine, NowQueueItem } from '@/hooks/useNowEngine';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { useCompleteNowAction } from '@/hooks/useNowEngine';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { toast } from 'sonner';
@@ -73,7 +74,7 @@ function QueueItemCard({
 
 export function NowSection() {
   const { language, isRTL } = useTranslation();
-  const { queue, nextAction, tier, isLoading, refetch } = useNowEngine();
+  const { queue, nextAction, tier, isLoading, refetch } = useTodayExecution();
   const [expanded, setExpanded] = useState(true);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);

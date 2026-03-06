@@ -9,7 +9,7 @@ import {
   Zap, PanelRightClose, PanelRightOpen,
   Loader2, CheckCircle2, Circle, ChevronDown,
 } from 'lucide-react';
-import { useNowEngine } from '@/hooks/useNowEngine';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -20,7 +20,7 @@ export function DailyRoadmapSidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  const { queue, isLoading } = useNowEngine();
+  const { queue, isLoading } = useTodayExecution();
   const { habits, completedCount: habitsCompleted, totalCount: habitsTotal } = useTodaysHabits();
 
   // Build unified daily items

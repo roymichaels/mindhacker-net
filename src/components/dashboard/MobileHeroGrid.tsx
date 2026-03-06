@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
-import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
@@ -27,8 +28,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { openHypnosis } = useAuroraActions();
   const isHe = language === 'he';
 
-  const { queue, isLoading, refetch, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
-  const hasPlan = hasCoreStrategy || hasArenaStrategy;
+  const { queue, isLoading, refetch, hasPlan } = useTodayExecution();
   const nextAction = queue[0] || null;
   const remainingQueue = queue.slice(1);
 

@@ -1,18 +1,19 @@
 /**
  * useTodayExecution — Central hook for the Dynamic Execution Engine.
- * Replaces milestone-first logic with a TODAY-first, pillar-distributed system.
+ * NOW derives all daily actions from the Tactical Schedule (useWeeklyTacticalPlan).
  * 
  * Core rules:
- * - No "Week X" or milestone-first surfaces
- * - Distributes across 14 pillars (Body / Mind / Arena coverage)
- * - Tier-gated: Free=3-5 actions, Plus=full schedule, Apex=adaptive
+ * - No separate "generate-today-queue" calls — everything comes from Tactics
+ * - Converts TacticalAction[] → NowQueueItem[] for UI compatibility
  * - Movement Score tracks daily compliance
  */
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
-import { useNowEngine, NowQueueItem } from '@/hooks/useNowEngine';
+import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
+import type { NowQueueItem, ExecutionTemplate } from '@/hooks/useNowEngine';
 
 export type TimeBlock = 'morning' | 'midday' | 'evening' | 'deepwork' | 'training' | 'recovery' | 'admin' | 'social' | 'play';
 
@@ -33,22 +34,56 @@ export interface UserSchedulePrefs {
   focus_peak_end: string | null;
 }
 
+// ── Pillar classification for coverage scoring ──
 const BODY_PILLARS = ['vitality', 'power', 'combat'];
 const MIND_PILLARS = ['focus', 'consciousness', 'expansion'];
 const ARENA_PILLARS = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play'];
 
-function assignTimeBlock(item: NowQueueItem): TimeBlock {
-  const t = item.actionType;
-  if (t.includes('morning') || t.includes('hydration')) return 'morning';
-  if (t.includes('training') || t.includes('strength') || t.includes('shadowboxing') || t.includes('footwork') || t.includes('combat')) return 'training';
-  if (t.includes('deep_work') || t.includes('focus') || t.includes('learning')) return 'deepwork';
-  if (t.includes('meditation') || t.includes('recovery') || t.includes('shutdown') || t.includes('sleep')) return 'recovery';
-  if (t.includes('business') || t.includes('money') || t.includes('project') || t.includes('influence')) return 'admin';
-  if (t.includes('relationship') || t.includes('presence')) return 'social';
-  if (t.includes('play')) return 'play';
-  return 'midday';
+// ── Block category → pillar mapping ──
+function blockCategoryToPillar(category: string): string {
+  switch (category) {
+    case 'health': return 'vitality';
+    case 'training': return 'power';
+    case 'focus': return 'focus';
+    case 'creation': return 'projects';
+    case 'review': return 'consciousness';
+    case 'social': return 'relationships';
+    case 'action': return 'business';
+    default: return 'focus';
+  }
 }
 
+// ── Block category → hub mapping ──
+function blockCategoryToHub(category: string): 'core' | 'arena' {
+  if (['health', 'training'].includes(category)) return 'core';
+  if (['focus'].includes(category)) return 'core';
+  return 'arena';
+}
+
+// ── Convert TacticalAction → NowQueueItem ──
+function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQueueItem {
+  const pillarId = blockCategoryToPillar(blockCategory);
+  const hub = blockCategoryToHub(blockCategory);
+
+  return {
+    pillarId,
+    hub,
+    actionType: action.actionType || blockCategory,
+    title: action.title,
+    titleEn: action.titleEn || action.title,
+    durationMin: action.estimatedMinutes,
+    isTimeBased: action.estimatedMinutes > 0,
+    urgencyScore: action.difficulty * 20,
+    reason: '',
+    sourceType: 'milestone',
+    sourceId: action.sourceMilestoneId || action.id,
+    milestoneId: action.sourceMilestoneId || undefined,
+    milestoneTitle: action.title,
+    executionTemplate: (action.executionTemplate as ExecutionTemplate) || 'step_by_step',
+  };
+}
+
+// ── Time helpers ──
 function getCurrentTimeStr(): string {
   const now = new Date();
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -61,77 +96,46 @@ function getSlotStatus(startTime: string, endTime: string): ScheduleSlot['status
   return 'upcoming';
 }
 
-function buildFreeSchedule(queue: NowQueueItem[], wakeH: number, sleepH: number): ScheduleSlot[] {
-  const blocks: ScheduleSlot[] = [
-    { id: 'morning', timeBlock: 'morning', startTime: `${String(wakeH).padStart(2, '0')}:00`, endTime: '12:00', labelKey: 'today.morning', actions: [], status: 'upcoming' },
-    { id: 'midday', timeBlock: 'midday', startTime: '12:00', endTime: '17:00', labelKey: 'today.midday', actions: [], status: 'upcoming' },
-    { id: 'evening', timeBlock: 'evening', startTime: '17:00', endTime: `${String(sleepH).padStart(2, '0')}:00`, labelKey: 'today.evening', actions: [], status: 'upcoming' },
-  ];
-  queue.forEach((item, i) => blocks[i % 3].actions.push(item));
-  blocks.forEach(b => { b.status = getSlotStatus(b.startTime, b.endTime); });
-  return blocks;
-}
-
-function buildFullSchedule(queue: NowQueueItem[], wakeH: number, sleepH: number): ScheduleSlot[] {
-  const blockMap = new Map<TimeBlock, NowQueueItem[]>();
-  queue.forEach(item => {
-    const block = assignTimeBlock(item);
-    if (!blockMap.has(block)) blockMap.set(block, []);
-    blockMap.get(block)!.push(item);
-  });
-
-  const blockDefs: { key: TimeBlock; labelKey: string; startH: number; endH: number }[] = [
-    { key: 'morning', labelKey: 'today.morning', startH: wakeH, endH: wakeH + 2 },
-    { key: 'training', labelKey: 'today.training', startH: wakeH + 2, endH: wakeH + 3 },
-    { key: 'deepwork', labelKey: 'today.deepWork', startH: wakeH + 3, endH: wakeH + 5 },
-    { key: 'admin', labelKey: 'today.businessProjects', startH: wakeH + 5, endH: wakeH + 7 },
-    { key: 'midday', labelKey: 'today.midday', startH: 12, endH: 14 },
-    { key: 'social', labelKey: 'today.relationships', startH: 17, endH: 19 },
-    { key: 'play', labelKey: 'today.play', startH: 19, endH: 21 },
-    { key: 'recovery', labelKey: 'today.recovery', startH: sleepH - 2, endH: sleepH },
-  ];
-
-  const slots: ScheduleSlot[] = [];
-  blockDefs.forEach(b => {
-    const actions = blockMap.get(b.key) || [];
-    if (actions.length === 0) return;
-    const startStr = `${String(Math.min(23, b.startH)).padStart(2, '0')}:00`;
-    const endStr = `${String(Math.min(23, b.endH)).padStart(2, '0')}:00`;
-    slots.push({
-      id: b.key,
-      timeBlock: b.key,
-      startTime: startStr,
-      endTime: endStr,
-      labelKey: b.labelKey,
-      actions,
-      status: getSlotStatus(startStr, endStr),
-    });
-  });
-
-  // Unassigned items → midday
-  const assigned = new Set(slots.flatMap(s => s.actions));
-  const unassigned = queue.filter(q => !assigned.has(q));
-  if (unassigned.length > 0) {
-    const existing = slots.find(s => s.timeBlock === 'midday');
-    if (existing) {
-      existing.actions.push(...unassigned);
-    } else {
-      slots.push({
-        id: 'midday',
-        timeBlock: 'midday',
-        startTime: '12:00',
-        endTime: '14:00',
-        labelKey: 'today.midday',
-        actions: unassigned,
-        status: getSlotStatus('12:00', '14:00'),
-      });
-    }
+// ── Map block category → TimeBlock ──
+function categoryToTimeBlock(category: string): TimeBlock {
+  switch (category) {
+    case 'health': return 'morning';
+    case 'training': return 'training';
+    case 'focus': return 'deepwork';
+    case 'creation': return 'admin';
+    case 'review': return 'recovery';
+    case 'social': return 'social';
+    case 'action': return 'midday';
+    default: return 'midday';
   }
-
-  slots.sort((a, b) => a.startTime.localeCompare(b.startTime));
-  return slots;
 }
 
+// ── Build schedule slots from today's tactical blocks ──
+function buildScheduleFromTactics(todayPlan: DayPlan | null): ScheduleSlot[] {
+  if (!todayPlan || todayPlan.blocks.length === 0) return [];
+
+  return todayPlan.blocks.map(block => {
+    const timeBlock = categoryToTimeBlock(block.category);
+    const startTime = block.startTime || '09:00';
+    const endTime = block.endTime || '10:00';
+
+    const actions: NowQueueItem[] = block.actions.map(action =>
+      tacticalToNowItem(action, block.category)
+    );
+
+    return {
+      id: block.id,
+      timeBlock,
+      startTime,
+      endTime,
+      labelKey: `today.${timeBlock}`,
+      actions,
+      status: getSlotStatus(startTime, endTime),
+    };
+  });
+}
+
+// ── Movement score ──
 function computeMovementScore(queue: NowQueueItem[], completedIds: Set<string>) {
   const completed = queue.filter(q => q.sourceId && completedIds.has(q.sourceId));
   const total = queue.length;
@@ -151,27 +155,37 @@ function computeMovementScore(queue: NowQueueItem[], completedIds: Set<string>) 
   };
 }
 
+// ── Main hook ──
 export function useTodayExecution() {
   const { user } = useAuth();
   const { language } = useTranslation();
-  const { queue, tier, maxActions, isLoading: queueLoading, refetch, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
+  const tacticalPlan = useWeeklyTacticalPlan();
+  const { days, isLoading: tacticsLoading, hasAiSchedule, wakeTime, sleepTime, generateSchedule } = tacticalPlan;
 
-  const { data: schedulePrefs } = useQuery({
-    queryKey: ['schedule-prefs', user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('wake_time, sleep_time, focus_peak_start, focus_peak_end')
-        .eq('id', user!.id)
-        .single();
-      return (data || { wake_time: '06:30', sleep_time: '23:00', focus_peak_start: null, focus_peak_end: null }) as UserSchedulePrefs;
-    },
-    enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000,
-  });
+  // Find today's plan from the tactical schedule
+  const todayPlan = useMemo(() => {
+    return days.find(d => d.isToday) || null;
+  }, [days]);
+
+  // Convert today's tactical actions → NowQueueItem[]
+  const queue: NowQueueItem[] = useMemo(() => {
+    if (!todayPlan) return [];
+    return todayPlan.blocks.flatMap(block =>
+      block.actions.map(action => tacticalToNowItem(action, block.category))
+    );
+  }, [todayPlan]);
+
+  // Schedule prefs from tactical plan
+  const prefs: UserSchedulePrefs = useMemo(() => ({
+    wake_time: wakeTime || '06:30',
+    sleep_time: sleepTime || '23:00',
+    focus_peak_start: null,
+    focus_peak_end: null,
+  }), [wakeTime, sleepTime]);
 
   const today = new Date().toISOString().slice(0, 10);
 
+  // Completed action IDs for today
   const { data: completedIds = new Set<string>() } = useQuery({
     queryKey: ['completed-today', user?.id, today],
     queryFn: async () => {
@@ -188,15 +202,11 @@ export function useTodayExecution() {
     staleTime: 15_000,
   });
 
-  const prefs = schedulePrefs || { wake_time: '06:30', sleep_time: '23:00', focus_peak_start: null, focus_peak_end: null };
   const wakeH = parseInt(prefs.wake_time?.split(':')[0] || '6');
   const sleepH = parseInt(prefs.sleep_time?.split(':')[0] || '23');
 
-  // Build schedule based on tier
-  const isFree = tier === 'clarity';
-  const schedule = queue.length > 0
-    ? (isFree ? buildFreeSchedule(queue, wakeH, sleepH) : buildFullSchedule(queue, wakeH, sleepH))
-    : [];
+  // Build schedule from tactical blocks
+  const schedule = useMemo(() => buildScheduleFromTactics(todayPlan), [todayPlan]);
 
   const movement = computeMovementScore(queue, completedIds);
 
@@ -215,15 +225,16 @@ export function useTodayExecution() {
   const totalPendingMin = pendingActions.reduce((sum, a) => sum + a.durationMin, 0);
   const isMinDayMode = hoursRemaining * 60 < totalPendingMin && pendingActions.length > 3;
 
-  const hasPlan = hasCoreStrategy || hasArenaStrategy;
+  const hasPlan = hasAiSchedule || (todayPlan !== null && todayPlan.totalActions > 0);
+  const tier = 'clarity'; // Tier is subscription-based, not NowEngine-based
 
   return {
     queue,
     nextAction: hasPlan ? nextAction : null,
     schedule,
     tier,
-    maxActions,
-    isFree,
+    maxActions: queue.length,
+    isFree: false,
     hasPlan,
 
     movementScore: movement.score,
@@ -240,7 +251,7 @@ export function useTodayExecution() {
     wakeTime: prefs.wake_time,
     sleepTime: prefs.sleep_time,
 
-    isLoading: queueLoading,
-    refetch,
+    isLoading: tacticsLoading,
+    refetch: generateSchedule,
   };
 }
