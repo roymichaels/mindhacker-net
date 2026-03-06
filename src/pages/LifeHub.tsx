@@ -50,6 +50,24 @@ export default function LifeHub() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Fetch milestones linked to missions (fallback when no skills exist)
+  const { data: milestones } = useQuery({
+    queryKey: ['strategy-milestones', plan?.id],
+    queryFn: async () => {
+      if (!plan?.id) return [];
+      const { data, error } = await supabase
+        .from('life_plan_milestones')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number')
+        .eq('plan_id', plan.id)
+        .not('mission_id', 'is', null)
+        .order('milestone_number');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!plan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Current day
   const currentDay = useMemo(() => {
     if (!plan?.start_date) return 1;
@@ -66,26 +84,73 @@ export default function LifeHub() {
     return map;
   }, [missions]);
 
-  // Group skills by pillar
-  const pillarGroups = useMemo(() => {
-    if (!missionSkills || !missions) return [];
-    const byPillar: Record<string, typeof missionSkills> = {};
-    for (const skill of missionSkills) {
-      const pillar = missionPillarMap.get(skill.mission_id);
-      if (!pillar) continue;
-      if (!byPillar[pillar]) byPillar[pillar] = [];
-      byPillar[pillar]!.push(skill);
+  // Milestones grouped by mission_id (for fallback)
+  const milestonesByMissionId = useMemo(() => {
+    const map: Record<string, NonNullable<typeof milestones>> = {};
+    for (const ms of (milestones || [])) {
+      if (!ms.mission_id) continue;
+      if (!map[ms.mission_id]) map[ms.mission_id] = [];
+      map[ms.mission_id]!.push(ms);
     }
-    return Object.entries(byPillar).map(([pillarId, pillarSkills]) => {
+    return map;
+  }, [milestones]);
+
+  const hasSkillRecords = missionSkills && missionSkills.length > 0;
+
+  // Unified skill items: use skills table if available, else synthesize from missions
+  type SkillItem = {
+    id: string;
+    name: string;
+    icon: string;
+    level: number;
+    milestones: { id: string; title: string; title_en: string | null; is_completed: boolean }[];
+  };
+
+  const pillarGroups = useMemo(() => {
+    if (!missions || missions.length === 0) return [];
+
+    const groups: { pillarId: string; domain: ReturnType<typeof getDomainById>; skills: SkillItem[]; totalGoals: number; completedGoals: number }[] = [];
+    const byPillar: Record<string, SkillItem[]> = {};
+
+    if (hasSkillRecords) {
+      // Use real skills
+      for (const skill of missionSkills!) {
+        const pillar = missionPillarMap.get(skill.mission_id);
+        if (!pillar) continue;
+        if (!byPillar[pillar]) byPillar[pillar] = [];
+        byPillar[pillar]!.push({
+          id: skill.skill_id,
+          name: isHe ? (skill.skill_name_he || skill.skill_name) : skill.skill_name,
+          icon: skill.skill_icon,
+          level: skill.level,
+          milestones: skill.milestones,
+        });
+      }
+    } else {
+      // Fallback: treat missions as skills
+      for (const m of missions) {
+        if (!byPillar[m.pillar]) byPillar[m.pillar] = [];
+        const ms = milestonesByMissionId[m.id] || [];
+        byPillar[m.pillar]!.push({
+          id: m.id,
+          name: isHe ? (m.title || m.title_en || '') : (m.title_en || m.title || ''),
+          icon: '🎯',
+          level: 1,
+          milestones: ms.map(x => ({ id: x.id, title: x.title, title_en: x.title_en, is_completed: x.is_completed ?? false })),
+        });
+      }
+    }
+
+    for (const [pillarId, skills] of Object.entries(byPillar)) {
       const domain = getDomainById(pillarId);
-      const totalGoals = pillarSkills.reduce((s, sk) => s + sk.milestones.length, 0);
-      const completedGoals = pillarSkills.reduce((s, sk) => s + sk.milestones.filter(m => m.is_completed).length, 0);
-      return { pillarId, domain, skills: pillarSkills, totalGoals, completedGoals };
-    });
-  }, [missionSkills, missions, missionPillarMap]);
+      const totalGoals = skills.reduce((s, sk) => s + sk.milestones.length, 0);
+      const completedGoals = skills.reduce((s, sk) => s + sk.milestones.filter(m => m.is_completed).length, 0);
+      groups.push({ pillarId, domain, skills, totalGoals, completedGoals });
+    }
+    return groups;
+  }, [missionSkills, missions, missionPillarMap, milestonesByMissionId, hasSkillRecords, isHe]);
 
   // Overall stats
-  const totalSkills = missionSkills?.length || 0;
   const totalGoals = pillarGroups.reduce((s, g) => s + g.totalGoals, 0);
   const completedGoals = pillarGroups.reduce((s, g) => s + g.completedGoals, 0);
   const overallPct = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
@@ -223,16 +288,16 @@ export default function LifeHub() {
                             {pillarSkills.map((skill) => {
                               const msCompleted = skill.milestones.filter(m => m.is_completed).length;
                               const msTotal = skill.milestones.length;
-                              const skillName = isHe ? (skill.skill_name_he || skill.skill_name) : skill.skill_name;
+                              const skillName = skill.name;
 
                               return (
                                 <div
-                                  key={skill.skill_id}
+                                  key={skill.id}
                                   className="rounded-xl border border-border/30 bg-background/50 overflow-hidden"
                                 >
                                   {/* Skill header card */}
                                   <div className="px-4 py-3 border-b border-border/15 flex items-center gap-2.5">
-                                    <span className="text-lg shrink-0">{skill.skill_icon}</span>
+                                    <span className="text-lg shrink-0">{skill.icon}</span>
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-1.5">
                                         <h4 className="text-sm font-bold text-foreground truncate">
