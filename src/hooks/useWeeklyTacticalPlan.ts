@@ -1,10 +1,6 @@
 /**
- * useWeeklyTacticalPlan — Consumes AI-generated tactical schedules from
- * the tactical_schedules table. Falls back to local distribution if no
- * AI schedule exists yet.
- *
- * The schedule is a 10-day plan with fixed time blocks (e.g., 06:30-06:45).
- * Each block references a milestone and includes execution metadata.
+ * useWeeklyTacticalPlan — Consumes AI-generated tactical schedules.
+ * Schedule structure: Day → Themed Blocks → Milestones inside each block.
  */
 import { useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -19,6 +15,7 @@ export type Cadence = 'daily' | '3x_per_week' | '2x_per_week' | 'weekly' | 'one_
 export type BlockCategory = 'training' | 'action' | 'review' | 'creation' | 'health' | 'focus' | 'social';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+/** A single milestone inside a themed block */
 export interface TacticalAction {
   id: string;
   title: string;
@@ -39,16 +36,17 @@ export interface TacticalAction {
   calendarDate: string | null;
   focusArea: string | null;
   missionId: string | null;
-  /** Time block start (HH:MM) */
   startTime: string | null;
-  /** Time block end (HH:MM) */
   endTime: string | null;
+  orderIndex: number;
 }
 
+/** A themed block containing multiple milestones */
 export interface TacticalBlock {
   id: string;
   title: string;
   titleEn: string;
+  emoji: string;
   category: BlockCategory;
   estimatedMinutes: number;
   actions: TacticalAction[];
@@ -97,18 +95,20 @@ const BLOCK_LABELS: Record<BlockCategory, { he: string; en: string }> = {
   social:   { he: 'חברתי ומערכות יחסים', en: 'Social & Relationships' },
 };
 
+const BLOCK_EMOJIS: Record<BlockCategory, string> = {
+  health: '🌅',
+  training: '⚔️',
+  focus: '🧠',
+  action: '⚡',
+  creation: '🎨',
+  review: '🌙',
+  social: '💬',
+};
+
 // ── Helpers ──
 
 function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
-}
-
-function planDayToDate(planStartDate: string, scheduledDay: number): string {
-  const start = new Date(planStartDate);
-  start.setHours(0, 0, 0, 0);
-  const target = new Date(start);
-  target.setDate(start.getDate() + (scheduledDay - 1));
-  return toDateStr(target);
 }
 
 function getPhaseWindow(planStartDate: string, phaseNumber: number) {
@@ -135,14 +135,13 @@ function validDifficulty(d: string): Difficulty {
 
 const DIFFICULTY_XP: Record<Difficulty, number> = { easy: 5, medium: 10, hard: 15 };
 
-// ── Parse AI schedule into DayPlans ──
+// ── Parse AI schedule (new nested block format) ──
 
 function parseAiSchedule(
   scheduleDays: any[],
   phaseDates: string[],
   todayStr: string,
   phaseNumber: number,
-  planStartDate: string,
 ): DayPlan[] {
   const days: DayPlan[] = [];
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
@@ -161,44 +160,54 @@ function parseAiSchedule(
       continue;
     }
 
-    // Convert AI blocks into TacticalBlocks (each AI block = one action in one block)
-    const actions: TacticalAction[] = aiDay.blocks.map((b: any, idx: number) => ({
-      id: `ai-${d}-${idx}-${b.milestone_id || 'gen'}`,
-      title: b.title_he || b.title_en || 'משימה',
-      titleEn: b.title_en || b.title_he || 'Task',
-      description: null,
-      descriptionEn: null,
-      sourceMilestoneId: b.milestone_id || null,
-      executionTemplate: b.execution_template || 'step_by_step',
-      actionType: b.category || null,
-      estimatedMinutes: b.estimated_minutes || 15,
-      cadence: 'daily' as Cadence,
-      completed: false,
-      completedAt: null,
-      xpReward: b.xp_reward || DIFFICULTY_XP[validDifficulty(b.difficulty)] || 10,
-      blockCategory: validCategory(b.category),
-      difficulty: validDifficulty(b.difficulty),
-      scheduledDay: absDay,
-      calendarDate: date,
-      focusArea: b.category || null,
-      missionId: null,
-      startTime: b.start_time || null,
-      endTime: b.end_time || null,
-    }));
+    let totalActions = 0;
+    let completedActions = 0;
 
-    // Group actions by time slot into blocks — each action IS its own time block
-    const blocks: TacticalBlock[] = actions.map((action: TacticalAction) => {
-      const label = BLOCK_LABELS[action.blockCategory] || BLOCK_LABELS.action;
+    const blocks: TacticalBlock[] = aiDay.blocks.map((block: any, bIdx: number) => {
+      const category = validCategory(block.category);
+      const blockMilestones = block.milestones || block.blocks || [];
+      
+      const actions: TacticalAction[] = blockMilestones.map((m: any, mIdx: number) => {
+        const difficulty = validDifficulty(m.difficulty);
+        totalActions++;
+        const action: TacticalAction = {
+          id: `ai-${d}-${bIdx}-${mIdx}-${m.milestone_id || 'gen'}`,
+          title: m.title_he || m.title_en || 'משימה',
+          titleEn: m.title_en || m.title_he || 'Task',
+          description: null,
+          descriptionEn: null,
+          sourceMilestoneId: m.milestone_id || null,
+          executionTemplate: m.execution_template || 'step_by_step',
+          actionType: block.category || null,
+          estimatedMinutes: m.duration_minutes || 15,
+          cadence: 'daily' as Cadence,
+          completed: false,
+          completedAt: null,
+          xpReward: m.xp_reward || DIFFICULTY_XP[difficulty] || 10,
+          blockCategory: category,
+          difficulty,
+          scheduledDay: absDay,
+          calendarDate: date,
+          focusArea: block.category || null,
+          missionId: null,
+          startTime: block.start_time || null,
+          endTime: block.end_time || null,
+          orderIndex: m.order_index ?? mIdx,
+        };
+        return action;
+      });
+
       return {
-        id: `tblock-${d}-${action.id}`,
-        title: label.he,
-        titleEn: label.en,
-        category: action.blockCategory,
-        estimatedMinutes: action.estimatedMinutes,
-        actions: [action],
-        completedCount: action.completed ? 1 : 0,
-        startTime: action.startTime,
-        endTime: action.endTime,
+        id: `tblock-${d}-${bIdx}`,
+        title: block.block_title_he || BLOCK_LABELS[category]?.he || 'בלוק',
+        titleEn: block.block_title_en || BLOCK_LABELS[category]?.en || 'Block',
+        emoji: block.block_emoji || BLOCK_EMOJIS[category] || '📋',
+        category,
+        estimatedMinutes: block.total_minutes || actions.reduce((s: number, a: TacticalAction) => s + a.estimatedMinutes, 0),
+        actions,
+        completedCount: actions.filter((a: TacticalAction) => a.completed).length,
+        startTime: block.start_time || null,
+        endTime: block.end_time || null,
       };
     });
 
@@ -209,9 +218,9 @@ function parseAiSchedule(
       date,
       dayNumber: d + 1,
       blocks,
-      totalActions: actions.length,
-      completedActions: actions.filter(a => a.completed).length,
-      totalMinutes: aiDay.total_minutes || actions.reduce((s: number, a: TacticalAction) => s + a.estimatedMinutes, 0),
+      totalActions,
+      completedActions,
+      totalMinutes: aiDay.total_minutes || blocks.reduce((s: number, b: TacticalBlock) => s + b.estimatedMinutes, 0),
       isToday: date === todayStr,
     });
   }
@@ -219,56 +228,48 @@ function parseAiSchedule(
   return days;
 }
 
-// ── Fallback: simple distribution (no AI schedule yet) ──
+// ── Fallback ──
 
 function buildFallbackDays(
   milestones: any[],
   phaseDates: string[],
   todayStr: string,
   phaseNumber: number,
-  planStartDate: string,
 ): DayPlan[] {
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
   const dayLoad = new Array(10).fill(0);
   const dayActions: TacticalAction[][] = Array.from({ length: 10 }, () => []);
 
-  // Sort heaviest first
-  const items = milestones.map(m => ({
-    raw: m,
-    mins: 15,
-    blockCat: 'action' as BlockCategory,
-  }));
-  items.sort((a, b) => b.mins - a.mins);
-
-  for (const mm of items) {
+  for (const mm of milestones) {
     let bestDay = 0;
     for (let d = 1; d < 10; d++) {
       if (dayLoad[d] < dayLoad[bestDay]) bestDay = d;
     }
-    dayLoad[bestDay] += mm.mins;
+    dayLoad[bestDay] += 15;
     const absDay = phaseStartDay + bestDay;
     dayActions[bestDay].push({
-      id: `${mm.raw.id}-d${bestDay}`,
-      title: mm.raw.title || '',
-      titleEn: mm.raw.title_en || mm.raw.title || '',
-      description: mm.raw.description || null,
-      descriptionEn: mm.raw.description_en || null,
-      sourceMilestoneId: mm.raw.id,
+      id: `${mm.id}-d${bestDay}`,
+      title: mm.title || '',
+      titleEn: mm.title_en || mm.title || '',
+      description: mm.description || null,
+      descriptionEn: mm.description_en || null,
+      sourceMilestoneId: mm.id,
       executionTemplate: 'step_by_step',
-      actionType: mm.raw.focus_area || null,
-      estimatedMinutes: mm.mins,
+      actionType: mm.focus_area || null,
+      estimatedMinutes: 15,
       cadence: 'daily',
       completed: false,
       completedAt: null,
       xpReward: 10,
-      blockCategory: mm.blockCat,
+      blockCategory: 'action',
       difficulty: 'medium',
       scheduledDay: absDay,
       calendarDate: phaseDates[bestDay] || '',
-      focusArea: mm.raw.focus_area || null,
-      missionId: mm.raw.mission_id || null,
+      focusArea: mm.focus_area || null,
+      missionId: mm.mission_id || null,
       startTime: null,
       endTime: null,
+      orderIndex: 0,
     });
   }
 
@@ -278,6 +279,7 @@ function buildFallbackDays(
       id: `fallback-block-${d}`,
       title: BLOCK_LABELS.action.he,
       titleEn: BLOCK_LABELS.action.en,
+      emoji: '⚡',
       category: 'action',
       estimatedMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
       actions,
@@ -321,7 +323,6 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
 
   const todayStr = useMemo(() => toDateStr(new Date()), []);
 
-  // Fetch AI-generated schedule
   const { data: aiSchedule, isLoading: scheduleLoading } = useQuery({
     queryKey: ['tactical-schedule', planId, currentPhase],
     queryFn: async () => {
@@ -340,7 +341,6 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     staleTime: 5 * 60_000,
   });
 
-  // Generate schedule function
   const generateSchedule = useCallback(async () => {
     if (!user?.id || !planId || !currentPhase) return;
     try {
@@ -355,7 +355,6 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     }
   }, [user?.id, planId, currentPhase, queryClient, toast]);
 
-  // Track generating state
   const { data: isGenerating = false } = useQuery({
     queryKey: ['tactical-schedule-generating'],
     queryFn: () => false,
@@ -368,22 +367,14 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     const sleepTime = aiSchedule?.sleep_time || '23:00';
     
     const emptyPlan: PhasePlan = {
-      phase: phaseLabel,
-      phaseNumber: currentPhase || 1,
+      phase: phaseLabel, phaseNumber: currentPhase || 1,
       days: phaseDates.map((date, i) => ({
         dayIndex: i, label: `יום ${i + 1}`, labelEn: `Day ${i + 1}`,
         date, dayNumber: i + 1, blocks: [], totalActions: 0,
         completedActions: 0, totalMinutes: 0, isToday: date === todayStr,
       })),
-      totalActions: 0,
-      completedActions: 0,
-      totalMinutes: 0,
-      generating: false,
-      phaseStart,
-      phaseEnd,
-      hasAiSchedule: false,
-      wakeTime,
-      sleepTime,
+      totalActions: 0, completedActions: 0, totalMinutes: 0,
+      generating: false, phaseStart, phaseEnd, hasAiSchedule: false, wakeTime, sleepTime,
     };
 
     if (phaseDates.length === 0 || currentPhaseMilestones.length === 0) return emptyPlan;
@@ -391,49 +382,28 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     let days: DayPlan[];
 
     if (aiSchedule?.schedule_data && Array.isArray(aiSchedule.schedule_data)) {
-      // Use AI-generated schedule
-      days = parseAiSchedule(
-        aiSchedule.schedule_data,
-        phaseDates,
-        todayStr,
-        currentPhase || 1,
-        planStartDate || '',
-      );
+      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1);
     } else {
-      // Fallback to simple distribution
-      days = buildFallbackDays(
-        currentPhaseMilestones,
-        phaseDates,
-        todayStr,
-        currentPhase || 1,
-        planStartDate || '',
-      );
+      days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
 
     const totalActions = days.reduce((s, d) => s + d.totalActions, 0);
     const completedActions = days.reduce((s, d) => s + d.completedActions, 0);
 
     return {
-      phase: phaseLabel,
-      phaseNumber: currentPhase || 1,
-      days,
-      totalActions,
-      completedActions,
+      phase: phaseLabel, phaseNumber: currentPhase || 1, days,
+      totalActions, completedActions,
       totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
-      generating: false,
-      phaseStart,
-      phaseEnd,
-      hasAiSchedule: !!aiSchedule?.schedule_data,
-      wakeTime,
-      sleepTime,
+      generating: false, phaseStart, phaseEnd,
+      hasAiSchedule: !!aiSchedule?.schedule_data, wakeTime, sleepTime,
     };
-  }, [currentPhaseMilestones, currentPhase, planStartDate, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule]);
+  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule]);
 
   return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating };
 }
 
-// Classification exports (used by other components)
-export function classifyCadence(title: string, _at: string | null, _et: string | null): Cadence {
+// Classification exports
+export function classifyCadence(title: string): Cadence {
   const t = title.toLowerCase();
   if (/daily|יומי|breath|נשימ|meditation|מדיטציה/.test(t)) return 'daily';
   if (/3x|training|אימון|combat|לחימה/.test(t)) return '3x_per_week';
