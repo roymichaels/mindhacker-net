@@ -1,10 +1,10 @@
 /**
  * LifeHub — Strategy page (אסטרטגיה).
- * Same layout style as Tactics/Now.
- * Roadmap section shows the FULL 100-day plan (all 10 phases A-J).
+ * Hierarchy: Pillar → Skills (missions) → Milestones (goals).
+ * Selected pillars show 3 skills each; others show 1 skill.
  */
 import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -16,18 +16,14 @@ import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { supabase } from '@/integrations/supabase/client';
 
-const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-const TOTAL_PHASES = 10;
-
 export default function LifeHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { plan, milestones: allMilestones, isLoading, currentWeek: currentPhase } = useLifePlanWithMilestones();
+  const { plan, isLoading } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
-  const [expandedMission, setExpandedMission] = useState<string | null>(null);
 
   // Stats
   const { statusMap } = useLifeDomains();
@@ -44,8 +40,8 @@ export default function LifeHub() {
     return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, [plan?.start_date]);
 
-  // Fetch missions for the plan
-  const { data: missions } = useQuery({
+  // Fetch skills (missions) for the plan
+  const { data: skills } = useQuery({
     queryKey: ['strategy-missions', plan?.id],
     queryFn: async () => {
       if (!plan?.id) return [];
@@ -61,14 +57,14 @@ export default function LifeHub() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch milestones linked to missions
-  const { data: missionMilestones } = useQuery({
+  // Fetch milestones (goals) linked to skills
+  const { data: milestones } = useQuery({
     queryKey: ['strategy-milestones', plan?.id],
     queryFn: async () => {
       if (!plan?.id) return [];
       const { data, error } = await supabase
         .from('life_plan_milestones')
-        .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area, goal, goal_en')
         .eq('plan_id', plan.id)
         .not('mission_id', 'is', null)
         .order('milestone_number');
@@ -79,46 +75,47 @@ export default function LifeHub() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Group missions by pillar
+  // Group skills by pillar, milestones by skill
   const pillarGroups = useMemo(() => {
-    if (!missions) return [];
-    const byPillar: Record<string, typeof missions> = {};
-    for (const m of missions) {
-      if (!byPillar[m.pillar]) byPillar[m.pillar] = [];
-      byPillar[m.pillar]!.push(m);
+    if (!skills) return [];
+    const byPillar: Record<string, typeof skills> = {};
+    for (const s of skills) {
+      if (!byPillar[s.pillar]) byPillar[s.pillar] = [];
+      byPillar[s.pillar]!.push(s);
     }
-    // Group milestones by mission_id
-    const msByMission: Record<string, NonNullable<typeof missionMilestones>> = {};
-    for (const ms of (missionMilestones || [])) {
+    const msBySkill: Record<string, NonNullable<typeof milestones>> = {};
+    for (const ms of (milestones || [])) {
       if (!ms.mission_id) continue;
-      if (!msByMission[ms.mission_id]) msByMission[ms.mission_id] = [];
-      msByMission[ms.mission_id]!.push(ms);
+      if (!msBySkill[ms.mission_id]) msBySkill[ms.mission_id] = [];
+      msBySkill[ms.mission_id]!.push(ms);
     }
-    return Object.entries(byPillar).map(([pillarId, pillarMissions]) => {
+    return Object.entries(byPillar).map(([pillarId, pillarSkills]) => {
       const domain = getDomainById(pillarId);
-      const totalMs = pillarMissions.reduce((s, m) => s + (msByMission[m.id]?.length || 0), 0);
-      const completedMs = pillarMissions.reduce((s, m) => s + (msByMission[m.id]?.filter(ms => ms.is_completed).length || 0), 0);
+      const totalMs = pillarSkills.reduce((s, m) => s + (msBySkill[m.id]?.length || 0), 0);
+      const completedMs = pillarSkills.reduce((s, m) => s + (msBySkill[m.id]?.filter(ms => ms.is_completed).length || 0), 0);
       return {
         pillarId,
         domain,
-        missions: pillarMissions,
-        milestonesByMission: msByMission,
+        skills: pillarSkills,
+        milestonesBySkill: msBySkill,
         totalMilestones: totalMs,
         completedMilestones: completedMs,
-        completedMissions: pillarMissions.filter(m => m.is_completed).length,
+        completedSkills: pillarSkills.filter(m => m.is_completed).length,
       };
     });
-  }, [missions, missionMilestones]);
+  }, [skills, milestones]);
 
-  // Overall progress from missions
-  const totalMissionsCount = missions?.length || 0;
-  const completedMissionsCount = missions?.filter(m => m.is_completed).length || 0;
-  const overallPct = totalMissionsCount > 0 ? Math.round((completedMissionsCount / totalMissionsCount) * 100) : 0;
+  // Overall stats
+  const totalSkillsCount = skills?.length || 0;
+  const completedSkillsCount = skills?.filter(s => s.is_completed).length || 0;
+  const totalMilestonesCount = milestones?.length || 0;
+  const completedMilestonesCount = milestones?.filter(m => m.is_completed).length || 0;
+  const overallPct = totalMilestonesCount > 0 ? Math.round((completedMilestonesCount / totalMilestonesCount) * 100) : 0;
 
   const statItems = [
     { icon: Flame, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
-    { icon: Target, value: totalGoals, label: isHe ? 'מטרות' : 'Goals', color: 'text-teal-400' },
     { icon: MapPin, value: `${isHe ? 'יום' : 'Day'} ${currentDay}`, label: isHe ? 'מתוך 100' : 'of 100', color: 'text-orange-400' },
+    { icon: Target, value: totalMilestonesCount, label: isHe ? 'מטרות' : 'Goals', color: 'text-teal-400' },
     { icon: Trophy, value: `${overallPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-emerald-400' },
   ];
 
@@ -170,9 +167,8 @@ export default function LifeHub() {
               ))}
             </div>
 
-            {/* ── STRATEGIC VIEW: PILLARS → MISSIONS → MILESTONES ── */}
+            {/* ── PLAN HEADER ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-              {/* Header */}
               <div className="px-4 py-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center">
@@ -183,7 +179,7 @@ export default function LifeHub() {
                       {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
-                      {completedMissionsCount}/{totalMissionsCount} {isHe ? 'משימות' : 'missions'} · {overallPct}%
+                      {overallPct}% · {completedMilestonesCount}/{totalMilestonesCount} {isHe ? 'יעדים' : 'goals'}
                     </p>
                   </div>
                   <motion.button
@@ -205,141 +201,126 @@ export default function LifeHub() {
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Pillar → Mission → Milestone hierarchy */}
-              <div className="px-3 py-3 space-y-1">
-                {pillarGroups.map((group) => {
-                  const { pillarId, domain, missions: pillarMissions, milestonesByMission, totalMilestones, completedMilestones, completedMissions: completedM } = group;
-                  const isPillarExpanded = expandedPillar === pillarId;
-                  const Icon = domain?.icon;
-                  const pillarPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
-                  const allDone = pillarMissions.length > 0 && completedM === pillarMissions.length;
+            {/* ── PILLAR CARDS ── */}
+            <div className="space-y-3">
+              {pillarGroups.map((group) => {
+                const { pillarId, domain, skills: pillarSkills, milestonesBySkill, completedSkills } = group;
+                const isPillarExpanded = expandedPillar === pillarId;
+                const Icon = domain?.icon;
 
-                  return (
-                    <div key={pillarId}>
-                      {/* Pillar row */}
-                      <button
-                        onClick={() => setExpandedPillar(isPillarExpanded ? null : pillarId)}
-                        className={cn(
-                          "w-full flex items-center gap-2.5 p-2.5 rounded-xl text-start transition-all",
-                          isPillarExpanded ? "bg-primary/8 border border-primary/20" : "hover:bg-muted/30",
-                          allDone && "opacity-70"
-                        )}
-                      >
-                        {Icon && <Icon className={cn("w-5 h-5 shrink-0", allDone ? "text-primary" : "text-muted-foreground")} />}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-foreground">
-                              {isHe ? (domain?.labelHe || pillarId) : (domain?.labelEn || pillarId)}
-                            </span>
-                            <span className="text-[9px] text-muted-foreground ms-auto">
-                              {completedM}/{pillarMissions.length} {isHe ? 'משימות' : 'missions'}
-                            </span>
-                          </div>
-                          <div className="h-1 rounded-full bg-muted/40 overflow-hidden mt-1">
-                            <div className={cn("h-full rounded-full transition-all", allDone ? "bg-primary" : "bg-primary/50")} style={{ width: `${pillarPct}%` }} />
-                          </div>
-                        </div>
-                        {isPillarExpanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
-                      </button>
+                return (
+                  <div key={pillarId} className="rounded-2xl border border-border/40 bg-card overflow-hidden">
+                    {/* Pillar header */}
+                    <button
+                      onClick={() => setExpandedPillar(isPillarExpanded ? null : pillarId)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-start hover:bg-muted/20 transition-colors"
+                    >
+                      {isPillarExpanded
+                        ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
+                        : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                      }
+                      <span className="text-[9px] text-muted-foreground">
+                        {completedSkills}/{pillarSkills.length} {isHe ? 'כישורים' : 'skills'}
+                      </span>
+                      <div className="flex-1" />
+                      <span className="text-sm font-bold text-foreground">
+                        {isHe ? (domain?.labelHe || pillarId) : (domain?.labelEn || pillarId)}
+                      </span>
+                      {Icon && <Icon className={cn("w-5 h-5 shrink-0 text-primary")} />}
+                    </button>
 
-                      {/* Expanded: Missions */}
-                      <AnimatePresence>
-                        {isPillarExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="ps-6 pe-1 py-1.5 space-y-1">
-                              {pillarMissions.map((mission) => {
-                                const msMilestones = milestonesByMission[mission.id] || [];
-                                const msCompleted = msMilestones.filter(ms => ms.is_completed).length;
-                                const isMissionExpanded = expandedMission === mission.id;
-                                const missionDone = mission.is_completed;
+                    {/* Expanded: Skills with their milestones inline */}
+                    <AnimatePresence>
+                      {isPillarExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="border-t border-border/20">
+                            {pillarSkills.map((skill, skillIdx) => {
+                              const skillMilestones = milestonesBySkill[skill.id] || [];
+                              const msCompleted = skillMilestones.filter(ms => ms.is_completed).length;
+                              const skillDone = skill.is_completed;
 
-                                return (
-                                  <div key={mission.id}>
-                                    <button
-                                      onClick={() => setExpandedMission(isMissionExpanded ? null : mission.id)}
-                                      className={cn(
-                                        "w-full flex items-start gap-2 py-2 px-2.5 rounded-lg text-start transition-all",
-                                        isMissionExpanded ? "bg-muted/40" : "hover:bg-muted/20",
-                                        missionDone && "opacity-60"
-                                      )}
-                                    >
-                                      {missionDone ? (
-                                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                      ) : (
-                                        <Target className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                                      )}
-                                      <div className="flex-1 min-w-0">
-                                        <p className={cn(
-                                          "text-[11px] font-semibold leading-snug",
-                                          missionDone ? "line-through text-muted-foreground" : "text-foreground"
-                                        )}>
-                                          {isHe ? (mission.title || mission.title_en) : (mission.title_en || mission.title)}
+                              return (
+                                <div
+                                  key={skill.id}
+                                  className={cn(
+                                    "px-4 py-4",
+                                    skillIdx < pillarSkills.length - 1 && "border-b border-border/15"
+                                  )}
+                                >
+                                  {/* Skill header */}
+                                  <div className="flex items-start gap-2.5">
+                                    {skillDone ? (
+                                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                    ) : (
+                                      <Circle className="w-5 h-5 text-muted-foreground/30 shrink-0 mt-0.5" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <p className={cn(
+                                        "text-sm font-semibold leading-snug",
+                                        skillDone ? "line-through text-muted-foreground" : "text-foreground"
+                                      )}>
+                                        {isHe ? (skill.title || skill.title_en) : (skill.title_en || skill.title)}
+                                      </p>
+                                      {skill.description && (
+                                        <p className="text-xs text-muted-foreground/60 mt-1 leading-relaxed">
+                                          {isHe ? (skill.description || skill.description_en) : (skill.description_en || skill.description)}
                                         </p>
-                                        {mission.description && (
-                                          <p className="text-[10px] text-muted-foreground/60 mt-0.5 line-clamp-2">
-                                            {isHe ? (mission.description || mission.description_en) : (mission.description_en || mission.description)}
-                                          </p>
-                                        )}
-                                        <span className="text-[9px] text-muted-foreground/50 mt-0.5 block">
-                                          {msCompleted}/{msMilestones.length} {isHe ? 'יעדים' : 'goals'}
-                                        </span>
-                                      </div>
-                                      {msMilestones.length > 0 && (
-                                        isMissionExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground shrink-0 mt-1" /> : <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0 mt-1" />
                                       )}
-                                    </button>
 
-                                    {/* Expanded: Milestones (Goals) */}
-                                    <AnimatePresence>
-                                      {isMissionExpanded && msMilestones.length > 0 && (
-                                        <motion.div
-                                          initial={{ height: 0, opacity: 0 }}
-                                          animate={{ height: 'auto', opacity: 1 }}
-                                          exit={{ height: 0, opacity: 0 }}
-                                          transition={{ duration: 0.15 }}
-                                          className="overflow-hidden"
-                                        >
-                                          <div className="ps-6 pe-1 py-1 space-y-0.5">
-                                            {msMilestones.map((ms: any) => (
-                                              <div key={ms.id} className={cn(
-                                                "flex items-center gap-2 py-1 px-2 rounded-md",
-                                                ms.is_completed ? "opacity-50" : ""
-                                              )}>
-                                                {ms.is_completed ? (
-                                                  <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                                                ) : (
-                                                  <Circle className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />
-                                                )}
+                                      {/* Milestones (Goals) inline */}
+                                      {skillMilestones.length > 0 && (
+                                        <div className="mt-3 space-y-1.5">
+                                          {skillMilestones.map((ms: any) => (
+                                            <div key={ms.id} className={cn(
+                                              "flex items-start gap-2 py-1",
+                                              ms.is_completed ? "opacity-50" : ""
+                                            )}>
+                                              {ms.is_completed ? (
+                                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                              ) : (
+                                                <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" />
+                                              )}
+                                              <div className="flex-1 min-w-0">
                                                 <span className={cn(
-                                                  "text-[10px]",
-                                                  ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
+                                                  "text-xs",
+                                                  ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/75"
                                                 )}>
                                                   {isHe ? (ms.title || ms.title_en) : (ms.title_en || ms.title)}
                                                 </span>
+                                                {ms.goal && (
+                                                  <p className="text-[10px] text-muted-foreground/40 mt-0.5 leading-snug">
+                                                    {isHe ? (ms.goal || ms.goal_en) : (ms.goal_en || ms.goal)}
+                                                  </p>
+                                                )}
                                               </div>
-                                            ))}
-                                          </div>
-                                        </motion.div>
+                                            </div>
+                                          ))}
+                                        </div>
                                       )}
-                                    </AnimatePresence>
+
+                                      <span className="text-[9px] text-muted-foreground/40 mt-2 block">
+                                        {msCompleted}/{skillMilestones.length} {isHe ? 'יעדים' : 'goals'}
+                                      </span>
+                                    </div>
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
-              </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
           </>
         ) : null}
