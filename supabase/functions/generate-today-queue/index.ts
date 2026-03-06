@@ -438,6 +438,7 @@ serve(async (req) => {
           title: isHe ? c.action_he : c.action_en,
           titleEn: c.action_en,
           durationMin: Math.round(c.duration_min * dayIntensity.multiplier),
+          isTimeBased: detectTimeBased(c.action_en, c.pillar + '_template'),
           urgencyScore: Math.round(c.score),
           reason: isHe ? "מנוע יומי" : "Daily engine",
           sourceType: "template",
