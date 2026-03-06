@@ -77,31 +77,35 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
   useEffect(() => {
     let raf: number;
     const tick = () => {
-      phaseRef.current += 0.012;
+      phaseRef.current += 0.008;
       const t = phaseRef.current;
       if (blobRef.current) {
-        // Generate organic blob deformation using multiple sine waves
-        const r1 = Math.sin(t * 0.7) * 3 + Math.cos(t * 1.3) * 2;
-        const r2 = Math.sin(t * 0.9 + 1) * 2.5 + Math.cos(t * 0.6 + 2) * 1.5;
-        const r3 = Math.sin(t * 1.1 + 2) * 2 + Math.cos(t * 0.8 + 3) * 3;
-        const r4 = Math.sin(t * 0.5 + 3) * 2.5 + Math.cos(t * 1.2) * 2;
-        const r5 = Math.sin(t * 0.8 + 1.5) * 1.5 + Math.cos(t * 1.0 + 0.5) * 2;
-        const r6 = Math.sin(t * 1.3 + 0.8) * 2 + Math.cos(t * 0.7 + 1.2) * 1.5;
-        const r7 = Math.sin(t * 0.6 + 2.5) * 2.5 + Math.cos(t * 1.1 + 1.8) * 2;
-        const r8 = Math.sin(t * 1.0 + 3.2) * 1.5 + Math.cos(t * 0.9 + 2.8) * 2.5;
+        // Dramatic organic alien blob deformation — layered sine waves at different frequencies
+        const amp = 8; // High amplitude for visible deformation
+        const r1 = Math.sin(t * 0.7) * amp + Math.cos(t * 1.7 + 0.3) * (amp * 0.6) + Math.sin(t * 2.3 + 1.1) * 3;
+        const r2 = Math.sin(t * 0.9 + 1.2) * (amp * 0.8) + Math.cos(t * 0.5 + 2.4) * amp + Math.sin(t * 1.9) * 2.5;
+        const r3 = Math.sin(t * 1.1 + 2.1) * amp + Math.cos(t * 0.8 + 0.7) * (amp * 0.7) + Math.cos(t * 2.1 + 3.0) * 3;
+        const r4 = Math.sin(t * 0.6 + 3.3) * (amp * 0.9) + Math.cos(t * 1.4 + 1.5) * amp + Math.sin(t * 1.8 + 2.2) * 2;
+        const r5 = Math.sin(t * 0.8 + 0.5) * amp + Math.cos(t * 1.2 + 2.8) * (amp * 0.6) + Math.sin(t * 2.5 + 0.9) * 3.5;
+        const r6 = Math.sin(t * 1.3 + 1.8) * (amp * 0.7) + Math.cos(t * 0.6 + 3.1) * amp + Math.cos(t * 1.6 + 0.4) * 2.5;
+        const r7 = Math.sin(t * 0.5 + 2.6) * amp + Math.cos(t * 1.1 + 0.2) * (amp * 0.8) + Math.sin(t * 2.0 + 1.7) * 3;
+        const r8 = Math.sin(t * 1.0 + 3.5) * (amp * 0.9) + Math.cos(t * 0.9 + 1.9) * amp + Math.cos(t * 1.5 + 2.6) * 2;
 
-        // Build organic border-radius with 8 values
         const base = 50;
         const br = `${base + r1}% ${base - r2}% ${base + r3}% ${base - r4}% / ${base + r5}% ${base - r6}% ${base + r7}% ${base - r8}%`;
 
-        // Gentle scale pulsation
-        const scale = 1 + Math.sin(t * 0.4) * 0.02;
+        // Breathing scale pulsation
+        const scale = 1 + Math.sin(t * 0.35) * 0.04 + Math.sin(t * 0.8) * 0.015;
 
-        // Subtle rotation
-        const rotate = Math.sin(t * 0.3) * 2;
+        // Organic slow rotation
+        const rotate = Math.sin(t * 0.25) * 4 + Math.cos(t * 0.15) * 2;
+
+        // Subtle translation drift
+        const tx = Math.sin(t * 0.3 + 1.0) * 3;
+        const ty = Math.cos(t * 0.25 + 0.5) * 3;
 
         blobRef.current.style.borderRadius = br;
-        blobRef.current.style.transform = `scale(${scale}) rotate(${rotate}deg)`;
+        blobRef.current.style.transform = `translate(${tx}px, ${ty}px) scale(${scale}) rotate(${rotate}deg)`;
       }
       raf = requestAnimationFrame(tick);
     };
