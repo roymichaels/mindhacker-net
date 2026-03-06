@@ -392,7 +392,10 @@ export default function LifeHub() {
                 const traitLabel = isHe
                   ? (traitCount === 1 ? 'תכונה אחת' : `${traitCount} תכונות`)
                   : (traitCount === 1 ? '1 trait' : `${traitCount} traits`);
-                const msLabel = `${pMs} ${isHe ? 'אבני דרך' : 'milestones'}`;
+                const mCount = group.missionCount;
+                const msLabel = isHe
+                  ? `${mCount} ${mCount === 1 ? 'משימה' : 'משימות'}`
+                  : `${mCount} ${mCount === 1 ? 'mission' : 'missions'}`;
 
                 return (
                   <div
@@ -501,7 +504,7 @@ export default function LifeHub() {
                                       {trait.displayName}
                                     </span>
                                     <span className="text-[9px] text-muted-foreground">
-                                      {trait.missionCount} {isHe ? 'משימות' : 'missions'} · {trait.milestoneCount} {isHe ? 'א.ד' : 'ms'}
+                                      {trait.missionCount} {isHe ? (trait.missionCount === 1 ? 'משימה' : 'משימות') : (trait.missionCount === 1 ? 'mission' : 'missions')} · {trait.milestoneCount} {isHe ? 'א.ד' : 'ms'}
                                     </span>
                                     <span className="text-[9px] text-muted-foreground/70">
                                       {trait.completedMilestones}/{trait.milestoneCount} {isHe ? 'הושלמו' : 'done'}
@@ -542,6 +545,10 @@ export default function LifeHub() {
                                             {isHe ? 'אין משימות מקושרות' : 'No linked missions'}
                                           </p>
                                         ) : trait.missions.map((mission) => {
+                                          // Debug: log cross-trait leakage in development
+                                          if (typeof window !== 'undefined' && (window as any).__DEV_DEBUG__) {
+                                            console.log('[TraitDetail]', { traitId: trait.skill_id, traitName: trait.displayName, missionId: mission.id, missionTitle: mission.title });
+                                          }
                                           const mTitle = isHe
                                             ? (mission.title || mission.title_en || '')
                                             : (mission.title_en || mission.title || '');

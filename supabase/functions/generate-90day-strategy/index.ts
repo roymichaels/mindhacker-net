@@ -282,6 +282,14 @@ ${scopeBlock}
 - REQUIRED VERBS: "practice", "execute", "perform", "drill", "complete", "run protocol", "train", "apply"
 - EVERY mission must be something the user DOES physically/actively
 
+## TITLE FORMAT RULES (CRITICAL):
+- Each mission title (goal_en/goal_he) MUST be a SHORT label: 2-6 words maximum.
+- Titles describe a distinct training arc, NOT a paragraph or instruction.
+- Titles must semantically belong to the trait "${traitName.name_en}" — do NOT reference other trait names.
+- Good examples: "Foundation of Inner Stillness", "Power Through Precision", "Conscious Integration Protocol"
+- BAD examples: long sentences, paragraphs, instructions starting with "בצע" or "Execute"
+- Hebrew titles must be natural and concise (2-6 words), NOT translated English.
+
 ## RULES:
 1. Missions MUST directly address assessment findings with TREATMENT PROTOCOLS.
 2. Reference user's actual projects/businesses BY NAME where relevant.
@@ -294,9 +302,9 @@ ${scopeBlock}
 ## OUTPUT (JSON only, NO markdown):
 {
   "goals": [
-    { "goal_en": "Foundational training arc", "goal_he": "ארק אימון בסיסי" },
-    { "goal_en": "Intermediate training arc", "goal_he": "ארק אימון ביניים" },
-    { "goal_en": "Advanced training arc", "goal_he": "ארק אימון מתקדם" }
+    { "goal_en": "Short 2-6 word title", "goal_he": "כותרת קצרה 2-6 מילים" },
+    { "goal_en": "Short 2-6 word title", "goal_he": "כותרת קצרה 2-6 מילים" },
+    { "goal_en": "Short 2-6 word title", "goal_he": "כותרת קצרה 2-6 מילים" }
   ]
 }`;
 }
@@ -502,9 +510,14 @@ async function generatePillarStrategy(
     
     const goals = missionResult?.goals || [];
     if (goals.length < 3) {
-      // Pad with fallback missions
+      // Pad with fallback missions — use generic progressive labels, NOT trait name
+      const fallbackLabels = [
+        { goal_en: 'Foundation Protocol', goal_he: 'פרוטוקול יסוד' },
+        { goal_en: 'Integration Drill', goal_he: 'תרגול שילוב' },
+        { goal_en: 'Mastery Execution', goal_he: 'ביצוע מומחיות' },
+      ];
       while (goals.length < 3) {
-        goals.push({ goal_en: `${trait.name_en} training ${goals.length + 1}`, goal_he: `אימון ${trait.name_he} ${goals.length + 1}` });
+        goals.push(fallbackLabels[goals.length] || { goal_en: `Training Arc ${goals.length + 1}`, goal_he: `ארק אימון ${goals.length + 1}` });
       }
     }
 

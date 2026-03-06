@@ -240,7 +240,7 @@ function TraitDetailView({
               color: `hsl(${pillarColor})`,
             }}
           >
-            {detail.missions.length} {isHe ? 'משימות' : 'missions'}
+            {detail.missions.length} {isHe ? (detail.missions.length === 1 ? 'משימה' : 'משימות') : (detail.missions.length === 1 ? 'mission' : 'missions')}
           </span>
           <span className="text-xs text-muted-foreground">
             {completedMilestones}/{totalMilestones} {isHe ? 'אבני דרך' : 'milestones'}
