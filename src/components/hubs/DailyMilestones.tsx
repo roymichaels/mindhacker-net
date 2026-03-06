@@ -19,6 +19,7 @@ import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { Calendar, Play, Rocket, Loader2, CheckCircle2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
@@ -72,6 +73,8 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const { statusMap, getDomain: getDomainRow } = useLifeDomains();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const { startAssessment } = useAuroraChatContext();
   const { openHypnosis } = useAuroraActions();
   const { isPillarSelected, isApex } = usePillarAccess();
@@ -211,7 +214,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     }
 
     const hubType = CORE_DOMAINS.some(d => d.id === dm.pillarId) ? 'core' : 'arena';
-    setExecutionAction({
+    const nowItem: NowQueueItem = {
       pillarId: dm.pillarId,
       hub: hubType,
       actionType: dm.pillarId,
@@ -221,8 +224,17 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
       urgencyScore: 80,
       reason: dm.missionTitle,
       sourceType: 'plan',
-    });
-    setExecutionOpen(true);
+      milestoneId: dm.milestoneId || undefined,
+      milestoneTitle: dm.milestoneTitle,
+    };
+
+    if (nowItem.milestoneId) {
+      setJourneyAction(nowItem);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(nowItem);
+      setExecutionOpen(true);
+    }
   };
 
   // Show generate CTA if the requested hub has no plan
@@ -529,6 +541,15 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
+        onComplete={() => {}}
+      />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.milestoneId || null}
+        milestoneTitle={journeyAction ? (isHe ? journeyAction.title : journeyAction.titleEn) : ''}
+        focusArea={journeyAction?.pillarId || undefined}
+        durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => {}}
       />
 

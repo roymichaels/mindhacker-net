@@ -17,6 +17,7 @@ import { NowQueueItem } from '@/hooks/useNowEngine';
 import { TodayScheduleCard } from './TodayScheduleCard';
 import { MovementScoreCard } from './MovementScoreCard';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 import { Button } from '@/components/ui/button';
 import { getDomainById } from '@/navigation/lifeDomains';
@@ -47,11 +48,18 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
 
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
 
   const handleExecute = (action: NowQueueItem) => {
-    setExecutionAction(action);
-    setExecutionOpen(true);
+    if (action.milestoneId) {
+      setJourneyAction(action);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(action);
+      setExecutionOpen(true);
+    }
   };
 
   const handleGenerateStrategy = () => {
@@ -234,6 +242,15 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
+        onComplete={() => refetch()}
+      />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.milestoneId || null}
+        milestoneTitle={journeyAction ? (language === 'he' ? journeyAction.title : journeyAction.titleEn) : ''}
+        focusArea={journeyAction?.pillarId || undefined}
+        durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
       />
 

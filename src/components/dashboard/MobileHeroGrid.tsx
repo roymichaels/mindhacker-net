@@ -13,6 +13,7 @@ import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield } from 'lucide-react';
@@ -49,6 +50,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
   const currentDay = useMemo(() => {
@@ -69,8 +72,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   ];
 
   const handleExecute = (item: NowQueueItem) => {
-    setExecutionAction(item);
-    setExecutionOpen(true);
+    if (item.milestoneId) {
+      setJourneyAction(item);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(item);
+      setExecutionOpen(true);
+    }
   };
 
   const toggleBlock = (slotId: string) => {
@@ -276,6 +284,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
+        onComplete={() => refetch()}
+      />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.milestoneId || null}
+        milestoneTitle={journeyAction ? (isHe ? journeyAction.title : journeyAction.titleEn) : ''}
+        focusArea={journeyAction?.pillarId || undefined}
+        durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
       />
     </div>

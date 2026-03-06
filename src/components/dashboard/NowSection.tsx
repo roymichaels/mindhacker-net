@@ -16,6 +16,7 @@ import { useTodayExecution, type ScheduleSlot } from '@/hooks/useTodayExecution'
 import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
 
 // ── Block category labels ──
@@ -190,6 +191,8 @@ export function NowSection() {
   const { schedule, isLoading, refetch, hasPlan } = useTodayExecution();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
 
   // Determine current time to classify blocks
@@ -207,8 +210,14 @@ export function NowSection() {
   };
 
   const handleExecute = (item: NowQueueItem) => {
-    setExecutionAction(item);
-    setExecutionOpen(true);
+    // If action has a milestone, use the immersive MilestoneJourneyModal
+    if (item.milestoneId) {
+      setJourneyAction(item);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(item);
+      setExecutionOpen(true);
+    }
   };
 
   const toggleBlock = (slotId: string) => {
@@ -260,11 +269,23 @@ export function NowSection() {
       {/* ─── DAILY ROADMAP ─── */}
       <DailyRoadmap />
 
-      {/* Execution Modal */}
+      {/* Execution Modal (non-milestone actions) */}
       <ExecutionModal
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
+        onComplete={() => refetch()}
+      />
+
+      {/* Milestone Journey Modal (milestone-backed actions) */}
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.milestoneId || null}
+        milestoneTitle={journeyAction ? (isHe ? journeyAction.title : journeyAction.titleEn) : ''}
+        milestoneDescription={journeyAction?.reason || undefined}
+        focusArea={journeyAction?.pillarId || undefined}
+        durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
       />
     </div>
