@@ -50,6 +50,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
   const currentDay = useMemo(() => {
@@ -70,8 +72,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   ];
 
   const handleExecute = (item: NowQueueItem) => {
-    setExecutionAction(item);
-    setExecutionOpen(true);
+    if (item.milestoneId) {
+      setJourneyAction(item);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(item);
+      setExecutionOpen(true);
+    }
   };
 
   const toggleBlock = (slotId: string) => {
