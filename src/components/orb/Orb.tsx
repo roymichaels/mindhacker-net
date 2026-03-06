@@ -14,10 +14,10 @@ export const Orb = forwardRef<OrbRef, OrbProps>(function Orb(props, ref) {
   });
 
   useEffect(() => {
-    if (renderer !== 'auto') return;
+    if (renderer !== 'auto' || forceCSS) return;
     // Check WebGL support on mount
     setUseWebGL(supportsWebGL());
-  }, [renderer]);
+  }, [renderer, forceCSS]);
 
   // Show placeholder only while checking WebGL support (auto mode)
   if (useWebGL === null) {
