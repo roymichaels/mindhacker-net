@@ -603,39 +603,4 @@ function TraitDetailView({ traitId, onBack, isHe }: { traitId: string; onBack: (
 }
 
 
-            );
-          })}
-        </div>
-      )}
-
-      {/* Consciousness card */}
-      <ConsciousnessCard />
-
-      {/* AI Analysis */}
-      <AIAnalysisDisplay language={language} />
-
-      {/* Stats summary */}
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { label: isHe ? 'רמה' : 'Level', value: dashboard.level, icon: Trophy, color: 'text-amber-500' },
-          { label: isHe ? 'רצף' : 'Streak', value: dashboard.streak, icon: Flame, color: 'text-orange-500' },
-          { label: isHe ? 'סשנים' : 'Sessions', value: dashboard.totalSessions, icon: Zap, color: 'text-blue-500' },
-          { label: isHe ? 'טוקנים' : 'Tokens', value: dashboard.tokens, icon: BarChart3, color: 'text-emerald-500' },
-        ].map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border/30">
-              <Icon className={cn("w-4 h-4", stat.color)} />
-              <div>
-                <p className="text-lg font-bold tabular-nums">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground">{stat.label}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 
