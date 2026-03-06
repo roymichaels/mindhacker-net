@@ -58,6 +58,29 @@ function buildConstraintsBlock(ctx: any): string {
   return `\n## CRITICAL USER CONSTRAINTS (NEVER VIOLATE):\n${parts.join('\n')}\n`;
 }
 
+function buildUserGoalsContext(ctx: any): string {
+  const parts: string[] = [];
+  
+  if (ctx.direction?.content) {
+    parts.push(`Life Direction: ${ctx.direction.content.slice(0, 200)}`);
+  }
+  if (ctx.commitments?.length > 0) {
+    parts.push(`Active Commitments: ${ctx.commitments.slice(0, 4).join(', ')}`);
+  }
+  if (ctx.projects?.length > 0) {
+    parts.push(`Active Projects: ${ctx.projects.map((p: any) => `"${p.name}" (${p.category || 'general'})`).slice(0, 5).join(', ')}`);
+  }
+  if (ctx.visions?.length > 0) {
+    parts.push(`Visions: ${ctx.visions.map((v: any) => `${v.timeframe}: ${v.title}`).slice(0, 3).join('; ')}`);
+  }
+  if (ctx.focus?.title) {
+    parts.push(`Current Focus: ${ctx.focus.title}`);
+  }
+  
+  if (parts.length === 0) return '';
+  return `\n## USER'S ACTUAL GOALS (generate content relevant to THESE):\n${parts.join('\n')}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
