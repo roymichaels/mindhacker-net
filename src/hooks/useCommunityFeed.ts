@@ -79,9 +79,10 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
 
       const catMap = Object.fromEntries((categories || []).map(c => [c.id, c]));
 
-      // Only show threads from users who have a community_username
+      // Only show threads from users who have a community_username OR are system posts
       let threads: CommunityThread[] = posts
         .filter(post => {
+          if ((post as any).is_system) return true; // always show system posts
           const author = profiles?.find(p => p.id === post.user_id);
           return author?.community_username; // must have username
         })
@@ -92,6 +93,9 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
 
           return {
             ...post,
+            title_he: (post as any).title_he || null,
+            content_he: (post as any).content_he || null,
+            is_system: (post as any).is_system || false,
             likes_count: post.likes_count || 0,
             comments_count: post.comments_count || 0,
             is_pinned: post.is_pinned || false,
