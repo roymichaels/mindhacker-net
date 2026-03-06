@@ -5,10 +5,11 @@ import type { OrbRef, OrbProps } from './types';
 
 export const Orb = forwardRef<OrbRef, OrbProps>(function Orb(props, ref) {
   const { renderer = 'auto', ...rest } = props;
-  // Force CSS for small orbs (≤100px) — WebGL renders dark/colorless at tiny sizes
-  const forceCSS = renderer === 'auto' && (rest.size || 300) <= 100;
+  // Force CSS renderer for all sizes — WebGL has persistent dark-rendering issues
+  // across various GPUs/drivers. CSS orb is vibrant and reliable at all sizes.
+  const forceCSS = renderer !== 'webgl';
   const [useWebGL, setUseWebGL] = useState<boolean | null>(() => {
-    if (renderer === 'css' || forceCSS) return false;
+    if (forceCSS) return false;
     if (renderer === 'webgl') return true;
     return null;
   });
