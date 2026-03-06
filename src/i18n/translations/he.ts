@@ -3005,9 +3005,10 @@ export const he = {
 
     // FinalCTASection
     finalCta: {
-      title: 'מוכן לשנות את הכל?',
-      subtitle: 'הצטרף ותתחיל את המסע שלך היום',
-      cta: '🚀 התחל את האבחון שלך',
+      title: 'בחר את הדרגה שלך',
+      subtitle: 'התחל בחינם. שדרג כשמוכן ללכת עמוק יותר.',
+      epicTitle: 'העיר שלך מחכה',
+      cta: '⚡ כנס לעיר',
       personalCoach: 'מאמן AI אישי 24/7',
       plan100: 'תוכנית 100 יום מותאמת',
       domains14: '14 תחומי חיים',
@@ -3017,6 +3018,91 @@ export const he = {
       personalJourney: 'מסע מותאם אישית',
       fiveMinutes: '5 דקות להתחיל',
       cancelAnytime: 'ביטול בכל רגע',
+    },
+
+    // OrbShowcaseSection
+    orbShowcase: {
+      badge: 'אווטאר חי',
+      title: 'ה-Orb שלך. ה-DNA שלך.',
+      subtitle: 'אווטאר דיגיטלי חי שמתפתח איתך — משקף את הזהות, התכונות וההתקדמות שלך בכל 14 תחומי החיים.',
+      evolveTitle: 'מתפתח איתך',
+      evolveDesc: 'ה-Orb שלך משנה צורה, צבע ומורכבות ככל שמשלים פעולות ועולה ברמות.',
+      dnaTitle: 'DNA זהות',
+      dnaDesc: 'תכונות, חוזקות, ארכיטיפ — הכל מקודד בחתימה הויזואלית של ה-Orb.',
+      nftTitle: 'מוכן ל-NFT',
+      nftDesc: 'דרגות נדירות וארכיטיפים ייחודיים. הצמיחה שלך הופכת לאספנות.',
+    },
+
+    // DomainCitySection
+    domainCity: {
+      title: '14 רובעים. עיר אחת.',
+      subtitle: 'כל תחום חיים הוא רובע בעיר האישית שלך — הכל מחובר, הכל ממוטב על ידי Aurora.',
+    },
+
+    // HypnosisSection
+    hypnosis: {
+      badge: 'היפנוזה AI',
+      title: 'תכנת מחדש את המוח',
+      subtitle: 'סשני היפנוזה שנוצרים בזמן אמת מהשיחות שלך עם Aurora.',
+      realtimeTitle: 'יצירה בזמן אמת',
+      realtimeDesc: 'סשנים נבנים תוך כדי תנועה מהמצב והיעדים הנוכחיים שלך.',
+      karaokeTitle: 'טקסט קריוקי',
+      karaokeDesc: 'עקוב אחרי מילה-מילה בזמן שהסשן מתנגן.',
+      breathingTitle: 'מדריך נשימה',
+      breathingDesc: 'תרגילי נשימה משולבים ומסונכרנים עם הסשן.',
+      statsTitle: 'סטטיסטיקות סשן',
+      statsDesc: 'עקוב אחרי סשנים, רצפים ומצבי תודעה.',
+      nowPlaying: 'מתנגן עכשיו',
+      sampleSession: 'מיקוד עמוק — מותאם אישית בשבילך',
+    },
+
+    // Play2EarnSection
+    play2earn: {
+      badge: 'הוכחת צמיחה',
+      title: 'כרה. הרווח. משוך.',
+      subtitle: 'בצע פעולות אמיתיות. הרווח טוקני MOS. בנה את הארנק שלך. 100 MOS = $1.',
+      miningTitle: 'כריית פעילות',
+      miningDesc: 'הרווח טוקני MOS אוטומטית על כל פעולה — הרגלים, סשנים, פוסטים, שיעורים.',
+      marketTitle: 'שוק נתונים',
+      marketDesc: 'מוניטיזציה של נתוני הצמיחה האנונימיים שלך עם חלוקת הכנסות 80/20.',
+      walletTitle: 'ארנק דיגיטלי',
+      walletDesc: 'עקוב אחרי הכנסות, נהל עסקאות, ומשוך דרך פיאט או קריפטו.',
+    },
+
+    // GuildSection
+    guild: {
+      badge: 'הגילדה',
+      title: 'קהילה + מנוע לימוד',
+      subtitle: 'הצטרף לגילדה. שתף את המסע שלך. התקדם ביחד.',
+      communityTitle: 'פורומי קהילה',
+      communityDesc: 'שתף, דון וצמח עם שחקנים אחרים.',
+      posts: 'פוסטים ודיונים',
+      leaderboard: 'טבלאות מובילים ודירוגים',
+      playerCards: 'פרופילי שחקנים וכרטיסים',
+      learningTitle: 'מנוע לימוד AI',
+      learningDesc: 'קורסים מותאמים שנוצרים מהנתונים שלך.',
+      aiCourses: 'קורסים שנוצרו ב-AI',
+      pillarModules: 'מודולים לפי פילר',
+      exercises: 'תרגילי יישום',
+    },
+
+    // CoachOSSection
+    coachOS: {
+      badge: 'רובע העסקים',
+      title: 'בנה את האימפריה שלך',
+      subtitle: 'מאמנים ומטפלים — נהלו את כל העסק שלכם בתוך העיר.',
+      crmTitle: 'CRM לקוחות',
+      crmDesc: 'ניהול מחזור חיי לקוח מלא — פגישות, הערות, מעקב.',
+      landingTitle: 'דפי נחיתה',
+      landingDesc: 'דפי נחיתה מותאמים עם לכידת לידים.',
+      productsTitle: 'מוצרים דיגיטליים',
+      productsDesc: 'מכירת קורסים, חבילות ושירותים.',
+      analyticsTitle: 'דאשבורד אנליטיקס',
+      analyticsDesc: 'KPI בזמן אמת, משפכי המרה, ביצועים.',
+      aiPlansTitle: 'תוכניות אימון AI',
+      aiPlansDesc: 'יצירת תוכניות מותאמות ללקוחות עם AI.',
+      subscriptionsTitle: 'מנויים',
+      subscriptionsDesc: 'ניהול מנויים, רמות וחיובים.',
     },
 
     // FearOfMissingOutSection
