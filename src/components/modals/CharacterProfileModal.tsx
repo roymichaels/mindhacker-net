@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// Tabs removed — profile content shown directly
 import { Badge } from '@/components/ui/badge';
 import {
   Star, Flame, Zap, X, UserCircle, Brain, Compass, Target,
