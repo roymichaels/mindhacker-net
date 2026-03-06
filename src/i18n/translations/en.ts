@@ -2951,9 +2951,10 @@ export const en: TranslationKeys = {
 
     // FinalCTASection
     finalCta: {
-      title: 'Ready to Change Everything?',
-      subtitle: 'Join and start your journey today',
-      cta: '🚀 Start Your Assessment',
+      title: 'Choose Your Rank',
+      subtitle: 'Start free. Upgrade when you\'re ready to go deeper.',
+      epicTitle: 'Your City Awaits',
+      cta: '⚡ Enter the City',
       personalCoach: 'Personal AI Coach 24/7',
       plan100: 'Tailored 100-Day Plan',
       domains14: '14 Life Domains',
@@ -2963,6 +2964,91 @@ export const en: TranslationKeys = {
       personalJourney: 'Personalized journey',
       fiveMinutes: '5 minutes to start',
       cancelAnytime: 'Cancel anytime',
+    },
+
+    // OrbShowcaseSection
+    orbShowcase: {
+      badge: 'Living Avatar',
+      title: 'Your Orb. Your DNA.',
+      subtitle: 'A living digital avatar that evolves as you grow — reflecting your identity, traits, and progress across all 14 life pillars.',
+      evolveTitle: 'Evolves With You',
+      evolveDesc: 'Your orb changes shape, color and complexity as you complete actions and level up.',
+      dnaTitle: 'Identity DNA',
+      dnaDesc: 'Traits, strengths, archetype — all encoded into your orb\'s visual signature.',
+      nftTitle: 'NFT-Ready',
+      nftDesc: 'Rarity tiers and unique archetypes. Your growth becomes a collectible.',
+    },
+
+    // DomainCitySection
+    domainCity: {
+      title: '14 Districts. One City.',
+      subtitle: 'Every life domain is a district in your personal city — all connected, all optimized by Aurora.',
+    },
+
+    // HypnosisSection
+    hypnosis: {
+      badge: 'AI Hypnosis',
+      title: 'Reprogram Your Mind',
+      subtitle: 'AI-generated hypnosis sessions personalized from your real conversations with Aurora.',
+      realtimeTitle: 'Real-Time Generation',
+      realtimeDesc: 'Sessions built on-the-fly from your current state and goals.',
+      karaokeTitle: 'Karaoke Text',
+      karaokeDesc: 'Follow along word-by-word as the session plays.',
+      breathingTitle: 'Breathing Guide',
+      breathingDesc: 'Integrated breathing exercises synced with the session.',
+      statsTitle: 'Session Stats',
+      statsDesc: 'Track your sessions, streaks, and consciousness states.',
+      nowPlaying: 'Now Playing',
+      sampleSession: 'Deep Focus — Personalized for You',
+    },
+
+    // Play2EarnSection
+    play2earn: {
+      badge: 'Proof of Growth',
+      title: 'Mine. Earn. Cash Out.',
+      subtitle: 'Complete real actions. Earn MOS tokens. Build your wallet. 100 MOS = $1.',
+      miningTitle: 'Activity Mining',
+      miningDesc: 'Earn MOS tokens automatically for every action — habits, sessions, posts, lessons.',
+      marketTitle: 'Data Marketplace',
+      marketDesc: 'Monetize your anonymized growth data with an 80/20 revenue split.',
+      walletTitle: 'Digital Wallet',
+      walletDesc: 'Track earnings, manage transactions, and cash out via fiat or crypto.',
+    },
+
+    // GuildSection
+    guild: {
+      badge: 'The Guild',
+      title: 'Community + Learning Engine',
+      subtitle: 'Join the guild. Share your journey. Level up together.',
+      communityTitle: 'Community Forums',
+      communityDesc: 'Share, discuss, and grow with other players.',
+      posts: 'Posts & Discussions',
+      leaderboard: 'Leaderboards & Rankings',
+      playerCards: 'Player Profiles & Cards',
+      learningTitle: 'AI Learning Engine',
+      learningDesc: 'Personalized courses generated from your data.',
+      aiCourses: 'AI-Generated Courses',
+      pillarModules: 'Pillar-Based Modules',
+      exercises: 'Application Exercises',
+    },
+
+    // CoachOSSection
+    coachOS: {
+      badge: 'Business District',
+      title: 'Build Your Empire',
+      subtitle: 'Coaches and practitioners — run your entire business inside the city.',
+      crmTitle: 'Client CRM',
+      crmDesc: 'Full client lifecycle — sessions, notes, status tracking.',
+      landingTitle: 'Landing Pages',
+      landingDesc: 'Custom landing pages with lead capture.',
+      productsTitle: 'Digital Products',
+      productsDesc: 'Sell courses, packages, and services.',
+      analyticsTitle: 'Analytics Dashboard',
+      analyticsDesc: 'Real-time KPIs, conversion funnels, performance.',
+      aiPlansTitle: 'AI Coaching Plans',
+      aiPlansDesc: 'Generate personalized client plans with AI.',
+      subscriptionsTitle: 'Subscriptions',
+      subscriptionsDesc: 'Manage subscriptions, tiers, and billing.',
     },
 
     // FearOfMissingOutSection
