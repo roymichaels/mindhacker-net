@@ -230,16 +230,17 @@ export async function buildContext(
     supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).gte("log_date", new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]).order("log_date", { ascending: false }),
     // Latest recalibration
     supabase.from("recalibration_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
-    // Cross-conversation history: recent messages from ALL Aurora conversations (one brain)
-    supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").eq("is_ai_message", false).order("created_at", { ascending: false }).limit(40).then(async (userMsgsRes) => {
-      // Get conversation IDs that belong to this user's AI conversations
+    // Cross-conversation history: recent messages from THIS USER's Aurora conversations only
+    (async () => {
+      // Step 1: Get this user's AI conversation IDs
       const { data: aiConvs } = await supabase.from("conversations").select("id, context").eq("participant_1", userId).eq("type", "ai").order("updated_at", { ascending: false }).limit(10);
       if (!aiConvs || aiConvs.length === 0) return { data: [], error: null };
       const convIds = aiConvs.map((c: any) => c.id);
       const convContextMap = new Map(aiConvs.map((c: any) => [c.id, c.context]));
+      // Step 2: Fetch messages ONLY from this user's conversations
       const { data: recentMsgs } = await supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").in("conversation_id", convIds).order("created_at", { ascending: false }).limit(60);
       return { data: (recentMsgs || []).map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
-    }),
+    })(),
     // Life domains (assessments, rawInputsUsed, willingness)
     supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
     // Launchpad profile (biological baseline from onboarding)
