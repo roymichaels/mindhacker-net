@@ -523,6 +523,8 @@ export async function playAudioUrl(
     onStart?: () => void;
     onEnd?: () => void;
     onError?: (error: Error) => void;
+    /** Minimum duration in seconds to consider audio valid. Default 0 (no check). */
+    minDuration?: number;
   } = {}
 ): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -581,7 +583,7 @@ export async function playAudioUrl(
     // Track if we've received meaningful audio data
     let audioStarted = false;
     let startTime = 0;
-    const MINIMUM_AUDIO_DURATION = 10; // At least 10 seconds for a real session
+    const minDuration = options.minDuration ?? 0;
     
     // Trigger onStart when audio actually starts playing
     audio.onplaying = () => {
@@ -596,8 +598,8 @@ export async function playAudioUrl(
     
     // Check for silent/empty audio by validating duration when metadata loads
     audio.onloadedmetadata = () => {
-      if (audio.duration < MINIMUM_AUDIO_DURATION) {
-        console.warn(`Audio too short: ${audio.duration}s (expected at least ${MINIMUM_AUDIO_DURATION}s)`);
+      if (minDuration > 0 && audio.duration < minDuration) {
+        console.warn(`Audio too short: ${audio.duration}s (expected at least ${minDuration}s)`);
         cleanup();
         const error = new Error(`Audio too short: ${audio.duration}s`);
         options.onError?.(error);
@@ -608,14 +610,16 @@ export async function playAudioUrl(
     audio.onended = () => {
       cleanup();
       
-      // Guard against instant completion (silent audio)
-      const elapsedMs = startTime > 0 ? Date.now() - startTime : 0;
-      if (audioStarted && elapsedMs < 3000) {
-        console.warn(`Audio ended too quickly: ${elapsedMs}ms - likely silent/corrupt`);
-        const error = new Error('Audio ended too quickly - likely silent');
-        options.onError?.(error);
-        reject(error);
-        return;
+      // Guard against instant completion (silent audio) — only for long-form audio
+      if (minDuration > 0) {
+        const elapsedMs = startTime > 0 ? Date.now() - startTime : 0;
+        if (audioStarted && elapsedMs < 3000) {
+          console.warn(`Audio ended too quickly: ${elapsedMs}ms - likely silent/corrupt`);
+          const error = new Error('Audio ended too quickly - likely silent');
+          options.onError?.(error);
+          reject(error);
+          return;
+        }
       }
       
       options.onEnd?.();

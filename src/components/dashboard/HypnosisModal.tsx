@@ -481,6 +481,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
           let detectedBadAudio = false;
 
           await playAudioUrl(signedUrl, {
+            minDuration: 10,
             onTimeUpdate: (currentTime, audioDuration) => {
               // Detect bad cached audio early
               if (!detectedBadAudio && audioStartTime > 0) {
@@ -634,6 +635,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         // For browser TTS, the progress is handled inside playAudioUrl via speakWithBrowser
         // which now has smooth word-level interpolation
         await playAudioUrl(result.audioUrl, {
+          minDuration: 10,
           onTimeUpdate,
           onStart,
           onEnd,
