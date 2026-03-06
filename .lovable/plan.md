@@ -1,114 +1,120 @@
 
+# Advanced Voice Mode for Aurora
 
-## Homepage Overhaul — "$1M NFT Play-to-Earn Game" Feel
+## Overview
+Add a real-time, bidirectional voice conversation mode between the user and Aurora -- similar to ChatGPT's Advanced Voice Mode. The user taps a button, enters a full-screen (or overlay) voice session where they speak naturally, Aurora listens, processes, and responds with voice -- creating a seamless back-and-forth conversation loop.
 
-### Problem
-Currently 10 separate sections that feel like a feature list, not a game landing page. Too much text explaining things, key dimensions (traits, plan generation, economy) get buried or lost. The hero is cluttered with orbiting domain icons + stats + subtitle. No trait showcase anywhere. The AI plan generation "wow factor" is missing entirely.
+This will be available in:
+1. The **AuroraDock** (global chat input bar)
+2. The **DomainAssessChat** (pillar assessments)
+3. The **AuroraChatInput** (used inside assessment modals)
 
-### New Architecture — Consolidate to 6 Punchy Sections
+## How It Works
 
 ```text
-┌─────────────────────────────────────────────┐
-│  1. HERO — Cinematic, minimal               │
-│     Orb (fast) + One-liner + CTA            │
-│     No stats bar, no orbiting icons          │
-│     Gaming tagline only. Mystery > explain.  │
-├─────────────────────────────────────────────┤
-│  2. ORB NFT GALLERY (existing carousel)      │
-│     Keep as-is — already strong              │
-├─────────────────────────────────────────────┤
-│  3. THE CITY — Consolidated "What's Inside"  │
-│     6 flashy "district" cards in 2x3 grid:   │
-│     • 14 Domains (domain icons mini-grid)    │
-│     • Trait System (NFT trait cards preview)  │
-│     • AI Plan Engine (animated plan gen)     │
-│     • Hypnosis Engine (visualizer bars)      │
-│     • MOS Economy (wallet + mining)          │
-│     • Coach Marketplace (find/become)        │
-│     Each card: icon, bold title, 1-line,     │
-│     small animated visual element inside     │
-├─────────────────────────────────────────────┤
-│  4. TRAITS SHOWCASE — NEW                    │
-│     NFT-style trait cards grid (6-8 traits)  │
-│     Glowing cards with pillar colors         │
-│     Show trait icons + names, no metrics     │
-│     Mysterious "Your identity, evolved"      │
-├─────────────────────────────────────────────┤
-│  5. THE PLAN — NEW "AI Generates Your Path"  │
-│     Animated cinematic sequence showing:     │
-│     Orb pulse → "Scanning..." → Pillars      │
-│     light up → Plan materializes             │
-│     No details on HOW — just the magic       │
-│     "100 Days. Engineered by AI."            │
-├─────────────────────────────────────────────┤
-│  6. FINAL CTA — Keep existing (already good) │
-└─────────────────────────────────────────────┘
+User taps Voice Mode button
+        |
+        v
++---------------------------+
+|   Full-screen Voice UI    |
+|                           |
+|   [Aurora Orb animating]  |
+|                           |
+|   State: LISTENING        |
+|   "Speak now..."          |
+|                           |
+|   [End Call]              |
++---------------------------+
+        |
+  User speaks -> STT (ElevenLabs transcribe)
+        |
+  Transcript sent to Aurora chat (existing aurora-chat edge fn)
+        |
+  Aurora responds with text
+        |
+  Text -> TTS (ElevenLabs TTS) -> plays audio
+        |
+  When audio ends -> back to LISTENING
+        |
+  Loop continues until user taps "End"
 ```
 
-### Detailed Changes
+## Components to Create
 
-**1. GameHeroSection.tsx — Strip down to cinematic minimum**
-- Remove orbiting domain icons entirely
-- Remove stats bar (14 / 100 / P2E)
-- Remove subtitle paragraph
-- Keep: Orb (center, large, fast), gradient title, badge, CTA button
-- Add a single mysterious tagline like "Level Up Your Reality"
-- Result: clean, dark, gaming-cinematic first impression
+### 1. `src/components/aurora/AuroraVoiceMode.tsx` (New)
+The main voice mode overlay/modal component:
+- Full-screen dark overlay with the **AuroraHoloOrb** as the centerpiece (animated based on state)
+- States: `idle`, `listening`, `processing`, `speaking`
+- Visual audio waveform/level indicator while listening
+- Aurora orb pulses/glows while speaking
+- "End Call" button to exit
+- Transcript display (shows what user said + Aurora's response text)
+- Uses existing `useAuroraVoice` for STT + TTS
+- Auto-loop: after Aurora finishes speaking, automatically starts listening again
 
-**2. OrbCollectionSection — No changes**
+### 2. `src/hooks/aurora/useAuroraVoiceMode.tsx` (New)
+Custom hook that orchestrates the full voice conversation loop:
+- Manages the state machine: `idle -> listening -> processing -> speaking -> listening`
+- Uses existing `useAuroraVoice` for recording/transcription
+- On transcription complete: sends message via the chat context's `sendMessageRef` (for AuroraDock) or a provided `onSend` callback (for assessments)
+- Watches for Aurora's response (new assistant message) and auto-plays via TTS
+- Handles the auto-loop (when TTS ends, restart recording)
+- Graceful error handling with fallback states
+- Cleanup on unmount (stop recording, stop playback)
 
-**3. NEW: CityShowcaseSection.tsx — Replaces DomainCitySection + AuroraCoachSection + HypnosisSection + TheSystemSection + Play2EarnSection + GuildSection + CoachOSSection (7 sections → 1)**
-- 2x3 grid of "district" cards, each ~200px tall
-- Each card has a bold icon, title, one-liner, and a small animated visual:
-  - **Domains**: Mini 7-icon row showing domain icons
-  - **Traits**: 3 small glowing NFT-style badge previews
-  - **AI Plan**: Animated "generating..." dots/pulse
-  - **Hypnosis**: Mini audio visualizer bars (3-4 bars)
-  - **Economy**: "1,240 MOS" counter with coin icon
-  - **Coaches**: "Find / Build" dual badge
-- Dark card style, colored borders matching each theme
-- No long descriptions — just enough to intrigue
+### 3. `src/components/aurora/VoiceModeButton.tsx` (New)
+A reusable button that triggers voice mode:
+- Headphone/waveform icon
+- Opens the `AuroraVoiceMode` overlay when tapped
+- Can be placed in any chat input bar
 
-**4. NEW: TraitShowcaseSection.tsx**
-- Grid of 6-8 trait cards from the existing pillar system
-- Each card: square, dark bg, glowing border (pillar color), icon + trait name
-- No XP, no levels — identity-focused per memory
-- Header: "Your Character. Your NFT." / "הדמות שלך. ה-NFT שלך."
-- Subtle floating glow particles behind grid
+## Integration Points
 
-**5. NEW: PlanCinematicSection.tsx**
-- Full-width cinematic section
-- Animated sequence (CSS/framer-motion):
-  1. Orb pulses at center
-  2. Scan lines emanate outward
-  3. 3-4 pillar icons light up sequentially
-  4. A "plan card" fades in below: "Your 100-Day Path — Generated"
-- Tagline: "AI scans your DNA. Builds your path. You just play."
-- No details about phases/steps — keep it mysterious and flashy
-- Dark bg with primary glow
+### GlobalChatInput (AuroraDock)
+- Add `VoiceModeButton` next to the existing voice recording button
+- When voice mode is active, messages flow through the existing `sendMessageRef` mechanism
+- Aurora responses are detected from the streaming state + messages list
 
-**6. FinalCTASection — Keep as-is**
+### AuroraChatInput (Assessments)
+- Add `VoiceModeButton` next to the existing mic button
+- Messages flow through the `onSend` prop
+- Aurora responses come from the parent `DomainAssessChat` messages state
 
-### Index.tsx Update
-```tsx
-<GameHeroSection />        // Cinematic minimal hero
-<OrbCollectionSection />   // NFT orb carousel
-<CityShowcaseSection />    // 6 district cards (consolidated)
-<TraitShowcaseSection />   // NFT trait gallery
-<PlanCinematicSection />   // AI plan generation cinema
-<FinalCTASection />        // Epic CTA
-```
+### DomainAssessChat
+- No direct changes needed -- voice mode works through `AuroraChatInput` which already has the `onSend` callback
 
-### Files to Create
-- `src/components/home/CityShowcaseSection.tsx`
-- `src/components/home/TraitShowcaseSection.tsx`
-- `src/components/home/PlanCinematicSection.tsx`
+## Voice Conversation Flow (Technical)
 
-### Files to Edit
-- `src/components/home/GameHeroSection.tsx` — strip to minimal
-- `src/components/home/index.ts` — add new exports
-- `src/pages/Index.tsx` — new section order
+1. User enters voice mode -> `AuroraVoiceMode` overlay opens
+2. Auto-starts recording via `navigator.mediaDevices.getUserMedia`
+3. User stops speaking (manual tap or silence detection)
+4. Audio sent to `elevenlabs-transcribe` edge function (existing)
+5. Transcribed text sent as chat message via existing chat infrastructure
+6. Hook monitors for new assistant messages in the conversation
+7. When assistant message arrives, sends text to `elevenlabs-tts` edge function (existing)
+8. Audio plays back through the browser
+9. On audio end, auto-restart recording for next turn
+10. User taps "End" to exit voice mode
 
-### Files No Longer Used in Homepage
-DomainCitySection, AuroraCoachSection, HypnosisSection, TheSystemSection, Play2EarnSection, GuildSection, CoachOSSection — kept in codebase but removed from Index.
+## UI Design
 
+- **Overlay**: Full viewport, dark background with subtle gradient, `z-50`
+- **Center**: Large AuroraHoloOrb (96px+) with state-dependent animations
+  - Listening: gentle pulse with mic-level reactivity
+  - Processing: spinning/loading animation
+  - Speaking: rhythmic glow synced with audio output
+- **Bottom**: "End Call" button (red, rounded-full)
+- **Top**: Small transcript area showing last exchange
+- **RTL Support**: Full Hebrew/English bilingual labels
+
+## Files Summary
+
+| File | Action |
+|------|--------|
+| `src/hooks/aurora/useAuroraVoiceMode.tsx` | Create -- orchestration hook |
+| `src/components/aurora/AuroraVoiceMode.tsx` | Create -- full-screen voice UI |
+| `src/components/aurora/VoiceModeButton.tsx` | Create -- trigger button |
+| `src/components/dashboard/GlobalChatInput.tsx` | Edit -- add VoiceModeButton |
+| `src/components/aurora/AuroraChatInput.tsx` | Edit -- add VoiceModeButton |
+
+No new edge functions needed -- reuses existing `elevenlabs-transcribe` and `elevenlabs-tts`. No database changes required.
