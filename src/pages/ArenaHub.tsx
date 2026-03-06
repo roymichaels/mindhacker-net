@@ -79,6 +79,9 @@ export default function ArenaHub() {
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const [scheduleGenerating, setScheduleGenerating] = useState(false);
+  // Journey modal state
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
 
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime } = phasePlan;
