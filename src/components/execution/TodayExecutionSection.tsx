@@ -48,11 +48,18 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
 
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
 
   const handleExecute = (action: NowQueueItem) => {
-    setExecutionAction(action);
-    setExecutionOpen(true);
+    if (action.milestoneId) {
+      setJourneyAction(action);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(action);
+      setExecutionOpen(true);
+    }
   };
 
   const handleGenerateStrategy = () => {
