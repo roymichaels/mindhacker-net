@@ -362,7 +362,7 @@ export default function LifeHub() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setWizardOpen(true)}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-medium bg-accent/10 text-accent-foreground border border-accent/20 hover:bg-accent/20 transition-colors shrink-0"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors shrink-0"
                   >
                     <Sparkles className="w-3 h-3" />
                     {isHe ? 'כיול מחדש' : 'Recalibrate'}
