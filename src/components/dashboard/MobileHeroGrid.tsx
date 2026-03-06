@@ -28,8 +28,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { openHypnosis } = useAuroraActions();
   const isHe = language === 'he';
 
-  const { queue, isLoading, refetch, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
-  const hasPlan = hasCoreStrategy || hasArenaStrategy;
+  const { queue, isLoading, refetch, hasPlan } = useTodayExecution();
   const nextAction = queue[0] || null;
   const remainingQueue = queue.slice(1);
 

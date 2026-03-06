@@ -74,7 +74,7 @@ function QueueItemCard({
 
 export function NowSection() {
   const { language, isRTL } = useTranslation();
-  const { queue, nextAction, tier, isLoading, refetch } = useNowEngine();
+  const { queue, nextAction, tier, isLoading, refetch } = useTodayExecution();
   const [expanded, setExpanded] = useState(true);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);

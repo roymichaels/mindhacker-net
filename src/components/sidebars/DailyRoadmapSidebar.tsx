@@ -20,7 +20,7 @@ export function DailyRoadmapSidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  const { queue, isLoading } = useNowEngine();
+  const { queue, isLoading } = useTodayExecution();
   const { habits, completedCount: habitsCompleted, totalCount: habitsTotal } = useTodaysHabits();
 
   // Build unified daily items
