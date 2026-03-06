@@ -140,7 +140,7 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
   useEffect(() => {
     let raf: number;
     const tick = () => {
-      phaseRef.current += 0.008;
+      phaseRef.current += 0.025;
       const t = phaseRef.current;
       if (blobRef.current) {
         const amp = 7;
