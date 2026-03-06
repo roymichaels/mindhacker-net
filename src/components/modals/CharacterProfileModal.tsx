@@ -602,62 +602,7 @@ function TraitDetailView({ traitId, onBack, isHe }: { traitId: string; onBack: (
   );
 }
 
-// ═══════════════════════════════════════════════
-// INSIGHTS TAB — AI Analysis + Consciousness + Diagnostics
-// ═══════════════════════════════════════════════
-function InsightsTab({ isHe, language, dashboard }: { isHe: boolean; language: string; dashboard: any }) {
-  const { user } = useAuth();
-  const [diagnosticScores, setDiagnosticScores] = useState<Array<{ key: string; label: string; labelEn: string; value: number; icon: typeof Zap; color: string; bgColor: string }>>([]);
 
-  useEffect(() => {
-    if (!user) return;
-    async function fetchDiag() {
-      try {
-        const { data } = await supabase
-          .from('launchpad_summaries')
-          .select('summary_data')
-          .eq('user_id', user!.id)
-          .order('generated_at', { ascending: false })
-          .limit(1)
-          .single();
-        if (data?.summary_data) {
-          const sd = data.summary_data as any;
-          const diag = sd.diagnostics || sd.diagnostic_scores || {};
-          setDiagnosticScores([
-            { key: 'energy_stability', label: 'יציבות אנרגיה', labelEn: 'Energy Stability', value: diag.energy_stability?.score ?? 0, icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-            { key: 'recovery_debt', label: 'חוב ריקברי', labelEn: 'Recovery Debt', value: diag.recovery_debt?.score ?? 0, icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-            { key: 'dopamine_load', label: 'עומס דופמין', labelEn: 'Dopamine Load', value: diag.dopamine_load?.score ?? 0, icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-            { key: 'execution', label: 'אמינות ביצוע', labelEn: 'Execution', value: diag.execution_reliability?.score ?? 0, icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-            { key: 'time', label: 'מינוף זמן', labelEn: 'Time Leverage', value: diag.time_leverage?.score ?? 0, icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-          ]);
-        }
-      } catch {}
-    }
-    fetchDiag();
-  }, [user]);
-
-  const getScoreColor = (s: number) => s >= 75 ? 'text-green-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
-  const getBarColor = (s: number) => s >= 75 ? 'bg-green-500' : s >= 50 ? 'bg-amber-500' : 'bg-red-500';
-
-  return (
-    <div className="space-y-4">
-      {/* Compact diagnostics */}
-      {diagnosticScores.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{isHe ? 'אבחון' : 'Diagnostics'}</h4>
-          {diagnosticScores.map((score) => {
-            const Icon = score.icon;
-            return (
-              <div key={score.key} className="flex items-center gap-2.5 p-2.5 rounded-lg border border-border/30">
-                <div className={cn("p-1.5 rounded-md", score.bgColor)}>
-                  <Icon className={cn("w-3.5 h-3.5", score.color)} />
-                </div>
-                <span className="text-xs font-medium flex-1">{isHe ? score.label : score.labelEn}</span>
-                <span className={cn("text-sm font-bold tabular-nums", getScoreColor(score.value))}>{score.value}</span>
-                <div className="w-16 h-1 rounded-full bg-muted/50 overflow-hidden">
-                  <div className={cn("h-full rounded-full", getBarColor(score.value))} style={{ width: `${score.value}%` }} />
-                </div>
-              </div>
             );
           })}
         </div>
