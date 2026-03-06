@@ -45,11 +45,11 @@ export default function TraitShowcaseSection() {
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'הדמות שלך. ה-NFT שלך.' : 'Your Character. Your NFT.'}
+              {isRTL ? 'חשל את הזהות שלך' : 'Forge Your Identity'}
             </span>
           </h2>
           <p className="text-muted-foreground mt-3 text-lg">
-            {isRTL ? 'זהות שמתפתחת — לא צ׳קליסט' : 'Identity that evolves — not a checklist'}
+            {isRTL ? 'כל שליט צריך DNA — הנה שלך' : 'Every ruler needs DNA — here\'s yours'}
           </p>
         </motion.div>
 

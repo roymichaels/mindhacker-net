@@ -180,11 +180,11 @@ export default function CityShowcaseSection() {
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'העיר הדיגיטלית' : 'The Digital City'}
+              {isRTL ? 'האימפריה שלך' : 'Your Empire'}
             </span>
           </h2>
           <p className="text-muted-foreground mt-3 text-lg">
-            {isRTL ? '6 רובעים. עולם שלם.' : '6 Districts. One World.'}
+            {isRTL ? 'כל אימפריה צריכה תשתית.' : 'Every empire needs infrastructure.'}
           </p>
         </motion.div>
 

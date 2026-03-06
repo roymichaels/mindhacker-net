@@ -2953,8 +2953,8 @@ export const en: TranslationKeys = {
     finalCta: {
       title: 'Choose Your Rank',
       subtitle: 'Start free. Upgrade when you\'re ready to go deeper.',
-      epicTitle: 'Your City Awaits',
-      cta: '⚡ Enter the City',
+      epicTitle: 'Your Empire Awaits',
+      cta: '⚡ Start Building',
       personalCoach: 'Personal AI Coach 24/7',
       plan100: 'Tailored 100-Day Plan',
       domains14: '14 Life Domains',

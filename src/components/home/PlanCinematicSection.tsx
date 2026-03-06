@@ -138,10 +138,10 @@ export default function PlanCinematicSection() {
                 {isRTL ? 'סטטוס' : 'Status'}
               </p>
               <p className="text-lg sm:text-xl font-black text-foreground">
-                {isRTL ? 'התוכנית שלך — נוצרה ✓' : 'Your 100-Day Path — Generated ✓'}
+                {isRTL ? 'מסלול כיבוש 100 יום — נוצר ✓' : '100-Day Conquest Path — Generated ✓'}
               </p>
               <p className="text-sm text-muted-foreground">
-                {isRTL ? 'AI סורק את ה-DNA שלך. בונה את הדרך. אתה רק משחק.' : 'AI scans your DNA. Builds your path. You just play.'}
+                {isRTL ? 'AI סורק את ה-DNA שלך. בונה את האימפריה. אתה רק משחק.' : 'AI scans your DNA. Builds your empire. You just play.'}
               </p>
             </div>
           </motion.div>
