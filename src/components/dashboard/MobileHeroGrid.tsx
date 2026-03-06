@@ -24,6 +24,7 @@ interface MobileHeroGridProps {
 export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
+  const { openHypnosis } = useAuroraActions();
   const isHe = language === 'he';
 
   const { queue, isLoading, refetch, hasCoreStrategy, hasArenaStrategy } = useNowEngine();
