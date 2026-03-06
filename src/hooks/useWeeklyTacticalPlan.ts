@@ -140,7 +140,62 @@ function validDifficulty(d: any): Difficulty {
 
 const DIFFICULTY_XP: Record<Difficulty, number> = { 1: 5, 2: 8, 3: 10, 4: 13, 5: 15 };
 
-// ── Parse AI schedule (new nested block format) ──
+// ── Parse AI schedule (handles both nested and flat block formats) ──
+
+function isNestedBlockFormat(blocks: any[]): boolean {
+  // Nested format: blocks have a `milestones` array inside
+  return blocks.some((b: any) => Array.isArray(b.milestones) && b.milestones.length > 0);
+}
+
+/** Group flat milestone-style blocks into themed containers by category + time window */
+function regroupFlatBlocks(flatBlocks: any[]): any[] {
+  const groups: Record<string, { block: any; items: any[] }> = {};
+
+  for (const b of flatBlocks) {
+    const cat = b.category || 'action';
+    const timeKey = b.start_time || 'no-time';
+    const key = `${cat}::${timeKey}`;
+
+    if (!groups[key]) {
+      groups[key] = {
+        block: {
+          block_title_he: b.block_title_he || b.title_he || '',
+          block_title_en: b.block_title_en || b.title_en || '',
+          block_emoji: b.block_emoji || b.emoji || BLOCK_EMOJIS[cat as BlockCategory] || '📋',
+          category: cat,
+          start_time: b.start_time || null,
+          end_time: b.end_time || null,
+          milestones: [],
+        },
+        items: [],
+      };
+    }
+
+    // The flat block itself is a milestone — push it into the group
+    groups[key].items.push({
+      milestone_id: b.milestone_id || null,
+      title_en: b.title_en || '',
+      title_he: b.title_he || '',
+      duration_minutes: b.duration_minutes || b.total_minutes || 15,
+      difficulty: b.difficulty || 3,
+      xp_reward: b.xp_reward || 10,
+      execution_template: b.execution_template || 'step_by_step',
+      order_index: groups[key].items.length,
+    });
+
+    // Update end_time to the latest
+    if (b.end_time && (!groups[key].block.end_time || b.end_time > groups[key].block.end_time)) {
+      groups[key].block.end_time = b.end_time;
+    }
+  }
+
+  return Object.values(groups).map(({ block, items }) => {
+    block.milestones = items;
+    block.milestone_count = items.length;
+    block.total_minutes = items.reduce((s: number, m: any) => s + (m.duration_minutes || 15), 0);
+    return block;
+  });
+}
 
 function parseAiSchedule(
   scheduleDays: any[],
@@ -165,10 +220,16 @@ function parseAiSchedule(
       continue;
     }
 
+    // Detect format: nested (blocks contain milestones[]) vs flat (each block IS a milestone)
+    let resolvedBlocks = aiDay.blocks;
+    if (!isNestedBlockFormat(aiDay.blocks)) {
+      resolvedBlocks = regroupFlatBlocks(aiDay.blocks);
+    }
+
     let totalActions = 0;
     let completedActions = 0;
 
-    const blocks: TacticalBlock[] = aiDay.blocks.map((block: any, bIdx: number) => {
+    const blocks: TacticalBlock[] = resolvedBlocks.map((block: any, bIdx: number) => {
       const category = validCategory(block.category);
       const blockMilestones = block.milestones || block.blocks || [];
       
