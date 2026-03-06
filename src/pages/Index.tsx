@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
-  OrbShowcaseSection,
+  OrbCollectionSection,
   DomainCitySection,
   AuroraCoachSection,
   HypnosisSection,
