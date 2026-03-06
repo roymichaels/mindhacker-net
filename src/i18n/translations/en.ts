@@ -2856,11 +2856,11 @@ export const en: TranslationKeys = {
 
     // GameHeroSection
     gameHero: {
-      badge: '90-Day Transformation System',
-      title: 'Upgrade Every Area of Your Life',
-      subtitle: 'Deep assessment across 14 life domains → AI-generated 90-day strategy → daily tactical execution with Aurora, your personal AI coach.',
-      cta: '🚀 Start Your Assessment',
-      ctaMeta: '⏱️ 5 min assessment • Personalized plan from day 1',
+      badge: 'Digital Self-Improvement City',
+      title: 'Level Up. Earn. Transform.',
+      subtitle: 'AI coaching across 14 life domains, living orb avatar, play-to-earn economy, personalized hypnosis — your entire life OS.',
+      cta: '⚡ Enter the City',
+      ctaMeta: '5 min assessment • Free to start • Earn while you grow',
       scrollDown: 'Scroll Down',
     },
 
