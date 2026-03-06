@@ -122,9 +122,15 @@ export default function ArenaHub() {
   ];
 
   const handleOpenExecution = useCallback((action: TacticalAction) => {
-    const nowItem = tacticalToNowItem(action);
-    setExecutionAction(nowItem);
-    setExecutionOpen(true);
+    // If has a milestone source, open the journey modal
+    if (action.sourceMilestoneId) {
+      setJourneyAction(action);
+      setJourneyOpen(true);
+    } else {
+      const nowItem = tacticalToNowItem(action);
+      setExecutionAction(nowItem);
+      setExecutionOpen(true);
+    }
   }, []);
 
   const handlePlanGenerated = () => {
