@@ -164,18 +164,13 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         </div>
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
-        <div className="px-4 pb-24">
-          {/* Stat Wheel inline in grid */}
-          <StatWheel isHe={isHe} />
-
-          <div className="mt-3">
-            <ProfileTab
-              isHe={isHe}
-              language={language}
-              dashboard={dashboard}
-              isOwner={isOwner}
-            />
-          </div>
+        <div className="pb-24">
+          <ProfileTab
+            isHe={isHe}
+            language={language}
+            dashboard={dashboard}
+            isOwner={isOwner}
+          />
         </div>
       </div>
     </div>
