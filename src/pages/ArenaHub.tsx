@@ -200,6 +200,16 @@ export default function ArenaHub() {
                       {completedActions}/{totalActions} {isHe ? 'פעולות' : 'actions'} · {completionPct}%
                     </p>
                   </div>
+                  <button
+                    onClick={handleTacticalRecalibrate}
+                    disabled={tacticalRecalibrating || generating}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[hsl(204,88%,53%)]/10 border border-[hsl(204,88%,53%)]/25 hover:bg-[hsl(204,88%,53%)]/20 transition-all text-[hsl(204,88%,53%)] text-[11px] font-semibold disabled:opacity-50"
+                  >
+                    <RefreshCw className={cn("w-3.5 h-3.5", tacticalRecalibrating && "animate-spin")} />
+                    {tacticalRecalibrating
+                      ? (isHe ? 'מכייל...' : 'Recalibrating...')
+                      : (isHe ? 'כיול מחדש' : 'Recalibrate')}
+                  </button>
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
                   <motion.div
