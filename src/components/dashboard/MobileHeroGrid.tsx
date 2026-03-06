@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
-import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
