@@ -583,7 +583,7 @@ export async function playAudioUrl(
     // Track if we've received meaningful audio data
     let audioStarted = false;
     let startTime = 0;
-    const MINIMUM_AUDIO_DURATION = 10; // At least 10 seconds for a real session
+    const minDuration = options.minDuration ?? 0;
     
     // Trigger onStart when audio actually starts playing
     audio.onplaying = () => {
