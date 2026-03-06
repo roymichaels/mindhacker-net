@@ -345,8 +345,8 @@ function buildMilestonesPrompt(
     ? `\n## PILLAR SCOPE (STRICT):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
   
-  return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 MILESTONES.
-This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 progressive milestones.
+  return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 STRATEGIC PROTOCOLS.
+This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 high-level strategic commitments.
 
 ## PILLAR: ${pillarId.toUpperCase()}
 ${scopeBlock}${constraintsBlock}
@@ -356,17 +356,42 @@ ${goalsStr}
 ## ASSESSMENT CONTEXT:
 ${assessmentBlock}
 
+## WHAT ARE STRATEGIC PROTOCOLS (CRITICAL):
+Milestones are NOT small daily tasks or micro-actions. They are HIGH-LEVEL STRATEGIC COMMITMENTS — 
+ongoing protocols, routines, or behavioral standards the user commits to for the entire phase.
+
+Think of them as STANDING ORDERS or LIFESTYLE PROTOCOLS, not to-do items.
+
+## EXAMPLES OF GOOD vs BAD MILESTONES:
+GOOD (strategic, general, protocol-level):
+- "3x/week HIIT sprint sessions" / "3 אימוני ספרינט HIIT בשבוע"
+- "Full-day mewing commitment" / "מיואינג מלא כל היום"
+- "Daily 20-min cold exposure protocol" / "פרוטוקול קור יומי 20 דקות"
+- "No processed food — whole foods only" / "אפס מזון מעובד — רק מזון שלם"
+- "5am wake protocol — no snooze" / "קימה ב-5 בבוקר — בלי נודניק"
+- "Weekly deep-work blocks (4h minimum)" / "בלוקי עבודה עמוקה שבועיים (4 שעות מינימום)"
+- "Read 30 pages daily" / "קריאת 30 עמודים ביום"
+- "Zero social media before noon" / "אפס רשתות חברתיות לפני הצהריים"
+- "Shadowbox 3 rounds every morning" / "3 סיבובי שדוובוקסינג כל בוקר"
+
+BAD (too granular, task-like, diagnostic):
+- "Do 10 pushups on Monday" (too specific/small)
+- "Write in journal for 5 minutes" (too micro)
+- "Research cold exposure benefits" (diagnostic, not action)
+- "Try a new exercise" (vague and one-time)
+- "Set alarm for 5am" (setup task, not protocol)
+
 ## TREATMENT-ONLY RULES (CRITICAL):
-- Milestones must be progressive TREATMENT STAGES, not diagnostic checkpoints.
-- BANNED: "identify", "recognize", "notice", "become aware", "check if", "test whether", "evaluate", "assess", "journal about"
-- REQUIRED: "execute", "perform", "practice", "complete", "drill", "run protocol", "train", "master"
+- BANNED: "identify", "recognize", "notice", "become aware", "check if", "test whether", "evaluate", "assess", "journal about", "research", "learn about"
+- REQUIRED: "execute", "perform", "practice", "commit to", "drill", "run protocol", "train", "maintain", "enforce"
 
 ## RULES:
-- Each mission gets exactly 5 milestones, progressively more challenging.
-- Milestones must be specific TREATMENT protocols.
+- Each mission gets exactly 5 milestones — each is a STRATEGIC PROTOCOL or LIFESTYLE COMMITMENT.
+- Milestones should include FREQUENCY (daily, 3x/week, etc.) or INTENSITY (full day, minimum hours, etc.) when applicable.
+- They should be progressively more challenging across the 5.
 - CRITICAL: All milestones MUST stay within the pillar's scope.
 - CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS.
-- Hebrew must be natural. Keep text concise.
+- Hebrew must be natural and punchy. Keep titles short but strategic.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -375,7 +400,7 @@ ${assessmentBlock}
       "mission_en": "${goals[0]?.goal_en || ''}",
       "mission_he": "${goals[0]?.goal_he || ''}",
       "milestones": [
-        { "title_en": "Specific milestone 1", "title_he": "אבן דרך 1", "description_en": "What to achieve", "description_he": "מה להשיג" },
+        { "title_en": "Strategic protocol 1", "title_he": "פרוטוקול 1", "description_en": "What commitment looks like", "description_he": "איך זה נראה בפועל" },
         { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
         { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
         { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
