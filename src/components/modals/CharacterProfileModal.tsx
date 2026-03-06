@@ -438,7 +438,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
       {/* ── MISSIONS: Commitments ── */}
       {commitments.length > 0 && (
-        <EmpireCard glow="hsla(204, 88%, 53%, 0.05)">
+        <EmpireCard glow="hsla(204, 88%, 53%, 0.05)" className="text-center">
           <SectionTitle
             icon={<Target className="w-4 h-4 text-primary" />}
             title={isHe ? 'מחויבויות' : 'Active Commitments'}
@@ -446,7 +446,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           <div className="space-y-2">
             {commitments.slice(0, 4).map((c) => (
-              <div key={c.id} className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+              <div key={c.id} className="flex items-center justify-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                 <p className="text-sm text-white/70 font-medium">{c.title}</p>
               </div>
