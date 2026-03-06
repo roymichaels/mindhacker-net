@@ -41,7 +41,7 @@ export default function PlanCinematicSection() {
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {isRTL ? '100 ימים. מתוכנן ע״י AI.' : '100 Days. Engineered by AI.'}
+              {isRTL ? 'תוכנית האימפריה שלך' : 'Your Empire Blueprint'}
               </span>
             </h2>
           </motion.div>
