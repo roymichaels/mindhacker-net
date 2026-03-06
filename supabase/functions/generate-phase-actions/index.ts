@@ -186,17 +186,26 @@ ${constraintsBlock}
 | timer_focus | Deep work, studying, business tasks |
 | social_checklist | Networking, relationship tasks |
 
+## DIFFICULTY:
+Each objective MUST have a difficulty level:
+- "easy" — Simple habits, routines, journaling, basic stretches (5 XP)
+- "medium" — Moderate training, focused work, skill practice (10 XP)
+- "hard" — Intense workouts, deep work sprints, complex challenges (15 XP)
+
+Distribute difficulty: aim for 1 easy, 1 medium, 1 hard per set of 3.
+
 ## OUTPUT (JSON only, NO markdown):
 {
   "objectives": [
     {
       "title_en": "Weekly objective 1 (foundation)",
       "title_he": "יעד שבועי 1",
-      "description_en": "What this objective achieves and how to know it's done",
-      "description_he": "מה היעד הזה משיג ואיך לדעת שהוא הושלם",
+      "description_en": "What this objective achieves",
+      "description_he": "מה היעד הזה משיג",
       "cadence": "daily",
       "execution_template": "tts_guided",
       "action_type": "breathwork_protocol",
+      "difficulty": "easy",
       "estimated_daily_minutes": 15
     },
     {
@@ -207,6 +216,7 @@ ${constraintsBlock}
       "cadence": "3x_per_week",
       "execution_template": "sets_reps_timer",
       "action_type": "strength_training",
+      "difficulty": "hard",
       "estimated_daily_minutes": 25
     },
     {
@@ -217,6 +227,7 @@ ${constraintsBlock}
       "cadence": "daily",
       "execution_template": "step_by_step",
       "action_type": "evening_routine",
+      "difficulty": "medium",
       "estimated_daily_minutes": 10
     }
   ]
