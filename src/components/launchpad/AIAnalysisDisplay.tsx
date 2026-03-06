@@ -122,9 +122,11 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
           {summary.consciousness_analysis.current_state && (
             <p className="text-sm text-white/50 leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {summary.consciousness_analysis.strengths?.length ? <ChipGroup icon="✨" label={isHebrew ? 'חוזקות' : 'Strengths'} items={summary.consciousness_analysis.strengths} variant="green" /> : null}
             {summary.consciousness_analysis.dominant_patterns?.length ? <ChipGroup icon="👁" label={isHebrew ? 'דפוסים' : 'Patterns'} items={summary.consciousness_analysis.dominant_patterns} variant="blue" /> : null}
+          </div>
+          <div className="grid grid-cols-2 gap-2.5 mt-2.5">
             {summary.consciousness_analysis.blind_spots?.length ? <ChipGroup icon="⚠" label={isHebrew ? 'נקודות עיוורות' : 'Blind Spots'} items={summary.consciousness_analysis.blind_spots} variant="amber" /> : null}
             {summary.consciousness_analysis.growth_edges?.length ? <ChipGroup icon="📈" label={isHebrew ? 'צמיחה' : 'Growth'} items={summary.consciousness_analysis.growth_edges} variant="emerald" /> : null}
           </div>
@@ -147,7 +149,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
       {/* Identity Profile + Career + Transformation — 3-col row */}
       {(summary.identity_profile || summary.career_path || summary.transformation_potential) && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {summary.identity_profile && (
             <GlassCard>
               <CardHeader icon={<User className="h-4 w-4 text-rose-400" />} title={isHebrew ? 'פרופיל זהות' : 'Identity'} accent="bg-rose-500/10" />
@@ -237,9 +239,9 @@ function ChipGroup({ icon, label, items, variant }: { icon: string; label: strin
         <span className="text-xs">{icon}</span>
         <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{label}</span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1">
         {items.slice(0, 4).map((item, i) => (
-          <span key={i} className={cn("text-xs font-medium px-2 py-0.5 rounded-lg border", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>{item}</span>
+          <span key={i} className={cn("text-[11px] font-medium px-2 py-0.5 rounded-lg border leading-snug", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>{item}</span>
         ))}
       </div>
     </div>
