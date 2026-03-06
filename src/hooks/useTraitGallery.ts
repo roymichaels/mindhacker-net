@@ -13,6 +13,8 @@ export interface TraitCard {
   id: string;
   name: string;
   name_he: string | null;
+  /** Sanitized display name — always a short trait badge, never mission text */
+  displayName: string;
   description: string | null;
   icon: string;
   pillar: string;
@@ -21,7 +23,6 @@ export interface TraitCard {
   xp_in_level: number;
   xp_progress: number; // 0-100
   trait_type: 'trait' | 'legacy';
-  mission_id: string | null;
 }
 
 const XP_PER_LEVEL = 100;
