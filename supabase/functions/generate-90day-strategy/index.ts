@@ -102,6 +102,7 @@ function buildUserContext(
   userProjects: any[],
   userBusinesses: any[],
   auroraMemory: any[],
+  hobbies?: string[],
 ): string {
   const projectsSection = userProjects
     .map(p => `- "${p.name}" (${p.status}) — ${p.description || ''} | Pillar: ${p.life_pillar || 'general'} | Goals: ${JSON.stringify(p.goals || []).slice(0, 200)}`)
@@ -123,6 +124,10 @@ function buildUserContext(
     .map(m => `- [${m.created_at?.slice(0, 10) || '?'}] [${m.emotional_state || 'neutral'}] ${m.summary}`)
     .join('\n') || 'None';
 
+  const hobbiesSection = hobbies && hobbies.length > 0
+    ? `\n## HOBBIES & PLAY PREFERENCES (from onboarding)\n${hobbies.join(', ')}\n\nCRITICAL: For the "play" pillar, milestones MUST be based on these actual hobbies and interests.\nDo NOT generate generic "smile protocols" or abstract play tasks.\nGenerate milestones like: "Weekly hiking trip", "Join a local basketball game", "Plan a camping weekend", "30min photography walk", etc.\n`
+    : '';
+
   return `## USER
 Name: ${profileData?.name || 'Unknown'}
 Intention: ${JSON.stringify(profileData?.intention || '')}
@@ -133,7 +138,7 @@ ${projectsSection}
 
 ## BUSINESSES (with journey data)
 ${businessSection}
-
+${hobbiesSection}
 ## USER MEMORY (25 most recent, timeline-aware)
 ${memorySnippets}`;
 }
@@ -152,7 +157,7 @@ const PILLAR_SCOPES: Record<string, { scope_en: string; NOT_en: string }> = {
   relationships: { scope_en: 'Romantic relationships, family bonds, friendships, communication skills, conflict resolution, intimacy, boundaries, dating, social connection, emotional support systems', NOT_en: 'NOT networking/branding (→influence), NOT charisma (→presence), NOT self-awareness (→consciousness)' },
   business: { scope_en: 'Business strategy, operations, product development, team management, scaling, business model, customer acquisition, systems, processes, entrepreneurship', NOT_en: 'NOT personal finance (→wealth), NOT personal branding (→influence), NOT project execution (→projects)' },
   projects: { scope_en: 'Project planning, execution, milestones, deliverables, time management for specific projects, MVP development, shipping, iteration, portfolio management', NOT_en: 'NOT business strategy (→business), NOT financial planning (→wealth), NOT general productivity (→order)' },
-  play: { scope_en: 'Recreation, hobbies, fun, adventure, travel, games, sports for enjoyment, creative play, entertainment, joy, work-life balance', NOT_en: 'NOT competitive training (→combat/power), NOT skill building (→expansion), NOT social networking (→influence)' },
+  play: { scope_en: 'Recreation based on USER\'S ACTUAL HOBBIES (see hobbies section above), outdoor adventures (hiking, camping, cycling, surfing), travel planning, team sports for fun, creative play, board games, social events, entertainment, joy, work-life balance. MUST use the user\'s selected hobbies to generate concrete activity-based milestones like "Weekly hiking trip" or "Join pickup basketball" — NEVER abstract protocols.', NOT_en: 'NOT competitive training (→combat/power), NOT skill building (→expansion), NOT social networking (→influence), NOT abstract "smile protocols" or "positive communication" — those belong to relationships/social' },
   order: { scope_en: 'Daily routines, habits, organization, environment design, productivity systems, time blocking, decluttering, discipline, accountability, life admin', NOT_en: 'NOT project-specific tasks (→projects), NOT business processes (→business), NOT meditation/focus practices (→focus)' },
 };
 
@@ -709,22 +714,32 @@ serve(async (req) => {
     // === FETCH USER DATA FOR AI CONTEXT ===
     const allPillarIds = [...CORE_PILLAR_IDS, ...ARENA_PILLAR_IDS];
 
-    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes] = await Promise.all([
+    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes, launchpadRes] = await Promise.all([
       supabaseClient.from('profiles').select('*').eq('id', user_id).single(),
       supabaseClient.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
       supabaseClient.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
       supabaseClient.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id).limit(5),
       supabaseClient.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
       supabaseClient.from('profiles').select('selected_pillars').eq('id', user_id).single(),
+      supabaseClient.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user_id).maybeSingle(),
     ]);
 
     const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
     const constraintsBlock = buildStrategyConstraintsBlock(allDomains);
+
+    // Extract hobbies/play preferences from onboarding data
+    const launchpadProfile = (launchpadRes.data?.step_2_profile_data as Record<string, any>) || {};
+    const onboardingHobbies = launchpadProfile.hobbies_play as string[] | undefined;
+    const playQuest = (launchpadProfile.pillar_quests as any)?.play?.answers;
+    const playActivities = playQuest?.play_activities as string[] | undefined;
+    const allHobbies = [...new Set([...(onboardingHobbies || []), ...(playActivities || [])])];
+
     const userContext = buildUserContext(
       profileRes.data,
       projectsRes.data || [],
       businessRes.data || [],
       memoryRes.data || [],
+      allHobbies,
     );
     
     // Determine which pillars are "selected" by the user

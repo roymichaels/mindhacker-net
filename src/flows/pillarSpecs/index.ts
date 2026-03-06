@@ -9,6 +9,7 @@ import './moneyQuestSpec';
 import './creativityQuestSpec';
 import './socialQuestSpec';
 import './spiritualityQuestSpec';
+import './playQuestSpec';
 
 export { healthQuestSpec } from './healthQuestSpec';
 export { mindQuestSpec } from './mindQuestSpec';
@@ -18,6 +19,7 @@ export { moneyQuestSpec } from './moneyQuestSpec';
 export { creativityQuestSpec } from './creativityQuestSpec';
 export { socialQuestSpec } from './socialQuestSpec';
 export { spiritualityQuestSpec } from './spiritualityQuestSpec';
+export { playQuestSpec } from './playQuestSpec';
 
 export interface PillarQuestMeta {
   id: string;
@@ -38,4 +40,5 @@ export const PILLAR_QUESTS: PillarQuestMeta[] = [
   { id: 'creativity', specId: 'quest-creativity', icon: '🎨', title_he: 'יצירתיות ותחביבים', title_en: 'Creativity & Hobbies', color: 'text-cyan-500' },
   { id: 'social', specId: 'quest-social', icon: '👥', title_he: 'חברתי וקהילה', title_en: 'Social & Community', color: 'text-blue-500' },
   { id: 'spirituality', specId: 'quest-spirituality', icon: '✨', title_he: 'רוחניות ומשמעות', title_en: 'Spirituality & Meaning', color: 'text-violet-500' },
+  { id: 'play', specId: 'quest-play', icon: '🎮', title_he: 'משחק והנאה', title_en: 'Play & Recreation', color: 'text-violet-500' },
 ];
