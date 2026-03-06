@@ -170,10 +170,21 @@ export function OnboardingFlow() {
     }
 
     if (savedPhase === 'plan_generation') {
-      setShowIntro(false);
-      setShowPlanGeneration(true);
-      setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
-      setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+      // Check if plan already exists — don't regenerate
+      if (user?.id) {
+        supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').maybeSingle().then(({ data: existingPlan }) => {
+          if (existingPlan) {
+            // Plan already generated, just redirect
+            navigate('/now', { replace: true });
+          } else {
+            setShowIntro(false);
+            setShowPlanGeneration(true);
+            setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
+            setChosenTier((phaseData?.__chosen_tier as SubscriptionTier) || 'free');
+          }
+        });
+      }
+      return;
     } else if (savedPhase === 'assessments') {
       setShowIntro(false);
       setShowAssessments(true);
