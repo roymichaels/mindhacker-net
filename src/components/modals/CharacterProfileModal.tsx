@@ -145,7 +145,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         {/* ═══════ TABS ═══════ */}
         <div className="px-3 pb-24">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full grid grid-cols-4 mb-3">
+            <TabsList className="w-full grid grid-cols-3 mb-3">
               <TabsTrigger value="profile" className="text-xs gap-1">
                 <UserCircle className="w-3.5 h-3.5" />
                 {isHe ? 'פרופיל' : 'Profile'}
@@ -158,13 +158,9 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
                 <Brain className="w-3.5 h-3.5" />
                 {isHe ? 'תובנות' : 'Insights'}
               </TabsTrigger>
-              <TabsTrigger value="direction" className="text-xs gap-1">
-                <Compass className="w-3.5 h-3.5" />
-                {isHe ? 'כיוון' : 'Direction'}
-              </TabsTrigger>
             </TabsList>
 
-            {/* ── Profile Tab ── */}
+            {/* ── Profile Tab (merged with Direction) ── */}
             <TabsContent value="profile">
               <ProfileTab
                 isHe={isHe}
@@ -188,17 +184,6 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
                   {isHe ? 'תובנות פרטיות' : 'Private insights'}
                 </div>
               )}
-            </TabsContent>
-
-            {/* ── Direction Tab ── */}
-            <TabsContent value="direction">
-              <DirectionTab
-                isHe={isHe}
-                language={language}
-                commitments={dashboard.activeCommitments}
-                anchors={dashboard.dailyAnchors}
-                lifeDirection={dashboard.lifeDirection}
-              />
             </TabsContent>
           </Tabs>
         </div>
