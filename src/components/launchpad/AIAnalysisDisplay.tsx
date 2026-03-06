@@ -147,31 +147,9 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         <ScoreCircle label={isHebrew ? 'מוכנות' : 'Ready'} value={scores.readiness} color="green" />
       </div>
 
-      {/* Life Direction */}
-      {summary.life_direction && (
-        <div className="col-span-2 p-2 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex items-center gap-1 mb-1">
-            <Compass className="h-3 w-3 text-primary" />
-            <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'כיוון החיים' : 'Life Direction'}</h4>
-          </div>
-          {summary.life_direction.core_aspiration && (
-            <p className="text-[11px] font-medium text-foreground mb-0.5">{summary.life_direction.core_aspiration}</p>
-          )}
-          {summary.life_direction.vision_summary && (
-            <p className="text-[10px] text-muted-foreground line-clamp-2">{summary.life_direction.vision_summary}</p>
-          )}
-          {summary.life_direction.clarity_score != null && summary.life_direction.clarity_score > 0 && (
-            <div className="flex items-center gap-2 mt-1">
-              <Progress value={summary.life_direction.clarity_score} className="flex-1 h-1" />
-              <span className="text-[9px] font-medium tabular-nums">{summary.life_direction.clarity_score}%</span>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Consciousness Analysis */}
       {summary.consciousness_analysis && (
-        <div className="p-2 rounded-xl border border-border/30 bg-card/30">
+        <div className="col-span-2 p-2 rounded-xl border border-border/30 bg-card/30">
           <div className="flex items-center gap-1 mb-1">
             <Brain className="h-3 w-3 text-purple-500" />
             <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'ניתוח תודעה' : 'Consciousness'}</h4>
@@ -179,22 +157,24 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
           {summary.consciousness_analysis.current_state && (
             <p className="text-[10px] text-muted-foreground line-clamp-2 mb-1">{summary.consciousness_analysis.current_state}</p>
           )}
-          {summary.consciousness_analysis.strengths?.length > 0 && (
-            <ChipRow icon="✨" items={summary.consciousness_analysis.strengths} variant="green" />
-          )}
-          {summary.consciousness_analysis.dominant_patterns?.length > 0 && (
-            <ChipRow icon="👁" items={summary.consciousness_analysis.dominant_patterns} variant="blue" />
-          )}
-          {summary.consciousness_analysis.blind_spots?.length > 0 && (
-            <ChipRow icon="⚠" items={summary.consciousness_analysis.blind_spots} variant="amber" />
-          )}
-          {summary.consciousness_analysis.growth_edges?.length > 0 && (
-            <ChipRow icon="📈" items={summary.consciousness_analysis.growth_edges} variant="emerald" />
-          )}
+          <div className="grid grid-cols-2 gap-1">
+            {summary.consciousness_analysis.strengths && summary.consciousness_analysis.strengths.length > 0 && (
+              <ChipRow icon="✨" items={summary.consciousness_analysis.strengths} variant="green" />
+            )}
+            {summary.consciousness_analysis.dominant_patterns && summary.consciousness_analysis.dominant_patterns.length > 0 && (
+              <ChipRow icon="👁" items={summary.consciousness_analysis.dominant_patterns} variant="blue" />
+            )}
+            {summary.consciousness_analysis.blind_spots && summary.consciousness_analysis.blind_spots.length > 0 && (
+              <ChipRow icon="⚠" items={summary.consciousness_analysis.blind_spots} variant="amber" />
+            )}
+            {summary.consciousness_analysis.growth_edges && summary.consciousness_analysis.growth_edges.length > 0 && (
+              <ChipRow icon="📈" items={summary.consciousness_analysis.growth_edges} variant="emerald" />
+            )}
+          </div>
         </div>
       )}
 
-      {/* Identity Profile */}
+      {/* Identity Profile — ego state + traits only (values shown in ProfileTab) */}
       {summary.identity_profile && (
         <div className="p-2 rounded-xl border border-border/30 bg-card/30">
           <div className="flex items-center gap-1 mb-1">
@@ -209,15 +189,8 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
               </span>
             </div>
           )}
-          {summary.identity_profile.dominant_traits?.length > 0 && (
+          {summary.identity_profile.dominant_traits && summary.identity_profile.dominant_traits.length > 0 && (
             <ChipRow icon="🛡" items={summary.identity_profile.dominant_traits} variant="blue" />
-          )}
-          {summary.identity_profile.values_hierarchy?.length > 0 && (
-            <div className="flex flex-wrap gap-0.5 mt-0.5">
-              {summary.identity_profile.values_hierarchy.map((v, i) => (
-                <span key={i} className="text-[8px] text-rose-500">{v}{i < summary.identity_profile!.values_hierarchy!.length - 1 ? ' → ' : ''}</span>
-              ))}
-            </div>
           )}
         </div>
       )}
@@ -229,54 +202,55 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
             <RefreshCw className="h-3 w-3 text-cyan-500" />
             <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'תובנות' : 'Behavioral'}</h4>
           </div>
-          {summary.behavioral_insights.habits_to_transform?.length > 0 && (
+          {summary.behavioral_insights.habits_to_transform && summary.behavioral_insights.habits_to_transform.length > 0 && (
             <ChipRow icon="🚫" items={summary.behavioral_insights.habits_to_transform} variant="red" />
           )}
-          {summary.behavioral_insights.habits_to_cultivate?.length > 0 && (
+          {summary.behavioral_insights.habits_to_cultivate && summary.behavioral_insights.habits_to_cultivate.length > 0 && (
             <ChipRow icon="✅" items={summary.behavioral_insights.habits_to_cultivate} variant="green" />
           )}
-          {summary.behavioral_insights.resistance_patterns?.length > 0 && (
+          {summary.behavioral_insights.resistance_patterns && summary.behavioral_insights.resistance_patterns.length > 0 && (
             <ChipRow icon="⚠" items={summary.behavioral_insights.resistance_patterns} variant="amber" />
           )}
         </div>
       )}
 
-      {/* Career Path */}
-      {summary.career_path && (
-        <div className="p-2 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex items-center gap-1 mb-1">
-            <Briefcase className="h-3 w-3 text-blue-500" />
-            <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'נתיב קריירה' : 'Career'}</h4>
-          </div>
-          {summary.career_path.current_status && (
-            <p className="text-[10px] text-muted-foreground">{summary.career_path.current_status}</p>
-          )}
-          {summary.career_path.aspiration && (
-            <p className="text-[10px] font-medium text-foreground mt-0.5">{summary.career_path.aspiration}</p>
-          )}
-          {summary.career_path.key_steps?.length > 0 && (
-            <div className="flex flex-wrap gap-0.5 mt-1">
-              {summary.career_path.key_steps.map((s, i) => (
-                <Badge key={i} variant="outline" className="text-[8px] px-1 py-0">{s}</Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Transformation Potential */}
-      {summary.transformation_potential && (
+      {/* Career + Transformation merged */}
+      {(summary.career_path || summary.transformation_potential) && (
         <div className="col-span-2 p-2 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex items-center gap-1 mb-1">
-            <Rocket className="h-3 w-3 text-amber-500" />
-            <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'פוטנציאל טרנספורמציה' : 'Transformation'}</h4>
-          </div>
-          <div className="flex items-center gap-3">
-            {summary.transformation_potential.primary_focus && (
-              <Badge className="text-[8px] px-1.5 py-0 bg-amber-500/15 text-amber-600 dark:text-amber-400 border-0">{summary.transformation_potential.primary_focus}</Badge>
+          <div className="flex gap-3">
+            {summary.career_path && (
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1 mb-1">
+                  <Briefcase className="h-3 w-3 text-blue-500" />
+                  <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'קריירה' : 'Career'}</h4>
+                </div>
+                {summary.career_path.aspiration && (
+                  <p className="text-[10px] font-medium text-foreground truncate">{summary.career_path.aspiration}</p>
+                )}
+                {summary.career_path.key_steps && summary.career_path.key_steps.length > 0 && (
+                  <div className="flex flex-wrap gap-0.5 mt-0.5">
+                    {summary.career_path.key_steps.slice(0, 3).map((s, i) => (
+                      <Badge key={i} variant="outline" className="text-[8px] px-1 py-0">{s}</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-            {summary.transformation_potential.secondary_focus && (
-              <Badge variant="outline" className="text-[8px] px-1.5 py-0 border-amber-500/30 text-amber-500">{summary.transformation_potential.secondary_focus}</Badge>
+            {summary.transformation_potential && (
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1 mb-1">
+                  <Rocket className="h-3 w-3 text-amber-500" />
+                  <h4 className="text-[10px] font-semibold text-foreground">{isHebrew ? 'טרנספורמציה' : 'Transform'}</h4>
+                </div>
+                <div className="flex flex-wrap gap-0.5">
+                  {summary.transformation_potential.primary_focus && (
+                    <Badge className="text-[8px] px-1 py-0 bg-amber-500/15 text-amber-600 dark:text-amber-400 border-0">{summary.transformation_potential.primary_focus}</Badge>
+                  )}
+                  {summary.transformation_potential.secondary_focus && (
+                    <Badge variant="outline" className="text-[8px] px-1 py-0 border-amber-500/30 text-amber-500">{summary.transformation_potential.secondary_focus}</Badge>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>
