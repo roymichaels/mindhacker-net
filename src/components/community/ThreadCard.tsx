@@ -70,7 +70,7 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
             <span className="text-[11px] font-medium truncate">{username || thread.author?.full_name || '—'}</span>
             {domain && <span className="text-[10px]">{PILLAR_ICONS[pillar]}</span>}
           </div>
-          <p className="text-xs font-medium leading-tight line-clamp-1">{thread.title || thread.content.slice(0, 50)}</p>
+          <p className="text-xs font-medium leading-tight line-clamp-1">{displayTitle || displayContent.slice(0, 50)}</p>
           <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-0.5"><Heart className="h-2.5 w-2.5" />{thread.likes_count}</span>
             <span className="flex items-center gap-0.5"><MessageCircle className="h-2.5 w-2.5" />{thread.comments_count}</span>
