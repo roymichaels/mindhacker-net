@@ -116,7 +116,8 @@ function TraitCardComponent({
   onClick: () => void;
 }) {
   const pillarColor = PILLAR_COLORS[trait.pillar] || '200 70% 50%';
-  const displayName = isHe ? (trait.name_he || trait.name) : trait.name;
+  // CRITICAL: Always use sanitized displayName, never raw name
+  const displayName = isHe ? trait.displayName : getTraitDisplayName(trait.name, trait.name_he, false);
   const circumference = 2 * Math.PI * 38; // radius 38
   const strokeDashoffset = circumference - (trait.xp_progress / 100) * circumference;
 
