@@ -32,7 +32,7 @@ serve(async (req) => {
     const [profileRes, milestonesRes, missionsRes, planRes] = await Promise.all([
       supabase.from("profiles").select("full_name, wake_time, sleep_time, focus_peak_start, focus_peak_end").eq("id", user_id).single(),
       supabase.from("life_plan_milestones")
-        .select("id, title, title_en, description, description_en, focus_area, week_number, mission_id, is_completed")
+        .select("id, title, title_en, description, description_en, focus_area, week_number, mission_id, is_completed, difficulty")
         .eq("plan_id", plan_id)
         .eq("week_number", phase_number)
         .order("id"),
