@@ -46,9 +46,9 @@ export function BottomHudBar() {
           {/* Orb */}
           <button
             onClick={() => setOrbDNAOpen(true)}
-            className="flex-shrink-0 w-10 h-10 rounded-full overflow-visible"
+            className="flex-shrink-0 w-12 h-12 rounded-full overflow-visible"
           >
-            <PersonalizedOrb size={40} state="idle" />
+            <PersonalizedOrb size={48} state="idle" />
           </button>
 
           {/* Identity + XP */}
@@ -88,9 +88,9 @@ export function BottomHudBar() {
           </div>
 
           {/* Quick action buttons */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             {[
-              { key: 'skills' as ModalType, icon: Target, label: isHe ? 'כישורים' : 'Skills' },
+              { key: 'skills' as ModalType, icon: Target, label: isHe ? 'תכונות' : 'Traits' },
               { key: 'insights' as ModalType, icon: Brain, label: isHe ? 'תובנות' : 'Insights' },
               { key: 'direction' as ModalType, icon: Compass, label: isHe ? 'כיוון' : 'Direction' },
               { key: 'identity' as ModalType, icon: UserCircle, label: isHe ? 'זהות' : 'Identity' },
@@ -98,10 +98,10 @@ export function BottomHudBar() {
               <button
                 key={btn.key}
                 onClick={() => setActiveModal(btn.key)}
-                className="flex flex-col items-center gap-0.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors"
+                className="flex flex-col items-center gap-0.5 p-1.5 rounded-lg hover:bg-muted/30 active:scale-[0.95] transition-all"
               >
-                <btn.icon className="w-4 h-4 text-muted-foreground" />
-                <span className="text-[8px] text-muted-foreground">{btn.label}</span>
+                <btn.icon className="w-5 h-5 text-muted-foreground" />
+                <span className="text-[9px] text-muted-foreground">{btn.label}</span>
               </button>
             ))}
           </div>
