@@ -629,7 +629,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else onOpenChange(true); }}>
       <DialogContent
-        className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col bg-background overflow-hidden"
+        className="max-w-full w-full h-[100dvh] max-h-[100dvh] p-0 m-0 border-0 rounded-none bg-background overflow-hidden [&>button]:hidden"
+        role="dialog"
+        dir={isRTL ? 'rtl' : 'ltr'}
         onPointerDownOutside={(e) => {
           if (isTimerActive) e.preventDefault();
         }}
@@ -679,53 +681,45 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
           )}
         </AnimatePresence>
 
-        {/* Exit Button — hidden while timer active */}
-        {!isTimerActive && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            className="absolute top-3 end-3 z-50 h-9 w-9 rounded-full bg-background/80 hover:bg-destructive/20 border border-border/50"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
-
-        {/* Header */}
-        <div className="px-5 pt-5 pb-3 flex-shrink-0 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="flex items-center justify-center gap-2 text-xs text-primary font-semibold uppercase tracking-wider mb-1">
-            {DomainIcon && <DomainIcon className="h-4 w-4" />}
-            <span>{domain ? (isRTL ? domain.labelHe : domain.labelEn) : action.pillarId}</span>
-          </div>
-          <h2 className="text-xl font-bold">{isRTL ? action.title : action.titleEn}</h2>
-          {action.isTimeBased && (
-            <div className="flex items-center justify-center gap-1 mt-1 text-sm text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
-              <span>{action.durationMin} {isRTL ? 'דק׳' : 'min'}</span>
+        <div className="flex flex-col h-full">
+          {/* ── HEADER — compact bar like MilestoneJourneyModal ── */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-card/50 backdrop-blur-sm flex-shrink-0">
+            <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-muted/30 transition">
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <div className="flex-1 text-center min-w-0">
+              <div className="flex items-center justify-center gap-1.5">
+                {DomainIcon && <DomainIcon className="h-3.5 w-3.5 text-primary shrink-0" />}
+                <p className="text-xs font-bold text-foreground truncate">{isRTL ? action.title : action.titleEn}</p>
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-0.5">
+                {action.isTimeBased && (
+                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                    <Clock className="h-2.5 w-2.5" />
+                    {action.durationMin} {isRTL ? 'דק׳' : 'min'}
+                  </span>
+                )}
+                {isEnhanced && !isEnhancing && (
+                  <span className="text-[10px] text-primary/60 flex items-center gap-0.5">
+                    <Sparkles className="h-2.5 w-2.5" />
+                    {isRTL ? 'מותאם אישית ✓' : 'Personalized ✓'}
+                  </span>
+                )}
+                {isEnhancing && (
+                  <span className="text-[10px] text-primary/60 flex items-center gap-0.5 animate-pulse">
+                    <Sparkles className="h-2.5 w-2.5" />
+                    {isRTL ? 'מייצר...' : 'Generating...'}
+                  </span>
+                )}
+              </div>
             </div>
-          )}
-          {isEnhancing && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-1.5 mt-2 text-xs text-primary/70">
-              <Sparkles className="h-3 w-3 animate-pulse" />
-              <span>{isRTL ? 'מייצר תוכן מותאם אישית...' : 'Generating personalized content...'}</span>
-            </motion.div>
-          )}
-          {isEnhanced && !isEnhancing && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-1.5 mt-2 text-xs text-primary/50">
-              <Sparkles className="h-3 w-3" />
-              <span>{isRTL ? 'תוכן מותאם אישית ✓' : 'Personalized content ✓'}</span>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Progress bar */}
-        <div className="px-5 flex-shrink-0">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
-            <span>{isRTL ? 'התקדמות' : 'Progress'}</span>
-            <span>{progress}%</span>
+            <div className="w-8" />
           </div>
-          <Progress value={progress} className="h-1.5" />
-        </div>
+
+          {/* ── PROGRESS BAR ── */}
+          <div className="px-4 pt-2 flex-shrink-0">
+            <Progress value={progress} className="h-1.5" />
+          </div>
 
         {/* Content area */}
         <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-hide" dir={isRTL ? 'rtl' : 'ltr'}>
