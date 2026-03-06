@@ -145,7 +145,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         {/* ═══════ TABS ═══════ */}
         <div className="px-3 pb-24">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full grid grid-cols-3 mb-3">
+            <TabsList className="w-full grid grid-cols-2 mb-3">
               <TabsTrigger value="profile" className="text-xs gap-1">
                 <UserCircle className="w-3.5 h-3.5" />
                 {isHe ? 'פרופיל' : 'Profile'}
@@ -154,13 +154,9 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
                 <Target className="w-3.5 h-3.5" />
                 {isHe ? 'תכונות' : 'Traits'}
               </TabsTrigger>
-              <TabsTrigger value="insights" className="text-xs gap-1">
-                <Brain className="w-3.5 h-3.5" />
-                {isHe ? 'תובנות' : 'Insights'}
-              </TabsTrigger>
             </TabsList>
 
-            {/* ── Profile Tab (merged with Direction) ── */}
+            {/* ── Profile Tab (merged with Direction + Insights) ── */}
             <TabsContent value="profile">
               <ProfileTab
                 isHe={isHe}
@@ -173,17 +169,6 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             {/* ── Traits Tab ── */}
             <TabsContent value="traits">
               <TraitsTab isHe={isHe} />
-            </TabsContent>
-
-            {/* ── Insights Tab ── */}
-            <TabsContent value="insights">
-              {isOwner ? (
-                <InsightsTab isHe={isHe} language={language} dashboard={dashboard} />
-              ) : (
-                <div className="text-center py-12 text-muted-foreground text-sm">
-                  {isHe ? 'תובנות פרטיות' : 'Private insights'}
-                </div>
-              )}
             </TabsContent>
           </Tabs>
         </div>
