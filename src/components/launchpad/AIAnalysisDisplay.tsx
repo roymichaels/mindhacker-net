@@ -207,7 +207,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 function GlassCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.06] p-4"
+      className="rounded-2xl border border-white/[0.06] p-4 text-center"
       style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
     >
       {children}
