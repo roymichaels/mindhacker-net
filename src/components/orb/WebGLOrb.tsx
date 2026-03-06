@@ -654,7 +654,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         u_transmission: { value: materialParams.transmission },
       },
       transparent: true,
-      side: THREE.FrontSide,
+      side: THREE.DoubleSide,
     });
     shaderMatRef.current = shaderMat;
 
