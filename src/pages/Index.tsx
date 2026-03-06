@@ -10,16 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
-  TwoWorldsSection,
-  HowItWorksSection,
+  TheSystemSection,
   AuroraCoachSection,
-  FeatureShowcaseSection,
-  OrbCollectionSection,
-  LearningEngineSection,
-  CoachMarketplaceSection,
-  CommunitySection,
+  AppPreviewSection,
   PricingPreviewSection,
-  TransformationProofSection,
   FinalCTASection,
 } from "@/components/home";
 
@@ -29,7 +23,6 @@ const Index = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect logged-in users to their dashboard
   useEffect(() => {
     if (!loading && user) {
       flowAudit.redirect('/', '/now', 'Authenticated user on Index — redirecting to now');
@@ -37,7 +30,6 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  // Build brand settings from theme for SEO
   const brandSettings: BrandSettings = {
     brandName: theme.brand_name,
     brandNameEn: theme.brand_name_en,
@@ -62,7 +54,6 @@ const Index = () => {
     ],
   });
 
-  // Don't render landing page content while checking auth
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -71,7 +62,6 @@ const Index = () => {
     );
   }
 
-  // If user is logged in, they will be redirected
   if (user) {
     return null;
   }
@@ -79,22 +69,14 @@ const Index = () => {
   return (
     <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
-
       <main className="relative z-10">
         <GameHeroSection />
-        <TwoWorldsSection />
-        <HowItWorksSection />
+        <TheSystemSection />
         <AuroraCoachSection />
-        <FeatureShowcaseSection />
-        <OrbCollectionSection />
-        <LearningEngineSection />
-        <CoachMarketplaceSection />
-        <CommunitySection />
+        <AppPreviewSection />
         <PricingPreviewSection />
-        <TransformationProofSection />
         <FinalCTASection />
       </main>
-
       <Footer />
     </div>
   );
