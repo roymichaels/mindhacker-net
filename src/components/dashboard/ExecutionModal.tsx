@@ -1106,29 +1106,30 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             )}
 
           </AnimatePresence>
-        </div>
+          </div>
 
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-border/50 flex items-center gap-3 flex-shrink-0">
-          <Button variant="ghost" size="sm" onClick={handleSkip} className="shrink-0 text-muted-foreground">
-            <SkipForward className="h-4 w-4 me-1" />
-            {isRTL ? 'דלג' : 'Skip'}
-          </Button>
-          <Button
-            size="lg"
-            className="flex-1 gap-2 rounded-xl"
-            disabled={!allDone || completing}
-            onClick={handleComplete}
-          >
-            {completing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <Flame className="h-4 w-4" />
-                {isRTL ? 'השלם' : 'Complete'}
-              </>
-            )}
-          </Button>
+          {/* ── FOOTER ── */}
+          <div className="p-4 border-t border-border/30 bg-card/50 backdrop-blur-sm flex items-center gap-3 flex-shrink-0">
+            <Button variant="ghost" size="sm" onClick={handleSkip} className="shrink-0 text-muted-foreground">
+              <SkipForward className="h-4 w-4 me-1" />
+              {isRTL ? 'דלג' : 'Skip'}
+            </Button>
+            <Button
+              size="lg"
+              className="flex-1 gap-2 rounded-2xl py-5 font-bold"
+              disabled={!allDone || completing}
+              onClick={handleComplete}
+            >
+              {completing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Flame className="h-4 w-4" />
+                  {isRTL ? 'השלם' : 'Complete'}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
