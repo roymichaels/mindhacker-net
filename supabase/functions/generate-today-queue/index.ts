@@ -172,6 +172,7 @@ serve(async (req) => {
       habitsRes,
       overdueRes,
       pulseRes,
+      todayTasksRes,
     ] = await Promise.all([
       // All active plans
       supabase.from("life_plans").select("id, start_date, status, plan_data")
@@ -186,12 +187,18 @@ serve(async (req) => {
       // Today pulse
       supabase.from("daily_pulse_logs").select("energy_rating, mood")
         .eq("user_id", user_id).eq("log_date", today).maybeSingle(),
+      // Today's scheduled action_items (tasks scheduled for today)
+      supabase.from("action_items").select("id, title, description, pillar, milestone_id, type, scheduled_date, status, start_time, end_time")
+        .eq("user_id", user_id).eq("scheduled_date", today).in("status", ["todo", "doing"])
+        .neq("type", "habit")
+        .order("order_index", { ascending: true }),
     ]);
 
     const plans = plansRes.data || [];
     const habits = habitsRes.data || [];
     const overdue = overdueRes.data || [];
     const pulse = pulseRes.data;
+    const todayTasks = todayTasksRes.data || [];
 
     const coreStrategy = plans.find((s: any) => s.plan_data?.hub === 'core');
     const arenaStrategy = plans.find((s: any) => s.plan_data?.hub === 'arena');
