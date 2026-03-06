@@ -71,7 +71,7 @@ export function useStrategyPlans() {
   const query = useQuery({
     queryKey: ['strategy-plans', user?.id],
     queryFn: async () => {
-      if (!user?.id) return { core: null, arena: null, _legacyFound: false, _needsHeal: false };
+      if (!user?.id) return { core: null, arena: null, _legacyFound: false };
 
       const { data, error } = await supabase
         .from('life_plans')
