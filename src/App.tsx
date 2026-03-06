@@ -288,8 +288,8 @@ const App = () => (
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/ai" element={<MessageThread />} />
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
-                          {/* Dashboard */}
-                          <Route path="/dashboard" element={<DashboardLayoutWrapper />} />
+                          {/* Now (was /dashboard) */}
+                          <Route path="/now" element={<DashboardLayoutWrapper />} />
                           {/* Strategy (was /life) */}
                           <Route path="/strategy" element={<LifeLayoutWrapper />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
