@@ -227,11 +227,11 @@ function StatWheel({ isHe }: { isHe: boolean }) {
   if (scores.length === 0) return null;
 
   return (
-    <div className="flex items-center justify-center gap-3 px-4 py-3 border-y border-border/30">
+    <div className="grid grid-cols-5 gap-2 py-3">
       {scores.map((s) => (
         <div key={s.key} className="flex flex-col items-center gap-1">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-2"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-2"
             style={{
               borderColor: `hsl(${s.color})`,
               color: `hsl(${s.color})`,
@@ -240,7 +240,7 @@ function StatWheel({ isHe }: { isHe: boolean }) {
           >
             {s.score}
           </div>
-          <span className="text-[9px] text-muted-foreground font-medium">
+          <span className="text-[10px] text-muted-foreground font-medium">
             {isHe ? labels[s.key]?.he : labels[s.key]?.en}
           </span>
         </div>
