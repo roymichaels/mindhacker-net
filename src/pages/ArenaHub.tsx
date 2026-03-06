@@ -20,33 +20,31 @@ import { supabase } from '@/integrations/supabase/client';
 
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
-// Fetch missions + milestones for current phase with trait info
-function usePhaseMissions(planIds: string[], currentPhase: number | null) {
+// Fetch missions for plan IDs (separate query to avoid PostgREST join issues)
+function usePlanMissions(planIds: string[]) {
   return useQuery({
-    queryKey: ['phase-missions', planIds, currentPhase],
+    queryKey: ['plan-missions-map', planIds],
     queryFn: async () => {
-      if (!planIds.length || !currentPhase) return [];
+      if (!planIds.length) return {};
 
-      // Get milestones for current phase with mission + trait info
-      const { data: milestones, error } = await supabase
-        .from('life_plan_milestones')
-        .select(`
-          id, title, title_en, focus_area, week_number, is_completed, mission_id,
-          plan_missions!life_plan_milestones_mission_id_fkey (
-            id, title, title_en, pillar, primary_skill_id, mission_number,
-            skills!plan_missions_primary_skill_id_fkey ( id, name, name_en )
-          )
-        `)
-        .in('plan_id', planIds)
-        .eq('week_number', currentPhase)
-        .order('mission_id')
-        .order('id');
+      const { data, error } = await supabase
+        .from('plan_missions')
+        .select('id, title, title_en, pillar, primary_skill_id, mission_number')
+        .in('plan_id', planIds);
 
-      if (error) throw error;
-      return milestones || [];
+      if (error) {
+        console.error('Failed to fetch plan missions:', error);
+        return {};
+      }
+
+      const map: Record<string, typeof data[0]> = {};
+      for (const m of data || []) {
+        map[m.id] = m;
+      }
+      return map;
     },
-    enabled: planIds.length > 0 && !!currentPhase,
-    staleTime: 2 * 60 * 1000,
+    enabled: planIds.length > 0,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -74,12 +72,18 @@ export default function ArenaHub() {
     return (plan as any)?.all_plan_ids as string[] || (plan?.id ? [plan.id] : []);
   }, [plan]);
 
-  // Fetch phase missions with hierarchy
-  const { data: phaseMilestones } = usePhaseMissions(allPlanIds, currentPhase);
+  // Use already-loaded milestones filtered by current phase (proven to work)
+  const currentPhaseMilestones = useMemo(
+    () => milestones.filter(m => m.week_number === currentPhase),
+    [milestones, currentPhase]
+  );
 
-  // Group milestones by mission → trait
+  // Fetch missions as a separate simple query (no PostgREST joins)
+  const { data: missionsMap } = usePlanMissions(allPlanIds);
+
+  // Group milestones by mission
   const missionGroups = useMemo(() => {
-    if (!phaseMilestones?.length) return [];
+    if (!currentPhaseMilestones.length) return [];
 
     const groups: Record<string, {
       missionId: string;
@@ -93,10 +97,10 @@ export default function ArenaHub() {
       totalCount: number;
     }> = {};
 
-    for (const m of phaseMilestones) {
-      const mission = (m as any).plan_missions;
-      const missionId = mission?.id || m.mission_id || 'ungrouped';
-      const trait = mission?.skills;
+    for (const m of currentPhaseMilestones) {
+      const mAny = m as any;
+      const mission = mAny.mission_id ? missionsMap?.[mAny.mission_id] : null;
+      const missionId = mission?.id || mAny.mission_id || m.focus_area || 'ungrouped';
 
       if (!groups[missionId]) {
         groups[missionId] = {
@@ -104,8 +108,8 @@ export default function ArenaHub() {
           missionTitle: mission?.title || m.title || 'משימה',
           missionTitleEn: mission?.title_en || m.title_en || 'Mission',
           pillar: mission?.pillar || m.focus_area || 'focus',
-          traitName: trait?.name || '',
-          traitNameEn: trait?.name_en || '',
+          traitName: '',
+          traitNameEn: '',
           milestones: [],
           completedCount: 0,
           totalCount: 0,
@@ -118,13 +122,13 @@ export default function ArenaHub() {
     }
 
     return Object.values(groups);
-  }, [phaseMilestones]);
+  }, [currentPhaseMilestones, missionsMap]);
 
   // Stats
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
-  const phaseCompleted = (phaseMilestones || []).filter((m: any) => m.is_completed).length;
-  const phaseTotal = (phaseMilestones || []).length;
+  const phaseCompleted = currentPhaseMilestones.filter((m: any) => m.is_completed).length;
+  const phaseTotal = currentPhaseMilestones.length;
   const phasePct = phaseTotal > 0 ? Math.round((phaseCompleted / phaseTotal) * 100) : 0;
   const allCompleted = milestones.filter(m => m.is_completed).length;
   const allTotal = milestones.length || 1;
