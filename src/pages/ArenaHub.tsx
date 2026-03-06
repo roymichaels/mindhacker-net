@@ -72,12 +72,18 @@ export default function ArenaHub() {
     return (plan as any)?.all_plan_ids as string[] || (plan?.id ? [plan.id] : []);
   }, [plan]);
 
-  // Fetch phase missions with hierarchy
-  const { data: phaseMilestones } = usePhaseMissions(allPlanIds, currentPhase);
+  // Use already-loaded milestones filtered by current phase (proven to work)
+  const currentPhaseMilestones = useMemo(
+    () => milestones.filter(m => m.week_number === currentPhase),
+    [milestones, currentPhase]
+  );
 
-  // Group milestones by mission → trait
+  // Fetch missions as a separate simple query (no PostgREST joins)
+  const { data: missionsMap } = usePlanMissions(allPlanIds);
+
+  // Group milestones by mission
   const missionGroups = useMemo(() => {
-    if (!phaseMilestones?.length) return [];
+    if (!currentPhaseMilestones.length) return [];
 
     const groups: Record<string, {
       missionId: string;
@@ -91,10 +97,9 @@ export default function ArenaHub() {
       totalCount: number;
     }> = {};
 
-    for (const m of phaseMilestones) {
-      const mission = (m as any).plan_missions;
-      const missionId = mission?.id || m.mission_id || 'ungrouped';
-      const trait = mission?.skills;
+    for (const m of currentPhaseMilestones) {
+      const mission = m.mission_id ? missionsMap?.[m.mission_id] : null;
+      const missionId = mission?.id || m.mission_id || m.focus_area || 'ungrouped';
 
       if (!groups[missionId]) {
         groups[missionId] = {
@@ -102,8 +107,8 @@ export default function ArenaHub() {
           missionTitle: mission?.title || m.title || 'משימה',
           missionTitleEn: mission?.title_en || m.title_en || 'Mission',
           pillar: mission?.pillar || m.focus_area || 'focus',
-          traitName: trait?.name || '',
-          traitNameEn: trait?.name_en || '',
+          traitName: '',
+          traitNameEn: '',
           milestones: [],
           completedCount: 0,
           totalCount: 0,
@@ -116,7 +121,7 @@ export default function ArenaHub() {
     }
 
     return Object.values(groups);
-  }, [phaseMilestones]);
+  }, [currentPhaseMilestones, missionsMap]);
 
   // Stats
   const totalDomains = CORE_DOMAINS.length;
