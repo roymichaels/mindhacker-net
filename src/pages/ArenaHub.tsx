@@ -3,8 +3,8 @@
  * Weekly execution plan derived from strategy milestones → mini_milestones.
  * Renders by Day → Block → Action, not as flat milestone rows.
  */
-import { useState, useMemo } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3 } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
