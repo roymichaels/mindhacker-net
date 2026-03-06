@@ -270,10 +270,10 @@ class FlowAuditor {
     }
 
     // ── Scenario flags ──
-    if (to === '/dashboard') {
+    if (to === '/now' || to === '/dashboard') {
       this.markFlag('reachedDashboard', true);
     }
-    if (this.activeScenario === 'returning_user' && from === '/dashboard' && to === '/onboarding') {
+    if (this.activeScenario === 'returning_user' && (from === '/now' || from === '/dashboard') && to === '/onboarding') {
       this.recordError('Onboarding loop detected for returning user');
     }
   }

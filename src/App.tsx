@@ -288,8 +288,8 @@ const App = () => (
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/ai" element={<MessageThread />} />
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
-                          {/* Dashboard */}
-                          <Route path="/dashboard" element={<DashboardLayoutWrapper />} />
+                          {/* Now (was /dashboard) */}
+                          <Route path="/now" element={<DashboardLayoutWrapper />} />
                           {/* Strategy (was /life) */}
                           <Route path="/strategy" element={<LifeLayoutWrapper />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
@@ -400,9 +400,10 @@ const App = () => (
 
                         {/* Legacy redirects (no shell needed) */}
                         <Route path="/combat-community" element={<Navigate to="/community" replace />} />
-                        <Route path="/today" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="/me" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/dashboard" element={<Navigate to="/now" replace />} />
+                        <Route path="/today" element={<Navigate to="/now" replace />} />
+                        <Route path="/plan" element={<Navigate to="/now" replace />} />
+                        <Route path="/me" element={<Navigate to="/now" replace />} />
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
                         <Route path="/projects" element={<Navigate to="/strategy" replace />} />
                         {/* Legacy /life redirects → /strategy */}

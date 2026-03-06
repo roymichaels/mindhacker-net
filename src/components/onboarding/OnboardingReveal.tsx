@@ -356,7 +356,7 @@ export function OnboardingReveal({ answers, onContinue, onBack }: OnboardingReve
         body: { userId: user.id },
       }).catch(() => { /* silently ignore if function doesn't exist */ });
 
-      navigate('/dashboard', { replace: true });
+      navigate('/now', { replace: true });
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error(isHe ? 'שגיאה בשמירה, נסה שוב' : 'Error saving, please try again');

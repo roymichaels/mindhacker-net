@@ -99,7 +99,7 @@ export const AssignAudioToOrderDialog = ({
           type: "audio_ready",
           title: "ההקלטה שלך מוכנה! 🎧",
           message: "ההקלטה האישית שלך מוכנה להאזנה. היכנס לאזור האישי כדי להתחיל.",
-          link: "/dashboard",
+          link: "/now",
         });
 
       if (notifError) {

@@ -52,7 +52,7 @@ export function requireCheckoutUrlOrToast(
 
 /** Known application routes for validation */
 const KNOWN_ROUTES = [
-  '/', '/dashboard', '/onboarding', '/go',
+  '/', '/now', '/dashboard', '/onboarding', '/go',
   '/messages', '/messages/ai',
   '/coaches', '/p/',
   '/launchpad', '/settings',
@@ -68,7 +68,7 @@ const KNOWN_ROUTES = [
 export function safeNavigate(
   navigate: NavigateFunction,
   target: string,
-  fallback: string = '/dashboard'
+  fallback: string = '/now'
 ): void {
   const isKnown = KNOWN_ROUTES.some(r => target === r || target.startsWith(r + '/') || target.startsWith(r + '?'));
   if (!isKnown) {

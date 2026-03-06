@@ -54,7 +54,7 @@ export const useAuroraCommands = () => {
 
   // Navigation commands
   const navigationCommands = useMemo(() => ({
-    dashboard: () => navigate('/dashboard'),
+    dashboard: () => navigate('/now'),
     home: () => navigate('/'),
     hypnosis: (goal?: string) => navigate(goal ? `/hypnosis?goal=${goal}` : '/hypnosis'),
     health: () => navigate('/health'),
@@ -64,9 +64,9 @@ export const useAuroraCommands = () => {
     community: () => navigate('/community'),
     settings: () => navigate('/settings'),
     profile: () => navigate('/profile'),
-    aurora: () => navigate('/dashboard'), // Opens dashboard with chat
-    tasks: () => navigate('/dashboard?tab=tasks'),
-    habits: () => navigate('/dashboard?tab=habits'),
+    aurora: () => navigate('/now'),
+    tasks: () => navigate('/now?tab=tasks'),
+    habits: () => navigate('/now?tab=habits'),
   }), [navigate]);
 
   // Setting commands
