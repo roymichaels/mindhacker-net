@@ -286,18 +286,41 @@ ${scopeBlock}
 - Each mission title (goal_en/goal_he) MUST be a SHORT label: 2-6 words maximum.
 - Titles describe a distinct training arc, NOT a paragraph or instruction.
 - Titles must semantically belong to the trait "${traitName.name_en}" — do NOT reference other trait names.
-- Good examples: "Foundation of Inner Stillness", "Power Through Precision", "Conscious Integration Protocol"
-- BAD examples: long sentences, paragraphs, instructions starting with "בצע" or "Execute"
 - Hebrew titles must be natural and concise (2-6 words), NOT translated English.
+
+## ABSOLUTE PROHIBITION — NUMBERED CLONE TITLES:
+- NEVER generate titles like "[trait name] 1", "[trait name] 2", "[trait name] 3"
+- NEVER prefix with "אימון" + trait name + number. This is BANNED.
+- NEVER repeat the trait name across all 3 missions with only a number suffix.
+- Each mission title MUST be UNIQUE and describe a DIFFERENT developmental angle.
+
+## MISSION ARC STRUCTURE:
+- Mission 1 = FOUNDATION arc: grounding, basics, establishing the trait's core patterns
+- Mission 2 = APPLICATION arc: expressing, applying, expanding the trait in real situations  
+- Mission 3 = MASTERY arc: integrating the trait into identity, lifestyle, long-term habits
+
+## EXAMPLES OF GOOD vs BAD:
+If trait = "Sculpted Form" / "צורה מפוסלת":
+  BAD: "אימון צורה מפוסלת 1", "אימון צורה מפוסלת 2", "אימון צורה מפוסלת 3"
+  GOOD: "יסודות חיטוב ותבנית גוף", "כוח פונקציונלי וקו תנועה", "משמעת אסתטית והתמדה גופנית"
+
+If trait = "Magnetic Posture" / "יציבה מגנטית":
+  BAD: "אימון יציבה מגנטית 1", "אימון יציבה מגנטית 2", "אימון יציבה מגנטית 3"
+  GOOD: "יסודות יציבה ונוכחות", "ביטחון גופני בתנועה", "שקט סמכותי והבעה פיזית"
+
+If trait = "Network Weaver" / "אורג הרשת":
+  BAD: "אימון אורג הרשת 1", "אימון אורג הרשת 2", "אימון אורג הרשת 3"
+  GOOD: "בניית נוכחות דיגיטלית", "יצירת קשרים אסטרטגיים", "מנהיגות מחשבתית ברשת"
 
 ## RULES:
 1. Missions MUST directly address assessment findings with TREATMENT PROTOCOLS.
 2. Reference user's actual projects/businesses BY NAME where relevant.
 3. Hebrew must be natural, not translated.
-4. Missions should follow progressive complexity: Mission 1 = foundational, Mission 2 = intermediate, Mission 3 = advanced.
+4. All 3 missions must be SEMANTICALLY DISTINCT — different angles of the same trait.
 5. CRITICAL: Every mission MUST fall within the pillar's IN SCOPE definition.
 6. CRITICAL: Every mission MUST respect the user's CRITICAL CONSTRAINTS.
 7. Each mission describes a specific TRAINING ARC for the trait "${traitName.name_en}".
+8. If you generate numbered clones, the system will REJECT your output.
 
 ## OUTPUT (JSON only, NO markdown):
 {
