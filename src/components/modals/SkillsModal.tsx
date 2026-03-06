@@ -158,7 +158,7 @@ function TraitCardComponent({
           color: `hsl(${pillarColor})`,
         }}
       >
-        {trait.pillar}
+        {isHe ? PILLAR_LABELS_HE[trait.pillar] : PILLAR_LABELS_EN[trait.pillar] || trait.pillar}
       </span>
     </motion.button>
   );

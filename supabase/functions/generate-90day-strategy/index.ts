@@ -717,16 +717,18 @@ serve(async (req) => {
       if (single_pillar) {
         selectedPillarIds = allHubPillarIds.includes(single_pillar) ? [single_pillar] : [];
         nonSelectedPillarIds = [];
-      } else if (selected_pillars || hubSelectedPillars.length > 0) {
+      } else {
         const hubSelected = selected_pillars 
           ? (h === 'core' ? (selected_pillars.core || []) : (selected_pillars.arena || []))
           : hubSelectedPillars;
-        selectedPillarIds = allHubPillarIds.filter((id: string) => hubSelected.includes(id));
-        nonSelectedPillarIds = allHubPillarIds.filter((id: string) => !hubSelected.includes(id));
-      } else {
-        // Fallback: all pillars treated as selected
-        selectedPillarIds = allHubPillarIds;
-        nonSelectedPillarIds = [];
+        if (hubSelected.length > 0) {
+          selectedPillarIds = allHubPillarIds.filter((id: string) => hubSelected.includes(id));
+          nonSelectedPillarIds = allHubPillarIds.filter((id: string) => !hubSelected.includes(id));
+        } else {
+          // No pillars selected for this hub — all get 1 trait (non-selected treatment)
+          selectedPillarIds = [];
+          nonSelectedPillarIds = allHubPillarIds;
+        }
       }
       
       if (selectedPillarIds.length === 0 && nonSelectedPillarIds.length === 0) {
