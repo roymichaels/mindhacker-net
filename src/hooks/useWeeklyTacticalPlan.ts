@@ -129,11 +129,16 @@ function validCategory(cat: string): BlockCategory {
   return valid.includes(cat as BlockCategory) ? (cat as BlockCategory) : 'action';
 }
 
-function validDifficulty(d: string): Difficulty {
-  return ['easy', 'medium', 'hard'].includes(d) ? (d as Difficulty) : 'medium';
+function validDifficulty(d: any): Difficulty {
+  const n = typeof d === 'number' ? d : parseInt(d);
+  if (n >= 1 && n <= 5) return n as Difficulty;
+  if (d === 'easy') return 1;
+  if (d === 'medium') return 3;
+  if (d === 'hard') return 5;
+  return 3;
 }
 
-const DIFFICULTY_XP: Record<Difficulty, number> = { easy: 5, medium: 10, hard: 15 };
+const DIFFICULTY_XP: Record<Difficulty, number> = { 1: 5, 2: 8, 3: 10, 4: 13, 5: 15 };
 
 // ── Parse AI schedule (new nested block format) ──
 
