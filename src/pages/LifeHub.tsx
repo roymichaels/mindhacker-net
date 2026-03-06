@@ -501,7 +501,7 @@ export default function LifeHub() {
                                       {trait.displayName}
                                     </span>
                                     <span className="text-[9px] text-muted-foreground">
-                                      {trait.missionCount} {isHe ? 'משימות' : 'missions'} · {trait.milestoneCount} {isHe ? 'א.ד' : 'ms'}
+                                      {trait.missionCount} {isHe ? (trait.missionCount === 1 ? 'משימה' : 'משימות') : (trait.missionCount === 1 ? 'mission' : 'missions')} · {trait.milestoneCount} {isHe ? 'א.ד' : 'ms'}
                                     </span>
                                     <span className="text-[9px] text-muted-foreground/70">
                                       {trait.completedMilestones}/{trait.milestoneCount} {isHe ? 'הושלמו' : 'done'}
