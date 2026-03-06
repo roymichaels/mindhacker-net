@@ -54,7 +54,7 @@ export const useAuroraCommands = () => {
 
   // Navigation commands
   const navigationCommands = useMemo(() => ({
-    dashboard: () => navigate('/dashboard'),
+    dashboard: () => navigate('/now'),
     home: () => navigate('/'),
     hypnosis: (goal?: string) => navigate(goal ? `/hypnosis?goal=${goal}` : '/hypnosis'),
     health: () => navigate('/health'),
