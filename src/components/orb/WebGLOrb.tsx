@@ -707,6 +707,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       wireMat.dispose();
       ambient.dispose();
       dirLight.dispose();
+      fillLight.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
   }, [size, geometryDetail, geometryTypes.outer]);
