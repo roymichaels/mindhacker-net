@@ -239,9 +239,9 @@ function ChipGroup({ icon, label, items, variant }: { icon: string; label: strin
         <span className="text-xs">{icon}</span>
         <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{label}</span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1">
         {items.slice(0, 4).map((item, i) => (
-          <span key={i} className={cn("text-xs font-medium px-2 py-0.5 rounded-lg border", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>{item}</span>
+          <span key={i} className={cn("text-[11px] font-medium px-2 py-0.5 rounded-lg border leading-snug", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>{item}</span>
         ))}
       </div>
     </div>
