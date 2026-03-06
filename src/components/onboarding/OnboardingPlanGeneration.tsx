@@ -43,6 +43,20 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
     if (!user?.id) return;
 
     try {
+      // Check if plan already exists — skip regeneration
+      const { data: existingPlan } = await supabase
+        .from('life_plans')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (existingPlan) {
+        sessionStorage.setItem('just_completed_onboarding', '1');
+        navigate('/now', { replace: true });
+        return;
+      }
+
       const pressureZone = answers.pressure_zone as string;
       const pillar = FRICTION_PILLAR_MAP[pressureZone] || 'mind';
 
