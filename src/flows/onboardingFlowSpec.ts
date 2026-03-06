@@ -978,6 +978,61 @@ const onboardingFlowSpec: FlowSpec = {
       ],
     },
 
+    // ─── Step 10.5: Hobbies & Play Preferences ───
+    {
+      id: 17,
+      title_he: 'תחביבים ופנאי',
+      title_en: 'Hobbies & Play',
+      renderer: 'card',
+      miniSteps: [
+        {
+          id: 'hobbies_play',
+          title_he: 'מה אתה אוהב לעשות בזמן הפנוי? (בחר הכל)',
+          title_en: 'What do you enjoy doing in your free time? (select all)',
+          inputType: 'multi_select',
+          options: [
+            { value: 'hiking', label_he: 'טיולים בטבע', label_en: 'Hiking / Nature', icon: '🥾' },
+            { value: 'travel', label_he: 'טיולים ונסיעות', label_en: 'Travel', icon: '✈️' },
+            { value: 'camping', label_he: 'קמפינג', label_en: 'Camping', icon: '⛺' },
+            { value: 'water_sports', label_he: 'ספורט ימי (גלישה, שייט, צלילה)', label_en: 'Water sports', icon: '🏄' },
+            { value: 'cycling', label_he: 'רכיבת אופניים', label_en: 'Cycling', icon: '🚴' },
+            { value: 'team_sports', label_he: 'ספורט קבוצתי', label_en: 'Team sports', icon: '⚽' },
+            { value: 'running', label_he: 'ריצה', label_en: 'Running', icon: '🏃' },
+            { value: 'gaming', label_he: 'משחקי מחשב/קונסולה', label_en: 'Video gaming', icon: '🎮' },
+            { value: 'music', label_he: 'מוזיקה (נגינה/שירה)', label_en: 'Music', icon: '🎵' },
+            { value: 'cooking', label_he: 'בישול / אפייה', label_en: 'Cooking', icon: '👨‍🍳' },
+            { value: 'art', label_he: 'ציור / אמנות', label_en: 'Art', icon: '🎨' },
+            { value: 'reading', label_he: 'קריאה', label_en: 'Reading', icon: '📚' },
+            { value: 'photography', label_he: 'צילום', label_en: 'Photography', icon: '📷' },
+            { value: 'dancing', label_he: 'ריקוד', label_en: 'Dancing', icon: '💃' },
+            { value: 'gardening', label_he: 'גינון', label_en: 'Gardening', icon: '🌱' },
+            { value: 'diy', label_he: 'עשה זאת בעצמך', label_en: 'DIY / Building', icon: '🔨' },
+            { value: 'social_events', label_he: 'אירועים / ברביקיו', label_en: 'Social events / BBQ', icon: '🎉' },
+            { value: 'movies', label_he: 'סרטים / סדרות', label_en: 'Movies / TV', icon: '🎬' },
+            { value: 'extreme', label_he: 'ספורט אתגרי (טיפוס, צניחה)', label_en: 'Extreme sports', icon: '🧗' },
+            { value: 'board_games', label_he: 'משחקי קופסה / שחמט', label_en: 'Board games / Chess', icon: '♟️' },
+          ],
+          validation: { required: true, minSelected: 2 },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'hobbies_play' },
+        },
+        {
+          id: 'play_time_weekly',
+          title_he: 'כמה זמן בשבוע אתה מקדיש להנאה ופנאי?',
+          title_en: 'How much weekly time for fun & leisure?',
+          inputType: 'single_select',
+          options: [
+            { value: 'none', label_he: 'כמעט כלום', label_en: 'Almost none', icon: '😞' },
+            { value: '1-2h', label_he: '1-2 שעות', label_en: '1-2 hours', icon: '😐' },
+            { value: '3-5h', label_he: '3-5 שעות', label_en: '3-5 hours', icon: '🙂' },
+            { value: '5-10h', label_he: '5-10 שעות', label_en: '5-10 hours', icon: '😊' },
+            { value: '10+h', label_he: '10+ שעות', label_en: '10+ hours', icon: '🎉' },
+          ],
+          validation: { required: true },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'play_time_weekly' },
+        },
+      ],
+    },
+
     // ════════════════════════════════════════════
     // PHASE 4 — PSYCHOLOGICAL OPERATING SYSTEM
     // ════════════════════════════════════════════
