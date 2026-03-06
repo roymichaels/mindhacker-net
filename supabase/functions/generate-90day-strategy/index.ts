@@ -709,22 +709,32 @@ serve(async (req) => {
     // === FETCH USER DATA FOR AI CONTEXT ===
     const allPillarIds = [...CORE_PILLAR_IDS, ...ARENA_PILLAR_IDS];
 
-    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes] = await Promise.all([
+    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes, launchpadRes] = await Promise.all([
       supabaseClient.from('profiles').select('*').eq('id', user_id).single(),
       supabaseClient.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
       supabaseClient.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
       supabaseClient.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id).limit(5),
       supabaseClient.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
       supabaseClient.from('profiles').select('selected_pillars').eq('id', user_id).single(),
+      supabaseClient.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user_id).maybeSingle(),
     ]);
 
     const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
     const constraintsBlock = buildStrategyConstraintsBlock(allDomains);
+
+    // Extract hobbies/play preferences from onboarding data
+    const launchpadProfile = (launchpadRes.data?.step_2_profile_data as Record<string, any>) || {};
+    const onboardingHobbies = launchpadProfile.hobbies_play as string[] | undefined;
+    const playQuest = (launchpadProfile.pillar_quests as any)?.play?.answers;
+    const playActivities = playQuest?.play_activities as string[] | undefined;
+    const allHobbies = [...new Set([...(onboardingHobbies || []), ...(playActivities || [])])];
+
     const userContext = buildUserContext(
       profileRes.data,
       projectsRes.data || [],
       businessRes.data || [],
       memoryRes.data || [],
+      allHobbies,
     );
     
     // Determine which pillars are "selected" by the user
