@@ -172,6 +172,7 @@ serve(async (req) => {
       habitsRes,
       overdueRes,
       pulseRes,
+      todayTasksRes,
     ] = await Promise.all([
       // All active plans
       supabase.from("life_plans").select("id, start_date, status, plan_data")
@@ -186,12 +187,18 @@ serve(async (req) => {
       // Today pulse
       supabase.from("daily_pulse_logs").select("energy_rating, mood")
         .eq("user_id", user_id).eq("log_date", today).maybeSingle(),
+      // Today's scheduled action_items (tasks scheduled for today)
+      supabase.from("action_items").select("id, title, description, pillar, milestone_id, type, scheduled_date, status, start_time, end_time")
+        .eq("user_id", user_id).eq("scheduled_date", today).in("status", ["todo", "doing"])
+        .neq("type", "habit")
+        .order("order_index", { ascending: true }),
     ]);
 
     const plans = plansRes.data || [];
     const habits = habitsRes.data || [];
     const overdue = overdueRes.data || [];
     const pulse = pulseRes.data;
+    const todayTasks = todayTasksRes.data || [];
 
     const coreStrategy = plans.find((s: any) => s.plan_data?.hub === 'core');
     const arenaStrategy = plans.find((s: any) => s.plan_data?.hub === 'arena');
@@ -242,7 +249,30 @@ serve(async (req) => {
       if (habit.pillar) usedPillars.add(habit.pillar);
     }
 
-    // 3. MILESTONE-DERIVED ACTIONS (the core of v3)
+    // 3. TODAY'S SCHEDULED ACTION ITEMS
+    const usedActionIds = new Set(queue.map(q => q.sourceId).filter(Boolean));
+    for (const task of todayTasks) {
+      if (queue.length >= maxActions) break;
+      if (usedActionIds.has(task.id)) continue; // skip if already added as overdue
+      const pillar = task.pillar || "focus";
+      queue.push({
+        pillarId: pillar,
+        hub: getHub(pillar),
+        actionType: task.type === 'task' ? pillar + '_task' : (task.type || pillar + '_action'),
+        title: task.title,
+        titleEn: task.title,
+        durationMin: 20,
+        urgencyScore: 7.5,
+        reason: isHe ? "משימה מתוכננת להיום" : "Scheduled for today",
+        sourceType: "plan",
+        sourceId: task.id,
+        milestoneId: task.milestone_id || undefined,
+      });
+      usedActionIds.add(task.id);
+      usedPillars.add(pillar);
+    }
+
+    // 4. MILESTONE-DERIVED ACTIONS (the core of v3)
     if (hasStrategy) {
       // Determine current day & phase for each plan
       const planPhases = plans.map((p: any) => ({
