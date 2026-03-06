@@ -1,0 +1,1 @@
+ALTER TABLE public.life_plan_milestones ADD COLUMN IF NOT EXISTS difficulty integer DEFAULT 3 CHECK (difficulty >= 1 AND difficulty <= 5);

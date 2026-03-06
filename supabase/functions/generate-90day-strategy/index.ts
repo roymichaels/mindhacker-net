@@ -394,6 +394,13 @@ BAD (too granular, task-like, diagnostic):
 - Each mission gets exactly 5 milestones — each is a STRATEGIC PROTOCOL or LIFESTYLE COMMITMENT.
 - Milestones should include FREQUENCY (daily, 3x/week, etc.) or INTENSITY (full day, minimum hours, etc.) when applicable.
 - They should be progressively more challenging across the 5.
+- Each milestone MUST have a "difficulty" field (1-5 stars):
+  - 1 ⭐ = Beginner / easy habit to maintain
+  - 2 ⭐⭐ = Moderate effort required
+  - 3 ⭐⭐⭐ = Challenging but achievable
+  - 4 ⭐⭐⭐⭐ = Hard, requires significant discipline
+  - 5 ⭐⭐⭐⭐⭐ = Elite level, extreme commitment
+- The 5 milestones should progress from lower difficulty (1-2) to higher (4-5).
 - CRITICAL: All milestones MUST stay within the pillar's scope.
 - CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS.
 - Hebrew must be natural and punchy. Keep titles short but strategic.
@@ -405,11 +412,11 @@ BAD (too granular, task-like, diagnostic):
       "mission_en": "${goals[0]?.goal_en || ''}",
       "mission_he": "${goals[0]?.goal_he || ''}",
       "milestones": [
-        { "title_en": "Strategic protocol 1", "title_he": "פרוטוקול 1", "description_en": "What commitment looks like", "description_he": "איך זה נראה בפועל" },
-        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
-        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
-        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
-        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." }
+        { "title_en": "Strategic protocol 1", "title_he": "פרוטוקול 1", "description_en": "What commitment looks like", "description_he": "איך זה נראה בפועל", "difficulty": 1 },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "...", "difficulty": 2 },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "...", "difficulty": 3 },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "...", "difficulty": 4 },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "...", "difficulty": 5 }
       ]
     },
     { "mission_en": "${goals[1]?.goal_en || ''}", "mission_he": "${goals[1]?.goal_he || ''}", "milestones": [...] },
@@ -930,6 +937,7 @@ serve(async (req) => {
                   is_completed: false,
                   xp_reward: 20,
                   tokens_reward: 5,
+                  difficulty: Math.max(1, Math.min(5, ms.difficulty || (si + 1))),
                 });
                 totalMilestones++;
               }
@@ -969,6 +977,7 @@ serve(async (req) => {
                   title: ms.title_he, title_en: ms.title_en,
                   description: ms.description_he, description_en: ms.description_en,
                   focus_area: pid, is_completed: false, xp_reward: 20, tokens_reward: 5,
+                  difficulty: si + 1,
                 });
                 totalMilestones++;
               }

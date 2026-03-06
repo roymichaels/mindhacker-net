@@ -5277,6 +5277,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           description_en: string | null
+          difficulty: number | null
           end_date: string | null
           focus_area: string | null
           focus_area_en: string | null
@@ -5304,6 +5305,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           description_en?: string | null
+          difficulty?: number | null
           end_date?: string | null
           focus_area?: string | null
           focus_area_en?: string | null
@@ -5331,6 +5333,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           description_en?: string | null
+          difficulty?: number | null
           end_date?: string | null
           focus_area?: string | null
           focus_area_en?: string | null

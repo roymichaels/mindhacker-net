@@ -3,7 +3,7 @@
  * AI-generated 10-day phase schedule with themed blocks containing milestones.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play, Wand2 } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play, Wand2, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -48,10 +48,12 @@ const BLOCK_ICON_COLORS: Record<BlockCategory, string> = {
   social: 'text-pink-400',
 };
 
-const DIFFICULTY_STYLES: Record<Difficulty, { bg: string; text: string; label: { he: string; en: string } }> = {
-  easy: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: { he: 'קל', en: 'Easy' } },
-  medium: { bg: 'bg-amber-500/15', text: 'text-amber-500', label: { he: 'בינוני', en: 'Medium' } },
-  hard: { bg: 'bg-red-500/15', text: 'text-red-500', label: { he: 'קשה', en: 'Hard' } },
+const DIFFICULTY_LABELS: Record<number, { he: string; en: string }> = {
+  1: { he: '⭐', en: '⭐' },
+  2: { he: '⭐⭐', en: '⭐⭐' },
+  3: { he: '⭐⭐⭐', en: '⭐⭐⭐' },
+  4: { he: '⭐⭐⭐⭐', en: '⭐⭐⭐⭐' },
+  5: { he: '⭐⭐⭐⭐⭐', en: '⭐⭐⭐⭐⭐' },
 };
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
@@ -548,7 +550,7 @@ function DayView({
                 >
                   <div className="px-3 pb-3 pt-1 space-y-1">
                     {block.actions.map((action, actionIdx) => {
-                      const diffStyle = DIFFICULTY_STYLES[action.difficulty];
+                      const stars = typeof action.difficulty === 'number' ? action.difficulty : 3;
                       return (
                         <button
                           key={action.id}
@@ -583,8 +585,16 @@ function DayView({
                               {isHe ? action.title : (action.titleEn || action.title)}
                             </p>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className={cn("text-[7px] font-semibold px-1 py-px rounded-full", diffStyle.bg, diffStyle.text)}>
-                                {isHe ? diffStyle.label.he : diffStyle.label.en}
+                              <span className="flex items-center gap-px">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={cn(
+                                      "w-2 h-2",
+                                      i < stars ? "text-amber-400 fill-amber-400" : "text-muted-foreground/15"
+                                    )}
+                                  />
+                                ))}
                               </span>
                               <span className="text-[7px] text-muted-foreground/50 flex items-center gap-0.5">
                                 <Flame className="w-2 h-2" />

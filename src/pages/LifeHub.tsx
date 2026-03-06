@@ -3,9 +3,10 @@
  * Hierarchy: Pillar → Traits → Missions → Milestones.
  * Selected pillars get 3 traits, non-selected get 1 trait.
  * CRITICAL: Top-level cards are always TRAITS, never mission text.
+ * Milestones show 1-5 difficulty stars and open journey modal on click.
  */
-import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -19,6 +20,7 @@ import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { supabase } from '@/integrations/supabase/client';
 import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
 import { PILLAR_COLORS } from '@/hooks/useTraitGallery';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 
 // ========== TYPES ==========
 interface TraitView {
@@ -51,6 +53,10 @@ interface MilestoneView {
   title: string;
   title_en: string | null;
   is_completed: boolean;
+  difficulty: number;
+  description: string | null;
+  description_en: string | null;
+  focus_area: string | null;
 }
 
 interface PillarGroup {
@@ -77,6 +83,13 @@ export default function LifeHub() {
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [expandedTrait, setExpandedTrait] = useState<string | null>(null);
   const [expandedMission, setExpandedMission] = useState<string | null>(null);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyMilestone, setJourneyMilestone] = useState<MilestoneView | null>(null);
+
+  const handleOpenJourney = useCallback((ms: MilestoneView) => {
+    setJourneyMilestone(ms);
+    setJourneyOpen(true);
+  }, []);
 
   const { statusMap } = useLifeDomains();
   const totalDomains = CORE_DOMAINS.length;
@@ -136,7 +149,7 @@ export default function LifeHub() {
       if (allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('life_plan_milestones')
-        .select('id, title, title_en, is_completed, mission_id, milestone_number')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number, difficulty, description, description_en, focus_area')
         .in('plan_id', allPlanIds)
         .not('mission_id', 'is', null)
         .order('milestone_number');
@@ -169,6 +182,10 @@ export default function LifeHub() {
         title: ms.title,
         title_en: ms.title_en,
         is_completed: ms.is_completed ?? false,
+        difficulty: (ms as any).difficulty ?? 3,
+        description: (ms as any).description ?? null,
+        description_en: (ms as any).description_en ?? null,
+        focus_area: (ms as any).focus_area ?? null,
       });
     }
 
@@ -586,23 +603,44 @@ export default function LifeHub() {
                                                         const msTitle = isHe
                                                           ? (ms.title || ms.title_en || '')
                                                           : (ms.title_en || ms.title || '');
+                                                        const stars = ms.difficulty || 3;
                                                         return (
-                                                          <div key={ms.id} className={cn(
-                                                            "flex items-start gap-2 py-1",
-                                                            ms.is_completed ? "opacity-50" : ""
-                                                          )}>
-                                                            {ms.is_completed ? (
-                                                              <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                                                            ) : (
-                                                              <Circle className="w-3.5 h-3.5 text-muted-foreground/25 shrink-0 mt-0.5" />
+                                                          <button
+                                                            key={ms.id}
+                                                            onClick={() => handleOpenJourney(ms)}
+                                                            className={cn(
+                                                              "flex items-center gap-2 py-1.5 px-1.5 rounded-lg w-full text-start transition-all group/ms",
+                                                              ms.is_completed ? "opacity-50" : "hover:bg-muted/20"
                                                             )}
-                                                            <span className={cn(
-                                                              "text-[11px] leading-snug",
-                                                              ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
-                                                            )}>
-                                                              {msTitle}
-                                                            </span>
-                                                          </div>
+                                                          >
+                                                            {ms.is_completed ? (
+                                                              <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                                                            ) : (
+                                                              <Play className="w-3 h-3 text-muted-foreground/30 group-hover/ms:text-primary shrink-0" />
+                                                            )}
+                                                            <div className="flex-1 min-w-0">
+                                                              <span className={cn(
+                                                                "text-[11px] leading-snug block",
+                                                                ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
+                                                              )}>
+                                                                {msTitle}
+                                                              </span>
+                                                              <div className="flex items-center gap-0.5 mt-0.5">
+                                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                                  <Star
+                                                                    key={i}
+                                                                    className={cn(
+                                                                      "w-2.5 h-2.5",
+                                                                      i < stars ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20"
+                                                                    )}
+                                                                  />
+                                                                ))}
+                                                              </div>
+                                                            </div>
+                                                            {!ms.is_completed && (
+                                                              <Play className="w-3 h-3 text-primary/40 opacity-0 group-hover/ms:opacity-100 shrink-0" />
+                                                            )}
+                                                          </button>
                                                         );
                                                       })}
                                                     </div>
@@ -634,6 +672,19 @@ export default function LifeHub() {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         onPlanGenerated={handlePlanGenerated}
+      />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyMilestone?.id || null}
+        milestoneTitle={isHe ? (journeyMilestone?.title || '') : (journeyMilestone?.title_en || journeyMilestone?.title || '')}
+        milestoneDescription={isHe ? (journeyMilestone?.description || undefined) : (journeyMilestone?.description_en || journeyMilestone?.description || undefined)}
+        focusArea={journeyMilestone?.focus_area || undefined}
+        durationMinutes={30}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['strategy-milestones'] });
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        }}
       />
     </div>
   );

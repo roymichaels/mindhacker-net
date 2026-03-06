@@ -32,7 +32,7 @@ serve(async (req) => {
     const [profileRes, milestonesRes, missionsRes, planRes] = await Promise.all([
       supabase.from("profiles").select("full_name, wake_time, sleep_time, focus_peak_start, focus_peak_end").eq("id", user_id).single(),
       supabase.from("life_plan_milestones")
-        .select("id, title, title_en, description, description_en, focus_area, week_number, mission_id, is_completed")
+        .select("id, title, title_en, description, description_en, focus_area, week_number, mission_id, is_completed, difficulty")
         .eq("plan_id", plan_id)
         .eq("week_number", phase_number)
         .order("id"),
@@ -69,6 +69,7 @@ serve(async (req) => {
         focus_area: m.focus_area || mission?.pillar || "general",
         mission_title: mission?.titleEn || mission?.title || "",
         is_completed: m.is_completed,
+        difficulty: (m as any).difficulty || 3,
       };
     });
 
@@ -98,7 +99,7 @@ serve(async (req) => {
 - Name: ${profile?.full_name || "User"}
 
 ## MILESTONES TO SCHEDULE (${enrichedMilestones.length} total):
-${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] "${m.title_en}" — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
+${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] [Difficulty: ${m.difficulty}/5] "${m.title_en}" (HE: "${m.title}") — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
 
 ${adjustmentContext}
 
@@ -119,6 +120,8 @@ ${adjustmentContext}
 5. Already completed milestones (✅) should NOT be scheduled.
 6. Each milestone inside a block gets its own duration (10-45 min).
 7. Total daily active time: 90-180 minutes (realistic!).
+8. CRITICAL: Use the EXACT milestone titles (title_en and title_he) from the list above — do NOT rename or paraphrase them.
+9. CRITICAL: Use the EXACT difficulty value (1-5) from each milestone — do NOT change it.
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
 
