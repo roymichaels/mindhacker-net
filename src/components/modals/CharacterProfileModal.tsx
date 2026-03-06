@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// Tabs removed — profile content shown directly
 import { Badge } from '@/components/ui/badge';
 import {
   Star, Flame, Zap, X, UserCircle, Brain, Compass, Target,
@@ -52,18 +52,46 @@ const PILLAR_LABELS_EN: Record<string, string> = {
 export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterProfileModalProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const isOwner = !userId; // viewing own profile
+  const isOwner = !userId;
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
   const streak = useStreak();
   const tokens = useEnergy();
   const { profile } = useOrbProfile();
+  const [traitsOpen, setTraitsOpen] = useState(false);
 
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
   const archetypeName = getArchetypeName(dominantArchetype, isHe);
   const archetypeIcon = getArchetypeIcon(dominantArchetype);
 
   if (!open) return null;
+
+  // If traits gallery is open, render it full-screen
+  if (traitsOpen) {
+    return (
+      <div
+        role="dialog"
+        className="fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden"
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
+        <button
+          onClick={() => setTraitsOpen(false)}
+          className="absolute top-4 start-4 z-10 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-foreground" />
+        </button>
+        <button
+          onClick={() => { setTraitsOpen(false); onOpenChange(false); }}
+          className="absolute top-4 end-4 z-10 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+        >
+          <X className="w-5 h-5 text-foreground" />
+        </button>
+        <div className="flex-1 overflow-y-auto pt-14 px-3 pb-24">
+          <TraitsTab isHe={isHe} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -82,7 +110,6 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
       <div className="flex-1 overflow-y-auto">
         {/* ═══════ HEADER: Character Identity ═══════ */}
         <div className="relative pt-8 pb-4 px-4 flex flex-col items-center text-center">
-          {/* Aura glow behind orb */}
           <div
             className="absolute top-6 w-28 h-28 rounded-full blur-3xl opacity-30"
             style={{ background: profile.primaryColor || 'hsl(var(--primary))' }}
@@ -129,6 +156,15 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             <Progress value={xp.percentage} className="h-1.5 bg-muted/50" />
           </div>
 
+          {/* Traits button */}
+          <button
+            onClick={() => setTraitsOpen(true)}
+            className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-muted/40 border border-border/40 hover:bg-muted/60 active:scale-[0.97] transition-all text-xs font-semibold text-foreground"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            {isHe ? 'גלריית תכונות' : 'Trait Gallery'}
+          </button>
+
           {/* Streak indicators */}
           <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
             <span className={cn(streak.isActiveToday ? 'text-primary font-bold' : '')}>
@@ -142,35 +178,14 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         {/* ═══════ STAT WHEEL ═══════ */}
         <StatWheel isHe={isHe} />
 
-        {/* ═══════ TABS ═══════ */}
+        {/* ═══════ PROFILE CONTENT (no tabs) ═══════ */}
         <div className="px-3 pb-24">
-          <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 mb-3">
-              <TabsTrigger value="profile" className="text-xs gap-1">
-                <UserCircle className="w-3.5 h-3.5" />
-                {isHe ? 'פרופיל' : 'Profile'}
-              </TabsTrigger>
-              <TabsTrigger value="traits" className="text-xs gap-1">
-                <Target className="w-3.5 h-3.5" />
-                {isHe ? 'תכונות' : 'Traits'}
-              </TabsTrigger>
-            </TabsList>
-
-            {/* ── Profile Tab (merged with Direction + Insights) ── */}
-            <TabsContent value="profile">
-              <ProfileTab
-                isHe={isHe}
-                language={language}
-                dashboard={dashboard}
-                isOwner={isOwner}
-              />
-            </TabsContent>
-
-            {/* ── Traits Tab ── */}
-            <TabsContent value="traits">
-              <TraitsTab isHe={isHe} />
-            </TabsContent>
-          </Tabs>
+          <ProfileTab
+            isHe={isHe}
+            language={language}
+            dashboard={dashboard}
+            isOwner={isOwner}
+          />
         </div>
       </div>
     </div>
