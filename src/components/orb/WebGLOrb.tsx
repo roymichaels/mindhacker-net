@@ -390,12 +390,16 @@ const ORB_FRAGMENT_SHADER = `
       finalColor = mix(finalColor, baseColor * 1.5, (0.35 - brightness) / 0.35);
       finalColor = max(finalColor, baseColor * 0.6);
     }
-    // Second pass: if STILL dark (baseColor was also dark), inject absolute minimum light
+    // Second pass: if STILL dark, inject ABSOLUTE minimum light (not dependent on uniforms)
     brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
     if (brightness < 0.15) {
-      // Use gradient first color as rescue, boosted significantly
-      vec3 rescue = u_colors[0] * 1.8 + vec3(0.1, 0.15, 0.2);
-      finalColor = max(finalColor, rescue * 0.6);
+      // Absolute rescue: guaranteed visible teal/cyan regardless of uniform values
+      vec3 rescue = vec3(0.15, 0.45, 0.55);
+      finalColor = max(finalColor, rescue);
+    }
+    // Third pass: baseColor itself was zero — make sure we have SOMETHING
+    if (dot(baseColor, vec3(1.0)) < 0.01) {
+      finalColor = vec3(0.2, 0.5, 0.7); // fallback blue
     }
 
     gl_FragColor = vec4(finalColor, 0.92);
