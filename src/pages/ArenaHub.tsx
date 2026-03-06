@@ -1,10 +1,10 @@
 /**
  * ArenaHub — Tactics page (טקטיקה).
- * Weekly execution plan derived from strategy milestones → mini_milestones.
- * Renders by Day → Block → Action, not as flat milestone rows.
+ * 10-day phase execution plan derived from strategy milestones → mini_milestones.
+ * Renders by Day → Block → Action with difficulty badges and XP.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -14,7 +14,7 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { useQueryClient } from '@tanstack/react-query';
 import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { useWeeklyTacticalPlan, type DayPlan, type TacticalBlock, type TacticalAction, type BlockCategory } from '@/hooks/useWeeklyTacticalPlan';
+import { useWeeklyTacticalPlan, type DayPlan, type TacticalBlock, type TacticalAction, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,6 +38,12 @@ const BLOCK_COLORS: Record<BlockCategory, string> = {
   social: 'text-pink-400',
 };
 
+const DIFFICULTY_STYLES: Record<Difficulty, { bg: string; text: string; label: { he: string; en: string } }> = {
+  easy: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: { he: 'קל', en: 'Easy' } },
+  medium: { bg: 'bg-amber-500/15', text: 'text-amber-500', label: { he: 'בינוני', en: 'Medium' } },
+  hard: { bg: 'bg-red-500/15', text: 'text-red-500', label: { he: 'קשה', en: 'Hard' } },
+};
+
 export default function ArenaHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
@@ -54,7 +60,6 @@ export default function ArenaHub() {
 
   const { queue, refetch } = useNowEngine();
 
-  // Tactical-only recalibrate: delete current phase mini_milestones, then regenerate
   const handleTacticalRecalibrate = useCallback(async () => {
     if (!user?.id || tacticalRecalibrating) return;
     const phaseMilestones = milestones.filter(m => m.week_number === currentPhase);
@@ -63,15 +68,12 @@ export default function ArenaHub() {
     setTacticalRecalibrating(true);
     try {
       const milestoneIds = phaseMilestones.map(m => m.id);
-
-      // 1. Delete existing mini_milestones for current phase
       const { error: delError } = await supabase
         .from('mini_milestones')
         .delete()
         .in('milestone_id', milestoneIds);
       if (delError) throw delError;
 
-      // 2. Regenerate phase actions for all milestones in parallel (batches of 3)
       for (let i = 0; i < phaseMilestones.length; i += 3) {
         const batch = phaseMilestones.slice(i, i + 3);
         await Promise.allSettled(
@@ -83,7 +85,6 @@ export default function ArenaHub() {
         );
       }
 
-      // 3. Refresh queries
       queryClient.invalidateQueries({ queryKey: ['phase-minis-check'] });
       queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
       queryClient.invalidateQueries({ queryKey: ['now-engine'] });
@@ -98,25 +99,27 @@ export default function ArenaHub() {
     }
   }, [user?.id, milestones, currentPhase, tacticalRecalibrating, queryClient, toast, isHe]);
 
-  const weeklyPlan = useWeeklyTacticalPlan();
-  const { days, phase, totalActions, completedActions, totalMinutes, generating, isLoading } = weeklyPlan;
+  const phasePlan = useWeeklyTacticalPlan();
+  const { days, phase, totalActions, completedActions, totalMinutes, generating, isLoading } = phasePlan;
 
-  // Get today's day index (0=Sun)
-  const todayIndex = new Date().getDay();
+  // Find today's day index within the 10-day phase
+  const todayIndex = useMemo(() => {
+    const idx = days.findIndex(d => d.isToday);
+    return idx >= 0 ? idx : 0;
+  }, [days]);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const activeDay = selectedDay ?? todayIndex;
 
   const completionPct = totalActions > 0 ? Math.round((completedActions / totalActions) * 100) : 0;
 
-  // Weekly stats
   const activeDays = days.filter(d => d.totalActions > 0).length;
   const activeBlocks = days.reduce((s, d) => s + d.blocks.length, 0);
 
   const statItems = [
-    { icon: Calendar, value: `${activeDays}/7`, label: isHe ? 'ימים פעילים' : 'Active Days', color: 'text-amber-400' },
+    { icon: Calendar, value: `${activeDays}/10`, label: isHe ? 'ימים פעילים' : 'Active Days', color: 'text-amber-400' },
     { icon: Target, value: activeBlocks, label: isHe ? 'בלוקים' : 'Blocks', color: 'text-teal-400' },
     { icon: CheckCircle2, value: `${completedActions}/${totalActions}`, label: isHe ? 'פעולות' : 'Actions', color: 'text-orange-400' },
-    { icon: Clock, value: `${Math.round(totalMinutes / 7)}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-emerald-400' },
+    { icon: Clock, value: `${Math.round(totalMinutes / 10)}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-emerald-400' },
   ];
 
   const handleToggleAction = async (action: TacticalAction) => {
@@ -174,7 +177,7 @@ export default function ArenaHub() {
           </div>
         ) : hasPlan ? (
           <>
-            {/* ── WEEKLY STATS ── */}
+            {/* ── PHASE STATS ── */}
             <div className="grid grid-cols-4 gap-2">
               {statItems.map((s) => (
                 <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2.5 flex flex-col items-center gap-1">
@@ -194,10 +197,10 @@ export default function ArenaHub() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-foreground">
-                      {isHe ? `שלב ${phase} — תוכנית שבועית` : `Phase ${phase} — Weekly Plan`}
+                      {isHe ? `שלב ${phase} — תוכנית 10 ימים` : `Phase ${phase} — 10-Day Plan`}
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
-                      {completedActions}/{totalActions} {isHe ? 'פעולות' : 'actions'} · {completionPct}%
+                      {completedActions}/{totalActions} {isHe ? 'משימות' : 'missions'} · {completionPct}%
                     </p>
                   </div>
                   <button
@@ -221,20 +224,19 @@ export default function ArenaHub() {
                 </div>
               </div>
 
-              {/* ── DAY SELECTOR ── */}
+              {/* ── 10-DAY SELECTOR ── */}
               <div className="flex gap-1 px-3 py-2.5 overflow-x-auto no-scrollbar border-b border-border/20">
                 {days.map((day) => {
-                  const isToday = day.dayIndex === todayIndex;
                   const isActive = day.dayIndex === activeDay;
                   const hasActions = day.totalActions > 0;
                   const dayPct = day.totalActions > 0 ? Math.round((day.completedActions / day.totalActions) * 100) : 0;
 
                   return (
                     <button
-                      key={day.dayKey}
+                      key={day.dayIndex}
                       onClick={() => setSelectedDay(day.dayIndex)}
                       className={cn(
-                        "flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all min-w-[44px] relative",
+                        "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[38px] relative",
                         isActive
                           ? "bg-destructive/15 border border-destructive/30"
                           : hasActions
@@ -246,7 +248,7 @@ export default function ArenaHub() {
                         "text-[10px] font-bold",
                         isActive ? "text-destructive" : "text-foreground/60"
                       )}>
-                        {isHe ? day.label.replace('יום ', '').replace('׳', '') : day.labelEn.slice(0, 3)}
+                        {day.dayNumber}
                       </span>
                       <span className={cn(
                         "text-[8px]",
@@ -254,7 +256,7 @@ export default function ArenaHub() {
                       )}>
                         {day.totalActions > 0 ? `${day.completedActions}/${day.totalActions}` : '—'}
                       </span>
-                      {isToday && (
+                      {day.isToday && (
                         <div className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
                       )}
                       {dayPct === 100 && day.totalActions > 0 && (
@@ -274,7 +276,7 @@ export default function ArenaHub() {
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">
                       {generating
-                        ? (isHe ? 'מייצר תוכנית שבועית...' : 'Generating weekly plan...')
+                        ? (isHe ? 'מייצר תוכנית שלב...' : 'Generating phase plan...')
                         : (isHe ? 'טוען...' : 'Loading...')}
                     </p>
                   </div>
@@ -288,29 +290,28 @@ export default function ArenaHub() {
               </div>
             </div>
 
-            {/* ── WEEKLY OVERVIEW ── */}
+            {/* ── PHASE OVERVIEW ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
               <div className="px-4 py-3 border-b border-border/30">
                 <h3 className="text-xs font-bold text-foreground/70">
-                  {isHe ? 'סקירת עומס שבועית' : 'Weekly Load Overview'}
+                  {isHe ? 'סקירת עומס שלב' : 'Phase Load Overview'}
                 </h3>
               </div>
               <div className="px-4 py-3 space-y-1.5">
                 {days.map((day) => {
-                  const loadPct = totalMinutes > 0 ? Math.round((day.totalMinutes / (totalMinutes / 7)) * 50) : 0;
-                  const isToday = day.dayIndex === todayIndex;
+                  const loadPct = totalMinutes > 0 ? Math.round((day.totalMinutes / (totalMinutes / 10)) * 50) : 0;
 
                   return (
                     <button
-                      key={day.dayKey}
+                      key={day.dayIndex}
                       onClick={() => setSelectedDay(day.dayIndex)}
                       className="flex items-center gap-2 w-full hover:bg-muted/10 rounded-lg px-1 py-0.5 transition-colors"
                     >
                       <span className={cn(
                         "text-[10px] w-8 text-start font-medium",
-                        isToday ? "text-primary font-bold" : "text-muted-foreground"
+                        day.isToday ? "text-primary font-bold" : "text-muted-foreground"
                       )}>
-                        {isHe ? day.label.replace('יום ', '') : day.labelEn.slice(0, 3)}
+                        {isHe ? `${day.dayNumber}` : `D${day.dayNumber}`}
                       </span>
                       <div className="flex-1 h-2 rounded-full bg-muted/30 overflow-hidden">
                         <motion.div
@@ -318,7 +319,7 @@ export default function ArenaHub() {
                             "h-full rounded-full",
                             day.completedActions === day.totalActions && day.totalActions > 0
                               ? "bg-emerald-500/60"
-                              : isToday
+                              : day.isToday
                                 ? "bg-primary/50"
                                 : "bg-foreground/15"
                           )}
@@ -371,7 +372,7 @@ function DayView({
     return (
       <div className="text-center py-6">
         <p className="text-xs text-muted-foreground">
-          {isHe ? 'יום מנוחה — אין פעולות מתוכננות' : 'Rest day — no actions scheduled'}
+          {isHe ? 'יום מנוחה — אין משימות מתוכננות' : 'Rest day — no missions scheduled'}
         </p>
       </div>
     );
@@ -383,6 +384,7 @@ function DayView({
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold text-foreground/70">
           {isHe ? day.label : day.labelEn}
+          {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
         </span>
         <span className="text-[10px] text-muted-foreground">
           {day.blocks.length} {isHe ? 'בלוקים' : 'blocks'} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
@@ -443,39 +445,46 @@ function DayView({
                   className="overflow-hidden"
                 >
                   <div className="px-3 pb-2.5 space-y-1">
-                    {block.actions.map((action) => (
-                      <button
-                        key={action.id}
-                        onClick={() => onToggleAction(action)}
-                        className={cn(
-                          "flex items-start gap-2 w-full text-start py-1.5 px-2 rounded-lg transition-colors",
-                          action.completed ? "opacity-50" : "hover:bg-muted/20"
-                        )}
-                      >
-                        {action.completed ? (
-                          <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className={cn(
-                            "text-xs leading-snug",
-                            action.completed ? "line-through text-muted-foreground" : "text-foreground/80"
-                          )}>
-                            {isHe ? action.title : (action.titleEn || action.title)}
-                          </p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[8px] text-muted-foreground/50">
-                              {action.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
-                            </span>
-                            <span className="text-[8px] text-muted-foreground/30">·</span>
-                            <span className="text-[8px] text-muted-foreground/50">
-                              {cadenceLabel(action.cadence, isHe)}
-                            </span>
+                    {block.actions.map((action) => {
+                      const diffStyle = DIFFICULTY_STYLES[action.difficulty];
+                      return (
+                        <button
+                          key={action.id}
+                          onClick={() => onToggleAction(action)}
+                          className={cn(
+                            "flex items-start gap-2 w-full text-start py-1.5 px-2 rounded-lg transition-colors",
+                            action.completed ? "opacity-50" : "hover:bg-muted/20"
+                          )}
+                        >
+                          {action.completed ? (
+                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className={cn(
+                              "text-xs leading-snug",
+                              action.completed ? "line-through text-muted-foreground" : "text-foreground/80"
+                            )}>
+                              {isHe ? action.title : (action.titleEn || action.title)}
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                              {/* Difficulty badge */}
+                              <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full", diffStyle.bg, diffStyle.text)}>
+                                {isHe ? diffStyle.label.he : diffStyle.label.en}
+                              </span>
+                              <span className="text-[8px] text-muted-foreground/50 flex items-center gap-0.5">
+                                <Flame className="w-2.5 h-2.5" />
+                                {action.xpReward} XP
+                              </span>
+                              <span className="text-[8px] text-muted-foreground/50">
+                                {action.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}
@@ -485,15 +494,4 @@ function DayView({
       })}
     </div>
   );
-}
-
-function cadenceLabel(cadence: string, isHe: boolean): string {
-  const labels: Record<string, { he: string; en: string }> = {
-    daily: { he: 'יומי', en: 'Daily' },
-    '3x_per_week': { he: '3×/שבוע', en: '3×/week' },
-    '2x_per_week': { he: '2×/שבוע', en: '2×/week' },
-    weekly: { he: 'שבועי', en: 'Weekly' },
-    one_time: { he: 'חד פעמי', en: 'One-time' },
-  };
-  return isHe ? labels[cadence]?.he || cadence : labels[cadence]?.en || cadence;
 }

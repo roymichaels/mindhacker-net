@@ -260,18 +260,24 @@ ${constraintsBlock}
     const milestoneIdx = siblings?.findIndex(s => s.id === milestone_id) ?? 0;
 
     // Each weekly objective spans multiple days based on cadence
-    const miniRows = parsed.objectives.slice(0, 3).map((obj: any, idx: number) => ({
-      milestone_id,
-      mini_number: idx + 1,
-      title: obj.title_he || obj.title_en,
-      title_en: obj.title_en,
-      description: obj.description_he || null,
-      description_en: obj.description_en || null,
-      xp_reward: 25, // Higher XP for weekly objectives
-      scheduled_day: Math.min(baseDayOffset + ((milestoneIdx * 3 + idx) % 10) + 1, 100),
-      execution_template: obj.execution_template || 'step_by_step',
-      action_type: obj.action_type || null,
-    }));
+    const DIFFICULTY_XP: Record<string, number> = { easy: 5, medium: 10, hard: 15 };
+
+    const miniRows = parsed.objectives.slice(0, 3).map((obj: any, idx: number) => {
+      const difficulty = ['easy', 'medium', 'hard'].includes(obj.difficulty) ? obj.difficulty : 'medium';
+      return {
+        milestone_id,
+        mini_number: idx + 1,
+        title: obj.title_he || obj.title_en,
+        title_en: obj.title_en,
+        description: obj.description_he || null,
+        description_en: obj.description_en || null,
+        xp_reward: DIFFICULTY_XP[difficulty] || 10,
+        difficulty,
+        scheduled_day: Math.min(baseDayOffset + ((milestoneIdx * 3 + idx) % 10) + 1, 100),
+        execution_template: obj.execution_template || 'step_by_step',
+        action_type: obj.action_type || null,
+      };
+    });
 
     const { error: insertError } = await supabase
       .from("mini_milestones")
