@@ -103,12 +103,10 @@ export function useStrategyPlans() {
         supabase.from('life_plans').update({ status: 'archived' }).in('id', duplicateIds).then(() => {});
       }
       
-      // Self-healing flags
+      // Legacy detection flag (for auto-archival only — no auto-regeneration)
       const hasLegacy = legacyPlans.length > 0;
-      const missingHub = (core && !arena) || (!core && arena);
-      const needsHeal = hasLegacy || (missingHub && hubPlans.length > 0);
 
-      return { core, arena, _legacyFound: hasLegacy, _needsHeal: needsHeal };
+      return { core, arena, _legacyFound: hasLegacy };
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
