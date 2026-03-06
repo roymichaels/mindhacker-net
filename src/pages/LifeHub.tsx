@@ -603,23 +603,44 @@ export default function LifeHub() {
                                                         const msTitle = isHe
                                                           ? (ms.title || ms.title_en || '')
                                                           : (ms.title_en || ms.title || '');
+                                                        const stars = ms.difficulty || 3;
                                                         return (
-                                                          <div key={ms.id} className={cn(
-                                                            "flex items-start gap-2 py-1",
-                                                            ms.is_completed ? "opacity-50" : ""
-                                                          )}>
-                                                            {ms.is_completed ? (
-                                                              <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                                                            ) : (
-                                                              <Circle className="w-3.5 h-3.5 text-muted-foreground/25 shrink-0 mt-0.5" />
+                                                          <button
+                                                            key={ms.id}
+                                                            onClick={() => handleOpenJourney(ms)}
+                                                            className={cn(
+                                                              "flex items-center gap-2 py-1.5 px-1.5 rounded-lg w-full text-start transition-all group/ms",
+                                                              ms.is_completed ? "opacity-50" : "hover:bg-muted/20"
                                                             )}
-                                                            <span className={cn(
-                                                              "text-[11px] leading-snug",
-                                                              ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
-                                                            )}>
-                                                              {msTitle}
-                                                            </span>
-                                                          </div>
+                                                          >
+                                                            {ms.is_completed ? (
+                                                              <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                                                            ) : (
+                                                              <Play className="w-3 h-3 text-muted-foreground/30 group-hover/ms:text-primary shrink-0" />
+                                                            )}
+                                                            <div className="flex-1 min-w-0">
+                                                              <span className={cn(
+                                                                "text-[11px] leading-snug block",
+                                                                ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
+                                                              )}>
+                                                                {msTitle}
+                                                              </span>
+                                                              <div className="flex items-center gap-0.5 mt-0.5">
+                                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                                  <Star
+                                                                    key={i}
+                                                                    className={cn(
+                                                                      "w-2.5 h-2.5",
+                                                                      i < stars ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20"
+                                                                    )}
+                                                                  />
+                                                                ))}
+                                                              </div>
+                                                            </div>
+                                                            {!ms.is_completed && (
+                                                              <Play className="w-3 h-3 text-primary/40 opacity-0 group-hover/ms:opacity-100 shrink-0" />
+                                                            )}
+                                                          </button>
                                                         );
                                                       })}
                                                     </div>
