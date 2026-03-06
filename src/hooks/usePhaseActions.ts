@@ -79,6 +79,7 @@ export function usePhaseActions() {
 
         // Refresh queries after generation
         queryClient.invalidateQueries({ queryKey: ['phase-minis-check'] });
+        queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
         queryClient.invalidateQueries({ queryKey: ['now-engine'] });
         queryClient.invalidateQueries({ queryKey: ['action-items'] });
       } finally {
