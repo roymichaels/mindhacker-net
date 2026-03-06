@@ -5,9 +5,10 @@ import type { OrbRef, OrbProps } from './types';
 
 export const Orb = forwardRef<OrbRef, OrbProps>(function Orb(props, ref) {
   const { renderer = 'auto', ...rest } = props;
-  // Default to WebGL for rich 3D appearance (matches homepage orbs).
-  // Only fall back to CSS if explicitly requested or WebGL unsupported.
-  const forceCSS = renderer === 'css';
+  // CSS renderer for personalized orbs — WebGL has persistent dark-rendering issues
+  // across various GPUs/drivers. CSS orb provides reliable vibrant rendering.
+  // Only use WebGL when explicitly requested (e.g., homepage preset gallery).
+  const forceCSS = renderer !== 'webgl';
   const [useWebGL, setUseWebGL] = useState<boolean | null>(() => {
     if (forceCSS) return false;
     if (renderer === 'webgl') return true;
