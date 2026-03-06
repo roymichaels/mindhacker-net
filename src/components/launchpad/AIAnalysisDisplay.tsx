@@ -207,7 +207,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 function GlassCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.06] p-4"
+      className="rounded-2xl border border-white/[0.06] p-4 text-center"
       style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
     >
       {children}
@@ -217,7 +217,7 @@ function GlassCard({ children }: { children: React.ReactNode }) {
 
 function CardHeader({ icon, title, accent }: { icon: React.ReactNode; title: string; accent: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
+    <div className="flex items-center justify-center gap-2 mb-3">
       <div className={cn("p-1.5 rounded-lg", accent)}>{icon}</div>
       <h4 className="text-sm font-bold text-white/90 tracking-wide">{title}</h4>
     </div>
@@ -235,11 +235,11 @@ const CHIP_COLORS: Record<string, string> = {
 function ChipGroup({ icon, label, items, variant }: { icon: string; label: string; items: string[]; variant: string }) {
   return (
     <div>
-      <div className="flex items-center gap-1.5 mb-1.5">
+      <div className="flex items-center justify-center gap-1.5 mb-1.5">
         <span className="text-xs">{icon}</span>
         <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{label}</span>
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap justify-center gap-1">
         {items.slice(0, 4).map((item, i) => (
           <span key={i} className={cn("text-[11px] font-medium px-2 py-0.5 rounded-lg border leading-snug", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>{item}</span>
         ))}
