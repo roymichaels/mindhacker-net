@@ -146,7 +146,7 @@ export function DailyRoadmapSidebar() {
                       <Circle className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
                         <p className="text-[11px] leading-snug text-foreground/80 line-clamp-2">{item.title}</p>
-                        {item.durationMin && (
+                        {item.isTimeBased && item.durationMin && (
                           <span className="text-[9px] text-muted-foreground">{item.durationMin}{isHe ? 'ד' : 'm'}</span>
                         )}
                       </div>
