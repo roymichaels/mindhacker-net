@@ -127,8 +127,8 @@ export default function ArenaHub() {
   // Stats
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
-  const phaseCompleted = (phaseMilestones || []).filter((m: any) => m.is_completed).length;
-  const phaseTotal = (phaseMilestones || []).length;
+  const phaseCompleted = currentPhaseMilestones.filter((m: any) => m.is_completed).length;
+  const phaseTotal = currentPhaseMilestones.length;
   const phasePct = phaseTotal > 0 ? Math.round((phaseCompleted / phaseTotal) * 100) : 0;
   const allCompleted = milestones.filter(m => m.is_completed).length;
   const allTotal = milestones.length || 1;
