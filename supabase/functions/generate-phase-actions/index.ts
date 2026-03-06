@@ -248,7 +248,21 @@ Distribute difficulty: aim for 1 easy, 1 medium, 1 hard per set of 3.
     const aiData = await aiResp.json();
     let raw = aiData?.choices?.[0]?.message?.content || "";
     raw = raw.replace(/```json\s*/g, "").replace(/```/g, "").trim();
-    const parsed = JSON.parse(raw);
+    
+    // Try to extract JSON object if wrapped in extra text
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error("AI raw output:", raw.substring(0, 500));
+      throw new Error("AI returned no valid JSON");
+    }
+    
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch (parseErr) {
+      console.error("JSON parse failed, raw:", jsonMatch[0].substring(0, 500));
+      throw new Error("AI returned invalid JSON");
+    }
 
     if (!parsed?.objectives || parsed.objectives.length < 1) throw new Error("AI returned no objectives");
 
