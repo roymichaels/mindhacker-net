@@ -98,7 +98,7 @@ export function AuroraFloatingOrb() {
 
   const positionStyle = pos
     ? { left: pos.x, top: pos.y, right: 'auto' as const, bottom: 'auto' as const }
-    : { right: getDefaultRight(), bottom: getDefaultBottom() };
+    : { left: getDefaultLeft(), bottom: getDefaultBottom() };
 
   return (
     <motion.div
