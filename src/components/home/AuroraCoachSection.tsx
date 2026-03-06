@@ -4,6 +4,8 @@
 import { motion } from 'framer-motion';
 import { Bot, Mic, Brain, Headphones, Layers } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { Orb } from '@/components/orb/Orb';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 
 export default function AuroraCoachSection() {
@@ -24,6 +26,25 @@ export default function AuroraCoachSection() {
       </div>
 
       <div className="container mx-auto max-w-5xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Orb centered above content */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="flex justify-center mb-10"
+        >
+          <div className="relative">
+            <motion.div
+              className="absolute inset-0 rounded-full bg-primary/20 blur-3xl"
+              style={{ width: 260, height: 260, left: -20, top: -20 }}
+              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <Orb profile={DEFAULT_ORB_PROFILE} size={200} state="breathing" renderer="css" showGlow />
+          </div>
+        </motion.div>
+
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
