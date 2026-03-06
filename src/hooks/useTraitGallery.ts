@@ -87,6 +87,8 @@ export function useTraitGallery() {
           id: s.id,
           name: s.name,
           name_he: s.name_he,
+          // CRITICAL: display name is sanitized — never shows mission text
+          displayName: getTraitDisplayName(s.name, s.name_he, true),
           description: s.description,
           icon: s.icon || '⭐',
           pillar,
@@ -95,7 +97,6 @@ export function useTraitGallery() {
           xp_in_level: xpInLevel,
           xp_progress: xpProgress,
           trait_type: (s.trait_type as 'trait' | 'legacy') || 'legacy',
-          mission_id: s.mission_id,
         };
       }).sort((a, b) => {
         // Traits first, then by XP
