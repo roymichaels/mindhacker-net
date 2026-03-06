@@ -292,53 +292,100 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
     fetchArchetype();
   }, [user]);
 
+  const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
+
   return (
-    <div className="space-y-4">
-      {/* Values as chips */}
-      {dashboard.values.length > 0 && (
+    <div className="space-y-3">
+      {/* ── Life Direction (merged from Direction tab) ── */}
+      {lifeDirection && (
+        <div className="p-2.5 rounded-xl border border-primary/20 bg-primary/5">
+          <div className="flex items-center justify-between mb-1">
+            <h4 className="text-[10px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
+              <Compass className="w-3 h-3" />
+              {isHe ? 'כיוון חיים' : 'Life Direction'}
+            </h4>
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className={cn("w-2.5 h-2.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-primary text-primary" : "text-muted-foreground/20")} />
+              ))}
+            </div>
+          </div>
+          <p className="text-xs text-foreground leading-relaxed line-clamp-3">{lifeDirection.content}</p>
+        </div>
+      )}
+
+      {/* ── Commitments (merged from Direction tab) ── */}
+      {commitments.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            {isHe ? 'ערכים' : 'Values'}
+          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+            {isHe ? 'מחויבויות' : 'Commitments'}
           </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {dashboard.values.map((v, i) => (
-              <Badge key={i} variant="secondary" className="text-xs px-2.5 py-0.5">
-                {v}
+          <div className="space-y-1">
+            {commitments.map((c) => (
+              <div key={c.id} className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-card border border-border/30">
+                <Target className="w-3 h-3 text-primary shrink-0" />
+                <p className="text-xs font-medium text-foreground truncate">{c.title}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Daily Anchors (merged from Direction tab) ── */}
+      {anchors.length > 0 && (
+        <div>
+          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+            {isHe ? 'עוגנים יומיים' : 'Daily Anchors'}
+          </h4>
+          <div className="flex flex-wrap gap-1">
+            {anchors.map((a) => (
+              <Badge key={a.id} variant="secondary" className="text-[10px] px-2 py-0.5">
+                {a.title}
               </Badge>
             ))}
           </div>
         </div>
       )}
 
-      {/* Principles */}
-      {dashboard.principles.length > 0 && (
-        <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            {isHe ? 'עקרונות' : 'Principles'}
-          </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {dashboard.principles.map((p, i) => (
-              <Badge key={i} variant="outline" className="text-xs px-2.5 py-0.5">
-                {p}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Self concepts */}
-      {dashboard.selfConcepts.length > 0 && (
-        <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            {isHe ? 'תפיסות עצמיות' : 'Self Concepts'}
-          </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {dashboard.selfConcepts.map((s, i) => (
-              <Badge key={i} variant="outline" className="text-xs px-2.5 py-0.5 bg-primary/5">
-                {s}
-              </Badge>
-            ))}
-          </div>
+      {/* ── Identity chips: Values + Principles + Self Concepts ── */}
+      {(dashboard.values.length > 0 || dashboard.principles.length > 0 || dashboard.selfConcepts.length > 0) && (
+        <div className="space-y-2">
+          {dashboard.values.length > 0 && (
+            <div>
+              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                {isHe ? 'ערכים' : 'Values'}
+              </h4>
+              <div className="flex flex-wrap gap-1">
+                {dashboard.values.map((v, i) => (
+                  <Badge key={i} variant="secondary" className="text-[10px] px-2 py-0.5">{v}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {dashboard.principles.length > 0 && (
+            <div>
+              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                {isHe ? 'עקרונות' : 'Principles'}
+              </h4>
+              <div className="flex flex-wrap gap-1">
+                {dashboard.principles.map((p, i) => (
+                  <Badge key={i} variant="outline" className="text-[10px] px-2 py-0.5">{p}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {dashboard.selfConcepts.length > 0 && (
+            <div>
+              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                {isHe ? 'תפיסות עצמיות' : 'Self Concepts'}
+              </h4>
+              <div className="flex flex-wrap gap-1">
+                {dashboard.selfConcepts.map((s, i) => (
+                  <Badge key={i} variant="outline" className="text-[10px] px-2 py-0.5 bg-primary/5">{s}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
