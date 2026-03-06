@@ -1,9 +1,10 @@
 /**
- * GameHeroSection - Aurora HoloOrb hero with all 14 life domains orbiting
+ * GameHeroSection - Aurora HoloOrb hero with orbiting life domains
+ * Rewritten: focused on 90-day transformation system promise
  */
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronDown } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
@@ -15,10 +16,6 @@ const ALL_DOMAINS = CORE_DOMAINS;
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
-
-  const scrollToContent = () => {
-    window.scrollTo({ top: window.innerHeight - 100, behavior: 'smooth' });
-  };
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -74,7 +71,7 @@ export default function GameHeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
           >
             {t('home.gameHero.subtitle')}
           </motion.p>
@@ -86,7 +83,6 @@ export default function GameHeroSection() {
             transition={{ duration: 1, delay: 0.5, type: 'spring', stiffness: 100 }}
             className="relative mx-auto py-8"
           >
-            {/* Glow */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <motion.div
                 className="w-[400px] h-[400px] rounded-full bg-primary/15 blur-[100px]"
@@ -96,10 +92,8 @@ export default function GameHeroSection() {
             </div>
 
             <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto">
-              {/* Orbital Track */}
               <div className="absolute inset-0 rounded-full border border-border/30" />
 
-              {/* Rotating Domains */}
               <motion.div
                 className="absolute inset-0"
                 animate={{ rotate: 360 }}
@@ -129,15 +123,11 @@ export default function GameHeroSection() {
                       title={isRTL ? domain.labelHe : domain.labelEn}
                     >
                       <Icon className={cn('h-5 w-5 sm:h-6 sm:w-6', `text-${domain.color}-500`)} />
-                      <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        {isRTL ? domain.labelHe : domain.labelEn}
-                      </span>
                     </motion.div>
                   );
                 })}
               </motion.div>
 
-              {/* Central Aurora HoloOrb */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
                   {[1, 2].map((ring) => (
@@ -166,7 +156,7 @@ export default function GameHeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+            className="flex flex-col items-center gap-4 pt-4"
           >
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
@@ -188,23 +178,9 @@ export default function GameHeroSection() {
                 />
               </Button>
             </motion.div>
-
             <p className="text-sm text-muted-foreground">
               {t('home.gameHero.ctaMeta')}
             </p>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }} className="pt-8">
-            <motion.button
-              onClick={scrollToContent}
-              className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors mx-auto"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <span className="text-sm font-medium">{t('home.gameHero.scrollDown')}</span>
-              <ChevronDown className="h-5 w-5" />
-            </motion.button>
           </motion.div>
         </div>
       </div>

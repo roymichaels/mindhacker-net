@@ -1,5 +1,5 @@
 /**
- * FinalCTASection - Clean closer with AuroraHoloOrb + feature checklist
+ * FinalCTASection - Simplified: AuroraHoloOrb + 4-item checklist
  */
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -18,8 +18,6 @@ export default function FinalCTASection() {
     t('home.finalCta.plan100'),
     t('home.finalCta.domains14'),
     t('home.finalCta.hypnosis'),
-    t('home.finalCta.gamification'),
-    t('home.finalCta.orbAvatar'),
   ];
 
   const guarantees = [
@@ -32,7 +30,6 @@ export default function FinalCTASection() {
     <section className="py-24 px-4 bg-gradient-to-b from-muted via-muted/70 to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <div className="container mx-auto max-w-4xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -53,7 +50,7 @@ export default function FinalCTASection() {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-                <AuroraHoloOrb size={140} glow="full" />
+                <AuroraHoloOrb size={120} glow="full" />
               </div>
             </motion.div>
 
@@ -66,7 +63,7 @@ export default function FinalCTASection() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-start max-w-lg mx-auto">
+            <div className="grid grid-cols-2 gap-3 text-start max-w-md mx-auto">
               {checklist.map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
