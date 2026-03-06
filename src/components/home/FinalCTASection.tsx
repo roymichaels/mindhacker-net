@@ -143,7 +143,7 @@ export default function FinalCTASection() {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-                <AuroraHoloOrb size={100} glow="full" />
+                <Orb profile={DEFAULT_ORB_PROFILE} size={100} state="breathing" renderer="css" showGlow />
               </div>
             </div>
 

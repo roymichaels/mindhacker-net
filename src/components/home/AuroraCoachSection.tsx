@@ -42,7 +42,7 @@ export default function AuroraCoachSection() {
                 animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <AuroraHoloOrb size={220} glow="full" />
+              <Orb profile={DEFAULT_ORB_PROFILE} size={220} state="breathing" renderer="css" showGlow />
             </div>
           </motion.div>
 
