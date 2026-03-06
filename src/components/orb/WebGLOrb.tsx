@@ -688,6 +688,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // Signal uniform update effect to re-run with current values
     setSceneVersion(v => v + 1);
+
+    // Debug: log color values sent to shader
+    console.log('[WebGLOrb] Init — size:', size, 'gradientStops:', gradientStops,
+      'colorVecs:', gradientColorVecs.map(v => `(${v.x.toFixed(2)},${v.y.toFixed(2)},${v.z.toFixed(2)})`),
+      'materialType:', materialType, 'profile?.primaryColor:', profile?.primaryColor);
+
     onReady?.();
 
     // Start initial render loop immediately (don't wait for sceneVersion state update)
