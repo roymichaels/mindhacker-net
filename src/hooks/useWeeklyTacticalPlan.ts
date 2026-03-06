@@ -1,7 +1,9 @@
 /**
  * useWeeklyTacticalPlan — Transforms mini_milestones into a structured weekly plan.
- * 
- * Pipeline: milestones → mini_milestones → classify cadence → distribute into days → render
+ *
+ * Pipeline:
+ *   milestones → mini_milestones → map scheduled_day to calendar date
+ *   → filter to current week → assign day-of-week → group into blocks → render
  */
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -31,7 +33,10 @@ export interface TacticalAction {
   completedAt: string | null;
   xpReward: number;
   blockCategory: BlockCategory;
+  /** Absolute plan day (1-100) */
   scheduledDay: number | null;
+  /** Resolved calendar date YYYY-MM-DD */
+  calendarDate: string | null;
 }
 
 export interface TacticalBlock {
@@ -49,6 +54,7 @@ export interface DayPlan {
   dayIndex: number;
   label: string;
   labelEn: string;
+  date: string; // YYYY-MM-DD
   blocks: TacticalBlock[];
   totalActions: number;
   completedActions: number;
@@ -63,6 +69,8 @@ export interface WeeklyPlan {
   completedActions: number;
   totalMinutes: number;
   generating: boolean;
+  weekStart: string;
+  weekEnd: string;
 }
 
 // ── Constants ──
@@ -81,7 +89,34 @@ const BLOCK_LABELS: Record<BlockCategory, { he: string; en: string }> = {
   social:   { he: 'חברתי ומערכות יחסים', en: 'Social & Relationships' },
 };
 
-// ── Cadence Classification ──
+// ── Helpers ──
+
+/** Get the Sunday-based week window that contains `date`. */
+function getWeekWindow(date: Date): { start: Date; end: Date } {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const dayOfWeek = d.getDay(); // 0=Sun
+  const start = new Date(d);
+  start.setDate(d.getDate() - dayOfWeek);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return { start, end };
+}
+
+function toDateStr(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** Convert absolute plan day (1-based) → calendar date string. */
+function planDayToDate(planStartDate: string, scheduledDay: number): string {
+  const start = new Date(planStartDate);
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(start);
+  target.setDate(start.getDate() + (scheduledDay - 1));
+  return toDateStr(target);
+}
+
+// ── Classification ──
 
 export function classifyCadence(
   title: string,
@@ -90,34 +125,18 @@ export function classifyCadence(
 ): Cadence {
   const combined = `${title} ${actionType || ''} ${executionTemplate || ''}`.toLowerCase();
 
-  // Daily patterns: breathing, posture, meditation, journaling, morning routine
-  if (/נשימ|יציב|מדיטציה|breath|posture|meditation|journal|morning|anchor|עוגן|מיינדפול|mindful|daily|יומי/.test(combined)) {
-    return 'daily';
-  }
-  // 3x/week: strength, combat, sparring, workout, training
-  if (/אימון|כוח|לחימה|sparring|combat|strength|workout|hiit|calisthen|training|shadow/.test(combined)) {
-    return '3x_per_week';
-  }
-  // 2x/week: deep work, content creation, study
-  if (/עבודה עמוקה|deep.?work|content|creation|study|למידה|sprint/.test(combined)) {
-    return '2x_per_week';
-  }
-  // Weekly: review, audit, mapping, analysis
-  if (/סקירה|review|audit|מיפוי|mapping|analysis|ניתוח|שבוע|weekly/.test(combined)) {
-    return 'weekly';
-  }
-  // One-time: build, setup, publish, launch, create
-  if (/הקמ|setup|publish|launch|פרסום|build|בנייה|one.?time|חד.?פעמי/.test(combined)) {
-    return 'one_time';
-  }
+  if (/נשימ|יציב|מדיטציה|breath|posture|meditation|journal|morning|anchor|עוגן|מיינדפול|mindful|daily|יומי/.test(combined)) return 'daily';
+  if (/אימון|כוח|לחימה|sparring|combat|strength|workout|hiit|calisthen|training|shadow/.test(combined)) return '3x_per_week';
+  if (/עבודה עמוקה|deep.?work|content|creation|study|למידה|sprint/.test(combined)) return '2x_per_week';
+  if (/סקירה|review|audit|מיפוי|mapping|analysis|ניתוח|שבוע|weekly/.test(combined)) return 'weekly';
+  if (/הקמ|setup|publish|launch|פרסום|build|בנייה|one.?time|חד.?פעמי/.test(combined)) return 'one_time';
 
-  // Default based on execution template
   if (executionTemplate === 'tts_guided' || executionTemplate === 'step_by_step') return 'daily';
   if (executionTemplate === 'sets_reps_timer' || executionTemplate === 'video_embed') return '3x_per_week';
   if (executionTemplate === 'timer_focus') return '2x_per_week';
   if (executionTemplate === 'social_checklist') return 'weekly';
 
-  return '3x_per_week'; // fallback
+  return '3x_per_week';
 }
 
 export function classifyBlockCategory(
@@ -127,9 +146,9 @@ export function classifyBlockCategory(
 ): BlockCategory {
   const combined = `${title} ${actionType || ''} ${executionTemplate || ''}`.toLowerCase();
 
-  if (/נשימ|breath|posture|יציב|health|בריאות|nutrition|תזונ|sleep|שינה|skin|עור/.test(combined)) return 'health';
-  if (/אימון|combat|strength|כוח|shadow|boxing|hiit|training|לחימה|workout/.test(combined)) return 'training';
-  if (/מדיטציה|meditation|focus|פוקוס|deep.?work|עמוקה|timer_focus/.test(combined)) return 'focus';
+  if (/נשימ|breath|posture|יציב|health|בריאות|nutrition|תזונ|sleep|שינה|skin|עור|body.?scan|סריקת/.test(combined)) return 'health';
+  if (/אימון|combat|strength|כוח|shadow|boxing|hiit|training|לחימה|workout|חסימ|מכות/.test(combined)) return 'training';
+  if (/מדיטציה|meditation|focus|פוקוס|deep.?work|עמוקה|timer_focus|ויזואליז/.test(combined)) return 'focus';
   if (/יצירה|creation|content|build|בנייה|publish|פרסום/.test(combined)) return 'creation';
   if (/סקירה|review|audit|ניתוח|analysis|מיפוי|mapping/.test(combined)) return 'review';
   if (/social|חברת|relation|קשר|networking|outreach|dating/.test(combined)) return 'social';
@@ -137,7 +156,7 @@ export function classifyBlockCategory(
   return 'action';
 }
 
-function estimateMinutes(executionTemplate: string | null, actionType: string | null): number {
+function estimateMinutes(executionTemplate: string | null, _actionType: string | null): number {
   if (executionTemplate === 'tts_guided') return 10;
   if (executionTemplate === 'sets_reps_timer') return 25;
   if (executionTemplate === 'video_embed') return 20;
@@ -147,51 +166,7 @@ function estimateMinutes(executionTemplate: string | null, actionType: string | 
   return 15;
 }
 
-// ── Distribution Logic ──
-
-const CADENCE_DAYS: Record<Cadence, number[]> = {
-  daily:        [0, 1, 2, 3, 4, 5, 6],
-  '3x_per_week': [0, 2, 4],      // Sun, Tue, Thu
-  '2x_per_week': [1, 3],          // Mon, Wed
-  weekly:       [4],              // Thursday
-  one_time:     [0],              // Sunday (first occurrence)
-};
-
-function distributeActions(actions: TacticalAction[]): Map<number, TacticalAction[]> {
-  const dayMap = new Map<number, TacticalAction[]>();
-  for (let d = 0; d < 7; d++) dayMap.set(d, []);
-
-  // Track load per day for balancing
-  const dayLoad = new Array(7).fill(0);
-
-  for (const action of actions) {
-    // If the action has a scheduled_day from the DB, respect it
-    if (action.scheduledDay !== null && action.scheduledDay >= 0 && action.scheduledDay <= 6) {
-      dayMap.get(action.scheduledDay)!.push(action);
-      dayLoad[action.scheduledDay] += action.estimatedMinutes;
-      continue;
-    }
-
-    const cadenceDays = CADENCE_DAYS[action.cadence];
-
-    if (action.cadence === 'daily') {
-      // Add to all days
-      for (const d of cadenceDays) {
-        dayMap.get(d)!.push(action);
-        dayLoad[d] += action.estimatedMinutes;
-      }
-    } else {
-      // For non-daily, pick the least-loaded days from the cadence pattern
-      const sortedCadenceDays = [...cadenceDays].sort((a, b) => dayLoad[a] - dayLoad[b]);
-      for (const d of sortedCadenceDays) {
-        dayMap.get(d)!.push(action);
-        dayLoad[d] += action.estimatedMinutes;
-      }
-    }
-  }
-
-  return dayMap;
-}
+// ── Block grouping ──
 
 function groupIntoBlocks(actions: TacticalAction[]): TacticalBlock[] {
   const categoryGroups = new Map<BlockCategory, TacticalAction[]>();
@@ -202,7 +177,6 @@ function groupIntoBlocks(actions: TacticalAction[]): TacticalBlock[] {
     categoryGroups.set(action.blockCategory, existing);
   }
 
-  // Sort blocks by category priority: health → training → focus → action → creation → review → social
   const categoryOrder: BlockCategory[] = ['health', 'training', 'focus', 'action', 'creation', 'review', 'social'];
 
   const blocks: TacticalBlock[] = [];
@@ -232,6 +206,8 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
   const { milestones, currentWeek: currentPhase, plan } = useLifePlanWithMilestones();
   const { generating } = usePhaseActions();
 
+  const planStartDate = plan?.start_date || null;
+
   const allPlanIds = useMemo(() => {
     return (plan as any)?.all_plan_ids as string[] || (plan?.id ? [plan.id] : []);
   }, [plan]);
@@ -247,8 +223,21 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
     [currentPhaseMilestones]
   );
 
-  // Fetch mini_milestones for all current phase milestones
-  const { data: miniMilestones, isLoading } = useQuery({
+  // Current week window
+  const { weekStart, weekEnd, weekDates } = useMemo(() => {
+    const today = new Date();
+    const { start, end } = getWeekWindow(today);
+    const dates: string[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      dates.push(toDateStr(d));
+    }
+    return { weekStart: toDateStr(start), weekEnd: toDateStr(end), weekDates: dates };
+  }, []);
+
+  // Fetch ALL mini_milestones for current phase
+  const { data: allMiniMilestones, isLoading } = useQuery({
     queryKey: ['weekly-tactical-minis', milestoneIds],
     queryFn: async () => {
       if (milestoneIds.length === 0) return [];
@@ -269,47 +258,33 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
   // Build the weekly plan
   const weeklyPlan = useMemo((): WeeklyPlan => {
     const phaseLabel = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'][(currentPhase || 1) - 1] || '?';
+    const emptyPlan: WeeklyPlan = {
+      phase: phaseLabel,
+      phaseNumber: currentPhase || 1,
+      days: buildEmptyDays(weekDates),
+      totalActions: 0,
+      completedActions: 0,
+      totalMinutes: 0,
+      generating,
+      weekStart,
+      weekEnd,
+    };
 
-    if (!miniMilestones || miniMilestones.length === 0) {
-      // Fallback: if no mini_milestones yet, create tactical actions from milestones directly
-      const fallbackActions: TacticalAction[] = currentPhaseMilestones.map(m => {
-        const cadence = classifyCadence(m.title, null, null);
-        const blockCat = classifyBlockCategory(null, null, m.title);
-        return {
-          id: m.id,
-          title: m.title,
-          titleEn: m.title_en,
-          description: m.description,
-          descriptionEn: m.description_en,
-          sourceMilestoneId: m.id,
-          executionTemplate: null,
-          actionType: null,
-          estimatedMinutes: 15,
-          cadence,
-          completed: m.is_completed,
-          completedAt: m.completed_at,
-          xpReward: m.xp_reward || 10,
-          blockCategory: blockCat,
-          scheduledDay: null,
-        };
-      });
+    if (!planStartDate) return emptyPlan;
 
-      const dayMap = distributeActions(fallbackActions);
-      const days = buildDayPlans(dayMap);
+    const source = allMiniMilestones && allMiniMilestones.length > 0
+      ? allMiniMilestones
+      : null;
 
-      return {
-        phase: phaseLabel,
-        phaseNumber: currentPhase || 1,
-        days,
-        totalActions: fallbackActions.length,
-        completedActions: fallbackActions.filter(a => a.completed).length,
-        totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
-        generating,
-      };
+    if (!source) {
+      // No mini_milestones — use milestones as fallback but still date-filter
+      if (currentPhaseMilestones.length === 0) return emptyPlan;
+      return buildFromMilestones(currentPhaseMilestones, planStartDate, weekDates, phaseLabel, currentPhase || 1, generating, weekStart, weekEnd);
     }
 
-    // Transform mini_milestones into TacticalActions
-    const actions: TacticalAction[] = miniMilestones.map(mm => {
+    // ── Main path: convert mini_milestones to TacticalActions with real dates ──
+    const actions: TacticalAction[] = source.map(mm => {
+      const calendarDate = mm.scheduled_day ? planDayToDate(planStartDate, mm.scheduled_day) : null;
       const cadence = classifyCadence(mm.title, mm.action_type, mm.execution_template);
       const blockCat = classifyBlockCategory(mm.action_type, mm.execution_template, mm.title);
       const mins = estimateMinutes(mm.execution_template, mm.action_type);
@@ -330,28 +305,62 @@ export function useWeeklyTacticalPlan(): WeeklyPlan & { isLoading: boolean } {
         xpReward: mm.xp_reward || 10,
         blockCategory: blockCat,
         scheduledDay: mm.scheduled_day,
+        calendarDate,
       };
     });
 
-    const dayMap = distributeActions(actions);
-    const days = buildDayPlans(dayMap);
-    const uniqueActions = new Set(actions.map(a => a.id));
+    // ── Filter to only actions that fall in THIS calendar week ──
+    const weekActions = actions.filter(a => {
+      if (!a.calendarDate) return false;
+      return a.calendarDate >= weekStart && a.calendarDate <= weekEnd;
+    });
+
+    // ── Assign to day-of-week based on calendar date ──
+    const dayMap = new Map<number, TacticalAction[]>();
+    for (let d = 0; d < 7; d++) dayMap.set(d, []);
+
+    for (const action of weekActions) {
+      if (action.calendarDate) {
+        const dow = new Date(action.calendarDate + 'T12:00:00').getDay();
+        dayMap.get(dow)!.push(action);
+      }
+    }
+
+    const days = buildDayPlans(dayMap, weekDates);
 
     return {
       phase: phaseLabel,
       phaseNumber: currentPhase || 1,
       days,
-      totalActions: uniqueActions.size,
-      completedActions: actions.filter(a => a.completed).length,
+      totalActions: weekActions.length,
+      completedActions: weekActions.filter(a => a.completed).length,
       totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
       generating,
+      weekStart,
+      weekEnd,
     };
-  }, [miniMilestones, currentPhaseMilestones, currentPhase, generating]);
+  }, [allMiniMilestones, currentPhaseMilestones, currentPhase, generating, planStartDate, weekDates, weekStart, weekEnd]);
 
   return { ...weeklyPlan, isLoading };
 }
 
-function buildDayPlans(dayMap: Map<number, TacticalAction[]>): DayPlan[] {
+// ── Build helpers ──
+
+function buildEmptyDays(weekDates: string[]): DayPlan[] {
+  return weekDates.map((date, i) => ({
+    dayKey: DAY_KEYS[i],
+    dayIndex: i,
+    label: DAY_LABELS_HE[i],
+    labelEn: DAY_LABELS_EN[i],
+    date,
+    blocks: [],
+    totalActions: 0,
+    completedActions: 0,
+    totalMinutes: 0,
+  }));
+}
+
+function buildDayPlans(dayMap: Map<number, TacticalAction[]>, weekDates: string[]): DayPlan[] {
   const days: DayPlan[] = [];
 
   for (let d = 0; d < 7; d++) {
@@ -363,6 +372,7 @@ function buildDayPlans(dayMap: Map<number, TacticalAction[]>): DayPlan[] {
       dayIndex: d,
       label: DAY_LABELS_HE[d],
       labelEn: DAY_LABELS_EN[d],
+      date: weekDates[d],
       blocks,
       totalActions: actions.length,
       completedActions: actions.filter(a => a.completed).length,
@@ -371,4 +381,77 @@ function buildDayPlans(dayMap: Map<number, TacticalAction[]>): DayPlan[] {
   }
 
   return days;
+}
+
+/** Fallback: build plan from raw milestones (no mini_milestones yet). */
+function buildFromMilestones(
+  milestones: any[],
+  planStartDate: string,
+  weekDates: string[],
+  phaseLabel: string,
+  phaseNumber: number,
+  generating: boolean,
+  weekStart: string,
+  weekEnd: string,
+): WeeklyPlan {
+  // Each milestone gets a synthetic scheduled_day based on its position in the phase
+  // Phase N starts at day (N-1)*10 + 1. Distribute milestones evenly across 10 days.
+  const phaseStartDay = (phaseNumber - 1) * 10 + 1;
+  const milestonesPerDay = Math.max(1, Math.ceil(milestones.length / 10));
+
+  const actions: TacticalAction[] = milestones.map((m, idx) => {
+    const dayOffset = Math.floor(idx / milestonesPerDay);
+    const absDay = phaseStartDay + dayOffset;
+    const calendarDate = planDayToDate(planStartDate, absDay);
+    const cadence = classifyCadence(m.title, null, null);
+    const blockCat = classifyBlockCategory(null, null, m.title);
+
+    return {
+      id: m.id,
+      title: m.title,
+      titleEn: m.title_en,
+      description: m.description,
+      descriptionEn: m.description_en,
+      sourceMilestoneId: m.id,
+      executionTemplate: null,
+      actionType: null,
+      estimatedMinutes: 15,
+      cadence,
+      completed: m.is_completed,
+      completedAt: m.completed_at,
+      xpReward: m.xp_reward || 10,
+      blockCategory: blockCat,
+      scheduledDay: absDay,
+      calendarDate,
+    };
+  });
+
+  // Filter to current week
+  const weekActions = actions.filter(a =>
+    a.calendarDate && a.calendarDate >= weekStart && a.calendarDate <= weekEnd
+  );
+
+  const dayMap = new Map<number, TacticalAction[]>();
+  for (let d = 0; d < 7; d++) dayMap.set(d, []);
+
+  for (const action of weekActions) {
+    if (action.calendarDate) {
+      const dow = new Date(action.calendarDate + 'T12:00:00').getDay();
+      dayMap.get(dow)!.push(action);
+    }
+  }
+
+  const days = buildDayPlans(dayMap, weekDates);
+
+  return {
+    phase: phaseLabel,
+    phaseNumber,
+    days,
+    totalActions: weekActions.length,
+    completedActions: weekActions.filter(a => a.completed).length,
+    totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
+    generating,
+    weekStart,
+    weekEnd,
+  };
 }
