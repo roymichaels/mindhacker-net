@@ -124,7 +124,7 @@ function buildUserContext(
     .join('\n') || 'None';
 
   return `## USER
-Name: ${profileData?.name || 'Unknown'} | Level: ${profileData?.level || 1}
+Name: ${profileData?.name || 'Unknown'}
 Intention: ${JSON.stringify(profileData?.intention || '')}
 Today: ${new Date().toISOString().split('T')[0]}
 
@@ -171,13 +171,14 @@ const PILLAR_CATEGORY_MAP: Record<string, string> = {
   projects: 'wealth', play: 'spirit', order: 'mind',
 };
 
-// ========== TRAIT GENERATION PROMPT (NEW LAYER 0) ==========
+// ========== TRAIT GENERATION PROMPT ==========
 function buildTraitPrompt(
   pillarId: string,
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
   userContext: string,
   constraintsBlock: string,
+  traitCount: number,
 ): string {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const scope = PILLAR_SCOPES[pillarId];
@@ -185,9 +186,15 @@ function buildTraitPrompt(
     ? `\n## PILLAR SCOPE:\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
 
+  const traitArrayItems = Array.from({ length: traitCount }, (_, i) =>
+    i === 0
+      ? `    { "name_en": "Trait Name", "name_he": "שם התכונה", "description_en": "One sentence", "description_he": "משפט אחד", "icon": "emoji" }`
+      : `    { "name_en": "...", "name_he": "...", "description_en": "...", "description_he": "...", "icon": "..." }`
+  ).join(',\n');
+
   return `You are Aurora, elite life transformation AI for "Mind OS".
 
-TASK: Generate exactly 3 CHARACTER TRAITS (abilities) for the pillar "${pillarId}" (${hub} hub).
+TASK: Generate exactly ${traitCount} CHARACTER TRAIT${traitCount > 1 ? 'S' : ''} (abilities) for the pillar "${pillarId}" (${hub} hub).
 
 Traits are identity-based capabilities that the user will develop over 100 days.
 They are NOT tasks, NOT protocols, NOT educational topics.
@@ -224,6 +231,9 @@ BAD trait examples (NEVER generate these):
 - Task Organization (boring)
 - Self Awareness (too vague)
 - Healthy Eating (too basic)
+- הרחבת וחיזוק רשת הקשרים (too long, mission-like)
+- יצירת ערך לא ברורה (assessment finding, not trait)
+- שיעור חיסכון משוער (diagnosis, not identity)
 
 Traits should feel like unlocking character evolution abilities in a life RPG.
 They must be personalized to the user's assessment data and context.
@@ -231,27 +241,20 @@ They must be personalized to the user's assessment data and context.
 ## OUTPUT (JSON only, NO markdown):
 {
   "traits": [
-    {
-      "name_en": "Trait Name",
-      "name_he": "שם התכונה",
-      "description_en": "One sentence describing what this ability represents",
-      "description_he": "משפט אחד שמתאר את היכולת הזו",
-      "icon": "emoji that represents this trait"
-    },
-    { "name_en": "...", "name_he": "...", "description_en": "...", "description_he": "...", "icon": "..." },
-    { "name_en": "...", "name_he": "...", "description_en": "...", "description_he": "...", "icon": "..." }
+${traitArrayItems}
   ]
 }`;
 }
 
-// LAYER 1: Generate 3 missions per pillar, each referencing a trait
-function buildLayer1Prompt(
+// LAYER 1: Generate 3 missions for a SINGLE TRAIT
+function buildMissionsForTraitPrompt(
   pillarId: string,
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
   userContext: string,
   constraintsBlock: string,
-  traitNames: { name_en: string; name_he: string }[],
+  traitName: { name_en: string; name_he: string },
+  traitDescription: string,
 ): string {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const scope = PILLAR_SCOPES[pillarId];
@@ -259,18 +262,15 @@ function buildLayer1Prompt(
     ? `\n## PILLAR SCOPE (STRICT BOUNDARIES):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
   
-  const traitsStr = traitNames.map((t, i) => `  ${i+1}. "${t.name_en}" / "${t.name_he}"`).join('\n');
-  
   return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS).
 
-TASK: Generate exactly 3 MISSIONS for the pillar "${pillarId}" (${hub} hub).
-Each mission is a training arc for one of the pillar's character traits.
-This is part of a 100-DAY TRANSFORMATION PLAN divided into 10 progressive phases (A through J).
+TASK: Generate exactly 3 MISSIONS for the character trait "${traitName.name_en}" / "${traitName.name_he}" in pillar "${pillarId}" (${hub} hub).
+Each mission is a progressive training arc that develops this specific trait.
+This is part of a 100-DAY TRANSFORMATION PLAN.
 
-## CHARACTER TRAITS FOR THIS PILLAR:
-${traitsStr}
-
-Each mission MUST train one of these traits. Mission 1 trains Trait 1, Mission 2 trains Trait 2, Mission 3 trains Trait 3.
+## CHARACTER TRAIT:
+"${traitName.name_en}" / "${traitName.name_he}"
+${traitDescription}
 
 ${userContext}
 ${constraintsBlock}
@@ -289,20 +289,20 @@ ${scopeBlock}
 4. Missions should follow progressive complexity: Mission 1 = foundational, Mission 2 = intermediate, Mission 3 = advanced.
 5. CRITICAL: Every mission MUST fall within the pillar's IN SCOPE definition.
 6. CRITICAL: Every mission MUST respect the user's CRITICAL CONSTRAINTS.
-7. Each mission describes the TRAINING ARC for its corresponding trait.
+7. Each mission describes a specific TRAINING ARC for the trait "${traitName.name_en}".
 
 ## OUTPUT (JSON only, NO markdown):
 {
   "goals": [
-    { "goal_en": "Mission describing training arc for trait 1", "goal_he": "משימה לתכונה 1", "trait_index": 0 },
-    { "goal_en": "Mission for trait 2", "goal_he": "משימה לתכונה 2", "trait_index": 1 },
-    { "goal_en": "Mission for trait 3", "goal_he": "משימה לתכונה 3", "trait_index": 2 }
+    { "goal_en": "Foundational training arc", "goal_he": "ארק אימון בסיסי" },
+    { "goal_en": "Intermediate training arc", "goal_he": "ארק אימון ביניים" },
+    { "goal_en": "Advanced training arc", "goal_he": "ארק אימון מתקדם" }
   ]
 }`;
 }
 
-// LAYER 2: Generate 5 milestones for each mission
-function buildLayer2Prompt(
+// LAYER 2: Generate 5 milestones for each of 3 missions
+function buildMilestonesPrompt(
   pillarId: string,
   goals: { goal_en: string; goal_he: string }[],
   assessmentBlock: string,
@@ -423,10 +423,10 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
   return null;
 }
 
-// ========== 3-LAYER ORCHESTRATION: Traits → Missions → Milestones ==========
+// ========== 3-LAYER ORCHESTRATION: Traits → Missions (3 per trait) → Milestones ==========
 async function generatePillarStrategy(
   apiKey: string,
-  supabase: any,
+  supabaseClient: any,
   userId: string,
   planId: string,
   pillarId: string,
@@ -434,29 +434,32 @@ async function generatePillarStrategy(
   assessment: PillarAssessment | undefined,
   userContext: string,
   constraintsBlock: string,
-): Promise<{ missions: any[]; traitIds: string[] } | null> {
+  traitCount: number, // 3 for selected, 1 for non-selected
+): Promise<{ allMissions: any[]; traitIds: string[] } | null> {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const sysMsg = "Output ONLY valid JSON. No markdown. No explanation.";
 
-  // LAYER 0: Generate 3 traits for this pillar
-  console.log(`  [${pillarId}] Layer 0: generating 3 traits...`);
-  const traitResult = await callAI(apiKey, buildTraitPrompt(pillarId, hub, assessment, userContext, constraintsBlock), sysMsg, 800);
+  // LAYER 0: Generate traits for this pillar
+  console.log(`  [${pillarId}] Layer 0: generating ${traitCount} trait(s)...`);
+  const traitResult = await callAI(apiKey, buildTraitPrompt(pillarId, hub, assessment, userContext, constraintsBlock, traitCount), sysMsg, 800);
   
   const traits = traitResult?.traits || [];
-  if (traits.length < 3) {
-    // Fallback traits
-    const fallbackTraits = [
-      { name_en: `${pillarId} Warrior`, name_he: `לוחם ה${pillarId}`, description_en: `Core ${pillarId} ability`, description_he: `יכולת ליבה`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-      { name_en: `${pillarId} Architect`, name_he: `אדריכל ה${pillarId}`, description_en: `Strategic ${pillarId} ability`, description_he: `יכולת אסטרטגית`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-      { name_en: `${pillarId} Master`, name_he: `אמן ה${pillarId}`, description_en: `Advanced ${pillarId} ability`, description_he: `יכולת מתקדמת`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-    ];
-    while (traits.length < 3) traits.push(fallbackTraits[traits.length]);
-  }
+  
+  // Ensure we have exactly traitCount traits (pad with fallbacks)
+  const fallbackTraits = [
+    { name_en: `${pillarId} Warrior`, name_he: `לוחם ה${pillarId}`, description_en: `Core ${pillarId} ability`, description_he: `יכולת ליבה`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pillarId} Architect`, name_he: `אדריכל ה${pillarId}`, description_en: `Strategic ${pillarId} ability`, description_he: `יכולת אסטרטגית`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pillarId} Master`, name_he: `אמן ה${pillarId}`, description_en: `Advanced ${pillarId} ability`, description_he: `יכולת מתקדמת`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+  ];
+  while (traits.length < traitCount) traits.push(fallbackTraits[traits.length % 3]);
 
   // Insert traits into skills table
   const traitIds: string[] = [];
-  for (const trait of traits.slice(0, 3)) {
-    const { data: skillRow } = await supabase.from('skills').insert({
+  const traitMeta: { name_en: string; name_he: string; description_en: string; id: string }[] = [];
+  
+  for (let ti = 0; ti < traitCount; ti++) {
+    const trait = traits[ti];
+    const { data: skillRow } = await supabaseClient.from('skills').insert({
       name: trait.name_en,
       name_he: trait.name_he,
       description: trait.description_en,
@@ -464,66 +467,99 @@ async function generatePillarStrategy(
       icon: trait.icon || PILLAR_ICON_MAP[pillarId] || '⭐',
       is_active: true,
       user_id: userId,
-      pillar: pillarId,
+      pillar: pillarId, // CANONICAL pillar key — same as plan_missions.pillar
       life_plan_id: planId,
       trait_type: 'trait',
     }).select('id').single();
 
     if (skillRow) {
       traitIds.push(skillRow.id);
-      await supabase.from('user_skill_progress').upsert({
+      traitMeta.push({ name_en: trait.name_en, name_he: trait.name_he, description_en: trait.description_en || '', id: skillRow.id });
+      await supabaseClient.from('user_skill_progress').upsert({
         user_id: userId, skill_id: skillRow.id, xp_total: 0, level: 1,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id,skill_id' });
       console.log(`  🎯 Trait created: "${trait.name_en}" → ${skillRow.id}`);
     } else {
       traitIds.push('');
+      traitMeta.push({ name_en: trait.name_en, name_he: trait.name_he, description_en: trait.description_en || '', id: '' });
     }
   }
 
-  // LAYER 1: 3 Missions referencing traits
-  console.log(`  [${pillarId}] Layer 1: generating 3 missions for traits...`);
-  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext, constraintsBlock, traits), sysMsg, 1200);
-  if (!layer1?.goals || layer1.goals.length < 3) {
-    console.error(`  [${pillarId}] Layer 1 failed`);
-    return null;
+  // LAYER 1 + 2: For EACH trait, generate 3 missions + 5 milestones each
+  const allMissions: any[] = [];
+  
+  for (let ti = 0; ti < traitCount; ti++) {
+    const trait = traitMeta[ti];
+    
+    // Layer 1: 3 missions for this trait
+    console.log(`  [${pillarId}] Layer 1: generating 3 missions for trait "${trait.name_en}"...`);
+    const missionResult = await callAI(
+      apiKey,
+      buildMissionsForTraitPrompt(pillarId, hub, assessment, userContext, constraintsBlock, { name_en: trait.name_en, name_he: trait.name_he }, trait.description_en),
+      sysMsg, 1200,
+    );
+    
+    const goals = missionResult?.goals || [];
+    if (goals.length < 3) {
+      // Pad with fallback missions
+      while (goals.length < 3) {
+        goals.push({ goal_en: `${trait.name_en} training ${goals.length + 1}`, goal_he: `אימון ${trait.name_he} ${goals.length + 1}` });
+      }
+    }
+
+    // Layer 2: 5 milestones per mission for this trait's 3 missions
+    console.log(`  [${pillarId}] Layer 2: generating milestones for trait "${trait.name_en}"...`);
+    const milestoneResult = await callAI(
+      apiKey,
+      buildMilestonesPrompt(pillarId, goals.slice(0, 3), assessmentBlock, constraintsBlock),
+      sysMsg, 3000,
+    );
+    
+    const missions = milestoneResult?.missions || [];
+    
+    // Map missions to this trait's index
+    for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
+      allMissions.push({
+        ...missions[mi],
+        trait_index: ti,
+        // Ensure mission text is populated
+        mission_en: missions[mi].mission_en || goals[mi]?.goal_en || '',
+        mission_he: missions[mi].mission_he || goals[mi]?.goal_he || '',
+      });
+    }
+    
+    // If milestones call failed, create stub missions from goals
+    if (missions.length === 0) {
+      for (const g of goals.slice(0, 3)) {
+        allMissions.push({
+          mission_en: g.goal_en,
+          mission_he: g.goal_he,
+          trait_index: ti,
+          milestones: [
+            { title_en: "Foundation", title_he: "בסיס", description_en: "Foundation", description_he: "בסיס" },
+            { title_en: "Practice", title_he: "תרגול", description_en: "Practice", description_he: "תרגול" },
+            { title_en: "Mastery", title_he: "שליטה", description_en: "Mastery", description_he: "שליטה" },
+            { title_en: "Integration", title_he: "שילוב", description_en: "Integration", description_he: "שילוב" },
+            { title_en: "Excellence", title_he: "מצוינות", description_en: "Excellence", description_he: "מצוינות" },
+          ],
+        });
+      }
+    }
   }
 
-  // LAYER 2: 5 milestones per mission
-  console.log(`  [${pillarId}] Layer 2: generating 5 milestones per mission...`);
-  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock, constraintsBlock), sysMsg, 3000);
-  if (!layer2?.missions) {
-    console.error(`  [${pillarId}] Layer 2 failed`);
-    return null;
-  }
-
-  // Attach trait_index to missions for DB linking
-  const missions = layer2.missions.map((m: any, i: number) => ({
-    ...m,
-    trait_index: layer1.goals[i]?.trait_index ?? i,
-  }));
-
-  console.log(`  ✅ [${pillarId}] Complete: 3 traits + 3 missions + milestones`);
-  return { missions, traitIds };
+  console.log(`  ✅ [${pillarId}] Complete: ${traitCount} traits × 3 missions = ${allMissions.length} missions`);
+  return { allMissions, traitIds };
 }
 
 // ========== FALLBACK ==========
 function _g(id: string, e1: string, h1: string, e2: string, h2: string, e3: string, h3: string) {
   const sg = (en: string, he: string) => ({ title_en: en, title_he: he, description_en: en, description_he: he });
-  return { missions: [
+  return { allMissions: [
     { mission_en: e1, mission_he: h1, trait_index: 0, milestones: [sg("Foundation","בסיס"), sg("Practice","תרגול"), sg("Mastery","שליטה"), sg("Integration","שילוב"), sg("Excellence","מצוינות")] },
-    { mission_en: e2, mission_he: h2, trait_index: 1, milestones: [sg("Assessment","הערכה"), sg("Training","אימון"), sg("Integration","שילוב"), sg("Optimization","אופטימיזציה"), sg("Mastery","שליטה")] },
-    { mission_en: e3, mission_he: h3, trait_index: 2, milestones: [sg("Planning","תכנון"), sg("Execution","ביצוע"), sg("Optimization","אופטימיזציה"), sg("Scaling","הרחבה"), sg("Mastery","שליטה")] },
+    { mission_en: e2, mission_he: h2, trait_index: 0, milestones: [sg("Assessment","הערכה"), sg("Training","אימון"), sg("Integration","שילוב"), sg("Optimization","אופטימיזציה"), sg("Mastery","שליטה")] },
+    { mission_en: e3, mission_he: h3, trait_index: 0, milestones: [sg("Planning","תכנון"), sg("Execution","ביצוע"), sg("Optimization","אופטימיזציה"), sg("Scaling","הרחבה"), sg("Mastery","שליטה")] },
   ], traitIds: [] };
-}
-
-function buildFallbackStrategy(hub: 'core' | 'arena') {
-  const pillarIds = hub === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
-  const pillars: Record<string, any> = {};
-  for (const id of pillarIds) {
-    pillars[id] = _g(id, "Transform " + id, "טרנספורמציה " + id, "Master " + id, "שליטה ב" + id, "Scale " + id, "הרחבת " + id);
-  }
-  return { hub, pillars };
 }
 
 // ========== MAIN HANDLER ==========
@@ -533,7 +569,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
     const { user_id, hub, force_regenerate, selected_pillars, single_pillar, skip_quality_gate } = body;
@@ -547,7 +583,7 @@ serve(async (req) => {
     const targetHub = hub || 'both';
 
     // === GENERATION LOCK ===
-    const { data: generatingPlans } = await supabase
+    const { data: generatingPlans } = await supabaseClient
       .from('life_plans').select('id, created_at')
       .eq('user_id', user_id).eq('status', 'generating');
     
@@ -555,7 +591,7 @@ serve(async (req) => {
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const stale = generatingPlans.filter((p: any) => p.created_at < fiveMinAgo);
       if (stale.length > 0) {
-        await supabase.from('life_plans').delete().in('id', stale.map((p: any) => p.id));
+        await supabaseClient.from('life_plans').delete().in('id', stale.map((p: any) => p.id));
         console.log(`Cleaned ${stale.length} stale generation locks`);
       } else {
         return new Response(JSON.stringify({ message: "Generation already in progress, please wait." }), {
@@ -567,7 +603,7 @@ serve(async (req) => {
     // Check existing plans
     let hubsToGenerate: ('core' | 'arena')[] = targetHub === 'both' ? ['core', 'arena'] : [targetHub as 'core' | 'arena'];
     
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseClient
       .from('life_plans').select('id, plan_data')
       .eq('user_id', user_id).eq('status', 'active')
       .order('created_at', { ascending: false });
@@ -575,12 +611,11 @@ serve(async (req) => {
     if (force_regenerate) {
       const allActiveIds = (existing || []).map((p: any) => p.id);
       if (allActiveIds.length > 0) {
-        await supabase.from('plan_missions').delete().in('plan_id', allActiveIds);
-        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', allActiveIds);
-        await supabase.from('life_plan_milestones').delete().in('plan_id', allActiveIds);
-        // Clean up old traits for these plans
-        await supabase.from('skills').delete().eq('user_id', user_id).in('life_plan_id', allActiveIds);
-        await supabase.from('life_plans').update({ status: 'archived' }).in('id', allActiveIds);
+        await supabaseClient.from('plan_missions').delete().in('plan_id', allActiveIds);
+        await supabaseClient.from('action_items').delete().eq('user_id', user_id).in('plan_id', allActiveIds);
+        await supabaseClient.from('life_plan_milestones').delete().in('plan_id', allActiveIds);
+        await supabaseClient.from('skills').delete().eq('user_id', user_id).in('life_plan_id', allActiveIds);
+        await supabaseClient.from('life_plans').update({ status: 'archived' }).in('id', allActiveIds);
         console.log(`Force regenerate: archived ${allActiveIds.length} existing plans`);
       }
     } else {
@@ -589,10 +624,10 @@ serve(async (req) => {
       const legacyPlans = (existing || []).filter((p: any) => !p.plan_data?.hub);
       if (legacyPlans.length > 0) {
         const legacyIds = legacyPlans.map((p: any) => p.id);
-        await supabase.from('plan_missions').delete().in('plan_id', legacyIds);
-        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', legacyIds);
-        await supabase.from('life_plan_milestones').delete().in('plan_id', legacyIds);
-        await supabase.from('life_plans').update({ status: 'archived' }).in('id', legacyIds);
+        await supabaseClient.from('plan_missions').delete().in('plan_id', legacyIds);
+        await supabaseClient.from('action_items').delete().eq('user_id', user_id).in('plan_id', legacyIds);
+        await supabaseClient.from('life_plan_milestones').delete().in('plan_id', legacyIds);
+        await supabaseClient.from('life_plans').update({ status: 'archived' }).in('id', legacyIds);
         console.log(`Auto-archived ${legacyIds.length} legacy (no-hub) plans`);
       }
       
@@ -613,12 +648,13 @@ serve(async (req) => {
     // === FETCH USER DATA FOR AI CONTEXT ===
     const allPillarIds = [...CORE_PILLAR_IDS, ...ARENA_PILLAR_IDS];
 
-    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user_id).single(),
-      supabase.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
-      supabase.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
-      supabase.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id).limit(5),
-      supabase.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
+    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes] = await Promise.all([
+      supabaseClient.from('profiles').select('*').eq('id', user_id).single(),
+      supabaseClient.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
+      supabaseClient.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
+      supabaseClient.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id).limit(5),
+      supabaseClient.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
+      supabaseClient.from('profiles').select('selected_pillars').eq('id', user_id).single(),
     ]);
 
     const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
@@ -629,6 +665,9 @@ serve(async (req) => {
       businessRes.data || [],
       memoryRes.data || [],
     );
+    
+    // Determine which pillars are "selected" by the user
+    const userSelectedPillars: Record<string, string[]> = profileSelectedRes.data?.selected_pillars || selected_pillars || {};
 
     // === ASSESSMENT QUALITY GATE ===
     if (!skip_quality_gate) {
@@ -669,23 +708,35 @@ serve(async (req) => {
 
     for (const h of hubsToGenerate) {
       const allHubPillarIds = h === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
+      const hubSelectedPillars = h === 'core' ? (userSelectedPillars.core || []) : (userSelectedPillars.arena || []);
       
-      let pillarIds: string[];
+      // Determine selected vs non-selected pillars for this hub
+      let selectedPillarIds: string[];
+      let nonSelectedPillarIds: string[];
+      
       if (single_pillar) {
-        pillarIds = allHubPillarIds.includes(single_pillar) ? [single_pillar] : [];
-      } else if (selected_pillars) {
-        const hubSelected = h === 'core' ? (selected_pillars.core || []) : (selected_pillars.arena || []);
-        pillarIds = allHubPillarIds.filter((id: string) => hubSelected.includes(id));
+        selectedPillarIds = allHubPillarIds.includes(single_pillar) ? [single_pillar] : [];
+        nonSelectedPillarIds = [];
+      } else if (selected_pillars || hubSelectedPillars.length > 0) {
+        const hubSelected = selected_pillars 
+          ? (h === 'core' ? (selected_pillars.core || []) : (selected_pillars.arena || []))
+          : hubSelectedPillars;
+        selectedPillarIds = allHubPillarIds.filter((id: string) => hubSelected.includes(id));
+        nonSelectedPillarIds = allHubPillarIds.filter((id: string) => !hubSelected.includes(id));
       } else {
-        pillarIds = allHubPillarIds;
+        // Fallback: all pillars treated as selected
+        selectedPillarIds = allHubPillarIds;
+        nonSelectedPillarIds = [];
       }
       
-      if (pillarIds.length === 0) {
-        console.log(`No pillars selected for ${h} hub, skipping`);
+      if (selectedPillarIds.length === 0 && nonSelectedPillarIds.length === 0) {
+        console.log(`No pillars for ${h} hub, skipping`);
         continue;
       }
       
-      const hubAssessments = allDomains.filter(d => pillarIds.includes(d.domain_id));
+      console.log(`\n🚀 ${h} hub — Selected: [${selectedPillarIds.join(', ')}] | Non-selected: [${nonSelectedPillarIds.join(', ')}]`);
+      
+      const hubAssessments = allDomains.filter(d => allHubPillarIds.includes(d.domain_id));
 
       const strategyData = {
         hub: h,
@@ -705,7 +756,7 @@ serve(async (req) => {
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + TOTAL_DAYS);
 
-      const { data: plan, error: planError } = await supabase
+      const { data: plan, error: planError } = await supabaseClient
         .from('life_plans')
         .insert({
           user_id,
@@ -729,35 +780,39 @@ serve(async (req) => {
       let allAiSuccess = true;
 
       if (LOVABLE_API_KEY) {
-        console.log(`\n🚀 Generating ${h} hub — Trait-based 100-day plan...`);
+        // Generate ALL pillars (selected with 3 traits, non-selected with 1 trait)
+        const allPillarJobs = [
+          ...selectedPillarIds.map(id => ({ pillarId: id, traitCount: 3 })),
+          ...nonSelectedPillarIds.map(id => ({ pillarId: id, traitCount: 1 })),
+        ];
         
-        const aiPromises = pillarIds.map(async (pillarId) => {
+        const aiPromises = allPillarJobs.map(async ({ pillarId, traitCount }) => {
           const assessment = hubAssessments.find(a => a.domain_id === pillarId);
           const result = await generatePillarStrategy(
-            LOVABLE_API_KEY, supabase, user_id, plan.id,
-            pillarId, h, assessment, userContext, constraintsBlock,
+            LOVABLE_API_KEY, supabaseClient, user_id, plan.id,
+            pillarId, h, assessment, userContext, constraintsBlock, traitCount,
           );
-          return { pillarId, data: result };
+          return { pillarId, traitCount, data: result };
         });
 
         const aiResults = await Promise.allSettled(aiPromises);
         
         for (const result of aiResults) {
           if (result.status === 'fulfilled' && result.value.data) {
-            const { pillarId } = result.value;
-            const { missions, traitIds } = result.value.data;
+            const { pillarId, traitCount } = result.value;
+            const { allMissions, traitIds } = result.value.data;
             
             // Insert missions and milestones
-            for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
-              const mission = missions[mi];
-              const traitIndex = mission.trait_index ?? mi;
-              const traitSkillId = traitIds[traitIndex] || traitIds[mi] || null;
+            for (let mi = 0; mi < allMissions.length; mi++) {
+              const mission = allMissions[mi];
+              const traitIndex = mission.trait_index ?? Math.floor(mi / 3);
+              const traitSkillId = traitIds[traitIndex] || traitIds[0] || null;
               
-              const { data: missionRow, error: missionError } = await supabase
+              const { data: missionRow, error: missionError } = await supabaseClient
                 .from('plan_missions')
                 .insert({
                   plan_id: plan.id,
-                  pillar: pillarId,
+                  pillar: pillarId, // CANONICAL: always matches skills.pillar
                   mission_number: mi + 1,
                   title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
                   title_en: mission.mission_en || mission.goal_en,
@@ -775,17 +830,12 @@ serve(async (req) => {
               }
               totalMissions++;
 
-              // Update skill with mission_id backlink
-              if (traitSkillId) {
-                await supabase.from('skills').update({ mission_id: missionRow.id }).eq('id', traitSkillId);
-              }
-
               const milestones = mission.milestones || [];
               for (let si = 0; si < Math.min(milestones.length, 5); si++) {
                 const ms = milestones[si];
-                const phaseNumber = mi * 3 + Math.min(si, 3) + 1;
+                const phaseNumber = Math.floor(mi / 3) * 3 + Math.min(si, 3) + 1;
 
-                await supabase.from('life_plan_milestones').insert({
+                await supabaseClient.from('life_plan_milestones').insert({
                   plan_id: plan.id,
                   mission_id: missionRow.id,
                   milestone_number: si + 1,
@@ -806,16 +856,26 @@ serve(async (req) => {
                 totalMilestones++;
               }
             }
+            
+            // Dev assertion logging
+            const expectedMissions = traitCount * 3;
+            const expectedMilestones = traitCount * 3 * 5;
+            const actualMissions = allMissions.length;
+            if (actualMissions !== expectedMissions) {
+              console.warn(`⚠️ ASSERTION: [${pillarId}] expected ${expectedMissions} missions, got ${actualMissions}`);
+            }
+            console.log(`  📊 [${pillarId}] ${traitCount} traits × 3 missions × 5 milestones = ${actualMissions} missions generated`);
+            
           } else {
             allAiSuccess = false;
             const pid = result.status === 'fulfilled' ? result.value.pillarId : 'unknown';
             console.error(`  [${pid}] Generation failed, using fallback`);
             
-            // Insert fallback missions
+            // Insert fallback missions (3 missions for the pillar)
             const fb = _g(pid, "Transform " + pid, "טרנספורמציה " + pid, "Master " + pid, "שליטה ב" + pid, "Scale " + pid, "הרחבת " + pid);
-            for (let mi = 0; mi < fb.missions.length; mi++) {
-              const mission = fb.missions[mi];
-              const { data: missionRow } = await supabase.from('plan_missions').insert({
+            for (let mi = 0; mi < fb.allMissions.length; mi++) {
+              const mission = fb.allMissions[mi];
+              const { data: missionRow } = await supabaseClient.from('plan_missions').insert({
                 plan_id: plan.id, pillar: pid, mission_number: mi + 1,
                 title: mission.mission_he, title_en: mission.mission_en,
                 description: mission.mission_he, description_en: mission.mission_en, xp_reward: 50,
@@ -825,7 +885,7 @@ serve(async (req) => {
               
               for (let si = 0; si < mission.milestones.length; si++) {
                 const ms = mission.milestones[si];
-                await supabase.from('life_plan_milestones').insert({
+                await supabaseClient.from('life_plan_milestones').insert({
                   plan_id: plan.id, mission_id: missionRow.id, milestone_number: si + 1,
                   week_number: mi * 3 + Math.min(si, 3) + 1, month_number: 1,
                   title: ms.title_he, title_en: ms.title_en,
@@ -843,7 +903,7 @@ serve(async (req) => {
       }
 
       // === ATOMIC FLIP ===
-      const { data: oldPlansForHub } = await supabase
+      const { data: oldPlansForHub } = await supabaseClient
         .from('life_plans').select('id, plan_data')
         .eq('user_id', user_id).eq('status', 'active');
       
@@ -852,14 +912,14 @@ serve(async (req) => {
         .map((p: any) => p.id);
       
       if (hubPlanIds.length > 0) {
-        await supabase.from('plan_missions').delete().in('plan_id', hubPlanIds);
-        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', hubPlanIds);
-        await supabase.from('life_plan_milestones').delete().in('plan_id', hubPlanIds);
-        await supabase.from('life_plans').update({ status: 'archived' }).in('id', hubPlanIds);
+        await supabaseClient.from('plan_missions').delete().in('plan_id', hubPlanIds);
+        await supabaseClient.from('action_items').delete().eq('user_id', user_id).in('plan_id', hubPlanIds);
+        await supabaseClient.from('life_plan_milestones').delete().in('plan_id', hubPlanIds);
+        await supabaseClient.from('life_plans').update({ status: 'archived' }).in('id', hubPlanIds);
         console.log(`Archived ${hubPlanIds.length} old ${h} plans`);
       }
 
-      await supabase.from('life_plans').update({ status: 'active' }).eq('id', plan.id);
+      await supabaseClient.from('life_plans').update({ status: 'active' }).eq('id', plan.id);
 
       console.log(`✅ ${h} hub: ${totalMissions} missions, ${totalMilestones} milestones (AI: ${allAiSuccess})`);
       results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, ai_generated: allAiSuccess });
