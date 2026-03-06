@@ -2856,11 +2856,11 @@ export const en: TranslationKeys = {
 
     // GameHeroSection
     gameHero: {
-      badge: 'Digital Self-Improvement City',
-      title: 'Level Up. Earn. Transform.',
-      subtitle: 'AI coaching across 14 life domains, living orb avatar, play-to-earn economy, personalized hypnosis — your entire life OS.',
-      cta: '⚡ Enter the City',
-      ctaMeta: '5 min assessment • Free to start • Earn while you grow',
+      badge: 'The Game Has Begun',
+      title: 'Build Your Empire.',
+      subtitle: 'AI × Identity × Economy',
+      cta: '⚡ Start Building',
+      ctaMeta: '5 min assessment • Free to start • Earn while you build',
       scrollDown: 'Scroll Down',
     },
 
@@ -2953,8 +2953,8 @@ export const en: TranslationKeys = {
     finalCta: {
       title: 'Choose Your Rank',
       subtitle: 'Start free. Upgrade when you\'re ready to go deeper.',
-      epicTitle: 'Your City Awaits',
-      cta: '⚡ Enter the City',
+      epicTitle: 'Your Empire Awaits',
+      cta: '⚡ Start Building',
       personalCoach: 'Personal AI Coach 24/7',
       plan100: 'Tailored 100-Day Plan',
       domains14: '14 Life Domains',

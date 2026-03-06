@@ -41,7 +41,7 @@ export default function PlanCinematicSection() {
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {isRTL ? '100 ימים. מתוכנן ע״י AI.' : '100 Days. Engineered by AI.'}
+              {isRTL ? 'תוכנית האימפריה שלך' : 'Your Empire Blueprint'}
               </span>
             </h2>
           </motion.div>
@@ -138,10 +138,10 @@ export default function PlanCinematicSection() {
                 {isRTL ? 'סטטוס' : 'Status'}
               </p>
               <p className="text-lg sm:text-xl font-black text-foreground">
-                {isRTL ? 'התוכנית שלך — נוצרה ✓' : 'Your 100-Day Path — Generated ✓'}
+                {isRTL ? 'מסלול כיבוש 100 יום — נוצר ✓' : '100-Day Conquest Path — Generated ✓'}
               </p>
               <p className="text-sm text-muted-foreground">
-                {isRTL ? 'AI סורק את ה-DNA שלך. בונה את הדרך. אתה רק משחק.' : 'AI scans your DNA. Builds your path. You just play.'}
+                {isRTL ? 'AI סורק את ה-DNA שלך. בונה את האימפריה. אתה רק משחק.' : 'AI scans your DNA. Builds your empire. You just play.'}
               </p>
             </div>
           </motion.div>
