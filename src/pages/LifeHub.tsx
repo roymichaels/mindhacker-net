@@ -498,15 +498,6 @@ export default function LifeHub() {
                                     <span className="text-xs font-bold text-foreground leading-tight line-clamp-2 min-h-[2em]">
                                       {trait.displayName}
                                     </span>
-                                    <span
-                                      className="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full"
-                                      style={{
-                                        backgroundColor: `hsla(${pillarColor}, 0.12)`,
-                                        color: `hsl(${pillarColor})`,
-                                      }}
-                                    >
-                                      LV.{trait.level}
-                                    </span>
                                     <span className="text-[9px] text-muted-foreground">
                                       {trait.missionCount} {isHe ? 'משימות' : 'missions'} · {trait.milestoneCount} {isHe ? 'א.ד' : 'ms'}
                                     </span>
