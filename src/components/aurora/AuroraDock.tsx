@@ -133,6 +133,7 @@ export function AuroraDock() {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        role="dialog"
         className="fixed inset-0 z-[9999] flex flex-col bg-background"
       >
         {/* Top bar with Aurora branding + back button */}
