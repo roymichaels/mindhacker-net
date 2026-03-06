@@ -17,7 +17,7 @@ export { default as FinalCTASection } from './FinalCTASection';
 export { default as TwoWorldsSection } from './TwoWorldsSection';
 export { default as HowItWorksSection } from './HowItWorksSection';
 export { default as FeatureShowcaseSection } from './FeatureShowcaseSection';
-export { default as OrbCollectionSection } from './OrbCollectionSection';
+// OrbCollectionSection already exported above
 export { default as LearningEngineSection } from './LearningEngineSection';
 export { default as CoachMarketplaceSection } from './CoachMarketplaceSection';
 export { default as CommunitySection } from './CommunitySection';
