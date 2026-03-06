@@ -14,6 +14,18 @@ import { Sparkles, ChevronLeft, CheckCircle2, Circle, ChevronDown, ChevronUp } f
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const PILLAR_LABELS_HE: Record<string, string> = {
+  consciousness: 'תודעה', presence: 'נוכחות', power: 'כוח', vitality: 'חיוניות',
+  focus: 'מיקוד', combat: 'לחימה', expansion: 'התרחבות', wealth: 'עושר',
+  influence: 'השפעה', relationships: 'מערכות יחסים', business: 'עסקים',
+  projects: 'פרויקטים', play: 'משחק', order: 'סדר',
+};
+const PILLAR_LABELS_EN: Record<string, string> = {
+  consciousness: 'Consciousness', presence: 'Presence', power: 'Power', vitality: 'Vitality',
+  focus: 'Focus', combat: 'Combat', expansion: 'Expansion', wealth: 'Wealth',
+  influence: 'Influence', relationships: 'Relationships', business: 'Business',
+  projects: 'Projects', play: 'Play', order: 'Order',
+};
 interface SkillsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
