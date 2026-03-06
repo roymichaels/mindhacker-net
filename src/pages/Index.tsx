@@ -75,7 +75,7 @@ const Index = () => {
       <Header />
       <main className="relative z-10">
         <GameHeroSection />
-        <OrbShowcaseSection />
+        <OrbCollectionSection />
         <DomainCitySection />
         <AuroraCoachSection />
         <HypnosisSection />
