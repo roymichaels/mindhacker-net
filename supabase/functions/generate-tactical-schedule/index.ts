@@ -120,6 +120,8 @@ ${adjustmentContext}
 5. Already completed milestones (✅) should NOT be scheduled.
 6. Each milestone inside a block gets its own duration (10-45 min).
 7. Total daily active time: 90-180 minutes (realistic!).
+8. CRITICAL: Use the EXACT milestone titles (title_en and title_he) from the list above — do NOT rename or paraphrase them.
+9. CRITICAL: Use the EXACT difficulty value (1-5) from each milestone — do NOT change it.
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
 
