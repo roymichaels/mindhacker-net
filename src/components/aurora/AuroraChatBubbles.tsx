@@ -180,180 +180,144 @@ const AuroraChatBubbles = () => {
   if (!user) return null;
 
   return (
-    <AnimatePresence>
-      {isChatExpanded && (
-        <motion.div
-          ref={containerRef}
-          initial={{ opacity: 0, y: 20, height: 0 }}
-          animate={{ opacity: 1, y: 0, height: 'auto' }}
-          exit={{ opacity: 0, y: 20, height: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="w-full max-w-3xl mx-auto mb-2"
-        >
-          <div className="relative bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-lg overflow-hidden">
-            {/* Header with close button */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-border/30" dir={isRTL ? 'rtl' : 'ltr'}>
-              <div className="flex items-center gap-2 min-w-0">
-                <AuroraHoloOrb size={24} glow="none" />
-                <span className="text-sm font-bold text-foreground truncate">
-                  {language === 'he' ? 'אורורה' : 'Aurora'}
-                </span>
-              </div>
-              <button
-                onClick={() => setIsChatExpanded(false)}
-                className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
-                aria-label={language === 'he' ? 'סגור' : 'Close'}
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </div>
+    <ScrollArea className="h-full overflow-y-auto" ref={scrollRef as any}>
+      <div className="w-full max-w-3xl mx-auto p-4 space-y-4">
+        {messages.length === 0 && !streamingContent && (
+          <div className="text-center text-muted-foreground text-sm py-8">
+            {language === 'he' 
+              ? 'שלום! אני אורורה, המלווה שלך. איך אוכל לעזור?' 
+              : 'Hello! I\'m Aurora, your companion. How can I help?'}
+          </div>
+        )}
 
-            {/* Messages area */}
-            <ScrollArea 
-              ref={scrollRef as any}
-              className="max-h-[400px] overflow-y-auto"
+        {messages.map((message) => {
+          const isPlayingThis = isPlaying && activeMessageId === message.id;
+          
+          return (
+            <motion.div
+              key={message.id}
+              ref={(el) => {
+                if (el) messageRefs.current.set(message.id, el);
+              }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(
+                "group flex gap-3 transition-all duration-300 rounded-lg",
+                message.is_ai_message ? "justify-start" : "justify-end"
+              )}
             >
-              <div className="p-4 space-y-4">
-                {messages.length === 0 && !streamingContent && (
-                  <div className="text-center text-muted-foreground text-sm py-8">
-                    {language === 'he' 
-                      ? 'שלום! אני אורורה, המלווה שלך. איך אוכל לעזור?' 
-                      : 'Hello! I\'m Aurora, your companion. How can I help?'}
+              {message.is_ai_message && (
+                <AuroraHoloOrb size={24} glow="none" />
+              )}
+              <div className="space-y-1.5 max-w-[80%]">
+                <div
+                  className={cn(
+                    "rounded-xl px-4 py-2 text-sm",
+                    message.is_ai_message
+                      ? "bg-muted/50 text-foreground"
+                      : "bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/40 text-foreground"
+                  )}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                >
+                  {message.is_ai_message ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p>{message.content}</p>
+                  )}
+                </div>
+                
+                {/* Action buttons for AI messages */}
+                {message.is_ai_message && (
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => handleCopy(message.content)}
+                      title={t('messages.copy')}
+                    >
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => handleVoice(message.id, message.content)}
+                      title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
+                    >
+                      {isPlayingThis ? (
+                        <Square className="h-3 w-3 text-muted-foreground fill-current" />
+                      ) : (
+                        <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </Button>
                   </div>
                 )}
-
-                {messages.map((message) => {
-                  const isPlayingThis = isPlaying && activeMessageId === message.id;
-                  
-                  return (
-                    <motion.div
-                      key={message.id}
-                      ref={(el) => {
-                        if (el) messageRefs.current.set(message.id, el);
-                      }}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={cn(
-                        "group flex gap-3 transition-all duration-300 rounded-lg",
-                        message.is_ai_message ? "justify-start" : "justify-end"
-                      )}
-                    >
-                      {message.is_ai_message && (
-                        <AuroraHoloOrb size={24} glow="none" />
-                      )}
-                      <div className="space-y-1.5 max-w-[80%]">
-                        <div
-                          className={cn(
-                            "rounded-xl px-4 py-2 text-sm",
-                            message.is_ai_message
-                              ? "bg-muted/50 text-foreground"
-                              : "bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/40 text-foreground"
-                          )}
-                          dir={isRTL ? 'rtl' : 'ltr'}
-                        >
-                          {message.is_ai_message ? (
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                              <ReactMarkdown>{message.content}</ReactMarkdown>
-                            </div>
-                          ) : (
-                            <p>{message.content}</p>
-                          )}
-                        </div>
-                        
-                        {/* Action buttons for AI messages */}
-                        {message.is_ai_message && (
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleCopy(message.content)}
-                              title={t('messages.copy')}
-                            >
-                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleVoice(message.id, message.content)}
-                              title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
-                            >
-                              {isPlayingThis ? (
-                                <Square className="h-3 w-3 text-muted-foreground fill-current" />
-                              ) : (
-                                <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-
-                {/* Streaming content */}
-                {streamingContent && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex gap-3 justify-start"
-                  >
-                    <AuroraHoloOrb size={24} glow="subtle" />
-                    <div className="max-w-[80%] rounded-xl px-4 py-2 text-sm bg-muted/50 text-foreground">
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown>{streamingContent}</ReactMarkdown>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Loading indicator */}
-                {isStreaming && !streamingContent && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex gap-3 justify-start"
-                  >
-                    <AuroraHoloOrb size={24} glow="subtle" />
-                    <div className="bg-muted/50 rounded-xl px-4 py-3">
-                      <div className="flex gap-1">
-                        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Pillar action button (e.g. Build Curriculum) */}
-                {activePillar && pillarActionCallback && pillarActionLabel && messages.length >= 2 && !isStreaming && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex justify-center pt-2 pb-1"
-                  >
-                    <Button
-                      onClick={pillarActionCallback}
-                      disabled={pillarActionLoading}
-                      size="lg"
-                      className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
-                    >
-                      {pillarActionLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <GraduationCap className="h-4 w-4" />
-                      )}
-                      {pillarActionLabel}
-                    </Button>
-                  </motion.div>
-                )}
               </div>
-            </ScrollArea>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            </motion.div>
+          );
+        })}
+
+        {/* Streaming content */}
+        {streamingContent && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-3 justify-start"
+          >
+            <AuroraHoloOrb size={24} glow="subtle" />
+            <div className="max-w-[80%] rounded-xl px-4 py-2 text-sm bg-muted/50 text-foreground">
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown>{streamingContent}</ReactMarkdown>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Loading indicator */}
+        {isStreaming && !streamingContent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex gap-3 justify-start"
+          >
+            <AuroraHoloOrb size={24} glow="subtle" />
+            <div className="bg-muted/50 rounded-xl px-4 py-3">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Pillar action button */}
+        {activePillar && pillarActionCallback && pillarActionLabel && messages.length >= 2 && !isStreaming && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex justify-center pt-2 pb-1"
+          >
+            <Button
+              onClick={pillarActionCallback}
+              disabled={pillarActionLoading}
+              size="lg"
+              className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+            >
+              {pillarActionLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <GraduationCap className="h-4 w-4" />
+              )}
+              {pillarActionLabel}
+            </Button>
+          </motion.div>
+        )}
+      </div>
+    </ScrollArea>
   );
 };
 
