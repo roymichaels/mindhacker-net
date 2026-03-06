@@ -113,14 +113,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
   return (
     <div className="space-y-3">
-      {/* Scores — premium trio */}
-      <GlassCard>
-        <div className="flex items-center justify-around py-1">
-          <ScoreCircle label={isHebrew ? 'תודעה' : 'Mind'} value={scores.consciousness} color="168 70% 55%" />
-          <ScoreCircle label={isHebrew ? 'בהירות' : 'Clarity'} value={scores.clarity} color="210 80% 55%" />
-          <ScoreCircle label={isHebrew ? 'מוכנות' : 'Ready'} value={scores.readiness} color="150 60% 50%" />
-        </div>
-      </GlassCard>
+      {/* Scores moved to StatWheel in profile header */}
 
       {/* Consciousness Analysis */}
       {summary.consciousness_analysis && (
