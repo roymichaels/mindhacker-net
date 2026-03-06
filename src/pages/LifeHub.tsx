@@ -545,6 +545,10 @@ export default function LifeHub() {
                                             {isHe ? 'אין משימות מקושרות' : 'No linked missions'}
                                           </p>
                                         ) : trait.missions.map((mission) => {
+                                          // Debug: log cross-trait leakage in development
+                                          if (typeof window !== 'undefined' && (window as any).__DEV_DEBUG__) {
+                                            console.log('[TraitDetail]', { traitId: trait.skill_id, traitName: trait.displayName, missionId: mission.id, missionTitle: mission.title });
+                                          }
                                           const mTitle = isHe
                                             ? (mission.title || mission.title_en || '')
                                             : (mission.title_en || mission.title || '');
