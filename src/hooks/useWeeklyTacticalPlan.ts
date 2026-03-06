@@ -267,7 +267,7 @@ function buildFallbackDays(
       completedAt: null,
       xpReward: 10,
       blockCategory: 'action',
-      difficulty: 'medium',
+      difficulty: 3 as Difficulty,
       scheduledDay: absDay,
       calendarDate: phaseDates[bestDay] || '',
       focusArea: mm.focus_area || null,
