@@ -161,8 +161,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {isHe ? (domain?.labelHe || nextAction.pillarId) : (domain?.labelEn || nextAction.pillarId)}
-                        <span className="mx-1.5 text-border">·</span>
-                        {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
+                        {nextAction.isTimeBased && (
+                          <>
+                            <span className="mx-1.5 text-border">·</span>
+                            {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
+                          </>
+                        )}
                       </p>
                       <h2 className="text-sm font-bold text-foreground leading-snug">
                         {isHe ? nextAction.title : nextAction.titleEn}
@@ -248,10 +252,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                     {item.missionTitle}
                                   </span>
                                 )}
-                                <span className="text-[10px] text-muted-foreground/50 flex items-center gap-1 mt-0.5">
-                                  <Clock className="w-2.5 h-2.5" />
-                                  {item.durationMin} {isHe ? 'דק׳' : 'min'}
-                                </span>
+                                {item.isTimeBased && (
+                                  <span className="text-[10px] text-muted-foreground/50 flex items-center gap-1 mt-0.5">
+                                    <Clock className="w-2.5 h-2.5" />
+                                    {item.durationMin} {isHe ? 'דק׳' : 'min'}
+                                  </span>
+                                )}
                               </div>
                               <Play className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0 mt-1" />
                             </div>

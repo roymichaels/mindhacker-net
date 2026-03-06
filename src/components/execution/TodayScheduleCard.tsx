@@ -107,12 +107,14 @@ export function TodayScheduleCard({ schedule, onActionClick, queue }: TodaySched
               <p className="text-xs font-semibold leading-tight line-clamp-2">
                 {isRTL ? action.title : action.titleEn}
               </p>
-              <div className="flex items-center gap-1.5 mt-auto">
-                <Clock className="h-2.5 w-2.5 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground">
-                  {action.durationMin} {isRTL ? 'דק׳' : 'min'}
-                </span>
-              </div>
+              {action.isTimeBased && (
+                <div className="flex items-center gap-1.5 mt-auto">
+                  <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground">
+                    {action.durationMin} {isRTL ? 'דק׳' : 'min'}
+                  </span>
+                </div>
+              )}
             </motion.button>
           );
         })}

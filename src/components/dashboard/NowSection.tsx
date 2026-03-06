@@ -59,12 +59,14 @@ function QueueItemCard({
         <span className="text-[10px] font-bold text-muted-foreground/50">{index + 1}</span>
       </div>
       <p className="text-xs font-semibold leading-tight line-clamp-2">{item.title}</p>
-      <div className="flex items-center gap-1.5 mt-auto">
-        <Clock className="h-2.5 w-2.5 text-muted-foreground" />
-        <span className="text-[10px] text-muted-foreground">
-          {item.durationMin} {language === 'he' ? 'דק׳' : 'min'}
-        </span>
-      </div>
+      {item.isTimeBased && (
+        <div className="flex items-center gap-1.5 mt-auto">
+          <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+          <span className="text-[10px] text-muted-foreground">
+            {item.durationMin} {language === 'he' ? 'דק׳' : 'min'}
+          </span>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -127,10 +129,12 @@ export function NowSection() {
                 <PillarBadge pillarId={nextAction.pillarId} hub={nextAction.hub} />
                 <h3 className="text-base font-bold mt-1 break-words">{nextAction.title}</h3>
                 <div className="flex items-center gap-3 mt-1.5">
-                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    {nextAction.durationMin} {language === 'he' ? 'דקות' : 'min'}
-                  </span>
+                  {nextAction.isTimeBased && (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {nextAction.durationMin} {language === 'he' ? 'דקות' : 'min'}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground/60">{nextAction.reason}</span>
                 </div>
               </div>

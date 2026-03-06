@@ -83,6 +83,7 @@ interface QueueItem {
   title: string;
   titleEn: string;
   durationMin: number;
+  isTimeBased: boolean;
   urgencyScore: number;
   reason: string;
   sourceType: "milestone" | "mini_milestone" | "habit" | "overdue" | "template";
@@ -95,6 +96,14 @@ interface QueueItem {
   traitName?: string;
   executionSteps?: ExecStep[];
   executionTemplate?: ExecutionTemplate;
+}
+
+// Check if a task title contains explicit time references
+function detectTimeBased(title: string, actionType: string): boolean {
+  const timePattern = /\b\d+\s*(min|minutes|דקות|דק׳|sec|seconds|שניות|rounds?|סיבוב|שעה|hour)\b/i;
+  const timedTypes = ['breathing', 'meditation', 'timer', 'warmup', 'cooldown', 'stretch', 'plank', 'hold'];
+  if (timePattern.test(title)) return true;
+  return timedTypes.some(t => actionType.includes(t));
 }
 
 // ─── Fallback templates (ONLY when no strategy exists) ────────
@@ -219,6 +228,7 @@ serve(async (req) => {
         title: task.title,
         titleEn: task.title,
         durationMin: 15,
+        isTimeBased: detectTimeBased(task.title, "overdue_task"),
         urgencyScore: 10,
         reason: isHe ? "משימה באיחור" : "Overdue task",
         sourceType: "overdue",
@@ -241,6 +251,7 @@ serve(async (req) => {
         title: habit.title,
         titleEn: habit.title,
         durationMin: 5,
+        isTimeBased: detectTimeBased(habit.title, "daily_habit"),
         urgencyScore: 8,
         reason: isHe ? "הרגל יומי" : "Daily habit",
         sourceType: "habit",
@@ -262,6 +273,7 @@ serve(async (req) => {
         title: task.title,
         titleEn: task.title,
         durationMin: 20,
+        isTimeBased: detectTimeBased(task.title, task.type || "task"),
         urgencyScore: 7.5,
         reason: isHe ? "משימה מתוכננת להיום" : "Scheduled for today",
         sourceType: "plan",
@@ -353,6 +365,7 @@ serve(async (req) => {
           title: isHe ? (mini.title || mini.title_en) : (mini.title_en || mini.title),
           titleEn: mini.title_en || mini.title,
           durationMin: Math.round(20 * dayIntensity.multiplier),
+          isTimeBased: detectTimeBased(mini.title_en || mini.title || "", mini.action_type || "milestone"),
           urgencyScore: 7,
           reason: isHe
             ? `${mission?.title || milestone.title} — שלב ${milestone.week_number}`
@@ -388,6 +401,7 @@ serve(async (req) => {
             title: isHe ? (milestone.title || milestone.title_en) : (milestone.title_en || milestone.title),
             titleEn: milestone.title_en || milestone.title,
             durationMin: Math.round(25 * dayIntensity.multiplier),
+            isTimeBased: detectTimeBased(milestone.title_en || milestone.title || "", "milestone"),
             urgencyScore: 6,
             reason: isHe
               ? `${mission?.title || 'משימה'} — שלב ${milestone.week_number}`
@@ -424,6 +438,7 @@ serve(async (req) => {
           title: isHe ? c.action_he : c.action_en,
           titleEn: c.action_en,
           durationMin: Math.round(c.duration_min * dayIntensity.multiplier),
+          isTimeBased: detectTimeBased(c.action_en, c.pillar + '_template'),
           urgencyScore: Math.round(c.score),
           reason: isHe ? "מנוע יומי" : "Daily engine",
           sourceType: "template",
