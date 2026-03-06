@@ -977,6 +977,7 @@ serve(async (req) => {
                   title: ms.title_he, title_en: ms.title_en,
                   description: ms.description_he, description_en: ms.description_en,
                   focus_area: pid, is_completed: false, xp_reward: 20, tokens_reward: 5,
+                  difficulty: si + 1,
                 });
                 totalMilestones++;
               }
