@@ -81,120 +81,76 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-4 transition-colors hover:bg-card/80",
-        isMistakeAnalysis && "border-s-2 border-s-destructive",
-        isPending && "opacity-60",
-        thread.is_pinned && "border-primary/30 bg-primary/5"
-      )}
-    >
-    {thread.is_system && (
-      <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
-        <span>📌</span>
-        <span className="font-semibold">{isHe ? 'הודעת מערכת' : 'System Post'}</span>
-      </div>
-    )}
-
-    {isPending && (
-        <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
-          <Clock className="h-3 w-3" />
-          <span>{isHe ? 'ממתין לאישור Aurora' : 'Awaiting Aurora approval'}</span>
-        </div>
-      )}
-
-      {showTrendingBadge && thread.trendingScore && thread.trendingScore > 5 && (
-        <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-2">
-          <TrendingUp className="h-3 w-3" />
-          <span>{isHe ? 'טרנדי' : 'Trending'}</span>
-        </div>
-      )}
-
-      {/* Top: Orb + Username + Rank + Time */}
-      <div className="flex items-center gap-2.5 mb-2">
-        <button onClick={() => onProfileClick(thread.user_id)} className="shrink-0">
-          <PlayerAvatar userId={thread.user_id} size="sm" name={username || thread.author?.full_name || '?'} />
-        </button>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 text-sm">
-            <button
-              onClick={() => onProfileClick(thread.user_id)}
-              className="font-semibold hover:underline truncate"
-            >
-              {username || thread.author?.full_name || '—'}
-            </button>
-            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 shrink-0 border-primary/40 text-primary">
-              {isHe ? rank.he : rank.en}
-            </Badge>
-            {isMistakeAnalysis && <span className="text-xs">⚠️</span>}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>Lv.{level}</span>
-            <span>·</span>
-            <span>
-              {thread.created_at && formatDistanceToNow(new Date(thread.created_at), {
-                addSuffix: false,
-                locale: isHe ? heLocale : enUS,
-              })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Pillar badge — hide for system posts (no pillar) */}
-      {domain && thread.pillar && (
-        <div className="mb-1.5">
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/30 text-primary/80">
-            {PILLAR_ICONS[pillar]} {isHe ? domain.labelHe : domain.labelEn}
-          </Badge>
-        </div>
-      )}
-
-      {/* Title */}
-      <Link to={`/community/post/${thread.id}`}>
-        <h3 className="font-semibold text-foreground mb-1 hover:text-primary transition-colors leading-tight">
-          {displayTitle || displayContent.slice(0, 60)}
-        </h3>
-      </Link>
-
-      {/* Category Badge */}
-      {thread.category && (
-        <div className="mt-1.5">
-          <Badge
-            variant="outline"
-            className="text-[10px] px-1.5 py-0 h-4"
-            style={{ borderColor: thread.category.color || undefined, color: thread.category.color || undefined }}
-          >
-            {thread.category.icon} {isHe ? thread.category.name : thread.category.name_en || thread.category.name}
-          </Badge>
-        </div>
-      )}
-
-      {/* Bottom: Reply, Upvotes, Save, Add to Plan */}
-      <div className="flex items-center gap-3 mt-3 -ms-1.5">
-        <Link to={`/community/post/${thread.id}`}>
-          <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-            <MessageCircle className="h-3.5 w-3.5" />
-            <span>{thread.comments_count}</span>
-          </button>
-        </Link>
-        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-          <Heart className="h-3.5 w-3.5" />
-          <span>{thread.likes_count}</span>
-        </button>
-        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-          <Bookmark className="h-3.5 w-3.5" />
-        </button>
-        {onAddToPlan && (
-          <button
-            onClick={() => onAddToPlan(thread)}
-            className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 transition-colors ms-auto"
-          >
-            <Lightbulb className="h-3.5 w-3.5" />
-            <span>{isHe ? 'הוסף לתוכנית' : 'Add to Plan'}</span>
-          </button>
+    <Link to={`/community/post/${thread.id}`}>
+      <div
+        className={cn(
+          "rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm px-3 py-2 transition-colors hover:bg-card/80",
+          isMistakeAnalysis && "border-s-2 border-s-destructive",
+          isPending && "opacity-60",
+          thread.is_pinned && "border-primary/30 bg-primary/5"
         )}
+      >
+        {/* Single row: pin/system badge + avatar + name + rank + lv + time + pillar */}
+        <div className="flex items-center gap-2">
+          {thread.is_system && <span className="text-[10px]">📌</span>}
+          {isPending && <Clock className="h-3 w-3 text-primary shrink-0" />}
+          {showTrendingBadge && thread.trendingScore && thread.trendingScore > 5 && (
+            <TrendingUp className="h-3 w-3 text-amber-500 shrink-0" />
+          )}
+          <button onClick={(e) => { e.preventDefault(); onProfileClick(thread.user_id); }} className="shrink-0">
+            <PlayerAvatar userId={thread.user_id} size="sm" name={username || thread.author?.full_name || '?'} className="h-5 w-5 ring-1" />
+          </button>
+          <span className="text-xs font-semibold truncate max-w-[100px]">{username || thread.author?.full_name || '—'}</span>
+          <Badge variant="outline" className="text-[8px] px-1 py-0 h-3 shrink-0 border-primary/40 text-primary">
+            {isHe ? rank.he : rank.en}
+          </Badge>
+          <span className="text-[10px] text-muted-foreground shrink-0">Lv.{level}</span>
+          <span className="text-[10px] text-muted-foreground ms-auto shrink-0">
+            {thread.created_at && formatDistanceToNow(new Date(thread.created_at), {
+              addSuffix: false,
+              locale: isHe ? heLocale : enUS,
+            })}
+          </span>
+        </div>
+
+        {/* Title row with inline pillar + category badges */}
+        <div className="flex items-center gap-1.5 mt-1">
+          {domain && thread.pillar && (
+            <span className="text-[10px] shrink-0">{PILLAR_ICONS[pillar]}</span>
+          )}
+          <h3 className="text-xs font-semibold text-foreground truncate flex-1">
+            {displayTitle || displayContent.slice(0, 60)}
+          </h3>
+          {thread.category && (
+            <Badge
+              variant="outline"
+              className="text-[8px] px-1 py-0 h-3 shrink-0"
+              style={{ borderColor: thread.category.color || undefined, color: thread.category.color || undefined }}
+            >
+              {thread.category.icon} {isHe ? thread.category.name : thread.category.name_en || thread.category.name}
+            </Badge>
+          )}
+        </div>
+
+        {/* Bottom actions row */}
+        <div className="flex items-center gap-2.5 mt-1">
+          <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+            <MessageCircle className="h-3 w-3" /> {thread.comments_count}
+          </span>
+          <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+            <Heart className="h-3 w-3" /> {thread.likes_count}
+          </span>
+          <Bookmark className="h-3 w-3 text-muted-foreground" />
+          {onAddToPlan && (
+            <button
+              onClick={(e) => { e.preventDefault(); onAddToPlan(thread); }}
+              className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-emerald-500 transition-colors ms-auto"
+            >
+              <Lightbulb className="h-3 w-3" />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
