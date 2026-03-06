@@ -124,6 +124,9 @@ serve(async (req) => {
 
     const constraintsBlock = buildConstraintsBlock(ctx);
 
+    // Build user goals context to prevent hallucination
+    const userGoalsContext = buildUserGoalsContext(ctx);
+
     const prompt = `You are Aurora for "Mind OS". Generate exactly 3 WEEKLY OBJECTIVES for this milestone.
 
 ## IMPORTANT: These are WEEKLY-LEVEL OBJECTIVES, NOT daily micro-tasks.
@@ -139,8 +142,15 @@ broken down into daily actions by a separate system.
 Name: ${ctx.profile?.full_name || 'Unknown'}
 Values: ${ctx.identity?.values?.slice(0, 5).join(', ') || 'N/A'}
 Intensity: ${intensity} (completion rate: ${completionRate}%)
+${userGoalsContext}
 
 ${constraintsBlock}
+
+## CRITICAL — RELEVANCE RULE:
+- ONLY generate objectives that are DIRECTLY relevant to the milestone title, description, and pillar above.
+- NEVER invent topics the user hasn't expressed interest in (e.g., trading, stocks, crypto, cooking, etc.) unless those topics appear in the milestone, mission, user direction, or user projects.
+- If the milestone is vague, generate objectives within the pillar's domain ONLY.
+- Cross-reference the USER'S ACTUAL GOALS below to ensure relevance.
 
 ## WHAT MAKES A GOOD WEEKLY OBJECTIVE:
 - It's a SUBSTANTIAL goal that takes 5-7 days to master or complete
