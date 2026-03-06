@@ -300,14 +300,33 @@ function distributeMilestonesToDays(
   return dayActions.flat();
 }
 
+    // Distribute strategy milestones across the 10-day phase (each appears once)
+    const allActions = distributeMilestonesToDays(
+      currentPhaseMilestones,
+      planStartDate,
+      currentPhase || 1,
+      phaseDates,
+    );
+
+    // Assign to day index
+    const dayMap = new Map<number, TacticalAction[]>();
+    for (let d = 0; d < 10; d++) dayMap.set(d, []);
+
+    for (const action of allActions) {
+      if (action.calendarDate) {
+        const idx = phaseDates.indexOf(action.calendarDate);
+        if (idx >= 0) dayMap.get(idx)!.push(action);
+      }
+    }
+
     const days = buildDayPlans(dayMap, phaseDates, todayStr);
 
     return {
       phase: phaseLabel,
       phaseNumber: currentPhase || 1,
       days,
-      totalActions: phaseActions.length,
-      completedActions: phaseActions.filter(a => a.completed).length,
+      totalActions: allActions.length,
+      completedActions: allActions.filter(a => a.completed).length,
       totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
       generating,
       phaseStart,
