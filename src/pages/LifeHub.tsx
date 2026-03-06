@@ -392,7 +392,10 @@ export default function LifeHub() {
                 const traitLabel = isHe
                   ? (traitCount === 1 ? 'תכונה אחת' : `${traitCount} תכונות`)
                   : (traitCount === 1 ? '1 trait' : `${traitCount} traits`);
-                const msLabel = `${pMs} ${isHe ? 'אבני דרך' : 'milestones'}`;
+                const mCount = group.missionCount;
+                const msLabel = isHe
+                  ? `${mCount} ${mCount === 1 ? 'משימה' : 'משימות'}`
+                  : `${mCount} ${mCount === 1 ? 'mission' : 'missions'}`;
 
                 return (
                   <div

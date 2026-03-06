@@ -510,9 +510,14 @@ async function generatePillarStrategy(
     
     const goals = missionResult?.goals || [];
     if (goals.length < 3) {
-      // Pad with fallback missions
+      // Pad with fallback missions — use generic progressive labels, NOT trait name
+      const fallbackLabels = [
+        { goal_en: 'Foundation Protocol', goal_he: 'פרוטוקול יסוד' },
+        { goal_en: 'Integration Drill', goal_he: 'תרגול שילוב' },
+        { goal_en: 'Mastery Execution', goal_he: 'ביצוע מומחיות' },
+      ];
       while (goals.length < 3) {
-        goals.push({ goal_en: `${trait.name_en} training ${goals.length + 1}`, goal_he: `אימון ${trait.name_he} ${goals.length + 1}` });
+        goals.push(fallbackLabels[goals.length] || { goal_en: `Training Arc ${goals.length + 1}`, goal_he: `ארק אימון ${goals.length + 1}` });
       }
     }
 
