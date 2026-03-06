@@ -13,13 +13,16 @@ export interface ThreadData {
   id: string;
   user_id: string;
   title: string | null;
+  title_he: string | null;
   content: string;
+  content_he: string | null;
   pillar: string | null;
   status: string;
   created_at: string | null;
   likes_count: number;
   comments_count: number;
   is_pinned?: boolean;
+  is_system?: boolean;
   trendingScore?: number;
   category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
   author?: { full_name: string | null; level: number | null; community_username: string | null } | null;
