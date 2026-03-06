@@ -191,6 +191,8 @@ export function NowSection() {
   const { schedule, isLoading, refetch, hasPlan } = useTodayExecution();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
 
   // Determine current time to classify blocks
@@ -208,8 +210,14 @@ export function NowSection() {
   };
 
   const handleExecute = (item: NowQueueItem) => {
-    setExecutionAction(item);
-    setExecutionOpen(true);
+    // If action has a milestone, use the immersive MilestoneJourneyModal
+    if (item.milestoneId) {
+      setJourneyAction(item);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(item);
+      setExecutionOpen(true);
+    }
   };
 
   const toggleBlock = (slotId: string) => {
