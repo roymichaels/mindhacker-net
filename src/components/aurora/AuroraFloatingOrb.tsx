@@ -48,7 +48,7 @@ export function AuroraFloatingOrb() {
   const didDrag = useRef(false);
 
   const getDefaultRight = () => isMobile ? 16 : 24;
-  const getDefaultBottom = () => isMobile ? 80 : 24;
+  const getDefaultBottom = () => isMobile ? 160 : 24;
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     dragging.current = true;
@@ -110,9 +110,8 @@ export function AuroraFloatingOrb() {
       className={cn(
         "fixed z-50 rounded-full cursor-grab active:cursor-grabbing",
         "shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40",
-        "ring-2 ring-primary/20 hover:ring-primary/40 transition-shadow",
-        "select-none touch-none",
-        "bg-background/60 backdrop-blur-md p-1"
+        "transition-shadow",
+        "select-none touch-none"
       )}
       style={{
         ...positionStyle,
@@ -126,7 +125,7 @@ export function AuroraFloatingOrb() {
       role="button"
       tabIndex={0}
     >
-      <AuroraHoloOrb size={ORB_SIZE - 8} glow="full" />
+      <AuroraHoloOrb size={ORB_SIZE} glow="full" />
     </motion.div>
   );
 }
