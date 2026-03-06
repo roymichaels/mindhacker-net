@@ -937,6 +937,7 @@ serve(async (req) => {
                   is_completed: false,
                   xp_reward: 20,
                   tokens_reward: 5,
+                  difficulty: Math.max(1, Math.min(5, ms.difficulty || (si + 1))),
                 });
                 totalMilestones++;
               }
