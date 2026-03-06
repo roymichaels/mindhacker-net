@@ -1,7 +1,6 @@
 /**
  * ArenaHub — Tactics page (טקטיקה).
- * AI-generated 10-day phase schedule with fixed time blocks.
- * Clicking a milestone opens the ExecutionModal with full guided execution.
+ * AI-generated 10-day phase schedule with themed blocks containing milestones.
  */
 import { useState, useMemo, useCallback } from 'react';
 import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play, Wand2 } from 'lucide-react';
@@ -29,7 +28,17 @@ const BLOCK_ICONS: Record<BlockCategory, typeof Swords> = {
   social: Trophy,
 };
 
-const BLOCK_COLORS: Record<BlockCategory, string> = {
+const BLOCK_GRADIENTS: Record<BlockCategory, string> = {
+  health: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20',
+  training: 'from-red-500/15 to-red-500/5 border-red-500/20',
+  focus: 'from-amber-500/15 to-amber-500/5 border-amber-500/20',
+  action: 'from-blue-500/15 to-blue-500/5 border-blue-500/20',
+  creation: 'from-purple-500/15 to-purple-500/5 border-purple-500/20',
+  review: 'from-teal-500/15 to-teal-500/5 border-teal-500/20',
+  social: 'from-pink-500/15 to-pink-500/5 border-pink-500/20',
+};
+
+const BLOCK_ICON_COLORS: Record<BlockCategory, string> = {
   health: 'text-emerald-400',
   training: 'text-red-400',
   focus: 'text-amber-400',
@@ -45,7 +54,6 @@ const DIFFICULTY_STYLES: Record<Difficulty, { bg: string; text: string; label: {
   hard: { bg: 'bg-red-500/15', text: 'text-red-500', label: { he: 'קשה', en: 'Hard' } },
 };
 
-/** Convert a TacticalAction to a NowQueueItem for ExecutionModal */
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
   return {
     pillarId: action.focusArea || action.blockCategory || 'general',
@@ -79,14 +87,12 @@ export default function ArenaHub() {
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const [scheduleGenerating, setScheduleGenerating] = useState(false);
-  // Journey modal state
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
 
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime } = phasePlan;
 
-  // Generate AI schedule
   const handleGenerateSchedule = useCallback(async () => {
     if (scheduleGenerating) return;
     setScheduleGenerating(true);
@@ -101,7 +107,6 @@ export default function ArenaHub() {
     }
   }, [generateSchedule, scheduleGenerating, queryClient, toast, isHe]);
 
-  // Find today's day index within the 10-day phase
   const todayIndex = useMemo(() => {
     const idx = days.findIndex(d => d.isToday);
     return idx >= 0 ? idx : 0;
@@ -110,7 +115,6 @@ export default function ArenaHub() {
   const activeDay = selectedDay ?? todayIndex;
 
   const completionPct = totalActions > 0 ? Math.round((completedActions / totalActions) * 100) : 0;
-
   const activeDays = days.filter(d => d.totalActions > 0).length;
   const activeBlocks = days.reduce((s, d) => s + d.blocks.length, 0);
 
@@ -122,7 +126,6 @@ export default function ArenaHub() {
   ];
 
   const handleOpenExecution = useCallback((action: TacticalAction) => {
-    // If has a milestone source, open the journey modal
     if (action.sourceMilestoneId) {
       setJourneyAction(action);
       setJourneyOpen(true);
@@ -283,8 +286,8 @@ export default function ArenaHub() {
                     <Wand2 className="w-8 h-8 text-muted-foreground/30" />
                     <p className="text-xs text-muted-foreground text-center max-w-xs">
                       {isHe
-                        ? 'לחץ "צור לו"ז AI" כדי ש-Aurora תבנה לך תוכנית יומית עם שעות מדויקות'
-                        : 'Click "Generate AI Schedule" for Aurora to build your daily plan with exact time blocks'}
+                        ? 'לחץ "צור לו"ז AI" כדי ש-Aurora תבנה לך תוכנית יומית עם בלוקים נושאיים'
+                        : 'Click "Generate AI Schedule" for Aurora to build themed blocks with milestones'}
                     </p>
                   </div>
                 ) : (
@@ -382,7 +385,7 @@ export default function ArenaHub() {
   );
 }
 
-// ── Day View Component with Time Blocks ──
+// ── Day View with Collapsible Themed Blocks ──
 
 function DayView({
   day,
@@ -395,6 +398,20 @@ function DayView({
   onExecuteAction: (action: TacticalAction) => void;
   hasAiSchedule: boolean;
 }) {
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(() => {
+    // Auto-expand first block
+    return new Set(day?.blocks?.[0] ? [day.blocks[0].id] : []);
+  });
+
+  const toggleBlock = (blockId: string) => {
+    setExpandedBlocks(prev => {
+      const next = new Set(prev);
+      if (next.has(blockId)) next.delete(blockId);
+      else next.add(blockId);
+      return next;
+    });
+  };
+
   if (!day || day.totalActions === 0) {
     return (
       <div className="text-center py-6">
@@ -406,9 +423,9 @@ function DayView({
   }
 
   return (
-    <div className="space-y-1">
-      {/* Day summary */}
-      <div className="flex items-center justify-between mb-3">
+    <div className="space-y-2.5">
+      {/* Day header */}
+      <div className="flex items-center justify-between mb-1">
         <span className="text-xs font-bold text-foreground/70">
           {isHe ? day.label : day.labelEn}
           {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
@@ -418,92 +435,183 @@ function DayView({
         </span>
       </div>
 
-      {/* Time-block schedule */}
-      <div className="relative">
-        {/* Timeline line */}
-        {hasAiSchedule && (
-          <div className="absolute start-4 top-2 bottom-2 w-px bg-border/30" />
-        )}
+      {/* Themed Block Cards */}
+      {day.blocks.map((block) => {
+        const isExpanded = expandedBlocks.has(block.id);
+        const Icon = BLOCK_ICONS[block.category] || Swords;
+        const gradient = BLOCK_GRADIENTS[block.category] || BLOCK_GRADIENTS.action;
+        const iconColor = BLOCK_ICON_COLORS[block.category] || 'text-foreground/60';
+        const blockComplete = block.completedCount === block.actions.length && block.actions.length > 0;
 
-        <div className="space-y-1.5">
-          {day.blocks.map((block) => {
-            const action = block.actions[0];
-            if (!action) return null;
-            const Icon = BLOCK_ICONS[block.category] || Swords;
-            const color = BLOCK_COLORS[block.category] || 'text-foreground/60';
-            const diffStyle = DIFFICULTY_STYLES[action.difficulty];
+        return (
+          <motion.div
+            key={block.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "rounded-xl border overflow-hidden transition-all",
+              blockComplete ? "border-emerald-500/30 bg-emerald-500/5" : `bg-gradient-to-b ${gradient}`
+            )}
+          >
+            {/* Block Header - clickable to expand/collapse */}
+            <button
+              onClick={() => toggleBlock(block.id)}
+              className="flex items-center gap-3 w-full text-start px-3.5 py-3 group"
+            >
+              {/* Time */}
+              {hasAiSchedule && block.startTime && (
+                <div className="flex flex-col items-center shrink-0 w-10">
+                  <span className="text-[11px] font-bold text-foreground/60 tabular-nums">
+                    {block.startTime}
+                  </span>
+                  <span className="text-[8px] text-muted-foreground/40 tabular-nums">
+                    {block.endTime}
+                  </span>
+                </div>
+              )}
 
-            return (
-              <button
-                key={block.id}
-                onClick={() => onExecuteAction(action)}
-                className={cn(
-                  "flex items-start gap-3 w-full text-start py-2.5 px-3 rounded-xl transition-all group",
-                  action.completed
-                    ? "opacity-50 bg-emerald-500/5 border border-emerald-500/10"
-                    : "hover:bg-primary/5 border border-border/20 hover:border-primary/20"
+              {/* Emoji + Icon */}
+              <div className={cn(
+                "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-lg",
+                blockComplete ? "bg-emerald-500/15" : "bg-background/50"
+              )}>
+                {blockComplete ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                ) : (
+                  <span>{block.emoji}</span>
                 )}
-              >
-                {/* Time column */}
-                {hasAiSchedule && block.startTime ? (
-                  <div className="flex flex-col items-center shrink-0 w-12 pt-0.5">
-                    <span className="text-[11px] font-bold text-foreground/70 tabular-nums">
-                      {block.startTime}
-                    </span>
-                    <span className="text-[8px] text-muted-foreground/50 tabular-nums">
-                      {block.endTime}
-                    </span>
-                  </div>
-                ) : null}
+              </div>
 
-                {/* Icon */}
-                <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                  action.completed
-                    ? "bg-emerald-500/15"
-                    : "bg-primary/10 group-hover:bg-primary/20"
-                )}>
-                  {action.completed ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <Play className="w-3.5 h-3.5 text-primary ms-0.5" />
+              {/* Block info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <Icon className={cn("w-3 h-3 shrink-0", blockComplete ? "text-emerald-500" : iconColor)} />
+                  <p className={cn(
+                    "text-xs font-bold leading-snug",
+                    blockComplete ? "text-emerald-500" : "text-foreground/80"
+                  )}>
+                    {isHe ? block.title : block.titleEn}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[9px] text-muted-foreground">
+                    {block.actions.length} {isHe ? 'משימות' : 'tasks'}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground">·</span>
+                  <span className="text-[9px] text-muted-foreground">
+                    {block.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
+                  </span>
+                  {block.completedCount > 0 && (
+                    <>
+                      <span className="text-[9px] text-muted-foreground">·</span>
+                      <span className="text-[9px] text-emerald-500 font-medium">
+                        {block.completedCount}/{block.actions.length} ✓
+                      </span>
+                    </>
                   )}
                 </div>
+              </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2">
-                    <Icon className={cn("w-3.5 h-3.5 shrink-0 mt-0.5", action.completed ? "text-emerald-500" : color)} />
-                    <p className={cn(
-                      "text-xs leading-snug font-medium flex-1",
-                      action.completed ? "line-through text-muted-foreground" : "text-foreground/80"
-                    )}>
-                      {isHe ? action.title : (action.titleEn || action.title)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap ms-5">
-                    <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full", diffStyle.bg, diffStyle.text)}>
-                      {isHe ? diffStyle.label.he : diffStyle.label.en}
-                    </span>
-                    <span className="text-[8px] text-muted-foreground/50 flex items-center gap-0.5">
-                      <Flame className="w-2.5 h-2.5" />
-                      {action.xpReward} XP
-                    </span>
-                    <span className="text-[8px] text-muted-foreground/50">
-                      {action.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
-                    </span>
-                    {!action.completed && (
-                      <span className="text-[8px] text-primary/60 font-medium">
-                        {isHe ? 'לחץ להתחיל ▶' : 'Tap to start ▶'}
-                      </span>
-                    )}
-                  </div>
+              {/* Expand indicator */}
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="shrink-0"
+              >
+                <ChevronDown className="w-4 h-4 text-muted-foreground/40" />
+              </motion.div>
+            </button>
+
+            {/* Block Progress Bar */}
+            {block.actions.length > 1 && (
+              <div className="px-3.5 pb-1">
+                <div className="h-1 rounded-full bg-muted/30 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-emerald-500/50"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${block.actions.length > 0 ? (block.completedCount / block.actions.length) * 100 : 0}%` }}
+                    transition={{ duration: 0.4 }}
+                  />
                 </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+              </div>
+            )}
+
+            {/* Expanded: Milestones inside the block */}
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-3 pb-3 pt-1 space-y-1">
+                    {block.actions.map((action, actionIdx) => {
+                      const diffStyle = DIFFICULTY_STYLES[action.difficulty];
+                      return (
+                        <button
+                          key={action.id}
+                          onClick={() => onExecuteAction(action)}
+                          className={cn(
+                            "flex items-center gap-2.5 w-full text-start py-2 px-2.5 rounded-lg transition-all group/item",
+                            action.completed
+                              ? "opacity-50 bg-emerald-500/5"
+                              : "hover:bg-background/60"
+                          )}
+                        >
+                          {/* Step number / completion */}
+                          <div className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold border",
+                            action.completed
+                              ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-500"
+                              : "bg-background/50 border-border/30 text-foreground/50 group-hover/item:border-primary/30 group-hover/item:text-primary"
+                          )}>
+                            {action.completed ? (
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            ) : (
+                              <Play className="w-2.5 h-2.5 ms-0.5" />
+                            )}
+                          </div>
+
+                          {/* Milestone content */}
+                          <div className="flex-1 min-w-0">
+                            <p className={cn(
+                              "text-[11px] leading-snug font-medium",
+                              action.completed ? "line-through text-muted-foreground" : "text-foreground/75"
+                            )}>
+                              {isHe ? action.title : (action.titleEn || action.title)}
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className={cn("text-[7px] font-semibold px-1 py-px rounded-full", diffStyle.bg, diffStyle.text)}>
+                                {isHe ? diffStyle.label.he : diffStyle.label.en}
+                              </span>
+                              <span className="text-[7px] text-muted-foreground/50 flex items-center gap-0.5">
+                                <Flame className="w-2 h-2" />
+                                {action.xpReward}
+                              </span>
+                              <span className="text-[7px] text-muted-foreground/50">
+                                {action.estimatedMinutes}′
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Play hint */}
+                          {!action.completed && (
+                            <div className="shrink-0 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                              <Play className="w-3.5 h-3.5 text-primary/60" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }

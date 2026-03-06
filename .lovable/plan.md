@@ -1,78 +1,120 @@
 
+# Advanced Voice Mode for Aurora
 
-## Understanding the Problem
+## Overview
+Add a real-time, bidirectional voice conversation mode between the user and Aurora -- similar to ChatGPT's Advanced Voice Mode. The user taps a button, enters a full-screen (or overlay) voice session where they speak naturally, Aurora listens, processes, and responds with voice -- creating a seamless back-and-forth conversation loop.
 
-Currently, each milestone is scheduled as an **individual time slot** (e.g., "Morning Breathing Protocol" at 06:30-06:45). The user wants milestones to be **grouped into themed time blocks** — for example, a "Morning Block" (06:00-07:30) that **contains** breathing, tai chi, yoga, grounding milestones inside it. Each milestone within the block is a journey/adventure that opens the visual roadmap when tapped.
+This will be available in:
+1. The **AuroraDock** (global chat input bar)
+2. The **DomainAssessChat** (pillar assessments)
+3. The **AuroraChatInput** (used inside assessment modals)
 
-**Current**: Day → flat list of individual milestones with times
-**Desired**: Day → themed BLOCKS (Morning, Training, Focus, Evening) → each block contains multiple milestones → each milestone opens as a journey
+## How It Works
 
-## Plan
-
-### 1. Restructure the AI Schedule Generator
-
-**File**: `supabase/functions/generate-tactical-schedule/index.ts`
-
-Update the prompt to generate **nested blocks** instead of flat milestone lists:
-
-```json
-{
-  "days": [{
-    "day_number": 1,
-    "blocks": [
-      {
-        "block_title_he": "בלוק בוקר",
-        "block_title_en": "Morning Block",
-        "block_emoji": "🌅",
-        "start_time": "06:00",
-        "end_time": "07:30",
-        "category": "health",
-        "milestones": [
-          { "milestone_id": "...", "title_he": "פרוטוקול נשימה", "duration_minutes": 15, ... },
-          { "milestone_id": "...", "title_he": "תרגול טאי צ'י", "duration_minutes": 20, ... },
-          { "milestone_id": "...", "title_he": "יוגה בוקר", "duration_minutes": 25, ... }
-        ]
-      },
-      {
-        "block_title_he": "בלוק אימון",
-        "block_title_en": "Training Block",
-        "start_time": "10:00",
-        "end_time": "11:00",
-        ...
-      }
-    ]
-  }]
-}
+```text
+User taps Voice Mode button
+        |
+        v
++---------------------------+
+|   Full-screen Voice UI    |
+|                           |
+|   [Aurora Orb animating]  |
+|                           |
+|   State: LISTENING        |
+|   "Speak now..."          |
+|                           |
+|   [End Call]              |
++---------------------------+
+        |
+  User speaks -> STT (ElevenLabs transcribe)
+        |
+  Transcript sent to Aurora chat (existing aurora-chat edge fn)
+        |
+  Aurora responds with text
+        |
+  Text -> TTS (ElevenLabs TTS) -> plays audio
+        |
+  When audio ends -> back to LISTENING
+        |
+  Loop continues until user taps "End"
 ```
 
-The AI groups related milestones into 3-5 themed blocks per day. Each milestone can appear in multiple days' blocks based on cadence.
+## Components to Create
 
-### 2. Update Types & Parser
+### 1. `src/components/aurora/AuroraVoiceMode.tsx` (New)
+The main voice mode overlay/modal component:
+- Full-screen dark overlay with the **AuroraHoloOrb** as the centerpiece (animated based on state)
+- States: `idle`, `listening`, `processing`, `speaking`
+- Visual audio waveform/level indicator while listening
+- Aurora orb pulses/glows while speaking
+- "End Call" button to exit
+- Transcript display (shows what user said + Aurora's response text)
+- Uses existing `useAuroraVoice` for STT + TTS
+- Auto-loop: after Aurora finishes speaking, automatically starts listening again
 
-**File**: `src/hooks/useWeeklyTacticalPlan.ts`
+### 2. `src/hooks/aurora/useAuroraVoiceMode.tsx` (New)
+Custom hook that orchestrates the full voice conversation loop:
+- Manages the state machine: `idle -> listening -> processing -> speaking -> listening`
+- Uses existing `useAuroraVoice` for recording/transcription
+- On transcription complete: sends message via the chat context's `sendMessageRef` (for AuroraDock) or a provided `onSend` callback (for assessments)
+- Watches for Aurora's response (new assistant message) and auto-plays via TTS
+- Handles the auto-loop (when TTS ends, restart recording)
+- Graceful error handling with fallback states
+- Cleanup on unmount (stop recording, stop playback)
 
-- Update `TacticalBlock` to hold block-level metadata (title, emoji, time range)
-- Update `TacticalAction` entries to be the milestones within each block
-- Update `parseAiSchedule()` to parse the nested structure where each AI block contains an array of milestones
+### 3. `src/components/aurora/VoiceModeButton.tsx` (New)
+A reusable button that triggers voice mode:
+- Headphone/waveform icon
+- Opens the `AuroraVoiceMode` overlay when tapped
+- Can be placed in any chat input bar
 
-### 3. Redesign the DayView UI
+## Integration Points
 
-**File**: `src/pages/ArenaHub.tsx`
+### GlobalChatInput (AuroraDock)
+- Add `VoiceModeButton` next to the existing voice recording button
+- When voice mode is active, messages flow through the existing `sendMessageRef` mechanism
+- Aurora responses are detected from the streaming state + messages list
 
-Replace the flat list with **collapsible block cards**:
-- Each block shows as a card with title, emoji, time range, and milestone count
-- Expanding a block reveals the milestones inside it
-- Each milestone row has a play button that opens the `MilestoneJourneyModal`
-- Visual: block header with gradient based on category, milestones listed inside with progress indicators
+### AuroraChatInput (Assessments)
+- Add `VoiceModeButton` next to the existing mic button
+- Messages flow through the `onSend` prop
+- Aurora responses come from the parent `DomainAssessChat` messages state
 
-### 4. Update the Journey Modal Integration
+### DomainAssessChat
+- No direct changes needed -- voice mode works through `AuroraChatInput` which already has the `onSend` callback
 
-No changes needed — `MilestoneJourneyModal` already works per-milestone. When user taps a milestone inside a block, it opens the journey for that specific milestone.
+## Voice Conversation Flow (Technical)
 
-### Technical Details
+1. User enters voice mode -> `AuroraVoiceMode` overlay opens
+2. Auto-starts recording via `navigator.mediaDevices.getUserMedia`
+3. User stops speaking (manual tap or silence detection)
+4. Audio sent to `elevenlabs-transcribe` edge function (existing)
+5. Transcribed text sent as chat message via existing chat infrastructure
+6. Hook monitors for new assistant messages in the conversation
+7. When assistant message arrives, sends text to `elevenlabs-tts` edge function (existing)
+8. Audio plays back through the browser
+9. On audio end, auto-restart recording for next turn
+10. User taps "End" to exit voice mode
 
-- The AI prompt will instruct grouping by theme: Morning rituals together, training together, deep work together, social together, evening review together
-- Each block gets a total duration (sum of its milestones) and a time window
-- The same milestone can appear in blocks across different days (e.g., breathing in Morning Block on days 1,3,5,7,9)
-- Block completion = all milestones inside completed
+## UI Design
 
+- **Overlay**: Full viewport, dark background with subtle gradient, `z-50`
+- **Center**: Large AuroraHoloOrb (96px+) with state-dependent animations
+  - Listening: gentle pulse with mic-level reactivity
+  - Processing: spinning/loading animation
+  - Speaking: rhythmic glow synced with audio output
+- **Bottom**: "End Call" button (red, rounded-full)
+- **Top**: Small transcript area showing last exchange
+- **RTL Support**: Full Hebrew/English bilingual labels
+
+## Files Summary
+
+| File | Action |
+|------|--------|
+| `src/hooks/aurora/useAuroraVoiceMode.tsx` | Create -- orchestration hook |
+| `src/components/aurora/AuroraVoiceMode.tsx` | Create -- full-screen voice UI |
+| `src/components/aurora/VoiceModeButton.tsx` | Create -- trigger button |
+| `src/components/dashboard/GlobalChatInput.tsx` | Edit -- add VoiceModeButton |
+| `src/components/aurora/AuroraChatInput.tsx` | Edit -- add VoiceModeButton |
+
+No new edge functions needed -- reuses existing `elevenlabs-transcribe` and `elevenlabs-tts`. No database changes required.

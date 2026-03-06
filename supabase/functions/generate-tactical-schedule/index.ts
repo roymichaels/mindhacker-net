@@ -1,11 +1,8 @@
 /**
  * generate-tactical-schedule — AI-powered daily time-block schedule generator
  * 
- * Takes milestones for a phase + user wake/sleep preferences and generates
- * a full 10-day hour-by-hour schedule stored in tactical_schedules table.
- * 
- * Each day has fixed time blocks from wake to sleep with milestones distributed
- * based on cadence, difficulty, and category.
+ * Generates a 10-day schedule with THEMED BLOCKS (Morning, Training, Focus, Evening)
+ * where each block contains multiple related milestones grouped by category.
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -48,7 +45,6 @@ serve(async (req) => {
     const profile = profileRes.data;
     const milestones = milestonesRes.data || [];
     const missions = missionsRes.data || [];
-    const planStartDate = planRes.data?.start_date;
 
     if (milestones.length === 0) throw new Error("No milestones found for this phase");
 
@@ -57,13 +53,12 @@ serve(async (req) => {
     const focusPeakStart = profile?.focus_peak_start || "09:00";
     const focusPeakEnd = profile?.focus_peak_end || "12:00";
 
-    // Build mission map for context
+    // Build mission map
     const missionMap: Record<string, { title: string; titleEn: string; pillar: string }> = {};
     for (const m of missions) {
       missionMap[m.id] = { title: m.title || "", titleEn: m.title_en || m.title || "", pillar: m.pillar || "" };
     }
 
-    // Enrich milestones with mission context
     const enrichedMilestones = milestones.map(m => {
       const mission = m.mission_id ? missionMap[m.mission_id] : null;
       return {
@@ -77,7 +72,7 @@ serve(async (req) => {
       };
     });
 
-    // If adjust_day is set, we're doing a daily adjustment — fetch existing schedule
+    // Fetch existing schedule for adjustments
     let existingSchedule: any = null;
     if (adjust_day) {
       const { data } = await supabase
@@ -91,14 +86,10 @@ serve(async (req) => {
     }
 
     const adjustmentContext = adjust_day && existingSchedule
-      ? `
-## DAILY ADJUSTMENT (Day ${adjust_day}):
-The existing schedule has been partially executed. Adjust day ${adjust_day} based on what was completed. Keep the overall structure but rebalance uncompleted items.
-Existing schedule: ${JSON.stringify(existingSchedule.schedule_data).substring(0, 2000)}
-`
+      ? `\n## DAILY ADJUSTMENT (Day ${adjust_day}):\nAdjust day ${adjust_day} based on completed items.\nExisting: ${JSON.stringify(existingSchedule.schedule_data).substring(0, 2000)}\n`
       : "";
 
-    const prompt = `You are Aurora, the AI schedule architect for Mind OS. Generate a COMPLETE 10-day tactical schedule with exact time blocks.
+    const prompt = `You are Aurora, the AI schedule architect for Mind OS. Generate a COMPLETE 10-day tactical schedule organized into THEMED BLOCKS.
 
 ## USER PREFERENCES:
 - Wake time: ${wakeTime}
@@ -107,33 +98,29 @@ Existing schedule: ${JSON.stringify(existingSchedule.schedule_data).substring(0,
 - Name: ${profile?.full_name || "User"}
 
 ## MILESTONES TO SCHEDULE (${enrichedMilestones.length} total):
-${enrichedMilestones.map((m, i) => `${i + 1}. [${m.focus_area}] "${m.title_en}" — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
+${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] "${m.title_en}" — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
 
 ${adjustmentContext}
 
-## SCHEDULING RULES:
-1. Each milestone should appear 2-4 times across the 10 days based on its nature:
-   - Physical training/exercise: 3-4 times (e.g., Mon/Wed/Fri/Sun pattern)
-   - Mental/meditation/breathwork: daily or 5x (morning routine items)
-   - Deep work/business/creation: 2-3 times (longer sessions)
-   - Social/relationship tasks: 1-2 times
-   - Review/analysis: 1-2 times (mid-phase and end)
-2. Place meditation/breathwork in the MORNING right after waking
-3. Place intense training in MORNING or LATE AFTERNOON (not right after meals)
-4. Place deep work during the PEAK FOCUS WINDOW (${focusPeakStart}-${focusPeakEnd})
-5. Place social/light tasks in AFTERNOON or EVENING
-6. Place review/reflection in EVENING before sleep
-7. Each day should have 3-7 time blocks, NOT more
-8. Leave gaps between blocks — the user has a life!
-9. No block should be longer than 60 minutes
-10. Total daily active time: 90-180 minutes (realistic!)
-11. Already completed milestones (marked ✅) should NOT be scheduled
-
-## TIME BLOCK FORMAT:
-Each block has: start_time (HH:MM), end_time (HH:MM), milestone_id, title, title_he, category, execution_template
+## BLOCK STRUCTURE RULES:
+1. Each day has 3-5 THEMED BLOCKS. A block is a container for related milestones.
+2. Block types and their ideal time slots:
+   - "Morning Ritual" (🌅): Right after waking. Contains: breathing, meditation, grounding, yoga, stretching milestones.
+   - "Training Block" (⚔️): Morning or late afternoon. Contains: physical training, combat, strength, cardio milestones.
+   - "Deep Work" (🧠): During peak focus window (${focusPeakStart}-${focusPeakEnd}). Contains: business, creation, analysis, strategy milestones.
+   - "Action Block" (⚡): Afternoon. Contains: tasks, execution, productivity milestones.
+   - "Evening Review" (🌙): Before sleep. Contains: reflection, review, journaling, social milestones.
+3. Each block contains 2-5 milestones inside it.
+4. The same milestone can appear across multiple days based on cadence:
+   - Physical/breathing/meditation: 4-6 times across 10 days
+   - Training/exercise: 3-4 times
+   - Deep work/business: 2-3 times
+   - Social/review: 1-2 times
+5. Already completed milestones (✅) should NOT be scheduled.
+6. Each milestone inside a block gets its own duration (10-45 min).
+7. Total daily active time: 90-180 minutes (realistic!).
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
-## EXECUTION TEMPLATES: tts_guided, video_embed, sets_reps_timer, step_by_step, timer_focus, social_checklist
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -142,25 +129,45 @@ Each block has: start_time (HH:MM), end_time (HH:MM), milestone_id, title, title
       "day_number": 1,
       "blocks": [
         {
+          "block_title_en": "Morning Ritual",
+          "block_title_he": "ריטואל בוקר",
+          "block_emoji": "🌅",
           "start_time": "06:30",
-          "end_time": "06:45",
-          "milestone_id": "uuid-here",
-          "title_en": "Morning breathwork protocol",
-          "title_he": "פרוטוקול נשימה בוקר",
+          "end_time": "07:30",
           "category": "health",
-          "execution_template": "tts_guided",
-          "estimated_minutes": 15,
-          "difficulty": "easy",
-          "xp_reward": 5
+          "milestones": [
+            {
+              "milestone_id": "actual-uuid-from-list",
+              "title_en": "Morning breathwork protocol",
+              "title_he": "פרוטוקול נשימת בוקר",
+              "duration_minutes": 15,
+              "difficulty": "easy",
+              "xp_reward": 5,
+              "execution_template": "tts_guided",
+              "order_index": 0
+            },
+            {
+              "milestone_id": "actual-uuid-from-list",
+              "title_en": "Tai Chi flow",
+              "title_he": "תרגול טאי צ'י",
+              "duration_minutes": 20,
+              "difficulty": "medium",
+              "xp_reward": 10,
+              "execution_template": "timer_focus",
+              "order_index": 1
+            }
+          ],
+          "total_minutes": 35,
+          "milestone_count": 2
         }
       ],
       "total_minutes": 120,
-      "block_count": 5
+      "block_count": 4
     }
   ]
 }
 
-Generate ALL 10 days. Be realistic — the user needs to actually DO this. Quality over quantity.`;
+IMPORTANT: Use the EXACT milestone IDs from the list above. Group related milestones into blocks by theme. Generate ALL 10 days.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -168,7 +175,7 @@ Generate ALL 10 days. Be realistic — the user needs to actually DO this. Quali
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "Output ONLY valid JSON. No markdown fences. No explanation text. Generate a realistic, balanced 10-day schedule." },
+          { role: "system", content: "Output ONLY valid JSON. No markdown fences. No explanation. Generate realistic themed blocks with milestones grouped inside." },
           { role: "user", content: prompt },
         ],
         temperature: 0.7,
@@ -213,18 +220,23 @@ Generate ALL 10 days. Be realistic — the user needs to actually DO this. Quali
       throw new Error("AI returned no schedule days");
     }
 
-    // Validate and clean milestone IDs — map back to real IDs
+    // Validate milestone IDs and clean up blocks
     const validIds = new Set(milestones.map(m => m.id));
     for (const day of parsed.days) {
       if (!day.blocks) day.blocks = [];
-      day.blocks = day.blocks.filter((b: any) => {
-        // Keep blocks even if milestone_id is wrong — the title/category still has value
-        if (b.milestone_id && !validIds.has(b.milestone_id)) {
-          b.milestone_id = null; // Clear invalid ID but keep the block
-        }
-        return true;
-      });
-      day.total_minutes = day.blocks.reduce((s: number, b: any) => s + (b.estimated_minutes || 15), 0);
+      for (const block of day.blocks) {
+        if (!block.milestones) block.milestones = [];
+        block.milestones = block.milestones.map((m: any, idx: number) => {
+          if (m.milestone_id && !validIds.has(m.milestone_id)) {
+            m.milestone_id = null;
+          }
+          m.order_index = idx;
+          return m;
+        });
+        block.milestone_count = block.milestones.length;
+        block.total_minutes = block.milestones.reduce((s: number, m: any) => s + (m.duration_minutes || 15), 0);
+      }
+      day.total_minutes = day.blocks.reduce((s: number, b: any) => s + (b.total_minutes || 0), 0);
       day.block_count = day.blocks.length;
     }
 
