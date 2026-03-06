@@ -146,7 +146,6 @@ export default function OrbCollectionSection() {
     resetTimer();
   };
 
-  // Build visible indices (wrapping)
   const visibleIndices: number[] = [];
   const half = Math.floor(visibleCount / 2);
   for (let i = -half; i <= half; i++) {
@@ -162,7 +161,99 @@ export default function OrbCollectionSection() {
       }} />
 
       <div className="relative z-10 container mx-auto max-w-7xl px-4" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Header */}
+        {/* Carousel row — above header */}
+        <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[320px] sm:min-h-[360px]">
+          {visibleIndices.map((presetIdx, slotIdx) => {
+            const preset = ORB_PRESETS[presetIdx];
+            const meta = ARCH_DATA[preset.id];
+            if (!meta) return null;
+
+            const distFromCenter = slotIdx - half;
+            const isCenter = distFromCenter === 0;
+            const scale = isCenter ? 1 : 0.78 - Math.abs(distFromCenter) * 0.05;
+            const opacity = isCenter ? 1 : 0.55 - Math.abs(distFromCenter) * 0.08;
+            const orbSize = isMobile ? (isCenter ? 120 : 90) : (isCenter ? 160 : 120);
+
+            return (
+              <motion.div
+                key={preset.id}
+                layout
+                initial={false}
+                animate={{
+                  scale,
+                  opacity,
+                  zIndex: isCenter ? 10 : 5 - Math.abs(distFromCenter),
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                onClick={() => { goTo(presetIdx); setModalPresetIdx(presetIdx); }}
+                className={cn(
+                  'flex flex-col items-center cursor-pointer rounded-2xl overflow-hidden',
+                  'bg-card/60 backdrop-blur-sm border border-border/30',
+                  'transition-shadow duration-300',
+                  isCenter ? 'shadow-2xl border-primary/30' : 'shadow-md',
+                  isMobile ? 'w-[110px]' : 'w-[180px]',
+                )}
+              >
+                <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden">
+                  <Orb
+                    profile={preset.profile}
+                    size={orbSize}
+                    state="breathing"
+                    renderer="webgl"
+                    showGlow={false}
+                  />
+                </div>
+
+                <div className={cn(
+                  'w-full px-2 pb-3 space-y-1 transition-all duration-300',
+                  isCenter ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'
+                )}>
+                  <h3 className="text-xs sm:text-sm font-bold text-foreground text-center truncate">
+                    {lang === 'he' ? meta.nameHe : meta.nameEn}
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground text-center leading-tight line-clamp-2">
+                    {lang === 'he' ? meta.descHe : meta.descEn}
+                  </p>
+                  <p className="text-[9px] text-primary/70 text-center italic">
+                    {lang === 'he' ? meta.dnaHe : meta.dnaEn}
+                  </p>
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {(lang === 'he' ? meta.traitsHe : meta.traitsEn).map((trait) => (
+                      <span key={trait} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+                        {trait}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={cn(
+                  'absolute top-2 text-[10px] font-mono text-muted-foreground/40 tabular-nums',
+                  isRTL ? 'left-2' : 'right-2'
+                )}>
+                  #{String(presetIdx + 1).padStart(2, '0')}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex items-center justify-center gap-1.5 mt-6 mb-10">
+          {ORB_PRESETS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => goTo(idx)}
+              className={cn(
+                'rounded-full transition-all duration-300',
+                idx === activeIndex
+                  ? 'w-6 h-2 bg-primary'
+                  : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              )}
+            />
+          ))}
+        </div>
+
+        {/* Header — below carousel */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -205,101 +296,6 @@ export default function OrbCollectionSection() {
             </div>
           ))}
         </motion.div>
-
-        {/* Carousel row */}
-        <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[320px] sm:min-h-[360px]">
-          {visibleIndices.map((presetIdx, slotIdx) => {
-            const preset = ORB_PRESETS[presetIdx];
-            const meta = ARCH_DATA[preset.id];
-            if (!meta) return null;
-
-            const distFromCenter = slotIdx - half;
-            const isCenter = distFromCenter === 0;
-            const scale = isCenter ? 1 : 0.78 - Math.abs(distFromCenter) * 0.05;
-            const opacity = isCenter ? 1 : 0.55 - Math.abs(distFromCenter) * 0.08;
-            const orbSize = isMobile ? (isCenter ? 120 : 90) : (isCenter ? 160 : 120);
-
-            return (
-              <motion.div
-                key={preset.id}
-                layout
-                initial={false}
-                animate={{
-                  scale,
-                  opacity,
-                  zIndex: isCenter ? 10 : 5 - Math.abs(distFromCenter),
-                }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                onClick={() => { goTo(presetIdx); setModalPresetIdx(presetIdx); }}
-                className={cn(
-                  'flex flex-col items-center cursor-pointer rounded-2xl overflow-hidden',
-                  'bg-card/60 backdrop-blur-sm border border-border/30',
-                  'transition-shadow duration-300',
-                  isCenter ? 'shadow-2xl border-primary/30' : 'shadow-md',
-                  isMobile ? 'w-[110px]' : 'w-[180px]',
-                )}
-              >
-                {/* Orb */}
-                <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden">
-                  <Orb
-                    profile={preset.profile}
-                    size={orbSize}
-                    state="breathing"
-                    renderer="webgl"
-                    showGlow={false}
-                  />
-                </div>
-
-                {/* Info — only shown for center */}
-                <div className={cn(
-                  'w-full px-2 pb-3 space-y-1 transition-all duration-300',
-                  isCenter ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'
-                )}>
-                  <h3 className="text-xs sm:text-sm font-bold text-foreground text-center truncate">
-                    {lang === 'he' ? meta.nameHe : meta.nameEn}
-                  </h3>
-                  <p className="text-[10px] text-muted-foreground text-center leading-tight line-clamp-2">
-                    {lang === 'he' ? meta.descHe : meta.descEn}
-                  </p>
-                  <p className="text-[9px] text-primary/70 text-center italic">
-                    {lang === 'he' ? meta.dnaHe : meta.dnaEn}
-                  </p>
-                  <div className="flex flex-wrap gap-1 justify-center">
-                    {(lang === 'he' ? meta.traitsHe : meta.traitsEn).map((trait) => (
-                      <span key={trait} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
-                        {trait}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Number badge */}
-                <div className={cn(
-                  'absolute top-2 text-[10px] font-mono text-muted-foreground/40 tabular-nums',
-                  isRTL ? 'left-2' : 'right-2'
-                )}>
-                  #{String(presetIdx + 1).padStart(2, '0')}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Dot indicators */}
-        <div className="flex items-center justify-center gap-1.5 mt-6">
-          {ORB_PRESETS.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => goTo(idx)}
-              className={cn(
-                'rounded-full transition-all duration-300',
-                idx === activeIndex
-                  ? 'w-6 h-2 bg-primary'
-                  : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
-              )}
-            />
-          ))}
-        </div>
 
         {/* Bottom CTA */}
         <motion.div
