@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { useTraitGallery, PILLAR_COLORS, type TraitCard } from '@/hooks/useTraitGallery';
+import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
 import { useTraitDetail } from '@/hooks/useTraitDetail';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Sparkles, ChevronLeft, CheckCircle2, Circle, ChevronDown, ChevronUp } from 'lucide-react';
