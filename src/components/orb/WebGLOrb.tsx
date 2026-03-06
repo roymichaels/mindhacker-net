@@ -327,6 +327,11 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 2. Sample multi-stop gradient ===
     vec3 baseColor = sampleGradient(blendFactor);
+    
+    // EARLY GUARD: if baseColor is near-zero, force a visible fallback immediately
+    if (dot(baseColor, vec3(1.0)) < 0.05) {
+      baseColor = vec3(0.2, 0.5, 0.7);
+    }
 
     // === 3. Apply pattern overlay ===
     float pattern = 0.0;
@@ -341,19 +346,23 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 4. Material lighting ===
     vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+    vec3 lightDir2 = normalize(vec3(-0.5, 0.3, -1.0));
     float NdotL = max(dot(normal, lightDir), 0.0);
-    float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0);
+    float NdotL2 = max(dot(normal, lightDir2), 0.0);
+    // Use absolute dot for double-sided lighting (handles flipped normals from morphing)
+    float NdotLAbs = max(abs(dot(normal, lightDir)), 0.15);
+    float fresnel = pow(1.0 - max(abs(dot(normal, viewDir)), 0.0), 3.0);
     vec3 halfDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfDir), 0.0), mix(8.0, 64.0, 1.0 - u_roughness));
 
     vec3 finalColor = baseColor;
 
     if (u_materialType == 1) { // metal
-      finalColor = baseColor * (0.4 + NdotL * 0.5) + spec * baseColor * u_metalness * 1.5;
+      finalColor = baseColor * (0.5 + NdotLAbs * 0.5) + spec * baseColor * u_metalness * 1.5;
       finalColor += fresnel * baseColor * 0.4;
     } else if (u_materialType == 2) { // glass
       float glassRefract = mix(0.8, 1.0, fresnel);
-      finalColor = baseColor * glassRefract * (0.6 + NdotL * 0.4);
+      finalColor = baseColor * glassRefract * (0.6 + NdotLAbs * 0.4);
       finalColor += fresnel * vec3(1.0) * u_transmission * 0.5;
       finalColor += spec * vec3(1.0) * 0.6;
     } else if (u_materialType == 3) { // plasma
@@ -370,31 +379,33 @@ const ORB_FRAGMENT_SHADER = `
         baseColor.r * (0.333 * (1.0 - cosH) + 0.577 * sinH) + baseColor.g * (0.667 + cosH * 0.333) + baseColor.b * (0.333 * (1.0 - cosH) - 0.577 * sinH),
         baseColor.r * (0.333 * (1.0 - cosH) - 0.577 * sinH) + baseColor.g * (0.333 * (1.0 - cosH) + 0.577 * sinH) + baseColor.b * (0.667 + cosH * 0.333)
       );
-      finalColor = iriColor * (0.5 + NdotL * 0.4) + spec * vec3(1.0) * 0.4;
+      finalColor = iriColor * (0.5 + NdotLAbs * 0.4) + spec * vec3(1.0) * 0.4;
       finalColor += fresnel * iriColor * 0.5;
     } else { // wire (default)
-      finalColor = baseColor * (0.6 + NdotL * 0.3);
+      finalColor = baseColor * (0.6 + NdotLAbs * 0.3);
     }
+
+    // Add fill light contribution
+    finalColor += baseColor * NdotL2 * 0.15;
 
     // === 5. Rim light ===
     finalColor += fresnel * u_rimLightColor * 0.6;
 
     // === 6. Emissive glow (guaranteed minimum) ===
-    float effectiveEmissive = max(u_emissiveIntensity, 0.25);
-    finalColor += baseColor * effectiveEmissive * 0.4;
+    float effectiveEmissive = max(u_emissiveIntensity, 0.35);
+    finalColor += baseColor * effectiveEmissive * 0.5;
 
     // === 7. Brightness floor — NEVER allow dark orbs ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
-    // First pass: boost toward base color
-    if (brightness < 0.35) {
-      finalColor = mix(finalColor, baseColor * 1.5, (0.35 - brightness) / 0.35);
-      finalColor = max(finalColor, baseColor * 0.6);
+    if (brightness < 0.4) {
+      // Blend toward a boosted baseColor
+      finalColor = mix(finalColor, baseColor * 2.0, (0.4 - brightness) / 0.4);
+      finalColor = max(finalColor, baseColor * 0.7);
     }
-    // Second pass: if STILL dark, inject ABSOLUTE minimum light (not dependent on uniforms)
+    // Second pass: absolute floor
     brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
-    if (brightness < 0.15) {
-      // Absolute rescue: guaranteed visible teal/cyan regardless of uniform values
-      vec3 rescue = vec3(0.15, 0.45, 0.55);
+    if (brightness < 0.2) {
+      vec3 rescue = vec3(0.2, 0.5, 0.65);
       finalColor = max(finalColor, rescue);
     }
     // Third pass: baseColor itself was zero — make sure we have SOMETHING
