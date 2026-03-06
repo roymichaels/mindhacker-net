@@ -1,8 +1,11 @@
 /**
- * generate-phase-actions — On-demand mini-milestone generation.
- * Called when a user opens a milestone that has no mini-milestones yet.
- * Analyzes recent analytics (completion rate, consistency) to personalize actions.
- * NOW integrated with full user brain context (diet, willingness, biological profile).
+ * generate-phase-actions v2 — Weekly Objective Generator
+ * 
+ * Generates 3 SUBSTANTIAL weekly objectives per milestone instead of micro-tasks.
+ * Each objective is a meaningful weekly goal that will be broken down into
+ * daily actions by the separate `generate-daily-actions` engine.
+ * 
+ * Architecture: Milestone → Weekly Objectives → Daily Actions (separate call)
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -13,38 +16,32 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Build constraints block from biological profile + willingness (same logic as strategy engine)
 function buildConstraintsBlock(ctx: any): string {
   const parts: string[] = [];
   const bio = ctx.biological_profile || {};
 
-  // Diet
   const dietType = Array.isArray(bio.diet_type) ? bio.diet_type : [];
   if (dietType.length > 0) {
     const label = dietType.join(' + ').toUpperCase();
     const isVegan = dietType.some((d: string) => ['vegan', 'alkaline'].includes(d.toLowerCase()));
     const forbidden: string[] = [];
     if (isVegan) {
-      forbidden.push('dairy (cheese, yogurt, butter, milk, whey, feta)', 'eggs', 'meat', 'fish', 'seafood', 'honey', 'gelatin', 'any animal products');
+      forbidden.push('dairy, eggs, meat, fish, seafood, honey, gelatin, any animal products');
     } else if (dietType.some((d: string) => d.toLowerCase() === 'vegetarian')) {
-      forbidden.push('meat', 'fish', 'seafood');
+      forbidden.push('meat, fish, seafood');
     }
     if (dietType.some((d: string) => d.toLowerCase() === 'alkaline')) {
-      forbidden.push('refined sugar', 'white flour', 'processed foods', 'soda');
+      forbidden.push('refined sugar, white flour, processed foods, soda');
     }
     parts.push(`- DIET: ${label} — NEVER include: ${forbidden.join(', ')}`);
   }
 
-  // Substances
   if (bio.substances?.alcohol === 'never') parts.push('- NO ALCOHOL');
   if (bio.substances?.nicotine === 'no' || bio.substances?.nicotine === 'never') parts.push('- NO NICOTINE');
-
-  // Sleep
   if (bio.sleep?.time || bio.sleep?.wake) {
     parts.push(`- SLEEP: ${bio.sleep.time || '?'} → ${bio.sleep.wake || '?'}`);
   }
 
-  // Willingness
   const notWilling: string[] = [];
   const willingness = ctx.willingness || {};
   for (const [domain, w] of Object.entries(willingness)) {
@@ -103,133 +100,135 @@ serve(async (req) => {
 
     // Fetch mission context
     let missionTitle = "";
+    let missionTitleEn = "";
     if (milestone.mission_id) {
       const { data: mission } = await supabase
         .from("plan_missions")
         .select("title, title_en, pillar")
         .eq("id", milestone.mission_id)
         .single();
-      if (mission) missionTitle = mission.title_en || mission.title || "";
+      if (mission) {
+        missionTitle = mission.title || "";
+        missionTitleEn = mission.title_en || mission.title || "";
+      }
     }
 
-    // Gather analytics: recent 10-day performance
+    // Analytics
     const tenDaysAgo = new Date(Date.now() - 10 * 86400000).toISOString().split("T")[0];
-    
     const { data: recentActions } = await supabase
       .from("action_items")
-      .select("status, completed_at, scheduled_date")
+      .select("status")
       .eq("user_id", user_id)
-      .gte("scheduled_date", tenDaysAgo)
-      .order("scheduled_date", { ascending: false });
+      .gte("scheduled_date", tenDaysAgo);
 
     const totalRecent = recentActions?.length || 0;
     const completedRecent = recentActions?.filter(a => a.status === "done").length || 0;
     const completionRate = totalRecent > 0 ? Math.round((completedRecent / totalRecent) * 100) : 50;
 
-    const streak = ctx.profile ? (ctx as any).pulse_week?.days_logged || 0 : 0;
-    const level = ctx.profile ? 1 : 1; // level from profile
-
-    // Determine intensity based on analytics
     let intensity = "standard";
-    let intensityNote = "";
-    if (completionRate >= 80 && streak >= 5) {
-      intensity = "challenging";
-      intensityNote = "User is crushing it — raise the bar with harder, more specific protocols.";
-    } else if (completionRate < 40) {
-      intensity = "gentle";
-      intensityNote = "User is struggling — make protocols smaller, more achievable, build confidence.";
-    } else {
-      intensityNote = "Balanced approach — progressive difficulty.";
-    }
+    if (completionRate >= 80) intensity = "challenging";
+    else if (completionRate < 40) intensity = "gentle";
 
-    // Build constraints from brain context
     const constraintsBlock = buildConstraintsBlock(ctx);
 
-    // Build user context summary
-    const userContextSummary = `## USER PROFILE:
-Name: ${ctx.profile?.full_name || 'Unknown'}
-Values: ${ctx.identity?.values?.slice(0, 5).join(', ') || 'N/A'}
-Projects: ${ctx.projects?.slice(0, 3).map(p => p.name).join(', ') || 'None'}`;
+    const prompt = `You are Aurora for "Mind OS". Generate exactly 3 WEEKLY OBJECTIVES for this milestone.
 
-    const prompt = `You are Aurora for "Mind OS". Generate exactly 5 DAILY ACTIONS (mini-milestones) for this milestone.
+## IMPORTANT: These are WEEKLY-LEVEL OBJECTIVES, NOT daily micro-tasks.
+Each objective should represent a meaningful week-long training goal that will later be
+broken down into daily actions by a separate system.
 
 ## MILESTONE: "${milestone.title_en || milestone.title}"
 ## DESCRIPTION: ${milestone.description_en || milestone.description || "N/A"}
-## MISSION: "${missionTitle}"
+## MISSION: "${missionTitleEn || missionTitle}"
 ## PILLAR: ${milestone.focus_area || "general"}
 
-${userContextSummary}
+## USER PROFILE:
+Name: ${ctx.profile?.full_name || 'Unknown'}
+Values: ${ctx.identity?.values?.slice(0, 5).join(', ') || 'N/A'}
+Intensity: ${intensity} (completion rate: ${completionRate}%)
+
 ${constraintsBlock}
-## USER ANALYTICS (last 10 days):
-- Completion rate: ${completionRate}%
-- Current streak: ${streak} days
-- Level: ${level}
-- Intensity: ${intensity} — ${intensityNote}
 
-## TREATMENT-ONLY RULES (CRITICAL — MOST IMPORTANT):
-The assessments ALREADY HAPPENED. These are TREATMENT actions, not diagnostics.
-- BANNED VERBS: "identify", "check", "test", "evaluate", "journal about", "reflect on", "notice", "become aware", "assess", "measure", "track"
-- REQUIRED VERBS: "perform", "execute", "practice", "drill", "complete", "run protocol", "train", "apply"
-- Every action is a PHYSICAL PROTOCOL the user executes.
-- Convert any abstract concept into a concrete body-based or app-based ritual.
-- BAD: "Journal about your feelings" → GOOD: "Open app, rate 6 subsystems 1-10, tap submit"
-- BAD: "Check posture against wall" → GOOD: "Perform 10-minute mewing hold with proper tongue posture"
-- BAD: "Identify 3 cases where self-worth is tied to external achievement" → GOOD: "Execute 5-minute identity anchoring breathwork: inhale 'I am enough', exhale release"
-- For IMAGE: mewing, face yoga, jawline sculpting, posture correction drills — NOT tests
-- For CONSCIOUSNESS: shadow work rituals, identity anchoring, ego state integration — NOT self-analysis
+## WHAT MAKES A GOOD WEEKLY OBJECTIVE:
+- It's a SUBSTANTIAL goal that takes 5-7 days to master or complete
+- It has clear measurable criteria (e.g., "Establish a consistent morning breathwork protocol" not "Do breathing")
+- It builds upon the previous objective (progressive)
+- It directly advances the milestone's strategic goal
+- Under 12 words per title
 
-## COMPREHENSIVE VITALITY PROTOCOLS (include when pillar is vitality or related):
-- GROUNDING: 20-30 min barefoot on earth/grass/sand daily (combine with sun exposure when possible)
-- SUN EXPOSURE: 10-30 min morning sunlight within first hour of waking (no sunglasses)
-- COLD EXPOSURE: Cold shower finish (30s-3min) or ice bath protocol
-- BREATHING: Daily breathwork protocol (box breathing, Wim Hof, or power breathing)
-- HYDRATION: Structured water intake (500ml upon waking, then every 90 min)
-- LYMPHATIC: Dry brushing before shower or rebounding 5 min
-- CIRCADIAN: Blue light blocking 2h before sleep, morning bright light
-- MOVEMENT: Micro-movement every 60 min (not just training sessions)
-For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of what science recommends.
+## EXAMPLES OF GOOD vs BAD:
+- BAD: "Perform 10-minute breathing exercise" (too small — this is a daily action)
+- GOOD: "Master 4-phase diaphragmatic breathing protocol" (takes a week to master)
+- BAD: "Do 5 chin tucks" (micro-task)
+- GOOD: "Build posterior chain posture correction habit" (weekly goal)
+- BAD: "Journal about feelings" (diagnostic)
+- GOOD: "Execute daily shadow work integration ritual" (treatment protocol)
 
-## EXECUTION TEMPLATES (assign one per action):
+## TREATMENT-ONLY RULES:
+- BANNED: "identify", "check", "test", "evaluate", "journal about", "reflect on", "assess"
+- REQUIRED: "master", "build", "execute", "establish", "develop", "strengthen", "complete"
+
+## CADENCE (assign one per objective):
+| Cadence | Meaning |
+|---------|---------|
+| daily | User should do something related to this EVERY DAY |
+| 3x_per_week | 3 sessions per week (training, workouts) |
+| 2x_per_week | 2 sessions per week (deep work, creation) |
+| weekly | Once per week (reviews, audits) |
+
+## EXECUTION TEMPLATE (primary mode for daily actions derived from this):
 | Template | When to use |
 |----------|-------------|
-| tts_guided | Meditation, breathwork, visualization, body scan, guided relaxation |
-| video_embed | Yoga, face yoga, tai chi, mobility, stretching — movement with visual demo |
-| sets_reps_timer | Strength, boxing, HIIT, combat drills, mewing holds — sets/reps/rounds |
-| step_by_step | Skincare, cooking, morning routine, reading — sequential instructions |
-| timer_focus | Deep work, studying, business tasks, content creation — timed focus blocks |
-| social_checklist | Networking, relationship tasks, calls, social outreach |
-
-## RULES:
-- Each action must be completable in a single day/session (15-45 min).
-- Be extremely specific — no generic filler like "practice more".
-- Reference the milestone's actual goal.
-- Progressive difficulty: action 1 (easiest) → action 5 (hardest).
-- Under 15 words per action title.
-- Hebrew must be natural.
-- EVERY action MUST have execution_template and action_type fields.
-- EVERY action respects user constraints (diet, willingness, sleep).
+| tts_guided | Meditation, breathwork, visualization |
+| video_embed | Yoga, face yoga, mobility, stretching |
+| sets_reps_timer | Strength, boxing, HIIT, mewing holds |
+| step_by_step | Skincare, cooking, reading, routines |
+| timer_focus | Deep work, studying, business tasks |
+| social_checklist | Networking, relationship tasks |
 
 ## OUTPUT (JSON only, NO markdown):
 {
-  "minis": [
-    { "title_en": "Specific treatment protocol 1", "title_he": "פרוטוקול 1", "execution_template": "sets_reps_timer", "action_type": "mewing_hold_5min" },
-    { "title_en": "Specific treatment protocol 2", "title_he": "פרוטוקול 2", "execution_template": "video_embed", "action_type": "face_yoga_routine" },
-    { "title_en": "Specific treatment protocol 3", "title_he": "פרוטוקול 3", "execution_template": "step_by_step", "action_type": "skincare_evening" },
-    { "title_en": "Specific treatment protocol 4", "title_he": "פרוטוקול 4", "execution_template": "tts_guided", "action_type": "breathwork_10min" },
-    { "title_en": "Specific treatment protocol 5", "title_he": "פרוטוקול 5", "execution_template": "timer_focus", "action_type": "deep_work_45min" }
-  ],
-  "aurora_insight_en": "Brief insight about user's progress and what to focus on",
-  "aurora_insight_he": "תובנה קצרה על ההתקדמות של המשתמש"
+  "objectives": [
+    {
+      "title_en": "Weekly objective 1 (foundation)",
+      "title_he": "יעד שבועי 1",
+      "description_en": "What this objective achieves and how to know it's done",
+      "description_he": "מה היעד הזה משיג ואיך לדעת שהוא הושלם",
+      "cadence": "daily",
+      "execution_template": "tts_guided",
+      "action_type": "breathwork_protocol",
+      "estimated_daily_minutes": 15
+    },
+    {
+      "title_en": "Weekly objective 2 (application)",
+      "title_he": "יעד שבועי 2",
+      "description_en": "...",
+      "description_he": "...",
+      "cadence": "3x_per_week",
+      "execution_template": "sets_reps_timer",
+      "action_type": "strength_training",
+      "estimated_daily_minutes": 25
+    },
+    {
+      "title_en": "Weekly objective 3 (integration)",
+      "title_he": "יעד שבועי 3",
+      "description_en": "...",
+      "description_he": "...",
+      "cadence": "daily",
+      "execution_template": "step_by_step",
+      "action_type": "evening_routine",
+      "estimated_daily_minutes": 10
+    }
+  ]
 }`;
 
-    // Call AI
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "Output ONLY valid JSON. No markdown. No explanation. You are generating TREATMENT protocols, not diagnostics." },
+          { role: "system", content: "Output ONLY valid JSON. No markdown. No explanation. Generate WEEKLY OBJECTIVES, not daily micro-tasks." },
           { role: "user", content: prompt },
         ],
         temperature: 0.7,
@@ -247,12 +246,11 @@ For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of 
     raw = raw.replace(/```json\s*/g, "").replace(/```/g, "").trim();
     const parsed = JSON.parse(raw);
 
-    if (!parsed?.minis || parsed.minis.length < 1) throw new Error("AI returned no minis");
+    if (!parsed?.objectives || parsed.objectives.length < 1) throw new Error("AI returned no objectives");
 
-    // Calculate scheduled_day: phase 1 → days 1-10, phase 2 → days 11-20, etc.
+    // Calculate scheduled_day distribution
     const baseDayOffset = ((milestone.week_number || 1) - 1) * 10;
 
-    // Get milestone's position among siblings for better day distribution
     const { data: siblings } = await supabase
       .from("life_plan_milestones")
       .select("id")
@@ -261,19 +259,18 @@ For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of 
       .order("id");
     const milestoneIdx = siblings?.findIndex(s => s.id === milestone_id) ?? 0;
 
-    // Insert mini-milestones with execution_template and action_type
-    // Distribute across the 10-day window using milestone position offset
-    const miniRows = parsed.minis.slice(0, 5).map((mini: any, idx: number) => ({
+    // Each weekly objective spans multiple days based on cadence
+    const miniRows = parsed.objectives.slice(0, 3).map((obj: any, idx: number) => ({
       milestone_id,
       mini_number: idx + 1,
-      title: mini.title_he || mini.title_en,
-      title_en: mini.title_en,
-      description: mini.description_he || null,
-      description_en: mini.description_en || null,
-      xp_reward: 10,
-      scheduled_day: Math.min(baseDayOffset + ((milestoneIdx + idx) % 10) + 1, 100),
-      execution_template: mini.execution_template || 'step_by_step',
-      action_type: mini.action_type || null,
+      title: obj.title_he || obj.title_en,
+      title_en: obj.title_en,
+      description: obj.description_he || null,
+      description_en: obj.description_en || null,
+      xp_reward: 25, // Higher XP for weekly objectives
+      scheduled_day: Math.min(baseDayOffset + ((milestoneIdx * 3 + idx) % 10) + 1, 100),
+      execution_template: obj.execution_template || 'step_by_step',
+      action_type: obj.action_type || null,
     }));
 
     const { error: insertError } = await supabase
@@ -287,8 +284,6 @@ For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of 
       count: miniRows.length,
       intensity,
       completion_rate: completionRate,
-      aurora_insight_en: parsed.aurora_insight_en || null,
-      aurora_insight_he: parsed.aurora_insight_he || null,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
