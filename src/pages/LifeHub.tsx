@@ -69,6 +69,7 @@ export default function LifeHub() {
   const isHe = language === 'he';
   const { plan, isLoading } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
+  const allPlanIds: string[] = (plan as any)?.all_plan_ids || (plan?.id ? [plan.id] : []);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { isPillarSelected } = usePillarAccess();
