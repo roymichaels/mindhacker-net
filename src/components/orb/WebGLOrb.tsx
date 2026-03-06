@@ -567,10 +567,21 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const colors: THREE.Vector3[] = [];
     for (let i = 0; i < 7; i++) {
       if (i < gradientStops.length) {
-        colors.push(parseHslToVec3(gradientStops[i]));
+        const vec = parseHslToVec3(gradientStops[i]);
+        // Runtime NaN/zero guard
+        if (isNaN(vec.x) || isNaN(vec.y) || isNaN(vec.z) || (vec.x + vec.y + vec.z) < 0.01) {
+          colors.push(new THREE.Vector3(...FALLBACK_RGB));
+        } else {
+          colors.push(vec);
+        }
       } else {
-        colors.push(colors.length > 0 ? colors[colors.length - 1].clone() : new THREE.Vector3(0.5, 0.5, 0.5));
+        colors.push(colors.length > 0 ? colors[colors.length - 1].clone() : new THREE.Vector3(...FALLBACK_RGB));
       }
+    }
+    // Log once for debugging
+    const totalBrightness = colors.reduce((s, c) => s + c.x + c.y + c.z, 0);
+    if (totalBrightness < 0.5) {
+      console.warn('[WebGLOrb] All gradient colors are near-zero! Stops:', gradientStops, 'Vecs:', colors.map(c => `(${c.x.toFixed(2)},${c.y.toFixed(2)},${c.z.toFixed(2)})`));
     }
     return colors;
   }, [gradientStops]);
