@@ -24,7 +24,7 @@ export function DailyRoadmapSidebar() {
   const { habits, completedCount: habitsCompleted, totalCount: habitsTotal } = useTodaysHabits();
 
   // Build unified daily items
-  type DayItem = { id: string; title: string; type: 'action' | 'habit'; done: boolean; pillarId?: string; durationMin?: number };
+  type DayItem = { id: string; title: string; type: 'action' | 'habit'; done: boolean; pillarId?: string; durationMin?: number; isTimeBased?: boolean };
   const items: DayItem[] = [];
 
   // Habits
@@ -41,6 +41,7 @@ export function DailyRoadmapSidebar() {
       done: false,
       pillarId: q.pillarId,
       durationMin: q.durationMin,
+      isTimeBased: q.isTimeBased,
     });
   });
 
