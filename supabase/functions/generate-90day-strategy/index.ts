@@ -8,9 +8,7 @@ const ARENA_PILLAR_IDS = ['wealth', 'influence', 'relationships', 'business', 'p
 
 const TOTAL_PHASES = 10;
 const TOTAL_DAYS = 100;
-const DAYS_PER_PHASE = TOTAL_DAYS / TOTAL_PHASES; // 10 days per phase
-
-// Phase labels A-J
+const DAYS_PER_PHASE = TOTAL_DAYS / TOTAL_PHASES;
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
 interface PillarAssessment {
@@ -34,7 +32,6 @@ function resolveAssessmentBlock(assessment: PillarAssessment | undefined): strin
   const subscores = latest.subscores || latest.subsystems || latest.subScores || {};
   const findings = latest.findings?.slice(0, 5) || [];
 
-  // Extract rawInputsUsed (diet, sleep, substances, etc.)
   const rawInputs = latest.rawInputsUsed || {};
   const historyInputs = cfg.history?.[0]?.rawInputsUsed || {};
   const allRawInputs = { ...historyInputs, ...rawInputs };
@@ -51,24 +48,21 @@ Assessed At: ${latest.assessed_at || 'Unknown'}
 Form Data: ${JSON.stringify(formData, null, 1).slice(0, 500)}${rawInputsSummary}`;
 }
 
-// ========== CONSTRAINTS BLOCK (injected into all layers) ==========
+// ========== CONSTRAINTS BLOCK ==========
 function buildStrategyConstraintsBlock(allDomains: PillarAssessment[]): string {
   const parts: string[] = [];
 
-  // Extract diet from vitality rawInputsUsed
   const vitalityDomain = allDomains.find(d => d.domain_id === 'vitality');
   const vLatest = vitalityDomain?.domain_config?.latest_assessment;
   const rawInputs = vLatest?.rawInputsUsed || {};
   const historyInputs = vitalityDomain?.domain_config?.history?.[0]?.rawInputsUsed || {};
   const bio = { ...historyInputs, ...rawInputs };
 
-  // Diet
   const dietType = Array.isArray(bio.diet_type) ? bio.diet_type : (bio.diet_type ? [bio.diet_type] : []);
   if (dietType.length > 0) {
     const label = dietType.join(' + ').toUpperCase();
     const isVegan = dietType.some((d: string) => ['vegan', 'alkaline'].includes(d.toLowerCase()));
     const forbidden: string[] = [];
-
     if (isVegan) {
       forbidden.push('dairy (cheese, yogurt, butter, milk, whey, feta)', 'eggs', 'meat', 'fish', 'seafood', 'honey', 'gelatin', 'any animal products');
     } else if (dietType.some((d: string) => d.toLowerCase() === 'vegetarian')) {
@@ -80,16 +74,13 @@ function buildStrategyConstraintsBlock(allDomains: PillarAssessment[]): string {
     parts.push(`- DIET: ${label} — NEVER include: ${forbidden.join(', ')}`);
   }
 
-  // Substances
   if (bio.alcohol_frequency === 'never') parts.push('- NO ALCOHOL — never suggest alcohol-related activities');
   if (bio.nicotine === 'no' || bio.nicotine === 'never') parts.push('- NO NICOTINE');
 
-  // Sleep pattern
   if (bio.sleep_time || bio.wake_time || bio.desired_wake_time) {
     parts.push(`- SLEEP: ${bio.sleep_time || '?'} → ${bio.wake_time || bio.desired_wake_time || '?'}`);
   }
 
-  // Willingness from all domains
   const notWilling: string[] = [];
   for (const domain of allDomains) {
     const w = domain.domain_config?.latest_assessment?.willingness;
@@ -102,11 +93,10 @@ function buildStrategyConstraintsBlock(allDomains: PillarAssessment[]): string {
   }
 
   if (parts.length === 0) return '';
-  return `\n## CRITICAL USER CONSTRAINTS (NEVER VIOLATE):\n${parts.join('\n')}\n\nEvery goal, milestone, and daily action MUST respect these constraints. If a task involves food, it MUST comply with the diet. If the user refused something, NEVER include it.\n`;
+  return `\n## CRITICAL USER CONSTRAINTS (NEVER VIOLATE):\n${parts.join('\n')}\n\nEvery goal, milestone, and daily action MUST respect these constraints.\n`;
 }
 
-// ========== 3-LAYER PROMPT PIPELINE ==========
-
+// ========== USER CONTEXT ==========
 function buildUserContext(
   profileData: any,
   userProjects: any[],
@@ -148,15 +138,15 @@ ${businessSection}
 ${memorySnippets}`;
 }
 
-// Pillar scope definitions — strict boundaries for AI generation
+// Pillar scope definitions
 const PILLAR_SCOPES: Record<string, { scope_en: string; NOT_en: string }> = {
   consciousness: { scope_en: 'Self-awareness, ego states, shadow work, emotional intelligence, mindfulness, inner dialogue, psychological patterns, self-understanding', NOT_en: 'NOT meditation techniques (→focus), NOT physical health (→vitality), NOT breathing exercises (→focus)' },
   presence: { scope_en: 'Social confidence, charisma, public speaking, body language, first impressions, voice projection, stage presence, personal magnetism', NOT_en: 'NOT physical strength (→power), NOT fighting skills (→combat), NOT networking strategy (→influence)' },
   power: { scope_en: 'Physical strength, max lifts (squat/bench/deadlift), bodyweight strength, calisthenics progressions (muscle-up/planche/handstand), explosive power, grip strength, structural strength', NOT_en: 'NOT sleep optimization (→vitality), NOT cardio/endurance (→vitality), NOT flexibility/yoga (→focus), NOT fighting/martial arts (→combat), NOT nutrition (→vitality)' },
-  vitality: { scope_en: 'Energy management, sleep optimization, nutrition, hydration, cardiovascular health, hormonal health, recovery, cold/heat exposure, circadian rhythm, longevity protocols, GROUNDING/EARTHING (barefoot on earth 20-30 min daily), sun exposure, lymphatic activation (dry brushing/rebounding), structured hydration protocols', NOT_en: 'NOT strength training (→power), NOT fighting (→combat), NOT meditation (→focus), NOT body awareness practices (→focus)' },
+  vitality: { scope_en: 'Energy management, sleep optimization, nutrition, hydration, cardiovascular health, hormonal health, recovery, cold/heat exposure, circadian rhythm, longevity protocols, GROUNDING/EARTHING, sun exposure, lymphatic activation, structured hydration protocols', NOT_en: 'NOT strength training (→power), NOT fighting (→combat), NOT meditation (→focus)' },
   focus: { scope_en: 'Breath work, meditation, guided meditation, hypnosis/trance, somatic awareness (tai chi/qigong), structural calm (yoga), attention training, CO2 tolerance, nervous system regulation', NOT_en: 'NOT physical strength (→power), NOT sleep/nutrition (→vitality), NOT social skills (→presence), NOT productivity systems (→order)' },
-  combat: { scope_en: 'Martial arts training, boxing, Muay Thai, kickboxing, shadowboxing, heavy bag work, sparring, fighting technique, combat conditioning, self-defense', NOT_en: 'NOT general strength (→power), NOT flexibility (→focus), NOT cardio (→vitality), NOT mental toughness without combat context (→consciousness)' },
-  expansion: { scope_en: 'Learning new skills, intellectual growth, reading, courses, creative pursuits, exploring new domains, curiosity, knowledge acquisition, personal development beyond other pillars', NOT_en: 'NOT business learning (→business), NOT financial education (→wealth), NOT social skills (→presence/influence)' },
+  combat: { scope_en: 'Martial arts training, boxing, Muay Thai, kickboxing, shadowboxing, heavy bag work, sparring, fighting technique, combat conditioning, self-defense', NOT_en: 'NOT general strength (→power), NOT flexibility (→focus), NOT cardio (→vitality)' },
+  expansion: { scope_en: 'Learning new skills, intellectual growth, reading, courses, creative pursuits, exploring new domains, curiosity, knowledge acquisition, personal development', NOT_en: 'NOT business learning (→business), NOT financial education (→wealth), NOT social skills (→presence/influence)' },
   wealth: { scope_en: 'Financial planning, investing, savings, budgeting, income growth, passive income, financial literacy, asset building, debt management, financial freedom strategy', NOT_en: 'NOT business operations (→business), NOT selling/marketing (→influence), NOT project management (→projects)' },
   influence: { scope_en: 'Networking, personal branding, social media presence, content creation, thought leadership, persuasion, sales, marketing, community building, reputation management', NOT_en: 'NOT social confidence (→presence), NOT financial planning (→wealth), NOT business operations (→business)' },
   relationships: { scope_en: 'Romantic relationships, family bonds, friendships, communication skills, conflict resolution, intimacy, boundaries, dating, social connection, emotional support systems', NOT_en: 'NOT networking/branding (→influence), NOT charisma (→presence), NOT self-awareness (→consciousness)' },
@@ -166,8 +156,23 @@ const PILLAR_SCOPES: Record<string, { scope_en: string; NOT_en: string }> = {
   order: { scope_en: 'Daily routines, habits, organization, environment design, productivity systems, time blocking, decluttering, discipline, accountability, life admin', NOT_en: 'NOT project-specific tasks (→projects), NOT business processes (→business), NOT meditation/focus practices (→focus)' },
 };
 
-// LAYER 1: Generate 3 strategic main goals per pillar
-function buildLayer1Prompt(
+// Pillar icon map
+const PILLAR_ICON_MAP: Record<string, string> = {
+  consciousness: '🧠', presence: '👁️', power: '💪', vitality: '🌿',
+  focus: '🎯', combat: '🥊', expansion: '🚀', wealth: '💰',
+  influence: '🌐', relationships: '❤️', business: '📈',
+  projects: '🏗️', play: '🎮', order: '📋',
+};
+
+const PILLAR_CATEGORY_MAP: Record<string, string> = {
+  consciousness: 'spirit', presence: 'social', power: 'body', vitality: 'body',
+  focus: 'mind', combat: 'body', expansion: 'mind', wealth: 'wealth',
+  influence: 'social', relationships: 'social', business: 'wealth',
+  projects: 'wealth', play: 'spirit', order: 'mind',
+};
+
+// ========== TRAIT GENERATION PROMPT (NEW LAYER 0) ==========
+function buildTraitPrompt(
   pillarId: string,
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
@@ -177,56 +182,126 @@ function buildLayer1Prompt(
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const scope = PILLAR_SCOPES[pillarId];
   const scopeBlock = scope
-    ? `\n## PILLAR SCOPE (STRICT BOUNDARIES):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
+    ? `\n## PILLAR SCOPE:\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
-  
-  return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS).
 
-TASK: Generate exactly 3 MAIN STRATEGIC GOALS for the pillar "${pillarId}" (${hub} hub).
-This is part of a 100-DAY TRANSFORMATION PLAN divided into 10 progressive phases (A through J).
-Each phase builds on the previous one — start with foundations, then layer complexity.
+  return `You are Aurora, elite life transformation AI for "Mind OS".
+
+TASK: Generate exactly 3 CHARACTER TRAITS (abilities) for the pillar "${pillarId}" (${hub} hub).
+
+Traits are identity-based capabilities that the user will develop over 100 days.
+They are NOT tasks, NOT protocols, NOT educational topics.
+They represent who the user is BECOMING.
 
 ${userContext}
 ${constraintsBlock}
 ## PILLAR "${pillarId.toUpperCase()}" ASSESSMENT
 ${assessmentBlock}
 ${scopeBlock}
-## TREATMENT-ONLY RULES (CRITICAL — THE MOST IMPORTANT RULES):
-The assessments ALREADY HAPPENED. You have the results above. This plan is the TREATMENT/CURE — NEVER another diagnostic or test.
-- BANNED VERBS: "identify", "assess", "check", "evaluate", "test", "measure", "track", "recognize", "notice", "become aware", "journal about feelings", "reflect on"
-- REQUIRED VERBS: "practice", "execute", "perform", "drill", "complete", "run protocol", "train", "apply"
-- BANNED PATTERNS: "Perform daily stability checks", "Identify 3 cases where...", "Notice when you...", "Track your progress by..."
-- For IMAGE pillar: mewing exercises, face yoga routines, jawline sculpting, posture correction drills (wall angels, chin tucks), skincare protocols, facial massage — NOT posture tests or body checks
-- For CONSCIOUSNESS: identity anchoring rituals, mask-release protocols, frequency calibration sessions, shadow work release rituals, ego state integration drills — NOT "identify 3 cases" or introspection exercises
-- For VITALITY: COMPREHENSIVE daily protocols including: grounding/earthing (20-30 min barefoot on earth/grass/sand), morning sun exposure (10-30 min within first hour), cold exposure (cold shower 30s-3min or ice bath), structured hydration (500ml upon waking, then every 90 min), lymphatic activation (dry brushing before shower or rebounding 5 min), circadian rhythm management (blue light blocking 2h before sleep), nutrition protocols — NOT "track your meals" or "check your energy"
-- For FOCUS: breathwork protocols, meditation sessions, attention training drills — NOT "notice when your mind wanders"
-- EVERY goal must be something the user DOES physically/actively, not something they think about or analyze
 
-## COMPREHENSIVE DAILY PROTOCOL REQUIREMENTS:
-For ALL pillars, generate COMPREHENSIVE protocols that cover the FULL spectrum of what science recommends for that domain. Do NOT generate surface-level tasks. Each mission should be a complete daily protocol that addresses multiple aspects simultaneously.
+## TRAIT NAMING RULES (CRITICAL):
+- Each trait MUST be 2-3 words maximum
+- Traits describe IDENTITY CAPABILITIES, not activities
+- Use power words that feel like RPG character abilities
+- Hebrew must be natural and compelling (2-3 words)
 
-## RULES:
-1. Goals MUST directly address assessment findings and weak subscores with TREATMENT PROTOCOLS.
-2. Reference user's actual projects/businesses BY NAME where relevant.
-3. Use recent memory to understand current context and struggles.
-4. Platform is "Mind OS" — never use old branding.
-5. Hebrew must be natural, not translated.
-6. Goals should follow progressive complexity: Goal 1 = foundational, Goal 2 = intermediate, Goal 3 = advanced.
-7. CRITICAL: Every goal MUST fall within the pillar's IN SCOPE definition above. If a goal belongs to another pillar, DO NOT include it.
-8. CRITICAL: Every goal MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness). Never suggest anything the user has explicitly refused or that violates their dietary restrictions.
-9. CRITICAL: Every goal is a PROTOCOL the user executes, not a diagnostic the user performs. The assessment data above IS the diagnosis — now prescribe the cure.
+GOOD trait examples:
+- Strategic Mind / תודעה אסטרטגית
+- Wealth Architect / אדריכל העושר
+- Magnetic Presence / נוכחות מגנטית
+- Inner Commander / המפקד הפנימי
+- Tactical Awareness / מודעות טקטית
+- Creative Engine / מנוע יצירתי
+- Energy Discipline / משמעת אנרגטית
+- Relentless Builder / בנאי בלתי נלאה
+- Shadow Master / אדון הצללים
+- Iron Will / רצון ברזל
+
+BAD trait examples (NEVER generate these):
+- Financial Literacy (too educational)
+- Time Management (too generic)
+- Budget Tracking (too task-like)
+- Task Organization (boring)
+- Self Awareness (too vague)
+- Healthy Eating (too basic)
+
+Traits should feel like unlocking character evolution abilities in a life RPG.
+They must be personalized to the user's assessment data and context.
 
 ## OUTPUT (JSON only, NO markdown):
 {
-  "goals": [
-    { "goal_en": "Strategic goal addressing specific finding", "goal_he": "מטרה אסטרטגית" },
-    { "goal_en": "...", "goal_he": "..." },
-    { "goal_en": "...", "goal_he": "..." }
+  "traits": [
+    {
+      "name_en": "Trait Name",
+      "name_he": "שם התכונה",
+      "description_en": "One sentence describing what this ability represents",
+      "description_he": "משפט אחד שמתאר את היכולת הזו",
+      "icon": "emoji that represents this trait"
+    },
+    { "name_en": "...", "name_he": "...", "description_en": "...", "description_he": "...", "icon": "..." },
+    { "name_en": "...", "name_he": "...", "description_en": "...", "description_he": "...", "icon": "..." }
   ]
 }`;
 }
 
-// LAYER 2: Generate 5 milestones for each mission (main goal)
+// LAYER 1: Generate 3 missions per pillar, each referencing a trait
+function buildLayer1Prompt(
+  pillarId: string,
+  hub: 'core' | 'arena',
+  assessment: PillarAssessment | undefined,
+  userContext: string,
+  constraintsBlock: string,
+  traitNames: { name_en: string; name_he: string }[],
+): string {
+  const assessmentBlock = resolveAssessmentBlock(assessment);
+  const scope = PILLAR_SCOPES[pillarId];
+  const scopeBlock = scope
+    ? `\n## PILLAR SCOPE (STRICT BOUNDARIES):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
+    : '';
+  
+  const traitsStr = traitNames.map((t, i) => `  ${i+1}. "${t.name_en}" / "${t.name_he}"`).join('\n');
+  
+  return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS).
+
+TASK: Generate exactly 3 MISSIONS for the pillar "${pillarId}" (${hub} hub).
+Each mission is a training arc for one of the pillar's character traits.
+This is part of a 100-DAY TRANSFORMATION PLAN divided into 10 progressive phases (A through J).
+
+## CHARACTER TRAITS FOR THIS PILLAR:
+${traitsStr}
+
+Each mission MUST train one of these traits. Mission 1 trains Trait 1, Mission 2 trains Trait 2, Mission 3 trains Trait 3.
+
+${userContext}
+${constraintsBlock}
+## PILLAR "${pillarId.toUpperCase()}" ASSESSMENT
+${assessmentBlock}
+${scopeBlock}
+## TREATMENT-ONLY RULES (CRITICAL):
+- BANNED VERBS: "identify", "assess", "check", "evaluate", "test", "measure", "track", "recognize", "notice", "become aware", "journal about feelings", "reflect on"
+- REQUIRED VERBS: "practice", "execute", "perform", "drill", "complete", "run protocol", "train", "apply"
+- EVERY mission must be something the user DOES physically/actively
+
+## RULES:
+1. Missions MUST directly address assessment findings with TREATMENT PROTOCOLS.
+2. Reference user's actual projects/businesses BY NAME where relevant.
+3. Hebrew must be natural, not translated.
+4. Missions should follow progressive complexity: Mission 1 = foundational, Mission 2 = intermediate, Mission 3 = advanced.
+5. CRITICAL: Every mission MUST fall within the pillar's IN SCOPE definition.
+6. CRITICAL: Every mission MUST respect the user's CRITICAL CONSTRAINTS.
+7. Each mission describes the TRAINING ARC for its corresponding trait.
+
+## OUTPUT (JSON only, NO markdown):
+{
+  "goals": [
+    { "goal_en": "Mission describing training arc for trait 1", "goal_he": "משימה לתכונה 1", "trait_index": 0 },
+    { "goal_en": "Mission for trait 2", "goal_he": "משימה לתכונה 2", "trait_index": 1 },
+    { "goal_en": "Mission for trait 3", "goal_he": "משימה לתכונה 3", "trait_index": 2 }
+  ]
+}`;
+}
+
+// LAYER 2: Generate 5 milestones for each mission
 function buildLayer2Prompt(
   pillarId: string,
   goals: { goal_en: string; goal_he: string }[],
@@ -254,16 +329,12 @@ ${assessmentBlock}
 - Milestones must be progressive TREATMENT STAGES, not diagnostic checkpoints.
 - BANNED: "identify", "recognize", "notice", "become aware", "check if", "test whether", "evaluate", "assess", "journal about"
 - REQUIRED: "execute", "perform", "practice", "complete", "drill", "run protocol", "train", "master"
-- Each milestone = a specific skill/protocol the user masters at increasing difficulty.
-- Example GOOD: "Master 10-minute mewing hold with tongue suction" / "Execute 3-round shadow work release ritual"
-- Example BAD: "Identify posture weaknesses" / "Notice 3 situations where you feel insecure"
 
 ## RULES:
 - Each mission gets exactly 5 milestones, progressively more challenging.
-- Milestones must be specific TREATMENT protocols, not diagnostic observations.
-- Each milestone should target a different aspect of the mission.
-- CRITICAL: All milestones MUST stay within the pillar's scope. No cross-pillar tasks.
-- CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness).
+- Milestones must be specific TREATMENT protocols.
+- CRITICAL: All milestones MUST stay within the pillar's scope.
+- CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS.
 - Hebrew must be natural. Keep text concise.
 
 ## OUTPUT (JSON only, NO markdown):
@@ -282,96 +353,6 @@ ${assessmentBlock}
     },
     { "mission_en": "${goals[1]?.goal_en || ''}", "mission_he": "${goals[1]?.goal_he || ''}", "milestones": [...] },
     { "mission_en": "${goals[2]?.goal_en || ''}", "mission_he": "${goals[2]?.goal_he || ''}", "milestones": [...] }
-  ]
-}`;
-}
-
-// LAYER 3: Generate 5 mini-milestones for each milestone (daily actions)
-function buildLayer3Prompt(
-  pillarId: string,
-  missions: any[],
-  constraintsBlock: string,
-): string {
-  const structure = missions.map((m, mi) => {
-    const mstones = (m.milestones || []).map((ms: any, si: number) => 
-      `    ${mi+1}.${si+1} "${ms.title_en}"`
-    ).join('\n');
-    return `  Mission ${mi+1}: "${m.mission_en}"\n${mstones}`;
-  }).join('\n');
-  
-  return `You are Aurora for "Mind OS". TASK: Generate exactly 5 MINI-MILESTONES for each milestone.
-Each mini-milestone becomes a DAILY ACTION in the user's queue.
-Total: 3 missions × 5 milestones × 5 mini-milestones = 75 daily actions spread across 100 days.
-
-## PILLAR: ${pillarId.toUpperCase()}
-${constraintsBlock}
-## STRUCTURE:
-${structure}
-
-## EXECUTION TEMPLATES (CRITICAL):
-Each mini-milestone MUST include an "execution_template" and "action_type" field.
-Choose the template based on what the action physically involves:
-
-| Template | When to use |
-|----------|-------------|
-| tts_guided | Meditation, body scan, breathwork, visualization, relaxation, guided breathing, progressive muscle relaxation |
-| video_embed | Yoga, tai chi, qigong, pilates, stretching, mobility, foam rolling — movement practices best shown via video |
-| sets_reps_timer | Strength training, boxing, shadowboxing, HIIT, combat drills, calisthenics — anything with sets/reps/rounds |
-| step_by_step | Skincare, cooking, cleaning, journaling, reading, reflection, morning/evening routines — sequential tasks with instructions |
-| timer_focus | Deep work, studying, business tasks, project execution, financial planning, content creation — focused timed blocks |
-| social_checklist | Networking, relationship building, calls, meetings, social outreach, dating practice — interpersonal tasks |
-
-Mapping by pillar (use as guide, but override based on actual activity):
-- focus (meditation/breathwork/body scan) → tts_guided
-- focus (tai chi/yoga/qigong) → video_embed
-- power/combat (training/sets/reps) → sets_reps_timer
-- vitality (skincare/nutrition/sleep protocol) → step_by_step
-- expansion (reading/learning/courses) → timer_focus
-- wealth/business/projects → timer_focus
-- influence (content creation) → timer_focus
-- relationships/presence → social_checklist
-- consciousness (journaling/reflection) → step_by_step
-- play → step_by_step
-- order (routines/cleaning) → step_by_step
-
-## TREATMENT-ONLY RULES (CRITICAL):
-- Every daily action is a PHYSICAL PROTOCOL the user executes. No thinking, no analyzing, no journaling about feelings.
-- Convert any abstract concept into a concrete body-based or app-based ritual.
-- BAD: "Journal about your feelings" → GOOD: "Open app, rate 6 subsystems 1-10, tap submit"
-- BAD: "Reflect on what makes you insecure" → GOOD: "Execute 5-minute identity anchoring breathwork protocol"
-- BAD: "Check posture against wall" → GOOD: "Perform 10-minute mewing hold with proper tongue posture"
-- BANNED VERBS: "identify", "reflect", "journal about", "think about", "notice", "become aware", "check", "test", "evaluate"
-- REQUIRED VERBS: "perform", "execute", "practice", "drill", "complete", "run", "apply", "train"
-
-## RULES:
-- Each milestone gets exactly 5 mini-milestones (daily actionable tasks).
-- Mini-milestones must be completable in a single day/session.
-- Be concrete and specific — no generic filler. Every action is a TREATMENT STEP.
-- Each mini-milestone under 15 words.
-- Hebrew must be natural.
-- Progressive difficulty within each milestone.
-- CRITICAL: Every mini-milestone MUST have execution_template and action_type.
-- CRITICAL: Every action MUST respect the user's CRITICAL CONSTRAINTS above (diet, substances, willingness). If an action involves food, it MUST comply with their diet.
-- action_type should be a snake_case identifier like "body_scan_15min", "shadowboxing_3_rounds", "deep_work_45min", "skincare_morning", etc.
-
-## OUTPUT (JSON only, NO markdown):
-{
-  "missions": [
-    {
-      "mission_en": "...",
-      "milestones": [
-        {
-          "title_en": "...",
-          "minis": [
-            { "title_en": "Daily action 1", "title_he": "פעולה יומית 1", "execution_template": "timer_focus", "action_type": "deep_work_45min" },
-            { "title_en": "Daily action 2", "title_he": "פעולה יומית 2", "execution_template": "step_by_step", "action_type": "journaling_reflection" },
-            { "title_en": "Daily action 3", "title_he": "פעולה יומית 3", "execution_template": "tts_guided", "action_type": "body_scan_15min" },
-            { "title_en": "Daily action 4", "title_he": "פעולה יומית 4", "execution_template": "sets_reps_timer", "action_type": "pushup_circuit" },
-            { "title_en": "Daily action 5", "title_he": "פעולה יומית 5", "execution_template": "social_checklist", "action_type": "networking_outreach" }
-          ]
-        }
-      ]
-    }
   ]
 }`;
 }
@@ -442,28 +423,73 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
   return null;
 }
 
-// ========== 2-LAYER ORCHESTRATION PER PILLAR (outline only) ==========
-// Layer 3 (mini-milestones) is generated on-demand when user reaches a milestone
+// ========== 3-LAYER ORCHESTRATION: Traits → Missions → Milestones ==========
 async function generatePillarStrategy(
   apiKey: string,
+  supabase: any,
+  userId: string,
+  planId: string,
   pillarId: string,
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
   userContext: string,
   constraintsBlock: string,
-): Promise<{ missions: any[] } | null> {
+): Promise<{ missions: any[]; traitIds: string[] } | null> {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const sysMsg = "Output ONLY valid JSON. No markdown. No explanation.";
 
-  // LAYER 1: 3 Missions (strategic goals)
-  console.log(`  [${pillarId}] Layer 1: generating 3 missions...`);
-  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext, constraintsBlock), sysMsg, 1200);
+  // LAYER 0: Generate 3 traits for this pillar
+  console.log(`  [${pillarId}] Layer 0: generating 3 traits...`);
+  const traitResult = await callAI(apiKey, buildTraitPrompt(pillarId, hub, assessment, userContext, constraintsBlock), sysMsg, 800);
+  
+  const traits = traitResult?.traits || [];
+  if (traits.length < 3) {
+    // Fallback traits
+    const fallbackTraits = [
+      { name_en: `${pillarId} Warrior`, name_he: `לוחם ה${pillarId}`, description_en: `Core ${pillarId} ability`, description_he: `יכולת ליבה`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+      { name_en: `${pillarId} Architect`, name_he: `אדריכל ה${pillarId}`, description_en: `Strategic ${pillarId} ability`, description_he: `יכולת אסטרטגית`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+      { name_en: `${pillarId} Master`, name_he: `אמן ה${pillarId}`, description_en: `Advanced ${pillarId} ability`, description_he: `יכולת מתקדמת`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    ];
+    while (traits.length < 3) traits.push(fallbackTraits[traits.length]);
+  }
+
+  // Insert traits into skills table
+  const traitIds: string[] = [];
+  for (const trait of traits.slice(0, 3)) {
+    const { data: skillRow } = await supabase.from('skills').insert({
+      name: trait.name_en,
+      name_he: trait.name_he,
+      description: trait.description_en,
+      category: PILLAR_CATEGORY_MAP[pillarId] || 'mind',
+      icon: trait.icon || PILLAR_ICON_MAP[pillarId] || '⭐',
+      is_active: true,
+      user_id: userId,
+      pillar: pillarId,
+      life_plan_id: planId,
+      trait_type: 'trait',
+    }).select('id').single();
+
+    if (skillRow) {
+      traitIds.push(skillRow.id);
+      await supabase.from('user_skill_progress').upsert({
+        user_id: userId, skill_id: skillRow.id, xp_total: 0, level: 1,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,skill_id' });
+      console.log(`  🎯 Trait created: "${trait.name_en}" → ${skillRow.id}`);
+    } else {
+      traitIds.push('');
+    }
+  }
+
+  // LAYER 1: 3 Missions referencing traits
+  console.log(`  [${pillarId}] Layer 1: generating 3 missions for traits...`);
+  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext, constraintsBlock, traits), sysMsg, 1200);
   if (!layer1?.goals || layer1.goals.length < 3) {
     console.error(`  [${pillarId}] Layer 1 failed`);
     return null;
   }
 
-  // LAYER 2: 5 milestones per mission (outline — no mini-milestones yet)
+  // LAYER 2: 5 milestones per mission
   console.log(`  [${pillarId}] Layer 2: generating 5 milestones per mission...`);
   const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock, constraintsBlock), sysMsg, 3000);
   if (!layer2?.missions) {
@@ -471,20 +497,24 @@ async function generatePillarStrategy(
     return null;
   }
 
-  console.log(`  ✅ [${pillarId}] Outline complete (mini-milestones deferred to phase entry)`);
-  return layer2;
+  // Attach trait_index to missions for DB linking
+  const missions = layer2.missions.map((m: any, i: number) => ({
+    ...m,
+    trait_index: layer1.goals[i]?.trait_index ?? i,
+  }));
+
+  console.log(`  ✅ [${pillarId}] Complete: 3 traits + 3 missions + milestones`);
+  return { missions, traitIds };
 }
 
 // ========== FALLBACK ==========
 function _g(id: string, e1: string, h1: string, e2: string, h2: string, e3: string, h3: string) {
-  const ms = (label: string) => Array.from({length:10}, (_,i) => `${label} phase ${PHASE_LABELS[i]} step`);
-  const msH = (label: string) => Array.from({length:10}, (_,i) => `${label} שלב ${PHASE_LABELS[i]}`);
-  const sg = (en: string, he: string) => ({ sub_goal_en: en, sub_goal_he: he, milestones_en: ms(en), milestones_he: msH(he) });
-  return { goals: [
-    { goal_en: e1, goal_he: h1, sub_goals: [sg("Foundation","בסיס"), sg("Practice","תרגול"), sg("Mastery","שליטה")] },
-    { goal_en: e2, goal_he: h2, sub_goals: [sg("Assessment","הערכה"), sg("Training","אימון"), sg("Integration","שילוב")] },
-    { goal_en: e3, goal_he: h3, sub_goals: [sg("Planning","תכנון"), sg("Execution","ביצוע"), sg("Optimization","אופטימיזציה")] },
-  ]};
+  const sg = (en: string, he: string) => ({ title_en: en, title_he: he, description_en: en, description_he: he });
+  return { missions: [
+    { mission_en: e1, mission_he: h1, trait_index: 0, milestones: [sg("Foundation","בסיס"), sg("Practice","תרגול"), sg("Mastery","שליטה"), sg("Integration","שילוב"), sg("Excellence","מצוינות")] },
+    { mission_en: e2, mission_he: h2, trait_index: 1, milestones: [sg("Assessment","הערכה"), sg("Training","אימון"), sg("Integration","שילוב"), sg("Optimization","אופטימיזציה"), sg("Mastery","שליטה")] },
+    { mission_en: e3, mission_he: h3, trait_index: 2, milestones: [sg("Planning","תכנון"), sg("Execution","ביצוע"), sg("Optimization","אופטימיזציה"), sg("Scaling","הרחבה"), sg("Mastery","שליטה")] },
+  ], traitIds: [] };
 }
 
 function buildFallbackStrategy(hub: 'core' | 'arena') {
@@ -534,29 +564,28 @@ serve(async (req) => {
       }
     }
 
-    // Check existing plans — only generate missing hubs
+    // Check existing plans
     let hubsToGenerate: ('core' | 'arena')[] = targetHub === 'both' ? ['core', 'arena'] : [targetHub as 'core' | 'arena'];
     
-    // Always fetch existing active plans
     const { data: existing } = await supabase
       .from('life_plans').select('id, plan_data')
       .eq('user_id', user_id).eq('status', 'active')
       .order('created_at', { ascending: false });
 
     if (force_regenerate) {
-      // Archive ALL active plans (including old-format ones without hub)
       const allActiveIds = (existing || []).map((p: any) => p.id);
       if (allActiveIds.length > 0) {
         await supabase.from('plan_missions').delete().in('plan_id', allActiveIds);
         await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', allActiveIds);
         await supabase.from('life_plan_milestones').delete().in('plan_id', allActiveIds);
+        // Clean up old traits for these plans
+        await supabase.from('skills').delete().eq('user_id', user_id).in('life_plan_id', allActiveIds);
         await supabase.from('life_plans').update({ status: 'archived' }).in('id', allActiveIds);
         console.log(`Force regenerate: archived ${allActiveIds.length} existing plans`);
       }
     } else {
       const existingHubs = (existing || []).map((p: any) => p.plan_data?.hub).filter(Boolean);
       
-      // Auto-archive old-format plans (no hub key) — they're legacy and need replacement
       const legacyPlans = (existing || []).filter((p: any) => !p.plan_data?.hub);
       if (legacyPlans.length > 0) {
         const legacyIds = legacyPlans.map((p: any) => p.id);
@@ -567,7 +596,6 @@ serve(async (req) => {
         console.log(`Auto-archived ${legacyIds.length} legacy (no-hub) plans`);
       }
       
-      // Filter out hubs that already have proper hub-tagged plans
       hubsToGenerate = hubsToGenerate.filter(h => !existingHubs.includes(h));
       
       if (hubsToGenerate.length === 0) {
@@ -603,7 +631,6 @@ serve(async (req) => {
     );
 
     // === ASSESSMENT QUALITY GATE ===
-    // Skip quality gate during onboarding (uses onboarding data as context for unassessed pillars)
     if (!skip_quality_gate) {
       const targetPillarIds = single_pillar
         ? [single_pillar]
@@ -638,33 +665,13 @@ serve(async (req) => {
       }
     } else {
       console.log('⏭️ Quality gate skipped (onboarding mode) — using onboarding data as context');
-      
-      // Enrich user context with onboarding data for unassessed pillars
-      const { data: launchpadData } = await supabase
-        .from('launchpad_progress')
-        .select('step_1_intention, step_2_profile_data')
-        .eq('user_id', user_id)
-        .single();
-      
-      if (launchpadData) {
-        const intention = launchpadData.step_1_intention || {};
-        const profile = launchpadData.step_2_profile_data || {};
-        const onboardingContext = `\n## ONBOARDING DATA (used as baseline for unassessed pillars)
-Intention: ${JSON.stringify(intention)}
-Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
-        // Append to userContext for AI
-        // userContext is already built above, we modify it in-place via string concat
-        // The AI will use this as fallback context for pillars without assessments
-      }
     }
 
     for (const h of hubsToGenerate) {
       const allHubPillarIds = h === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
       
-      // Filter to selected pillars only (if provided)
       let pillarIds: string[];
       if (single_pillar) {
-        // Modular mode: only generate for one pillar and merge into existing plan
         pillarIds = allHubPillarIds.includes(single_pillar) ? [single_pillar] : [];
       } else if (selected_pillars) {
         const hubSelected = h === 'core' ? (selected_pillars.core || []) : (selected_pillars.arena || []);
@@ -679,144 +686,6 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
       }
       
       const hubAssessments = allDomains.filter(d => pillarIds.includes(d.domain_id));
-      
-      const pillarResults: Record<string, any> = {};
-      let allAiSuccess = true;
-
-      if (LOVABLE_API_KEY) {
-        console.log(`\n🚀 Generating ${h} hub — 100-day / 10-phase plan...`);
-        
-        const aiPromises = pillarIds.map(async (pillarId) => {
-          const assessment = hubAssessments.find(a => a.domain_id === pillarId);
-          const result = await generatePillarStrategy(LOVABLE_API_KEY, pillarId, h, assessment, userContext, constraintsBlock);
-          return { pillarId, data: result };
-        });
-
-        const aiResults = await Promise.allSettled(aiPromises);
-        for (const result of aiResults) {
-          if (result.status === 'fulfilled' && result.value.data) {
-            pillarResults[result.value.pillarId] = result.value.data;
-          } else {
-            const pid = result.status === 'fulfilled' ? result.value.pillarId : 'unknown';
-            pillarResults[pid] = _g(pid, "Transform","טרנספורמציה","Master","שליטה","Scale","הרחבה");
-            allAiSuccess = false;
-          }
-        }
-      } else {
-        console.error("LOVABLE_API_KEY not configured, using fallback for all");
-        const fallback = buildFallbackStrategy(h);
-        for (const [k, v] of Object.entries(fallback.pillars)) {
-          pillarResults[k] = v;
-        }
-        allAiSuccess = false;
-      }
-
-      // === MODULAR MODE: merge into existing plan ===
-      if (single_pillar) {
-        // Find existing active plan for this hub
-        const { data: existingPlan } = await supabase
-          .from('life_plans').select('id, plan_data')
-          .eq('user_id', user_id).eq('status', 'active')
-          .order('created_at', { ascending: false });
-        
-        const hubPlan = (existingPlan || []).find((p: any) => p.plan_data?.hub === h);
-        
-        if (hubPlan) {
-          // Merge new pillar into existing plan_data
-          const existingStrategy = hubPlan.plan_data?.strategy || hubPlan.plan_data || {};
-          const updatedPillars = { ...(existingStrategy.pillars || {}), ...pillarResults };
-          const updatedStrategy = { ...existingStrategy, pillars: updatedPillars };
-          
-          await supabase.from('life_plans')
-            .update({ plan_data: { hub: h, strategy: updatedStrategy } })
-            .eq('id', hubPlan.id);
-          
-          // Generate missions/milestones for the new pillar only
-          const planId = hubPlan.id;
-          let totalMissions = 0, totalMilestones = 0;
-          
-          for (const [pillarId, pillarObj] of Object.entries(pillarResults)) {
-            // Delete existing missions for this pillar (if re-adding)
-            const { data: oldMissions } = await supabase
-              .from('plan_missions').select('id')
-              .eq('plan_id', planId).eq('pillar', pillarId);
-            if (oldMissions && oldMissions.length > 0) {
-              const oldIds = oldMissions.map((m: any) => m.id);
-              await supabase.from('life_plan_milestones').delete().in('mission_id', oldIds);
-              await supabase.from('plan_missions').delete().in('id', oldIds);
-            }
-            
-            const missions = (pillarObj as any)?.missions || (pillarObj as any)?.goals || [];
-            for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
-              const mission = missions[mi];
-              const { data: missionRow, error: missionError } = await supabase
-                .from('plan_missions').insert({
-                  plan_id: planId, pillar: pillarId, mission_number: mi + 1,
-                  title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
-                  title_en: mission.mission_en || mission.goal_en,
-                  description: mission.mission_he || mission.goal_he,
-                  description_en: mission.mission_en || mission.goal_en,
-                  xp_reward: 50,
-                }).select('id').single();
-              if (missionError) continue;
-              totalMissions++;
-
-              // Create skill from mission (modular mode)
-              const _mCatMap: Record<string, string> = {
-                consciousness: 'spirit', presence: 'social', power: 'body', vitality: 'body',
-                focus: 'mind', combat: 'body', expansion: 'mind', wealth: 'wealth',
-                influence: 'social', relationships: 'social', business: 'wealth',
-                projects: 'wealth', play: 'spirit', order: 'mind',
-              };
-              const _mIconMap: Record<string, string> = {
-                consciousness: '🧠', presence: '👁️', power: '💪', vitality: '🌿',
-                focus: '🎯', combat: '🥊', expansion: '🚀', wealth: '💰',
-                influence: '🌐', relationships: '❤️', business: '📈',
-                projects: '🏗️', play: '🎮', order: '📋',
-              };
-              const modSkillName = mission.mission_en || mission.goal_en || `Skill ${mi + 1}`;
-              const { data: modSkillRow } = await supabase.from('skills').insert({
-                name: modSkillName,
-                name_he: mission.mission_he || mission.goal_he || modSkillName,
-                description: modSkillName,
-                category: _mCatMap[pillarId] || 'mind',
-                icon: _mIconMap[pillarId] || '⭐',
-                is_active: true, mission_id: missionRow.id, user_id: user_id,
-              }).select('id').single();
-              if (modSkillRow) {
-                await supabase.from('user_skill_progress').upsert({
-                  user_id, skill_id: modSkillRow.id, xp_total: 0, level: 1,
-                  updated_at: new Date().toISOString(),
-                }, { onConflict: 'user_id,skill_id' });
-              }
-              
-              const milestones = mission.milestones || mission.sub_goals || [];
-              for (let si = 0; si < Math.min(milestones.length, 5); si++) {
-                const ms = milestones[si];
-                const phaseNumber = mi * 3 + Math.min(si, 3) + 1;
-                await supabase.from('life_plan_milestones').insert({
-                  plan_id: planId, mission_id: missionRow.id, milestone_number: si + 1,
-                  week_number: Math.min(phaseNumber, TOTAL_PHASES),
-                  month_number: Math.ceil(phaseNumber / 3),
-                  title: ms.title_he || ms.sub_goal_he || ms.title_en,
-                  title_en: ms.title_en || ms.sub_goal_en,
-                  description: ms.description_he || ms.title_he,
-                  description_en: ms.description_en || ms.title_en,
-                  goal: ms.title_he || ms.sub_goal_he,
-                  goal_en: ms.title_en || ms.sub_goal_en,
-                  focus_area: pillarId, focus_area_en: pillarId,
-                  is_completed: false, xp_reward: 20, tokens_reward: 5,
-                });
-                totalMilestones++;
-              }
-            }
-          }
-          
-          console.log(`✅ Modular add: ${single_pillar} → ${totalMissions} missions, ${totalMilestones} milestones`);
-          results.push({ hub: h, plan_id: planId, missions: totalMissions, milestones: totalMilestones, modular: true });
-          continue; // Skip normal plan creation
-        }
-      }
 
       const strategyData = {
         hub: h,
@@ -828,11 +697,10 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
         title_he: h === 'core' ? 'טרנספורמציה פנימית — 100 יום' : 'ביצוע בזירה — 100 יום',
         vision_en: h === 'core' ? 'Build unshakable internal systems for consciousness, energy, and identity.' : 'Create unstoppable momentum in wealth, influence, and impact.',
         vision_he: h === 'core' ? 'בנה מערכות פנימיות בלתי ניתנות לערעור.' : 'צור מומנטום בלתי ניתן לעצירה בעושר, השפעה ואימפקט.',
-        pillars: pillarResults,
-        ai_generated: allAiSuccess,
+        ai_generated: true,
       };
 
-      // Store plan — 100 days
+      // Store plan
       const startDate = new Date();
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + TOTAL_DAYS);
@@ -856,120 +724,122 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
         continue;
       }
 
-      // Generate missions, milestones, and mini-milestones
-      // Structure: 3 missions × 5 milestones × 5 mini-milestones per pillar
       let totalMissions = 0;
       let totalMilestones = 0;
-      let totalMinis = 0;
+      let allAiSuccess = true;
 
-      for (const [pillarId, pillarObj] of Object.entries(pillarResults)) {
-        const missions = (pillarObj as any)?.missions || (pillarObj as any)?.goals || [];
+      if (LOVABLE_API_KEY) {
+        console.log(`\n🚀 Generating ${h} hub — Trait-based 100-day plan...`);
         
-        for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
-          const mission = missions[mi];
-          
-          // Insert mission
-          const { data: missionRow, error: missionError } = await supabase
-            .from('plan_missions')
-            .insert({
-              plan_id: plan.id,
-              pillar: pillarId,
-              mission_number: mi + 1,
-              title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
-              title_en: mission.mission_en || mission.goal_en,
-              description: mission.mission_he || mission.goal_he,
-              description_en: mission.mission_en || mission.goal_en,
-              xp_reward: 50,
-            })
-            .select('id')
-            .single();
-          
-          if (missionError) {
-            console.error(`Mission insert error for ${pillarId}:`, missionError);
-            continue;
-          }
-          totalMissions++;
+        const aiPromises = pillarIds.map(async (pillarId) => {
+          const assessment = hubAssessments.find(a => a.domain_id === pillarId);
+          const result = await generatePillarStrategy(
+            LOVABLE_API_KEY, supabase, user_id, plan.id,
+            pillarId, h, assessment, userContext, constraintsBlock,
+          );
+          return { pillarId, data: result };
+        });
 
-          // === CREATE SKILL FROM MISSION ===
-          const skillName = mission.mission_en || mission.goal_en || `Skill ${mi + 1}`;
-          const skillNameHe = mission.mission_he || mission.goal_he || skillName;
-          const _catMap: Record<string, string> = {
-            consciousness: 'spirit', presence: 'social', power: 'body', vitality: 'body',
-            focus: 'mind', combat: 'body', expansion: 'mind', wealth: 'wealth',
-            influence: 'social', relationships: 'social', business: 'wealth',
-            projects: 'wealth', play: 'spirit', order: 'mind',
-          };
-          const _iconMap: Record<string, string> = {
-            consciousness: '🧠', presence: '👁️', power: '💪', vitality: '🌿',
-            focus: '🎯', combat: '🥊', expansion: '🚀', wealth: '💰',
-            influence: '🌐', relationships: '❤️', business: '📈',
-            projects: '🏗️', play: '🎮', order: '📋',
-          };
-          const { data: skillRow } = await supabase
-            .from('skills')
-            .insert({
-              name: skillName,
-              name_he: skillNameHe,
-              description: mission.mission_en || mission.goal_en,
-              category: _catMap[pillarId] || 'mind',
-              icon: _iconMap[pillarId] || '⭐',
-              is_active: true,
-              mission_id: missionRow.id,
-              user_id: user_id,
-            })
-            .select('id')
-            .single();
-          if (skillRow) {
-            await supabase
-              .from('user_skill_progress')
-              .upsert({
-                user_id: user_id,
-                skill_id: skillRow.id,
-                xp_total: 0,
-                level: 1,
-                updated_at: new Date().toISOString(),
-              }, { onConflict: 'user_id,skill_id' });
-            console.log(`  🎯 Skill created: "${skillName}" → ${skillRow.id}`);
-          }
+        const aiResults = await Promise.allSettled(aiPromises);
+        
+        for (const result of aiResults) {
+          if (result.status === 'fulfilled' && result.value.data) {
+            const { pillarId } = result.value;
+            const { missions, traitIds } = result.value.data;
+            
+            // Insert missions and milestones
+            for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
+              const mission = missions[mi];
+              const traitIndex = mission.trait_index ?? mi;
+              const traitSkillId = traitIds[traitIndex] || traitIds[mi] || null;
+              
+              const { data: missionRow, error: missionError } = await supabase
+                .from('plan_missions')
+                .insert({
+                  plan_id: plan.id,
+                  pillar: pillarId,
+                  mission_number: mi + 1,
+                  title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
+                  title_en: mission.mission_en || mission.goal_en,
+                  description: mission.mission_he || mission.goal_he,
+                  description_en: mission.mission_en || mission.goal_en,
+                  xp_reward: 50,
+                  primary_skill_id: traitSkillId,
+                })
+                .select('id')
+                .single();
+              
+              if (missionError) {
+                console.error(`Mission insert error for ${pillarId}:`, missionError);
+                continue;
+              }
+              totalMissions++;
 
-          const milestones = mission.milestones || mission.sub_goals || [];
-          for (let si = 0; si < Math.min(milestones.length, 5); si++) {
-            const ms = milestones[si];
-            const phaseNumber = mi * 3 + Math.min(si, 3) + 1; // Spread across phases
+              // Update skill with mission_id backlink
+              if (traitSkillId) {
+                await supabase.from('skills').update({ mission_id: missionRow.id }).eq('id', traitSkillId);
+              }
 
-            const { data: msRow, error: msError } = await supabase
-              .from('life_plan_milestones')
-              .insert({
-                plan_id: plan.id,
-                mission_id: missionRow.id,
-                milestone_number: si + 1,
-                week_number: Math.min(phaseNumber, TOTAL_PHASES),
-                month_number: Math.ceil(phaseNumber / 3),
-                title: ms.title_he || ms.sub_goal_he || ms.title_en || ms.sub_goal_en,
-                title_en: ms.title_en || ms.sub_goal_en,
-                description: ms.description_he || ms.title_he,
-                description_en: ms.description_en || ms.title_en,
-                goal: ms.title_he || ms.sub_goal_he,
-                goal_en: ms.title_en || ms.sub_goal_en,
-                focus_area: pillarId,
-                focus_area_en: pillarId,
-                is_completed: false,
-                xp_reward: 20,
-                tokens_reward: 5,
-              })
-              .select('id')
-              .single();
+              const milestones = mission.milestones || [];
+              for (let si = 0; si < Math.min(milestones.length, 5); si++) {
+                const ms = milestones[si];
+                const phaseNumber = mi * 3 + Math.min(si, 3) + 1;
 
-            if (msError) {
-              console.error(`Milestone insert error:`, msError);
-              continue;
+                await supabase.from('life_plan_milestones').insert({
+                  plan_id: plan.id,
+                  mission_id: missionRow.id,
+                  milestone_number: si + 1,
+                  week_number: Math.min(phaseNumber, TOTAL_PHASES),
+                  month_number: Math.ceil(phaseNumber / 3),
+                  title: ms.title_he || ms.title_en,
+                  title_en: ms.title_en,
+                  description: ms.description_he || ms.title_he,
+                  description_en: ms.description_en || ms.title_en,
+                  goal: ms.title_he,
+                  goal_en: ms.title_en,
+                  focus_area: pillarId,
+                  focus_area_en: pillarId,
+                  is_completed: false,
+                  xp_reward: 20,
+                  tokens_reward: 5,
+                });
+                totalMilestones++;
+              }
             }
-            totalMilestones++;
-
-            // Mini-milestones are generated on-demand when user enters this milestone phase
-            // This keeps initial generation fast and allows analytics-aware action creation
+          } else {
+            allAiSuccess = false;
+            const pid = result.status === 'fulfilled' ? result.value.pillarId : 'unknown';
+            console.error(`  [${pid}] Generation failed, using fallback`);
+            
+            // Insert fallback missions
+            const fb = _g(pid, "Transform " + pid, "טרנספורמציה " + pid, "Master " + pid, "שליטה ב" + pid, "Scale " + pid, "הרחבת " + pid);
+            for (let mi = 0; mi < fb.missions.length; mi++) {
+              const mission = fb.missions[mi];
+              const { data: missionRow } = await supabase.from('plan_missions').insert({
+                plan_id: plan.id, pillar: pid, mission_number: mi + 1,
+                title: mission.mission_he, title_en: mission.mission_en,
+                description: mission.mission_he, description_en: mission.mission_en, xp_reward: 50,
+              }).select('id').single();
+              if (!missionRow) continue;
+              totalMissions++;
+              
+              for (let si = 0; si < mission.milestones.length; si++) {
+                const ms = mission.milestones[si];
+                await supabase.from('life_plan_milestones').insert({
+                  plan_id: plan.id, mission_id: missionRow.id, milestone_number: si + 1,
+                  week_number: mi * 3 + Math.min(si, 3) + 1, month_number: 1,
+                  title: ms.title_he, title_en: ms.title_en,
+                  description: ms.description_he, description_en: ms.description_en,
+                  focus_area: pid, is_completed: false, xp_reward: 20, tokens_reward: 5,
+                });
+                totalMilestones++;
+              }
+            }
           }
         }
+      } else {
+        console.error("LOVABLE_API_KEY not configured, using fallback for all");
+        allAiSuccess = false;
       }
 
       // === ATOMIC FLIP ===
@@ -982,7 +852,6 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
         .map((p: any) => p.id);
       
       if (hubPlanIds.length > 0) {
-        // Clean up old plan data (mini_milestones cascade via milestone FK)
         await supabase.from('plan_missions').delete().in('plan_id', hubPlanIds);
         await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', hubPlanIds);
         await supabase.from('life_plan_milestones').delete().in('plan_id', hubPlanIds);
@@ -992,8 +861,8 @@ Profile: ${JSON.stringify(profile).slice(0, 1000)}`;
 
       await supabase.from('life_plans').update({ status: 'active' }).eq('id', plan.id);
 
-      console.log(`✅ ${h} hub: ${totalMissions} missions, ${totalMilestones} milestones, ${totalMinis} mini-milestones (AI: ${allAiSuccess})`);
-      results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, minis: totalMinis, ai_generated: allAiSuccess });
+      console.log(`✅ ${h} hub: ${totalMissions} missions, ${totalMilestones} milestones (AI: ${allAiSuccess})`);
+      results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, ai_generated: allAiSuccess });
     }
 
     return new Response(
