@@ -42,15 +42,61 @@ export default function ArenaHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { toast } = useToast();
+  const { user } = useAuth();
   
-  const { plan, isLoading: planLoading } = useLifePlanWithMilestones();
+  const { plan, milestones, isLoading: planLoading, currentWeek: currentPhase } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [tacticalRecalibrating, setTacticalRecalibrating] = useState(false);
 
   const { queue, refetch } = useNowEngine();
+
+  // Tactical-only recalibrate: delete current phase mini_milestones, then regenerate
+  const handleTacticalRecalibrate = useCallback(async () => {
+    if (!user?.id || tacticalRecalibrating) return;
+    const phaseMilestones = milestones.filter(m => m.week_number === currentPhase);
+    if (phaseMilestones.length === 0) return;
+
+    setTacticalRecalibrating(true);
+    try {
+      const milestoneIds = phaseMilestones.map(m => m.id);
+
+      // 1. Delete existing mini_milestones for current phase
+      const { error: delError } = await supabase
+        .from('mini_milestones')
+        .delete()
+        .in('milestone_id', milestoneIds);
+      if (delError) throw delError;
+
+      // 2. Regenerate phase actions for all milestones in parallel (batches of 3)
+      for (let i = 0; i < phaseMilestones.length; i += 3) {
+        const batch = phaseMilestones.slice(i, i + 3);
+        await Promise.allSettled(
+          batch.map(m =>
+            supabase.functions.invoke('generate-phase-actions', {
+              body: { milestone_id: m.id, user_id: user.id },
+            })
+          )
+        );
+      }
+
+      // 3. Refresh queries
+      queryClient.invalidateQueries({ queryKey: ['phase-minis-check'] });
+      queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
+      queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+      queryClient.invalidateQueries({ queryKey: ['action-items'] });
+
+      toast({ title: isHe ? '✅ הטקטיקה כוילה מחדש' : '✅ Tactics recalibrated' });
+    } catch (e) {
+      console.error('Tactical recalibration failed:', e);
+      toast({ title: isHe ? 'שגיאה בכיול' : 'Recalibration failed', variant: 'destructive' });
+    } finally {
+      setTacticalRecalibrating(false);
+    }
+  }, [user?.id, milestones, currentPhase, tacticalRecalibrating, queryClient, toast, isHe]);
 
   const weeklyPlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, generating, isLoading } = weeklyPlan;
