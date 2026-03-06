@@ -394,13 +394,13 @@ BAD (too granular, task-like, diagnostic):
 - Each mission gets exactly 5 milestones — each is a STRATEGIC PROTOCOL or LIFESTYLE COMMITMENT.
 - Milestones should include FREQUENCY (daily, 3x/week, etc.) or INTENSITY (full day, minimum hours, etc.) when applicable.
 - They should be progressively more challenging across the 5.
-- Each milestone MUST have a "difficulty" field (1-5 stars):
-  - 1 ⭐ = Beginner / easy habit to maintain
-  - 2 ⭐⭐ = Moderate effort required
-  - 3 ⭐⭐⭐ = Challenging but achievable
-  - 4 ⭐⭐⭐⭐ = Hard, requires significant discipline
-  - 5 ⭐⭐⭐⭐⭐ = Elite level, extreme commitment
-- The 5 milestones should progress from lower difficulty (1-2) to higher (4-5).
+- **MANDATORY**: Each milestone MUST have a unique "difficulty" field — the 5 milestones MUST use exactly [1, 2, 3, 4, 5] in ascending order:
+  - Milestone 1 → difficulty: 1 (⭐ Beginner / easy habit)
+  - Milestone 2 → difficulty: 2 (⭐⭐ Moderate effort)
+  - Milestone 3 → difficulty: 3 (⭐⭐⭐ Challenging but achievable)
+  - Milestone 4 → difficulty: 4 (⭐⭐⭐⭐ Hard, significant discipline)
+  - Milestone 5 → difficulty: 5 (⭐⭐⭐⭐⭐ Elite level, extreme commitment)
+- **WARNING**: If all 5 milestones have the same difficulty, your output will be REJECTED. Each MUST be different.
 - CRITICAL: All milestones MUST stay within the pillar's scope.
 - CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS.
 - Hebrew must be natural and punchy. Keep titles short but strategic.
