@@ -3,9 +3,10 @@
  * Hierarchy: Pillar → Traits → Missions → Milestones.
  * Selected pillars get 3 traits, non-selected get 1 trait.
  * CRITICAL: Top-level cards are always TRAITS, never mission text.
+ * Milestones show 1-5 difficulty stars and open journey modal on click.
  */
-import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -19,6 +20,7 @@ import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { supabase } from '@/integrations/supabase/client';
 import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
 import { PILLAR_COLORS } from '@/hooks/useTraitGallery';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 
 // ========== TYPES ==========
 interface TraitView {
