@@ -5599,6 +5599,53 @@ export type Database = {
           },
         ]
       }
+      milestone_journey_steps: {
+        Row: {
+          completed_steps: number
+          current_step: number
+          generated_at: string
+          id: string
+          milestone_id: string
+          status: string
+          steps: Json
+          total_steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_steps?: number
+          current_step?: number
+          generated_at?: string
+          id?: string
+          milestone_id: string
+          status?: string
+          steps?: Json
+          total_steps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_steps?: number
+          current_step?: number
+          generated_at?: string
+          id?: string
+          milestone_id?: string
+          status?: string
+          steps?: Json
+          total_steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestone_journey_steps_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mini_milestones: {
         Row: {
           action_type: string | null
