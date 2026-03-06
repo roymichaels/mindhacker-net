@@ -1,16 +1,19 @@
 /**
- * BottomHudBar — Compact character HUD docked to the bottom of the screen.
- * Single "Profile" button opens the unified CharacterProfileModal.
+ * BottomHudBar — 3-column grid HUD.
+ * Left: Personalized orb + job title → opens Profile
+ * Middle: XP progress bar
+ * Right: Aurora orb → opens Aurora dock
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
+import { useXpProgress } from '@/hooks/useGameState';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
-import { Star, Flame, Zap, UserCircle } from 'lucide-react';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
 
 export function BottomHudBar() {
@@ -18,13 +21,18 @@ export function BottomHudBar() {
   const isHe = language === 'he';
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
-  const streak = useStreak();
-  const tokens = useEnergy();
+  const ctx = useAuroraChatContextSafe();
 
-  const [orbDNAOpen, setOrbDNAOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const identityTitle = dashboard.identityTitle;
+
+  const openAurora = () => {
+    if (ctx) {
+      ctx.setIsDockVisible(true);
+      ctx.setIsChatExpanded(true);
+    }
+  };
 
   return (
     <>
@@ -35,66 +43,51 @@ export function BottomHudBar() {
         )}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <div className="flex items-center gap-2.5 px-3 py-2 max-w-screen-xl mx-auto">
-          {/* Orb */}
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2 max-w-screen-xl mx-auto">
+          {/* ── LEFT: Orb + Job Title → Profile ── */}
           <button
-            onClick={() => setOrbDNAOpen(true)}
-            className="flex-shrink-0 w-12 h-12 rounded-full overflow-visible"
+            onClick={() => setProfileOpen(true)}
+            className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
           >
-            <PersonalizedOrb size={48} state="idle" />
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl overflow-visible">
+              <PersonalizedOrb size={44} state="idle" />
+            </div>
+            {identityTitle && (
+              <div className="min-w-0 flex flex-col">
+                <span className="text-[10px] text-muted-foreground leading-none">
+                  {identityTitle.icon}
+                </span>
+                <span className="text-[11px] font-bold text-foreground truncate max-w-[80px] leading-tight">
+                  {isHe ? identityTitle.title : identityTitle.titleEn}
+                </span>
+              </div>
+            )}
           </button>
 
-          {/* Identity + XP */}
-          <div className="flex-1 min-w-0 space-y-1">
-            {/* Identity row */}
-            <div className="flex items-center gap-1.5 min-w-0">
-              {identityTitle && (
-                <>
-                  <span className="text-sm flex-shrink-0">{identityTitle.icon}</span>
-                  <span className="text-xs font-bold text-foreground truncate">
-                    {isHe ? identityTitle.title : identityTitle.titleEn}
-                  </span>
-                </>
-              )}
-            </div>
-
-            {/* Badges + XP bar */}
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
-                <Star className="h-2.5 w-2.5" />Lv.{xp.level}
+          {/* ── MIDDLE: XP Progress Bar ── */}
+          <div className="flex flex-col items-center justify-center gap-0.5 px-2 min-w-0">
+            <div className="flex items-center gap-1.5 w-full">
+              <span className="text-[9px] font-bold text-primary whitespace-nowrap">
+                Lv.{xp.level}
               </span>
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                <Zap className="h-2.5 w-2.5" />{tokens.balance}
+              <Progress value={xp.percentage} className="h-1.5 flex-1 bg-muted/50" />
+              <span className="text-[8px] text-muted-foreground whitespace-nowrap tabular-nums">
+                {xp.current ?? 0}/{xp.required ?? 100}
               </span>
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
-                <Flame className="h-2.5 w-2.5" />{streak.streak}
-              </span>
-            </div>
-
-            {/* XP bar */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[8px] text-muted-foreground whitespace-nowrap">
-                EXP {xp.current ?? 0} / {xp.required ?? 100} ({xp.percentage}%)
-              </span>
-              <Progress value={xp.percentage} className="h-1 flex-1 bg-muted/50" />
             </div>
           </div>
 
-          {/* Single Profile button */}
-          <div className="flex-shrink-0">
-            <button
-              onClick={() => setProfileOpen(true)}
-              className="flex flex-col items-center gap-0.5 p-1.5 rounded-lg hover:bg-muted/30 active:scale-[0.95] transition-all"
-            >
-              <UserCircle className="w-5 h-5 text-muted-foreground" />
-              <span className="text-[9px] text-muted-foreground">{isHe ? 'פרופיל' : 'Profile'}</span>
-            </button>
-          </div>
+          {/* ── RIGHT: Aurora Orb → Opens Dock ── */}
+          <button
+            onClick={openAurora}
+            className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:bg-muted/30 active:scale-[0.95] transition-all"
+          >
+            <AuroraHoloOrb size={36} glow="full" />
+          </button>
         </div>
       </div>
 
       {/* Modals */}
-      <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
       <CharacterProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
     </>
   );
