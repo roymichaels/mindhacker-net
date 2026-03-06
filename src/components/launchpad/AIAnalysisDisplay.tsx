@@ -165,17 +165,37 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         </GlassCard>
       )}
 
-      {/* Career + Transformation */}
-      {(summary.career_path || summary.transformation_potential) && (
-        <div className="grid grid-cols-2 gap-3">
+      {/* Identity Profile + Career + Transformation — 3-col row */}
+      {(summary.identity_profile || summary.career_path || summary.transformation_potential) && (
+        <div className="grid grid-cols-3 gap-3">
+          {summary.identity_profile && (
+            <GlassCard>
+              <CardHeader icon={<User className="h-4 w-4 text-rose-400" />} title={isHebrew ? 'פרופיל זהות' : 'Identity'} accent="bg-rose-500/10" />
+              {summary.identity_profile.suggested_ego_state && (
+                <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                  <span className="text-lg">{egoIcon}</span>
+                  <span className="text-xs font-bold text-amber-400">
+                    {egoLabel ? (isHebrew ? egoLabel.he : egoLabel.en) : summary.identity_profile.suggested_ego_state}
+                  </span>
+                </div>
+              )}
+              {summary.identity_profile.dominant_traits?.length ? (
+                <div className="flex flex-wrap gap-1">
+                  {summary.identity_profile.dominant_traits.slice(0, 3).map((t, i) => (
+                    <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">{t}</span>
+                  ))}
+                </div>
+              ) : null}
+            </GlassCard>
+          )}
           {summary.career_path && (
             <GlassCard>
               <CardHeader icon={<Briefcase className="h-4 w-4 text-blue-400" />} title={isHebrew ? 'קריירה' : 'Career'} accent="bg-blue-500/10" />
-              {summary.career_path.aspiration && <p className="text-sm text-white/60 mb-2">{summary.career_path.aspiration}</p>}
+              {summary.career_path.aspiration && <p className="text-xs text-white/60 mb-2 line-clamp-3">{summary.career_path.aspiration}</p>}
               {summary.career_path.key_steps?.length ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {summary.career_path.key_steps.slice(0, 3).map((s, i) => (
-                    <span key={i} className="text-[11px] font-medium px-2 py-0.5 rounded-lg bg-white/[0.04] text-white/50 border border-white/[0.06]">{s}</span>
+                <div className="flex flex-wrap gap-1">
+                  {summary.career_path.key_steps.slice(0, 2).map((s, i) => (
+                    <span key={i} className="text-[10px] font-medium px-1.5 py-0.5 rounded-lg bg-white/[0.04] text-white/50 border border-white/[0.06]">{s}</span>
                   ))}
                 </div>
               ) : null}
@@ -184,12 +204,12 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
           {summary.transformation_potential && (
             <GlassCard>
               <CardHeader icon={<Rocket className="h-4 w-4 text-amber-400" />} title={isHebrew ? 'טרנספורמציה' : 'Transform'} accent="bg-amber-500/10" />
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1">
                 {summary.transformation_potential.primary_focus && (
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20">{summary.transformation_potential.primary_focus}</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20">{summary.transformation_potential.primary_focus}</span>
                 )}
                 {summary.transformation_potential.secondary_focus && (
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-white/[0.04] text-amber-400/60 border border-amber-500/10">{summary.transformation_potential.secondary_focus}</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-white/[0.04] text-amber-400/60 border border-amber-500/10">{summary.transformation_potential.secondary_focus}</span>
                 )}
               </div>
             </GlassCard>
