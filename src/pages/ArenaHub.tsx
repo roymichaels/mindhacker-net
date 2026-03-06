@@ -54,7 +54,7 @@ function usePhaseMissions(planIds: string[], currentPhase: number | null) {
 export default function ArenaHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { user } = useAuth();
+  
   const { plan, milestones, isLoading, currentWeek: currentPhase } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
