@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { Orb } from '@/components/orb/Orb';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { cn } from '@/lib/utils';
 
