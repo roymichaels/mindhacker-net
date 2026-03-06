@@ -73,6 +73,25 @@ export default function GameHeroSection() {
             </span>
           </motion.h1>
 
+          {/* Aurora Skin Orb */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="flex justify-center"
+          >
+            <div className="relative">
+              <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] blur-2xl pointer-events-none" />
+              {auroraSkinPreset && (
+                <Orb
+                  profile={auroraSkinPreset.profile}
+                  size={180}
+                  renderer="webgl"
+                />
+              )}
+            </div>
+          </motion.div>
+
           {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
