@@ -69,6 +69,7 @@ serve(async (req) => {
         focus_area: m.focus_area || mission?.pillar || "general",
         mission_title: mission?.titleEn || mission?.title || "",
         is_completed: m.is_completed,
+        difficulty: (m as any).difficulty || 3,
       };
     });
 
