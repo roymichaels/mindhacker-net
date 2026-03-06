@@ -283,110 +283,96 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
   const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
 
   return (
-    <div className="space-y-3">
-      {/* ── Life Direction ── */}
+    <div className="space-y-2">
+      {/* ── Row 1: Life Direction (full width) ── */}
       {lifeDirection && (
-        <div className="p-2.5 rounded-xl border border-primary/20 bg-primary/5">
-          <div className="flex items-center justify-between mb-1">
+        <div className="p-2 rounded-xl border border-primary/20 bg-primary/5">
+          <div className="flex items-center justify-between mb-0.5">
             <h4 className="text-[10px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
               <Compass className="w-3 h-3" />
               {isHe ? 'כיוון חיים' : 'Life Direction'}
             </h4>
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className={cn("w-2.5 h-2.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-primary text-primary" : "text-muted-foreground/20")} />
+                <Star key={i} className={cn("w-2 h-2", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-primary text-primary" : "text-muted-foreground/20")} />
               ))}
             </div>
           </div>
-          <p className="text-xs text-foreground leading-relaxed line-clamp-3">{lifeDirection.content}</p>
+          <p className="text-[11px] text-foreground leading-snug line-clamp-2">{lifeDirection.content}</p>
         </div>
       )}
 
-      {/* ── Commitments + Anchors side by side ── */}
-      {(commitments.length > 0 || anchors.length > 0) && (
-        <div className="grid grid-cols-2 gap-2">
-          {commitments.length > 0 && (
-            <div>
-              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                {isHe ? 'מחויבויות' : 'Commitments'}
-              </h4>
-              <div className="space-y-0.5">
-                {commitments.map((c) => (
-                  <div key={c.id} className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-card border border-border/30">
-                    <Target className="w-2.5 h-2.5 text-primary shrink-0" />
-                    <p className="text-[10px] font-medium text-foreground truncate">{c.title}</p>
-                  </div>
-                ))}
-              </div>
+      {/* ── Row 2: 2-col grid for commitments, anchors, values, principles, concepts ── */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {commitments.length > 0 && (
+          <div className="p-2 rounded-lg border border-border/30 bg-card/30">
+            <h4 className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+              {isHe ? 'מחויבויות' : 'Commitments'}
+            </h4>
+            <div className="space-y-0.5">
+              {commitments.slice(0, 3).map((c) => (
+                <div key={c.id} className="flex items-center gap-1">
+                  <Target className="w-2 h-2 text-primary shrink-0" />
+                  <p className="text-[10px] text-foreground truncate">{c.title}</p>
+                </div>
+              ))}
             </div>
-          )}
-          {anchors.length > 0 && (
-            <div>
-              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                {isHe ? 'עוגנים יומיים' : 'Daily Anchors'}
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {anchors.map((a) => (
-                  <Badge key={a.id} variant="secondary" className="text-[9px] px-1.5 py-0.5">
-                    {a.title}
-                  </Badge>
-                ))}
-              </div>
+          </div>
+        )}
+        {anchors.length > 0 && (
+          <div className="p-2 rounded-lg border border-border/30 bg-card/30">
+            <h4 className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+              {isHe ? 'עוגנים יומיים' : 'Daily Anchors'}
+            </h4>
+            <div className="flex flex-wrap gap-0.5">
+              {anchors.map((a) => (
+                <Badge key={a.id} variant="secondary" className="text-[8px] px-1 py-0">{a.title}</Badge>
+              ))}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+        {dashboard.values.length > 0 && (
+          <div className="p-2 rounded-lg border border-border/30 bg-card/30">
+            <h4 className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+              {isHe ? 'ערכים' : 'Values'}
+            </h4>
+            <div className="flex flex-wrap gap-0.5">
+              {dashboard.values.map((v, i) => (
+                <Badge key={i} variant="secondary" className="text-[8px] px-1 py-0">{v}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+        {dashboard.principles.length > 0 && (
+          <div className="p-2 rounded-lg border border-border/30 bg-card/30">
+            <h4 className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+              {isHe ? 'עקרונות' : 'Principles'}
+            </h4>
+            <div className="flex flex-wrap gap-0.5">
+              {dashboard.principles.map((p, i) => (
+                <Badge key={i} variant="outline" className="text-[8px] px-1 py-0">{p}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+        {dashboard.selfConcepts.length > 0 && (
+          <div className="p-2 rounded-lg border border-border/30 bg-card/30 col-span-2">
+            <h4 className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+              {isHe ? 'תפיסות עצמיות' : 'Self Concepts'}
+            </h4>
+            <div className="flex flex-wrap gap-0.5">
+              {dashboard.selfConcepts.map((s, i) => (
+                <Badge key={i} variant="outline" className="text-[8px] px-1 py-0 bg-primary/5">{s}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
-      {/* ── Identity chips: Values + Principles + Self Concepts in grid ── */}
-      {(dashboard.values.length > 0 || dashboard.principles.length > 0 || dashboard.selfConcepts.length > 0) && (
-        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-          {dashboard.values.length > 0 && (
-            <div>
-              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                {isHe ? 'ערכים' : 'Values'}
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {dashboard.values.map((v, i) => (
-                  <Badge key={i} variant="secondary" className="text-[9px] px-1.5 py-0.5">{v}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-          {dashboard.principles.length > 0 && (
-            <div>
-              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                {isHe ? 'עקרונות' : 'Principles'}
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {dashboard.principles.map((p, i) => (
-                  <Badge key={i} variant="outline" className="text-[9px] px-1.5 py-0.5">{p}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-          {dashboard.selfConcepts.length > 0 && (
-            <div className="col-span-2">
-              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                {isHe ? 'תפיסות עצמיות' : 'Self Concepts'}
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {dashboard.selfConcepts.map((s, i) => (
-                  <Badge key={i} variant="outline" className="text-[9px] px-1.5 py-0.5 bg-primary/5">{s}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Archetype traits */}
+      {/* ── Archetype traits ── */}
       {archetypeData && <TraitsCard archetypeData={archetypeData} />}
 
-      {/* Behavioral patterns + Consciousness (merged from Insights, owner only) */}
-      {isOwner && <BehavioralInsightsCard />}
-      {isOwner && <ConsciousnessCard />}
-
-      {/* AI Analysis (merged from Insights) */}
+      {/* ── AI Analysis (includes consciousness, behavioral, identity, career — all in grid) ── */}
       {isOwner && <AIAnalysisDisplay language={language} />}
     </div>
   );
