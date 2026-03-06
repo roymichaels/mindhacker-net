@@ -112,19 +112,21 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
                 <span className="italic">{isHe ? meta.dnaHe : meta.dnaEn}</span>
               </div>
 
-              {/* Color palette */}
+              {/* Color palette — actual orb colors */}
               <div className="space-y-1.5">
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isHe ? 'פלטת צבעים' : 'Color Palette'}
+                  {isHe ? 'צבעי האורב' : 'Orb Colors'}
                 </p>
-                <div className="flex gap-2 justify-center">
-                  {colors.map((stop, j) => (
-                    <div
-                      key={j}
-                      className="w-8 h-8 rounded-lg border border-border/30 shadow-sm"
-                      style={{ backgroundColor: `hsl(${stop})` }}
-                      title={`hsl(${stop})`}
-                    />
+                <div className="flex gap-3 justify-center">
+                  {orbColors.map((c, j) => (
+                    <div key={j} className="flex flex-col items-center gap-1">
+                      <div
+                        className="w-9 h-9 rounded-full border-2 border-border/30 shadow-md"
+                        style={{ backgroundColor: c.color }}
+                        title={c.color}
+                      />
+                      <span className="text-[9px] text-muted-foreground">{c.label}</span>
+                    </div>
                   ))}
                 </div>
               </div>
