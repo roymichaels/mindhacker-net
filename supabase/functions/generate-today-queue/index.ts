@@ -63,15 +63,14 @@ function inferExecutionTemplate(pillarId: string, actionType: string): Execution
 interface ExecStep { label: string; detail?: string; durationSec: number; }
 
 function generateSimpleSteps(title: string, durationMin: number, isHe: boolean): ExecStep[] {
-  const coreMin = Math.max(1, durationMin - 4);
   return isHe ? [
     { label: "הכנה — נשימות + מיקוד כוונה", detail: "מה בדיוק אני עומד לעשות?", durationSec: 60 },
-    { label: `ביצוע — ${coreMin} דקות`, detail: title, durationSec: coreMin * 60 },
-    { label: "סגירה — מה למדתי? מה הצעד הבא?", durationSec: 120 },
+    { label: "ביצוע", detail: title, durationSec: 0 },
+    { label: "סגירה — מה למדתי? מה הצעד הבא?", durationSec: 0 },
   ] : [
     { label: "Prepare — breathe & set intention", detail: "What exactly am I about to do?", durationSec: 60 },
-    { label: `Execute — ${coreMin} minutes`, detail: title, durationSec: coreMin * 60 },
-    { label: "Close — what did I learn? What's next?", durationSec: 120 },
+    { label: "Execute", detail: title, durationSec: 0 },
+    { label: "Close — what did I learn? What's next?", durationSec: 0 },
   ];
 }
 
