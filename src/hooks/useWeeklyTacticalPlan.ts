@@ -230,9 +230,24 @@ function groupIntoBlocks(actions: TacticalAction[]): TacticalBlock[] {
   return blocks;
 }
 
-// ── Cadence → day distribution ──
+// ── Cadence → day distribution (load-balanced) ──
 
-/** Distribute milestones across 10 days based on cadence */
+/** How many times a milestone appears in a 10-day phase */
+function cadenceOccurrences(cadence: Cadence): number {
+  switch (cadence) {
+    case 'daily': return 10;
+    case '3x_per_week': return 5;  // ~3 per 7 days
+    case '2x_per_week': return 3;  // ~2 per 7 days
+    case 'weekly': return 2;       // once per week
+    case 'one_time': return 1;
+  }
+}
+
+/**
+ * Distribute milestones across 10 days using load-balanced scheduling.
+ * Instead of hardcoding day indices per cadence, we assign occurrences
+ * to the least-loaded days, ensuring an even spread of total minutes.
+ */
 function distributeMilestonesToDays(
   milestones: any[],
   planStartDate: string,
@@ -240,72 +255,135 @@ function distributeMilestonesToDays(
   phaseDates: string[],
 ): TacticalAction[] {
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
+
+  // Pre-compute metadata for each milestone
+  const milestonesMeta = milestones.map(m => {
+    const title = m.title || '';
+    const focusArea = m.focus_area || null;
+    return {
+      raw: m,
+      title,
+      titleEn: m.title_en || title,
+      focusArea,
+      cadence: classifyCadence(title, null, null),
+      blockCat: classifyBlockCategory(null, null, title, focusArea),
+      difficulty: classifyDifficulty(m),
+      mins: estimateMinutes(focusArea, title),
+      execTemplate: inferExecutionTemplate(title, focusArea),
+      occurrences: 0 as number,
+    };
+  });
+
+  // Calculate occurrences
+  for (const mm of milestonesMeta) {
+    mm.occurrences = cadenceOccurrences(mm.cadence);
+  }
+
+  // Sort by occurrences descending — assign most-frequent items first
+  // so the balancer has more flexibility with less-frequent items
+  milestonesMeta.sort((a, b) => b.occurrences - a.occurrences);
+
+  // Track load per day (total minutes)
+  const dayLoad = new Array(10).fill(0);
+  // Track actions per day per milestone to avoid duplicates
+  const dayMilestones = new Array(10).fill(null).map(() => new Set<string>());
+
   const actions: TacticalAction[] = [];
 
-  for (const m of milestones) {
-    const title = m.title || '';
-    const titleEn = m.title_en || title;
-    const focusArea = m.focus_area || null;
-    const cadence = classifyCadence(title, null, null);
-    const blockCat = classifyBlockCategory(null, null, title, focusArea);
-    const difficulty = classifyDifficulty(m);
-    const mins = estimateMinutes(focusArea, title);
-    const execTemplate = inferExecutionTemplate(title, focusArea);
+  for (const mm of milestonesMeta) {
+    const count = mm.occurrences;
 
-    // Calculate which days this milestone appears on based on cadence
-    let dayIndices: number[] = [];
-    
-    switch (cadence) {
-      case 'daily':
-        dayIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        break;
-      case '3x_per_week':
-        // 3 times per 7 days ≈ every ~2.3 days → days 0, 2, 4, 6, 8
-        dayIndices = [0, 2, 4, 6, 8];
-        break;
-      case '2x_per_week':
-        // 2 times per 7 days ≈ every 3.5 days → days 0, 3, 6, 9
-        dayIndices = [0, 3, 6, 9];
-        break;
-      case 'weekly':
-        // Once per week → day 2 and day 7
-        dayIndices = [2, 7];
-        break;
-      case 'one_time':
-        // Single occurrence → day 4 (mid-phase)
-        dayIndices = [4];
-        break;
+    if (count >= 10) {
+      // Daily: assign to all days
+      for (let d = 0; d < 10; d++) {
+        dayLoad[d] += mm.mins;
+        dayMilestones[d].add(mm.raw.id);
+        actions.push(buildAction(mm, d, phaseStartDay, planStartDate));
+      }
+      continue;
     }
 
-    for (const dayIdx of dayIndices) {
-      const absDay = phaseStartDay + dayIdx;
-      const calendarDate = planDayToDate(planStartDate, absDay);
-      
-      actions.push({
-        id: `${m.id}-d${dayIdx}`,
-        title,
-        titleEn,
-        description: m.description || null,
-        descriptionEn: m.description_en || null,
-        sourceMilestoneId: m.id,
-        executionTemplate: execTemplate,
-        actionType: m.focus_area || null,
-        estimatedMinutes: mins,
-        cadence,
-        completed: false, // Per-day completion tracked separately
-        completedAt: null,
-        xpReward: DIFFICULTY_XP[difficulty],
-        blockCategory: blockCat,
-        difficulty,
-        scheduledDay: absDay,
-        calendarDate,
-        focusArea,
-        missionId: m.mission_id || null,
-      });
+    // For non-daily: pick the `count` least-loaded days, spaced as evenly as possible
+    const selectedDays = pickBalancedDays(count, dayLoad, mm.mins);
+
+    for (const d of selectedDays) {
+      dayLoad[d] += mm.mins;
+      dayMilestones[d].add(mm.raw.id);
+      actions.push(buildAction(mm, d, phaseStartDay, planStartDate));
     }
   }
 
   return actions;
+}
+
+/** Pick `count` days that balance the load, with even spacing preference */
+function pickBalancedDays(count: number, dayLoad: number[], addMins: number): number[] {
+  if (count <= 0) return [];
+  if (count >= 10) return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  // Ideal spacing between occurrences
+  const spacing = 10 / count;
+  const selected: number[] = [];
+
+  for (let i = 0; i < count; i++) {
+    // Ideal position for this occurrence
+    const idealPos = Math.round(i * spacing + spacing / 2 - 0.5);
+
+    // Search window: ±2 days around ideal position
+    const candidates: { day: number; score: number }[] = [];
+    for (let offset = -2; offset <= 2; offset++) {
+      const d = idealPos + offset;
+      if (d < 0 || d >= 10) continue;
+      if (selected.includes(d)) continue;
+
+      // Score: lower is better — combines load and distance from ideal
+      const loadScore = dayLoad[d] + addMins;
+      const distScore = Math.abs(offset) * 20; // penalty for deviating from ideal
+      candidates.push({ day: d, score: loadScore + distScore });
+    }
+
+    // Fallback: if no candidates in window, pick any unselected day with lowest load
+    if (candidates.length === 0) {
+      for (let d = 0; d < 10; d++) {
+        if (!selected.includes(d)) {
+          candidates.push({ day: d, score: dayLoad[d] + addMins });
+        }
+      }
+    }
+
+    candidates.sort((a, b) => a.score - b.score);
+    if (candidates.length > 0) {
+      selected.push(candidates[0].day);
+    }
+  }
+
+  return selected.sort((a, b) => a - b);
+}
+
+function buildAction(mm: any, dayIdx: number, phaseStartDay: number, planStartDate: string): TacticalAction {
+  const absDay = phaseStartDay + dayIdx;
+  const calendarDate = planDayToDate(planStartDate, absDay);
+  return {
+    id: `${mm.raw.id}-d${dayIdx}`,
+    title: mm.title,
+    titleEn: mm.titleEn,
+    description: mm.raw.description || null,
+    descriptionEn: mm.raw.description_en || null,
+    sourceMilestoneId: mm.raw.id,
+    executionTemplate: mm.execTemplate,
+    actionType: mm.raw.focus_area || null,
+    estimatedMinutes: mm.mins,
+    cadence: mm.cadence,
+    completed: false,
+    completedAt: null,
+    xpReward: DIFFICULTY_XP[mm.difficulty],
+    blockCategory: mm.blockCat,
+    difficulty: mm.difficulty,
+    scheduledDay: absDay,
+    calendarDate,
+    focusArea: mm.focusArea,
+    missionId: mm.raw.mission_id || null,
+  };
 }
 
 // ── Hook ──
