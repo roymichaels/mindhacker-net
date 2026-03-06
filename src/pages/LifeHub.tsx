@@ -288,16 +288,16 @@ export default function LifeHub() {
                             {pillarSkills.map((skill) => {
                               const msCompleted = skill.milestones.filter(m => m.is_completed).length;
                               const msTotal = skill.milestones.length;
-                              const skillName = isHe ? (skill.skill_name_he || skill.skill_name) : skill.skill_name;
+                              const skillName = skill.name;
 
                               return (
                                 <div
-                                  key={skill.skill_id}
+                                  key={skill.id}
                                   className="rounded-xl border border-border/30 bg-background/50 overflow-hidden"
                                 >
                                   {/* Skill header card */}
                                   <div className="px-4 py-3 border-b border-border/15 flex items-center gap-2.5">
-                                    <span className="text-lg shrink-0">{skill.skill_icon}</span>
+                                    <span className="text-lg shrink-0">{skill.icon}</span>
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-1.5">
                                         <h4 className="text-sm font-bold text-foreground truncate">
