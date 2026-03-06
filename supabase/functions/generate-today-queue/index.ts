@@ -365,6 +365,7 @@ serve(async (req) => {
           title: isHe ? (mini.title || mini.title_en) : (mini.title_en || mini.title),
           titleEn: mini.title_en || mini.title,
           durationMin: Math.round(20 * dayIntensity.multiplier),
+          isTimeBased: detectTimeBased(mini.title_en || mini.title || "", mini.action_type || "milestone"),
           urgencyScore: 7,
           reason: isHe
             ? `${mission?.title || milestone.title} — שלב ${milestone.week_number}`
