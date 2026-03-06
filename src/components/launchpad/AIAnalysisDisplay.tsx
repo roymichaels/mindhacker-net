@@ -131,27 +131,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         </GlassCard>
       )}
 
-      {/* Identity Profile */}
-      {summary.identity_profile && (
-        <GlassCard>
-          <CardHeader icon={<User className="h-4 w-4 text-rose-400" />} title={isHebrew ? 'פרופיל זהות' : 'Identity Profile'} accent="bg-rose-500/10" />
-          {summary.identity_profile.suggested_ego_state && (
-            <div className="flex items-center gap-2 mb-2.5 p-2 rounded-xl bg-white/[0.03] border border-white/[0.05]">
-              <span className="text-xl">{egoIcon}</span>
-              <span className="text-sm font-bold text-amber-400">
-                {egoLabel ? (isHebrew ? egoLabel.he : egoLabel.en) : summary.identity_profile.suggested_ego_state}
-              </span>
-            </div>
-          )}
-          {summary.identity_profile.dominant_traits?.length ? (
-            <div className="flex flex-wrap gap-1.5">
-              {summary.identity_profile.dominant_traits.slice(0, 5).map((t, i) => (
-                <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">{t}</span>
-              ))}
-            </div>
-          ) : null}
-        </GlassCard>
-      )}
+      {/* Identity Profile moved to 3-col row below */}
 
       {/* Behavioral Insights */}
       {summary.behavioral_insights && (
