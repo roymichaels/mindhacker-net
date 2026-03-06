@@ -249,7 +249,30 @@ serve(async (req) => {
       if (habit.pillar) usedPillars.add(habit.pillar);
     }
 
-    // 3. MILESTONE-DERIVED ACTIONS (the core of v3)
+    // 3. TODAY'S SCHEDULED ACTION ITEMS
+    const usedActionIds = new Set(queue.map(q => q.sourceId).filter(Boolean));
+    for (const task of todayTasks) {
+      if (queue.length >= maxActions) break;
+      if (usedActionIds.has(task.id)) continue; // skip if already added as overdue
+      const pillar = task.pillar || "focus";
+      queue.push({
+        pillarId: pillar,
+        hub: getHub(pillar),
+        actionType: task.type === 'task' ? pillar + '_task' : (task.type || pillar + '_action'),
+        title: task.title,
+        titleEn: task.title,
+        durationMin: 20,
+        urgencyScore: 7.5,
+        reason: isHe ? "משימה מתוכננת להיום" : "Scheduled for today",
+        sourceType: "plan",
+        sourceId: task.id,
+        milestoneId: task.milestone_id || undefined,
+      });
+      usedActionIds.add(task.id);
+      usedPillars.add(pillar);
+    }
+
+    // 4. MILESTONE-DERIVED ACTIONS (the core of v3)
     if (hasStrategy) {
       // Determine current day & phase for each plan
       const planPhases = plans.map((p: any) => ({
