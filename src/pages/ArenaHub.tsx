@@ -98,8 +98,9 @@ export default function ArenaHub() {
     }> = {};
 
     for (const m of currentPhaseMilestones) {
-      const mission = m.mission_id ? missionsMap?.[m.mission_id] : null;
-      const missionId = mission?.id || m.mission_id || m.focus_area || 'ungrouped';
+      const mAny = m as any;
+      const mission = mAny.mission_id ? missionsMap?.[mAny.mission_id] : null;
+      const missionId = mission?.id || mAny.mission_id || m.focus_area || 'ungrouped';
 
       if (!groups[missionId]) {
         groups[missionId] = {
