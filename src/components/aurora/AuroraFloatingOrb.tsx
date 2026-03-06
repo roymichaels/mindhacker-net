@@ -47,7 +47,7 @@ export function AuroraFloatingOrb() {
   const dragStart = useRef({ px: 0, py: 0, ox: 0, oy: 0 });
   const didDrag = useRef(false);
 
-  const getDefaultRight = () => isMobile ? 16 : 24;
+  const getDefaultLeft = () => isMobile ? 16 : 24;
   const getDefaultBottom = () => isMobile ? 160 : 24;
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
