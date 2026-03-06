@@ -84,18 +84,19 @@ export default function LifeHub() {
 
   // ========== DATA ==========
   const { data: traits } = useQuery({
-    queryKey: ['strategy-traits', user?.id, plan?.id],
+    queryKey: ['strategy-traits', user?.id, allPlanIds],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('skills')
         .select('id, name, name_he, icon, pillar, category, trait_type')
         .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .in('life_plan_id', allPlanIds);
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id && !!plan?.id,
+    enabled: !!user?.id && allPlanIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
