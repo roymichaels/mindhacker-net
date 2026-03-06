@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb/Orb';
-import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { cn } from '@/lib/utils';
 
 export default function GameHeroSection() {
