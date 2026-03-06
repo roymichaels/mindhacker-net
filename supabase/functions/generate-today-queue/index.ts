@@ -54,8 +54,8 @@ function inferExecutionTemplate(pillarId: string, actionType: string): Execution
   if (/yoga|tai.?chi|qigong|pilates|stretching|mobility|יוגה/.test(combined)) return 'video_embed';
   if (/combat|shadow|boxing|strength|power|hiit|calisthenics|לחימה|אגרוף|כוח|אימון/.test(combined) && !/influence|השפעה/.test(combined)) return 'sets_reps_timer';
   if (/relation|networking|social|outreach|call|meeting|יחסים/.test(combined) && pillarId !== 'business') return 'social_checklist';
-  if (/deep.?work|business|wealth|project|sprint|revenue|content|study|learn|עבודה|עסק|פרויקט|למידה/.test(combined)) return 'timer_focus';
-  if (['wealth', 'business', 'projects', 'expansion', 'influence'].includes(pillarId)) return 'timer_focus';
+  if (/deep.?work|business|wealth|project|sprint|revenue|content|study|learn|עבודה|עסק|פרויקט|למידה/.test(combined) && /\b\d+\s*(min|דקות|דק׳|hour|שעה)\b/i.test(combined)) return 'timer_focus';
+  if (['wealth', 'business', 'projects', 'expansion', 'influence'].includes(pillarId)) return 'step_by_step';
   return 'step_by_step';
 }
 
@@ -63,15 +63,14 @@ function inferExecutionTemplate(pillarId: string, actionType: string): Execution
 interface ExecStep { label: string; detail?: string; durationSec: number; }
 
 function generateSimpleSteps(title: string, durationMin: number, isHe: boolean): ExecStep[] {
-  const coreMin = Math.max(1, durationMin - 4);
   return isHe ? [
     { label: "הכנה — נשימות + מיקוד כוונה", detail: "מה בדיוק אני עומד לעשות?", durationSec: 60 },
-    { label: `ביצוע — ${coreMin} דקות`, detail: title, durationSec: coreMin * 60 },
-    { label: "סגירה — מה למדתי? מה הצעד הבא?", durationSec: 120 },
+    { label: "ביצוע", detail: title, durationSec: 0 },
+    { label: "סגירה — מה למדתי? מה הצעד הבא?", durationSec: 0 },
   ] : [
     { label: "Prepare — breathe & set intention", detail: "What exactly am I about to do?", durationSec: 60 },
-    { label: `Execute — ${coreMin} minutes`, detail: title, durationSec: coreMin * 60 },
-    { label: "Close — what did I learn? What's next?", durationSec: 120 },
+    { label: "Execute", detail: title, durationSec: 0 },
+    { label: "Close — what did I learn? What's next?", durationSec: 0 },
   ];
 }
 

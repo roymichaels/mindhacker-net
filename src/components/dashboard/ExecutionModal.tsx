@@ -33,7 +33,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 // ---- Template inference fallback ----
 function inferTemplate(action: NowQueueItem): ExecutionTemplate {
-  if (action.executionTemplate) return action.executionTemplate;
+  if (action.executionTemplate) {
+    // Guard: timer_focus only makes sense for time-based actions
+    if (action.executionTemplate === 'timer_focus' && !action.isTimeBased) return 'step_by_step';
+    return action.executionTemplate;
+  }
   
   const combined = `${action.actionType} ${action.title} ${action.pillarId}`.toLowerCase();
   
@@ -41,8 +45,8 @@ function inferTemplate(action: NowQueueItem): ExecutionTemplate {
   if (/yoga|tai.?chi|qigong|qi.?gong|pilates|stretching|mobility|יוגה|טאי.?צ׳י/.test(combined)) return 'video_embed';
   if (/combat|shadow|boxing|strength|power|hiit|calisthenics|push.?up|pull.?up|squat|לחימה|אגרוף|כוח|אימון/.test(combined) && !/influence|השפעה/.test(combined)) return 'sets_reps_timer';
   if (/relation|networking|social|outreach|call|meeting|dating|יחסים|נטוורקינג|שיחה/.test(combined) && action.pillarId !== 'business') return 'social_checklist';
-  if (/deep.?work|business|wealth|project|sprint|revenue|content.?creation|study|learn|course|עבודה.?עמוקה|עסק|פרויקט|למידה/.test(combined)) return 'timer_focus';
-  if (['wealth', 'business', 'projects', 'expansion', 'influence'].includes(action.pillarId)) return 'timer_focus';
+  // Only use timer_focus for explicitly time-based actions
+  if (action.isTimeBased && /deep.?work|business|wealth|project|sprint|revenue|content.?creation|study|learn|course|עבודה.?עמוקה|עסק|פרויקט|למידה/.test(combined)) return 'timer_focus';
   
   return 'step_by_step';
 }
