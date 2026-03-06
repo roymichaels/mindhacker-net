@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export type Cadence = 'daily' | '3x_per_week' | '2x_per_week' | 'weekly' | 'one_time';
 export type BlockCategory = 'training' | 'action' | 'review' | 'creation' | 'health' | 'focus' | 'social';
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = 1 | 2 | 3 | 4 | 5;
 
 /** A single milestone inside a themed block */
 export interface TacticalAction {
