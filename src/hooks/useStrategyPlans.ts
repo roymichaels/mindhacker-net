@@ -67,7 +67,6 @@ export function useStrategyPlans() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const healingRef = useRef(false);
-  const HEAL_SESSION_KEY = `strategy_healed_${user?.id}`;
 
   const query = useQuery({
     queryKey: ['strategy-plans', user?.id],
