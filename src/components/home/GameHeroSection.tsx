@@ -70,34 +70,6 @@ export default function GameHeroSection() {
             </span>
           </motion.h1>
 
-          {/* Central Orb — large, fast, cinematic */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.3 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.4, type: 'spring', stiffness: 80 }}
-            className="relative mx-auto py-6"
-          >
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <motion.div
-                className="w-[350px] h-[350px] rounded-full bg-primary/15 blur-[100px]"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              />
-            </div>
-            <div className="relative flex items-center justify-center">
-              {[1, 2].map((ring) => (
-                <motion.div
-                  key={ring}
-                  className="absolute rounded-full border border-primary/20"
-                  style={{ width: ring === 1 ? 280 : 340, height: ring === 1 ? 280 : 340 }}
-                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0, 0.3] }}
-                  transition={{ duration: 3, repeat: Infinity, delay: ring * 0.5 }}
-                />
-              ))}
-              <AuroraHoloOrb size={220} glow="full" />
-            </div>
-          </motion.div>
-
           {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
