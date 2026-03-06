@@ -141,3 +141,6 @@ verify_jwt = false
 
 [functions.data-marketplace-api]
 verify_jwt = false
+
+[functions.generate-tactical-schedule]
+verify_jwt = false
