@@ -161,8 +161,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {isHe ? (domain?.labelHe || nextAction.pillarId) : (domain?.labelEn || nextAction.pillarId)}
-                        <span className="mx-1.5 text-border">·</span>
-                        {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
+                        {nextAction.isTimeBased && (
+                          <>
+                            <span className="mx-1.5 text-border">·</span>
+                            {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
+                          </>
+                        )}
                       </p>
                       <h2 className="text-sm font-bold text-foreground leading-snug">
                         {isHe ? nextAction.title : nextAction.titleEn}
