@@ -257,7 +257,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 }) {
   const { user } = useAuth();
   const [archetypeData, setArchetypeData] = useState<any>(null);
-  const [diagnosticScores, setDiagnosticScores] = useState<Array<{ key: string; label: string; labelEn: string; value: number; icon: typeof Zap; color: string; bgColor: string }>>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -275,14 +274,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
           if (sd.identity_profile?.archetype) {
             setArchetypeData(sd.identity_profile.archetype);
           }
-          const diag = sd.diagnostics || sd.diagnostic_scores || {};
-          setDiagnosticScores([
-            { key: 'energy', label: 'אנרגיה', labelEn: 'Energy', value: diag.energy_stability?.score ?? 0, icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-            { key: 'recovery', label: 'ריקברי', labelEn: 'Recovery', value: diag.recovery_debt?.score ?? 0, icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-            { key: 'dopamine', label: 'דופמין', labelEn: 'Dopamine', value: diag.dopamine_load?.score ?? 0, icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-            { key: 'execution', label: 'ביצוע', labelEn: 'Execution', value: diag.execution_reliability?.score ?? 0, icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-            { key: 'time', label: 'זמן', labelEn: 'Time', value: diag.time_leverage?.score ?? 0, icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-          ]);
         }
       } catch {}
     }
@@ -290,7 +281,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
   }, [user]);
 
   const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
-  const getScoreColor = (s: number) => s >= 75 ? 'text-green-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
 
   return (
     <div className="space-y-3">
@@ -309,50 +299,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
             </div>
           </div>
           <p className="text-xs text-foreground leading-relaxed line-clamp-3">{lifeDirection.content}</p>
-        </div>
-      )}
-
-      {/* ── Diagnostics as compact grid (merged from Insights) ── */}
-      {isOwner && diagnosticScores.length > 0 && (
-        <div>
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-            {isHe ? 'אבחון' : 'Diagnostics'}
-          </h4>
-          <div className="grid grid-cols-5 gap-1.5">
-            {diagnosticScores.map((score) => {
-              const Icon = score.icon;
-              return (
-                <div key={score.key} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-border/30 bg-card/50">
-                  <div className={cn("p-1 rounded-md", score.bgColor)}>
-                    <Icon className={cn("w-3 h-3", score.color)} />
-                  </div>
-                  <span className={cn("text-sm font-bold tabular-nums", getScoreColor(score.value))}>{score.value}</span>
-                  <span className="text-[8px] text-muted-foreground text-center leading-tight">{isHe ? score.label : score.labelEn}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ── Stats summary grid (merged from Insights) ── */}
-      {isOwner && (
-        <div className="grid grid-cols-4 gap-1.5">
-          {[
-            { label: isHe ? 'רמה' : 'Lv', value: dashboard.level, icon: Trophy, color: 'text-amber-500' },
-            { label: isHe ? 'רצף' : 'Streak', value: dashboard.streak, icon: Flame, color: 'text-orange-500' },
-            { label: isHe ? 'סשנים' : 'Sess', value: dashboard.totalSessions, icon: Zap, color: 'text-blue-500' },
-            { label: isHe ? 'טוקנים' : 'Tokens', value: dashboard.tokens, icon: BarChart3, color: 'text-emerald-500' },
-          ].map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="flex flex-col items-center gap-0.5 p-2 rounded-xl bg-muted/30 border border-border/30">
-                <Icon className={cn("w-3.5 h-3.5", stat.color)} />
-                <p className="text-sm font-bold tabular-nums">{stat.value}</p>
-                <p className="text-[8px] text-muted-foreground">{stat.label}</p>
-              </div>
-            );
-          })}
         </div>
       )}
 
