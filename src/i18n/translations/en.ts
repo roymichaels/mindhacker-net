@@ -2856,25 +2856,26 @@ export const en: TranslationKeys = {
 
     // GameHeroSection
     gameHero: {
-      badge: '90-Day Transformation System',
-      title: 'Upgrade Every Area of Your Life',
-      subtitle: 'Deep assessment across 14 life domains → AI-generated 90-day strategy → daily tactical execution with Aurora, your personal AI coach.',
-      cta: '🚀 Start Your Assessment',
-      ctaMeta: '⏱️ 5 min assessment • Personalized plan from day 1',
+      badge: 'Digital Self-Improvement City',
+      title: 'Level Up. Earn. Transform.',
+      subtitle: 'AI coaching across 14 life domains, living orb avatar, play-to-earn economy, personalized hypnosis — your entire life OS.',
+      cta: '⚡ Enter the City',
+      ctaMeta: '5 min assessment • Free to start • Earn while you grow',
       scrollDown: 'Scroll Down',
     },
 
     // TheSystemSection
     theSystem: {
-      title: 'How the System Works',
-      subtitle: 'Three phases that transform your life in 90 days.',
-      phaseLabel: 'Phase',
+      badge: 'The Quest Path',
+      title: '100-Day Transformation OS',
+      subtitle: 'Three quest phases that rebuild your life from the ground up.',
+      phaseLabel: 'Quest',
       phase1Title: 'Deep Assessment',
-      phase1Desc: 'Aurora scans all 14 life domains — health, career, relationships, finances, mindset and more — to build your complete life profile.',
-      phase2Title: '90-Day Strategy',
-      phase2Desc: 'AI generates a personalized plan with missions, milestones, and protocols tailored to your priorities and current state.',
+      phase1Desc: 'Aurora scans all 14 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
+      phase2Title: '100-Day Strategy',
+      phase2Desc: 'AI generates a personalized battle plan with missions, milestones, and daily protocols across every domain you unlock.',
       phase3Title: 'Daily Execution',
-      phase3Desc: 'Every morning you get a tactical queue — the exact actions to take today. Aurora adapts the plan as you progress.',
+      phase3Desc: 'Every morning your tactical queue drops — prioritized actions, habits, and protocols. Aurora adapts in real-time as you level up.',
     },
 
     // AppPreviewSection
@@ -2893,17 +2894,19 @@ export const en: TranslationKeys = {
 
     // AuroraCoachSection
     auroraCoach: {
-      badge: 'Meet Aurora',
-      title: 'The Coach That Knows You',
-      subtitle: 'Aurora sees the full picture — body, mind, business, relationships — and connects them.',
+      badge: 'Your Personal AI',
+      title: 'One Brain. All 14 Domains.',
+      subtitle: 'Aurora sees everything — body, mind, business, relationships, consciousness — and connects them all into one coherent strategy.',
       coaching247Title: '24/7 Coaching',
-      coaching247Desc: 'Always there, always adapted',
-      voiceTitle: 'Voice-to-Text',
-      voiceDesc: 'Talk instead of typing',
+      coaching247Desc: 'Always there, always adapted to your state',
+      voiceTitle: 'Voice Mode',
+      voiceDesc: 'Speak naturally — Aurora understands',
       memoryTitle: 'Full Memory',
-      memoryDesc: 'Remembers every conversation & pattern',
-      hypnosisTitle: 'Hypnosis Sessions',
-      hypnosisDesc: 'Generated in real time from your chat',
+      memoryDesc: 'Remembers every conversation, pattern & decision',
+      hypnosisTitle: 'Generates Hypnosis',
+      hypnosisDesc: 'Creates personalized sessions from your conversations',
+      oneBrainTitle: 'One Brain',
+      oneBrainDesc: 'Connects all 14 domains into a single intelligence',
       chatPreviewTitle: 'Aurora knows how to say:',
       chatExample1: "I noticed your energy dropped this week. Let's check what changed in your sleep...",
       chatExample2: 'Your combat consistency is up 40% this month! This is also boosting your confidence.',
@@ -2948,9 +2951,10 @@ export const en: TranslationKeys = {
 
     // FinalCTASection
     finalCta: {
-      title: 'Ready to Change Everything?',
-      subtitle: 'Join and start your journey today',
-      cta: '🚀 Start Your Assessment',
+      title: 'Choose Your Rank',
+      subtitle: 'Start free. Upgrade when you\'re ready to go deeper.',
+      epicTitle: 'Your City Awaits',
+      cta: '⚡ Enter the City',
       personalCoach: 'Personal AI Coach 24/7',
       plan100: 'Tailored 100-Day Plan',
       domains14: '14 Life Domains',
@@ -2960,6 +2964,91 @@ export const en: TranslationKeys = {
       personalJourney: 'Personalized journey',
       fiveMinutes: '5 minutes to start',
       cancelAnytime: 'Cancel anytime',
+    },
+
+    // OrbShowcaseSection
+    orbShowcase: {
+      badge: 'Living Avatar',
+      title: 'Your Orb. Your DNA.',
+      subtitle: 'A living digital avatar that evolves as you grow — reflecting your identity, traits, and progress across all 14 life pillars.',
+      evolveTitle: 'Evolves With You',
+      evolveDesc: 'Your orb changes shape, color and complexity as you complete actions and level up.',
+      dnaTitle: 'Identity DNA',
+      dnaDesc: 'Traits, strengths, archetype — all encoded into your orb\'s visual signature.',
+      nftTitle: 'NFT-Ready',
+      nftDesc: 'Rarity tiers and unique archetypes. Your growth becomes a collectible.',
+    },
+
+    // DomainCitySection
+    domainCity: {
+      title: '14 Districts. One City.',
+      subtitle: 'Every life domain is a district in your personal city — all connected, all optimized by Aurora.',
+    },
+
+    // HypnosisSection
+    hypnosis: {
+      badge: 'AI Hypnosis',
+      title: 'Reprogram Your Mind',
+      subtitle: 'AI-generated hypnosis sessions personalized from your real conversations with Aurora.',
+      realtimeTitle: 'Real-Time Generation',
+      realtimeDesc: 'Sessions built on-the-fly from your current state and goals.',
+      karaokeTitle: 'Karaoke Text',
+      karaokeDesc: 'Follow along word-by-word as the session plays.',
+      breathingTitle: 'Breathing Guide',
+      breathingDesc: 'Integrated breathing exercises synced with the session.',
+      statsTitle: 'Session Stats',
+      statsDesc: 'Track your sessions, streaks, and consciousness states.',
+      nowPlaying: 'Now Playing',
+      sampleSession: 'Deep Focus — Personalized for You',
+    },
+
+    // Play2EarnSection
+    play2earn: {
+      badge: 'Proof of Growth',
+      title: 'Mine. Earn. Cash Out.',
+      subtitle: 'Complete real actions. Earn MOS tokens. Build your wallet. 100 MOS = $1.',
+      miningTitle: 'Activity Mining',
+      miningDesc: 'Earn MOS tokens automatically for every action — habits, sessions, posts, lessons.',
+      marketTitle: 'Data Marketplace',
+      marketDesc: 'Monetize your anonymized growth data with an 80/20 revenue split.',
+      walletTitle: 'Digital Wallet',
+      walletDesc: 'Track earnings, manage transactions, and cash out via fiat or crypto.',
+    },
+
+    // GuildSection
+    guild: {
+      badge: 'The Guild',
+      title: 'Community + Learning Engine',
+      subtitle: 'Join the guild. Share your journey. Level up together.',
+      communityTitle: 'Community Forums',
+      communityDesc: 'Share, discuss, and grow with other players.',
+      posts: 'Posts & Discussions',
+      leaderboard: 'Leaderboards & Rankings',
+      playerCards: 'Player Profiles & Cards',
+      learningTitle: 'AI Learning Engine',
+      learningDesc: 'Personalized courses generated from your data.',
+      aiCourses: 'AI-Generated Courses',
+      pillarModules: 'Pillar-Based Modules',
+      exercises: 'Application Exercises',
+    },
+
+    // CoachOSSection
+    coachOS: {
+      badge: 'Business District',
+      title: 'Build Your Empire',
+      subtitle: 'Coaches and practitioners — run your entire business inside the city.',
+      crmTitle: 'Client CRM',
+      crmDesc: 'Full client lifecycle — sessions, notes, status tracking.',
+      landingTitle: 'Landing Pages',
+      landingDesc: 'Custom landing pages with lead capture.',
+      productsTitle: 'Digital Products',
+      productsDesc: 'Sell courses, packages, and services.',
+      analyticsTitle: 'Analytics Dashboard',
+      analyticsDesc: 'Real-time KPIs, conversion funnels, performance.',
+      aiPlansTitle: 'AI Coaching Plans',
+      aiPlansDesc: 'Generate personalized client plans with AI.',
+      subscriptionsTitle: 'Subscriptions',
+      subscriptionsDesc: 'Manage subscriptions, tiers, and billing.',
     },
 
     // FearOfMissingOutSection

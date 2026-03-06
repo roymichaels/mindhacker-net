@@ -1,7 +1,13 @@
 // Primary homepage components
 export { default as GameHeroSection } from './GameHeroSection';
+export { default as OrbShowcaseSection } from './OrbShowcaseSection';
+export { default as DomainCitySection } from './DomainCitySection';
 export { default as TheSystemSection } from './TheSystemSection';
 export { default as AuroraCoachSection } from './AuroraCoachSection';
+export { default as HypnosisSection } from './HypnosisSection';
+export { default as Play2EarnSection } from './Play2EarnSection';
+export { default as GuildSection } from './GuildSection';
+export { default as CoachOSSection } from './CoachOSSection';
 export { default as AppPreviewSection } from './AppPreviewSection';
 export { default as PricingPreviewSection } from './PricingPreviewSection';
 export { default as FinalCTASection } from './FinalCTASection';

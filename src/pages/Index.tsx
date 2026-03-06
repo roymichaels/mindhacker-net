@@ -10,10 +10,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
-  TheSystemSection,
+  OrbShowcaseSection,
+  DomainCitySection,
   AuroraCoachSection,
-  AppPreviewSection,
-  PricingPreviewSection,
+  HypnosisSection,
+  TheSystemSection,
+  Play2EarnSection,
+  GuildSection,
+  CoachOSSection,
   FinalCTASection,
 } from "@/components/home";
 
@@ -71,10 +75,14 @@ const Index = () => {
       <Header />
       <main className="relative z-10">
         <GameHeroSection />
-        <TheSystemSection />
+        <OrbShowcaseSection />
+        <DomainCitySection />
         <AuroraCoachSection />
-        <AppPreviewSection />
-        <PricingPreviewSection />
+        <HypnosisSection />
+        <TheSystemSection />
+        <Play2EarnSection />
+        <GuildSection />
+        <CoachOSSection />
         <FinalCTASection />
       </main>
       <Footer />
