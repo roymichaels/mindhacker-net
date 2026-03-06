@@ -282,6 +282,14 @@ ${scopeBlock}
 - REQUIRED VERBS: "practice", "execute", "perform", "drill", "complete", "run protocol", "train", "apply"
 - EVERY mission must be something the user DOES physically/actively
 
+## TITLE FORMAT RULES (CRITICAL):
+- Each mission title (goal_en/goal_he) MUST be a SHORT label: 2-6 words maximum.
+- Titles describe a distinct training arc, NOT a paragraph or instruction.
+- Titles must semantically belong to the trait "${traitName.name_en}" — do NOT reference other trait names.
+- Good examples: "Foundation of Inner Stillness", "Power Through Precision", "Conscious Integration Protocol"
+- BAD examples: long sentences, paragraphs, instructions starting with "בצע" or "Execute"
+- Hebrew titles must be natural and concise (2-6 words), NOT translated English.
+
 ## RULES:
 1. Missions MUST directly address assessment findings with TREATMENT PROTOCOLS.
 2. Reference user's actual projects/businesses BY NAME where relevant.
@@ -294,9 +302,9 @@ ${scopeBlock}
 ## OUTPUT (JSON only, NO markdown):
 {
   "goals": [
-    { "goal_en": "Foundational training arc", "goal_he": "ארק אימון בסיסי" },
-    { "goal_en": "Intermediate training arc", "goal_he": "ארק אימון ביניים" },
-    { "goal_en": "Advanced training arc", "goal_he": "ארק אימון מתקדם" }
+    { "goal_en": "Short 2-6 word title", "goal_he": "כותרת קצרה 2-6 מילים" },
+    { "goal_en": "Short 2-6 word title", "goal_he": "כותרת קצרה 2-6 מילים" },
+    { "goal_en": "Short 2-6 word title", "goal_he": "כותרת קצרה 2-6 מילים" }
   ]
 }`;
 }
