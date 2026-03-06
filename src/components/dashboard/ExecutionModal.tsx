@@ -1029,7 +1029,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
 
             {/* ======== TIMER FOCUS (Pomodoro) ======== */}
             {template === 'timer_focus' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center min-h-[380px] py-4 space-y-6">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center py-4 space-y-5">
                 <div className="text-center space-y-2">
                   <p className="text-sm text-muted-foreground">{isRTL ? action.title : action.titleEn}</p>
                 </div>
@@ -1057,6 +1057,24 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                 <p className="text-xs text-muted-foreground/50 max-w-[200px] text-center">
                   {isRTL ? 'טלפון במצב טיסה. חלון אחד. מיקוד מלא.' : 'Phone on airplane mode. One window. Full focus.'}
                 </p>
+
+                {/* Show AI steps as guidance checklist below timer */}
+                {steps.length > 0 && (
+                  <div className="w-full space-y-1.5 pt-2 border-t border-border/20">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-center mb-2">
+                      {isRTL ? 'מה לעשות' : 'What to do'}
+                    </p>
+                    {steps.map((step, idx) => (
+                      <StepItem key={idx} step={step} idx={idx} checked={checkedSteps.has(idx)} onToggle={handleManualStepCheck} isRTL={isRTL} t={t} />
+                    ))}
+                  </div>
+                )}
+                {steps.length === 0 && isEnhancing && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    {isRTL ? 'מייצר הנחיות...' : 'Generating instructions...'}
+                  </div>
+                )}
               </motion.div>
             )}
 
