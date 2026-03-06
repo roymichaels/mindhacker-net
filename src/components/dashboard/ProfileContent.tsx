@@ -18,9 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 // PersonalizedOrb moved to MobileHeroGrid HUD
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-  MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
-} from '@/components/dashboard/MergedModals';
+// MergedModals removed — now unified inside CharacterProfileModal
 import { PillChips } from '@/components/aurora-ui/PillChips';
 import { GradientCTAButton } from '@/components/aurora-ui/GradientCTAButton';
 import { JobPanel } from '@/components/dashboard/JobPanel';
@@ -40,8 +38,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   const dashboardData = useUnifiedDashboard();
   const { data: launchpadSummary } = useLaunchpadSummary();
   
-  type ModalType = 'identity' | 'direction' | 'insights' | null;
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   const consciousnessScore = (launchpadSummary?.consciousness_score as number) || 0;
@@ -137,29 +133,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         )}
       </div>
 
-
-      {/* ===== MERGED MODALS ===== */}
-      <MergedIdentityModal
-        open={activeModal === 'identity'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-        values={dashboardData.values}
-        principles={dashboardData.principles}
-        selfConcepts={dashboardData.selfConcepts}
-        identityTitle={dashboardData.identityTitle}
-      />
-      <MergedDirectionModal
-        open={activeModal === 'direction'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-        commitments={dashboardData.activeCommitments}
-        anchors={dashboardData.dailyAnchors}
-      />
-      <MergedInsightsModal
-        open={activeModal === 'insights'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-      />
     </div>
   );
 }
