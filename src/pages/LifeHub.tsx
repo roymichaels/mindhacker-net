@@ -115,35 +115,35 @@ export default function LifeHub() {
   });
 
   const { data: missions } = useQuery({
-    queryKey: ['strategy-missions', plan?.id],
+    queryKey: ['strategy-missions', allPlanIds],
     queryFn: async () => {
-      if (!plan?.id) return [];
+      if (allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('plan_missions')
         .select('id, pillar, title, title_en, is_completed, mission_number, primary_skill_id')
-        .eq('plan_id', plan.id)
+        .in('plan_id', allPlanIds)
         .order('mission_number');
       if (error) throw error;
       return data || [];
     },
-    enabled: !!plan?.id,
+    enabled: allPlanIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: milestones } = useQuery({
-    queryKey: ['strategy-milestones', plan?.id],
+    queryKey: ['strategy-milestones', allPlanIds],
     queryFn: async () => {
-      if (!plan?.id) return [];
+      if (allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('life_plan_milestones')
         .select('id, title, title_en, is_completed, mission_id, milestone_number')
-        .eq('plan_id', plan.id)
+        .in('plan_id', allPlanIds)
         .not('mission_id', 'is', null)
         .order('milestone_number');
       if (error) throw error;
       return data || [];
     },
-    enabled: !!plan?.id,
+    enabled: allPlanIds.length > 0,
     staleTime: 5 * 60 * 1000,
   });
 
