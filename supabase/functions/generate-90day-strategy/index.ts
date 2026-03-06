@@ -813,7 +813,7 @@ serve(async (req) => {
                 .insert({
                   plan_id: plan.id,
                   pillar: pillarId, // CANONICAL: always matches skills.pillar
-                  mission_number: (mi % 3) + 1,
+                  mission_number: mi + 1, // Globally unique per pillar: 1-9 for selected (3 traits × 3), 1-3 for non-selected
                   title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
                   title_en: mission.mission_en || mission.goal_en,
                   description: mission.mission_he || mission.goal_he,
