@@ -249,10 +249,20 @@ For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of 
 
     if (!parsed?.minis || parsed.minis.length < 1) throw new Error("AI returned no minis");
 
-    // Calculate scheduled_day based on milestone position
-    const baseDayOffset = (milestone.week_number || 1) * 10;
+    // Calculate scheduled_day: phase 1 → days 1-10, phase 2 → days 11-20, etc.
+    const baseDayOffset = ((milestone.week_number || 1) - 1) * 10;
+
+    // Get milestone's position among siblings for better day distribution
+    const { data: siblings } = await supabase
+      .from("life_plan_milestones")
+      .select("id")
+      .eq("plan_id", milestone.plan_id)
+      .eq("week_number", milestone.week_number)
+      .order("id");
+    const milestoneIdx = siblings?.findIndex(s => s.id === milestone_id) ?? 0;
 
     // Insert mini-milestones with execution_template and action_type
+    // Distribute across the 10-day window using milestone position offset
     const miniRows = parsed.minis.slice(0, 5).map((mini: any, idx: number) => ({
       milestone_id,
       mini_number: idx + 1,
@@ -261,7 +271,7 @@ For ALL pillars: generate COMPREHENSIVE protocols covering the FULL spectrum of 
       description: mini.description_he || null,
       description_en: mini.description_en || null,
       xp_reward: 10,
-      scheduled_day: Math.min(baseDayOffset + idx + 1, 100),
+      scheduled_day: Math.min(baseDayOffset + ((milestoneIdx + idx) % 10) + 1, 100),
       execution_template: mini.execution_template || 'step_by_step',
       action_type: mini.action_type || null,
     }));
