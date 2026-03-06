@@ -1,10 +1,10 @@
 /**
  * ArenaHub — Tactics page (טקטיקה).
- * 10-day phase execution plan derived from strategy milestones → mini_milestones.
- * Renders by Day → Block → Action with difficulty badges and XP.
+ * 10-day phase execution plan derived from strategy milestones.
+ * Clicking a milestone opens the ExecutionModal with full guided execution.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -12,9 +12,9 @@ import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
+import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { useWeeklyTacticalPlan, type DayPlan, type TacticalBlock, type TacticalAction, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
+import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -44,6 +44,27 @@ const DIFFICULTY_STYLES: Record<Difficulty, { bg: string; text: string; label: {
   hard: { bg: 'bg-red-500/15', text: 'text-red-500', label: { he: 'קשה', en: 'Hard' } },
 };
 
+/** Convert a TacticalAction to a NowQueueItem for ExecutionModal */
+function tacticalToNowItem(action: TacticalAction): NowQueueItem {
+  return {
+    pillarId: action.focusArea || action.blockCategory || 'general',
+    hub: 'arena',
+    actionType: action.actionType || action.blockCategory || 'milestone',
+    title: action.title,
+    titleEn: action.titleEn || action.title,
+    durationMin: action.estimatedMinutes,
+    isTimeBased: action.executionTemplate === 'timer_focus' || action.executionTemplate === 'sets_reps_timer',
+    urgencyScore: 80,
+    reason: '',
+    sourceType: 'milestone',
+    sourceId: action.sourceMilestoneId,
+    milestoneId: action.sourceMilestoneId,
+    milestoneTitle: action.title,
+    missionId: action.missionId || undefined,
+    executionTemplate: (action.executionTemplate as NowQueueItem['executionTemplate']) || undefined,
+  };
+}
+
 export default function ArenaHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
@@ -57,8 +78,6 @@ export default function ArenaHub() {
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const [tacticalRecalibrating, setTacticalRecalibrating] = useState(false);
-
-  const { queue, refetch } = useNowEngine();
 
   const handleTacticalRecalibrate = useCallback(async () => {
     if (!user?.id || tacticalRecalibrating) return;
@@ -89,6 +108,7 @@ export default function ArenaHub() {
       queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
       queryClient.invalidateQueries({ queryKey: ['now-engine'] });
       queryClient.invalidateQueries({ queryKey: ['action-items'] });
+      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
 
       toast({ title: isHe ? '✅ הטקטיקה כוילה מחדש' : '✅ Tactics recalibrated' });
     } catch (e) {
@@ -122,24 +142,11 @@ export default function ArenaHub() {
     { icon: Clock, value: `${Math.round(totalMinutes / 10)}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-emerald-400' },
   ];
 
-  const handleToggleAction = async (action: TacticalAction) => {
-    const newCompleted = !action.completed;
-    const { error } = await supabase
-      .from('mini_milestones')
-      .update({ is_completed: newCompleted })
-      .eq('id', action.id);
-
-    if (error) {
-      toast({ title: isHe ? 'שגיאה' : 'Error', variant: 'destructive' });
-      return;
-    }
-
-    queryClient.invalidateQueries({ queryKey: ['weekly-tactical-minis'] });
-    queryClient.invalidateQueries({ queryKey: ['now-engine'] });
-    if (newCompleted) {
-      toast({ title: isHe ? '✅ בוצע!' : '✅ Done!', description: `+${action.xpReward} XP` });
-    }
-  };
+  const handleOpenExecution = useCallback((action: TacticalAction) => {
+    const nowItem = tacticalToNowItem(action);
+    setExecutionAction(nowItem);
+    setExecutionOpen(true);
+  }, []);
 
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
@@ -284,7 +291,7 @@ export default function ArenaHub() {
                   <DayView
                     day={days[activeDay]}
                     isHe={isHe}
-                    onToggleAction={handleToggleAction}
+                    onExecuteAction={handleOpenExecution}
                   />
                 )}
               </div>
@@ -349,7 +356,10 @@ export default function ArenaHub() {
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
-        onComplete={() => refetch()}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+          queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+        }}
       />
     </div>
   );
@@ -360,11 +370,11 @@ export default function ArenaHub() {
 function DayView({
   day,
   isHe,
-  onToggleAction,
+  onExecuteAction,
 }: {
   day: DayPlan;
   isHe: boolean;
-  onToggleAction: (action: TacticalAction) => void;
+  onExecuteAction: (action: TacticalAction) => void;
 }) {
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
 
@@ -450,25 +460,40 @@ function DayView({
                       return (
                         <button
                           key={action.id}
-                          onClick={() => onToggleAction(action)}
+                          onClick={() => onExecuteAction(action)}
                           className={cn(
-                            "flex items-start gap-2 w-full text-start py-1.5 px-2 rounded-lg transition-colors",
-                            action.completed ? "opacity-50" : "hover:bg-muted/20"
+                            "flex items-start gap-2 w-full text-start py-2 px-2.5 rounded-lg transition-all group",
+                            action.completed
+                              ? "opacity-50 bg-emerald-500/5"
+                              : "hover:bg-primary/5 hover:border-primary/20 border border-transparent"
                           )}
                         >
-                          {action.completed ? (
-                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                          ) : (
-                            <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
-                          )}
+                          {/* Play icon instead of checkbox */}
+                          <div className={cn(
+                            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                            action.completed
+                              ? "bg-emerald-500/15"
+                              : "bg-primary/10 group-hover:bg-primary/20"
+                          )}>
+                            {action.completed ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                            ) : (
+                              <Play className="w-3 h-3 text-primary ms-0.5" />
+                            )}
+                          </div>
                           <div className="flex-1 min-w-0">
                             <p className={cn(
-                              "text-xs leading-snug",
+                              "text-xs leading-snug font-medium",
                               action.completed ? "line-through text-muted-foreground" : "text-foreground/80"
                             )}>
                               {isHe ? action.title : (action.titleEn || action.title)}
                             </p>
-                            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            {action.description && (
+                              <p className="text-[10px] text-muted-foreground/60 mt-0.5 line-clamp-1">
+                                {isHe ? action.description : (action.descriptionEn || action.description)}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                               {/* Difficulty badge */}
                               <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full", diffStyle.bg, diffStyle.text)}>
                                 {isHe ? diffStyle.label.he : diffStyle.label.en}
@@ -480,6 +505,11 @@ function DayView({
                               <span className="text-[8px] text-muted-foreground/50">
                                 {action.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
                               </span>
+                              {!action.completed && (
+                                <span className="text-[8px] text-primary/60 font-medium">
+                                  {isHe ? 'לחץ להתחיל ▶' : 'Tap to start ▶'}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </button>
