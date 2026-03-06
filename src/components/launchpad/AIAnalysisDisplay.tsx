@@ -122,9 +122,11 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
           {summary.consciousness_analysis.current_state && (
             <p className="text-sm text-white/50 leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {summary.consciousness_analysis.strengths?.length ? <ChipGroup icon="✨" label={isHebrew ? 'חוזקות' : 'Strengths'} items={summary.consciousness_analysis.strengths} variant="green" /> : null}
             {summary.consciousness_analysis.dominant_patterns?.length ? <ChipGroup icon="👁" label={isHebrew ? 'דפוסים' : 'Patterns'} items={summary.consciousness_analysis.dominant_patterns} variant="blue" /> : null}
+          </div>
+          <div className="grid grid-cols-2 gap-2.5 mt-2.5">
             {summary.consciousness_analysis.blind_spots?.length ? <ChipGroup icon="⚠" label={isHebrew ? 'נקודות עיוורות' : 'Blind Spots'} items={summary.consciousness_analysis.blind_spots} variant="amber" /> : null}
             {summary.consciousness_analysis.growth_edges?.length ? <ChipGroup icon="📈" label={isHebrew ? 'צמיחה' : 'Growth'} items={summary.consciousness_analysis.growth_edges} variant="emerald" /> : null}
           </div>
