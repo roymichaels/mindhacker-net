@@ -69,19 +69,15 @@ export default function ArenaHub() {
   const phaseLabel = PHASE_LABELS[(currentPhase || 1) - 1] || '?';
 
   const { generating: phaseGenerating } = usePhaseActions();
-  const { statusMap } = useLifeDomains();
-  const { arenaStrategy, coreStrategy } = useStrategyPlans();
+  const { corePlan, arenaPlan } = useStrategyPlans();
 
   // Get all active plan IDs
   const allPlanIds = useMemo(() => {
     const ids: string[] = [];
-    if (coreStrategy?.id) ids.push(coreStrategy.id);
-    if (arenaStrategy?.id) ids.push(arenaStrategy.id);
+    if (corePlan?.id) ids.push(corePlan.id);
+    if (arenaPlan?.id) ids.push(arenaPlan.id);
     return ids;
-  }, [coreStrategy?.id, arenaStrategy?.id]);
-
-  // Fetch phase missions with hierarchy
-  const { data: phaseMilestones } = usePhaseMissions(allPlanIds, currentPhase);
+  }, [corePlan?.id, arenaPlan?.id]);
 
   // Group milestones by mission → trait
   const missionGroups = useMemo(() => {
