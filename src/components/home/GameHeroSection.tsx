@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { Orb } from '@/components/orb/Orb';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { cn } from '@/lib/utils';
 
@@ -159,7 +160,9 @@ export default function GameHeroSection() {
                       />
                     </motion.div>
                   ))}
-                  <AuroraHoloOrb size={200} glow="full" className="relative z-10" />
+                  <div className="relative z-10">
+                    <Orb profile={DEFAULT_ORB_PROFILE} size={200} state="breathing" renderer="css" showGlow />
+                  </div>
                 </div>
               </div>
             </div>

@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Rocket, Sparkles, Zap, Crown, Check, Shield, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { Orb } from '@/components/orb/Orb';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 
 const tiers = [
@@ -142,7 +143,7 @@ export default function FinalCTASection() {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-                <AuroraHoloOrb size={100} glow="full" />
+                <Orb profile={DEFAULT_ORB_PROFILE} size={100} state="breathing" renderer="css" showGlow />
               </div>
             </div>
 

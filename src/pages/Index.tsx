@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
-  OrbShowcaseSection,
+  OrbCollectionSection,
   DomainCitySection,
   AuroraCoachSection,
   HypnosisSection,
@@ -75,7 +75,7 @@ const Index = () => {
       <Header />
       <main className="relative z-10">
         <GameHeroSection />
-        <OrbShowcaseSection />
+        <OrbCollectionSection />
         <DomainCitySection />
         <AuroraCoachSection />
         <HypnosisSection />
