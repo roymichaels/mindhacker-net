@@ -14,6 +14,7 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { useQueryClient } from '@tanstack/react-query';
 import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type TacticalBlock, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +79,9 @@ export default function ArenaHub() {
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const [scheduleGenerating, setScheduleGenerating] = useState(false);
+  // Journey modal state
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
 
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime } = phasePlan;
@@ -118,9 +122,15 @@ export default function ArenaHub() {
   ];
 
   const handleOpenExecution = useCallback((action: TacticalAction) => {
-    const nowItem = tacticalToNowItem(action);
-    setExecutionAction(nowItem);
-    setExecutionOpen(true);
+    // If has a milestone source, open the journey modal
+    if (action.sourceMilestoneId) {
+      setJourneyAction(action);
+      setJourneyOpen(true);
+    } else {
+      const nowItem = tacticalToNowItem(action);
+      setExecutionAction(nowItem);
+      setExecutionOpen(true);
+    }
   }, []);
 
   const handlePlanGenerated = () => {
@@ -348,6 +358,20 @@ export default function ArenaHub() {
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+          queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+          queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
+        }}
+      />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.sourceMilestoneId || null}
+        milestoneTitle={journeyAction?.title || ''}
+        milestoneDescription={journeyAction?.description || undefined}
+        focusArea={journeyAction?.focusArea || undefined}
+        durationMinutes={journeyAction?.estimatedMinutes || 30}
         onComplete={() => {
           queryClient.invalidateQueries({ queryKey: ['life-plan'] });
           queryClient.invalidateQueries({ queryKey: ['now-engine'] });
