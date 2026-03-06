@@ -285,15 +285,26 @@ const ORB_FRAGMENT_SHADER = `
     return bands * 0.5 + 0.5;
   }
 
-  // Sample multi-stop gradient
+  // Sample multi-stop gradient — uses explicit if/else to avoid dynamic array indexing
+  // (dynamic indexing can silently fail on some WebGL implementations)
+  vec3 getColor(int i) {
+    if (i <= 0) return u_colors[0];
+    if (i == 1) return u_colors[1];
+    if (i == 2) return u_colors[2];
+    if (i == 3) return u_colors[3];
+    if (i == 4) return u_colors[4];
+    if (i == 5) return u_colors[5];
+    return u_colors[6];
+  }
+
   vec3 sampleGradient(float t) {
     t = clamp(t, 0.0, 1.0);
     if (u_colorCount <= 1) return u_colors[0];
     float scaledT = t * float(u_colorCount - 1);
     int idx = int(floor(scaledT));
     float frac = fract(scaledT);
-    if (idx >= u_colorCount - 1) return u_colors[u_colorCount - 1];
-    return mix(u_colors[idx], u_colors[idx + 1], frac);
+    if (idx >= u_colorCount - 1) return getColor(u_colorCount - 1);
+    return mix(getColor(idx), getColor(idx + 1), frac);
   }
 
   void main() {
@@ -379,12 +390,16 @@ const ORB_FRAGMENT_SHADER = `
       finalColor = mix(finalColor, baseColor * 1.5, (0.35 - brightness) / 0.35);
       finalColor = max(finalColor, baseColor * 0.6);
     }
-    // Second pass: if STILL dark (baseColor was also dark), inject absolute minimum light
+    // Second pass: if STILL dark, inject ABSOLUTE minimum light (not dependent on uniforms)
     brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
     if (brightness < 0.15) {
-      // Use gradient first color as rescue, boosted significantly
-      vec3 rescue = u_colors[0] * 1.8 + vec3(0.1, 0.15, 0.2);
-      finalColor = max(finalColor, rescue * 0.6);
+      // Absolute rescue: guaranteed visible teal/cyan regardless of uniform values
+      vec3 rescue = vec3(0.15, 0.45, 0.55);
+      finalColor = max(finalColor, rescue);
+    }
+    // Third pass: baseColor itself was zero — make sure we have SOMETHING
+    if (dot(baseColor, vec3(1.0)) < 0.01) {
+      finalColor = vec3(0.2, 0.5, 0.7); // fallback blue
     }
 
     gl_FragColor = vec4(finalColor, 0.92);
@@ -552,10 +567,21 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const colors: THREE.Vector3[] = [];
     for (let i = 0; i < 7; i++) {
       if (i < gradientStops.length) {
-        colors.push(parseHslToVec3(gradientStops[i]));
+        const vec = parseHslToVec3(gradientStops[i]);
+        // Runtime NaN/zero guard
+        if (isNaN(vec.x) || isNaN(vec.y) || isNaN(vec.z) || (vec.x + vec.y + vec.z) < 0.01) {
+          colors.push(new THREE.Vector3(...FALLBACK_RGB));
+        } else {
+          colors.push(vec);
+        }
       } else {
-        colors.push(colors.length > 0 ? colors[colors.length - 1].clone() : new THREE.Vector3(0.5, 0.5, 0.5));
+        colors.push(colors.length > 0 ? colors[colors.length - 1].clone() : new THREE.Vector3(...FALLBACK_RGB));
       }
+    }
+    // Log once for debugging
+    const totalBrightness = colors.reduce((s, c) => s + c.x + c.y + c.z, 0);
+    if (totalBrightness < 0.5) {
+      console.warn('[WebGLOrb] All gradient colors are near-zero! Stops:', gradientStops, 'Vecs:', colors.map(c => `(${c.x.toFixed(2)},${c.y.toFixed(2)},${c.z.toFixed(2)})`));
     }
     return colors;
   }, [gradientStops]);
@@ -572,9 +598,10 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     camera.position.z = 2.2;
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    // CRITICAL: Use LinearSRGBColorSpace so our shader's sRGB output isn't double-gamma-encoded
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: false });
+    // CRITICAL: Disable tone mapping and use linear output so custom shader colors aren't mangled
     renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
