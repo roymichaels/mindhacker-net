@@ -223,7 +223,7 @@ function TraitDetailView({
   }
 
   const pillarColor = PILLAR_COLORS[detail.pillar] || '200 70% 50%';
-  const displayName = isHe ? (detail.name_he || detail.name) : detail.name;
+  const displayName = isHe ? getTraitDisplayName(detail.name, detail.name_he, true) : getTraitDisplayName(detail.name, detail.name_he, false);
   const xpInLevel = detail.xp_total % XP_PER_LEVEL;
   const xpProgress = Math.round((xpInLevel / XP_PER_LEVEL) * 100);
   const circumference = 2 * Math.PI * 52;
