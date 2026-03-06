@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Rocket, Sparkles, Zap, Crown, Check, Shield, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { Orb } from '@/components/orb/Orb';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 
 const tiers = [

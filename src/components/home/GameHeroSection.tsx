@@ -160,7 +160,9 @@ export default function GameHeroSection() {
                       />
                     </motion.div>
                   ))}
-                  <AuroraHoloOrb size={200} glow="full" className="relative z-10" />
+                  <div className="relative z-10">
+                    <Orb profile={DEFAULT_ORB_PROFILE} size={200} state="breathing" renderer="css" showGlow />
+                  </div>
                 </div>
               </div>
             </div>
