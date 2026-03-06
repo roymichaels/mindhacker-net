@@ -2189,16 +2189,19 @@ export type Database = {
           category_id: string | null
           comments_count: number | null
           content: string
+          content_he: string | null
           created_at: string | null
           edited_at: string | null
           id: string
           is_edited: boolean | null
           is_pinned: boolean | null
+          is_system: boolean | null
           likes_count: number | null
           media_urls: string[] | null
           pillar: string | null
           status: string
           title: string | null
+          title_he: string | null
           updated_at: string | null
           user_id: string
         }
@@ -2206,16 +2209,19 @@ export type Database = {
           category_id?: string | null
           comments_count?: number | null
           content: string
+          content_he?: string | null
           created_at?: string | null
           edited_at?: string | null
           id?: string
           is_edited?: boolean | null
           is_pinned?: boolean | null
+          is_system?: boolean | null
           likes_count?: number | null
           media_urls?: string[] | null
           pillar?: string | null
           status?: string
           title?: string | null
+          title_he?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -2223,16 +2229,19 @@ export type Database = {
           category_id?: string | null
           comments_count?: number | null
           content?: string
+          content_he?: string | null
           created_at?: string | null
           edited_at?: string | null
           id?: string
           is_edited?: boolean | null
           is_pinned?: boolean | null
+          is_system?: boolean | null
           likes_count?: number | null
           media_urls?: string[] | null
           pillar?: string | null
           status?: string
           title?: string | null
+          title_he?: string | null
           updated_at?: string | null
           user_id?: string
         }

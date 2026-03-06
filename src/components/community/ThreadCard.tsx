@@ -13,13 +13,16 @@ export interface ThreadData {
   id: string;
   user_id: string;
   title: string | null;
+  title_he: string | null;
   content: string;
+  content_he: string | null;
   pillar: string | null;
   status: string;
   created_at: string | null;
   likes_count: number;
   comments_count: number;
   is_pinned?: boolean;
+  is_system?: boolean;
   trendingScore?: number;
   category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
   author?: { full_name: string | null; level: number | null; community_username: string | null } | null;
@@ -50,6 +53,14 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
   const isPending = thread.status === 'pending';
   const username = (thread.author as any)?.community_username;
 
+  // Auto-translate: show localized content based on user language
+  const displayTitle = isHe
+    ? (thread.title_he || thread.title)
+    : (thread.title || thread.title_he);
+  const displayContent = isHe
+    ? (thread.content_he || thread.content)
+    : (thread.content || thread.content_he || '');
+
   if (compact) {
     return (
       <Link to={`/community/post/${thread.id}`}>
@@ -59,7 +70,7 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
             <span className="text-[11px] font-medium truncate">{username || thread.author?.full_name || '—'}</span>
             {domain && <span className="text-[10px]">{PILLAR_ICONS[pillar]}</span>}
           </div>
-          <p className="text-xs font-medium leading-tight line-clamp-1">{thread.title || thread.content.slice(0, 50)}</p>
+          <p className="text-xs font-medium leading-tight line-clamp-1">{displayTitle || displayContent.slice(0, 50)}</p>
           <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-0.5"><Heart className="h-2.5 w-2.5" />{thread.likes_count}</span>
             <span className="flex items-center gap-0.5"><MessageCircle className="h-2.5 w-2.5" />{thread.comments_count}</span>
@@ -78,7 +89,14 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
         thread.is_pinned && "border-primary/30 bg-primary/5"
       )}
     >
-      {isPending && (
+    {thread.is_system && (
+      <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
+        <span>📌</span>
+        <span className="font-semibold">{isHe ? 'הודעת מערכת' : 'System Post'}</span>
+      </div>
+    )}
+
+    {isPending && (
         <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
           <Clock className="h-3 w-3" />
           <span>{isHe ? 'ממתין לאישור Aurora' : 'Awaiting Aurora approval'}</span>
@@ -123,8 +141,8 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
         </div>
       </div>
 
-      {/* Pillar badge */}
-      {domain && (
+      {/* Pillar badge — hide for system posts (no pillar) */}
+      {domain && thread.pillar && (
         <div className="mb-1.5">
           <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/30 text-primary/80">
             {PILLAR_ICONS[pillar]} {isHe ? domain.labelHe : domain.labelEn}
@@ -135,13 +153,13 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
       {/* Title */}
       <Link to={`/community/post/${thread.id}`}>
         <h3 className="font-semibold text-foreground mb-1 hover:text-primary transition-colors leading-tight">
-          {thread.title || thread.content.slice(0, 60)}
+          {displayTitle || displayContent.slice(0, 60)}
         </h3>
       </Link>
 
       {/* Preview */}
       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-        {thread.content}
+        {displayContent}
       </p>
 
       {/* Sub-category Badge */}

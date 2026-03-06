@@ -6,13 +6,16 @@ export interface CommunityThread {
   id: string;
   user_id: string;
   title: string | null;
+  title_he: string | null;
   content: string;
+  content_he: string | null;
   pillar: string | null;
   status: string;
   created_at: string | null;
   likes_count: number;
   comments_count: number;
   is_pinned: boolean;
+  is_system: boolean;
   category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
   author?: { full_name: string | null; level: number | null; community_username: string | null } | null;
   trendingScore?: number;
@@ -31,14 +34,15 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
     queryFn: async (): Promise<CommunityThread[]> => {
       let query = supabase
         .from('community_posts')
-        .select('id, user_id, title, content, category_id, created_at, likes_count, comments_count, is_pinned, pillar, status')
+        .select('id, user_id, title, title_he, content, content_he, category_id, created_at, likes_count, comments_count, is_pinned, is_system, pillar, status')
         .eq('status', 'approved')
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(limit);
 
+      // For pillar filtering: show pillar-specific posts + system posts (pillar IS NULL)
       if (pillarFilter !== 'all') {
-        query = query.eq('pillar', pillarFilter);
+        query = query.or(`pillar.eq.${pillarFilter},pillar.is.null`);
       }
 
       // If topicFilter is set, we need to find the matching category_id
@@ -75,9 +79,10 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
 
       const catMap = Object.fromEntries((categories || []).map(c => [c.id, c]));
 
-      // Only show threads from users who have a community_username
+      // Only show threads from users who have a community_username OR are system posts
       let threads: CommunityThread[] = posts
         .filter(post => {
+          if ((post as any).is_system) return true; // always show system posts
           const author = profiles?.find(p => p.id === post.user_id);
           return author?.community_username; // must have username
         })
@@ -88,6 +93,9 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
 
           return {
             ...post,
+            title_he: (post as any).title_he || null,
+            content_he: (post as any).content_he || null,
+            is_system: (post as any).is_system || false,
             likes_count: post.likes_count || 0,
             comments_count: post.comments_count || 0,
             is_pinned: post.is_pinned || false,
