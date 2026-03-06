@@ -22,7 +22,7 @@ export function BottomTabBar() {
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isActive = (path: string) => {
-    if (path === '/dashboard') return location.pathname === '/today' || location.pathname === '/dashboard';
+    if (path === '/now') return location.pathname === '/now' || location.pathname === '/dashboard';
     return location.pathname.startsWith(path);
   };
 

@@ -73,7 +73,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   }, [remainingQueue]);
 
   return (
-    <div className="flex flex-col w-full items-center min-h-[60vh] pb-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full items-center min-h-[60vh] pb-24 overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-4 max-w-xl w-full px-4 pt-4">
 
         {!hasPlan && !isLoading ? (

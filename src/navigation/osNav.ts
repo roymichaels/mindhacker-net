@@ -22,7 +22,7 @@ export interface OsTab {
 
 /** The main tabs visible to every authenticated user */
 export const OS_TABS: OsTab[] = [
-  { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Now', labelHe: 'עכשיו' },
+  { id: 'dashboard', path: '/now', icon: LayoutDashboard, labelEn: 'Now', labelHe: 'עכשיו' },
   { id: 'core',      path: '/strategy',  icon: Flame,          labelEn: 'Strategy',  labelHe: 'אסטרטגיה' },
   { id: 'arena',     path: '/tactics',   icon: Swords,         labelEn: 'Tactics',   labelHe: 'טקטיקה' },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },

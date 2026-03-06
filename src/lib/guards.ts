@@ -68,7 +68,7 @@ const KNOWN_ROUTES = [
 export function safeNavigate(
   navigate: NavigateFunction,
   target: string,
-  fallback: string = '/dashboard'
+  fallback: string = '/now'
 ): void {
   const isKnown = KNOWN_ROUTES.some(r => target === r || target.startsWith(r + '/') || target.startsWith(r + '?'));
   if (!isKnown) {
