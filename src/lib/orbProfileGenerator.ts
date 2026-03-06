@@ -112,6 +112,41 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   // Visual DNA overrides the base archetype profile
   const merged = { ...baseProfile, ...visualDNA };
   
+  // === CRITICAL: Sync gradient stops with profile's identity colors ===
+  // The visualDNA generates gradient stops from seed (baseHue = seed % 360),
+  // which can produce monochromatic colors that don't match the archetype-derived
+  // primary/secondary/accent colors. Fix: rebuild gradient stops using identity colors.
+  if (merged.primaryColor && merged.secondaryColors?.length) {
+    const profileHues = [merged.primaryColor, ...merged.secondaryColors, merged.accentColor || merged.primaryColor]
+      .map(c => { const m = c.match(/^(\d+)/); return m ? parseInt(m[1]) : 200; });
+    const gradHues = (merged.gradientStops || [])
+      .map((c: string) => { const m = c.match(/^(\d+)/); return m ? parseInt(m[1]) : 200; });
+    
+    // Check if gradient stops are monochromatic (all within 30° hue range)
+    const gradSpread = gradHues.length > 0 ? Math.max(...gradHues) - Math.min(...gradHues) : 0;
+    const profileSpread = Math.max(...profileHues) - Math.min(...profileHues);
+    
+    if (gradSpread < 40 && profileSpread > 20) {
+      // Rebuild gradient stops from profile colors with some seed-based variation
+      const stops: string[] = [];
+      const allColors = [merged.primaryColor, ...merged.secondaryColors, merged.accentColor || merged.primaryColor];
+      for (let i = 0; i < Math.max(allColors.length, 3); i++) {
+        const baseColor = allColors[i % allColors.length];
+        const m = baseColor.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?$/);
+        if (m) {
+          const h = (parseFloat(m[1]) + seedFloat(seed, 30 + i) * 15) % 360;
+          const s = Math.max(50, Math.min(100, parseFloat(m[2]) + seedFloat(seed, 40 + i) * 10));
+          const l = Math.max(35, Math.min(75, parseFloat(m[3]) + seedFloat(seed, 50 + i) * 10));
+          stops.push(`${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}%`);
+        } else {
+          stops.push(baseColor);
+        }
+      }
+      merged.gradientStops = stops;
+      merged.coreGradient = [stops[0], stops[stops.length - 1]] as [string, string];
+    }
+  }
+  
   // === BLACK ORB PREVENTION: Validate all color fields ===
   const ensureVisibleHSL = (hsl: string, fallback: string): string => {
     if (!hsl || hsl.includes('NaN') || hsl.includes('undefined')) return fallback;
@@ -119,9 +154,7 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
     if (!m) return fallback;
     const s = parseFloat(m[2]);
     const l = parseFloat(m[3]);
-    // If saturation < 15% AND lightness < 20%, the color is effectively black/dark gray
     if (s < 15 && l < 20) return fallback;
-    // If lightness alone is too low, bump it
     if (l < 15) {
       return `${m[1]} ${Math.max(50, s)}% 35%`;
     }
