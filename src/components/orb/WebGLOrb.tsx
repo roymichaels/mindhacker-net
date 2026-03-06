@@ -587,9 +587,10 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     camera.position.z = 2.2;
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    // CRITICAL: Use LinearSRGBColorSpace so our shader's sRGB output isn't double-gamma-encoded
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: false });
+    // CRITICAL: Disable tone mapping and use linear output so custom shader colors aren't mangled
     renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
