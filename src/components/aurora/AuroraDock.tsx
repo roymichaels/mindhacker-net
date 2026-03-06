@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Bug, GripHorizontal, X } from 'lucide-react';
+import { ArrowLeft, Bug, GripHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
