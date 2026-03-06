@@ -1,8 +1,6 @@
 /**
  * BottomHudBar — Compact character HUD docked to the bottom of the screen.
- * On mobile: sits below the bottom tab bar.
- * On desktop: fixed to the bottom edge.
- * Shows: Orb + identity title, level/tokens/streak badges, XP bar, 4 quick-action buttons.
+ * Single "Profile" button opens the unified CharacterProfileModal.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -11,11 +9,8 @@ import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
-import {
-  MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
-} from '@/components/dashboard/MergedModals';
-import { SkillsModal } from '@/components/modals/SkillsModal';
-import { Star, Flame, Zap, UserCircle, Compass, Brain, Target } from 'lucide-react';
+import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
+import { Star, Flame, Zap, UserCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export function BottomHudBar() {
@@ -27,8 +22,7 @@ export function BottomHudBar() {
   const tokens = useEnergy();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
-  type ModalType = 'identity' | 'direction' | 'insights' | 'skills' | null;
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const identityTitle = dashboard.identityTitle;
 
@@ -37,7 +31,6 @@ export function BottomHudBar() {
       <div
         className={cn(
           "fixed inset-x-0 z-40 border-t border-border/50 bg-background/95 backdrop-blur-lg",
-          // Mobile: below bottom tabs (h-14 tab bar). Desktop: at very bottom.
           "bottom-14 md:bottom-0"
         )}
         dir={isRTL ? 'rtl' : 'ltr'}
@@ -87,44 +80,22 @@ export function BottomHudBar() {
             </div>
           </div>
 
-          {/* Quick action buttons */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {[
-              { key: 'skills' as ModalType, icon: Target, label: isHe ? 'תכונות' : 'Traits' },
-              { key: 'insights' as ModalType, icon: Brain, label: isHe ? 'תובנות' : 'Insights' },
-              { key: 'direction' as ModalType, icon: Compass, label: isHe ? 'כיוון' : 'Direction' },
-              { key: 'identity' as ModalType, icon: UserCircle, label: isHe ? 'זהות' : 'Identity' },
-            ].map((btn) => (
-              <button
-                key={btn.key}
-                onClick={() => setActiveModal(btn.key)}
-                className="flex flex-col items-center gap-0.5 p-1.5 rounded-lg hover:bg-muted/30 active:scale-[0.95] transition-all"
-              >
-                <btn.icon className="w-5 h-5 text-muted-foreground" />
-                <span className="text-[9px] text-muted-foreground">{btn.label}</span>
-              </button>
-            ))}
+          {/* Single Profile button */}
+          <div className="flex-shrink-0">
+            <button
+              onClick={() => setProfileOpen(true)}
+              className="flex flex-col items-center gap-0.5 p-1.5 rounded-lg hover:bg-muted/30 active:scale-[0.95] transition-all"
+            >
+              <UserCircle className="w-5 h-5 text-muted-foreground" />
+              <span className="text-[9px] text-muted-foreground">{isHe ? 'פרופיל' : 'Profile'}</span>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Modals */}
       <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
-      <MergedIdentityModal
-        open={activeModal === 'identity'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
-        values={dashboard.values} principles={dashboard.principles} selfConcepts={dashboard.selfConcepts}
-        identityTitle={dashboard.identityTitle}
-      />
-      <MergedDirectionModal
-        open={activeModal === 'direction'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
-        commitments={dashboard.activeCommitments} anchors={dashboard.dailyAnchors}
-      />
-      <MergedInsightsModal
-        open={activeModal === 'insights'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
-      />
-      <SkillsModal
-        open={activeModal === 'skills'} onOpenChange={(o) => !o && setActiveModal(null)}
-      />
+      <CharacterProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
     </>
   );
 }

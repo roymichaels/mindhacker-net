@@ -18,9 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 // PersonalizedOrb moved to MobileHeroGrid HUD
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-  MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
-} from '@/components/dashboard/MergedModals';
+// MergedModals removed — now unified inside CharacterProfileModal
 import { PillChips } from '@/components/aurora-ui/PillChips';
 import { GradientCTAButton } from '@/components/aurora-ui/GradientCTAButton';
 import { JobPanel } from '@/components/dashboard/JobPanel';
