@@ -142,7 +142,7 @@ export default function LifeHub() {
       if (allPlanIds.length === 0) return [];
       const { data, error } = await supabase
         .from('life_plan_milestones')
-        .select('id, title, title_en, is_completed, mission_id, milestone_number')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number, difficulty, description, description_en, focus_area')
         .in('plan_id', allPlanIds)
         .not('mission_id', 'is', null)
         .order('milestone_number');
