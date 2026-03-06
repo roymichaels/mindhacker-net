@@ -34,14 +34,15 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
     queryFn: async (): Promise<CommunityThread[]> => {
       let query = supabase
         .from('community_posts')
-        .select('id, user_id, title, content, category_id, created_at, likes_count, comments_count, is_pinned, pillar, status')
+        .select('id, user_id, title, title_he, content, content_he, category_id, created_at, likes_count, comments_count, is_pinned, is_system, pillar, status')
         .eq('status', 'approved')
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(limit);
 
+      // For pillar filtering: show pillar-specific posts + system posts (pillar IS NULL)
       if (pillarFilter !== 'all') {
-        query = query.eq('pillar', pillarFilter);
+        query = query.or(`pillar.eq.${pillarFilter},pillar.is.null`);
       }
 
       // If topicFilter is set, we need to find the matching category_id
