@@ -92,7 +92,7 @@ export default function ArenaHub() {
   };
 
   return (
-    <div className="flex flex-col w-full items-center min-h-[60vh] pb-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full items-center min-h-[60vh] pb-40" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-4 max-w-xl w-full px-4 pt-4">
 
         {!hasPlan && !isLoading ? (
@@ -132,58 +132,23 @@ export default function ArenaHub() {
               ))}
             </div>
 
-            {/* ── NEXT ACTION HERO CARD ── */}
-            {nextAction ? (() => {
-              const domain = getDomainById(nextAction.pillarId);
-              const Icon = domain?.icon;
-              return (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="relative overflow-hidden rounded-2xl border border-border/40 bg-card px-4 py-2.5 cursor-pointer group active:scale-[0.99] transition-transform"
-                  onClick={() => handleExecute(nextAction)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
-                      {Icon && <Icon className="w-4.5 h-4.5 text-foreground/70" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {isHe ? (domain?.labelHe || nextAction.pillarId) : (domain?.labelEn || nextAction.pillarId)}
-                        <span className="mx-1.5 text-border">·</span>
-                        {nextAction.durationMin} {isHe ? 'דק׳' : 'min'}
-                      </p>
-                      <h2 className="text-sm font-bold text-foreground leading-snug">
-                        {isHe ? nextAction.title : nextAction.titleEn}
-                      </h2>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0 group-hover:bg-destructive/20 transition-colors">
-                      <Play className="w-4 h-4 text-destructive" />
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })() : phaseGenerating ? (
-              <div className="flex flex-col items-center gap-2 py-6">
-                <Loader2 className="w-5 h-5 animate-spin text-destructive" />
-                <p className="text-xs text-muted-foreground">
-                  {isHe ? `מייצר תוכנית שבועית (${phaseGenMs}/${phaseTotalMs})...` : `Generating weekly plan (${phaseGenMs}/${phaseTotalMs})...`}
-                </p>
-              </div>
-            ) : (
-              <div className="text-center py-4 text-sm text-muted-foreground">
-                {isHe ? 'אין פעולה הבאה כרגע' : 'No next action right now'}
-              </div>
-            )}
-
             {/* ── WEEKLY PLAN SECTION ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-              {/* Phase header */}
+              {/* Phase header with play button */}
               <div className="px-4 py-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center">
-                    <span className="text-sm font-bold text-destructive">{phaseLabel}</span>
-                  </div>
+                  {nextAction ? (
+                    <button
+                      onClick={() => handleExecute(nextAction)}
+                      className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center shrink-0 hover:bg-destructive/25 transition-colors"
+                    >
+                      <Play className="w-4 h-4 text-destructive" />
+                    </button>
+                  ) : (
+                    <div className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center">
+                      <span className="text-sm font-bold text-destructive">{phaseLabel}</span>
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-foreground">
                       {isHe ? `שלב ${phaseLabel} — תוכנית שבועית` : `Phase ${phaseLabel} — Weekly Plan`}
