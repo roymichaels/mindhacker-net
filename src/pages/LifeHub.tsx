@@ -83,6 +83,13 @@ export default function LifeHub() {
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [expandedTrait, setExpandedTrait] = useState<string | null>(null);
   const [expandedMission, setExpandedMission] = useState<string | null>(null);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyMilestone, setJourneyMilestone] = useState<MilestoneView | null>(null);
+
+  const handleOpenJourney = useCallback((ms: MilestoneView) => {
+    setJourneyMilestone(ms);
+    setJourneyOpen(true);
+  }, []);
 
   const { statusMap } = useLifeDomains();
   const totalDomains = CORE_DOMAINS.length;
