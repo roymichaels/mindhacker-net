@@ -89,7 +89,14 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
         thread.is_pinned && "border-primary/30 bg-primary/5"
       )}
     >
-      {isPending && (
+    {thread.is_system && (
+      <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
+        <span>📌</span>
+        <span className="font-semibold">{isHe ? 'הודעת מערכת' : 'System Post'}</span>
+      </div>
+    )}
+
+    {isPending && (
         <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
           <Clock className="h-3 w-3" />
           <span>{isHe ? 'ממתין לאישור Aurora' : 'Awaiting Aurora approval'}</span>
@@ -102,9 +109,6 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
           <span>{isHe ? 'טרנדי' : 'Trending'}</span>
         </div>
       )}
-
-      {/* Top: Orb + Username + Rank + Time */}
-      <div className="flex items-center gap-2.5 mb-2">
         <button onClick={() => onProfileClick(thread.user_id)} className="shrink-0">
           <PlayerAvatar userId={thread.user_id} size="sm" name={username || thread.author?.full_name || '?'} />
         </button>
