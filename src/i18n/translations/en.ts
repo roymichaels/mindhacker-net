@@ -2856,11 +2856,11 @@ export const en: TranslationKeys = {
 
     // GameHeroSection
     gameHero: {
-      badge: 'Digital Self-Improvement City',
-      title: 'Level Up. Earn. Transform.',
-      subtitle: 'AI coaching across 14 life domains, living orb avatar, play-to-earn economy, personalized hypnosis — your entire life OS.',
-      cta: '⚡ Enter the City',
-      ctaMeta: '5 min assessment • Free to start • Earn while you grow',
+      badge: 'The Game Has Begun',
+      title: 'Build Your Empire.',
+      subtitle: 'AI × Identity × Economy',
+      cta: '⚡ Start Building',
+      ctaMeta: '5 min assessment • Free to start • Earn while you build',
       scrollDown: 'Scroll Down',
     },
 
