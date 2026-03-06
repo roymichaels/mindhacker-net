@@ -152,7 +152,7 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
 
       {/* Preview */}
       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-        {thread.content}
+        {displayContent}
       </p>
 
       {/* Sub-category Badge */}
