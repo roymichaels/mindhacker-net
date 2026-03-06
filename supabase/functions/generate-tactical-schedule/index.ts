@@ -104,24 +104,25 @@ ${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] [D
 ${adjustmentContext}
 
 ## BLOCK STRUCTURE RULES:
-1. Each day has 3-5 THEMED BLOCKS. A block is a container for related milestones.
-2. Block types and their ideal time slots:
-   - "Morning Ritual" (🌅): Right after waking. Contains: breathing, meditation, grounding, yoga, stretching milestones.
-   - "Training Block" (⚔️): Morning or late afternoon. Contains: physical training, combat, strength, cardio milestones.
-   - "Deep Work" (🧠): During peak focus window (${focusPeakStart}-${focusPeakEnd}). Contains: business, creation, analysis, strategy milestones.
-   - "Action Block" (⚡): Afternoon. Contains: tasks, execution, productivity milestones.
-   - "Evening Review" (🌙): Before sleep. Contains: reflection, review, journaling, social milestones.
-3. Each block contains 2-5 milestones inside it.
-4. The same milestone can appear across multiple days based on cadence:
+1. Each day has 3-5 THEMED BLOCKS. A block is a CONTAINER for related milestones.
+2. **CRITICAL**: Each block MUST contain a "milestones" ARRAY with 2-5 milestone objects inside it. A block is NOT a single milestone — it groups multiple milestones together.
+3. Block types and their ideal time slots:
+   - "Morning Activation" (🌅): Right after waking. Group: breathing, meditation, grounding, yoga, stretching, posture milestones.
+   - "Training Block" (⚔️): Morning or late afternoon. Group: physical training, combat, strength, cardio milestones.
+   - "Focused Productivity" (🧠): During peak focus window (${focusPeakStart}-${focusPeakEnd}). Group: business, creation, analysis, strategy, deep work milestones.
+   - "Influence & Wealth" (⚡): Afternoon. Group: networking, finance, marketing, sales, execution milestones.
+   - "Evening Review" (🌙): Before sleep. Group: reflection, review, journaling, social, relationships milestones.
+4. The same milestone can and SHOULD appear across multiple days based on its nature:
    - Physical/breathing/meditation: 4-6 times across 10 days
    - Training/exercise: 3-4 times
-   - Deep work/business: 2-3 times
+   - Deep work/business: 3-5 times
    - Social/review: 1-2 times
 5. Already completed milestones (✅) should NOT be scheduled.
 6. Each milestone inside a block gets its own duration (10-45 min).
-7. Total daily active time: 90-180 minutes (realistic!).
+7. Total daily active time: 120-240 minutes.
 8. CRITICAL: Use the EXACT milestone titles (title_en and title_he) from the list above — do NOT rename or paraphrase them.
 9. CRITICAL: Use the EXACT difficulty value (1-5) from each milestone — do NOT change it.
+10. CRITICAL: Every block MUST have at least 2 milestones in its "milestones" array. If a category only has 1 milestone, merge it into an adjacent block.
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
 
@@ -132,8 +133,8 @@ ${adjustmentContext}
       "day_number": 1,
       "blocks": [
         {
-          "block_title_en": "Morning Ritual",
-          "block_title_he": "ריטואל בוקר",
+          "block_title_en": "Morning Activation",
+          "block_title_he": "הפעלת בוקר",
           "block_emoji": "🌅",
           "start_time": "06:30",
           "end_time": "07:30",
@@ -144,31 +145,43 @@ ${adjustmentContext}
               "title_en": "Morning breathwork protocol",
               "title_he": "פרוטוקול נשימת בוקר",
               "duration_minutes": 15,
-              "difficulty": "easy",
+              "difficulty": 1,
               "xp_reward": 5,
               "execution_template": "tts_guided",
               "order_index": 0
             },
             {
               "milestone_id": "actual-uuid-from-list",
-              "title_en": "Tai Chi flow",
-              "title_he": "תרגול טאי צ'י",
+              "title_en": "Full-body stretch routine",
+              "title_he": "שגרת מתיחות מלאה",
               "duration_minutes": 20,
-              "difficulty": "medium",
+              "difficulty": 2,
               "xp_reward": 10,
               "execution_template": "timer_focus",
               "order_index": 1
+            },
+            {
+              "milestone_id": "actual-uuid-from-list",
+              "title_en": "Cold exposure protocol",
+              "title_he": "פרוטוקול חשיפה לקור",
+              "duration_minutes": 10,
+              "difficulty": 3,
+              "xp_reward": 10,
+              "execution_template": "timer_focus",
+              "order_index": 2
             }
           ],
-          "total_minutes": 35,
-          "milestone_count": 2
+          "total_minutes": 45,
+          "milestone_count": 3
         }
       ],
-      "total_minutes": 120,
+      "total_minutes": 150,
       "block_count": 4
     }
   ]
 }
+
+WARNING: If any block has fewer than 2 milestones in its "milestones" array, your output is INVALID. Every block must group multiple actions together. This is the most critical requirement.
 
 IMPORTANT: Use the EXACT milestone IDs from the list above. Group related milestones into blocks by theme. Generate ALL 10 days.`;
 
