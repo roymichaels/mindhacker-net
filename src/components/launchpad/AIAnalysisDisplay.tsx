@@ -149,7 +149,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
       {/* Identity Profile + Career + Transformation — 3-col row */}
       {(summary.identity_profile || summary.career_path || summary.transformation_potential) && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {summary.identity_profile && (
             <GlassCard>
               <CardHeader icon={<User className="h-4 w-4 text-rose-400" />} title={isHebrew ? 'פרופיל זהות' : 'Identity'} accent="bg-rose-500/10" />
