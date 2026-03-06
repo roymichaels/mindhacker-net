@@ -14,6 +14,7 @@ import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard
 import { useQueryClient } from '@tanstack/react-query';
 import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type TacticalBlock, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
