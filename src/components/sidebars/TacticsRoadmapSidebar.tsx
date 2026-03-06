@@ -95,7 +95,7 @@ export function TacticsRoadmapSidebar() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-xs font-bold text-foreground">
-                  {isHe ? `שלב ${phaseLabel} — תוכנית שבועית` : `Phase ${phaseLabel} — Weekly Plan`}
+                  {isHe ? `שלב ${phaseLabel} — תוכנית 10 ימים` : `Phase ${phaseLabel} — 10-Day Plan`}
                 </h3>
                 <p className="text-[10px] text-muted-foreground">
                   {completedMs}/{totalMs} {isHe ? 'אבני דרך' : 'milestones'} · {phasePct}%
