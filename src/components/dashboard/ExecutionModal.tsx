@@ -355,6 +355,11 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
       return;
     }
     setVoiceLineIndex(index);
+    
+    // Stop any previous audio before starting new line
+    stopCurrentAudio();
+    stopBrowserSpeech();
+    
     try {
       if (!isMuted) {
         const result = await synthesizeSpeech(voiceScript[index]);
@@ -364,7 +369,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
               if (playingRef.current) speakLine(index + 1);
             },
             onError: () => {
-              // On error, still advance after a short delay
+              // On error, advance after a short delay
               voiceTimerRef.current = setTimeout(() => {
                 if (playingRef.current) speakLine(index + 1);
               }, 2000);
@@ -373,7 +378,10 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
           return; // playAudioUrl handles advancing via onEnd
         }
       }
-    } catch { /* fallback handled */ }
+    } catch {
+      // Don't fall through to the timeout below if onError already scheduled advancement
+      if (!playingRef.current) return;
+    }
     // If muted or no audio result, advance after a pause
     voiceTimerRef.current = setTimeout(() => {
       if (playingRef.current) speakLine(index + 1);
