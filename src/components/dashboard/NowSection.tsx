@@ -16,6 +16,7 @@ import { useTodayExecution, type ScheduleSlot } from '@/hooks/useTodayExecution'
 import { type NowQueueItem } from '@/hooks/useNowEngine';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
 
 // ── Block category labels ──
