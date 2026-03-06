@@ -72,18 +72,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
 
-    // Check if minis already exist
-    const { data: existing } = await supabase
+    // Delete any existing minis for this milestone (supports recalibration)
+    await supabase
       .from("mini_milestones")
-      .select("id")
-      .eq("milestone_id", milestone_id)
-      .limit(1);
-    
-    if (existing && existing.length > 0) {
-      return new Response(JSON.stringify({ status: "already_generated", count: existing.length }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+      .delete()
+      .eq("milestone_id", milestone_id);
 
     // Parallel: fetch milestone + user brain context
     const [milestoneRes, ctx] = await Promise.all([
