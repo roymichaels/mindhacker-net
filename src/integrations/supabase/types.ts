@@ -5592,10 +5592,12 @@ export type Database = {
       }
       mini_milestones: {
         Row: {
+          action_type: string | null
           completed_at: string | null
           created_at: string | null
           description: string | null
           description_en: string | null
+          execution_template: string | null
           id: string
           is_completed: boolean | null
           milestone_id: string
@@ -5606,10 +5608,12 @@ export type Database = {
           xp_reward: number
         }
         Insert: {
+          action_type?: string | null
           completed_at?: string | null
           created_at?: string | null
           description?: string | null
           description_en?: string | null
+          execution_template?: string | null
           id?: string
           is_completed?: boolean | null
           milestone_id: string
@@ -5620,10 +5624,12 @@ export type Database = {
           xp_reward?: number
         }
         Update: {
+          action_type?: string | null
           completed_at?: string | null
           created_at?: string | null
           description?: string | null
           description_en?: string | null
+          execution_template?: string | null
           id?: string
           is_completed?: boolean | null
           milestone_id?: string
