@@ -241,8 +241,8 @@ export default function LifeHub() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="border-t border-border/20">
-                            {pillarSkills.map((skill, skillIdx) => {
+                          <div className="px-3 py-3 space-y-3">
+                            {pillarSkills.map((skill) => {
                               const skillMilestones = milestonesBySkill[skill.id] || [];
                               const msCompleted = skillMilestones.filter(ms => ms.is_completed).length;
                               const skillDone = skill.is_completed;
@@ -251,66 +251,65 @@ export default function LifeHub() {
                                 <div
                                   key={skill.id}
                                   className={cn(
-                                    "px-4 py-4",
-                                    skillIdx < pillarSkills.length - 1 && "border-b border-border/15"
+                                    "rounded-xl border bg-background/50 overflow-hidden",
+                                    skillDone ? "border-primary/20 bg-primary/5" : "border-border/30"
                                   )}
                                 >
-                                  {/* Skill header */}
-                                  <div className="flex items-start gap-2.5">
-                                    {skillDone ? (
-                                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                                    ) : (
-                                      <Circle className="w-5 h-5 text-muted-foreground/30 shrink-0 mt-0.5" />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <p className={cn(
-                                        "text-sm font-semibold leading-snug",
+                                  {/* Skill card header */}
+                                  <div className="px-4 py-3 border-b border-border/15">
+                                    <div className="flex items-center gap-2">
+                                      {skillDone ? (
+                                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                                      ) : (
+                                        <BookOpen className="w-5 h-5 text-accent shrink-0" />
+                                      )}
+                                      <h4 className={cn(
+                                        "text-sm font-bold flex-1",
                                         skillDone ? "line-through text-muted-foreground" : "text-foreground"
                                       )}>
                                         {isHe ? (skill.title || skill.title_en) : (skill.title_en || skill.title)}
-                                      </p>
-                                      {skill.description && (
-                                        <p className="text-xs text-muted-foreground/60 mt-1 leading-relaxed">
-                                          {isHe ? (skill.description || skill.description_en) : (skill.description_en || skill.description)}
-                                        </p>
-                                      )}
-
-                                      {/* Milestones (Goals) inline */}
-                                      {skillMilestones.length > 0 && (
-                                        <div className="mt-3 space-y-1.5">
-                                          {skillMilestones.map((ms: any) => (
-                                            <div key={ms.id} className={cn(
-                                              "flex items-start gap-2 py-1",
-                                              ms.is_completed ? "opacity-50" : ""
-                                            )}>
-                                              {ms.is_completed ? (
-                                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                              ) : (
-                                                <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" />
-                                              )}
-                                              <div className="flex-1 min-w-0">
-                                                <span className={cn(
-                                                  "text-xs",
-                                                  ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/75"
-                                                )}>
-                                                  {isHe ? (ms.title || ms.title_en) : (ms.title_en || ms.title)}
-                                                </span>
-                                                {ms.goal && (
-                                                  <p className="text-[10px] text-muted-foreground/40 mt-0.5 leading-snug">
-                                                    {isHe ? (ms.goal || ms.goal_en) : (ms.goal_en || ms.goal)}
-                                                  </p>
-                                                )}
-                                              </div>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
-
-                                      <span className="text-[9px] text-muted-foreground/40 mt-2 block">
+                                      </h4>
+                                      <span className="text-[9px] text-muted-foreground shrink-0">
                                         {msCompleted}/{skillMilestones.length} {isHe ? 'יעדים' : 'goals'}
                                       </span>
                                     </div>
+                                    {skill.description && (
+                                      <p className="text-xs text-muted-foreground/60 mt-1.5 leading-relaxed">
+                                        {isHe ? (skill.description || skill.description_en) : (skill.description_en || skill.description)}
+                                      </p>
+                                    )}
                                   </div>
+
+                                  {/* Milestones (Goals) inside skill card */}
+                                  {skillMilestones.length > 0 && (
+                                    <div className="px-4 py-2.5 space-y-1">
+                                      {skillMilestones.map((ms: any) => (
+                                        <div key={ms.id} className={cn(
+                                          "flex items-start gap-2 py-1.5",
+                                          ms.is_completed ? "opacity-50" : ""
+                                        )}>
+                                          {ms.is_completed ? (
+                                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                          ) : (
+                                            <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" />
+                                          )}
+                                          <div className="flex-1 min-w-0">
+                                            <span className={cn(
+                                              "text-xs leading-snug",
+                                              ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/75"
+                                            )}>
+                                              {isHe ? (ms.title || ms.title_en) : (ms.title_en || ms.title)}
+                                            </span>
+                                            {ms.goal && (
+                                              <p className="text-[10px] text-muted-foreground/40 mt-0.5 leading-snug">
+                                                {isHe ? (ms.goal || ms.goal_en) : (ms.goal_en || ms.goal)}
+                                              </p>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               );
                             })}
