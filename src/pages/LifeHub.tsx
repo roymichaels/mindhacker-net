@@ -175,6 +175,10 @@ export default function LifeHub() {
         title: ms.title,
         title_en: ms.title_en,
         is_completed: ms.is_completed ?? false,
+        difficulty: (ms as any).difficulty ?? 3,
+        description: (ms as any).description ?? null,
+        description_en: (ms as any).description_en ?? null,
+        focus_area: (ms as any).focus_area ?? null,
       });
     }
 
