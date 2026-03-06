@@ -1,5 +1,5 @@
 /**
- * GameHeroSection — "Enter the City" — NFT game landing hero
+ * GameHeroSection — Cinematic minimal hero for NFT game landing
  */
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -8,29 +8,20 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Orb } from '@/components/orb/Orb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { cn } from '@/lib/utils';
-
-const ALL_DOMAINS = CORE_DOMAINS;
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
 
-  const stats = [
-    { value: '14', label: isRTL ? 'תחומי חיים' : 'Life Domains' },
-    { value: '100', label: isRTL ? 'ימי תוכנית' : 'Day Plans' },
-    { value: 'P2E', label: isRTL ? 'כלכלה' : 'Economy' },
-  ];
-
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Dark cyberpunk background */}
+      {/* Dark background */}
       <div className="absolute inset-0 bg-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/15 via-primary/5 to-transparent" />
 
       {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-[0.04]">
+      <div className="absolute inset-0 opacity-[0.03]">
         <div
           className="absolute inset-0"
           style={{
@@ -42,17 +33,17 @@ export default function GameHeroSection() {
       </div>
 
       {/* Floating particles */}
-      {[...Array(6)].map((_, i) => (
+      {[...Array(4)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 rounded-full bg-primary/40"
-          style={{ left: `${15 + i * 15}%`, top: `${20 + (i % 3) * 25}%` }}
-          animate={{ y: [-20, 20, -20], opacity: [0.2, 0.6, 0.2] }}
-          transition={{ duration: 4 + i, repeat: Infinity, delay: i * 0.5 }}
+          className="absolute w-1 h-1 rounded-full bg-primary/30"
+          style={{ left: `${20 + i * 20}%`, top: `${25 + (i % 2) * 30}%` }}
+          animate={{ y: [-20, 20, -20], opacity: [0.1, 0.5, 0.1] }}
+          transition={{ duration: 5 + i, repeat: Infinity, delay: i * 0.7 }}
         />
       ))}
 
-      <div className="relative z-10 container mx-auto max-w-6xl px-4 py-12" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="relative z-10 container mx-auto max-w-4xl px-4 py-12" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center space-y-8">
           {/* Badge */}
           <motion.div
@@ -74,121 +65,47 @@ export default function GameHeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1]"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.05]"
           >
             <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               {t('home.gameHero.title')}
             </span>
           </motion.h1>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-          >
-            {t('home.gameHero.subtitle')}
-          </motion.p>
-
-          {/* Central Orb with Orbiting Domains */}
+          {/* Central Orb — large, fast, cinematic */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.3 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5, type: 'spring', stiffness: 100 }}
-            className="relative mx-auto py-8"
+            transition={{ duration: 1.2, delay: 0.4, type: 'spring', stiffness: 80 }}
+            className="relative mx-auto py-6"
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <motion.div
-                className="w-[400px] h-[400px] rounded-full bg-primary/15 blur-[100px]"
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 4, repeat: Infinity }}
+                className="w-[350px] h-[350px] rounded-full bg-primary/15 blur-[100px]"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
+                transition={{ duration: 3, repeat: Infinity }}
               />
             </div>
-
-            <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto">
-              <div className="absolute inset-0 rounded-full border border-primary/20" />
-
-              <motion.div
-                className="absolute inset-0"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-              >
-                {ALL_DOMAINS.map((domain, index) => {
-                  const angle = (index * (360 / ALL_DOMAINS.length)) * (Math.PI / 180);
-                  const radius = 145;
-                  const Icon = domain.icon;
-
-                  return (
-                    <motion.div
-                      key={domain.id}
-                      className={cn(
-                        'absolute w-11 h-11 sm:w-12 sm:h-12 rounded-xl',
-                        'flex items-center justify-center',
-                        'bg-card/90 backdrop-blur-sm border border-border/50',
-                        'shadow-lg hover:scale-110 transition-transform cursor-pointer'
-                      )}
-                      style={{
-                        left: `calc(50% + ${Math.cos(angle) * radius}px - 22px)`,
-                        top: `calc(50% + ${Math.sin(angle) * radius}px - 22px)`,
-                      }}
-                      animate={{ rotate: -360 }}
-                      transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-                      whileHover={{ scale: 1.2 }}
-                      title={isRTL ? domain.labelHe : domain.labelEn}
-                    >
-                      <Icon className={cn('h-5 w-5 sm:h-6 sm:w-6', `text-${domain.color}-500`)} />
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative">
-                  {[1, 2].map((ring) => (
-                    <motion.div
-                      key={ring}
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                    >
-                      <motion.div
-                        className={cn(
-                          'rounded-full border border-primary/40',
-                          ring === 1 ? 'w-44 h-44' : 'w-52 h-52'
-                        )}
-                        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2.5, repeat: Infinity, delay: ring * 0.4 }}
-                      />
-                    </motion.div>
-                  ))}
-                  <div className="relative z-10">
-                    <Orb profile={DEFAULT_ORB_PROFILE} size={200} state="breathing" renderer="css" showGlow />
-                  </div>
-                </div>
-              </div>
+            <div className="relative flex items-center justify-center">
+              {[1, 2].map((ring) => (
+                <motion.div
+                  key={ring}
+                  className="absolute rounded-full border border-primary/20"
+                  style={{ width: ring === 1 ? 280 : 340, height: ring === 1 ? 280 : 340 }}
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity, delay: ring * 0.5 }}
+                />
+              ))}
+              <Orb profile={DEFAULT_ORB_PROFILE} size={220} state="breathing" renderer="css" showGlow />
             </div>
-          </motion.div>
-
-          {/* Stats bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1 }}
-            className="flex items-center justify-center gap-6 sm:gap-10"
-          >
-            {stats.map((s, i) => (
-              <div key={i} className="text-center">
-                <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{s.value}</p>
-                <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
-              </div>
-            ))}
           </motion.div>
 
           {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.3 }}
-            className="flex flex-col items-center gap-4 pt-2"
+            transition={{ duration: 0.6, delay: 1 }}
+            className="flex flex-col items-center gap-4"
           >
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
