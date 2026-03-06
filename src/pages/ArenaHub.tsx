@@ -20,33 +20,31 @@ import { supabase } from '@/integrations/supabase/client';
 
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
-// Fetch missions + milestones for current phase with trait info
-function usePhaseMissions(planIds: string[], currentPhase: number | null) {
+// Fetch missions for plan IDs (separate query to avoid PostgREST join issues)
+function usePlanMissions(planIds: string[]) {
   return useQuery({
-    queryKey: ['phase-missions', planIds, currentPhase],
+    queryKey: ['plan-missions-map', planIds],
     queryFn: async () => {
-      if (!planIds.length || !currentPhase) return [];
+      if (!planIds.length) return {};
 
-      // Get milestones for current phase with mission + trait info
-      const { data: milestones, error } = await supabase
-        .from('life_plan_milestones')
-        .select(`
-          id, title, title_en, focus_area, week_number, is_completed, mission_id,
-          plan_missions!life_plan_milestones_mission_id_fkey (
-            id, title, title_en, pillar, primary_skill_id, mission_number,
-            skills!plan_missions_primary_skill_id_fkey ( id, name, name_en )
-          )
-        `)
-        .in('plan_id', planIds)
-        .eq('week_number', currentPhase)
-        .order('mission_id')
-        .order('id');
+      const { data, error } = await supabase
+        .from('plan_missions')
+        .select('id, title, title_en, pillar, primary_skill_id, mission_number')
+        .in('plan_id', planIds);
 
-      if (error) throw error;
-      return milestones || [];
+      if (error) {
+        console.error('Failed to fetch plan missions:', error);
+        return {};
+      }
+
+      const map: Record<string, typeof data[0]> = {};
+      for (const m of data || []) {
+        map[m.id] = m;
+      }
+      return map;
     },
-    enabled: planIds.length > 0 && !!currentPhase,
-    staleTime: 2 * 60 * 1000,
+    enabled: planIds.length > 0,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
