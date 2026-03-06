@@ -133,29 +133,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         )}
       </div>
 
-
-      {/* ===== MERGED MODALS ===== */}
-      <MergedIdentityModal
-        open={activeModal === 'identity'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-        values={dashboardData.values}
-        principles={dashboardData.principles}
-        selfConcepts={dashboardData.selfConcepts}
-        identityTitle={dashboardData.identityTitle}
-      />
-      <MergedDirectionModal
-        open={activeModal === 'direction'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-        commitments={dashboardData.activeCommitments}
-        anchors={dashboardData.dailyAnchors}
-      />
-      <MergedInsightsModal
-        open={activeModal === 'insights'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-      />
     </div>
   );
 }
