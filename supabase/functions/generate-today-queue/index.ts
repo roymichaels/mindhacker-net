@@ -283,20 +283,29 @@ serve(async (req) => {
       const currentPhases = planPhases.map((p: any) => p.phase);
       const currentDay = planPhases[0]?.day || 1;
 
-      // Fetch current-phase milestones with their missions and traits
-      const { data: milestones } = await supabase
+      // Fetch current-phase milestones (no FK join — mission_id has no FK constraint)
+      const { data: milestones, error: milestoneErr } = await supabase
         .from("life_plan_milestones")
-        .select(`
-          id, title, title_en, focus_area, week_number, is_completed, mission_id, plan_id,
-          plan_missions!life_plan_milestones_mission_id_fkey (
-            id, title, title_en, pillar, primary_skill_id,
-            skills!plan_missions_primary_skill_id_fkey ( id, name, name_en )
-          )
-        `)
+        .select("id, title, title_en, focus_area, week_number, is_completed, mission_id, plan_id")
         .in("plan_id", allPlanIds)
         .in("week_number", [...new Set(currentPhases)])
         .order("mission_id")
         .order("id");
+
+      if (milestoneErr) console.error("Milestone fetch error:", milestoneErr);
+
+      // Fetch missions separately for lineage
+      const missionIds = [...new Set((milestones || []).map((m: any) => m.mission_id).filter(Boolean))];
+      let missionLookup: Record<string, any> = {};
+      if (missionIds.length > 0) {
+        const { data: missions } = await supabase
+          .from("plan_missions")
+          .select("id, title, title_en, pillar, primary_skill_id")
+          .in("id", missionIds);
+        for (const m of (missions || [])) {
+          missionLookup[m.id] = m;
+        }
+      }
 
       // Fetch mini_milestones for these milestones (today's scheduled actions)
       const milestoneIds = (milestones || []).map((m: any) => m.id);
