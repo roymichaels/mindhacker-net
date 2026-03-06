@@ -299,7 +299,6 @@ function distributeMilestonesToDays(
 
   return dayActions.flat();
 }
-    }
 
     const days = buildDayPlans(dayMap, phaseDates, todayStr);
 
