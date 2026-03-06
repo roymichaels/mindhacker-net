@@ -53,6 +53,10 @@ interface MilestoneView {
   title: string;
   title_en: string | null;
   is_completed: boolean;
+  difficulty: number;
+  description: string | null;
+  description_en: string | null;
+  focus_area: string | null;
 }
 
 interface PillarGroup {
