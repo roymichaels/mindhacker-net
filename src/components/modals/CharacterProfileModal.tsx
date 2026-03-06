@@ -109,69 +109,57 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 
       <div className="flex-1 overflow-y-auto">
         {/* ═══════ HEADER: Character Identity ═══════ */}
-        <div className="relative pt-8 pb-4 px-4 flex flex-col items-center text-center">
+        <div className="relative pt-8 pb-3 px-4 flex flex-col items-center text-center">
           <div
             className="absolute top-6 w-28 h-28 rounded-full blur-3xl opacity-30"
             style={{ background: profile.primaryColor || 'hsl(var(--primary))' }}
           />
           <div className="relative">
-            <PersonalizedOrb size={72} state="idle" />
+            <PersonalizedOrb size={64} state="idle" />
           </div>
 
           {/* Identity title */}
-          <div className="mt-3 space-y-1">
+          <div className="mt-2 space-y-0.5">
             {dashboard.identityTitle && (
               <div className="flex items-center justify-center gap-1.5">
-                <span className="text-lg">{dashboard.identityTitle.icon}</span>
-                <h2 className="text-base font-bold text-foreground">
+                <span className="text-base">{dashboard.identityTitle.icon}</span>
+                <h2 className="text-sm font-bold text-foreground">
                   {isHe ? dashboard.identityTitle.title : dashboard.identityTitle.titleEn}
                 </h2>
               </div>
             )}
-            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground">
               <span>{archetypeIcon}</span>
               <span className="font-medium">{archetypeName}</span>
             </div>
           </div>
 
-          {/* Badges row */}
-          <div className="flex items-center gap-2 mt-3">
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
-              <Star className="h-3 w-3" /> Lv.{xp.level}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-              <Zap className="h-3 w-3" /> {tokens.balance}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
-              <Flame className="h-3 w-3" /> {streak.streak}
-            </span>
-          </div>
-
-          {/* XP bar */}
-          <div className="w-full max-w-xs mt-3 space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>EXP {xp.current ?? 0} / {xp.required ?? 100}</span>
-              <span>{xp.percentage}%</span>
+          {/* Compact stat row: Level + XP bar + Streak + Tokens */}
+          <div className="w-full max-w-xs mt-3 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
+                <Star className="h-2.5 w-2.5" /> Lv.{xp.level}
+              </span>
+              <div className="flex-1">
+                <Progress value={xp.percentage} className="h-1.5 bg-muted/50" />
+              </div>
+              <span className="text-[9px] text-muted-foreground tabular-nums">{xp.current}/{xp.required}</span>
             </div>
-            <Progress value={xp.percentage} className="h-1.5 bg-muted/50" />
-          </div>
-
-          {/* Traits button */}
-          <button
-            onClick={() => setTraitsOpen(true)}
-            className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-muted/40 border border-border/40 hover:bg-muted/60 active:scale-[0.97] transition-all text-xs font-semibold text-foreground"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            {isHe ? 'גלריית תכונות' : 'Trait Gallery'}
-          </button>
-
-          {/* Streak indicators */}
-          <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-            <span className={cn(streak.isActiveToday ? 'text-primary font-bold' : '')}>
-              {isHe ? 'היום' : 'Today'} {streak.isActiveToday ? '✓' : '○'}
-            </span>
-            <span>|</span>
-            <span>{isHe ? 'שבוע' : 'Week'}: {streak.streak}🔥</span>
+            <div className="flex items-center justify-center gap-3">
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-400">
+                <Zap className="h-2.5 w-2.5" /> {tokens.balance}
+              </span>
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-destructive">
+                <Flame className="h-2.5 w-2.5" /> {streak.streak}{streak.isActiveToday ? ' ✓' : ''}
+              </span>
+              <button
+                onClick={() => setTraitsOpen(true)}
+                className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+              >
+                <Sparkles className="w-2.5 h-2.5" />
+                {isHe ? 'תכונות' : 'Traits'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -269,7 +257,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 }) {
   const { user } = useAuth();
   const [archetypeData, setArchetypeData] = useState<any>(null);
-  const [diagnosticScores, setDiagnosticScores] = useState<Array<{ key: string; label: string; labelEn: string; value: number; icon: typeof Zap; color: string; bgColor: string }>>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -287,14 +274,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
           if (sd.identity_profile?.archetype) {
             setArchetypeData(sd.identity_profile.archetype);
           }
-          const diag = sd.diagnostics || sd.diagnostic_scores || {};
-          setDiagnosticScores([
-            { key: 'energy', label: 'אנרגיה', labelEn: 'Energy', value: diag.energy_stability?.score ?? 0, icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-            { key: 'recovery', label: 'ריקברי', labelEn: 'Recovery', value: diag.recovery_debt?.score ?? 0, icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-            { key: 'dopamine', label: 'דופמין', labelEn: 'Dopamine', value: diag.dopamine_load?.score ?? 0, icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-            { key: 'execution', label: 'ביצוע', labelEn: 'Execution', value: diag.execution_reliability?.score ?? 0, icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-            { key: 'time', label: 'זמן', labelEn: 'Time', value: diag.time_leverage?.score ?? 0, icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-          ]);
         }
       } catch {}
     }
@@ -302,7 +281,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
   }, [user]);
 
   const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
-  const getScoreColor = (s: number) => s >= 75 ? 'text-green-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
 
   return (
     <div className="space-y-3">
@@ -321,50 +299,6 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
             </div>
           </div>
           <p className="text-xs text-foreground leading-relaxed line-clamp-3">{lifeDirection.content}</p>
-        </div>
-      )}
-
-      {/* ── Diagnostics as compact grid (merged from Insights) ── */}
-      {isOwner && diagnosticScores.length > 0 && (
-        <div>
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-            {isHe ? 'אבחון' : 'Diagnostics'}
-          </h4>
-          <div className="grid grid-cols-5 gap-1.5">
-            {diagnosticScores.map((score) => {
-              const Icon = score.icon;
-              return (
-                <div key={score.key} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-border/30 bg-card/50">
-                  <div className={cn("p-1 rounded-md", score.bgColor)}>
-                    <Icon className={cn("w-3 h-3", score.color)} />
-                  </div>
-                  <span className={cn("text-sm font-bold tabular-nums", getScoreColor(score.value))}>{score.value}</span>
-                  <span className="text-[8px] text-muted-foreground text-center leading-tight">{isHe ? score.label : score.labelEn}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ── Stats summary grid (merged from Insights) ── */}
-      {isOwner && (
-        <div className="grid grid-cols-4 gap-1.5">
-          {[
-            { label: isHe ? 'רמה' : 'Lv', value: dashboard.level, icon: Trophy, color: 'text-amber-500' },
-            { label: isHe ? 'רצף' : 'Streak', value: dashboard.streak, icon: Flame, color: 'text-orange-500' },
-            { label: isHe ? 'סשנים' : 'Sess', value: dashboard.totalSessions, icon: Zap, color: 'text-blue-500' },
-            { label: isHe ? 'טוקנים' : 'Tokens', value: dashboard.tokens, icon: BarChart3, color: 'text-emerald-500' },
-          ].map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="flex flex-col items-center gap-0.5 p-2 rounded-xl bg-muted/30 border border-border/30">
-                <Icon className={cn("w-3.5 h-3.5", stat.color)} />
-                <p className="text-sm font-bold tabular-nums">{stat.value}</p>
-                <p className="text-[8px] text-muted-foreground">{stat.label}</p>
-              </div>
-            );
-          })}
         </div>
       )}
 
