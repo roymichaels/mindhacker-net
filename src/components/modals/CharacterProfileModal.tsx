@@ -96,67 +96,80 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   return (
     <div
       role="dialog"
-      className="fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden"
+      className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
+      style={{ background: 'linear-gradient(180deg, hsl(220 25% 6%) 0%, hsl(225 20% 10%) 40%, hsl(220 25% 6%) 100%)' }}
     >
       {/* Close button */}
       <button
         onClick={() => onOpenChange(false)}
-        className="absolute top-4 end-4 z-10 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+        className="absolute top-4 end-4 z-10 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-sm"
       >
-        <X className="w-5 h-5 text-foreground" />
+        <X className="w-5 h-5 text-white/70" />
       </button>
 
-      <div className="flex-1 overflow-y-auto">
-        {/* ═══════ HEADER: Character Identity ═══════ */}
-        <div className="relative pt-8 pb-3 px-4 flex flex-col items-center text-center">
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        {/* ═══════ HEADER: Royal Character Card ═══════ */}
+        <div className="relative pt-10 pb-5 px-4 flex flex-col items-center text-center">
+          {/* Background glow */}
           <div
-            className="absolute top-6 w-28 h-28 rounded-full blur-3xl opacity-30"
-            style={{ background: profile.primaryColor || 'hsl(var(--primary))' }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-[100px] opacity-20"
+            style={{ background: profile.primaryColor || 'hsl(35 80% 50%)' }}
           />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-[60px] opacity-10 bg-amber-400" />
+
+          {/* Orb with gold ring */}
           <div className="relative">
-            <PersonalizedOrb size={64} state="idle" />
+            <div className="absolute -inset-2 rounded-full border border-amber-500/30" style={{ boxShadow: '0 0 20px hsla(35, 80%, 50%, 0.15)' }} />
+            <PersonalizedOrb size={72} state="idle" />
           </div>
 
           {/* Identity title */}
-          <div className="mt-2 space-y-0.5">
+          <div className="mt-4 space-y-1">
             {dashboard.identityTitle && (
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="text-base">{dashboard.identityTitle.icon}</span>
-                <h2 className="text-sm font-bold text-foreground">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">{dashboard.identityTitle.icon}</span>
+                <h2 className="text-lg font-bold text-white tracking-wide">
                   {isHe ? dashboard.identityTitle.title : dashboard.identityTitle.titleEn}
                 </h2>
               </div>
             )}
-            <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground">
-              <span>{archetypeIcon}</span>
-              <span className="font-medium">{archetypeName}</span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-amber-400/80 text-sm">{archetypeIcon}</span>
+              <span className="text-xs font-medium text-amber-400/60 uppercase tracking-[0.15em]">{archetypeName}</span>
             </div>
           </div>
 
-          {/* Compact stat row: Level + XP bar + Streak + Tokens */}
-          <div className="w-full max-w-xs mt-3 space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
-                <Star className="h-2.5 w-2.5" /> Lv.{xp.level}
+          {/* Level + XP — premium bar */}
+          <div className="w-full max-w-[280px] mt-4 space-y-2">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 border border-amber-500/20">
+                <Star className="h-3 w-3 fill-amber-400" /> Lv.{xp.level}
               </span>
-              <div className="flex-1">
-                <Progress value={xp.percentage} className="h-1.5 bg-muted/50" />
+              <div className="flex-1 h-2 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg, hsl(35 80% 50%), hsl(45 90% 55%))' }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${xp.percentage}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                />
               </div>
-              <span className="text-[9px] text-muted-foreground tabular-nums">{xp.current}/{xp.required}</span>
+              <span className="text-[10px] text-white/30 tabular-nums font-mono">{xp.current}/{xp.required}</span>
             </div>
-            <div className="flex items-center justify-center gap-3">
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-400">
-                <Zap className="h-2.5 w-2.5" /> {tokens.balance}
+
+            <div className="flex items-center justify-center gap-4">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400">
+                <Zap className="h-3 w-3" /> {tokens.balance}
               </span>
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-destructive">
-                <Flame className="h-2.5 w-2.5" /> {streak.streak}{streak.isActiveToday ? ' ✓' : ''}
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-400">
+                <Flame className="h-3 w-3" /> {streak.streak}{streak.isActiveToday ? ' ✓' : ''}
               </span>
               <button
                 onClick={() => setTraitsOpen(true)}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
               >
-                <Sparkles className="w-2.5 h-2.5" />
+                <Sparkles className="w-3 h-3" />
                 {isHe ? 'תכונות' : 'Traits'}
               </button>
             </div>
@@ -164,7 +177,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         </div>
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
-        <div className="pb-24">
+        <div className="pb-24 px-4">
           <ProfileTab
             isHe={isHe}
             language={language}
@@ -178,7 +191,50 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 }
 
 // ═══════════════════════════════════════════════
-// STAT WHEEL — compact row of pillar score circles
+// EMPIRE CARD — reusable prestige card wrapper
+// ═══════════════════════════════════════════════
+function EmpireCard({ children, className, glow }: { children: React.ReactNode; className?: string; glow?: string }) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-white/[0.06] p-4",
+        "bg-gradient-to-br from-white/[0.04] to-white/[0.01]",
+        "backdrop-blur-sm",
+        className,
+      )}
+      style={glow ? { boxShadow: `0 0 30px ${glow}, inset 0 1px 0 rgba(255,255,255,0.04)` } : { boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function SectionTitle({ icon, title, accentColor }: { icon: React.ReactNode; title: string; accentColor?: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <div className={cn("p-1.5 rounded-lg", accentColor || "bg-amber-500/10")} >
+        {icon}
+      </div>
+      <h4 className="text-sm font-bold text-white/90 tracking-wide">{title}</h4>
+    </div>
+  );
+}
+
+function EmpireBadge({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'gold' | 'glass' }) {
+  const styles = {
+    default: 'bg-white/[0.06] text-white/70 border-white/[0.08]',
+    gold: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    glass: 'bg-white/[0.04] text-white/50 border-white/[0.06]',
+  };
+  return (
+    <span className={cn("text-xs font-medium px-2.5 py-1 rounded-lg border inline-block", styles[variant])}>
+      {children}
+    </span>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// STAT WHEEL — gold-ringed diagnostic circles
 // ═══════════════════════════════════════════════
 function StatWheel({ isHe }: { isHe: boolean }) {
   const { user } = useAuth();
@@ -222,30 +278,39 @@ function StatWheel({ isHe }: { isHe: boolean }) {
   if (scores.length === 0) return null;
 
   return (
-    <div className="flex items-center justify-around px-5 py-4 border-t border-border/40">
-      {scores.map((s) => (
-        <div key={s.key} className="flex flex-col items-center gap-1.5">
-          <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold border-2"
-            style={{
-              borderColor: `hsl(${s.color})`,
-              color: `hsl(${s.color})`,
-              backgroundColor: `hsla(${s.color}, 0.08)`,
-            }}
+    <EmpireCard className="mb-3">
+      <div className="flex items-center justify-around">
+        {scores.map((s, i) => (
+          <motion.div
+            key={s.key}
+            className="flex flex-col items-center gap-1.5"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.08 }}
           >
-            {s.score}
-          </div>
-          <span className="text-xs text-muted-foreground font-medium">
-            {isHe ? labels[s.key]?.he : labels[s.key]?.en}
-          </span>
-        </div>
-      ))}
-    </div>
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold border-2"
+              style={{
+                borderColor: `hsl(${s.color})`,
+                color: `hsl(${s.color})`,
+                background: `radial-gradient(circle, hsla(${s.color}, 0.08) 0%, transparent 70%)`,
+                boxShadow: `0 0 12px hsla(${s.color}, 0.15)`,
+              }}
+            >
+              {s.score}
+            </div>
+            <span className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
+              {isHe ? labels[s.key]?.he : labels[s.key]?.en}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </EmpireCard>
   );
 }
 
 // ═══════════════════════════════════════════════
-// PROFILE TAB — Clean flat sections with dividers
+// PROFILE TAB — Empire-style categorized sections
 // ═══════════════════════════════════════════════
 function ProfileTab({ isHe, language, dashboard, isOwner }: {
   isHe: boolean; language: string;
@@ -279,132 +344,118 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
   const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
 
-  // Collect all sections — render as flat rows with dividers
-  const sections: Array<{ title: string; content: React.ReactNode }> = [];
-
-  // Life Direction
-  if (lifeDirection) {
-    sections.push({
-      title: isHe ? 'כיוון חיים' : 'Life Direction',
-      content: (
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Compass className="w-4 h-4 text-primary shrink-0" />
-            <div className="flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className={cn("w-3 h-3", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-primary text-primary" : "text-muted-foreground/20")} />
-              ))}
-            </div>
-          </div>
-          <p className="text-sm text-foreground/80 leading-relaxed">{lifeDirection.content}</p>
-        </div>
-      ),
-    });
-  }
-
-  // Daily Anchors
-  if (anchors.length > 0) {
-    sections.push({
-      title: isHe ? 'עוגנים יומיים' : 'Daily Anchors',
-      content: (
-        <div className="flex flex-wrap gap-1.5">
-          {anchors.map((a) => (
-            <Badge key={a.id} variant="secondary" className="text-xs px-2.5 py-1">{a.title}</Badge>
-          ))}
-        </div>
-      ),
-    });
-  }
-
-  // Values
-  if (dashboard.values.length > 0) {
-    sections.push({
-      title: isHe ? 'ערכים' : 'Values',
-      content: (
-        <div className="flex flex-wrap gap-1.5">
-          {dashboard.values.map((v, i) => (
-            <Badge key={i} variant="secondary" className="text-xs px-2.5 py-1">{v}</Badge>
-          ))}
-        </div>
-      ),
-    });
-  }
-
-  // Commitments
-  if (commitments.length > 0) {
-    sections.push({
-      title: isHe ? 'מחויבויות' : 'Commitments',
-      content: (
-        <div className="space-y-2">
-          {commitments.slice(0, 4).map((c) => (
-            <div key={c.id} className="flex items-center gap-2">
-              <Target className="w-3.5 h-3.5 text-primary shrink-0" />
-              <p className="text-sm text-foreground">{c.title}</p>
-            </div>
-          ))}
-        </div>
-      ),
-    });
-  }
-
-  // Principles
-  if (dashboard.principles.length > 0) {
-    sections.push({
-      title: isHe ? 'עקרונות' : 'Principles',
-      content: (
-        <div className="flex flex-wrap gap-1.5">
-          {dashboard.principles.map((p, i) => (
-            <Badge key={i} variant="outline" className="text-xs px-2.5 py-1">{p}</Badge>
-          ))}
-        </div>
-      ),
-    });
-  }
-
-  // Self Concepts
-  if (dashboard.selfConcepts.length > 0) {
-    sections.push({
-      title: isHe ? 'תפיסות עצמיות' : 'Self Concepts',
-      content: (
-        <div className="flex flex-wrap gap-1.5">
-          {dashboard.selfConcepts.map((s, i) => (
-            <Badge key={i} variant="outline" className="text-xs px-2.5 py-1 bg-primary/5">{s}</Badge>
-          ))}
-        </div>
-      ),
-    });
-  }
-
   return (
-    <div>
+    <div className="space-y-3">
       {/* Stat Wheel */}
       <StatWheel isHe={isHe} />
 
-      {/* Flat sections with dividers */}
-      {sections.map((section, i) => (
-        <div key={i} className="border-t border-border/40">
-          <div className="px-5 py-4">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
-              {section.title}
-            </h4>
-            {section.content}
+      {/* ── KINGDOM: Life Direction ── */}
+      {lifeDirection && (
+        <EmpireCard glow="hsla(35, 80%, 50%, 0.06)">
+          <SectionTitle
+            icon={<Compass className="w-4 h-4 text-amber-400" />}
+            title={isHe ? 'כיוון חיים' : 'Life Direction'}
+            accentColor="bg-amber-500/10"
+          />
+          <div className="flex gap-0.5 mb-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-white/10")} />
+            ))}
           </div>
-        </div>
-      ))}
+          <p className="text-sm text-white/60 leading-relaxed">{lifeDirection.content}</p>
+        </EmpireCard>
+      )}
 
-      {/* Archetype traits */}
+      {/* ── IDENTITY: Values + Self Concepts (merged) ── */}
+      {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
+        <EmpireCard>
+          <SectionTitle
+            icon={<UserCircle className="w-4 h-4 text-purple-400" />}
+            title={isHe ? 'זהות וערכים' : 'Identity & Values'}
+            accentColor="bg-purple-500/10"
+          />
+          {dashboard.values.length > 0 && (
+            <div className="mb-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'ערכים' : 'Values'}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {dashboard.values.map((v, i) => (
+                  <EmpireBadge key={i} variant="gold">{v}</EmpireBadge>
+                ))}
+              </div>
+            </div>
+          )}
+          {dashboard.selfConcepts.length > 0 && (
+            <div>
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {dashboard.selfConcepts.map((s, i) => (
+                  <EmpireBadge key={i} variant="glass">{s}</EmpireBadge>
+                ))}
+              </div>
+            </div>
+          )}
+        </EmpireCard>
+      )}
+
+      {/* ── DISCIPLINES: Anchors + Principles (merged) ── */}
+      {(anchors.length > 0 || dashboard.principles.length > 0) && (
+        <EmpireCard>
+          <SectionTitle
+            icon={<Activity className="w-4 h-4 text-cyan-400" />}
+            title={isHe ? 'משמעת וסדר' : 'Disciplines & Order'}
+            accentColor="bg-cyan-500/10"
+          />
+          {anchors.length > 0 && (
+            <div className="mb-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'עוגנים יומיים' : 'Daily Anchors'}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {anchors.map((a) => (
+                  <EmpireBadge key={a.id}>{a.title}</EmpireBadge>
+                ))}
+              </div>
+            </div>
+          )}
+          {dashboard.principles.length > 0 && (
+            <div>
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'עקרונות' : 'Principles'}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {dashboard.principles.map((p, i) => (
+                  <EmpireBadge key={i}>{p}</EmpireBadge>
+                ))}
+              </div>
+            </div>
+          )}
+        </EmpireCard>
+      )}
+
+      {/* ── MISSIONS: Commitments ── */}
+      {commitments.length > 0 && (
+        <EmpireCard glow="hsla(204, 88%, 53%, 0.05)">
+          <SectionTitle
+            icon={<Target className="w-4 h-4 text-primary" />}
+            title={isHe ? 'מחויבויות' : 'Active Commitments'}
+            accentColor="bg-primary/10"
+          />
+          <div className="space-y-2">
+            {commitments.slice(0, 4).map((c) => (
+              <div key={c.id} className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                <p className="text-sm text-white/70 font-medium">{c.title}</p>
+              </div>
+            ))}
+          </div>
+        </EmpireCard>
+      )}
+
+      {/* ── Archetype traits ── */}
       {archetypeData && (
-        <div className="border-t border-border/40 px-5 py-4">
+        <EmpireCard>
           <TraitsCard archetypeData={archetypeData} />
-        </div>
+        </EmpireCard>
       )}
 
-      {/* AI Analysis */}
-      {isOwner && (
-        <div className="border-t border-border/40 px-5 py-4">
-          <AIAnalysisDisplay language={language} />
-        </div>
-      )}
+      {/* ── AI Analysis ── */}
+      {isOwner && <AIAnalysisDisplay language={language} />}
     </div>
   );
 }
