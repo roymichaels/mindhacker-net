@@ -4,16 +4,17 @@
  * Roadmap section shows the FULL 100-day plan (all 10 phases A-J).
  */
 import { useState, useMemo } from 'react';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { supabase } from '@/integrations/supabase/client';
 
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const TOTAL_PHASES = 10;
