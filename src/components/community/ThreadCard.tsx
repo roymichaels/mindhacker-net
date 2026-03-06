@@ -141,8 +141,8 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
         </div>
       </div>
 
-      {/* Pillar badge */}
-      {domain && (
+      {/* Pillar badge — hide for system posts (no pillar) */}
+      {domain && thread.pillar && (
         <div className="mb-1.5">
           <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/30 text-primary/80">
             {PILLAR_ICONS[pillar]} {isHe ? domain.labelHe : domain.labelEn}
