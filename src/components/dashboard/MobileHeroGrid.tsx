@@ -14,7 +14,7 @@ import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, CheckCircle2, Circle, MapPin, Sparkles, Clock, Calendar } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, CheckCircle2, Circle, MapPin, Sparkles, Clock, Calendar, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface MobileHeroGridProps {
