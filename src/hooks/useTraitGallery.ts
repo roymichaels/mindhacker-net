@@ -1,7 +1,8 @@
 /**
  * useTraitGallery — Fetches trait-based skills for the gallery view.
- * Traits are identity abilities (trait_type='trait') linked to pillars.
- * Falls back to legacy mission-based skills for old plans.
+ * CRITICAL: Card titles come ONLY from skills.name / skills.name_he.
+ * Never from plan_missions.title or any mission fallback.
+ * Legacy names are sanitized client-side via traitNameSanitizer.
  */
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
