@@ -211,7 +211,7 @@ function EmpireCard({ children, className, glow }: { children: React.ReactNode; 
 
 function SectionTitle({ icon, title, accentColor }: { icon: React.ReactNode; title: string; accentColor?: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
+    <div className="flex items-center justify-center gap-2 mb-3">
       <div className={cn("p-1.5 rounded-lg", accentColor || "bg-amber-500/10")} >
         {icon}
       </div>
