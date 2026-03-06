@@ -938,6 +938,19 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             {/* ======== STEP BY STEP (SEQUENTIAL + TIMED) ======== */}
             {template === 'step_by_step' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2.5">
+                {steps.length === 0 && isEnhancing && (
+                  <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      {isRTL ? 'מייצר את הצעדים שלך...' : 'Generating your steps...'}
+                    </p>
+                  </div>
+                )}
+                {steps.length === 0 && !isEnhancing && (
+                  <div className="text-center py-8 text-sm text-muted-foreground">
+                    {isRTL ? 'לחץ השלם כשסיימת' : 'Press complete when done'}
+                  </div>
+                )}
                 {steps.map((step, idx) => {
                   const isCurrent = idx === activeStepIndex;
                   const isCompleted = checkedSteps.has(idx);
