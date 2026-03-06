@@ -295,7 +295,7 @@ export function useStrategyPlans() {
     arenaWeek: arenaPlan ? getCurrentWeek(arenaPlan.start_date) : null,
     hasAnyStrategy: !!(corePlan || arenaPlan),
     isLoading: query.isLoading,
-    isHealing: query.data?._needsHeal || query.data?._legacyFound || false,
+    isHealing: query.data?._legacyFound || false,
     generateStrategy,
     isGenerating: generateStrategy.isPending,
   };
