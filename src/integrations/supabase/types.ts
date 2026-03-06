@@ -6084,6 +6084,7 @@ export type Database = {
           mission_number: number
           pillar: string
           plan_id: string
+          primary_skill_id: string | null
           title: string
           title_en: string | null
           updated_at: string | null
@@ -6099,6 +6100,7 @@ export type Database = {
           mission_number: number
           pillar: string
           plan_id: string
+          primary_skill_id?: string | null
           title: string
           title_en?: string | null
           updated_at?: string | null
@@ -6114,6 +6116,7 @@ export type Database = {
           mission_number?: number
           pillar?: string
           plan_id?: string
+          primary_skill_id?: string | null
           title?: string
           title_en?: string | null
           updated_at?: string | null
@@ -6125,6 +6128,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_missions_primary_skill_id_fkey"
+            columns: ["primary_skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
         ]
@@ -7440,9 +7450,12 @@ export type Database = {
           icon: string
           id: string
           is_active: boolean
+          life_plan_id: string | null
           mission_id: string | null
           name: string
           name_he: string | null
+          pillar: string | null
+          trait_type: string | null
           user_id: string | null
         }
         Insert: {
@@ -7452,9 +7465,12 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
+          life_plan_id?: string | null
           mission_id?: string | null
           name: string
           name_he?: string | null
+          pillar?: string | null
+          trait_type?: string | null
           user_id?: string | null
         }
         Update: {
@@ -7464,12 +7480,22 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
+          life_plan_id?: string | null
           mission_id?: string | null
           name?: string
           name_he?: string | null
+          pillar?: string | null
+          trait_type?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "skills_life_plan_id_fkey"
+            columns: ["life_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "skills_mission_id_fkey"
             columns: ["mission_id"]
