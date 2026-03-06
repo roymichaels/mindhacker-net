@@ -16,7 +16,6 @@ import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
 import { usePhaseActions } from '@/hooks/usePhaseActions';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
