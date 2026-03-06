@@ -191,10 +191,12 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
                 <h3 className="text-base font-bold mt-1 break-words">
                   {isRTL ? filteredNextAction.title : filteredNextAction.titleEn}
                 </h3>
-                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                  <Clock className="h-3 w-3" />
-                  {filteredNextAction.durationMin} {t('today.minutesShort')}
-                </span>
+                {filteredNextAction.isTimeBased && (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                    <Clock className="h-3 w-3" />
+                    {filteredNextAction.durationMin} {t('today.minutesShort')}
+                  </span>
+                )}
               </div>
               <Button
                 size="sm"

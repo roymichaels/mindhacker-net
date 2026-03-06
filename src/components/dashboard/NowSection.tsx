@@ -129,10 +129,12 @@ export function NowSection() {
                 <PillarBadge pillarId={nextAction.pillarId} hub={nextAction.hub} />
                 <h3 className="text-base font-bold mt-1 break-words">{nextAction.title}</h3>
                 <div className="flex items-center gap-3 mt-1.5">
-                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    {nextAction.durationMin} {language === 'he' ? 'דקות' : 'min'}
-                  </span>
+                  {nextAction.isTimeBased && (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {nextAction.durationMin} {language === 'he' ? 'דקות' : 'min'}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground/60">{nextAction.reason}</span>
                 </div>
               </div>
