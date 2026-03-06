@@ -673,6 +673,19 @@ export default function LifeHub() {
         onOpenChange={setWizardOpen}
         onPlanGenerated={handlePlanGenerated}
       />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyMilestone?.id || null}
+        milestoneTitle={isHe ? (journeyMilestone?.title || '') : (journeyMilestone?.title_en || journeyMilestone?.title || '')}
+        milestoneDescription={isHe ? (journeyMilestone?.description || undefined) : (journeyMilestone?.description_en || journeyMilestone?.description || undefined)}
+        focusArea={journeyMilestone?.focus_area || undefined}
+        durationMinutes={30}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['strategy-milestones'] });
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        }}
+      />
     </div>
   );
 }
