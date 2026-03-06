@@ -285,15 +285,26 @@ const ORB_FRAGMENT_SHADER = `
     return bands * 0.5 + 0.5;
   }
 
-  // Sample multi-stop gradient
+  // Sample multi-stop gradient — uses explicit if/else to avoid dynamic array indexing
+  // (dynamic indexing can silently fail on some WebGL implementations)
+  vec3 getColor(int i) {
+    if (i <= 0) return u_colors[0];
+    if (i == 1) return u_colors[1];
+    if (i == 2) return u_colors[2];
+    if (i == 3) return u_colors[3];
+    if (i == 4) return u_colors[4];
+    if (i == 5) return u_colors[5];
+    return u_colors[6];
+  }
+
   vec3 sampleGradient(float t) {
     t = clamp(t, 0.0, 1.0);
     if (u_colorCount <= 1) return u_colors[0];
     float scaledT = t * float(u_colorCount - 1);
     int idx = int(floor(scaledT));
     float frac = fract(scaledT);
-    if (idx >= u_colorCount - 1) return u_colors[u_colorCount - 1];
-    return mix(u_colors[idx], u_colors[idx + 1], frac);
+    if (idx >= u_colorCount - 1) return getColor(u_colorCount - 1);
+    return mix(getColor(idx), getColor(idx + 1), frac);
   }
 
   void main() {
