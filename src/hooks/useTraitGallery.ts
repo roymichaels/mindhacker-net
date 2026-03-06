@@ -53,10 +53,10 @@ export function useTraitGallery() {
     queryFn: async (): Promise<TraitCard[]> => {
       if (!user?.id) return [];
 
-      // Get all user skills with progress
+      // Get all user skills — ONLY from skills table, never missions
       const { data: skills, error: skillsErr } = await supabase
         .from('skills')
-        .select('id, name, name_he, description, icon, category, pillar, mission_id, trait_type')
+        .select('id, name, name_he, description, icon, category, pillar, trait_type')
         .eq('user_id', user.id)
         .eq('is_active', true);
 
