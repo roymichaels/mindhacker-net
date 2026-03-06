@@ -132,14 +132,6 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
                 ? 'בחר עמודים ואבחן אותם לפני יצירת התוכנית'
                 : 'Select pillars and assess them before creating your plan'}
             </p>
-            {!isApex && (
-              <div className={cn(
-                "inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium",
-                selectedCount >= totalLimit ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-              )}>
-                {selectedCount}/{totalLimit}
-              </div>
-            )}
           </div>
 
           {/* Progress bar */}
