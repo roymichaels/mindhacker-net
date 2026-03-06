@@ -627,6 +627,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     fillLight.position.set(-1, 0.5, -1);
     scene.add(ambient);
     scene.add(dirLight);
+    scene.add(fillLight);
 
     // === SOLID MESH with ShaderMaterial ===
     const outerGeo = createGeometry(geometryTypes.outer, 0.45, geometryDetail);
