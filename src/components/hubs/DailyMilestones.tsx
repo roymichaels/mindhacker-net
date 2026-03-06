@@ -214,8 +214,13 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     }
 
     const hubType = CORE_DOMAINS.some(d => d.id === dm.pillarId) ? 'core' : 'arena';
-    setExecutionAction({
-      pillarId: dm.pillarId,
+    if (nowItem.milestoneId) {
+      setJourneyAction(nowItem);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(nowItem);
+      setExecutionOpen(true);
+    }
       hub: hubType,
       actionType: dm.pillarId,
       title: dm.milestoneTitle,

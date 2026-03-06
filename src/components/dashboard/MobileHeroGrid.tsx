@@ -279,6 +279,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         action={executionAction}
         onComplete={() => refetch()}
       />
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.milestoneId || null}
+        milestoneTitle={journeyAction ? (isHe ? journeyAction.title : journeyAction.titleEn) : ''}
+        focusArea={journeyAction?.pillarId || undefined}
+        durationMinutes={journeyAction?.durationMin || 30}
+        onComplete={() => refetch()}
+      />
     </div>
   );
 }
