@@ -1,7 +1,8 @@
 /**
  * SkillsModal — Trait Gallery with NFT-style card grid.
- * Shows character traits as visual cards with XP rings.
+ * Shows character traits as visual cards.
  * Clicking a trait opens its detail panel with missions/milestones.
+ * NO LV/XP display — traits use mission/milestone progress instead.
  */
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
@@ -17,8 +18,6 @@ interface SkillsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const XP_PER_LEVEL = 100;
 
 export function SkillsModal({ open, onOpenChange }: SkillsModalProps) {
   const { language } = useTranslation();
@@ -103,7 +102,7 @@ function TraitGalleryView({
   );
 }
 
-// ========== Single Trait Card (NFT Style) ==========
+// ========== Single Trait Card (Clean Style — No LV/XP) ==========
 function TraitCardComponent({
   trait,
   isHe,
@@ -116,10 +115,7 @@ function TraitCardComponent({
   onClick: () => void;
 }) {
   const pillarColor = PILLAR_COLORS[trait.pillar] || '200 70% 50%';
-  // CRITICAL: Always use sanitized displayName, never raw name
   const displayName = isHe ? trait.displayName : getTraitDisplayName(trait.name, trait.name_he, false);
-  const circumference = 2 * Math.PI * 38; // radius 38
-  const strokeDashoffset = circumference - (trait.xp_progress / 100) * circumference;
 
   return (
     <motion.button
@@ -129,7 +125,7 @@ function TraitCardComponent({
       onClick={onClick}
       className={cn(
         "relative aspect-square rounded-2xl border border-border/40 p-3",
-        "flex flex-col items-center justify-center gap-1",
+        "flex flex-col items-center justify-center gap-1.5",
         "transition-all duration-300 cursor-pointer group",
         "hover:scale-[1.04] hover:shadow-lg active:scale-[0.98]",
         "bg-card/60 backdrop-blur-sm",
@@ -146,62 +142,29 @@ function TraitCardComponent({
         }}
       />
 
-      {/* XP Progress Ring */}
-      <div className="relative w-16 h-16 sm:w-20 sm:h-20">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
-          {/* Background ring */}
-          <circle
-            cx="40" cy="40" r="38"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            className="text-muted/30"
-          />
-          {/* Progress ring */}
-          <circle
-            cx="40" cy="40" r="38"
-            fill="none"
-            strokeWidth="3"
-            strokeLinecap="round"
-            style={{
-              stroke: `hsl(${pillarColor})`,
-              strokeDasharray: circumference,
-              strokeDashoffset,
-              transition: 'stroke-dashoffset 0.8s ease-out',
-            }}
-          />
-        </svg>
-        {/* Icon in center */}
-        <span className="absolute inset-0 flex items-center justify-center text-2xl sm:text-3xl">
-          {trait.icon}
-        </span>
-      </div>
+      {/* Icon */}
+      <span className="text-3xl sm:text-4xl">{trait.icon}</span>
 
       {/* Trait name */}
       <span className="text-[11px] sm:text-xs font-bold text-foreground text-center leading-tight line-clamp-2 mt-0.5 min-h-[2.2em]">
         {displayName || (isHe ? 'תכונה' : 'Trait')}
       </span>
 
-      {/* Level badge */}
+      {/* Pillar badge */}
       <span
-        className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full"
+        className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
         style={{
           backgroundColor: `hsla(${pillarColor}, 0.15)`,
           color: `hsl(${pillarColor})`,
         }}
       >
-        LV.{trait.level}
-      </span>
-
-      {/* XP / progress */}
-      <span className="text-[8px] text-muted-foreground">
-        {trait.xp_total} XP
+        {trait.pillar}
       </span>
     </motion.button>
   );
 }
 
-// ========== Trait Detail View ==========
+// ========== Trait Detail View (No LV/XP) ==========
 function TraitDetailView({
   traitId,
   onBack,
@@ -229,10 +192,10 @@ function TraitDetailView({
 
   const pillarColor = PILLAR_COLORS[detail.pillar] || '200 70% 50%';
   const displayName = isHe ? getTraitDisplayName(detail.name, detail.name_he, true) : getTraitDisplayName(detail.name, detail.name_he, false);
-  const xpInLevel = detail.xp_total % XP_PER_LEVEL;
-  const xpProgress = Math.round((xpInLevel / XP_PER_LEVEL) * 100);
-  const circumference = 2 * Math.PI * 52;
-  const strokeDashoffset = circumference - (xpProgress / 100) * circumference;
+  
+  // Calculate mission/milestone stats
+  const totalMilestones = detail.missions.reduce((s: number, m: any) => s + (m.milestones?.length || 0), 0);
+  const completedMilestones = detail.missions.reduce((s: number, m: any) => s + (m.milestones?.filter((ms: any) => ms.is_completed)?.length || 0), 0);
 
   return (
     <motion.div
@@ -253,49 +216,22 @@ function TraitDetailView({
 
       {/* Trait Hero */}
       <div className="flex flex-col items-center text-center mb-6">
-        {/* Large XP Ring */}
-        <div className="relative w-28 h-28 mb-3">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 110 110">
-            <circle
-              cx="55" cy="55" r="52"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="4"
-              className="text-muted/20"
-            />
-            <circle
-              cx="55" cy="55" r="52"
-              fill="none"
-              strokeWidth="4"
-              strokeLinecap="round"
-              style={{
-                stroke: `hsl(${pillarColor})`,
-                strokeDasharray: circumference,
-                strokeDashoffset,
-                transition: 'stroke-dashoffset 1s ease-out',
-                filter: `drop-shadow(0 0 6px hsla(${pillarColor}, 0.5))`,
-              }}
-            />
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-4xl">
-            {detail.icon}
-          </span>
-        </div>
+        <span className="text-5xl mb-3">{detail.icon}</span>
 
         <h2 className="text-lg font-bold text-foreground">{displayName}</h2>
         
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-2 mt-1.5">
           <span
-            className="text-xs font-mono font-bold px-2 py-0.5 rounded-full"
+            className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
             style={{
               backgroundColor: `hsla(${pillarColor}, 0.15)`,
               color: `hsl(${pillarColor})`,
             }}
           >
-            LV.{detail.level}
+            {detail.missions.length} {isHe ? 'משימות' : 'missions'}
           </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {xpInLevel}/{XP_PER_LEVEL} XP
+          <span className="text-xs text-muted-foreground">
+            {completedMilestones}/{totalMilestones} {isHe ? 'אבני דרך' : 'milestones'}
           </span>
         </div>
 

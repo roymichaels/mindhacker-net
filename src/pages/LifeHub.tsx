@@ -527,7 +527,7 @@ export default function LifeHub() {
                                           <span className="text-lg">{trait.icon}</span>
                                           <span className="text-sm font-bold text-foreground">{trait.displayName}</span>
                                           <span className="text-[9px] text-muted-foreground ms-auto">
-                                            {trait.xp_total} XP
+                                            {trait.completedMilestones}/{trait.milestoneCount}
                                           </span>
                                         </div>
 
