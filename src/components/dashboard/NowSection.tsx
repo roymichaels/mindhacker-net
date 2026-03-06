@@ -1,21 +1,35 @@
 /**
- * NowSection — "מנוע עכשיו" Dashboard Component
- * Shows Next Action card + Today Queue list
+ * NowSection — Time-block based daily view.
+ * Shows ALL tactical blocks for the day:
+ * - Past blocks: collapsed, muted
+ * - Current block (by time): expanded with actions
+ * - Future blocks: collapsed, grayed out
  */
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Flame, Clock, CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Flame, Clock, CheckCircle2, Sparkles, Loader2, ChevronDown, ChevronUp, Play, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { useTodayExecution, type ScheduleSlot } from '@/hooks/useTodayExecution';
 import { type NowQueueItem } from '@/hooks/useNowEngine';
-import { useCompleteNowAction } from '@/hooks/useNowEngine';
 import { getDomainById } from '@/navigation/lifeDomains';
-import { toast } from 'sonner';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
+
+// ── Block category labels ──
+const BLOCK_LABELS: Record<string, { he: string; en: string; emoji: string }> = {
+  morning: { he: 'שגרת בוקר', en: 'Morning Routine', emoji: '🌅' },
+  training: { he: 'אימון ותנועה', en: 'Training & Movement', emoji: '💪' },
+  deepwork: { he: 'מיקוד עמוק', en: 'Deep Focus', emoji: '🎯' },
+  midday: { he: 'פעולה', en: 'Action', emoji: '⚡' },
+  admin: { he: 'יצירה', en: 'Creation', emoji: '✨' },
+  recovery: { he: 'סקירה', en: 'Review', emoji: '📊' },
+  social: { he: 'חברתי', en: 'Social', emoji: '🤝' },
+  evening: { he: 'ערב', en: 'Evening', emoji: '🌙' },
+  play: { he: 'משחק', en: 'Play', emoji: '🎮' },
+};
 
 function PillarBadge({ pillarId, hub }: { pillarId: string; hub: 'core' | 'arena' }) {
   const { language } = useTranslation();
@@ -23,69 +37,189 @@ function PillarBadge({ pillarId, hub }: { pillarId: string; hub: 'core' | 'arena
   if (!domain) return null;
   const Icon = domain.icon;
   const label = language === 'he' ? domain.labelHe : domain.labelEn;
-  const hubLabel = language === 'he' ? (hub === 'core' ? 'ליבה' : 'זירה') : hub;
 
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted/60 border border-border/50 text-muted-foreground">
-      <Icon className="h-3 w-3" />
+    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/50 text-muted-foreground">
+      <Icon className="h-2.5 w-2.5" />
       {label}
-      <span className="opacity-50">·</span>
-      <span className="opacity-60">{hubLabel}</span>
     </span>
   );
 }
 
-function QueueItemCard({
-  item,
-  index,
+// ── Time Block Row ──
+function TimeBlockRow({
+  slot,
+  isActive,
+  isPast,
+  isFuture,
+  onToggle,
+  isOpen,
   onExecute,
+  isHe,
 }: {
-  item: NowQueueItem;
-  index: number;
+  slot: ScheduleSlot;
+  isActive: boolean;
+  isPast: boolean;
+  isFuture: boolean;
+  onToggle: () => void;
+  isOpen: boolean;
   onExecute: (item: NowQueueItem) => void;
+  isHe: boolean;
 }) {
-  const { language, isRTL } = useTranslation();
+  const blockInfo = BLOCK_LABELS[slot.timeBlock] || BLOCK_LABELS.midday;
+  const completedCount = slot.actions.filter(a => a.sourceId).length; // placeholder
+  const label = isHe ? blockInfo.he : blockInfo.en;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="group flex flex-col gap-2 p-3 rounded-xl bg-card/50 border border-border/40 hover:border-primary/30 hover:bg-accent/5 transition-all cursor-pointer"
-      onClick={() => onExecute(item)}
-      dir={isRTL ? 'rtl' : 'ltr'}
-    >
-      <div className="flex items-center justify-between">
-        <PillarBadge pillarId={item.pillarId} hub={item.hub} />
-        <span className="text-[10px] font-bold text-muted-foreground/50">{index + 1}</span>
-      </div>
-      <p className="text-xs font-semibold leading-tight line-clamp-2">{item.title}</p>
-      {item.isTimeBased && (
-        <div className="flex items-center gap-1.5 mt-auto">
-          <Clock className="h-2.5 w-2.5 text-muted-foreground" />
-          <span className="text-[10px] text-muted-foreground">
-            {item.durationMin} {language === 'he' ? 'דק׳' : 'min'}
+    <div className={cn(
+      "rounded-2xl border overflow-hidden transition-all duration-300",
+      isActive && "border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-sm",
+      isPast && "border-border/30 bg-muted/20 opacity-60",
+      isFuture && "border-border/20 bg-muted/10 opacity-40",
+      !isActive && !isPast && !isFuture && "border-border/30 bg-card/50",
+    )}>
+      {/* Block Header — always visible */}
+      <button
+        onClick={onToggle}
+        className={cn(
+          "w-full flex items-center gap-3 px-4 py-3 text-start transition-colors",
+          isActive && "hover:bg-primary/5",
+          !isActive && "hover:bg-muted/30",
+        )}
+      >
+        {/* Time + Emoji */}
+        <div className="flex flex-col items-center min-w-[40px]">
+          <span className="text-lg">{blockInfo.emoji}</span>
+          <span className={cn(
+            "text-[10px] font-mono tabular-nums mt-0.5",
+            isActive ? "text-primary font-bold" : "text-muted-foreground",
+          )}>
+            {slot.startTime}
           </span>
         </div>
-      )}
-    </motion.div>
+
+        {/* Title + status */}
+        <div className="flex-1 min-w-0">
+          <h3 className={cn(
+            "text-sm font-semibold",
+            isActive && "text-foreground",
+            isPast && "text-muted-foreground line-through",
+            isFuture && "text-muted-foreground",
+          )}>
+            {label}
+          </h3>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            {slot.actions.length} {isHe ? 'משימות' : 'tasks'}
+            {slot.endTime && ` · ${slot.startTime}–${slot.endTime}`}
+          </p>
+        </div>
+
+        {/* Status indicator */}
+        <div className="flex items-center gap-2">
+          {isActive && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
+              <Play className="h-2.5 w-2.5 fill-primary" />
+              {isHe ? 'עכשיו' : 'Now'}
+            </span>
+          )}
+          {isPast && (
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground/50" />
+          )}
+          {isFuture && (
+            <Lock className="h-3.5 w-3.5 text-muted-foreground/30" />
+          )}
+          {isOpen ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
+      </button>
+
+      {/* Block Content — collapsible */}
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-3 space-y-1.5 border-t border-border/20 pt-2">
+              {slot.actions.map((action, i) => (
+                <button
+                  key={`${action.actionType}-${i}`}
+                  onClick={() => onExecute(action)}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all",
+                    "border border-border/30 hover:border-primary/30",
+                    isActive
+                      ? "bg-card/80 hover:bg-accent/10 active:scale-[0.99]"
+                      : "bg-card/40",
+                  )}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <PillarBadge pillarId={action.pillarId} hub={action.hub} />
+                    </div>
+                    <p className="text-xs font-semibold text-foreground line-clamp-1">{action.title}</p>
+                  </div>
+                  {action.isTimeBased && (
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
+                      <Clock className="h-2.5 w-2.5" />
+                      {action.durationMin}{isHe ? '′' : 'm'}
+                    </span>
+                  )}
+                  {isActive && (
+                    <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 export function NowSection() {
   const { language, isRTL } = useTranslation();
-  const { queue, nextAction, tier, isLoading, refetch } = useTodayExecution();
-  const [expanded, setExpanded] = useState(true);
+  const isHe = language === 'he';
+  const { schedule, isLoading, refetch, hasPlan } = useTodayExecution();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
+
+  // Determine current time to classify blocks
+  const now = useMemo(() => {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }, []);
+
+  const classifySlot = (slot: ScheduleSlot) => {
+    const start = slot.startTime || '00:00';
+    const end = slot.endTime || '23:59';
+    if (now >= start && now < end) return 'active';
+    if (now >= end) return 'past';
+    return 'future';
+  };
 
   const handleExecute = (item: NowQueueItem) => {
     setExecutionAction(item);
     setExecutionOpen(true);
   };
 
-  const handleExecutionComplete = () => {
-    refetch();
+  const toggleBlock = (slotId: string) => {
+    setManualOpen(prev => ({ ...prev, [slotId]: !prev[slotId] }));
+  };
+
+  const isSlotOpen = (slot: ScheduleSlot) => {
+    // Manual override takes priority
+    if (manualOpen[slot.id] !== undefined) return manualOpen[slot.id];
+    // Auto: only active block is open
+    return classifySlot(slot) === 'active';
   };
 
   if (isLoading) {
@@ -93,96 +227,45 @@ export function NowSection() {
       <Card className="border border-border/50 bg-card/30">
         <CardContent className="p-6 flex items-center justify-center gap-2 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">{language === 'he' ? 'מחשב את היום שלך...' : 'Computing your day...'}</span>
+          <span className="text-sm">{isHe ? 'מחשב את היום שלך...' : 'Computing your day...'}</span>
         </CardContent>
       </Card>
     );
   }
 
-  if (!nextAction) return null;
-
-  const restQueue = queue.slice(1);
+  if (!hasPlan || schedule.length === 0) return null;
 
   return (
-    <div className="space-y-2" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* ─── NEXT ACTION (Hero Card) ──────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <Card
-          className="relative overflow-hidden border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent cursor-pointer group"
-          onClick={() => handleExecute(nextAction)}
-        >
-          {/* Shimmer */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer pointer-events-none" />
+    <div className="space-y-3" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* ─── DAY BLOCKS ─── */}
+      <div className="space-y-2">
+        {schedule.map((slot) => {
+          const status = classifySlot(slot);
+          return (
+            <TimeBlockRow
+              key={slot.id}
+              slot={slot}
+              isActive={status === 'active'}
+              isPast={status === 'past'}
+              isFuture={status === 'future'}
+              onToggle={() => toggleBlock(slot.id)}
+              isOpen={isSlotOpen(slot)}
+              onExecute={handleExecute}
+              isHe={isHe}
+            />
+          );
+        })}
+      </div>
 
-          <CardContent className="p-4 relative">
-            <div className="flex items-center gap-1 mb-2">
-              <Flame className="h-4 w-4 text-primary" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                {language === 'he' ? 'הדבר הבא' : 'Next Action'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <PillarBadge pillarId={nextAction.pillarId} hub={nextAction.hub} />
-                <h3 className="text-base font-bold mt-1 break-words">{nextAction.title}</h3>
-                <div className="flex items-center gap-3 mt-1.5">
-                  {nextAction.isTimeBased && (
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {nextAction.durationMin} {language === 'he' ? 'דקות' : 'min'}
-                    </span>
-                  )}
-                  <span className="text-xs text-muted-foreground/60">{nextAction.reason}</span>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="flex-shrink-0 gap-1.5"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleExecute(nextAction);
-                }}
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                {language === 'he' ? 'בצע' : 'Start'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* ─── DAILY ROADMAP (Progress + checklist) ──── */}
+      {/* ─── DAILY ROADMAP ─── */}
       <DailyRoadmap />
 
-      {/* ─── TODAY QUEUE (Grid) ─────────────────────── */}
-      {restQueue.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 px-1 py-1 text-xs font-semibold text-muted-foreground">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            <span>
-              {language === 'he'
-                ? `עוד ${restQueue.length} פעולות להיום`
-                : `${restQueue.length} more actions today`}
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2 mt-1">
-            {restQueue.map((item, i) => (
-              <QueueItemCard key={`${item.actionType}-${i}`} item={item} index={i + 1} onExecute={handleExecute} />
-            ))}
-          </div>
-        </div>
-      )}
       {/* Execution Modal */}
       <ExecutionModal
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
-        onComplete={handleExecutionComplete}
+        onComplete={() => refetch()}
       />
     </div>
   );
