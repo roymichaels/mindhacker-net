@@ -121,9 +121,14 @@ export function useStrategyPlans() {
     const { _legacyFound, _needsHeal, core, arena } = query.data;
     
     if (!_needsHeal && !_legacyFound) return;
+
+    // Prevent re-healing across refreshes within the same session
+    const sessionKey = `strategy_healed_${user.id}`;
+    if (sessionStorage.getItem(sessionKey)) return;
     
-    // Prevent multiple heal attempts
+    // Prevent multiple heal attempts within this mount
     healingRef.current = true;
+    sessionStorage.setItem(sessionKey, Date.now().toString());
     
     const heal = async () => {
       try {
