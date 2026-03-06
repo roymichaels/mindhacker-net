@@ -178,8 +178,8 @@ function TraitCardComponent({
       </div>
 
       {/* Trait name */}
-      <span className="text-[11px] sm:text-xs font-semibold text-foreground text-center leading-tight line-clamp-2 mt-0.5">
-        {displayName}
+      <span className="text-[11px] sm:text-xs font-bold text-foreground text-center leading-tight line-clamp-2 mt-0.5 min-h-[2.2em]">
+        {displayName || (isHe ? 'תכונה' : 'Trait')}
       </span>
 
       {/* Level badge */}
@@ -191,6 +191,11 @@ function TraitCardComponent({
         }}
       >
         LV.{trait.level}
+      </span>
+
+      {/* XP / progress */}
+      <span className="text-[8px] text-muted-foreground">
+        {trait.xp_total} XP
       </span>
     </motion.button>
   );
