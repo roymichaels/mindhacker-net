@@ -11,13 +11,9 @@ import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
   OrbCollectionSection,
-  DomainCitySection,
-  AuroraCoachSection,
-  HypnosisSection,
-  TheSystemSection,
-  Play2EarnSection,
-  GuildSection,
-  CoachOSSection,
+  CityShowcaseSection,
+  TraitShowcaseSection,
+  PlanCinematicSection,
   FinalCTASection,
 } from "@/components/home";
 
