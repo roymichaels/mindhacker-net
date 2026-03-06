@@ -145,7 +145,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         {/* ═══════ TABS ═══════ */}
         <div className="px-3 pb-24">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full grid grid-cols-3 mb-3">
+            <TabsList className="w-full grid grid-cols-2 mb-3">
               <TabsTrigger value="profile" className="text-xs gap-1">
                 <UserCircle className="w-3.5 h-3.5" />
                 {isHe ? 'פרופיל' : 'Profile'}
@@ -154,13 +154,9 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
                 <Target className="w-3.5 h-3.5" />
                 {isHe ? 'תכונות' : 'Traits'}
               </TabsTrigger>
-              <TabsTrigger value="insights" className="text-xs gap-1">
-                <Brain className="w-3.5 h-3.5" />
-                {isHe ? 'תובנות' : 'Insights'}
-              </TabsTrigger>
             </TabsList>
 
-            {/* ── Profile Tab (merged with Direction) ── */}
+            {/* ── Profile Tab (merged with Direction + Insights) ── */}
             <TabsContent value="profile">
               <ProfileTab
                 isHe={isHe}
@@ -173,17 +169,6 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             {/* ── Traits Tab ── */}
             <TabsContent value="traits">
               <TraitsTab isHe={isHe} />
-            </TabsContent>
-
-            {/* ── Insights Tab ── */}
-            <TabsContent value="insights">
-              {isOwner ? (
-                <InsightsTab isHe={isHe} language={language} dashboard={dashboard} />
-              ) : (
-                <div className="text-center py-12 text-muted-foreground text-sm">
-                  {isHe ? 'תובנות פרטיות' : 'Private insights'}
-                </div>
-              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -269,10 +254,11 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 }) {
   const { user } = useAuth();
   const [archetypeData, setArchetypeData] = useState<any>(null);
+  const [diagnosticScores, setDiagnosticScores] = useState<Array<{ key: string; label: string; labelEn: string; value: number; icon: typeof Zap; color: string; bgColor: string }>>([]);
 
   useEffect(() => {
     if (!user) return;
-    async function fetchArchetype() {
+    async function fetchData() {
       try {
         const { data } = await supabase
           .from('launchpad_summaries')
@@ -286,17 +272,26 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
           if (sd.identity_profile?.archetype) {
             setArchetypeData(sd.identity_profile.archetype);
           }
+          const diag = sd.diagnostics || sd.diagnostic_scores || {};
+          setDiagnosticScores([
+            { key: 'energy', label: 'אנרגיה', labelEn: 'Energy', value: diag.energy_stability?.score ?? 0, icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+            { key: 'recovery', label: 'ריקברי', labelEn: 'Recovery', value: diag.recovery_debt?.score ?? 0, icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
+            { key: 'dopamine', label: 'דופמין', labelEn: 'Dopamine', value: diag.dopamine_load?.score ?? 0, icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
+            { key: 'execution', label: 'ביצוע', labelEn: 'Execution', value: diag.execution_reliability?.score ?? 0, icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
+            { key: 'time', label: 'זמן', labelEn: 'Time', value: diag.time_leverage?.score ?? 0, icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
+          ]);
         }
       } catch {}
     }
-    fetchArchetype();
+    fetchData();
   }, [user]);
 
   const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
+  const getScoreColor = (s: number) => s >= 75 ? 'text-green-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
 
   return (
     <div className="space-y-3">
-      {/* ── Life Direction (merged from Direction tab) ── */}
+      {/* ── Life Direction ── */}
       {lifeDirection && (
         <div className="p-2.5 rounded-xl border border-primary/20 bg-primary/5">
           <div className="flex items-center justify-between mb-1">
@@ -314,42 +309,88 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </div>
       )}
 
-      {/* ── Commitments (merged from Direction tab) ── */}
-      {commitments.length > 0 && (
+      {/* ── Diagnostics as compact grid (merged from Insights) ── */}
+      {isOwner && diagnosticScores.length > 0 && (
         <div>
           <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-            {isHe ? 'מחויבויות' : 'Commitments'}
+            {isHe ? 'אבחון' : 'Diagnostics'}
           </h4>
-          <div className="space-y-1">
-            {commitments.map((c) => (
-              <div key={c.id} className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-card border border-border/30">
-                <Target className="w-3 h-3 text-primary shrink-0" />
-                <p className="text-xs font-medium text-foreground truncate">{c.title}</p>
+          <div className="grid grid-cols-5 gap-1.5">
+            {diagnosticScores.map((score) => {
+              const Icon = score.icon;
+              return (
+                <div key={score.key} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-border/30 bg-card/50">
+                  <div className={cn("p-1 rounded-md", score.bgColor)}>
+                    <Icon className={cn("w-3 h-3", score.color)} />
+                  </div>
+                  <span className={cn("text-sm font-bold tabular-nums", getScoreColor(score.value))}>{score.value}</span>
+                  <span className="text-[8px] text-muted-foreground text-center leading-tight">{isHe ? score.label : score.labelEn}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Stats summary grid (merged from Insights) ── */}
+      {isOwner && (
+        <div className="grid grid-cols-4 gap-1.5">
+          {[
+            { label: isHe ? 'רמה' : 'Lv', value: dashboard.level, icon: Trophy, color: 'text-amber-500' },
+            { label: isHe ? 'רצף' : 'Streak', value: dashboard.streak, icon: Flame, color: 'text-orange-500' },
+            { label: isHe ? 'סשנים' : 'Sess', value: dashboard.totalSessions, icon: Zap, color: 'text-blue-500' },
+            { label: isHe ? 'טוקנים' : 'Tokens', value: dashboard.tokens, icon: BarChart3, color: 'text-emerald-500' },
+          ].map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <div key={stat.label} className="flex flex-col items-center gap-0.5 p-2 rounded-xl bg-muted/30 border border-border/30">
+                <Icon className={cn("w-3.5 h-3.5", stat.color)} />
+                <p className="text-sm font-bold tabular-nums">{stat.value}</p>
+                <p className="text-[8px] text-muted-foreground">{stat.label}</p>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
 
-      {/* ── Daily Anchors (merged from Direction tab) ── */}
-      {anchors.length > 0 && (
-        <div>
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-            {isHe ? 'עוגנים יומיים' : 'Daily Anchors'}
-          </h4>
-          <div className="flex flex-wrap gap-1">
-            {anchors.map((a) => (
-              <Badge key={a.id} variant="secondary" className="text-[10px] px-2 py-0.5">
-                {a.title}
-              </Badge>
-            ))}
-          </div>
+      {/* ── Commitments + Anchors side by side ── */}
+      {(commitments.length > 0 || anchors.length > 0) && (
+        <div className="grid grid-cols-2 gap-2">
+          {commitments.length > 0 && (
+            <div>
+              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                {isHe ? 'מחויבויות' : 'Commitments'}
+              </h4>
+              <div className="space-y-0.5">
+                {commitments.map((c) => (
+                  <div key={c.id} className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-card border border-border/30">
+                    <Target className="w-2.5 h-2.5 text-primary shrink-0" />
+                    <p className="text-[10px] font-medium text-foreground truncate">{c.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {anchors.length > 0 && (
+            <div>
+              <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                {isHe ? 'עוגנים יומיים' : 'Daily Anchors'}
+              </h4>
+              <div className="flex flex-wrap gap-1">
+                {anchors.map((a) => (
+                  <Badge key={a.id} variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                    {a.title}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ── Identity chips: Values + Principles + Self Concepts ── */}
+      {/* ── Identity chips: Values + Principles + Self Concepts in grid ── */}
       {(dashboard.values.length > 0 || dashboard.principles.length > 0 || dashboard.selfConcepts.length > 0) && (
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
           {dashboard.values.length > 0 && (
             <div>
               <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
@@ -357,7 +398,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
               </h4>
               <div className="flex flex-wrap gap-1">
                 {dashboard.values.map((v, i) => (
-                  <Badge key={i} variant="secondary" className="text-[10px] px-2 py-0.5">{v}</Badge>
+                  <Badge key={i} variant="secondary" className="text-[9px] px-1.5 py-0.5">{v}</Badge>
                 ))}
               </div>
             </div>
@@ -369,19 +410,19 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
               </h4>
               <div className="flex flex-wrap gap-1">
                 {dashboard.principles.map((p, i) => (
-                  <Badge key={i} variant="outline" className="text-[10px] px-2 py-0.5">{p}</Badge>
+                  <Badge key={i} variant="outline" className="text-[9px] px-1.5 py-0.5">{p}</Badge>
                 ))}
               </div>
             </div>
           )}
           {dashboard.selfConcepts.length > 0 && (
-            <div>
+            <div className="col-span-2">
               <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                 {isHe ? 'תפיסות עצמיות' : 'Self Concepts'}
               </h4>
               <div className="flex flex-wrap gap-1">
                 {dashboard.selfConcepts.map((s, i) => (
-                  <Badge key={i} variant="outline" className="text-[10px] px-2 py-0.5 bg-primary/5">{s}</Badge>
+                  <Badge key={i} variant="outline" className="text-[9px] px-1.5 py-0.5 bg-primary/5">{s}</Badge>
                 ))}
               </div>
             </div>
@@ -392,8 +433,12 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {/* Archetype traits */}
       {archetypeData && <TraitsCard archetypeData={archetypeData} />}
 
-      {/* Behavioral patterns (owner only) */}
+      {/* Behavioral patterns + Consciousness (merged from Insights, owner only) */}
       {isOwner && <BehavioralInsightsCard />}
+      {isOwner && <ConsciousnessCard />}
+
+      {/* AI Analysis (merged from Insights) */}
+      {isOwner && <AIAnalysisDisplay language={language} />}
     </div>
   );
 }
@@ -557,95 +602,5 @@ function TraitDetailView({ traitId, onBack, isHe }: { traitId: string; onBack: (
   );
 }
 
-// ═══════════════════════════════════════════════
-// INSIGHTS TAB — AI Analysis + Consciousness + Diagnostics
-// ═══════════════════════════════════════════════
-function InsightsTab({ isHe, language, dashboard }: { isHe: boolean; language: string; dashboard: any }) {
-  const { user } = useAuth();
-  const [diagnosticScores, setDiagnosticScores] = useState<Array<{ key: string; label: string; labelEn: string; value: number; icon: typeof Zap; color: string; bgColor: string }>>([]);
-
-  useEffect(() => {
-    if (!user) return;
-    async function fetchDiag() {
-      try {
-        const { data } = await supabase
-          .from('launchpad_summaries')
-          .select('summary_data')
-          .eq('user_id', user!.id)
-          .order('generated_at', { ascending: false })
-          .limit(1)
-          .single();
-        if (data?.summary_data) {
-          const sd = data.summary_data as any;
-          const diag = sd.diagnostics || sd.diagnostic_scores || {};
-          setDiagnosticScores([
-            { key: 'energy_stability', label: 'יציבות אנרגיה', labelEn: 'Energy Stability', value: diag.energy_stability?.score ?? 0, icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-            { key: 'recovery_debt', label: 'חוב ריקברי', labelEn: 'Recovery Debt', value: diag.recovery_debt?.score ?? 0, icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-            { key: 'dopamine_load', label: 'עומס דופמין', labelEn: 'Dopamine Load', value: diag.dopamine_load?.score ?? 0, icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-            { key: 'execution', label: 'אמינות ביצוע', labelEn: 'Execution', value: diag.execution_reliability?.score ?? 0, icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-            { key: 'time', label: 'מינוף זמן', labelEn: 'Time Leverage', value: diag.time_leverage?.score ?? 0, icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-          ]);
-        }
-      } catch {}
-    }
-    fetchDiag();
-  }, [user]);
-
-  const getScoreColor = (s: number) => s >= 75 ? 'text-green-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
-  const getBarColor = (s: number) => s >= 75 ? 'bg-green-500' : s >= 50 ? 'bg-amber-500' : 'bg-red-500';
-
-  return (
-    <div className="space-y-4">
-      {/* Compact diagnostics */}
-      {diagnosticScores.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{isHe ? 'אבחון' : 'Diagnostics'}</h4>
-          {diagnosticScores.map((score) => {
-            const Icon = score.icon;
-            return (
-              <div key={score.key} className="flex items-center gap-2.5 p-2.5 rounded-lg border border-border/30">
-                <div className={cn("p-1.5 rounded-md", score.bgColor)}>
-                  <Icon className={cn("w-3.5 h-3.5", score.color)} />
-                </div>
-                <span className="text-xs font-medium flex-1">{isHe ? score.label : score.labelEn}</span>
-                <span className={cn("text-sm font-bold tabular-nums", getScoreColor(score.value))}>{score.value}</span>
-                <div className="w-16 h-1 rounded-full bg-muted/50 overflow-hidden">
-                  <div className={cn("h-full rounded-full", getBarColor(score.value))} style={{ width: `${score.value}%` }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Consciousness card */}
-      <ConsciousnessCard />
-
-      {/* AI Analysis */}
-      <AIAnalysisDisplay language={language} />
-
-      {/* Stats summary */}
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { label: isHe ? 'רמה' : 'Level', value: dashboard.level, icon: Trophy, color: 'text-amber-500' },
-          { label: isHe ? 'רצף' : 'Streak', value: dashboard.streak, icon: Flame, color: 'text-orange-500' },
-          { label: isHe ? 'סשנים' : 'Sessions', value: dashboard.totalSessions, icon: Zap, color: 'text-blue-500' },
-          { label: isHe ? 'טוקנים' : 'Tokens', value: dashboard.tokens, icon: BarChart3, color: 'text-emerald-500' },
-        ].map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border/30">
-              <Icon className={cn("w-4 h-4", stat.color)} />
-              <div>
-                <p className="text-lg font-bold tabular-nums">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground">{stat.label}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 
