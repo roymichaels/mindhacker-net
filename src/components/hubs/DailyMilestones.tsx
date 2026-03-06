@@ -214,13 +214,8 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     }
 
     const hubType = CORE_DOMAINS.some(d => d.id === dm.pillarId) ? 'core' : 'arena';
-    if (nowItem.milestoneId) {
-      setJourneyAction(nowItem);
-      setJourneyOpen(true);
-    } else {
-      setExecutionAction(nowItem);
-      setExecutionOpen(true);
-    }
+    const nowItem: NowQueueItem = {
+      pillarId: dm.pillarId,
       hub: hubType,
       actionType: dm.pillarId,
       title: dm.milestoneTitle,
@@ -229,8 +224,17 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
       urgencyScore: 80,
       reason: dm.missionTitle,
       sourceType: 'plan',
-    });
-    setExecutionOpen(true);
+      milestoneId: dm.milestoneId || undefined,
+      milestoneTitle: dm.milestoneTitle,
+    };
+
+    if (nowItem.milestoneId) {
+      setJourneyAction(nowItem);
+      setJourneyOpen(true);
+    } else {
+      setExecutionAction(nowItem);
+      setExecutionOpen(true);
+    }
   };
 
   // Show generate CTA if the requested hub has no plan
