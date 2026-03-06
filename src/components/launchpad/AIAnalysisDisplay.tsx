@@ -217,7 +217,7 @@ function GlassCard({ children }: { children: React.ReactNode }) {
 
 function CardHeader({ icon, title, accent }: { icon: React.ReactNode; title: string; accent: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
+    <div className="flex items-center justify-center gap-2 mb-3">
       <div className={cn("p-1.5 rounded-lg", accent)}>{icon}</div>
       <h4 className="text-sm font-bold text-white/90 tracking-wide">{title}</h4>
     </div>
