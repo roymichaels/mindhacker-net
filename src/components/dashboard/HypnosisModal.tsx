@@ -481,6 +481,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
           let detectedBadAudio = false;
 
           await playAudioUrl(signedUrl, {
+            minDuration: 10,
             onTimeUpdate: (currentTime, audioDuration) => {
               // Detect bad cached audio early
               if (!detectedBadAudio && audioStartTime > 0) {
