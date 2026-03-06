@@ -341,8 +341,7 @@ serve(async (req) => {
         const milestone = milestoneLookup[mini.milestone_id];
         if (!milestone) continue;
 
-        const mission = milestone.plan_missions;
-        const trait = mission?.skills;
+        const mission = missionLookup[milestone.mission_id] || null;
         const pillar = mission?.pillar || milestone.focus_area || "focus";
 
         if (usedPillars.has(pillar) && queue.length > 3) continue; // allow some pillar overlap early
@@ -364,7 +363,6 @@ serve(async (req) => {
           missionTitle: isHe ? (mission?.title || mission?.title_en) : (mission?.title_en || mission?.title),
           milestoneId: milestone.id,
           milestoneTitle: isHe ? (milestone.title || milestone.title_en) : (milestone.title_en || milestone.title),
-          traitName: isHe ? (trait?.name || trait?.name_en) : (trait?.name_en || trait?.name),
           executionTemplate: mini.execution_template || undefined,
         });
         usedPillars.add(pillar);
@@ -376,8 +374,7 @@ serve(async (req) => {
         for (const milestone of incompleteMilestones) {
           if (queue.length >= maxActions) break;
 
-          const mission = milestone.plan_missions;
-          const trait = mission?.skills;
+          const mission = missionLookup[milestone.mission_id] || null;
           const pillar = mission?.pillar || milestone.focus_area || "focus";
 
           // Skip if we already have an action for this milestone
@@ -401,7 +398,6 @@ serve(async (req) => {
             missionTitle: isHe ? (mission?.title || mission?.title_en) : (mission?.title_en || mission?.title),
             milestoneId: milestone.id,
             milestoneTitle: isHe ? (milestone.title || milestone.title_en) : (milestone.title_en || milestone.title),
-            traitName: isHe ? (trait?.name || trait?.name_en) : (trait?.name_en || trait?.name),
           });
           usedPillars.add(pillar);
         }
