@@ -83,6 +83,7 @@ interface QueueItem {
   title: string;
   titleEn: string;
   durationMin: number;
+  isTimeBased: boolean;
   urgencyScore: number;
   reason: string;
   sourceType: "milestone" | "mini_milestone" | "habit" | "overdue" | "template";
@@ -95,6 +96,14 @@ interface QueueItem {
   traitName?: string;
   executionSteps?: ExecStep[];
   executionTemplate?: ExecutionTemplate;
+}
+
+// Check if a task title contains explicit time references
+function detectTimeBased(title: string, actionType: string): boolean {
+  const timePattern = /\b\d+\s*(min|minutes|דקות|דק׳|sec|seconds|שניות|rounds?|סיבוב|שעה|hour)\b/i;
+  const timedTypes = ['breathing', 'meditation', 'timer', 'warmup', 'cooldown', 'stretch', 'plank', 'hold'];
+  if (timePattern.test(title)) return true;
+  return timedTypes.some(t => actionType.includes(t));
 }
 
 // ─── Fallback templates (ONLY when no strategy exists) ────────

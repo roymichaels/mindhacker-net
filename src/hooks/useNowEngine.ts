@@ -19,6 +19,7 @@ export interface NowQueueItem {
   title: string;
   titleEn: string;
   durationMin: number;
+  isTimeBased?: boolean;
   urgencyScore: number;
   reason: string;
   sourceType: 'milestone' | 'mini_milestone' | 'habit' | 'overdue' | 'template' | 'plan' | 'assessment';
