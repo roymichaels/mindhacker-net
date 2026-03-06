@@ -376,7 +376,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {((dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) || (anchors.length > 0 || dashboard.principles.length > 0)) && (
         <div className="grid grid-cols-2 gap-3">
           {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
-            <EmpireCard>
+            <EmpireCard className="text-center">
               <SectionTitle
                 icon={<UserCircle className="w-4 h-4 text-purple-400" />}
                 title={isHe ? 'זהות וערכים' : 'Identity & Values'}
@@ -385,7 +385,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
               {dashboard.values.length > 0 && (
                 <div className="mb-2">
                   <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-col items-center gap-1">
                     {dashboard.values.map((v, i) => (
                       <EmpireBadge key={i} variant="gold">{v}</EmpireBadge>
                     ))}
@@ -395,7 +395,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
               {dashboard.selfConcepts.length > 0 && (
                 <div>
                   <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-col items-center gap-1">
                     {dashboard.selfConcepts.map((s, i) => (
                       <EmpireBadge key={i} variant="glass">{s}</EmpireBadge>
                     ))}
@@ -405,7 +405,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
             </EmpireCard>
           )}
           {(anchors.length > 0 || dashboard.principles.length > 0) && (
-            <EmpireCard>
+            <EmpireCard className="text-center">
               <SectionTitle
                 icon={<Activity className="w-4 h-4 text-cyan-400" />}
                 title={isHe ? 'משמעת וסדר' : 'Disciplines & Order'}
@@ -414,7 +414,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
               {anchors.length > 0 && (
                 <div className="mb-2">
                   <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עוגנים יומיים' : 'Daily Anchors'}</p>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-col items-center gap-1">
                     {anchors.map((a) => (
                       <EmpireBadge key={a.id}>{a.title}</EmpireBadge>
                     ))}
@@ -424,7 +424,7 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
               {dashboard.principles.length > 0 && (
                 <div>
                   <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-col items-center gap-1">
                     {dashboard.principles.map((p, i) => (
                       <EmpireBadge key={i}>{p}</EmpireBadge>
                     ))}
