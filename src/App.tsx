@@ -285,6 +285,7 @@ const App = () => (
                         <Route element={<ProtectedAppShell />}>
                           {/* Community */}
                           <Route path="/community" element={<CommunityLayoutWrapper />} />
+                          <Route path="/community/post/:postId" element={<CommunityThread />} />
                           {/* Messages */}
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/ai" element={<MessageThread />} />
