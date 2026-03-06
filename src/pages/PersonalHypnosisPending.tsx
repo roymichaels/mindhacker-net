@@ -72,7 +72,7 @@ const PersonalHypnosisPending = () => {
 
           {/* Actions */}
           <div className="flex flex-col gap-3 pt-4">
-            <Link to="/dashboard">
+            <Link to="/now">
               <Button className="w-full" size="lg">
                 <ArrowRight className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t('personalHypnosisPending.toDashboard')}
