@@ -1,120 +1,79 @@
 
-# Advanced Voice Mode for Aurora
 
-## Overview
-Add a real-time, bidirectional voice conversation mode between the user and Aurora -- similar to ChatGPT's Advanced Voice Mode. The user taps a button, enters a full-screen (or overlay) voice session where they speak naturally, Aurora listens, processes, and responds with voice -- creating a seamless back-and-forth conversation loop.
+## Unified Character Profile Modal
 
-This will be available in:
-1. The **AuroraDock** (global chat input bar)
-2. The **DomainAssessChat** (pillar assessments)
-3. The **AuroraChatInput** (used inside assessment modals)
+### Problem
+The bottom HUD bar currently has 4 separate buttons (Traits, Insights, Direction, Identity) that each open independent modals. This fragments the character's data across 4 surfaces. The user wants a single "Profile" button that opens one RPG-style character sheet containing everything.
 
-## How It Works
+### Architecture
+
+**Replace:** 4 buttons → 1 "Profile" button
+**Replace:** 4 separate modals (MergedIdentityModal, MergedDirectionModal, MergedInsightsModal, SkillsModal) → 1 `CharacterProfileModal`
+
+### Structure of CharacterProfileModal
 
 ```text
-User taps Voice Mode button
-        |
-        v
-+---------------------------+
-|   Full-screen Voice UI    |
-|                           |
-|   [Aurora Orb animating]  |
-|                           |
-|   State: LISTENING        |
-|   "Speak now..."          |
-|                           |
-|   [End Call]              |
-+---------------------------+
-        |
-  User speaks -> STT (ElevenLabs transcribe)
-        |
-  Transcript sent to Aurora chat (existing aurora-chat edge fn)
-        |
-  Aurora responds with text
-        |
-  Text -> TTS (ElevenLabs TTS) -> plays audio
-        |
-  When audio ends -> back to LISTENING
-        |
-  Loop continues until user taps "End"
+┌──────────────────────────────┐
+│  HEADER: Character Identity  │
+│  ┌─────┐                     │
+│  │ ORB │  Name / Title       │
+│  └─────┘  Archetype Badge    │
+│  Lv.12  🔥7  ⚡340           │
+│  ━━━━━━━━━ XP Bar ━━━━━━━━━  │
+│  היום | שבוע | חודש streaks   │
+├──────────────────────────────┤
+│  STAT WHEEL (pillar scores)  │
+│  תודעה 70  בריאות 65  ...    │
+│  (circular badges, tappable) │
+├──────────────────────────────┤
+│ ┌────────┬────────┬────────┐ │
+│ │Profile │ Traits │Insights│ │
+│ │        │        │Direction│
+│ └────────┴────────┴────────┘ │
+│  [TAB CONTENT]               │
+│                              │
+└──────────────────────────────┘
 ```
 
-## Components to Create
+### File Changes
 
-### 1. `src/components/aurora/AuroraVoiceMode.tsx` (New)
-The main voice mode overlay/modal component:
-- Full-screen dark overlay with the **AuroraHoloOrb** as the centerpiece (animated based on state)
-- States: `idle`, `listening`, `processing`, `speaking`
-- Visual audio waveform/level indicator while listening
-- Aurora orb pulses/glows while speaking
-- "End Call" button to exit
-- Transcript display (shows what user said + Aurora's response text)
-- Uses existing `useAuroraVoice` for STT + TTS
-- Auto-loop: after Aurora finishes speaking, automatically starts listening again
+**1. Create `src/components/modals/CharacterProfileModal.tsx`** (new file)
+- Full-screen modal (z-[9999], 100% opaque, `role="dialog"`)
+- **Header section**: PersonalizedOrb (64px), identity title, archetype, level/tokens/streak badges, XP bar, streak indicators (today/week/month)
+- **Stat wheel**: Compact row of pillar score circles from launchpad assessment data (consciousness, health, energy, etc.) — tappable to expand
+- **4 internal tabs**: Profile | Traits | Realizations | Direction
+  - **Profile tab**: Identity card (archetype breakdown, values as chips, principles, self-concepts, career, habits) — content from current MergedIdentityModal + ProfileContent
+  - **Traits tab**: Existing TraitGalleryView grid from SkillsModal with detail drill-down
+  - **Realizations tab**: AI analysis, consciousness score, diagnostics, behavioral insights — content from current MergedInsightsModal, rendered as compact timeline cards with expandable details and tags
+  - **Direction tab**: Commitments + anchors + career path + strategic goals — content from current MergedDirectionModal, compressed into chip/tag format
 
-### 2. `src/hooks/aurora/useAuroraVoiceMode.tsx` (New)
-Custom hook that orchestrates the full voice conversation loop:
-- Manages the state machine: `idle -> listening -> processing -> speaking -> listening`
-- Uses existing `useAuroraVoice` for recording/transcription
-- On transcription complete: sends message via the chat context's `sendMessageRef` (for AuroraDock) or a provided `onSend` callback (for assessments)
-- Watches for Aurora's response (new assistant message) and auto-plays via TTS
-- Handles the auto-loop (when TTS ends, restart recording)
-- Graceful error handling with fallback states
-- Cleanup on unmount (stop recording, stop playback)
+**2. Update `src/components/navigation/BottomHudBar.tsx`**
+- Replace the 4 quick-action buttons with a single "Profile" button (UserCircle icon)
+- Remove imports for MergedIdentityModal, MergedDirectionModal, MergedInsightsModal, SkillsModal
+- Import and render CharacterProfileModal instead
+- Keep OrbDNAModal for orb click
 
-### 3. `src/components/aurora/VoiceModeButton.tsx` (New)
-A reusable button that triggers voice mode:
-- Headphone/waveform icon
-- Opens the `AuroraVoiceMode` overlay when tapped
-- Can be placed in any chat input bar
+**3. Update `src/components/dashboard/ProfileContent.tsx`**
+- Remove the MergedModals that were also rendered here (they'll live only inside CharacterProfileModal now)
 
-## Integration Points
+**4. Keep existing files intact** (MergedModals.tsx, SkillsModal.tsx)
+- These files stay as-is for potential reuse, but are no longer rendered from BottomHudBar or ProfileContent
+- Their sub-components (TraitGalleryView, ConsciousnessCard, etc.) are imported directly into CharacterProfileModal
 
-### GlobalChatInput (AuroraDock)
-- Add `VoiceModeButton` next to the existing voice recording button
-- When voice mode is active, messages flow through the existing `sendMessageRef` mechanism
-- Aurora responses are detected from the streaming state + messages list
+### Gamification Touches
+- Aura gradient glow around the orb based on profile colors
+- Trait cards show pillar-colored glow (already exists)
+- Archetype icon next to name in header
+- Stat wheel uses color-coded circular badges with score numbers
 
-### AuroraChatInput (Assessments)
-- Add `VoiceModeButton` next to the existing mic button
-- Messages flow through the `onSend` prop
-- Aurora responses come from the parent `DomainAssessChat` messages state
+### Community Ready
+- CharacterProfileModal accepts an optional `userId` prop
+- When viewing another user: hide Realizations tab content (private), show only public traits/archetype/stats/achievements
+- Owner view shows everything
 
-### DomainAssessChat
-- No direct changes needed -- voice mode works through `AuroraChatInput` which already has the `onSend` callback
+### Technical Details
+- Uses existing hooks: `useUnifiedDashboard`, `useOrbProfile`, `useXpProgress`, `useStreak`, `useEnergy`, `useTraitGallery`, `useTraitDetail`
+- Reuses existing sub-components: `IdentityProfileCard`, `TraitsCard`, `CommitmentsCard`, `DailyAnchorsDisplay`, `ConsciousnessCard`, `BehavioralInsightsCard`, `AIAnalysisDisplay`
+- Full-viewport overlay per modal standard (memory: `ui/modal-chat-integration-standard`)
+- RTL/LTR support throughout
 
-## Voice Conversation Flow (Technical)
-
-1. User enters voice mode -> `AuroraVoiceMode` overlay opens
-2. Auto-starts recording via `navigator.mediaDevices.getUserMedia`
-3. User stops speaking (manual tap or silence detection)
-4. Audio sent to `elevenlabs-transcribe` edge function (existing)
-5. Transcribed text sent as chat message via existing chat infrastructure
-6. Hook monitors for new assistant messages in the conversation
-7. When assistant message arrives, sends text to `elevenlabs-tts` edge function (existing)
-8. Audio plays back through the browser
-9. On audio end, auto-restart recording for next turn
-10. User taps "End" to exit voice mode
-
-## UI Design
-
-- **Overlay**: Full viewport, dark background with subtle gradient, `z-50`
-- **Center**: Large AuroraHoloOrb (96px+) with state-dependent animations
-  - Listening: gentle pulse with mic-level reactivity
-  - Processing: spinning/loading animation
-  - Speaking: rhythmic glow synced with audio output
-- **Bottom**: "End Call" button (red, rounded-full)
-- **Top**: Small transcript area showing last exchange
-- **RTL Support**: Full Hebrew/English bilingual labels
-
-## Files Summary
-
-| File | Action |
-|------|--------|
-| `src/hooks/aurora/useAuroraVoiceMode.tsx` | Create -- orchestration hook |
-| `src/components/aurora/AuroraVoiceMode.tsx` | Create -- full-screen voice UI |
-| `src/components/aurora/VoiceModeButton.tsx` | Create -- trigger button |
-| `src/components/dashboard/GlobalChatInput.tsx` | Edit -- add VoiceModeButton |
-| `src/components/aurora/AuroraChatInput.tsx` | Edit -- add VoiceModeButton |
-
-No new edge functions needed -- reuses existing `elevenlabs-transcribe` and `elevenlabs-tts`. No database changes required.
