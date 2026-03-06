@@ -916,6 +916,17 @@ serve(async (req) => {
               totalMissions++;
 
               const milestones = mission.milestones || [];
+              // Post-process: if all difficulties are identical or missing, force 1-5 progression
+              const difficulties = milestones.map((ms: any) => ms.difficulty);
+              const allSame = difficulties.length > 0 && difficulties.every((d: any) => d === difficulties[0]);
+              const hasMissing = difficulties.some((d: any) => d == null || d === 0);
+              const needsForcedProgression = allSame || hasMissing;
+              if (needsForcedProgression) {
+                for (let fi = 0; fi < milestones.length; fi++) {
+                  milestones[fi].difficulty = fi + 1;
+                }
+              }
+
               for (let si = 0; si < Math.min(milestones.length, 5); si++) {
                 const ms = milestones[si];
                 const phaseNumber = Math.floor(mi / 3) * 3 + Math.min(si, 3) + 1;
@@ -937,7 +948,7 @@ serve(async (req) => {
                   is_completed: false,
                   xp_reward: 20,
                   tokens_reward: 5,
-                  difficulty: Math.max(1, Math.min(5, ms.difficulty || (si + 1))),
+                  difficulty: Math.max(1, Math.min(5, ms.difficulty ?? (si + 1))),
                 });
                 totalMilestones++;
               }
