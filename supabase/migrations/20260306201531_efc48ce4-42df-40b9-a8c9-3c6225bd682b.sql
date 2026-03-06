@@ -1,0 +1,1 @@
+ALTER TABLE public.mini_milestones ADD COLUMN IF NOT EXISTS difficulty text NOT NULL DEFAULT 'medium' CHECK (difficulty IN ('easy', 'medium', 'hard'));

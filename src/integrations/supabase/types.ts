@@ -5606,6 +5606,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           description_en: string | null
+          difficulty: string
           execution_template: string | null
           id: string
           is_completed: boolean | null
@@ -5622,6 +5623,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           description_en?: string | null
+          difficulty?: string
           execution_template?: string | null
           id?: string
           is_completed?: boolean | null
@@ -5638,6 +5640,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           description_en?: string | null
+          difficulty?: string
           execution_template?: string | null
           id?: string
           is_completed?: boolean | null
