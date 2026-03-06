@@ -598,8 +598,8 @@ export async function playAudioUrl(
     
     // Check for silent/empty audio by validating duration when metadata loads
     audio.onloadedmetadata = () => {
-      if (audio.duration < MINIMUM_AUDIO_DURATION) {
-        console.warn(`Audio too short: ${audio.duration}s (expected at least ${MINIMUM_AUDIO_DURATION}s)`);
+      if (minDuration > 0 && audio.duration < minDuration) {
+        console.warn(`Audio too short: ${audio.duration}s (expected at least ${minDuration}s)`);
         cleanup();
         const error = new Error(`Audio too short: ${audio.duration}s`);
         options.onError?.(error);
