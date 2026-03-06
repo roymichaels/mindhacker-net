@@ -269,11 +269,23 @@ export function NowSection() {
       {/* ─── DAILY ROADMAP ─── */}
       <DailyRoadmap />
 
-      {/* Execution Modal */}
+      {/* Execution Modal (non-milestone actions) */}
       <ExecutionModal
         open={executionOpen}
         onOpenChange={setExecutionOpen}
         action={executionAction}
+        onComplete={() => refetch()}
+      />
+
+      {/* Milestone Journey Modal (milestone-backed actions) */}
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.milestoneId || null}
+        milestoneTitle={journeyAction ? (isHe ? journeyAction.title : journeyAction.titleEn) : ''}
+        milestoneDescription={journeyAction?.reason || undefined}
+        focusArea={journeyAction?.pillarId || undefined}
+        durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
       />
     </div>
