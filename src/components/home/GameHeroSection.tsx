@@ -7,10 +7,13 @@ import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { Orb } from '@/components/orb';
+import { ORB_PRESETS } from '@/lib/orbPresets';
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const auroraSkinPreset = ORB_PRESETS.find(p => p.id === 'aurora-skin');
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -69,6 +72,25 @@ export default function GameHeroSection() {
               {t('home.gameHero.title')}
             </span>
           </motion.h1>
+
+          {/* Aurora Skin Orb */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="flex justify-center"
+          >
+            <div className="relative">
+              <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] blur-2xl pointer-events-none" />
+              {auroraSkinPreset && (
+                <Orb
+                  profile={auroraSkinPreset.profile}
+                  size={180}
+                  renderer="webgl"
+                />
+              )}
+            </div>
+          </motion.div>
 
           {/* CTA */}
           <motion.div
