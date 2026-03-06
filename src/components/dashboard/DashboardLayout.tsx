@@ -101,7 +101,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
             {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
           </div>
 
-          <AuroraFloatingOrb />
+          {/* AuroraFloatingOrb removed — Aurora orb now lives in BottomHudBar */}
           <AuroraDock />
           <BottomHudBar />
           {isMobile && <BottomTabBar />}
