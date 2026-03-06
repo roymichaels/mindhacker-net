@@ -550,7 +550,7 @@ function DayView({
                 >
                   <div className="px-3 pb-3 pt-1 space-y-1">
                     {block.actions.map((action, actionIdx) => {
-                      const stars = typeof action.difficulty === 'number' ? action.difficulty : 3;
+                      const stars = typeof action.difficulty === 'number' ? action.difficulty : (actionIdx % 5) + 1;
                       return (
                         <button
                           key={action.id}

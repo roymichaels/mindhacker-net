@@ -394,13 +394,13 @@ BAD (too granular, task-like, diagnostic):
 - Each mission gets exactly 5 milestones — each is a STRATEGIC PROTOCOL or LIFESTYLE COMMITMENT.
 - Milestones should include FREQUENCY (daily, 3x/week, etc.) or INTENSITY (full day, minimum hours, etc.) when applicable.
 - They should be progressively more challenging across the 5.
-- Each milestone MUST have a "difficulty" field (1-5 stars):
-  - 1 ⭐ = Beginner / easy habit to maintain
-  - 2 ⭐⭐ = Moderate effort required
-  - 3 ⭐⭐⭐ = Challenging but achievable
-  - 4 ⭐⭐⭐⭐ = Hard, requires significant discipline
-  - 5 ⭐⭐⭐⭐⭐ = Elite level, extreme commitment
-- The 5 milestones should progress from lower difficulty (1-2) to higher (4-5).
+- **MANDATORY**: Each milestone MUST have a unique "difficulty" field — the 5 milestones MUST use exactly [1, 2, 3, 4, 5] in ascending order:
+  - Milestone 1 → difficulty: 1 (⭐ Beginner / easy habit)
+  - Milestone 2 → difficulty: 2 (⭐⭐ Moderate effort)
+  - Milestone 3 → difficulty: 3 (⭐⭐⭐ Challenging but achievable)
+  - Milestone 4 → difficulty: 4 (⭐⭐⭐⭐ Hard, significant discipline)
+  - Milestone 5 → difficulty: 5 (⭐⭐⭐⭐⭐ Elite level, extreme commitment)
+- **WARNING**: If all 5 milestones have the same difficulty, your output will be REJECTED. Each MUST be different.
 - CRITICAL: All milestones MUST stay within the pillar's scope.
 - CRITICAL: All milestones MUST respect the user's CRITICAL CONSTRAINTS.
 - Hebrew must be natural and punchy. Keep titles short but strategic.
@@ -916,6 +916,17 @@ serve(async (req) => {
               totalMissions++;
 
               const milestones = mission.milestones || [];
+              // Post-process: if all difficulties are identical or missing, force 1-5 progression
+              const difficulties = milestones.map((ms: any) => ms.difficulty);
+              const allSame = difficulties.length > 0 && difficulties.every((d: any) => d === difficulties[0]);
+              const hasMissing = difficulties.some((d: any) => d == null || d === 0);
+              const needsForcedProgression = allSame || hasMissing;
+              if (needsForcedProgression) {
+                for (let fi = 0; fi < milestones.length; fi++) {
+                  milestones[fi].difficulty = fi + 1;
+                }
+              }
+
               for (let si = 0; si < Math.min(milestones.length, 5); si++) {
                 const ms = milestones[si];
                 const phaseNumber = Math.floor(mi / 3) * 3 + Math.min(si, 3) + 1;
@@ -937,7 +948,7 @@ serve(async (req) => {
                   is_completed: false,
                   xp_reward: 20,
                   tokens_reward: 5,
-                  difficulty: Math.max(1, Math.min(5, ms.difficulty || (si + 1))),
+                  difficulty: Math.max(1, Math.min(5, ms.difficulty ?? (si + 1))),
                 });
                 totalMilestones++;
               }

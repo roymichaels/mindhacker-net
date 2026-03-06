@@ -603,7 +603,8 @@ export default function LifeHub() {
                                                         const msTitle = isHe
                                                           ? (ms.title || ms.title_en || '')
                                                           : (ms.title_en || ms.title || '');
-                                                        const stars = ms.difficulty || 3;
+                                                        const msIdx = mission.milestones.indexOf(ms);
+                                                        const stars = ms.difficulty ?? (msIdx + 1);
                                                         return (
                                                           <button
                                                             key={ms.id}
