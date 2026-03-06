@@ -102,6 +102,7 @@ function buildUserContext(
   userProjects: any[],
   userBusinesses: any[],
   auroraMemory: any[],
+  hobbies?: string[],
 ): string {
   const projectsSection = userProjects
     .map(p => `- "${p.name}" (${p.status}) — ${p.description || ''} | Pillar: ${p.life_pillar || 'general'} | Goals: ${JSON.stringify(p.goals || []).slice(0, 200)}`)
@@ -123,6 +124,10 @@ function buildUserContext(
     .map(m => `- [${m.created_at?.slice(0, 10) || '?'}] [${m.emotional_state || 'neutral'}] ${m.summary}`)
     .join('\n') || 'None';
 
+  const hobbiesSection = hobbies && hobbies.length > 0
+    ? `\n## HOBBIES & PLAY PREFERENCES (from onboarding)\n${hobbies.join(', ')}\n\nCRITICAL: For the "play" pillar, milestones MUST be based on these actual hobbies and interests.\nDo NOT generate generic "smile protocols" or abstract play tasks.\nGenerate milestones like: "Weekly hiking trip", "Join a local basketball game", "Plan a camping weekend", "30min photography walk", etc.\n`
+    : '';
+
   return `## USER
 Name: ${profileData?.name || 'Unknown'}
 Intention: ${JSON.stringify(profileData?.intention || '')}
@@ -133,7 +138,7 @@ ${projectsSection}
 
 ## BUSINESSES (with journey data)
 ${businessSection}
-
+${hobbiesSection}
 ## USER MEMORY (25 most recent, timeline-aware)
 ${memorySnippets}`;
 }
