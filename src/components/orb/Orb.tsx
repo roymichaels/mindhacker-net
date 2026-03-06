@@ -5,17 +5,19 @@ import type { OrbRef, OrbProps } from './types';
 
 export const Orb = forwardRef<OrbRef, OrbProps>(function Orb(props, ref) {
   const { renderer = 'auto', ...rest } = props;
+  // Force CSS for small orbs (≤100px) — WebGL renders dark/colorless at tiny sizes
+  const forceCSS = renderer === 'auto' && (rest.size || 300) <= 100;
   const [useWebGL, setUseWebGL] = useState<boolean | null>(() => {
-    if (renderer === 'css') return false;
+    if (renderer === 'css' || forceCSS) return false;
     if (renderer === 'webgl') return true;
     return null;
   });
 
   useEffect(() => {
-    if (renderer !== 'auto') return;
+    if (renderer !== 'auto' || forceCSS) return;
     // Check WebGL support on mount
     setUseWebGL(supportsWebGL());
-  }, [renderer]);
+  }, [renderer, forceCSS]);
 
   // Show placeholder only while checking WebGL support (auto mode)
   if (useWebGL === null) {
