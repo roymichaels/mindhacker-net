@@ -283,9 +283,9 @@ serve(async (req) => {
       usedPillars.add(pillar);
     }
 
-    // 4. MILESTONE-DERIVED ACTIONS (the core of v3)
+    // 4. MILESTONE-DERIVED ACTIONS (the core of v4)
+    // Now uses generate-daily-actions for AI-powered daily breakdowns
     if (hasStrategy) {
-      // Determine current day & phase for each plan
       const planPhases = plans.map((p: any) => ({
         ...p,
         ...getCurrentDayAndPhase(p.start_date),
@@ -294,7 +294,7 @@ serve(async (req) => {
       const currentPhases = planPhases.map((p: any) => p.phase);
       const currentDay = planPhases[0]?.day || 1;
 
-      // Fetch current-phase milestones (no FK join — mission_id has no FK constraint)
+      // Fetch current-phase milestones
       const { data: milestones, error: milestoneErr } = await supabase
         .from("life_plan_milestones")
         .select("id, title, title_en, focus_area, week_number, is_completed, mission_id, plan_id")
@@ -305,7 +305,7 @@ serve(async (req) => {
 
       if (milestoneErr) console.error("Milestone fetch error:", milestoneErr);
 
-      // Fetch missions separately for lineage
+      // Fetch missions for lineage
       const missionIds = [...new Set((milestones || []).map((m: any) => m.mission_id).filter(Boolean))];
       let missionLookup: Record<string, any> = {};
       if (missionIds.length > 0) {
@@ -318,78 +318,157 @@ serve(async (req) => {
         }
       }
 
-      // Fetch mini_milestones for these milestones (today's scheduled actions)
+      // Fetch mini_milestones (weekly objectives) for these milestones
       const milestoneIds = (milestones || []).map((m: any) => m.id);
-
-      let todayMinis: any[] = [];
+      let weeklyObjectives: any[] = [];
       if (milestoneIds.length > 0) {
         const { data: minis } = await supabase
           .from("mini_milestones")
-          .select("id, title, title_en, milestone_id, scheduled_day, is_completed, execution_template, action_type")
+          .select("id, title, title_en, description, description_en, milestone_id, scheduled_day, is_completed, execution_template, action_type")
           .in("milestone_id", milestoneIds)
           .eq("is_completed", false)
           .order("scheduled_day")
           .order("mini_number");
-
-        todayMinis = minis || [];
+        weeklyObjectives = minis || [];
       }
 
-      // Build a milestone lookup for lineage
+      // Build milestone lookup
       const milestoneLookup: Record<string, any> = {};
       for (const m of (milestones || [])) {
         milestoneLookup[m.id] = m;
       }
 
-      // Strategy 1: Add mini_milestones scheduled for today (±2 days buffer)
-      const dayBuffer = 2;
-      const relevantMinis = todayMinis.filter((mini: any) => {
-        if (!mini.scheduled_day) return true; // no scheduled day = always available
-        return Math.abs(mini.scheduled_day - currentDay) <= dayBuffer;
-      });
+      // Check if we already have daily_engine actions for today
+      const { data: existingDailyActions } = await supabase
+        .from("action_items")
+        .select("id, title, pillar, type, status, metadata, parent_id")
+        .eq("user_id", user_id)
+        .eq("source", "daily_engine")
+        .eq("scheduled_date", today)
+        .in("status", ["todo", "doing"])
+        .order("order_index");
 
-      for (const mini of relevantMinis) {
-        if (queue.length >= maxActions) break;
-        const milestone = milestoneLookup[mini.milestone_id];
-        if (!milestone) continue;
-
-        const mission = missionLookup[milestone.mission_id] || null;
-        const pillar = mission?.pillar || milestone.focus_area || "focus";
-
-        if (usedPillars.has(pillar) && queue.length > 3) continue; // allow some pillar overlap early
-
-        queue.push({
-          pillarId: pillar,
-          hub: getHub(pillar),
-          actionType: mini.action_type || pillar + '_milestone',
-          title: isHe ? (mini.title || mini.title_en) : (mini.title_en || mini.title),
-          titleEn: mini.title_en || mini.title,
-          durationMin: Math.round(20 * dayIntensity.multiplier),
-          isTimeBased: detectTimeBased(mini.title_en || mini.title || "", mini.action_type || "milestone"),
-          urgencyScore: 7,
-          reason: isHe
-            ? `${mission?.title || milestone.title} — שלב ${milestone.week_number}`
-            : `${mission?.title_en || milestone.title_en || milestone.title} — Phase ${milestone.week_number}`,
-          sourceType: "mini_milestone",
-          sourceId: mini.id,
-          missionId: mission?.id,
-          missionTitle: isHe ? (mission?.title || mission?.title_en) : (mission?.title_en || mission?.title),
-          milestoneId: milestone.id,
-          milestoneTitle: isHe ? (milestone.title || milestone.title_en) : (milestone.title_en || milestone.title),
-          executionTemplate: mini.execution_template || undefined,
+      if (existingDailyActions && existingDailyActions.length > 0) {
+        // Use cached daily actions
+        for (const da of existingDailyActions) {
+          if (queue.length >= maxActions) break;
+          const meta = (da.metadata as any) || {};
+          const pillar = da.pillar || "focus";
+          
+          queue.push({
+            pillarId: pillar,
+            hub: getHub(pillar),
+            actionType: meta.action_type || pillar + '_daily',
+            title: da.title,
+            titleEn: meta.title_en || da.title,
+            durationMin: meta.duration_min || 15,
+            isTimeBased: meta.is_time_based || false,
+            urgencyScore: 7.5,
+            reason: meta.weekly_objective_title
+              ? (isHe ? meta.weekly_objective_title : meta.weekly_objective_title)
+              : (isHe ? "יעד שבועי" : "Weekly objective"),
+            sourceType: "mini_milestone",
+            sourceId: da.id,
+            missionTitle: meta.mission_title || undefined,
+            milestoneTitle: meta.weekly_objective_title || undefined,
+            executionTemplate: meta.execution_template || undefined,
+          });
+          usedPillars.add(pillar);
+        }
+      } else if (weeklyObjectives.length > 0) {
+        // Generate daily actions from weekly objectives via AI
+        const objectivesForAI = weeklyObjectives.slice(0, 8).map((obj: any) => {
+          const milestone = milestoneLookup[obj.milestone_id];
+          const mission = milestone ? missionLookup[milestone.mission_id] : null;
+          return {
+            id: obj.id,
+            title: obj.title,
+            titleEn: obj.title_en,
+            description: obj.description,
+            descriptionEn: obj.description_en,
+            pillar: mission?.pillar || milestone?.focus_area || "focus",
+            missionTitle: isHe ? (mission?.title || mission?.title_en) : (mission?.title_en || mission?.title),
+            executionTemplate: obj.execution_template,
+            actionType: obj.action_type,
+            cadence: null, // Will be inferred
+          };
         });
-        usedPillars.add(pillar);
-      }
 
-      // Strategy 2: If not enough minis, fall back to milestones themselves
-      if (queue.length < maxActions) {
+        try {
+          const dailyResp = await supabase.functions.invoke('generate-daily-actions', {
+            body: {
+              user_id,
+              weekly_objectives: objectivesForAI,
+              language,
+              day_intensity: dayIntensity.label,
+              energy_level: pulse?.energy_rating || null,
+            },
+          });
+
+          if (dailyResp.data?.daily_actions) {
+            for (const da of dailyResp.data.daily_actions) {
+              if (queue.length >= maxActions) break;
+              queue.push({
+                pillarId: da.pillarId || "focus",
+                hub: getHub(da.pillarId || "focus"),
+                actionType: da.actionType || da.pillarId + '_daily',
+                title: isHe ? da.title : da.titleEn,
+                titleEn: da.titleEn,
+                durationMin: da.durationMin || 15,
+                isTimeBased: da.isTimeBased || false,
+                urgencyScore: 7.5,
+                reason: da.weeklyObjectiveTitle
+                  ? (isHe ? da.weeklyObjectiveTitle : da.weeklyObjectiveTitle)
+                  : (isHe ? "יעד שבועי" : "Weekly objective"),
+                sourceType: "mini_milestone",
+                sourceId: da.weeklyObjectiveId || undefined,
+                missionTitle: da.missionTitle || undefined,
+                milestoneTitle: da.weeklyObjectiveTitle || undefined,
+                executionTemplate: da.executionTemplate || undefined,
+              });
+              if (da.pillarId) usedPillars.add(da.pillarId);
+            }
+          }
+        } catch (dailyErr) {
+          console.error("Daily actions generation failed, falling back to objectives:", dailyErr);
+          // Fallback: use weekly objectives directly
+          for (const obj of weeklyObjectives) {
+            if (queue.length >= maxActions) break;
+            const milestone = milestoneLookup[obj.milestone_id];
+            if (!milestone) continue;
+            const mission = missionLookup[milestone.mission_id] || null;
+            const pillar = mission?.pillar || milestone.focus_area || "focus";
+
+            queue.push({
+              pillarId: pillar,
+              hub: getHub(pillar),
+              actionType: obj.action_type || pillar + '_objective',
+              title: isHe ? (obj.title || obj.title_en) : (obj.title_en || obj.title),
+              titleEn: obj.title_en || obj.title,
+              durationMin: Math.round(20 * dayIntensity.multiplier),
+              isTimeBased: detectTimeBased(obj.title_en || obj.title || "", obj.action_type || "objective"),
+              urgencyScore: 7,
+              reason: isHe
+                ? `${mission?.title || milestone.title} — שלב ${milestone.week_number}`
+                : `${mission?.title_en || milestone.title_en || milestone.title} — Phase ${milestone.week_number}`,
+              sourceType: "mini_milestone",
+              sourceId: obj.id,
+              missionId: mission?.id,
+              missionTitle: isHe ? (mission?.title || mission?.title_en) : (mission?.title_en || mission?.title),
+              milestoneId: milestone.id,
+              milestoneTitle: isHe ? (milestone.title || milestone.title_en) : (milestone.title_en || milestone.title),
+              executionTemplate: obj.execution_template || undefined,
+            });
+            usedPillars.add(pillar);
+          }
+        }
+      } else {
+        // No weekly objectives — fall back to milestones directly
         const incompleteMilestones = (milestones || []).filter((m: any) => !m.is_completed);
         for (const milestone of incompleteMilestones) {
           if (queue.length >= maxActions) break;
-
           const mission = missionLookup[milestone.mission_id] || null;
           const pillar = mission?.pillar || milestone.focus_area || "focus";
-
-          // Skip if we already have an action for this milestone
           if (queue.some(q => q.milestoneId === milestone.id)) continue;
           if (usedPillars.has(pillar) && queue.length > 4) continue;
 
