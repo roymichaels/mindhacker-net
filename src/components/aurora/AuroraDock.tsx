@@ -134,17 +134,26 @@ export function AuroraDock() {
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="fixed inset-0 z-[9999] flex flex-col bg-background"
       >
-        {/* Top bar with back button */}
+        {/* Top bar with Aurora branding + back button */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+          {/* Close / back */}
           <button
             onClick={closeDock}
-            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>{isHe ? 'חזרה' : 'Back'}</span>
+            <X className="w-5 h-5" />
           </button>
 
+          {/* Aurora name + orb logo */}
           <div className="flex items-center gap-2">
+            <span className="text-base font-semibold text-foreground">
+              {isHe ? 'אורורה' : 'Aurora'}
+            </span>
+            <AuroraHoloOrb size={28} glow="subtle" />
+          </div>
+
+          {/* Right side actions */}
+          <div className="flex items-center gap-1.5">
             {pillarLabel && !isAssessing && (
               <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
                 {pillarLabel}
