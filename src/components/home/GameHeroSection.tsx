@@ -13,6 +13,7 @@ import { ORB_PRESETS } from '@/lib/orbPresets';
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const auroraSkinPreset = ORB_PRESETS.find(p => p.id === 'aurora-skin');
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
