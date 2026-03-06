@@ -2856,12 +2856,39 @@ export const en: TranslationKeys = {
 
     // GameHeroSection
     gameHero: {
-      badge: 'Life Operating System',
-      title: 'Your Life, Upgraded by AI',
-      subtitle: 'A personal AI coach that knows you, a tailored 100-day plan, and a complete system for 14 areas of your life — all in one place.',
+      badge: '90-Day Transformation System',
+      title: 'Upgrade Every Area of Your Life',
+      subtitle: 'Deep assessment across 14 life domains → AI-generated 90-day strategy → daily tactical execution with Aurora, your personal AI coach.',
       cta: '🚀 Start Your Assessment',
-      ctaMeta: '⏱️ 5 minutes • Personalized from day 1',
+      ctaMeta: '⏱️ 5 min assessment • Personalized plan from day 1',
       scrollDown: 'Scroll Down',
+    },
+
+    // TheSystemSection
+    theSystem: {
+      title: 'How the System Works',
+      subtitle: 'Three phases that transform your life in 90 days.',
+      phaseLabel: 'Phase',
+      phase1Title: 'Deep Assessment',
+      phase1Desc: 'Aurora scans all 14 life domains — health, career, relationships, finances, mindset and more — to build your complete life profile.',
+      phase2Title: '90-Day Strategy',
+      phase2Desc: 'AI generates a personalized plan with missions, milestones, and protocols tailored to your priorities and current state.',
+      phase3Title: 'Daily Execution',
+      phase3Desc: 'Every morning you get a tactical queue — the exact actions to take today. Aurora adapts the plan as you progress.',
+    },
+
+    // AppPreviewSection
+    appPreview: {
+      title: 'Your Command Center',
+      subtitle: 'Everything you need to execute, track, and evolve — in one place.',
+      nowTitle: 'Now',
+      nowDesc: 'Your daily tactical queue — prioritized actions delivered every morning.',
+      strategyTitle: 'Strategy',
+      strategyDesc: 'Visual map of your 90-day missions and milestones across all domains.',
+      tacticsTitle: 'Tactics',
+      tacticsDesc: 'Calendar view of scheduled actions, habits, and protocols.',
+      orbTitle: 'Your Orb',
+      orbDesc: 'A living avatar that evolves as you grow — reflecting your real progress.',
     },
 
     // AuroraCoachSection
