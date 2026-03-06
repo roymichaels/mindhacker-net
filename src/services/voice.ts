@@ -610,14 +610,16 @@ export async function playAudioUrl(
     audio.onended = () => {
       cleanup();
       
-      // Guard against instant completion (silent audio)
-      const elapsedMs = startTime > 0 ? Date.now() - startTime : 0;
-      if (audioStarted && elapsedMs < 3000) {
-        console.warn(`Audio ended too quickly: ${elapsedMs}ms - likely silent/corrupt`);
-        const error = new Error('Audio ended too quickly - likely silent');
-        options.onError?.(error);
-        reject(error);
-        return;
+      // Guard against instant completion (silent audio) — only for long-form audio
+      if (minDuration > 0) {
+        const elapsedMs = startTime > 0 ? Date.now() - startTime : 0;
+        if (audioStarted && elapsedMs < 3000) {
+          console.warn(`Audio ended too quickly: ${elapsedMs}ms - likely silent/corrupt`);
+          const error = new Error('Audio ended too quickly - likely silent');
+          options.onError?.(error);
+          reject(error);
+          return;
+        }
       }
       
       options.onEnd?.();
