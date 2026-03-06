@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
+import { useAuth } from '@/contexts/AuthContext';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNowEngine, type NowQueueItem } from '@/hooks/useNowEngine';
