@@ -357,13 +357,13 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
       {/* ── KINGDOM: Life Direction ── */}
       {lifeDirection && (
-        <EmpireCard glow="hsla(35, 80%, 50%, 0.06)">
+        <EmpireCard glow="hsla(35, 80%, 50%, 0.06)" className="text-center">
           <SectionTitle
             icon={<Compass className="w-4 h-4 text-amber-400" />}
             title={isHe ? 'כיוון חיים' : 'Life Direction'}
             accentColor="bg-amber-500/10"
           />
-          <div className="flex gap-0.5 mb-2">
+          <div className="flex gap-0.5 mb-2 justify-center">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-white/10")} />
             ))}
