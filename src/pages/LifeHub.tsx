@@ -22,11 +22,12 @@ const TOTAL_PHASES = 10;
 export default function LifeHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { plan, milestones, isLoading, currentWeek: currentPhase } = useLifePlanWithMilestones();
+  const { plan, milestones: allMilestones, isLoading, currentWeek: currentPhase } = useLifePlanWithMilestones();
   const hasPlan = !!plan;
   const queryClient = useQueryClient();
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [expandedPhase, setExpandedPhase] = useState<number | null>(null);
+  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+  const [expandedMission, setExpandedMission] = useState<string | null>(null);
 
   // Stats
   const { statusMap } = useLifeDomains();
@@ -43,33 +44,76 @@ export default function LifeHub() {
     return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, [plan?.start_date]);
 
-  // Overall progress
-  const allCompleted = milestones.filter(m => m.is_completed).length;
-  const allTotal = milestones.length || 1;
-  const overallPct = Math.round((allCompleted / allTotal) * 100);
+  // Fetch missions for the plan
+  const { data: missions } = useQuery({
+    queryKey: ['strategy-missions', plan?.id],
+    queryFn: async () => {
+      if (!plan?.id) return [];
+      const { data, error } = await supabase
+        .from('plan_missions')
+        .select('*')
+        .eq('plan_id', plan.id)
+        .order('mission_number');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!plan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // Phase groups for full 100-day roadmap
-  const phaseGroups = useMemo(() => {
-    const map = new Map<number, { phase: number; label: string; milestones: any[]; completed: number; total: number; focusAreas: string[] }>();
-    for (const m of milestones) {
-      const p = m.week_number;
-      if (!map.has(p)) {
-        map.set(p, { phase: p, label: PHASE_LABELS[p - 1] || String(p), milestones: [], completed: 0, total: 0, focusAreas: [] });
-      }
-      const g = map.get(p)!;
-      g.total++;
-      if (m.is_completed) g.completed++;
-      g.milestones.push(m);
-      const area = isHe ? m.focus_area : (m.focus_area_en || m.focus_area);
-      if (area && !g.focusAreas.includes(area)) g.focusAreas.push(area);
+  // Fetch milestones linked to missions
+  const { data: missionMilestones } = useQuery({
+    queryKey: ['strategy-milestones', plan?.id],
+    queryFn: async () => {
+      if (!plan?.id) return [];
+      const { data, error } = await supabase
+        .from('life_plan_milestones')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area')
+        .eq('plan_id', plan.id)
+        .not('mission_id', 'is', null)
+        .order('milestone_number');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!plan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Group missions by pillar
+  const pillarGroups = useMemo(() => {
+    if (!missions) return [];
+    const byPillar: Record<string, typeof missions> = {};
+    for (const m of missions) {
+      if (!byPillar[m.pillar]) byPillar[m.pillar] = [];
+      byPillar[m.pillar]!.push(m);
     }
-    for (let p = 1; p <= TOTAL_PHASES; p++) {
-      if (!map.has(p)) {
-        map.set(p, { phase: p, label: PHASE_LABELS[p - 1] || String(p), milestones: [], completed: 0, total: 0, focusAreas: [] });
-      }
+    // Group milestones by mission_id
+    const msByMission: Record<string, NonNullable<typeof missionMilestones>> = {};
+    for (const ms of (missionMilestones || [])) {
+      if (!ms.mission_id) continue;
+      if (!msByMission[ms.mission_id]) msByMission[ms.mission_id] = [];
+      msByMission[ms.mission_id]!.push(ms);
     }
-    return Array.from(map.values()).sort((a, b) => a.phase - b.phase);
-  }, [milestones, isHe]);
+    return Object.entries(byPillar).map(([pillarId, pillarMissions]) => {
+      const domain = getDomainById(pillarId);
+      const totalMs = pillarMissions.reduce((s, m) => s + (msByMission[m.id]?.length || 0), 0);
+      const completedMs = pillarMissions.reduce((s, m) => s + (msByMission[m.id]?.filter(ms => ms.is_completed).length || 0), 0);
+      return {
+        pillarId,
+        domain,
+        missions: pillarMissions,
+        milestonesByMission: msByMission,
+        totalMilestones: totalMs,
+        completedMilestones: completedMs,
+        completedMissions: pillarMissions.filter(m => m.is_completed).length,
+      };
+    });
+  }, [missions, missionMilestones]);
+
+  // Overall progress from missions
+  const totalMissionsCount = missions?.length || 0;
+  const completedMissionsCount = missions?.filter(m => m.is_completed).length || 0;
+  const overallPct = totalMissionsCount > 0 ? Math.round((completedMissionsCount / totalMissionsCount) * 100) : 0;
 
   const statItems = [
     { icon: Flame, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
@@ -82,6 +126,8 @@ export default function LifeHub() {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
     queryClient.invalidateQueries({ queryKey: ['now-engine'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
+    queryClient.invalidateQueries({ queryKey: ['strategy-missions'] });
+    queryClient.invalidateQueries({ queryKey: ['strategy-milestones'] });
   };
 
   return (
@@ -124,7 +170,7 @@ export default function LifeHub() {
               ))}
             </div>
 
-            {/* ── FULL 100-DAY ROADMAP ── */}
+            {/* ── STRATEGIC VIEW: PILLARS → MISSIONS → MILESTONES ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
               {/* Header */}
               <div className="px-4 py-3 border-b border-border/30">
@@ -137,10 +183,9 @@ export default function LifeHub() {
                       {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
-                      {allCompleted}/{allTotal} {isHe ? 'אבני דרך' : 'milestones'} · {overallPct}%
+                      {completedMissionsCount}/{totalMissionsCount} {isHe ? 'משימות' : 'missions'} · {overallPct}%
                     </p>
                   </div>
-                  {/* Recalibrate button inside plan header */}
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -161,91 +206,46 @@ export default function LifeHub() {
                 </div>
               </div>
 
-              {/* Phase timeline */}
-              <div className="px-4 py-3 space-y-0.5">
-                {phaseGroups.map((g, idx) => {
-                  const isDone = g.total > 0 && g.completed === g.total;
-                  const isCurrent = g.phase === currentPhase;
-                  const isPast = (currentPhase || 0) > g.phase;
-                  const isExpanded = expandedPhase === g.phase;
-                  const phasePct = g.total > 0 ? Math.round((g.completed / g.total) * 100) : 0;
+              {/* Pillar → Mission → Milestone hierarchy */}
+              <div className="px-3 py-3 space-y-1">
+                {pillarGroups.map((group) => {
+                  const { pillarId, domain, missions: pillarMissions, milestonesByMission, totalMilestones, completedMilestones, completedMissions: completedM } = group;
+                  const isPillarExpanded = expandedPillar === pillarId;
+                  const Icon = domain?.icon;
+                  const pillarPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
+                  const allDone = pillarMissions.length > 0 && completedM === pillarMissions.length;
 
                   return (
-                    <div key={g.phase} className="relative">
-                      {/* Connecting line */}
-                      {idx < phaseGroups.length - 1 && (
-                        <div className={cn(
-                          "absolute top-7 start-[11px] w-0.5",
-                          isExpanded ? "h-[calc(100%-8px)]" : "h-[calc(100%-4px)]",
-                          isDone || isPast ? "bg-primary/40" : "bg-muted-foreground/15"
-                        )} />
-                      )}
-
+                    <div key={pillarId}>
+                      {/* Pillar row */}
                       <button
-                        onClick={() => setExpandedPhase(isExpanded ? null : g.phase)}
+                        onClick={() => setExpandedPillar(isPillarExpanded ? null : pillarId)}
                         className={cn(
-                          "relative w-full flex items-start gap-2 p-2 rounded-lg text-start transition-all",
-                          isCurrent && "bg-primary/10 border border-primary/20",
-                          !isCurrent && !isDone && "hover:bg-muted/30",
-                          isDone && "opacity-80",
+                          "w-full flex items-center gap-2.5 p-2.5 rounded-xl text-start transition-all",
+                          isPillarExpanded ? "bg-primary/8 border border-primary/20" : "hover:bg-muted/30",
+                          allDone && "opacity-70"
                         )}
                       >
-                        <div className="mt-0.5 shrink-0">
-                          {isDone ? (
-                            <CheckCircle2 className="w-[18px] h-[18px] text-primary" />
-                          ) : isCurrent ? (
-                            <div className="w-[18px] h-[18px] rounded-full border-2 border-primary bg-primary/20 flex items-center justify-center">
-                              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                            </div>
-                          ) : (
-                            <Circle className="w-[18px] h-[18px] text-muted-foreground/30" />
-                          )}
-                        </div>
-
+                        {Icon && <Icon className={cn("w-5 h-5 shrink-0", allDone ? "text-primary" : "text-muted-foreground")} />}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className={cn("text-[10px] font-bold", isCurrent ? "text-primary" : "text-muted-foreground")}>
-                              {isHe ? `שלב ${g.label}` : `Phase ${g.label}`}
+                            <span className="text-xs font-bold text-foreground">
+                              {isHe ? (domain?.labelHe || pillarId) : (domain?.labelEn || pillarId)}
                             </span>
-                            {isCurrent && (
-                              <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
-                                {isHe ? 'עכשיו' : 'NOW'}
-                              </span>
-                            )}
                             <span className="text-[9px] text-muted-foreground ms-auto">
-                              {g.completed}/{g.total}
+                              {completedM}/{pillarMissions.length} {isHe ? 'משימות' : 'missions'}
                             </span>
                           </div>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {g.focusAreas.slice(0, 3).map((area) => (
-                              <span key={area} className={cn(
-                                "text-[9px] px-1.5 py-0.5 rounded-md",
-                                isCurrent ? "bg-primary/15 text-primary" : "bg-muted/60 text-muted-foreground"
-                              )}>
-                                {area}
-                              </span>
-                            ))}
-                            {g.focusAreas.length > 3 && (
-                              <span className="text-[9px] text-muted-foreground/60">+{g.focusAreas.length - 3}</span>
-                            )}
+                          <div className="h-1 rounded-full bg-muted/40 overflow-hidden mt-1">
+                            <div className={cn("h-full rounded-full transition-all", allDone ? "bg-primary" : "bg-primary/50")} style={{ width: `${pillarPct}%` }} />
                           </div>
-                          {g.total > 0 && (
-                            <div className="h-1 rounded-full bg-muted/40 overflow-hidden mt-1.5">
-                              <div className={cn("h-full rounded-full transition-all", isDone ? "bg-primary" : "bg-primary/50")} style={{ width: `${phasePct}%` }} />
-                            </div>
-                          )}
                         </div>
-
-                        {g.total > 0 && (
-                          <div className="mt-1 shrink-0">
-                            {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
-                          </div>
-                        )}
+                        {isPillarExpanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
                       </button>
 
-                      {/* Expanded milestones */}
+                      {/* Expanded: Missions */}
                       <AnimatePresence>
-                        {isExpanded && g.milestones.length > 0 && (
+                        {isPillarExpanded && (
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
@@ -253,33 +253,82 @@ export default function LifeHub() {
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden"
                           >
-                            <div className="ps-7 pe-1 py-1 space-y-0.5">
-                              {g.milestones.map((m: any) => {
-                                const domain = getDomainById(m.focus_area);
-                                const Icon = domain?.icon;
+                            <div className="ps-6 pe-1 py-1.5 space-y-1">
+                              {pillarMissions.map((mission) => {
+                                const msMilestones = milestonesByMission[mission.id] || [];
+                                const msCompleted = msMilestones.filter(ms => ms.is_completed).length;
+                                const isMissionExpanded = expandedMission === mission.id;
+                                const missionDone = mission.is_completed;
+
                                 return (
-                                  <div key={m.id} className={cn(
-                                    "flex items-start gap-2 py-1.5 px-2 rounded-lg",
-                                    m.is_completed ? "opacity-50" : "hover:bg-muted/20 transition-colors"
-                                  )}>
-                                    {m.is_completed ? (
-                                      <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                    ) : (
-                                      <Circle className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <p className={cn(
-                                        "text-xs leading-snug",
-                                        m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
-                                      )}>
-                                        {isHe ? (m.title || m.title_en) : (m.title_en || m.title)}
-                                      </p>
-                                      {m.goal && (
-                                        <span className="text-[10px] text-muted-foreground/50 leading-tight block mt-0.5">
-                                          {isHe ? m.goal : (m.goal_en || m.goal)}
-                                        </span>
+                                  <div key={mission.id}>
+                                    <button
+                                      onClick={() => setExpandedMission(isMissionExpanded ? null : mission.id)}
+                                      className={cn(
+                                        "w-full flex items-start gap-2 py-2 px-2.5 rounded-lg text-start transition-all",
+                                        isMissionExpanded ? "bg-muted/40" : "hover:bg-muted/20",
+                                        missionDone && "opacity-60"
                                       )}
-                                    </div>
+                                    >
+                                      {missionDone ? (
+                                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                      ) : (
+                                        <Target className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                                      )}
+                                      <div className="flex-1 min-w-0">
+                                        <p className={cn(
+                                          "text-[11px] font-semibold leading-snug",
+                                          missionDone ? "line-through text-muted-foreground" : "text-foreground"
+                                        )}>
+                                          {isHe ? (mission.title || mission.title_en) : (mission.title_en || mission.title)}
+                                        </p>
+                                        {mission.description && (
+                                          <p className="text-[10px] text-muted-foreground/60 mt-0.5 line-clamp-2">
+                                            {isHe ? (mission.description || mission.description_en) : (mission.description_en || mission.description)}
+                                          </p>
+                                        )}
+                                        <span className="text-[9px] text-muted-foreground/50 mt-0.5 block">
+                                          {msCompleted}/{msMilestones.length} {isHe ? 'יעדים' : 'goals'}
+                                        </span>
+                                      </div>
+                                      {msMilestones.length > 0 && (
+                                        isMissionExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground shrink-0 mt-1" /> : <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0 mt-1" />
+                                      )}
+                                    </button>
+
+                                    {/* Expanded: Milestones (Goals) */}
+                                    <AnimatePresence>
+                                      {isMissionExpanded && msMilestones.length > 0 && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: 'auto', opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{ duration: 0.15 }}
+                                          className="overflow-hidden"
+                                        >
+                                          <div className="ps-6 pe-1 py-1 space-y-0.5">
+                                            {msMilestones.map((ms: any) => (
+                                              <div key={ms.id} className={cn(
+                                                "flex items-center gap-2 py-1 px-2 rounded-md",
+                                                ms.is_completed ? "opacity-50" : ""
+                                              )}>
+                                                {ms.is_completed ? (
+                                                  <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                                                ) : (
+                                                  <Circle className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />
+                                                )}
+                                                <span className={cn(
+                                                  "text-[10px]",
+                                                  ms.is_completed ? "line-through text-muted-foreground" : "text-foreground/70"
+                                                )}>
+                                                  {isHe ? (ms.title || ms.title_en) : (ms.title_en || ms.title)}
+                                                </span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
                                   </div>
                                 );
                               })}
