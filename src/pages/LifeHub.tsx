@@ -313,14 +313,8 @@ export default function LifeHub() {
                                 </div>
                               );
                             })}
-                          </div>
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
+
+
                         </motion.div>
                       )}
                     </AnimatePresence>
