@@ -721,9 +721,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             <Progress value={progress} className="h-1.5" />
           </div>
 
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-hide" dir={isRTL ? 'rtl' : 'ltr'}>
-          <AnimatePresence mode="wait">
+          {/* ── CONTENT ── */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-hide" dir={isRTL ? 'rtl' : 'ltr'}>
+            <AnimatePresence mode="wait">
 
             {/* ======== TTS GUIDED ======== */}
             {template === 'tts_guided' && (
