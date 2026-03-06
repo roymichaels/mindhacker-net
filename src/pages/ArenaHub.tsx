@@ -48,10 +48,12 @@ const BLOCK_ICON_COLORS: Record<BlockCategory, string> = {
   social: 'text-pink-400',
 };
 
-const DIFFICULTY_STYLES: Record<Difficulty, { bg: string; text: string; label: { he: string; en: string } }> = {
-  easy: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: { he: 'קל', en: 'Easy' } },
-  medium: { bg: 'bg-amber-500/15', text: 'text-amber-500', label: { he: 'בינוני', en: 'Medium' } },
-  hard: { bg: 'bg-red-500/15', text: 'text-red-500', label: { he: 'קשה', en: 'Hard' } },
+const DIFFICULTY_LABELS: Record<number, { he: string; en: string }> = {
+  1: { he: '⭐', en: '⭐' },
+  2: { he: '⭐⭐', en: '⭐⭐' },
+  3: { he: '⭐⭐⭐', en: '⭐⭐⭐' },
+  4: { he: '⭐⭐⭐⭐', en: '⭐⭐⭐⭐' },
+  5: { he: '⭐⭐⭐⭐⭐', en: '⭐⭐⭐⭐⭐' },
 };
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
