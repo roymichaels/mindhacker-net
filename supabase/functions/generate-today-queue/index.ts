@@ -273,6 +273,7 @@ serve(async (req) => {
         title: task.title,
         titleEn: task.title,
         durationMin: 20,
+        isTimeBased: detectTimeBased(task.title, task.type || "task"),
         urgencyScore: 7.5,
         reason: isHe ? "משימה מתוכננת להיום" : "Scheduled for today",
         sourceType: "plan",
