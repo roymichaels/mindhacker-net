@@ -19,6 +19,7 @@ import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { Calendar, Play, Rocket, Loader2, CheckCircle2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
