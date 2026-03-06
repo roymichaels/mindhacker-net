@@ -157,14 +157,9 @@ export default function ThreadCard({ thread, onProfileClick, compact, showTrendi
         </h3>
       </Link>
 
-      {/* Preview */}
-      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-        {displayContent}
-      </p>
-
-      {/* Sub-category Badge */}
+      {/* Category Badge */}
       {thread.category && (
-        <div className="mt-2">
+        <div className="mt-1.5">
           <Badge
             variant="outline"
             className="text-[10px] px-1.5 py-0 h-4"
