@@ -21,7 +21,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
-import { ProfileModal } from '@/components/dashboard/ProfileModal';
+import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
@@ -102,7 +102,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
 
   return (
     <>
-      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
+      <CharacterProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
       <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
 
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
