@@ -7,6 +7,8 @@ import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { Orb } from '@/components/orb';
+import { ORB_PRESETS } from '@/lib/orbPresets';
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
