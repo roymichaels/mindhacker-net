@@ -21,8 +21,14 @@ export interface NowQueueItem {
   durationMin: number;
   urgencyScore: number;
   reason: string;
-  sourceType: 'plan' | 'assessment' | 'template' | 'habit';
+  sourceType: 'milestone' | 'mini_milestone' | 'habit' | 'overdue' | 'template' | 'plan' | 'assessment';
   sourceId?: string;
+  // Lineage: trace back to strategy
+  missionId?: string;
+  missionTitle?: string;
+  milestoneId?: string;
+  milestoneTitle?: string;
+  traitName?: string;
   executionSteps?: ExecutionStep[];
   executionTemplate?: ExecutionTemplate;
 }

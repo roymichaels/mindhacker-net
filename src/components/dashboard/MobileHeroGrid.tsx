@@ -241,6 +241,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                 <p className="text-xs leading-snug text-foreground/80">
                                   {isHe ? item.title : item.titleEn}
                                 </p>
+                                {/* Lineage: Mission → Milestone */}
+                                {item.missionTitle && (
+                                  <span className="text-[9px] text-muted-foreground/40 block mt-0.5 truncate">
+                                    {item.traitName && <>{item.traitName} · </>}
+                                    {item.missionTitle}
+                                  </span>
+                                )}
                                 <span className="text-[10px] text-muted-foreground/50 flex items-center gap-1 mt-0.5">
                                   <Clock className="w-2.5 h-2.5" />
                                   {item.durationMin} {isHe ? 'דק׳' : 'min'}
