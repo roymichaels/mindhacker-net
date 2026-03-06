@@ -118,6 +118,31 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               ))}
             </div>
 
+            {/* ── HYPNOSIS SESSION CARD ── */}
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-2.5 cursor-pointer group active:scale-[0.99] transition-transform"
+              onClick={openHypnosis}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                  <Brain className="w-4.5 h-4.5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isHe ? 'סשן מותאם אישית' : 'Personalized Session'}
+                  </p>
+                  <h2 className="text-sm font-bold text-foreground leading-snug">
+                    {isHe ? 'היפנוזה יומית' : 'Daily Hypnosis'}
+                  </h2>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/25 transition-colors">
+                  <Play className="w-4 h-4 text-primary" />
+                </div>
+              </div>
+            </motion.div>
+
             {/* ── NEXT ACTION HERO CARD ── */}
             {nextAction ? (() => {
               const domain = getDomainById(nextAction.pillarId);
