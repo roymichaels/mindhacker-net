@@ -70,15 +70,11 @@ export default function ArenaHub() {
 
   const { generating: phaseGenerating } = usePhaseActions();
   const { statusMap } = useLifeDomains();
-  const { corePlan, arenaPlan } = useStrategyPlans();
 
-  // Get all active plan IDs
+  // Get all active plan IDs directly from the life plan hook (single source)
   const allPlanIds = useMemo(() => {
-    const ids: string[] = [];
-    if (corePlan?.id) ids.push(corePlan.id);
-    if (arenaPlan?.id) ids.push(arenaPlan.id);
-    return ids;
-  }, [corePlan?.id, arenaPlan?.id]);
+    return (plan as any)?.all_plan_ids as string[] || (plan?.id ? [plan.id] : []);
+  }, [plan]);
 
   // Fetch phase missions with hierarchy
   const { data: phaseMilestones } = usePhaseMissions(allPlanIds, currentPhase);
