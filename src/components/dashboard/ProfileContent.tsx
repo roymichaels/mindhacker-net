@@ -38,7 +38,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   const dashboardData = useUnifiedDashboard();
   const { data: launchpadSummary } = useLaunchpadSummary();
   
-  // Modal state removed — modals now live in CharacterProfileModal
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const consciousnessScore = (launchpadSummary?.consciousness_score as number) || 0;
   const transformationReadiness = (launchpadSummary?.transformation_readiness as number) || 0;
