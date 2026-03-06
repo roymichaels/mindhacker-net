@@ -61,6 +61,7 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const CommunityLayoutWrapper = lazy(() => import("./components/community/CommunityLayoutWrapper"));
+const CommunityThread = lazy(() => import("./pages/CommunityThread"));
 const Go = lazy(() => import("./pages/Go"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const Messages = lazy(() => import("./pages/Messages"));
@@ -284,6 +285,7 @@ const App = () => (
                         <Route element={<ProtectedAppShell />}>
                           {/* Community */}
                           <Route path="/community" element={<CommunityLayoutWrapper />} />
+                          <Route path="/community/post/:postId" element={<CommunityThread />} />
                           {/* Messages */}
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/ai" element={<MessageThread />} />
