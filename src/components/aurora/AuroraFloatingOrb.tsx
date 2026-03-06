@@ -88,6 +88,7 @@ export function AuroraFloatingOrb() {
     dragging.current = false;
     if (!didDrag.current && ctx) {
       ctx.setIsDockVisible(true);
+      ctx.setIsChatExpanded(true);
     }
   }, [ctx]);
 
