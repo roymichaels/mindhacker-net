@@ -139,9 +139,9 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
   const egoLabel = EGO_STATE_LABELS[egoState];
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {/* Scores */}
-      <div className="col-span-2 flex items-center justify-center gap-6 py-3 rounded-xl border border-border/30 bg-card/30">
+    <div className="space-y-0">
+      {/* Scores row */}
+      <div className="flex items-center justify-around py-4 mb-3 rounded-2xl bg-muted/30">
         <ScoreCircle label={isHebrew ? 'תודעה' : 'Mind'} value={scores.consciousness} color="purple" />
         <ScoreCircle label={isHebrew ? 'בהירות' : 'Clarity'} value={scores.clarity} color="blue" />
         <ScoreCircle label={isHebrew ? 'מוכנות' : 'Ready'} value={scores.readiness} color="green" />
@@ -149,26 +149,26 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
       {/* Consciousness Analysis */}
       {summary.consciousness_analysis && (
-        <div className="col-span-2 p-3 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Brain className="h-3.5 w-3.5 text-purple-500" />
-            <h4 className="text-xs font-semibold text-foreground">{isHebrew ? 'ניתוח תודעה' : 'Consciousness'}</h4>
+        <div className="py-3 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-2">
+            <Brain className="h-4 w-4 text-purple-500" />
+            <h4 className="text-sm font-semibold text-foreground">{isHebrew ? 'ניתוח תודעה' : 'Consciousness'}</h4>
           </div>
           {summary.consciousness_analysis.current_state && (
-            <p className="text-[11px] text-muted-foreground line-clamp-3 mb-1.5">{summary.consciousness_analysis.current_state}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
           )}
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-3">
             {summary.consciousness_analysis.strengths && summary.consciousness_analysis.strengths.length > 0 && (
-              <ChipRow icon="✨" items={summary.consciousness_analysis.strengths} variant="green" />
+              <ChipRow icon="✨" label={isHebrew ? 'חוזקות' : 'Strengths'} items={summary.consciousness_analysis.strengths} variant="green" />
             )}
             {summary.consciousness_analysis.dominant_patterns && summary.consciousness_analysis.dominant_patterns.length > 0 && (
-              <ChipRow icon="👁" items={summary.consciousness_analysis.dominant_patterns} variant="blue" />
+              <ChipRow icon="👁" label={isHebrew ? 'דפוסים' : 'Patterns'} items={summary.consciousness_analysis.dominant_patterns} variant="blue" />
             )}
             {summary.consciousness_analysis.blind_spots && summary.consciousness_analysis.blind_spots.length > 0 && (
-              <ChipRow icon="⚠" items={summary.consciousness_analysis.blind_spots} variant="amber" />
+              <ChipRow icon="⚠" label={isHebrew ? 'נקודות עיוורות' : 'Blind Spots'} items={summary.consciousness_analysis.blind_spots} variant="amber" />
             )}
             {summary.consciousness_analysis.growth_edges && summary.consciousness_analysis.growth_edges.length > 0 && (
-              <ChipRow icon="📈" items={summary.consciousness_analysis.growth_edges} variant="emerald" />
+              <ChipRow icon="📈" label={isHebrew ? 'צמיחה' : 'Growth'} items={summary.consciousness_analysis.growth_edges} variant="emerald" />
             )}
           </div>
         </div>
@@ -176,78 +176,84 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
       {/* Identity Profile */}
       {summary.identity_profile && (
-        <div className="p-3 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <User className="h-3.5 w-3.5 text-rose-500" />
-            <h4 className="text-xs font-semibold text-foreground">{isHebrew ? 'פרופיל זהות' : 'Identity'}</h4>
+        <div className="py-3 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-2">
+            <User className="h-4 w-4 text-rose-500" />
+            <h4 className="text-sm font-semibold text-foreground">{isHebrew ? 'פרופיל זהות' : 'Identity'}</h4>
           </div>
           {summary.identity_profile.suggested_ego_state && (
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <span className="text-base">{egoIcon}</span>
-              <span className="text-xs font-bold text-primary">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">{egoIcon}</span>
+              <span className="text-sm font-bold text-primary">
                 {egoLabel ? (isHebrew ? egoLabel.he : egoLabel.en) : summary.identity_profile.suggested_ego_state}
               </span>
             </div>
           )}
           {summary.identity_profile.dominant_traits && summary.identity_profile.dominant_traits.length > 0 && (
-            <ChipRow icon="🛡" items={summary.identity_profile.dominant_traits} variant="blue" />
+            <div className="flex flex-wrap gap-1.5">
+              {summary.identity_profile.dominant_traits.slice(0, 5).map((t, i) => (
+                <Badge key={i} variant="secondary" className="text-xs px-2.5 py-1">{t}</Badge>
+              ))}
+            </div>
           )}
         </div>
       )}
 
       {/* Behavioral Insights */}
       {summary.behavioral_insights && (
-        <div className="p-3 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <RefreshCw className="h-3.5 w-3.5 text-cyan-500" />
-            <h4 className="text-xs font-semibold text-foreground">{isHebrew ? 'תובנות' : 'Behavioral'}</h4>
+        <div className="py-3 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-2">
+            <RefreshCw className="h-4 w-4 text-cyan-500" />
+            <h4 className="text-sm font-semibold text-foreground">{isHebrew ? 'תובנות התנהגותיות' : 'Behavioral Insights'}</h4>
           </div>
-          {summary.behavioral_insights.habits_to_transform && summary.behavioral_insights.habits_to_transform.length > 0 && (
-            <ChipRow icon="🚫" items={summary.behavioral_insights.habits_to_transform} variant="red" />
-          )}
-          {summary.behavioral_insights.habits_to_cultivate && summary.behavioral_insights.habits_to_cultivate.length > 0 && (
-            <ChipRow icon="✅" items={summary.behavioral_insights.habits_to_cultivate} variant="green" />
-          )}
-          {summary.behavioral_insights.resistance_patterns && summary.behavioral_insights.resistance_patterns.length > 0 && (
-            <ChipRow icon="⚠" items={summary.behavioral_insights.resistance_patterns} variant="amber" />
-          )}
+          <div className="space-y-2.5">
+            {summary.behavioral_insights.habits_to_cultivate && summary.behavioral_insights.habits_to_cultivate.length > 0 && (
+              <ChipRow icon="✅" label={isHebrew ? 'לטפח' : 'Cultivate'} items={summary.behavioral_insights.habits_to_cultivate} variant="green" />
+            )}
+            {summary.behavioral_insights.habits_to_transform && summary.behavioral_insights.habits_to_transform.length > 0 && (
+              <ChipRow icon="🔄" label={isHebrew ? 'לשנות' : 'Transform'} items={summary.behavioral_insights.habits_to_transform} variant="amber" />
+            )}
+            {summary.behavioral_insights.resistance_patterns && summary.behavioral_insights.resistance_patterns.length > 0 && (
+              <ChipRow icon="⚠" label={isHebrew ? 'התנגדויות' : 'Resistance'} items={summary.behavioral_insights.resistance_patterns} variant="red" />
+            )}
+          </div>
         </div>
       )}
 
       {/* Career + Transformation */}
       {(summary.career_path || summary.transformation_potential) && (
-        <div className="col-span-2 p-3 rounded-xl border border-border/30 bg-card/30">
-          <div className="flex gap-4">
+        <div className="py-3 border-t border-border/40">
+          <div className="grid grid-cols-2 gap-4">
             {summary.career_path && (
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Briefcase className="h-3.5 w-3.5 text-blue-500" />
-                  <h4 className="text-xs font-semibold text-foreground">{isHebrew ? 'קריירה' : 'Career'}</h4>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="h-4 w-4 text-blue-500" />
+                  <h4 className="text-sm font-semibold text-foreground">{isHebrew ? 'קריירה' : 'Career'}</h4>
                 </div>
                 {summary.career_path.aspiration && (
-                  <p className="text-[11px] font-medium text-foreground truncate">{summary.career_path.aspiration}</p>
+                  <p className="text-sm text-foreground/80 mb-1.5">{summary.career_path.aspiration}</p>
                 )}
                 {summary.career_path.key_steps && summary.career_path.key_steps.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {summary.career_path.key_steps.slice(0, 3).map((s, i) => (
-                      <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0.5">{s}</Badge>
+                      <Badge key={i} variant="outline" className="text-xs px-2 py-0.5">{s}</Badge>
                     ))}
                   </div>
                 )}
               </div>
             )}
             {summary.transformation_potential && (
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Rocket className="h-3.5 w-3.5 text-amber-500" />
-                  <h4 className="text-xs font-semibold text-foreground">{isHebrew ? 'טרנספורמציה' : 'Transform'}</h4>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Rocket className="h-4 w-4 text-amber-500" />
+                  <h4 className="text-sm font-semibold text-foreground">{isHebrew ? 'טרנספורמציה' : 'Transform'}</h4>
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {summary.transformation_potential.primary_focus && (
-                    <Badge className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-600 dark:text-amber-400 border-0">{summary.transformation_potential.primary_focus}</Badge>
+                    <Badge className="text-xs px-2.5 py-1 bg-amber-500/15 text-amber-600 dark:text-amber-400 border-0">{summary.transformation_potential.primary_focus}</Badge>
                   )}
                   {summary.transformation_potential.secondary_focus && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 border-amber-500/30 text-amber-500">{summary.transformation_potential.secondary_focus}</Badge>
+                    <Badge variant="outline" className="text-xs px-2.5 py-1 border-amber-500/30 text-amber-500">{summary.transformation_potential.secondary_focus}</Badge>
                   )}
                 </div>
               </div>
@@ -269,15 +275,16 @@ const CHIP_COLORS: Record<string, string> = {
   emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
 };
 
-function ChipRow({ icon, items, variant }: { icon: string; items: string[]; variant: string }) {
+function ChipRow({ icon, label, items, variant }: { icon: string; label: string; items: string[]; variant: string }) {
   return (
-    <div className="mt-1">
-      <div className="flex items-center gap-1 mb-0.5">
-        <span className="text-[10px]">{icon}</span>
+    <div>
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="text-xs">{icon}</span>
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1.5">
         {items.slice(0, 4).map((item, i) => (
-          <span key={i} className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>
+          <span key={i} className={cn("text-xs font-medium px-2 py-0.5 rounded-full", CHIP_COLORS[variant] || CHIP_COLORS.blue)}>
             {item}
           </span>
         ))}
@@ -294,11 +301,11 @@ function ScoreCircle({ label, value, color }: { label: string; value: number; co
     purple: 'text-purple-500', blue: 'text-blue-500', green: 'text-green-500',
   };
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-base font-bold border-2 bg-background", borderColors[color], textColors[color])}>
+    <div className="flex flex-col items-center gap-1.5">
+      <div className={cn("w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold border-2 bg-background", borderColors[color], textColors[color])}>
         {value}
       </div>
-      <span className="text-[10px] text-muted-foreground">{label}</span>
+      <span className="text-xs text-muted-foreground font-medium">{label}</span>
     </div>
   );
 }

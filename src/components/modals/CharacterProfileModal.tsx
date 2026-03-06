@@ -164,18 +164,13 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         </div>
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
-        <div className="px-4 pb-24">
-          {/* Stat Wheel inline in grid */}
-          <StatWheel isHe={isHe} />
-
-          <div className="mt-3">
-            <ProfileTab
-              isHe={isHe}
-              language={language}
-              dashboard={dashboard}
-              isOwner={isOwner}
-            />
-          </div>
+        <div className="pb-24">
+          <ProfileTab
+            isHe={isHe}
+            language={language}
+            dashboard={dashboard}
+            isOwner={isOwner}
+          />
         </div>
       </div>
     </div>
@@ -227,20 +222,20 @@ function StatWheel({ isHe }: { isHe: boolean }) {
   if (scores.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-5 gap-2 py-3">
+    <div className="flex items-center justify-around px-5 py-4 border-t border-border/40">
       {scores.map((s) => (
-        <div key={s.key} className="flex flex-col items-center gap-1">
+        <div key={s.key} className="flex flex-col items-center gap-1.5">
           <div
-            className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-2"
+            className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold border-2"
             style={{
               borderColor: `hsl(${s.color})`,
               color: `hsl(${s.color})`,
-              backgroundColor: `hsla(${s.color}, 0.1)`,
+              backgroundColor: `hsla(${s.color}, 0.08)`,
             }}
           >
             {s.score}
           </div>
-          <span className="text-[10px] text-muted-foreground font-medium">
+          <span className="text-xs text-muted-foreground font-medium">
             {isHe ? labels[s.key]?.he : labels[s.key]?.en}
           </span>
         </div>
@@ -250,7 +245,7 @@ function StatWheel({ isHe }: { isHe: boolean }) {
 }
 
 // ═══════════════════════════════════════════════
-// PROFILE TAB — Identity card + Values as chips
+// PROFILE TAB — Clean flat sections with dividers
 // ═══════════════════════════════════════════════
 function ProfileTab({ isHe, language, dashboard, isOwner }: {
   isHe: boolean; language: string;
@@ -284,98 +279,132 @@ function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
   const { lifeDirection, activeCommitments: commitments, dailyAnchors: anchors } = dashboard;
 
-  return (
-    <div className="space-y-3">
-      {/* ── Life Direction (full width) ── */}
-      {lifeDirection && (
-        <div className="p-3 rounded-xl border border-primary/20 bg-primary/5">
-          <div className="flex items-center justify-between mb-1">
-            <h4 className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5" />
-              {isHe ? 'כיוון חיים' : 'Life Direction'}
-            </h4>
+  // Collect all sections — render as flat rows with dividers
+  const sections: Array<{ title: string; content: React.ReactNode }> = [];
+
+  // Life Direction
+  if (lifeDirection) {
+    sections.push({
+      title: isHe ? 'כיוון חיים' : 'Life Direction',
+      content: (
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Compass className="w-4 h-4 text-primary shrink-0" />
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className={cn("w-2.5 h-2.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-primary text-primary" : "text-muted-foreground/20")} />
+                <Star key={i} className={cn("w-3 h-3", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-primary text-primary" : "text-muted-foreground/20")} />
               ))}
             </div>
           </div>
-          <p className="text-xs text-foreground leading-relaxed line-clamp-3">{lifeDirection.content}</p>
+          <p className="text-sm text-foreground/80 leading-relaxed">{lifeDirection.content}</p>
+        </div>
+      ),
+    });
+  }
+
+  // Daily Anchors
+  if (anchors.length > 0) {
+    sections.push({
+      title: isHe ? 'עוגנים יומיים' : 'Daily Anchors',
+      content: (
+        <div className="flex flex-wrap gap-1.5">
+          {anchors.map((a) => (
+            <Badge key={a.id} variant="secondary" className="text-xs px-2.5 py-1">{a.title}</Badge>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  // Values
+  if (dashboard.values.length > 0) {
+    sections.push({
+      title: isHe ? 'ערכים' : 'Values',
+      content: (
+        <div className="flex flex-wrap gap-1.5">
+          {dashboard.values.map((v, i) => (
+            <Badge key={i} variant="secondary" className="text-xs px-2.5 py-1">{v}</Badge>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  // Commitments
+  if (commitments.length > 0) {
+    sections.push({
+      title: isHe ? 'מחויבויות' : 'Commitments',
+      content: (
+        <div className="space-y-2">
+          {commitments.slice(0, 4).map((c) => (
+            <div key={c.id} className="flex items-center gap-2">
+              <Target className="w-3.5 h-3.5 text-primary shrink-0" />
+              <p className="text-sm text-foreground">{c.title}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  // Principles
+  if (dashboard.principles.length > 0) {
+    sections.push({
+      title: isHe ? 'עקרונות' : 'Principles',
+      content: (
+        <div className="flex flex-wrap gap-1.5">
+          {dashboard.principles.map((p, i) => (
+            <Badge key={i} variant="outline" className="text-xs px-2.5 py-1">{p}</Badge>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  // Self Concepts
+  if (dashboard.selfConcepts.length > 0) {
+    sections.push({
+      title: isHe ? 'תפיסות עצמיות' : 'Self Concepts',
+      content: (
+        <div className="flex flex-wrap gap-1.5">
+          {dashboard.selfConcepts.map((s, i) => (
+            <Badge key={i} variant="outline" className="text-xs px-2.5 py-1 bg-primary/5">{s}</Badge>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  return (
+    <div>
+      {/* Stat Wheel */}
+      <StatWheel isHe={isHe} />
+
+      {/* Flat sections with dividers */}
+      {sections.map((section, i) => (
+        <div key={i} className="border-t border-border/40">
+          <div className="px-5 py-4">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
+              {section.title}
+            </h4>
+            {section.content}
+          </div>
+        </div>
+      ))}
+
+      {/* Archetype traits */}
+      {archetypeData && (
+        <div className="border-t border-border/40 px-5 py-4">
+          <TraitsCard archetypeData={archetypeData} />
         </div>
       )}
 
-      {/* ── 2-col grid ── */}
-      <div className="grid grid-cols-2 gap-2">
-        {anchors.length > 0 && (
-          <div className="p-3 rounded-xl border border-border/30 bg-card/30">
-            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              {isHe ? 'עוגנים יומיים' : 'Daily Anchors'}
-            </h4>
-            <div className="flex flex-wrap gap-1">
-              {anchors.map((a) => (
-                <Badge key={a.id} variant="secondary" className="text-[10px] px-1.5 py-0.5">{a.title}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        {dashboard.values.length > 0 && (
-          <div className="p-3 rounded-xl border border-border/30 bg-card/30">
-            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              {isHe ? 'ערכים' : 'Values'}
-            </h4>
-            <div className="flex flex-wrap gap-1">
-              {dashboard.values.map((v, i) => (
-                <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0.5">{v}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        {commitments.length > 0 && (
-          <div className="p-3 rounded-xl border border-border/30 bg-card/30">
-            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              {isHe ? 'מחויבויות' : 'Commitments'}
-            </h4>
-            <div className="space-y-1">
-              {commitments.slice(0, 3).map((c) => (
-                <div key={c.id} className="flex items-center gap-1.5">
-                  <Target className="w-2.5 h-2.5 text-primary shrink-0" />
-                  <p className="text-[11px] text-foreground truncate">{c.title}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {dashboard.principles.length > 0 && (
-          <div className="p-3 rounded-xl border border-border/30 bg-card/30">
-            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              {isHe ? 'עקרונות' : 'Principles'}
-            </h4>
-            <div className="flex flex-wrap gap-1">
-              {dashboard.principles.map((p, i) => (
-                <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0.5">{p}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        {dashboard.selfConcepts.length > 0 && (
-          <div className="p-3 rounded-xl border border-border/30 bg-card/30 col-span-2">
-            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              {isHe ? 'תפיסות עצמיות' : 'Self Concepts'}
-            </h4>
-            <div className="flex flex-wrap gap-1">
-              {dashboard.selfConcepts.map((s, i) => (
-                <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0.5 bg-primary/5">{s}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ── Archetype traits ── */}
-      {archetypeData && <TraitsCard archetypeData={archetypeData} />}
-
-      {/* ── AI Analysis ── */}
-      {isOwner && <AIAnalysisDisplay language={language} />}
+      {/* AI Analysis */}
+      {isOwner && (
+        <div className="border-t border-border/40 px-5 py-4">
+          <AIAnalysisDisplay language={language} />
+        </div>
+      )}
     </div>
   );
 }
