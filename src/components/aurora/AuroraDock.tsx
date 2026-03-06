@@ -126,122 +126,64 @@ export function AuroraDock() {
     <>
       <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
 
-      <div
+      <motion.div
         data-aurora-dock
-        className={cn(
-          "fixed left-0 right-0 z-[60] flex flex-col",
-          "bg-background/100 backdrop-blur-none border-t border-border shadow-[0_-4px_16px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.5)]",
-          isMobile
-            ? "bottom-14"
-            : "bottom-0",
-        )}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-0 z-[9999] flex flex-col bg-background"
       >
-        {/* Assessment mode: full-height DomainAssessChat */}
-        {isAssessing && assessmentDomainId ? (
-          <>
-            {/* Drag handle */}
-            {dragHandle}
+        {/* Top bar with back button */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+          <button
+            onClick={closeDock}
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>{isHe ? 'חזרה' : 'Back'}</span>
+          </button>
 
-            {/* Assessment indicator + close (visible when expanded) */}
-            {isChatExpanded && (
-              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-0.5 mb-0.5 shrink-0">
-                <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
-                  {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
-                </span>
-                <button
-                  onClick={() => endAssessment()}
-                  className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-                  title={isHe ? 'סגור' : 'Close'}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+          <div className="flex items-center gap-2">
+            {pillarLabel && !isAssessing && (
+              <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
+                {pillarLabel}
+              </span>
             )}
-
-            {/* Assessment chat bubbles (expanded only) */}
-            <AnimatePresence>
-              {isChatExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="w-full overflow-hidden"
-                  style={{ maxHeight: `${chatHeightVh}vh` }}
-                >
-                  <DomainAssessChat
-                    domainId={assessmentDomainId}
-                    asDock
-                    dockHeightVh={chatHeightVh}
-                    onClose={() => endAssessment()}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Assessment input with orb */}
-            <div className="flex items-center gap-2 w-full px-4 pb-2 pt-1">
-              <div className="flex-1 min-w-0">
-                <GlobalChatInput />
-              </div>
-              <div className="shrink-0">
-                <AuroraDockOrb onClick={closeDock} />
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Drag handle */}
-            {dragHandle}
-
-            {/* Bug report + pillar indicator (visible only when expanded) */}
-            {isChatExpanded && (
-              <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-0.5 mb-0.5 shrink-0">
-                {pillarLabel ? (
-                  <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
-                    {pillarLabel}
-                  </span>
-                ) : (
-                  <span />
-                )}
-                <button
-                  onClick={() => setBugReportOpen(true)}
-                  className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-                  title={isHe ? 'דווח על באג' : 'Report Bug'}
-                >
-                  <Bug className="w-4 h-4" />
-                </button>
-              </div>
+            {isAssessing && assessLabel && (
+              <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
+                {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
+              </span>
             )}
+            <button
+              onClick={() => setBugReportOpen(true)}
+              className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              title={isHe ? 'דווח על באג' : 'Report Bug'}
+            >
+              <Bug className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-            {/* Chat bubbles (expanded only) */}
-            <AnimatePresence>
-              {isChatExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="w-full overflow-hidden"
-                  style={{ maxHeight: `${chatHeightVh}vh` }}
-                >
-                  <AuroraChatBubbles />
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {/* Chat area — fills remaining space */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {isAssessing && assessmentDomainId ? (
+            <DomainAssessChat
+              domainId={assessmentDomainId}
+              asDock
+              dockHeightVh={85}
+              onClose={() => endAssessment()}
+            />
+          ) : (
+            <AuroraChatBubbles />
+          )}
+        </div>
 
-            {/* Input bar with orb */}
-            <div className="flex items-center gap-2 w-full px-4 pb-2 pt-1">
-              <div className="flex-1 min-w-0">
-                <GlobalChatInput />
-              </div>
-              <div className="shrink-0">
-                <AuroraDockOrb onClick={closeDock} />
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+        {/* Input bar at bottom */}
+        <div className="shrink-0 px-4 pb-safe pt-2 border-t border-border">
+          <GlobalChatInput />
+        </div>
+      </motion.div>
     </>
   );
 }
