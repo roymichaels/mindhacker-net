@@ -99,7 +99,7 @@ serve(async (req) => {
 - Name: ${profile?.full_name || "User"}
 
 ## MILESTONES TO SCHEDULE (${enrichedMilestones.length} total):
-${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] "${m.title_en}" — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
+${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] [Difficulty: ${m.difficulty}/5] "${m.title_en}" (HE: "${m.title}") — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
 
 ${adjustmentContext}
 
