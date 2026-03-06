@@ -230,225 +230,75 @@ function groupIntoBlocks(actions: TacticalAction[]): TacticalBlock[] {
   return blocks;
 }
 
-// ── Cadence → day distribution (load-balanced) ──
-
-/** How many times a milestone appears in a 10-day phase */
-function cadenceOccurrences(cadence: Cadence): number {
-  switch (cadence) {
-    case 'daily': return 10;
-    case '3x_per_week': return 5;  // ~3 per 7 days
-    case '2x_per_week': return 3;  // ~2 per 7 days
-    case 'weekly': return 2;       // once per week
-    case 'one_time': return 1;
-  }
-}
+// ── Load-balanced distribution (each milestone appears ONCE) ──
 
 /**
- * Distribute milestones across 10 days using load-balanced scheduling.
- * Instead of hardcoding day indices per cadence, we assign occurrences
- * to the least-loaded days, ensuring an even spread of total minutes.
+ * Distribute milestones across 10 days, each appearing exactly once.
+ * Milestones are "Standing Orders" (e.g. "3x/week HIIT") — the title
+ * already tells the user the cadence, so no repetition is needed.
+ * We simply spread them evenly so every day has a balanced workload.
  */
 function distributeMilestonesToDays(
   milestones: any[],
   planStartDate: string,
   phaseNumber: number,
-  phaseDates: string[],
+  _phaseDates: string[],
 ): TacticalAction[] {
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
 
-  // Pre-compute metadata for each milestone
-  const milestonesMeta = milestones.map(m => {
+  // Pre-compute metadata
+  const items = milestones.map(m => {
     const title = m.title || '';
     const focusArea = m.focus_area || null;
-    return {
-      raw: m,
-      title,
-      titleEn: m.title_en || title,
-      focusArea,
-      cadence: classifyCadence(title, null, null),
-      blockCat: classifyBlockCategory(null, null, title, focusArea),
-      difficulty: classifyDifficulty(m),
-      mins: estimateMinutes(focusArea, title),
-      execTemplate: inferExecutionTemplate(title, focusArea),
-      occurrences: 0 as number,
-    };
+    const blockCat = classifyBlockCategory(null, null, title, focusArea);
+    const difficulty = classifyDifficulty(m);
+    const mins = estimateMinutes(focusArea, title);
+    return { raw: m, title, titleEn: m.title_en || title, focusArea, blockCat, difficulty, mins, execTemplate: inferExecutionTemplate(title, focusArea) };
   });
 
-  // Calculate occurrences
-  for (const mm of milestonesMeta) {
-    mm.occurrences = cadenceOccurrences(mm.cadence);
-  }
-
-  // Sort by occurrences descending — assign most-frequent items first
-  // so the balancer has more flexibility with less-frequent items
-  milestonesMeta.sort((a, b) => b.occurrences - a.occurrences);
-
-  // Track load per day (total minutes)
+  // Track load (minutes) per day
   const dayLoad = new Array(10).fill(0);
-  // Track actions per day per milestone to avoid duplicates
-  const dayMilestones = new Array(10).fill(null).map(() => new Set<string>());
+  const dayActions: TacticalAction[][] = Array.from({ length: 10 }, () => []);
 
-  const actions: TacticalAction[] = [];
+  // Sort items by estimated minutes descending — assign heaviest first for better balance
+  items.sort((a, b) => b.mins - a.mins);
 
-  for (const mm of milestonesMeta) {
-    const count = mm.occurrences;
-
-    if (count >= 10) {
-      // Daily: assign to all days
-      for (let d = 0; d < 10; d++) {
-        dayLoad[d] += mm.mins;
-        dayMilestones[d].add(mm.raw.id);
-        actions.push(buildAction(mm, d, phaseStartDay, planStartDate));
-      }
-      continue;
+  for (const mm of items) {
+    // Pick the day with the lowest current load
+    let bestDay = 0;
+    for (let d = 1; d < 10; d++) {
+      if (dayLoad[d] < dayLoad[bestDay]) bestDay = d;
     }
 
-    // For non-daily: pick the `count` least-loaded days, spaced as evenly as possible
-    const selectedDays = pickBalancedDays(count, dayLoad, mm.mins);
+    dayLoad[bestDay] += mm.mins;
+    const absDay = phaseStartDay + bestDay;
+    const calendarDate = planDayToDate(planStartDate, absDay);
 
-    for (const d of selectedDays) {
-      dayLoad[d] += mm.mins;
-      dayMilestones[d].add(mm.raw.id);
-      actions.push(buildAction(mm, d, phaseStartDay, planStartDate));
-    }
+    dayActions[bestDay].push({
+      id: `${mm.raw.id}-d${bestDay}`,
+      title: mm.title,
+      titleEn: mm.titleEn,
+      description: mm.raw.description || null,
+      descriptionEn: mm.raw.description_en || null,
+      sourceMilestoneId: mm.raw.id,
+      executionTemplate: mm.execTemplate,
+      actionType: mm.raw.focus_area || null,
+      estimatedMinutes: mm.mins,
+      cadence: classifyCadence(mm.title, null, null),
+      completed: false,
+      completedAt: null,
+      xpReward: DIFFICULTY_XP[mm.difficulty],
+      blockCategory: mm.blockCat,
+      difficulty: mm.difficulty,
+      scheduledDay: absDay,
+      calendarDate,
+      focusArea: mm.focusArea,
+      missionId: mm.raw.mission_id || null,
+    });
   }
 
-  return actions;
+  return dayActions.flat();
 }
-
-/** Pick `count` days that balance the load, with even spacing preference */
-function pickBalancedDays(count: number, dayLoad: number[], addMins: number): number[] {
-  if (count <= 0) return [];
-  if (count >= 10) return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-  // Ideal spacing between occurrences
-  const spacing = 10 / count;
-  const selected: number[] = [];
-
-  for (let i = 0; i < count; i++) {
-    // Ideal position for this occurrence
-    const idealPos = Math.round(i * spacing + spacing / 2 - 0.5);
-
-    // Search window: ±2 days around ideal position
-    const candidates: { day: number; score: number }[] = [];
-    for (let offset = -2; offset <= 2; offset++) {
-      const d = idealPos + offset;
-      if (d < 0 || d >= 10) continue;
-      if (selected.includes(d)) continue;
-
-      // Score: lower is better — combines load and distance from ideal
-      const loadScore = dayLoad[d] + addMins;
-      const distScore = Math.abs(offset) * 20; // penalty for deviating from ideal
-      candidates.push({ day: d, score: loadScore + distScore });
-    }
-
-    // Fallback: if no candidates in window, pick any unselected day with lowest load
-    if (candidates.length === 0) {
-      for (let d = 0; d < 10; d++) {
-        if (!selected.includes(d)) {
-          candidates.push({ day: d, score: dayLoad[d] + addMins });
-        }
-      }
-    }
-
-    candidates.sort((a, b) => a.score - b.score);
-    if (candidates.length > 0) {
-      selected.push(candidates[0].day);
-    }
-  }
-
-  return selected.sort((a, b) => a - b);
-}
-
-function buildAction(mm: any, dayIdx: number, phaseStartDay: number, planStartDate: string): TacticalAction {
-  const absDay = phaseStartDay + dayIdx;
-  const calendarDate = planDayToDate(planStartDate, absDay);
-  return {
-    id: `${mm.raw.id}-d${dayIdx}`,
-    title: mm.title,
-    titleEn: mm.titleEn,
-    description: mm.raw.description || null,
-    descriptionEn: mm.raw.description_en || null,
-    sourceMilestoneId: mm.raw.id,
-    executionTemplate: mm.execTemplate,
-    actionType: mm.raw.focus_area || null,
-    estimatedMinutes: mm.mins,
-    cadence: mm.cadence,
-    completed: false,
-    completedAt: null,
-    xpReward: DIFFICULTY_XP[mm.difficulty],
-    blockCategory: mm.blockCat,
-    difficulty: mm.difficulty,
-    scheduledDay: absDay,
-    calendarDate,
-    focusArea: mm.focusArea,
-    missionId: mm.raw.mission_id || null,
-  };
-}
-
-// ── Hook ──
-
-export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean } {
-  const { user } = useAuth();
-  const { milestones, currentWeek: currentPhase, plan, isLoading: planLoading } = useLifePlanWithMilestones();
-  const { generating } = usePhaseActions();
-
-  const planStartDate = plan?.start_date || null;
-
-  // Current phase milestones (the 5 milestones per mission from strategy)
-  const currentPhaseMilestones = useMemo(
-    () => milestones.filter(m => m.week_number === currentPhase),
-    [milestones, currentPhase]
-  );
-
-  // 10-day phase window
-  const { phaseDates, phaseStart, phaseEnd } = useMemo(() => {
-    if (!planStartDate) return { phaseDates: [], phaseStart: '', phaseEnd: '' };
-    const { dates, start, end } = getPhaseWindow(planStartDate, currentPhase || 1);
-    return { phaseDates: dates, phaseStart: start, phaseEnd: end };
-  }, [planStartDate, currentPhase]);
-
-  const todayStr = useMemo(() => toDateStr(new Date()), []);
-
-  // Build the 10-day phase plan from strategy milestones
-  const phasePlan = useMemo((): PhasePlan => {
-    const phaseLabel = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'][(currentPhase || 1) - 1] || '?';
-    const emptyPlan: PhasePlan = {
-      phase: phaseLabel,
-      phaseNumber: currentPhase || 1,
-      days: buildEmptyDays(phaseDates, todayStr),
-      totalActions: 0,
-      completedActions: 0,
-      totalMinutes: 0,
-      generating,
-      phaseStart,
-      phaseEnd,
-    };
-
-    if (!planStartDate || phaseDates.length === 0 || currentPhaseMilestones.length === 0) return emptyPlan;
-
-    // Distribute strategy milestones across the 10-day phase
-    const allActions = distributeMilestonesToDays(
-      currentPhaseMilestones,
-      planStartDate,
-      currentPhase || 1,
-      phaseDates,
-    );
-
-    // Filter to phase window
-    const phaseActions = allActions.filter(a =>
-      a.calendarDate && a.calendarDate >= phaseStart && a.calendarDate <= phaseEnd
-    );
-
-    // Assign to day index
-    const dayMap = new Map<number, TacticalAction[]>();
-    for (let d = 0; d < 10; d++) dayMap.set(d, []);
-
-    for (const action of phaseActions) {
-      if (action.calendarDate) {
-        const idx = phaseDates.indexOf(action.calendarDate);
-        if (idx >= 0) dayMap.get(idx)!.push(action);
-      }
     }
 
     const days = buildDayPlans(dayMap, phaseDates, todayStr);
