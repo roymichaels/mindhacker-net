@@ -20,7 +20,7 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(Math.floor(min * 0.85), 900));
+      setOrbSize(Math.min(Math.floor(min * 0.55), 600));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
@@ -58,7 +58,7 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
         >
           {/* Exit button */}
           <button
-            className="absolute top-5 right-5 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all backdrop-blur-md border border-white/15 shadow-lg"
+            className="absolute top-5 right-5 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all backdrop-blur-md border border-white/20 shadow-lg"
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             aria-label="Close fullscreen"
           >
