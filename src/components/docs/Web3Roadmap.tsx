@@ -27,10 +27,7 @@ const phases: RoadmapPhase[] = [
       { he: 'היפנוזה AI', en: 'AI Hypnosis' },
       { he: 'תוכנית 100 ימים', en: '100-Day Plan' },
       { he: 'Beta ציבורי', en: 'Public Beta' },
-      { he: '🌱 מנגנון Grow2Earn', en: '🌱 Grow2Earn Mechanism' },
-      { he: '📊 מנגנון Data2Earn', en: '📊 Data2Earn Mechanism' },
-      { he: '💼 מנגנון Work2Earn', en: '💼 Work2Earn Mechanism' },
-      { he: '📚 מנגנון Learn2Earn', en: '📚 Learn2Earn Mechanism' },
+      { he: '🎮 מנגנון Play2Earn', en: '🎮 Play2Earn Mechanism' },
     ],
   },
   {
