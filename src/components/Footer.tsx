@@ -78,6 +78,13 @@ const Footer = () => {
           </Link>
           <span className="text-muted-foreground/30">|</span>
           <Link 
+            to="/docs" 
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            {isRTL ? 'ספר לבן' : 'White Paper'}
+          </Link>
+          <span className="text-muted-foreground/30">|</span>
+          <Link 
             to="/terms-of-service" 
             className="text-muted-foreground hover:text-primary transition-colors"
           >

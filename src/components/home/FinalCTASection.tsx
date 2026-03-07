@@ -29,16 +29,6 @@ export default function FinalCTASection() {
       </div>
 
       <div className="container mx-auto max-w-5xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-14"
-        >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4">{t('home.finalCta.title')}</h2>
-          <p className="text-lg text-muted-foreground">{t('home.finalCta.subtitle')}</p>
-        </motion.div>
 
         {/* Epic CTA */}
         <motion.div
