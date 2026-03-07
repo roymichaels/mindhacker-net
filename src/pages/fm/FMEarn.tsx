@@ -55,7 +55,7 @@ interface FMEarnProps {
 export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFilter: externalCatFilter, onCategoryChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const { opportunities } = useAuroraOpportunities();
+  
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();

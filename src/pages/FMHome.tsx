@@ -11,7 +11,7 @@ const MOS_TO_USD = 0.01;
 export default function FMHome() {
   const { wallet } = useFMWallet();
   const { data: transactions = [], isLoading: txLoading } = useFMTransactions();
-  const { opportunities } = useAuroraOpportunities();
+  
   const { language } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
