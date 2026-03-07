@@ -164,6 +164,8 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     canAccessArenaFull: isPlus,
     canAccessBusinessBasic: isPlus,
     canAccessPlanRecalibration: isPlus,
+    canAccessCourseCreation: isPlus,
+    canAccessAIExecution: isPlus,
     // Apex gates (Self Mastery + Execution Power)
     canAccessFullProactive: isApex,
     canAccessProjects: isApex,
