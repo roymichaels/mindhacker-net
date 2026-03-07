@@ -96,7 +96,9 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
     , document.body);
   }
 
-  return createPortal(
+  return (<>
+    <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
+    {createPortal(
     <div
       role="dialog"
       className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
