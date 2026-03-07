@@ -240,6 +240,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
   }, [user?.id, answers, selectedPillars, navigate, t]);
 
   useEffect(() => {
+    if (alreadyHasPlan) return; // Don't run steps if plan exists
     const timer = setTimeout(() => {
       if (currentStep < analysisSteps.length - 1) {
         setCurrentStep(prev => prev + 1);
@@ -249,7 +250,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
     }, currentStep === 0 ? 800 : 1200);
 
     return () => clearTimeout(timer);
-  }, [currentStep, analysisSteps.length, completeOnboarding]);
+  }, [currentStep, analysisSteps.length, completeOnboarding, alreadyHasPlan]);
 
   if (error) {
     return (
