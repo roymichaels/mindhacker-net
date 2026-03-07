@@ -1,12 +1,10 @@
 /**
- * SharedOrbView — Drop-in replacement for CSSGalleryOrb / LazyOrbView.
- * Registers itself with SharedOrbCanvas and only activates when visible.
- * Renders real 3D WebGL content via the shared single Canvas.
+ * SharedOrbView — Registers orb DATA with SharedOrbCanvas.
+ * No React nodes stored in parent state = no infinite loops.
+ * Falls back to CSSGalleryOrb when outside a SharedOrbCanvas.
  */
 import { useRef, useEffect, useId, useMemo } from 'react';
-import { PerspectiveCamera, Environment } from '@react-three/drei';
 import { useSharedOrb } from './SharedOrbCanvas';
-import { MorphOrbMesh } from './GalleryMorphOrb';
 import { CSSGalleryOrb } from './CSSGalleryOrb';
 import type { OrbProfile } from './types';
 
@@ -19,29 +17,9 @@ interface SharedOrbViewProps {
   className?: string;
 }
 
-function OrbScene({ profile, geometryFamily = 'sphere', level = 100, randomShapeCount = false }: {
-  profile: OrbProfile;
-  geometryFamily: string;
-  level: number;
-  randomShapeCount: boolean;
-}) {
-  return (
-    <>
-      <PerspectiveCamera makeDefault position={[0, 0, 2.8]} fov={40} />
-      <ambientLight intensity={0.15} />
-      <directionalLight position={[5, 5, 8]} intensity={1.2} color="#ffffff" />
-      <directionalLight position={[-3, 2, -4]} intensity={0.4} color="#8888ff" />
-      <directionalLight position={[0, -3, 2]} intensity={0.2} color="#ff88cc" />
-      <pointLight position={[2, 3, 4]} intensity={0.5} color="#ffffff" distance={15} />
-      <Environment preset="city" background={false} />
-      <MorphOrbMesh
-        profile={profile}
-        geometryFamily={geometryFamily}
-        level={level}
-        randomShapeCount={randomShapeCount}
-      />
-    </>
-  );
+/** Stable serialization key for an OrbProfile to detect real changes */
+function profileKey(p: OrbProfile): string {
+  return `${p.primaryColor}|${p.accentColor}|${(p.secondaryColors || []).join(',')}|${p.morphIntensity}|${p.morphSpeed}|${p.coreIntensity}|${p.layerCount}|${p.particleEnabled}|${p.particleCount}|${p.geometryDetail}|${p.materialType}|${p.geometryFamily}`;
 }
 
 export function SharedOrbView({
@@ -56,25 +34,38 @@ export function SharedOrbView({
   const trackRef = useRef<HTMLDivElement>(null!);
   const stableId = useId();
 
-  // Memoize the 3D scene so it doesn't recreate on every render
-  const scene = useMemo(
-    () => (
-      <OrbScene
-        profile={profile}
-        geometryFamily={geometryFamily}
-        level={level}
-        randomShapeCount={randomShapeCount}
-      />
-    ),
-    [profile, geometryFamily, level, randomShapeCount]
-  );
+  const key = useMemo(() => profileKey(profile), [profile]);
 
-  // Register with shared canvas
+  // Register data with shared store (no React nodes, no state loops)
   useEffect(() => {
     if (!ctx) return;
-    ctx.register(stableId, trackRef, scene);
-    return () => ctx.unregister(stableId);
-  }, [ctx, stableId, scene]);
+    ctx.store.register({
+      id: stableId,
+      ref: trackRef,
+      profile,
+      geometryFamily,
+      level,
+      randomShapeCount,
+      visible: false,
+      profileKey: key,
+    });
+    return () => ctx.store.unregister(stableId);
+  }, [ctx, stableId, key, geometryFamily, level, randomShapeCount]);
+
+  // Update profile without full unregister/register cycle
+  useEffect(() => {
+    if (!ctx) return;
+    ctx.store.register({
+      id: stableId,
+      ref: trackRef,
+      profile,
+      geometryFamily,
+      level,
+      randomShapeCount,
+      visible: false, // visibility is managed separately
+      profileKey: key,
+    });
+  }, [ctx, stableId, profile, geometryFamily, level, randomShapeCount, key]);
 
   // IntersectionObserver for viewport activation
   useEffect(() => {
@@ -83,7 +74,7 @@ export function SharedOrbView({
     if (!el) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => ctx.setVisible(stableId, entry.isIntersecting),
+      ([entry]) => ctx.store.setVisible(stableId, entry.isIntersecting),
       { rootMargin: '100px' }
     );
     observer.observe(el);

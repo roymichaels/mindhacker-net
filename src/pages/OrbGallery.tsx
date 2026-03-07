@@ -14,7 +14,8 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRi
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { GalleryOrbView, GalleryCanvas, StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { GalleryCanvas, StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
@@ -231,7 +232,7 @@ export default function OrbGalleryPage() {
 
                     {/* Orb - rendered via shared WebGL canvas */}
                     <div className="group-hover:scale-105 transition-transform duration-300 overflow-visible -my-8 md:-my-14">
-                      <GalleryOrbView
+                      <SharedOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
                         size={isMobile ? 220 : 300}
