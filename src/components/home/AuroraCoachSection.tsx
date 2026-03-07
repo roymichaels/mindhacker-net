@@ -63,7 +63,7 @@ export default function AuroraCoachSection() {
             />
             <SharedOrbView
               profile={AURORA_PROFILE}
-              geometryFamily="sphere"
+              geometryFamily="octa"
               size={200}
               level={100}
             />
