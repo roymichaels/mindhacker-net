@@ -77,6 +77,7 @@ import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
 import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
 import FMWorkLayoutWrapper from "./components/fm/FMWorkLayoutWrapper";
 import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
+import FMMarketLayoutWrapper from "./components/fm/FMMarketLayoutWrapper";
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
 const FMBridge = lazy(() => import("./pages/fm/FMBridge"));
@@ -378,6 +379,7 @@ const App = () => (
                             <Route index element={<Navigate to="/fm/earn" replace />} />
                             <Route path="home" element={<Navigate to="/fm/earn" replace />} />
                             <Route path="earn" element={<EarnLayoutWrapper />} />
+                            <Route path="market" element={<FMMarketLayoutWrapper />} />
                             <Route path="work" element={<FMWorkLayoutWrapper />} />
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />

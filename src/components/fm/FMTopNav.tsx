@@ -3,14 +3,15 @@
  * Warm merchant golds, fantasy shop signboard feel.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Target, Briefcase, ArrowLeft, Store, Gem } from 'lucide-react';
+import { Target, Briefcase, ArrowLeft, Store, ShoppingBag } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 
 const FM_TABS = [
-  { id: 'earn',   path: '/fm/earn',   icon: Target,    labelEn: 'Earn',   labelHe: 'הרוויח' },
-  { id: 'work',   path: '/fm/work',   icon: Briefcase, labelEn: 'Work',   labelHe: 'עבודה' },
+  { id: 'earn',   path: '/fm/earn',   icon: Target,       labelEn: 'Earn',   labelHe: 'הרוויח' },
+  { id: 'market', path: '/fm/market', icon: ShoppingBag,  labelEn: 'Market', labelHe: 'מרקט' },
+  { id: 'work',   path: '/fm/work',   icon: Briefcase,    labelEn: 'Work',   labelHe: 'עבודה' },
 ] as const;
 
 interface FMTopNavProps {
@@ -26,6 +27,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
   const isTabActive = (tab: typeof FM_TABS[number]) => {
     const p = location.pathname;
     if (tab.id === 'earn') return p.startsWith('/fm/earn');
+    if (tab.id === 'market') return p.startsWith('/fm/market');
     if (tab.id === 'work') return p.startsWith('/fm/work') || p.startsWith('/coaches') || p.startsWith('/business');
     return false;
   };
