@@ -371,6 +371,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
         opacity={matProps.opacity}
         transparent={matProps.transparent}
         flatShading={matProps.flatShading}
+        wireframe={matProps.wireframe}
       />
     </mesh>
   );
