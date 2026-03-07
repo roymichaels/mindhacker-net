@@ -9,7 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,       labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'market', path: '/fm/market', icon: ShoppingBag,  labelEn: 'Market', labelHe: 'מרקט' },
-  { id: 'work',   path: '/fm/work',   icon: Briefcase,    labelEn: 'Work',   labelHe: 'עבודה' },
+  { id: 'work',   path: '/fm/work',   icon: Briefcase,    labelEn: 'Career', labelHe: 'קריירה' },
 ] as const;
 
 export function FMBottomNav() {
