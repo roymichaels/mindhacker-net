@@ -444,7 +444,9 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
 }
 
 // ─── Public: GalleryCanvas ───
-// Now a simple passthrough — no shared WebGL canvas needed
+// Uses SharedOrbCanvas for a single shared WebGL context
+
+import { SharedOrbCanvas } from './SharedOrbCanvas';
 
 interface GalleryCanvasProps {
   children: React.ReactNode;
@@ -452,5 +454,5 @@ interface GalleryCanvasProps {
 }
 
 export function GalleryCanvas({ children }: GalleryCanvasProps) {
-  return <>{children}</>;
+  return <SharedOrbCanvas>{children}</SharedOrbCanvas>;
 }
