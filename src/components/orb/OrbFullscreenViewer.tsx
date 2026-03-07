@@ -49,13 +49,12 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
       {open && (
         <motion.div
           role="dialog"
-          className="fixed inset-0 z-[9999] bg-black/95"
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={onClose}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           {/* Exit button */}
           <button
@@ -67,25 +66,10 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
             <span className="text-sm font-medium tracking-wide">Exit</span>
           </button>
 
-          {/* Centered orb container */}
-          <motion.div
-            initial={{ scale: 0.3, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.3, opacity: 0 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+          {/* Centered orb */}
+          <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              width: orbSize,
-              height: orbSize,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: 'auto',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
+            style={{ width: orbSize, height: orbSize }}
           >
             {profile ? (
               <StandaloneMorphOrb
@@ -102,7 +86,7 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
                 renderer="css"
               />
             )}
-          </motion.div>
+          </div>
 
           <motion.p
             className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/25 text-xs tracking-widest uppercase pointer-events-none whitespace-nowrap"
