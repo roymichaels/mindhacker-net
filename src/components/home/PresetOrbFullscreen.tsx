@@ -1,10 +1,11 @@
 /**
- * PresetOrbFullscreen – Fullscreen viewer for a preset orb profile (not personalized).
+ * PresetOrbFullscreen – Fullscreen viewer for a preset orb profile.
+ * Uses StandaloneMorphOrb so it matches the gallery carousel exactly.
  */
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Orb } from '@/components/orb/Orb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { createPortal } from 'react-dom';
 import type { OrbProfile } from '@/components/orb/types';
 
@@ -21,7 +22,7 @@ export function PresetOrbFullscreen({ open, onClose, profile }: PresetOrbFullscr
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(min * 1.2, 900));
+      setOrbSize(Math.min(min * 0.7, 600));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
@@ -93,12 +94,11 @@ export function PresetOrbFullscreen({ open, onClose, profile }: PresetOrbFullscr
                 background: 'radial-gradient(circle, hsl(var(--primary) / 0.6) 0%, transparent 70%)',
               }}
             />
-            <Orb
+            <StandaloneMorphOrb
               profile={profile}
+              geometryFamily={profile.geometryFamily || 'sphere'}
               size={orbSize}
-              state="breathing"
-              renderer="webgl"
-              showGlow
+              level={100}
             />
           </motion.div>
 
