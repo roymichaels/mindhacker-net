@@ -63,43 +63,67 @@ export default function Documentation() {
       ],
     },
     {
-      id: 'solution',
+      id: 'methodology',
       number: '3',
+      title: he ? 'מתודולוגיית Why-How-Now' : 'The Why-How-Now Methodology',
+      paragraphs: he ? [
+        `${brandName} בנוי סביב מתודולוגיית "Why-How-Now" — מסגרת שלושה אופקים שמתרגמת חזון מופשט לפעולות קונקרטיות. שלושת האופקים הם: Strategy (למה), Tactics (איך), ו-Now (עכשיו).`,
+        `Strategy (Why): מגדיר את מטרות החיים, ערכים, משימות, ו-14 עמודי חיים. זהו הצפון של המשתמש — ה"למה" מאחורי כל פעולה.`,
+        `Tactics (How): מפרק את האסטרטגיה לתוכנית 100 ימים עם שלבים, אבני דרך, ובלוקי פעולה יומיים. זהו ה"איך" — הגשר בין חזון לביצוע.`,
+        `Now (עכשיו): דשבורד הביצוע היומי — מציג את פעולות היום מחולקות ל-4 רבעוני יום עם שמות הרפתקניים ייחודיים, סטטוס אנרגיה, streak, ו-Movement Score שמודד מומנטום בזמן אמת.`,
+      ] : [
+        `${brandName} is built around the "Why-How-Now" methodology — a three-horizon framework that translates abstract vision into concrete daily actions. The three horizons are: Strategy (Why), Tactics (How), and Now (execute).`,
+        `Strategy (Why): Defines life goals, values, missions, and 14 life pillars. This is the user's north star — the "why" behind every action.`,
+        `Tactics (How): Breaks down strategy into a 100-day plan with phases, milestones, and daily action blocks. This is the "how" — the bridge between vision and execution.`,
+        `Now (Execute): The daily execution dashboard — displays today's actions divided into 4 adventure-themed day quarters with unique names, energy status, streak, and a Movement Score measuring real-time momentum.`,
+      ],
+    },
+    {
+      id: 'solution',
+      number: '4',
       title: he ? 'הפתרון — חמישה Hubs' : 'The Solution — Five Hubs',
       paragraphs: he ? [
-        `${brandName} הוא Human Operating System — מערכת הפעלה אנושית שמאחדת את כל ממדי החיים תחת קורת גג אחת. הפלטפורמה בנויה מחמישה Hubs:`,
+        `${brandName} הוא Human Operating System — מערכת הפעלה אנושית שמאחדת את כל ממדי החיים תחת קורת גג אחת. הפלטפורמה בנויה מחמישה Hubs בסדר עדיפות ביצועי:`,
       ] : [
-        `${brandName} is a Human Operating System that unifies all life dimensions under one roof. The platform is built from five Hubs:`,
+        `${brandName} is a Human Operating System that unifies all life dimensions under one roof. The platform is built from five Hubs in execution-priority order:`,
       ],
       subsections: [
         {
-          title: he ? '3.1 Now Hub — מרכז השליטה' : '3.1 Now Hub — Command Center',
+          title: he ? '4.1 Now Hub — מרכז הביצוע' : '4.1 Now Hub — Execution Center',
           paragraphs: he ? [
-            `הדשבורד המרכזי מציג סטטוס יומי בזמן אמת: משימות, הרגלים, אנרגיה, streak, XP, וטוקנים. Aurora (ה-AI) מופיעה כאורב תלת-ממדי שמשתנה בהתאם למצב המשתמש ומציעה פעולות פרואקטיביות. כולל כפתור "Dock" צף עם פעולות מהירות ומצב אנרגיה.`,
+            `Now הוא דף הנחיתה ומרכז הביצוע של ${brandName}. הדשבורד מציג את פעולות היום מחולקות ל-4 רבעוני יום (בוקר, צהריים, אחר הצהריים, ערב) — כל רבע מקבל שם הרפתקני ייחודי שמתחדש כל יום ("Dawn Forge", "Summit Push", "Iron Hour" וכו').`,
+            `ה-Movement Score מודד מומנטום בזמן אמת — אחוז ההשלמה היומי שמניע את האורב. כולל: סטטוס אנרגיה, streak יומי, XP, טוקנים, ומערכת Quest — כל יום הוא משימה (Quest) עם שם ייחודי, ושבוע שלם מרכיב קמפיין.`,
+            `כשלמשתמש אין תוכנית פעילה, Now מפנה אוטומטית ל-Strategy Hub ליצירת תוכנית 100 ימים.`,
           ] : [
-            `The central dashboard displays real-time daily status: tasks, habits, energy, streak, XP, and tokens. Aurora (the AI) appears as a 3D orb that changes based on user state and suggests proactive actions. Includes a floating "Dock" button with quick actions and energy state.`,
+            `Now is the landing page and execution center of ${brandName}. The dashboard displays today's actions divided into 4 day quarters (morning, midday, afternoon, evening) — each quarter receives a unique adventure name that refreshes daily ("Dawn Forge", "Summit Push", "Iron Hour", etc.).`,
+            `The Movement Score measures real-time momentum — the daily completion percentage that drives the orb. Includes: energy status, daily streak, XP, tokens, and a Quest system — each day is a Quest with a unique name, and an entire week forms a Campaign.`,
+            `When the user has no active plan, Now automatically redirects to Strategy Hub for 100-day plan creation.`,
           ],
         },
         {
-          title: he ? '3.2 Tactics Hub — טקטיקה וביצוע' : '3.2 Tactics Hub — Execution',
+          title: he ? '4.2 Tactics Hub — טקטיקה וביצוע' : '4.2 Tactics Hub — Tactical Execution',
           paragraphs: he ? [
-            `ניהול משימות, פרויקטים, Sprints, ו-Milestones. כולל תכנון יומי/שבועי/חודשי חכם עם תעדוף AI, זמן-בלוקינג, ו-subtasks היררכיים. ה-Tactics Hub פתוח לכל המשתמשים (כולל חינמיים) כדי לעודד מומנטום יומי.`,
+            `Tactics מציג את ה"איך" — תוכנית 7 ימים עם פעולות יומיות מסודרות ב-4 רבעונים הרפתקניים. כל יום מוצג כ-Quest עם שם ייחודי, והיום הנוכחי מסומן בתג כחול. המשתמש יכול לסמן השלמת בלוקים ולראות את ההתקדמות בזמן אמת.`,
+            `ה-Tactics Hub פתוח לכל המשתמשים (כולל חינמיים) כדי לעודד מומנטום יומי. כולל ניהול משימות, פרויקטים, Sprints, ו-Milestones עם תעדוף AI וsubtasks היררכיים.`,
           ] : [
-            `Task management, projects, sprints, and milestones. Includes smart daily/weekly/monthly planning with AI prioritization, time-blocking, and hierarchical subtasks. The Tactics Hub is open to all users (including free tier) to encourage daily momentum.`,
+            `Tactics shows the "How" — a 7-day plan with daily actions organized in 4 adventure-themed quarters. Each day is displayed as a Quest with a unique name, and the current day is marked with a blue badge. Users can mark block completion and see real-time progress.`,
+            `The Tactics Hub is open to all users (including free tier) to encourage daily momentum. Includes task management, projects, sprints, and milestones with AI prioritization and hierarchical subtasks.`,
           ],
         },
         {
-          title: he ? '3.3 Strategy Hub — אסטרטגיה' : '3.3 Strategy Hub — Strategy',
+          title: he ? '4.3 Strategy Hub — אסטרטגיה ותכנון' : '4.3 Strategy Hub — Strategy & Planning',
           paragraphs: he ? [
-            `מנתח את חיי המשתמש דרך 14 עמודי חיים (Pillars): נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות, תודעה, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, ועוד. כל עמוד נסרק באמצעות AI, מקבל ציון (0-100), ומייצר תוכנית שיפור מותאמת אישית.`,
-            `כולל: תכונות אופי (Traits), משימות חיים (Missions), ומערכת "כיול מחדש" (Recalibrate) שמאפשרת עדכון האסטרטגיה. Strategy מציג את ה"למה" (Why) — יעדים ומשימות חיים, בעוד Tactics מציג את ה"איך" (How) — פירוט משימות יומי.`,
+            `Strategy מציג את ה"למה" ומנהל את Pipeline האסטרטגי המלא. התהליך: (1) בחירת עמודי חיים (2-14 לפי רמת מנוי) דרך StrategyPillarWizard, (2) סריקת AI עומק לכל עמוד עם ציון 0-100, (3) יצירת תוכנית 100 ימים מחולקת ל-10 שלבים עם Milestones ופעולות יומיות.`,
+            `כולל: תכונות אופי (Traits), משימות חיים (Missions), יעדים (Goals), ומערכת "כיול מחדש" (Recalibrate) שמאפשרת לעדכן את האסטרטגיה. במנוי Apex, השלמת הערכה מזריקה אסטרטגיות חדשות לתוכנית הפעילה ללא צורך ביצירה מחדש.`,
+            `14 עמודי החיים: נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות, תודעה, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, ואומנות.`,
           ] : [
-            `Analyzes the user's life through 14 Life Pillars: Presence, Power, Vitality, Focus, Combat, Expansion, Consciousness, Wealth, Influence, Relationships, Business, Projects, Play, and more. Each pillar is scanned by AI, scored (0-100), and generates a personalized improvement plan.`,
-            `Includes: character Traits, life Missions, and a "Recalibrate" system for strategy updates. Strategy shows the "Why" — goals and life missions, while Tactics shows the "How" — daily task breakdown.`,
+            `Strategy shows the "Why" and manages the full strategic pipeline. The process: (1) select life pillars (2-14 based on subscription tier) via StrategyPillarWizard, (2) AI deep scan for each pillar scoring 0-100, (3) generate a 100-day plan divided into 10 phases with milestones and daily actions.`,
+            `Includes: character Traits, life Missions, Goals, and a "Recalibrate" system for strategy updates. On the Apex tier, completing an assessment injects new strategies into the active plan without full regeneration.`,
+            `The 14 Life Pillars: Presence, Power, Vitality, Focus, Combat, Expansion, Consciousness, Wealth, Influence, Relationships, Business, Projects, Play, and Craft.`,
           ],
         },
         {
-          title: he ? '3.4 Community Hub — קהילה' : '3.4 Community Hub — Community',
+          title: he ? '4.4 Community Hub — קהילה' : '4.4 Community Hub — Community',
           paragraphs: he ? [
             `פיד קהילתי עם פוסטים, תגובות, לייקים, אירועים, ודירוגים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI. ניווט לפי 14 עמודי חיים ונושאים (Topics) דרך הסיידבר.`,
             `תמיכה דו-לשונית מלאה בתוכן (title_he, content_he) עם זיהוי שפה אוטומטי. אירועים קהילתיים עם RSVP, מפגשים וירטואליים, ולוח מובילים.`,
@@ -109,20 +133,22 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '3.5 Learn Hub — למידה' : '3.5 Learn Hub — Learning',
+          title: he ? '4.5 Learn Hub — למידה' : '4.5 Learn Hub — Learning',
           paragraphs: he ? [
-            `"Aurora מלמדת אותך" — מערכת למידה אדפטיבית שמייצרת קוריקולום מותאם אישית לכל משתמש. המערכת משתמשת במודל "Lazy Generation" — שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית רק כשהמשתמש מגיע לשיעור ספציפי.`,
-            `כל שיעור כולל תרגול מעשי שמסוכם אוטומטית ומסונכרן לתור הביצוע (Tactics Hub) כפעולות בתוכנית. כפתור "בנה את הקוריקולום!" נגיש מכל מקום במערכת דרך ה-Aurora Dock. כולל מסע אונבורדינג, מסע עסקי (10 שלבים), מסע אימון (10 שלבים), ומסע פרויקטים.`,
+            `"Aurora מלמדת אותך" — מערכת למידה אדפטיבית עם HUD דו-סיידבר: סיידבר שמאלי לניווט קורסים וסיידבר ימני לעץ הקוריקולום. המערכת משתמשת במודל "Lazy Generation" — שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית רק כשהמשתמש מגיע לשיעור ספציפי ונשמר במטמון.`,
+            `כל שיעור כולל תרגול מעשי שמסוכם אוטומטית כ-"Plan Integration Summary" ומסונכרן לתור הביצוע (Tactics Hub) כפעולות בתוכנית. כפתור "בנה את הקוריקולום!" נגיש מכל מקום במערכת דרך ה-Aurora Dock. כולל מסע אונבורדינג, מסע עסקי (10 שלבים), מסע אימון (10 שלבים), ומסע פרויקטים.`,
+            `זרימת השלמה: מנגנון auto-advance עם שלב השלמה חובה דו-שלבי (חזרה לקורס או שיעור הבא).`,
           ] : [
-            `"Aurora Teaches You" — an adaptive learning system that generates personalized curriculum for each user. Uses a "Lazy Generation" model — course skeleton is created instantly, and content is generated dynamically only when the user reaches a specific lesson.`,
-            `Each lesson includes practical exercises that are auto-summarized and synced to the execution queue (Tactics Hub) as plan actions. The "Build the Curriculum!" button is accessible from anywhere via the Aurora Dock. Includes onboarding journey, business journey (10 steps), coaching journey (10 steps), and projects journey.`,
+            `"Aurora Teaches You" — an adaptive learning system with a dual-sidebar HUD: left sidebar for course navigation and right sidebar for the curriculum tree. Uses a "Lazy Generation" model — course skeleton is created instantly, and content is generated dynamically only when the user reaches a specific lesson, then cached.`,
+            `Each lesson includes practical exercises that are auto-summarized as a "Plan Integration Summary" and synced to the execution queue (Tactics Hub) as plan actions. The "Build the Curriculum!" button is accessible from anywhere via the Aurora Dock. Includes onboarding journey, business journey (10 steps), coaching journey (10 steps), and projects journey.`,
+            `Completion flow: auto-advance mechanism with a mandatory two-step completion gate (Back to Course or Next Lesson).`,
           ],
         },
       ],
     },
     {
       id: 'aurora',
-      number: '4',
+      number: '5',
       title: he ? 'Aurora — מנוע ה-AI התודעתי' : 'Aurora — Consciousness AI Engine',
       paragraphs: he ? [
         `Aurora היא ליבת האינטליגנציה של ${brandName}. היא אינה צ'אטבוט רגיל — אלא מנוע תודעתי שלומד את הדפוסים ההתנהגותיים של המשתמש, מזהה מצבים רגשיים, ומייצרת פעולות פרואקטיביות.`,
@@ -135,7 +161,7 @@ export default function Documentation() {
       ],
       subsections: [
         {
-          title: he ? '4.1 זיכרון שיחות וזיכרון ארוך טווח' : '4.1 Conversation Memory & Long-Term Memory',
+          title: he ? '5.1 זיכרון שיחות וזיכרון ארוך טווח' : '5.1 Conversation Memory & Long-Term Memory',
           paragraphs: he ? [
             `Aurora שומרת זיכרון שיחות מלא — כולל סיכומי שיחה, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה כקונטקסט, מה שמאפשר המשכיות אמיתית לאורך זמן. הזיכרון מודע לציר הזמן — אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
           ] : [
@@ -143,7 +169,7 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.2 מערכת פרואקטיבית' : '4.2 Proactive System',
+          title: he ? '5.2 מערכת פרואקטיבית' : '5.2 Proactive System',
           paragraphs: he ? [
             `Aurora לא מחכה שתדבר אליה — היא פועלת פרואקטיבית. מערכת ה-Proactive Queue מזהה טריגרים (streak שנשבר, ירידה באנרגיה, משימה שנדחתה) ומייצרת דחיפות חכמות עם עדיפויות. כולל push notifications, תזכורות מתוזמנות, ומנגנון idempotency למניעת כפילויות.`,
           ] : [
@@ -151,72 +177,104 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.3 דפוסים התנהגותיים ואנרגטיים' : '4.3 Behavioral & Energy Patterns',
+          title: he ? '5.3 דפוסים התנהגותיים ואנרגטיים' : '5.3 Behavioral & Energy Patterns',
           paragraphs: he ? [
             `Aurora מנתחת דפוסי התנהגות ואנרגיה לאורך זמן — מזהה מתי המשתמש הכי פרודוקטיבי, מתי צריך מנוחה, ואילו פעילויות משפיעות על מצב הרוח. המידע משפיע על תזמון משימות, המלצות, ותוכן מותאם.`,
           ] : [
             `Aurora analyzes behavioral and energy patterns over time — identifying when the user is most productive, when rest is needed, and which activities affect mood. This data influences task timing, recommendations, and personalized content.`,
           ],
         },
+        {
+          title: he ? '5.4 Aurora Dock — ממשק פעולות מהירות' : '5.4 Aurora Dock — Quick Action Interface',
+          paragraphs: he ? [
+            `ה-Aurora Dock הוא ממשק צף שנגיש מכל מקום במערכת — כפתור FAB (Floating Action Button) שפותח מגש פעולות מהירות. דרכו המשתמש יכול: לפתוח שיחה עם Aurora, להתחיל סשן היפנוזה, לבנות קוריקולום, לסרוק עמוד חיים, ולהציץ במשימות היום. ה-Dock מזהה קונטקסט ומציע פעולות רלוונטיות לפי הדף הנוכחי.`,
+          ] : [
+            `The Aurora Dock is a floating interface accessible from anywhere in the system — a FAB (Floating Action Button) that opens a quick-action tray. Through it users can: start an Aurora conversation, begin a hypnosis session, build a curriculum, scan a life pillar, and peek at today's tasks. The Dock is context-aware and suggests relevant actions based on the current page.`,
+          ],
+        },
       ],
     },
     {
       id: 'hypnosis',
-      number: '5',
+      number: '6',
       title: he ? 'היפנוזה ומדיטציה מונחית AI' : 'AI-Guided Hypnosis & Meditation',
       paragraphs: he ? [
         `${brandName} כולל מערכת היפנוזה ומדיטציה מונחית בינה מלאכותית — סשנים מותאמים אישית שנוצרים בזמן אמת בהתבסס על מצב המשתמש, יעדיו, ודפוסי התודעה שלו.`,
-        `הסשנים משלבים: (1) הנחיות קוליות מותאמות, (2) מוזיקת רקע ותדרים, (3) עבודה עם ego states ותת-מודע, (4) תרגול ויזואליזציה ואפירמציות. כל סשן מתגמל 10 MOS ומשפיע על ציון עמוד התודעה (Consciousness Pillar).`,
-        `ההיפנוזה משולבת בליבת ה-AI — Aurora משתמשת בהיסטוריית סשנים קודמים כדי להתאים את התוכן, ומשלבת תובנות מעמודי חיים אחרים לתוך חווית הסשן.`,
+        `הסשנים משלבים: (1) תסריטי היפנוזה מותאמים שנוצרים על ידי Aurora בהתבסס על פרופיל המשתמש, (2) המרת טקסט לדיבור (TTS) בזמן אמת ליצירת הנחיות קוליות, (3) שכבת מוזיקת רקע ותדרים בינאוראליים, (4) עבודה עם ego states ותת-מודע, (5) תרגול ויזואליזציה ואפירמציות.`,
+        `כל סשן מתגמל 10 MOS ומשפיע על ציון עמוד התודעה (Consciousness Pillar). ההיפנוזה משולבת בליבת ה-AI — Aurora משתמשת בהיסטוריית סשנים קודמים כדי להתאים את התוכן, ומשלבת תובנות מעמודי חיים אחרים לתוך חווית הסשן. התסריטים נוצרים דינמית ומותאמים למצב הרגשי הנוכחי של המשתמש.`,
       ] : [
         `${brandName} includes an AI-guided hypnosis and meditation system — personalized sessions generated in real-time based on the user's state, goals, and consciousness patterns.`,
-        `Sessions combine: (1) personalized voice guidance, (2) background music and frequencies, (3) ego state and subconscious work, (4) visualization and affirmation practice. Each session rewards 10 MOS and affects the Consciousness Pillar score.`,
-        `Hypnosis is integrated into the AI core — Aurora uses previous session history to tailor content, and weaves insights from other life pillars into the session experience.`,
+        `Sessions combine: (1) custom hypnosis scripts generated by Aurora based on the user's profile, (2) real-time Text-to-Speech (TTS) conversion for voice guidance, (3) background music and binaural frequency layers, (4) ego state and subconscious work, (5) visualization and affirmation practice.`,
+        `Each session rewards 10 MOS and affects the Consciousness Pillar score. Hypnosis is integrated into the AI core — Aurora uses previous session history to tailor content, and weaves insights from other life pillars into the session experience. Scripts are dynamically generated and adapted to the user's current emotional state.`,
       ],
     },
     {
       id: 'nft',
-      number: '6',
+      number: '7',
       title: he ? 'מערכת ה-NFT — זהות דיגיטלית מתפתחת' : 'The NFT System — Evolving Digital Identity',
       paragraphs: he ? [
-        `כל משתמש ב-${brandName} מחזיק ב-Orb — נכס דיגיטלי תלת-ממדי ייחודי שמייצג את הזהות, ההתקדמות, והתודעה שלו. ה-Orb אינו סטטי: הוא מתפתח בהתאם לפעולות המשתמש.`,
-        `מאפייני ה-Orb: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — צורה שמתפתחת עם הרמה, (3) חלקיקים — מספר וצפיפות לפי streak ואנרגיה, (4) הילה — עוצמה וצבע לפי ציון כללי.`,
-        `ה-Orb הוא גם ה-Avatar של המשתמש במערכת, מופיע בפרופיל, בקהילה, ובעתיד ייצוא כ-NFT אמיתי על blockchain.`,
+        `כל משתמש ב-${brandName} מחזיק ב-Orb — נכס דיגיטלי תלת-ממדי ייחודי שמייצג את הזהות, ההתקדמות, והתודעה שלו. ה-Orb נבנה באמצעות Three.js עם אפקטי Bloom, חלקיקים ומורפינג בזמן אמת — הוא אינו סטטי, אלא מתפתח בהתאם לפעולות המשתמש.`,
+        `מאפייני ה-Orb: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים ומחושבים מציוני העמודים, (2) מורפולוגיה — עוצמת עיוות הגיאומטריה (morph intensity) ומהירותה גדלות עם הרמה, (3) חלקיקים — מספר וצפיפות לפי streak ואנרגיה (particle count/enabled), (4) הילה — אפקט Bloom שנשלט על ידי ציון geometry detail, (5) צבעים משניים — מערך שמייצג שילובי עמודים.`,
+        `ה-Orb הוא גם ה-Avatar של המשתמש במערכת, מופיע בפרופיל, בקהילה, ובעתיד ייצוא כ-NFT אמיתי על blockchain. כל Orb נשמר עם computed_from — snapshot של הנתונים שממנו חושבו הפרמטרים הוויזואליים.`,
       ] : [
-        `Every ${brandName} user holds an Orb — a unique 3D digital asset representing their identity, progress, and consciousness. The Orb is not static: it evolves based on user actions.`,
-        `Orb attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — shape evolves with level, (3) Particles — count and density based on streak and energy, (4) Aura — intensity and color based on overall score.`,
-        `The Orb also serves as the user's avatar in the system, appearing in profiles, community, and in the future exportable as a real NFT on blockchain.`,
+        `Every ${brandName} user holds an Orb — a unique 3D digital asset representing their identity, progress, and consciousness. The Orb is built with Three.js featuring real-time Bloom effects, particles, and morphing — it is not static, but evolves based on user actions.`,
+        `Orb attributes: (1) Colors — change based on dominant life pillars, computed from pillar scores, (2) Morphology — geometry distortion intensity (morph intensity) and speed grow with level, (3) Particles — count and density based on streak and energy (particle count/enabled), (4) Aura — Bloom effect controlled by geometry detail score, (5) Secondary colors — an array representing pillar combinations.`,
+        `The Orb also serves as the user's avatar in the system, appearing in profiles, community, and in the future exportable as a real NFT on blockchain. Each Orb is saved with computed_from — a snapshot of the data from which visual parameters were computed.`,
       ],
     },
     {
       id: 'economy',
-      number: '7',
-      title: he ? 'כלכלה דיגיטלית — MOS Token' : 'Digital Economy — MOS Token',
+      number: '8',
+      title: he ? 'כלכלה דיגיטלית — Proof of Growth' : 'Digital Economy — Proof of Growth',
       paragraphs: he ? [
-        `MOS (Mind Operating System) הוא המטבע הפנימי של ${brandName}. שער קבוע: 100 MOS = $1.00. המטבע מבוסס על מנגנון Proof of Growth — כריית נתונים שמתגמלת פעילות אנושית אמיתית.`,
-        `דרכי הרווחה: השלמת משימות (1-5 MOS), הרגלים יומיים (2-3 MOS), סשני היפנוזה (10 MOS), מכירת שירותים ב-FreeMarket, בונטי, גיגים, כרייה פאסיבית (Proof of Growth), ותוכנית שותפים.`,
-        `שימושים: רכישת שירותים מקואצ'ים, רכישת קורסים, שדרוג מנוי, רכישת NFT skins, ובעתיד — המרה לכסף אמיתי דרך ה-FreeMarket.`,
+        `MOS (Mind Operating System) הוא המטבע הפנימי של ${brandName}. שער קבוע: 100 MOS = $1.00. המטבע מבוסס על מנגנון Proof of Growth — מנוע כרייה (Mining Engine) שמתגמל פעילות אנושית אמיתית ומאומתת.`,
       ] : [
-        `MOS (Mind Operating System) is the internal currency of ${brandName}. Fixed rate: 100 MOS = $1.00. The currency is based on a Proof of Growth mechanism — data mining that rewards genuine human activity.`,
-        `Earning methods: completing tasks (1-5 MOS), daily habits (2-3 MOS), hypnosis sessions (10 MOS), selling services on FreeMarket, bounties, gigs, passive mining (Proof of Growth), and affiliate program.`,
-        `Uses: purchasing coach services, buying courses, upgrading subscription, purchasing NFT skins, and in the future — converting to real money via FreeMarket.`,
+        `MOS (Mind Operating System) is the internal currency of ${brandName}. Fixed rate: 100 MOS = $1.00. The currency is based on a Proof of Growth mechanism — a Mining Engine that rewards verified genuine human activity.`,
+      ],
+      subsections: [
+        {
+          title: he ? '8.1 מנוע הכרייה (Mining Engine)' : '8.1 Mining Engine',
+          paragraphs: he ? [
+            `המנוע מתגמל אוטומטית פעילות מאומתת בתעריפים קבועים: סשני היפנוזה (10 MOS), פוסטים בקהילה (8 MOS), שיעורי למידה (5 MOS), השלמת הרגלים (3 MOS), תגובות בקהילה (3 MOS). תקרה יומית של 200 MOS עם cooldowns למניעת ניצול. כל הכרייה מתועדת ב-fm_mining_logs לביקורתיות מלאה.`,
+          ] : [
+            `The engine automatically rewards verified activity at fixed rates: Hypnosis Sessions (10 MOS), Community Posts (8 MOS), Learning Lessons (5 MOS), Habit Completion (3 MOS), Community Comments (3 MOS). Daily cap of 200 MOS with cooldowns to prevent exploitation. All mining is logged in fm_mining_logs for full auditability.`,
+          ],
+        },
+        {
+          title: he ? '8.2 שוק נתונים (Data Marketplace)' : '8.2 Data Marketplace',
+          paragraphs: he ? [
+            `מייצר הכנסה מתובנות התנהגותיות אנונימיות עם חלוקת הכנסה 80/20 (80% למשתמש). כולל pipeline אנונימיזציה מודע פרטיות (fm_data_snapshots) שדורש סף מינימלי של 10 תורמים, והסכמה גרנולרית (fm_data_consent) של המשתמש. הכנסות מחולקות אוטומטית לתורמים בעת רכישה.`,
+          ] : [
+            `Monetizes anonymized behavioral insights with an 80/20 revenue split (80% to user). Includes a privacy-aware anonymization pipeline (fm_data_snapshots) requiring a minimum 10-contributor threshold, and granular user consent (fm_data_consent). Revenue is automatically distributed to contributors upon purchase.`,
+          ],
+        },
+        {
+          title: he ? '8.3 ארנק ויישוב' : '8.3 Wallet & Settlement',
+          paragraphs: he ? [
+            `ארנק פנימי (fm_wallets) עם ספר חשבונות (fm_transactions). יישוב אסינכרוני לערוצי תשלום חיצוניים (Stripe לפיאט או Solana לטוקנים MOS) דרך fm_settlement_outbox. חשיפה פרוגרסיבית: "מצב פשוט" (נקודות/בנק) ו"מצב מתקדם" (כתובות Solana).`,
+          ] : [
+            `Internal wallet (fm_wallets) with ledger (fm_transactions). Asynchronous settlement to external payment rails (Stripe for fiat or Solana for MOS tokens) via fm_settlement_outbox. Progressive disclosure: "Simple Mode" (points/bank terminology) and "Advanced Mode" (Solana addresses).`,
+          ],
+        },
       ],
     },
     {
       id: 'freemarket',
-      number: '8',
+      number: '9',
       title: he ? 'FreeMarket — שוק פנימי' : 'FreeMarket — Internal Marketplace',
       paragraphs: he ? [
-        `FreeMarket הוא השוק הפנימי של ${brandName} — מקום בו משתמשים יכולים להרוויח MOS על ידי מכירת שירותים, ביצוע בונטי (משימות קהילתיות), וגיגים. השוק כולל שני טאבים: Earn (הרוויח) ו-Work (עבודה).`,
-        `Earn כולל: בונטי (Bounties) — משימות עם תגמול MOS, גיגים (Gigs) — הצעות עבודה זמניות, ותוכנית שותפים (Partners). Work כולל: ניהול שירותים, הזמנות, ולוח בקרה לנותני שירות.`,
+        `FreeMarket הוא השוק הפנימי של ${brandName} — מקום בו משתמשים יכולים להרוויח MOS על ידי מכירת שירותים, ביצוע בונטי (משימות קהילתיות), וגיגים. השוק כולל שלושה טאבים: Earn (הרוויח), Work (עבודה), ו-Partners (שותפים).`,
+        `Earn כולל: בונטי (Bounties) — משימות עם תגמול MOS, גיגים (Gigs) — הצעות עבודה זמניות. Work כולל: ניהול שירותים, הזמנות, ולוח בקרה לנותני שירות. Partners כולל: תוכנית שותפים (Affiliate) עם עמלות על הפניות, קודי הפניה ייחודיים, ודשבורד מעקב אחרי רפרלים ותשלומים.`,
+        `כולל דשבורד "Proof of Growth Mining" שמציג סטטיסטיקות כרייה בזמן אמת: MOS שנכרו היום, סך הכרייה, תקרה יומית, וחלון cooldown.`,
       ] : [
-        `FreeMarket is the internal marketplace of ${brandName} — where users can earn MOS by selling services, completing bounties (community tasks), and gigs. The marketplace includes two tabs: Earn and Work.`,
-        `Earn includes: Bounties — tasks with MOS rewards, Gigs — temporary work offers, and Partners (affiliate program). Work includes: service management, bookings, and a dashboard for service providers.`,
+        `FreeMarket is the internal marketplace of ${brandName} — where users can earn MOS by selling services, completing bounties (community tasks), and gigs. The marketplace includes three tabs: Earn, Work, and Partners.`,
+        `Earn includes: Bounties — tasks with MOS rewards, Gigs — temporary work offers. Work includes: service management, bookings, and a dashboard for service providers. Partners includes: affiliate program with referral commissions, unique referral codes, and a tracking dashboard for referrals and payouts.`,
+        `Includes a "Proof of Growth Mining" dashboard showing real-time mining statistics: MOS mined today, total mined, daily cap, and cooldown window.`,
       ],
     },
     {
       id: 'coaches',
-      number: '9',
+      number: '10',
       title: he ? 'פלטפורמת מאמנים' : 'Coach Platform',
       paragraphs: he ? [
         `${brandName} כולל פלטפורמת מאמנים מלאה — מאמנים יכולים להירשם, להגדיר שירותים, לקבל הזמנות, לנהל לקוחות, וליצור דפי נחיתה. כולל מנוי מאמנים עם רמות (Starter, Pro, Enterprise).`,
@@ -228,71 +286,83 @@ export default function Documentation() {
     },
     {
       id: 'gamification',
-      number: '10',
+      number: '11',
       title: he ? 'גיימיפיקציה עמוקה' : 'Deep Gamification',
       paragraphs: he ? [
         `${brandName} משתמש בגיימיפיקציה כמנוע מוטיבציה מרכזי: XP (ניקוד ניסיון), רמות (1-100+), Streaks (רצפים יומיים), Tokens (MOS), Badges, ולוחות מובילים.`,
         `כל פעולה במערכת מתגמלת XP ו-MOS: משימות, הרגלים, היפנוזה, למידה, פעילות קהילתית, ומכירות ב-FreeMarket. ה-Streak מעודד עקביות יומית ומכפיל תגמולים.`,
-        `מערכת ה-Skills (מיומנויות) מאפשרת למשתמשים לצבור ניסיון בתחומים ספציפיים — כל פעולה מחולקת למשקלים שמשפיעים על מיומנויות רלוונטיות.`,
       ] : [
         `${brandName} uses gamification as a core motivation engine: XP (experience points), Levels (1-100+), Streaks (daily chains), Tokens (MOS), Badges, and Leaderboards.`,
         `Every action in the system rewards XP and MOS: tasks, habits, hypnosis, learning, community activity, and FreeMarket sales. The Streak encourages daily consistency and multiplies rewards.`,
-        `The Skills system allows users to gain experience in specific domains — each action is weighted to affect relevant skills.`,
+      ],
+      subsections: [
+        {
+          title: he ? '11.1 מערכת מיומנויות (Skill Tree)' : '11.1 Skill Tree System',
+          paragraphs: he ? [
+            `מערכת ה-Skills מאפשרת למשתמשים לצבור ניסיון בתחומים ספציפיים. כל פעולה מחולקת למשקלים (action_skill_weights) שמשפיעים על מיומנויות רלוונטיות. משקלים מחושבים לפי סוג פעולה (mapping_type), מפתח מיפוי (mapping_key), ועמוד חיים (pillar). זה מאפשר מעקב גרנולרי אחרי התפתחות מיומנויות חוצות-תחומים.`,
+          ] : [
+            `The Skills system allows users to gain experience in specific domains. Each action is weighted (action_skill_weights) to affect relevant skills. Weights are calculated by action type (mapping_type), mapping key (mapping_key), and life pillar. This enables granular tracking of cross-domain skill development.`,
+          ],
+        },
       ],
     },
     {
       id: 'subscription',
-      number: '11',
-      title: he ? 'מודל מנויים' : 'Subscription Model',
+      number: '12',
+      title: he ? 'מודל מנויים — "עומק הכוח"' : 'Subscription Model — "Depth of Power"',
       paragraphs: he ? [
-        `${brandName} מציע שלוש רמות מנוי: Free (חינמי), Pro, ו-Ultra. כל רמה פותחת יכולות נוספות.`,
-        `Free: גישה ל-Tactics Hub, משימות בסיסיות, ו-streak. Pro: גישה מלאה לכל ה-Hubs, Aurora AI ללא הגבלה, היפנוזה, למידה, וקהילה. Ultra: כל היכולות + עדיפות AI, סשני היפנוזה VIP, ותמיכה אישית.`,
-        `מחירון: Free = $0, Pro = $9.99/חודש, Ultra = $19.99/חודש. הנחות שנתיות זמינות.`,
+        `${brandName} מציע שלוש רמות מנוי בהיררכיית "עומק הכוח":`,
+        `Awakening (חינמי — $0): מבנה בסיסי, XP ורמות, 5 הודעות Aurora ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Tactics Hub לעידוד מומנטום יומי.`,
+        `Optimization (Plus — $69/חודש): Aurora ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום (100-Day Transformation OS), והיפנוזה AI.`,
+        `Command (Apex — $199/חודש): כל 14 עמודי החיים, מנוע פרואקטיבי "Jarvis", ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות לתוכנית הפעילה ללא יצירה מחדש.`,
       ] : [
-        `${brandName} offers three subscription tiers: Free, Pro, and Ultra. Each tier unlocks additional capabilities.`,
-        `Free: access to Tactics Hub, basic tasks, and streak. Pro: full access to all Hubs, unlimited Aurora AI, hypnosis, learning, and community. Ultra: all features + AI priority, VIP hypnosis sessions, and personal support.`,
-        `Pricing: Free = $0, Pro = $9.99/month, Ultra = $19.99/month. Annual discounts available.`,
+        `${brandName} offers three subscription tiers in a "Depth of Power" hierarchy:`,
+        `Awakening (Free — $0): Basic structure, XP/leveling, 5 daily Aurora messages, selection of up to 2 pillars, and full access to the Tactics Hub for daily momentum.`,
+        `Optimization (Plus — $69/mo): Unlimited Aurora memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
+        `Command (Apex — $199/mo): All 14 pillars, the proactive "Jarvis" engine, and modular plan updates — completing assessments injects strategies into the active plan without full regeneration.`,
       ],
     },
     {
       id: 'data-privacy',
-      number: '12',
+      number: '13',
       title: he ? 'פרטיות ואבטחת מידע' : 'Data Privacy & Security',
       paragraphs: he ? [
-        `${brandName} מחויב לפרטיות המשתמשים. כל הנתונים מוצפנים, מאוחסנים בענן מאובטח (Supabase), ונגישים רק למשתמש עצמו דרך Row-Level Security (RLS).`,
-        `המערכת לא מוכרת נתונים לצדדים שלישיים. נתוני AI משמשים אך ורק לשיפור חווית המשתמש. המשתמש יכול למחוק את כל הנתונים שלו בכל עת.`,
+        `${brandName} מחויב לפרטיות המשתמשים. כל הנתונים מוצפנים, מאוחסנים בתשתית ענן מאובטחת, ונגישים רק למשתמש עצמו דרך Row-Level Security (RLS). המערכת לא מוכרת נתונים לצדדים שלישיים.`,
+        `נתוני AI משמשים אך ורק לשיפור חווית המשתמש. המשתמש יכול למחוק את כל הנתונים שלו בכל עת. שוק הנתונים מבוסס על הסכמה גרנולרית ואנונימיזציה מלאה עם סף 10 תורמים.`,
       ] : [
-        `${brandName} is committed to user privacy. All data is encrypted, stored in secure cloud infrastructure (Supabase), and accessible only to the user through Row-Level Security (RLS).`,
-        `The system does not sell data to third parties. AI data is used solely to improve user experience. Users can delete all their data at any time.`,
+        `${brandName} is committed to user privacy. All data is encrypted, stored in secure cloud infrastructure, and accessible only to the user through Row-Level Security (RLS). The system does not sell data to third parties.`,
+        `AI data is used solely to improve user experience. Users can delete all their data at any time. The data marketplace is based on granular consent and full anonymization with a 10-contributor threshold.`,
       ],
     },
     {
       id: 'tech-stack',
-      number: '13',
-      title: he ? 'סטאק טכנולוגי' : 'Technology Stack',
+      number: '14',
+      title: he ? 'סטאק טכנולוגי וארכיטקטורה' : 'Technology Stack & Architecture',
       paragraphs: he ? [
-        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion. Backend: Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime). AI: Gemini 2.5 Pro/Flash, GPT-5, מודלים מולטימודליים.`,
-        `תשתית: Lovable AI לפיתוח מהיר, Vite כ-build tool, PWA support למובייל. הפלטפורמה responsive לחלוטין עם תמיכה מלאה ב-RTL (עברית).`,
+        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion + Three.js (Orb rendering). Backend: PostgreSQL, Auth, Edge Functions, Storage, Realtime. AI: Gemini 2.5 Pro/Flash, GPT-5, מודלים מולטימודליים עם עיבוד חזותי.`,
+        `תשתית: Vite כ-build tool עם תמיכת PWA מלאה (vite-plugin-pwa) לחוויית מובייל native-like עם offline support, התקנה למסך הבית, ו-service worker. הפלטפורמה responsive לחלוטין עם תמיכה מלאה ב-RTL (עברית), ניהול מצב עם Zustand, ו-data fetching עם TanStack React Query.`,
+        `ארכיטקטורת Mobile-First: כל ה-UI מתוכנן קודם כל למובייל עם breakpoints אדפטיביים. ה-Aurora Dock, ניווט תחתון, ותמיכת swipe (react-swipeable) מבטיחים חוויה חלקה במכשירים ניידים.`,
       ] : [
-        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion. Backend: Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime). AI: Gemini 2.5 Pro/Flash, GPT-5, multimodal models.`,
-        `Infrastructure: Lovable AI for rapid development, Vite as build tool, PWA support for mobile. The platform is fully responsive with complete RTL (Hebrew) support.`,
+        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion + Three.js (Orb rendering). Backend: PostgreSQL, Auth, Edge Functions, Storage, Realtime. AI: Gemini 2.5 Pro/Flash, GPT-5, multimodal models with vision processing.`,
+        `Infrastructure: Vite as build tool with full PWA support (vite-plugin-pwa) for native-like mobile experience with offline support, home screen installation, and service worker. The platform is fully responsive with complete RTL (Hebrew) support, state management with Zustand, and data fetching with TanStack React Query.`,
+        `Mobile-First Architecture: All UI is designed mobile-first with adaptive breakpoints. The Aurora Dock, bottom navigation, and swipe support (react-swipeable) ensure a smooth experience on mobile devices.`,
       ],
     },
     {
       id: 'roadmap',
-      number: '14',
+      number: '15',
       title: he ? 'מפת דרכים' : 'Roadmap',
       paragraphs: he ? [
-        `Q1 2026: השקת Beta ציבורי, 5 Hubs פעילים, מערכת MOS, היפנוזה AI. Q2 2026: פלטפורמת מאמנים, FreeMarket, תוכנית שותפים. Q3 2026: NFT Orb export, אפליקציית מובייל, integrations. Q4 2026: API פתוח, שותפויות B2B, הרחבה גלובלית.`,
-        `2027: Blockchain integration, DAO governance, מטבע MOS על רשת מבוזרת, שוק NFT חיצוני.`,
+        `Q1 2026: השקת Beta ציבורי, 5 Hubs פעילים, מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים. Q2 2026: פלטפורמת מאמנים, FreeMarket עם שוק נתונים, תוכנית שותפים, API פתוח. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
+        `2027: Blockchain integration, DAO governance, מטבע MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט.`,
       ] : [
-        `Q1 2026: Public Beta launch, 5 active Hubs, MOS system, AI hypnosis. Q2 2026: Coach platform, FreeMarket, affiliate program. Q3 2026: NFT Orb export, mobile app, integrations. Q4 2026: Open API, B2B partnerships, global expansion.`,
-        `2027: Blockchain integration, DAO governance, MOS token on decentralized network, external NFT marketplace.`,
+        `Q1 2026: Public Beta launch, 5 active Hubs, MOS Mining Engine, AI Hypnosis, 100-Day Plan. Q2 2026: Coach platform, FreeMarket with Data Marketplace, affiliate program, open API. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
+        `2027: Blockchain integration, DAO governance, MOS token on Solana network, external NFT marketplace, Stripe fiat settlement.`,
       ],
     },
     {
       id: 'team',
-      number: '15',
+      number: '16',
       title: he ? 'צוות' : 'Team',
       paragraphs: he ? [
         `מייסד ומנכ"ל: ${founderName} — ${he ? theme.founder_title : theme.founder_title_en}`,
@@ -309,12 +379,12 @@ export default function Documentation() {
       number: '17',
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
-        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית, וזהות NFT לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
-        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, היפנוזה ומדיטציה מונחית, מערכת למידה אדפטיבית, שוק פנימי עם כלכלה אמיתית, פלטפורמת מאמנים מלאה, קהילה פעילה, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
+        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
+        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת, מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת מאמנים מלאה, קהילה פעילה עם Aurora AI, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
-        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, digital economy, and NFT identity into a single experience that wraps around the user's life.`,
-        `The platform offers: an AI engine that deeply knows you, guided hypnosis and meditation, an adaptive learning system, an internal marketplace with real economy, a full coach platform, an active community, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
+        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, and dynamic NFT identity into a single experience that wraps around the user's life.`,
+        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, guided hypnosis with real-time TTS, an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a full coach platform, an active community with Aurora AI, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
