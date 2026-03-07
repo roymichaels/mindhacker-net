@@ -94,7 +94,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
     , document.body);
   }
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
