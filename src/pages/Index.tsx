@@ -16,6 +16,7 @@ import {
   PlanCinematicSection,
   FinalCTASection,
 } from "@/components/home";
+import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
 
 const Index = () => {
   const { t, isRTL } = useTranslation();
