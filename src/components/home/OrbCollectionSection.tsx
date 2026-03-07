@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Sparkles, Dna, Fingerprint, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LazyOrbView } from '@/components/orb/LazyOrbView';
+import { CSSGalleryOrb } from '@/components/orb/CSSGalleryOrb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
