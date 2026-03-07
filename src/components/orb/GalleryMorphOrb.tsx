@@ -6,7 +6,7 @@
  */
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { View, Environment, PerspectiveCamera } from '@react-three/drei';
+import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbProfile } from './types';
 
@@ -393,6 +393,7 @@ function OrbLighting() {
 }
 
 // ─── Public: GalleryOrbView ───
+// Now uses standalone inline Canvas (no shared context needed)
 
 interface GalleryOrbViewProps {
   profile: OrbProfile;
@@ -405,11 +406,16 @@ interface GalleryOrbViewProps {
 
 export function GalleryOrbView({ profile, geometryFamily, size, level = 100, randomShapeCount = false, className }: GalleryOrbViewProps) {
   return (
-    <View className={className} style={{ width: size, height: size, margin: '0 auto' }}>
-      <OrbLighting />
-      <PerspectiveCamera makeDefault position={[0, 0, 2.8]} fov={40} />
-      <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} randomShapeCount={randomShapeCount} />
-    </View>
+    <div className={className} style={{ width: size, height: size, margin: '0 auto' }}>
+      <Canvas
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        camera={{ position: [0, 0, 2.8], fov: 40 }}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <OrbLighting />
+        <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} randomShapeCount={randomShapeCount} />
+      </Canvas>
+    </div>
   );
 }
 
@@ -427,7 +433,7 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
     <div style={{ width: size, height: size }}>
       <Canvas
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 3], fov: 40 }}
+        camera={{ position: [0, 0, 2.8], fov: 40 }}
         style={{ width: '100%', height: '100%' }}
       >
         <OrbLighting />
@@ -438,32 +444,13 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
 }
 
 // ─── Public: GalleryCanvas ───
+// Now a simple passthrough — no shared WebGL canvas needed
 
 interface GalleryCanvasProps {
   children: React.ReactNode;
   containerRef: React.RefObject<HTMLDivElement>;
 }
 
-export function GalleryCanvas({ children, containerRef }: GalleryCanvasProps) {
-  return (
-    <>
-      <Canvas
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        eventSource={containerRef}
-        eventPrefix="client"
-      >
-        <View.Port />
-      </Canvas>
-      {children}
-    </>
-  );
+export function GalleryCanvas({ children }: GalleryCanvasProps) {
+  return <>{children}</>;
 }
