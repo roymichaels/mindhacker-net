@@ -67,12 +67,41 @@ serve(async (req) => {
 
     const context = userId ? await buildContext(supabase, userId, language) : await buildContext(supabase, "", language);
 
+    // 3b. Resolve user tier for model selection
+    let userTier: "free" | "plus" | "apex" = "free";
+    if (userId) {
+      const { data: subRow } = await supabase
+        .from("user_subscriptions")
+        .select("product_id, status")
+        .eq("user_id", userId)
+        .in("status", ["active", "trialing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (subRow) {
+        const pid = (subRow.product_id || "").toLowerCase();
+        if (pid.includes("apex") || pid.includes("command") || pid.includes("mastery")) {
+          userTier = "apex";
+        } else if (pid.includes("plus") || pid.includes("optim") || pid.includes("pro")) {
+          userTier = "plus";
+        }
+      }
+    }
+
+    // Model by tier: Free=flash-lite, Plus=flash, Apex=pro
+    const TIER_MODELS: Record<string, string> = {
+      free: "google/gemini-2.5-flash-lite",
+      plus: "google/gemini-2.5-flash",
+      apex: "google/gemini-2.5-pro",
+    };
+
     // 4. Orchestrate (Layer 2 - policy + routing)
     const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar);
-    // Use vision-capable model when images are present
-    const model = hasImages ? "google/gemini-2.5-flash" : (mode === "widget" ? widgetModel : orchestrated.model);
+    // Use vision-capable model when images are present; otherwise tier-based model
+    const tierModel = TIER_MODELS[userTier] || "google/gemini-2.5-flash-lite";
+    const model = hasImages ? "google/gemini-2.5-flash" : (mode === "widget" ? widgetModel : tierModel);
 
-    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || "guest"}, Model: ${model}, Version: ${orchestrated.promptVersion}, ContextHash: ${context.context_hash.slice(0, 8)}`);
+    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || "guest"}, Tier: ${userTier}, Model: ${model}, Version: ${orchestrated.promptVersion}, ContextHash: ${context.context_hash.slice(0, 8)}`);
 
     // 5. Call LLM with timeout (Layer 3 - model call)
     let response: Response;
