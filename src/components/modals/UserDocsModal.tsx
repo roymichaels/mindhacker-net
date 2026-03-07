@@ -12,6 +12,9 @@ import {
   ListChecks, Repeat, Award
 } from 'lucide-react';
 
+// Helper: wrap English terms in Unicode BiDi isolation for proper RTL rendering
+const ltr = (text: string) => `\u2068${text}\u2069`;
+
 interface GuideStep {
   title: string;
   titleHe: string;
@@ -78,14 +81,14 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'Bottom Navigation Bar', titleHe: 'סרגל ניווט תחתון',
             description: 'The bottom bar has 5 main sections: Now (today\'s actions), Tactics (life plan), Strategy (long-term vision), Community, and Learn. Tap any icon to navigate.',
-            descriptionHe: 'הסרגל התחתון מכיל 5 חלקים: עכשיו (פעולות היום), טקטיקה (תוכנית חיים), אסטרטגיה (חזון), קהילה ולמידה.' },
+            descriptionHe: `הסרגל התחתון מכיל 5 חלקים: עכשיו (פעולות היום), טקטיקה (תוכנית חיים), אסטרטגיה (חזון), קהילה ולמידה.` },
           { title: 'Top Header', titleHe: 'כותרת עליונה',
             description: 'Access notifications (bell icon), the User Guide (? icon), the Free Market (store icon), and your Orb profile from the top bar.',
             descriptionHe: 'גש להתראות (פעמון), מדריך למשתמש (?), שוק חופשי (חנות) ופרופיל האורב מהכותרת העליונה.' },
-          { title: 'Aurora Chat Dock', titleHe: 'דוק צ\'אט אורורה',
+          { title: 'Aurora Chat Dock', titleHe: 'דוק הצ\'אט של אורורה',
             description: 'Your Orb at the bottom-left opens the Aurora chat dock. It slides up for quick conversations. You can expand it to full screen or minimize it.',
             descriptionHe: 'האורב בתחתית השמאלית פותח את דוק הצ\'אט של אורורה. הוא נפתח לשיחות מהירות ואפשר להרחיב למסך מלא.',
-            tip: 'Long-press the Orb to see its DNA card.', tipHe: 'לחיצה ארוכה על האורב מציגה את כרטיס ה-DNA.' },
+            tip: 'Long-press the Orb to see its DNA card.', tipHe: `לחיצה ארוכה על האורב מציגה את כרטיס ה-${ltr('DNA')}.` },
         ],
       },
       {
@@ -98,7 +101,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'פתח את דוק הצ\'אט והצג את עצמך. ספר לאורורה על המטרות, התחומי עניין ומה אתה רוצה לשנות. היא תתחיל לבנות את התוכנית שלך.' },
           { title: 'Complete Your First Action', titleHe: 'השלם את הפעולה הראשונה',
             description: 'Go to the "Now" page and complete your first action item. This earns you XP and starts your streak. Every small step counts!',
-            descriptionHe: 'עבור לעמוד "עכשיו" והשלם את פריט הפעולה הראשון. זה מרוויח XP ומתחיל את הרצף שלך. כל צעד קטן נחשב!',
+            descriptionHe: `עבור לעמוד "עכשיו" והשלם את פריט הפעולה הראשון. זה מרוויח ${ltr('XP')} ומתחיל את הרצף שלך. כל צעד קטן נחשב!`,
             tip: 'Completing 3 actions on your first day unlocks a bonus badge!', tipHe: 'השלמת 3 פעולות ביום הראשון פותחת תג בונוס!' },
           { title: 'Explore Your Orb', titleHe: 'חקור את האורב שלך',
             description: 'Tap your Orb to see its current state. Notice how its colors and energy reflect your assessment results. As you grow, it evolves with you.',
@@ -112,7 +115,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
   {
     id: 'aurora',
     titleEn: '🤖 Aurora AI',
-    titleHe: '🤖 אורורה AI',
+    titleHe: '🤖 אורורה',
     descEn: 'Your personal consciousness coach',
     descHe: 'מאמנת התודעה האישית שלך',
     icon: Bot,
@@ -132,7 +135,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             tip: 'Try: "What should I focus on today?" or "Help me process what happened."', tipHe: 'נסה: "על מה להתמקד היום?" או "עזור לי לעבד את מה שקרה".' },
           { title: 'Contextual Intelligence', titleHe: 'אינטליגנציה הקשרית',
             description: 'Aurora knows your current page, active pillar, time of day, streak status, and emotional patterns. She proactively suggests relevant actions and insights.',
-            descriptionHe: 'אורורה יודעת את העמוד הנוכחי, העמוד הפעיל, שעת היום, סטטוס רצף ודפוסים רגשיים. היא מציעה פעולות ותובנות רלוונטיות באופן יזום.' },
+            descriptionHe: 'אורורה יודעת את העמוד הנוכחי, העמוד הפעיל, שעת היום, סטטוס הרצף ודפוסים רגשיים. היא מציעה פעולות ותובנות רלוונטיות באופן יזום.' },
         ],
       },
       {
@@ -165,7 +168,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'עם הזמן, אורורה מזהה דפוסים: מתי אתה הכי פרודוקטיבי, מה מפעיל דחיינות, מחזורי האנרגיה והמקצבים הרגשיים שלך.' },
           { title: 'Proactive Nudges', titleHe: 'דחיפות יזומות',
             description: 'Based on your patterns, Aurora may send proactive reminders: "You usually skip morning actions on Wednesdays — want me to adjust?" or "Your energy dips after 3pm, let\'s schedule lighter tasks."',
-            descriptionHe: 'בהתבסס על הדפוסים, אורורה עשויה לשלוח תזכורות יזומות: "אתה בדרך כלל מדלג על פעולות בוקר ברביעי — רוצה שאתאים?" או "האנרגיה שלך יורדת אחרי 15:00, בואי נתזמן משימות קלות יותר."' },
+            descriptionHe: 'בהתבסס על הדפוסים, אורורה עשויה לשלוח תזכורות יזומות: "אתה בדרך כלל מדלג על פעולות בוקר ביום רביעי — רוצה שאתאים?" או "האנרגיה שלך יורדת אחרי 15:00, בוא נתזמן משימות קלות יותר."' },
         ],
       },
     ],
@@ -188,14 +191,14 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'Today\'s Actions', titleHe: 'פעולות היום',
             description: 'The Now page shows your prioritized action items for today — sorted by time blocks (morning, afternoon, evening). Each action shows its type, pillar, XP reward, and estimated time.',
-            descriptionHe: 'עמוד עכשיו מציג את פריטי הפעולה לפי עדיפות — ממוינים לפי בלוקי זמן (בוקר, צהריים, ערב). כל פעולה מציגה סוג, עמוד, תגמול XP וזמן משוער.' },
+            descriptionHe: `עמוד "עכשיו" מציג את פריטי הפעולה לפי עדיפות — ממוינים לפי בלוקי זמן (בוקר, צהריים, ערב). כל פעולה מציגה סוג, עמוד, תגמול ${ltr('XP')} וזמן משוער.` },
           { title: 'Complete Actions', titleHe: 'השלם פעולות',
             description: 'Tap the checkbox to mark an action done. You\'ll see a celebration animation, earn XP and tokens, and your streak counter updates. Completed actions move to the "done" section.',
-            descriptionHe: 'לחץ על תיבת הסימון כדי לסמן פעולה כהושלמה. תראה אנימציית חגיגה, תרוויח XP ואסימונים, ומונה הרצף יתעדכן.',
+            descriptionHe: `לחץ על תיבת הסימון כדי לסמן פעולה כהושלמה. תראה אנימציית חגיגה, תרוויח ${ltr('XP')} ואסימונים, ומונה הרצף יתעדכן.`,
             tip: 'Swipe actions to snooze, reschedule, or delete them.', tipHe: 'החלק פעולות כדי לדחות, לתזמן מחדש או למחוק.' },
           { title: 'Time Blocks', titleHe: 'בלוקי זמן',
             description: 'Actions are organized into time blocks: Morning Focus, Afternoon Drive, and Evening Reflection. You can set custom start/end times for each action.',
-            descriptionHe: 'הפעולות מאורגנות לבלוקי זמן: מיקוד בוקר, דרייב צהריים והרהור ערב. אפשר להגדיר זמני התחלה/סיום מותאמים לכל פעולה.' },
+            descriptionHe: 'הפעולות מאורגנות לבלוקי זמן: מיקוד בוקר, דרייב צהריים והרהור ערב. אפשר להגדיר זמני התחלה וסיום מותאמים לכל פעולה.' },
         ],
       },
       {
@@ -208,7 +211,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'הגדר הרגלים חוזרים שמופיעים כל יום (או בימים ספציפיים). הרגלים נפרדים מפעולות חד-פעמיות — הם בונים את הבסיס של עקביות.' },
           { title: 'Streak System', titleHe: 'מערכת רצפים',
             description: 'Every consecutive day you complete all your daily actions, your streak grows. Streaks multiply XP bonuses: 7 days = 1.5x, 30 days = 2x, 90 days = 3x XP.',
-            descriptionHe: 'כל יום רציף שבו תשלים את כל הפעולות היומיות, הרצף גדל. רצפים מכפילים בונוסי XP: 7 ימים = 1.5x, 30 ימים = 2x, 90 ימים = 3x.',
+            descriptionHe: `כל יום רציף שבו תשלים את כל הפעולות היומיות, הרצף גדל. רצפים מכפילים בונוסים: 7 ימים = ${ltr('x1.5')}, 30 ימים = ${ltr('x2')}, 90 ימים = ${ltr('x3')}.`,
             tip: 'Missing one day resets your streak. Use the "grace day" token wisely!', tipHe: 'החמצת יום אחד מאפסת את הרצף. השתמש באסימון "יום חסד" בחוכמה!' },
           { title: 'Daily Minimums', titleHe: 'מינימום יומי',
             description: 'Set your non-negotiable daily minimums — the bare minimum you commit to even on your hardest days. These are the foundation Aurora uses to keep you on track.',
@@ -222,7 +225,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'Tasks', titleHe: 'משימות',
             description: 'One-time actions with a clear completion state. "Write journal entry", "Call therapist", "Read chapter 3". They\'re generated by Aurora or created manually.',
-            descriptionHe: 'פעולות חד-פעמיות עם מצב השלמה ברור. "כתוב רשומת יומן", "התקשר למטפל", "קרא פרק 3". הן נוצרות על ידי אורורה או נוצרות ידנית.' },
+            descriptionHe: 'פעולות חד-פעמיות עם מצב השלמה ברור. "כתוב רשומת יומן", "התקשר למטפל", "קרא פרק 3". הן נוצרות על ידי אורורה או ידנית.' },
           { title: 'Habits', titleHe: 'הרגלים',
             description: 'Recurring actions: daily meditation, exercise, journaling. They repeat on your chosen schedule and track completion history.',
             descriptionHe: 'פעולות חוזרות: מדיטציה יומית, פעילות גופנית, כתיבת יומן. הן חוזרות על פי הלוח שבחרת ועוקבות אחרי היסטוריית ההשלמה.' },
@@ -245,19 +248,19 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     color: 'from-orange-500/15 to-amber-500/15',
     cards: [
       {
-        id: 'why-how-now', icon: Lightbulb, titleEn: 'Why-How-Now Method', titleHe: 'שיטת Why-How-Now',
+        id: 'why-how-now', icon: Lightbulb, titleEn: 'Why-How-Now Method', titleHe: 'שיטת למה-איך-עכשיו',
         descEn: 'The core methodology', descHe: 'המתודולוגיה המרכזית',
         color: 'from-orange-500/20 to-amber-500/20',
         steps: [
-          { title: 'WHY — Your Purpose', titleHe: 'WHY — המטרה שלך',
+          { title: 'WHY — Your Purpose', titleHe: 'למה — המטרה שלך',
             description: 'Start with the big question: Why are you here? What matters most? Aurora guides you through deep self-discovery to uncover your core values, life vision, and purpose.',
             descriptionHe: 'התחל עם השאלה הגדולה: למה אתה כאן? מה הכי חשוב? אורורה מדריכה אותך דרך גילוי עצמי עמוק כדי לחשוף את הערכים, החזון והמטרה שלך.' },
-          { title: 'HOW — Your Strategy', titleHe: 'HOW — האסטרטגיה שלך',
+          { title: 'HOW — Your Strategy', titleHe: 'איך — האסטרטגיה שלך',
             description: 'Translate your WHY into a concrete strategy. Define your life pillars (career, health, relationships, etc.), set milestones, and create a timeline.',
-            descriptionHe: 'תרגם את ה-WHY שלך לאסטרטגיה מוחשית. הגדר את עמודי החיים (קריירה, בריאות, מערכות יחסים וכו׳), קבע אבני דרך וצור ציר זמן.' },
-          { title: 'NOW — Your Tactics', titleHe: 'NOW — הטקטיקה שלך',
+            descriptionHe: 'תרגם את ה"למה" שלך לאסטרטגיה מוחשית. הגדר את עמודי החיים (קריירה, בריאות, מערכות יחסים וכו׳), קבע אבני דרך וצור ציר זמן.' },
+          { title: 'NOW — Your Tactics', titleHe: 'עכשיו — הטקטיקה שלך',
             description: 'Break strategy into daily/weekly actions. This is what appears on your "Now" page. The bridge between dreams and reality.',
-            descriptionHe: 'פרק אסטרטגיה לפעולות יומיות/שבועיות. זה מה שמופיע בעמוד "עכשיו" שלך. הגשר בין חלומות למציאות.' },
+            descriptionHe: 'פרק אסטרטגיה לפעולות יומיות ושבועיות. זה מה שמופיע בעמוד "עכשיו" שלך. הגשר בין חלומות למציאות.' },
         ],
       },
       {
@@ -267,7 +270,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'The 14 Life Domains', titleHe: '14 תחומי החיים',
             description: 'Mind OS covers 14 life domains: Self-Awareness, Emotional Health, Physical Health, Mental Health, Relationships, Family, Career, Finance, Creativity, Spirituality, Education, Social Impact, Recreation, and Life Management.',
-            descriptionHe: 'Mind OS מכסה 14 תחומי חיים: מודעות עצמית, בריאות רגשית, בריאות פיזית, בריאות נפשית, מערכות יחסים, משפחה, קריירה, פיננסים, יצירתיות, רוחניות, חינוך, השפעה חברתית, פנאי וניהול חיים.' },
+            descriptionHe: 'הפלטפורמה מכסה 14 תחומי חיים: מודעות עצמית, בריאות רגשית, בריאות פיזית, בריאות נפשית, מערכות יחסים, משפחה, קריירה, פיננסים, יצירתיות, רוחניות, חינוך, השפעה חברתית, פנאי וניהול חיים.' },
           { title: 'Pillar Balance Wheel', titleHe: 'גלגל איזון עמודים',
             description: 'View your balance across all pillars in a radar chart. Identify which areas need more attention and let Aurora suggest focused actions.',
             descriptionHe: 'צפה באיזון שלך על פני כל העמודים בתרשים רדאר. זהה אילו תחומים דורשים יותר תשומת לב ותן לאורורה להציע פעולות ממוקדות.' },
@@ -286,7 +289,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'כל אבן דרך מציגה אחוז השלמה, משימות שנותרו וזמן משוער. סרגלי התקדמות חזותיים שומרים על המוטיבציה.' },
           { title: 'Milestone Rewards', titleHe: 'תגמולי אבני דרך',
             description: 'Completing a milestone awards bonus XP, MOS tokens, and potentially unlocks new Orb evolutions. Major milestones trigger confetti celebrations!',
-            descriptionHe: 'השלמת אבן דרך מעניקה בונוס XP, אסימוני MOS, ואולי פותחת התפתחויות אורב חדשות. אבני דרך גדולות מפעילות חגיגת קונפטי!' },
+            descriptionHe: `השלמת אבן דרך מעניקה בונוס ${ltr('XP')}, אסימוני ${ltr('MOS')}, ואולי פותחת התפתחויות אורב חדשות. אבני דרך גדולות מפעילות חגיגת קונפטי!` },
         ],
       },
     ],
@@ -310,9 +313,9 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
           { title: 'What is the Orb?', titleHe: 'מהו האורב?',
             description: 'A real-time 3D avatar rendered with Three.js that reflects your consciousness state. Its colors map to your dominant pillars, its energy to your activity level, and its form to your overall level.',
             descriptionHe: 'אווטאר תלת-ממדי בזמן אמת שמשקף את מצב התודעה שלך. הצבעים ממופים לעמודים הדומיננטיים, האנרגיה לרמת הפעילות והצורה לרמה הכוללת.' },
-          { title: 'Orb DNA Card', titleHe: 'כרטיס DNA של האורב',
+          { title: 'Orb DNA Card', titleHe: `כרטיס ${ltr('DNA')} של האורב`,
             description: 'Tap your Orb to reveal its DNA card — an NFT-style identity showing: your unique color signature, level, XP, streak count, dominant traits, and a shareable QR code.',
-            descriptionHe: 'לחץ על האורב כדי לחשוף את כרטיס ה-DNA שלו — זהות בסגנון NFT שמציגה: חתימת צבע ייחודית, רמה, XP, רצף, תכונות דומיננטיות וקוד QR לשיתוף.' },
+            descriptionHe: `לחץ על האורב כדי לחשוף את כרטיס ה-${ltr('DNA')} שלו — כרטיס זהות ייחודי שמציג: חתימת צבע ייחודית, רמה, ${ltr('XP')}, רצף, תכונות דומיננטיות וקוד ${ltr('QR')} לשיתוף.` },
           { title: 'Orb Evolution', titleHe: 'התפתחות האורב',
             description: 'Level up to evolve your Orb. New forms unlock at levels 5, 10, 25, 50, and 100. Each evolution adds new particle effects, geometries, and animations.',
             descriptionHe: 'עלה רמה כדי לפתח את האורב. צורות חדשות נפתחות ברמות 5, 10, 25, 50 ו-100. כל התפתחות מוסיפה אפקטים, גיאומטריות ואנימציות חדשות.',
@@ -320,19 +323,19 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         ],
       },
       {
-        id: 'xp-tokens', icon: Trophy, titleEn: 'XP & MOS Tokens', titleHe: 'XP ואסימוני MOS',
-        descEn: 'The Play2Earn economy', descHe: 'כלכלת Play2Earn',
+        id: 'xp-tokens', icon: Trophy, titleEn: 'XP & MOS Tokens', titleHe: `${ltr('XP')} ואסימוני ${ltr('MOS')}`,
+        descEn: 'The Play2Earn economy', descHe: 'כלכלת משחק והרווחה',
         color: 'from-yellow-500/20 to-amber-500/20',
         steps: [
-          { title: 'Earning XP', titleHe: 'צבירת XP',
+          { title: 'Earning XP', titleHe: `צבירת ${ltr('XP')}`,
             description: 'XP (Experience Points) come from: completing actions (+5-25 XP), maintaining streaks (multiplier bonus), finishing lessons (+10-50 XP), community participation (+2-10 XP), and milestone completions (+50-200 XP).',
-            descriptionHe: 'XP (נקודות ניסיון) מגיעים מ: השלמת פעולות (+5-25 XP), שמירה על רצפים (בונוס מכפיל), סיום שיעורים (+10-50 XP), השתתפות בקהילה (+2-10 XP), והשלמת אבני דרך (+50-200 XP).' },
-          { title: 'MOS Tokens', titleHe: 'אסימוני MOS',
+            descriptionHe: `נקודות ניסיון (${ltr('XP')}) מגיעות מ: השלמת פעולות (${ltr('+5-25')}), שמירה על רצפים (בונוס מכפיל), סיום שיעורים (${ltr('+10-50')}), השתתפות בקהילה (${ltr('+2-10')}), והשלמת אבני דרך (${ltr('+50-200')}).` },
+          { title: 'MOS Tokens', titleHe: `אסימוני ${ltr('MOS')}`,
             description: 'MOS (Mind OS) tokens are the platform currency. Earn them through achievements and spend them in the Free Market for courses, coaching sessions, digital products, and premium features.',
-            descriptionHe: 'אסימוני MOS (Mind OS) הם מטבע הפלטפורמה. הרוויח אותם דרך הישגים והשתמש בהם בשוק החופשי לקורסים, סשנים, מוצרים דיגיטליים ותכונות פרימיום.' },
+            descriptionHe: `אסימוני ${ltr('MOS')} הם מטבע הפלטפורמה. הרוויח אותם דרך הישגים והשתמש בהם בשוק החופשי לקורסים, סשנים, מוצרים דיגיטליים ותכונות פרימיום.` },
           { title: 'Levels & Ranks', titleHe: 'רמות ודירוגים',
             description: 'Your XP determines your level. Each level has a unique name and unlocks features. The level bar at the bottom of your screen shows progress to the next level.',
-            descriptionHe: 'ה-XP קובע את הרמה שלך. לכל רמה שם ייחודי ופיצ\'רים חדשים. סרגל הרמה בתחתית המסך מציג התקדמות לרמה הבאה.' },
+            descriptionHe: `ה-${ltr('XP')} קובע את הרמה שלך. לכל רמה שם ייחודי ופיצ\'רים חדשים. סרגל הרמה בתחתית המסך מציג התקדמות לרמה הבאה.` },
         ],
       },
       {
@@ -345,7 +348,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'הישגים מחולקים לקטגוריות: עקביות (אבני דרך רצף), צמיחה (עליית מיומנויות), חברתי (מעורבות קהילתית), חוקר (ניסוי תכונות חדשות), ושליטה (השלמת מטרות גדולות).' },
           { title: 'Badge Display', titleHe: 'תצוגת תגים',
             description: 'Your earned badges appear on your profile and Orb DNA card. Some badges are rare and only available during limited-time events.',
-            descriptionHe: 'התגים שהרווחת מופיעים בפרופיל ובכרטיס DNA של האורב. חלק מהתגים נדירים וזמינים רק באירועים מוגבלי זמן.',
+            descriptionHe: `התגים שהרווחת מופיעים בפרופיל ובכרטיס ה-${ltr('DNA')} של האורב. חלק מהתגים נדירים וזמינים רק באירועים מוגבלי זמן.`,
             tip: 'Check the achievements page regularly — some are secret!', tipHe: 'בדוק את עמוד ההישגים באופן קבוע — חלקם סודיים!' },
         ],
       },
@@ -369,10 +372,10 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'Your Skills', titleHe: 'המיומנויות שלך',
             description: 'Each action you complete contributes XP to specific skills. Skills are mapped to life pillars: Mindfulness, Emotional Intelligence, Physical Fitness, Communication, Leadership, Creativity, and more.',
-            descriptionHe: 'כל פעולה שתשלים תורמת XP למיומנויות ספציפיות. מיומנויות ממופות לעמודי חיים: מיינדפולנס, אינטליגנציה רגשית, כושר גופני, תקשורת, מנהיגות, יצירתיות ועוד.' },
+            descriptionHe: `כל פעולה שתשלים תורמת ${ltr('XP')} למיומנויות ספציפיות. מיומנויות ממופות לעמודי חיים: מיינדפולנס, אינטליגנציה רגשית, כושר גופני, תקשורת, מנהיגות, יצירתיות ועוד.` },
           { title: 'Skill Levels', titleHe: 'רמות מיומנות',
             description: 'Each skill has its own level (1-100). Leveling up a skill grants bonus XP and may unlock new action suggestions from Aurora.',
-            descriptionHe: 'לכל מיומנות רמה משלה (1-100). עליית רמה במיומנות מעניקה בונוס XP ועשויה לפתוח הצעות פעולה חדשות מאורורה.' },
+            descriptionHe: `לכל מיומנות רמה משלה (${ltr('1-100')}). עליית רמה במיומנות מעניקה בונוס ${ltr('XP')} ועשויה לפתוח הצעות פעולה חדשות מאורורה.` },
         ],
       },
       {
@@ -382,13 +385,13 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'Create a Course', titleHe: 'צור קורס',
             description: 'Go to the Learn page and click "New Course". Tell Aurora what you want to learn — "Python for Data Science", "Guitar basics", "Digital Marketing" — and she generates a complete curriculum with modules and lessons.',
-            descriptionHe: 'עבור לעמוד למידה ולחץ "קורס חדש". ספר לאורורה מה אתה רוצה ללמוד — "Python לData Science", "גיטרה בסיסית", "שיווק דיגיטלי" — והיא מייצרת תוכנית לימודים מלאה.' },
+            descriptionHe: 'עבור לעמוד למידה ולחץ "קורס חדש". ספר לאורורה מה אתה רוצה ללמוד — והיא תייצר תוכנית לימודים מלאה עם מודולים ושיעורים.' },
           { title: 'Lesson Types', titleHe: 'סוגי שיעורים',
             description: 'Courses include Theory (reading), Practice (hands-on exercises), Quiz (knowledge checks), and Project (real-world application). Each earns XP.',
-            descriptionHe: 'קורסים כוללים תיאוריה (קריאה), תרגול (תרגילים מעשיים), בוחן (בדיקת ידע) ופרויקט (יישום בעולם האמיתי). כל אחד מרוויח XP.' },
+            descriptionHe: `קורסים כוללים תיאוריה (קריאה), תרגול (תרגילים מעשיים), בוחן (בדיקת ידע) ופרויקט (יישום בעולם האמיתי). כל אחד מרוויח ${ltr('XP')}.` },
           { title: 'Track Progress', titleHe: 'עקוב אחרי התקדמות',
             description: 'See your completion percentage, earned XP, and next lesson at a glance. Modules unlock progressively — finish one to access the next.',
-            descriptionHe: 'ראה את אחוז ההשלמה, XP שנצבר והשיעור הבא במבט אחד. מודולים נפתחים בהדרגה — סיים אחד כדי לגשת לבא.',
+            descriptionHe: `ראה את אחוז ההשלמה, ${ltr('XP')} שנצבר והשיעור הבא במבט אחד. מודולים נפתחים בהדרגה — סיים אחד כדי לגשת לבא.`,
             tip: 'Courses you create are saved and can be recalibrated anytime.', tipHe: 'קורסים שיצרת נשמרים וניתן לכייל אותם מחדש בכל עת.' },
         ],
       },
@@ -457,10 +460,10 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'השלם את מסע האימון כדי להגדיר את הנישה, המתודולוגיה, הלקוח האידיאלי, הצעת הערך, השירותים ואסטרטגיית השיווק. אורורה מדריכה אותך בכל שלב.' },
           { title: 'Client Management', titleHe: 'ניהול לקוחות',
             description: 'Create personalized plans for each client, track their progress, schedule sessions, and use AI-assisted session notes. Set up bookings with your available time slots.',
-            descriptionHe: 'צור תוכניות מותאמות לכל לקוח, עקוב אחרי ההתקדמות, תזמן סשנים והשתמש בתיעוד סשנים בסיוע AI. הגדר הזמנות עם חלונות הזמן הפנויים שלך.' },
+            descriptionHe: 'צור תוכניות מותאמות לכל לקוח, עקוב אחרי ההתקדמות, תזמן סשנים והשתמש בתיעוד סשנים בסיוע בינה מלאכותית. הגדר הזמנות עם חלונות הזמן הפנויים שלך.' },
           { title: 'Landing Pages', titleHe: 'דפי נחיתה',
             description: 'Build professional landing pages for your coaching services. Customize design, add testimonials, embed booking forms, and capture leads — all within Mind OS.',
-            descriptionHe: 'בנה דפי נחיתה מקצועיים לשירותי האימון. התאם עיצוב, הוסף המלצות, הטמע טפסי הזמנה ותפוס לידים — הכל בתוך Mind OS.' },
+            descriptionHe: 'בנה דפי נחיתה מקצועיים לשירותי האימון. התאם עיצוב, הוסף המלצות, הטמע טפסי הזמנה ותפוס לידים — הכל בתוך הפלטפורמה.' },
         ],
       },
       {
@@ -486,7 +489,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
             descriptionHe: 'חקור קורסים, סשנים, כלים דיגיטליים ומשאבים ממאמנים ויוצרים. סנן לפי קטגוריה, מחיר או דירוג.' },
           { title: 'Sell Your Products', titleHe: 'מכור את המוצרים שלך',
             description: 'As a coach or creator, list your digital products. Set prices in NIS or MOS tokens. Create product pages with descriptions, previews, and reviews.',
-            descriptionHe: 'כמאמן או יוצר, רשום את המוצרים הדיגיטליים שלך. קבע מחירים בש"ח או באסימוני MOS. צור דפי מוצר עם תיאורים, תצוגות מקדימות וביקורות.' },
+            descriptionHe: `כמאמן או יוצר, רשום את המוצרים הדיגיטליים שלך. קבע מחירים בש"ח או באסימוני ${ltr('MOS')}. צור דפי מוצר עם תיאורים, תצוגות מקדימות וביקורות.` },
           { title: 'Affiliate Program', titleHe: 'תוכנית שותפים',
             description: 'Earn commissions by referring new users. Get a unique affiliate code, share it, and earn a percentage of purchases made through your referral.',
             descriptionHe: 'הרוויח עמלות על ידי הפניית משתמשים חדשים. קבל קוד שותף ייחודי, שתף אותו והרוויח אחוז מרכישות שנעשו דרך ההפניה שלך.' },
@@ -512,14 +515,14 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         steps: [
           { title: 'Language & Theme', titleHe: 'שפה ועיצוב',
             description: 'Switch between Hebrew and English. Toggle dark/light mode. The entire app adapts to your language including RTL/LTR layout.',
-            descriptionHe: 'החלף בין עברית לאנגלית. החלף מצב כהה/בהיר. כל האפליקציה מתאימה את עצמה לשפה כולל פריסה RTL/LTR.' },
+            descriptionHe: 'החלף בין עברית לאנגלית. החלף מצב כהה או בהיר. כל האפליקציה מתאימה את עצמה לשפה כולל כיוון פריסה.' },
           { title: 'Notifications', titleHe: 'התראות',
             description: 'Control which notifications you receive: daily reminders, streak alerts, community activity, Aurora proactive nudges, and event invitations.',
             descriptionHe: 'שלוט באילו התראות אתה מקבל: תזכורות יומיות, התרעות רצף, פעילות קהילתית, דחיפות יזומות מאורורה והזמנות לאירועים.' },
-          { title: 'PWA Installation', titleHe: 'התקנת PWA',
+          { title: 'PWA Installation', titleHe: 'התקנה כאפליקציה',
             description: 'Mind OS works as a Progressive Web App. Install it on your phone for a native app experience with push notifications, offline access, and home screen icon.',
-            descriptionHe: 'Mind OS עובד כאפליקציית Progressive Web App. התקן אותו בטלפון לחוויה של אפליקציה עם התראות push, גישה אופליין ואייקון במסך הבית.',
-            tip: 'On iOS: Safari → Share → Add to Home Screen.', tipHe: 'באייפון: Safari → שתף → הוסף למסך הבית.' },
+            descriptionHe: 'הפלטפורמה עובדת כאפליקציית ווב מתקדמת. התקן אותה בטלפון לחוויה של אפליקציה מלאה עם התראות, גישה אופליין ואייקון במסך הבית.',
+            tip: 'On iOS: Safari → Share → Add to Home Screen.', tipHe: `באייפון: ${ltr('Safari')} ← שתף ← הוסף למסך הבית.` },
         ],
       },
       {
@@ -584,7 +587,7 @@ export function UserDocsModal({ open, onOpenChange }: UserDocsModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) handleClose(); onOpenChange(val); }}>
-      <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader
           title={title}
           icon={selectedGuide ? <selectedGuide.icon className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
@@ -594,7 +597,7 @@ export function UserDocsModal({ open, onOpenChange }: UserDocsModalProps) {
         />
 
         <ScrollArea className="flex-1 max-h-[calc(85vh-5rem)]">
-          <div className="p-6">
+          <div className="p-6" dir={isRTL ? 'rtl' : 'ltr'}>
             {/* ── Level 1: Category Grid ── */}
             {!selectedCategory && !selectedGuide && (
               <div className="grid grid-cols-2 gap-3">
@@ -704,12 +707,12 @@ export function UserDocsModal({ open, onOpenChange }: UserDocsModalProps) {
                       <h3 className="text-xl font-bold text-center text-foreground">
                         {isRTL ? step.titleHe : step.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground text-center leading-relaxed max-w-md mx-auto">
+                      <p className="text-sm text-muted-foreground text-center leading-relaxed max-w-md mx-auto" dir={isRTL ? 'rtl' : 'ltr'}>
                         {isRTL ? step.descriptionHe : step.description}
                       </p>
                       {(step.tip || step.tipHe) && (
                         <div className="mx-auto max-w-md p-3 rounded-lg bg-primary/5 border border-primary/10">
-                          <p className="text-xs text-primary flex items-start gap-2">
+                          <p className="text-xs text-primary flex items-start gap-2" dir={isRTL ? 'rtl' : 'ltr'}>
                             <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                             <span>{isRTL ? step.tipHe : step.tip}</span>
                           </p>
@@ -722,19 +725,21 @@ export function UserDocsModal({ open, onOpenChange }: UserDocsModalProps) {
                 <div className="flex items-center justify-between pt-4 border-t border-border/30">
                   <button
                     onClick={handleBack}
-                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                   >
                     {currentStep === 0
-                      ? (isRTL ? '← חזרה' : '← Back')
-                      : (isRTL ? '← הקודם' : '← Previous')
+                      ? (isRTL ? 'חזרה לתפריט' : '← Back')
+                      : (isRTL ? 'הקודם' : '← Previous')
                     }
+                    {isRTL && <ArrowLeft className="h-3.5 w-3.5" />}
                   </button>
                   {currentStep < selectedGuide.steps.length - 1 ? (
                     <button
                       onClick={handleNext}
-                      className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                      className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1"
                     >
-                      {isRTL ? 'הבא →' : 'Next →'}
+                      {isRTL ? 'הבא' : 'Next →'}
+                      {isRTL && <span>→</span>}
                     </button>
                   ) : (
                     <button
