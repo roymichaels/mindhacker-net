@@ -12,7 +12,7 @@ import { ORB_PRESETS } from '@/lib/orbPresets';
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   const auroraSkinPreset = ORB_PRESETS.find(p => p.id === 'aurora-skin');
 
   return (
