@@ -5,7 +5,8 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 
 interface AuroraChatMessageProps {
   id: string;
