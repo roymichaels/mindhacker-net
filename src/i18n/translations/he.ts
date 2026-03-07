@@ -1748,7 +1748,7 @@ export const he = {
       name: "MindOS OÜ",
       country: "אסטוניה, האיחוד האירופי",
       registrationNote: "חברה רשומה באסטוניה",
-      contact: "ליצירת קשר: contact@mindos.app",
+      contact: "ליצירת קשר: contact@mindos.space",
     },
     privacy: {
       title: "מדיניות פרטיות",
