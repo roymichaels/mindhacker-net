@@ -28,6 +28,33 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState(false);
+  const [alreadyHasPlan, setAlreadyHasPlan] = useState(false);
+
+  // GUARD: Check immediately on mount if plan already exists — redirect without regenerating
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    supabase
+      .from('life_plans')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data) {
+          setAlreadyHasPlan(true);
+          // Also mark launchpad as complete
+          supabase.from('launchpad_progress').upsert({
+            user_id: user.id,
+            launchpad_complete: true,
+          }, { onConflict: 'user_id' }).then(() => {
+            navigate('/now', { replace: true });
+          });
+        }
+      });
+    return () => { cancelled = true; };
+  }, [user?.id, navigate]);
 
   const analysisSteps = [
     t('onboarding.planGeneration.analyzingResults'),
