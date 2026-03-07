@@ -1,6 +1,5 @@
 import { ReactNode, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Store } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -61,30 +60,18 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
       <SidebarProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           {isMobile ? (
-            <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
-              <div className="flex h-14 items-center justify-between px-3">
-                <div className="flex items-center gap-1">
-                  {isFM && (
-                    <button
-                      onClick={() => navigate('/dashboard')}
-                      className="p-2 -ms-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      aria-label="Back to dashboard"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </button>
-                   )}
-                  {isFM ? (
-                    <div className="flex items-center gap-1.5">
-                      <Store className="h-5 w-5 text-primary" />
-                      <span className="text-sm font-bold text-foreground">{language === 'he' ? 'פרי-מארקט' : 'FreeMarket'}</span>
-                    </div>
-                  ) : (
+            isFM ? (
+              <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
+            ) : (
+              <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
+                <div className="flex h-14 items-center justify-between px-3">
+                  <div className="flex items-center gap-1">
                     <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
-                  )}
+                  </div>
+                  <HeaderActions compact />
                 </div>
-                <HeaderActions compact />
-              </div>
-            </header>
+              </header>
+            )
           ) : isFM ? (
             <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
@@ -94,7 +81,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
           <div className="flex-1 min-h-0 flex !flex-row [&>aside]:pb-16 lg:[&>aside]:pb-14 [&>aside]:flex-shrink-0 [&>aside]:transition-all [&>aside]:duration-300" dir="ltr">
             {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
 
-            <main className="flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 pb-52 md:pb-24 flex flex-col transition-all duration-300" dir={isRTL ? 'rtl' : 'ltr'}>
+            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-52 md:pb-24'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {children}
             </main>
 
