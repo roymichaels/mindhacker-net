@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import type { OrbProfile } from '@/components/orb/types';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { StandaloneMorphOrb, getShapeCountForLevel } from '@/components/orb/GalleryMorphOrb';
+import { Orb } from '@/components/orb/Orb';
 
 // Get the actual violet-iridescence preset as our Lv100 target
 const VIOLET_PRESET = ORB_PRESETS.find(p => p.id === 'violet-iridescence')!;
@@ -283,17 +284,26 @@ export default function OrbEvolutionSection() {
                   transform: `scale(${1.15 + activePhase * 0.03})`,
                 }}
               />
-              <div
-                className="rounded-full overflow-hidden flex items-center justify-center"
-                style={{ width: orbSize, height: orbSize }}
-              >
-                <StandaloneMorphOrb
-                  size={orbSize}
-                  profile={phase.profile}
-                  geometryFamily={phase.profile.geometryFamily || 'sphere'}
-                  level={phase.level}
-                />
-              </div>
+                <div
+                  className="rounded-full overflow-hidden flex items-center justify-center"
+                  style={{ width: orbSize, height: orbSize }}
+                >
+                  {isMobile ? (
+                    <Orb
+                      profile={phase.profile}
+                      size={orbSize}
+                      renderer="css"
+                      state="breathing"
+                    />
+                  ) : (
+                    <StandaloneMorphOrb
+                      size={orbSize}
+                      profile={phase.profile}
+                      geometryFamily={phase.profile.geometryFamily || 'sphere'}
+                      level={phase.level}
+                    />
+                  )}
+                </div>
             </div>
 
             {/* Shape count indicator */}

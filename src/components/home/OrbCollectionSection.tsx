@@ -215,7 +215,7 @@ export default function OrbCollectionSection() {
                     profile={preset.profile}
                     size={orbSize}
                     state="breathing"
-                    renderer="webgl"
+                    renderer={isMobile ? "css" : "webgl"}
                     showGlow={false}
                   />
                 </div>
