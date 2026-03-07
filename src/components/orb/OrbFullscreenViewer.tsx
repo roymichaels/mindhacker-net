@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PersonalizedOrb from './PersonalizedOrb';
-import { Orb } from './Orb';
 import type { OrbProfile } from './types';
+import { StandaloneMorphOrb } from './GalleryMorphOrb';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
   onClose: () => void;
   profile?: OrbProfile;
+  geometryFamily?: string;
+  level?: number;
 }
 
-export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenViewerProps) {
+export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, level = 100 }: OrbFullscreenViewerProps) {
   const [orbSize, setOrbSize] = useState(280);
 
   useEffect(() => {
@@ -25,14 +27,12 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
     return () => window.removeEventListener('resize', updateSize);
   }, [open]);
 
-  // Lock body scroll
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
-  // Escape to close
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -56,7 +56,6 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
           transition={{ duration: 0.3 }}
           onClick={onClose}
         >
-          {/* Close button */}
           <button
             className="absolute top-6 right-6 z-10 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
             onClick={onClose}
@@ -64,7 +63,6 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
             <X className="w-6 h-6" />
           </button>
 
-          {/* Orb container — stop click propagation so clicking orb doesn't close */}
           <motion.div
             className="relative"
             initial={{ scale: 0.3, opacity: 0 }}
@@ -75,12 +73,11 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
             style={{ width: orbSize, height: orbSize }}
           >
             {profile ? (
-              <Orb
+              <StandaloneMorphOrb
                 size={orbSize}
-                state="breathing"
                 profile={profile}
-                showGlow
-                renderer="webgl"
+                geometryFamily={geometryFamily || profile.geometryFamily || 'sphere'}
+                level={level}
               />
             ) : (
               <PersonalizedOrb
@@ -92,7 +89,6 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
             )}
           </motion.div>
 
-          {/* Hint */}
           <motion.p
             className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/25 text-xs tracking-widest uppercase pointer-events-none whitespace-nowrap"
             initial={{ opacity: 0, y: 10 }}
