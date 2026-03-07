@@ -39,17 +39,17 @@ function DomainIconsPreview() {
   );
 }
 
-function TraitBadgesPreview() {
+function TraitBadgesPreview({ isRTL }: { isRTL: boolean }) {
   const traits = [
-    { name: 'Resilience', color: 'bg-emerald-500/30 border-emerald-500/40' },
-    { name: 'Focus', color: 'bg-cyan-500/30 border-cyan-500/40' },
-    { name: 'Charisma', color: 'bg-purple-500/30 border-purple-500/40' },
+    { name: isRTL ? 'חוסן' : 'Resilience', color: 'bg-emerald-500/30 border-emerald-500/40' },
+    { name: isRTL ? 'מיקוד' : 'Focus', color: 'bg-cyan-500/30 border-cyan-500/40' },
+    { name: isRTL ? 'כריזמה' : 'Charisma', color: 'bg-purple-500/30 border-purple-500/40' },
   ];
   return (
     <div className="flex gap-2 mt-3">
       {traits.map((t, i) => (
         <motion.div
-          key={t.name}
+          key={i}
           className={cn('px-2.5 py-1 rounded-lg text-[10px] font-bold border', t.color, 'text-foreground/80')}
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
