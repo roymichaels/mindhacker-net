@@ -164,6 +164,7 @@ ${adjustmentContext}
             },
             {
               "milestone_id": "actual-uuid-from-list",
+              "focus_area": "combat",
               "title_en": "Cold exposure protocol",
               "title_he": "פרוטוקול חשיפה לקור",
               "duration_minutes": 10,
