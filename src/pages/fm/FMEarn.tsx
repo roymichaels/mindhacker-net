@@ -662,6 +662,99 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
       {!showDashboard && tab === 'mining' && (
         <MiningDashboard />
       )}
+
+      {/* ═══════ PARTNERS TAB ═══════ */}
+      {!showDashboard && tab === 'partners' && (
+        <div className="space-y-4">
+          {!affiliateData ? (
+            <div className="text-center py-12 space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-pink-500/10 flex items-center justify-center mx-auto">
+                <Link2 className="w-8 h-8 text-pink-500" />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg text-foreground">{isHe ? 'הצטרף לתוכנית השותפים' : 'Join the Partners Program'}</h2>
+                <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+                  {isHe ? 'שתף את הקישור שלך, הפנה חברים והרוויח עמלות על כל רכישה.' : 'Share your link, refer friends and earn commissions on every purchase.'}
+                </p>
+              </div>
+              <Button onClick={handleBecomeAffiliate} className="gap-2">
+                <UserPlus className="w-4 h-4" />
+                {isHe ? 'הצטרף עכשיו' : 'Join Now'}
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { labelEn: 'Total Earnings', labelHe: 'סה"כ הכנסות', value: `₪${affiliateData.total_earnings?.toLocaleString() || '0'}`, icon: <DollarSign className="w-4 h-4" />, color: 'text-emerald-500' },
+                  { labelEn: 'Total Paid', labelHe: 'שולם', value: `₪${affiliateData.total_paid?.toLocaleString() || '0'}`, icon: <Coins className="w-4 h-4" />, color: 'text-accent' },
+                  { labelEn: 'Referrals', labelHe: 'הפניות', value: affiliateReferrals.length.toString(), icon: <UserPlus className="w-4 h-4" />, color: 'text-blue-500' },
+                  { labelEn: 'Commission', labelHe: 'עמלה', value: `${affiliateData.commission_rate || 10}%`, icon: <TrendingUp className="w-4 h-4" />, color: 'text-pink-500' },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-card border border-border rounded-xl p-3.5 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{isHe ? stat.labelHe : stat.labelEn}</span>
+                      <span className={stat.color}>{stat.icon}</span>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Affiliate Link */}
+              <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+                <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                  <Link2 className="w-4 h-4 text-pink-500" />
+                  {isHe ? 'הקישור שלך' : 'Your Link'}
+                </h3>
+                <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg">
+                  <code className="flex-1 text-xs break-all text-muted-foreground">{affiliateLink}</code>
+                  <Button size="sm" variant="outline" onClick={handleCopyAffiliateLink} className="shrink-0 gap-1">
+                    <Copy className="w-3.5 h-3.5" />
+                    {isHe ? 'העתק' : 'Copy'}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {isHe ? 'שתף את הקישור הזה. כל רכישה דרכו תזכה אותך בעמלה.' : 'Share this link. Every purchase through it earns you a commission.'}
+                </p>
+              </div>
+
+              {/* Recent Referrals */}
+              <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+                <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-blue-500" />
+                  {isHe ? 'הפניות אחרונות' : 'Recent Referrals'}
+                </h3>
+                {affiliateReferrals.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-4 text-center">{isHe ? 'אין הפניות עדיין. שתף את הקישור שלך!' : 'No referrals yet. Share your link!'}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {affiliateReferrals.slice(0, 5).map((ref: any) => (
+                      <div key={ref.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-medium text-foreground">₪{ref.order_amount?.toLocaleString()}</p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(ref.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-end space-y-0.5">
+                          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">+₪{ref.commission_amount?.toLocaleString()}</p>
+                          <span className={`inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                            ref.status === 'approved' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                            : ref.status === 'paid' ? 'bg-accent/15 text-accent'
+                            : 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'
+                          }`}>
+                            {isHe ? (ref.status === 'approved' ? 'אושר' : ref.status === 'paid' ? 'שולם' : 'ממתין') : ref.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
