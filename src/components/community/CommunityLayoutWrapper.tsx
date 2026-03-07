@@ -1,9 +1,8 @@
 /**
- * CommunityLayoutWrapper - Sets sidebars for the Community hub.
+ * CommunityLayoutWrapper - Sidebar-less layout for Community hub.
+ * Pillars and topics are rendered as inline cards within the page.
  */
 import { Suspense, lazy, useState } from 'react';
-import { CommunityHudSidebar } from '@/components/community/CommunityHudSidebar';
-import { CommunityActivitySidebar } from '@/components/community/CommunityActivitySidebar';
 import { useSidebars } from '@/hooks/useSidebars';
 
 const Community = lazy(() => import('@/pages/Community'));
@@ -18,21 +17,8 @@ export default function CommunityLayoutWrapper() {
     setSelectedTopic(null);
   };
 
-  useSidebars(
-    <CommunityHudSidebar
-      selectedPillar={selectedPillar}
-      onPillarSelect={handlePillarSelect}
-      selectedTopic={selectedTopic}
-      onSelectTopic={setSelectedTopic}
-      onCreateThread={() => setCreateOpen(true)}
-    />,
-    <CommunityActivitySidebar
-      selectedPillar={selectedPillar}
-      selectedTopic={selectedTopic}
-      onSelectTopic={setSelectedTopic}
-    />,
-    [selectedPillar, selectedTopic]
-  );
+  // Suppress all sidebars — pillars/topics are inline cards now
+  useSidebars(null, null, []);
 
   return (
     <Suspense fallback={null}>
