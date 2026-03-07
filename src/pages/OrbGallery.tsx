@@ -219,7 +219,7 @@ export default function OrbGalleryPage() {
                   >
                     {/* Rarity badge */}
                     <span
-                      className="relative z-[2] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2"
+                      className="relative z-[2] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-0"
                       style={{
                         backgroundColor: `hsl(${rarityColor} / 0.12)`,
                         color: `hsl(${rarityColor})`,
