@@ -311,14 +311,20 @@ export default function OrbGalleryPage() {
                   {isHe ? RARITY_LABELS[selectedOrb.rarity].he : RARITY_LABELS[selectedOrb.rarity].en}
                 </span>
 
-                {/* Orb */}
-                <Orb
-                  profile={selectedOrb.profile}
-                  size={180}
-                  state="breathing"
-                  renderer="webgl"
-                  showGlow
-                />
+                {/* Orb – click for fullscreen */}
+                <button
+                  onClick={() => { setSelectedOrb(null); setFullscreenOrb(selectedOrb); }}
+                  className="cursor-pointer hover:scale-105 transition-transform duration-200"
+                  title={isHe ? 'לחץ למסך מלא' : 'Click for fullscreen'}
+                >
+                  <Orb
+                    profile={selectedOrb.profile}
+                    size={180}
+                    state="breathing"
+                    renderer="webgl"
+                    showGlow
+                  />
+                </button>
 
                 <h2 className="text-xl font-black text-foreground mt-4">
                   {isHe ? selectedOrb.nameHe : selectedOrb.nameEn}
