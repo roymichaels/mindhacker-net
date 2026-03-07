@@ -399,6 +399,10 @@ const App = () => (
                           <Route path="/business/journey" element={<BusinessJourney />} />
                           <Route path="/business/journey/:journeyId" element={<BusinessJourney />} />
                           <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
+                          {/* Freelancer */}
+                          <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
+                          {/* Creator */}
+                          <Route path="/creator" element={<CreatorLayoutWrapper />} />
                           {/* Personal Hypnosis */}
                           <Route path="/personal-hypnosis/success" element={<PersonalHypnosisSuccess />} />
                           <Route path="/personal-hypnosis/pending" element={<PersonalHypnosisPending />} />
