@@ -319,10 +319,10 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     positions.needsUpdate = true;
     meshRef.current.geometry.computeVertexNormals();
 
-    // Slower, more random rotation
-    meshRef.current.rotation.y += delta * 0.12;
-    meshRef.current.rotation.x = Math.sin(t * 0.13 + st.seed1) * 0.2 + Math.sin(t * 0.07 + st.seed3) * 0.1;
-    meshRef.current.rotation.z = Math.cos(t * 0.09 + st.seed2) * 0.12 + Math.sin(t * 0.17 + st.seed5) * 0.08;
+    // Very slow, dreamy rotation
+    meshRef.current.rotation.y += delta * 0.04;
+    meshRef.current.rotation.x = Math.sin(t * 0.05 + st.seed1) * 0.12 + Math.sin(t * 0.03 + st.seed3) * 0.06;
+    meshRef.current.rotation.z = Math.cos(t * 0.04 + st.seed2) * 0.08 + Math.sin(t * 0.06 + st.seed5) * 0.04;
 
     // Animate emissive for fire/plasma types
     if (mat === 'plasma' && matRef.current) {
