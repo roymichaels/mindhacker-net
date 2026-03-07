@@ -272,7 +272,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
       }
     } else {
       // Fast morph, chaotic multi-shape blending
-      const morphSpeed = 2.2; // faster morph
+      const morphSpeed = 1.0;
       const totalShapes = shapes.length;
 
       for (let vi = 0; vi < vertCount; vi++) {
@@ -281,13 +281,14 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
         let totalWeight = 0;
 
         for (let si = 0; si < totalShapes; si++) {
-          // Multiple overlapping waves with different frequencies for chaos
+          // Irrational frequency ratios ensure weights never fully align → never settles
           const phase = st.seed1 + si * 2.39996;
-          const w = Math.max(0,
-            Math.sin(t * morphSpeed + phase) * 0.4 +
-            Math.sin(t * morphSpeed * 1.3 + phase * 0.7 + st.seed2) * 0.25 +
-            Math.sin(t * morphSpeed * 0.5 + phase * 2.1 + st.seed3) * 0.15 +
-            Math.cos(t * morphSpeed * 0.8 + si * st.seed4 * 0.3) * 0.2
+          const w = Math.max(0.01,
+            Math.sin(t * morphSpeed + phase) * 0.35 +
+            Math.sin(t * morphSpeed * 1.618 + phase * 0.7 + st.seed2) * 0.25 +
+            Math.sin(t * morphSpeed * 0.7071 + phase * 2.1 + st.seed3) * 0.2 +
+            Math.cos(t * morphSpeed * 1.2247 + si * st.seed4 * 0.3) * 0.15 +
+            0.15
           );
           bx += shapeArrays[si][i3] * w;
           by += shapeArrays[si][i3 + 1] * w;
