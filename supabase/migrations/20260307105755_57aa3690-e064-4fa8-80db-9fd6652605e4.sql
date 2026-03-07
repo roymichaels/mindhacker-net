@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET content = REPLACE(content, 'https://mindos.space/auth', 'https://mindos.space/') WHERE content LIKE '%mindos.space/auth%'; UPDATE public.blog_posts SET content_he = REPLACE(content_he, 'https://mindos.space/auth', 'https://mindos.space/') WHERE content_he LIKE '%mindos.space/auth%';
