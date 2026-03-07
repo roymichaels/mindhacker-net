@@ -5,6 +5,7 @@
  */
 import { useState, useCallback } from 'react';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
