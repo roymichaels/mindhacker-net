@@ -42,7 +42,6 @@ export function FMBottomNav() {
               {isActive && (
                 <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-amber-500 dark:bg-amber-400 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
               )}
-              )}
             </button>
           );
         })}
