@@ -4,8 +4,6 @@
  * Route: /fm/earn — bottom tab label "Earn"
  */
 import { useState } from 'react';
-import { FMAuroraCard } from '@/components/fm/FMAuroraCard';
-import { useAuroraOpportunities } from '@/hooks/fm/useAuroraOpportunities';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
