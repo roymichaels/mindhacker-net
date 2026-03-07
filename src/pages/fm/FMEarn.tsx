@@ -1,43 +1,28 @@
 /**
  * Earn page — unified marketplace for earning MOS.
- * Internal tabs: Bounties | Gigs | Data | My Activity
- * Route: /fm/earn — bottom tab label "Earn"
+ * Tabs: Data | Activity | Mining | Partners
+ * Route: /fm/earn
  */
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
-  Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
-  Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle, Pickaxe,
+  BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
+  ArrowRight, Pickaxe,
   Link2, Copy, UserPlus, DollarSign, TrendingUp,
 } from 'lucide-react';
 import { MiningDashboard } from '@/components/fm/MiningDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useFMBounties, useFMClaims } from '@/hooks/useFMWallet';
+import { useFMClaims } from '@/hooks/useFMWallet';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Database } from '@/integrations/supabase/types';
 
-type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
-type Gig = Database['public']['Tables']['fm_gigs']['Row'];
-
-type EarnTab = 'overview' | 'bounties' | 'gigs' | 'data' | 'activity' | 'mining' | 'partners';
-
-const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
-const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
-
-const CATEGORY_LABELS: Record<string, string> = {
-  all: 'הכל', writing: 'כתיבה', labeling: 'תיוג', feedback: 'משוב',
-  design: 'עיצוב', translation: 'תרגום', development: 'פיתוח',
-  content: 'תוכן', other: 'אחר',
-};
+type EarnTab = 'overview' | 'data' | 'activity' | 'mining' | 'partners';
 
 // ──── Data Offers ────
 interface DataOffer {
@@ -77,128 +62,14 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
       onTabChange(t);
     } else {
       setInternalTab(t);
-      if (t === 'bounties') searchParams.delete('tab');
+      if (t === 'overview') searchParams.delete('tab');
       else searchParams.set('tab', t);
       setSearchParams(searchParams, { replace: true });
     }
   };
 
-  // ──── Bounty state ────
-  const { data: bounties = [], isLoading: bLoading } = useFMBounties();
+  // ──── Claims (for activity tab) ────
   const { data: claims = [] } = useFMClaims();
-  const [bFilterInternal, setBFilterInternal] = useState('all');
-  const bFilter = externalCatFilter ?? bFilterInternal;
-  const setBFilter = onCategoryChange ?? setBFilterInternal;
-  const [bSearch, setBSearch] = useState('');
-  const [submittingClaimId, setSubmittingClaimId] = useState<string | null>(null);
-  const [submission, setSubmission] = useState('');
-  const [loading, setLoading] = useState<string | null>(null);
-
-  const claimsByBounty = new Map(claims.map((c: any) => [c.bounty_id, c]));
-  const filteredBounties = bounties.filter((b: Bounty) => {
-    if (bFilter !== 'all' && b.category !== bFilter) return false;
-    if (bSearch && !b.title.toLowerCase().includes(bSearch.toLowerCase())) return false;
-    return true;
-  });
-
-  const invalidateAll = () => {
-    queryClient.invalidateQueries({ queryKey: ['fm-claims'] });
-    queryClient.invalidateQueries({ queryKey: ['fm-bounties'] });
-    queryClient.invalidateQueries({ queryKey: ['fm-wallet'] });
-    queryClient.invalidateQueries({ queryKey: ['fm-transactions'] });
-  };
-
-  const handleClaim = async (bountyId: string) => {
-    if (!user?.id) return;
-    setLoading(bountyId);
-    try {
-      const { data, error } = await supabase.rpc('fm_claim_bounty', { p_bounty_id: bountyId });
-      if (error) throw error;
-      const result = typeof data === 'string' ? JSON.parse(data) : data;
-      if (!result.success) { toast.error(result.error); return; }
-      toast.success(isHe ? 'נתפס! הזן את ההגשה שלך.' : 'Claimed! Enter your submission.');
-      invalidateAll();
-    } catch (e: any) { toast.error(e.message || 'Failed to claim'); }
-    finally { setLoading(null); }
-  };
-
-  const handleSubmitClaim = async (claimId: string) => {
-    if (!user?.id || !submission.trim()) return;
-    setLoading(claimId);
-    try {
-      const { data, error } = await supabase.rpc('fm_submit_bounty_claim', { p_claim_id: claimId, p_submission: { text: submission.trim() } });
-      if (error) throw error;
-      const result = typeof data === 'string' ? JSON.parse(data) : data;
-      if (!result.success) { toast.error(result.error); return; }
-      toast.success(isHe ? 'הגשה נשלחה!' : 'Submitted!');
-      setSubmittingClaimId(null); setSubmission(''); invalidateAll();
-    } catch (e: any) { toast.error(e.message || 'Failed'); }
-    finally { setLoading(null); }
-  };
-
-  // ──── Gig state ────
-  const [gigMode, setGigMode] = useState<'browse' | 'post'>('browse');
-  const [gFilterInternal, setGFilterInternal] = useState('all');
-  const gFilter = (tab === 'gigs' ? externalCatFilter : undefined) ?? gFilterInternal;
-  const setGFilter = (tab === 'gigs' ? onCategoryChange : undefined) ?? setGFilterInternal;
-  const [applyingId, setApplyingId] = useState<string | null>(null);
-  const [pitch, setPitch] = useState('');
-  const [proposedAmount, setProposedAmount] = useState('');
-  const [gigSubmitting, setGigSubmitting] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newDesc, setNewDesc] = useState('');
-  const [newBudget, setNewBudget] = useState('');
-  const [newCategory, setNewCategory] = useState('other');
-  const [posting, setPosting] = useState(false);
-
-  const { data: gigs = [], isLoading: gLoading } = useQuery({
-    queryKey: ['fm-gigs'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('fm_gigs').select('*').in('status', ['open', 'in_progress']).order('created_at', { ascending: false }).limit(30);
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const { data: myProposals = [] } = useQuery({
-    queryKey: ['fm-my-proposals', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const { data, error } = await supabase.from('fm_gig_proposals').select('*').eq('user_id', user.id);
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!user?.id,
-  });
-
-  const proposalsByGig = new Map(myProposals.map((p: any) => [p.gig_id, p]));
-  const filteredGigs = gigs.filter((g: Gig) => gFilter === 'all' || g.category === gFilter);
-
-  const handleApply = async (gigId: string) => {
-    if (!user?.id || !pitch.trim() || !proposedAmount) return;
-    setGigSubmitting(true);
-    try {
-      const { error } = await supabase.from('fm_gig_proposals').insert({ gig_id: gigId, user_id: user.id, pitch: pitch.trim(), proposed_amount: parseInt(proposedAmount) });
-      if (error) throw error;
-      toast.success(isHe ? 'ההצעה נשלחה!' : 'Proposal submitted!');
-      setApplyingId(null); setPitch(''); setProposedAmount('');
-      queryClient.invalidateQueries({ queryKey: ['fm-my-proposals'] });
-    } catch (e: any) { toast.error(e.message || 'Failed'); }
-    finally { setGigSubmitting(false); }
-  };
-
-  const handlePostGig = async () => {
-    if (!user?.id || !newTitle.trim() || !newBudget) return;
-    setPosting(true);
-    try {
-      const { error } = await supabase.from('fm_gigs').insert({ title: newTitle.trim(), description: newDesc.trim() || null, budget_mos: parseInt(newBudget), category: newCategory, poster_id: user.id });
-      if (error) throw error;
-      toast.success(isHe ? 'הפרסום עלה!' : 'Gig posted!');
-      setNewTitle(''); setNewDesc(''); setNewBudget(''); setNewCategory('other'); setGigMode('browse');
-      queryClient.invalidateQueries({ queryKey: ['fm-gigs'] });
-    } catch (e: any) { toast.error(e.message || 'Failed'); }
-    finally { setPosting(false); }
-  };
 
   // ──── Data contribution state ────
   const [expandedDataId, setExpandedDataId] = useState<string | null>(null);
@@ -291,39 +162,8 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
     return <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${b.cls}`}>{b.icon} {b.label}</span>;
   };
 
-  const bountyActions = (bounty: Bounty) => {
-    const claim = claimsByBounty.get(bounty.id);
-    const ld = loading === bounty.id || loading === claim?.id;
-    if (!claim) return <Button size="sm" onClick={() => handleClaim(bounty.id)} disabled={ld} className="gap-1">{ld ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlayCircle className="w-3.5 h-3.5" />} {isHe ? 'התחל →' : 'Start →'}</Button>;
-    if (claim.status === 'claimed') {
-      if (submittingClaimId === claim.id) return (
-        <div className="space-y-2 pt-1">
-          <Textarea placeholder={isHe ? 'הזן את ההגשה שלך...' : 'Enter your submission...'} value={submission} onChange={(e) => setSubmission(e.target.value)} rows={3} className="text-sm" />
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => handleSubmitClaim(claim.id)} disabled={!submission.trim() || ld} className="gap-1">{ld ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} {isHe ? 'שלח' : 'Submit'}</Button>
-            <Button size="sm" variant="ghost" onClick={() => { setSubmittingClaimId(null); setSubmission(''); }}>{isHe ? 'ביטול' : 'Cancel'}</Button>
-          </div>
-        </div>
-      );
-      return <Button size="sm" variant="outline" onClick={() => { setSubmittingClaimId(claim.id); setSubmission(''); }} className="gap-1"><Send className="w-3.5 h-3.5" /> {isHe ? 'הגש עבודה' : 'Submit Work'}</Button>;
-    }
-    return null;
-  };
-
-  const gigStatusBadge = (status: string) => {
-    const m: Record<string, { en: string; he: string; cls: string }> = {
-      open: { en: 'Open', he: 'פתוח', cls: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
-      in_progress: { en: 'In Progress', he: 'בביצוע', cls: 'bg-accent/15 text-accent' },
-      completed: { en: 'Completed', he: 'הושלם', cls: 'bg-muted text-muted-foreground' },
-    };
-    const s = m[status] || m['open'];
-    return <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.cls}`}>{isHe ? s.he : s.en}</span>;
-  };
-
   // ──── TAB CONFIG — MapleStory item rarity style ────
   const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode; rarity: string; statValue: number; statLabelEn: string; statLabelHe: string }[] = [
-    { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-6 h-6" />, rarity: 'epic', statValue: filteredBounties.length, statLabelEn: 'available', statLabelHe: 'זמינים' },
-    { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-6 h-6" />, rarity: 'rare', statValue: gigs.length, statLabelEn: 'open', statLabelHe: 'פתוחים' },
     { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-6 h-6" />, rarity: 'uncommon', statValue: DATA_OFFERS.length, statLabelEn: 'offers', statLabelHe: 'הצעות' },
     { id: 'activity', labelEn: 'Activity', labelHe: 'פעילות', icon: <ListChecks className="w-6 h-6" />, rarity: 'common', statValue: claims.length, statLabelEn: 'claims', statLabelHe: 'הגשות' },
     { id: 'mining', labelEn: 'Mining', labelHe: 'כרייה', icon: <Pickaxe className="w-6 h-6" />, rarity: 'legendary', statValue: 0, statLabelEn: 'mined today', statLabelHe: 'נכרו היום' },
@@ -338,23 +178,12 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
     common: { border: 'border-zinc-400/40', bg: 'from-zinc-500/10 to-zinc-400/5', iconBg: 'from-zinc-500 to-zinc-600', glow: 'hover:shadow-zinc-500/10', label: { en: 'COMMON', he: 'רגיל', color: 'text-zinc-400' } },
   };
 
-  const isMobile = useIsMobile();
-  const hasSidebarNav = !!externalTab && !isMobile;
-
   const showDashboard = tab === 'overview';
-
-  const enterTab = (t: EarnTab) => {
-    switchTab(t);
-  };
-
-  const backToDashboard = () => {
-    switchTab('overview');
-  };
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
 
-      {/* ═══════ DASHBOARD OVERVIEW — Merchant Shop Grid ═══════ */}
+      {/* ═══════ DASHBOARD OVERVIEW ═══════ */}
       {showDashboard && (
         <div className="space-y-5">
           <div className="text-center">
@@ -376,14 +205,12 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
-                  onClick={() => enterTab(t.id)}
+                  onClick={() => switchTab(t.id)}
                   className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 bg-gradient-to-br transition-all hover:scale-[1.03] active:scale-[0.97] hover:shadow-xl ${style.border} ${style.bg} ${style.glow}`}
                 >
-                  {/* Rarity label */}
                   <span className={`absolute top-1.5 end-2 text-[7px] font-black uppercase tracking-[0.15em] ${style.label.color}`}>
                     {isHe ? style.label.he : style.label.en}
                   </span>
-
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${style.iconBg} flex items-center justify-center shadow-lg`}>
                     <span className="text-white/90">{t.icon}</span>
                   </div>
@@ -398,178 +225,18 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
         </div>
       )}
 
-      {/* ═══════ DRILLED TAB VIEW — Tab strip ═══════ */}
+      {/* ═══════ BACK BUTTON (for drill-down views) ═══════ */}
       {!showDashboard && (
-        <div className="flex items-center gap-2">
-          <button onClick={backToDashboard} className="flex items-center gap-1 text-sm text-amber-400/70 hover:text-amber-300 font-semibold transition-colors">
-            <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
-            {isHe ? 'חזרה' : 'Back'}
-          </button>
-          <div className="flex gap-0.5 flex-1 bg-amber-500/5 border border-amber-500/10 rounded-lg p-1 overflow-x-auto scrollbar-hide">
-            {TABS.map((t) => (
-              <button key={t.id} onClick={() => switchTab(t.id)}
-                className={`flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
-                  tab === t.id
-                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/20 shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {t.icon} {isHe ? t.labelHe : t.labelEn}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ═══════ BOUNTIES TAB ═══════ */}
-      {!showDashboard && tab === 'bounties' && (
-        <>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="pl-9" placeholder={isHe ? 'חפש באונטיז...' : 'Search bounties...'} value={bSearch} onChange={(e) => setBSearch(e.target.value)} />
-          </div>
-          {/* Category filters — only on mobile (sidebar handles desktop) */}
-          {!externalTab && (
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {BOUNTY_CATEGORIES.map((cat) => (
-                <button key={cat} onClick={() => setBFilter(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${bFilter === cat ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' : 'bg-transparent text-muted-foreground border-border/50 hover:border-amber-500/20 hover:text-foreground'}`}
-                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : (isHe ? CATEGORY_LABELS[cat] || cat : cat.charAt(0).toUpperCase() + cat.slice(1))}</button>
-              ))}
-            </div>
-          )}
-          {bLoading ? (
-            <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted/50 rounded-xl animate-pulse" />)}</div>
-          ) : filteredBounties.length === 0 ? (
-            <div className="text-center py-12"><p className="text-muted-foreground text-sm">{isHe ? 'אין באונטיז כרגע.' : 'No bounties right now.'}</p></div>
-          ) : (
-            <div className="space-y-3">
-              <AnimatePresence>
-                {filteredBounties.map((bounty: Bounty) => {
-                  const ec = claimsByBounty.get(bounty.id);
-                  return (
-                    <motion.div key={bounty.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl p-4 space-y-3 border-2 border-amber-500/15 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/30 transition-all">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-1 min-w-0">
-                          <h3 className="font-bold text-sm text-foreground">{bounty.title}</h3>
-                          {bounty.description && <p className="text-xs text-muted-foreground line-clamp-2">{bounty.description}</p>}
-                        </div>
-                        {ec && claimBadge(ec.status)}
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-amber-400" /><span className="font-bold text-amber-300">{bounty.reward_mos} MOS</span></span>
-                        {bounty.estimated_minutes && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> ~{bounty.estimated_minutes} min</span>}
-                        <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-[10px] font-bold text-amber-400/80">{isHe ? CATEGORY_LABELS[bounty.category] || bounty.category : bounty.category}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold">{bounty.difficulty}</span>
-                      </div>
-                      {bountyActions(bounty)}
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* ═══════ GIGS TAB ═══════ */}
-      {!showDashboard && tab === 'gigs' && (
-        <>
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">{isHe ? 'מצא עבודה או פרסם משימה' : 'Find work or post a gig'}</p>
-            <Button size="sm" variant="outline" className="gap-1 h-7 text-xs" onClick={() => setGigMode(gigMode === 'post' ? 'browse' : 'post')}>
-              {gigMode === 'post' ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-              {gigMode === 'post' ? (isHe ? 'ביטול' : 'Cancel') : (isHe ? 'פרסם' : 'Post')}
-            </Button>
-          </div>
-
-          {gigMode === 'post' ? (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-sm text-foreground">{isHe ? 'פרסום עבודה חדשה' : 'Post a New Gig'}</h2>
-              <div className="space-y-3">
-                <Input placeholder={isHe ? 'כותרת העבודה' : 'Gig title'} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
-                <Textarea placeholder={isHe ? 'תיאור מפורט...' : 'Detailed description...'} value={newDesc} onChange={(e) => setNewDesc(e.target.value)} rows={4} />
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">{isHe ? 'תקציב (MOS)' : 'Budget (MOS)'}</label>
-                    <Input type="number" placeholder="500" value={newBudget} onChange={(e) => setNewBudget(e.target.value)} />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">{isHe ? 'קטגוריה' : 'Category'}</label>
-                    <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm">
-                      {GIG_CATEGORIES.filter(c => c !== 'all').map(c => <option key={c} value={c}>{isHe ? CATEGORY_LABELS[c] || c : c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <Button onClick={handlePostGig} disabled={!newTitle.trim() || !newBudget || posting} className="w-full gap-1.5">
-                {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Briefcase className="w-4 h-4" />}
-                {isHe ? 'פרסם עבודה' : 'Publish Gig'}
-              </Button>
-            </motion.div>
-          ) : (
-            <>
-              {!externalTab && (
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                  {GIG_CATEGORIES.map((cat) => (
-                    <button key={cat} onClick={() => setGFilter(cat)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${gFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                    >{cat === 'all' ? (isHe ? 'הכל' : 'All') : (isHe ? CATEGORY_LABELS[cat] || cat : cat.charAt(0).toUpperCase() + cat.slice(1))}</button>
-                  ))}
-                </div>
-              )}
-              {gLoading ? (
-                <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-28 bg-muted/50 rounded-xl animate-pulse" />)}</div>
-              ) : filteredGigs.length === 0 ? (
-                <div className="text-center py-12 space-y-3">
-                  <Users className="w-10 h-10 text-muted-foreground/40 mx-auto" />
-                  <p className="text-muted-foreground text-sm">{isHe ? 'אין עבודות בקטגוריה הזו.' : 'No gigs in this category.'}</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <AnimatePresence>
-                    {filteredGigs.map((gig: Gig) => {
-                      const ep = proposalsByGig.get(gig.id);
-                      const isOwner = gig.poster_id === user?.id;
-                      return (
-                        <motion.div key={gig.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-4 space-y-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-sm text-foreground">{gig.title}</h3>
-                            {gigStatusBadge(gig.status)}
-                          </div>
-                          {gig.description && <p className="text-xs text-muted-foreground line-clamp-2">{gig.description}</p>}
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /><span className="font-semibold text-foreground">{gig.budget_mos} MOS</span></span>
-                            <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{isHe ? CATEGORY_LABELS[gig.category] || gig.category : gig.category}</span>
-                            {isOwner && <span className="px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-medium">{isHe ? 'שלך' : 'Yours'}</span>}
-                          </div>
-                          {applyingId === gig.id ? (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-2 pt-1">
-                              <Textarea placeholder={isHe ? 'למה אתה מתאים?' : 'Why are you a good fit?'} value={pitch} onChange={(e) => setPitch(e.target.value)} rows={3} className="text-sm" />
-                              <Input type="number" placeholder={isHe ? `הצעת מחיר (${gig.budget_mos} MOS)` : `Your price (${gig.budget_mos} MOS)`} value={proposedAmount} onChange={(e) => setProposedAmount(e.target.value)} />
-                              <div className="flex gap-2">
-                                <Button size="sm" onClick={() => handleApply(gig.id)} disabled={!pitch.trim() || !proposedAmount || gigSubmitting} className="gap-1">{gigSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} {isHe ? 'שלח' : 'Submit'}</Button>
-                                <Button size="sm" variant="ghost" onClick={() => { setApplyingId(null); setPitch(''); setProposedAmount(''); }}>{isHe ? 'ביטול' : 'Cancel'}</Button>
-                              </div>
-                            </motion.div>
-                          ) : gig.status === 'open' && !isOwner ? (
-                            ep ? <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent/15 text-accent">{isHe ? 'הצעה נשלחה ✓' : 'Proposal sent ✓'}</span>
-                            : <Button size="sm" onClick={() => { setApplyingId(gig.id); setPitch(''); setProposedAmount(''); }}>{isHe ? 'הגש הצעה' : 'Apply'}</Button>
-                          ) : null}
-                        </motion.div>
-                      );
-                    })}
-                  </AnimatePresence>
-                </div>
-              )}
-            </>
-          )}
-        </>
+        <button onClick={() => switchTab('overview')} className="flex items-center gap-1 text-sm text-amber-400/70 hover:text-amber-300 font-semibold transition-colors">
+          <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
+          {isHe ? 'חזרה' : 'Back'}
+        </button>
       )}
 
       {/* ═══════ DATA TAB ═══════ */}
       {!showDashboard && tab === 'data' && (
         <div className="space-y-4">
+          <h2 className="font-bold text-foreground">{isHe ? 'נתונים' : 'Data'}</h2>
           <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 flex items-start gap-3">
             <BarChart3 className="w-5 h-5 text-accent shrink-0 mt-0.5" />
             <div>
@@ -644,12 +311,14 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
         </div>
       )}
 
+      {/* ═══════ ACTIVITY TAB ═══════ */}
       {!showDashboard && tab === 'activity' && (
         <div className="space-y-3">
+          <h2 className="font-bold text-foreground">{isHe ? 'פעילות' : 'Activity'}</h2>
           {claims.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-sm">{isHe ? 'אין הגשות עדיין.' : 'No claims yet.'}</p>
-              <Button size="sm" className="mt-3" onClick={() => switchTab('bounties')}>{isHe ? 'עבור לבאונטיז' : 'Browse Bounties'}</Button>
+              <Button size="sm" className="mt-3" onClick={() => navigate('/fm/market')}>{isHe ? 'עבור למרקט' : 'Browse Market'}</Button>
             </div>
           ) : (
             claims.map((claim: any) => (
@@ -665,11 +334,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                   <Coins className="w-3.5 h-3.5 text-accent" />
                   <span className="font-semibold text-foreground">{claim.fm_bounties?.reward_mos || 0} MOS</span>
                 </div>
-                {claim.status === 'claimed' && (
-                  <Button size="sm" variant="outline" className="gap-1 mt-1" onClick={() => { switchTab('bounties'); setSubmittingClaimId(claim.id); setSubmission(''); }}>
-                    <Send className="w-3.5 h-3.5" /> {isHe ? 'הגש עבודה' : 'Submit Work'}
-                  </Button>
-                )}
               </div>
             ))
           )}
@@ -678,19 +342,23 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
 
       {/* ═══════ MINING TAB ═══════ */}
       {!showDashboard && tab === 'mining' && (
-        <MiningDashboard />
+        <div className="space-y-4">
+          <h2 className="font-bold text-foreground">{isHe ? 'כרייה' : 'Mining'}</h2>
+          <MiningDashboard />
+        </div>
       )}
 
       {/* ═══════ PARTNERS TAB ═══════ */}
       {!showDashboard && tab === 'partners' && (
         <div className="space-y-4">
+          <h2 className="font-bold text-foreground">{isHe ? 'שותפים' : 'Partners'}</h2>
           {!affiliateData ? (
             <div className="text-center py-12 space-y-4">
               <div className="w-16 h-16 rounded-2xl bg-pink-500/10 flex items-center justify-center mx-auto">
                 <Link2 className="w-8 h-8 text-pink-500" />
               </div>
               <div>
-                <h2 className="font-bold text-lg text-foreground">{isHe ? 'הצטרף לתוכנית השותפים' : 'Join the Partners Program'}</h2>
+                <h3 className="font-bold text-lg text-foreground">{isHe ? 'הצטרף לתוכנית השותפים' : 'Join the Partners Program'}</h3>
                 <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
                   {isHe ? 'שתף את הקישור שלך, הפנה חברים והרוויח עמלות על כל רכישה.' : 'Share your link, refer friends and earn commissions on every purchase.'}
                 </p>
@@ -702,7 +370,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             </div>
           ) : (
             <>
-              {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { labelEn: 'Total Earnings', labelHe: 'סה"כ הכנסות', value: `₪${affiliateData.total_earnings?.toLocaleString() || '0'}`, icon: <DollarSign className="w-4 h-4" />, color: 'text-emerald-500' },
@@ -720,7 +387,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                 ))}
               </div>
 
-              {/* Affiliate Link */}
               <div className="bg-card border border-border rounded-xl p-4 space-y-3">
                 <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
                   <Link2 className="w-4 h-4 text-pink-500" />
@@ -738,7 +404,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                 </p>
               </div>
 
-              {/* Recent Referrals */}
               <div className="bg-card border border-border rounded-xl p-4 space-y-3">
                 <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
                   <UserPlus className="w-4 h-4 text-blue-500" />
