@@ -209,6 +209,11 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           {t('common.signup')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate('/docs')}>
+          <FileText className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+          {language === 'he' ? 'ספר לבן' : 'White Paper'}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
