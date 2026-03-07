@@ -1,20 +1,22 @@
 /**
  * @page BlogPost
- * @purpose Individual blog post page with full SEO meta tags and JSON-LD
+ * @purpose Individual blog post page with full SEO meta tags, JSON-LD, and premium styling
  */
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
-import { ArrowLeft, ArrowRight, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Clock, Sparkles, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language, isRTL } = useTranslation();
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const isHe = language === 'he';
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],
@@ -33,10 +35,9 @@ export default function BlogPost() {
 
   useEffect(() => {
     if (!post) return;
-    const title = language === 'he' && post.title_he ? post.title_he : (post.meta_title || post.title);
+    const title = isHe && post.title_he ? post.title_he : (post.meta_title || post.title);
     document.title = `${title} | MindOS Blog`;
 
-    // Set meta tags
     const setMeta = (name: string, content: string) => {
       let el = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
       if (!el) {
@@ -54,7 +55,6 @@ export default function BlogPost() {
     if (post.cover_image_url) setMeta('og:image', post.cover_image_url);
     setMeta('og:type', 'article');
 
-    // JSON-LD
     const jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
@@ -78,7 +78,16 @@ export default function BlogPost() {
       const el = document.getElementById('blog-jsonld');
       el?.remove();
     };
-  }, [post, language]);
+  }, [post, language, isHe]);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: post?.title, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -91,73 +100,202 @@ export default function BlogPost() {
   if (!post) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">Article not found</p>
-        <Link to="/blog" className="text-primary hover:underline">← Back to Blog</Link>
+        <p className="text-muted-foreground">{isHe ? 'המאמר לא נמצא' : 'Article not found'}</p>
+        <Link to="/blog" className="text-primary hover:underline">← {isHe ? 'חזרה לבלוג' : 'Back to Blog'}</Link>
       </div>
     );
   }
 
-  const title = language === 'he' && post.title_he ? post.title_he : post.title;
-  const content = language === 'he' && post.content_he ? post.content_he : post.content;
+  const title = isHe && post.title_he ? post.title_he : post.title;
+  const content = isHe && post.content_he ? post.content_he : post.content;
+  const excerpt = isHe && post.excerpt_he ? post.excerpt_he : post.excerpt;
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header image */}
-      {post.cover_image_url && (
-        <div className="w-full max-h-[400px] overflow-hidden">
-          <img
-            src={post.cover_image_url}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
+      {/* ═══ HERO SECTION ═══ */}
+      <div className="relative w-full overflow-hidden">
+        {/* Background image with gradient overlay */}
+        {post.cover_image_url ? (
+          <>
+            <img
+              src={post.cover_image_url}
+              alt={title}
+              className="w-full h-[50vh] md:h-[60vh] object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
+          </>
+        ) : (
+          <div className="w-full h-[30vh] bg-gradient-to-br from-primary/20 via-background to-background" />
+        )}
+
+        {/* Hero content overlay */}
+        <div className="absolute inset-0 flex flex-col justify-end">
+          <div className="container mx-auto max-w-4xl px-4 pb-8 md:pb-12">
+            {/* Back link */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors mb-6 backdrop-blur-sm bg-white/10 rounded-full px-3 py-1.5">
+                <BackIcon className="h-3.5 w-3.5" />
+                {isHe ? 'חזרה לבלוג' : 'Back to Blog'}
+              </Link>
+            </motion.div>
+
+            {/* Tags */}
+            {post.tags?.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-2 mb-4">
+                {post.tags.slice(0, 5).map((tag: string) => (
+                  <span key={tag} className="text-[10px] uppercase tracking-widest px-3 py-1 rounded-full bg-primary/20 text-primary font-semibold border border-primary/30 backdrop-blur-sm">
+                    {tag.replace(/-/g, ' ')}
+                  </span>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-[1.15] tracking-tight"
+            >
+              {title}
+            </motion.h1>
+
+            {/* Meta row */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex items-center gap-4 text-sm text-muted-foreground">
+              {post.published_at && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {format(new Date(post.published_at), 'MMMM d, yyyy')}
+                </span>
+              )}
+              {post.reading_time_minutes && (
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5" />
+                  {post.reading_time_minutes} {isHe ? 'דק\' קריאה' : 'min read'}
+                </span>
+              )}
+              <button onClick={handleShare} className="ms-auto flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
+                <Share2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{isHe ? 'שיתוף' : 'Share'}</span>
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ EXCERPT / TL;DR ═══ */}
+      {excerpt && (
+        <div className="container mx-auto max-w-4xl px-4 mt-8">
+          <div className="relative rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5 md:p-6">
+            <Sparkles className="absolute top-4 end-4 h-5 w-5 text-primary/40" />
+            <p className="text-sm md:text-base text-foreground/90 leading-relaxed font-medium italic">
+              {excerpt}
+            </p>
+          </div>
         </div>
       )}
 
-      <article className="container mx-auto max-w-3xl px-4 py-10">
-        {/* Back link */}
-        <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
-          <BackIcon className="h-4 w-4" />
-          {language === 'he' ? 'חזרה לבלוג' : 'Back to Blog'}
-        </Link>
-
-        {/* Tags */}
-        {post.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {post.tags.map((tag: string) => (
-              <span key={tag} className="text-xs uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Title */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">
-          {title}
-        </h1>
-
-        {/* Meta */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-10 pb-6 border-b border-border">
-          {post.published_at && (
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              {format(new Date(post.published_at), 'MMMM d, yyyy')}
-            </span>
-          )}
-          {post.reading_time_minutes && (
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              {post.reading_time_minutes} {language === 'he' ? 'דק\' קריאה' : 'min read'}
-            </span>
-          )}
-        </div>
-
-        {/* Content */}
+      {/* ═══ ARTICLE CONTENT ═══ */}
+      <article className="container mx-auto max-w-4xl px-4 py-10 md:py-14">
         <div
-          className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-blockquote:border-primary/50"
+          className={cn(
+            "blog-article-content",
+            "prose prose-lg dark:prose-invert max-w-none",
+            // Headings
+            "prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight",
+            "prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-border/50",
+            "prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mt-8 prose-h3:mb-3",
+            // Body text
+            "prose-p:text-foreground/80 prose-p:leading-[1.85] prose-p:text-[16px] prose-p:md:text-[17px]",
+            // Links — styled as inline CTAs
+            "prose-a:text-primary prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-a:transition-colors",
+            // Bold & emphasis
+            "prose-strong:text-foreground prose-strong:font-bold",
+            "prose-em:text-foreground/70",
+            // Lists
+            "prose-li:text-foreground/80 prose-li:leading-relaxed prose-li:marker:text-primary",
+            "prose-ul:my-4 prose-ol:my-4",
+            // Blockquotes — premium callout style
+            "prose-blockquote:border-s-4 prose-blockquote:border-primary/60 prose-blockquote:bg-primary/5 prose-blockquote:rounded-e-xl prose-blockquote:px-5 prose-blockquote:py-4 prose-blockquote:not-italic prose-blockquote:text-foreground/85 prose-blockquote:font-medium",
+            // Images
+            "prose-img:rounded-2xl prose-img:shadow-lg",
+          )}
           dangerouslySetInnerHTML={{ __html: content }}
         />
+
+        {/* ═══ BOTTOM CTA CARD ═══ */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-16 relative rounded-3xl overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_70%)]" />
+          <div className="relative p-8 md:p-12 text-center border border-primary/20 rounded-3xl">
+            <Sparkles className="h-8 w-8 text-primary mx-auto mb-4" />
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+              {isHe ? 'מוכנים להתחיל את המסע?' : 'Ready to Start Your Journey?'}
+            </h3>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-6 text-sm md:text-base">
+              {isHe
+                ? 'הצטרפו לאלפי אנשים שכבר משתמשים ב-MindOS כדי לשנות את החיים שלהם עם AI, גיימיפיקציה וכלים מבוססי מדע.'
+                : 'Join thousands already using MindOS to transform their lives with AI coaching, gamification, and science-backed tools.'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href="https://mindos.space/auth"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all shadow-lg shadow-primary/25 active:scale-[0.98]"
+              >
+                <Sparkles className="h-4 w-4" />
+                {isHe ? 'התחילו בחינם' : 'Start Free'}
+              </a>
+              <Link
+                to="/blog"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-muted/60 text-foreground font-medium text-sm hover:bg-muted transition-all border border-border/50"
+              >
+                {isHe ? 'עוד מאמרים' : 'More Articles'}
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ═══ BACK TO BLOG ═══ */}
+        <div className="mt-10 text-center">
+          <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <BackIcon className="h-4 w-4" />
+            {isHe ? 'חזרה לבלוג' : 'Back to Blog'}
+          </Link>
+        </div>
       </article>
+
+      {/* Global styles for CTA links inside article content */}
+      <style>{`
+        .blog-article-content a[href*="mindos.space"] {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.375rem;
+          padding: 0.375rem 0.875rem;
+          border-radius: 0.625rem;
+          background: hsl(var(--primary) / 0.12);
+          border: 1px solid hsl(var(--primary) / 0.25);
+          font-weight: 600;
+          font-size: 0.875rem;
+          transition: all 0.2s;
+          text-decoration: none !important;
+          white-space: nowrap;
+        }
+        .blog-article-content a[href*="mindos.space"]:hover {
+          background: hsl(var(--primary) / 0.2);
+          border-color: hsl(var(--primary) / 0.4);
+        }
+        .blog-article-content a[href*="mindos.space"]::before {
+          content: "✦";
+          font-size: 0.75rem;
+          opacity: 0.7;
+        }
+      `}</style>
     </div>
   );
 }
