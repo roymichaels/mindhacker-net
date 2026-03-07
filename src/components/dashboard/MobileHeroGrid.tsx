@@ -271,12 +271,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   const blockOpen = isBlockOpen(slot.id);
                   const blockLabel = isHe ? blockTheme.he : blockTheme.en;
                   const idx = globalIdx++;
-
-                  const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
-                  const open = isBlockOpen(slot.id);
-                  const label = isHe ? theme.he : theme.en;
-
-                  return (
+                   return (
                     <motion.div
                       key={slot.id}
                       initial={{ opacity: 0, y: 12 }}
@@ -284,7 +279,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                       transition={{ delay: idx * 0.05, duration: 0.3 }}
                       className={cn(
                         "rounded-2xl border overflow-hidden transition-all duration-300",
-                        `bg-gradient-to-br ${theme.accent}`,
+                        `bg-gradient-to-br ${blockTheme.accent}`,
                       )}
                     >
                       {/* Journey Header */}
@@ -292,16 +287,16 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                         onClick={() => toggleBlock(slot.id)}
                         className="w-full flex items-center gap-3 px-4 py-3.5 text-start hover:bg-foreground/[0.02] active:scale-[0.995] transition-all"
                       >
-                        <span className="text-xl shrink-0">{theme.emoji}</span>
+                        <span className="text-xl shrink-0">{blockTheme.emoji}</span>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-foreground">{label}</h3>
+                          <h3 className="text-sm font-bold text-foreground">{blockLabel}</h3>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
                             {slot.actions.length} {isHe ? 'משימות' : 'quests'}
                           </p>
                         </div>
 
-                        {open ? (
+                        {blockOpen ? (
                           <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
                         ) : (
                           <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
