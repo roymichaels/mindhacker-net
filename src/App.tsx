@@ -58,6 +58,8 @@ const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPendi
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const OrbGalleryPage = lazy(() => import("./pages/OrbGallery"));

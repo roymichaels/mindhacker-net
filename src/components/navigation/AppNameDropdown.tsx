@@ -240,6 +240,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             </>
           )}
 
+          {/* Blog */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/blog'); }}>
+            <BookOpen className="h-4 w-4 me-2" />
+            {language === 'he' ? 'בלוג' : 'Blog'}
+          </DropdownMenuItem>
+
           {/* Documentation */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/docs'); }}>
             <FileText className="h-4 w-4 me-2" />
