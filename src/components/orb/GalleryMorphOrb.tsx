@@ -456,7 +456,7 @@ export function GalleryCanvas({ children, containerRef }: GalleryCanvasProps) {
           width: '100vw',
           height: '100vh',
           pointerEvents: 'none',
-          zIndex: 50,
+          zIndex: 2,
         }}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         eventSource={containerRef}

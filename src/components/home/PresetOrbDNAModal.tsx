@@ -1,6 +1,7 @@
 /**
  * PresetOrbDNAModal – Shows a specific orb preset's DNA breakdown.
  * Click the orb inside to open fullscreen viewer with that preset.
+ * Uses StandaloneMorphOrb so the orb matches the gallery carousel.
  */
 import { useState } from 'react';
 import {
@@ -10,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb/Orb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dna, Sparkles, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -51,11 +52,9 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
     setFullscreenProfile(null);
   };
 
-  // Build modal content only when we have data
   const canRenderModal = preset && meta;
   const profile = preset?.profile;
 
-  // Build actual orb colors from profile
   const orbColors: { color: string; label: string }[] = [];
   if (profile) {
     const norm = (c: string | undefined) => {
@@ -75,8 +74,6 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
   const stats = profile ? [
     { labelEn: 'Material', labelHe: 'חומר', value: profile.materialType || 'glass' },
     { labelEn: 'Geometry', labelHe: 'גיאומטריה', value: profile.geometryFamily || 'sphere' },
-    { labelEn: 'Texture', labelHe: 'טקסטורה', value: profile.textureType || 'none' },
-    { labelEn: 'Complexity', labelHe: 'מורכבות', value: String(profile.geometryDetail || 64) },
   ] : [];
 
   return (
@@ -90,7 +87,7 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
             </DialogTitle>
           </DialogHeader>
 
-          {/* Orb preview — click to fullscreen */}
+          {/* Orb preview — uses StandaloneMorphOrb to match gallery */}
           <div className="flex justify-center py-4">
             <button
               onClick={handleOrbClick}
@@ -98,15 +95,13 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
               title={isHe ? 'לחץ לחוויה מלאה' : 'Click for full experience'}
             >
               {profile && (
-                <Orb
+                <StandaloneMorphOrb
                   profile={profile}
+                  geometryFamily={profile.geometryFamily || 'sphere'}
                   size={150}
-                  state="breathing"
-                  renderer="webgl"
-                  showGlow={false}
+                  level={100}
                 />
               )}
-              {/* Hover hint */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm text-xs font-medium text-foreground border border-border/50">
                   <Eye className="w-3.5 h-3.5" />
