@@ -1,5 +1,6 @@
 /**
  * GameHeroSection — Cinematic minimal hero for NFT game landing
+ * Uses CSS orb to avoid WebGL context exhaustion
  */
 import { motion } from 'framer-motion';
 import { Sparkles, Zap } from 'lucide-react';
@@ -7,21 +8,89 @@ import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { ORB_PRESETS } from '@/lib/orbPresets';
+
+/** Premium CSS-only orb with multi-layer glow and morphing animation */
+function HeroOrb() {
+  return (
+    <div className="relative w-[220px] h-[220px] md:w-[300px] md:h-[300px]">
+      {/* Deep outer glow */}
+      <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_65%)] blur-3xl" />
+      {/* Mid glow ring */}
+      <motion.div
+        className="absolute inset-[-15%] rounded-full"
+        style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.15), transparent 70%)' }}
+        animate={{ scale: [1, 1.08, 1], opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {/* Main orb body with layered gradients */}
+      <motion.div
+        className="absolute inset-0 rounded-full overflow-hidden"
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+        style={{
+          background: `
+            radial-gradient(circle at 30% 30%, hsl(var(--accent) / 0.95) 0%, transparent 55%),
+            radial-gradient(circle at 70% 70%, hsl(var(--primary) / 0.85) 0%, transparent 50%),
+            radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.7) 0%, hsl(var(--accent) / 0.4) 80%)
+          `,
+          boxShadow: `
+            inset 0 0 80px hsl(var(--primary) / 0.35),
+            inset 0 -30px 60px hsl(var(--accent) / 0.2),
+            0 0 60px hsl(var(--primary) / 0.25),
+            0 0 120px hsl(var(--primary) / 0.1)
+          `,
+        }}
+      >
+        {/* Surface texture overlay */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          animate={{ rotate: [0, -360] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          style={{
+            background: `
+              radial-gradient(circle at 25% 25%, rgba(255,255,255,0.25) 0%, transparent 40%),
+              radial-gradient(circle at 75% 35%, rgba(255,255,255,0.1) 0%, transparent 30%),
+              radial-gradient(circle at 40% 80%, hsl(var(--accent) / 0.3) 0%, transparent 40%)
+            `,
+          }}
+        />
+      </motion.div>
+      {/* Specular highlight */}
+      <div
+        className="absolute inset-[10%] rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 40%, transparent 65%)',
+        }}
+      />
+      {/* Shimmer sweep */}
+      <motion.div
+        className="absolute inset-0 rounded-full pointer-events-none overflow-hidden"
+        style={{
+          background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.12) 48%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 52%, transparent 70%)',
+        }}
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+      />
+      {/* Breathing pulse */}
+      <motion.div
+        className="absolute inset-0 rounded-full"
+        style={{ boxShadow: '0 0 40px hsl(var(--primary) / 0.3)' }}
+        animate={{ scale: [1, 1.03, 1], opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    </div>
+  );
+}
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const { openWelcomeGate } = useWelcomeGate();
-  const auroraSkinPreset = ORB_PRESETS.find(p => p.id === 'aurora-skin');
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Dark background */}
       <div className="absolute inset-0 bg-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/15 via-primary/5 to-transparent" />
 
-      {/* Grid pattern */}
       <div className="absolute inset-0 opacity-[0.03]">
         <div
           className="absolute inset-0"
@@ -33,7 +102,6 @@ export default function GameHeroSection() {
         />
       </div>
 
-      {/* Floating particles */}
       {[...Array(4)].map((_, i) => (
         <motion.div
           key={i}
@@ -46,7 +114,6 @@ export default function GameHeroSection() {
 
       <div className="relative z-10 container mx-auto max-w-4xl px-4 pt-4 pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center space-y-8">
-          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -61,7 +128,6 @@ export default function GameHeroSection() {
             </span>
           </motion.div>
 
-          {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -73,27 +139,15 @@ export default function GameHeroSection() {
             </span>
           </motion.h1>
 
-          {/* Aurora Skin Orb */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
             className="flex justify-center"
           >
-            <div className="relative">
-              <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] blur-2xl pointer-events-none" />
-              {auroraSkinPreset && (
-                <StandaloneMorphOrb
-                  profile={auroraSkinPreset.profile}
-                  geometryFamily={auroraSkinPreset.profile.geometryFamily || 'sphere'}
-                  size={240}
-                  level={100}
-                />
-              )}
-            </div>
+            <HeroOrb />
           </motion.div>
 
-          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
