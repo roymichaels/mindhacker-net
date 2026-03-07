@@ -1,9 +1,9 @@
 /**
- * FMTopNav — Desktop top navigation for the FM module.
- * Mirrors FMBottomNav tabs + back-to-OS button + notification bell.
+ * FMTopNav — MapleStory FM-inspired top navigation.
+ * Warm merchant golds, fantasy shop signboard feel.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Target, Briefcase, ArrowLeft, Wallet, Store } from 'lucide-react';
+import { Target, Briefcase, ArrowLeft, Store, Gem } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
@@ -32,15 +32,19 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg"
+      className="sticky top-0 z-50 w-full border-b-2 border-amber-600/30 bg-gradient-to-b from-amber-950/95 via-amber-950/90 to-background/95 backdrop-blur-xl"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
-        {/* Left: App name + FM tabs */}
+        {/* Left: FM brand + tabs */}
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-1.5">
-            <Store className="h-5 w-5 text-primary" />
-            <span className="text-base font-bold text-foreground">{isHe ? 'פרי-מארקט' : 'FreeMarket'}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <Store className="h-4 w-4 text-amber-100" />
+            </div>
+            <span className="text-base font-black text-amber-100 tracking-tight drop-shadow-[0_0_8px_rgba(245,158,11,0.3)]">
+              {isHe ? 'פרי-מארקט' : 'Free Market'}
+            </span>
           </div>
 
           <nav className="flex items-center gap-1">
@@ -52,25 +56,28 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
                   className={cn(
-                    "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                    "relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all",
                     active
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-inner shadow-amber-500/10"
+                      : "text-amber-200/60 hover:text-amber-200 hover:bg-amber-500/10"
                   )}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{isHe ? tab.labelHe : tab.labelEn}</span>
+                  {active && (
+                    <span className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 w-8 h-0.5 bg-amber-400 rounded-full" />
+                  )}
                 </button>
               );
             })}
           </nav>
         </div>
 
-        {/* Right: Back to main OS + actions */}
+        {/* Right: Back to OS + actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300/70 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/10 transition-all"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isHe ? 'חזור ל-OS' : 'Back to OS'}</span>

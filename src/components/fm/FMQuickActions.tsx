@@ -1,11 +1,16 @@
-import { Target, Wallet } from 'lucide-react';
+import { Target, Wallet, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 
 const ACTIONS = [
-  { id: 'earn',   icon: Target,  labelEn: 'Earn',    labelHe: 'הרוויח', descEn: 'Bounties, gigs & data', descHe: 'באונטיז, עבודות ונתונים', path: '/fm/earn' },
-  { id: 'wallet', icon: Wallet,  labelEn: 'Wallet',  labelHe: 'ארנק',   descEn: 'Balance & withdraw',    descHe: 'יתרה ומשיכה',            path: '/fm/wallet' },
+  { id: 'earn',   icon: Target,  labelEn: 'Earn',    labelHe: 'הרוויח', descEn: 'Bounties, gigs & data', descHe: 'באונטיז, עבודות ונתונים', path: '/fm/earn',   rarity: 'epic' },
+  { id: 'wallet', icon: Wallet,  labelEn: 'Wallet',  labelHe: 'ארנק',   descEn: 'Balance & withdraw',    descHe: 'יתרה ומשיכה',            path: '/fm/wallet', rarity: 'rare' },
 ];
+
+const RARITY_STYLES: Record<string, string> = {
+  epic: 'border-amber-500/40 bg-gradient-to-br from-amber-500/10 to-orange-500/5 hover:border-amber-400/60 hover:shadow-amber-500/10',
+  rare: 'border-sky-500/40 bg-gradient-to-br from-sky-500/10 to-blue-500/5 hover:border-sky-400/60 hover:shadow-sky-500/10',
+};
 
 export function FMQuickActions() {
   const { language } = useTranslation();
@@ -18,13 +23,13 @@ export function FMQuickActions() {
         <button
           key={a.id}
           onClick={() => navigate(a.path)}
-          className="bg-card border border-border rounded-xl p-3.5 text-center hover:border-accent/40 transition-colors group"
+          className={`rounded-xl p-4 text-center border-2 transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg ${RARITY_STYLES[a.rarity]}`}
         >
-          <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center mx-auto mb-2 group-hover:bg-accent/15 transition-colors">
-            <a.icon className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center mx-auto mb-2.5 border border-amber-500/20">
+            <a.icon className="w-5 h-5 text-amber-400" />
           </div>
-          <p className="font-semibold text-sm text-foreground">{isHe ? a.labelHe : a.labelEn}</p>
-          <p className="text-[10px] text-muted-foreground">{isHe ? a.descHe : a.descEn}</p>
+          <p className="font-bold text-sm text-foreground">{isHe ? a.labelHe : a.labelEn}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? a.descHe : a.descEn}</p>
         </button>
       ))}
     </div>
