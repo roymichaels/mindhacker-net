@@ -153,6 +153,7 @@ ${adjustmentContext}
             },
             {
               "milestone_id": "actual-uuid-from-list",
+              "focus_area": "power",
               "title_en": "Full-body stretch routine",
               "title_he": "שגרת מתיחות מלאה",
               "duration_minutes": 20,
