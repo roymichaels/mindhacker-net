@@ -73,7 +73,7 @@ export default function OrbGalleryPage() {
 
   const clearFilters = () => { setFilters({}); setPage(0); };
 
-  const clearFilters = () => setFilters({});
+  
 
   // Rarity stats
   const stats = useMemo(() => {
