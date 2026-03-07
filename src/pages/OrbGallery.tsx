@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { Orb } from '@/components/orb/Orb';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
