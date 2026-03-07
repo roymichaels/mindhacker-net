@@ -92,8 +92,6 @@ const Index = () => {
           <main className="relative">
             <GameHeroSection />
             <OrbCollectionSection />
-            <InlineCTA variant="subtle" />
-            <OrbEvolutionSection />
             <InlineCTA variant="default" />
             <AuroraCoachSection />
             <InlineCTA variant="subtle" />
