@@ -504,7 +504,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
            <div className="prose prose-sm dark:prose-invert max-w-none [direction:inherit] [&>*]:text-start">
-              <ReactMarkdown>{lesson.content?.body || ''}</ReactMarkdown>
+              <ReactMarkdown components={markdownComponents}>{lesson.content?.body || ''}</ReactMarkdown>
               
               {lesson.content?.key_concepts?.length > 0 && (
                 <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
