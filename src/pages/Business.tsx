@@ -1,89 +1,89 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useLaunchpadData } from "@/hooks/useLaunchpadData";
-import { PillarHubLayout, pillarColors } from "@/components/hub-shared";
-import { BusinessToolsGrid } from "@/components/business-hub";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { Briefcase, Clock } from "lucide-react";
+/**
+ * Business — entry router page (mirrors Coaches.tsx pattern).
+ * Shows BusinessDashboard if user has active journey, otherwise shows landing.
+ */
+import { lazy, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { Briefcase, Rocket } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
-const Business = () => {
-  const { t, language } = useTranslation();
-  const { isLoading } = useLaunchpadData();
+export default function Business() {
+  const { language, isRTL } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isHe = language === 'he';
 
-  const colors = {
-    ...pillarColors.business,
-    // Override to gray
-    headerGradient: 'from-muted/80 to-muted/40 dark:from-gray-800/80 dark:to-gray-900/40',
-    headerBorder: 'border-border/50',
-    iconBg: 'bg-muted-foreground/10',
-    iconColor: 'text-muted-foreground',
-    iconFill: '',
-    titleColor: 'text-muted-foreground',
-    descColor: 'text-muted-foreground/70',
-    primaryBtn: 'bg-muted text-muted-foreground cursor-not-allowed pointer-events-none',
-    outlineBtn: 'border-border text-muted-foreground cursor-not-allowed pointer-events-none',
-    circle1: 'bg-muted-foreground/5',
-    circle2: 'bg-muted-foreground/5',
+  const handleStartJourney = () => {
+    if (!user) { navigate('/auth'); return; }
+    navigate('/business/journey');
+  };
+
+  const handleViewDashboard = () => {
+    if (!user) { navigate('/auth'); return; }
+    navigate('/business/journey');
   };
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Diagonal COMING SOON watermark */}
-      <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center overflow-hidden">
-        <span
-          className="select-none whitespace-nowrap text-[6rem] md:text-[10rem] font-black uppercase tracking-widest opacity-10"
-          style={{
-            color: 'hsl(0, 84%, 50%)',
-            transform: 'rotate(-30deg)',
-          }}
-        >
-          COMING SOON
-        </span>
+    <div className="max-w-4xl mx-auto px-4 py-10 space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="text-center space-y-3">
+        <h1 className="text-3xl md:text-4xl font-bold">
+          {isHe ? 'עסקים' : 'Business'}
+        </h1>
+        <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+          {isHe
+            ? 'מרכז הצמיחה העסקית שלך — כלים ואסטרטגיות לטרנספורמציה קריירתית'
+            : 'Your business growth center — tools and strategies for career transformation'}
+        </p>
       </div>
 
-      <PillarHubLayout
-        colors={colors}
-        icon={Briefcase}
-        title={{ he: 'עסקים', en: 'Business' }}
-        description={{ he: t('business.subtitle'), en: t('business.subtitle') }}
-        journeyPath="/business/journey"
-        onJourneyClick={() => true}
-        seoPath="/business"
-        isLoading={isLoading}
-      >
-        {/* Coming Soon Banner */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <Card className="bg-muted/50 border-border/50 backdrop-blur-xl">
-            <CardContent className="p-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted-foreground/10 mb-4">
-                <Clock className="h-8 w-8 text-muted-foreground/60" />
-              </div>
-              <h3 className="text-xl font-bold text-muted-foreground mb-2">
-                {language === 'he' ? 'בקרוב...' : 'Coming Soon...'}
-              </h3>
-              <p className="text-sm text-muted-foreground/70 max-w-md mx-auto">
-                {language === 'he'
-                  ? 'אנחנו עובדים קשה כדי להביא לך את הכלים העסקיים הטובים ביותר. הישארו מעודכנים!'
-                  : 'We\'re working hard to bring you the best business tools. Stay tuned!'}
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Grayed-out Business Tools Grid */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <h2 className="text-lg font-semibold mb-4 text-muted-foreground">
-            {language === 'he' ? 'כלים עסקיים' : 'Business Tools'}
-          </h2>
-          <div className="opacity-40 grayscale pointer-events-none select-none">
-            <BusinessToolsGrid onOpenModal={() => {}} />
+      <div className="grid sm:grid-cols-2 gap-6">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleStartJourney}
+          className="group relative rounded-2xl border-2 border-amber-500/20 bg-card p-8 text-start space-y-4 transition-all hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/5 cursor-pointer"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+            <Rocket className="h-8 w-8 text-amber-500" />
           </div>
-        </motion.div>
-      </PillarHubLayout>
+          <h2 className="text-2xl font-bold">
+            {isHe ? 'התחל מסע עסקי' : 'Start Business Journey'}
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            {isHe
+              ? 'בנה את האסטרטגיה העסקית שלך צעד אחר צעד עם הדרכת AI.'
+              : 'Build your business strategy step by step with AI guidance.'}
+          </p>
+          <span className="inline-flex items-center text-sm font-medium text-amber-500 group-hover:underline">
+            {isHe ? 'התחל עכשיו →' : 'Get started →'}
+          </span>
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleViewDashboard}
+          className="group relative rounded-2xl border-2 border-orange-500/20 bg-card p-8 text-start space-y-4 transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/5 cursor-pointer"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+            <Briefcase className="h-8 w-8 text-orange-500" />
+          </div>
+          <h2 className="text-2xl font-bold">
+            {isHe ? 'המסעות שלי' : 'My Journeys'}
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            {isHe
+              ? 'חזור למסע עסקי קיים וצפה בלוח הבקרה שלך.'
+              : 'Return to an existing business journey and view your dashboard.'}
+          </p>
+          <span className="inline-flex items-center text-sm font-medium text-orange-500 group-hover:underline">
+            {isHe ? 'צפה במסעות →' : 'View journeys →'}
+          </span>
+        </motion.button>
+      </div>
     </div>
   );
-};
-
-export default Business;
+}
