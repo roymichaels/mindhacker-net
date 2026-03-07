@@ -83,10 +83,15 @@ export function BottomHudBar() {
             className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
           >
             <div
-              className="flex-shrink-0 rounded-full transition-shadow duration-700 overflow-hidden"
+              className="flex-shrink-0 rounded-full transition-shadow duration-700"
               style={{ width: 44, height: 44, ...orbGlowStyle }}
             >
-              <PersonalizedOrb size={44} state={movementScore >= 80 ? 'speaking' : 'idle'} />
+              <StandaloneMorphOrb
+                size={44}
+                profile={userOrbProfile}
+                geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
+                level={xp.level}
+              />
             </div>
             {identityTitle && (
               <div className="min-w-0 flex flex-col">
