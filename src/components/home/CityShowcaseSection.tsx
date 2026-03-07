@@ -150,7 +150,7 @@ export default function CityShowcaseSection() {
       icon: Brain,
       title: isRTL ? 'מנוע AI' : 'AI Plan Engine',
       line: isRTL ? 'תוכנית 100 יום — נבנית בשבילך' : '100-day plan — built for you',
-      preview: <PlanPulsePreview />,
+      preview: <PlanPulsePreview isRTL={isRTL} />,
     },
     {
       icon: Headphones,
