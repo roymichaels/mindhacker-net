@@ -86,7 +86,7 @@ export default function GameHeroSection() {
                 <Orb
                   profile={auroraSkinPreset.profile}
                   size={240}
-                  renderer="webgl"
+                  renderer="css"
                 />
               )}
             </div>
