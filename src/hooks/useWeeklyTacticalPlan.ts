@@ -449,7 +449,11 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     let days: DayPlan[];
 
     if (aiSchedule?.schedule_data && Array.isArray(aiSchedule.schedule_data)) {
-      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1);
+      const focusMap: Record<string, string> = {};
+      for (const m of currentPhaseMilestones) {
+        if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
+      }
+      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap);
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
