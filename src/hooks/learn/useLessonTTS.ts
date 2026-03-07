@@ -132,9 +132,11 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const playingRef = useRef(false);
+  const busyRef = useRef(false);
 
   const stop = useCallback(() => {
     playingRef.current = false;
+    busyRef.current = false;
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -218,7 +220,8 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
   }, [voice, speed]);
 
   const play = useCallback(async (lesson: { lesson_type: string; title: string; content: any }) => {
-    if (isPlaying || isLoading) {
+    // Use refs for guard — avoids stale closure from useCallback deps
+    if (busyRef.current) {
       stop();
       return;
     }
@@ -234,39 +237,66 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     console.log('[TTS] Split into', chunks.length, 'chunks:', chunks.map(c => c.length));
 
     setIsLoading(true);
+    busyRef.current = true;
     playingRef.current = true;
-    abortRef.current = new AbortController();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     try {
       for (let i = 0; i < chunks.length; i++) {
-        if (!playingRef.current) break;
+        if (!playingRef.current) {
+          console.log('[TTS] Playback stopped by user at chunk', i);
+          break;
+        }
 
-        const success = await playChunk(
-          chunks[i],
-          abortRef.current!.signal,
-        );
+        console.log('[TTS] Starting chunk', i + 1, 'of', chunks.length);
+
+        let success: boolean;
+        try {
+          success = await playChunk(chunks[i], controller.signal);
+        } catch (chunkErr: any) {
+          if (chunkErr.name === 'AbortError') {
+            console.log('[TTS] Chunk aborted');
+            return;
+          }
+          console.warn('[TTS] Chunk', i + 1, 'error, retrying once:', chunkErr);
+          // Retry once on failure
+          try {
+            success = await playChunk(chunks[i], controller.signal);
+          } catch (retryErr: any) {
+            if (retryErr.name === 'AbortError') return;
+            console.warn('[TTS] Retry also failed, falling back');
+            success = false;
+          }
+        }
 
         if (!success) {
           // Fallback: play remaining text with browser TTS
+          console.log('[TTS] Falling back to browser for remaining', chunks.length - i, 'chunks');
           const remainingText = chunks.slice(i).join('\n\n');
           speakWithBrowserFallback(remainingText, speed);
           return;
         }
+
+        console.log('[TTS] Chunk', i + 1, 'of', chunks.length, 'complete');
       }
 
       // All chunks done
-      if (playingRef.current) {
-        playingRef.current = false;
-        setIsPlaying(false);
-      }
+      console.log('[TTS] All chunks finished');
+      playingRef.current = false;
+      busyRef.current = false;
+      setIsPlaying(false);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       console.warn('ElevenLabs TTS error, falling back to browser:', err);
       setIsLoading(false);
-      const remainingText = text;
-      speakWithBrowserFallback(remainingText, speed);
+      speakWithBrowserFallback(text, speed);
+    } finally {
+      if (!playingRef.current) {
+        busyRef.current = false;
+      }
     }
-  }, [isPlaying, isLoading, speed, stop, playChunk]);
+  }, [speed, stop, playChunk]);
 
   const speakWithBrowserFallback = useCallback((text: string, rate: number) => {
     if (!window.speechSynthesis) return;
