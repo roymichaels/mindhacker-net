@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Web3Roadmap } from '@/components/docs/Web3Roadmap';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
