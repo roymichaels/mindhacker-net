@@ -243,7 +243,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
           {/* Documentation */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/docs'); }}>
             <FileText className="h-4 w-4 me-2" />
-            {language === 'he' ? 'ווייטפייפר' : 'White Paper'}
+            {language === 'he' ? 'ספר לבן' : 'White Paper'}
           </DropdownMenuItem>
 
           {/* Subscription */}

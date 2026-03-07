@@ -317,7 +317,7 @@ export default function Documentation() {
           </p>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
             {he
-              ? 'ווייטפייפר — AI · NFT · Play-to-Earn · גיימיפיקציה · פיתוח אישי'
+              ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · פיתוח אישי'
               : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Personal Development'
             }
           </p>
