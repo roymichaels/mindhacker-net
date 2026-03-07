@@ -7,7 +7,7 @@ import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { Orb } from '@/components/orb';
+import { GalleryOrbView } from '@/components/orb/GalleryMorphOrb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 
 export default function GameHeroSection() {
