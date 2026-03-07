@@ -447,7 +447,9 @@ interface GalleryCanvasProps {
 export function GalleryCanvas({ children, containerRef }: GalleryCanvasProps) {
   return (
     <>
-      {children}
+      <div className="relative z-[60]">
+        {children}
+      </div>
       <Canvas
         style={{
           position: 'fixed',
