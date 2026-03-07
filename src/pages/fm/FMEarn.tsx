@@ -9,6 +9,7 @@ import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
   Target, Briefcase, BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
   Plus, X, Users, Rocket, Palette, PenTool, ArrowRight, UserCircle, Pickaxe,
+  Link2, Copy, UserPlus, DollarSign, TrendingUp,
 } from 'lucide-react';
 import { MiningDashboard } from '@/components/fm/MiningDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
