@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { GalleryCanvas } from "@/components/orb/GalleryMorphOrb";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
