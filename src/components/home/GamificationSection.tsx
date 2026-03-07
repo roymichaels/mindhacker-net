@@ -12,7 +12,7 @@ const xpActions = [
   { emoji: '✅', action: 'Task Complete', actionHe: 'משימה הושלמה', xp: '+20 XP' },
   { emoji: '📚', action: 'Lesson Done', actionHe: 'שיעור הושלם', xp: '+30 XP' },
   { emoji: '💬', action: 'Community Post', actionHe: 'פוסט בקהילה', xp: '+15 XP' },
-  { emoji: '🔥', action: '7-Day Streak', actionHe: 'רצף 7 ימים', xp: 'x1.5 Bonus' },
+  { emoji: '🔥', action: '7-Day Streak', actionHe: 'רצף 7 ימים', xp: 'x1.5', xpHe: 'בונוס x1.5' },
 ];
 
 export default function GamificationSection() {
