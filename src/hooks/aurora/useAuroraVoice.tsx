@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { debug } from '@/lib/debug';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { speakWithBrowser } from '@/services/voice';
 
 interface UseAuroraVoiceOptions {
   onTranscription?: (text: string) => void;
@@ -8,6 +10,7 @@ interface UseAuroraVoiceOptions {
 
 export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
   const { user } = useAuth();
+  const { isPlus } = useSubscriptionGate();
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
