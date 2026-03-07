@@ -205,7 +205,7 @@ export default function OrbGalleryPage() {
 
         {/* Grid */}
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-3 gap-x-4 gap-y-8">
+          <div className="grid grid-cols-3 gap-x-0 gap-y-4">
               {pagedOrbs.map((orb, i) => {
                 const rarityColor = RARITY_COLORS[orb.rarity];
                 return (
@@ -230,11 +230,11 @@ export default function OrbGalleryPage() {
                     </span>
 
                     {/* Orb - rendered via shared WebGL canvas */}
-                    <div className="group-hover:scale-105 transition-transform duration-300">
+                    <div className="group-hover:scale-105 transition-transform duration-300 overflow-visible">
                       <GalleryOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
-                        size={isMobile ? 120 : 160}
+                        size={isMobile ? 200 : 280}
                       />
                     </div>
 
