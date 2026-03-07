@@ -60,6 +60,7 @@ const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
+const OrbGalleryPage = lazy(() => import("./pages/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const CommunityLayoutWrapper = lazy(() => import("./components/community/CommunityLayoutWrapper"));
 const CommunityThread = lazy(() => import("./pages/CommunityThread"));
