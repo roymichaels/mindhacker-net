@@ -6,7 +6,7 @@ import { ArrowRight, Brain, Target, FileText, Sparkles } from 'lucide-react';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 
 export default function FreeJourneyBannerSection() {
-  const { t, isRTL } = useTranslation();
+  const { openWelcomeGate } = useWelcomeGate();
 
   return (
     <section className="py-12 sm:py-16 px-4 relative overflow-hidden">
