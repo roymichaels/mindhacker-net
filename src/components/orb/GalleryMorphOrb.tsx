@@ -141,15 +141,19 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
   const matProps = useMemo(() => {
     const primary = hslToColor(profile.primaryColor || '200 50% 50%');
     const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
+    const mp = profile.materialParams;
     return {
       color: primary,
       emissive: accent,
-      metalness: Math.max(profile.materialParams?.metalness ?? 0.4, 0.2),
-      roughness: Math.min(profile.materialParams?.roughness ?? 0.2, 0.4),
-      clearcoat: profile.materialParams?.clearcoat ?? 0.6,
-      clearcoatRoughness: 0.15,
-      emissiveIntensity: Math.max(profile.materialParams?.emissiveIntensity ?? 0.2, 0.1),
+      metalness: mp?.metalness ?? 0.3,
+      roughness: mp?.roughness ?? 0.2,
+      clearcoat: mp?.clearcoat ?? 0.5,
+      clearcoatRoughness: 0.1,
+      emissiveIntensity: mp?.emissiveIntensity ?? 0.15,
       envMapIntensity: 1.5,
+      transmission: mp?.transmission ?? 0,
+      ior: mp?.ior ?? 1.5,
+      thickness: (mp?.transmission ?? 0) > 0.1 ? 0.5 : 0,
     };
   }, [profile]);
 
