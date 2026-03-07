@@ -101,7 +101,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   return (
     <UsernameGate>
       <PageShell>
-        <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full">
+        <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-24">
 
           {/* ── Header with breadcrumb ── */}
           <div className="flex items-center justify-between gap-3">
