@@ -283,28 +283,32 @@ Return ONLY a valid JSON object (no markdown fences):
       rawContent = jsonMatch[0];
     }
 
-    // Sanitize control characters inside JSON string values
-    // Replace literal control chars (tabs, newlines, etc.) that break JSON.parse
-    rawContent = rawContent.replace(/[\x00-\x1F\x7F]/g, (ch) => {
-      if (ch === '\n') return '\\n';
-      if (ch === '\r') return '\\r';
-      if (ch === '\t') return '\\t';
-      return '';
-    });
-
     let article;
     try {
       article = JSON.parse(rawContent);
     } catch (parseErr) {
-      console.error("JSON parse failed, attempting recovery. Error:", parseErr);
-      // Last resort: try to fix common issues like unescaped quotes inside values
+      console.error("JSON parse failed, attempting recovery. Raw length:", rawContent.length, "Error:", parseErr);
       try {
-        const repaired = rawContent
+        // Fix trailing commas
+        let repaired = rawContent
           .replace(/,\s*}/g, '}')
           .replace(/,\s*]/g, ']');
         article = JSON.parse(repaired);
       } catch {
-        throw new Error("Failed to parse AI response as JSON after sanitization");
+        try {
+          // More aggressive: sanitize control characters that aren't already escaped
+          let sanitized = rawContent.replace(/(?<!\\)[\x00-\x1F\x7F]/g, (ch) => {
+            if (ch === '\n') return '\\n';
+            if (ch === '\r') return '\\r';
+            if (ch === '\t') return '\\t';
+            return '';
+          });
+          sanitized = sanitized.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+          article = JSON.parse(sanitized);
+        } catch {
+          console.error("All JSON parse attempts failed. First 500 chars:", rawContent.substring(0, 500));
+          throw new Error("Failed to parse AI response as JSON after sanitization");
+        }
       }
     }
 
