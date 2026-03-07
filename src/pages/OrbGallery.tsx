@@ -189,10 +189,7 @@ export default function OrbGalleryPage() {
 
         {/* Grid */}
         <div className="max-w-6xl mx-auto px-4">
-          <div className={cn(
-            'grid gap-4',
-            isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'
-          )}>
+          <div className="grid grid-cols-3 gap-x-4 gap-y-8">
             <AnimatePresence mode="popLayout">
               {filteredOrbs.map((orb, i) => {
                 const rarityColor = RARITY_COLORS[orb.rarity];
@@ -205,38 +202,33 @@ export default function OrbGalleryPage() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.5) }}
                     onClick={() => setSelectedOrb(orb)}
-                    className={cn(
-                      'relative rounded-2xl bg-card/70 border border-border/30 backdrop-blur-sm',
-                      'cursor-pointer hover:border-primary/30 transition-all duration-300 hover:shadow-lg',
-                      'flex flex-col items-center p-4 group'
-                    )}
+                    className="relative cursor-pointer flex flex-col items-center group"
                   >
                     {/* Rarity badge */}
                     <span
-                      className="absolute top-2.5 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                      className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2"
                       style={{
                         backgroundColor: `hsl(${rarityColor} / 0.12)`,
                         color: `hsl(${rarityColor})`,
                         border: `1px solid hsl(${rarityColor} / 0.25)`,
-                        [isRTL ? 'left' : 'right']: '8px',
                       }}
                     >
                       {isHe ? RARITY_LABELS[orb.rarity].he : RARITY_LABELS[orb.rarity].en}
                     </span>
 
                     {/* Orb */}
-                    <div className="w-full aspect-square flex items-center justify-center my-2 group-hover:scale-105 transition-transform duration-300">
+                    <div className="group-hover:scale-105 transition-transform duration-300">
                       <Orb
                         profile={orb.profile}
-                        size={isMobile ? 100 : 130}
+                        size={isMobile ? 80 : 120}
                         state="idle"
-                        renderer="webgl"
+                        renderer="css"
                         showGlow={orb.traits.glow !== 'none'}
                       />
                     </div>
 
                     {/* Name */}
-                    <h3 className="text-xs md:text-sm font-bold text-foreground text-center mt-1">
+                    <h3 className="text-xs md:text-sm font-bold text-foreground text-center mt-2">
                       {isHe ? orb.nameHe : orb.nameEn}
                     </h3>
                     <p className="text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
@@ -244,7 +236,7 @@ export default function OrbGalleryPage() {
                     </p>
 
                     {/* Trait pills */}
-                    <div className="flex flex-wrap gap-1 justify-center mt-2">
+                    <div className="flex flex-wrap gap-1 justify-center mt-1.5">
                       {[orb.traits.material, orb.traits.geometry].map(t => (
                         <span key={t} className="text-[8px] md:text-[9px] px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground capitalize">
                           {t}
