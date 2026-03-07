@@ -87,7 +87,7 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
               <span className="text-[10px] font-bold">{i + 1}</span>
             </button>
           ))}
-          {onNewCourse && (
+          {onNewCourse && canCreateCourse && (
             <button
               onClick={onNewCourse}
               className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors flex items-center justify-center mt-1"
