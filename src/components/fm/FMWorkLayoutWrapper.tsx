@@ -1,19 +1,14 @@
 /**
- * FMWorkLayoutWrapper — wraps FMWork with custom sidebars.
+ * FMWorkLayoutWrapper — wraps FMWork without sidebars (content merged into page).
  */
-import { Suspense, lazy, useMemo } from 'react';
-import { FMWorkHudSidebar } from '@/components/fm/FMWorkHudSidebar';
-import { FMWorkActivitySidebar } from '@/components/fm/FMWorkActivitySidebar';
+import { Suspense, lazy } from 'react';
 import { useSidebars } from '@/hooks/useSidebars';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
 const FMWork = lazy(() => import('@/pages/fm/FMWork'));
 
 export default function FMWorkLayoutWrapper() {
-  const left = useMemo(() => <FMWorkHudSidebar />, []);
-  const right = useMemo(() => <FMWorkActivitySidebar />, []);
-
-  useSidebars(left, right, [left, right]);
+  useSidebars(null, null, []);
 
   return (
     <Suspense fallback={<PageSkeleton />}>
