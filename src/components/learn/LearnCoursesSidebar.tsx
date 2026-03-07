@@ -176,7 +176,7 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
           )}
 
           {/* New Course button at bottom */}
-          {onNewCourse && curricula && curricula.length > 0 && (
+          {onNewCourse && canCreateCourse && curricula && curricula.length > 0 && (
             <button
               onClick={onNewCourse}
               className="w-full flex items-center justify-center gap-1.5 p-2 mt-3 rounded-lg text-[11px] font-semibold bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 transition-colors"
