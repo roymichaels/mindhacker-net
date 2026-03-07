@@ -2,8 +2,9 @@
  * LessonViewer — Renders lesson content based on type (theory, practice, quiz, project).
  * Handles completion, quiz submission, and project evaluation.
  * RTL-optimized with logical properties.
+ * Words are clickable — clicking a word starts TTS from that point forward.
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ReactMarkdown from 'react-markdown';
 import { useLessonTTS } from '@/hooks/learn/useLessonTTS';
+import { ClickableWords } from '@/components/learn/ClickableWords';
 
 interface Lesson {
   id: string;
