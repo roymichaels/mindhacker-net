@@ -18,7 +18,7 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(Math.floor(min * 0.55), 400));
+      setOrbSize(Math.min(Math.floor(min * 0.85), 900));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
