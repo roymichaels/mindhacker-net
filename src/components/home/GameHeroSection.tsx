@@ -7,7 +7,7 @@ import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { GalleryOrbView } from '@/components/orb/GalleryMorphOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 
 export default function GameHeroSection() {
@@ -83,7 +83,7 @@ export default function GameHeroSection() {
             <div className="relative">
               <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] blur-2xl pointer-events-none" />
               {auroraSkinPreset && (
-                <GalleryOrbView
+                <StandaloneMorphOrb
                   profile={auroraSkinPreset.profile}
                   geometryFamily={auroraSkinPreset.profile.geometryFamily || 'sphere'}
                   size={240}
