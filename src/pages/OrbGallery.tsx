@@ -247,7 +247,7 @@ export default function OrbGalleryPage() {
                     </p>
 
                     {/* Trait pills */}
-                    <div className="flex flex-wrap gap-1 justify-center mt-1.5">
+                    <div className="relative z-[2] flex flex-wrap gap-1 justify-center mt-1.5">
                       {[orb.traits.material, orb.traits.geometry].map(t => (
                         <span key={t} className="text-[8px] md:text-[9px] px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground capitalize">
                           {t}
