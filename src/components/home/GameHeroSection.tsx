@@ -44,7 +44,7 @@ export default function GameHeroSection() {
         />
       ))}
 
-      <div className="relative z-10 container mx-auto max-w-4xl px-4 pt-4 pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="relative z-[60] container mx-auto max-w-4xl px-4 pt-4 pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center space-y-8">
           {/* Badge */}
           <motion.div
