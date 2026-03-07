@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 export default function FinalCTASection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   const guarantees = [
     { icon: Shield, text: t('home.finalCta.personalJourney') },
