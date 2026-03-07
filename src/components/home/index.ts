@@ -17,6 +17,8 @@ export { default as PricingPreviewSection } from './PricingPreviewSection';
 export { default as FinalCTASection } from './FinalCTASection';
 export { default as RoadmapSection } from './RoadmapSection';
 export { default as OrbEvolutionSection } from './OrbEvolutionSection';
+export { default as GamificationSection } from './GamificationSection';
+export { default as FreeMarketSection } from './FreeMarketSection';
 
 // Legacy — kept for backwards compat
 export { default as TwoWorldsSection } from './TwoWorldsSection';
