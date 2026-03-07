@@ -28,6 +28,33 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState(false);
+  const [alreadyHasPlan, setAlreadyHasPlan] = useState(false);
+
+  // GUARD: Check immediately on mount if plan already exists — redirect without regenerating
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    supabase
+      .from('life_plans')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data) {
+          setAlreadyHasPlan(true);
+          // Also mark launchpad as complete
+          supabase.from('launchpad_progress').upsert({
+            user_id: user.id,
+            launchpad_complete: true,
+          }, { onConflict: 'user_id' }).then(() => {
+            navigate('/now', { replace: true });
+          });
+        }
+      });
+    return () => { cancelled = true; };
+  }, [user?.id, navigate]);
 
   const analysisSteps = [
     t('onboarding.planGeneration.analyzingResults'),
@@ -213,6 +240,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
   }, [user?.id, answers, selectedPillars, navigate, t]);
 
   useEffect(() => {
+    if (alreadyHasPlan) return; // Don't run steps if plan exists
     const timer = setTimeout(() => {
       if (currentStep < analysisSteps.length - 1) {
         setCurrentStep(prev => prev + 1);
@@ -222,7 +250,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
     }, currentStep === 0 ? 800 : 1200);
 
     return () => clearTimeout(timer);
-  }, [currentStep, analysisSteps.length, completeOnboarding]);
+  }, [currentStep, analysisSteps.length, completeOnboarding, alreadyHasPlan]);
 
   if (error) {
     return (
