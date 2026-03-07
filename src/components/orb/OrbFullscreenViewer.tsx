@@ -74,12 +74,22 @@ export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenVie
             onClick={(e) => e.stopPropagation()}
             style={{ width: orbSize, height: orbSize }}
           >
-            <PersonalizedOrb
-              size={orbSize}
-              state="idle"
-              showGlow
-              renderer="css"
-            />
+            {profile ? (
+              <Orb
+                size={orbSize}
+                state="breathing"
+                profile={profile}
+                showGlow
+                renderer="webgl"
+              />
+            ) : (
+              <PersonalizedOrb
+                size={orbSize}
+                state="idle"
+                showGlow
+                renderer="css"
+              />
+            )}
           </motion.div>
 
           {/* Hint */}
