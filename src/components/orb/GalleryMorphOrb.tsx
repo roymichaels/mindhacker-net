@@ -227,11 +227,14 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
   const instanceSeed = useRef(Math.random());
 
   const shapes = useMemo(() => {
-    if (randomShapeCount) {
-      // Random 1-5 shapes per gallery orb
+    // If morphIntensity is 0, use single shape (no morphing)
+    if (profile.morphIntensity === 0 || profile.morphSpeed === 0) {
       const all = ALL_SHAPES[geometryFamily] || ALL_SHAPES.sphere;
-      const count = Math.floor(instanceSeed.current * 5) + 1; // 1-5
-      // Shuffle based on seed
+      return [all[0]];
+    }
+    if (randomShapeCount) {
+      const all = ALL_SHAPES[geometryFamily] || ALL_SHAPES.sphere;
+      const count = Math.floor(instanceSeed.current * 5) + 1;
       const shuffled = [...all].sort((a, b) => {
         const ha = a.charCodeAt(0) * instanceSeed.current;
         const hb = b.charCodeAt(0) * instanceSeed.current;
@@ -240,7 +243,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
       return shuffled.slice(0, count);
     }
     return getShapesForLevel(geometryFamily, level);
-  }, [geometryFamily, level, randomShapeCount]);
+  }, [geometryFamily, level, randomShapeCount, profile.morphIntensity, profile.morphSpeed]);
 
   const { geometry, shapeArrays } = useMemo(() => {
     const geo = new THREE.IcosahedronGeometry(1, 4);
