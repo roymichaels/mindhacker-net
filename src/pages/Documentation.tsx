@@ -336,7 +336,7 @@ export default function Documentation() {
           className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-3"
         >
           <h2 className="text-lg font-bold text-foreground">{he ? 'תקציר מנהלים' : 'Abstract'}</h2>
-          <p dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm" style={{ unicodeBidi: 'plaintext', textAlign: isRTL ? 'right' : 'left' }}>{abstractText}</p>
+          <p dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm">{abstractText}</p>
         </motion.div>
 
         {/* Table of Contents */}
@@ -379,7 +379,7 @@ export default function Documentation() {
             </h2>
 
             {section.paragraphs.map((p, j) => (
-              <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm [&>span]:unicode-bidi-embed" style={{ unicodeBidi: 'plaintext', textAlign: isRTL ? 'right' : 'left' }}>
+              <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
                 {p}
               </p>
             ))}
@@ -388,7 +388,7 @@ export default function Documentation() {
               <div key={k} className="ms-4 border-s-2 border-primary/20 ps-4 space-y-2 pt-2">
                 <h3 className="text-base font-semibold text-foreground">{sub.title}</h3>
                 {sub.paragraphs.map((p, j) => (
-                  <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line" style={{ unicodeBidi: 'plaintext', textAlign: isRTL ? 'right' : 'left' }}>{p}</p>
+                  <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{p}</p>
                 ))}
               </div>
             ))}
@@ -397,7 +397,7 @@ export default function Documentation() {
 
         {/* Disclaimer */}
         <div className="text-center pt-10 pb-24 border-t border-border space-y-3">
-          <p dir={isRTL ? 'rtl' : 'ltr'} className="text-xs text-muted-foreground/80 max-w-xl mx-auto" style={{ unicodeBidi: 'plaintext', textAlign: isRTL ? 'right' : 'left' }}>
+          <p dir={isRTL ? 'rtl' : 'ltr'} className="text-xs text-muted-foreground/80 max-w-xl mx-auto">
             {he
               ? `מסמך זה מוגש למטרות מידע בלבד ואינו מהווה הצעה למכירת ניירות ערך או הזמנה לרכישה. MOS tokens אינם מייצגים בעלות, דיבידנדים, או זכויות הצבעה. ביצועי העבר אינם מעידים על ביצועים עתידיים.`
               : `This document is provided for informational purposes only and does not constitute an offer to sell securities or a solicitation to purchase. MOS tokens do not represent ownership, dividends, or voting rights. Past performance does not indicate future results.`
