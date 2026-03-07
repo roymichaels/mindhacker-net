@@ -36,6 +36,7 @@ export function HudSidebar() {
   const tokens = useEnergy();
   const { sessionStats } = useGameState();
   const { nextAction, hasPlan } = useTodayExecution();
+  const { canAccessPlanRecalibration, showUpgradePrompt } = useSubscriptionGate();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
   const [recalibrating, setRecalibrating] = useState(false);
