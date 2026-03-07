@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useCommandBus } from '@/hooks/aurora/useCommandBus';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import AuroraChatMessage from './AuroraChatMessage';
 import AuroraTypingIndicator from './AuroraTypingIndicator';
