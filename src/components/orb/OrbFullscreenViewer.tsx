@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PersonalizedOrb from './PersonalizedOrb';
+import { Orb } from './Orb';
+import type { OrbProfile } from './types';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
   onClose: () => void;
+  profile?: OrbProfile;
 }
 
 export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps) {
