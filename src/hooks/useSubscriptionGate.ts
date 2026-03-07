@@ -123,6 +123,8 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       canAccessArenaFull: true,
       canAccessBusinessBasic: true,
       canAccessPlanRecalibration: true,
+      canAccessCourseCreation: true,
+      canAccessAIExecution: true,
       canAccessFullProactive: true,
       canAccessProjects: true,
       canAccessBusinessAdvanced: true,
