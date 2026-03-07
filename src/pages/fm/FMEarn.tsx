@@ -237,6 +237,48 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
     } catch (e: any) { toast.error(e.message || 'Failed'); }
   };
 
+  // ──── Partners / Affiliate state ────
+  const { data: affiliateData } = useQuery({
+    queryKey: ['fm-affiliate', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase.from('affiliates').select('*').eq('user_id', user.id).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: affiliateReferrals = [] } = useQuery({
+    queryKey: ['fm-affiliate-referrals', affiliateData?.id],
+    queryFn: async () => {
+      if (!affiliateData?.id) return [];
+      const { data, error } = await supabase.from('affiliate_referrals').select('*').eq('affiliate_id', affiliateData.id).order('created_at', { ascending: false }).limit(20);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!affiliateData?.id,
+  });
+
+  const affiliateLink = affiliateData ? `https://mindos.app/?ref=${affiliateData.affiliate_code}` : '';
+
+  const handleCopyAffiliateLink = () => {
+    if (!affiliateLink) return;
+    navigator.clipboard.writeText(affiliateLink);
+    toast.success(isHe ? 'הקישור הועתק!' : 'Link copied!');
+  };
+
+  const handleBecomeAffiliate = async () => {
+    if (!user?.id) return;
+    try {
+      const code = user.id.slice(0, 8);
+      const { error } = await supabase.from('affiliates').insert({ user_id: user.id, affiliate_code: code });
+      if (error) throw error;
+      toast.success(isHe ? 'נרשמת בהצלחה כשותף!' : 'Successfully registered as a partner!');
+      queryClient.invalidateQueries({ queryKey: ['fm-affiliate'] });
+    } catch (e: any) { toast.error(e.message || 'Failed'); }
+  };
+
   // ──── Helpers ────
   const claimBadge = (status: string) => {
     const m: Record<string, { icon: React.ReactNode; label: string; cls: string }> = {
