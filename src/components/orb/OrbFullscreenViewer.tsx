@@ -49,29 +49,43 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
       {open && (
         <motion.div
           role="dialog"
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95"
+          className="fixed inset-0 z-[9999] bg-black/95"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={onClose}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
+          {/* Exit button */}
           <button
-            className="absolute top-6 right-6 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors backdrop-blur-sm border border-white/10"
+            className="absolute top-5 right-5 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all backdrop-blur-md border border-white/15 shadow-lg"
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             aria-label="Close fullscreen"
           >
-            <X className="w-7 h-7" />
+            <X className="w-5 h-5" />
+            <span className="text-sm font-medium tracking-wide">Exit</span>
           </button>
 
+          {/* Centered orb container */}
           <motion.div
-            className="flex items-center justify-center"
             initial={{ scale: 0.3, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.3, opacity: 0 }}
             transition={{ type: 'spring', damping: 20, stiffness: 200 }}
             onClick={(e) => e.stopPropagation()}
-            style={{ width: orbSize, height: orbSize }}
+            style={{
+              width: orbSize,
+              height: orbSize,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: 'auto',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
           >
             {profile ? (
               <StandaloneMorphOrb
