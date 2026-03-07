@@ -43,7 +43,7 @@ const PHASES: EvolutionPhase[] = [
     profile: preset({
       materialType: 'glass',
       gradientMode: 'radial',
-      patternType: 'none',
+      patternType: 'fractal',
       geometryFamily: 'sphere',
       bloomStrength: 0.1,
       chromaShift: 0.0,

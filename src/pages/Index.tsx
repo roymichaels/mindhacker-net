@@ -11,6 +11,7 @@ import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
   OrbCollectionSection,
+  OrbEvolutionSection,
   CityShowcaseSection,
   TraitShowcaseSection,
   PlanCinematicSection,
