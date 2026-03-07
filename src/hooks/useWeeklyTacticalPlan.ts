@@ -255,7 +255,7 @@ function parseAiSchedule(
           difficulty,
           scheduledDay: absDay,
           calendarDate: date,
-          focusArea: block.category || null,
+          focusArea: (m.milestone_id && milestoneFocusMap[m.milestone_id]) || m.focus_area || null,
           missionId: null,
           startTime: block.start_time || null,
           endTime: block.end_time || null,
