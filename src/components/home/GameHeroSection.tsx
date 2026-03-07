@@ -1,90 +1,51 @@
 /**
- * GameHeroSection — Cinematic minimal hero for NFT game landing
- * Uses CSS orb to avoid WebGL context exhaustion
+ * GameHeroSection — Cinematic hero with auto-sliding orb carousel
  */
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap } from 'lucide-react';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
+import { ORB_PRESETS } from '@/lib/orbPresets';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-/** Premium CSS-only orb with multi-layer glow and morphing animation */
-function HeroOrb() {
-  return (
-    <div className="relative w-[220px] h-[220px] md:w-[300px] md:h-[300px]">
-      {/* Deep outer glow */}
-      <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_65%)] blur-3xl" />
-      {/* Mid glow ring */}
-      <motion.div
-        className="absolute inset-[-15%] rounded-full"
-        style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.15), transparent 70%)' }}
-        animate={{ scale: [1, 1.08, 1], opacity: [0.6, 1, 0.6] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      {/* Main orb body with layered gradients */}
-      <motion.div
-        className="absolute inset-0 rounded-full overflow-hidden"
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-        style={{
-          background: `
-            radial-gradient(circle at 30% 30%, hsl(var(--accent) / 0.95) 0%, transparent 55%),
-            radial-gradient(circle at 70% 70%, hsl(var(--primary) / 0.85) 0%, transparent 50%),
-            radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.7) 0%, hsl(var(--accent) / 0.4) 80%)
-          `,
-          boxShadow: `
-            inset 0 0 80px hsl(var(--primary) / 0.35),
-            inset 0 -30px 60px hsl(var(--accent) / 0.2),
-            0 0 60px hsl(var(--primary) / 0.25),
-            0 0 120px hsl(var(--primary) / 0.1)
-          `,
-        }}
-      >
-        {/* Surface texture overlay */}
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          animate={{ rotate: [0, -360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{
-            background: `
-              radial-gradient(circle at 25% 25%, rgba(255,255,255,0.25) 0%, transparent 40%),
-              radial-gradient(circle at 75% 35%, rgba(255,255,255,0.1) 0%, transparent 30%),
-              radial-gradient(circle at 40% 80%, hsl(var(--accent) / 0.3) 0%, transparent 40%)
-            `,
-          }}
-        />
-      </motion.div>
-      {/* Specular highlight */}
-      <div
-        className="absolute inset-[10%] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 40%, transparent 65%)',
-        }}
-      />
-      {/* Shimmer sweep */}
-      <motion.div
-        className="absolute inset-0 rounded-full pointer-events-none overflow-hidden"
-        style={{
-          background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.12) 48%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 52%, transparent 70%)',
-        }}
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-      />
-      {/* Breathing pulse */}
-      <motion.div
-        className="absolute inset-0 rounded-full"
-        style={{ boxShadow: '0 0 40px hsl(var(--primary) / 0.3)' }}
-        animate={{ scale: [1, 1.03, 1], opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </div>
-  );
-}
+const AUTO_SLIDE_INTERVAL = 3000;
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const { openWelcomeGate } = useWelcomeGate();
+  const isMobile = useIsMobile();
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const total = ORB_PRESETS.length;
+  const visibleCount = isMobile ? 3 : 5;
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % total);
+    }, AUTO_SLIDE_INTERVAL);
+  }, [total]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [resetTimer]);
+
+  const goTo = (idx: number) => {
+    setActiveIndex(((idx % total) + total) % total);
+    resetTimer();
+  };
+
+  const visibleIndices: number[] = [];
+  const half = Math.floor(visibleCount / 2);
+  for (let i = -half; i <= half; i++) {
+    visibleIndices.push(((activeIndex + i) % total + total) % total);
+  }
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -112,8 +73,8 @@ export default function GameHeroSection() {
         />
       ))}
 
-      <div className="relative z-10 container mx-auto max-w-4xl px-4 pt-4 pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="text-center space-y-8">
+      <div className="relative z-10 container mx-auto max-w-5xl px-4 pt-4 pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="text-center space-y-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -139,13 +100,63 @@ export default function GameHeroSection() {
             </span>
           </motion.h1>
 
+          {/* Orb Carousel */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="flex justify-center"
           >
-            <HeroOrb />
+            <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[180px] sm:min-h-[240px]">
+              {visibleIndices.map((presetIdx, slotIdx) => {
+                const preset = ORB_PRESETS[presetIdx];
+                const distFromCenter = slotIdx - half;
+                const isCenter = distFromCenter === 0;
+                const scale = isCenter ? 1 : 0.7 - Math.abs(distFromCenter) * 0.08;
+                const opacity = isCenter ? 1 : 0.5 - Math.abs(distFromCenter) * 0.1;
+                const orbSize = isMobile ? (isCenter ? 140 : 80) : (isCenter ? 200 : 110);
+
+                return (
+                  <motion.div
+                    key={preset.id}
+                    layout
+                    initial={false}
+                    animate={{
+                      scale,
+                      opacity,
+                      zIndex: isCenter ? 10 : 5 - Math.abs(distFromCenter),
+                    }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    onClick={() => goTo(presetIdx)}
+                    className="cursor-pointer flex items-center justify-center"
+                    style={{ width: orbSize, height: orbSize }}
+                  >
+                    <SharedOrbView
+                      profile={preset.profile}
+                      geometryFamily={preset.profile.geometryFamily || 'sphere'}
+                      size={orbSize}
+                      level={100}
+                      randomShapeCount
+                    />
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Dot indicators */}
+            <div className="flex items-center justify-center gap-1.5 mt-4">
+              {ORB_PRESETS.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goTo(idx)}
+                  className={cn(
+                    'rounded-full transition-all duration-300',
+                    idx === activeIndex
+                      ? 'w-5 h-1.5 bg-primary'
+                      : 'w-1.5 h-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  )}
+                />
+              ))}
+            </div>
           </motion.div>
 
           <motion.div
