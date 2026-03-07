@@ -523,7 +523,9 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                 <div className="mt-4 p-4 rounded-xl bg-muted/50 border">
                   <h4 className="font-bold mb-2">{isHe ? 'דוגמאות' : 'Examples'}</h4>
                   {lesson.content.examples.map((ex: string, i: number) => (
-                    <p key={i} className="text-sm mb-2">{ex}</p>
+                    <p key={i} className="text-sm mb-2">
+                      <ClickableWords text={ex} fullTextFromHere={getTextFromPosition(fullLessonText, ex)} onWordClick={handleWordClick} />
+                    </p>
                   ))}
                 </div>
               )}
