@@ -9,10 +9,10 @@ import { Dumbbell, Brain, TrendingUp, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PILLARS = [
-  { icon: Dumbbell, label: 'Power', color: 'text-red-400' },
-  { icon: Brain, label: 'Mind', color: 'text-indigo-400' },
-  { icon: TrendingUp, label: 'Wealth', color: 'text-emerald-400' },
-  { icon: Heart, label: 'Soul', color: 'text-rose-400' },
+  { icon: Dumbbell, labelEn: 'Power', labelHe: 'כוח', color: 'text-red-400' },
+  { icon: Brain, labelEn: 'Mind', labelHe: 'מוח', color: 'text-indigo-400' },
+  { icon: TrendingUp, labelEn: 'Wealth', labelHe: 'עושר', color: 'text-emerald-400' },
+  { icon: Heart, labelEn: 'Soul', labelHe: 'נשמה', color: 'text-rose-400' },
 ];
 
 export default function PlanCinematicSection() {
