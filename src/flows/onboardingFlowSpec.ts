@@ -1151,6 +1151,162 @@ const onboardingFlowSpec: FlowSpec = {
     },
 
     // ════════════════════════════════════════════
+    // PHASE 4.5 — UNIVERSAL CONSTRAINTS
+    // ════════════════════════════════════════════
+
+    // ─── Step 13.5: Exercise & Body ───
+    {
+      id: 18,
+      title_he: 'אימון וגוף',
+      title_en: 'Exercise & Body',
+      renderer: 'card',
+      miniSteps: [
+        {
+          id: 'exercise_frequency',
+          title_he: 'כמה פעמים בשבוע אתה מתאמן?',
+          title_en: 'How many times per week do you exercise?',
+          inputType: 'single_select',
+          options: [
+            { value: 'never', label_he: 'לא מתאמן', label_en: 'Not exercising', icon: '🚫' },
+            { value: '1_2x', label_he: '1-2 פעמים', label_en: '1-2 times', icon: '🟡' },
+            { value: '3_4x', label_he: '3-4 פעמים', label_en: '3-4 times', icon: '🟢' },
+            { value: '5_6x', label_he: '5-6 פעמים', label_en: '5-6 times', icon: '💪' },
+            { value: 'daily', label_he: 'כל יום', label_en: 'Every day', icon: '🔥' },
+          ],
+          validation: { required: true },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'exercise_frequency' },
+        },
+        {
+          id: 'exercise_types',
+          title_he: 'אילו סוגי אימון אתה עושה? (בחר הכל)',
+          title_en: 'What types of exercise do you do? (select all)',
+          inputType: 'multi_select',
+          options: [
+            { value: 'none', label_he: 'לא מתאמן כרגע', label_en: 'Not training currently', icon: '🚫' },
+            { value: 'strength', label_he: 'אימון כוח / חדר כושר', label_en: 'Strength / gym', icon: '🏋️' },
+            { value: 'cardio', label_he: 'קרדיו (ריצה, אופניים)', label_en: 'Cardio (running, cycling)', icon: '🏃' },
+            { value: 'martial_arts', label_he: 'אומנויות לחימה', label_en: 'Martial arts', icon: '🥊' },
+            { value: 'yoga', label_he: 'יוגה / פילאטיס', label_en: 'Yoga / Pilates', icon: '🧘' },
+            { value: 'swimming', label_he: 'שחייה', label_en: 'Swimming', icon: '🏊' },
+            { value: 'walking', label_he: 'הליכה', label_en: 'Walking', icon: '🚶' },
+            { value: 'sports', label_he: 'ספורט קבוצתי', label_en: 'Team sports', icon: '⚽' },
+            { value: 'calisthenics', label_he: 'קליסטניקס / משקל גוף', label_en: 'Calisthenics / bodyweight', icon: '💪' },
+            { value: 'crossfit', label_he: 'קרוספיט / פונקציונלי', label_en: 'CrossFit / functional', icon: '⚡' },
+          ],
+          validation: { required: true, minSelected: 1 },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'exercise_types' },
+        },
+      ],
+    },
+
+    // ─── Step 13.6: Life Metrics (Income, Friends, Mindfulness) ───
+    {
+      id: 19,
+      title_he: 'מדדי חיים',
+      title_en: 'Life Metrics',
+      renderer: 'card',
+      miniSteps: [
+        {
+          id: 'income_range',
+          title_he: 'טווח הכנסה חודשית (לא חובה, משפר את התוכנית)',
+          title_en: 'Monthly income range (optional, improves plan quality)',
+          inputType: 'single_select',
+          options: [
+            { value: 'prefer_not', label_he: 'מעדיף לא לומר', label_en: 'Prefer not to say', icon: '🤐' },
+            { value: 'under_5k', label_he: 'עד ₪5,000', label_en: 'Under $1,500', icon: '🟢' },
+            { value: '5k_10k', label_he: '₪5,000-10,000', label_en: '$1,500-$3,000', icon: '🟡' },
+            { value: '10k_20k', label_he: '₪10,000-20,000', label_en: '$3,000-$6,000', icon: '🟠' },
+            { value: '20k_40k', label_he: '₪20,000-40,000', label_en: '$6,000-$12,000', icon: '🔶' },
+            { value: '40k_plus', label_he: '₪40,000+', label_en: '$12,000+', icon: '💎' },
+          ],
+          validation: { required: true },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'income_range' },
+        },
+        {
+          id: 'close_friends_count',
+          title_he: 'כמה חברים קרובים יש לך שאתה יכול לסמוך עליהם?',
+          title_en: 'How many close friends can you truly rely on?',
+          inputType: 'single_select',
+          options: [
+            { value: '0', label_he: 'אף אחד', label_en: 'None', icon: '😔' },
+            { value: '1_2', label_he: '1-2', label_en: '1-2', icon: '🙂' },
+            { value: '3_5', label_he: '3-5', label_en: '3-5', icon: '😊' },
+            { value: '6_plus', label_he: '6+', label_en: '6+', icon: '🎉' },
+          ],
+          validation: { required: true },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'close_friends_count' },
+        },
+        {
+          id: 'meditation_experience',
+          title_he: 'מה הניסיון שלך עם מדיטציה / מיינדפולנס?',
+          title_en: 'What is your meditation / mindfulness experience?',
+          inputType: 'single_select',
+          options: [
+            { value: 'never', label_he: 'אף פעם לא ניסיתי', label_en: 'Never tried', icon: '🆕' },
+            { value: 'tried_quit', label_he: 'ניסיתי והפסקתי', label_en: 'Tried and stopped', icon: '🔄' },
+            { value: 'occasional', label_he: 'לפעמים (לא קבוע)', label_en: 'Occasional (not regular)', icon: '🟡' },
+            { value: 'regular', label_he: 'קבוע (2-3 פעמים בשבוע)', label_en: 'Regular (2-3x/week)', icon: '🟢' },
+            { value: 'daily', label_he: 'יומי', label_en: 'Daily practice', icon: '🧘' },
+            { value: 'advanced', label_he: 'מתקדם (ויפאסנה, רטריטים)', label_en: 'Advanced (vipassana, retreats)', icon: '✨' },
+          ],
+          validation: { required: true },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'meditation_experience' },
+        },
+      ],
+    },
+
+    // ─── Step 13.7: Willingness Boundaries ───
+    {
+      id: 20,
+      title_he: 'גבולות נכונות',
+      title_en: 'Willingness Boundaries',
+      renderer: 'card',
+      miniSteps: [
+        {
+          id: 'willing_to_do',
+          title_he: 'מה אתה מוכן לעשות כדי להשתנות? (בחר הכל)',
+          title_en: 'What are you willing to do to change? (select all)',
+          inputType: 'multi_select',
+          options: [
+            { value: 'wake_early', label_he: 'לקום מוקדם', label_en: 'Wake up early', icon: '⏰' },
+            { value: 'strict_diet', label_he: 'תזונה קפדנית', label_en: 'Strict diet', icon: '🥗' },
+            { value: 'daily_exercise', label_he: 'אימון יומי', label_en: 'Daily exercise', icon: '💪' },
+            { value: 'no_alcohol', label_he: 'לוותר על אלכוהול', label_en: 'Give up alcohol', icon: '🚫🍷' },
+            { value: 'no_screens_evening', label_he: 'בלי מסכים בערב', label_en: 'No screens in the evening', icon: '📵' },
+            { value: 'cold_showers', label_he: 'מקלחות קרות', label_en: 'Cold showers', icon: '🥶' },
+            { value: 'therapy', label_he: 'טיפול מקצועי', label_en: 'Professional therapy', icon: '🛋️' },
+            { value: 'meditation', label_he: 'מדיטציה יומית', label_en: 'Daily meditation', icon: '🧘' },
+            { value: 'journaling', label_he: 'כתיבת יומן', label_en: 'Journaling', icon: '📝' },
+            { value: 'social_cut', label_he: 'לצמצם חיי חברה', label_en: 'Reduce social life', icon: '👥' },
+          ],
+          validation: { required: true, minSelected: 1 },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'willing_to_do' },
+        },
+        {
+          id: 'not_willing_to_do',
+          title_he: 'מה אתה לא מוכן לעשות? (בחר הכל)',
+          title_en: 'What are you NOT willing to do? (select all)',
+          prompt_he: 'המערכת תכבד את הגבולות האלה ולא תציע אותם',
+          prompt_en: 'The system will respect these boundaries and never suggest them',
+          inputType: 'multi_select',
+          options: [
+            { value: 'wake_before_6', label_he: 'לקום לפני 6 בבוקר', label_en: 'Wake up before 6am', icon: '⏰' },
+            { value: 'strict_diet', label_he: 'תזונה קפדנית / דיאטה', label_en: 'Strict diet / dieting', icon: '🚫🥗' },
+            { value: 'no_caffeine', label_he: 'לוותר על קפאין', label_en: 'Give up caffeine', icon: '☕' },
+            { value: 'cold_exposure', label_he: 'חשיפה לקור', label_en: 'Cold exposure', icon: '🥶' },
+            { value: 'group_activities', label_he: 'פעילויות קבוצתיות', label_en: 'Group activities', icon: '👥' },
+            { value: 'public_sharing', label_he: 'שיתוף ציבורי / קהילתי', label_en: 'Public / community sharing', icon: '📢' },
+            { value: 'intense_exercise', label_he: 'אימון אינטנסיבי', label_en: 'Intense exercise', icon: '🏋️' },
+            { value: 'no_phone_rules', label_he: 'כללי שימוש בטלפון', label_en: 'Phone usage rules', icon: '📱' },
+            { value: 'nothing_off_limits', label_he: 'הכל בסדר — אני פתוח', label_en: 'Nothing off limits — I\'m open', icon: '✅' },
+          ],
+          validation: { required: true, minSelected: 1 },
+          dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'not_willing_to_do' },
+        },
+      ],
+    },
+
+    // ════════════════════════════════════════════
     // PHASE 5 — TARGET + COMMITMENT
     // ════════════════════════════════════════════
 
