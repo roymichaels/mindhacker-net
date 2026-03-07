@@ -283,12 +283,13 @@ export function HudSidebar() {
             </button>
           ) : (
             <button
-              onClick={handleRecalibrate}
+              onClick={() => canAccessPlanRecalibration ? handleRecalibrate() : showUpgradePrompt(isHe ? 'כיול מחדש' : 'Recalibrate')}
               disabled={recalibrating}
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold disabled:opacity-50"
             >
-              {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : canAccessPlanRecalibration ? <RefreshCw className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               <span>{recalibrating ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') : (isHe ? 'כיול מחדש' : 'Recalibrate')}</span>
+              {!canAccessPlanRecalibration && <span className="text-[10px] opacity-70">Plus+</span>}
             </button>
           )}
         </div>
