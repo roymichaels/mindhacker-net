@@ -299,6 +299,11 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
         transmission={matProps.transmission}
         ior={matProps.ior}
         thickness={matProps.thickness}
+        sheen={matProps.sheen}
+        sheenRoughness={matProps.sheenRoughness}
+        sheenColor={matProps.sheenColor}
+        iridescence={matProps.iridescence}
+        iridescenceIOR={matProps.iridescenceIOR}
       />
     </mesh>
   );
