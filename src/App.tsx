@@ -80,6 +80,10 @@ import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
 const FMBridge = lazy(() => import("./pages/fm/FMBridge"));
+const Freelancer = lazy(() => import("./pages/Freelancer"));
+const Creator = lazy(() => import("./pages/Creator"));
+import FreelancerLayoutWrapper from "./components/freelancer/FreelancerLayoutWrapper";
+import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
@@ -395,6 +399,10 @@ const App = () => (
                           <Route path="/business/journey" element={<BusinessJourney />} />
                           <Route path="/business/journey/:journeyId" element={<BusinessJourney />} />
                           <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
+                          {/* Freelancer */}
+                          <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
+                          {/* Creator */}
+                          <Route path="/creator" element={<CreatorLayoutWrapper />} />
                           {/* Personal Hypnosis */}
                           <Route path="/personal-hypnosis/success" element={<PersonalHypnosisSuccess />} />
                           <Route path="/personal-hypnosis/pending" element={<PersonalHypnosisPending />} />

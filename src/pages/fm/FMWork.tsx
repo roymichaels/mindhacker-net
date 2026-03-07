@@ -59,7 +59,7 @@ const PROFESSIONAL_PATHS = [
     titleHe: 'יוצר תוכן',
     descEn: 'Create courses, content & digital products to monetize your expertise',
     descHe: 'צור קורסים, תוכן ומוצרים דיגיטליים כדי למנף את המומחיות שלך',
-    path: '/coaches',
+    path: '/creator',
     rarity: 'rare',
   },
   {
@@ -69,7 +69,7 @@ const PROFESSIONAL_PATHS = [
     titleHe: 'פרילנסר',
     descEn: 'Find gigs, manage projects & earn MOS tokens for your skills',
     descHe: 'מצא עבודות, נהל פרויקטים והרוויח טוקנים עבור הכישורים שלך',
-    path: '/projects',
+    path: '/freelancer',
     rarity: 'uncommon',
   },
 ] as const;

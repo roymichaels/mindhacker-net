@@ -9253,7 +9253,13 @@ export type Database = {
       use_coupon: { Args: { p_code: string; p_user_id: string }; Returns: Json }
     }
     Enums: {
-      app_role: "admin" | "user" | "practitioner" | "affiliate"
+      app_role:
+        | "admin"
+        | "user"
+        | "practitioner"
+        | "affiliate"
+        | "freelancer"
+        | "creator"
       content_access_level: "free" | "basic" | "premium" | "vip"
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
@@ -9446,7 +9452,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "practitioner", "affiliate"],
+      app_role: [
+        "admin",
+        "user",
+        "practitioner",
+        "affiliate",
+        "freelancer",
+        "creator",
+      ],
       content_access_level: ["free", "basic", "premium", "vip"],
       content_status: ["draft", "published", "archived"],
       content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],
