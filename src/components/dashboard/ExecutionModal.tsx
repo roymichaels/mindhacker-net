@@ -235,7 +235,21 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     playingRef.current = false;
 
     if (tmpl !== 'tts_guided') {
-      setSteps(action.executionSteps || []);
+      const existingSteps = action.executionSteps || [];
+      if (existingSteps.length > 0) {
+        setSteps(existingSteps);
+      } else if (!canAccessAIExecution) {
+        // Free tier: static general checklist instead of AI steps
+        const isHeLang = language === 'he';
+        setSteps([
+          { label: isHeLang ? 'הכן את הסביבה' : 'Prepare your environment', durationSec: 60 },
+          { label: isHeLang ? 'קרא את ההוראות' : 'Review the instructions', durationSec: 60 },
+          { label: isHeLang ? 'בצע את המשימה' : 'Execute the task', durationSec: 180 },
+          { label: isHeLang ? 'סכם ותעד' : 'Summarize & document', durationSec: 60 },
+        ]);
+      } else {
+        setSteps(existingSteps);
+      }
     } else {
       setSteps([]);
     }
