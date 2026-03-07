@@ -1,18 +1,19 @@
 /**
  * OrbEvolutionSection – Showcases the evolution of the Violet Iridescence orb
  * across 5 dramatically different phases from Level 1 → 100.
+ * Each phase shows increasing morph shape count (1→2→3→4→5).
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
-import { Orb } from '@/components/orb/Orb';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sparkles, Zap, Flame, Crown, Star, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { OrbProfile } from '@/components/orb/types';
 import { ORB_PRESETS } from '@/lib/orbPresets';
+import { StandaloneMorphOrb, getShapeCountForLevel } from '@/components/orb/GalleryMorphOrb';
 
 // Get the actual violet-iridescence preset as our Lv100 target
 const VIOLET_PRESET = ORB_PRESETS.find(p => p.id === 'violet-iridescence')!;
@@ -40,8 +41,8 @@ const PHASES: EvolutionPhase[] = [
     subtitleHe: 'הבהוב עמום — פוטנציאל שמחכה להתלקח',
     icon: Star,
     accentHsl: '270 25% 35%',
-    changesEn: ['Simple sphere geometry', 'Flat gray-violet monochrome', 'No glow, no particles', 'Barely visible pulse'],
-    changesHe: ['גיאומטרית כדור פשוטה', 'מונוכרום אפור-סגול שטוח', 'ללא זוהר, ללא חלקיקים', 'פעימה כמעט בלתי נראית'],
+    changesEn: ['Single static shape', 'Flat gray-violet monochrome', 'No glow, no particles', 'Barely visible pulse'],
+    changesHe: ['צורה סטטית אחת', 'מונוכרום אפור-סגול שטוח', 'ללא זוהר, ללא חלקיקים', 'פעימה כמעט בלתי נראית'],
     profile: {
       ...FINAL,
       materialType: 'wire',
@@ -71,12 +72,12 @@ const PHASES: EvolutionPhase[] = [
     level: 25,
     nameEn: 'Bloom',
     nameHe: 'פריחה',
-    subtitleEn: 'First colors emerge from the darkness',
-    subtitleHe: 'צבעים ראשונים צצים מהחשיכה',
+    subtitleEn: 'First colors emerge — 2 shapes morph smoothly',
+    subtitleHe: 'צבעים ראשונים צצים — 2 צורות מתחלפות בחלקות',
     icon: Sparkles,
     accentHsl: '275 50% 45%',
-    changesEn: ['Glass material unlocked', 'Dual-violet gradient appears', 'Soft inner glow begins', 'Icosahedron geometry shift'],
-    changesHe: ['חומר זכוכית נפתח', 'גרדיאנט סגול כפול מופיע', 'זוהר פנימי רך מתחיל', 'מעבר לגיאומטרית איקוסהדרון'],
+    changesEn: ['Morphs between 2 shapes', 'Glass material unlocked', 'Soft inner glow begins', 'Dual-violet gradient appears'],
+    changesHe: ['מתחלף בין 2 צורות', 'חומר זכוכית נפתח', 'זוהר פנימי רך מתחיל', 'גרדיאנט סגול כפול מופיע'],
     profile: {
       ...FINAL,
       materialType: 'glass',
@@ -106,12 +107,12 @@ const PHASES: EvolutionPhase[] = [
     level: 50,
     nameEn: 'Radiance',
     nameHe: 'קרינה',
-    subtitleEn: 'The inner light breaks through the surface',
-    subtitleHe: 'האור הפנימי פורץ דרך המשטח',
+    subtitleEn: 'The inner light breaks through — 3 shape transitions',
+    subtitleHe: 'האור הפנימי פורץ — 3 מעברי צורה',
     icon: Zap,
     accentHsl: '290 65% 55%',
-    changesEn: ['Plasma material with clearcoat', 'Voronoi pattern activated', 'Pink-violet spectrum expands', 'First particles orbit'],
-    changesHe: ['חומר פלזמה עם ציפוי', 'דפוס וורונוי מופעל', 'ספקטרום ורוד-סגול מתרחב', 'חלקיקים ראשונים מקיפים'],
+    changesEn: ['Morphs between 3 shapes', 'Plasma material with clearcoat', 'Pink-violet spectrum expands', 'First particles orbit'],
+    changesHe: ['מתחלף בין 3 צורות', 'חומר פלזמה עם ציפוי', 'ספקטרום ורוד-סגול מתרחב', 'חלקיקים ראשונים מקיפים'],
     profile: {
       ...FINAL,
       materialType: 'plasma',
@@ -141,12 +142,12 @@ const PHASES: EvolutionPhase[] = [
     level: 75,
     nameEn: 'Ascension',
     nameHe: 'עלייה',
-    subtitleEn: 'Power cascades — the orb commands presence',
-    subtitleHe: 'הכוח מתפרץ — הכדור משדר נוכחות',
+    subtitleEn: 'Power cascades — 4 fractal shape shifts',
+    subtitleHe: 'הכוח מתפרץ — 4 מעברי צורה פרקטליים',
     icon: Flame,
     accentHsl: '310 70% 60%',
-    changesEn: ['Iridescent material shimmers', 'Full 5-color cosmic spectrum', 'Intense chroma-shift & bloom', 'Dense particle constellation'],
-    changesHe: ['חומר אופלסנטי מנצנץ', 'ספקטרום קוסמי של 5 צבעים', 'הסטת כרומה וזוהר אינטנסיביים', 'קונסטלציית חלקיקים צפופה'],
+    changesEn: ['Morphs between 4 shapes', 'Iridescent material shimmers', 'Full 5-color cosmic spectrum', 'Dense particle constellation'],
+    changesHe: ['מתחלף בין 4 צורות', 'חומר אופלסנטי מנצנץ', 'ספקטרום קוסמי של 5 צבעים', 'קונסטלציית חלקיקים צפופה'],
     profile: {
       ...FINAL,
       materialType: 'iridescent',
@@ -176,13 +177,12 @@ const PHASES: EvolutionPhase[] = [
     level: 100,
     nameEn: 'Transcendence',
     nameHe: 'התעלות',
-    subtitleEn: 'The orb reaches its ultimate form — a living entity',
-    subtitleHe: 'הכדור מגיע לצורתו הסופית — ישות חיה',
+    subtitleEn: 'The orb reaches its ultimate form — 5 shapes in perpetual flux',
+    subtitleHe: 'הכדור מגיע לצורתו הסופית — 5 צורות בתנועה נצחית',
     icon: Crown,
     accentHsl: '320 80% 65%',
-    changesEn: ['Maximum bloom & chroma-shift', 'Dodecahedron cosmic geometry', 'Full particle aurora halo', 'Living, breathing digital soul'],
-    changesHe: ['זוהר והסטת כרומה מקסימליים', 'גיאומטריית דודקהדרון קוסמית', 'הילת חלקיקים מלאה', 'נשמה דיגיטלית חיה ונושמת'],
-    // Use the ACTUAL violet-iridescence preset for Lv100
+    changesEn: ['Morphs between 5 shapes', 'Maximum bloom & chroma-shift', 'Full particle aurora halo', 'Living, breathing digital soul'],
+    changesHe: ['מתחלף בין 5 צורות', 'זוהר והסטת כרומה מקסימליים', 'הילת חלקיקים מלאה', 'נשמה דיגיטלית חיה ונושמת'],
     profile: {
       ...FINAL,
       particleEnabled: true,
@@ -202,6 +202,7 @@ export default function OrbEvolutionSection() {
   const phase = PHASES[activePhase];
   const Icon = phase.icon;
   const orbSize = isMobile ? 180 : 260;
+  const shapeCount = getShapeCountForLevel(phase.level);
 
   return (
     <section className="relative py-20 md:py-28 overflow-hidden">
@@ -229,8 +230,8 @@ export default function OrbEvolutionSection() {
           </h2>
           <p className="text-muted-foreground mt-3 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
             {isHe
-              ? 'ככל שאתה מתקדם, ה-Orb שלך מתפתח — חומרים, צבעים, חלקיקים וצורות נפתחים עם כל רמה.'
-              : 'As you level up, your Orb evolves — materials, colors, particles and shapes unlock with each milestone.'}
+              ? 'ככל שאתה מתקדם, ה-Orb שלך מתפתח — כל 25 רמות נפתחת צורה נוספת שהאורב מתחלף אליה בחלקות.'
+              : 'As you level up, your Orb evolves — every 25 levels unlocks another shape it smoothly morphs into.'}
           </p>
         </motion.div>
 
@@ -272,7 +273,7 @@ export default function OrbEvolutionSection() {
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="flex flex-col items-center"
           >
-            {/* Orb container */}
+            {/* Orb container — morphing WebGL orb */}
             <div className="relative mb-8">
               {/* Orbit ring */}
               <div
@@ -286,14 +287,30 @@ export default function OrbEvolutionSection() {
                 className="rounded-full overflow-hidden flex items-center justify-center"
                 style={{ width: orbSize, height: orbSize }}
               >
-                <Orb
+                <StandaloneMorphOrb
                   size={orbSize}
-                  state={activePhase >= 3 ? 'breathing' : 'idle'}
                   profile={phase.profile}
-                  showGlow={activePhase >= 2}
-                  renderer="webgl"
+                  geometryFamily={phase.profile.geometryFamily || 'sphere'}
+                  level={phase.level}
                 />
               </div>
+            </div>
+
+            {/* Shape count indicator */}
+            <div className="flex items-center gap-1.5 mb-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'w-2 h-2 rounded-full transition-all duration-500',
+                    i < shapeCount ? 'scale-100' : 'scale-75 bg-muted-foreground/20'
+                  )}
+                  style={i < shapeCount ? { backgroundColor: `hsl(${phase.accentHsl})` } : undefined}
+                />
+              ))}
+              <span className="text-[10px] text-muted-foreground ml-1.5 font-mono">
+                {shapeCount} {shapeCount === 1 ? 'shape' : 'shapes'}
+              </span>
             </div>
 
             {/* Phase info */}
