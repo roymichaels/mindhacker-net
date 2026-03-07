@@ -3,6 +3,7 @@
  * Allows selecting a course + creating new ones.
  */
 import { useState } from 'react';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery } from '@tanstack/react-query';
