@@ -478,7 +478,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                           {gig.description && <p className="text-xs text-muted-foreground line-clamp-2">{gig.description}</p>}
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /><span className="font-semibold text-foreground">{gig.budget_mos} MOS</span></span>
-                            <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{gig.category}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{isHe ? CATEGORY_LABELS[gig.category] || gig.category : gig.category}</span>
                             {isOwner && <span className="px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-medium">{isHe ? 'שלך' : 'Yours'}</span>}
                           </div>
                           {applyingId === gig.id ? (
