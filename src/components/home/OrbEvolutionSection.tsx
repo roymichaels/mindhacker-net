@@ -283,15 +283,23 @@ export default function OrbEvolutionSection() {
                   transform: `scale(${1.15 + activePhase * 0.03})`,
                 }}
               />
-              <div
-                className="rounded-full overflow-hidden flex items-center justify-center"
-                style={{ width: orbSize, height: orbSize }}
-              >
-                <StandaloneMorphOrb
-                  size={orbSize}
-                  profile={phase.profile}
-                  geometryFamily={phase.profile.geometryFamily || 'sphere'}
-                  level={phase.level}
+                <div
+                  className="rounded-full overflow-hidden flex items-center justify-center"
+                  style={{ width: orbSize, height: orbSize }}
+                >
+                  {isMobile ? (
+                    <Orb
+                      profile={phase.profile}
+                      size={orbSize}
+                      renderer="css"
+                      state="breathing"
+                    />
+                  ) : (
+                  <StandaloneMorphOrb
+                    size={orbSize}
+                    profile={phase.profile}
+                    geometryFamily={phase.profile.geometryFamily || 'sphere'}
+                    level={phase.level}
                 />
               </div>
             </div>
