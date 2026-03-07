@@ -119,8 +119,10 @@ const AUTO_SLIDE_INTERVAL = 3000;
 export default function OrbCollectionSection() {
   const { isRTL, language } = useTranslation();
   const { openWelcomeGate } = useWelcomeGate();
+  const navigate = useNavigate();
   const lang = language === 'he' ? 'he' : 'en';
   const NextArrow = isRTL ? ArrowLeft : ArrowRight;
+  const isHe = isRTL;
   const isMobile = useIsMobile();
 
   const [activeIndex, setActiveIndex] = useState(0);
