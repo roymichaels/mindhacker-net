@@ -235,6 +235,7 @@ export default function OrbGalleryPage() {
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
                         size={isMobile ? 220 : 300}
+                        randomShapeCount
                       />
                     </div>
 
