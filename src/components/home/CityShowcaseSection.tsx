@@ -115,12 +115,15 @@ function EconomyPreview() {
   );
 }
 
-function CoachPreview() {
+function CoachPreview({ isRTL }: { isRTL: boolean }) {
   return (
     <div className="flex gap-2 mt-3">
-      {['Find', 'Build'].map((label) => (
-        <div key={label} className="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[10px] font-bold text-foreground/80">
-          {label}
+      {[
+        { en: 'Find', he: 'מצא' },
+        { en: 'Build', he: 'בנה' },
+      ].map((label) => (
+        <div key={label.en} className="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[10px] font-bold text-foreground/80">
+          {isRTL ? label.he : label.en}
         </div>
       ))}
     </div>
