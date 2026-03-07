@@ -58,6 +58,8 @@ const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPendi
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const OrbGalleryPage = lazy(() => import("./pages/OrbGallery"));
@@ -243,6 +245,8 @@ const App = () => (
                         {/* /login and /signup redirect to home (auth is now modal-based) */}
                         <Route path="/signup" element={<Navigate to="/" replace />} />
                         <Route path="/login" element={<Navigate to="/" replace />} />
+                        <Route path="/blog" element={<Blog />} />
+                        <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="/courses" element={<Courses />} />
                         <Route path="/courses/:slug" element={<CourseDetail />} />
                         <Route path="/courses/:slug/watch" element={<CourseWatch />} />

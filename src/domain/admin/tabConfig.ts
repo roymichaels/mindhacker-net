@@ -48,6 +48,7 @@ const ChatAssistant     = lazy(() => import('@/pages/admin/ChatAssistant'));
 const AdminSettings     = lazy(() => import('@/pages/admin/Settings'));
 const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoveragePanel'));
 const AdminFMBounties   = lazy(() => import('@/pages/admin/FMBounties'));
+const AdminBlog         = lazy(() => import('@/pages/admin/Blog'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
@@ -96,6 +97,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     icon: FileText,
     subTabs: [
       { id: 'products', labelHe: 'מוצרים', labelEn: 'Products', component: AdminProducts },
+      { id: 'blog', labelHe: 'בלוג', labelEn: 'Blog', component: AdminBlog },
       { id: 'content-mgmt', labelHe: 'תוכן', labelEn: 'Content', component: Content },
       { id: 'videos', labelHe: 'סרטונים', labelEn: 'Videos', component: Videos },
       { id: 'recordings', labelHe: 'הקלטות', labelEn: 'Recordings', component: Recordings },
