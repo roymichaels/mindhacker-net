@@ -87,6 +87,7 @@ export default function Learn() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
+  const { canAccessCourseCreation, showUpgradePrompt } = useSubscriptionGate();
   const queryClient = useQueryClient();
   const auroraChat = useAuroraChatContextSafe();
 
