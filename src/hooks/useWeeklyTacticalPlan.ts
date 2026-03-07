@@ -108,7 +108,11 @@ const BLOCK_EMOJIS: Record<BlockCategory, string> = {
 // ── Helpers ──
 
 function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  // Use local date to avoid timezone offset issues
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function getPhaseWindow(planStartDate: string, phaseNumber: number) {
@@ -212,12 +216,13 @@ function parseAiSchedule(
     const aiDay = scheduleDays.find((sd: any) => sd.day_number === d + 1) || scheduleDays[d];
     const date = phaseDates[d] || '';
     const absDay = phaseStartDay + d;
+    const isDayToday = date === todayStr;
 
     if (!aiDay || !aiDay.blocks || aiDay.blocks.length === 0) {
       days.push({
         dayIndex: d, label: `יום ${d + 1}`, labelEn: `Day ${d + 1}`,
         date, dayNumber: d + 1, blocks: [], totalActions: 0,
-        completedActions: 0, totalMinutes: 0, isToday: date === todayStr,
+        completedActions: 0, totalMinutes: 0, isToday: isDayToday,
       });
       continue;
     }
@@ -258,8 +263,8 @@ function parseAiSchedule(
           calendarDate: date,
           focusArea: (m.milestone_id && milestoneFocusMap[m.milestone_id]) || m.focus_area || null,
           missionId: null,
-          startTime: block.start_time || null,
-          endTime: block.end_time || null,
+          startTime: null,
+          endTime: null,
           orderIndex: m.order_index ?? mIdx,
         };
         return action;
@@ -274,8 +279,8 @@ function parseAiSchedule(
         estimatedMinutes: block.total_minutes || actions.reduce((s: number, a: TacticalAction) => s + a.estimatedMinutes, 0),
         actions,
         completedCount: actions.filter((a: TacticalAction) => a.completed).length,
-        startTime: block.start_time || null,
-        endTime: block.end_time || null,
+        startTime: null,
+        endTime: null,
       };
     });
 
@@ -289,7 +294,7 @@ function parseAiSchedule(
       totalActions,
       completedActions,
       totalMinutes: aiDay.total_minutes || blocks.reduce((s: number, b: TacticalBlock) => s + b.estimatedMinutes, 0),
-      isToday: date === todayStr,
+      isToday: isDayToday,
     });
   }
 

@@ -82,20 +82,6 @@ function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQu
     executionTemplate: (action.executionTemplate as ExecutionTemplate) || 'step_by_step',
   };
 }
-
-// ── Time helpers ──
-function getCurrentTimeStr(): string {
-  const now = new Date();
-  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-}
-
-function getSlotStatus(startTime: string, endTime: string): ScheduleSlot['status'] {
-  const current = getCurrentTimeStr();
-  if (current >= startTime && current < endTime) return 'active';
-  if (current >= endTime) return 'done';
-  return 'upcoming';
-}
-
 // ── Map block category → TimeBlock ──
 function categoryToTimeBlock(category: string): TimeBlock {
   switch (category) {
@@ -110,14 +96,12 @@ function categoryToTimeBlock(category: string): TimeBlock {
   }
 }
 
-// ── Build schedule slots from today's tactical blocks ──
+// ── Build schedule slots from today's tactical blocks (no times, quarter-based) ──
 function buildScheduleFromTactics(todayPlan: DayPlan | null): ScheduleSlot[] {
   if (!todayPlan || todayPlan.blocks.length === 0) return [];
 
-  return todayPlan.blocks.map(block => {
+  return todayPlan.blocks.map((block, idx) => {
     const timeBlock = categoryToTimeBlock(block.category);
-    const startTime = block.startTime || '09:00';
-    const endTime = block.endTime || '10:00';
 
     const actions: NowQueueItem[] = block.actions.map(action =>
       tacticalToNowItem(action, block.category)
@@ -126,11 +110,11 @@ function buildScheduleFromTactics(todayPlan: DayPlan | null): ScheduleSlot[] {
     return {
       id: block.id,
       timeBlock,
-      startTime,
-      endTime,
+      startTime: '',
+      endTime: '',
       labelKey: `today.${timeBlock}`,
       actions,
-      status: getSlotStatus(startTime, endTime),
+      status: 'upcoming' as const,
     };
   });
 }

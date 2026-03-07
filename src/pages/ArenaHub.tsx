@@ -413,17 +413,6 @@ function DayView({
               onClick={() => toggleBlock(block.id)}
               className="flex items-center gap-3 w-full text-start px-3.5 py-3 group"
             >
-              {/* Time */}
-              {hasAiSchedule && block.startTime && (
-                <div className="flex flex-col items-center shrink-0 w-10">
-                  <span className="text-[11px] font-bold text-foreground/60 tabular-nums">
-                    {block.startTime}
-                  </span>
-                  <span className="text-[8px] text-muted-foreground/40 tabular-nums">
-                    {block.endTime}
-                  </span>
-                </div>
-              )}
 
               {/* Emoji + Icon */}
               <div className={cn(
