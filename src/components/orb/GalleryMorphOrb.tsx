@@ -387,7 +387,7 @@ function OrbLighting() {
       <directionalLight position={[-3, 2, -4]} intensity={0.4} color="#8888ff" />
       <directionalLight position={[0, -3, 2]} intensity={0.2} color="#ff88cc" />
       <pointLight position={[2, 3, 4]} intensity={0.5} color="#ffffff" distance={15} />
-      <Environment preset="city" />
+      <Environment preset="city" background={false} />
     </>
   );
 }
