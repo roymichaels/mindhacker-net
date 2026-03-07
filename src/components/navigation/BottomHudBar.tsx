@@ -23,11 +23,24 @@ export function BottomHudBar() {
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
+  const { movementScore } = useTodayExecution();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [showBalloon, setShowBalloon] = useState(false);
 
   const identityTitle = dashboard.identityTitle;
+
+  // Movement score drives orb glow intensity
+  const orbGlowStyle = useMemo(() => {
+    const pct = Math.min(100, Math.max(0, movementScore));
+    if (pct === 0) return {};
+    const opacity = 0.15 + (pct / 100) * 0.55;
+    const spread = 2 + (pct / 100) * 8;
+    return {
+      boxShadow: `0 0 ${spread}px ${spread / 2}px hsl(var(--primary) / ${opacity})`,
+      borderRadius: '50%',
+    };
+  }, [movementScore]);
 
   // Show balloon after 3s, hide after 8s
   useEffect(() => {
