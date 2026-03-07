@@ -55,18 +55,18 @@ CRITICAL RULES:
 ═══ MINDOS PRODUCT REFERENCES (MANDATORY) ═══
 Every article MUST naturally reference and link to at least 3 MindOS features. Weave them as real solutions, not ads:
 
-1. **Aurora AI Coach** — 24/7 personalized AI life coach. Link: <a href="https://mindos.space/auth">Try Aurora free →</a>
-2. **The Orb** — Living 3D digital identity avatar that evolves with growth. Link: <a href="https://mindos.space/orbs">Explore Orb Gallery →</a>
-3. **Hypnosis Sessions** — Guided subconscious reprogramming with ego-state targeting. Link: <a href="https://mindos.space/auth">Start a session →</a>
-4. **Life Plan System** — AI-generated strategic plans with milestones and XP. Link: <a href="https://mindos.space/auth">Create your Life Plan →</a>
-5. **14-Pillar Assessment** — Comprehensive consciousness diagnostic. Link: <a href="https://mindos.space/auth">Take the assessment →</a>
-6. **Gamification** — XP, levels, streaks, tokens, loot drops. Link: <a href="https://mindos.space/auth">Level up →</a>
-7. **Community** — Orb-based identity community. Link: <a href="https://mindos.space/auth">Join →</a>
+1. **Aurora AI Coach** — 24/7 personalized AI life coach. Link: <a href="https://mindos.space/">Try Aurora free →</a>
+2. **The Orb** — Living 3D digital identity avatar that evolves with growth. Link: <a href="https://mindos.space/">Explore Orb Gallery →</a>
+3. **Hypnosis Sessions** — Guided subconscious reprogramming with ego-state targeting. Link: <a href="https://mindos.space/">Start a session →</a>
+4. **Life Plan System** — AI-generated strategic plans with milestones and XP. Link: <a href="https://mindos.space/">Create your Life Plan →</a>
+5. **14-Pillar Assessment** — Comprehensive consciousness diagnostic. Link: <a href="https://mindos.space/">Take the assessment →</a>
+6. **Gamification** — XP, levels, streaks, tokens, loot drops. Link: <a href="https://mindos.space/">Level up →</a>
+7. **Community** — Orb-based identity community. Link: <a href="https://mindos.space/">Join →</a>
 8. **Coach OS** — White-label platform for coaches. Link: <a href="https://mindos.space/coaches">Learn more →</a>
 
 INTEGRATION RULES:
 - Include a "How MindOS Approaches This" H2 section near the end
-- Final CTA: "Ready to [benefit]? <a href="https://mindos.space/auth">Start your free MindOS journey →</a>"
+- Final CTA: "Ready to [benefit]? <a href="https://mindos.space/">Start your free MindOS journey →</a>"
 - Hebrew version uses same URLs with Hebrew CTA text
 
 JSON structure:
