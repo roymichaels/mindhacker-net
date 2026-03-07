@@ -116,102 +116,136 @@ function noise3D(x: number, y: number, z: number): number {
   );
 }
 
+// ─── Elemental material presets ───
+// Maps materialType to visually dramatic, distinct elemental looks
+
+function getElementalMaterial(profile: OrbProfile) {
+  const primary = hslToColor(profile.primaryColor || '200 50% 50%');
+  const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
+  const mat = profile.materialType || 'glass';
+
+  // Each material type maps to a completely different elemental feel
+  const presets: Record<string, any> = {
+    // METAL → Earth/Rock: heavy, opaque, rough stone with metallic veins
+    metal: {
+      color: primary, emissive: new THREE.Color().setHSL(0.08, 0.6, 0.15),
+      metalness: 0.95, roughness: 0.25,
+      clearcoat: 0.1, clearcoatRoughness: 0.3,
+      emissiveIntensity: 0.05, envMapIntensity: 3.5,
+      transmission: 0, ior: 1.5, thickness: 0,
+      sheen: 0, sheenRoughness: 0, sheenColor: undefined,
+      iridescence: 0, iridescenceIOR: 1.3,
+      opacity: 1, transparent: false,
+      flatShading: true,
+    },
+    // GLASS → Water/Ice: transparent, refractive, cool shimmer
+    glass: {
+      color: primary, emissive: accent.clone().multiplyScalar(0.3),
+      metalness: 0.0, roughness: 0.0,
+      clearcoat: 1.0, clearcoatRoughness: 0.0,
+      emissiveIntensity: 0.03, envMapIntensity: 2.5,
+      transmission: 0.85, ior: 1.33, thickness: 0.8,
+      sheen: 0, sheenRoughness: 0, sheenColor: undefined,
+      iridescence: 0, iridescenceIOR: 1.3,
+      opacity: 1, transparent: true,
+      flatShading: false,
+    },
+    // PLASMA → Fire/Lava: glowing, emissive, hot colors
+    plasma: {
+      color: new THREE.Color().setHSL(0.05, 0.9, 0.3),
+      emissive: primary,
+      metalness: 0.0, roughness: 0.3,
+      clearcoat: 0.4, clearcoatRoughness: 0.1,
+      emissiveIntensity: 1.2, envMapIntensity: 0.5,
+      transmission: 0, ior: 1.5, thickness: 0,
+      sheen: 0, sheenRoughness: 0, sheenColor: undefined,
+      iridescence: 0.2, iridescenceIOR: 1.5,
+      opacity: 1, transparent: false,
+      flatShading: true,
+    },
+    // IRIDESCENT → Ether/Spirit: rainbow shifting, otherworldly
+    iridescent: {
+      color: primary, emissive: accent,
+      metalness: 0.3, roughness: 0.0,
+      clearcoat: 1.0, clearcoatRoughness: 0.0,
+      emissiveIntensity: 0.15, envMapIntensity: 2.0,
+      transmission: 0.2, ior: 2.2, thickness: 0.3,
+      sheen: 1.0, sheenRoughness: 0.1, sheenColor: accent,
+      iridescence: 1.0, iridescenceIOR: 2.3,
+      opacity: 0.88, transparent: true,
+      flatShading: false,
+    },
+    // WIRE → Air/Wind: ghostly, semi-transparent, diffuse glow
+    wire: {
+      color: primary.clone().multiplyScalar(1.5),
+      emissive: accent,
+      metalness: 0.0, roughness: 0.9,
+      clearcoat: 0.0, clearcoatRoughness: 0.8,
+      emissiveIntensity: 0.3, envMapIntensity: 0.3,
+      transmission: 0, ior: 1.0, thickness: 0,
+      sheen: 0.8, sheenRoughness: 0.4, sheenColor: primary,
+      iridescence: 0, iridescenceIOR: 1.3,
+      opacity: 0.55, transparent: true,
+      flatShading: true,
+    },
+  };
+
+  return presets[mat] || presets.glass;
+}
+
 // ─── Morphing Mesh ───
 
 interface MorphOrbMeshProps {
   profile: OrbProfile;
   geometryFamily?: string;
   level?: number;
+  /** For gallery: override shape count with random 1-5 */
+  randomShapeCount?: boolean;
 }
 
-export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }: MorphOrbMeshProps) {
+export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, randomShapeCount = false }: MorphOrbMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const shapes = useMemo(
-    () => getShapesForLevel(geometryFamily, level),
-    [geometryFamily, level]
-  );
+  const matRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
-  const { geometry, shapeArrays, basePositions } = useMemo(() => {
-    const geo = new THREE.IcosahedronGeometry(1, 4); // Higher detail for smoother look
+  // Stable random seed per instance for consistent randomness
+  const instanceSeed = useRef(Math.random());
+
+  const shapes = useMemo(() => {
+    if (randomShapeCount) {
+      // Random 1-5 shapes per gallery orb
+      const all = ALL_SHAPES[geometryFamily] || ALL_SHAPES.sphere;
+      const count = Math.floor(instanceSeed.current * 5) + 1; // 1-5
+      // Shuffle based on seed
+      const shuffled = [...all].sort((a, b) => {
+        const ha = a.charCodeAt(0) * instanceSeed.current;
+        const hb = b.charCodeAt(0) * instanceSeed.current;
+        return ha - hb;
+      });
+      return shuffled.slice(0, count);
+    }
+    return getShapesForLevel(geometryFamily, level);
+  }, [geometryFamily, level, randomShapeCount]);
+
+  const { geometry, shapeArrays } = useMemo(() => {
+    const geo = new THREE.IcosahedronGeometry(1, 4);
     const base = (geo.attributes.position.array as Float32Array).slice();
     const arrays = shapes.map(s => computeShapePositions(base, s, 1));
     return { geometry: geo, shapeArrays: arrays, basePositions: base };
   }, [shapes]);
 
-  const matProps = useMemo(() => {
-    const primary = hslToColor(profile.primaryColor || '200 50% 50%');
-    const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
-    const mat = profile.materialType || 'glass';
-    const mp = profile.materialParams;
+  const matProps = useMemo(() => getElementalMaterial(profile), [profile]);
 
-    // Base: use per-profile materialParams but enforce strong type differentiation
-    switch (mat) {
-      case 'metal':
-        return {
-          color: primary, emissive: accent,
-          metalness: 0.9, roughness: mp?.roughness ?? 0.15,
-          clearcoat: 0.2, clearcoatRoughness: 0.05,
-          emissiveIntensity: 0.08, envMapIntensity: 3.0,
-          transmission: 0, ior: 1.5, thickness: 0,
-          sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-          iridescence: 0, iridescenceIOR: 1.3,
-          opacity: 1, transparent: false,
-        };
-      case 'iridescent':
-        return {
-          color: primary, emissive: accent,
-          metalness: 0.15, roughness: 0.05,
-          clearcoat: 1.0, clearcoatRoughness: 0.02,
-          emissiveIntensity: mp?.emissiveIntensity ?? 0.2, envMapIntensity: 2.2,
-          transmission: 0, ior: 2.0, thickness: 0,
-          sheen: 1.0, sheenRoughness: 0.15, sheenColor: accent,
-          iridescence: 1.0, iridescenceIOR: 2.0,
-          opacity: 0.92, transparent: true,
-        };
-      case 'plasma':
-        return {
-          color: primary, emissive: accent,
-          metalness: 0.0, roughness: 0.0,
-          clearcoat: 0.6, clearcoatRoughness: 0.0,
-          emissiveIntensity: 0.8, envMapIntensity: 0.8,
-          transmission: 0, ior: 1.5, thickness: 0,
-          sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-          iridescence: 0.4, iridescenceIOR: 1.6,
-          opacity: 0.85, transparent: true,
-        };
-      case 'wire':
-        return {
-          color: primary, emissive: accent,
-          metalness: 0.4, roughness: 0.7,
-          clearcoat: 0.0, clearcoatRoughness: 0.5,
-          emissiveIntensity: 0.03, envMapIntensity: 0.8,
-          transmission: 0, ior: 1.5, thickness: 0,
-          sheen: 0.6, sheenRoughness: 0.9, sheenColor: primary,
-          iridescence: 0, iridescenceIOR: 1.3,
-          opacity: 0.7, transparent: true,
-        };
-      case 'glass':
-      default:
-        return {
-          color: primary, emissive: accent,
-          metalness: 0.0, roughness: 0.02,
-          clearcoat: 1.0, clearcoatRoughness: 0.01,
-          emissiveIntensity: 0.05, envMapIntensity: 2.0,
-          transmission: 0.7, ior: 1.45, thickness: 0.5,
-          sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-          iridescence: 0, iridescenceIOR: 1.3,
-          opacity: 1, transparent: true,
-        };
-    }
-  }, [profile]);
-
-  // Use multiple random seeds for organic variation
+  // Multiple random seeds for chaotic organic variation
   const stateRef = useRef({
-    timer: Math.random() * 100,
+    timer: Math.random() * 200,
     seed1: Math.random() * 100,
     seed2: Math.random() * 100,
     seed3: Math.random() * 100,
+    seed4: Math.random() * 100,
+    seed5: Math.random() * 100,
   });
+
+  const mat = profile.materialType || 'glass';
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
@@ -224,35 +258,36 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
     const vertCount = arr.length / 3;
 
     if (shapes.length <= 1) {
-      // Single shape with organic breathing displacement
+      // Single shape with organic breathing
       const from = shapeArrays[0];
       for (let vi = 0; vi < vertCount; vi++) {
         const i3 = vi * 3;
         const bx = from[i3], by = from[i3 + 1], bz = from[i3 + 2];
-        // Organic displacement
-        const n = noise3D(bx * 2 + t * 0.4 + st.seed1, by * 2 + t * 0.35, bz * 2 + t * 0.3);
-        const disp = 0.04 + 0.03 * Math.sin(t * 0.7 + vi * 0.02);
-        arr[i3]     = bx + bx * n * disp;
-        arr[i3 + 1] = by + by * n * disp;
-        arr[i3 + 2] = bz + bz * n * disp;
+        const n = noise3D(bx * 2 + t * 0.3 + st.seed1, by * 2 + t * 0.25, bz * 2 + t * 0.2);
+        const disp = 0.05 + 0.04 * Math.sin(t * 0.5 + vi * 0.03);
+        const s = 0.82;
+        arr[i3]     = (bx + bx * n * disp) * s;
+        arr[i3 + 1] = (by + by * n * disp) * s;
+        arr[i3 + 2] = (bz + bz * n * disp) * s;
       }
     } else {
-      // Continuous morphing with randomized multi-shape blending
-      const morphSpeed = 1.4;
+      // Fast morph, chaotic multi-shape blending
+      const morphSpeed = 2.2; // faster morph
       const totalShapes = shapes.length;
 
-      // Blend between ALL shapes using multiple overlapping sine waves for randomness
       for (let vi = 0; vi < vertCount; vi++) {
         const i3 = vi * 3;
         let bx = 0, by = 0, bz = 0;
         let totalWeight = 0;
 
         for (let si = 0; si < totalShapes; si++) {
-          // Each shape gets a unique oscillating weight using offset sines
-          const phase = st.seed1 + si * 2.39996; // golden-angle-ish offset
+          // Multiple overlapping waves with different frequencies for chaos
+          const phase = st.seed1 + si * 2.39996;
           const w = Math.max(0,
-            Math.sin(t * morphSpeed + phase) * 0.5 + 0.3 +
-            Math.sin(t * morphSpeed * 0.7 + phase * 1.3 + st.seed2) * 0.2
+            Math.sin(t * morphSpeed + phase) * 0.4 +
+            Math.sin(t * morphSpeed * 1.3 + phase * 0.7 + st.seed2) * 0.25 +
+            Math.sin(t * morphSpeed * 0.5 + phase * 2.1 + st.seed3) * 0.15 +
+            Math.cos(t * morphSpeed * 0.8 + si * st.seed4 * 0.3) * 0.2
           );
           bx += shapeArrays[si][i3] * w;
           by += shapeArrays[si][i3 + 1] * w;
@@ -266,16 +301,15 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
           bz /= totalWeight;
         }
 
-        // Subtle organic noise — small displacement to avoid clipping
+        // More aggressive organic displacement
         const n = noise3D(
-          bx * 2.5 + t * 0.4 + st.seed1,
-          by * 2.5 + t * 0.35 + st.seed2,
-          bz * 2.5 + t * 0.3 + st.seed3
+          bx * 3 + t * 0.5 + st.seed1,
+          by * 3 + t * 0.4 + st.seed2,
+          bz * 3 + t * 0.35 + st.seed3
         );
-        const disp = 0.02 + 0.015 * Math.sin(t * 0.6 + vi * 0.02);
+        const disp = 0.035 + 0.025 * Math.sin(t * 0.8 + vi * 0.03 + st.seed4);
 
-        // Scale down to 0.85 to prevent clipping
-        const s = 0.85;
+        const s = 0.82;
         arr[i3]     = (bx + bx * n * disp) * s;
         arr[i3 + 1] = (by + by * n * disp) * s;
         arr[i3 + 2] = (bz + bz * n * disp) * s;
@@ -285,15 +319,22 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
     positions.needsUpdate = true;
     meshRef.current.geometry.computeVertexNormals();
 
-    // Gentle organic rotation
-    meshRef.current.rotation.y += delta * 0.3;
-    meshRef.current.rotation.x = Math.sin(t * 0.2 + st.seed1) * 0.15;
-    meshRef.current.rotation.z = Math.sin(t * 0.15 + st.seed2) * 0.08;
+    // Slower, more random rotation
+    meshRef.current.rotation.y += delta * 0.12;
+    meshRef.current.rotation.x = Math.sin(t * 0.13 + st.seed1) * 0.2 + Math.sin(t * 0.07 + st.seed3) * 0.1;
+    meshRef.current.rotation.z = Math.cos(t * 0.09 + st.seed2) * 0.12 + Math.sin(t * 0.17 + st.seed5) * 0.08;
+
+    // Animate emissive for fire/plasma types
+    if (mat === 'plasma' && matRef.current) {
+      const flicker = 0.8 + Math.sin(t * 3 + st.seed1) * 0.3 + Math.sin(t * 7 + st.seed2) * 0.15;
+      matRef.current.emissiveIntensity = flicker;
+    }
   });
 
   return (
     <mesh ref={meshRef} geometry={geometry}>
       <meshPhysicalMaterial
+        ref={matRef}
         color={matProps.color}
         metalness={matProps.metalness}
         roughness={matProps.roughness}
@@ -312,6 +353,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
         iridescenceIOR={matProps.iridescenceIOR}
         opacity={matProps.opacity}
         transparent={matProps.transparent}
+        flatShading={matProps.flatShading}
       />
     </mesh>
   );
