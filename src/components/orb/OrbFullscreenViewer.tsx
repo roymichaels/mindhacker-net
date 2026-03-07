@@ -57,14 +57,15 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
           onClick={onClose}
         >
           <button
-            className="absolute top-6 right-6 z-10 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
-            onClick={onClose}
+            className="absolute top-6 right-6 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors backdrop-blur-sm border border-white/10"
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            aria-label="Close fullscreen"
           >
-            <X className="w-6 h-6" />
+            <X className="w-7 h-7" />
           </button>
 
           <motion.div
-            className="relative"
+            className="flex items-center justify-center"
             initial={{ scale: 0.3, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.3, opacity: 0 }}
@@ -95,7 +96,7 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            Click anywhere to close
+            Click anywhere or press ESC to close
           </motion.p>
         </motion.div>
       )}
