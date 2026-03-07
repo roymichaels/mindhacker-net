@@ -27,7 +27,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ReactMarkdown from 'react-markdown';
 import { useLessonTTS } from '@/hooks/learn/useLessonTTS';
-import { ClickableWords } from '@/components/learn/ClickableWords';
 
 interface Lesson {
   id: string;
@@ -45,28 +44,31 @@ interface Lesson {
   curriculum_id: string;
 }
 
-/** Extract plain text from React children (handles nested elements) */
-function extractTextFromChildren(children: any): string {
-  if (typeof children === 'string') return children;
-  if (typeof children === 'number') return String(children);
-  if (!children) return '';
-  if (Array.isArray(children)) {
-    return children.map(extractTextFromChildren).join('');
+/**
+ * Extract visible text from a DOM element and all following siblings/parent-siblings.
+ * Used to get "text from clicked word to end of content area".
+ */
+function getTextFromElementForward(el: HTMLElement, contentRoot: HTMLElement): string {
+  const parts: string[] = [];
+  let started = false;
+  
+  const walker = document.createTreeWalker(contentRoot, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const textNode = walker.currentNode as Text;
+    if (!started) {
+      if (textNode.parentElement === el || el.contains(textNode)) {
+        started = true;
+        parts.push(textNode.textContent || '');
+      }
+      continue;
+    }
+    // Skip buttons, inputs, badges
+    const parent = textNode.parentElement;
+    if (parent?.closest('button, input, textarea, [role="radiogroup"]')) continue;
+    parts.push(textNode.textContent || '');
   }
-  if (children?.props?.children) {
-    return extractTextFromChildren(children.props.children);
-  }
-  return '';
-}
-
-/** Find text in the full lesson and return from that position to the end */
-function getTextFromPosition(fullText: string, fragment: string): string {
-  if (!fragment || !fullText) return fullText;
-  const clean = fragment.replace(/[*#`_~\[\]()]/g, '').trim();
-  const first30 = clean.substring(0, 30);
-  const idx = fullText.indexOf(first30);
-  if (idx >= 0) return fullText.substring(idx);
-  return fullText;
+  
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 
 interface Props {
@@ -90,126 +92,30 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  /** Build the full plain text of the lesson for "read from here" offset calculation */
-  const fullLessonText = useMemo(() => {
-    const parts: string[] = [];
-    if (lesson.lesson_type === 'theory') {
-      if (lesson.content?.body) parts.push(lesson.content.body);
-      if (lesson.content?.key_concepts?.length) parts.push(lesson.content.key_concepts.join('. '));
-      if (lesson.content?.examples?.length) parts.push(lesson.content.examples.join('. '));
-    } else if (lesson.lesson_type === 'practice') {
-      if (lesson.content?.instructions) parts.push(lesson.content.instructions);
-      lesson.content?.exercises?.forEach((ex: any) => {
-        if (ex.title) parts.push(ex.title);
-        if (ex.description) parts.push(ex.description);
-      });
-    } else if (lesson.lesson_type === 'quiz') {
-      lesson.content?.questions?.forEach((q: any) => {
-        parts.push(q.q);
-        if (q.options) parts.push(q.options.join('. '));
-      });
-    } else if (lesson.lesson_type === 'project') {
-      if (lesson.content?.brief) parts.push(lesson.content.brief);
-      if (lesson.content?.requirements?.length) parts.push(lesson.content.requirements.join('. '));
+  /**
+   * Container-level click handler: when a user clicks on text inside the lesson content,
+   * we extract all visible text from the clicked word forward and send it to TTS.
+   */
+  const handleContentClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    
+    // Don't trigger on buttons, inputs, links, or interactive elements
+    if (target.closest('button, input, textarea, a, [role="radiogroup"], label')) return;
+    // Only trigger on text-containing elements
+    if (!target.textContent?.trim()) return;
+
+    const contentRoot = contentRef.current;
+    if (!contentRoot) return;
+
+    // Get the text from this element forward through the content
+    const textForward = getTextFromElementForward(target, contentRoot);
+    if (textForward.length > 5) {
+      console.log('[TTS] Click-to-read from word, text length:', textForward.length);
+      tts.playText(textForward);
     }
-    return parts.join('\n\n');
-  }, [lesson]);
-
-  /** Handle word click — play from that word to the end */
-  const handleWordClick = useCallback((textFromWord: string) => {
-    tts.playText(textFromWord);
   }, [tts]);
-
-  /** Custom ReactMarkdown components that make words clickable */
-  const markdownComponents = useMemo(() => ({
-    p: ({ children, ...props }: any) => {
-      const text = extractTextFromChildren(children);
-      return (
-        <p {...props}>
-          <ClickableWords
-            text={text}
-            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
-            onWordClick={handleWordClick}
-            isPlaying={tts.isPlaying}
-          />
-        </p>
-      );
-    },
-    li: ({ children, ...props }: any) => {
-      const text = extractTextFromChildren(children);
-      return (
-        <li {...props}>
-          <ClickableWords
-            text={text}
-            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
-            onWordClick={handleWordClick}
-            isPlaying={tts.isPlaying}
-          />
-        </li>
-      );
-    },
-    h1: ({ children, ...props }: any) => {
-      const text = extractTextFromChildren(children);
-      return (
-        <h1 {...props}>
-          <ClickableWords
-            text={text}
-            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
-            onWordClick={handleWordClick}
-            isPlaying={tts.isPlaying}
-          />
-        </h1>
-      );
-    },
-    h2: ({ children, ...props }: any) => {
-      const text = extractTextFromChildren(children);
-      return (
-        <h2 {...props}>
-          <ClickableWords
-            text={text}
-            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
-            onWordClick={handleWordClick}
-            isPlaying={tts.isPlaying}
-          />
-        </h2>
-      );
-    },
-    h3: ({ children, ...props }: any) => {
-      const text = extractTextFromChildren(children);
-      return (
-        <h3 {...props}>
-          <ClickableWords
-            text={text}
-            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
-            onWordClick={handleWordClick}
-            isPlaying={tts.isPlaying}
-          />
-        </h3>
-      );
-    },
-    h4: ({ children, ...props }: any) => {
-      const text = extractTextFromChildren(children);
-      return (
-        <h4 {...props}>
-          <ClickableWords
-            text={text}
-            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
-            onWordClick={handleWordClick}
-            isPlaying={tts.isPlaying}
-          />
-        </h4>
-      );
-    },
-    strong: ({ children }: any) => {
-      const text = extractTextFromChildren(children);
-      return <strong>{text}</strong>;
-    },
-    em: ({ children }: any) => {
-      const text = extractTextFromChildren(children);
-      return <em>{text}</em>;
-    },
-  }), [fullLessonText, handleWordClick, tts.isPlaying]);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -499,21 +405,19 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       </div>
 
       {/* Content */}
-      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-6 py-4">
+      <div ref={(el) => { (scrollRef as any).current = el; (contentRef as any).current = el; }} onScroll={handleScroll} onClick={handleContentClick} className="flex-1 overflow-y-auto px-6 py-4 [&_p:hover]:bg-primary/5 [&_li:hover]:bg-primary/5 [&_h1:hover]:bg-primary/5 [&_h2:hover]:bg-primary/5 [&_h3:hover]:bg-primary/5 [&_h4:hover]:bg-primary/5 [&_p]:rounded [&_li]:rounded [&_h1]:rounded [&_h2]:rounded [&_h3]:rounded [&_h4]:rounded [&_p]:transition-colors [&_li]:transition-colors [&_p]:cursor-pointer [&_li]:cursor-pointer [&_h1]:cursor-pointer [&_h2]:cursor-pointer [&_h3]:cursor-pointer [&_h4]:cursor-pointer">
         <div className="max-w-2xl mx-auto space-y-6 text-start">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
            <div className="prose prose-sm dark:prose-invert max-w-none [direction:inherit] [&>*]:text-start">
-              <ReactMarkdown components={markdownComponents}>{lesson.content?.body || ''}</ReactMarkdown>
+              <ReactMarkdown>{lesson.content?.body || ''}</ReactMarkdown>
               
               {lesson.content?.key_concepts?.length > 0 && (
                 <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <h4 className="text-primary font-bold mb-2">{isHe ? 'מושגי מפתח' : 'Key Concepts'}</h4>
                   <ul className="space-y-1">
                     {lesson.content.key_concepts.map((c: string, i: number) => (
-                      <li key={i} className="text-sm">
-                        <ClickableWords text={c} fullTextFromHere={getTextFromPosition(fullLessonText, c)} onWordClick={handleWordClick} />
-                      </li>
+                      <li key={i} className="text-sm">{c}</li>
                     ))}
                   </ul>
                 </div>
@@ -523,9 +427,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                 <div className="mt-4 p-4 rounded-xl bg-muted/50 border">
                   <h4 className="font-bold mb-2">{isHe ? 'דוגמאות' : 'Examples'}</h4>
                   {lesson.content.examples.map((ex: string, i: number) => (
-                    <p key={i} className="text-sm mb-2">
-                      <ClickableWords text={ex} fullTextFromHere={getTextFromPosition(fullLessonText, ex)} onWordClick={handleWordClick} />
-                    </p>
+                    <p key={i} className="text-sm mb-2">{ex}</p>
                   ))}
                 </div>
               )}
@@ -536,7 +438,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
           {lesson.lesson_type === 'practice' && (
             <div className="space-y-5 text-start">
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown components={markdownComponents}>{lesson.content?.instructions || ''}</ReactMarkdown>
+                <ReactMarkdown>{lesson.content?.instructions || ''}</ReactMarkdown>
               </div>
 
               {/* Plan integration summary */}
@@ -616,9 +518,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                   <div key={qi} className={`p-4 rounded-xl border space-y-3 ${
                     fb ? (fb.correct ? 'border-green-500/40 bg-green-500/5' : 'border-red-500/40 bg-red-500/5') : 'bg-card'
                   }`}>
-                    <p className="font-medium text-sm">
-                      {qi + 1}. <ClickableWords text={q.q} fullTextFromHere={getTextFromPosition(fullLessonText, q.q)} onWordClick={handleWordClick} />
-                    </p>
+                    <p className="font-medium text-sm">{qi + 1}. {q.q}</p>
                     <RadioGroup
                       value={quizAnswers[qi]?.toString()}
                       onValueChange={val => setQuizAnswers(prev => ({ ...prev, [qi]: parseInt(val) }))}
@@ -658,9 +558,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                   <Trophy className="h-4 w-4 text-accent-foreground" />
                   {isHe ? 'תיאור הפרויקט' : 'Project Brief'}
                 </h4>
-                <p className="text-sm">
-                  <ClickableWords text={lesson.content?.brief || ''} fullTextFromHere={getTextFromPosition(fullLessonText, lesson.content?.brief || '')} onWordClick={handleWordClick} />
-                </p>
+                <p className="text-sm">{lesson.content?.brief}</p>
               </div>
 
               {lesson.content?.requirements?.length > 0 && (
