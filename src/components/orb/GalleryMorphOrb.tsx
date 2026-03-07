@@ -254,6 +254,9 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
         emissive={matProps.emissive}
         emissiveIntensity={matProps.emissiveIntensity}
         envMapIntensity={matProps.envMapIntensity}
+        transmission={matProps.transmission}
+        ior={matProps.ior}
+        thickness={matProps.thickness}
       />
     </mesh>
   );
