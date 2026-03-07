@@ -19,6 +19,7 @@ interface AuroraChatAreaProps {
 const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
+  const { isPlus } = useSubscriptionGate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { registerSendMessage, setIsStreaming, pendingProactiveMessage, setPendingProactiveMessage } = useAuroraChatContext();
   const proactiveHandled = useRef(false);
