@@ -234,8 +234,44 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 </div>
 
-                {/* Journey blocks — all equal, no graying */}
-                {schedule.map((slot, idx) => {
+                {/* Journey blocks grouped by 4 Day Quarters */}
+                {(() => {
+                  // Group schedule slots by quarter
+                  const quarterOrder = ['q1_morning', 'q2_midday', 'q3_afternoon', 'q4_evening'] as const;
+                  const grouped = new Map<string, typeof schedule>();
+                  for (const q of quarterOrder) grouped.set(q, []);
+                  for (const slot of schedule) {
+                    const q = QUARTER_MAP[slot.timeBlock] || 'q2_midday';
+                    grouped.get(q)!.push(slot);
+                  }
+                  let globalIdx = 0;
+                  return quarterOrder.map(qKey => {
+                    const slots = grouped.get(qKey)!;
+                    if (slots.length === 0) return null;
+                    const meta = QUARTER_META[qKey];
+                    const qName = quarterQuestNames[qKey];
+                    return (
+                      <div key={qKey} className="space-y-2">
+                        {/* Quarter header */}
+                        <div className="flex items-center gap-2 px-1 pt-2">
+                          <span className="text-base">{meta.emoji}</span>
+                          <span className="text-[11px] font-bold text-foreground/80">
+                            {isHe ? meta.he : meta.en}
+                          </span>
+                          <span className="text-[9px] text-primary/70 font-semibold">
+                            ⚔️ {qName}
+                          </span>
+                          <span className="flex-1 h-px bg-border/30" />
+                          <span className="text-[9px] text-muted-foreground">
+                            {slots.reduce((s, sl) => s + sl.actions.length, 0)} {isHe ? 'משימות' : 'quests'}
+                          </span>
+                        </div>
+                        {slots.map((slot) => {
+                  const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
+                  const open = isBlockOpen(slot.id);
+                  const label = isHe ? theme.he : theme.en;
+                  const idx = globalIdx++;
+
                   const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
                   const open = isBlockOpen(slot.id);
                   const label = isHe ? theme.he : theme.en;
