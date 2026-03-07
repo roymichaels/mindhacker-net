@@ -3,7 +3,7 @@
  * Warm merchant golds, fantasy shop signboard feel.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Target, Briefcase, ArrowLeft, Store, Gem } from 'lucide-react';
+import { Target, Briefcase, ArrowLeft, Store, ShoppingBag } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
