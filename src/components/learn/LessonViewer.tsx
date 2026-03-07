@@ -50,10 +50,6 @@ interface Lesson {
  */
 function getTextFromElementForward(el: HTMLElement, contentRoot: HTMLElement): string {
   const parts: string[] = [];
-  
-  // Get text from the clicked element's textContent from the click point
-  // Walk forward through DOM siblings collecting text
-  let node: Node | null = el;
   let started = false;
   
   const walker = document.createTreeWalker(contentRoot, NodeFilter.SHOW_TEXT);
