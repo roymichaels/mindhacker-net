@@ -27,6 +27,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
   const isTabActive = (tab: typeof FM_TABS[number]) => {
     const p = location.pathname;
     if (tab.id === 'earn') return p.startsWith('/fm/earn');
+    if (tab.id === 'market') return p.startsWith('/fm/market');
     if (tab.id === 'work') return p.startsWith('/fm/work') || p.startsWith('/coaches') || p.startsWith('/business');
     return false;
   };
