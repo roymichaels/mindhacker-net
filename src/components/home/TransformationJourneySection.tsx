@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { cn } from '@/lib/utils';
 
 const phases = [
