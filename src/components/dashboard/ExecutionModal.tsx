@@ -151,6 +151,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const completeMutation = useCompleteNowAction();
   const isMobile = useIsMobile();
   const { impact, pattern: hapticPattern } = useHaptics();
+  const { canAccessAIExecution } = useSubscriptionGate();
 
   const [template, setTemplate] = useState<ExecutionTemplate>('step_by_step');
   const [steps, setSteps] = useState<ExecutionStep[]>([]);
