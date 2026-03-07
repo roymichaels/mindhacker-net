@@ -34,6 +34,7 @@ const Index = () => {
   const { theme } = useThemeSettings();
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
     if (!loading && user) {
