@@ -341,7 +341,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
       await resend.emails.send({
-        from: "Mind OS <reports@mindos.app>",
+        from: "Mind OS <reports@mindos.space>",
         to: [settingsMap.daily_report_email],
         subject: `📊 Daily Analytics Report - ${reportDate}`,
         html: emailHtml,
