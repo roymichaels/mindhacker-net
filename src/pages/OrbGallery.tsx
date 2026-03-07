@@ -234,7 +234,7 @@ export default function OrbGalleryPage() {
                       <GalleryOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
-                        size={isMobile ? 200 : 280}
+                        size={isMobile ? 300 : 420}
                       />
                     </div>
 
