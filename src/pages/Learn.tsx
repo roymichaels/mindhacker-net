@@ -264,7 +264,7 @@ export default function Learn() {
 
   return (
     <PageShell>
-      <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-24">
+      <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-52">
         {isLoading ? (
           <div className="text-center py-16 text-muted-foreground text-sm">{isHe ? 'טוען...' : 'Loading...'}</div>
         ) : !curricula?.length ? (
