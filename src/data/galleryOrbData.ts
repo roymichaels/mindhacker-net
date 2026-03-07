@@ -724,6 +724,80 @@ export const GALLERY_ORBS: GalleryOrb[] = [
     rarity: 'legendary', traits: { material: 'iridescent', pattern: 'shards', geometry: 'spiky', glow: 'cosmic', particles: true },
     profile: hueProfile(200, 'iridescent', 'shards', 'spiky', 0.96, { particles: true, hueSpread: 55 }),
   },
+
+  // ═══════════ 101-112: New shape showcase ═══════════
+  {
+    id: 'obsidian-cube', nameEn: 'Obsidian Cube', nameHe: 'קוביית אובסידיאן',
+    descEn: 'Perfect order in dark matter', descHe: 'סדר מושלם בחומר אפל',
+    rarity: 'rare', traits: { material: 'metal', pattern: 'shards', geometry: 'cube', glow: 'medium', particles: false },
+    profile: hueProfile(240, 'metal', 'shards', 'cube', 0.6),
+  },
+  {
+    id: 'crystal-pyramid', nameEn: 'Crystal Pyramid', nameHe: 'פירמידת קריסטל',
+    descEn: 'Ancient geometry of power', descHe: 'גיאומטריה עתיקה של כוח',
+    rarity: 'epic', traits: { material: 'glass', pattern: 'fractal', geometry: 'tetra', glow: 'intense', particles: true },
+    profile: hueProfile(50, 'glass', 'fractal', 'tetra', 0.8, { particles: true }),
+  },
+  {
+    id: 'plasma-cone', nameEn: 'Plasma Cone', nameHe: 'חרוט פלזמה',
+    descEn: 'Energy focused to a point', descHe: 'אנרגיה ממוקדת לנקודה',
+    rarity: 'rare', traits: { material: 'plasma', pattern: 'swirl', geometry: 'cone', glow: 'medium', particles: false },
+    profile: hueProfile(300, 'plasma', 'swirl', 'cone', 0.6),
+  },
+  {
+    id: 'iron-cylinder', nameEn: 'Iron Cylinder', nameHe: 'גליל ברזל',
+    descEn: 'Industrial strength, endless rotation', descHe: 'חוזק תעשייתי, סיבוב אינסופי',
+    rarity: 'uncommon', traits: { material: 'metal', pattern: 'strata', geometry: 'cylinder', glow: 'soft', particles: false },
+    profile: hueProfile(20, 'metal', 'strata', 'cylinder', 0.35),
+  },
+  {
+    id: 'bio-capsule', nameEn: 'Bio Capsule', nameHe: 'קפסולה ביולוגית',
+    descEn: 'Life preserved in amber light', descHe: 'חיים שמורים באור ענבר',
+    rarity: 'epic', traits: { material: 'iridescent', pattern: 'cellular', geometry: 'capsule', glow: 'intense', particles: true },
+    profile: hueProfile(90, 'iridescent', 'cellular', 'capsule', 0.78, { particles: true }),
+  },
+  {
+    id: 'eternal-knot', nameEn: 'Eternal Knot', nameHe: 'קשר נצחי',
+    descEn: 'Infinity twisted into form', descHe: 'אינסוף מפותל לצורה',
+    rarity: 'legendary', traits: { material: 'iridescent', pattern: 'swirl', geometry: 'knot', glow: 'cosmic', particles: true },
+    profile: hueProfile(180, 'iridescent', 'swirl', 'knot', 0.95, { particles: true, hueSpread: 50 }),
+  },
+  {
+    id: 'glass-tetra', nameEn: 'Glass Tetra', nameHe: 'טטרה זכוכית',
+    descEn: 'Simplest platonic solid, purest clarity', descHe: 'הגוף הפלטוני הפשוט ביותר',
+    rarity: 'common', traits: { material: 'glass', pattern: 'strata', geometry: 'tetra', glow: 'none', particles: false },
+    profile: hueProfile(195, 'glass', 'strata', 'tetra', 0.15),
+  },
+  {
+    id: 'neon-cube', nameEn: 'Neon Cube', nameHe: 'קוביית ניאון',
+    descEn: 'Digital architecture glowing', descHe: 'ארכיטקטורה דיגיטלית זוהרת',
+    rarity: 'rare', traits: { material: 'wire', pattern: 'cellular', geometry: 'cube', glow: 'medium', particles: true },
+    profile: hueProfile(160, 'wire', 'cellular', 'cube', 0.62, { particles: true }),
+  },
+  {
+    id: 'fire-cone', nameEn: 'Fire Cone', nameHe: 'חרוט אש',
+    descEn: 'Volcano captured in crystal', descHe: 'הר געש לכוד בקריסטל',
+    rarity: 'uncommon', traits: { material: 'plasma', pattern: 'voronoi', geometry: 'cone', glow: 'soft', particles: false },
+    profile: hueProfile(10, 'plasma', 'voronoi', 'cone', 0.4),
+  },
+  {
+    id: 'chrome-capsule', nameEn: 'Chrome Capsule', nameHe: 'קפסולת כרום',
+    descEn: 'Sleek future containment', descHe: 'מיכל עתידני חלק',
+    rarity: 'uncommon', traits: { material: 'metal', pattern: 'fractal', geometry: 'capsule', glow: 'soft', particles: false },
+    profile: hueProfile(210, 'metal', 'fractal', 'capsule', 0.38),
+  },
+  {
+    id: 'plasma-knot', nameEn: 'Plasma Knot', nameHe: 'קשר פלזמה',
+    descEn: 'Magnetic field lines tangled', descHe: 'קווי שדה מגנטי סבוכים',
+    rarity: 'epic', traits: { material: 'plasma', pattern: 'fractal', geometry: 'knot', glow: 'intense', particles: true },
+    profile: hueProfile(275, 'plasma', 'fractal', 'knot', 0.82, { particles: true }),
+  },
+  {
+    id: 'golden-cylinder', nameEn: 'Golden Cylinder', nameHe: 'גליל זהב',
+    descEn: 'Pillar of ancient empires', descHe: 'עמוד של אימפריות עתיקות',
+    rarity: 'rare', traits: { material: 'metal', pattern: 'voronoi', geometry: 'cylinder', glow: 'medium', particles: false },
+    profile: hueProfile(42, 'metal', 'voronoi', 'cylinder', 0.58),
+  },
 ];
 
 /* ─── Trait filter definitions ─── */
@@ -766,6 +840,12 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
       { value: 'octa', labelEn: 'Octa', labelHe: 'אוקטהדרון' },
       { value: 'torus', labelEn: 'Torus', labelHe: 'טורוס' },
       { value: 'spiky', labelEn: 'Spiky', labelHe: 'קוצני' },
+      { value: 'tetra', labelEn: 'Tetra', labelHe: 'טטרהדרון' },
+      { value: 'cube', labelEn: 'Cube', labelHe: 'קוביה' },
+      { value: 'cone', labelEn: 'Cone', labelHe: 'חרוט' },
+      { value: 'cylinder', labelEn: 'Cylinder', labelHe: 'גליל' },
+      { value: 'capsule', labelEn: 'Capsule', labelHe: 'קפסולה' },
+      { value: 'knot', labelEn: 'Knot', labelHe: 'קשר' },
     ],
   },
   {

@@ -131,7 +131,7 @@ function parseHslToVec3(colorStr: string): THREE.Vector3 {
 }
 
 // ===== GEOMETRY =====
-type GeometryType = 'icosahedron' | 'dodecahedron' | 'octahedron' | 'tetrahedron' | 'sphere' | 'torusKnot';
+type GeometryType = 'icosahedron' | 'dodecahedron' | 'octahedron' | 'tetrahedron' | 'sphere' | 'torusKnot' | 'box' | 'cone' | 'cylinder' | 'capsule';
 
 function getGeometryFromProfile(profile?: OrbProfile | null): { outer: GeometryType; inner1: GeometryType } {
   switch (profile?.geometryFamily) {
@@ -141,6 +141,12 @@ function getGeometryFromProfile(profile?: OrbProfile | null): { outer: GeometryT
     case 'icosa': return { outer: 'icosahedron', inner1: 'octahedron' };
     case 'octa': return { outer: 'octahedron', inner1: 'tetrahedron' };
     case 'spiky': return { outer: 'tetrahedron', inner1: 'octahedron' };
+    case 'tetra': return { outer: 'tetrahedron', inner1: 'icosahedron' };
+    case 'cube': return { outer: 'box', inner1: 'octahedron' };
+    case 'cone': return { outer: 'cone', inner1: 'sphere' };
+    case 'cylinder': return { outer: 'cylinder', inner1: 'dodecahedron' };
+    case 'capsule': return { outer: 'capsule', inner1: 'sphere' };
+    case 'knot': return { outer: 'torusKnot', inner1: 'icosahedron' };
     default: return { outer: 'icosahedron', inner1: 'dodecahedron' };
   }
 }
@@ -153,6 +159,10 @@ function createGeometry(type: GeometryType, radius: number, detail: number): THR
     case 'tetrahedron': return new THREE.TetrahedronGeometry(radius, Math.min(detail, 2));
     case 'sphere': return new THREE.SphereGeometry(radius, 16 + detail * 4, 12 + detail * 3);
     case 'torusKnot': return new THREE.TorusKnotGeometry(radius * 0.6, radius * 0.2, 64, 8, 2, 3);
+    case 'box': return new THREE.BoxGeometry(radius * 1.3, radius * 1.3, radius * 1.3, 2 + detail, 2 + detail, 2 + detail);
+    case 'cone': return new THREE.ConeGeometry(radius, radius * 1.6, 16 + detail * 4, 1);
+    case 'cylinder': return new THREE.CylinderGeometry(radius * 0.7, radius * 0.7, radius * 1.4, 16 + detail * 4, 1);
+    case 'capsule': return new THREE.CapsuleGeometry(radius * 0.6, radius * 0.8, 4 + detail, 12 + detail * 2);
     default: return new THREE.IcosahedronGeometry(radius, detail);
   }
 }
