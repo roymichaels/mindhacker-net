@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen } from 'lucide-react';
 import { Flame, Gem, Star } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import {
