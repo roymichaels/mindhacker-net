@@ -407,7 +407,7 @@ export function GalleryOrbView({ profile, geometryFamily, size, level = 100, ran
   return (
     <View className={className} style={{ width: size, height: size, margin: '0 auto' }}>
       <OrbLighting />
-      <perspectiveCamera position={[0, 0, 3]} fov={40} />
+      <PerspectiveCamera makeDefault position={[0, 0, 2.8]} fov={40} />
       <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} randomShapeCount={randomShapeCount} />
     </View>
   );
