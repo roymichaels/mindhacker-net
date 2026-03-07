@@ -77,6 +77,8 @@ import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
 import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
 import FMWorkLayoutWrapper from "./components/fm/FMWorkLayoutWrapper";
 import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
+import FMMarketLayoutWrapper from "./components/fm/FMMarketLayoutWrapper";
+import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
 const FMBridge = lazy(() => import("./pages/fm/FMBridge"));
