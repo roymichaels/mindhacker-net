@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
   TRAIT_CATEGORIES,
@@ -30,6 +31,7 @@ export default function OrbGalleryPage() {
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrb, setSelectedOrb] = useState<GalleryOrb | null>(null);
+  const [fullscreenOrb, setFullscreenOrb] = useState<GalleryOrb | null>(null);
 
   const activeFilterCount = Object.keys(filters).length;
 
@@ -309,14 +311,20 @@ export default function OrbGalleryPage() {
                   {isHe ? RARITY_LABELS[selectedOrb.rarity].he : RARITY_LABELS[selectedOrb.rarity].en}
                 </span>
 
-                {/* Orb */}
-                <Orb
-                  profile={selectedOrb.profile}
-                  size={180}
-                  state="breathing"
-                  renderer="webgl"
-                  showGlow
-                />
+                {/* Orb – click for fullscreen */}
+                <button
+                  onClick={() => { setSelectedOrb(null); setFullscreenOrb(selectedOrb); }}
+                  className="cursor-pointer hover:scale-105 transition-transform duration-200"
+                  title={isHe ? 'לחץ למסך מלא' : 'Click for fullscreen'}
+                >
+                  <Orb
+                    profile={selectedOrb.profile}
+                    size={180}
+                    state="breathing"
+                    renderer="webgl"
+                    showGlow
+                  />
+                </button>
 
                 <h2 className="text-xl font-black text-foreground mt-4">
                   {isHe ? selectedOrb.nameHe : selectedOrb.nameEn}
@@ -365,6 +373,15 @@ export default function OrbGalleryPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Fullscreen viewer for gallery orbs */}
+      {fullscreenOrb && (
+        <OrbFullscreenViewer
+          open={!!fullscreenOrb}
+          onClose={() => setFullscreenOrb(null)}
+          profile={fullscreenOrb.profile}
+        />
+      )}
 
       <Footer />
     </div>

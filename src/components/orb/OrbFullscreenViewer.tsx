@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PersonalizedOrb from './PersonalizedOrb';
+import { Orb } from './Orb';
+import type { OrbProfile } from './types';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
   onClose: () => void;
+  profile?: OrbProfile;
 }
 
-export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps) {
+export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenViewerProps) {
   const [orbSize, setOrbSize] = useState(280);
 
   useEffect(() => {
@@ -71,12 +74,22 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
             onClick={(e) => e.stopPropagation()}
             style={{ width: orbSize, height: orbSize }}
           >
-            <PersonalizedOrb
-              size={orbSize}
-              state="idle"
-              showGlow
-              renderer="css"
-            />
+            {profile ? (
+              <Orb
+                size={orbSize}
+                state="breathing"
+                profile={profile}
+                showGlow
+                renderer="webgl"
+              />
+            ) : (
+              <PersonalizedOrb
+                size={orbSize}
+                state="idle"
+                showGlow
+                renderer="css"
+              />
+            )}
           </motion.div>
 
           {/* Hint */}
