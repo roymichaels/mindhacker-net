@@ -32,6 +32,8 @@ export default function OrbGalleryPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrb, setSelectedOrb] = useState<GalleryOrb | null>(null);
   const [fullscreenOrb, setFullscreenOrb] = useState<GalleryOrb | null>(null);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 30;
 
   const activeFilterCount = Object.keys(filters).length;
 
