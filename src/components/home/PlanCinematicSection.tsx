@@ -3,7 +3,7 @@
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { CSSGalleryOrb } from '@/components/orb/CSSGalleryOrb';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { Dumbbell, Brain, TrendingUp, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
