@@ -91,7 +91,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
           <TraitsTab isHe={isHe} />
         </div>
       </div>
-    );
+    , document.body);
   }
 
   return (
