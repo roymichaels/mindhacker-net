@@ -6,7 +6,7 @@ import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Rocket, Shield, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { LazyOrbView } from '@/components/orb/LazyOrbView';
+import { CSSGalleryOrb } from '@/components/orb/CSSGalleryOrb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 
@@ -43,7 +43,7 @@ export default function FinalCTASection() {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-                <LazyOrbView profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={100} level={100} />
+                <CSSGalleryOrb profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={100} level={100} />
               </div>
             </div>
 

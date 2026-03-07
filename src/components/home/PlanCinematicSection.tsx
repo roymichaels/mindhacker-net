@@ -3,7 +3,7 @@
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { LazyOrbView } from '@/components/orb/LazyOrbView';
+import { CSSGalleryOrb } from '@/components/orb/CSSGalleryOrb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { Dumbbell, Brain, TrendingUp, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -82,7 +82,7 @@ export default function PlanCinematicSection() {
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
-              <LazyOrbView profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={120} level={50} />
+              <CSSGalleryOrb profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={120} level={50} />
             </div>
           </motion.div>
 
