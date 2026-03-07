@@ -142,6 +142,7 @@ ${adjustmentContext}
           "milestones": [
             {
               "milestone_id": "actual-uuid-from-list",
+              "focus_area": "vitality",
               "title_en": "Morning breathwork protocol",
               "title_he": "פרוטוקול נשימת בוקר",
               "duration_minutes": 15,
