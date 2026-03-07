@@ -5,29 +5,8 @@ import { motion } from 'framer-motion';
 import { Bot, Mic, Brain, Headphones, Layers } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SharedOrbView } from '@/components/orb/SharedOrbView';
-import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { cn } from '@/lib/utils';
-import type { OrbProfile } from '@/components/orb/types';
-
-const AURORA_PROFILE: OrbProfile = {
-  ...DEFAULT_ORB_PROFILE,
-  primaryColor: '270 80% 70%',
-  secondaryColors: ['190 90% 70%', '260 70% 65%', '300 80% 75%'],
-  accentColor: '260 80% 55%',
-  morphSpeed: 0,
-  morphIntensity: 0,
-  geometryDetail: 128,
-  particleCount: 0,
-  particleEnabled: false,
-  materialType: 'iridescent',
-  geometryFamily: 'octa',
-  gradientStops: ['270 80% 70%', '190 90% 70%', '300 80% 75%', '260 70% 65%'],
-  coreGradient: ['270 80% 70%', '190 90% 70%'],
-  rimLightColor: '300 80% 75%',
-  bloomStrength: 0.8,
-  chromaShift: 0.4,
-  materialParams: { metalness: 0.3, roughness: 0.1, clearcoat: 1.0, transmission: 0.3, ior: 2.0, emissiveIntensity: 0.4 },
-};
 
 export default function AuroraCoachSection() {
   const { t, isRTL } = useTranslation();
@@ -62,7 +41,7 @@ export default function AuroraCoachSection() {
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             />
             <SharedOrbView
-              profile={AURORA_PROFILE}
+              profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               size={200}
               level={100}
