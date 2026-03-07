@@ -562,9 +562,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                   <Trophy className="h-4 w-4 text-accent-foreground" />
                   {isHe ? 'תיאור הפרויקט' : 'Project Brief'}
                 </h4>
-                <p className="text-sm">
-                  <ClickableWords text={lesson.content?.brief || ''} fullTextFromHere={getTextFromPosition(fullLessonText, lesson.content?.brief || '')} onWordClick={handleWordClick} />
-                </p>
+                <p className="text-sm">{lesson.content?.brief}</p>
               </div>
 
               {lesson.content?.requirements?.length > 0 && (
