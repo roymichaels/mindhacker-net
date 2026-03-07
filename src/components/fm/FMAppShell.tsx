@@ -12,10 +12,14 @@ import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { FMBottomNav } from '@/components/fm/FMBottomNav';
+import { useSidebars } from '@/hooks/useSidebars';
 
 export default function FMAppShell() {
   const { language } = useTranslation();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
+
+  // Hide global sidebars for all FM pages
+  useSidebars(null, null, []);
 
   if (isLoading) return <PageSkeleton />;
 
@@ -29,8 +33,8 @@ export default function FMAppShell() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="flex-1 overflow-y-auto px-4 pb-16">
+    <div className="flex flex-col h-full min-h-0 -mx-2 lg:-mx-3">
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
         <Outlet />
       </div>
       <FMBottomNav />
