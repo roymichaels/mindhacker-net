@@ -2,7 +2,6 @@ import { useFMWallet, useFMTransactions } from '@/hooks/useFMWallet';
 import { FMQuickActions } from '@/components/fm/FMQuickActions';
 import { FMActivityFeed } from '@/components/fm/FMActivityFeed';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useTranslation } from '@/hooks/useTranslation';
 import { Coins } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
