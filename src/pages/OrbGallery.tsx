@@ -408,6 +408,8 @@ export default function OrbGalleryPage() {
           open={!!fullscreenOrb}
           onClose={() => setFullscreenOrb(null)}
           profile={fullscreenOrb.profile}
+          geometryFamily={fullscreenOrb.traits.geometry}
+          level={100}
         />
       )}
 
