@@ -21,6 +21,18 @@ const ACTIVITY_ICONS: Record<string, string> = {
   diagnostic_eval: '🎯',
 };
 
+const ACTIVITY_LABELS_HE: Record<string, string> = {
+  hypnosis_session: 'סשן היפנוזה',
+  habit_completion: 'השלמת הרגל',
+  habit_streak_3: 'רצף 3 ימים',
+  habit_streak_7: 'רצף 7 ימים',
+  community_post: 'פוסט בקהילה',
+  community_comment: 'תגובה בקהילה',
+  learning_lesson: 'שיעור למידה',
+  daily_login: 'כניסה יומית',
+  diagnostic_eval: 'סריקה',
+};
+
 export function MiningDashboard() {
   const { language } = useTranslation();
   const isHe = language === 'he';
