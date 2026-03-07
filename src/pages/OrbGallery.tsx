@@ -14,7 +14,7 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRi
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { GalleryOrbView, GalleryCanvas } from '@/components/orb/GalleryMorphOrb';
+import { GalleryOrbView, GalleryCanvas, StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
@@ -234,7 +234,7 @@ export default function OrbGalleryPage() {
                       <GalleryOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
-                        size={isMobile ? 80 : 120}
+                        size={isMobile ? 120 : 160}
                       />
                     </div>
 
@@ -340,18 +340,17 @@ export default function OrbGalleryPage() {
                   {isHe ? RARITY_LABELS[selectedOrb.rarity].he : RARITY_LABELS[selectedOrb.rarity].en}
                 </span>
 
-                {/* Orb – click for fullscreen */}
+                {/* Orb – morphing WebGL, click for fullscreen */}
                 <button
                   onClick={() => { setSelectedOrb(null); setFullscreenOrb(selectedOrb); }}
                   className="cursor-pointer hover:scale-105 transition-transform duration-200"
                   title={isHe ? 'לחץ למסך מלא' : 'Click for fullscreen'}
                 >
-                  <Orb
+                  <StandaloneMorphOrb
                     profile={selectedOrb.profile}
-                    size={180}
-                    state="breathing"
-                    renderer="webgl"
-                    showGlow
+                    geometryFamily={selectedOrb.traits.geometry}
+                    size={200}
+                    level={100}
                   />
                 </button>
 
