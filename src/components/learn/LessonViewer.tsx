@@ -511,7 +511,9 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                   <h4 className="text-primary font-bold mb-2">{isHe ? 'מושגי מפתח' : 'Key Concepts'}</h4>
                   <ul className="space-y-1">
                     {lesson.content.key_concepts.map((c: string, i: number) => (
-                      <li key={i} className="text-sm">{c}</li>
+                      <li key={i} className="text-sm">
+                        <ClickableWords text={c} fullTextFromHere={getTextFromPosition(fullLessonText, c)} onWordClick={handleWordClick} />
+                      </li>
                     ))}
                   </ul>
                 </div>
