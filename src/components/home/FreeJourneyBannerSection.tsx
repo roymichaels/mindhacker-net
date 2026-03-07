@@ -61,12 +61,10 @@ export default function FreeJourneyBannerSection() {
                 </span>
               </div>
 
-              <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-primary/30 text-foreground shadow-lg shadow-black/20 dark:shadow-black/30 hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800">
-                <Link to="/onboarding">
+              <Button size="lg" onClick={openWelcomeGate} className="gap-2 bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-primary/30 text-foreground shadow-lg shadow-black/20 dark:shadow-black/30 hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800">
                   <Sparkles className="w-4 h-4" />
                   {t('home.freeJourney.cta')}
                   <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-                </Link>
               </Button>
             </div>
           </div>
