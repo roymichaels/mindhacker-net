@@ -442,7 +442,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
           {lesson.lesson_type === 'practice' && (
             <div className="space-y-5 text-start">
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown components={markdownComponents}>{lesson.content?.instructions || ''}</ReactMarkdown>
+                <ReactMarkdown>{lesson.content?.instructions || ''}</ReactMarkdown>
               </div>
 
               {/* Plan integration summary */}
