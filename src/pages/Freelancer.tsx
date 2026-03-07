@@ -2,7 +2,7 @@
  * Freelancer — entry router page (mirrors Coaches.tsx pattern).
  * Shows FreelancerHub if user has freelancer role, otherwise shows landing.
  */
-import { useState, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -14,6 +14,7 @@ export default function Freelancer() {
   const { hasRole, loading: rolesLoading } = useUserRoles();
   const { user } = useAuth();
 
+  // @ts-ignore — 'freelancer' role added via migration
   const isFreelancer = hasRole('freelancer');
 
   if (rolesLoading) return <PageSkeleton />;
