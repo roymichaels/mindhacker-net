@@ -144,7 +144,7 @@ export default function CityShowcaseSection() {
       icon: Fingerprint,
       title: isRTL ? 'מערכת תכונות' : 'Trait System',
       line: isRTL ? 'ה-DNA הדיגיטלי שלך כ-NFT' : 'Your digital DNA as NFT',
-      preview: <TraitBadgesPreview />,
+      preview: <TraitBadgesPreview isRTL={isRTL} />,
     },
     {
       icon: Brain,
