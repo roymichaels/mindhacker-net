@@ -595,7 +595,7 @@ export default function OrbGalleryPage() {
                   profile={selectedOrb.profile}
                   size={180}
                   state="breathing"
-                  renderer="css"
+                  renderer="webgl"
                   showGlow
                 />
 
