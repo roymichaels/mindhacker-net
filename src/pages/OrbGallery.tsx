@@ -1,8 +1,9 @@
 /**
  * OrbGallery – NFT-style collection gallery with trait-based filtering.
- * 100 unique orb archetypes organized by traits.
+ * Uses a single shared WebGL context via R3F + drei View for all orbs.
+ * Each orb smoothly morphs between geometric shapes.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRi
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { GalleryOrbView, GalleryCanvas } from '@/components/orb/GalleryMorphOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
