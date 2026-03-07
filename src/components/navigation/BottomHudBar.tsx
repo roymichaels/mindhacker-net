@@ -4,7 +4,7 @@
  * Middle: XP progress bar
  * Right: Aurora orb → opens Aurora dock (with intro balloon)
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -15,6 +15,7 @@ import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
 
 export function BottomHudBar() {
   const { language, isRTL } = useTranslation();
