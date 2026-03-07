@@ -33,6 +33,26 @@ const JOURNEY_THEMES: Record<string, { he: string; en: string; emoji: string; ac
   play:      { he: 'משחק וחקירה',      en: 'Play & Explore',         emoji: '🎮', accent: 'from-lime-500/15 to-green-500/10 border-lime-500/25' },
 };
 
+// ── Map block types to 4 day quarters ──
+const QUARTER_MAP: Record<string, 'q1_morning' | 'q2_midday' | 'q3_afternoon' | 'q4_evening'> = {
+  morning: 'q1_morning',
+  training: 'q1_morning',
+  deepwork: 'q2_midday',
+  midday: 'q2_midday',
+  admin: 'q3_afternoon',
+  social: 'q3_afternoon',
+  play: 'q3_afternoon',
+  recovery: 'q4_evening',
+  evening: 'q4_evening',
+};
+
+const QUARTER_META: Record<string, { he: string; en: string; emoji: string }> = {
+  q1_morning:   { he: 'רבעון בוקר',        en: 'Morning Quarter',    emoji: '🌅' },
+  q2_midday:    { he: 'רבעון צהריים',       en: 'Midday Quarter',     emoji: '☀️' },
+  q3_afternoon: { he: 'רבעון אחה״צ',       en: 'Afternoon Quarter',  emoji: '⚡' },
+  q4_evening:   { he: 'רבעון ערב',          en: 'Evening Quarter',    emoji: '🌙' },
+};
+
 interface MobileHeroGridProps {
   planData: any;
 }
@@ -67,6 +87,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   }, []);
 
   const questName = useMemo(() => getQuestName(todayStr, isHe ? 'he' : 'en'), [todayStr, isHe]);
+
+  // Generate unique quest name per quarter
+  const quarterQuestNames = useMemo(() => ({
+    q1_morning: getQuestName(todayStr + '-Q1', isHe ? 'he' : 'en'),
+    q2_midday: getQuestName(todayStr + '-Q2', isHe ? 'he' : 'en'),
+    q3_afternoon: getQuestName(todayStr + '-Q3', isHe ? 'he' : 'en'),
+    q4_evening: getQuestName(todayStr + '-Q4', isHe ? 'he' : 'en'),
+  }), [todayStr, isHe]);
+
   const campaignName = useMemo(() => {
     // Use ISO week as campaign key
     const d = new Date();
@@ -205,13 +234,44 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 </div>
 
-                {/* Journey blocks — all equal, no graying */}
-                {schedule.map((slot, idx) => {
-                  const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
-                  const open = isBlockOpen(slot.id);
-                  const label = isHe ? theme.he : theme.en;
-
-                  return (
+                {/* Journey blocks grouped by 4 Day Quarters */}
+                {(() => {
+                  // Group schedule slots by quarter
+                  const quarterOrder = ['q1_morning', 'q2_midday', 'q3_afternoon', 'q4_evening'] as const;
+                  const grouped = new Map<string, typeof schedule>();
+                  for (const q of quarterOrder) grouped.set(q, []);
+                  for (const slot of schedule) {
+                    const q = QUARTER_MAP[slot.timeBlock] || 'q2_midday';
+                    grouped.get(q)!.push(slot);
+                  }
+                  let globalIdx = 0;
+                  return quarterOrder.map(qKey => {
+                    const slots = grouped.get(qKey)!;
+                    if (slots.length === 0) return null;
+                    const meta = QUARTER_META[qKey];
+                    const qName = quarterQuestNames[qKey];
+                    return (
+                      <div key={qKey} className="space-y-2">
+                        {/* Quarter header */}
+                        <div className="flex items-center gap-2 px-1 pt-2">
+                          <span className="text-base">{meta.emoji}</span>
+                          <span className="text-[11px] font-bold text-foreground/80">
+                            {isHe ? meta.he : meta.en}
+                          </span>
+                          <span className="text-[9px] text-primary/70 font-semibold">
+                            ⚔️ {qName}
+                          </span>
+                          <span className="flex-1 h-px bg-border/30" />
+                          <span className="text-[9px] text-muted-foreground">
+                            {slots.reduce((s, sl) => s + sl.actions.length, 0)} {isHe ? 'משימות' : 'quests'}
+                          </span>
+                        </div>
+                        {slots.map((slot) => {
+                  const blockTheme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
+                  const blockOpen = isBlockOpen(slot.id);
+                  const blockLabel = isHe ? blockTheme.he : blockTheme.en;
+                  const idx = globalIdx++;
+                   return (
                     <motion.div
                       key={slot.id}
                       initial={{ opacity: 0, y: 12 }}
@@ -219,7 +279,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                       transition={{ delay: idx * 0.05, duration: 0.3 }}
                       className={cn(
                         "rounded-2xl border overflow-hidden transition-all duration-300",
-                        `bg-gradient-to-br ${theme.accent}`,
+                        `bg-gradient-to-br ${blockTheme.accent}`,
                       )}
                     >
                       {/* Journey Header */}
@@ -227,16 +287,16 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                         onClick={() => toggleBlock(slot.id)}
                         className="w-full flex items-center gap-3 px-4 py-3.5 text-start hover:bg-foreground/[0.02] active:scale-[0.995] transition-all"
                       >
-                        <span className="text-xl shrink-0">{theme.emoji}</span>
+                        <span className="text-xl shrink-0">{blockTheme.emoji}</span>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-foreground">{label}</h3>
+                          <h3 className="text-sm font-bold text-foreground">{blockLabel}</h3>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
                             {slot.actions.length} {isHe ? 'משימות' : 'quests'}
                           </p>
                         </div>
 
-                        {open ? (
+                        {blockOpen ? (
                           <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
                         ) : (
                           <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -245,7 +305,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
                       {/* Quest list — collapsible */}
                       <AnimatePresence initial={false}>
-                        {open && (
+                        {blockOpen && (
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
@@ -291,6 +351,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                     </motion.div>
                   );
                 })}
+                      </div>
+                    );
+                  }).filter(Boolean);
+                })()}
               </div>
             ) : (
               <div className="text-center py-8 text-sm text-muted-foreground">
