@@ -204,8 +204,8 @@ export default function OrbGalleryPage() {
         </div>
 
         {/* Grid */}
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-3 gap-x-0 gap-y-4">
+        <div className="max-w-6xl mx-auto px-1">
+          <div className="grid grid-cols-3 gap-x-0 gap-y-1">
               {pagedOrbs.map((orb, i) => {
                 const rarityColor = RARITY_COLORS[orb.rarity];
                 return (
@@ -219,7 +219,7 @@ export default function OrbGalleryPage() {
                   >
                     {/* Rarity badge */}
                     <span
-                      className="relative z-[2] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2"
+                      className="relative z-[2] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-0"
                       style={{
                         backgroundColor: `hsl(${rarityColor} / 0.12)`,
                         color: `hsl(${rarityColor})`,
@@ -234,12 +234,12 @@ export default function OrbGalleryPage() {
                       <GalleryOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
-                        size={isMobile ? 200 : 280}
+                        size={isMobile ? 300 : 420}
                       />
                     </div>
 
                     {/* Name */}
-                    <h3 className="relative z-[2] text-xs md:text-sm font-bold text-foreground text-center mt-2">
+                    <h3 className="relative z-[2] text-xs md:text-sm font-bold text-foreground text-center mt-0">
                       {isHe ? orb.nameHe : orb.nameEn}
                     </h3>
                     <p className="relative z-[2] text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
