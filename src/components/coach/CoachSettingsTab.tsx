@@ -212,7 +212,7 @@ const CoachSettingsTab = () => {
                 <Label>{t('coachSettings.subdomain')}</Label>
                 <div className="flex items-center gap-2">
                   <Input value={formData.subdomain} onChange={(e) => setFormData(prev => ({ ...prev, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))} className="max-w-xs" />
-                  <span className="text-sm text-muted-foreground">.mindos.app</span>
+                  <span className="text-sm text-muted-foreground">.mindos.space</span>
                 </div>
               </div>
               <div className="space-y-2">

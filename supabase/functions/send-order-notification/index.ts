@@ -61,7 +61,7 @@ serve(async (req: Request): Promise<Response> => {
       .eq("setting_key", "email")
       .maybeSingle();
 
-    const adminEmail = emailSetting?.setting_value || "dean@mindos.app";
+    const adminEmail = emailSetting?.setting_value || "dean@mindos.space";
     const siteUrl = Deno.env.get("SITE_URL") || "https://tsvfsbluyuaajqmkpzdv.lovable.app";
     const orderDate = new Date().toLocaleString("he-IL", { 
       timeZone: "Asia/Jerusalem",
