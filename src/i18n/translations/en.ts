@@ -1750,7 +1750,7 @@ export const en: TranslationKeys = {
       name: "MindOS OÜ",
       country: "Estonia, European Union",
       registrationNote: "Company registered in Estonia",
-      contact: "Contact: contact@mindos.app",
+      contact: "Contact: contact@mindos.space",
     },
     privacy: {
       title: "Privacy Policy",
