@@ -435,7 +435,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                   <div className="space-y-1">
                     <label className="text-xs text-muted-foreground">{isHe ? 'קטגוריה' : 'Category'}</label>
                     <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm">
-                      {GIG_CATEGORIES.filter(c => c !== 'all').map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                      {GIG_CATEGORIES.filter(c => c !== 'all').map(c => <option key={c} value={c}>{isHe ? CATEGORY_LABELS[c] || c : c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
                     </select>
                   </div>
                 </div>
