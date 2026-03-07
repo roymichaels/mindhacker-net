@@ -14,6 +14,7 @@ import {
   CityShowcaseSection,
   TraitShowcaseSection,
   PlanCinematicSection,
+  RoadmapSection,
   FinalCTASection,
 } from "@/components/home";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
