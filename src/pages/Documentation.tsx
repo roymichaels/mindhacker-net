@@ -294,7 +294,7 @@ export default function Documentation() {
           <AuroraOrbIcon className="w-7 h-7 text-foreground" size={28} />
           <span className="font-bold text-foreground text-sm">{brandName}</span>
           <span className="text-muted-foreground text-sm">—</span>
-          <span className="text-muted-foreground text-sm">{he ? 'ווייטפייפר' : 'White Paper'}</span>
+          <span className="text-muted-foreground text-sm">{he ? 'ספר לבן' : 'White Paper'}</span>
         </div>
       </div>
 
