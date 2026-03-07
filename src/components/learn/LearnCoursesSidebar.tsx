@@ -26,6 +26,7 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
+  const { canAccessCourseCreation: canCreateCourse } = useSubscriptionGate();
 
   const { data: curricula } = useQuery({
     queryKey: ['learning-curricula', user?.id],
