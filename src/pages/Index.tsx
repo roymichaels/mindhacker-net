@@ -88,21 +88,27 @@ const Index = () => {
           <main className="relative">
             <GameHeroSection />
             <OrbCollectionSection />
-            <OrbEvolutionSection />
             <InlineCTA variant="subtle" />
-            <AuroraCoachSection />
-            <HypnosisSection />
+            <OrbEvolutionSection />
             <InlineCTA variant="default" />
+            <AuroraCoachSection />
+            <InlineCTA variant="subtle" />
+            <HypnosisSection />
+            <InlineCTA variant="bold" />
             <CityShowcaseSection />
             <TraitShowcaseSection />
+            <InlineCTA variant="default" />
             <PlanCinematicSection />
-            <InlineCTA variant="bold" />
+            <InlineCTA variant="subtle" />
             <GamificationSection />
             <Play2EarnSection />
+            <InlineCTA variant="bold" />
             <FreeMarketSection />
             <InlineCTA variant="default" />
             <GuildSection />
+            <InlineCTA variant="subtle" />
             <CoachOSSection />
+            <InlineCTA variant="default" />
             <PricingPreviewSection />
             <RoadmapSection />
             <FinalCTASection />
