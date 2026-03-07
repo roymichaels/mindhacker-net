@@ -1,9 +1,10 @@
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 
 const AuroraTypingIndicator = () => {
   return (
     <div className="flex gap-2 animate-fade-in">
-      <AuroraHoloOrb size={32} glow="subtle" />
+      <StandaloneMorphOrb size={32} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
       
       <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
         <div className="flex items-center gap-1">

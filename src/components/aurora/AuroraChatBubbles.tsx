@@ -8,7 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -207,7 +208,7 @@ const AuroraChatBubbles = () => {
               )}
             >
               {message.is_ai_message && (
-                <AuroraHoloOrb size={24} glow="none" />
+                <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
               )}
               <div className="space-y-1.5 max-w-[80%]">
                 <div
@@ -267,7 +268,7 @@ const AuroraChatBubbles = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex gap-3 justify-start"
           >
-            <AuroraHoloOrb size={24} glow="subtle" />
+            <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
             <div className="max-w-[80%] rounded-xl px-4 py-2 text-sm bg-muted/50 text-foreground">
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown>{streamingContent}</ReactMarkdown>
@@ -283,7 +284,7 @@ const AuroraChatBubbles = () => {
             animate={{ opacity: 1 }}
             className="flex gap-3 justify-start"
           >
-            <AuroraHoloOrb size={24} glow="subtle" />
+            <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
             <div className="bg-muted/50 rounded-xl px-4 py-3">
               <div className="flex gap-1">
                 <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />

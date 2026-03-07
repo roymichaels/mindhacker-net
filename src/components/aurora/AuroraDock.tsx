@@ -13,7 +13,8 @@ import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
 import { AuroraDockOrb } from '@/components/aurora/AuroraFloatingOrb';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 
 /** Min/max height for the expanded chat area (vh units) */
 const MIN_CHAT_VH = 15;
@@ -151,7 +152,7 @@ export function AuroraDock() {
             <span className="text-base font-semibold text-foreground">
               {isHe ? 'אורורה' : 'Aurora'}
             </span>
-            <AuroraHoloOrb size={28} glow="subtle" />
+            <StandaloneMorphOrb size={28} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
           </div>
 
           {/* Right side actions */}
