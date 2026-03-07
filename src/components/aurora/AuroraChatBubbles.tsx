@@ -208,7 +208,7 @@ const AuroraChatBubbles = () => {
               )}
             >
               {message.is_ai_message && (
-                <AuroraHoloOrb size={24} glow="none" />
+                <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
               )}
               <div className="space-y-1.5 max-w-[80%]">
                 <div
