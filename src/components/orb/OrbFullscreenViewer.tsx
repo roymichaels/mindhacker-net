@@ -11,7 +11,7 @@ interface OrbFullscreenViewerProps {
   profile?: OrbProfile;
 }
 
-export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps) {
+export function OrbFullscreenViewer({ open, onClose, profile }: OrbFullscreenViewerProps) {
   const [orbSize, setOrbSize] = useState(280);
 
   useEffect(() => {
