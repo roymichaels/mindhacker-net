@@ -291,7 +291,7 @@ export default function OrbEvolutionSection() {
                   state={activePhase >= 3 ? 'breathing' : 'idle'}
                   profile={phase.profile}
                   showGlow={activePhase >= 2}
-                  renderer="css"
+                  renderer="webgl"
                 />
               </div>
             </div>
