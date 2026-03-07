@@ -80,29 +80,31 @@ const Index = () => {
   }
 
   return (
-    <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
-      <Header />
-      <WelcomeGateProvider>
-        <main className="relative z-10">
-          <GameHeroSection />
-          <OrbCollectionSection />
-          <OrbEvolutionSection />
-          <AuroraCoachSection />
-          <HypnosisSection />
-          <CityShowcaseSection />
-          <TraitShowcaseSection />
-          <PlanCinematicSection />
-          <GamificationSection />
-          <Play2EarnSection />
-          <FreeMarketSection />
-          <GuildSection />
-          <CoachOSSection />
-          <PricingPreviewSection />
-          <RoadmapSection />
-          <FinalCTASection />
-        </main>
-      </WelcomeGateProvider>
-      <Footer />
+    <div ref={containerRef} className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
+      <GalleryCanvas containerRef={containerRef}>
+        <Header />
+        <WelcomeGateProvider>
+          <main className="relative z-10">
+            <GameHeroSection />
+            <OrbCollectionSection />
+            <OrbEvolutionSection />
+            <AuroraCoachSection />
+            <HypnosisSection />
+            <CityShowcaseSection />
+            <TraitShowcaseSection />
+            <PlanCinematicSection />
+            <GamificationSection />
+            <Play2EarnSection />
+            <FreeMarketSection />
+            <GuildSection />
+            <CoachOSSection />
+            <PricingPreviewSection />
+            <RoadmapSection />
+            <FinalCTASection />
+          </main>
+        </WelcomeGateProvider>
+        <Footer />
+      </GalleryCanvas>
     </div>
   );
 };
