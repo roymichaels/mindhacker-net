@@ -4,7 +4,6 @@
 import { motion } from 'framer-motion';
 import { Sparkles, Zap } from 'lucide-react';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
-import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
