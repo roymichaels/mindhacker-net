@@ -92,7 +92,7 @@ export default function PlanCinematicSection() {
               const Icon = p.icon;
               return (
                 <motion.div
-                  key={p.label}
+                  key={p.labelEn}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
