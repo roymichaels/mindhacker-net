@@ -62,7 +62,7 @@ function blockCategoryToHub(category: string): 'core' | 'arena' {
 
 // ── Convert TacticalAction → NowQueueItem ──
 function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQueueItem {
-  const pillarId = blockCategoryToPillar(blockCategory);
+  const pillarId = action.focusArea || blockCategoryToPillar(blockCategory);
   const hub = blockCategoryToHub(blockCategory);
 
   return {
