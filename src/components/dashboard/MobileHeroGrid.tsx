@@ -356,6 +356,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                     </motion.div>
                   );
                 })}
+                      </div>
+                    );
+                  }).filter(Boolean);
+                })()}
               </div>
             ) : (
               <div className="text-center py-8 text-sm text-muted-foreground">
