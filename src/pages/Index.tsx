@@ -15,6 +15,14 @@ import {
   CityShowcaseSection,
   TraitShowcaseSection,
   PlanCinematicSection,
+  AuroraCoachSection,
+  HypnosisSection,
+  Play2EarnSection,
+  GamificationSection,
+  FreeMarketSection,
+  GuildSection,
+  CoachOSSection,
+  PricingPreviewSection,
   RoadmapSection,
   FinalCTASection,
 } from "@/components/home";
@@ -77,9 +85,17 @@ const Index = () => {
           <GameHeroSection />
           <OrbCollectionSection />
           <OrbEvolutionSection />
+          <AuroraCoachSection />
+          <HypnosisSection />
           <CityShowcaseSection />
           <TraitShowcaseSection />
           <PlanCinematicSection />
+          <GamificationSection />
+          <Play2EarnSection />
+          <FreeMarketSection />
+          <GuildSection />
+          <CoachOSSection />
+          <PricingPreviewSection />
           <RoadmapSection />
           <FinalCTASection />
         </main>
