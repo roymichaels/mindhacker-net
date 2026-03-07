@@ -26,6 +26,7 @@ import {
   PricingPreviewSection,
   RoadmapSection,
   FinalCTASection,
+  InlineCTA,
 } from "@/components/home";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
 
