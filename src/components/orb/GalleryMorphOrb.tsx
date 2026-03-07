@@ -310,6 +310,8 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
         sheenColor={matProps.sheenColor}
         iridescence={matProps.iridescence}
         iridescenceIOR={matProps.iridescenceIOR}
+        opacity={matProps.opacity}
+        transparent={matProps.transparent}
       />
     </mesh>
   );
