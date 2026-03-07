@@ -40,9 +40,9 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <Store className="h-4 w-4 text-amber-100" />
+              <Store className="h-4 w-4 text-white" />
             </div>
-            <span className="text-base font-black text-amber-100 tracking-tight drop-shadow-[0_0_8px_rgba(245,158,11,0.3)]">
+            <span className="text-base font-black text-amber-700 dark:text-amber-300 tracking-tight">
               {isHe ? 'פרי-מארקט' : 'Free Market'}
             </span>
           </div>
