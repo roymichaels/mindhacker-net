@@ -277,16 +277,34 @@ Return ONLY a valid JSON object (no markdown fences):
     let rawContent = articleData.choices?.[0]?.message?.content || "";
     rawContent = rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
+    // Extract JSON object if surrounded by other text
+    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      rawContent = jsonMatch[0];
+    }
+
+    // Sanitize control characters inside JSON string values
+    // Replace literal control chars (tabs, newlines, etc.) that break JSON.parse
+    rawContent = rawContent.replace(/[\x00-\x1F\x7F]/g, (ch) => {
+      if (ch === '\n') return '\\n';
+      if (ch === '\r') return '\\r';
+      if (ch === '\t') return '\\t';
+      return '';
+    });
+
     let article;
     try {
       article = JSON.parse(rawContent);
-    } catch {
-      // Try to extract JSON from the response
-      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        article = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error("Failed to parse AI response as JSON");
+    } catch (parseErr) {
+      console.error("JSON parse failed, attempting recovery. Error:", parseErr);
+      // Last resort: try to fix common issues like unescaped quotes inside values
+      try {
+        const repaired = rawContent
+          .replace(/,\s*}/g, '}')
+          .replace(/,\s*]/g, ']');
+        article = JSON.parse(repaired);
+      } catch {
+        throw new Error("Failed to parse AI response as JSON after sanitization");
       }
     }
 
