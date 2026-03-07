@@ -281,6 +281,7 @@ const App = () => (
                           element={<Navigate to="/affiliate" replace />}
                         />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
+                        <Route path="/docs" element={<Documentation />} />
 
                         {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
                         <Route element={<ProtectedAppShell />}>
