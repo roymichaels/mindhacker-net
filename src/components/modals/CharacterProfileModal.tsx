@@ -4,6 +4,7 @@
  * with a single inspect panel: Header → Stat Wheel → 4 internal tabs.
  */
 import { useState, useEffect } from 'react';
+import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -60,6 +61,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   const tokens = useEnergy();
   const { profile } = useOrbProfile();
   const [traitsOpen, setTraitsOpen] = useState(false);
+  const [orbDNAOpen, setOrbDNAOpen] = useState(false);
 
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
   const archetypeName = getArchetypeName(dominantArchetype, isHe);
@@ -94,7 +96,9 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
     , document.body);
   }
 
-  return createPortal(
+  return (<>
+    <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
+    {createPortal(
     <div
       role="dialog"
       className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
@@ -120,10 +124,13 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-[60px] opacity-10 bg-amber-400" />
 
           {/* Orb with gold ring */}
-          <div className="relative">
+          <button
+            className="relative cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => setOrbDNAOpen(true)}
+          >
             <div className="absolute -inset-2 rounded-full border border-amber-500/30" style={{ boxShadow: '0 0 20px hsla(35, 80%, 50%, 0.15)' }} />
             <PersonalizedOrb size={72} state="idle" />
-          </div>
+          </button>
 
           {/* Identity title */}
           <div className="mt-4 space-y-1">
@@ -188,7 +195,8 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         </div>
       </div>
     </div>
-  , document.body);
+  , document.body)}
+  </>);
 }
 
 // ═══════════════════════════════════════════════
