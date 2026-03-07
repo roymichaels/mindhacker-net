@@ -4,8 +4,7 @@
 import { motion } from 'framer-motion';
 import { Bot, Mic, Brain, Headphones, Layers } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb/Orb';
-import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { cn } from '@/lib/utils';
 
 export default function AuroraCoachSection() {
