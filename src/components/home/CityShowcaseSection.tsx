@@ -39,17 +39,17 @@ function DomainIconsPreview() {
   );
 }
 
-function TraitBadgesPreview() {
+function TraitBadgesPreview({ isRTL }: { isRTL: boolean }) {
   const traits = [
-    { name: 'Resilience', color: 'bg-emerald-500/30 border-emerald-500/40' },
-    { name: 'Focus', color: 'bg-cyan-500/30 border-cyan-500/40' },
-    { name: 'Charisma', color: 'bg-purple-500/30 border-purple-500/40' },
+    { name: isRTL ? 'חוסן' : 'Resilience', color: 'bg-emerald-500/30 border-emerald-500/40' },
+    { name: isRTL ? 'מיקוד' : 'Focus', color: 'bg-cyan-500/30 border-cyan-500/40' },
+    { name: isRTL ? 'כריזמה' : 'Charisma', color: 'bg-purple-500/30 border-purple-500/40' },
   ];
   return (
     <div className="flex gap-2 mt-3">
       {traits.map((t, i) => (
         <motion.div
-          key={t.name}
+          key={i}
           className={cn('px-2.5 py-1 rounded-lg text-[10px] font-bold border', t.color, 'text-foreground/80')}
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
@@ -61,7 +61,7 @@ function TraitBadgesPreview() {
   );
 }
 
-function PlanPulsePreview() {
+function PlanPulsePreview({ isRTL }: { isRTL: boolean }) {
   return (
     <div className="flex items-center gap-1.5 mt-3">
       {[...Array(4)].map((_, i) => (
@@ -72,7 +72,9 @@ function PlanPulsePreview() {
           transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
         />
       ))}
-      <span className="text-[10px] text-muted-foreground font-mono ml-1">generating...</span>
+      <span className="text-[10px] text-muted-foreground font-mono ml-1">
+        {isRTL ? 'מייצר...' : 'generating...'}
+      </span>
     </div>
   );
 }
@@ -113,12 +115,15 @@ function EconomyPreview() {
   );
 }
 
-function CoachPreview() {
+function CoachPreview({ isRTL }: { isRTL: boolean }) {
   return (
     <div className="flex gap-2 mt-3">
-      {['Find', 'Build'].map((label) => (
-        <div key={label} className="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[10px] font-bold text-foreground/80">
-          {label}
+      {[
+        { en: 'Find', he: 'מצא' },
+        { en: 'Build', he: 'בנה' },
+      ].map((label) => (
+        <div key={label.en} className="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[10px] font-bold text-foreground/80">
+          {isRTL ? label.he : label.en}
         </div>
       ))}
     </div>
@@ -139,13 +144,13 @@ export default function CityShowcaseSection() {
       icon: Fingerprint,
       title: isRTL ? 'מערכת תכונות' : 'Trait System',
       line: isRTL ? 'ה-DNA הדיגיטלי שלך כ-NFT' : 'Your digital DNA as NFT',
-      preview: <TraitBadgesPreview />,
+      preview: <TraitBadgesPreview isRTL={isRTL} />,
     },
     {
       icon: Brain,
       title: isRTL ? 'מנוע AI' : 'AI Plan Engine',
       line: isRTL ? 'תוכנית 100 יום — נבנית בשבילך' : '100-day plan — built for you',
-      preview: <PlanPulsePreview />,
+      preview: <PlanPulsePreview isRTL={isRTL} />,
     },
     {
       icon: Headphones,
@@ -163,7 +168,7 @@ export default function CityShowcaseSection() {
       icon: Users,
       title: isRTL ? 'שוק מאמנים' : 'Coach Marketplace',
       line: isRTL ? 'מצא או בנה עסק אימון' : 'Find or build a coaching biz',
-      preview: <CoachPreview />,
+      preview: <CoachPreview isRTL={isRTL} />,
     },
   ];
 

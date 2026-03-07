@@ -8,11 +8,11 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 
 const xpActions = [
-  { emoji: '🧠', action: 'Hypnosis Session', actionHe: 'סשן היפנוזה', xp: '+50 XP' },
-  { emoji: '✅', action: 'Task Complete', actionHe: 'משימה הושלמה', xp: '+20 XP' },
-  { emoji: '📚', action: 'Lesson Done', actionHe: 'שיעור הושלם', xp: '+30 XP' },
-  { emoji: '💬', action: 'Community Post', actionHe: 'פוסט בקהילה', xp: '+15 XP' },
-  { emoji: '🔥', action: '7-Day Streak', actionHe: 'רצף 7 ימים', xp: 'x1.5 Bonus' },
+  { emoji: '🧠', action: 'Hypnosis Session', actionHe: 'סשן היפנוזה', xp: '+50 XP', xpHe: '+50 XP' },
+  { emoji: '✅', action: 'Task Complete', actionHe: 'משימה הושלמה', xp: '+20 XP', xpHe: '+20 XP' },
+  { emoji: '📚', action: 'Lesson Done', actionHe: 'שיעור הושלם', xp: '+30 XP', xpHe: '+30 XP' },
+  { emoji: '💬', action: 'Community Post', actionHe: 'פוסט בקהילה', xp: '+15 XP', xpHe: '+15 XP' },
+  { emoji: '🔥', action: '7-Day Streak', actionHe: 'רצף 7 ימים', xp: 'x1.5 Bonus', xpHe: 'בונוס x1.5' },
 ];
 
 export default function GamificationSection() {
@@ -25,7 +25,7 @@ export default function GamificationSection() {
     { icon: Swords, title: isHe ? 'עץ מיומנויות' : 'Skill Tree', desc: isHe ? 'פתח מיומנויות חוצות-תחומים — כל פעולה משפיעה על skills ספציפיים' : 'Develop cross-domain skills — every action impacts specific skills', color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
     { icon: Target, title: isHe ? 'קווסטים יומיים' : 'Daily Quests', desc: isHe ? 'כל יום הוא קווסט עם שם ייחודי — שבוע שלם = קמפיין' : 'Each day is a quest with a unique name — a full week = a campaign', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
     { icon: Trophy, title: isHe ? 'תגים ולוח מובילים' : 'Badges & Leaderboards', desc: isHe ? 'הרוויח תגים על הישגים ותתחרה עם הקהילה' : 'Earn badges for achievements and compete with the community', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    { icon: BarChart3, title: isHe ? 'Movement Score' : 'Movement Score', desc: isHe ? 'ציון מומנטום בזמן אמת שמניע את האורב שלך' : 'Real-time momentum score that drives your Orb', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
+    { icon: BarChart3, title: isHe ? 'ציון תנועה' : 'Movement Score', desc: isHe ? 'ציון מומנטום בזמן אמת שמניע את האורב שלך' : 'Real-time momentum score that drives your Orb', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
   ];
 
   return (
@@ -113,7 +113,7 @@ export default function GamificationSection() {
                     <span className="text-sm">{a.emoji}</span>
                     <span className="text-xs text-foreground">{isHe ? a.actionHe : a.action}</span>
                   </div>
-                  <span className="text-xs font-black text-amber-400">{a.xp}</span>
+                  <span className="text-xs font-black text-amber-400">{isHe ? a.xpHe : a.xp}</span>
                 </motion.div>
               ))}
             </div>

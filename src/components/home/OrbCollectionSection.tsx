@@ -279,7 +279,7 @@ export default function OrbCollectionSection() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
             <Dna className="w-3.5 h-3.5" />
-            Visual DNA
+            {isHe ? 'DNA חזותי' : 'Visual DNA'}
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
             <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
