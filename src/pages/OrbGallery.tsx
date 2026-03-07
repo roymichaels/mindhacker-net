@@ -52,7 +52,15 @@ export default function OrbGalleryPage() {
     });
   }, [filters]);
 
+  const totalPages = Math.ceil(filteredOrbs.length / PAGE_SIZE);
+  const pagedOrbs = useMemo(() => {
+    const start = page * PAGE_SIZE;
+    return filteredOrbs.slice(start, start + PAGE_SIZE);
+  }, [filteredOrbs, page]);
+
+  // Reset page when filters change
   const toggleFilter = (key: string, value: string) => {
+    setPage(0);
     setFilters(prev => {
       if (prev[key] === value) {
         const next = { ...prev };
@@ -62,6 +70,8 @@ export default function OrbGalleryPage() {
       return { ...prev, [key]: value };
     });
   };
+
+  const clearFilters = () => { setFilters({}); setPage(0); };
 
   const clearFilters = () => setFilters({});
 
