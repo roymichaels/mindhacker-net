@@ -182,11 +182,11 @@ export function RoadmapSidebar() {
               onClick={handleRecalibrate}
               disabled={recalibrating}
               className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors mt-2"
-              title={isHe ? 'כיול מחדש' : 'Recalibrate'}
+              title={canAccessPlanRecalibration ? (isHe ? 'כיול מחדש' : 'Recalibrate') : 'Plus+'}
             >
               {recalibrating
                 ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                : <RefreshCw className="w-3.5 h-3.5 text-primary" />
+                : canAccessPlanRecalibration ? <RefreshCw className="w-3.5 h-3.5 text-primary" /> : <Lock className="w-3.5 h-3.5 text-muted-foreground" />
               }
             </button>
           </div>
