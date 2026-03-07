@@ -44,28 +44,35 @@ interface Lesson {
   curriculum_id: string;
 }
 
-/** Extract plain text from React children (handles nested elements) */
-function extractTextFromChildren(children: any): string {
-  if (typeof children === 'string') return children;
-  if (typeof children === 'number') return String(children);
-  if (!children) return '';
-  if (Array.isArray(children)) {
-    return children.map(extractTextFromChildren).join('');
+/**
+ * Extract visible text from a DOM element and all following siblings/parent-siblings.
+ * Used to get "text from clicked word to end of content area".
+ */
+function getTextFromElementForward(el: HTMLElement, contentRoot: HTMLElement): string {
+  const parts: string[] = [];
+  
+  // Get text from the clicked element's textContent from the click point
+  // Walk forward through DOM siblings collecting text
+  let node: Node | null = el;
+  let started = false;
+  
+  const walker = document.createTreeWalker(contentRoot, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const textNode = walker.currentNode as Text;
+    if (!started) {
+      if (textNode.parentElement === el || el.contains(textNode)) {
+        started = true;
+        parts.push(textNode.textContent || '');
+      }
+      continue;
+    }
+    // Skip buttons, inputs, badges
+    const parent = textNode.parentElement;
+    if (parent?.closest('button, input, textarea, [role="radiogroup"]')) continue;
+    parts.push(textNode.textContent || '');
   }
-  if (children?.props?.children) {
-    return extractTextFromChildren(children.props.children);
-  }
-  return '';
-}
-
-/** Find text in the full lesson and return from that position to the end */
-function getTextFromPosition(fullText: string, fragment: string): string {
-  if (!fragment || !fullText) return fullText;
-  const clean = fragment.replace(/[*#`_~\[\]()]/g, '').trim();
-  const first30 = clean.substring(0, 30);
-  const idx = fullText.indexOf(first30);
-  if (idx >= 0) return fullText.substring(idx);
-  return fullText;
+  
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 
 interface Props {
