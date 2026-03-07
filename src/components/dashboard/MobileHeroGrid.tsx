@@ -33,6 +33,26 @@ const JOURNEY_THEMES: Record<string, { he: string; en: string; emoji: string; ac
   play:      { he: 'משחק וחקירה',      en: 'Play & Explore',         emoji: '🎮', accent: 'from-lime-500/15 to-green-500/10 border-lime-500/25' },
 };
 
+// ── Map block types to 4 day quarters ──
+const QUARTER_MAP: Record<string, 'q1_morning' | 'q2_midday' | 'q3_afternoon' | 'q4_evening'> = {
+  morning: 'q1_morning',
+  training: 'q1_morning',
+  deepwork: 'q2_midday',
+  midday: 'q2_midday',
+  admin: 'q3_afternoon',
+  social: 'q3_afternoon',
+  play: 'q3_afternoon',
+  recovery: 'q4_evening',
+  evening: 'q4_evening',
+};
+
+const QUARTER_META: Record<string, { he: string; en: string; emoji: string }> = {
+  q1_morning:   { he: 'רבעון בוקר',        en: 'Morning Quarter',    emoji: '🌅' },
+  q2_midday:    { he: 'רבעון צהריים',       en: 'Midday Quarter',     emoji: '☀️' },
+  q3_afternoon: { he: 'רבעון אחה״צ',       en: 'Afternoon Quarter',  emoji: '⚡' },
+  q4_evening:   { he: 'רבעון ערב',          en: 'Evening Quarter',    emoji: '🌙' },
+};
+
 interface MobileHeroGridProps {
   planData: any;
 }
