@@ -522,9 +522,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
                   <div key={qi} className={`p-4 rounded-xl border space-y-3 ${
                     fb ? (fb.correct ? 'border-green-500/40 bg-green-500/5' : 'border-red-500/40 bg-red-500/5') : 'bg-card'
                   }`}>
-                    <p className="font-medium text-sm">
-                      {qi + 1}. <ClickableWords text={q.q} fullTextFromHere={getTextFromPosition(fullLessonText, q.q)} onWordClick={handleWordClick} />
-                    </p>
+                    <p className="font-medium text-sm">{qi + 1}. {q.q}</p>
                     <RadioGroup
                       value={quizAnswers[qi]?.toString()}
                       onValueChange={val => setQuizAnswers(prev => ({ ...prev, [qi]: parseInt(val) }))}
