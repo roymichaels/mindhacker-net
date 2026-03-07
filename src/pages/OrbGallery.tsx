@@ -230,11 +230,11 @@ export default function OrbGalleryPage() {
                     </span>
 
                     {/* Orb - rendered via shared WebGL canvas */}
-                    <div className="group-hover:scale-105 transition-transform duration-300">
+                    <div className="group-hover:scale-105 transition-transform duration-300 overflow-visible">
                       <GalleryOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
-                        size={isMobile ? 120 : 160}
+                        size={isMobile ? 200 : 280}
                       />
                     </div>
 
