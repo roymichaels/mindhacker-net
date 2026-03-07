@@ -267,9 +267,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                           </span>
                         </div>
                         {slots.map((slot) => {
-                  const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
-                  const open = isBlockOpen(slot.id);
-                  const label = isHe ? theme.he : theme.en;
+                  const blockTheme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
+                  const blockOpen = isBlockOpen(slot.id);
+                  const blockLabel = isHe ? blockTheme.he : blockTheme.en;
                   const idx = globalIdx++;
 
                   const theme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
