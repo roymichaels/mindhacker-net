@@ -4,6 +4,7 @@
  * with a single inspect panel: Header → Stat Wheel → 4 internal tabs.
  */
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
@@ -68,7 +69,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 
   // If traits gallery is open, render it full-screen
   if (traitsOpen) {
-    return (
+    return createPortal(
       <div
         role="dialog"
         className="fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden"
@@ -90,10 +91,10 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
           <TraitsTab isHe={isHe} />
         </div>
       </div>
-    );
+    , document.body);
   }
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
@@ -187,7 +188,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
 
 // ═══════════════════════════════════════════════
