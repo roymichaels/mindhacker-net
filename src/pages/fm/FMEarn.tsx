@@ -594,7 +594,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
               <div key={claim.id} className="bg-card border border-border rounded-xl p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-sm text-foreground">{claim.fm_bounties?.title || 'Bounty'}</h3>
+                    <h3 className="font-semibold text-sm text-foreground">{claim.fm_bounties?.title || (isHe ? 'באונטי' : 'Bounty')}</h3>
                     <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(claim.created_at).toLocaleDateString()}</p>
                   </div>
                   {claimBadge(claim.status)}
