@@ -122,7 +122,7 @@ export default function Documentation() {
           <AuroraOrbIcon className="w-7 h-7 text-foreground" size={28} />
           <span className="font-bold text-foreground text-sm">{brandName}</span>
           <span className="text-muted-foreground text-sm">—</span>
-          <span className="text-muted-foreground text-sm">{he ? 'נייר עמדה' : 'White Paper'}</span>
+          <span className="text-muted-foreground text-sm">{he ? 'ווייטפייפר' : 'White Paper'}</span>
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export default function Documentation() {
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {he
-              ? 'מערכת ההפעלה האישית הראשונה בעולם — נייר עמדה'
+              ? 'מערכת ההפעלה האישית הראשונה בעולם — ווייטפייפר'
               : "The World's First Personal Operating System — White Paper"
             }
           </p>
