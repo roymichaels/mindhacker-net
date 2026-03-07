@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { ArrowRight, Brain, Target, FileText, Sparkles } from 'lucide-react';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 
 export default function FreeJourneyBannerSection() {
   const { t, isRTL } = useTranslation();
