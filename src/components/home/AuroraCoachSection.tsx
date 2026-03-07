@@ -4,8 +4,21 @@
 import { motion } from 'framer-motion';
 import { Bot, Mic, Brain, Headphones, Layers } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
 import { cn } from '@/lib/utils';
+
+const AURORA_PROFILE = {
+  primaryColor: '#c084fc',
+  secondaryColors: ['#67e8f9', '#a78bfa', '#f0abfc'],
+  accentColor: '#8b5cf6',
+  morphSpeed: 0.8,
+  morphIntensity: 0.6,
+  geometryDetail: 128,
+  particleCount: 0,
+  particleEnabled: false,
+  materialPreset: 'iridescent' as const,
+  geometryFamily: 'blob' as const,
+};
 
 export default function AuroraCoachSection() {
   const { t, isRTL } = useTranslation();
@@ -40,7 +53,12 @@ export default function AuroraCoachSection() {
               animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <AuroraHoloOrb size={200} glow="full" />
+            <SharedOrbView
+              profile={AURORA_PROFILE}
+              geometryFamily="blob"
+              size={200}
+              level={100}
+            />
           </div>
         </motion.div>
 
