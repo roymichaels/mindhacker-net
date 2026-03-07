@@ -372,7 +372,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
               {BOUNTY_CATEGORIES.map((cat) => (
                 <button key={cat} onClick={() => setBFilter(cat)}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : (isHe ? CATEGORY_LABELS[cat] || cat : cat.charAt(0).toUpperCase() + cat.slice(1))}</button>
               ))}
             </div>
           )}
