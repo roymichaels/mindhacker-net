@@ -146,7 +146,12 @@ export function BottomHudBar() {
               onClick={openAurora}
               className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:bg-muted/30 active:scale-[0.95] transition-all"
             >
-              <AuroraHoloOrb size={36} glow="full" />
+              <StandaloneMorphOrb
+                size={44}
+                profile={AURORA_ORB_PROFILE}
+                geometryFamily="octa"
+                level={100}
+              />
             </button>
           </div>
         </div>
