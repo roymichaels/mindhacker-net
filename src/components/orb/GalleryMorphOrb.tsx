@@ -1,7 +1,8 @@
 /**
  * GalleryMorphOrb – R3F-based morphing orb for the gallery.
  * Uses drei View to share a single WebGL context across all orbs.
- * Each orb smoothly morphs between 2-4 geometric shapes.
+ * Each orb smoothly morphs between geometric shapes.
+ * Shape count is determined by level: Lv1=1, Lv25=2, Lv50=3, Lv75=4, Lv100=5.
  */
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -38,6 +39,12 @@ function projectVertex(nx: number, ny: number, nz: number, shape: string): [numb
       const waist = 1.2 * (1 - ay * 0.8);
       return [nx * waist, ny * 1.1, nz * waist];
     }
+    case 'tetra': {
+      // Tetrahedron-like: 4-sided pyramid shape
+      const ty = ny * 1.2;
+      const tscale = 1.0 - Math.max(0, ny) * 0.6;
+      return [nx * tscale, ty, nz * tscale];
+    }
     default: // sphere
       return [nx, ny, nz];
   }
@@ -56,22 +63,43 @@ function computeShapePositions(basePos: Float32Array, shape: string, radius: num
   return out;
 }
 
-// ─── Morph shape sets per geometry family ───
+// ─── Full shape pool per geometry family (5 shapes each) ───
 
-const MORPH_SHAPES: Record<string, string[]> = {
-  sphere:   ['sphere', 'cube', 'sphere', 'diamond'],
-  cube:     ['cube', 'octahedron', 'cube', 'sphere'],
-  dodeca:   ['sphere', 'octahedron', 'sphere', 'star'],
-  icosa:    ['sphere', 'star', 'sphere', 'diamond'],
-  octa:     ['octahedron', 'cube', 'octahedron', 'diamond'],
-  spiky:    ['star', 'octahedron', 'star', 'sphere'],
-  tetra:    ['diamond', 'octahedron', 'sphere', 'diamond'],
-  torus:    ['sphere', 'cylinder', 'sphere', 'star'],
-  cone:     ['diamond', 'sphere', 'diamond', 'octahedron'],
-  cylinder: ['cylinder', 'cube', 'cylinder', 'sphere'],
-  capsule:  ['sphere', 'cylinder', 'sphere', 'diamond'],
-  knot:     ['star', 'sphere', 'octahedron', 'star'],
+const ALL_SHAPES: Record<string, string[]> = {
+  sphere:   ['sphere', 'cube', 'diamond', 'star', 'octahedron'],
+  cube:     ['cube', 'octahedron', 'sphere', 'diamond', 'star'],
+  dodeca:   ['sphere', 'octahedron', 'star', 'diamond', 'cube'],
+  icosa:    ['sphere', 'star', 'diamond', 'octahedron', 'cube'],
+  octa:     ['octahedron', 'cube', 'diamond', 'sphere', 'star'],
+  spiky:    ['star', 'octahedron', 'sphere', 'diamond', 'cube'],
+  tetra:    ['diamond', 'octahedron', 'sphere', 'tetra', 'star'],
+  torus:    ['sphere', 'cylinder', 'star', 'diamond', 'octahedron'],
+  cone:     ['diamond', 'sphere', 'octahedron', 'star', 'cube'],
+  cylinder: ['cylinder', 'cube', 'sphere', 'diamond', 'star'],
+  capsule:  ['sphere', 'cylinder', 'diamond', 'star', 'octahedron'],
+  knot:     ['star', 'sphere', 'octahedron', 'diamond', 'cube'],
 };
+
+/**
+ * Get the number of morph shapes based on user level.
+ * Lv 1-24: 1 shape (static), Lv 25-49: 2, Lv 50-74: 3, Lv 75-99: 4, Lv 100+: 5
+ */
+export function getShapeCountForLevel(level: number): number {
+  if (level >= 100) return 5;
+  if (level >= 75) return 4;
+  if (level >= 50) return 3;
+  if (level >= 25) return 2;
+  return 1;
+}
+
+/**
+ * Get the shapes array for a given geometry family and level.
+ */
+export function getShapesForLevel(geometryFamily: string, level: number): string[] {
+  const all = ALL_SHAPES[geometryFamily] || ALL_SHAPES.sphere;
+  const count = getShapeCountForLevel(level);
+  return all.slice(0, count);
+}
 
 // ─── HSL parser ───
 
@@ -83,16 +111,21 @@ function hslToColor(hsl: string): THREE.Color {
   return new THREE.Color().setHSL(h, s, l);
 }
 
-// ─── Morphing Mesh (used inside View) ───
+// ─── Morphing Mesh (used inside View or standalone Canvas) ───
 
 interface MorphOrbMeshProps {
   profile: OrbProfile;
   geometryFamily?: string;
+  /** Level determines how many shapes the orb morphs between */
+  level?: number;
 }
 
-function MorphOrbMesh({ profile, geometryFamily = 'sphere' }: MorphOrbMeshProps) {
+export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }: MorphOrbMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const shapes = useMemo(() => MORPH_SHAPES[geometryFamily] || MORPH_SHAPES.sphere, [geometryFamily]);
+  const shapes = useMemo(
+    () => getShapesForLevel(geometryFamily, level),
+    [geometryFamily, level]
+  );
 
   const { geometry, shapeArrays } = useMemo(() => {
     const geo = new THREE.IcosahedronGeometry(1, 3);
@@ -116,22 +149,29 @@ function MorphOrbMesh({ profile, geometryFamily = 'sphere' }: MorphOrbMeshProps)
     const st = stateRef.current;
     st.timer += delta;
 
-    const HOLD = 2.5, MORPH = 1.2;
-    const CYCLE = HOLD + MORPH;
-    const t = st.timer % CYCLE;
-    const idx = Math.floor(st.timer / CYCLE) % shapes.length;
-    const next = (idx + 1) % shapes.length;
-
     const positions = meshRef.current.geometry.attributes.position;
     const arr = positions.array as Float32Array;
-    const from = shapeArrays[idx], to = shapeArrays[next];
 
-    if (t < HOLD) {
+    if (shapes.length <= 1) {
+      // Single shape — no morphing, just apply the shape statically
+      const from = shapeArrays[0];
       for (let i = 0; i < arr.length; i++) arr[i] = from[i];
     } else {
-      const p = (t - HOLD) / MORPH;
-      const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-      for (let i = 0; i < arr.length; i++) arr[i] = from[i] + (to[i] - from[i]) * e;
+      const HOLD = 2.5, MORPH = 1.2;
+      const CYCLE = HOLD + MORPH;
+      const t = st.timer % CYCLE;
+      const idx = Math.floor(st.timer / CYCLE) % shapes.length;
+      const next = (idx + 1) % shapes.length;
+
+      const from = shapeArrays[idx], to = shapeArrays[next];
+
+      if (t < HOLD) {
+        for (let i = 0; i < arr.length; i++) arr[i] = from[i];
+      } else {
+        const p = (t - HOLD) / MORPH;
+        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+        for (let i = 0; i < arr.length; i++) arr[i] = from[i] + (to[i] - from[i]) * e;
+      }
     }
 
     positions.needsUpdate = true;
@@ -159,18 +199,45 @@ interface GalleryOrbViewProps {
   profile: OrbProfile;
   geometryFamily: string;
   size: number;
+  level?: number;
   className?: string;
 }
 
-export function GalleryOrbView({ profile, geometryFamily, size, className }: GalleryOrbViewProps) {
+export function GalleryOrbView({ profile, geometryFamily, size, level = 100, className }: GalleryOrbViewProps) {
   return (
     <View className={className} style={{ width: size, height: size, margin: '0 auto' }}>
       <ambientLight intensity={0.7} />
       <directionalLight position={[3, 3, 5]} intensity={1.2} />
       <directionalLight position={[-2, -1, -3]} intensity={0.3} color="#8888ff" />
       <perspectiveCamera position={[0, 0, 3.2]} fov={40} />
-      <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} />
+      <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
     </View>
+  );
+}
+
+// ─── Public: Standalone morphing orb in its own Canvas (for single-orb use) ───
+
+interface StandaloneMorphOrbProps {
+  profile: OrbProfile;
+  geometryFamily: string;
+  size: number;
+  level?: number;
+}
+
+export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 }: StandaloneMorphOrbProps) {
+  return (
+    <div style={{ width: size, height: size }}>
+      <Canvas
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        camera={{ position: [0, 0, 3.2], fov: 40 }}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[3, 3, 5]} intensity={1.2} />
+        <directionalLight position={[-2, -1, -3]} intensity={0.3} color="#8888ff" />
+        <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
+      </Canvas>
+    </div>
   );
 }
 
