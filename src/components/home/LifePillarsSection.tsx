@@ -27,7 +27,7 @@ const pillars = [
 
 const LifePillarsSection = () => {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   const [activePillar, setActivePillar] = useState<typeof pillars[0] | null>(null);
 
   const handlePillarClick = (pillarId: string) => {
