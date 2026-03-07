@@ -2,12 +2,35 @@
 User-agent: *
 Allow: /
 
-# Disallow admin and auth pages
+# Disallow private/auth/admin pages
+Disallow: /admin-hub
 Disallow: /admin/
-Disallow: /admin-login
-Disallow: /dashboard
-Disallow: /login
-Disallow: /signup
+Disallow: /panel/
+Disallow: /now
+Disallow: /messages
+Disallow: /strategy
+Disallow: /tactics
+Disallow: /fm/
+Disallow: /coach/
+Disallow: /affiliate/
+Disallow: /launchpad/
+Disallow: /community
+Disallow: /business
+Disallow: /freelancer
+Disallow: /creator
+Disallow: /learn
+Disallow: /quests/
+
+# Allow public content
+Allow: /blog
+Allow: /courses
+Allow: /coaches
+Allow: /docs
+Allow: /features/
+Allow: /onboarding
+Allow: /personal-hypnosis
+Allow: /consciousness-leap
+Allow: /install
 
 # Sitemap location
-Sitemap: https://mindos.app/sitemap.xml
+Sitemap: https://mindos.space/sitemap.xml
