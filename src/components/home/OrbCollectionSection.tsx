@@ -312,7 +312,7 @@ export default function OrbCollectionSection() {
           </p>
           <Button
             size="lg"
-            onClick={() => navigate('/onboarding')}
+            onClick={openWelcomeGate}
             className="rounded-xl px-8 py-6 text-base font-bold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity"
           >
             <Fingerprint className={cn('w-5 h-5', isRTL ? 'ml-2' : 'mr-2')} />
