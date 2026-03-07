@@ -409,7 +409,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
       </div>
 
       {/* Content */}
-      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-6 py-4">
+      <div ref={contentRef} onClick={handleContentClick} className="flex-1 overflow-y-auto px-6 py-4 cursor-pointer [&_p:hover]:bg-primary/5 [&_li:hover]:bg-primary/5 [&_h1:hover]:bg-primary/5 [&_h2:hover]:bg-primary/5 [&_h3:hover]:bg-primary/5 [&_h4:hover]:bg-primary/5 [&_p]:rounded [&_li]:rounded [&_h1]:rounded [&_h2]:rounded [&_h3]:rounded [&_h4]:rounded [&_p]:transition-colors [&_li]:transition-colors">
         <div className="max-w-2xl mx-auto space-y-6 text-start">
           {/* ── THEORY ── */}
           {lesson.lesson_type === 'theory' && (
