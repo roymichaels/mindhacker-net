@@ -241,9 +241,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
   }, [open, action, isRTL]);
 
-  // AI Enhancement: fetch detailed steps in background with 20s timeout
+  // AI Enhancement: fetch detailed steps in background with 20s timeout (Plus+ only)
   useEffect(() => {
-    if (!open || !action) return;
+    if (!open || !action || !canAccessAIExecution) return;
 
     const cacheKey = `${action.actionType}_${action.title}_${language}`;
     const cached = enhanceCacheRef.current.get(cacheKey);
