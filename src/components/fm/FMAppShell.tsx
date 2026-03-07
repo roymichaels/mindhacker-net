@@ -33,7 +33,7 @@ export default function FMAppShell() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 -mx-2 lg:-mx-3">
+    <div className="flex flex-col h-full min-h-0 -mx-2 lg:-mx-3 -mb-52 md:-mb-24 pb-14 md:pb-0">
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         <Outlet />
       </div>

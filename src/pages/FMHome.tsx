@@ -1,8 +1,6 @@
 import { useFMWallet, useFMTransactions } from '@/hooks/useFMWallet';
-import { FMAuroraCard } from '@/components/fm/FMAuroraCard';
 import { FMQuickActions } from '@/components/fm/FMQuickActions';
 import { FMActivityFeed } from '@/components/fm/FMActivityFeed';
-import { useAuroraOpportunities } from '@/hooks/fm/useAuroraOpportunities';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Coins } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +10,7 @@ const MOS_TO_USD = 0.01;
 export default function FMHome() {
   const { wallet } = useFMWallet();
   const { data: transactions = [], isLoading: txLoading } = useFMTransactions();
-  const { opportunities } = useAuroraOpportunities();
+  
   const { language } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
@@ -22,8 +20,6 @@ export default function FMHome() {
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* Aurora opportunity — PRIMARY CTA */}
-      <FMAuroraCard opportunities={opportunities} />
 
       {/* Compact balance */}
       <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3">

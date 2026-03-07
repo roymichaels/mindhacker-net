@@ -4,8 +4,6 @@
  * Route: /fm/earn — bottom tab label "Earn"
  */
 import { useState } from 'react';
-import { FMAuroraCard } from '@/components/fm/FMAuroraCard';
-import { useAuroraOpportunities } from '@/hooks/fm/useAuroraOpportunities';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
@@ -57,7 +55,7 @@ interface FMEarnProps {
 export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFilter: externalCatFilter, onCategoryChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const { opportunities } = useAuroraOpportunities();
+  
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -297,8 +295,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* Aurora suggestion */}
-      <FMAuroraCard opportunities={opportunities} />
 
       {/* ═══════ DASHBOARD OVERVIEW ═══════ */}
       {showDashboard && (
