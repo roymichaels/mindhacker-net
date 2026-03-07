@@ -2,15 +2,15 @@
  * BottomHudBar — 3-column grid HUD.
  * Left: Personalized orb + job title → opens Profile
  * Middle: XP progress bar
- * Right: Aurora orb → opens Aurora dock
+ * Right: Aurora orb → opens Aurora dock (with intro balloon)
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress } from '@/hooks/useGameState';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -24,14 +24,31 @@ export function BottomHudBar() {
   const ctx = useAuroraChatContextSafe();
 
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showBalloon, setShowBalloon] = useState(false);
 
   const identityTitle = dashboard.identityTitle;
 
+  // Show balloon after 3s, hide after 8s
+  useEffect(() => {
+    const dismissed = sessionStorage.getItem('aurora-balloon-dismissed');
+    if (dismissed) return;
+    const showTimer = setTimeout(() => setShowBalloon(true), 3000);
+    const hideTimer = setTimeout(() => setShowBalloon(false), 11000);
+    return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
+  }, []);
+
   const openAurora = () => {
+    setShowBalloon(false);
+    sessionStorage.setItem('aurora-balloon-dismissed', '1');
     if (ctx) {
       ctx.setIsDockVisible(true);
       ctx.setIsChatExpanded(true);
     }
+  };
+
+  const dismissBalloon = () => {
+    setShowBalloon(false);
+    sessionStorage.setItem('aurora-balloon-dismissed', '1');
   };
 
   return (
@@ -78,12 +95,45 @@ export function BottomHudBar() {
           </div>
 
           {/* ── RIGHT: Aurora Orb → Opens Dock ── */}
-          <button
-            onClick={openAurora}
-            className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:bg-muted/30 active:scale-[0.95] transition-all"
-          >
-            <AuroraHoloOrb size={36} glow="full" />
-          </button>
+          <div className="relative">
+            {/* Balloon tooltip */}
+            <AnimatePresence>
+              {showBalloon && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.9 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  onClick={dismissBalloon}
+                  className={cn(
+                    "absolute bottom-full mb-2 z-50 cursor-pointer",
+                    isRTL ? "left-0" : "right-0"
+                  )}
+                >
+                  <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
+                    <p className="text-[11px] font-semibold leading-tight">
+                      {isHe ? '👋 היי, אני אורורה!' : '👋 Hey, I\'m Aurora!'}
+                    </p>
+                    <p className="text-[10px] opacity-90 mt-0.5">
+                      {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
+                    </p>
+                    {/* Tail arrow */}
+                    <div className={cn(
+                      "absolute -bottom-1.5 w-3 h-3 bg-primary rotate-45 rounded-sm",
+                      isRTL ? "left-4" : "right-4"
+                    )} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              onClick={openAurora}
+              className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:bg-muted/30 active:scale-[0.95] transition-all"
+            >
+              <AuroraHoloOrb size={36} glow="full" />
+            </button>
+          </div>
         </div>
       </div>
 
