@@ -58,6 +58,7 @@ const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPendi
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const Documentation = lazy(() => import("./pages/Documentation"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const CommunityLayoutWrapper = lazy(() => import("./components/community/CommunityLayoutWrapper"));
@@ -280,6 +281,7 @@ const App = () => (
                           element={<Navigate to="/affiliate" replace />}
                         />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
+                        <Route path="/docs" element={<Documentation />} />
 
                         {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
                         <Route element={<ProtectedAppShell />}>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText } from 'lucide-react';
 import { Flame, Gem, Star } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -239,6 +239,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               {(isAdmin || isPractitioner || isAffiliate) && <DropdownMenuSeparator />}
             </>
           )}
+
+          {/* Documentation */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/docs'); }}>
+            <FileText className="h-4 w-4 me-2" />
+            {language === 'he' ? 'נייר עמדה' : 'White Paper'}
+          </DropdownMenuItem>
 
           {/* Subscription */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); openSubscriptions(); }}>
