@@ -1,5 +1,6 @@
 /**
  * GameHeroSection — Cinematic minimal hero for NFT game landing
+ * Uses CSS-only animated orb to avoid WebGL context issues
  */
 import { motion } from 'framer-motion';
 import { Sparkles, Zap } from 'lucide-react';
@@ -7,13 +8,52 @@ import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { ORB_PRESETS } from '@/lib/orbPresets';
+
+function CSSHeroOrb() {
+  return (
+    <div className="relative w-[200px] h-[200px] md:w-[280px] md:h-[280px]">
+      {/* Outer glow */}
+      <div className="absolute inset-[-30%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.3),transparent_70%)] blur-2xl animate-pulse" />
+      {/* Main orb body */}
+      <div
+        className="absolute inset-0 rounded-full animate-spin"
+        style={{
+          animationDuration: '20s',
+          background: `
+            radial-gradient(circle at 35% 35%, hsl(var(--accent) / 0.9), transparent 60%),
+            radial-gradient(circle at 65% 65%, hsl(var(--primary) / 0.8), transparent 50%),
+            radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.6), hsl(var(--accent) / 0.3))
+          `,
+          boxShadow: `
+            inset 0 0 60px hsl(var(--primary) / 0.4),
+            0 0 80px hsl(var(--primary) / 0.3),
+            0 0 120px hsl(var(--accent) / 0.15)
+          `,
+        }}
+      />
+      {/* Inner highlight */}
+      <div
+        className="absolute inset-[15%] rounded-full opacity-60"
+        style={{
+          background: 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.3), transparent 60%)',
+        }}
+      />
+      {/* Shimmer overlay */}
+      <motion.div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: 'linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)',
+        }}
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+      />
+    </div>
+  );
+}
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const { openWelcomeGate } = useWelcomeGate();
-  const auroraSkinPreset = ORB_PRESETS.find(p => p.id === 'aurora-skin');
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -73,24 +113,14 @@ export default function GameHeroSection() {
             </span>
           </motion.h1>
 
-          {/* Aurora Skin Orb */}
+          {/* CSS Orb */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
             className="flex justify-center"
           >
-            <div className="relative">
-              <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] blur-2xl pointer-events-none" />
-              {auroraSkinPreset && (
-                <StandaloneMorphOrb
-                  profile={auroraSkinPreset.profile}
-                  geometryFamily={auroraSkinPreset.profile.geometryFamily || 'sphere'}
-                  size={240}
-                  level={100}
-                />
-              )}
-            </div>
+            <CSSHeroOrb />
           </motion.div>
 
           {/* CTA */}
