@@ -41,7 +41,7 @@ export const updateMetaTags = (config: SEOConfig) => {
     title,
     description,
     keywords,
-    image = 'https://mindos.app/og-image.png',
+    image = 'https://mindos.space/og-image.png',
     url = window.location.href,
     type = 'website',
     author,
