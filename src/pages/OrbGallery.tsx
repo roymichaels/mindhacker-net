@@ -242,7 +242,7 @@ export default function OrbGalleryPage() {
                     <h3 className="relative z-[2] text-xs md:text-sm font-bold text-foreground text-center mt-2">
                       {isHe ? orb.nameHe : orb.nameEn}
                     </h3>
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
+                    <p className="relative z-[2] text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
                       {isHe ? orb.descHe : orb.descEn}
                     </p>
 
