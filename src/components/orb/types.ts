@@ -17,7 +17,7 @@ export interface OrbRef {
   setTunnelMode: (enabled: boolean) => void;
 }
 
-export type GeometryFamily = 'sphere' | 'torus' | 'dodeca' | 'icosa' | 'octa' | 'spiky';
+export type GeometryFamily = 'sphere' | 'torus' | 'dodeca' | 'icosa' | 'octa' | 'spiky' | 'tetra' | 'cube' | 'cone' | 'cylinder' | 'capsule' | 'knot';
 export type DiagnosticState = 'ok' | 'missing_data' | 'no_user';
 
 // === NEW visual uniqueness types ===
