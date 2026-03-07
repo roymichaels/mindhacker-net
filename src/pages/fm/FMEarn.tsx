@@ -320,15 +320,23 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
     return <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.cls}`}>{isHe ? s.he : s.en}</span>;
   };
 
-  // ──── TAB CONFIG ────
-  const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode; color: string; borderColor: string; iconColor: string; statValue: number; statLabelEn: string; statLabelHe: string }[] = [
-    { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-6 h-6" />, color: 'from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20', borderColor: 'border-amber-200 dark:border-amber-800/40', iconColor: 'text-amber-500', statValue: filteredBounties.length, statLabelEn: 'available', statLabelHe: 'זמינים' },
-    { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-6 h-6" />, color: 'from-blue-50 to-sky-50 dark:from-blue-950/30 dark:to-sky-950/20', borderColor: 'border-blue-200 dark:border-blue-800/40', iconColor: 'text-blue-500', statValue: gigs.length, statLabelEn: 'open', statLabelHe: 'פתוחים' },
-    { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-6 h-6" />, color: 'from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20', borderColor: 'border-emerald-200 dark:border-emerald-800/40', iconColor: 'text-emerald-500', statValue: DATA_OFFERS.length, statLabelEn: 'offers', statLabelHe: 'הצעות' },
-    { id: 'activity', labelEn: 'Activity', labelHe: 'פעילות', icon: <ListChecks className="w-6 h-6" />, color: 'from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/20', borderColor: 'border-violet-200 dark:border-violet-800/40', iconColor: 'text-violet-500', statValue: claims.length, statLabelEn: 'claims', statLabelHe: 'הגשות' },
-    { id: 'mining', labelEn: 'Mining', labelHe: 'כרייה', icon: <Pickaxe className="w-6 h-6" />, color: 'from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20', borderColor: 'border-orange-200 dark:border-orange-800/40', iconColor: 'text-orange-500', statValue: 0, statLabelEn: 'mined today', statLabelHe: 'נכרו היום' },
-    { id: 'partners', labelEn: 'Partners', labelHe: 'שותפים', icon: <Link2 className="w-6 h-6" />, color: 'from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/20', borderColor: 'border-pink-200 dark:border-pink-800/40', iconColor: 'text-pink-500', statValue: affiliateReferrals.length, statLabelEn: 'referrals', statLabelHe: 'הפניות' },
+  // ──── TAB CONFIG — MapleStory item rarity style ────
+  const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode; rarity: string; statValue: number; statLabelEn: string; statLabelHe: string }[] = [
+    { id: 'bounties', labelEn: 'Bounties', labelHe: 'באונטיז', icon: <Target className="w-6 h-6" />, rarity: 'epic', statValue: filteredBounties.length, statLabelEn: 'available', statLabelHe: 'זמינים' },
+    { id: 'gigs', labelEn: 'Gigs', labelHe: 'עבודות', icon: <Briefcase className="w-6 h-6" />, rarity: 'rare', statValue: gigs.length, statLabelEn: 'open', statLabelHe: 'פתוחים' },
+    { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-6 h-6" />, rarity: 'uncommon', statValue: DATA_OFFERS.length, statLabelEn: 'offers', statLabelHe: 'הצעות' },
+    { id: 'activity', labelEn: 'Activity', labelHe: 'פעילות', icon: <ListChecks className="w-6 h-6" />, rarity: 'common', statValue: claims.length, statLabelEn: 'claims', statLabelHe: 'הגשות' },
+    { id: 'mining', labelEn: 'Mining', labelHe: 'כרייה', icon: <Pickaxe className="w-6 h-6" />, rarity: 'legendary', statValue: 0, statLabelEn: 'mined today', statLabelHe: 'נכרו היום' },
+    { id: 'partners', labelEn: 'Partners', labelHe: 'שותפים', icon: <Link2 className="w-6 h-6" />, rarity: 'common', statValue: affiliateReferrals.length, statLabelEn: 'referrals', statLabelHe: 'הפניות' },
   ];
+
+  const RARITY_STYLES: Record<string, { border: string; bg: string; iconBg: string; glow: string; label: { en: string; he: string; color: string } }> = {
+    legendary: { border: 'border-amber-500/50', bg: 'from-amber-500/12 to-orange-500/5', iconBg: 'from-amber-500 to-orange-600', glow: 'hover:shadow-amber-500/15', label: { en: 'LEGENDARY', he: 'אגדי', color: 'text-amber-400' } },
+    epic: { border: 'border-purple-500/50', bg: 'from-purple-500/12 to-fuchsia-500/5', iconBg: 'from-purple-500 to-fuchsia-600', glow: 'hover:shadow-purple-500/15', label: { en: 'EPIC', he: 'אפי', color: 'text-purple-400' } },
+    rare: { border: 'border-sky-500/50', bg: 'from-sky-500/12 to-blue-500/5', iconBg: 'from-sky-500 to-blue-600', glow: 'hover:shadow-sky-500/15', label: { en: 'RARE', he: 'נדיר', color: 'text-sky-400' } },
+    uncommon: { border: 'border-emerald-500/50', bg: 'from-emerald-500/12 to-teal-500/5', iconBg: 'from-emerald-500 to-teal-600', glow: 'hover:shadow-emerald-500/15', label: { en: 'UNCOMMON', he: 'לא שכיח', color: 'text-emerald-400' } },
+    common: { border: 'border-zinc-400/40', bg: 'from-zinc-500/10 to-zinc-400/5', iconBg: 'from-zinc-500 to-zinc-600', glow: 'hover:shadow-zinc-500/10', label: { en: 'COMMON', he: 'רגיל', color: 'text-zinc-400' } },
+  };
 
   const isMobile = useIsMobile();
   const hasSidebarNav = !!externalTab && !isMobile;
@@ -346,12 +354,12 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
 
-      {/* ═══════ DASHBOARD OVERVIEW ═══════ */}
+      {/* ═══════ DASHBOARD OVERVIEW — Merchant Shop Grid ═══════ */}
       {showDashboard && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-foreground flex items-center justify-center gap-2">
-              <Coins className="w-5 h-5 text-amber-500" />
+            <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
+              <Coins className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
               {isHe ? 'הרוויח MOS' : 'Earn MOS'}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -360,40 +368,50 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {TABS.map((t, i) => (
-              <motion.button
-                key={t.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07 }}
-                onClick={() => enterTab(t.id)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border bg-gradient-to-br ${t.color} ${t.borderColor} hover:scale-[1.02] active:scale-[0.98] transition-transform`}
-              >
-                <div className="w-12 h-12 rounded-xl bg-background/80 flex items-center justify-center">
-                  <span className={t.iconColor}>{t.icon}</span>
-                </div>
-                <h3 className="font-semibold text-sm text-foreground">{isHe ? t.labelHe : t.labelEn}</h3>
-                <span className="text-xs text-muted-foreground">
-                  {t.statValue} {isHe ? t.statLabelHe : t.statLabelEn}
-                </span>
-              </motion.button>
-            ))}
+            {TABS.map((t, i) => {
+              const style = RARITY_STYLES[t.rarity] || RARITY_STYLES.common;
+              return (
+                <motion.button
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
+                  onClick={() => enterTab(t.id)}
+                  className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 bg-gradient-to-br transition-all hover:scale-[1.03] active:scale-[0.97] hover:shadow-xl ${style.border} ${style.bg} ${style.glow}`}
+                >
+                  {/* Rarity label */}
+                  <span className={`absolute top-1.5 end-2 text-[7px] font-black uppercase tracking-[0.15em] ${style.label.color}`}>
+                    {isHe ? style.label.he : style.label.en}
+                  </span>
+
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${style.iconBg} flex items-center justify-center shadow-lg`}>
+                    <span className="text-white/90">{t.icon}</span>
+                  </div>
+                  <h3 className="font-bold text-sm text-foreground">{isHe ? t.labelHe : t.labelEn}</h3>
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    {t.statValue} {isHe ? t.statLabelHe : t.statLabelEn}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* ═══════ DRILLED TAB VIEW ═══════ */}
+      {/* ═══════ DRILLED TAB VIEW — Tab strip ═══════ */}
       {!showDashboard && (
         <div className="flex items-center gap-2">
-          <button onClick={backToDashboard} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={backToDashboard} className="flex items-center gap-1 text-sm text-amber-400/70 hover:text-amber-300 font-semibold transition-colors">
             <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
             {isHe ? 'חזרה' : 'Back'}
           </button>
-          <div className="flex gap-0.5 flex-1 bg-muted/50 rounded-lg p-1 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-0.5 flex-1 bg-amber-500/5 border border-amber-500/10 rounded-lg p-1 overflow-x-auto scrollbar-hide">
             {TABS.map((t) => (
               <button key={t.id} onClick={() => switchTab(t.id)}
-                className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-colors flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
-                  tab === t.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+                className={`flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all flex items-center justify-center gap-1 whitespace-nowrap px-2 ${
+                  tab === t.id
+                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/20 shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {t.icon} {isHe ? t.labelHe : t.labelEn}
