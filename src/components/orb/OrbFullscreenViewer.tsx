@@ -80,7 +80,7 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
           {/* Centered orb */}
           <motion.div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: 'relative', zIndex: 5, width: orbSize, height: orbSize }}
+            style={{ position: 'relative', zIndex: 5, width: orbSize, height: orbSize, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.2, opacity: 0 }}
