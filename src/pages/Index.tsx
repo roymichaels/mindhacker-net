@@ -14,6 +14,7 @@ import {
   CityShowcaseSection,
   TraitShowcaseSection,
   PlanCinematicSection,
+  RoadmapSection,
   FinalCTASection,
 } from "@/components/home";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
@@ -77,6 +78,7 @@ const Index = () => {
           <CityShowcaseSection />
           <TraitShowcaseSection />
           <PlanCinematicSection />
+          <RoadmapSection />
           <FinalCTASection />
         </main>
       </WelcomeGateProvider>
