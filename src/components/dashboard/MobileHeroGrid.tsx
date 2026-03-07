@@ -17,6 +17,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield } from 'lucide-react';
+import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ── Adventure-themed block labels ──
