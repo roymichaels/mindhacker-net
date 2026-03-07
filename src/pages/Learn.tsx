@@ -14,6 +14,7 @@ import {
   FileText, Brain, Target, Flame, Clock, Zap, ChevronDown, ChevronUp, Plus,
   ChevronLeft, RefreshCw, Loader2,
 } from 'lucide-react';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
