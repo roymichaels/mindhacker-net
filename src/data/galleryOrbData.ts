@@ -766,6 +766,12 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
       { value: 'octa', labelEn: 'Octa', labelHe: 'אוקטהדרון' },
       { value: 'torus', labelEn: 'Torus', labelHe: 'טורוס' },
       { value: 'spiky', labelEn: 'Spiky', labelHe: 'קוצני' },
+      { value: 'tetra', labelEn: 'Tetra', labelHe: 'טטרהדרון' },
+      { value: 'cube', labelEn: 'Cube', labelHe: 'קוביה' },
+      { value: 'cone', labelEn: 'Cone', labelHe: 'חרוט' },
+      { value: 'cylinder', labelEn: 'Cylinder', labelHe: 'גליל' },
+      { value: 'capsule', labelEn: 'Capsule', labelHe: 'קפסולה' },
+      { value: 'knot', labelEn: 'Knot', labelHe: 'קשר' },
     ],
   },
   {
