@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PersonalizedOrb from './PersonalizedOrb';
 import type { OrbProfile } from './types';
 import { StandaloneMorphOrb } from './GalleryMorphOrb';
+import { createPortal } from 'react-dom';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
