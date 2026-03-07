@@ -47,7 +47,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
             </span>
           </div>
 
-          <nav className="flex items-center gap-0.5 sm:gap-1">
+          <nav className="hidden sm:flex items-center gap-0.5 sm:gap-1">
             {FM_TABS.map((tab) => {
               const active = isTabActive(tab);
               const Icon = tab.icon;
