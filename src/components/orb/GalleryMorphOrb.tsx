@@ -381,15 +381,16 @@ interface GalleryOrbViewProps {
   geometryFamily: string;
   size: number;
   level?: number;
+  randomShapeCount?: boolean;
   className?: string;
 }
 
-export function GalleryOrbView({ profile, geometryFamily, size, level = 100, className }: GalleryOrbViewProps) {
+export function GalleryOrbView({ profile, geometryFamily, size, level = 100, randomShapeCount = false, className }: GalleryOrbViewProps) {
   return (
     <View className={className} style={{ width: size, height: size, margin: '0 auto' }}>
       <OrbLighting />
       <perspectiveCamera position={[0, 0, 3]} fov={40} />
-      <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
+      <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} randomShapeCount={randomShapeCount} />
     </View>
   );
 }
