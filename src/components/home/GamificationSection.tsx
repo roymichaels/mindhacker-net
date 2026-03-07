@@ -113,7 +113,7 @@ export default function GamificationSection() {
                     <span className="text-sm">{a.emoji}</span>
                     <span className="text-xs text-foreground">{isHe ? a.actionHe : a.action}</span>
                   </div>
-                  <span className="text-xs font-black text-amber-400">{isHe ? (a as any).xpHe || a.xp : a.xp}</span>
+                  <span className="text-xs font-black text-amber-400">{isHe ? a.xpHe : a.xp}</span>
                 </motion.div>
               ))}
             </div>
