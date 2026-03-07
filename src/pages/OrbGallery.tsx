@@ -374,6 +374,15 @@ export default function OrbGalleryPage() {
         )}
       </AnimatePresence>
 
+      {/* Fullscreen viewer for gallery orbs */}
+      {fullscreenOrb && (
+        <OrbFullscreenViewer
+          open={!!fullscreenOrb}
+          onClose={() => setFullscreenOrb(null)}
+          profile={fullscreenOrb.profile}
+        />
+      )}
+
       <Footer />
     </div>
   );
