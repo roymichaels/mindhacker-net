@@ -142,59 +142,65 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
     const primary = hslToColor(profile.primaryColor || '200 50% 50%');
     const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
     const mat = profile.materialType || 'glass';
+    const mp = profile.materialParams;
 
-    // Dramatically different material presets per type
+    // Base: use per-profile materialParams but enforce strong type differentiation
     switch (mat) {
       case 'metal':
         return {
           color: primary, emissive: accent,
-          metalness: 0.85, roughness: 0.15,
-          clearcoat: 0.3, clearcoatRoughness: 0.05,
-          emissiveIntensity: 0.1, envMapIntensity: 2.5,
+          metalness: 0.9, roughness: mp?.roughness ?? 0.15,
+          clearcoat: 0.2, clearcoatRoughness: 0.05,
+          emissiveIntensity: 0.08, envMapIntensity: 3.0,
           transmission: 0, ior: 1.5, thickness: 0,
           sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
           iridescence: 0, iridescenceIOR: 1.3,
+          opacity: 1, transparent: false,
         };
       case 'iridescent':
         return {
           color: primary, emissive: accent,
-          metalness: 0.2, roughness: 0.1,
-          clearcoat: 1.0, clearcoatRoughness: 0.05,
-          emissiveIntensity: 0.25, envMapIntensity: 2.0,
-          transmission: 0.15, ior: 2.0, thickness: 0.3,
-          sheen: 1.0, sheenRoughness: 0.2, sheenColor: accent,
-          iridescence: 1.0, iridescenceIOR: 1.8,
+          metalness: 0.15, roughness: 0.05,
+          clearcoat: 1.0, clearcoatRoughness: 0.02,
+          emissiveIntensity: mp?.emissiveIntensity ?? 0.2, envMapIntensity: 2.2,
+          transmission: 0, ior: 2.0, thickness: 0,
+          sheen: 1.0, sheenRoughness: 0.15, sheenColor: accent,
+          iridescence: 1.0, iridescenceIOR: 2.0,
+          opacity: 0.92, transparent: true,
         };
       case 'plasma':
         return {
           color: primary, emissive: accent,
-          metalness: 0.0, roughness: 0.05,
-          clearcoat: 0.8, clearcoatRoughness: 0.0,
-          emissiveIntensity: 0.6, envMapIntensity: 1.0,
-          transmission: 0.4, ior: 1.8, thickness: 0.8,
+          metalness: 0.0, roughness: 0.0,
+          clearcoat: 0.6, clearcoatRoughness: 0.0,
+          emissiveIntensity: 0.8, envMapIntensity: 0.8,
+          transmission: 0, ior: 1.5, thickness: 0,
           sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-          iridescence: 0.3, iridescenceIOR: 1.5,
+          iridescence: 0.4, iridescenceIOR: 1.6,
+          opacity: 0.85, transparent: true,
         };
       case 'wire':
         return {
           color: primary, emissive: accent,
-          metalness: 0.5, roughness: 0.6,
-          clearcoat: 0.0, clearcoatRoughness: 0.3,
-          emissiveIntensity: 0.05, envMapIntensity: 1.2,
+          metalness: 0.4, roughness: 0.7,
+          clearcoat: 0.0, clearcoatRoughness: 0.5,
+          emissiveIntensity: 0.03, envMapIntensity: 0.8,
           transmission: 0, ior: 1.5, thickness: 0,
-          sheen: 0.4, sheenRoughness: 0.8, sheenColor: primary,
+          sheen: 0.6, sheenRoughness: 0.9, sheenColor: primary,
           iridescence: 0, iridescenceIOR: 1.3,
+          opacity: 0.7, transparent: true,
         };
       case 'glass':
       default:
         return {
           color: primary, emissive: accent,
-          metalness: 0.0, roughness: 0.05,
-          clearcoat: 0.9, clearcoatRoughness: 0.02,
-          emissiveIntensity: 0.08, envMapIntensity: 2.0,
-          transmission: 0.6, ior: 1.45, thickness: 0.5,
+          metalness: 0.0, roughness: 0.02,
+          clearcoat: 1.0, clearcoatRoughness: 0.01,
+          emissiveIntensity: 0.05, envMapIntensity: 2.0,
+          transmission: 0.7, ior: 1.45, thickness: 0.5,
           sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
           iridescence: 0, iridescenceIOR: 1.3,
+          opacity: 1, transparent: true,
         };
     }
   }, [profile]);
@@ -304,6 +310,8 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
         sheenColor={matProps.sheenColor}
         iridescence={matProps.iridescence}
         iridescenceIOR={matProps.iridescenceIOR}
+        opacity={matProps.opacity}
+        transparent={matProps.transparent}
       />
     </mesh>
   );
