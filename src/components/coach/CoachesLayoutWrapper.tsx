@@ -1,56 +1,17 @@
-import { Suspense, lazy, useState } from 'react';
-import { useCoachSidebars } from '@/pages/Coaches';
-import { useUserRoles } from '@/hooks/useUserRoles';
-import { useAuth } from '@/contexts/AuthContext';
+import { Suspense, lazy } from 'react';
 import { useSidebars } from '@/hooks/useSidebars';
 import { FMBottomNav } from '@/components/fm/FMBottomNav';
 
 const Coaches = lazy(() => import('@/pages/Coaches'));
 
 export default function CoachesLayoutWrapper() {
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const { hasRole, loading } = useUserRoles();
-  const { user } = useAuth();
-  const isPractitioner = !loading && user && hasRole('practitioner');
-
-  const handleTabChange = (tab: string) => {
-    setSelectedClientId(null);
-    setActiveTab(tab);
-  };
-
-  const { leftSidebar, rightSidebar } = useCoachSidebars(
-    selectedClientId,
-    setSelectedClientId,
-    activeTab,
-    handleTabChange,
-  );
-
-  useSidebars(
-    !loading && !isPractitioner ? null : leftSidebar,
-    !loading && !isPractitioner ? null : rightSidebar,
-    [loading, isPractitioner, activeTab, selectedClientId]
-  );
-
-  if (!loading && !isPractitioner) {
-    return (
-      <>
-        <Suspense fallback={null}>
-          <Coaches />
-        </Suspense>
-        <FMBottomNav />
-      </>
-    );
-  }
+  // Suppress all sidebars — navigation is inline now
+  useSidebars(null, null, []);
 
   return (
     <>
       <Suspense fallback={null}>
-        <Coaches
-          selectedClientId={selectedClientId}
-          onClearClient={() => setSelectedClientId(null)}
-          activeTab={activeTab}
-        />
+        <Coaches />
       </Suspense>
       <FMBottomNav />
     </>
