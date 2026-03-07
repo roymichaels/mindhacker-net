@@ -129,7 +129,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             onClick={() => setOrbDNAOpen(true)}
           >
             <div className="absolute -inset-2 rounded-full border border-amber-500/30" style={{ boxShadow: '0 0 20px hsla(35, 80%, 50%, 0.15)' }} />
-            <PersonalizedOrb size={72} state="idle" />
+            <PersonalizedOrb size={80} state="idle" />
           </button>
 
           {/* Identity title */}
