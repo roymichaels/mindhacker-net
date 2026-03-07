@@ -433,7 +433,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {BOUNTY_CATEGORIES.map((cat) => (
                 <button key={cat} onClick={() => setBFilter(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${bFilter === cat ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' : 'bg-transparent text-muted-foreground border-border/50 hover:border-amber-500/20 hover:text-foreground'}`}
                 >{cat === 'all' ? (isHe ? 'הכל' : 'All') : (isHe ? CATEGORY_LABELS[cat] || cat : cat.charAt(0).toUpperCase() + cat.slice(1))}</button>
               ))}
             </div>
