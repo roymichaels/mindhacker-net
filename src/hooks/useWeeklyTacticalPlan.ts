@@ -174,6 +174,7 @@ function regroupFlatBlocks(flatBlocks: any[]): any[] {
     // The flat block itself is a milestone — push it into the group
     groups[key].items.push({
       milestone_id: b.milestone_id || null,
+      focus_area: b.focus_area || null,
       title_en: b.title_en || '',
       title_he: b.title_he || '',
       duration_minutes: b.duration_minutes || b.total_minutes || 15,
