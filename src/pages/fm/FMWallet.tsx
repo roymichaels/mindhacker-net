@@ -149,7 +149,7 @@ export default function FMWalletPage() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(wallet.solana_address || '');
-                  toast.success('Copied!');
+                  toast.success(isHe ? 'הועתק!' : 'Copied!');
                 }}
                 className="p-1 hover:bg-muted rounded transition-colors"
               >
