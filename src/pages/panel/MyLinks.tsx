@@ -35,7 +35,7 @@ const MyLinks = () => {
             <Button 
               size="sm" 
               variant="outline"
-              onClick={() => copyToClipboard('https://mindos.app/?ref=YOUR_CODE')}
+              onClick={() => copyToClipboard('https://mindos.space/?ref=YOUR_CODE')}
             >
               <Copy className="h-4 w-4" />
             </Button>
