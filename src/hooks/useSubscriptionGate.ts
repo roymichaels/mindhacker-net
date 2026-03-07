@@ -20,6 +20,8 @@ export interface SubscriptionGate {
   canAccessArenaFull: boolean;        // Plus+ — full Arena (Free = view-only)
   canAccessBusinessBasic: boolean;    // Plus+ — business module basic
   canAccessPlanRecalibration: boolean;// Plus+ — 90-day recalibration
+  canAccessCourseCreation: boolean;   // Plus+ — create courses in Learn
+  canAccessAIExecution: boolean;      // Plus+ — AI-generated execution steps
   canAccessFullProactive: boolean;    // Apex — full proactive engine
   canAccessProjects: boolean;         // Apex — Projects module
   canAccessBusinessAdvanced: boolean; // Apex — Business advanced + AI plans
