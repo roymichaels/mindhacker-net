@@ -102,7 +102,7 @@ export default function GameHeroSection() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
-                onClick={() => navigate('/onboarding')}
+                onClick={openWelcomeGate}
                 className="group relative text-lg px-10 py-7 rounded-2xl
                   bg-gradient-to-r from-primary via-primary to-accent
                   hover:from-primary/90 hover:to-accent/90

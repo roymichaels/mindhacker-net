@@ -64,7 +64,7 @@ export default function FinalCTASection() {
             <div className="flex justify-center">
               <Button
                 size="lg"
-                onClick={() => navigate('/onboarding')}
+                onClick={openWelcomeGate}
                 className="group text-xl px-12 py-8 rounded-2xl
                   bg-gradient-to-r from-primary via-primary to-accent
                   hover:from-primary/90 hover:to-accent/90
