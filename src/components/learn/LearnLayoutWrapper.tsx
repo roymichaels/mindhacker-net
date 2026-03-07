@@ -1,10 +1,8 @@
 /**
- * LearnLayoutWrapper - Registers Learn-specific dual sidebars and renders Learn page.
- * Left: courses list | Right: curriculum/milestones for selected course
+ * LearnLayoutWrapper - Sidebar-less layout for Learn hub.
+ * Course list and curriculum tree are now rendered inline in the page.
  */
 import { Suspense, lazy, useCallback, useState, useEffect } from 'react';
-import { LearnCoursesSidebar } from '@/components/learn/LearnCoursesSidebar';
-import { LearnCurriculumSidebar } from '@/components/learn/LearnCurriculumSidebar';
 import { useSidebars } from '@/hooks/useSidebars';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -24,7 +22,6 @@ function LearnLayoutInner() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const [recalibrating, setRecalibrating] = useState(false);
-  const [selectedCurriculumId, setSelectedCurriculumId] = useState<string | null>(null);
 
   const openWizardInDock = useCallback(() => {
     if (!auroraChat) return;
@@ -38,45 +35,14 @@ function LearnLayoutInner() {
     );
   }, [auroraChat, isHe]);
 
-  const handleRecalibrate = useCallback(() => {
-    window.dispatchEvent(new CustomEvent('learn:recalibrate'));
-  }, []);
-
   useEffect(() => {
     const onState = (e: Event) => setRecalibrating((e as CustomEvent).detail);
     window.addEventListener('learn:recalibrating', onState);
     return () => window.removeEventListener('learn:recalibrating', onState);
   }, []);
 
-  // Listen for curriculum selection from Learn page
-  useEffect(() => {
-    const handler = (e: Event) => setSelectedCurriculumId((e as CustomEvent).detail);
-    window.addEventListener('learn:select-curriculum', handler);
-    return () => window.removeEventListener('learn:select-curriculum', handler);
-  }, []);
-
-  // Listen for lesson selection from right sidebar  
-  const handleSelectLesson = useCallback((lesson: any) => {
-    window.dispatchEvent(new CustomEvent('learn:open-lesson', { detail: lesson }));
-  }, []);
-
-  useSidebars(
-    <LearnCoursesSidebar
-      selectedCurriculumId={selectedCurriculumId}
-      onSelectCurriculum={(id) => {
-        setSelectedCurriculumId(id);
-        window.dispatchEvent(new CustomEvent('learn:select-curriculum', { detail: id }));
-      }}
-      onNewCourse={openWizardInDock}
-    />,
-    <LearnCurriculumSidebar
-      selectedCurriculumId={selectedCurriculumId}
-      onSelectLesson={handleSelectLesson}
-      onRecalibrate={handleRecalibrate}
-      recalibrating={recalibrating}
-    />,
-    [selectedCurriculumId, recalibrating]
-  );
+  // Suppress all sidebars — content is inline now
+  useSidebars(null, null, []);
 
   return <Learn />;
 }
