@@ -48,6 +48,7 @@ const ChatAssistant     = lazy(() => import('@/pages/admin/ChatAssistant'));
 const AdminSettings     = lazy(() => import('@/pages/admin/Settings'));
 const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoveragePanel'));
 const AdminFMBounties   = lazy(() => import('@/pages/admin/FMBounties'));
+const AdminBlog         = lazy(() => import('@/pages/admin/Blog'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
