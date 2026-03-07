@@ -46,7 +46,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
   const location = useLocation();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
+  const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business') || location.pathname.startsWith('/freelancer') || location.pathname.startsWith('/creator');
   useLearnPillarAction();
 
   // Read from SidebarContext (set by hub pages via useSidebars hook)
