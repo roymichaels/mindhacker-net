@@ -69,7 +69,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 
   // If traits gallery is open, render it full-screen
   if (traitsOpen) {
-    return (
+    return createPortal(
       <div
         role="dialog"
         className="fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden"
