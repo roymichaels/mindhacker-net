@@ -384,12 +384,19 @@ function DayView({
 
   return (
     <div className="space-y-2.5">
-      {/* Day header */}
+      {/* Day header with Quest name */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-bold text-foreground/70">
-          {isHe ? day.label : day.labelEn}
-          {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
-        </span>
+        <div className="min-w-0">
+          <span className="text-xs font-bold text-foreground/70">
+            {isHe ? day.label : day.labelEn}
+            {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
+          </span>
+          {day.date && (
+            <span className="text-[10px] text-primary/70 font-semibold ms-2">
+              ⚔️ {getQuestName(day.date, isHe ? 'he' : 'en')}
+            </span>
+          )}
+        </div>
         <span className="text-[10px] text-muted-foreground">
           {day.blocks.length} {isHe ? 'בלוקים' : 'blocks'} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
         </span>
