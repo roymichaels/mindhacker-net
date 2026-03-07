@@ -66,6 +66,126 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
   const [score, setScore] = useState<number | null>(lesson.score);
   const tts = useLessonTTS();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+
+  /** Build the full plain text of the lesson for "read from here" offset calculation */
+  const fullLessonText = useMemo(() => {
+    const parts: string[] = [];
+    if (lesson.lesson_type === 'theory') {
+      if (lesson.content?.body) parts.push(lesson.content.body);
+      if (lesson.content?.key_concepts?.length) parts.push(lesson.content.key_concepts.join('. '));
+      if (lesson.content?.examples?.length) parts.push(lesson.content.examples.join('. '));
+    } else if (lesson.lesson_type === 'practice') {
+      if (lesson.content?.instructions) parts.push(lesson.content.instructions);
+      lesson.content?.exercises?.forEach((ex: any) => {
+        if (ex.title) parts.push(ex.title);
+        if (ex.description) parts.push(ex.description);
+      });
+    } else if (lesson.lesson_type === 'quiz') {
+      lesson.content?.questions?.forEach((q: any) => {
+        parts.push(q.q);
+        if (q.options) parts.push(q.options.join('. '));
+      });
+    } else if (lesson.lesson_type === 'project') {
+      if (lesson.content?.brief) parts.push(lesson.content.brief);
+      if (lesson.content?.requirements?.length) parts.push(lesson.content.requirements.join('. '));
+    }
+    return parts.join('\n\n');
+  }, [lesson]);
+
+  /** Handle word click — play from that word to the end */
+  const handleWordClick = useCallback((textFromWord: string) => {
+    tts.playText(textFromWord);
+  }, [tts]);
+
+  /** Custom ReactMarkdown components that make words clickable */
+  const markdownComponents = useMemo(() => ({
+    p: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      return (
+        <p {...props}>
+          <ClickableWords
+            text={text}
+            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
+            onWordClick={handleWordClick}
+            isPlaying={tts.isPlaying}
+          />
+        </p>
+      );
+    },
+    li: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      return (
+        <li {...props}>
+          <ClickableWords
+            text={text}
+            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
+            onWordClick={handleWordClick}
+            isPlaying={tts.isPlaying}
+          />
+        </li>
+      );
+    },
+    h1: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      return (
+        <h1 {...props}>
+          <ClickableWords
+            text={text}
+            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
+            onWordClick={handleWordClick}
+            isPlaying={tts.isPlaying}
+          />
+        </h1>
+      );
+    },
+    h2: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      return (
+        <h2 {...props}>
+          <ClickableWords
+            text={text}
+            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
+            onWordClick={handleWordClick}
+            isPlaying={tts.isPlaying}
+          />
+        </h2>
+      );
+    },
+    h3: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      return (
+        <h3 {...props}>
+          <ClickableWords
+            text={text}
+            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
+            onWordClick={handleWordClick}
+            isPlaying={tts.isPlaying}
+          />
+        </h3>
+      );
+    },
+    h4: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      return (
+        <h4 {...props}>
+          <ClickableWords
+            text={text}
+            fullTextFromHere={getTextFromPosition(fullLessonText, text)}
+            onWordClick={handleWordClick}
+            isPlaying={tts.isPlaying}
+          />
+        </h4>
+      );
+    },
+    strong: ({ children }: any) => {
+      const text = extractTextFromChildren(children);
+      return <strong>{text}</strong>;
+    },
+    em: ({ children }: any) => {
+      const text = extractTextFromChildren(children);
+      return <em>{text}</em>;
+    },
+  }), [fullLessonText, handleWordClick, tts.isPlaying]);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
