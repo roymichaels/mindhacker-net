@@ -20,7 +20,7 @@ import {
 import { SkillsModal } from '@/components/modals/SkillsModal';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
-  Target, UserCircle, Compass, RefreshCw, Loader2, Play,
+  Target, UserCircle, Compass, RefreshCw, Loader2, Play, Lock,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
