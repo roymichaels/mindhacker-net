@@ -224,12 +224,16 @@ JSON structure:
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Ensure unique slug by appending timestamp suffix
+    const baseSlug = (article.slug || `post-${Date.now()}`).replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+    const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`;
+
     const { data: post, error: insertError } = await serviceClient
       .from("blog_posts")
       .insert({
         title: article.title || "Untitled",
         title_he: article.title_he || null,
-        slug: article.slug || `post-${Date.now()}`,
+        slug: uniqueSlug,
         excerpt: article.excerpt || null,
         excerpt_he: article.excerpt_he || null,
         content: article.content || "",
