@@ -4,8 +4,30 @@
 import { motion } from 'framer-motion';
 import { Bot, Mic, Brain, Headphones, Layers } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
+import type { OrbProfile } from '@/components/orb/types';
+
+const AURORA_PROFILE: OrbProfile = {
+  ...DEFAULT_ORB_PROFILE,
+  primaryColor: '270 80% 70%',
+  secondaryColors: ['190 90% 70%', '260 70% 65%', '300 80% 75%'],
+  accentColor: '260 80% 55%',
+  morphSpeed: 0.8,
+  morphIntensity: 0.6,
+  geometryDetail: 128,
+  particleCount: 0,
+  particleEnabled: false,
+  materialType: 'iridescent',
+  geometryFamily: 'sphere',
+  gradientStops: ['270 80% 70%', '190 90% 70%', '300 80% 75%', '260 70% 65%'],
+  coreGradient: ['270 80% 70%', '190 90% 70%'],
+  rimLightColor: '300 80% 75%',
+  bloomStrength: 0.8,
+  chromaShift: 0.4,
+  materialParams: { metalness: 0.3, roughness: 0.1, clearcoat: 1.0, transmission: 0.3, ior: 2.0, emissiveIntensity: 0.4 },
+};
 
 export default function AuroraCoachSection() {
   const { t, isRTL } = useTranslation();
@@ -25,7 +47,6 @@ export default function AuroraCoachSection() {
       </div>
 
       <div className="container mx-auto max-w-5xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Orb centered above content */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -40,7 +61,12 @@ export default function AuroraCoachSection() {
               animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <AuroraHoloOrb size={200} glow="full" />
+            <SharedOrbView
+              profile={AURORA_PROFILE}
+              geometryFamily="sphere"
+              size={200}
+              level={100}
+            />
           </div>
         </motion.div>
 
