@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import type { OrbProfile } from '@/components/orb/types';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { StandaloneMorphOrb, getShapeCountForLevel } from '@/components/orb/GalleryMorphOrb';
+import { Orb } from '@/components/orb/Orb';
 
 // Get the actual violet-iridescence preset as our Lv100 target
 const VIOLET_PRESET = ORB_PRESETS.find(p => p.id === 'violet-iridescence')!;
