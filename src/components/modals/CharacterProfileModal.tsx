@@ -188,7 +188,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
 
 // ═══════════════════════════════════════════════
