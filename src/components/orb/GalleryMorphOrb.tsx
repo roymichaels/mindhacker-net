@@ -131,13 +131,13 @@ function getElementalMaterial(profile: OrbProfile) {
   switch (mat) {
     case 'metal': {
       // EARTH/METAL: Dark, heavy, ultra-reflective, faceted
-      const darkColor = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.7, 0.5), 0.18);
-      const warmEmissive = new THREE.Color().setHSL(hsl.h, 0.4, 0.08);
+      const darkColor = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.8, 0.6), 0.22);
+      const warmEmissive = new THREE.Color().setHSL(hsl.h, 0.5, 0.12);
       return {
         color: darkColor, emissive: warmEmissive,
-        metalness: 1.0, roughness: 0.18,
+        metalness: 1.0, roughness: 0.2,
         clearcoat: 0.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.05, envMapIntensity: 4.0,
+        emissiveIntensity: 0.15, envMapIntensity: 1.8,
         transmission: 0, ior: 1.5, thickness: 0,
         sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
         iridescence: 0, iridescenceIOR: 1.3,
@@ -145,29 +145,29 @@ function getElementalMaterial(profile: OrbProfile) {
       };
     }
     case 'glass': {
-      // WATER/ICE: Pale, translucent, high clearcoat, smooth
-      const paleColor = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.3), 0.75);
-      const shimmer = new THREE.Color().setHSL(hsl.h, 0.5, 0.6);
+      // WATER/ICE: Translucent, colored, high clearcoat
+      const paleColor = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.5), 0.55);
+      const shimmer = new THREE.Color().setHSL(hsl.h, 0.6, 0.45);
       return {
         color: paleColor, emissive: shimmer,
-        metalness: 0.0, roughness: 0.0,
+        metalness: 0.0, roughness: 0.05,
         clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.12, envMapIntensity: 2.0,
+        emissiveIntensity: 0.2, envMapIntensity: 1.0,
         transmission: 0, ior: 1.5, thickness: 0,
         sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
         iridescence: 0, iridescenceIOR: 1.3,
-        opacity: 0.6, transparent: true, flatShading: false, wireframe: false,
+        opacity: 0.7, transparent: true, flatShading: false, wireframe: false,
       };
     }
     case 'plasma': {
       // FIRE/LAVA: Bright glowing emissive, saturated, hot
-      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.5);
-      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.55);
+      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.45);
+      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.5);
       return {
         color: hotCore, emissive: glow,
-        metalness: 0.0, roughness: 0.4,
+        metalness: 0.0, roughness: 0.35,
         clearcoat: 0.2, clearcoatRoughness: 0.3,
-        emissiveIntensity: 1.5, envMapIntensity: 0.3,
+        emissiveIntensity: 1.2, envMapIntensity: 0.2,
         transmission: 0, ior: 1.5, thickness: 0,
         sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
         iridescence: 0, iridescenceIOR: 1.3,
@@ -176,13 +176,13 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     case 'iridescent': {
       // ETHER/SPIRIT: Pearlescent, rainbow-shifting, luminous
-      const pearl = new THREE.Color().setHSL(hsl.h, 0.6, 0.65);
-      const glow = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.8, 0.5);
+      const pearl = new THREE.Color().setHSL(hsl.h, 0.7, 0.5);
+      const glow = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.9, 0.45);
       return {
         color: pearl, emissive: glow,
-        metalness: 0.4, roughness: 0.0,
+        metalness: 0.5, roughness: 0.05,
         clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.25, envMapIntensity: 2.5,
+        emissiveIntensity: 0.3, envMapIntensity: 1.5,
         transmission: 0, ior: 1.5, thickness: 0,
         sheen: 1.0, sheenRoughness: 0.1, sheenColor: glow,
         iridescence: 1.0, iridescenceIOR: 2.4,
@@ -191,13 +191,13 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     case 'wire': {
       // AIR/WIND: Wireframe, ghostly, skeletal structure visible
-      const ghostColor = new THREE.Color().setHSL(hsl.h, 0.3, 0.6);
-      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.4);
+      const ghostColor = new THREE.Color().setHSL(hsl.h, 0.4, 0.5);
+      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.6, 0.35);
       return {
         color: ghostColor, emissive: innerGlow,
         metalness: 0.2, roughness: 0.5,
         clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 0.4, envMapIntensity: 0.5,
+        emissiveIntensity: 0.5, envMapIntensity: 0.3,
         transmission: 0, ior: 1.5, thickness: 0,
         sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
         iridescence: 0, iridescenceIOR: 1.3,
