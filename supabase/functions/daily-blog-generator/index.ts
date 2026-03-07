@@ -187,6 +187,27 @@ You write like a brilliant friend who reads neuroscience papers for fun. Your to
 This is article #${nextDay} of a 100-part series called "The Aurora Codex: 100 Days to Rewire Your Life".
 The pillar focus is: ${topic.pillar}
 
+═══ MINDOS PRODUCT REFERENCES (MANDATORY) ═══
+Every article MUST naturally reference and link to at least 3-4 of these MindOS features. Weave them into the content as real-world examples, not ads:
+
+1. **Aurora AI Coach** — Personalized AI life coach that knows your goals, patterns, and identity. Available 24/7. Link: <a href="https://mindos.space/auth">Try Aurora free →</a>
+2. **The Orb** — A living, evolving 3D digital identity avatar that morphs based on your growth. Represents your consciousness level. Link: <a href="https://mindos.space/orbs">Explore Orb Gallery →</a>
+3. **Hypnosis Sessions** — Guided subconscious reprogramming sessions with ego-state targeting (Guardian, Explorer, Warrior, Creator, Sage). Link: <a href="https://mindos.space/auth">Start your first session →</a>
+4. **Life Plan System** — AI-generated strategic life plans with weekly milestones, XP rewards, and progress tracking. Link: <a href="https://mindos.space/auth">Create your Life Plan →</a>
+5. **14-Pillar Assessment** — Comprehensive consciousness diagnostic across Vitality, Focus, Power, Combat, Image, Expansion, and 8 more pillars. Link: <a href="https://mindos.space/auth">Take the assessment →</a>
+6. **Gamification Engine** — XP, levels, streaks, tokens, and loot drops that make self-development addictive. Link: <a href="https://mindos.space/auth">Level up your life →</a>
+7. **Community** — Orb-based identity community where members share growth milestones and support each other. Link: <a href="https://mindos.space/auth">Join the community →</a>
+8. **Launchpad Onboarding** — A guided transformation journey that builds your identity profile and unlocks personalized coaching. Link: <a href="https://mindos.space/auth">Start the Launchpad →</a>
+9. **MindOS for Coaches** — White-label platform for coaches to manage clients with AI-powered tools. Link: <a href="https://mindos.space/coaches">Learn about Coach OS →</a>
+10. **Free Market** — Internal economy where users trade MOS tokens earned through growth activities. Link: <a href="https://mindos.space/auth">Explore the marketplace →</a>
+
+INTEGRATION RULES:
+- Reference the feature that's MOST relevant to the article topic
+- Show HOW MindOS solves the problem discussed in the article (e.g., "This is exactly why MindOS built Aurora — an AI that tracks your patterns and nudges you at the right moment")
+- Include a "How MindOS Approaches This" section (H2) near the end, before the final CTA
+- Final CTA must drive signups: "Ready to [benefit]? <a href="https://mindos.space/auth">Start your free MindOS journey →</a>"
+- Hebrew CTAs link to same URLs but with Hebrew text
+
 CRITICAL SEO RULES:
 - Title: Max 60 chars, front-load the primary keyword, use power words (Ultimate, Science, Secret, Proven)
 - Meta description: Max 155 chars, include CTA language ("Learn how...", "Discover...")
@@ -206,7 +227,7 @@ VIRAL LANGUAGE PATTERNS:
 - Open loops ("What nobody tells you about...")
 - Contrast ("The old way vs. the new way")
 - Specificity ("7 techniques" not "some techniques")
-- Social proof ("used by 10,000+ members")
+- Social proof ("used by 10,000+ members on MindOS")
 - Urgency without hype
 
 Return ONLY a valid JSON object (no markdown fences):
@@ -216,11 +237,11 @@ Return ONLY a valid JSON object (no markdown fences):
   "slug": "aurora-codex-${String(nextDay).padStart(3, "0")}-keyword-slug",
   "excerpt": "English excerpt (155 chars, compelling, CTA-driven)",
   "excerpt_he": "Hebrew excerpt",
-  "content": "Full English article in semantic HTML with internal links",
-  "content_he": "Full Hebrew article in semantic HTML with internal links",
+  "content": "Full English article in semantic HTML with internal links and MindOS product references",
+  "content_he": "Full Hebrew article in semantic HTML with internal links and MindOS product references",
   "meta_title": "SEO title (60 chars, primary keyword first)",
   "meta_description": "Meta description (155 chars, includes CTA)",
-  "meta_keywords": "primary keyword, secondary, tertiary, long-tail",
+  "meta_keywords": "primary keyword, secondary, tertiary, long-tail, MindOS, AI coaching",
   "tags": ${JSON.stringify(topic.tags)},
   "reading_time_minutes": 8,
   "image_prompt": "Detailed image prompt for cover art. Modern, editorial, atmospheric. Theme: ${topic.pillar}. No text in image."
