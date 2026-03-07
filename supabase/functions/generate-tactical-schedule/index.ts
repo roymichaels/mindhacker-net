@@ -123,6 +123,7 @@ ${adjustmentContext}
 8. CRITICAL: Use the EXACT milestone titles (title_en and title_he) from the list above — do NOT rename or paraphrase them.
 9. CRITICAL: Use the EXACT difficulty value (1-5) from each milestone — do NOT change it.
 10. CRITICAL: Every block MUST have at least 2 milestones in its "milestones" array. If a category only has 1 milestone, merge it into an adjacent block.
+11. CRITICAL: Each milestone object MUST include a "focus_area" field with the EXACT pillar/focus_area value from the milestone list above (e.g., "vitality", "focus", "wealth"). Do NOT use block categories as focus_area.
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
 
