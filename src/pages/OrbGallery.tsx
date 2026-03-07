@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
   TRAIT_CATEGORIES,
