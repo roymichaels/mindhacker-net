@@ -82,6 +82,19 @@ function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQu
     executionTemplate: (action.executionTemplate as ExecutionTemplate) || 'step_by_step',
   };
 }
+// ── Map block category → TimeBlock ──
+function categoryToTimeBlock(category: string): TimeBlock {
+  switch (category) {
+    case 'health': return 'morning';
+    case 'training': return 'training';
+    case 'focus': return 'deepwork';
+    case 'creation': return 'admin';
+    case 'review': return 'recovery';
+    case 'social': return 'social';
+    case 'action': return 'midday';
+    default: return 'midday';
+  }
+}
 
 // ── Build schedule slots from today's tactical blocks (no times, quarter-based) ──
 function buildScheduleFromTactics(todayPlan: DayPlan | null): ScheduleSlot[] {
