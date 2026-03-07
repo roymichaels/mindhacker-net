@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 const HandsFreeSection = () => {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   const chatExamples = [
     { type: 'user', text: '🎤 "Aurora, remind me tomorrow morning to send the proposal"', isVoice: true },
