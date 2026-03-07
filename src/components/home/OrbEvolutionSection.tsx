@@ -295,13 +295,14 @@ export default function OrbEvolutionSection() {
                       state="breathing"
                     />
                   ) : (
-                  <StandaloneMorphOrb
-                    size={orbSize}
-                    profile={phase.profile}
-                    geometryFamily={phase.profile.geometryFamily || 'sphere'}
-                    level={phase.level}
-                />
-              </div>
+                    <StandaloneMorphOrb
+                      size={orbSize}
+                      profile={phase.profile}
+                      geometryFamily={phase.profile.geometryFamily || 'sphere'}
+                      level={phase.level}
+                    />
+                  )}
+                </div>
             </div>
 
             {/* Shape count indicator */}
