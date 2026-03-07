@@ -17,6 +17,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type TacticalBlock, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getQuestName, getCampaignName } from '@/lib/questNames';
 
 const BLOCK_ICONS: Record<BlockCategory, typeof Swords> = {
   health: Zap,
