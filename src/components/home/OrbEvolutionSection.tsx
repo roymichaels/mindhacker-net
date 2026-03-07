@@ -13,7 +13,8 @@ import { Sparkles, Zap, Flame, Crown, Star, ArrowLeft, ArrowRight, Eye } from 'l
 import { Button } from '@/components/ui/button';
 import type { OrbProfile } from '@/components/orb/types';
 import { ORB_PRESETS } from '@/lib/orbPresets';
-import { GalleryOrbView, getShapeCountForLevel } from '@/components/orb/GalleryMorphOrb';
+import { getShapeCountForLevel } from '@/components/orb/GalleryMorphOrb';
+import { LazyOrbView } from '@/components/orb/LazyOrbView';
 
 // Get the actual violet-iridescence preset as our Lv100 target
 const VIOLET_PRESET = ORB_PRESETS.find(p => p.id === 'violet-iridescence')!;
