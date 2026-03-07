@@ -185,43 +185,48 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
         arr[i3 + 2] = bz + bz * n * disp;
       }
     } else {
-      // Continuous morphing — always blending between shapes, no hold phase
-      // Use a slow sine wave to create organic continuous interpolation
-      const morphSpeed = 2.4; // Ultra fast — constant flux
+      // Continuous morphing with randomized multi-shape blending
+      const morphSpeed = 0.6;
       const totalShapes = shapes.length;
 
-      // Create a continuous position along the shape cycle
-      const cyclePos = (t * morphSpeed) % totalShapes;
-      const fromIdx = Math.floor(cyclePos) % totalShapes;
-      const nextIdx = (fromIdx + 1) % totalShapes;
-      // Smooth interpolation using smoothstep for organic feel
-      const rawT = cyclePos - Math.floor(cyclePos);
-      const blendT = rawT * rawT * (3 - 2 * rawT); // smoothstep
-
-      const from = shapeArrays[fromIdx];
-      const to = shapeArrays[nextIdx];
-
+      // Blend between ALL shapes using multiple overlapping sine waves for randomness
       for (let vi = 0; vi < vertCount; vi++) {
         const i3 = vi * 3;
+        let bx = 0, by = 0, bz = 0;
+        let totalWeight = 0;
 
-        // Base interpolated position
-        const bx = from[i3] + (to[i3] - from[i3]) * blendT;
-        const by = from[i3 + 1] + (to[i3 + 1] - from[i3 + 1]) * blendT;
-        const bz = from[i3 + 2] + (to[i3 + 2] - from[i3 + 2]) * blendT;
+        for (let si = 0; si < totalShapes; si++) {
+          // Each shape gets a unique oscillating weight using offset sines
+          const phase = st.seed1 + si * 2.39996; // golden-angle-ish offset
+          const w = Math.max(0,
+            Math.sin(t * morphSpeed + phase) * 0.5 + 0.3 +
+            Math.sin(t * morphSpeed * 0.7 + phase * 1.3 + st.seed2) * 0.2
+          );
+          bx += shapeArrays[si][i3] * w;
+          by += shapeArrays[si][i3 + 1] * w;
+          bz += shapeArrays[si][i3 + 2] * w;
+          totalWeight += w;
+        }
 
-        // Organic noise displacement — alien liquid surface
-        const noiseScale = 2.5;
+        if (totalWeight > 0) {
+          bx /= totalWeight;
+          by /= totalWeight;
+          bz /= totalWeight;
+        }
+
+        // Subtle organic noise — small displacement to avoid clipping
         const n = noise3D(
-          bx * noiseScale + t * 0.5 + st.seed1,
-          by * noiseScale + t * 0.4 + st.seed2,
-          bz * noiseScale + t * 0.35 + st.seed3
+          bx * 2.5 + t * 0.4 + st.seed1,
+          by * 2.5 + t * 0.35 + st.seed2,
+          bz * 2.5 + t * 0.3 + st.seed3
         );
-        // Vary displacement intensity per vertex for organic feel
-        const disp = 0.035 + 0.025 * Math.sin(t * 0.8 + vi * 0.03 + st.seed1);
+        const disp = 0.02 + 0.015 * Math.sin(t * 0.6 + vi * 0.02);
 
-        arr[i3]     = bx + bx * n * disp;
-        arr[i3 + 1] = by + by * n * disp;
-        arr[i3 + 2] = bz + bz * n * disp;
+        // Scale down to 0.85 to prevent clipping
+        const s = 0.85;
+        arr[i3]     = (bx + bx * n * disp) * s;
+        arr[i3 + 1] = (by + by * n * disp) * s;
+        arr[i3 + 2] = (bz + bz * n * disp) * s;
       }
     }
 
