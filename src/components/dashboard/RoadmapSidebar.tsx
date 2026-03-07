@@ -8,8 +8,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   RefreshCw, ChevronDown, ChevronUp, CheckCircle2, Circle,
   Target, Calendar, Trophy, PanelLeftClose, PanelLeftOpen,
-  Loader2, Flame, Zap, Clock,
+  Loader2, Flame, Zap, Clock, Lock,
 } from 'lucide-react';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
