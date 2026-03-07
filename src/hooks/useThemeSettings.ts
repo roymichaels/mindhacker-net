@@ -135,7 +135,7 @@ const defaultTheme: ThemeSettings = {
   logo_url: "",
   favicon_url: "",
   og_image_url: "",
-  site_url: "https://mindos.app",
+  site_url: "https://mindos.space",
   hero_portrait_url: "",
   pwa_icon_url: "",
   introspection_form_id: "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e",

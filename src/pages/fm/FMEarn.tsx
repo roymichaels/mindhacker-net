@@ -260,7 +260,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
     enabled: !!affiliateData?.id,
   });
 
-  const affiliateLink = affiliateData ? `https://mindos.app/?ref=${affiliateData.affiliate_code}` : '';
+  const affiliateLink = affiliateData ? `https://mindos.space/?ref=${affiliateData.affiliate_code}` : '';
 
   const handleCopyAffiliateLink = () => {
     if (!affiliateLink) return;

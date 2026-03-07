@@ -324,7 +324,7 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
 
       <div style="text-align: center; margin-top: 24px;">
-        <a href="https://mindos.app/admin/analytics" class="cta">View Full Dashboard →</a>
+        <a href="https://mindos.space/admin/analytics" class="cta">View Full Dashboard →</a>
       </div>
     </div>
     
@@ -341,7 +341,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
       await resend.emails.send({
-        from: "Mind OS <reports@mindos.app>",
+        from: "Mind OS <reports@mindos.space>",
         to: [settingsMap.daily_report_email],
         subject: `📊 Daily Analytics Report - ${reportDate}`,
         html: emailHtml,

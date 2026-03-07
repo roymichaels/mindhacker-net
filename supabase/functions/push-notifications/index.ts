@@ -203,7 +203,7 @@ async function createVapidJwt(audience: string): Promise<string> {
   const payload = {
     aud: audience,
     exp: now + 12 * 60 * 60,
-    sub: 'mailto:admin@mindos.app'
+    sub: 'mailto:admin@mindos.space'
   };
 
   const headerB64 = uint8ArrayToBase64Url(new TextEncoder().encode(JSON.stringify(header)));

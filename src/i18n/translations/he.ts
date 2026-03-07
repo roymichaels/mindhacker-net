@@ -1748,7 +1748,7 @@ export const he = {
       name: "MindOS OÜ",
       country: "אסטוניה, האיחוד האירופי",
       registrationNote: "חברה רשומה באסטוניה",
-      contact: "ליצירת קשר: contact@mindos.app",
+      contact: "ליצירת קשר: contact@mindos.space",
     },
     privacy: {
       title: "מדיניות פרטיות",
@@ -1792,7 +1792,7 @@ export const he = {
       cookiesTitle: "עוגיות (Cookies)",
       cookiesText: "האתר משתמש בעוגיות לשיפור חווית הגלישה, שמירת העדפות ולמטרות אנליטיות. אתה יכול לנהל את הגדרות העוגיות בדפדפן שלך.",
       contactTitle: "יצירת קשר והגנת מידע",
-      contactText: "לשאלות בנוגע למדיניות הפרטיות, לבקשות הנוגעות למידע האישי שלך, או לפנייה לאחראי הגנת המידע (DPO), ניתן לפנות אלינו: contact@mindos.app",
+      contactText: "לשאלות בנוגע למדיניות הפרטיות, לבקשות הנוגעות למידע האישי שלך, או לפנייה לאחראי הגנת המידע (DPO), ניתן לפנות אלינו: contact@mindos.space",
     },
     terms: {
       title: "תנאי שימוש",
@@ -1826,7 +1826,7 @@ export const he = {
       governingTitle: "דין חל",
       governingText: "תנאי שימוש אלה כפופים לחוקי הרפובליקה של אסטוניה ולחוקי האיחוד האירופי. בכל סכסוך, הסמכות הבלעדית תהיה לבורר בינלאומי כמפורט בסעיף הבוררות.",
       contactTitle: "יצירת קשר",
-      contactText: "לשאלות בנוגע לתנאי השימוש, ניתן לפנות אלינו: contact@mindos.app",
+      contactText: "לשאלות בנוגע לתנאי השימוש, ניתן לפנות אלינו: contact@mindos.space",
       userAcknowledgment: "אני מאשר שקראתי והבנתי שהשירותים הם אימון תודעתי ולא טיפול רפואי",
       arbitrationAcknowledgment: "אני מסכים לפתרון סכסוכים בבוררות בינלאומית בלבד",
     },

@@ -1750,7 +1750,7 @@ export const en: TranslationKeys = {
       name: "MindOS OÜ",
       country: "Estonia, European Union",
       registrationNote: "Company registered in Estonia",
-      contact: "Contact: contact@mindos.app",
+      contact: "Contact: contact@mindos.space",
     },
     privacy: {
       title: "Privacy Policy",
@@ -1794,7 +1794,7 @@ export const en: TranslationKeys = {
       cookiesTitle: "Cookies",
       cookiesText: "This website uses cookies to improve browsing experience, save preferences, and for analytics purposes. You can manage cookie settings in your browser.",
       contactTitle: "Contact and Data Protection",
-      contactText: "For questions about this privacy policy, requests regarding your personal information, or to contact our Data Protection Officer (DPO), please reach out to: contact@mindos.app",
+      contactText: "For questions about this privacy policy, requests regarding your personal information, or to contact our Data Protection Officer (DPO), please reach out to: contact@mindos.space",
     },
     terms: {
       title: "Terms of Service",
@@ -1828,7 +1828,7 @@ export const en: TranslationKeys = {
       governingTitle: "Governing Law",
       governingText: "These terms of service are subject to the laws of the Republic of Estonia and the laws of the European Union. In any dispute, exclusive jurisdiction shall be with the international arbitrator as specified in the arbitration section.",
       contactTitle: "Contact Us",
-      contactText: "For questions about these terms of service, please contact us at: contact@mindos.app",
+      contactText: "For questions about these terms of service, please contact us at: contact@mindos.space",
       userAcknowledgment: "I confirm that I have read and understood that the services are consciousness coaching and not medical treatment",
       arbitrationAcknowledgment: "I agree to resolve disputes through international arbitration only",
     },
