@@ -1,16 +1,16 @@
 /**
  * GalleryMorphOrb – R3F-based morphing orb for the gallery.
  * Uses drei View to share a single WebGL context across all orbs.
- * Each orb smoothly morphs between geometric shapes.
- * Shape count is determined by level: Lv1=1, Lv25=2, Lv50=3, Lv75=4, Lv100=5.
+ * Each orb smoothly morphs between geometric shapes in a continuous,
+ * organic, alien-liquid way with proper 3D lighting and materials.
  */
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { View } from '@react-three/drei';
+import { View, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbProfile } from './types';
 
-// ─── Shape projection: project icosahedron vertices onto target shapes ───
+// ─── Shape projection ───
 
 function projectVertex(nx: number, ny: number, nz: number, shape: string): [number, number, number] {
   switch (shape) {
@@ -40,12 +40,11 @@ function projectVertex(nx: number, ny: number, nz: number, shape: string): [numb
       return [nx * waist, ny * 1.1, nz * waist];
     }
     case 'tetra': {
-      // Tetrahedron-like: 4-sided pyramid shape
       const ty = ny * 1.2;
       const tscale = 1.0 - Math.max(0, ny) * 0.6;
       return [nx * tscale, ty, nz * tscale];
     }
-    default: // sphere
+    default:
       return [nx, ny, nz];
   }
 }
@@ -80,10 +79,6 @@ const ALL_SHAPES: Record<string, string[]> = {
   knot:     ['star', 'sphere', 'octahedron', 'diamond', 'cube'],
 };
 
-/**
- * Get the number of morph shapes based on user level.
- * Lv 1-24: 1 shape (static), Lv 25-49: 2, Lv 50-74: 3, Lv 75-99: 4, Lv 100+: 5
- */
 export function getShapeCountForLevel(level: number): number {
   if (level >= 100) return 5;
   if (level >= 75) return 4;
@@ -92,9 +87,6 @@ export function getShapeCountForLevel(level: number): number {
   return 1;
 }
 
-/**
- * Get the shapes array for a given geometry family and level.
- */
 export function getShapesForLevel(geometryFamily: string, level: number): string[] {
   const all = ALL_SHAPES[geometryFamily] || ALL_SHAPES.sphere;
   const count = getShapeCountForLevel(level);
@@ -111,12 +103,24 @@ function hslToColor(hsl: string): THREE.Color {
   return new THREE.Color().setHSL(h, s, l);
 }
 
-// ─── Morphing Mesh (used inside View or standalone Canvas) ───
+// ─── Organic noise displacement ───
+
+function noise3D(x: number, y: number, z: number): number {
+  // Simple pseudo-noise using sin combinations for organic feel
+  return (
+    Math.sin(x * 1.7 + y * 2.3) * 0.3 +
+    Math.sin(y * 3.1 + z * 1.4) * 0.25 +
+    Math.sin(z * 2.8 + x * 1.9) * 0.2 +
+    Math.sin(x * 4.3 + z * 3.7) * 0.15 +
+    Math.sin(y * 5.1 + x * 2.6 + z * 1.8) * 0.1
+  );
+}
+
+// ─── Morphing Mesh ───
 
 interface MorphOrbMeshProps {
   profile: OrbProfile;
   geometryFamily?: string;
-  /** Level determines how many shapes the orb morphs between */
   level?: number;
 }
 
@@ -127,73 +131,141 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
     [geometryFamily, level]
   );
 
-  const { geometry, shapeArrays } = useMemo(() => {
-    const geo = new THREE.IcosahedronGeometry(1, 3);
+  const { geometry, shapeArrays, basePositions } = useMemo(() => {
+    const geo = new THREE.IcosahedronGeometry(1, 4); // Higher detail for smoother look
     const base = (geo.attributes.position.array as Float32Array).slice();
     const arrays = shapes.map(s => computeShapePositions(base, s, 1));
-    return { geometry: geo, shapeArrays: arrays };
+    return { geometry: geo, shapeArrays: arrays, basePositions: base };
   }, [shapes]);
 
-  const matProps = useMemo(() => ({
-    color: hslToColor(profile.primaryColor || '200 50% 50%'),
-    emissive: hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%'),
-    metalness: profile.materialParams?.metalness ?? 0.3,
-    roughness: profile.materialParams?.roughness ?? 0.4,
-    emissiveIntensity: profile.materialParams?.emissiveIntensity ?? 0.15,
-  }), [profile]);
+  const matProps = useMemo(() => {
+    const primary = hslToColor(profile.primaryColor || '200 50% 50%');
+    const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
+    return {
+      color: primary,
+      emissive: accent,
+      metalness: Math.max(profile.materialParams?.metalness ?? 0.4, 0.2),
+      roughness: Math.min(profile.materialParams?.roughness ?? 0.2, 0.4),
+      clearcoat: profile.materialParams?.clearcoat ?? 0.6,
+      clearcoatRoughness: 0.15,
+      emissiveIntensity: Math.max(profile.materialParams?.emissiveIntensity ?? 0.2, 0.1),
+      envMapIntensity: 1.5,
+    };
+  }, [profile]);
 
-  const stateRef = useRef({ timer: Math.random() * 8 });
+  // Use multiple random seeds for organic variation
+  const stateRef = useRef({
+    timer: Math.random() * 100,
+    seed1: Math.random() * 100,
+    seed2: Math.random() * 100,
+    seed3: Math.random() * 100,
+  });
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
     const st = stateRef.current;
     st.timer += delta;
+    const t = st.timer;
 
     const positions = meshRef.current.geometry.attributes.position;
     const arr = positions.array as Float32Array;
+    const vertCount = arr.length / 3;
 
     if (shapes.length <= 1) {
-      // Single shape — no morphing, just apply the shape statically
+      // Single shape with organic breathing displacement
       const from = shapeArrays[0];
-      for (let i = 0; i < arr.length; i++) arr[i] = from[i];
+      for (let vi = 0; vi < vertCount; vi++) {
+        const i3 = vi * 3;
+        const bx = from[i3], by = from[i3 + 1], bz = from[i3 + 2];
+        // Organic displacement
+        const n = noise3D(bx * 2 + t * 0.4 + st.seed1, by * 2 + t * 0.35, bz * 2 + t * 0.3);
+        const disp = 0.04 + 0.03 * Math.sin(t * 0.7 + vi * 0.02);
+        arr[i3]     = bx + bx * n * disp;
+        arr[i3 + 1] = by + by * n * disp;
+        arr[i3 + 2] = bz + bz * n * disp;
+      }
     } else {
-      const HOLD = 2.5, MORPH = 1.2;
-      const CYCLE = HOLD + MORPH;
-      const t = st.timer % CYCLE;
-      const idx = Math.floor(st.timer / CYCLE) % shapes.length;
-      const next = (idx + 1) % shapes.length;
+      // Continuous morphing — always blending between shapes, no hold phase
+      // Use a slow sine wave to create organic continuous interpolation
+      const morphSpeed = 0.25; // Slow, organic speed
+      const totalShapes = shapes.length;
 
-      const from = shapeArrays[idx], to = shapeArrays[next];
+      // Create a continuous position along the shape cycle
+      const cyclePos = (t * morphSpeed) % totalShapes;
+      const fromIdx = Math.floor(cyclePos) % totalShapes;
+      const nextIdx = (fromIdx + 1) % totalShapes;
+      // Smooth interpolation using smoothstep for organic feel
+      const rawT = cyclePos - Math.floor(cyclePos);
+      const blendT = rawT * rawT * (3 - 2 * rawT); // smoothstep
 
-      if (t < HOLD) {
-        for (let i = 0; i < arr.length; i++) arr[i] = from[i];
-      } else {
-        const p = (t - HOLD) / MORPH;
-        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-        for (let i = 0; i < arr.length; i++) arr[i] = from[i] + (to[i] - from[i]) * e;
+      const from = shapeArrays[fromIdx];
+      const to = shapeArrays[nextIdx];
+
+      for (let vi = 0; vi < vertCount; vi++) {
+        const i3 = vi * 3;
+
+        // Base interpolated position
+        const bx = from[i3] + (to[i3] - from[i3]) * blendT;
+        const by = from[i3 + 1] + (to[i3 + 1] - from[i3 + 1]) * blendT;
+        const bz = from[i3 + 2] + (to[i3 + 2] - from[i3 + 2]) * blendT;
+
+        // Organic noise displacement — alien liquid surface
+        const noiseScale = 2.5;
+        const n = noise3D(
+          bx * noiseScale + t * 0.5 + st.seed1,
+          by * noiseScale + t * 0.4 + st.seed2,
+          bz * noiseScale + t * 0.35 + st.seed3
+        );
+        // Vary displacement intensity per vertex for organic feel
+        const disp = 0.035 + 0.025 * Math.sin(t * 0.8 + vi * 0.03 + st.seed1);
+
+        arr[i3]     = bx + bx * n * disp;
+        arr[i3 + 1] = by + by * n * disp;
+        arr[i3 + 2] = bz + bz * n * disp;
       }
     }
 
     positions.needsUpdate = true;
     meshRef.current.geometry.computeVertexNormals();
-    meshRef.current.rotation.y += delta * 0.35;
-    meshRef.current.rotation.x = Math.sin(st.timer * 0.15) * 0.12;
+
+    // Gentle organic rotation
+    meshRef.current.rotation.y += delta * 0.3;
+    meshRef.current.rotation.x = Math.sin(t * 0.2 + st.seed1) * 0.15;
+    meshRef.current.rotation.z = Math.sin(t * 0.15 + st.seed2) * 0.08;
   });
 
   return (
     <mesh ref={meshRef} geometry={geometry}>
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color={matProps.color}
         metalness={matProps.metalness}
         roughness={matProps.roughness}
+        clearcoat={matProps.clearcoat}
+        clearcoatRoughness={matProps.clearcoatRoughness}
         emissive={matProps.emissive}
         emissiveIntensity={matProps.emissiveIntensity}
+        envMapIntensity={matProps.envMapIntensity}
       />
     </mesh>
   );
 }
 
-// ─── Public: GalleryOrbView (place in DOM, renders via shared Canvas) ───
+// ─── Shared lighting rig for rich 3D look ───
+
+function OrbLighting() {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 8]} intensity={1.8} color="#ffffff" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.6} color="#aaaaff" />
+      <directionalLight position={[0, -3, 2]} intensity={0.3} color="#ffaadd" />
+      <pointLight position={[2, 3, 4]} intensity={0.8} color="#ffffff" distance={15} />
+      <Environment preset="studio" />
+    </>
+  );
+}
+
+// ─── Public: GalleryOrbView ───
 
 interface GalleryOrbViewProps {
   profile: OrbProfile;
@@ -206,16 +278,14 @@ interface GalleryOrbViewProps {
 export function GalleryOrbView({ profile, geometryFamily, size, level = 100, className }: GalleryOrbViewProps) {
   return (
     <View className={className} style={{ width: size, height: size, margin: '0 auto' }}>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[3, 3, 5]} intensity={1.2} />
-      <directionalLight position={[-2, -1, -3]} intensity={0.3} color="#8888ff" />
-      <perspectiveCamera position={[0, 0, 3.2]} fov={40} />
+      <OrbLighting />
+      <perspectiveCamera position={[0, 0, 3]} fov={40} />
       <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
     </View>
   );
 }
 
-// ─── Public: Standalone morphing orb in its own Canvas (for single-orb use) ───
+// ─── Public: Standalone morphing orb ───
 
 interface StandaloneMorphOrbProps {
   profile: OrbProfile;
@@ -229,19 +299,17 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
     <div style={{ width: size, height: size }}>
       <Canvas
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 3.2], fov: 40 }}
+        camera={{ position: [0, 0, 3], fov: 40 }}
         style={{ width: '100%', height: '100%' }}
       >
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[3, 3, 5]} intensity={1.2} />
-        <directionalLight position={[-2, -1, -3]} intensity={0.3} color="#8888ff" />
+        <OrbLighting />
         <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
       </Canvas>
     </div>
   );
 }
 
-// ─── Public: GalleryCanvas (one per page, renders all Views) ───
+// ─── Public: GalleryCanvas ───
 
 interface GalleryCanvasProps {
   children: React.ReactNode;
