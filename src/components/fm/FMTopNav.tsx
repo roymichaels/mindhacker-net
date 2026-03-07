@@ -77,7 +77,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300/70 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/10 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-600/70 dark:text-amber-300/70 hover:text-amber-700 dark:hover:text-amber-200 hover:bg-amber-500/10 border border-amber-400/15 transition-all"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isHe ? 'חזור ל-OS' : 'Back to OS'}</span>
