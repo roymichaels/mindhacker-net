@@ -509,7 +509,7 @@ export default function OrbGalleryPage() {
                         profile={orb.profile}
                         size={isMobile ? 100 : 130}
                         state="idle"
-                        renderer="css"
+                        renderer="webgl"
                         showGlow={orb.traits.glow !== 'none'}
                       />
                     </div>
