@@ -106,6 +106,10 @@ const STEP2_KEYS = [
   'dependents', 'household_responsibility', 'social_life_frequency', 'training_window_available',
   'execution_pattern', 'friction_trigger', 'motivation_driver',
   'hypnosis_style', 'preferred_session_length', 'preferred_reminders',
+  // Universal constraint keys
+  'exercise_frequency', 'exercise_types',
+  'income_range', 'close_friends_count', 'meditation_experience',
+  'willing_to_do', 'not_willing_to_do',
 ];
 
 export function OnboardingFlow() {
