@@ -117,80 +117,96 @@ function noise3D(x: number, y: number, z: number): number {
 }
 
 // ─── Elemental material presets ───
-// Maps materialType to visually dramatic, distinct elemental looks
+// Each materialType produces a VISUALLY DISTINCT elemental appearance
 
 function getElementalMaterial(profile: OrbProfile) {
   const primary = hslToColor(profile.primaryColor || '200 50% 50%');
   const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
   const mat = profile.materialType || 'glass';
 
-  // Each material type maps to a completely different elemental feel
-  const presets: Record<string, any> = {
-    // METAL → Earth/Rock: heavy, opaque, rough stone with metallic veins
-    metal: {
-      color: primary, emissive: new THREE.Color().setHSL(0.08, 0.6, 0.15),
-      metalness: 0.95, roughness: 0.25,
-      clearcoat: 0.1, clearcoatRoughness: 0.3,
-      emissiveIntensity: 0.05, envMapIntensity: 3.5,
-      transmission: 0, ior: 1.5, thickness: 0,
-      sheen: 0, sheenRoughness: 0, sheenColor: undefined,
-      iridescence: 0, iridescenceIOR: 1.3,
-      opacity: 1, transparent: false,
-      flatShading: true,
-    },
-    // GLASS → Water/Ice: transparent, refractive, cool shimmer
-    glass: {
-      color: primary, emissive: accent.clone().multiplyScalar(0.3),
-      metalness: 0.0, roughness: 0.0,
-      clearcoat: 1.0, clearcoatRoughness: 0.0,
-      emissiveIntensity: 0.03, envMapIntensity: 2.5,
-      transmission: 0.85, ior: 1.33, thickness: 0.8,
-      sheen: 0, sheenRoughness: 0, sheenColor: undefined,
-      iridescence: 0, iridescenceIOR: 1.3,
-      opacity: 1, transparent: true,
-      flatShading: false,
-    },
-    // PLASMA → Fire/Lava: glowing, emissive, hot colors
-    plasma: {
-      color: new THREE.Color().setHSL(0.05, 0.9, 0.3),
-      emissive: primary,
-      metalness: 0.0, roughness: 0.3,
-      clearcoat: 0.4, clearcoatRoughness: 0.1,
-      emissiveIntensity: 1.2, envMapIntensity: 0.5,
-      transmission: 0, ior: 1.5, thickness: 0,
-      sheen: 0, sheenRoughness: 0, sheenColor: undefined,
-      iridescence: 0.2, iridescenceIOR: 1.5,
-      opacity: 1, transparent: false,
-      flatShading: true,
-    },
-    // IRIDESCENT → Ether/Spirit: rainbow shifting, otherworldly
-    iridescent: {
-      color: primary, emissive: accent,
-      metalness: 0.3, roughness: 0.0,
-      clearcoat: 1.0, clearcoatRoughness: 0.0,
-      emissiveIntensity: 0.15, envMapIntensity: 2.0,
-      transmission: 0.2, ior: 2.2, thickness: 0.3,
-      sheen: 1.0, sheenRoughness: 0.1, sheenColor: accent,
-      iridescence: 1.0, iridescenceIOR: 2.3,
-      opacity: 0.88, transparent: true,
-      flatShading: false,
-    },
-    // WIRE → Air/Wind: ghostly, semi-transparent, diffuse glow
-    wire: {
-      color: primary.clone().multiplyScalar(1.5),
-      emissive: accent,
-      metalness: 0.0, roughness: 0.9,
-      clearcoat: 0.0, clearcoatRoughness: 0.8,
-      emissiveIntensity: 0.3, envMapIntensity: 0.3,
-      transmission: 0, ior: 1.0, thickness: 0,
-      sheen: 0.8, sheenRoughness: 0.4, sheenColor: primary,
-      iridescence: 0, iridescenceIOR: 1.3,
-      opacity: 0.55, transparent: true,
-      flatShading: true,
-    },
-  };
+  // Parse primary hue for tinting
+  const hsl = { h: 0, s: 0, l: 0 };
+  primary.getHSL(hsl);
 
-  return presets[mat] || presets.glass;
+  switch (mat) {
+    case 'metal': {
+      // EARTH/METAL: Dark, heavy, ultra-reflective, faceted
+      const darkColor = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.7, 0.5), 0.18);
+      const warmEmissive = new THREE.Color().setHSL(hsl.h, 0.4, 0.08);
+      return {
+        color: darkColor, emissive: warmEmissive,
+        metalness: 1.0, roughness: 0.18,
+        clearcoat: 0.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.05, envMapIntensity: 4.0,
+        transmission: 0, ior: 1.5, thickness: 0,
+        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
+        iridescence: 0, iridescenceIOR: 1.3,
+        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+      };
+    }
+    case 'glass': {
+      // WATER/ICE: Pale, translucent, high clearcoat, smooth
+      const paleColor = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.3), 0.75);
+      const shimmer = new THREE.Color().setHSL(hsl.h, 0.5, 0.6);
+      return {
+        color: paleColor, emissive: shimmer,
+        metalness: 0.0, roughness: 0.0,
+        clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.12, envMapIntensity: 2.0,
+        transmission: 0, ior: 1.5, thickness: 0,
+        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
+        iridescence: 0, iridescenceIOR: 1.3,
+        opacity: 0.6, transparent: true, flatShading: false, wireframe: false,
+      };
+    }
+    case 'plasma': {
+      // FIRE/LAVA: Bright glowing emissive, saturated, hot
+      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.5);
+      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.55);
+      return {
+        color: hotCore, emissive: glow,
+        metalness: 0.0, roughness: 0.4,
+        clearcoat: 0.2, clearcoatRoughness: 0.3,
+        emissiveIntensity: 1.5, envMapIntensity: 0.3,
+        transmission: 0, ior: 1.5, thickness: 0,
+        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
+        iridescence: 0, iridescenceIOR: 1.3,
+        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+      };
+    }
+    case 'iridescent': {
+      // ETHER/SPIRIT: Pearlescent, rainbow-shifting, luminous
+      const pearl = new THREE.Color().setHSL(hsl.h, 0.6, 0.65);
+      const glow = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.8, 0.5);
+      return {
+        color: pearl, emissive: glow,
+        metalness: 0.4, roughness: 0.0,
+        clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.25, envMapIntensity: 2.5,
+        transmission: 0, ior: 1.5, thickness: 0,
+        sheen: 1.0, sheenRoughness: 0.1, sheenColor: glow,
+        iridescence: 1.0, iridescenceIOR: 2.4,
+        opacity: 0.85, transparent: true, flatShading: false, wireframe: false,
+      };
+    }
+    case 'wire': {
+      // AIR/WIND: Wireframe, ghostly, skeletal structure visible
+      const ghostColor = new THREE.Color().setHSL(hsl.h, 0.3, 0.6);
+      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.4);
+      return {
+        color: ghostColor, emissive: innerGlow,
+        metalness: 0.2, roughness: 0.5,
+        clearcoat: 0.0, clearcoatRoughness: 0.5,
+        emissiveIntensity: 0.4, envMapIntensity: 0.5,
+        transmission: 0, ior: 1.5, thickness: 0,
+        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
+        iridescence: 0, iridescenceIOR: 1.3,
+        opacity: 0.7, transparent: true, flatShading: true, wireframe: true,
+      };
+    }
+    default:
+      return getElementalMaterial({ ...profile, materialType: 'glass' });
+  }
 }
 
 // ─── Morphing Mesh ───
