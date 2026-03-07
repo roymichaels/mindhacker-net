@@ -231,11 +231,11 @@ export default function OrbGalleryPage() {
                     </span>
 
                     {/* Orb - rendered via shared WebGL canvas */}
-                    <div className="group-hover:scale-105 transition-transform duration-300 overflow-visible -my-4 md:-my-6">
+                    <div className="group-hover:scale-105 transition-transform duration-300 overflow-hidden mx-auto" style={{ width: isMobile ? 90 : 130, height: isMobile ? 90 : 130 }}>
                       <SharedOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
-                        size={isMobile ? 100 : 160}
+                        size={isMobile ? 90 : 130}
                         randomShapeCount
                       />
                     </div>
