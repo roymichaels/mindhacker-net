@@ -18,6 +18,9 @@ export default function FMAppShell() {
   const { language } = useTranslation();
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
 
+  // Hide global sidebars for all FM pages
+  useSidebars(null, null, []);
+
   if (isLoading) return <PageSkeleton />;
 
   const needsOnboarding = !wallet || !wallet.onboarding_complete;
