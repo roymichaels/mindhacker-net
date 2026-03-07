@@ -186,7 +186,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
       }
     } else {
       // Continuous morphing with randomized multi-shape blending
-      const morphSpeed = 0.6;
+      const morphSpeed = 1.4;
       const totalShapes = shapes.length;
 
       // Blend between ALL shapes using multiple overlapping sine waves for randomness
