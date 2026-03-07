@@ -32,7 +32,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b-2 border-amber-600/30 bg-gradient-to-b from-amber-950/95 via-amber-950/90 to-background/95 backdrop-blur-xl"
+      className="sticky top-0 z-50 w-full border-b-2 border-amber-500/30 bg-gradient-to-b from-amber-900/80 via-amber-800/50 to-background/95 backdrop-blur-xl"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
