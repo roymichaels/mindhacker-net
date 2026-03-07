@@ -3,7 +3,7 @@
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Clock, ArrowRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 
 export default function FearOfMissingOutSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   
@@ -98,7 +98,7 @@ export default function FearOfMissingOutSection() {
           >
             <Button
               size="lg"
-              onClick={() => navigate('/onboarding')}
+              onClick={openWelcomeGate}
               className="text-lg px-10 py-7 rounded-2xl 
                 bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
                 hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800

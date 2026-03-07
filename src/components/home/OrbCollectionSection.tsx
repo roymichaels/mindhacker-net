@@ -4,7 +4,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Sparkles, Dna, Fingerprint, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Orb } from '@/components/orb/Orb';
@@ -117,7 +117,7 @@ const AUTO_SLIDE_INTERVAL = 3000;
 
 export default function OrbCollectionSection() {
   const { isRTL, language } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   const lang = language === 'he' ? 'he' : 'en';
   const NextArrow = isRTL ? ArrowLeft : ArrowRight;
   const isMobile = useIsMobile();
@@ -312,7 +312,7 @@ export default function OrbCollectionSection() {
           </p>
           <Button
             size="lg"
-            onClick={() => navigate('/onboarding')}
+            onClick={openWelcomeGate}
             className="rounded-xl px-8 py-6 text-base font-bold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity"
           >
             <Fingerprint className={cn('w-5 h-5', isRTL ? 'ml-2' : 'mr-2')} />

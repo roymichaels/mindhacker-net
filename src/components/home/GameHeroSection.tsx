@@ -2,8 +2,8 @@
  * GameHeroSection — Cinematic minimal hero for NFT game landing
  */
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { Sparkles, Zap } from 'lucide-react';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,7 @@ import { ORB_PRESETS } from '@/lib/orbPresets';
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   const auroraSkinPreset = ORB_PRESETS.find(p => p.id === 'aurora-skin');
 
   return (
@@ -102,7 +102,7 @@ export default function GameHeroSection() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
-                onClick={() => navigate('/onboarding')}
+                onClick={openWelcomeGate}
                 className="group relative text-lg px-10 py-7 rounded-2xl
                   bg-gradient-to-r from-primary via-primary to-accent
                   hover:from-primary/90 hover:to-accent/90

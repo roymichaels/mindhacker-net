@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { 
   User, Briefcase, Heart, Users, Wallet, GraduationCap, Compass,
   Sparkles, Palette, ArrowRight
@@ -27,11 +27,11 @@ const pillars = [
 
 const LifePillarsSection = () => {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   const [activePillar, setActivePillar] = useState<typeof pillars[0] | null>(null);
 
   const handlePillarClick = (pillarId: string) => {
-    if (pillarId === 'consciousness') { navigate('/onboarding'); return; }
+    if (pillarId === 'consciousness') { openWelcomeGate(); return; }
     const pillar = pillars.find(p => p.id === pillarId);
     if (pillar) setActivePillar(pillar);
   };
@@ -118,7 +118,7 @@ const LifePillarsSection = () => {
 
         {/* CTA */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }} className="text-center mt-12">
-          <Button size="lg" onClick={() => navigate('/onboarding')} className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-6 text-lg shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105">
+          <Button size="lg" onClick={openWelcomeGate} className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-6 text-lg shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105">
             <span className="relative z-10">{t('home.lifePillars.startBuilding')}</span>
             <motion.div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0" animate={{ x: ['-100%', '100%'] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }} />
           </Button>
@@ -162,11 +162,11 @@ const LifePillarsSection = () => {
                   <DialogDescription className="text-center">{isRTL ? activePillar.descriptionHe : activePillar.descriptionEn}</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-3 mt-4">
-                  <Button onClick={() => { setActivePillar(null); navigate(`/${activePillar.id}/journey`); }} className={cn("w-full bg-gradient-to-r text-white", activePillar.gradient)}>
+                  <Button onClick={() => { setActivePillar(null); openWelcomeGate(); }} className={cn("w-full bg-gradient-to-r text-white", activePillar.gradient)}>
                     {t('home.lifePillars.startJourney')}
                     <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
                   </Button>
-                  <Button variant="outline" onClick={() => { setActivePillar(null); navigate(`/${activePillar.id}`); }}>
+                  <Button variant="outline" onClick={() => { setActivePillar(null); openWelcomeGate(); }}>
                     {isRTL ? tools.he : tools.en}
                   </Button>
                 </div>

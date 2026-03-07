@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { cn } from '@/lib/utils';
 
 const phases = [
@@ -50,7 +50,7 @@ const phases = [
 
 export default function TransformationJourneySection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -302,7 +302,7 @@ export default function TransformationJourneySection() {
         >
           <Button
             size="lg"
-            onClick={() => navigate('/onboarding')}
+            onClick={openWelcomeGate}
             className="group relative text-lg px-10 py-7 rounded-2xl 
               bg-gradient-to-r from-primary via-primary to-accent
               hover:from-primary/90 hover:to-accent/90

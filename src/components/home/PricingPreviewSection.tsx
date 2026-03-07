@@ -2,7 +2,7 @@
  * PricingPreviewSection — 3-tier pricing overview
  */
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Sparkles, Zap, Crown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,7 @@ const tiers = [
 
 export default function PricingPreviewSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   return (
     <section className="py-20 px-4">
@@ -89,7 +89,7 @@ export default function PricingPreviewSection() {
                       </div>
                     ))}
                   </div>
-                  <Button variant={tier.featured ? 'default' : 'outline'} className="w-full mt-4" onClick={() => navigate('/onboarding')}>
+                  <Button variant={tier.featured ? 'default' : 'outline'} className="w-full mt-4" onClick={openWelcomeGate}>
                     {t('home.pricing.getStarted')}
                   </Button>
                 </div>

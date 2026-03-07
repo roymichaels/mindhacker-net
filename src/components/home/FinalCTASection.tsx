@@ -2,7 +2,7 @@
  * FinalCTASection — Epic gaming CTA
  */
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Rocket, Shield, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 export default function FinalCTASection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   const guarantees = [
     { icon: Shield, text: t('home.finalCta.personalJourney') },
@@ -64,7 +64,7 @@ export default function FinalCTASection() {
             <div className="flex justify-center">
               <Button
                 size="lg"
-                onClick={() => navigate('/onboarding')}
+                onClick={openWelcomeGate}
                 className="group text-xl px-12 py-8 rounded-2xl
                   bg-gradient-to-r from-primary via-primary to-accent
                   hover:from-primary/90 hover:to-accent/90
