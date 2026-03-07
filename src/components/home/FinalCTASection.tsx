@@ -6,7 +6,7 @@ import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Rocket, Shield, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb/Orb';
+import { GalleryOrbView } from '@/components/orb/GalleryMorphOrb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 
