@@ -30,6 +30,7 @@ import { BreathingGuide } from '@/components/hypnosis/BreathingGuide';
 import { synthesizeSpeech, stopBrowserSpeech, stopCurrentAudio, playAudioUrl } from '@/services/voice';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 
 // ---- Template inference fallback ----
 function inferTemplate(action: NowQueueItem): ExecutionTemplate {
