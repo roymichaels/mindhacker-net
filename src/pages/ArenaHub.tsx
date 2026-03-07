@@ -17,6 +17,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type TacticalBlock, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getQuestName, getCampaignName } from '@/lib/questNames';
 
 const BLOCK_ICONS: Record<BlockCategory, typeof Swords> = {
   health: Zap,
@@ -187,6 +188,10 @@ export default function ArenaHub() {
             {/* ── PHASE + PROGRESS ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
               <div className="px-4 py-3 border-b border-border/30">
+                {/* Campaign name */}
+                <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1.5">
+                  {getCampaignName(`phase-${phase}`, isHe ? 'he' : 'en')}
+                </p>
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center">
                     <span className="text-sm font-bold text-destructive">{phase}</span>
@@ -379,12 +384,19 @@ function DayView({
 
   return (
     <div className="space-y-2.5">
-      {/* Day header */}
+      {/* Day header with Quest name */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-bold text-foreground/70">
-          {isHe ? day.label : day.labelEn}
-          {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
-        </span>
+        <div className="min-w-0">
+          <span className="text-xs font-bold text-foreground/70">
+            {isHe ? day.label : day.labelEn}
+            {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
+          </span>
+          {day.date && (
+            <span className="text-[10px] text-primary/70 font-semibold ms-2">
+              ⚔️ {getQuestName(day.date, isHe ? 'he' : 'en')}
+            </span>
+          )}
+        </div>
         <span className="text-[10px] text-muted-foreground">
           {day.blocks.length} {isHe ? 'בלוקים' : 'blocks'} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
         </span>

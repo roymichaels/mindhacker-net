@@ -17,6 +17,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield } from 'lucide-react';
+import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ── Adventure-themed block labels ──
@@ -59,6 +60,21 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     const diff = Date.now() - new Date(plan.start_date).getTime();
     return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, [plan?.start_date]);
+
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }, []);
+
+  const questName = useMemo(() => getQuestName(todayStr, isHe ? 'he' : 'en'), [todayStr, isHe]);
+  const campaignName = useMemo(() => {
+    // Use ISO week as campaign key
+    const d = new Date();
+    const year = d.getFullYear();
+    const jan1 = new Date(year, 0, 1);
+    const weekNum = Math.ceil(((d.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+    return getCampaignName(`${year}-W${String(weekNum).padStart(2, '0')}`, isHe ? 'he' : 'en');
+  }, [isHe]);
 
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
@@ -160,26 +176,33 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* ── TODAY'S ADVENTURE — Journey Blocks ── */}
             {schedule.length > 0 ? (
               <div className="space-y-2.5">
-                {/* Header */}
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground">
-                      {isHe ? 'המסע של היום' : "Today's Journey"}
-                    </h3>
-                    <span className="text-[10px] text-muted-foreground">
-                      {schedule.length} {isHe ? 'מסלולים' : 'paths'}
+                {/* Quest Header */}
+                <div className="px-1 space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                      {campaignName}
                     </span>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setWizardOpen(true)}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                    {isHe ? 'הוסף' : 'Add'}
-                  </motion.button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Compass className="w-4 h-4 text-primary" />
+                      <h3 className="text-sm font-bold text-foreground">
+                        ⚔️ {questName}
+                      </h3>
+                      <span className="text-[10px] text-muted-foreground">
+                        {schedule.length} {isHe ? 'מסלולים' : 'paths'}
+                      </span>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setWizardOpen(true)}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                      {isHe ? 'הוסף' : 'Add'}
+                    </motion.button>
+                  </div>
                 </div>
 
                 {/* Journey blocks — all equal, no graying */}

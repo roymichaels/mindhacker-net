@@ -4,7 +4,7 @@
  * Middle: XP progress bar
  * Right: Aurora orb → opens Aurora dock (with intro balloon)
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -15,6 +15,7 @@ import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
 
 export function BottomHudBar() {
   const { language, isRTL } = useTranslation();
@@ -22,11 +23,24 @@ export function BottomHudBar() {
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
+  const { movementScore } = useTodayExecution();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [showBalloon, setShowBalloon] = useState(false);
 
   const identityTitle = dashboard.identityTitle;
+
+  // Movement score drives orb glow intensity
+  const orbGlowStyle = useMemo(() => {
+    const pct = Math.min(100, Math.max(0, movementScore));
+    if (pct === 0) return {};
+    const opacity = 0.15 + (pct / 100) * 0.55;
+    const spread = 2 + (pct / 100) * 8;
+    return {
+      boxShadow: `0 0 ${spread}px ${spread / 2}px hsl(var(--primary) / ${opacity})`,
+      borderRadius: '50%',
+    };
+  }, [movementScore]);
 
   // Show balloon after 3s, hide after 8s
   useEffect(() => {
@@ -66,8 +80,8 @@ export function BottomHudBar() {
             onClick={() => setProfileOpen(true)}
             className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
           >
-            <div className="flex-shrink-0 w-11 h-11 rounded-xl overflow-visible">
-              <PersonalizedOrb size={44} state="idle" />
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl overflow-visible transition-shadow duration-700" style={orbGlowStyle}>
+              <PersonalizedOrb size={44} state={movementScore >= 80 ? 'speaking' : 'idle'} />
             </div>
             {identityTitle && (
               <div className="min-w-0 flex flex-col">
