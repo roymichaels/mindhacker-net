@@ -32,6 +32,12 @@ type EarnTab = 'overview' | 'bounties' | 'gigs' | 'data' | 'activity' | 'mining'
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
 
+const CATEGORY_LABELS: Record<string, string> = {
+  all: 'הכל', writing: 'כתיבה', labeling: 'תיוג', feedback: 'משוב',
+  design: 'עיצוב', translation: 'תרגום', development: 'פיתוח',
+  content: 'תוכן', other: 'אחר',
+};
+
 // ──── Data Offers ────
 interface DataOffer {
   id: string; type: string; icon: string;
