@@ -115,9 +115,9 @@ export default function PlanCinematicSection() {
                   >
                     <Icon className={cn('h-6 w-6', p.color)} />
                   </motion.div>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {p.label}
-                  </span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                      {isRTL ? p.labelHe : p.labelEn}
+                    </span>
                 </motion.div>
               );
             })}

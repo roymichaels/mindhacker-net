@@ -136,7 +136,7 @@ export default function CoachOSSection() {
                       <span className="text-sm font-bold text-foreground">{isRTL ? tier.nameHe : tier.name}</span>
                     </div>
                     <div className="text-end">
-                      <span className={cn('text-sm font-black', tier.color)}>{tier.price}<span className="text-xs text-muted-foreground">/mo</span></span>
+                      <span className={cn('text-sm font-black', tier.color)}>{tier.price}<span className="text-xs text-muted-foreground">{isRTL ? '/חודש' : '/mo'}</span></span>
                       <p className="text-[10px] text-muted-foreground">{tier.clients} {isRTL ? 'לקוחות' : 'clients'}</p>
                     </div>
                   </div>

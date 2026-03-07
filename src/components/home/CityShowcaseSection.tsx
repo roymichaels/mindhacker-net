@@ -168,7 +168,7 @@ export default function CityShowcaseSection() {
       icon: Users,
       title: isRTL ? 'שוק מאמנים' : 'Coach Marketplace',
       line: isRTL ? 'מצא או בנה עסק אימון' : 'Find or build a coaching biz',
-      preview: <CoachPreview />,
+      preview: <CoachPreview isRTL={isRTL} />,
     },
   ];
 

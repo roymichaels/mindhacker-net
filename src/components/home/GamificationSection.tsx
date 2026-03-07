@@ -25,7 +25,7 @@ export default function GamificationSection() {
     { icon: Swords, title: isHe ? 'עץ מיומנויות' : 'Skill Tree', desc: isHe ? 'פתח מיומנויות חוצות-תחומים — כל פעולה משפיעה על skills ספציפיים' : 'Develop cross-domain skills — every action impacts specific skills', color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
     { icon: Target, title: isHe ? 'קווסטים יומיים' : 'Daily Quests', desc: isHe ? 'כל יום הוא קווסט עם שם ייחודי — שבוע שלם = קמפיין' : 'Each day is a quest with a unique name — a full week = a campaign', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
     { icon: Trophy, title: isHe ? 'תגים ולוח מובילים' : 'Badges & Leaderboards', desc: isHe ? 'הרוויח תגים על הישגים ותתחרה עם הקהילה' : 'Earn badges for achievements and compete with the community', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    { icon: BarChart3, title: isHe ? 'Movement Score' : 'Movement Score', desc: isHe ? 'ציון מומנטום בזמן אמת שמניע את האורב שלך' : 'Real-time momentum score that drives your Orb', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
+    { icon: BarChart3, title: isHe ? 'ציון תנועה' : 'Movement Score', desc: isHe ? 'ציון מומנטום בזמן אמת שמניע את האורב שלך' : 'Real-time momentum score that drives your Orb', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
   ];
 
   return (
