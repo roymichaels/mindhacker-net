@@ -5,6 +5,7 @@
  */
 import { useState, useCallback } from 'react';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
@@ -19,7 +20,7 @@ import {
 import { SkillsModal } from '@/components/modals/SkillsModal';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
-  Target, UserCircle, Compass, RefreshCw, Loader2, Play,
+  Target, UserCircle, Compass, RefreshCw, Loader2, Play, Lock,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,6 +36,7 @@ export function HudSidebar() {
   const tokens = useEnergy();
   const { sessionStats } = useGameState();
   const { nextAction, hasPlan } = useTodayExecution();
+  const { canAccessPlanRecalibration, showUpgradePrompt } = useSubscriptionGate();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
   const [recalibrating, setRecalibrating] = useState(false);
@@ -281,12 +283,13 @@ export function HudSidebar() {
             </button>
           ) : (
             <button
-              onClick={handleRecalibrate}
+              onClick={() => canAccessPlanRecalibration ? handleRecalibrate() : showUpgradePrompt(isHe ? 'כיול מחדש' : 'Recalibrate')}
               disabled={recalibrating}
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold disabled:opacity-50"
             >
-              {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : canAccessPlanRecalibration ? <RefreshCw className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               <span>{recalibrating ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') : (isHe ? 'כיול מחדש' : 'Recalibrate')}</span>
+              {!canAccessPlanRecalibration && <span className="text-[10px] opacity-70">Plus+</span>}
             </button>
           )}
         </div>

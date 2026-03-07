@@ -8,8 +8,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   RefreshCw, ChevronDown, ChevronUp, CheckCircle2, Circle,
   Target, Calendar, Trophy, PanelLeftClose, PanelLeftOpen,
-  Loader2, Flame, Zap, Clock,
+  Loader2, Flame, Zap, Clock, Lock,
 } from 'lucide-react';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -91,8 +92,13 @@ export function RoadmapSidebar() {
   const progressPct = Math.round((completedCount / totalCount) * 100);
 
   const { generateStrategy, isGenerating: recalibrating } = useStrategyPlans();
+  const { canAccessPlanRecalibration, showUpgradePrompt } = useSubscriptionGate();
 
   const handleRecalibrate = async () => {
+    if (!canAccessPlanRecalibration) {
+      showUpgradePrompt(isHe ? 'כיול מחדש' : 'Recalibrate');
+      return;
+    }
     if (!user?.id || recalibrating) return;
     try {
       await generateStrategy.mutateAsync({ hub: 'both', forceRegenerate: true });
@@ -176,11 +182,11 @@ export function RoadmapSidebar() {
               onClick={handleRecalibrate}
               disabled={recalibrating}
               className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors mt-2"
-              title={isHe ? 'כיול מחדש' : 'Recalibrate'}
+              title={canAccessPlanRecalibration ? (isHe ? 'כיול מחדש' : 'Recalibrate') : 'Plus+'}
             >
               {recalibrating
                 ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                : <RefreshCw className="w-3.5 h-3.5 text-primary" />
+                : canAccessPlanRecalibration ? <RefreshCw className="w-3.5 h-3.5 text-primary" /> : <Lock className="w-3.5 h-3.5 text-muted-foreground" />
               }
             </button>
           </div>
@@ -404,12 +410,13 @@ export function RoadmapSidebar() {
               >
                 {recalibrating
                   ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  : <RefreshCw className="w-3.5 h-3.5" />
+                  : canAccessPlanRecalibration ? <RefreshCw className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />
                 }
                 <span>{recalibrating
                   ? (isHe ? 'מחשב מחדש...' : 'Recalculating...')
                   : (isHe ? 'כיול מחדש' : 'Recalibrate')
                 }</span>
+                {!canAccessPlanRecalibration && <span className="text-[10px] opacity-70">Plus+</span>}
               </button>
             </div>
           </div>

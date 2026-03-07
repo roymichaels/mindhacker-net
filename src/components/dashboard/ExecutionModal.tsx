@@ -30,6 +30,7 @@ import { BreathingGuide } from '@/components/hypnosis/BreathingGuide';
 import { synthesizeSpeech, stopBrowserSpeech, stopCurrentAudio, playAudioUrl } from '@/services/voice';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 
 // ---- Template inference fallback ----
 function inferTemplate(action: NowQueueItem): ExecutionTemplate {
@@ -150,6 +151,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const completeMutation = useCompleteNowAction();
   const isMobile = useIsMobile();
   const { impact, pattern: hapticPattern } = useHaptics();
+  const { canAccessAIExecution } = useSubscriptionGate();
 
   const [template, setTemplate] = useState<ExecutionTemplate>('step_by_step');
   const [steps, setSteps] = useState<ExecutionStep[]>([]);
@@ -233,15 +235,29 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     playingRef.current = false;
 
     if (tmpl !== 'tts_guided') {
-      setSteps(action.executionSteps || []);
+      const existingSteps = action.executionSteps || [];
+      if (existingSteps.length > 0) {
+        setSteps(existingSteps);
+      } else if (!canAccessAIExecution) {
+        // Free tier: static general checklist instead of AI steps
+        const isHeLang = language === 'he';
+        setSteps([
+          { label: isHeLang ? 'הכן את הסביבה' : 'Prepare your environment', durationSec: 60 },
+          { label: isHeLang ? 'קרא את ההוראות' : 'Review the instructions', durationSec: 60 },
+          { label: isHeLang ? 'בצע את המשימה' : 'Execute the task', durationSec: 180 },
+          { label: isHeLang ? 'סכם ותעד' : 'Summarize & document', durationSec: 60 },
+        ]);
+      } else {
+        setSteps(existingSteps);
+      }
     } else {
       setSteps([]);
     }
   }, [open, action, isRTL]);
 
-  // AI Enhancement: fetch detailed steps in background with 20s timeout
+  // AI Enhancement: fetch detailed steps in background with 20s timeout (Plus+ only)
   useEffect(() => {
-    if (!open || !action) return;
+    if (!open || !action || !canAccessAIExecution) return;
 
     const cacheKey = `${action.actionType}_${action.title}_${language}`;
     const cached = enhanceCacheRef.current.get(cacheKey);

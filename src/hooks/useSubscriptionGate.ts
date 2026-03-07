@@ -20,6 +20,8 @@ export interface SubscriptionGate {
   canAccessArenaFull: boolean;        // Plus+ — full Arena (Free = view-only)
   canAccessBusinessBasic: boolean;    // Plus+ — business module basic
   canAccessPlanRecalibration: boolean;// Plus+ — 90-day recalibration
+  canAccessCourseCreation: boolean;   // Plus+ — create courses in Learn
+  canAccessAIExecution: boolean;      // Plus+ — AI-generated execution steps
   canAccessFullProactive: boolean;    // Apex — full proactive engine
   canAccessProjects: boolean;         // Apex — Projects module
   canAccessBusinessAdvanced: boolean; // Apex — Business advanced + AI plans
@@ -121,6 +123,8 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       canAccessArenaFull: true,
       canAccessBusinessBasic: true,
       canAccessPlanRecalibration: true,
+      canAccessCourseCreation: true,
+      canAccessAIExecution: true,
       canAccessFullProactive: true,
       canAccessProjects: true,
       canAccessBusinessAdvanced: true,
@@ -160,6 +164,8 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     canAccessArenaFull: isPlus,
     canAccessBusinessBasic: isPlus,
     canAccessPlanRecalibration: isPlus,
+    canAccessCourseCreation: isPlus,
+    canAccessAIExecution: isPlus,
     // Apex gates (Self Mastery + Execution Power)
     canAccessFullProactive: isApex,
     canAccessProjects: isApex,

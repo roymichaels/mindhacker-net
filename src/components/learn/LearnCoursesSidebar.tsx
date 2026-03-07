@@ -3,6 +3,7 @@
  * Allows selecting a course + creating new ones.
  */
 import { useState } from 'react';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery } from '@tanstack/react-query';
@@ -26,6 +27,7 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
+  const { canAccessCourseCreation: canCreateCourse } = useSubscriptionGate();
 
   const { data: curricula } = useQuery({
     queryKey: ['learning-curricula', user?.id],
@@ -87,7 +89,7 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
               <span className="text-[10px] font-bold">{i + 1}</span>
             </button>
           ))}
-          {onNewCourse && (
+          {onNewCourse && canCreateCourse && (
             <button
               onClick={onNewCourse}
               className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors flex items-center justify-center mt-1"
@@ -176,7 +178,7 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
           )}
 
           {/* New Course button at bottom */}
-          {onNewCourse && curricula && curricula.length > 0 && (
+          {onNewCourse && canCreateCourse && curricula && curricula.length > 0 && (
             <button
               onClick={onNewCourse}
               className="w-full flex items-center justify-center gap-1.5 p-2 mt-3 rounded-lg text-[11px] font-semibold bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 transition-colors"

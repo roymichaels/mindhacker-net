@@ -14,6 +14,7 @@ import {
   FileText, Brain, Target, Flame, Clock, Zap, ChevronDown, ChevronUp, Plus,
   ChevronLeft, RefreshCw, Loader2,
 } from 'lucide-react';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -87,6 +88,7 @@ export default function Learn() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
+  const { canAccessCourseCreation, showUpgradePrompt } = useSubscriptionGate();
   const queryClient = useQueryClient();
   const auroraChat = useAuroraChatContextSafe();
 
@@ -306,12 +308,12 @@ export default function Learn() {
                 </h1>
               </div>
               <Button
-                onClick={openWizardInDock}
+                onClick={() => canAccessCourseCreation ? openWizardInDock() : showUpgradePrompt(isHe ? 'יצירת קורס' : 'Course Creation')}
                 variant="outline"
                 size="sm"
                 className="gap-1.5 rounded-full border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0"
               >
-                <Plus className="h-3.5 w-3.5" />
+                {canAccessCourseCreation ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                 {isHe ? 'קורס חדש' : 'New Course'}
               </Button>
             </div>
