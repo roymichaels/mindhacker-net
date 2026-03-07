@@ -298,6 +298,65 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     }
   }, [speed, stop, playChunk]);
 
+  /** Play arbitrary raw text through TTS (used for "read from here") */
+  const playText = useCallback(async (rawText: string) => {
+    if (busyRef.current) {
+      stop();
+      // Small delay to let stop() clean up
+      await new Promise(r => setTimeout(r, 50));
+    }
+
+    const text = stripNikud(rawText);
+    if (!text.trim()) return;
+
+    console.log('[TTS] playText:', { length: text.length });
+
+    const chunks = splitTextIntoChunks(text);
+    console.log('[TTS] playText split into', chunks.length, 'chunks');
+
+    setIsLoading(true);
+    busyRef.current = true;
+    playingRef.current = true;
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      for (let i = 0; i < chunks.length; i++) {
+        if (!playingRef.current) break;
+
+        let success: boolean;
+        try {
+          success = await playChunk(chunks[i], controller.signal);
+        } catch (chunkErr: any) {
+          if (chunkErr.name === 'AbortError') return;
+          try {
+            success = await playChunk(chunks[i], controller.signal);
+          } catch (retryErr: any) {
+            if (retryErr.name === 'AbortError') return;
+            success = false;
+          }
+        }
+
+        if (!success) {
+          const remainingText = chunks.slice(i).join('\n\n');
+          speakWithBrowserFallback(remainingText, speed);
+          return;
+        }
+      }
+
+      playingRef.current = false;
+      busyRef.current = false;
+      setIsPlaying(false);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      console.warn('[TTS] playText error, falling back:', err);
+      setIsLoading(false);
+      speakWithBrowserFallback(text, speed);
+    } finally {
+      if (!playingRef.current) busyRef.current = false;
+    }
+  }, [speed, stop, playChunk]);
+
   const speakWithBrowserFallback = useCallback((text: string, rate: number) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -309,5 +368,5 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     window.speechSynthesis.speak(utterance);
   }, []);
 
-  return { play, stop, isPlaying, isLoading };
+  return { play, playText, stop, isPlaying, isLoading };
 }
