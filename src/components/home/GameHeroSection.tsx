@@ -83,10 +83,11 @@ export default function GameHeroSection() {
             <div className="relative">
               <div className="absolute inset-[-40%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] blur-2xl pointer-events-none" />
               {auroraSkinPreset && (
-                <Orb
+                <GalleryOrbView
                   profile={auroraSkinPreset.profile}
+                  geometryFamily={auroraSkinPreset.profile.geometryFamily || 'sphere'}
                   size={240}
-                  renderer="css"
+                  level={100}
                 />
               )}
             </div>
