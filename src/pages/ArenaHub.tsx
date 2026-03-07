@@ -145,7 +145,7 @@ export default function ArenaHub() {
   };
 
   return (
-    <div className="flex flex-col w-full items-center min-h-[100dvh] pb-56" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full items-center pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-4 max-w-xl w-full px-4 pt-4">
 
         {!hasPlan && !planLoading ? (
