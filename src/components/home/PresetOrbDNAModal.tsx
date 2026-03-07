@@ -81,7 +81,7 @@ export function PresetOrbDNAModal({ open, onOpenChange, preset, meta }: PresetOr
 
   return (
     <>
-      <Dialog open={open && canRenderModal} onOpenChange={onOpenChange}>
+      <Dialog open={open && !!canRenderModal} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-sm max-h-[85vh] p-0 overflow-hidden">
           <DialogHeader className="px-5 pt-5 pb-0">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
