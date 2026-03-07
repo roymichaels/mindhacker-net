@@ -2,7 +2,7 @@
  * PricingPreviewSection — 3-tier pricing overview
  */
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Sparkles, Zap, Crown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
