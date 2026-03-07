@@ -4,6 +4,7 @@
  * with a single inspect panel: Header → Stat Wheel → 4 internal tabs.
  */
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
