@@ -4,8 +4,7 @@
 import { motion } from 'framer-motion';
 import { Bot, Mic, Brain, Headphones, Layers } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb/Orb';
-import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { cn } from '@/lib/utils';
 
 export default function AuroraCoachSection() {
@@ -41,7 +40,7 @@ export default function AuroraCoachSection() {
               animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <Orb profile={DEFAULT_ORB_PROFILE} size={200} state="breathing" renderer="css" showGlow />
+            <AuroraHoloOrb size={200} glow="full" />
           </div>
         </motion.div>
 
