@@ -29,6 +29,7 @@ export default function OrbGalleryPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const isHe = isRTL;
+  const containerRef = useRef<HTMLDivElement>(null!);
 
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [showFilters, setShowFilters] = useState(false);
