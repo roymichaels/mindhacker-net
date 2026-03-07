@@ -6,7 +6,7 @@
  */
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { View, Environment, PerspectiveCamera } from '@react-three/drei';
+import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbProfile } from './types';
 
