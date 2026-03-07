@@ -379,7 +379,7 @@ export default function Documentation() {
             </h2>
 
             {section.paragraphs.map((p, j) => (
-              <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm [&>span]:unicode-bidi-embed" style={{ unicodeBidi: 'plaintext', textAlign: isRTL ? 'right' : 'left' }}>
+              <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
                 {p}
               </p>
             ))}
