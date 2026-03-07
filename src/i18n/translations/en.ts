@@ -1794,7 +1794,7 @@ export const en: TranslationKeys = {
       cookiesTitle: "Cookies",
       cookiesText: "This website uses cookies to improve browsing experience, save preferences, and for analytics purposes. You can manage cookie settings in your browser.",
       contactTitle: "Contact and Data Protection",
-      contactText: "For questions about this privacy policy, requests regarding your personal information, or to contact our Data Protection Officer (DPO), please reach out to: contact@mindos.app",
+      contactText: "For questions about this privacy policy, requests regarding your personal information, or to contact our Data Protection Officer (DPO), please reach out to: contact@mindos.space",
     },
     terms: {
       title: "Terms of Service",
