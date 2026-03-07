@@ -45,6 +45,30 @@ interface Lesson {
   curriculum_id: string;
 }
 
+/** Extract plain text from React children (handles nested elements) */
+function extractTextFromChildren(children: any): string {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (!children) return '';
+  if (Array.isArray(children)) {
+    return children.map(extractTextFromChildren).join('');
+  }
+  if (children?.props?.children) {
+    return extractTextFromChildren(children.props.children);
+  }
+  return '';
+}
+
+/** Find text in the full lesson and return from that position to the end */
+function getTextFromPosition(fullText: string, fragment: string): string {
+  if (!fragment || !fullText) return fullText;
+  const clean = fragment.replace(/[*#`_~\[\]()]/g, '').trim();
+  const first30 = clean.substring(0, 30);
+  const idx = fullText.indexOf(first30);
+  if (idx >= 0) return fullText.substring(idx);
+  return fullText;
+}
+
 interface Props {
   lesson: Lesson;
   onComplete: () => void;
