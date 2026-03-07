@@ -68,7 +68,7 @@ export default function CreatorHub() {
             </Avatar>
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-bold bg-gradient-to-r from-sky-500 to-blue-500 bg-clip-text text-transparent truncate">
-                {isHe ? `שלום${profile?.display_name ? `, ${profile.display_name}` : ''}` : `Welcome${profile?.display_name ? `, ${profile.display_name}` : ''}`}
+                {isHe ? `שלום${profile?.community_username ? `, ${profile.community_username}` : ''}` : `Welcome${profile?.community_username ? `, ${profile.community_username}` : ''}`}
               </h1>
               <p className="text-xs text-muted-foreground">{isHe ? 'סטודיו היוצר שלך' : 'Creator Studio'}</p>
             </div>

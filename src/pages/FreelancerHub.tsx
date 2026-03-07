@@ -68,7 +68,7 @@ export default function FreelancerHub() {
             </Avatar>
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent truncate">
-                {isHe ? `שלום${profile?.display_name ? `, ${profile.display_name}` : ''}` : `Welcome${profile?.display_name ? `, ${profile.display_name}` : ''}`}
+                {isHe ? `שלום${profile?.community_username ? `, ${profile.community_username}` : ''}` : `Welcome${profile?.community_username ? `, ${profile.community_username}` : ''}`}
               </h1>
               <p className="text-xs text-muted-foreground">{isHe ? 'מרכז הפרילנסר שלך' : 'Freelancer Command Center'}</p>
             </div>
