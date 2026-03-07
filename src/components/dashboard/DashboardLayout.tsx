@@ -61,30 +61,18 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
       <SidebarProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           {isMobile ? (
-            <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
-              <div className="flex h-14 items-center justify-between px-3">
-                <div className="flex items-center gap-1">
-                  {isFM && (
-                    <button
-                      onClick={() => navigate('/dashboard')}
-                      className="p-2 -ms-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      aria-label="Back to dashboard"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </button>
-                   )}
-                  {isFM ? (
-                    <div className="flex items-center gap-1.5">
-                      <Store className="h-5 w-5 text-primary" />
-                      <span className="text-sm font-bold text-foreground">{language === 'he' ? 'פרי-מארקט' : 'FreeMarket'}</span>
-                    </div>
-                  ) : (
+            isFM ? (
+              <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
+            ) : (
+              <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
+                <div className="flex h-14 items-center justify-between px-3">
+                  <div className="flex items-center gap-1">
                     <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
-                  )}
+                  </div>
+                  <HeaderActions compact />
                 </div>
-                <HeaderActions compact />
-              </div>
-            </header>
+              </header>
+            )
           ) : isFM ? (
             <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
