@@ -211,12 +211,12 @@ export default function OrbCollectionSection() {
                 )}
               >
                 <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden">
-                  <Orb
+                  <GalleryOrbView
                     profile={preset.profile}
+                    geometryFamily={preset.profile.geometryFamily || 'sphere'}
                     size={orbSize}
-                    state="breathing"
-                    renderer={isMobile ? "css" : "webgl"}
-                    showGlow={false}
+                    level={100}
+                    randomShapeCount
                   />
                 </div>
 
