@@ -493,6 +493,7 @@ const App = () => (
                           <Route path="payouts" element={<MyPayouts />} />
                         </Route>
                         {/* Dev routes */}
+                        <Route path="/orbs" element={<OrbGalleryPage />} />
                         <Route path="/dev/orb-gallery" element={<OrbGallery />} />
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
