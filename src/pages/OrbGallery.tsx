@@ -14,7 +14,7 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRi
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { GalleryOrbView, GalleryCanvas } from '@/components/orb/GalleryMorphOrb';
+import { GalleryOrbView, GalleryCanvas, StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
