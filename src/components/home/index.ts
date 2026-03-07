@@ -15,6 +15,7 @@ export { default as CoachOSSection } from './CoachOSSection';
 export { default as AppPreviewSection } from './AppPreviewSection';
 export { default as PricingPreviewSection } from './PricingPreviewSection';
 export { default as FinalCTASection } from './FinalCTASection';
+export { default as RoadmapSection } from './RoadmapSection';
 
 // Legacy — kept for backwards compat
 export { default as TwoWorldsSection } from './TwoWorldsSection';

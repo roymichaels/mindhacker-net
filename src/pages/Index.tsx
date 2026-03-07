@@ -78,6 +78,7 @@ const Index = () => {
           <CityShowcaseSection />
           <TraitShowcaseSection />
           <PlanCinematicSection />
+          <RoadmapSection />
           <FinalCTASection />
         </main>
       </WelcomeGateProvider>
