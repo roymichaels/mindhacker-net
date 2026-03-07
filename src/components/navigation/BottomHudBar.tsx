@@ -57,7 +57,7 @@ export function BottomHudBar() {
                 <span className="text-[10px] text-muted-foreground leading-none">
                   {identityTitle.icon}
                 </span>
-                <span className="text-[11px] font-bold text-foreground truncate max-w-[80px] leading-tight">
+                <span className="text-[11px] font-bold text-foreground max-w-[100px] leading-tight line-clamp-2">
                   {isHe ? identityTitle.title : identityTitle.titleEn}
                 </span>
               </div>
