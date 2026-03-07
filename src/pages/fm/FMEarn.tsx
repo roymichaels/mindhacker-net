@@ -448,19 +448,19 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                 {filteredBounties.map((bounty: Bounty) => {
                   const ec = claimsByBounty.get(bounty.id);
                   return (
-                    <motion.div key={bounty.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-4 space-y-3">
+                    <motion.div key={bounty.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl p-4 space-y-3 border-2 border-amber-500/15 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/30 transition-all">
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1 min-w-0">
-                          <h3 className="font-semibold text-sm text-foreground">{bounty.title}</h3>
+                          <h3 className="font-bold text-sm text-foreground">{bounty.title}</h3>
                           {bounty.description && <p className="text-xs text-muted-foreground line-clamp-2">{bounty.description}</p>}
                         </div>
                         {ec && claimBadge(ec.status)}
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /><span className="font-semibold text-foreground">{bounty.reward_mos} MOS</span></span>
+                        <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-amber-400" /><span className="font-bold text-amber-300">{bounty.reward_mos} MOS</span></span>
                         {bounty.estimated_minutes && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> ~{bounty.estimated_minutes} min</span>}
-                        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{isHe ? CATEGORY_LABELS[bounty.category] || bounty.category : bounty.category}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{bounty.difficulty}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-[10px] font-bold text-amber-400/80">{isHe ? CATEGORY_LABELS[bounty.category] || bounty.category : bounty.category}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold">{bounty.difficulty}</span>
                       </div>
                       {bountyActions(bounty)}
                     </motion.div>
