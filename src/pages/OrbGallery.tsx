@@ -86,7 +86,8 @@ export default function OrbGalleryPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div ref={containerRef} className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <GalleryCanvas containerRef={containerRef}>
       <Header />
 
       <main className="relative pt-20 pb-16">
