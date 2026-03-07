@@ -43,7 +43,7 @@ export default function FinalCTASection() {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-                <LazyOrbView profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={100} level={100} />
+                <CSSGalleryOrb profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={100} level={100} />
               </div>
             </div>
 

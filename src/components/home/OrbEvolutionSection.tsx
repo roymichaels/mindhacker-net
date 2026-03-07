@@ -288,7 +288,7 @@ export default function OrbEvolutionSection() {
                   className="rounded-full overflow-hidden flex items-center justify-center"
                   style={{ width: orbSize, height: orbSize }}
                 >
-                  <LazyOrbView
+                  <CSSGalleryOrb
                     size={orbSize}
                     profile={phase.profile}
                     geometryFamily={phase.profile.geometryFamily || 'sphere'}
