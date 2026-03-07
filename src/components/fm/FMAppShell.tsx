@@ -12,6 +12,7 @@ import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { FMBottomNav } from '@/components/fm/FMBottomNav';
+import { useSidebars } from '@/hooks/useSidebars';
 
 export default function FMAppShell() {
   const { language } = useTranslation();
