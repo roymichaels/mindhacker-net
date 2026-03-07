@@ -87,6 +87,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   }, []);
 
   const questName = useMemo(() => getQuestName(todayStr, isHe ? 'he' : 'en'), [todayStr, isHe]);
+
+  // Generate unique quest name per quarter
+  const quarterQuestNames = useMemo(() => ({
+    q1_morning: getQuestName(todayStr + '-Q1', isHe ? 'he' : 'en'),
+    q2_midday: getQuestName(todayStr + '-Q2', isHe ? 'he' : 'en'),
+    q3_afternoon: getQuestName(todayStr + '-Q3', isHe ? 'he' : 'en'),
+    q4_evening: getQuestName(todayStr + '-Q4', isHe ? 'he' : 'en'),
+  }), [todayStr, isHe]);
+
   const campaignName = useMemo(() => {
     // Use ISO week as campaign key
     const d = new Date();
