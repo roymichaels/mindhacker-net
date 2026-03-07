@@ -50,7 +50,7 @@ const phases = [
 
 export default function TransformationJourneySection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   const containerVariants = {
     hidden: { opacity: 0 },

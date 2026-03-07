@@ -162,11 +162,11 @@ const LifePillarsSection = () => {
                   <DialogDescription className="text-center">{isRTL ? activePillar.descriptionHe : activePillar.descriptionEn}</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-3 mt-4">
-                  <Button onClick={() => { setActivePillar(null); navigate(`/${activePillar.id}/journey`); }} className={cn("w-full bg-gradient-to-r text-white", activePillar.gradient)}>
+                  <Button onClick={() => { setActivePillar(null); openWelcomeGate(); }} className={cn("w-full bg-gradient-to-r text-white", activePillar.gradient)}>
                     {t('home.lifePillars.startJourney')}
                     <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
                   </Button>
-                  <Button variant="outline" onClick={() => { setActivePillar(null); navigate(`/${activePillar.id}`); }}>
+                  <Button variant="outline" onClick={() => { setActivePillar(null); openWelcomeGate(); }}>
                     {isRTL ? tools.he : tools.en}
                   </Button>
                 </div>

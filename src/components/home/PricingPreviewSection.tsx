@@ -41,7 +41,7 @@ const tiers = [
 
 export default function PricingPreviewSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
 
   return (
     <section className="py-20 px-4">
