@@ -187,7 +187,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100 }
     } else {
       // Continuous morphing — always blending between shapes, no hold phase
       // Use a slow sine wave to create organic continuous interpolation
-      const morphSpeed = 0.8; // Fast — never settles into one shape
+      const morphSpeed = 2.4; // Ultra fast — constant flux
       const totalShapes = shapes.length;
 
       // Create a continuous position along the shape cycle
