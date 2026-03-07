@@ -6,7 +6,7 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { 
   Mic, 
   MessageCircle, 
