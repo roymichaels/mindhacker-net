@@ -413,6 +413,7 @@ export default function OrbGalleryPage() {
       )}
 
       <Footer />
+    </GalleryCanvas>
     </div>
   );
 }
