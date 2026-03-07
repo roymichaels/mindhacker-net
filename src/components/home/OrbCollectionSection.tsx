@@ -5,7 +5,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
-import { Sparkles, Dna, Fingerprint, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Sparkles, Dna, Fingerprint, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Orb } from '@/components/orb/Orb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
