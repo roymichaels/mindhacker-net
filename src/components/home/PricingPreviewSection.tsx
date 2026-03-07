@@ -89,7 +89,7 @@ export default function PricingPreviewSection() {
                       </div>
                     ))}
                   </div>
-                  <Button variant={tier.featured ? 'default' : 'outline'} className="w-full mt-4" onClick={() => navigate('/onboarding')}>
+                  <Button variant={tier.featured ? 'default' : 'outline'} className="w-full mt-4" onClick={openWelcomeGate}>
                     {t('home.pricing.getStarted')}
                   </Button>
                 </div>

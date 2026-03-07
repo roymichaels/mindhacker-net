@@ -118,7 +118,7 @@ const LifePillarsSection = () => {
 
         {/* CTA */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }} className="text-center mt-12">
-          <Button size="lg" onClick={() => navigate('/onboarding')} className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-6 text-lg shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105">
+          <Button size="lg" onClick={openWelcomeGate} className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-6 text-lg shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105">
             <span className="relative z-10">{t('home.lifePillars.startBuilding')}</span>
             <motion.div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0" animate={{ x: ['-100%', '100%'] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }} />
           </Button>

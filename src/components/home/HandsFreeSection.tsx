@@ -213,7 +213,7 @@ const HandsFreeSection = () => {
 
             <Button
               size="lg"
-              onClick={() => navigate('/onboarding')}
+              onClick={openWelcomeGate}
               className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-6 text-lg shadow-lg shadow-primary/25"
             >
               <span>{t('home.handsFree.cta')}</span>
