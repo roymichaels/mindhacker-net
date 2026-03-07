@@ -1,8 +1,9 @@
 /**
  * OrbGallery – NFT-style collection gallery with trait-based filtering.
- * 100 unique orb archetypes organized by traits.
+ * Uses a single shared WebGL context via R3F + drei View for all orbs.
+ * Each orb smoothly morphs between geometric shapes.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRi
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { GalleryOrbView, GalleryCanvas } from '@/components/orb/GalleryMorphOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
@@ -27,6 +29,7 @@ export default function OrbGalleryPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const isHe = isRTL;
+  const containerRef = useRef<HTMLDivElement>(null!);
 
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [showFilters, setShowFilters] = useState(false);
@@ -83,7 +86,8 @@ export default function OrbGalleryPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div ref={containerRef} className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <GalleryCanvas containerRef={containerRef}>
       <Header />
 
       <main className="relative pt-20 pb-16">
@@ -215,7 +219,7 @@ export default function OrbGalleryPage() {
                   >
                     {/* Rarity badge */}
                     <span
-                      className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2"
+                      className="relative z-[2] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2"
                       style={{
                         backgroundColor: `hsl(${rarityColor} / 0.12)`,
                         color: `hsl(${rarityColor})`,
@@ -225,27 +229,25 @@ export default function OrbGalleryPage() {
                       {isHe ? RARITY_LABELS[orb.rarity].he : RARITY_LABELS[orb.rarity].en}
                     </span>
 
-                    {/* Orb */}
+                    {/* Orb - rendered via shared WebGL canvas */}
                     <div className="group-hover:scale-105 transition-transform duration-300">
-                      <Orb
+                      <GalleryOrbView
                         profile={orb.profile}
+                        geometryFamily={orb.traits.geometry}
                         size={isMobile ? 80 : 120}
-                        state="idle"
-                        renderer="css"
-                        showGlow={orb.traits.glow !== 'none'}
                       />
                     </div>
 
                     {/* Name */}
-                    <h3 className="text-xs md:text-sm font-bold text-foreground text-center mt-2">
+                    <h3 className="relative z-[2] text-xs md:text-sm font-bold text-foreground text-center mt-2">
                       {isHe ? orb.nameHe : orb.nameEn}
                     </h3>
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
+                    <p className="relative z-[2] text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
                       {isHe ? orb.descHe : orb.descEn}
                     </p>
 
                     {/* Trait pills */}
-                    <div className="flex flex-wrap gap-1 justify-center mt-1.5">
+                    <div className="relative z-[2] flex flex-wrap gap-1 justify-center mt-1.5">
                       {[orb.traits.material, orb.traits.geometry].map(t => (
                         <span key={t} className="text-[8px] md:text-[9px] px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground capitalize">
                           {t}
@@ -411,6 +413,7 @@ export default function OrbGalleryPage() {
       )}
 
       <Footer />
+    </GalleryCanvas>
     </div>
   );
 }
