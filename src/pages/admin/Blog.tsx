@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Sparkles, Loader2, Eye, Pencil, Trash2, Globe, Plus, ExternalLink } from 'lucide-react';
+import { Sparkles, Loader2, Eye, Pencil, Trash2, Globe, Plus, ExternalLink, Zap, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function AdminBlog() {
@@ -120,18 +120,52 @@ export default function AdminBlog() {
     },
   });
 
+  // Aurora Codex: Generate next in series
+  const codexMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('daily-blog-generator', {
+        body: {},
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(`Aurora Codex #${data.day} published: ${data.title}`);
+      queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const publishedCount = posts?.filter(p => p.slug?.startsWith('aurora-codex-')).length || 0;
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
             {language === 'he' ? 'ניהול בלוג' : 'Blog Management'}
           </h1>
           <p className="text-sm text-muted-foreground">
             {language === 'he' ? 'צור מאמרים מותאמי SEO עם AI' : 'Create SEO-optimized articles with AI'}
+            {' · '}
+            <span className="text-primary font-medium">Aurora Codex: {publishedCount}/100</span>
+            {' · '}
+            <Calendar className="inline h-3 w-3" /> {language === 'he' ? 'יומי ב-8:00' : 'Daily at 8:00 AM'}
           </p>
         </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => codexMutation.mutate()}
+            disabled={codexMutation.isPending}
+          >
+            {codexMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+            {language === 'he' ? 'הפעל Aurora Codex' : 'Run Aurora Codex'}
+          </Button>
 
         <Dialog open={wizardOpen} onOpenChange={setWizardOpen}>
           <DialogTrigger asChild>
@@ -187,6 +221,7 @@ export default function AdminBlog() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Posts list */}
