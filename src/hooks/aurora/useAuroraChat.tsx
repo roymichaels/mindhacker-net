@@ -243,6 +243,7 @@ export const useAuroraChat = (conversationId: string | null) => {
             language,
             pillar: chatContext?.activePillar || null,
             hasImages: !!imageBase64,
+            tier: 'from_db', // tier is resolved server-side from user_subscriptions
           }),
           signal: abortControllerRef.current.signal,
         }

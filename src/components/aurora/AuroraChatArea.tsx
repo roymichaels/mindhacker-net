@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useCommandBus } from '@/hooks/aurora/useCommandBus';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import AuroraChatMessage from './AuroraChatMessage';
 import AuroraTypingIndicator from './AuroraTypingIndicator';
@@ -18,6 +19,7 @@ interface AuroraChatAreaProps {
 const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
+  const { isPlus } = useSubscriptionGate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { registerSendMessage, setIsStreaming, pendingProactiveMessage, setPendingProactiveMessage } = useAuroraChatContext();
   const proactiveHandled = useRef(false);
@@ -85,7 +87,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
                   isOwn={message.sender_id === user?.id}
                   isAI={message.is_ai_message}
                   timestamp={message.created_at}
-                  onRegenerate={message.is_ai_message ? regenerateLastResponse : undefined}
+                  onRegenerate={message.is_ai_message && isPlus ? regenerateLastResponse : undefined}
                 />
               ))}
               

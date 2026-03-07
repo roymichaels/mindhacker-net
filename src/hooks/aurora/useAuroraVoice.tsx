@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { debug } from '@/lib/debug';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { speakWithBrowser } from '@/services/voice';
 
 interface UseAuroraVoiceOptions {
   onTranscription?: (text: string) => void;
@@ -8,6 +10,7 @@ interface UseAuroraVoiceOptions {
 
 export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
   const { user } = useAuth();
+  const { isPlus } = useSubscriptionGate();
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
@@ -112,6 +115,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      window.speechSynthesis?.cancel();
       setIsPlaying(false);
       setActiveMessageId(null);
       return;
@@ -121,6 +125,26 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
       setIsPlaying(true);
       setActiveMessageId(messageId);
 
+      // Free users: browser TTS only (no ElevenLabs cost)
+      if (!isPlus) {
+        const handle = speakWithBrowser(content, {
+          onEnd: () => {
+            setIsPlaying(false);
+            setActiveMessageId(null);
+          },
+          onError: () => {
+            setIsPlaying(false);
+            setActiveMessageId(null);
+          },
+        });
+        if (!handle) {
+          setIsPlaying(false);
+          setActiveMessageId(null);
+        }
+        return;
+      }
+
+      // Paid users: ElevenLabs premium TTS
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
         {
@@ -138,16 +162,11 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
 
       // Handle error responses gracefully (including 402 quota exceeded)
       if (!response.ok) {
-        // Try to parse error response for logging
         const errorData = await response.json().catch(() => ({}));
         console.warn('TTS request failed:', response.status, errorData);
-        
-        // If it's a fallback signal, just silently fail (don't crash)
         if (errorData.fallback) {
           debug.log('ElevenLabs quota exceeded, TTS unavailable');
         }
-        
-        // Reset state without crashing
         setIsPlaying(false);
         setActiveMessageId(null);
         return;
@@ -155,7 +174,6 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
 
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('audio')) {
-        // Not audio response - probably error JSON, fail gracefully
         console.warn('TTS response was not audio:', contentType);
         setIsPlaying(false);
         setActiveMessageId(null);
@@ -188,7 +206,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
       setIsPlaying(false);
       setActiveMessageId(null);
     }
-  }, [isPlaying]);
+  }, [isPlaying, isPlus]);
 
   // Stop playback
   const stopPlayback = useCallback(() => {
