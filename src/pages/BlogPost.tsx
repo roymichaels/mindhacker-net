@@ -245,7 +245,7 @@ export default function BlogPost() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a
-                href="https://mindos.space/auth"
+                href="https://mindos.space/"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all shadow-lg shadow-primary/25 active:scale-[0.98]"
               >
                 <Sparkles className="h-4 w-4" />
