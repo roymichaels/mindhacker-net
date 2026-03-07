@@ -96,20 +96,21 @@ const Index = () => {
             <HypnosisSection />
             <InlineCTA variant="bold" />
             <CityShowcaseSection />
+            <InlineCTA variant="subtle" />
             <TraitShowcaseSection />
             <InlineCTA variant="default" />
             <PlanCinematicSection />
             <InlineCTA variant="subtle" />
             <GamificationSection />
-            <Play2EarnSection />
             <InlineCTA variant="bold" />
+            <Play2EarnSection />
+            <InlineCTA variant="default" />
             <FreeMarketSection />
-            <InlineCTA variant="default" />
-            <GuildSection />
             <InlineCTA variant="subtle" />
-            <CoachOSSection />
+            <GuildSection />
             <InlineCTA variant="default" />
-            <PricingPreviewSection />
+            <CoachOSSection />
+            <InlineCTA variant="bold" />
             <RoadmapSection />
             <FinalCTASection />
           </main>
