@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Web3Roadmap } from '@/components/docs/Web3Roadmap';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -525,11 +526,18 @@ export default function Documentation() {
                   {section.title}
                 </h2>
 
-                {section.paragraphs.map((p, j) => (
-                  <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
-                    {p}
-                  </p>
-                ))}
+                {/* Special visual roadmap for section 15 */}
+                {section.id === 'roadmap' ? (
+                  <Web3Roadmap isHe={he} />
+                ) : (
+                  <>
+                    {section.paragraphs.map((p, j) => (
+                      <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
+                        {p}
+                      </p>
+                    ))}
+                  </>
+                )}
 
                 {section.subsections?.map((sub, k) => (
                   <div key={k} className="ms-4 border-s-2 border-primary/20 ps-4 space-y-2 pt-2">
