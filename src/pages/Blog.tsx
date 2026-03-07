@@ -44,6 +44,13 @@ export default function Blog() {
       <section className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="relative container mx-auto max-w-5xl px-4 text-center">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-0 start-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors backdrop-blur-sm bg-muted/40 rounded-full px-3 py-1.5"
+          >
+            <BackIcon className="h-3.5 w-3.5" />
+            {isHe ? 'חזרה' : 'Back'}
+          </button>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
