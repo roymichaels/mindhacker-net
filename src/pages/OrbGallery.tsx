@@ -202,17 +202,14 @@ export default function OrbGalleryPage() {
         {/* Grid */}
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-x-4 gap-y-8">
-            <AnimatePresence mode="popLayout">
-              {filteredOrbs.map((orb, i) => {
+              {pagedOrbs.map((orb, i) => {
                 const rarityColor = RARITY_COLORS[orb.rarity];
                 return (
                   <motion.div
                     key={orb.id}
-                    layout
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.5) }}
+                    transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.6) }}
                     onClick={() => setSelectedOrb(orb)}
                     className="relative cursor-pointer flex flex-col items-center group"
                   >
@@ -234,7 +231,7 @@ export default function OrbGalleryPage() {
                         profile={orb.profile}
                         size={isMobile ? 80 : 120}
                         state="idle"
-                        renderer="css"
+                        renderer="webgl"
                         showGlow={orb.traits.glow !== 'none'}
                       />
                     </div>
@@ -263,8 +260,34 @@ export default function OrbGalleryPage() {
                   </motion.div>
                 );
               })}
-            </AnimatePresence>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-10">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 0}
+                onClick={() => { setPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="rounded-full"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground font-medium">
+                {page + 1} / {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages - 1}
+                onClick={() => { setPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="rounded-full"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
           {filteredOrbs.length === 0 && (
             <div className="text-center py-20 text-muted-foreground">
