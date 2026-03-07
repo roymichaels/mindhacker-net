@@ -14,7 +14,10 @@ import { cn } from '@/lib/utils';
 
 export default function Blog() {
   const { language, isRTL } = useTranslation();
+  const navigate = useNavigate();
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const isHe = language === 'he';
 
   useEffect(() => {
     document.title = language === 'he' ? 'בלוג | MindOS' : 'Blog | MindOS - Personal Growth & AI Coaching';
