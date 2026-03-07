@@ -211,7 +211,7 @@ export default function OrbCollectionSection() {
                 )}
               >
                 <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden">
-                  <GalleryOrbView
+                  <LazyOrbView
                     profile={preset.profile}
                     geometryFamily={preset.profile.geometryFamily || 'sphere'}
                     size={orbSize}
