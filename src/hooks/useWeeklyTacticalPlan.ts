@@ -174,6 +174,7 @@ function regroupFlatBlocks(flatBlocks: any[]): any[] {
     // The flat block itself is a milestone — push it into the group
     groups[key].items.push({
       milestone_id: b.milestone_id || null,
+      focus_area: b.focus_area || null,
       title_en: b.title_en || '',
       title_he: b.title_he || '',
       duration_minutes: b.duration_minutes || b.total_minutes || 15,
@@ -202,6 +203,7 @@ function parseAiSchedule(
   phaseDates: string[],
   todayStr: string,
   phaseNumber: number,
+  milestoneFocusMap: Record<string, string>,
 ): DayPlan[] {
   const days: DayPlan[] = [];
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
@@ -254,7 +256,7 @@ function parseAiSchedule(
           difficulty,
           scheduledDay: absDay,
           calendarDate: date,
-          focusArea: block.category || null,
+          focusArea: (m.milestone_id && milestoneFocusMap[m.milestone_id]) || m.focus_area || null,
           missionId: null,
           startTime: block.start_time || null,
           endTime: block.end_time || null,
@@ -448,7 +450,11 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     let days: DayPlan[];
 
     if (aiSchedule?.schedule_data && Array.isArray(aiSchedule.schedule_data)) {
-      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1);
+      const focusMap: Record<string, string> = {};
+      for (const m of currentPhaseMilestones) {
+        if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
+      }
+      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap);
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }

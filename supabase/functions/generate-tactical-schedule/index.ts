@@ -123,6 +123,7 @@ ${adjustmentContext}
 8. CRITICAL: Use the EXACT milestone titles (title_en and title_he) from the list above — do NOT rename or paraphrase them.
 9. CRITICAL: Use the EXACT difficulty value (1-5) from each milestone — do NOT change it.
 10. CRITICAL: Every block MUST have at least 2 milestones in its "milestones" array. If a category only has 1 milestone, merge it into an adjacent block.
+11. CRITICAL: Each milestone object MUST include a "focus_area" field with the EXACT pillar/focus_area value from the milestone list above (e.g., "vitality", "focus", "wealth"). Do NOT use block categories as focus_area.
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
 
@@ -142,6 +143,7 @@ ${adjustmentContext}
           "milestones": [
             {
               "milestone_id": "actual-uuid-from-list",
+              "focus_area": "vitality",
               "title_en": "Morning breathwork protocol",
               "title_he": "פרוטוקול נשימת בוקר",
               "duration_minutes": 15,
@@ -152,6 +154,7 @@ ${adjustmentContext}
             },
             {
               "milestone_id": "actual-uuid-from-list",
+              "focus_area": "power",
               "title_en": "Full-body stretch routine",
               "title_he": "שגרת מתיחות מלאה",
               "duration_minutes": 20,
@@ -162,6 +165,7 @@ ${adjustmentContext}
             },
             {
               "milestone_id": "actual-uuid-from-list",
+              "focus_area": "combat",
               "title_en": "Cold exposure protocol",
               "title_he": "פרוטוקול חשיפה לקור",
               "duration_minutes": 10,
