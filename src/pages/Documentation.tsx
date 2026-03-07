@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -23,10 +26,10 @@ export default function Documentation() {
   const { theme } = useThemeSettings();
   const navigate = useNavigate();
   const he = language === 'he';
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const brandName = he ? theme.brand_name : theme.brand_name_en;
   const founderName = he ? theme.founder_name : theme.founder_name_en;
-  const founderTitle = he ? theme.founder_title : theme.founder_title_en;
 
   const abstractText = he
     ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי (FreeMarket), ופלטפורמת מאמנים — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
@@ -177,256 +180,126 @@ export default function Documentation() {
       title: he ? 'מערכת ה-NFT — זהות דיגיטלית מתפתחת' : 'The NFT System — Evolving Digital Identity',
       paragraphs: he ? [
         `כל משתמש ב-${brandName} מחזיק ב-Orb — נכס דיגיטלי תלת-ממדי ייחודי שמייצג את הזהות, ההתקדמות, והתודעה שלו. ה-Orb אינו סטטי: הוא מתפתח בהתאם לפעולות המשתמש.`,
-        `פרמטרי ה-Orb מחושבים מ: ציוני עמודי חיים (צבעים), רמת משתמש (geometry detail), streak (particle count), מצב רגשי (morph speed), ותכונות אופי פתוחות (secondary colors). ה-Orb מרונדר בזמן אמת באמצעות Three.js.`,
-        `ה-Orb Gallery בדף הבית מציג ארכיטיפים — "עורות" שונים שמייצגים דפוסי התפתחות. בעתיד, Orbs יהיו ניתנים למסחר כ-NFTs על רשת Solana, ויישאו metadata של ההתקדמות האמיתית של המשתמש.`,
-        `תכונות אופי (Traits) נפתחות דרך סריקות ומשימות, ומייצגות תעודות הישג דיגיטליות. כל Trait משפיע על המראה והיכולות של ה-Orb.`,
+        `מאפייני ה-Orb: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — צורה שמתפתחת עם הרמה, (3) חלקיקים — מספר וצפיפות לפי streak ואנרגיה, (4) הילה — עוצמה וצבע לפי ציון כללי.`,
+        `ה-Orb הוא גם ה-Avatar של המשתמש במערכת, מופיע בפרופיל, בקהילה, ובעתיד ייצוא כ-NFT אמיתי על blockchain.`,
       ] : [
         `Every ${brandName} user holds an Orb — a unique 3D digital asset representing their identity, progress, and consciousness. The Orb is not static: it evolves based on user actions.`,
-        `Orb parameters are computed from: life pillar scores (colors), user level (geometry detail), streak (particle count), emotional state (morph speed), and unlocked character traits (secondary colors). The Orb is rendered in real-time using Three.js.`,
-        `The Orb Gallery on the homepage showcases archetypes — different "skins" representing development patterns. In the future, Orbs will be tradeable as NFTs on the Solana network, carrying metadata of the user's real progress.`,
-        `Character Traits are unlocked through scans and missions, representing digital achievement certificates. Each Trait affects the Orb's appearance and capabilities.`,
+        `Orb attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — shape evolves with level, (3) Particles — count and density based on streak and energy, (4) Aura — intensity and color based on overall score.`,
+        `The Orb also serves as the user's avatar in the system, appearing in profiles, community, and in the future exportable as a real NFT on blockchain.`,
       ],
     },
     {
-      id: 'tokenomics',
+      id: 'economy',
       number: '7',
-      title: he ? 'טוקנומיקס — כלכלת Proof of Growth' : 'Tokenomics — Proof of Growth Economy',
+      title: he ? 'כלכלה דיגיטלית — MOS Token' : 'Digital Economy — MOS Token',
       paragraphs: he ? [
-        `המטבע הפנימי של ${brandName} הוא MOS (Mind Operating System token). שער: 100 MOS = $1.00 USD.`,
-        `מנגנון הכרייה (Mining Engine) מתגמל פעילות אנושית אמיתית:`,
-        `• סשן היפנוזה/מדיטציה: 10 MOS\n• השלמת הרגל: 3 MOS\n• פוסט בקהילה: 8 MOS\n• תגובה בקהילה: 3 MOS\n• שיעור למידה: 5 MOS`,
-        `תקרה יומית: 200 MOS ($2.00). כל פעולת כרייה נרשמת ב-fm_mining_logs לשקיפות מלאה. המנגנון כולל cooldowns וולידציה למניעת ניצול.`,
+        `MOS (Mind Operating System) הוא המטבע הפנימי של ${brandName}. שער קבוע: 100 MOS = $1.00. המטבע מבוסס על מנגנון Proof of Growth — כריית נתונים שמתגמלת פעילות אנושית אמיתית.`,
+        `דרכי הרווחה: השלמת משימות (1-5 MOS), הרגלים יומיים (2-3 MOS), סשני היפנוזה (10 MOS), מכירת שירותים ב-FreeMarket, בונטי, גיגים, כרייה פאסיבית (Proof of Growth), ותוכנית שותפים.`,
+        `שימושים: רכישת שירותים מקואצ'ים, רכישת קורסים, שדרוג מנוי, רכישת NFT skins, ובעתיד — המרה לכסף אמיתי דרך ה-FreeMarket.`,
       ] : [
-        `The internal currency of ${brandName} is MOS (Mind Operating System token). Rate: 100 MOS = $1.00 USD.`,
-        `The Mining Engine rewards genuine human activity:`,
-        `• Hypnosis/meditation session: 10 MOS\n• Habit completion: 3 MOS\n• Community post: 8 MOS\n• Community comment: 3 MOS\n• Learning lesson: 5 MOS`,
-        `Daily cap: 200 MOS ($2.00). Every mining action is logged in fm_mining_logs for full transparency. The engine includes cooldowns and validation to prevent exploitation.`,
-      ],
-      subsections: [
-        {
-          title: he ? '7.1 Data Marketplace — שוק נתונים' : '7.1 Data Marketplace',
-          paragraphs: he ? [
-            `המשתמשים יכולים להסכים למכירת נתונים אנונימיים דרך מערכת הסכמה גרנולרית (fm_data_consent). הנתונים עוברים צינור אנונימיזציה (fm_data_snapshots) עם סף מינימום של 10 משתתפים לשמירת פרטיות. הכנסות מופצות אוטומטית למשתתפים (80%) — המשתמש מרוויח מהנתונים שלו עצמו.`,
-          ] : [
-            `Users can opt-in to anonymized data sales through a granular consent system (fm_data_consent). Data passes through an anonymization pipeline (fm_data_snapshots) with a minimum 10-contributor threshold for privacy. Revenue is automatically distributed to contributors (80%) — users profit from their own data.`,
-          ],
-        },
-        {
-          title: he ? '7.2 ארנק ותשלומים' : '7.2 Wallet & Settlement',
-          paragraphs: he ? [
-            `כל משתמש מחזיק ארנק פנימי (fm_wallets) עם ספר חשבונות (fm_transactions). Settlement אסינכרוני לפיאט (Stripe) או טוקנים (Solana SPL) דרך fm_settlement_outbox. ממשק המשתמש כולל "מצב פשוט" (נקודות/בנק) למשתמשים רגילים ו"מצב מתקדם" (כתובות Solana) למשתמשים טכניים. כולל תמיכה ב-Cashout לפיאט וגשר (Bridge) ל-Solana.`,
-          ] : [
-            `Each user holds an internal wallet (fm_wallets) with a ledger (fm_transactions). Asynchronous settlement to fiat (Stripe) or tokens (Solana SPL) via fm_settlement_outbox. UI includes "Simple Mode" (points/bank) for regular users and "Advanced Mode" (Solana addresses) for technical users. Includes fiat Cashout and Solana Bridge support.`,
-          ],
-        },
-        {
-          title: he ? '7.3 מודל הכנסה' : '7.3 Revenue Model',
-          paragraphs: he ? [
-            `מודל ההכנסה של הפלטפורמה כולל: (1) מנויים חודשיים בשלוש רמות (ראו סעיף 12), (2) FreeMarket — שוק פנימי לשירותים ומוצרים (ראו סעיף 8), (3) Data Marketplace — מכירת תובנות אנונימיות עם חלוקת הכנסות 80/20, (4) פלטפורמת מאמנים עם דמי מנוי (ראו סעיף 10), (5) עמלות עסקאות בשוק הפנימי.`,
-          ] : [
-            `Platform revenue model includes: (1) Monthly subscriptions in three tiers (see section 12), (2) FreeMarket — internal marketplace (see section 8), (3) Data Marketplace — anonymized insights with 80/20 revenue share, (4) Coach platform with subscription fees (see section 10), (5) Internal marketplace transaction fees.`,
-          ],
-        },
+        `MOS (Mind Operating System) is the internal currency of ${brandName}. Fixed rate: 100 MOS = $1.00. The currency is based on a Proof of Growth mechanism — data mining that rewards genuine human activity.`,
+        `Earning methods: completing tasks (1-5 MOS), daily habits (2-3 MOS), hypnosis sessions (10 MOS), selling services on FreeMarket, bounties, gigs, passive mining (Proof of Growth), and affiliate program.`,
+        `Uses: purchasing coach services, buying courses, upgrading subscription, purchasing NFT skins, and in the future — converting to real money via FreeMarket.`,
       ],
     },
     {
       id: 'freemarket',
       number: '8',
-      title: he ? 'FreeMarket — השוק הפנימי' : 'FreeMarket — Internal Marketplace',
+      title: he ? 'FreeMarket — שוק פנימי' : 'FreeMarket — Internal Marketplace',
       paragraphs: he ? [
-        `FreeMarket הוא שוק פנימי שבו משתמשים יכולים לקנות, למכור, ולהחליף שירותים ומוצרים באמצעות טוקני MOS. השוק בנוי סביב שלושה טאבים:`,
-        `(1) Home — סקירת שוק עם סטטיסטיקות, מוצרים מובילים, ופעילות אחרונה. (2) Earn — כרייה (Mining), Data Marketplace, ומשימות תגמול. (3) Work — פרסום שירותים, ניהול הזמנות, ומכירת מוצרים דיגיטליים. כולל Wallet מובנה עם היסטוריית עסקאות.`,
-        `המשתמשים עוברים Onboarding ייעודי ל-FreeMarket עם הסבר על הכלכלה, הארנק, ומנגנוני הכרייה. Progressive Disclosure מבטיח שמשתמשים חדשים לא מוצפים.`,
+        `FreeMarket הוא השוק הפנימי של ${brandName} — מקום בו משתמשים יכולים להרוויח MOS על ידי מכירת שירותים, ביצוע בונטי (משימות קהילתיות), וגיגים. השוק כולל שני טאבים: Earn (הרוויח) ו-Work (עבודה).`,
+        `Earn כולל: בונטי (Bounties) — משימות עם תגמול MOS, גיגים (Gigs) — הצעות עבודה זמניות, ותוכנית שותפים (Partners). Work כולל: ניהול שירותים, הזמנות, ולוח בקרה לנותני שירות.`,
       ] : [
-        `FreeMarket is an internal marketplace where users can buy, sell, and exchange services and products using MOS tokens. The market is built around three tabs:`,
-        `(1) Home — market overview with statistics, top products, and recent activity. (2) Earn — Mining, Data Marketplace, and reward quests. (3) Work — publish services, manage orders, and sell digital products. Includes a built-in Wallet with transaction history.`,
-        `Users go through a dedicated FreeMarket onboarding explaining the economy, wallet, and mining mechanics. Progressive Disclosure ensures new users aren't overwhelmed.`,
-      ],
-    },
-    {
-      id: 'gamification',
-      number: '9',
-      title: he ? 'גיימיפיקציה — Build Your Empire' : 'Gamification — Build Your Empire',
-      paragraphs: he ? [
-        `${brandName} מפעיל נרטיב "בנה את האימפריה שלך" — כל משתמש בונה אימפריה דיגיטלית שמשקפת את חייו האמיתיים.`,
-        `מנגנוני הגיימיפיקציה: (1) XP + Levels — כל פעולה מניבה XP, עלייה ברמה פותחת יכולות חדשות. (2) Streak — רצף יומי שמגביר בונוסים. (3) Tokens (MOS) — מטבע P2E אמיתי. (4) Character Traits — תכונות אופי שנפתחות דרך סריקות. (5) Missions — משימות חיים ארוכות טווח. (6) Orb Evolution — ה-NFT מתפתח עם כל התקדמות.`,
-        `הסיפור מוצג דרך אסתטיקה קולנועית-גיימינג: Hero section עם Orb מרכזי, NFT Gallery עם ארכיטיפים, רשת "רבעים" (Districts) של פיצ'רים, כרטיסי Traits זוהרים, ו-Blueprint אנימציה של תוכנית AI.`,
-      ] : [
-        `${brandName} operates a "Build Your Empire" narrative — each user builds a digital empire that mirrors their real life.`,
-        `Gamification mechanics: (1) XP + Levels — every action earns XP, leveling up unlocks new capabilities. (2) Streak — daily consistency that amplifies bonuses. (3) Tokens (MOS) — real P2E currency. (4) Character Traits — unlocked through scans. (5) Missions — long-term life quests. (6) Orb Evolution — the NFT evolves with every advancement.`,
-        `The narrative is presented through cinematic gaming aesthetics: Hero section with a central Orb, NFT Gallery with archetypes, a "Districts" grid of features, glowing Trait cards, and an animated AI Blueprint sequence.`,
-      ],
-      subsections: [
-        {
-          title: he ? '9.1 תוכניות חיים ואבני דרך' : '9.1 Life Plans & Milestones',
-          paragraphs: he ? [
-            `${brandName} מייצר תוכניות חיים ארוכות טווח (100 ימי טרנספורמציה) עם אבני דרך שבועיות. כל אבן דרך כוללת משימות ספציפיות, תגמולי XP וטוקנים, ומדדי הצלחה. התוכנית נוצרת על ידי Aurora בהתאם לסריקות העמודים ומתעדכנת דינמית — השלמת סריקות חדשות מזריקה אסטרטגיות לתוכנית הפעילה ללא צורך בייצור מחדש.`,
-          ] : [
-            `${brandName} generates long-term life plans (100-day transformation) with weekly milestones. Each milestone includes specific tasks, XP and token rewards, and success metrics. The plan is generated by Aurora based on pillar scans and updates dynamically — completing new assessments injects strategies into the active plan without full regeneration.`,
-          ],
-        },
-        {
-          title: he ? '9.2 Daily Minimums — מינימום יומי' : '9.2 Daily Minimums',
-          paragraphs: he ? [
-            `מערכת "מינימום יומי" מאפשרת למשתמשים להגדיר פעולות בסיסיות שהם מתחייבים לעשות כל יום — גם בימים קשים. המנגנון שומר על streak פעיל ומונע "אפקט הכל-או-כלום".`,
-          ] : [
-            `The "Daily Minimums" system lets users define basic actions they commit to daily — even on tough days. This mechanism maintains an active streak and prevents the "all-or-nothing" effect.`,
-          ],
-        },
+        `FreeMarket is the internal marketplace of ${brandName} — where users can earn MOS by selling services, completing bounties (community tasks), and gigs. The marketplace includes two tabs: Earn and Work.`,
+        `Earn includes: Bounties — tasks with MOS rewards, Gigs — temporary work offers, and Partners (affiliate program). Work includes: service management, bookings, and a dashboard for service providers.`,
       ],
     },
     {
       id: 'coaches',
+      number: '9',
+      title: he ? 'פלטפורמת מאמנים' : 'Coach Platform',
+      paragraphs: he ? [
+        `${brandName} כולל פלטפורמת מאמנים מלאה — מאמנים יכולים להירשם, להגדיר שירותים, לקבל הזמנות, לנהל לקוחות, וליצור דפי נחיתה. כולל מנוי מאמנים עם רמות (Starter, Pro, Enterprise).`,
+        `המאמנים מקבלים כלי AI: יצירת תוכניות ללקוחות, ניתוח התקדמות, ובניית דפי נחיתה אוטומטיים. כל מאמן מקבל עמוד פרופיל ציבורי עם ביקורות, שירותים, וכפתור הזמנה.`,
+      ] : [
+        `${brandName} includes a full coach platform — coaches can register, define services, receive bookings, manage clients, and create landing pages. Includes coach subscriptions with tiers (Starter, Pro, Enterprise).`,
+        `Coaches receive AI tools: client plan generation, progress analysis, and automatic landing page building. Each coach gets a public profile page with reviews, services, and a booking button.`,
+      ],
+    },
+    {
+      id: 'gamification',
       number: '10',
-      title: he ? 'פלטפורמת מאמנים (Coach OS)' : 'Coach Platform (Coach OS)',
+      title: he ? 'גיימיפיקציה עמוקה' : 'Deep Gamification',
       paragraphs: he ? [
-        `${brandName} כולל תשתית B2B2C מלאה למאמנים, מטפלים, ויועצים. הפלטפורמה פועלת כשוק דו-צדדי: משתמשים מוצאים מאמנים, ומאמנים מנהלים את העסק שלהם.`,
+        `${brandName} משתמש בגיימיפיקציה כמנוע מוטיבציה מרכזי: XP (ניקוד ניסיון), רמות (1-100+), Streaks (רצפים יומיים), Tokens (MOS), Badges, ולוחות מובילים.`,
+        `כל פעולה במערכת מתגמלת XP ו-MOS: משימות, הרגלים, היפנוזה, למידה, פעילות קהילתית, ומכירות ב-FreeMarket. ה-Streak מעודד עקביות יומית ומכפיל תגמולים.`,
+        `מערכת ה-Skills (מיומנויות) מאפשרת למשתמשים לצבור ניסיון בתחומים ספציפיים — כל פעולה מחולקת למשקלים שמשפיעים על מיומנויות רלוונטיות.`,
       ] : [
-        `${brandName} includes a full B2B2C infrastructure for coaches, therapists, and consultants. The platform operates as a two-sided marketplace: users find coaches, and coaches manage their business.`,
-      ],
-      subsections: [
-        {
-          title: he ? '10.1 Coach Hub — ניהול עסקי' : '10.1 Coach Hub — Business Management',
-          paragraphs: he ? [
-            `כל מאמן מקבל "Coach OS" משולב עם 10 טאבים: (1) CRM לקוחות — ניהול מחזור חיים מלא כולל היסטוריית סשנים, הערות פרטיות, ומעקב סטטוס. (2) ניהול Leads — מעקב לקוחות פוטנציאליים מדפי נחיתה. (3) תוכן ומוצרים — יצירת מאמרים, קורסים, וסרטונים. (4) שירותים — ניהול סוגי שירות, תמחור, ומשכי זמן. (5) הזמנות (Bookings) — ניהול לוח זמנים ופגישות. (6) Analytics — מדדי KPI בזמן אמת, לקוחות פעילים, דירוגים, ופאנל המרות.`,
-          ] : [
-            `Each coach receives an integrated "Coach OS" with 10 tabs: (1) Client CRM — full lifecycle management with session history, private notes, and status tracking. (2) Lead Management — tracking potential clients from landing pages. (3) Content & Products — creating articles, courses, and videos. (4) Services — managing service types, pricing, and durations. (5) Bookings — schedule and appointment management. (6) Analytics — real-time KPI metrics, active clients, ratings, and conversion funnel.`,
-          ],
-        },
-        {
-          title: he ? '10.2 דפי נחיתה ושוק מאמנים' : '10.2 Landing Pages & Coach Marketplace',
-          paragraphs: he ? [
-            `כל מאמן מקבל דף נחיתה אישי עם slug ייחודי, תבניות מעוצבות, ומטא-דאטה ל-SEO. משתמשים חדשים שנכנסים לשוק המאמנים יכולים לבחור: "מצא מאמן" (אשף התאמה AI בן 4 שלבים) או "הפוך למאמן" (ניתוב לעמוד מנויים).`,
-            `המאמנים משתמשים באותה תשתית AI — Aurora מייצרת תוכניות מותאמות ללקוחות המאמן, מה שמגדיל retention ומאפשר מעקב בזמן אמת.`,
-          ] : [
-            `Each coach gets a personal landing page with unique slug, designed templates, and SEO metadata. New users entering the coach marketplace can choose: "Find a Coach" (4-step AI matching wizard) or "Become a Coach" (routed to subscription page).`,
-            `Coaches use the same AI infrastructure — Aurora generates plans adapted for each coach's clients, increasing retention and enabling real-time tracking.`,
-          ],
-        },
-        {
-          title: he ? '10.3 מנויי מאמנים' : '10.3 Coach Subscriptions',
-          paragraphs: he ? [
-            `שלוש רמות מנוי למאמנים: Starter ($19/חודש, 10 לקוחות), Growth ($49/חודש, 100 לקוחות), Scale ($99/חודש, 500 לקוחות). תשלום מצליח ב-Stripe מפעיל אוטומטית את הרשאת "מאמן" ויוצר רשומת מנוי. כולל תמיכה בקופונים.`,
-          ] : [
-            `Three coach subscription tiers: Starter ($19/mo, 10 clients), Growth ($49/mo, 100 clients), Scale ($99/mo, 500 clients). Successful Stripe payment automatically provisions the "coach" role and subscription record. Includes coupon support.`,
-          ],
-        },
+        `${brandName} uses gamification as a core motivation engine: XP (experience points), Levels (1-100+), Streaks (daily chains), Tokens (MOS), Badges, and Leaderboards.`,
+        `Every action in the system rewards XP and MOS: tasks, habits, hypnosis, learning, community activity, and FreeMarket sales. The Streak encourages daily consistency and multiplies rewards.`,
+        `The Skills system allows users to gain experience in specific domains — each action is weighted to affect relevant skills.`,
       ],
     },
     {
-      id: 'affiliates',
+      id: 'subscription',
       number: '11',
-      title: he ? 'תוכנית שותפים (Affiliates)' : 'Affiliate Program',
+      title: he ? 'מודל מנויים' : 'Subscription Model',
       paragraphs: he ? [
-        `${brandName} מפעיל תוכנית שותפים מלאה. כל שותף מקבל: (1) קוד שותף ייחודי, (2) עמלת רפרל על כל הזמנה, (3) פאנל ניהול עם מעקב הפניות, עמלות, ותשלומים. (4) מערכת payouts עם שיטות תשלום מגוונות.`,
-        `שותפים יכולים לשלב את קוד השותף שלהם בדפי נחיתה, קמפיינים, ואפילו במערכת Consciousness Leap — פאנל מכירות מתקדם עם טפסי leads, אפליקציות, ומעקב סטטוס.`,
+        `${brandName} מציע שלוש רמות מנוי: Free (חינמי), Pro, ו-Ultra. כל רמה פותחת יכולות נוספות.`,
+        `Free: גישה ל-Tactics Hub, משימות בסיסיות, ו-streak. Pro: גישה מלאה לכל ה-Hubs, Aurora AI ללא הגבלה, היפנוזה, למידה, וקהילה. Ultra: כל היכולות + עדיפות AI, סשני היפנוזה VIP, ותמיכה אישית.`,
+        `מחירון: Free = $0, Pro = $9.99/חודש, Ultra = $19.99/חודש. הנחות שנתיות זמינות.`,
       ] : [
-        `${brandName} operates a full affiliate program. Each affiliate receives: (1) unique affiliate code, (2) referral commission on every order, (3) management panel with referral tracking, commissions, and payouts. (4) Payout system with diverse payment methods.`,
-        `Affiliates can embed their code in landing pages, campaigns, and even the Consciousness Leap system — an advanced sales funnel with lead forms, applications, and status tracking.`,
+        `${brandName} offers three subscription tiers: Free, Pro, and Ultra. Each tier unlocks additional capabilities.`,
+        `Free: access to Tactics Hub, basic tasks, and streak. Pro: full access to all Hubs, unlimited Aurora AI, hypnosis, learning, and community. Ultra: all features + AI priority, VIP hypnosis sessions, and personal support.`,
+        `Pricing: Free = $0, Pro = $9.99/month, Ultra = $19.99/month. Annual discounts available.`,
       ],
     },
     {
-      id: 'subscriptions',
+      id: 'data-privacy',
       number: '12',
-      title: he ? 'מודל מנויים — עומק הכוח' : 'Subscription Model — Depth of Power',
+      title: he ? 'פרטיות ואבטחת מידע' : 'Data Privacy & Security',
       paragraphs: he ? [
-        `${brandName} מציע מודל "עומק הכוח" בשלוש רמות:`,
-        `Free (Awakening — $0): מבנה בסיסי, XP ורמות, 5 הודעות Aurora ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Tactics Hub.`,
-        `Plus (Optimization — $69/חודש): זיכרון Aurora בלתי מוגבל, 6 עמודי חיים, מערכת טרנספורמציה של 100 ימים, והיפנוזה מונחית AI.`,
-        `Apex (Command — $199/חודש): כל 14 עמודי החיים, מנוע "Jarvis" פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת סריקות מזריקה אסטרטגיות לתוכנית הפעילה ללא ייצור מחדש מלא.`,
+        `${brandName} מחויב לפרטיות המשתמשים. כל הנתונים מוצפנים, מאוחסנים בענן מאובטח (Supabase), ונגישים רק למשתמש עצמו דרך Row-Level Security (RLS).`,
+        `המערכת לא מוכרת נתונים לצדדים שלישיים. נתוני AI משמשים אך ורק לשיפור חווית המשתמש. המשתמש יכול למחוק את כל הנתונים שלו בכל עת.`,
       ] : [
-        `${brandName} offers a "Depth of Power" model in three tiers:`,
-        `Free (Awakening — $0): Basic structure, XP and levels, 5 daily Aurora messages, up to 2 life pillars, and full Tactics Hub access.`,
-        `Plus (Optimization — $69/mo): Unlimited Aurora memory, 6 pillars, 100-Day Transformation OS, and AI Hypnosis.`,
-        `Apex (Command — $199/mo): All 14 pillars, proactive "Jarvis" engine, and modular plan updates — completing assessments injects strategies into the active plan without full regeneration.`,
+        `${brandName} is committed to user privacy. All data is encrypted, stored in secure cloud infrastructure (Supabase), and accessible only to the user through Row-Level Security (RLS).`,
+        `The system does not sell data to third parties. AI data is used solely to improve user experience. Users can delete all their data at any time.`,
       ],
     },
     {
-      id: 'architecture',
+      id: 'tech-stack',
       number: '13',
-      title: he ? 'ארכיטקטורה טכנית' : 'Technical Architecture',
+      title: he ? 'סטאק טכנולוגי' : 'Technology Stack',
       paragraphs: he ? [
-        `Frontend: React 18 + TypeScript + Vite + Tailwind CSS. ממשק מלא RTL/LTR עם תמיכה דו-לשונית (עברית/אנגלית).`,
-        `Backend: Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime). Row-Level Security (RLS) על כל הטבלאות. Edge Functions ל-AI, תשלומים, ולוגיקה עסקית.`,
-        `AI: Gemini 2.5 Pro/Flash, GPT-5 — דרך Lovable AI gateway ללא צורך ב-API key. System prompts דינמיים עם context מלא של המשתמש.`,
-        `3D Rendering: Three.js עם custom shaders ל-Orb. Morph targets, particle systems, ו-dynamic color mapping מציוני עמודים.`,
-        `Payments: Stripe integration עם Solana roadmap. ארנק custodial פנימי עם settlement אסינכרוני.`,
+        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion. Backend: Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime). AI: Gemini 2.5 Pro/Flash, GPT-5, מודלים מולטימודליים.`,
+        `תשתית: Lovable AI לפיתוח מהיר, Vite כ-build tool, PWA support למובייל. הפלטפורמה responsive לחלוטין עם תמיכה מלאה ב-RTL (עברית).`,
       ] : [
-        `Frontend: React 18 + TypeScript + Vite + Tailwind CSS. Full RTL/LTR interface with bilingual support (Hebrew/English).`,
-        `Backend: Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime). Row-Level Security (RLS) on all tables. Edge Functions for AI, payments, and business logic.`,
-        `AI: Gemini 2.5 Pro/Flash, GPT-5 — through Lovable AI gateway without API key. Dynamic system prompts with full user context.`,
-        `3D Rendering: Three.js with custom shaders for Orb. Morph targets, particle systems, and dynamic color mapping from pillar scores.`,
-        `Payments: Stripe integration with Solana roadmap. Internal custodial wallet with asynchronous settlement.`,
-      ],
-      subsections: [
-        {
-          title: he ? '13.1 PWA ואפליקציה מותקנת' : '13.1 PWA & Installable App',
-          paragraphs: he ? [
-            `${brandName} בנוי כ-Progressive Web App (PWA) עם: Service Worker לשמירת cache, יכולת התקנה על מכשירים ניידים ודסקטופ, Push Notifications, ועבודה חלקית במצב offline. האפליקציה מתנהגת כאפליקציה native ללא צורך בחנויות אפליקציות.`,
-          ] : [
-            `${brandName} is built as a Progressive Web App (PWA) with: Service Worker for caching, installability on mobile and desktop, Push Notifications, and partial offline functionality. The app behaves like a native app without app store requirements.`,
-          ],
-        },
-        {
-          title: he ? '13.2 אבטחה ופרטיות' : '13.2 Security & Privacy',
-          paragraphs: he ? [
-            `Row-Level Security (RLS) על כל טבלה מבטיח שמשתמשים רואים רק את הנתונים שלהם. תפקידים (roles) מנוהלים בטבלה נפרדת עם security definer functions למניעת privilege escalation. מערכת Data Consent גרנולרית מאפשרת למשתמשים לשלוט על אילו נתונים משותפים. אנונימיזציה מחייבת מינימום 10 משתתפים.`,
-          ] : [
-            `Row-Level Security (RLS) on every table ensures users only see their own data. Roles are managed in a separate table with security definer functions to prevent privilege escalation. Granular Data Consent system lets users control which data is shared. Anonymization requires a minimum of 10 contributors.`,
-          ],
-        },
-        {
-          title: he ? '13.3 ארכיטקטורה מולטי-טננט' : '13.3 Multi-Tenant Architecture',
-          paragraphs: he ? [
-            `פלטפורמת המאמנים פועלת בארכיטקטורת multi-tenant — כל מאמן מקבל סביבה עצמאית עם ניהול לקוחות, ברנדינג, ותוכן נפרדים. שכבת adapter מבטיחה בידוד נתונים מלא. תמיכה עתידית ב-white-label לארגונים.`,
-          ] : [
-            `The coach platform operates on multi-tenant architecture — each coach gets an independent environment with separate client management, branding, and content. An adapter layer ensures complete data isolation. Future support for white-label for organizations.`,
-          ],
-        },
-      ],
-    },
-    {
-      id: 'market',
-      number: '14',
-      title: he ? 'גודל שוק ותחרות' : 'Market Size & Competition',
-      paragraphs: he ? [
-        `TAM: שוק הפיתוח האישי הגלובלי — $44B (2024). שוק ה-Mental Wellness Apps — $7B. שוק ה-P2E Gaming — $15B. שוק ה-AI Coaching — $2.5B.`,
-        `מתחרים ישירים: Headspace (מדיטציה בלבד), Notion (פרודוקטיביות בלבד), Habitica (גיימיפיקציה שטחית), BetterUp (אימון ארגוני). אף אחד מהם לא מאחד את כל התחומים עם AI אישי + כלכלה דיגיטלית + NFTs.`,
-        `היתרון של ${brandName}: (1) מנוע AI תודעתי שמכיר את כל המשתמש, (2) P2E אמיתי עם ערך כלכלי, (3) NFT Orb כזהות דיגיטלית, (4) 14 ממדי חיים ולא רק פרודוקטיביות, (5) תשתית white-label, (6) פלטפורמת מאמנים משולבת, (7) היפנוזה מונחית AI, (8) Data Marketplace עם חלוקת הכנסות.`,
-      ] : [
-        `TAM: Global personal development market — $44B (2024). Mental wellness apps — $7B. P2E gaming — $15B. AI coaching — $2.5B.`,
-        `Direct competitors: Headspace (meditation only), Notion (productivity only), Habitica (shallow gamification), BetterUp (corporate coaching). None unifies all domains with personal AI + digital economy + NFTs.`,
-        `${brandName}'s advantage: (1) Consciousness AI engine that knows the whole user, (2) real P2E with economic value, (3) NFT Orb as digital identity, (4) 14 life dimensions not just productivity, (5) white-label infrastructure, (6) integrated coach platform, (7) AI-guided hypnosis, (8) Data Marketplace with revenue sharing.`,
+        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion. Backend: Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime). AI: Gemini 2.5 Pro/Flash, GPT-5, multimodal models.`,
+        `Infrastructure: Lovable AI for rapid development, Vite as build tool, PWA support for mobile. The platform is fully responsive with complete RTL (Hebrew) support.`,
       ],
     },
     {
       id: 'roadmap',
-      number: '15',
+      number: '14',
       title: he ? 'מפת דרכים' : 'Roadmap',
       paragraphs: he ? [
-        `Q1 2026 — השקת MVP: 5 Hubs, Aurora AI, מערכת Orb, גיימיפיקציה בסיסית, פלטפורמת מאמנים, היפנוזה מונחית AI, מערכת למידה, FreeMarket.`,
-        `Q2 2026 — P2E Launch: Mining Engine, ארנק MOS, Data Marketplace (beta), תוכנית שותפים.`,
-        `Q3 2026 — NFT Mint: Orb NFTs על Solana, Trait NFTs, שוק משני.`,
-        `Q4 2026 — Scale: אפליקציה native (React Native), API ציבורי, white-label לארגונים, הרחבת שפות.`,
-        `2027 — DAO: ממשל קהילתי, הצבעות על פיצ'רים, treasury management.`,
+        `Q1 2026: השקת Beta ציבורי, 5 Hubs פעילים, מערכת MOS, היפנוזה AI. Q2 2026: פלטפורמת מאמנים, FreeMarket, תוכנית שותפים. Q3 2026: NFT Orb export, אפליקציית מובייל, integrations. Q4 2026: API פתוח, שותפויות B2B, הרחבה גלובלית.`,
+        `2027: Blockchain integration, DAO governance, מטבע MOS על רשת מבוזרת, שוק NFT חיצוני.`,
       ] : [
-        `Q1 2026 — MVP Launch: 5 Hubs, Aurora AI, Orb system, basic gamification, coach platform, AI-guided hypnosis, learning system, FreeMarket.`,
-        `Q2 2026 — P2E Launch: Mining Engine, MOS wallet, Data Marketplace (beta), affiliate program.`,
-        `Q3 2026 — NFT Mint: Orb NFTs on Solana, Trait NFTs, secondary marketplace.`,
-        `Q4 2026 — Scale: Native app (React Native), public API, white-label for organizations, language expansion.`,
-        `2027 — DAO: Community governance, feature voting, treasury management.`,
+        `Q1 2026: Public Beta launch, 5 active Hubs, MOS system, AI hypnosis. Q2 2026: Coach platform, FreeMarket, affiliate program. Q3 2026: NFT Orb export, mobile app, integrations. Q4 2026: Open API, B2B partnerships, global expansion.`,
+        `2027: Blockchain integration, DAO governance, MOS token on decentralized network, external NFT marketplace.`,
       ],
     },
     {
       id: 'team',
-      number: '16',
+      number: '15',
       title: he ? 'צוות' : 'Team',
       paragraphs: he ? [
-        `מייסד ומנכ"ל: ${founderName} — ${founderTitle}. חזון, ארכיטקטורה, ו-product.`,
-        `AI & Development: ${brandName} נבנה בשיתוף עם Lovable AI — פלטפורמת פיתוח מבוססת AI שמאפשרת יצירת מוצרים מורכבים בקצב חסר תקדים.`,
+        `מייסד ומנכ"ל: ${founderName} — ${he ? theme.founder_title : theme.founder_title_en}`,
+        `פיתוח AI: ${brandName} נבנה בשיתוף עם Lovable AI — פלטפורמת פיתוח מבוססת בינה מלאכותית שמאפשרת יצירת מוצרים מורכבים במהירות חסרת תקדים.`,
         `ישות משפטית: ${theme.company_legal_name}, ${theme.company_country}.`,
       ] : [
-        `Founder & CEO: ${founderName} — ${founderTitle}. Vision, architecture, and product.`,
+        `Founder & CEO: ${founderName} — ${theme.founder_title_en}`,
         `AI & Development: ${brandName} is built in collaboration with Lovable AI — an AI-powered development platform enabling creation of complex products at unprecedented speed.`,
         `Legal entity: ${theme.company_legal_name}, ${theme.company_country}.`,
       ],
@@ -449,130 +322,170 @@ export default function Documentation() {
 
   const tocItems = sections.map(s => ({ id: s.id, number: s.number, title: s.title }));
 
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-lg">
-        <div className="max-w-4xl mx-auto flex items-center h-14 px-4 gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" />
+        <div className="flex items-center h-14 px-4 gap-3">
+          {/* Left: Sidebar toggle */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground lg:hidden"
+          >
+            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
+
           <AuroraOrbIcon className="w-7 h-7 text-foreground" size={28} />
           <span className="font-bold text-foreground text-sm">{brandName}</span>
-          <span className="text-muted-foreground text-sm">—</span>
-          <span className="text-muted-foreground text-sm">{he ? 'ספר לבן' : 'White Paper'}</span>
+          <span className="text-muted-foreground text-sm hidden sm:inline">—</span>
+          <span className="text-muted-foreground text-sm hidden sm:inline">{he ? 'ספר לבן' : 'White Paper'}</span>
+
+          <div className="flex-1" />
+
+          {/* Right: Back arrow */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <span className="text-xs hidden sm:inline">{he ? 'חזור' : 'Back'}</span>
+            <ArrowLeft className={cn("h-4 w-4", isRTL && "rotate-180")} />
+          </button>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
-        {/* Title Page */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center space-y-5 pb-10 border-b border-border"
+      <div className="flex">
+        {/* Sidebar - Desktop always visible, mobile toggle */}
+        <aside
+          className={cn(
+            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-72 border-e border-border bg-background shrink-0 transition-transform duration-200",
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+            isRTL && !sidebarOpen && "translate-x-full lg:translate-x-0",
+            isRTL && sidebarOpen && "translate-x-0"
+          )}
         >
-          <div className="flex justify-center">
-            <AuroraOrbIcon className="w-24 h-24 text-primary" size={96} />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
-            {brandName}
-          </h1>
-          <p className="text-xl md:text-2xl font-semibold text-primary">
-            {he ? 'מערכת הפעלה אנושית' : 'Human Operating System'}
-          </p>
-          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-            {he
-              ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · פיתוח אישי'
-              : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Personal Development'
-            }
-          </p>
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p>{he ? `מאת ${founderName}` : `By ${founderName}`}</p>
-            <p>{theme.company_legal_name} · {theme.company_country}</p>
-            <p>{he ? 'גרסה 2.0 · מרץ 2026' : 'Version 2.0 · March 2026'}</p>
-          </div>
-        </motion.div>
-
-        {/* Abstract */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-3"
-        >
-          <h2 className="text-lg font-bold text-foreground">{he ? 'תקציר מנהלים' : 'Abstract'}</h2>
-          <p dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm">{abstractText}</p>
-        </motion.div>
-
-        {/* Table of Contents */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="rounded-xl border border-border bg-card/50 p-6 space-y-3"
-        >
-          <h2 className="text-lg font-bold text-foreground">{he ? 'תוכן עניינים' : 'Table of Contents'}</h2>
-          <nav className="grid gap-1.5">
-            {tocItems.map(item => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors py-0.5"
-              >
-                <span className="font-mono text-xs text-primary/60 w-6">{item.number}.</span>
-                <span>{item.title}</span>
-              </a>
-            ))}
-          </nav>
-        </motion.div>
-
-        {/* Sections */}
-        {sections.map((section, i) => (
-          <motion.section
-            key={section.id}
-            id={section.id}
-            custom={i}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-40px' }}
-            variants={fadeUp}
-            className="space-y-4 scroll-mt-20"
-          >
-            <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2">
-              <span className="text-primary/60 font-mono me-2">{section.number}.</span>
-              {section.title}
-            </h2>
-
-            {section.paragraphs.map((p, j) => (
-              <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
-                {p}
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                {he ? 'תוכן עניינים' : 'Table of Contents'}
               </p>
-            ))}
+              {tocItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
+                >
+                  <span className="font-mono text-xs text-primary/60 w-5 shrink-0">{item.number}.</span>
+                  <span className="truncate">{item.title}</span>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        </aside>
 
-            {section.subsections?.map((sub, k) => (
-              <div key={k} className="ms-4 border-s-2 border-primary/20 ps-4 space-y-2 pt-2">
-                <h3 className="text-base font-semibold text-foreground">{sub.title}</h3>
-                {sub.paragraphs.map((p, j) => (
-                  <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{p}</p>
-                ))}
+        {/* Overlay for mobile sidebar */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main content */}
+        <main className="flex-1 min-w-0">
+          <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 space-y-8">
+            {/* Title Page */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center space-y-5 pb-10 border-b border-border"
+            >
+              <div className="flex justify-center">
+                <AuroraOrbIcon className="w-24 h-24 text-primary" size={96} />
               </div>
-            ))}
-          </motion.section>
-        ))}
+              <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
+                {brandName}
+              </h1>
+              <p className="text-xl md:text-2xl font-semibold text-primary">
+                {he ? 'מערכת הפעלה אנושית' : 'Human Operating System'}
+              </p>
+              <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+                {he
+                  ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · פיתוח אישי'
+                  : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Personal Development'
+                }
+              </p>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>{he ? `מאת ${founderName}` : `By ${founderName}`}</p>
+                <p>{theme.company_legal_name} · {theme.company_country}</p>
+                <p>{he ? 'גרסה 2.0 · מרץ 2026' : 'Version 2.0 · March 2026'}</p>
+              </div>
+            </motion.div>
 
-        {/* Disclaimer */}
-        <div className="text-center pt-10 pb-24 border-t border-border space-y-3">
-          <p dir={isRTL ? 'rtl' : 'ltr'} className="text-xs text-muted-foreground/80 max-w-xl mx-auto">
-            {he
-              ? `מסמך זה מוגש למטרות מידע בלבד ואינו מהווה הצעה למכירת ניירות ערך או הזמנה לרכישה. MOS tokens אינם מייצגים בעלות, דיבידנדים, או זכויות הצבעה. ביצועי העבר אינם מעידים על ביצועים עתידיים.`
-              : `This document is provided for informational purposes only and does not constitute an offer to sell securities or a solicitation to purchase. MOS tokens do not represent ownership, dividends, or voting rights. Past performance does not indicate future results.`
-            }
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {he ? `© ${new Date().getFullYear()} ${theme.company_legal_name}. כל הזכויות שמורות.` : `© ${new Date().getFullYear()} ${theme.company_legal_name}. All rights reserved.`}
-          </p>
-        </div>
+            {/* Abstract */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-3"
+            >
+              <h2 className="text-lg font-bold text-foreground">{he ? 'תקציר מנהלים' : 'Abstract'}</h2>
+              <p dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm">{abstractText}</p>
+            </motion.div>
+
+            {/* Sections */}
+            {sections.map((section, i) => (
+              <motion.section
+                key={section.id}
+                id={section.id}
+                custom={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-40px' }}
+                variants={fadeUp}
+                className="space-y-4 scroll-mt-20"
+              >
+                <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2">
+                  <span className="text-primary/60 font-mono me-2">{section.number}.</span>
+                  {section.title}
+                </h2>
+
+                {section.paragraphs.map((p, j) => (
+                  <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
+                    {p}
+                  </p>
+                ))}
+
+                {section.subsections?.map((sub, k) => (
+                  <div key={k} className="ms-4 border-s-2 border-primary/20 ps-4 space-y-2 pt-2">
+                    <h3 className="text-base font-semibold text-foreground">{sub.title}</h3>
+                    {sub.paragraphs.map((p, j) => (
+                      <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{p}</p>
+                    ))}
+                  </div>
+                ))}
+              </motion.section>
+            ))}
+
+            {/* Disclaimer */}
+            <div className="text-center pt-10 pb-24 border-t border-border space-y-3">
+              <p dir={isRTL ? 'rtl' : 'ltr'} className="text-xs text-muted-foreground/80 max-w-xl mx-auto">
+                {he
+                  ? `מסמך זה מוגש למטרות מידע בלבד ואינו מהווה הצעה למכירת ניירות ערך או הזמנה לרכישה. MOS tokens אינם מייצגים בעלות, דיבידנדים, או זכויות הצבעה. ביצועי העבר אינם מעידים על ביצועים עתידיים.`
+                  : `This document is provided for informational purposes only and does not constitute an offer to sell securities or a solicitation to purchase. MOS tokens do not represent ownership, dividends, or voting rights. Past performance does not indicate future results.`
+                }
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {he ? `© ${new Date().getFullYear()} ${theme.company_legal_name}. כל הזכויות שמורות.` : `© ${new Date().getFullYear()} ${theme.company_legal_name}. All rights reserved.`}
+              </p>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
