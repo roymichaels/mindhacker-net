@@ -188,6 +188,10 @@ export default function ArenaHub() {
             {/* ── PHASE + PROGRESS ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
               <div className="px-4 py-3 border-b border-border/30">
+                {/* Campaign name */}
+                <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1.5">
+                  {getCampaignName(`phase-${phase}`, isHe ? 'he' : 'en')}
+                </p>
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center">
                     <span className="text-sm font-bold text-destructive">{phase}</span>
