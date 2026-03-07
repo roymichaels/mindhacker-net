@@ -152,7 +152,7 @@ export function AuroraDock() {
             <span className="text-base font-semibold text-foreground">
               {isHe ? 'אורורה' : 'Aurora'}
             </span>
-            <AuroraHoloOrb size={28} glow="subtle" />
+            <StandaloneMorphOrb size={28} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
           </div>
 
           {/* Right side actions */}

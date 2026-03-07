@@ -76,7 +76,7 @@ const AuroraChatMessage = ({
       )}>
         {/* Avatar - only for Aurora */}
         {!isOwn && (
-          <AuroraHoloOrb size={32} glow="subtle" className="mt-0.5" />
+          <StandaloneMorphOrb size={32} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
         )}
 
         {/* Message Bubble */}

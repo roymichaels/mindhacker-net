@@ -284,7 +284,7 @@ const AuroraChatBubbles = () => {
             animate={{ opacity: 1 }}
             className="flex gap-3 justify-start"
           >
-            <AuroraHoloOrb size={24} glow="subtle" />
+            <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
             <div className="bg-muted/50 rounded-xl px-4 py-3">
               <div className="flex gap-1">
                 <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
