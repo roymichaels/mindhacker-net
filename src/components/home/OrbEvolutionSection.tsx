@@ -287,21 +287,12 @@ export default function OrbEvolutionSection() {
                   className="rounded-full overflow-hidden flex items-center justify-center"
                   style={{ width: orbSize, height: orbSize }}
                 >
-                  {isMobile ? (
-                    <Orb
-                      profile={phase.profile}
-                      size={orbSize}
-                      renderer="css"
-                      state="breathing"
-                    />
-                  ) : (
-                    <StandaloneMorphOrb
-                      size={orbSize}
-                      profile={phase.profile}
-                      geometryFamily={phase.profile.geometryFamily || 'sphere'}
-                      level={phase.level}
-                    />
-                  )}
+                  <GalleryOrbView
+                    size={orbSize}
+                    profile={phase.profile}
+                    geometryFamily={phase.profile.geometryFamily || 'sphere'}
+                    level={phase.level}
+                  />
                 </div>
             </div>
 
