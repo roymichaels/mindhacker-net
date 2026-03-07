@@ -173,14 +173,20 @@ export function OnboardingFlow() {
       setAnswers(restored);
     }
 
-    if (savedPhase === 'plan_generation') {
-      // Check if plan already exists — don't regenerate
+    if (savedPhase === 'plan_generation' || savedPhase === 'complete') {
+      // Always check if plan already exists — never regenerate
       if (user?.id) {
         supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').maybeSingle().then(({ data: existingPlan }) => {
           if (existingPlan) {
-            // Plan already generated, just redirect
+            // Plan already generated — mark complete and redirect
+            supabase.from('launchpad_progress').upsert({
+              user_id: user.id,
+              launchpad_complete: true,
+              step_3_lifestyle_data: { __onboarding_phase: 'complete' },
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
             navigate('/now', { replace: true });
-          } else {
+          } else if (savedPhase !== 'complete') {
             setShowIntro(false);
             setShowPlanGeneration(true);
             setSelectedPillars((phaseData?.__selected_pillars as string[]) || []);
