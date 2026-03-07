@@ -204,8 +204,8 @@ export default function OrbGalleryPage() {
         </div>
 
         {/* Grid */}
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-3 gap-x-0 gap-y-4">
+        <div className="max-w-6xl mx-auto px-1">
+          <div className="grid grid-cols-3 gap-x-0 gap-y-1">
               {pagedOrbs.map((orb, i) => {
                 const rarityColor = RARITY_COLORS[orb.rarity];
                 return (
