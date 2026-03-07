@@ -2,7 +2,8 @@
  * GameHeroSection — Cinematic minimal hero for NFT game landing
  */
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { Sparkles, Zap } from 'lucide-react';
+import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
