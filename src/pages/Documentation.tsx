@@ -336,7 +336,7 @@ export default function Documentation() {
           className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-3"
         >
           <h2 className="text-lg font-bold text-foreground">{he ? 'תקציר מנהלים' : 'Abstract'}</h2>
-          <p className="text-muted-foreground leading-relaxed text-sm">{abstractText}</p>
+          <p dir="auto" className="text-muted-foreground leading-relaxed text-sm" style={{ unicodeBidi: 'plaintext' }}>{abstractText}</p>
         </motion.div>
 
         {/* Table of Contents */}
