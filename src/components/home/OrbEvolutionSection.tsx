@@ -303,15 +303,6 @@ export default function OrbEvolutionSection() {
                   key={i}
                   className={cn(
                     'w-2 h-2 rounded-full transition-all duration-500',
-                    i < shapeCount ? 'scale-100' : 'scale-75 opacity-30'
-                  )}
-                  style={{
-                    backgroundColor: i < shapeCount
-                      ? `hsl(${phase.accentHsl})`
-                      : undefined,
-                  }}
-                  className={cn(
-                    'w-2 h-2 rounded-full transition-all duration-500',
                     i < shapeCount ? 'scale-100' : 'scale-75 bg-muted-foreground/20'
                   )}
                   style={i < shapeCount ? { backgroundColor: `hsl(${phase.accentHsl})` } : undefined}
