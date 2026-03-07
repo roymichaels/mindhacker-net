@@ -21,6 +21,18 @@ const ACTIVITY_ICONS: Record<string, string> = {
   diagnostic_eval: '🎯',
 };
 
+const ACTIVITY_LABELS_HE: Record<string, string> = {
+  hypnosis_session: 'סשן היפנוזה',
+  habit_completion: 'השלמת הרגל',
+  habit_streak_3: 'רצף 3 ימים',
+  habit_streak_7: 'רצף 7 ימים',
+  community_post: 'פוסט בקהילה',
+  community_comment: 'תגובה בקהילה',
+  learning_lesson: 'שיעור למידה',
+  daily_login: 'כניסה יומית',
+  diagnostic_eval: 'סריקה',
+};
+
 export function MiningDashboard() {
   const { language } = useTranslation();
   const isHe = language === 'he';
@@ -134,7 +146,7 @@ export function MiningDashboard() {
               <div key={log.id} className="flex items-center justify-between bg-card border border-border rounded-lg px-3 py-2">
                 <div className="flex items-center gap-2">
                   <span className="text-base">{ACTIVITY_ICONS[log.activity_type] || '⚡'}</span>
-                  <span className="text-xs text-foreground">{log.activity_type.replace(/_/g, ' ')}</span>
+                  <span className="text-xs text-foreground">{isHe ? (ACTIVITY_LABELS_HE[log.activity_type] || log.activity_type.replace(/_/g, ' ')) : log.activity_type.replace(/_/g, ' ')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-accent">+{log.mos_awarded}</span>

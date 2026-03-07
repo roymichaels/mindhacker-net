@@ -32,6 +32,12 @@ type EarnTab = 'overview' | 'bounties' | 'gigs' | 'data' | 'activity' | 'mining'
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
 
+const CATEGORY_LABELS: Record<string, string> = {
+  all: 'הכל', writing: 'כתיבה', labeling: 'תיוג', feedback: 'משוב',
+  design: 'עיצוב', translation: 'תרגום', development: 'פיתוח',
+  content: 'תוכן', other: 'אחר',
+};
+
 // ──── Data Offers ────
 interface DataOffer {
   id: string; type: string; icon: string;
@@ -366,7 +372,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
               {BOUNTY_CATEGORIES.map((cat) => (
                 <button key={cat} onClick={() => setBFilter(cat)}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${bFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+                >{cat === 'all' ? (isHe ? 'הכל' : 'All') : (isHe ? CATEGORY_LABELS[cat] || cat : cat.charAt(0).toUpperCase() + cat.slice(1))}</button>
               ))}
             </div>
           )}
@@ -391,7 +397,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /><span className="font-semibold text-foreground">{bounty.reward_mos} MOS</span></span>
                         {bounty.estimated_minutes && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> ~{bounty.estimated_minutes} min</span>}
-                        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{bounty.category}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{isHe ? CATEGORY_LABELS[bounty.category] || bounty.category : bounty.category}</span>
                         <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{bounty.difficulty}</span>
                       </div>
                       {bountyActions(bounty)}
@@ -429,7 +435,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                   <div className="space-y-1">
                     <label className="text-xs text-muted-foreground">{isHe ? 'קטגוריה' : 'Category'}</label>
                     <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm">
-                      {GIG_CATEGORIES.filter(c => c !== 'all').map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                      {GIG_CATEGORIES.filter(c => c !== 'all').map(c => <option key={c} value={c}>{isHe ? CATEGORY_LABELS[c] || c : c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
                     </select>
                   </div>
                 </div>
@@ -446,7 +452,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                   {GIG_CATEGORIES.map((cat) => (
                     <button key={cat} onClick={() => setGFilter(cat)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${gFilter === cat ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                    >{cat === 'all' ? (isHe ? 'הכל' : 'All') : cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+                    >{cat === 'all' ? (isHe ? 'הכל' : 'All') : (isHe ? CATEGORY_LABELS[cat] || cat : cat.charAt(0).toUpperCase() + cat.slice(1))}</button>
                   ))}
                 </div>
               )}
@@ -472,7 +478,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
                           {gig.description && <p className="text-xs text-muted-foreground line-clamp-2">{gig.description}</p>}
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /><span className="font-semibold text-foreground">{gig.budget_mos} MOS</span></span>
-                            <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{gig.category}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-medium">{isHe ? CATEGORY_LABELS[gig.category] || gig.category : gig.category}</span>
                             {isOwner && <span className="px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-medium">{isHe ? 'שלך' : 'Yours'}</span>}
                           </div>
                           {applyingId === gig.id ? (
@@ -588,7 +594,7 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
               <div key={claim.id} className="bg-card border border-border rounded-xl p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-sm text-foreground">{claim.fm_bounties?.title || 'Bounty'}</h3>
+                    <h3 className="font-semibold text-sm text-foreground">{claim.fm_bounties?.title || (isHe ? 'באונטי' : 'Bounty')}</h3>
                     <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(claim.created_at).toLocaleDateString()}</p>
                   </div>
                   {claimBadge(claim.status)}

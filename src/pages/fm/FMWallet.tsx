@@ -57,7 +57,7 @@ export default function FMWalletPage() {
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium text-muted-foreground">
-                {isAdvanced ? 'Advanced Wallet' : (isHe ? 'הארנק שלי' : 'My Wallet')}
+                {isAdvanced ? (isHe ? 'ארנק מתקדם' : 'Advanced Wallet') : (isHe ? 'הארנק שלי' : 'My Wallet')}
               </span>
             </div>
             <button
@@ -149,7 +149,7 @@ export default function FMWalletPage() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(wallet.solana_address || '');
-                  toast.success('Copied!');
+                  toast.success(isHe ? 'הועתק!' : 'Copied!');
                 }}
                 className="p-1 hover:bg-muted rounded transition-colors"
               >
