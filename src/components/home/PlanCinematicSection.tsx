@@ -3,7 +3,7 @@
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb/Orb';
+import { GalleryOrbView } from '@/components/orb/GalleryMorphOrb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { Dumbbell, Brain, TrendingUp, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -82,7 +82,7 @@ export default function PlanCinematicSection() {
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
-              <Orb profile={DEFAULT_ORB_PROFILE} size={120} state="breathing" renderer="css" showGlow />
+              <GalleryOrbView profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={120} level={50} />
             </div>
           </motion.div>
 

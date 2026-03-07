@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { GalleryCanvas } from "@/components/orb/GalleryMorphOrb";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -33,6 +34,7 @@ const Index = () => {
   const { theme } = useThemeSettings();
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
     if (!loading && user) {
@@ -78,29 +80,31 @@ const Index = () => {
   }
 
   return (
-    <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
-      <Header />
-      <WelcomeGateProvider>
-        <main className="relative z-10">
-          <GameHeroSection />
-          <OrbCollectionSection />
-          <OrbEvolutionSection />
-          <AuroraCoachSection />
-          <HypnosisSection />
-          <CityShowcaseSection />
-          <TraitShowcaseSection />
-          <PlanCinematicSection />
-          <GamificationSection />
-          <Play2EarnSection />
-          <FreeMarketSection />
-          <GuildSection />
-          <CoachOSSection />
-          <PricingPreviewSection />
-          <RoadmapSection />
-          <FinalCTASection />
-        </main>
-      </WelcomeGateProvider>
-      <Footer />
+    <div ref={containerRef} className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
+      <GalleryCanvas containerRef={containerRef}>
+        <Header />
+        <WelcomeGateProvider>
+          <main className="relative z-10">
+            <GameHeroSection />
+            <OrbCollectionSection />
+            <OrbEvolutionSection />
+            <AuroraCoachSection />
+            <HypnosisSection />
+            <CityShowcaseSection />
+            <TraitShowcaseSection />
+            <PlanCinematicSection />
+            <GamificationSection />
+            <Play2EarnSection />
+            <FreeMarketSection />
+            <GuildSection />
+            <CoachOSSection />
+            <PricingPreviewSection />
+            <RoadmapSection />
+            <FinalCTASection />
+          </main>
+        </WelcomeGateProvider>
+        <Footer />
+      </GalleryCanvas>
     </div>
   );
 };

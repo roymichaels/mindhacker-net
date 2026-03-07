@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { Sparkles, Dna, Fingerprint, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Orb } from '@/components/orb/Orb';
+import { GalleryOrbView } from '@/components/orb/GalleryMorphOrb';
 import { ORB_PRESETS } from '@/lib/orbPresets';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -211,12 +211,12 @@ export default function OrbCollectionSection() {
                 )}
               >
                 <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden">
-                  <Orb
+                  <GalleryOrbView
                     profile={preset.profile}
+                    geometryFamily={preset.profile.geometryFamily || 'sphere'}
                     size={orbSize}
-                    state="breathing"
-                    renderer={isMobile ? "css" : "webgl"}
-                    showGlow={false}
+                    level={100}
+                    randomShapeCount
                   />
                 </div>
 
