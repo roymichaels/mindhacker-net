@@ -294,7 +294,7 @@ export default function Documentation() {
           <AuroraOrbIcon className="w-7 h-7 text-foreground" size={28} />
           <span className="font-bold text-foreground text-sm">{brandName}</span>
           <span className="text-muted-foreground text-sm">—</span>
-          <span className="text-muted-foreground text-sm">{he ? 'ווייטפייפר' : 'White Paper'}</span>
+          <span className="text-muted-foreground text-sm">{he ? 'ספר לבן' : 'White Paper'}</span>
         </div>
       </div>
 
@@ -317,7 +317,7 @@ export default function Documentation() {
           </p>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
             {he
-              ? 'ווייטפייפר — AI · NFT · Play-to-Earn · גיימיפיקציה · פיתוח אישי'
+              ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · פיתוח אישי'
               : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Personal Development'
             }
           </p>
