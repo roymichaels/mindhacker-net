@@ -87,7 +87,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
                   isOwn={message.sender_id === user?.id}
                   isAI={message.is_ai_message}
                   timestamp={message.created_at}
-                  onRegenerate={message.is_ai_message ? regenerateLastResponse : undefined}
+                  onRegenerate={message.is_ai_message && isPlus ? regenerateLastResponse : undefined}
                 />
               ))}
               
