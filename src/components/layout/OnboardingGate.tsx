@@ -1,10 +1,12 @@
 /**
  * OnboardingGate — Redirects users to /onboarding if they haven't completed the launchpad.
- * Wraps all protected routes inside ProtectedAppShell.
+ * After onboarding, requires username setup before granting app access.
  */
 import { Navigate, useLocation } from 'react-router-dom';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useCommunityUsername } from '@/hooks/useCommunityUsername';
 import { Loader2 } from 'lucide-react';
+import { UsernameSetupScreen } from '@/components/onboarding/UsernameSetupScreen';
 
 interface OnboardingGateProps {
   children: React.ReactNode;
@@ -20,10 +22,11 @@ const BYPASS_ROUTES = [
 
 export function OnboardingGate({ children }: OnboardingGateProps) {
   const { isLaunchpadComplete, isLoading } = useLaunchpadProgress();
+  const { username, isLoading: usernameLoading } = useCommunityUsername();
   const location = useLocation();
 
   // Don't gate while loading
-  if (isLoading) {
+  if (isLoading || usernameLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -39,6 +42,11 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
   // Redirect to onboarding if not complete
   if (!isLaunchpadComplete) {
     return <Navigate to="/onboarding" replace />;
+  }
+
+  // Require username setup after onboarding
+  if (!username) {
+    return <UsernameSetupScreen />;
   }
 
   return <>{children}</>;
