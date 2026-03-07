@@ -84,7 +84,7 @@ const Index = () => {
       <GalleryCanvas containerRef={containerRef}>
         <Header />
         <WelcomeGateProvider>
-          <main className="relative z-10">
+          <main className="relative">
             <GameHeroSection />
             <OrbCollectionSection />
             <OrbEvolutionSection />
