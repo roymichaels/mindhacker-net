@@ -92,8 +92,13 @@ export function RoadmapSidebar() {
   const progressPct = Math.round((completedCount / totalCount) * 100);
 
   const { generateStrategy, isGenerating: recalibrating } = useStrategyPlans();
+  const { canAccessPlanRecalibration, showUpgradePrompt } = useSubscriptionGate();
 
   const handleRecalibrate = async () => {
+    if (!canAccessPlanRecalibration) {
+      showUpgradePrompt(isHe ? 'כיול מחדש' : 'Recalibrate');
+      return;
+    }
     if (!user?.id || recalibrating) return;
     try {
       await generateStrategy.mutateAsync({ hub: 'both', forceRegenerate: true });
