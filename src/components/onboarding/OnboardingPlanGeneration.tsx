@@ -230,8 +230,16 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
         // Orb generation is non-blocking
       }
 
+      // Mark onboarding as fully complete and clear the phase so refresh won't re-trigger
+      await supabase.from('launchpad_progress').upsert({
+        user_id: user.id,
+        launchpad_complete: true,
+        step_3_lifestyle_data: { __onboarding_phase: 'complete' },
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+
       sessionStorage.setItem('just_completed_onboarding', '1');
-      navigate('/dashboard', { replace: true });
+      navigate('/now', { replace: true });
     } catch (err) {
       console.error('Error completing onboarding:', err);
       setError(true);
