@@ -38,6 +38,10 @@ const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (!loading && user) {
       flowAudit.redirect('/', '/now', 'Authenticated user on Index — redirecting to now');
       navigate('/now', { replace: true });
