@@ -176,26 +176,33 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* ── TODAY'S ADVENTURE — Journey Blocks ── */}
             {schedule.length > 0 ? (
               <div className="space-y-2.5">
-                {/* Header */}
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground">
-                      {isHe ? 'המסע של היום' : "Today's Journey"}
-                    </h3>
-                    <span className="text-[10px] text-muted-foreground">
-                      {schedule.length} {isHe ? 'מסלולים' : 'paths'}
+                {/* Quest Header */}
+                <div className="px-1 space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                      {campaignName}
                     </span>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setWizardOpen(true)}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                    {isHe ? 'הוסף' : 'Add'}
-                  </motion.button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Compass className="w-4 h-4 text-primary" />
+                      <h3 className="text-sm font-bold text-foreground">
+                        ⚔️ {questName}
+                      </h3>
+                      <span className="text-[10px] text-muted-foreground">
+                        {schedule.length} {isHe ? 'מסלולים' : 'paths'}
+                      </span>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setWizardOpen(true)}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                      {isHe ? 'הוסף' : 'Add'}
+                    </motion.button>
+                  </div>
                 </div>
 
                 {/* Journey blocks — all equal, no graying */}
