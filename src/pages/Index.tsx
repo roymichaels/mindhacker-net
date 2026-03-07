@@ -70,14 +70,16 @@ const Index = () => {
   return (
     <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
-      <main className="relative z-10">
-        <GameHeroSection />
-        <OrbCollectionSection />
-        <CityShowcaseSection />
-        <TraitShowcaseSection />
-        <PlanCinematicSection />
-        <FinalCTASection />
-      </main>
+      <WelcomeGateProvider>
+        <main className="relative z-10">
+          <GameHeroSection />
+          <OrbCollectionSection />
+          <CityShowcaseSection />
+          <TraitShowcaseSection />
+          <PlanCinematicSection />
+          <FinalCTASection />
+        </main>
+      </WelcomeGateProvider>
       <Footer />
     </div>
   );
