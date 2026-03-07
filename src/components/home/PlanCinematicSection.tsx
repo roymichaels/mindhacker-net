@@ -82,7 +82,7 @@ export default function PlanCinematicSection() {
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
-              <Orb profile={DEFAULT_ORB_PROFILE} size={120} state="breathing" renderer="css" showGlow />
+              <GalleryOrbView profile={DEFAULT_ORB_PROFILE} geometryFamily={DEFAULT_ORB_PROFILE.geometryFamily || 'sphere'} size={120} level={50} />
             </div>
           </motion.div>
 
