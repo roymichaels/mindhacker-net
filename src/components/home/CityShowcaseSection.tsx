@@ -61,7 +61,7 @@ function TraitBadgesPreview({ isRTL }: { isRTL: boolean }) {
   );
 }
 
-function PlanPulsePreview() {
+function PlanPulsePreview({ isRTL }: { isRTL: boolean }) {
   return (
     <div className="flex items-center gap-1.5 mt-3">
       {[...Array(4)].map((_, i) => (
@@ -72,7 +72,9 @@ function PlanPulsePreview() {
           transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
         />
       ))}
-      <span className="text-[10px] text-muted-foreground font-mono ml-1">generating...</span>
+      <span className="text-[10px] text-muted-foreground font-mono ml-1">
+        {isRTL ? 'מייצר...' : 'generating...'}
+      </span>
     </div>
   );
 }
