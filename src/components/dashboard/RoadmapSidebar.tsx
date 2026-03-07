@@ -410,12 +410,13 @@ export function RoadmapSidebar() {
               >
                 {recalibrating
                   ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  : <RefreshCw className="w-3.5 h-3.5" />
+                  : canAccessPlanRecalibration ? <RefreshCw className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />
                 }
                 <span>{recalibrating
                   ? (isHe ? 'מחשב מחדש...' : 'Recalculating...')
                   : (isHe ? 'כיול מחדש' : 'Recalibrate')
                 }</span>
+                {!canAccessPlanRecalibration && <span className="text-[10px] opacity-70">Plus+</span>}
               </button>
             </div>
           </div>
