@@ -142,7 +142,7 @@ export default function Documentation() {
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {he
-              ? 'מערכת ההפעלה האישית הראשונה בעולם — נייר עמדה'
+              ? 'מערכת ההפעלה האישית הראשונה בעולם — ווייטפייפר'
               : "The World's First Personal Operating System — White Paper"
             }
           </p>
