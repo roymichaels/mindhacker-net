@@ -164,7 +164,20 @@ export default function OrbCollectionSection() {
       }} />
 
       <div className="relative z-10 container mx-auto max-w-7xl px-4" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Carousel row — above header */}
+        {/* See All Orbs button above carousel */}
+        <div className="flex justify-center mb-6">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/orbs')}
+            className="rounded-full px-6 py-2.5 text-sm font-semibold border-border/50 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <Eye className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} />
+            {isHe ? 'ראה את כל האורבים' : 'See All Orbs'}
+            {isRTL ? <ArrowLeft className="w-4 h-4 mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
+          </Button>
+        </div>
+
+        {/* Carousel row */}
         <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[320px] sm:min-h-[360px]">
           {visibleIndices.map((presetIdx, slotIdx) => {
             const preset = ORB_PRESETS[presetIdx];
