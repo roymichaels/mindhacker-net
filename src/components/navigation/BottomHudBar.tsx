@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress } from '@/hooks/useGameState';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
