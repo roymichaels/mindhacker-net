@@ -250,7 +250,23 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '8.3 ארנק ויישוב' : '8.3 Wallet & Settlement',
+          title: he ? '8.3 מנגנוני X2Earn — הרוויח מכל פעולה' : '8.3 X2Earn Mechanisms — Earn From Every Action',
+          paragraphs: he ? [
+            `הכלכלה של ${brandName} בנויה על ארבעה מנגנוני הרווחה מובנים שמתגמלים כל היבט של צמיחה אישית:`,
+            `🌱 Grow2Earn — כל פעולת צמיחה אישית מתוגמלת: השלמת הרגלים, עמידה ב-streaks, סיום שלבים בתוכנית 100 הימים, וביצוע משימות יומיות. ככל שהמשתמש צומח — הוא כורה יותר MOS. מכפילי streak (x1.5 ביום 7, x2 ביום 30) מעודדים עקביות.`,
+            `📊 Data2Earn — המשתמשים יכולים למכור תובנות התנהגותיות אנונימיות דרך שוק הנתונים. חלוקת הכנסה 80/20 (80% למשתמש). pipeline אנונימיזציה עם סף מינימלי של 10 תורמים מבטיח פרטיות מלאה. הסכמה גרנולרית — המשתמש שולט אילו קטגוריות נתונים לשתף.`,
+            `💼 Work2Earn — נותני שירות יכולים להציע גיגים, להשלים באונטי קהילתיות, ולמכור שירותים דרך ה-FreeMarket. מאמנים מרוויחים MOS על כל סשן, וביצוע משימות קהילתיות מתגמל טוקנים נוספים.`,
+            `📚 Learn2Earn — כל שיעור שהושלם, קוריקולום שנסיים, ותרגול שבוצע מתגמל MOS. מערכת הלמידה האדפטיבית (Lazy Generation) מייצרת תוכן בזמן אמת — וכל אינטראקציה עם התוכן נספרת כפעולת כרייה מאומתת.`,
+          ] : [
+            `The ${brandName} economy is built on four embedded earning mechanisms that reward every aspect of personal growth:`,
+            `🌱 Grow2Earn — Every growth action is rewarded: habit completion, streak maintenance, 100-day plan phase completion, and daily task execution. The more the user grows — the more MOS they mine. Streak multipliers (x1.5 at day 7, x2 at day 30) incentivize consistency.`,
+            `📊 Data2Earn — Users can sell anonymized behavioral insights through the data marketplace. 80/20 revenue split (80% to user). Anonymization pipeline with a minimum 10-contributor threshold ensures complete privacy. Granular consent — users control which data categories to share.`,
+            `💼 Work2Earn — Service providers can offer gigs, complete community bounties, and sell services through the FreeMarket. Coaches earn MOS per session, and completing community tasks rewards additional tokens.`,
+            `📚 Learn2Earn — Every completed lesson, finished curriculum, and completed exercise rewards MOS. The adaptive learning system (Lazy Generation) generates content in real-time — and every interaction with content counts as a verified mining action.`,
+          ],
+        },
+        {
+          title: he ? '8.4 ארנק ויישוב' : '8.4 Wallet & Settlement',
           paragraphs: he ? [
             `ארנק פנימי (fm_wallets) עם ספר חשבונות (fm_transactions). יישוב אסינכרוני לערוצי תשלום חיצוניים (Stripe לפיאט או Solana לטוקנים MOS) דרך fm_settlement_outbox. חשיפה פרוגרסיבית: "מצב פשוט" (נקודות/בנק) ו"מצב מתקדם" (כתובות Solana).`,
           ] : [
