@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 
 export default function FearOfMissingOutSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openWelcomeGate } = useWelcomeGate();
   
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   
