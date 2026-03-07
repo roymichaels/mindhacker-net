@@ -22,8 +22,6 @@ export default function FMHome() {
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* Aurora opportunity — PRIMARY CTA */}
-      <FMAuroraCard opportunities={opportunities} />
 
       {/* Compact balance */}
       <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3">

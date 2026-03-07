@@ -297,8 +297,6 @@ export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFi
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* Aurora suggestion */}
-      <FMAuroraCard opportunities={opportunities} />
 
       {/* ═══════ DASHBOARD OVERVIEW ═══════ */}
       {showDashboard && (
