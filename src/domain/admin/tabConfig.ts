@@ -97,6 +97,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     icon: FileText,
     subTabs: [
       { id: 'products', labelHe: 'מוצרים', labelEn: 'Products', component: AdminProducts },
+      { id: 'blog', labelHe: 'בלוג', labelEn: 'Blog', component: AdminBlog },
       { id: 'content-mgmt', labelHe: 'תוכן', labelEn: 'Content', component: Content },
       { id: 'videos', labelHe: 'סרטונים', labelEn: 'Videos', component: Videos },
       { id: 'recordings', labelHe: 'הקלטות', labelEn: 'Recordings', component: Recordings },
