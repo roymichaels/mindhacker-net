@@ -1828,7 +1828,7 @@ export const en: TranslationKeys = {
       governingTitle: "Governing Law",
       governingText: "These terms of service are subject to the laws of the Republic of Estonia and the laws of the European Union. In any dispute, exclusive jurisdiction shall be with the international arbitrator as specified in the arbitration section.",
       contactTitle: "Contact Us",
-      contactText: "For questions about these terms of service, please contact us at: contact@mindos.app",
+      contactText: "For questions about these terms of service, please contact us at: contact@mindos.space",
       userAcknowledgment: "I confirm that I have read and understood that the services are consciousness coaching and not medical treatment",
       arbitrationAcknowledgment: "I agree to resolve disputes through international arbitration only",
     },
