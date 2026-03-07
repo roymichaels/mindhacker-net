@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Sparkles, Loader2, Eye, Pencil, Trash2, Globe, Plus, ExternalLink } from 'lucide-react';
+import { Sparkles, Loader2, Eye, Pencil, Trash2, Globe, Plus, ExternalLink, Zap, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function AdminBlog() {
