@@ -1,15 +1,19 @@
 /**
  * PersonalizedOrb - Wrapper component that loads user's orb profile
  * and renders the appropriate orb with personalized settings.
- * Now includes: debug overlay, diagnostic rendering, smooth transitions.
+ * Uses level-based shape morphing: every 25 levels unlocks a new morph shape.
+ * Small sizes (<80px) use CSS renderer for performance.
+ * Larger sizes use WebGL morphing orb for full 3D effect.
  */
 
 import React, { forwardRef, useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { useXpProgress } from '@/hooks/useGameState';
 import { Orb } from './Orb';
 import { OrbDebugOverlay } from './OrbDebugOverlay';
+import { StandaloneMorphOrb } from './GalleryMorphOrb';
 import type { OrbRef, OrbProps, OrbProfile } from './types';
 import { DEFAULT_ORB_PROFILE, interpolateOrbProfiles } from '@/lib/orbProfileGenerator';
 
@@ -18,6 +22,9 @@ export interface PersonalizedOrbProps extends Omit<OrbProps, 'egoState'> {
   disablePersonalization?: boolean;
   showLoadingSkeleton?: boolean;
 }
+
+/** Threshold: use WebGL morphing orb for sizes >= this */
+const MORPH_SIZE_THRESHOLD = 80;
 
 export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
   function PersonalizedOrb(
@@ -32,6 +39,7 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
       className,
       showGlow = true,
       onReady,
+      renderer,
       ...props
     },
     ref
@@ -39,6 +47,7 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     const { user } = useAuth();
     const { profile, isLoading, isPersonalized, storedProfile, seed, diagnosticState, missedFields } = useOrbProfile();
     const { theme, loading: themeLoading } = useThemeSettings();
+    const { level } = useXpProgress();
 
     // Smooth transition state
     const prevProfileRef = useRef<OrbProfile | null>(null);
@@ -74,7 +83,6 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
         return;
       }
 
-      // Don't transition if geometry family changed (requires rebuild)
       if (prev.geometryFamily !== activeProfile.geometryFamily) {
         prevProfileRef.current = activeProfile;
         setTransitionProfile(null);
@@ -119,6 +127,29 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
       );
     }
 
+    // Use WebGL morphing orb for larger sizes, CSS orb for small (HUD/avatars)
+    const useMorphOrb = size >= MORPH_SIZE_THRESHOLD && renderer !== 'css';
+
+    if (useMorphOrb) {
+      return (
+        <div className="relative" style={{ width: size, height: size }}>
+          <StandaloneMorphOrb
+            size={size}
+            profile={displayProfile}
+            geometryFamily={displayProfile.geometryFamily || 'sphere'}
+            level={level}
+          />
+          <OrbDebugOverlay
+            profile={displayProfile}
+            userId={user?.id}
+            seed={seed}
+            missedFields={missedFields}
+            diagnosticState={diagnosticState}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="relative" style={{ width: size, height: size }}>
         <Orb
@@ -133,6 +164,7 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
           onReady={onReady}
           profile={displayProfile}
           themeColors={themeColors}
+          renderer={renderer}
           {...props}
         />
         <OrbDebugOverlay
