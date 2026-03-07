@@ -8,11 +8,11 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 
 const xpActions = [
-  { emoji: '🧠', action: 'Hypnosis Session', actionHe: 'סשן היפנוזה', xp: '+50 XP' },
-  { emoji: '✅', action: 'Task Complete', actionHe: 'משימה הושלמה', xp: '+20 XP' },
-  { emoji: '📚', action: 'Lesson Done', actionHe: 'שיעור הושלם', xp: '+30 XP' },
-  { emoji: '💬', action: 'Community Post', actionHe: 'פוסט בקהילה', xp: '+15 XP' },
-  { emoji: '🔥', action: '7-Day Streak', actionHe: 'רצף 7 ימים', xp: 'x1.5', xpHe: 'בונוס x1.5' },
+  { emoji: '🧠', action: 'Hypnosis Session', actionHe: 'סשן היפנוזה', xp: '+50 XP', xpHe: '+50 XP' },
+  { emoji: '✅', action: 'Task Complete', actionHe: 'משימה הושלמה', xp: '+20 XP', xpHe: '+20 XP' },
+  { emoji: '📚', action: 'Lesson Done', actionHe: 'שיעור הושלם', xp: '+30 XP', xpHe: '+30 XP' },
+  { emoji: '💬', action: 'Community Post', actionHe: 'פוסט בקהילה', xp: '+15 XP', xpHe: '+15 XP' },
+  { emoji: '🔥', action: '7-Day Streak', actionHe: 'רצף 7 ימים', xp: 'x1.5 Bonus', xpHe: 'בונוס x1.5' },
 ];
 
 export default function GamificationSection() {
