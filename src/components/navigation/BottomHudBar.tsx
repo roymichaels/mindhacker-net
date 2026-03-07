@@ -81,8 +81,13 @@ export function BottomHudBar() {
             onClick={() => setProfileOpen(true)}
             className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
           >
-            <div className="flex-shrink-0 w-11 h-11 rounded-full transition-shadow duration-700" style={orbGlowStyle}>
-              <PersonalizedOrb size={44} state={movementScore >= 80 ? 'speaking' : 'idle'} renderer="css" />
+            <div
+              className="flex-shrink-0 rounded-full transition-shadow duration-700"
+              style={{ width: 44, height: 44, overflow: 'hidden', ...orbGlowStyle }}
+            >
+              <div style={{ width: 80, height: 80, transform: 'scale(0.55)', transformOrigin: 'center center', marginTop: -18, marginLeft: -18 }}>
+                <PersonalizedOrb size={80} state={movementScore >= 80 ? 'speaking' : 'idle'} />
+              </div>
             </div>
             {identityTitle && (
               <div className="min-w-0 flex flex-col">
