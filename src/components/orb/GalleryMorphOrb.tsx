@@ -447,9 +447,6 @@ interface GalleryCanvasProps {
 export function GalleryCanvas({ children, containerRef }: GalleryCanvasProps) {
   return (
     <>
-      <div className="relative z-[2]">
-        {children}
-      </div>
       <Canvas
         style={{
           position: 'fixed',
@@ -458,7 +455,7 @@ export function GalleryCanvas({ children, containerRef }: GalleryCanvasProps) {
           width: '100vw',
           height: '100vh',
           pointerEvents: 'none',
-          zIndex: 1,
+          zIndex: 0,
         }}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         eventSource={containerRef}
@@ -466,6 +463,7 @@ export function GalleryCanvas({ children, containerRef }: GalleryCanvasProps) {
       >
         <View.Port />
       </Canvas>
+      {children}
     </>
   );
 }
