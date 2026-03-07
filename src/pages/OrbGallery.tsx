@@ -229,14 +229,12 @@ export default function OrbGalleryPage() {
                       {isHe ? RARITY_LABELS[orb.rarity].he : RARITY_LABELS[orb.rarity].en}
                     </span>
 
-                    {/* Orb */}
+                    {/* Orb - rendered via shared WebGL canvas */}
                     <div className="group-hover:scale-105 transition-transform duration-300">
-                      <Orb
+                      <GalleryOrbView
                         profile={orb.profile}
+                        geometryFamily={orb.traits.geometry}
                         size={isMobile ? 80 : 120}
-                        state="idle"
-                        renderer="css"
-                        showGlow={orb.traits.glow !== 'none'}
                       />
                     </div>
 
