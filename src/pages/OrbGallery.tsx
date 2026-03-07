@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { Orb } from '@/components/orb/Orb';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Filter, X, Sparkles, Dna, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -32,6 +32,8 @@ export default function OrbGalleryPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrb, setSelectedOrb] = useState<GalleryOrb | null>(null);
   const [fullscreenOrb, setFullscreenOrb] = useState<GalleryOrb | null>(null);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 30;
 
   const activeFilterCount = Object.keys(filters).length;
 
@@ -50,7 +52,15 @@ export default function OrbGalleryPage() {
     });
   }, [filters]);
 
+  const totalPages = Math.ceil(filteredOrbs.length / PAGE_SIZE);
+  const pagedOrbs = useMemo(() => {
+    const start = page * PAGE_SIZE;
+    return filteredOrbs.slice(start, start + PAGE_SIZE);
+  }, [filteredOrbs, page]);
+
+  // Reset page when filters change
   const toggleFilter = (key: string, value: string) => {
+    setPage(0);
     setFilters(prev => {
       if (prev[key] === value) {
         const next = { ...prev };
@@ -61,7 +71,9 @@ export default function OrbGalleryPage() {
     });
   };
 
-  const clearFilters = () => setFilters({});
+  const clearFilters = () => { setFilters({}); setPage(0); };
+
+  
 
   // Rarity stats
   const stats = useMemo(() => {
@@ -190,17 +202,14 @@ export default function OrbGalleryPage() {
         {/* Grid */}
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-x-4 gap-y-8">
-            <AnimatePresence mode="popLayout">
-              {filteredOrbs.map((orb, i) => {
+              {pagedOrbs.map((orb, i) => {
                 const rarityColor = RARITY_COLORS[orb.rarity];
                 return (
                   <motion.div
                     key={orb.id}
-                    layout
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.5) }}
+                    transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.6) }}
                     onClick={() => setSelectedOrb(orb)}
                     className="relative cursor-pointer flex flex-col items-center group"
                   >
@@ -222,7 +231,7 @@ export default function OrbGalleryPage() {
                         profile={orb.profile}
                         size={isMobile ? 80 : 120}
                         state="idle"
-                        renderer="css"
+                        renderer="webgl"
                         showGlow={orb.traits.glow !== 'none'}
                       />
                     </div>
@@ -251,8 +260,34 @@ export default function OrbGalleryPage() {
                   </motion.div>
                 );
               })}
-            </AnimatePresence>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-10">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 0}
+                onClick={() => { setPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="rounded-full"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground font-medium">
+                {page + 1} / {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages - 1}
+                onClick={() => { setPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="rounded-full"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
           {filteredOrbs.length === 0 && (
             <div className="text-center py-20 text-muted-foreground">
