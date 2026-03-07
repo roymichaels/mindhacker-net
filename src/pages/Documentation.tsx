@@ -379,7 +379,7 @@ export default function Documentation() {
             </h2>
 
             {section.paragraphs.map((p, j) => (
-              <p key={j} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
+              <p key={j} dir="auto" className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm" style={{ unicodeBidi: 'plaintext' }}>
                 {p}
               </p>
             ))}
