@@ -32,7 +32,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b-2 border-amber-500/30 bg-gradient-to-b from-amber-900/80 via-amber-800/50 to-background/95 backdrop-blur-xl"
+      className="sticky top-0 z-50 w-full border-b border-amber-300/40 bg-gradient-to-b from-amber-50/95 via-orange-50/90 to-background/95 backdrop-blur-xl dark:from-amber-950/40 dark:via-amber-900/20 dark:to-background/95 dark:border-amber-500/20"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
@@ -40,9 +40,9 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <Store className="h-4 w-4 text-amber-100" />
+              <Store className="h-4 w-4 text-white" />
             </div>
-            <span className="text-base font-black text-amber-100 tracking-tight drop-shadow-[0_0_8px_rgba(245,158,11,0.3)]">
+            <span className="text-base font-black text-amber-700 dark:text-amber-300 tracking-tight">
               {isHe ? 'פרי-מארקט' : 'Free Market'}
             </span>
           </div>
@@ -58,8 +58,8 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
                   className={cn(
                     "relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all",
                     active
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-inner shadow-amber-500/10"
-                      : "text-amber-200/60 hover:text-amber-200 hover:bg-amber-500/10"
+                      ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 shadow-inner shadow-amber-500/10"
+                      : "text-amber-600/60 dark:text-amber-200/60 hover:text-amber-700 dark:hover:text-amber-200 hover:bg-amber-500/10"
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -77,7 +77,7 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300/70 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/10 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-600/70 dark:text-amber-300/70 hover:text-amber-700 dark:hover:text-amber-200 hover:bg-amber-500/10 border border-amber-400/15 transition-all"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isHe ? 'חזור ל-OS' : 'Back to OS'}</span>
