@@ -20,7 +20,7 @@ const AURORA_PROFILE: OrbProfile = {
   particleCount: 0,
   particleEnabled: false,
   materialType: 'iridescent',
-  geometryFamily: 'blob',
+  geometryFamily: 'sphere',
   gradientStops: ['270 80% 70%', '190 90% 70%', '300 80% 75%', '260 70% 65%'],
   coreGradient: ['270 80% 70%', '190 90% 70%'],
   rimLightColor: '300 80% 75%',
