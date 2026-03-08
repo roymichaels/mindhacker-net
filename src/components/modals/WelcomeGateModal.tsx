@@ -27,7 +27,7 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
   const handleFirstTime = () => {
     onOpenChange(false);
     openAuthModal('signup', () => {
-      navigate('/onboarding');
+      smartNavigate();
     });
   };
 

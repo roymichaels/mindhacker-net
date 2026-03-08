@@ -28,7 +28,7 @@ export default function Go() {
   const handleStart = () => {
     flowAudit.redirect('/go', '/onboarding', 'CTA clicked — starting onboarding');
     trackLead({ source: 'go_page' });
-    navigate('/onboarding');
+    smartNavigate();
   };
 
   return (

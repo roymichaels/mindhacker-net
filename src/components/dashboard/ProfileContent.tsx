@@ -77,7 +77,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
   const handleEditJourney = () => {
     onClose?.();
-    navigate('/onboarding');
+    smartNavigate();
   };
 
   if (isLoading) {
