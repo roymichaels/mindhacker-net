@@ -6,7 +6,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
