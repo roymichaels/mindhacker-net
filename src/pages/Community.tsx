@@ -109,7 +109,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               {!isAll && (
                 <button
                   onClick={() => { onPillarSelect?.('all'); onSelectTopic?.(null); }}
-                  className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+                  className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0 lg:hidden"
                 >
                   <ChevronLeft className={cn("h-5 w-5", isHe && "rotate-180")} />
                 </button>
@@ -137,9 +137,9 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           </div>
 
-          {/* ── ALL VIEW: Pillar Cards Grid ── */}
+          {/* ── ALL VIEW: Pillar Cards Grid (mobile only, sidebar handles desktop) ── */}
           {isAll && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 lg:hidden">
               {LIFE_DOMAINS.map((d) => {
                 const Icon = d.icon;
                 const count = pillarCounts?.[d.id] || 0;
@@ -171,9 +171,21 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           )}
 
-          {/* ── PILLAR VIEW: Topic Cards (no topic selected yet) ── */}
+          {/* ── Desktop: show feed directly when 'all' is selected ── */}
+          {isAll && (
+            <div className="hidden lg:block">
+              <ThreadList
+                pillarFilter="all"
+                topicFilter={null}
+                mode={feedMode}
+                onProfileClick={setProfileUserId}
+              />
+            </div>
+          )}
+
+          {/* ── PILLAR VIEW: Topic Cards (mobile only, sidebar handles desktop) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 lg:hidden">
               {/* "All threads" card */}
               <button
                 onClick={() => onSelectTopic?.(null)}
@@ -213,20 +225,32 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           )}
 
-          {/* ── TOPIC SELECTED: back chip + feed ── */}
+          {/* ── Desktop: always show feed when pillar selected (sidebar handles topics) ── */}
+          {!isAll && (
+            <div className="hidden lg:block">
+              <ThreadList
+                pillarFilter={selectedPillar}
+                topicFilter={selectedTopic}
+                mode={feedMode}
+                onProfileClick={setProfileUserId}
+              />
+            </div>
+          )}
+
+          {/* ── TOPIC SELECTED: back chip + feed (mobile only) ── */}
           {!isAll && selectedTopic && (
             <button
               onClick={() => onSelectTopic?.(null)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors w-fit"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors w-fit lg:hidden"
             >
               <ChevronLeft className={cn("h-3.5 w-3.5", isHe && "rotate-180")} />
               {isHe ? 'חזרה לנושאים' : 'Back to topics'}
             </button>
           )}
 
-          {/* ── Feed mode toggle ── */}
+          {/* ── Feed mode toggle (desktop: always show when not all; mobile: when topic selected) ── */}
           {(!isAll && (selectedTopic || subcategories.length === 0)) && (
-            <div className="flex bg-muted/40 rounded-lg p-0.5 w-fit">
+            <div className="flex bg-muted/40 rounded-lg p-0.5 w-fit lg:hidden">
               <button
                 onClick={() => setFeedMode('latest')}
                 className={cn(
@@ -250,14 +274,16 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           )}
 
-          {/* ── Thread Feed (shown when inside a pillar, topic selected or no subcategories) ── */}
+          {/* ── Thread Feed mobile (shown when inside a pillar, topic selected or no subcategories) ── */}
           {!isAll && (selectedTopic || subcategories.length === 0) && (
-            <ThreadList
-              pillarFilter={selectedPillar}
-              topicFilter={selectedTopic}
-              mode={feedMode}
-              onProfileClick={setProfileUserId}
-            />
+            <div className="lg:hidden">
+              <ThreadList
+                pillarFilter={selectedPillar}
+                topicFilter={selectedTopic}
+                mode={feedMode}
+                onProfileClick={setProfileUserId}
+              />
+            </div>
           )}
 
           {/* Also show feed in "all threads" for a pillar (no specific topic) when subcategories exist but user wants the full pillar feed */}
