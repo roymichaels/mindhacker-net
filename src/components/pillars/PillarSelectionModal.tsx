@@ -90,7 +90,7 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
           {selected.length}/{limit}
         </span>
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {domains.map((domain, i) => {
           const isSelected = selected.includes(domain.id);
           const atLimit = selected.length >= limit;
