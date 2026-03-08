@@ -403,7 +403,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
                 {({ warrior: '⚔️', guardian: '🛡️', creator: '🎨', seeker: '🔍', sage: '🧙' } as Record<string, string>)[identityProfile.suggested_ego_state.toLowerCase()] || '🛡️'}
               </span>
               <span className="text-sm font-bold text-amber-400">
-                {identityProfile.suggested_ego_state}
+                {getEgoStateLabel(identityProfile.suggested_ego_state, isHe ? 'he' : 'en')}
               </span>
             </div>
           )}
