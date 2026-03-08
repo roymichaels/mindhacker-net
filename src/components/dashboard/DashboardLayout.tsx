@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useRouteTheme } from '@/hooks/useRouteTheme';
 import { FMTopNav } from '@/components/fm/FMTopNav';
 
 import { TopNavBar } from '@/components/navigation/TopNavBar';
@@ -17,6 +18,7 @@ import { SettingsModal } from '@/components/settings';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
+import { cn } from '@/lib/utils';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -28,7 +30,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business') || location.pathname.startsWith('/freelancer') || location.pathname.startsWith('/creator');
+  const theme = useRouteTheme();
+  const isFM = theme.id === 'fm';
   useLearnPillarAction();
 
   return (
@@ -39,7 +42,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             isFM ? (
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
-              <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-lg" style={{ borderBottomColor: 'hsl(var(--gold-border) / 0.3)' }}>
+              <header
+                className={cn(
+                  "sticky top-0 z-50 w-full border-b backdrop-blur-xl bg-gradient-to-b",
+                  theme.headerGradient,
+                  theme.headerGradientDark
+                )}
+                style={{ borderBottomColor: theme.borderColor }}
+              >
                 <div className="flex h-14 items-center justify-between px-3">
                   <div className="flex items-center gap-1">
                     <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
@@ -51,14 +61,31 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           ) : isFM ? (
             <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
-            <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
+            <header
+              className={cn(
+                "sticky top-0 z-50 w-full border-b backdrop-blur-xl bg-gradient-to-b",
+                theme.headerGradient,
+                theme.headerGradientDark
+              )}
+              style={{ borderBottomColor: theme.borderColor }}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            >
+              <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
+                <AppNameDropdown onOpenSettings={() => setSettingsOpen(true)} />
+                <div className="flex items-center gap-1">
+                  <HeaderActions />
+                </div>
+              </div>
+            </header>
           )}
 
           <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
-
-
-            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-20 md:pb-4'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-              {children}
+            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 relative ${isFM ? 'pb-16 md:pb-4' : 'pb-20 md:pb-4'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+              {/* Route-colored ambient glow */}
+              <div className="absolute inset-0 pointer-events-none" style={{ background: theme.ambientGlow }} />
+              <div className="relative z-10 flex flex-col flex-1">
+                {children}
+              </div>
             </main>
           </div>
 
