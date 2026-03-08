@@ -10,7 +10,8 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { useOrbPresetMorph } from '@/hooks/useOrbPresetMorph';
 import { ArrowRight, ChevronLeft, Sparkles, User, Calendar, Users, X, Mail, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,11 @@ import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
+
+function OnboardingShowcaseOrb({ size }: { size: number }) {
+  const profile = useOrbPresetMorph({ startIndex: 0 });
+  return <StandaloneMorphOrb size={size} profile={profile} geometryFamily={profile.geometryFamily || 'sphere'} level={1} />;
+}
 
 interface OnboardingIntroProps {
   onComplete: (basicInfo: { name: string; gender: string; ageBracket: string }) => void;
@@ -210,7 +216,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              <PersonalizedOrb size={180} state="idle" renderer="css" disablePersonalization />
+              <OnboardingShowcaseOrb size={180} />
             </motion.div>
 
             {/* Title */}
@@ -300,7 +306,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                   animate={{ scale: 1, opacity: 1 }}
                   className="flex justify-center mb-4"
                 >
-                  <PersonalizedOrb size={80} state="idle" renderer="css" disablePersonalization />
+                  <OnboardingShowcaseOrb size={80} />
                 </motion.div>
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   {authStep === 'otp' ? t('auth.enterCode') : t('auth.connectToMindOS')}
