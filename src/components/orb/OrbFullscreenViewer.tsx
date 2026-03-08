@@ -15,7 +15,12 @@ interface OrbFullscreenViewerProps {
   level?: number;
 }
 
-export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, level = 100 }: OrbFullscreenViewerProps) {
+export function OrbFullscreenViewer({ open, onClose, profile: profileProp, geometryFamily, level: levelProp }: OrbFullscreenViewerProps) {
+  const { profile: userProfile } = useOrbProfile();
+  const { level: userLevel } = useXpProgress();
+  const activeProfile = profileProp || userProfile;
+  const activeLevel = levelProp ?? userLevel;
+  const activeGeometry = geometryFamily || activeProfile.geometryFamily || 'sphere';
   const [orbSize, setOrbSize] = useState(280);
 
   useEffect(() => {
