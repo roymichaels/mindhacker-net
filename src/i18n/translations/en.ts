@@ -3475,7 +3475,7 @@ export const en: TranslationKeys = {
        growthDesc: "Growth metrics and goals",
        hypnosis: "Business Hypnosis",
        hypnosisDesc: "Business-focused sessions",
-       plan90Day: "90-Day Plan",
+       plan90Day: "100-Day Plan",
        plan90DayDesc: "Strategic roadmap",
      },
      focusLabels: {
