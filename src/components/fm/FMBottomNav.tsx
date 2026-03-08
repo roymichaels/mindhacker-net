@@ -34,7 +34,7 @@ export function FMBottomNav() {
               className={`relative flex flex-col items-center justify-center gap-0.5 px-5 py-1.5 rounded-lg transition-all min-w-[64px] ${
                 isActive
                   ? 'text-amber-700 dark:text-amber-300'
-                  : 'text-amber-500/40 dark:text-amber-200/40 hover:text-amber-600/70 dark:hover:text-amber-200/70'
+                  : 'text-amber-500/70 dark:text-amber-200/70 hover:text-amber-600 dark:hover:text-amber-200'
               }`}
             >
               <tab.icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_6px_rgba(245,158,11,0.3)]' : ''}`} />

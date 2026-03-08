@@ -94,10 +94,10 @@ export function BottomTabBar() {
           active ? colors.bg : colors.bgInactive
         )}
       >
-        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-50`)} />
+        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-80`)} />
         <span className={cn(
-          "text-[10px] font-semibold",
-          active ? colors.active : `${colors.active} opacity-50`
+          "text-[10px] font-bold",
+          active ? colors.active : `${colors.active} opacity-80`
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
         </span>
@@ -152,7 +152,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className="text-[10px] font-semibold text-violet-600 dark:text-violet-400 opacity-70">Aurora</span>
+          <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 opacity-90">Aurora</span>
         </button>
 
         {/* Path — center elevated button */}
@@ -167,11 +167,11 @@ export function BottomTabBar() {
                   : "bg-gradient-to-br from-cyan-600/15 to-teal-500/10 border-cyan-500/20 ring-cyan-500/10"
               )}
             >
-              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/60 dark:text-cyan-400/60")} />
+              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/80 dark:text-cyan-400/80")} />
             </button>
             <span className={cn(
-              "text-[10px] font-semibold",
-              isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600 dark:text-cyan-400 opacity-50"
+              "text-[10px] font-bold",
+              isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600 dark:text-cyan-400 opacity-80"
             )}>
               {isHe ? 'מסלול' : 'Path'}
             </span>
