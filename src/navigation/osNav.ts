@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { Flame, Swords, Shield, Users, Briefcase, GraduationCap, User, type LucideIcon } from 'lucide-react';
+import { Flame, Swords, Shield, Users, Briefcase, GraduationCap, User, Store, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
@@ -24,10 +24,13 @@ export interface OsTab {
   isCenter?: boolean;
 }
 
-/** The main tabs visible to every authenticated user */
+/** The main tabs visible to every authenticated user.
+ *  Order (RTL): Study | Community | Aurora(injected) | FM(center) | Path
+ *  Order (LTR): Path | FM(center) | Aurora(injected) | Community | Study
+ */
 export const OS_TABS: OsTab[] = [
-  { id: 'profile',   path: '/profile',   icon: User,           labelEn: 'Profile',   labelHe: 'פרופיל', useOrb: true },
-  { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Path',      labelHe: 'מסלול', isCenter: true },
+  { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Path',      labelHe: 'מסלול' },
+  { id: 'fm',        path: '/fm/earn',   icon: Store,          labelEn: 'FM',        labelHe: 'FM', isCenter: true },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
 ];
