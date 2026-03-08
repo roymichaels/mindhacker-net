@@ -760,7 +760,7 @@ serve(async (req) => {
     // === FETCH USER DATA FOR AI CONTEXT ===
     const allPillarIds = [...CORE_PILLAR_IDS, ...ARENA_PILLAR_IDS];
 
-    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes, launchpadRes] = await Promise.all([
+    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes, launchpadRes, identityRes, directionRes, visionsRes, userPracticesRes, existingSkillsRes] = await Promise.all([
       supabaseClient.from('profiles').select('*').eq('id', user_id).single(),
       supabaseClient.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
       supabaseClient.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
@@ -768,6 +768,14 @@ serve(async (req) => {
       supabaseClient.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
       supabaseClient.from('profiles').select('selected_pillars').eq('id', user_id).single(),
       supabaseClient.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user_id).maybeSingle(),
+      // NEW: Identity data for enriched context
+      supabaseClient.from('aurora_identity_elements').select('element_type, content').eq('user_id', user_id),
+      supabaseClient.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user_id).order('created_at', { ascending: false }).limit(1),
+      supabaseClient.from('aurora_life_visions').select('timeframe, title').eq('user_id', user_id),
+      // NEW: User practices with practice details
+      supabaseClient.from('user_practices').select('*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)').eq('user_id', user_id).eq('is_active', true),
+      // NEW: Existing skills
+      supabaseClient.from('skills').select('id, name, name_he, pillar, category').eq('user_id', user_id).eq('is_active', true),
     ]);
 
     const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
@@ -780,12 +788,47 @@ serve(async (req) => {
     const playActivities = playQuest?.play_activities as string[] | undefined;
     const allHobbies = [...new Set([...(onboardingHobbies || []), ...(playActivities || [])])];
 
+    // Build identity context for enriched prompts
+    const identityElements = identityRes.data || [];
+    const identityContext = {
+      direction: directionRes.data?.[0] || null,
+      identity: {
+        values: identityElements.filter((i: any) => i.element_type === 'value').map((i: any) => i.content),
+        principles: identityElements.filter((i: any) => i.element_type === 'principle').map((i: any) => i.content),
+        self_concepts: identityElements.filter((i: any) => i.element_type === 'self_concept').map((i: any) => i.content),
+        vision_statements: identityElements.filter((i: any) => i.element_type === 'vision_statement').map((i: any) => i.content),
+      },
+      visions: visionsRes.data || [],
+    };
+
+    // Build practices context
+    const practicesContext = (userPracticesRes.data || []).map((up: any) => {
+      const p = up.practices || {};
+      return {
+        practice_name: p.name || 'Unknown',
+        energy_phase: up.energy_phase || p.energy_type || 'day',
+        preferred_duration: up.preferred_duration || p.default_duration || 15,
+        frequency_per_week: up.frequency_per_week || 3,
+        skill_level: up.skill_level || 1,
+        is_core_practice: up.is_core_practice || false,
+        pillar: p.pillar || null,
+      };
+    });
+
+    const skillsContext = (existingSkillsRes.data || []).map((s: any) => ({
+      name: s.name, pillar: s.pillar, category: s.category, level: 1,
+      xp_total: 0,
+    }));
+
     const userContext = buildUserContext(
       profileRes.data,
       projectsRes.data || [],
       businessRes.data || [],
       memoryRes.data || [],
       allHobbies,
+      identityContext,
+      practicesContext,
+      skillsContext,
     );
     
     // Determine which pillars are "selected" by the user
