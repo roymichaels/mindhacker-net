@@ -50,7 +50,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
                 style={{
                   borderBottomColor: theme.borderColor,
-                  background: theme.headerBg,
+                  background: headerBg,
                 }}
                 data-theme-header
               >
