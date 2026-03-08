@@ -126,6 +126,7 @@ export function DailyRoadmap() {
     switch (type) {
       case 'habit': return 'border-emerald-500/50';
       case 'task': return 'border-violet-500/50';
+      case 'learning': return 'border-cyan-400/50';
       case 'milestone': return 'border-amber-500/50';
       case 'pulse': return 'border-primary/50';
     }
