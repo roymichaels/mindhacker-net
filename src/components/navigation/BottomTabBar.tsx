@@ -3,6 +3,7 @@
  * @tab Global
  * @purpose Mobile bottom navigation bar with Aurora orb center + color-coded tabs
  */
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserRoles } from '@/hooks/useUserRoles';
@@ -13,6 +14,7 @@ import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /** Per-tab color schemes */
 const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: string; ring: string }> = {
@@ -24,12 +26,14 @@ const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: strin
 
 export function BottomTabBar() {
   const { language } = useTranslation();
+  const isHe = language === 'he';
   const location = useLocation();
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
   const { profile: userOrbProfile } = useOrbProfile();
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
+  const [showBalloon, setShowBalloon] = useState(false);
 
   if (location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
@@ -41,11 +45,27 @@ export function BottomTabBar() {
   };
 
   const openAurora = () => {
+    setShowBalloon(false);
+    sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
     if (ctx) {
       ctx.setIsDockVisible(true);
       ctx.setIsChatExpanded(true);
     }
   };
+
+  const dismissBalloon = () => {
+    setShowBalloon(false);
+    sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
+  };
+
+  // Show balloon after 3s, auto-hide after 8s
+  useEffect(() => {
+    const dismissed = sessionStorage.getItem('aurora-bar-balloon-dismissed');
+    if (dismissed) return;
+    const showTimer = setTimeout(() => setShowBalloon(true), 3000);
+    const hideTimer = setTimeout(() => setShowBalloon(false), 11000);
+    return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
+  }, []);
 
   // Split tabs into left and right halves for Aurora orb center
   const leftTabs = tabs.slice(0, 2);
@@ -104,19 +124,44 @@ export function BottomTabBar() {
         {leftTabs.map(renderTab)}
 
         {/* Aurora Orb — center */}
-        <button
-          onClick={openAurora}
-          className="relative -mt-5 flex flex-col items-center gap-0.5"
-        >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-violet-500/30 bg-gradient-to-br from-violet-600/20 to-cyan-500/20 border border-violet-500/30 ring-2 ring-violet-500/20">
+        <div className="relative -mt-5 flex flex-col items-center gap-0.5">
+          {/* Balloon tooltip */}
+          <AnimatePresence>
+            {showBalloon && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={dismissBalloon}
+                className="absolute bottom-full mb-2 z-50 cursor-pointer"
+              >
+                <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
+                  <p className="text-[11px] font-semibold leading-tight">
+                    {isHe ? '👋 היי, אני אורורה!' : '👋 Hey, I\'m Aurora!'}
+                  </p>
+                  <p className="text-[10px] opacity-90 mt-0.5">
+                    {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
+                  </p>
+                  {/* Tail arrow */}
+                  <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45 rounded-sm" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={openAurora}
+            className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-violet-500/30 bg-gradient-to-br from-violet-600/20 to-cyan-500/20 border border-violet-500/30 ring-2 ring-violet-500/20"
+          >
             <StandaloneMorphOrb
               size={40}
               profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               level={100}
             />
-          </div>
-        </button>
+          </button>
+        </div>
 
         {/* Right tabs */}
         {rightTabs.map(renderTab)}
