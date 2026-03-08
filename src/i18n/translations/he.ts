@@ -2763,7 +2763,7 @@ export const he = {
     wrapDailyItem3: "מעקב הרגלים",
     wrapDailyItem4: "לוח זמנים",
     wrapLongTitle: "הטווח הארוך",
-    wrapLongItem1: "תוכנית 90 יום",
+    wrapLongItem1: "תוכנית 100 יום",
     wrapLongItem2: "מטרות ויעדים",
     wrapLongItem3: "Life Model אישי",
     wrapLongItem4: "ניתוח דפוסים",
