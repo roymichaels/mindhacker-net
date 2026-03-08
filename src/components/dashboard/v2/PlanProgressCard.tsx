@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 export function PlanProgressCard() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { user } = useAuth();
 
   // Fetch active plan and milestone
