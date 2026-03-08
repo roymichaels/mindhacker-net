@@ -267,9 +267,9 @@ ${adjustmentContext}
   ]
 }
 
-WARNING: If any block has fewer than 2 milestones in its "milestones" array, your output is INVALID. Every block must group multiple actions together. This is the most critical requirement.
+WARNING: If any block has fewer than 2 milestones/practices in its "milestones" array, your output is INVALID. Every block must group multiple actions together. This is the most critical requirement.
 
-IMPORTANT: Use the EXACT milestone IDs from the list above. Group related milestones into blocks by theme. Generate ALL 10 days.`;
+IMPORTANT: Use the EXACT milestone IDs and practice IDs from the lists above. For practice entries, set milestone_id to null and use practice_id. For milestone entries, set practice_id to null. Group related items into blocks by theme. Generate ALL 10 days.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
