@@ -27,7 +27,8 @@ export interface AuroraContext {
   // Dates & plan
   today: string;
   current_time: string;
-  current_time_israel: string;
+  current_time_local: string;
+  user_timezone: string;
   day_of_week: string;
   day_of_week_he: string;
   life_plan: {
