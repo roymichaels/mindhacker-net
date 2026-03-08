@@ -1,24 +1,26 @@
 /**
- * PlanHub — Unified Plan page (תוכנית) with 2 tabs: Strategy & Tactics.
+ * PlanHub — Unified Plan page (מסלול) with 3 tabs: Strategy, Now & Tactics.
  */
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords } from 'lucide-react';
+import { Flame, Swords, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
+const UserDashboard = lazy(() => import('./UserDashboard'));
 
-type PlanTab = 'strategy' | 'tactics';
+type PlanTab = 'strategy' | 'now' | 'tactics';
 
 export default function PlanHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const [activeTab, setActiveTab] = useState<PlanTab>('strategy');
+  const [activeTab, setActiveTab] = useState<PlanTab>('now');
 
   const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
     { id: 'strategy', labelHe: 'אסטרטגיה', labelEn: 'Strategy', icon: Flame },
+    { id: 'now', labelHe: 'עכשיו', labelEn: 'Now', icon: Zap },
     { id: 'tactics', labelHe: 'טקטיקה', labelEn: 'Tactics', icon: Swords },
   ];
 
@@ -60,7 +62,9 @@ export default function PlanHub() {
 
       {/* Tab content */}
       <Suspense fallback={null}>
-        {activeTab === 'strategy' ? <LifeHub /> : <ArenaHub />}
+        {activeTab === 'strategy' && <LifeHub />}
+        {activeTab === 'now' && <UserDashboard />}
+        {activeTab === 'tactics' && <ArenaHub />}
       </Suspense>
     </div>
   );

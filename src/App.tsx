@@ -303,8 +303,8 @@ const App = () => (
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/ai" element={<MessageThread />} />
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
-                          {/* Now (was /dashboard) */}
-                          <Route path="/now" element={<DashboardLayoutWrapper />} />
+                          {/* Now redirects to Plan (merged) */}
+                          <Route path="/now" element={<Navigate to="/plan" replace />} />
                           {/* Plan (merged Strategy + Tactics) */}
                           <Route path="/plan" element={<PlanLayoutWrapper />} />
                           {/* Profile page */}
@@ -423,10 +423,9 @@ const App = () => (
 
                         {/* Legacy redirects (no shell needed) */}
                         <Route path="/combat-community" element={<Navigate to="/community" replace />} />
-                        <Route path="/dashboard" element={<Navigate to="/now" replace />} />
-                        <Route path="/today" element={<Navigate to="/now" replace />} />
-                        <Route path="/plan" element={<Navigate to="/now" replace />} />
-                        <Route path="/me" element={<Navigate to="/now" replace />} />
+                        <Route path="/dashboard" element={<Navigate to="/plan" replace />} />
+                        <Route path="/today" element={<Navigate to="/plan" replace />} />
+                        <Route path="/me" element={<Navigate to="/plan" replace />} />
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
                         <Route path="/projects" element={<Navigate to="/plan" replace />} />
                         {/* Legacy /life redirects → /plan */}
