@@ -29,7 +29,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
   const { user } = useAuth();
   const location = useLocation();
 
-  // Also check if user already has an active plan (prevents re-onboarding)
+  // Always check if user has an active plan (prevents re-onboarding even if launchpad_complete is stale)
   const { data: hasActivePlan, isLoading: checkingPlan } = useQuery({
     queryKey: ['onboarding-gate-plan-check', user?.id],
     queryFn: async () => {
@@ -42,7 +42,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
         .maybeSingle();
       return !!data;
     },
-    enabled: !!user?.id && !isLaunchpadComplete,
+    enabled: !!user?.id,
     staleTime: 5 * 60_000,
   });
 
