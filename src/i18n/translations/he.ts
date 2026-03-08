@@ -3306,7 +3306,7 @@ export const he = {
     analysisLabel: "ניתוח:",
     identifiedChallenges: "אתגרים שזוהו",
     noAiAnalysis: "אין ניתוח AI עדיין",
-    noNinetyDayPlan: "אין תוכנית 90 יום עדיין",
+    noNinetyDayPlan: "אין תוכנית 100 יום עדיין",
     weekNumber: "שבוע",
     identityProfile: "פרופיל זהות",
     identityElements: "אלמנטי זהות",
