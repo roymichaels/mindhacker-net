@@ -20,6 +20,9 @@ interface WeeklyObjective {
   descriptionEn: string | null;
   pillar: string;
   missionTitle: string | null;
+  missionId: string | null;
+  milestoneId: string | null;
+  planId: string | null;
   executionTemplate: string | null;
   actionType: string | null;
   cadence: string | null;
@@ -212,6 +215,8 @@ Each action should be:
         xp_reward: 10,
         token_reward: 0,
         parent_id: weeklyObj?.id || null,
+        milestone_id: weeklyObj?.milestoneId || null,
+        plan_id: weeklyObj?.planId || null,
         metadata: {
           title_en: action.title_en,
           title_he: action.title_he,
@@ -222,6 +227,8 @@ Each action should be:
           is_time_based: action.is_time_based || false,
           weekly_objective_title: weeklyObj?.titleEn || weeklyObj?.title || null,
           mission_title: weeklyObj?.missionTitle || null,
+          mission_id: weeklyObj?.missionId || null,
+          milestone_id: weeklyObj?.milestoneId || null,
           generated_at: new Date().toISOString(),
         },
       };

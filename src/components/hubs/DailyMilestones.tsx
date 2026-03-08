@@ -47,6 +47,7 @@ const dotBorderMap: Record<string, string> = {
 interface DailyMilestone {
   pillarId: string;
   domain: LifeDomain;
+  traitName: string;
   missionTitle: string;
   milestoneTitle: string;
   milestoneId: string;
@@ -87,14 +88,14 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     return ids;
   }, [hub, corePlan?.id, arenaPlan?.id]);
 
-  // Fetch missions from DB
+  // Fetch missions from DB (include primary_skill_id for trait lineage)
   const { data: missions } = useQuery({
     queryKey: ['daily-missions', planIds],
     queryFn: async () => {
       if (planIds.length === 0) return [];
       const { data, error } = await supabase
         .from('plan_missions')
-        .select('id, plan_id, pillar, mission_number, title, title_en')
+        .select('id, plan_id, pillar, mission_number, title, title_en, primary_skill_id')
         .in('plan_id', planIds)
         .order('pillar')
         .order('mission_number');
@@ -103,6 +104,26 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     },
     enabled: planIds.length > 0,
     staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch traits (skills) for lineage display
+  const traitIds = useMemo(() => {
+    return [...new Set((missions || []).map(m => m.primary_skill_id).filter(Boolean))] as string[];
+  }, [missions]);
+  
+  const { data: traits } = useQuery({
+    queryKey: ['daily-traits', traitIds],
+    queryFn: async () => {
+      if (traitIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('skills')
+        .select('id, name, name_he')
+        .in('id', traitIds);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: traitIds.length > 0,
+    staleTime: 10 * 60 * 1000,
   });
 
   // Fetch milestones from DB
@@ -164,10 +185,16 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
 
       // Find which mission this milestone belongs to
       const parentMission = pillarMissions.find(m => m.id === target.mission_id);
+      
+      // Find trait name via mission's primary_skill_id
+      const traitSkillId = parentMission?.primary_skill_id;
+      const trait = traitSkillId ? (traits || []).find(t => t.id === traitSkillId) : null;
+      const traitName = trait ? (isHe ? (trait.name_he || trait.name) : trait.name) : '';
 
       results.push({
         pillarId: domain.id,
         domain,
+        traitName,
         missionTitle: isHe ? (parentMission?.title || '') : (parentMission?.title_en || parentMission?.title || ''),
         milestoneTitle: isHe ? (target.title || '') : (target.title_en || target.title || ''),
         milestoneId: target.id,
@@ -184,6 +211,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         results.unshift({
           pillarId: 'consciousness-hypnosis',
           domain: consciousnessDomain,
+          traitName: '',
           missionTitle: isHe ? 'טרנספורמציה יומית' : 'Daily Transformation',
           milestoneTitle: isHe ? '🧠 היפנוזה יומית — סשן תודעה מותאם אישית' : '🧠 Daily Hypnosis — Personalized Session',
           milestoneId: 'hypnosis',
@@ -195,7 +223,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     }
 
     return results;
-  }, [missions, milestones, allDomains, corePlan, arenaPlan, isHe, hub]);
+  }, [missions, milestones, traits, allDomains, corePlan, arenaPlan, isHe, hub]);
 
   const handleExecute = (dm: DailyMilestone) => {
     if (dm.pillarId === 'consciousness-hypnosis') {
@@ -508,10 +536,18 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                   dm.isCompleted && 'opacity-50'
                 )}
               >
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <span className={cn('text-[10px] font-bold uppercase tracking-wider', domainColorMap[dm.domain.color])}>
                     {isHe ? dm.domain.labelHe : dm.domain.labelEn}
                   </span>
+                  {dm.traitName && (
+                    <>
+                      <span className="text-[9px] text-muted-foreground/30">›</span>
+                      <span className="text-[9px] text-muted-foreground/60 font-medium truncate max-w-[100px]">
+                        {dm.traitName}
+                      </span>
+                    </>
+                  )}
                   <span className="text-[9px] text-muted-foreground/40 font-medium">
                     {dm.milestoneIndex}/{dm.totalMilestones}
                   </span>
@@ -527,7 +563,9 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                 )}>
                   {dm.milestoneTitle}
                 </p>
-                <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{dm.missionTitle}</p>
+                <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">
+                  {dm.missionTitle && <><span className="opacity-40">↳</span> {dm.missionTitle}</>}
+                </p>
               </button>
 
               {/* Execute arrow */}
