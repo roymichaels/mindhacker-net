@@ -344,6 +344,9 @@ export async function buildContext(
   const habits = habitsRes.data || [];
   const milestones = milestonesRes.data || [];
   const parentTasks = parentTasksRes.data || [];
+  const todayCompleted = todayCompletedRes.data || [];
+  const recentlyCompleted = recentlyCompletedRes.data || [];
+  const upcomingTasks = upcomingTasksRes.data || [];
   const userPracticesData = userPracticesRes.data || [];
   const activeSkillsData = (activeSkillsRes as any)?.data || [];
 
