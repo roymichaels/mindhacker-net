@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFlowSpec } from '@/lib/flow/flowSpec';
 import { FlowRenderer } from '@/components/flow/FlowRenderer';
 import { toast } from 'sonner';
