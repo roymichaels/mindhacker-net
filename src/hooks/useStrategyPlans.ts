@@ -1,5 +1,5 @@
 /**
- * useStrategyPlans — hook for managing 90-day strategy plans.
+ * useStrategyPlans — hook for managing 100-day strategy plans.
  * Reads active Core + Arena strategies and provides generation trigger.
  * Includes self-healing: detects incomplete orchestration and auto-fixes.
  */
