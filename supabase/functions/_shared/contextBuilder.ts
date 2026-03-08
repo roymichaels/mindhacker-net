@@ -319,6 +319,8 @@ export async function buildContext(
   const habits = habitsRes.data || [];
   const milestones = milestonesRes.data || [];
   const parentTasks = parentTasksRes.data || [];
+  const userPracticesData = userPracticesRes.data || [];
+  const activeSkillsData = (activeSkillsRes as any)?.data || [];
 
   // Pulse data
   const pulseToday = pulseTodayRes.data;
