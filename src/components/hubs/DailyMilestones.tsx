@@ -87,14 +87,14 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     return ids;
   }, [hub, corePlan?.id, arenaPlan?.id]);
 
-  // Fetch missions from DB
+  // Fetch missions from DB (include primary_skill_id for trait lineage)
   const { data: missions } = useQuery({
     queryKey: ['daily-missions', planIds],
     queryFn: async () => {
       if (planIds.length === 0) return [];
       const { data, error } = await supabase
         .from('plan_missions')
-        .select('id, plan_id, pillar, mission_number, title, title_en')
+        .select('id, plan_id, pillar, mission_number, title, title_en, primary_skill_id')
         .in('plan_id', planIds)
         .order('pillar')
         .order('mission_number');
@@ -103,6 +103,26 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     },
     enabled: planIds.length > 0,
     staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch traits (skills) for lineage display
+  const traitIds = useMemo(() => {
+    return [...new Set((missions || []).map(m => m.primary_skill_id).filter(Boolean))] as string[];
+  }, [missions]);
+  
+  const { data: traits } = useQuery({
+    queryKey: ['daily-traits', traitIds],
+    queryFn: async () => {
+      if (traitIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('skills')
+        .select('id, name, name_he')
+        .in('id', traitIds);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: traitIds.length > 0,
+    staleTime: 10 * 60 * 1000,
   });
 
   // Fetch milestones from DB
