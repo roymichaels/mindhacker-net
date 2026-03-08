@@ -51,6 +51,7 @@ export const extractCommandTags = (message: string): AuroraCommand[] => {
 
 export const useAuroraCommands = () => {
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { setTheme, theme } = useTheme();
 
   // Navigation commands
