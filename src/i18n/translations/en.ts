@@ -2832,7 +2832,7 @@ export const en: TranslationKeys = {
     phaseFoundationFeature3: "Unlock first hypnosis sessions",
     
     phaseDeepWorkTitle: "Deep Work",
-    phaseDeepWorkDesc: "Activate your 90-day plan with daily missions, habit tracking, and weekly insights from Aurora.",
+    phaseDeepWorkDesc: "Activate your 100-day plan with daily missions, habit tracking, and weekly insights from Aurora.",
     phaseDeepWorkFeature1: "Daily missions across 8 life pillars",
     phaseDeepWorkFeature2: "XP accumulation & level progression",
     phaseDeepWorkFeature3: "Weekly pattern recognition & insights",
