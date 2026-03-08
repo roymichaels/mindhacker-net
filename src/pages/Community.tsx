@@ -137,9 +137,9 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           </div>
 
-          {/* ── ALL VIEW: Pillar Cards Grid ── */}
+          {/* ── ALL VIEW: Pillar Cards Grid (mobile only, sidebar handles desktop) ── */}
           {isAll && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 lg:hidden">
               {LIFE_DOMAINS.map((d) => {
                 const Icon = d.icon;
                 const count = pillarCounts?.[d.id] || 0;
@@ -168,6 +168,18 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                   </button>
                 );
               })}
+            </div>
+          )}
+
+          {/* ── Desktop: show feed directly when 'all' is selected ── */}
+          {isAll && (
+            <div className="hidden lg:block">
+              <ThreadList
+                pillarFilter="all"
+                topicFilter={null}
+                mode={feedMode}
+                onProfileClick={setProfileUserId}
+              />
             </div>
           )}
 
