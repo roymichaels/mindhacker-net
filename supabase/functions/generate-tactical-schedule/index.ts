@@ -28,8 +28,8 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
 
-    // Parallel fetches
-    const [profileRes, milestonesRes, missionsRes, planRes] = await Promise.all([
+    // Parallel fetches — now includes practices, skills, identity
+    const [profileRes, milestonesRes, missionsRes, planRes, userPracticesRes, identityRes, directionRes] = await Promise.all([
       supabase.from("profiles").select("full_name, wake_time, sleep_time, focus_peak_start, focus_peak_end").eq("id", user_id).single(),
       supabase.from("life_plan_milestones")
         .select("id, title, title_en, description, description_en, focus_area, week_number, mission_id, is_completed, difficulty")
@@ -40,11 +40,19 @@ serve(async (req) => {
         .select("id, title, title_en, pillar")
         .eq("plan_id", plan_id),
       supabase.from("life_plans").select("start_date").eq("id", plan_id).single(),
+      // NEW: User practices with practice library details
+      supabase.from("user_practices").select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)").eq("user_id", user_id).eq("is_active", true),
+      // NEW: Identity elements
+      supabase.from("aurora_identity_elements").select("element_type, content").eq("user_id", user_id),
+      supabase.from("aurora_life_direction").select("content, clarity_score").eq("user_id", user_id).order("created_at", { ascending: false }).limit(1),
     ]);
 
     const profile = profileRes.data;
     const milestones = milestonesRes.data || [];
     const missions = missionsRes.data || [];
+    const userPractices = userPracticesRes.data || [];
+    const identityElements = identityRes.data || [];
+    const direction = directionRes.data?.[0];
 
     if (milestones.length === 0) throw new Error("No milestones found for this phase");
 
