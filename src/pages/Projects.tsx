@@ -24,6 +24,7 @@ interface ProjectsProps {
 const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { projects, isLoading } = useProjects();
   const { canAccessProjects } = useSubscriptionGate();
   const { isLaunchpadComplete } = useLaunchpadProgress();
