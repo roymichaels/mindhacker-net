@@ -22,6 +22,7 @@ export type Database = {
           due_at: string | null
           ego_state: string | null
           end_time: string | null
+          energy_phase: string | null
           generated_payload: Json | null
           id: string
           is_fallback: boolean | null
@@ -54,6 +55,7 @@ export type Database = {
           due_at?: string | null
           ego_state?: string | null
           end_time?: string | null
+          energy_phase?: string | null
           generated_payload?: Json | null
           id?: string
           is_fallback?: boolean | null
@@ -86,6 +88,7 @@ export type Database = {
           due_at?: string | null
           ego_state?: string | null
           end_time?: string | null
+          energy_phase?: string | null
           generated_payload?: Json | null
           id?: string
           is_fallback?: boolean | null
@@ -5777,6 +5780,65 @@ export type Database = {
           },
         ]
       }
+      mission_templates: {
+        Row: {
+          base_practice_id: string | null
+          created_at: string
+          difficulty_level: number
+          energy_phase: string
+          estimated_time: number
+          id: string
+          instructions: string | null
+          instructions_he: string | null
+          is_active: boolean
+          metadata: Json | null
+          pillar: string | null
+          title: string
+          title_he: string | null
+          type: string
+        }
+        Insert: {
+          base_practice_id?: string | null
+          created_at?: string
+          difficulty_level?: number
+          energy_phase?: string
+          estimated_time?: number
+          id?: string
+          instructions?: string | null
+          instructions_he?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          pillar?: string | null
+          title: string
+          title_he?: string | null
+          type?: string
+        }
+        Update: {
+          base_practice_id?: string | null
+          created_at?: string
+          difficulty_level?: number
+          energy_phase?: string
+          estimated_time?: number
+          id?: string
+          instructions?: string | null
+          instructions_he?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          pillar?: string | null
+          title?: string
+          title_he?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_templates_base_practice_id_fkey"
+            columns: ["base_practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_campaigns: {
         Row: {
           content_html_en: string | null
@@ -6266,6 +6328,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      practices: {
+        Row: {
+          category: string
+          created_at: string
+          default_duration: number
+          difficulty_level: number
+          energy_type: string
+          id: string
+          instructions: string | null
+          instructions_he: string | null
+          is_active: boolean
+          metadata: Json | null
+          name: string
+          name_he: string | null
+          pillar: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          default_duration?: number
+          difficulty_level?: number
+          energy_type?: string
+          id?: string
+          instructions?: string | null
+          instructions_he?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          name: string
+          name_he?: string | null
+          pillar?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_duration?: number
+          difficulty_level?: number
+          energy_type?: string
+          id?: string
+          instructions?: string | null
+          instructions_he?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          name?: string
+          name_he?: string | null
+          pillar?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       practitioner_availability: {
         Row: {
@@ -8185,6 +8301,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_practices: {
+        Row: {
+          created_at: string
+          energy_phase: string
+          frequency_per_week: number
+          id: string
+          is_active: boolean
+          is_core_practice: boolean
+          practice_id: string
+          preferred_duration: number
+          skill_level: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          energy_phase?: string
+          frequency_per_week?: number
+          id?: string
+          is_active?: boolean
+          is_core_practice?: boolean
+          practice_id: string
+          preferred_duration?: number
+          skill_level?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          energy_phase?: string
+          frequency_per_week?: number
+          id?: string
+          is_active?: boolean
+          is_core_practice?: boolean
+          practice_id?: string
+          preferred_duration?: number
+          skill_level?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_practices_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_progress: {
         Row: {
