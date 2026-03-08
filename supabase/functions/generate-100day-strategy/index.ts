@@ -788,6 +788,145 @@ serve(async (req) => {
     const playActivities = playQuest?.play_activities as string[] | undefined;
     const allHobbies = [...new Set([...(onboardingHobbies || []), ...(playActivities || [])])];
 
+    // ═══════════════════════════════════════════════════════════════
+    // AUTO-POPULATE user_practices from selected pillars if empty
+    // This bridges the gap: users select pillars + assessment data
+    // but nothing was writing to user_practices, so generators got
+    // empty arrays and never included Tai Chi, Qigong, etc.
+    // ═══════════════════════════════════════════════════════════════
+    let userPracticesData = userPracticesRes.data || [];
+    if (userPracticesData.length === 0) {
+      console.log('[practices-bridge] No user_practices found — auto-populating from selected pillars + onboarding');
+      
+      // Fetch all practices from library
+      const { data: allPractices } = await supabaseClient
+        .from('practices')
+        .select('id, name, name_he, category, pillar, difficulty_level, default_duration, energy_type');
+      
+      if (allPractices && allPractices.length > 0) {
+        // Determine which pillars user selected
+        const userPillars = selected_pillars
+          ? [...(selected_pillars.core || []), ...(selected_pillars.arena || [])]
+          : [];
+        const profilePillars = profileSelectedRes.data?.selected_pillars as Record<string, string[]> | null;
+        const allUserPillars = new Set([
+          ...userPillars,
+          ...(profilePillars?.core || []),
+          ...(profilePillars?.arena || []),
+        ]);
+        
+        // Extract exercise types from onboarding
+        const exerciseTypes: string[] = launchpadProfile.exercise_types || [];
+        
+        // Map onboarding exercise keywords to practice library entries
+        const EXERCISE_TO_PRACTICE: Record<string, string[]> = {
+          'gym': ['Calisthenics', 'Sprint Training'],
+          'yoga': ['Yoga'],
+          'pilates': ['Yoga', 'Mobility Work'],
+          'running': ['Sprint Training'],
+          'martial-arts': ['Combat Training'],
+          'boxing': ['Combat Training'],
+          'swimming': ['Sprint Training'],
+          'power-walking': ['Walking Meditation'],
+          'calisthenics': ['Calisthenics'],
+          'crossfit': ['Calisthenics', 'Sprint Training'],
+          'dance': ['Mobility Work'],
+          'hiking': ['Walking Meditation'],
+        };
+        
+        // Core practices: always include pillar-relevant practices
+        const practiceRows: Array<{
+          user_id: string;
+          practice_id: string;
+          is_active: boolean;
+          is_core_practice: boolean;
+          energy_phase: string;
+          preferred_duration: number;
+          frequency_per_week: number;
+          skill_level: number;
+        }> = [];
+        
+        const addedPracticeIds = new Set<string>();
+        
+        // 1) Add practices matching user's selected pillars
+        for (const practice of allPractices) {
+          if (allUserPillars.has(practice.pillar)) {
+            if (addedPracticeIds.has(practice.id)) continue;
+            addedPracticeIds.add(practice.id);
+            practiceRows.push({
+              user_id,
+              practice_id: practice.id,
+              is_active: true,
+              is_core_practice: true,
+              energy_phase: practice.energy_type || 'day',
+              preferred_duration: practice.default_duration || 15,
+              frequency_per_week: practice.category === 'training' ? 5 : 7,
+              skill_level: 1,
+            });
+          }
+        }
+        
+        // 2) Add practices matching onboarding exercise types
+        for (const exerciseType of exerciseTypes) {
+          const practiceNames = EXERCISE_TO_PRACTICE[exerciseType] || [];
+          for (const pName of practiceNames) {
+            const practice = allPractices.find(p => p.name === pName);
+            if (practice && !addedPracticeIds.has(practice.id)) {
+              addedPracticeIds.add(practice.id);
+              practiceRows.push({
+                user_id,
+                practice_id: practice.id,
+                is_active: true,
+                is_core_practice: false,
+                energy_phase: practice.energy_type || 'day',
+                preferred_duration: practice.default_duration || 15,
+                frequency_per_week: 3,
+                skill_level: 1,
+              });
+            }
+          }
+        }
+        
+        // 3) Always include fundamentals: Sun Exposure, Breathwork if vitality/focus selected
+        const fundamentals = ['Sun Exposure', 'Breathwork', 'Evening Reflection'];
+        for (const fName of fundamentals) {
+          const practice = allPractices.find(p => p.name === fName);
+          if (practice && !addedPracticeIds.has(practice.id)) {
+            addedPracticeIds.add(practice.id);
+            practiceRows.push({
+              user_id,
+              practice_id: practice.id,
+              is_active: true,
+              is_core_practice: false,
+              energy_phase: practice.energy_type || 'morning',
+              preferred_duration: practice.default_duration || 10,
+              frequency_per_week: 7,
+              skill_level: 1,
+            });
+          }
+        }
+        
+        if (practiceRows.length > 0) {
+          const { error: insertErr } = await supabaseClient
+            .from('user_practices')
+            .upsert(practiceRows, { onConflict: 'user_id,practice_id', ignoreDuplicates: true });
+          
+          if (insertErr) {
+            console.error('[practices-bridge] Insert error:', insertErr.message);
+          } else {
+            console.log(`[practices-bridge] Auto-populated ${practiceRows.length} practices for user`);
+            // Re-fetch with joined data
+            const { data: refreshed } = await supabaseClient
+              .from('user_practices')
+              .select('*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)')
+              .eq('user_id', user_id)
+              .eq('is_active', true);
+            userPracticesData = refreshed || [];
+          }
+        }
+      }
+    }
+
     // Build identity context for enriched prompts
     const identityElements = identityRes.data || [];
     const identityContext = {
@@ -802,7 +941,7 @@ serve(async (req) => {
     };
 
     // Build practices context
-    const practicesContext = (userPracticesRes.data || []).map((up: any) => {
+    const practicesContext = userPracticesData.map((up: any) => {
       const p = up.practices || {};
       return {
         practice_name: p.name || 'Unknown',
