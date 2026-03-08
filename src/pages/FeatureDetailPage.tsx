@@ -3,6 +3,7 @@
  * Route: /features/:slug
  */
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { FEATURES } from '@/data/featureShowcaseData';
 import { FEATURE_DETAILS } from '@/data/featureDetailData';
 import { useTranslation } from '@/hooks/useTranslation';
