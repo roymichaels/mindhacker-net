@@ -157,7 +157,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               className="px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
               <Sparkles className="w-4 h-4" />
-              {isHe ? 'עבור לאסטרטגיה' : 'Go to Strategy'}
+              {isHe ? 'עבור לתוכנית' : 'Go to Plan'}
             </motion.button>
           </div>
         ) : isLoading ? (
