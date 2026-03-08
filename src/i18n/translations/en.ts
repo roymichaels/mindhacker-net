@@ -2731,7 +2731,7 @@ export const en: TranslationKeys = {
     coachingFeature5: "Available 24 hours, every day",
     
     // Life Plan / Transformation Journey
-    lifePlanTitle: "90-Day Plan for a New Life",
+    lifePlanTitle: "100-Day Plan for a New Life",
     lifePlanSubtitle: "9 steps in Transformation Journey → Complete personal plan",
     transformationJourney: "Transformation Journey",
     editTransformationJourney: "Edit Transformation Journey",
