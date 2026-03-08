@@ -3529,7 +3529,7 @@ export const he = {
        growthDesc: "מדדי צמיחה ויעדים",
        hypnosis: "היפנוזה עסקית",
        hypnosisDesc: "סשנים ממוקדי עסקים",
-       plan90Day: "תוכנית 90 יום",
+       plan90Day: "תוכנית 100 יום",
        plan90DayDesc: "מפת דרכים אסטרטגית",
      },
      focusLabels: {
