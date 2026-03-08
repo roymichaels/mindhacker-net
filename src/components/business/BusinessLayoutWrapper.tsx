@@ -8,6 +8,7 @@ import { useSidebars } from '@/hooks/useSidebars';
 
 const Business = lazy(() => import('@/pages/Business'));
 const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
+const BusinessJourney = lazy(() => import('@/pages/BusinessJourney'));
 
 export function BusinessIndexWrapper() {
   useSidebars(null, null, []);
@@ -31,8 +32,6 @@ export function BusinessDashboardWrapper() {
 
 export function BusinessJourneyWrapper() {
   useSidebars(null, null, []);
-
-  const BusinessJourney = lazy(() => import('@/pages/BusinessJourney'));
 
   return (
     <Suspense fallback={<PageSkeleton />}>
