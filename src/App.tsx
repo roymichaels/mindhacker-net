@@ -307,6 +307,8 @@ const App = () => (
                           <Route path="/now" element={<DashboardLayoutWrapper />} />
                           {/* Plan (merged Strategy + Tactics) */}
                           <Route path="/plan" element={<PlanLayoutWrapper />} />
+                          {/* Profile page */}
+                          <Route path="/profile" element={<ProfilePage />} />
                           {/* Strategy sub-routes for pillar assessments */}
                           <Route path="/strategy" element={<Navigate to="/plan" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
