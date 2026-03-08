@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
-import { Wallet, Store, HelpCircle } from 'lucide-react';
+import { Wallet, HelpCircle } from 'lucide-react';
 import { FMWalletModal } from '@/components/fm/FMWalletModal';
 import { UserDocsModal } from '@/components/modals/UserDocsModal';
 
