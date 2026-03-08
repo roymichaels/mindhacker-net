@@ -501,7 +501,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 // ═══════════════════════════════════════════════
 // TRAITS TAB — NFT-style trait gallery grid
 // ═══════════════════════════════════════════════
-function TraitsTab({ isHe }: { isHe: boolean }) {
+export function TraitsTab({ isHe }: { isHe: boolean }) {
   const { data: traits, isLoading } = useTraitGallery();
   const [selectedTraitId, setSelectedTraitId] = useState<string | null>(null);
 
