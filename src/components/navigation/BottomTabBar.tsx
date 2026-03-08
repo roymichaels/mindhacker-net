@@ -1,7 +1,7 @@
 /**
  * @module navigation/BottomTabBar
  * @tab Global
- * @purpose Mobile bottom navigation bar with Aurora orb center + color-coded tabs
+ * @purpose Mobile bottom navigation bar with FM center orb + Aurora between FM & Path
  */
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -15,11 +15,12 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Store } from 'lucide-react';
 
 /** Per-tab color schemes */
 const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: string; ring: string }> = {
-  profile:   { active: 'text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',     bgInactive: 'bg-amber-500/5 border-amber-500/15',   ring: 'ring-amber-400/40' },
   plan:      { active: 'text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30',       bgInactive: 'bg-cyan-500/5 border-cyan-500/15',     ring: 'ring-cyan-400/40' },
+  fm:        { active: 'text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',     bgInactive: 'bg-amber-500/5 border-amber-500/15',   ring: 'ring-amber-400/40' },
   community: { active: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30', bgInactive: 'bg-emerald-500/5 border-emerald-500/15', ring: 'ring-emerald-400/40' },
   study:     { active: 'text-violet-400',  bg: 'bg-violet-500/15 border-violet-500/30',   bgInactive: 'bg-violet-500/5 border-violet-500/15', ring: 'ring-violet-400/40' },
 };
@@ -46,10 +47,11 @@ export function BottomTabBar() {
 
   if (location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
-  const tabs = loading ? [] : getVisibleTabs({ hasRole });
+  const allTabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isActive = (path: string) => {
     if (path === '/plan') return location.pathname === '/plan' || location.pathname === '/now' || location.pathname === '/dashboard';
+    if (path === '/fm/earn') return location.pathname.startsWith('/fm');
     return location.pathname.startsWith(path);
   };
 
@@ -67,12 +69,16 @@ export function BottomTabBar() {
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
   };
 
+  // Separate FM (center) from regular tabs
+  const fmTab = allTabs.find(t => t.id === 'fm');
+  const regularTabs = allTabs.filter(t => t.id !== 'fm');
 
-  // Split tabs into left and right halves for Aurora orb center
-  const leftTabs = tabs.slice(0, 2);
-  const rightTabs = tabs.slice(2);
+  // Layout order (LTR): Plan | Aurora | FM(center) | Community | Study
+  // In RTL this reverses visually
+  const leftTabs = regularTabs.slice(0, 1); // Plan
+  const rightTabs = regularTabs.slice(1);   // Community, Study
 
-  const renderTab = (tab: typeof tabs[0]) => {
+  const renderTab = (tab: typeof allTabs[0]) => {
     const active = isActive(tab.path);
     const Icon = tab.icon;
     const isComingSoon = 'comingSoon' in tab && tab.comingSoon;
@@ -88,21 +94,7 @@ export function BottomTabBar() {
           active ? colors.bg : colors.bgInactive
         )}
       >
-        {tab.useOrb ? (
-          <div className={cn(
-            "w-6 h-6 rounded-full overflow-hidden transition-all",
-            active && `ring-2 ${colors.ring}`
-          )}>
-            <StandaloneMorphOrb
-              size={24}
-              profile={userOrbProfile}
-              geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
-              level={xp.level}
-            />
-          </div>
-        ) : (
-          <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-50`)} />
-        )}
+        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-50`)} />
         <span className={cn(
           "text-[10px] font-semibold",
           active ? colors.active : `${colors.active} opacity-50`
@@ -121,12 +113,11 @@ export function BottomTabBar() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg md:hidden">
       <div className="flex items-center justify-around h-16 px-2">
-        {/* Left tabs */}
+        {/* Left: Path */}
         {leftTabs.map(renderTab)}
 
-        {/* Aurora Orb — center */}
-        <div className="relative -mt-5 flex flex-col items-center gap-0.5">
-          {/* Balloon tooltip */}
+        {/* Aurora orb — between Path and FM */}
+        <div className="relative flex flex-col items-center gap-0.5">
           <AnimatePresence>
             {showBalloon && (
               <motion.div
@@ -144,7 +135,6 @@ export function BottomTabBar() {
                   <p className="text-[10px] opacity-90 mt-0.5">
                     {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
                   </p>
-                  {/* Tail arrow */}
                   <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45 rounded-sm" />
                 </div>
               </motion.div>
@@ -153,18 +143,42 @@ export function BottomTabBar() {
 
           <button
             onClick={openAurora}
-            className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-violet-500/30 bg-gradient-to-br from-violet-600/20 to-cyan-500/20 border border-violet-500/30 ring-2 ring-violet-500/20"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-600/20 to-cyan-500/20 border border-violet-500/30"
           >
             <StandaloneMorphOrb
-              size={40}
+              size={32}
               profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               level={100}
             />
           </button>
+          <span className="text-[10px] font-semibold text-violet-400 opacity-70">Aurora</span>
         </div>
 
-        {/* Right tabs */}
+        {/* FM — center elevated button */}
+        {fmTab && (
+          <div className="relative -mt-5 flex flex-col items-center gap-0.5">
+            <button
+              onClick={() => navigate(fmTab.path)}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 border ring-2",
+                isActive(fmTab.path)
+                  ? "bg-gradient-to-br from-amber-500/30 to-orange-500/20 border-amber-500/40 ring-amber-400/30"
+                  : "bg-gradient-to-br from-amber-600/15 to-orange-500/10 border-amber-500/20 ring-amber-500/10"
+              )}
+            >
+              <Store className={cn("h-5 w-5", isActive(fmTab.path) ? "text-amber-400" : "text-amber-400/60")} />
+            </button>
+            <span className={cn(
+              "text-[10px] font-semibold",
+              isActive(fmTab.path) ? "text-amber-400" : "text-amber-400 opacity-50"
+            )}>
+              FM
+            </span>
+          </div>
+        )}
+
+        {/* Right: Community, Study */}
         {rightTabs.map(renderTab)}
       </div>
     </nav>
