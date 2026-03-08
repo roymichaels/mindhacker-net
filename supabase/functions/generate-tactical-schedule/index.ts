@@ -136,12 +136,34 @@ serve(async (req) => {
       ? `\n## DAILY ADJUSTMENT (Day ${adjust_day}):\nAdjust day ${adjust_day} based on completed items.\nExisting: ${JSON.stringify(existingSchedule.schedule_data).substring(0, 2000)}\n`
       : "";
 
-    // Build practices context for prompt
-    const practicesBlock = userPractices.length > 0
-      ? `\n## USER'S ACTIVE PRACTICES (from practice library — USE THESE):\n${userPractices.map((up: any) => {
-          const p = up.practices || {};
-          return `- ${p.name || 'Unknown'} [${up.energy_phase || p.energy_type || 'day'}] ${up.preferred_duration || p.default_duration || 15}min, ${up.frequency_per_week || 3}x/week, ${up.is_core_practice ? 'CORE' : 'optional'} (pillar: ${p.pillar || 'general'})`;
-        }).join('\n')}\n\nCRITICAL: Include the user's ACTUAL practices in the schedule blocks.\nMorning practices go in Morning blocks. Training practices go in Training blocks.\nDo NOT invent generic "breathing" or "meditation" if the user has specific practices listed above.\n`
+    // Build practices as SCHEDULABLE items alongside milestones
+    const practiceItems = userPractices.map((up: any, idx: number) => {
+      const p = up.practices || {};
+      return {
+        practice_id: up.practice_id || `practice_${idx}`,
+        name: p.name || 'Unknown',
+        name_he: p.name_he || p.name || '',
+        pillar: p.pillar || 'general',
+        energy_type: up.energy_phase || p.energy_type || 'day',
+        duration: up.preferred_duration || p.default_duration || 15,
+        frequency: up.frequency_per_week || 3,
+        is_core: up.is_core_practice || false,
+        category: p.category || 'health',
+        difficulty: p.difficulty_level || 2,
+      };
+    });
+
+    const practicesBlock = practiceItems.length > 0
+      ? `\n## USER'S COMMITTED PRACTICES (MUST be scheduled — these are the user's real daily rituals):
+${practiceItems.map((p: any, i: number) => `P${i + 1}. [PRACTICE_ID: ${p.practice_id}] [${p.pillar}] "${p.name}" (HE: "${p.name_he}") — ${p.duration}min, ${p.frequency}x/week, energy: ${p.energy_type}, ${p.is_core ? 'CORE (must appear daily)' : 'optional'}, category: ${p.category}`).join('\n')}
+
+CRITICAL RULES FOR PRACTICES:
+- CORE practices MUST appear in EVERY day's schedule.
+- Non-core practices should appear ${Math.min(practiceItems.length, 3)}-${Math.min(practiceItems.length * 2, 6)} times across 10 days based on frequency.
+- Place practices in their matching energy_type block: "morning" → Morning Activation, "training" → Training Block, "evening" → Evening Review, "day" → Focused Productivity.
+- Use practice_id (not milestone_id) for practice entries. Set milestone_id to null for practices.
+- Use the EXACT practice names — do NOT invent generic alternatives like "breathing exercise" or "meditation".
+- Practices and milestones COEXIST in the same blocks. A Morning block might have 1 practice + 1 milestone.\n`
       : '';
 
     // Build identity context
