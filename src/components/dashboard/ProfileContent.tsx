@@ -31,6 +31,7 @@ interface ProfileContentProps {
 
 export function ProfileContent({ onClose }: ProfileContentProps) {
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
