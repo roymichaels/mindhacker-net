@@ -24,9 +24,9 @@ export interface OsTab {
 
 /** The main tabs visible to every authenticated user */
 export const OS_TABS: OsTab[] = [
-  { id: 'dashboard', path: '/now', icon: LayoutDashboard, labelEn: 'Now', labelHe: 'עכשיו' },
   { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Plan',      labelHe: 'תוכנית' },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
+  { id: 'dashboard', path: '/now',       icon: LayoutDashboard, labelEn: 'Now',       labelHe: 'עכשיו', isCenter: true },
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
   { id: 'profile',   path: '/profile',   icon: User,           labelEn: 'Profile',   labelHe: 'פרופיל', useOrb: true },
 ];
