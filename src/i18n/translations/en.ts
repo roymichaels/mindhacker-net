@@ -3252,7 +3252,7 @@ export const en: TranslationKeys = {
     analysisLabel: "Analysis:",
     identifiedChallenges: "Identified Challenges",
     noAiAnalysis: "No AI analysis yet",
-    noNinetyDayPlan: "No 90-day plan yet",
+    noNinetyDayPlan: "No 100-day plan yet",
     weekNumber: "Week",
     identityProfile: "Identity Profile",
     identityElements: "Identity Elements",
