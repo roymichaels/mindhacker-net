@@ -167,7 +167,7 @@ export function AuroraDockOrb({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       aria-label="Close Aurora dock"
     >
-      <AuroraHoloOrb size={36} glow="full" />
+      <StandaloneMorphOrb size={36} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
     </motion.button>
   );
 }
