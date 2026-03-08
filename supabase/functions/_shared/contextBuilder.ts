@@ -680,7 +680,6 @@ export async function buildContext(
 
 function createEmptyContext(today: string): AuroraContext {
   const now = new Date();
-  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
   return {
@@ -689,9 +688,10 @@ function createEmptyContext(today: string): AuroraContext {
     profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
     today,
     current_time: now.toISOString().slice(11, 16),
-    current_time_israel: israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-    day_of_week: dayNames[israelTime.getDay()],
-    day_of_week_he: dayNamesHe[israelTime.getDay()],
+    current_time_local: now.toISOString().slice(11, 16),
+    user_timezone: "UTC",
+    day_of_week: dayNames[now.getUTCDay()],
+    day_of_week_he: dayNamesHe[now.getUTCDay()],
     life_plan: null,
     action_items: { overdue_tasks: [], today_tasks: [], today_completed: [], upcoming_tasks: [], recently_completed: [], habits: [], milestones: [], open_checklists: [] },
     habits_status: { completed: 0, total: 0 },
