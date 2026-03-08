@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { OrbNFTCard } from '@/components/gamification/OrbNFTCard';
+import { AchievementGallery } from '@/components/gamification/AchievementGallery';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { PracticesModal } from '@/components/modals/PracticesModal';
@@ -60,6 +61,11 @@ export default function ProfilePage() {
               <span className="text-xs font-bold text-amber-400">{isHe ? 'תרגולים' : 'Practices'}</span>
             </motion.button>
           </div>
+        </div>
+
+        {/* ═══════ ACHIEVEMENT COLLECTION ═══════ */}
+        <div className="px-4 mt-5 max-w-sm mx-auto w-full">
+          <AchievementGallery />
         </div>
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
