@@ -11,7 +11,7 @@ import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
 import { StrategyPillarWizard } from '@/components/strategy/StrategyPillarWizard';
 import { useQueryClient } from '@tanstack/react-query';
-import { type NowQueueItem } from '@/hooks/useNowEngine';
+import { type NowQueueItem } from '@/types/planning';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type TacticalBlock, type BlockCategory, type Difficulty } from '@/hooks/useWeeklyTacticalPlan';

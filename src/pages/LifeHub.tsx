@@ -311,7 +311,7 @@ export default function LifeHub() {
 
   const handlePlanGenerated = () => {
     queryClient.invalidateQueries({ queryKey: ['life-plan'] });
-    queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+    queryClient.invalidateQueries({ queryKey: ['daily-queue'] });
     queryClient.invalidateQueries({ queryKey: ['all-active-plans'] });
     queryClient.invalidateQueries({ queryKey: ['strategy-missions'] });
     queryClient.invalidateQueries({ queryKey: ['strategy-traits'] });

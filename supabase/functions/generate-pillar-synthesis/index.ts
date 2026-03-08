@@ -259,11 +259,11 @@ Deno.serve(async (req) => {
 
     if (summaryError) throw summaryError;
 
-    // Plan creation is handled by generate-90day-strategy (the SSOT for plans).
+    // Plan creation is handled by generate-100day-strategy (the SSOT for plans).
     // Trigger it with force_regenerate to create a fresh plan from all domain data.
-    console.log('[pillar-synthesis] Triggering generate-90day-strategy with force_regenerate...');
+    console.log('[pillar-synthesis] Triggering generate-100day-strategy with force_regenerate...');
     try {
-      const strategyUrl = `${supabaseUrl}/functions/v1/generate-90day-strategy`;
+      const strategyUrl = `${supabaseUrl}/functions/v1/generate-100day-strategy`;
       await fetch(strategyUrl, {
         method: 'POST',
         headers: {

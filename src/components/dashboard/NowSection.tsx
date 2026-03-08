@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution, type ScheduleSlot } from '@/hooks/useTodayExecution';
-import { type NowQueueItem } from '@/hooks/useNowEngine';
+import { type NowQueueItem } from '@/types/planning';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';

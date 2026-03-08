@@ -119,7 +119,7 @@ export function AddItemWizard({ open, onOpenChange, hub }: AddItemWizardProps) {
       toast.success(isHe ? 'נוסף בהצלחה! התוכנית תעודכן.' : 'Added successfully! Plan will update.');
 
       // Trigger plan recalculation in background
-      supabase.functions.invoke('generate-90day-strategy', {
+      supabase.functions.invoke('generate-100day-strategy', {
         body: { userId: user!.id, recalculate: true },
       }).catch(err => console.warn('Plan recalc triggered:', err));
 

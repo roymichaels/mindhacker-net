@@ -1,86 +1,138 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/hooks/useTranslation';
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * useNowEngine — Layer 5: Live Execution Engine.
+ * 
+ * PURPOSE: Guides the user step-by-step through the CURRENT action.
+ * Does NOT decide what the user does — that's the Daily Queue's job.
+ * 
+ * Responsibilities:
+ * - Focus mode management (which action is active)
+ * - Step-by-step execution tracking
+ * - Action completion / skip
+ * - Progress tracking within a single action
+ * 
+ * Pipeline position:
+ * Identity → Strategy → Phase → Weekly Plan → Daily Queue → **NOW EXECUTION**
+ */
+import { useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleActionStatus } from '@/services/actionItems';
+import type { NowQueueItem, ExecutionStep, ExecutionTemplate } from '@/types/planning';
 
-export interface ExecutionStep {
-  label: string;
-  detail?: string;
-  durationSec: number;
+// Re-export types for backward compatibility
+export type { NowQueueItem, ExecutionStep, ExecutionTemplate };
+
+// ── Execution State ──
+export interface NowExecutionState {
+  /** The action currently being executed */
+  activeAction: NowQueueItem | null;
+  /** Current step index within the action */
+  currentStepIndex: number;
+  /** Whether focus/execution mode is active */
+  isFocusMode: boolean;
+  /** Timer state for timed steps */
+  elapsedSec: number;
+  /** Whether the execution is paused */
+  isPaused: boolean;
 }
 
-export type ExecutionTemplate = 'tts_guided' | 'video_embed' | 'sets_reps_timer' | 'step_by_step' | 'timer_focus' | 'social_checklist';
-
-export interface NowQueueItem {
-  pillarId: string;
-  hub: 'core' | 'arena';
-  actionType: string;
-  title: string;
-  titleEn: string;
-  durationMin: number;
-  isTimeBased?: boolean;
-  urgencyScore: number;
-  reason: string;
-  sourceType: 'milestone' | 'mini_milestone' | 'habit' | 'overdue' | 'template' | 'plan' | 'assessment';
-  sourceId?: string;
-  // Lineage: trace back to strategy
-  missionId?: string;
-  missionTitle?: string;
-  milestoneId?: string;
-  milestoneTitle?: string;
-  traitName?: string;
-  executionSteps?: ExecutionStep[];
-  executionTemplate?: ExecutionTemplate;
-}
-
-export interface NowEngineData {
-  today_queue: NowQueueItem[];
-  generated_at: string;
-  tier: string;
-  max_actions: number;
-  energy_level: number | null;
-  day_intensity?: string;
-  has_core_strategy?: boolean;
-  has_arena_strategy?: boolean;
-  core_week?: number | null;
-  arena_week?: number | null;
-}
-
+/**
+ * useNowEngine — Live execution layer.
+ * Call this to manage real-time step-by-step execution of a single action.
+ */
 export function useNowEngine() {
-  const { user } = useAuth();
-  const { language } = useTranslation();
-
-  const query = useQuery<NowEngineData>({
-    queryKey: ['now-engine', user?.id, language],
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('generate-today-queue', {
-        body: { user_id: user!.id, language },
-      });
-      if (error) throw error;
-      return data as NowEngineData;
-    },
-    enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000, // 5 min cache
-    refetchOnWindowFocus: false,
+  const [state, setState] = useState<NowExecutionState>({
+    activeAction: null,
+    currentStepIndex: 0,
+    isFocusMode: false,
+    elapsedSec: 0,
+    isPaused: false,
   });
 
+  /** Enter focus mode for a specific action */
+  const startExecution = useCallback((action: NowQueueItem) => {
+    setState({
+      activeAction: action,
+      currentStepIndex: 0,
+      isFocusMode: true,
+      elapsedSec: 0,
+      isPaused: false,
+    });
+  }, []);
+
+  /** Advance to the next step within the current action */
+  const nextStep = useCallback(() => {
+    setState(prev => {
+      const steps = prev.activeAction?.executionSteps || [];
+      if (prev.currentStepIndex < steps.length - 1) {
+        return { ...prev, currentStepIndex: prev.currentStepIndex + 1, elapsedSec: 0 };
+      }
+      return prev;
+    });
+  }, []);
+
+  /** Go back to previous step */
+  const prevStep = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      currentStepIndex: Math.max(0, prev.currentStepIndex - 1),
+      elapsedSec: 0,
+    }));
+  }, []);
+
+  /** Toggle pause state */
+  const togglePause = useCallback(() => {
+    setState(prev => ({ ...prev, isPaused: !prev.isPaused }));
+  }, []);
+
+  /** Exit focus mode */
+  const exitExecution = useCallback(() => {
+    setState({
+      activeAction: null,
+      currentStepIndex: 0,
+      isFocusMode: false,
+      elapsedSec: 0,
+      isPaused: false,
+    });
+  }, []);
+
+  /** Update elapsed time (called by timer interval) */
+  const tick = useCallback(() => {
+    setState(prev => {
+      if (prev.isPaused || !prev.isFocusMode) return prev;
+      return { ...prev, elapsedSec: prev.elapsedSec + 1 };
+    });
+  }, []);
+
+  // Derived state
+  const currentStep = state.activeAction?.executionSteps?.[state.currentStepIndex] || null;
+  const totalSteps = state.activeAction?.executionSteps?.length || 0;
+  const isLastStep = state.currentStepIndex >= totalSteps - 1;
+  const progressPercent = totalSteps > 0
+    ? Math.round(((state.currentStepIndex + 1) / totalSteps) * 100)
+    : 0;
+
   return {
-    queue: query.data?.today_queue || [],
-    nextAction: query.data?.today_queue?.[0] || null,
-    tier: query.data?.tier || 'clarity',
-    maxActions: query.data?.max_actions || 3,
-    energyLevel: query.data?.energy_level,
-    dayIntensity: query.data?.day_intensity || 'medium',
-    hasCoreStrategy: query.data?.has_core_strategy || false,
-    hasArenaStrategy: query.data?.has_arena_strategy || false,
-    coreWeek: query.data?.core_week || null,
-    arenaWeek: query.data?.arena_week || null,
-    isLoading: query.isLoading,
-    refetch: query.refetch,
+    // State
+    ...state,
+    currentStep,
+    totalSteps,
+    isLastStep,
+    progressPercent,
+
+    // Actions
+    startExecution,
+    nextStep,
+    prevStep,
+    togglePause,
+    exitExecution,
+    tick,
   };
 }
 
+/**
+ * useCompleteNowAction — Marks an action as done/undone.
+ * Shared between Daily Queue and Now Execution layers.
+ */
 export function useCompleteNowAction() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -88,8 +140,10 @@ export function useCompleteNowAction() {
       return toggleActionStatus(actionId, done);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-queue'] });
+      queryClient.invalidateQueries({ queryKey: ['completed-today'] });
       queryClient.invalidateQueries({ queryKey: ['action-items'] });
+      queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
     },
   });
 }

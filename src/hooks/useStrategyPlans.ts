@@ -152,7 +152,7 @@ export function useStrategyPlans() {
       selectedPillars?: { core: string[]; arena: string[] };
       singlePillar?: string;
     }) => {
-      const { data, error } = await supabase.functions.invoke('generate-90day-strategy', {
+      const { data, error } = await supabase.functions.invoke('generate-100day-strategy', {
         body: {
           user_id: user!.id,
           hub: hub || 'both',

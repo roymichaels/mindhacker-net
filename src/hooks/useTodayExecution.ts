@@ -1,11 +1,17 @@
 /**
- * useTodayExecution — Central hook for the Dynamic Execution Engine.
- * NOW derives all daily actions from the Tactical Schedule (useWeeklyTacticalPlan).
+ * useTodayExecution — Layer 4: Daily Queue Generator.
+ * 
+ * PURPOSE: Single Source of Truth for "what does the user do today?"
+ * Derives all daily actions from the Weekly Tactical Plan (Layer 3).
+ * 
+ * Pipeline position:
+ * Identity → Strategy → Phase → Weekly Plan → **DAILY QUEUE** → Now Execution
  * 
  * Core rules:
- * - No separate "generate-today-queue" calls — everything comes from Tactics
- * - Converts TacticalAction[] → NowQueueItem[] for UI compatibility
+ * - Everything comes from useWeeklyTacticalPlan (Layer 3)
+ * - Converts TacticalAction[] → NowQueueItem[] for UI and execution
  * - Movement Score tracks daily compliance
+ * - No direct AI calls — planning is upstream
  */
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
-import type { NowQueueItem, ExecutionTemplate } from '@/hooks/useNowEngine';
+import type { NowQueueItem, ExecutionTemplate } from '@/types/planning';
 
 export type TimeBlock = 'morning' | 'midday' | 'evening' | 'deepwork' | 'training' | 'recovery' | 'admin' | 'social' | 'play';
 

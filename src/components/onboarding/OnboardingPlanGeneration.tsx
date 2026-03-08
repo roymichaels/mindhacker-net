@@ -1,6 +1,6 @@
 /**
  * OnboardingPlanGeneration — Shows animated analysis screen while generating the 100-day plan.
- * Calls generate-90day-strategy edge function, then completes onboarding.
+ * Calls generate-100day-strategy edge function, then completes onboarding.
  */
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -134,7 +134,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       
       // Both run concurrently — strategy creates the plan, launchpad-summary creates identity data
       const [strategyResult] = await Promise.allSettled([
-        supabase.functions.invoke('generate-90day-strategy', {
+        supabase.functions.invoke('generate-100day-strategy', {
           body: { 
             user_id: user.id, 
             hub: 'both',

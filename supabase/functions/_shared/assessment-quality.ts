@@ -1,7 +1,7 @@
 /**
  * Assessment Quality Contract — shared validator for all pillar assessments.
  * Determines if a domain's assessment data is complete enough for plan generation.
- * Used by generate-90day-strategy, generate-phase-actions, and frontend preflight.
+ * Used by generate-100day-strategy, generate-phase-actions, and frontend preflight.
  */
 
 interface MissingQuestion {

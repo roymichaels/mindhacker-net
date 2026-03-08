@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Clock, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { NowQueueItem } from '@/hooks/useNowEngine';
+import { NowQueueItem } from '@/types/planning';
 import { getDomainById, CORE_DOMAINS, ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useMemo } from 'react';
 
