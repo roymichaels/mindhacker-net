@@ -30,7 +30,8 @@ import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { useTraitGallery, PILLAR_COLORS, type TraitCard } from '@/hooks/useTraitGallery';
 import { useTraitDetail } from '@/hooks/useTraitDetail';
 import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, ChevronLeft, Sparkles } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, ChevronLeft, Sparkles, Dumbbell } from 'lucide-react';
+import { PracticesModal } from './PracticesModal';
 
 interface CharacterProfileModalProps {
   open: boolean;
@@ -61,6 +62,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   const tokens = useEnergy();
   const { profile } = useOrbProfile();
   const [traitsOpen, setTraitsOpen] = useState(false);
+  const [practicesOpen, setPracticesOpen] = useState(false);
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
 
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
@@ -98,6 +100,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 
   return (<>
     <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
+    <PracticesModal open={practicesOpen} onOpenChange={setPracticesOpen} />
     {createPortal(
     <div
       role="dialog"
@@ -173,13 +176,20 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
               <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-400">
                 <Flame className="h-3 w-3" /> {streak.streak}{streak.isActiveToday ? ' ✓' : ''}
               </span>
-              <button
-                onClick={() => setTraitsOpen(true)}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
-              >
-                <Sparkles className="w-3 h-3" />
-                {isHe ? 'תכונות' : 'Traits'}
-              </button>
+                <button
+                  onClick={() => setTraitsOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  {isHe ? 'תכונות' : 'Traits'}
+                </button>
+                <button
+                  onClick={() => setPracticesOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  <Dumbbell className="w-3 h-3" />
+                  {isHe ? 'תרגולים' : 'Practices'}
+                </button>
             </div>
           </div>
         </div>
