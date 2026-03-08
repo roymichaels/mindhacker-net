@@ -127,14 +127,24 @@ export default function ProfilePage() {
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
         <div className="px-4">
-          <CharacterProfileContent
-            isHe={isHe}
-            language={language}
-            dashboard={dashboard}
-            isOwner={true}
-            traitsOpen={traitsOpen}
-            setTraitsOpen={setTraitsOpen}
-          />
+          {traitsOpen ? (
+            <div className="relative">
+              <button
+                onClick={() => setTraitsOpen(false)}
+                className="mb-4 text-sm text-muted-foreground hover:text-foreground"
+              >
+                ← {isHe ? 'חזרה' : 'Back'}
+              </button>
+              <TraitsTab isHe={isHe} />
+            </div>
+          ) : (
+            <ProfileTab
+              isHe={isHe}
+              language={language}
+              dashboard={dashboard}
+              isOwner={true}
+            />
+          )}
         </div>
       </div>
     </>
