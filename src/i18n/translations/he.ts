@@ -2984,9 +2984,9 @@ export const he = {
     // FreeJourneyBannerSection
     freeJourney: {
       title: '🚀 מסע הטרנספורמציה האישי שלך',
-      subtitle: 'ניתוח תודעה מבוסס AI, תוכנית 90 יום ופרופיל זהות מותאם אישית',
+      subtitle: 'ניתוח תודעה מבוסס AI, תוכנית 100 יום ופרופיל זהות מותאם אישית',
       aiAnalysis: 'ניתוח AI',
-      plan90: 'תוכנית 90 יום',
+      plan90: 'תוכנית 100 יום',
       pdfDownload: 'PDF להורדה',
       cta: 'התחל עכשיו',
     },
