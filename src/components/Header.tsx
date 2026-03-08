@@ -20,7 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ChevronDown, FileText } from "lucide-react";
+import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ChevronDown, FileText, BookOpen } from "lucide-react";
 import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
