@@ -1,12 +1,14 @@
 /**
  * FMTopNav — MapleStory FM-inspired top navigation.
  * Warm merchant golds, fantasy shop signboard feel.
+ * Uses same AppNameDropdown as the main app for the FM brand area.
  */
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Target, Briefcase, ArrowLeft, Store, ShoppingBag } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
+import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,       labelEn: 'Earn',   labelHe: 'הרוויח' },
@@ -38,16 +40,9 @@ export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="flex h-12 sm:h-16 items-center justify-between px-2 sm:px-4 lg:px-6 max-w-screen-2xl mx-auto">
-        {/* Left: FM brand + tabs */}
+        {/* Left: AppNameDropdown (same as main app) + FM tabs */}
         <div className="flex items-center gap-2 sm:gap-6">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
-            </div>
-            <span className="text-sm sm:text-base font-black text-amber-700 dark:text-amber-300 tracking-tight">
-              {isHe ? 'פרי-מארקט' : 'Free Market'}
-            </span>
-          </div>
+          <AppNameDropdown compact onOpenSettings={onOpenSettings} />
 
           <nav className="hidden sm:flex items-center gap-0.5 sm:gap-1">
             {FM_TABS.map((tab) => {
