@@ -5262,7 +5262,7 @@ export const he = {
       statusAnalyzed: '✓ נותח',
       statusNotSetUp: 'לא הוגדר',
       startConfiguration: 'התחל הגדרה',
-      configDescription: '7 שאלות ממוקדות כדי לבנות תוכנית 90 יום מותאמת אישית לתחום הזה.',
+      configDescription: '7 שאלות ממוקדות כדי לבנות תוכנית 100 יום מותאמת אישית לתחום הזה.',
       domainConfiguration: 'הגדרות תחום',
       noDataYet: 'אין נתונים עדיין',
       reconfigure: 'הגדר מחדש',
