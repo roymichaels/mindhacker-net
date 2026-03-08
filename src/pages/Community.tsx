@@ -109,7 +109,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               {!isAll && (
                 <button
                   onClick={() => { onPillarSelect?.('all'); onSelectTopic?.(null); }}
-                  className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+                  className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0 lg:hidden"
                 >
                   <ChevronLeft className={cn("h-5 w-5", isHe && "rotate-180")} />
                 </button>
