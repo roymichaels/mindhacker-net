@@ -119,8 +119,18 @@ function QuarterBlockRow({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <PillarBadge pillarId={action.pillarId} hub={action.hub} />
+                      {action.missionTitle && (
+                        <span className="text-[9px] text-muted-foreground/60 truncate max-w-[120px]">
+                          {action.missionTitle}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs font-semibold text-foreground line-clamp-1">{action.title}</p>
+                    {action.milestoneTitle && action.milestoneTitle !== action.title && (
+                      <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1 flex items-center gap-1">
+                        <span className="opacity-40">↳</span> {action.milestoneTitle}
+                      </p>
+                    )}
                   </div>
                   {action.isTimeBased && (
                     <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
