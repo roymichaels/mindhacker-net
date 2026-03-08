@@ -229,9 +229,12 @@ export async function buildContext(
     pulseWeekRes,
     recalibRes,
     crossConvRes,
-    // NEW: life domains + launchpad for biological profile
+    // Life domains + launchpad for biological profile
     lifeDomainsRes,
     launchpadProfileRes,
+    // NEW: Practices, skills, schedule
+    userPracticesRes,
+    activeSkillsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -280,6 +283,17 @@ export async function buildContext(
     supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
     // Launchpad profile (biological baseline from onboarding)
     supabase.from("launchpad_progress").select("step_2_profile_data, step_3_lifestyle_data").eq("user_id", userId).maybeSingle(),
+    // NEW: User practices with practice library join
+    supabase.from("user_practices").select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions, instructions_he)").eq("user_id", userId).eq("is_active", true),
+    // NEW: Active skills with progress
+    (async () => {
+      const { data: skills } = await supabase.from("skills").select("id, name, name_he, pillar, category, is_active").eq("user_id", userId).eq("is_active", true);
+      if (!skills || skills.length === 0) return { data: [], error: null };
+      const skillIds = skills.map((s: any) => s.id);
+      const { data: progress } = await supabase.from("user_skill_progress").select("skill_id, xp_total, level").in("skill_id", skillIds);
+      const progressMap = new Map((progress || []).map((p: any) => [p.skill_id, p]));
+      return { data: skills.map((s: any) => ({ ...s, ...progressMap.get(s.id) })), error: null };
+    })(),
   ]);
 
   const profile = profileRes.data;
