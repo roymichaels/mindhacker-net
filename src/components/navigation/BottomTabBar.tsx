@@ -15,6 +15,7 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Flame } from 'lucide-react';
 import { Store } from 'lucide-react';
 
 /** Per-tab color schemes */
