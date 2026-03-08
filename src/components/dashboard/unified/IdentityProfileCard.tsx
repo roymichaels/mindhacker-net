@@ -39,6 +39,7 @@ export function IdentityProfileCard({
 }: IdentityProfileCardProps) {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { user } = useAuth();
   const [isRegenerating, setIsRegenerating] = useState(false);
 
