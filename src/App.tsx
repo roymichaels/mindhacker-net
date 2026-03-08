@@ -508,6 +508,7 @@ const App = () => (
                       <SubscriptionsModal />
                       
                     </Suspense>
+                    </SmartOnboardingProvider>
                   </AnalyticsProvider>
                    </FlowAuditProvider>
                 </BrowserRouter>
