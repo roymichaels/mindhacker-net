@@ -4,7 +4,7 @@
  * Phase 2: Signup/Login (skipped if already authenticated)
  * Phase 3: Name, Gender, Age bracket collection
  */
-import { useState, useCallback, useEffect, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +24,22 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
+/** Simple error boundary for WebGL orb */
+class ErrorBoundaryOrb extends React.Component<
+  { children: React.ReactNode; fallbackSize: number; onError: () => void },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch() { this.props.onError(); }
+  render() {
+    if (this.state.hasError) {
+      return <CSSOrb size={this.props.fallbackSize} state="breathing" profile={DEFAULT_ORB_PROFILE} />;
+    }
+    return this.props.children;
+  }
+}
+
 function OnboardingShowcaseOrb({ size }: { size: number }) {
   const profile = useOrbPresetMorph({ startIndex: 0 });
   const [hasError, setHasError] = useState(false);
@@ -38,9 +54,6 @@ function OnboardingShowcaseOrb({ size }: { size: number }) {
     </ErrorBoundaryOrb>
   );
 }
-
-/** Simple error boundary for WebGL orb */
-import React from 'react';
 
 class ErrorBoundaryOrb extends React.Component<
   { children: React.ReactNode; fallbackSize: number; onError: () => void },
