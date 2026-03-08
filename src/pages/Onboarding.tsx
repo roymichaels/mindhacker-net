@@ -48,7 +48,7 @@ const Onboarding = () => {
   }
 
   if (hasActivePlan) {
-    return <Navigate to="/now" replace />;
+    return <Navigate to="/plan" replace />;
   }
 
   return (
