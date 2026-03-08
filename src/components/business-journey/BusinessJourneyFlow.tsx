@@ -16,7 +16,7 @@ import { FinancialStep } from './steps/FinancialStep';
 import { MarketingStep } from './steps/MarketingStep';
 import { OperationsStep } from './steps/OperationsStep';
 import { ActionPlanStep } from './steps/ActionPlanStep';
-import JourneyChatDock from '@/components/aurora/JourneyChatDock';
+
 
 interface BusinessJourneyFlowProps {
   className?: string;
@@ -235,8 +235,6 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
         </div>
       </div>
 
-      {/* Aurora Chat Dock */}
-      <JourneyChatDock />
     </div>
   );
 }
