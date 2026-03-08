@@ -3281,7 +3281,7 @@ export const he = {
     tokens: "טוקנים",
     overview: "סקירה",
     analysis: "ניתוח AI",
-    plan: "תוכנית 90 יום",
+    plan: "תוכנית 100 יום",
     identity: "זהות",
     tasks: "משימות",
     patterns: "דפוסים",
