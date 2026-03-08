@@ -46,7 +46,7 @@ export function BottomTabBar() {
     return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
   }, []);
 
-  if (location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
+  if (location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
   const allTabs = loading ? [] : getVisibleTabs({ hasRole });
 
