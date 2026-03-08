@@ -24,6 +24,7 @@ export default function FeatureDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
 
   const featureIdx = FEATURES.findIndex(f => f.slug === slug);
   const feature = FEATURES[featureIdx];
