@@ -73,8 +73,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
-const Business = lazy(() => import("./pages/Business"));
-import { BusinessIndexWrapper, BusinessDashboardWrapper } from './components/business/BusinessLayoutWrapper';
+import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
 import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
@@ -88,8 +87,6 @@ const Freelancer = lazy(() => import("./pages/Freelancer"));
 const Creator = lazy(() => import("./pages/Creator"));
 import FreelancerLayoutWrapper from "./components/freelancer/FreelancerLayoutWrapper";
 import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
-const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
-const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
@@ -403,8 +400,8 @@ const App = () => (
                           <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
                           {/* Business */}
                           <Route path="/business" element={<BusinessIndexWrapper />} />
-                          <Route path="/business/journey" element={<BusinessJourney />} />
-                          <Route path="/business/journey/:journeyId" element={<BusinessJourney />} />
+                          <Route path="/business/journey" element={<BusinessJourneyWrapper />} />
+                          <Route path="/business/journey/:journeyId" element={<BusinessJourneyWrapper />} />
                           <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
                           {/* Freelancer */}
                           <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
