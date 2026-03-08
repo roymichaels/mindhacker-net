@@ -137,12 +137,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                   )}>
                     {displayName}
                   </span>
-                  {currentJob?.jobs && (
+                  {dashboard.identityTitle && (
                     <span className={cn(
                       "text-muted-foreground truncate max-w-[120px]",
                       compact ? "text-[10px]" : "text-xs"
                     )}>
-                      {language === 'he' ? (currentJob.jobs.name_he || currentJob.jobs.name) : currentJob.jobs.name}
+                      {dashboard.identityTitle.title}
                     </span>
                   )}
                 </div>
