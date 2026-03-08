@@ -433,7 +433,8 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     return { phaseDates: dates, phaseStart: start, phaseEnd: end };
   }, [planStartDate, currentPhase]);
 
-  const todayStr = useMemo(() => toDateStr(new Date()), []);
+  // Recompute on every render — toDateStr is trivial and must reflect current local date
+  const todayStr = toDateStr(new Date());
 
   const { data: aiSchedule, isLoading: scheduleLoading } = useQuery({
     queryKey: ['tactical-schedule', planId, currentPhase],

@@ -81,10 +81,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, [plan?.start_date]);
 
+  // No empty-deps memo — must reflect current local date (not stale after midnight)
   const todayStr = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }, []);
+  }, [new Date().toDateString()]);
 
   const questName = useMemo(() => getQuestName(todayStr, isHe ? 'he' : 'en'), [todayStr, isHe]);
 
