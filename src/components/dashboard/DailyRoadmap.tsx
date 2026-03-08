@@ -10,11 +10,11 @@ import { useDailyPulse } from '@/hooks/useDailyPulse';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Sparkles, ListChecks, MapPin, Activity, Check, ChevronDown } from 'lucide-react';
+import { Sparkles, ListChecks, MapPin, Activity, Check, ChevronDown, BookOpen } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { AnimatePresence, motion } from 'framer-motion';
 
-type RoadmapItemType = 'pulse' | 'habit' | 'task' | 'milestone';
+type RoadmapItemType = 'pulse' | 'habit' | 'task' | 'milestone' | 'learning';
 
 interface RoadmapItem {
   id: string;
@@ -44,13 +44,13 @@ export function DailyRoadmap() {
       if (!user?.id) return [];
       const { data } = await supabase
         .from('action_items')
-        .select('id, title, status, due_at, completed_at')
+        .select('id, title, status, due_at, completed_at, source, metadata')
         .eq('user_id', user.id)
         .eq('type', 'task')
         .neq('status', 'archived')
         .or(`due_at.is.null,due_at.lte.${todayEnd}`)
         .order('order_index', { ascending: true })
-        .limit(10);
+        .limit(15);
       // Filter out tasks completed before today (unless they're not done)
       return (data || [])
         .filter(t => {
@@ -58,7 +58,12 @@ export function DailyRoadmap() {
           if (!t.completed_at) return true;
           return t.completed_at.slice(0, 10) === todayStr;
         })
-        .map(t => ({ id: t.id, title: t.title, done: t.status === 'done' }));
+        .map(t => ({ 
+          id: t.id, 
+          title: t.title, 
+          done: t.status === 'done',
+          isLearning: t.source === 'learn' || (t.metadata as any)?.is_learning_task === true,
+        }));
     },
     enabled: !!user?.id,
   });
@@ -78,9 +83,10 @@ export function DailyRoadmap() {
     items.push({ id: h.id, title: h.title, type: 'habit', done: h.isCompleted, toggleable: true });
   });
 
-  // Tasks
+  // Tasks (regular + learning)
   taskItems.forEach(t => {
-    items.push({ id: t.id, title: t.title, type: 'task', done: t.done, toggleable: true });
+    const itemType: RoadmapItemType = t.isLearning ? 'learning' : 'task';
+    items.push({ id: t.id, title: t.title, type: itemType, done: t.done, toggleable: true });
   });
 
   // Milestone section removed — TodayEngine handles this
@@ -95,7 +101,7 @@ export function DailyRoadmap() {
     if (!item.toggleable) return;
     if (item.type === 'habit') {
       toggleHabit(item.id, !item.done);
-    } else if (item.type === 'task') {
+    } else if (item.type === 'task' || item.type === 'learning') {
       const newDone = !item.done;
       await supabase.from('action_items').update({
         status: newDone ? 'done' : 'todo',
@@ -109,6 +115,7 @@ export function DailyRoadmap() {
     switch (type) {
       case 'habit': return <Sparkles className="w-3.5 h-3.5 text-emerald-500" />;
       case 'task': return <ListChecks className="w-3.5 h-3.5 text-violet-500" />;
+      case 'learning': return <BookOpen className="w-3.5 h-3.5 text-cyan-400" />;
       case 'milestone': return <MapPin className="w-3.5 h-3.5 text-amber-500" />;
       case 'pulse': return <Activity className="w-3.5 h-3.5 text-primary" />;
     }
@@ -119,6 +126,7 @@ export function DailyRoadmap() {
     switch (type) {
       case 'habit': return 'border-emerald-500/50';
       case 'task': return 'border-violet-500/50';
+      case 'learning': return 'border-cyan-400/50';
       case 'milestone': return 'border-amber-500/50';
       case 'pulse': return 'border-primary/50';
     }

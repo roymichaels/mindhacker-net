@@ -5016,15 +5016,18 @@ export type Database = {
           category: string | null
           completed_lessons: number | null
           completed_modules: number | null
+          course_priority: string
           created_at: string
           curriculum_data: Json | null
           description: string | null
           difficulty_progression: string[] | null
           estimated_days: number | null
+          generated_by: string
           id: string
           pillar: string | null
           plan_id: string | null
           progress_percentage: number | null
+          skill_id: string | null
           skill_mappings: string[] | null
           status: string
           title: string
@@ -5040,15 +5043,18 @@ export type Database = {
           category?: string | null
           completed_lessons?: number | null
           completed_modules?: number | null
+          course_priority?: string
           created_at?: string
           curriculum_data?: Json | null
           description?: string | null
           difficulty_progression?: string[] | null
           estimated_days?: number | null
+          generated_by?: string
           id?: string
           pillar?: string | null
           plan_id?: string | null
           progress_percentage?: number | null
+          skill_id?: string | null
           skill_mappings?: string[] | null
           status?: string
           title: string
@@ -5064,15 +5070,18 @@ export type Database = {
           category?: string | null
           completed_lessons?: number | null
           completed_modules?: number | null
+          course_priority?: string
           created_at?: string
           curriculum_data?: Json | null
           description?: string | null
           difficulty_progression?: string[] | null
           estimated_days?: number | null
+          generated_by?: string
           id?: string
           pillar?: string | null
           plan_id?: string | null
           progress_percentage?: number | null
+          skill_id?: string | null
           skill_mappings?: string[] | null
           status?: string
           title?: string
@@ -5090,6 +5099,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_curricula_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
           {
