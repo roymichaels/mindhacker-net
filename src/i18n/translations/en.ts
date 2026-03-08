@@ -5300,7 +5300,7 @@ export const en: TranslationKeys = {
       whatsToday: "📋 What's on my plate today?",
       whatsTodayPrompt: "What do I have today? Give me a summary of tasks and habits",
       progressCheck: '📊 How am I progressing?',
-      progressCheckPrompt: 'How am I progressing in my 90-day plan? Give me an overview',
+      progressCheckPrompt: 'How am I progressing in my 100-day plan? Give me an overview',
       feelingStuck: "🤔 I'm feeling stuck...",
       feelingStuckPrompt: "I'm feeling a bit stuck today, let's talk about it",
       overdueTasks: '⚠️ {count} overdue tasks - let\'s handle them!',
