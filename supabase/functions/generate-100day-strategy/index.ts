@@ -1050,7 +1050,26 @@ serve(async (req) => {
             const pid = result.status === 'fulfilled' ? result.value.pillarId : 'unknown';
             console.error(`  [${pid}] Generation failed, using fallback`);
             
-            // Insert fallback missions (3 missions for the pillar)
+            // === FALLBACK TRAIT LINKAGE ===
+            // Find or create a fallback skill/trait so missions are never orphaned
+            let fallbackSkillId: string | null = null;
+            const { data: existingSkill } = await supabaseClient.from('skills')
+              .select('id').eq('user_id', user_id).eq('pillar', pid).eq('is_active', true).limit(1).single();
+            if (existingSkill) {
+              fallbackSkillId = existingSkill.id;
+            } else {
+              // Create a lightweight fallback trait for this pillar
+              const capitalizedPid = pid.charAt(0).toUpperCase() + pid.slice(1);
+              const { data: newSkill } = await supabaseClient.from('skills').insert({
+                user_id, life_plan_id: plan.id, pillar: pid,
+                name: `${capitalizedPid} Mastery`, name_he: `שליטה ב${pid}`,
+                category: 'trait', is_active: true, current_level: 1, xp_total: 0,
+              }).select('id').single();
+              fallbackSkillId = newSkill?.id || null;
+              if (fallbackSkillId) console.log(`  [${pid}] Created fallback skill: ${fallbackSkillId}`);
+            }
+
+            // Insert fallback missions (3 missions for the pillar) WITH trait linkage
             const fb = _g(pid, "Transform " + pid, "טרנספורמציה " + pid, "Master " + pid, "שליטה ב" + pid, "Scale " + pid, "הרחבת " + pid);
             for (let mi = 0; mi < fb.allMissions.length; mi++) {
               const mission = fb.allMissions[mi];
@@ -1058,6 +1077,7 @@ serve(async (req) => {
                 plan_id: plan.id, pillar: pid, mission_number: mi + 1,
                 title: mission.mission_he, title_en: mission.mission_en,
                 description: mission.mission_he, description_en: mission.mission_en, xp_reward: 50,
+                primary_skill_id: fallbackSkillId, // LINEAGE: always link to trait
               }).select('id').single();
               if (!missionRow) continue;
               totalMissions++;
