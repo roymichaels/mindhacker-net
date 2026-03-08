@@ -3234,7 +3234,7 @@ export const en: TranslationKeys = {
     journeyStatus: "Journey Status",
     questionnaireComplete: "Questionnaire Complete",
     currentStep: "Current Step",
-    ninetyDayPlan: "90-Day Plan",
+    ninetyDayPlan: "100-Day Plan",
     milestones: "Milestones",
     tasksTitle: "Tasks",
     checklists: "Checklists",
