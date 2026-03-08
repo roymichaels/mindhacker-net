@@ -348,7 +348,7 @@ function StatWheel({ isHe }: { isHe: boolean }) {
 // ═══════════════════════════════════════════════
 // PROFILE TAB — Empire-style categorized sections
 // ═══════════════════════════════════════════════
-function ProfileTab({ isHe, language, dashboard, isOwner }: {
+export function ProfileTab({ isHe, language, dashboard, isOwner }: {
   isHe: boolean; language: string;
   dashboard: ReturnType<typeof useUnifiedDashboard>;
   isOwner: boolean;
