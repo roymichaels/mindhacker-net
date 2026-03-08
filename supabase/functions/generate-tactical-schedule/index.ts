@@ -262,15 +262,29 @@ IMPORTANT: Use the EXACT milestone IDs from the list above. Group related milest
       throw new Error("AI returned no schedule days");
     }
 
-    // Validate milestone IDs and clean up blocks
+    // Validate milestone IDs, add stable block_id, and enrich with mission lineage
     const validIds = new Set(milestones.map(m => m.id));
+    let blockCounter = 0;
     for (const day of parsed.days) {
       if (!day.blocks) day.blocks = [];
       for (const block of day.blocks) {
+        // Add stable block_id for traceability: daily action → tactical block
+        block.block_id = `phase${phase_number}_d${day.day_number}_b${blockCounter++}`;
+        
         if (!block.milestones) block.milestones = [];
         block.milestones = block.milestones.map((m: any, idx: number) => {
           if (m.milestone_id && !validIds.has(m.milestone_id)) {
             m.milestone_id = null;
+          }
+          // Enrich each milestone with mission lineage from upstream data
+          if (m.milestone_id) {
+            const sourceMilestone = milestones.find(ms => ms.id === m.milestone_id);
+            if (sourceMilestone?.mission_id) {
+              const mission = missionMap[sourceMilestone.mission_id];
+              m.mission_id = sourceMilestone.mission_id;
+              m.mission_title = mission?.titleEn || mission?.title || '';
+              m.pillar = mission?.pillar || m.focus_area || '';
+            }
           }
           m.order_index = idx;
           return m;

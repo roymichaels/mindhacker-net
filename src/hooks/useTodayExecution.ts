@@ -83,6 +83,8 @@ function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQu
     reason: '',
     sourceType: 'milestone',
     sourceId: action.sourceMilestoneId || action.id,
+    missionId: action.missionId || (action as any).missionId || undefined,
+    missionTitle: (action as any).missionTitle || undefined,
     milestoneId: action.sourceMilestoneId || undefined,
     milestoneTitle: action.title,
     executionTemplate: (action.executionTemplate as ExecutionTemplate) || 'step_by_step',

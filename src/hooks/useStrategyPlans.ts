@@ -1,5 +1,5 @@
 /**
- * useStrategyPlans — hook for managing 90-day strategy plans.
+ * useStrategyPlans — hook for managing 100-day strategy plans.
  * Reads active Core + Arena strategies and provides generation trigger.
  * Includes self-healing: detects incomplete orchestration and auto-fixes.
  */
@@ -262,7 +262,7 @@ export function useStrategyPlans() {
       queryClient.invalidateQueries({ queryKey: ['daily-milestones'] });
       toast({
         title: '✅ Strategy generated',
-        description: 'Your 90-day plan has been created based on your assessments.',
+        description: 'Your 100-day plan has been created based on your assessments.',
       });
     },
     onError: (error: any) => {

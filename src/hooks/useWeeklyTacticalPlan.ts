@@ -269,11 +269,14 @@ function parseAiSchedule(
           scheduledDay: absDay,
           calendarDate: date,
           focusArea: (m.milestone_id && milestoneFocusMap[m.milestone_id]) || m.focus_area || null,
-          missionId: null,
+          missionId: m.mission_id || null,
           startTime: null,
           endTime: null,
           orderIndex: m.order_index ?? mIdx,
         };
+        // Attach tactical block reference for traceability
+        (action as any).blockId = block.block_id || null;
+        (action as any).missionTitle = m.mission_title || null;
         return action;
       });
 
