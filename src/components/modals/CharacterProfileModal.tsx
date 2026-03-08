@@ -13,6 +13,7 @@ import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useAuth } from '@/contexts/AuthContext';
+import { getEgoStateLabel } from '@/lib/egoStateLabels';
 import { supabase } from '@/integrations/supabase/client';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
