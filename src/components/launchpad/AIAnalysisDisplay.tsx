@@ -113,8 +113,6 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
   return (
     <div className="space-y-3">
-      {/* Scores moved to StatWheel in profile header */}
-
       {/* Consciousness Analysis */}
       {summary.consciousness_analysis && (
         <GlassCard>
@@ -133,8 +131,6 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         </GlassCard>
       )}
 
-      {/* Identity Profile moved to 3-col row below */}
-
       {/* Behavioral Insights */}
       {summary.behavioral_insights && (
         <GlassCard>
@@ -147,29 +143,9 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         </GlassCard>
       )}
 
-      {/* Identity Profile + Career + Transformation — 3-col row */}
-      {(summary.identity_profile || summary.career_path || summary.transformation_potential) && (
-        <div className="grid grid-cols-3 gap-3">
-          {summary.identity_profile && (
-            <GlassCard>
-              <CardHeader icon={<User className="h-4 w-4 text-rose-400" />} title={isHebrew ? 'פרופיל זהות' : 'Identity'} accent="bg-rose-500/10" />
-              {summary.identity_profile.suggested_ego_state && (
-                <div className="flex items-center justify-center gap-1.5 mb-2 p-1.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
-                  <span className="text-lg">{egoIcon}</span>
-                  <span className="text-xs font-bold text-amber-400">
-                    {egoLabel ? (isHebrew ? egoLabel.he : egoLabel.en) : summary.identity_profile.suggested_ego_state}
-                  </span>
-                </div>
-              )}
-              {summary.identity_profile.dominant_traits?.length ? (
-                <div className="flex flex-wrap justify-center gap-1">
-                  {summary.identity_profile.dominant_traits.slice(0, 3).map((t, i) => (
-                    <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">{t}</span>
-                  ))}
-                </div>
-              ) : null}
-            </GlassCard>
-          )}
+      {/* Career + Transformation — 2-col row */}
+      {(summary.career_path || summary.transformation_potential) && (
+        <div className="grid grid-cols-2 gap-3">
           {summary.career_path && (
             <GlassCard>
               <CardHeader icon={<Briefcase className="h-4 w-4 text-blue-400" />} title={isHebrew ? 'קריירה' : 'Career'} accent="bg-blue-500/10" />
