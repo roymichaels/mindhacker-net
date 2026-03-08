@@ -44,13 +44,13 @@ export function DailyRoadmap() {
       if (!user?.id) return [];
       const { data } = await supabase
         .from('action_items')
-        .select('id, title, status, due_at, completed_at')
+        .select('id, title, status, due_at, completed_at, source, metadata')
         .eq('user_id', user.id)
         .eq('type', 'task')
         .neq('status', 'archived')
         .or(`due_at.is.null,due_at.lte.${todayEnd}`)
         .order('order_index', { ascending: true })
-        .limit(10);
+        .limit(15);
       // Filter out tasks completed before today (unless they're not done)
       return (data || [])
         .filter(t => {
@@ -58,7 +58,12 @@ export function DailyRoadmap() {
           if (!t.completed_at) return true;
           return t.completed_at.slice(0, 10) === todayStr;
         })
-        .map(t => ({ id: t.id, title: t.title, done: t.status === 'done' }));
+        .map(t => ({ 
+          id: t.id, 
+          title: t.title, 
+          done: t.status === 'done',
+          isLearning: t.source === 'learn' || (t.metadata as any)?.is_learning_task === true,
+        }));
     },
     enabled: !!user?.id,
   });
