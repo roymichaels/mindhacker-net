@@ -69,14 +69,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
           )}
 
-          <div className="flex-1 min-h-0 flex !flex-row [&>aside]:pb-16 lg:[&>aside]:pb-14 [&>aside]:flex-shrink-0 [&>aside]:transition-all [&>aside]:duration-300" dir="ltr">
-            {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
-
-            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-52 md:pb-24'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
+            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-32 md:pb-20'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {children}
             </main>
-
-            {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
           </div>
 
           {/* AuroraFloatingOrb removed — Aurora orb now lives in BottomHudBar */}
