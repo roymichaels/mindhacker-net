@@ -91,11 +91,13 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
 
       // Award XP
       if (user) {
-        await supabase.rpc('award_unified_xp', {
-          p_user_id: user.id,
-          p_amount: 50,
-          p_source: 'quest_complete',
-        } as any).catch(() => {});
+        try {
+          await supabase.rpc('award_unified_xp', {
+            p_user_id: user.id,
+            p_amount: 50,
+            p_source: 'quest_complete',
+          } as any);
+        } catch { /* non-critical */ }
       }
 
       onClose();
