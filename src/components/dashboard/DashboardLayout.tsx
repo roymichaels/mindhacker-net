@@ -43,12 +43,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
               <header
-                className={cn(
-                  "sticky top-0 z-50 w-full border-b backdrop-blur-xl bg-gradient-to-b",
-                  theme.headerGradient,
-                  theme.headerGradientDark
-                )}
-                style={{ borderBottomColor: theme.borderColor }}
+                className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
+                style={{
+                  borderBottomColor: theme.borderColor,
+                  background: theme.headerBg,
+                }}
+                data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-3">
                   <div className="flex items-center gap-1">
