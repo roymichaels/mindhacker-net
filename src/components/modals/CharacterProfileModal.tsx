@@ -385,6 +385,37 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {/* Stat Wheel */}
       <StatWheel isHe={isHe} />
 
+      {/* ── IDENTITY & VALUES: Below stats ── */}
+      {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
+        <EmpireCard className="text-center">
+          <SectionTitle
+            icon={<UserCircle className="w-4 h-4 text-purple-400" />}
+            title={isHe ? 'זהות וערכים' : 'Identity & Values'}
+            accentColor="bg-purple-500/10"
+          />
+          {dashboard.values.length > 0 && (
+            <div className="mb-2">
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
+              <div className="flex flex-wrap items-center justify-center gap-1">
+                {dashboard.values.map((v, i) => (
+                  <EmpireBadge key={i} variant="gold">{v}</EmpireBadge>
+                ))}
+              </div>
+            </div>
+          )}
+          {dashboard.selfConcepts.length > 0 && (
+            <div>
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
+              <div className="flex flex-wrap items-center justify-center gap-1">
+                {dashboard.selfConcepts.map((s, i) => (
+                  <EmpireBadge key={i} variant="glass">{s}</EmpireBadge>
+                ))}
+              </div>
+            </div>
+          )}
+        </EmpireCard>
+      )}
+
       {/* ── KINGDOM: Life Direction ── */}
       {lifeDirection && (
         <EmpireCard glow="hsla(35, 80%, 50%, 0.06)" className="text-center">
@@ -402,68 +433,35 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </EmpireCard>
       )}
 
-      {/* ── IDENTITY + DISCIPLINES: 2-col row ── */}
-      {((dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) || (anchors.length > 0 || dashboard.principles.length > 0)) && (
-        <div className="grid grid-cols-2 gap-3">
-          {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
-            <EmpireCard className="text-center">
-              <SectionTitle
-                icon={<UserCircle className="w-4 h-4 text-purple-400" />}
-                title={isHe ? 'זהות וערכים' : 'Identity & Values'}
-                accentColor="bg-purple-500/10"
-              />
-              {dashboard.values.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
-                  <div className="flex flex-col items-center gap-1">
-                    {dashboard.values.map((v, i) => (
-                      <EmpireBadge key={i} variant="gold">{v}</EmpireBadge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {dashboard.selfConcepts.length > 0 && (
-                <div>
-                  <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
-                  <div className="flex flex-col items-center gap-1">
-                    {dashboard.selfConcepts.map((s, i) => (
-                      <EmpireBadge key={i} variant="glass">{s}</EmpireBadge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </EmpireCard>
+      {/* ── DISCIPLINES & ORDER ── */}
+      {(anchors.length > 0 || dashboard.principles.length > 0) && (
+        <EmpireCard className="text-center">
+          <SectionTitle
+            icon={<Activity className="w-4 h-4 text-cyan-400" />}
+            title={isHe ? 'משמעת וסדר' : 'Disciplines & Order'}
+            accentColor="bg-cyan-500/10"
+          />
+          {anchors.length > 0 && (
+            <div className="mb-2">
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עוגנים יומיים' : 'Daily Anchors'}</p>
+              <div className="flex flex-wrap items-center justify-center gap-1">
+                {anchors.map((a) => (
+                  <EmpireBadge key={a.id}>{a.title}</EmpireBadge>
+                ))}
+              </div>
+            </div>
           )}
-          {(anchors.length > 0 || dashboard.principles.length > 0) && (
-            <EmpireCard className="text-center">
-              <SectionTitle
-                icon={<Activity className="w-4 h-4 text-cyan-400" />}
-                title={isHe ? 'משמעת וסדר' : 'Disciplines & Order'}
-                accentColor="bg-cyan-500/10"
-              />
-              {anchors.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עוגנים יומיים' : 'Daily Anchors'}</p>
-                  <div className="flex flex-col items-center gap-1">
-                    {anchors.map((a) => (
-                      <EmpireBadge key={a.id}>{a.title}</EmpireBadge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {dashboard.principles.length > 0 && (
-                <div>
-                  <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
-                  <div className="flex flex-col items-center gap-1">
-                    {dashboard.principles.map((p, i) => (
-                      <EmpireBadge key={i}>{p}</EmpireBadge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </EmpireCard>
+          {dashboard.principles.length > 0 && (
+            <div>
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
+              <div className="flex flex-wrap items-center justify-center gap-1">
+                {dashboard.principles.map((p, i) => (
+                  <EmpireBadge key={i}>{p}</EmpireBadge>
+                ))}
+              </div>
+            </div>
           )}
-        </div>
+        </EmpireCard>
       )}
 
       {/* ── MISSIONS: Commitments ── */}
