@@ -15,11 +15,11 @@ import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 
 /** Per-tab color schemes */
-const TAB_COLORS: Record<string, { active: string; bg: string; ring: string }> = {
-  profile:   { active: 'text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',   ring: 'ring-amber-400/40' },
-  plan:      { active: 'text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30',     ring: 'ring-cyan-400/40' },
-  community: { active: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30', ring: 'ring-emerald-400/40' },
-  study:     { active: 'text-violet-400',  bg: 'bg-violet-500/15 border-violet-500/30', ring: 'ring-violet-400/40' },
+const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: string; ring: string }> = {
+  profile:   { active: 'text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',     bgInactive: 'bg-amber-500/5 border-amber-500/15',   ring: 'ring-amber-400/40' },
+  plan:      { active: 'text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30',       bgInactive: 'bg-cyan-500/5 border-cyan-500/15',     ring: 'ring-cyan-400/40' },
+  community: { active: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30', bgInactive: 'bg-emerald-500/5 border-emerald-500/15', ring: 'ring-emerald-400/40' },
+  study:     { active: 'text-violet-400',  bg: 'bg-violet-500/15 border-violet-500/30',   bgInactive: 'bg-violet-500/5 border-violet-500/15', ring: 'ring-violet-400/40' },
 };
 
 export function BottomTabBar() {
@@ -62,9 +62,9 @@ export function BottomTabBar() {
         key={tab.id}
         onClick={() => !isComingSoon && navigate(tab.path)}
         className={cn(
-          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px]",
+          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
           isComingSoon && "opacity-40 grayscale cursor-default",
-          active ? `${colors.bg} border` : "border border-transparent"
+          active ? colors.bg : colors.bgInactive
         )}
       >
         {tab.useOrb ? (
@@ -80,11 +80,11 @@ export function BottomTabBar() {
             />
           </div>
         ) : (
-          <Icon className={cn("h-5 w-5", active ? colors.active : "text-muted-foreground")} />
+          <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-50`)} />
         )}
         <span className={cn(
           "text-[10px] font-semibold",
-          active ? colors.active : "text-muted-foreground"
+          active ? colors.active : `${colors.active} opacity-50`
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
         </span>
