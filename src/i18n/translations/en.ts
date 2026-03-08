@@ -2778,7 +2778,7 @@ export const en: TranslationKeys = {
       },
       strategy: {
         title: "Strategy & Direction",
-        desc: "90-day plan with goals and milestones — always know where you're going",
+        desc: "100-day plan with goals and milestones — always know where you're going",
       },
       avatar: {
         title: "Avatar That Shows Who You Are",
