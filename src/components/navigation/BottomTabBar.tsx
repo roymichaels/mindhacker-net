@@ -152,7 +152,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className="text-[10px] font-semibold text-violet-400 opacity-70">Aurora</span>
+          <span className="text-[10px] font-semibold text-violet-600 dark:text-violet-400 opacity-70">Aurora</span>
         </button>
 
         {/* Path — center elevated button */}
