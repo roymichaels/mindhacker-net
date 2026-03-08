@@ -161,25 +161,41 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               {LIFE_DOMAINS.map((d) => {
                 const Icon = d.icon;
                 const count = pillarCounts?.[d.id] || 0;
-                const c = d.color; // tailwind color name e.g. 'blue','red','amber'
+                const hsl = PILLAR_HSL[d.id] || '217 91% 60%';
                 return (
                   <button
                     key={d.id}
                     onClick={() => onPillarSelect?.(d.id)}
                     className={cn(
                       "group flex flex-col items-center gap-2 p-4 rounded-2xl border",
-                      "active:scale-[0.98] transition-all duration-200",
-                      `bg-${c}-500/5 border-${c}-500/20 hover:bg-${c}-500/15 hover:border-${c}-500/40 hover:shadow-lg hover:shadow-${c}-500/10`
+                      "active:scale-[0.98] transition-all duration-200"
                     )}
+                    style={{
+                      backgroundColor: `hsl(${hsl} / 0.06)`,
+                      borderColor: `hsl(${hsl} / 0.2)`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.15)`;
+                      e.currentTarget.style.borderColor = `hsl(${hsl} / 0.4)`;
+                      e.currentTarget.style.boxShadow = `0 8px 25px -5px hsl(${hsl} / 0.15)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.06)`;
+                      e.currentTarget.style.borderColor = `hsl(${hsl} / 0.2)`;
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                   >
-                    <div className={`w-12 h-12 rounded-xl bg-${c}-500/15 flex items-center justify-center group-hover:bg-${c}-500/25 transition-colors`}>
-                      <Icon className={`h-6 w-6 text-${c}-500 dark:text-${c}-400`} />
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                      style={{ backgroundColor: `hsl(${hsl} / 0.15)` }}
+                    >
+                      <Icon className="h-6 w-6" style={{ color: `hsl(${hsl})` }} />
                     </div>
-                    <span className={`text-sm font-semibold text-${c}-600 dark:text-${c}-300 text-center leading-tight`}>
+                    <span className="text-sm font-semibold text-center leading-tight" style={{ color: `hsl(${hsl})` }}>
                       {isHe ? d.labelHe : d.labelEn}
                     </span>
                     {count > 0 && (
-                      <div className={`flex items-center gap-1 text-[11px] text-${c}-500/70 dark:text-${c}-400/70`}>
+                      <div className="flex items-center gap-1 text-[11px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
                         <MessageSquare className="h-3 w-3" />
                         <span>{count}</span>
                       </div>
