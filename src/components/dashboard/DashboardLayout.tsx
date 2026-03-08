@@ -59,7 +59,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
           </div>
 
-          <AuroraFloatingOrb />
           <AuroraDock />
           {isMobile && <BottomTabBar />}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
