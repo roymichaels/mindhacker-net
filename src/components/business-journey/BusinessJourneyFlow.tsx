@@ -235,8 +235,6 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
         </div>
       </div>
 
-      {/* Aurora Chat Dock */}
-      <JourneyChatDock />
     </div>
   );
 }
