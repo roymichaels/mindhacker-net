@@ -1,0 +1,1 @@
+UPDATE aurora_onboarding_progress SET last_active_at = now() WHERE user_id = '299f9800-48d9-4429-958b-b661595bd2dd';
