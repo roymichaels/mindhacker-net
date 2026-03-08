@@ -2930,9 +2930,9 @@ export const en: TranslationKeys = {
     // FreeJourneyBannerSection
     freeJourney: {
       title: '🚀 Your Personal Transformation Journey',
-      subtitle: 'AI consciousness analysis, 90-day plan & personalized identity profile',
+      subtitle: 'AI consciousness analysis, 100-day plan & personalized identity profile',
       aiAnalysis: 'AI Analysis',
-      plan90: '90-Day Plan',
+      plan90: '100-Day Plan',
       pdfDownload: 'PDF Download',
       cta: 'Start Now',
     },
