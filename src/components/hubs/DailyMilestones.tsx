@@ -47,6 +47,7 @@ const dotBorderMap: Record<string, string> = {
 interface DailyMilestone {
   pillarId: string;
   domain: LifeDomain;
+  traitName: string;
   missionTitle: string;
   milestoneTitle: string;
   milestoneId: string;
