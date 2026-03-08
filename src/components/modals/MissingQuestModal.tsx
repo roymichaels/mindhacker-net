@@ -2,7 +2,7 @@
  * MissingQuestModal — Pops pillar quest questions inline for users
  * who already completed onboarding but have unanswered quest assessments.
  */
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
