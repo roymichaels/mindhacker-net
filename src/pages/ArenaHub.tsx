@@ -345,7 +345,28 @@ export default function ArenaHub() {
   );
 }
 
-// ── Day View with Collapsible Themed Blocks ──
+// ── Quarter mapping for day blocks ──
+
+const QUARTER_CATEGORY_MAP: Record<BlockCategory, 'q1_morning' | 'q2_midday' | 'q3_afternoon' | 'q4_evening'> = {
+  health: 'q1_morning',
+  training: 'q1_morning',
+  focus: 'q2_midday',
+  action: 'q2_midday',
+  creation: 'q3_afternoon',
+  social: 'q3_afternoon',
+  review: 'q4_evening',
+};
+
+const QUARTER_META: Record<string, { he: string; en: string; emoji: string; accent: string }> = {
+  q1_morning:   { he: 'רבעון בוקר',   en: 'Morning Quarter',   emoji: '🌅', accent: 'border-amber-500/20 bg-amber-500/5' },
+  q2_midday:    { he: 'רבעון צהריים',  en: 'Midday Quarter',    emoji: '☀️', accent: 'border-blue-500/20 bg-blue-500/5' },
+  q3_afternoon: { he: 'רבעון אחה״צ',  en: 'Afternoon Quarter',  emoji: '⚡', accent: 'border-purple-500/20 bg-purple-500/5' },
+  q4_evening:   { he: 'רבעון ערב',    en: 'Evening Quarter',    emoji: '🌙', accent: 'border-indigo-500/20 bg-indigo-500/5' },
+};
+
+const QUARTER_ORDER = ['q1_morning', 'q2_midday', 'q3_afternoon', 'q4_evening'] as const;
+
+// ── Day View with Collapsible Themed Blocks grouped by 4 Day Quarters ──
 
 function DayView({
   day,
@@ -372,6 +393,17 @@ function DayView({
     });
   };
 
+  // Group blocks into 4 quarters
+  const quarterGroups = useMemo(() => {
+    const grouped = new Map<string, TacticalBlock[]>();
+    for (const q of QUARTER_ORDER) grouped.set(q, []);
+    for (const block of (day?.blocks || [])) {
+      const q = QUARTER_CATEGORY_MAP[block.category] || 'q2_midday';
+      grouped.get(q)!.push(block);
+    }
+    return grouped;
+  }, [day?.blocks]);
+
   if (!day || day.totalActions === 0) {
     return (
       <div className="text-center py-6">
@@ -383,7 +415,7 @@ function DayView({
   }
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-4">
       {/* Day header with Quest name */}
       <div className="flex items-center justify-between mb-1">
         <div className="min-w-0">
@@ -402,8 +434,38 @@ function DayView({
         </span>
       </div>
 
-      {/* Themed Block Cards */}
-      {day.blocks.map((block) => {
+      {/* Blocks grouped by 4 Day Quarters */}
+      {QUARTER_ORDER.map(qKey => {
+        const blocks = quarterGroups.get(qKey)!;
+        if (blocks.length === 0) return null;
+        const meta = QUARTER_META[qKey];
+        const quarterActions = blocks.reduce((s, b) => s + b.actions.length, 0);
+        const quarterCompleted = blocks.reduce((s, b) => s + b.completedCount, 0);
+        const quarterMinutes = blocks.reduce((s, b) => s + b.estimatedMinutes, 0);
+        const quarterDone = quarterActions > 0 && quarterCompleted === quarterActions;
+
+        return (
+          <div key={qKey} className="space-y-2">
+            {/* Quarter header */}
+            <div className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-lg border",
+              quarterDone ? "border-emerald-500/25 bg-emerald-500/5" : meta.accent
+            )}>
+              <span className="text-base">{meta.emoji}</span>
+              <span className={cn(
+                "text-[11px] font-bold flex-1",
+                quarterDone ? "text-emerald-500" : "text-foreground/70"
+              )}>
+                {isHe ? meta.he : meta.en}
+              </span>
+              <span className="text-[9px] text-muted-foreground">
+                {quarterCompleted}/{quarterActions} · {quarterMinutes}{isHe ? ' דק׳' : '′'}
+              </span>
+              {quarterDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+            </div>
+
+            {/* Blocks inside this quarter */}
+            {blocks.map((block) => {
         const isExpanded = expandedBlocks.has(block.id);
         const Icon = BLOCK_ICONS[block.category] || Swords;
         const gradient = BLOCK_GRADIENTS[block.category] || BLOCK_GRADIENTS.action;
@@ -574,6 +636,9 @@ function DayView({
               )}
             </AnimatePresence>
           </motion.div>
+        );
+      })}
+          </div>
         );
       })}
     </div>
