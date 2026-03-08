@@ -22,7 +22,11 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
-interface OnboardingIntroProps {
+function OnboardingShowcaseOrb({ size }: { size: number }) {
+  const profile = useOrbPresetMorph({ startIndex: 0 });
+  return <StandaloneMorphOrb size={size} profile={profile} geometryFamily={profile.geometryFamily || 'sphere'} level={1} />;
+}
+
   onComplete: (basicInfo: { name: string; gender: string; ageBracket: string }) => void;
 }
 
