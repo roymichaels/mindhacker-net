@@ -676,14 +676,21 @@ export async function buildContext(
 // ─── Empty context fallback ────────────────────────────────
 
 function createEmptyContext(today: string): AuroraContext {
+  const now = new Date();
+  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
   return {
     context_hash: "",
-    built_at: new Date().toISOString(),
+    built_at: now.toISOString(),
     profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
     today,
-    current_time: new Date().toISOString().slice(11, 16),
+    current_time: now.toISOString().slice(11, 16),
+    current_time_israel: israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+    day_of_week: dayNames[israelTime.getDay()],
+    day_of_week_he: dayNamesHe[israelTime.getDay()],
     life_plan: null,
-    action_items: { overdue_tasks: [], today_tasks: [], habits: [], milestones: [], open_checklists: [] },
+    action_items: { overdue_tasks: [], today_tasks: [], today_completed: [], upcoming_tasks: [], recently_completed: [], habits: [], milestones: [], open_checklists: [] },
     habits_status: { completed: 0, total: 0 },
     direction: null,
     identity: { values: [], principles: [], self_concepts: [], vision_statements: [] },
