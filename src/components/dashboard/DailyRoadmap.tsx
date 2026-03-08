@@ -10,7 +10,7 @@ import { useDailyPulse } from '@/hooks/useDailyPulse';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Sparkles, ListChecks, MapPin, Activity, Check, ChevronDown } from 'lucide-react';
+import { Sparkles, ListChecks, MapPin, Activity, Check, ChevronDown, BookOpen } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { AnimatePresence, motion } from 'framer-motion';
 
