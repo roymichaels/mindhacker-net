@@ -3288,7 +3288,7 @@ export const he = {
     journeyStatus: "סטטוס מסע",
     questionnaireComplete: "השאלון הושלם",
     currentStep: "שלב נוכחי",
-    ninetyDayPlan: "תוכנית 90 יום",
+    ninetyDayPlan: "תוכנית 100 יום",
     milestones: "אבני דרך",
     tasksTitle: "משימות",
     checklists: "צ'קליסטים",
