@@ -113,7 +113,9 @@ export const useUserContext = () => {
           last_active_at: new Date().toISOString(),
         })
         .eq('user_id', user.id)
-        .then(() => {});
+        .then(({ error }) => {
+          if (error) console.error('[UserContext] Failed to update last_active_at:', error.message);
+        });
     }
   }, [location.pathname, user?.id]);
 
