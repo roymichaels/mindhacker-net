@@ -35,6 +35,15 @@ export function BottomTabBar() {
   const ctx = useAuroraChatContextSafe();
   const [showBalloon, setShowBalloon] = useState(false);
 
+  // Show balloon after 3s, auto-hide after 8s
+  useEffect(() => {
+    const dismissed = sessionStorage.getItem('aurora-bar-balloon-dismissed');
+    if (dismissed) return;
+    const showTimer = setTimeout(() => setShowBalloon(true), 3000);
+    const hideTimer = setTimeout(() => setShowBalloon(false), 11000);
+    return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
+  }, []);
+
   if (location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
