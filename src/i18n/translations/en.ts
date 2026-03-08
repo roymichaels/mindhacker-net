@@ -5181,7 +5181,7 @@ export const en: TranslationKeys = {
       statusAnalyzed: '✓ Analyzed',
       statusNotSetUp: 'Not Set Up',
       startConfiguration: 'Start Configuration',
-      configDescription: '7 focused questions to build a personalized 90-day plan for this domain.',
+      configDescription: '7 focused questions to build a personalized 100-day plan for this domain.',
       domainConfiguration: 'Domain Configuration',
       noDataYet: 'No configuration data yet',
       reconfigure: 'Reconfigure',
