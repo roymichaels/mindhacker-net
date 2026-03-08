@@ -20,6 +20,9 @@ interface WeeklyObjective {
   descriptionEn: string | null;
   pillar: string;
   missionTitle: string | null;
+  missionId: string | null;
+  milestoneId: string | null;
+  planId: string | null;
   executionTemplate: string | null;
   actionType: string | null;
   cadence: string | null;
