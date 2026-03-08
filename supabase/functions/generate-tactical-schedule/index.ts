@@ -313,21 +313,23 @@ IMPORTANT: Use the EXACT milestone IDs and practice IDs from the lists above. Fo
       throw new Error("AI returned no schedule days");
     }
 
-    // Validate milestone IDs, add stable block_id, and enrich with mission lineage
-    const validIds = new Set(milestones.map(m => m.id));
+    // Validate milestone/practice IDs, add stable block_id, and enrich with lineage
+    const validMilestoneIds = new Set(milestones.map(m => m.id));
+    const validPracticeIds = new Set(practiceItems.map((p: any) => p.practice_id));
     let blockCounter = 0;
     for (const day of parsed.days) {
       if (!day.blocks) day.blocks = [];
       for (const block of day.blocks) {
-        // Add stable block_id for traceability: daily action → tactical block
         block.block_id = `phase${phase_number}_d${day.day_number}_b${blockCounter++}`;
-        
         if (!block.milestones) block.milestones = [];
         block.milestones = block.milestones.map((m: any, idx: number) => {
-          if (m.milestone_id && !validIds.has(m.milestone_id)) {
+          if (m.milestone_id && !validMilestoneIds.has(m.milestone_id)) {
             m.milestone_id = null;
           }
-          // Enrich each milestone with mission lineage from upstream data
+          if (m.practice_id && !validPracticeIds.has(m.practice_id)) {
+            m.practice_id = null;
+          }
+          m.source_type = m.practice_id ? 'practice' : 'milestone';
           if (m.milestone_id) {
             const sourceMilestone = milestones.find(ms => ms.id === m.milestone_id);
             if (sourceMilestone?.mission_id) {
