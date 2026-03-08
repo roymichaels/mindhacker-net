@@ -83,9 +83,10 @@ export function DailyRoadmap() {
     items.push({ id: h.id, title: h.title, type: 'habit', done: h.isCompleted, toggleable: true });
   });
 
-  // Tasks
+  // Tasks (regular + learning)
   taskItems.forEach(t => {
-    items.push({ id: t.id, title: t.title, type: 'task', done: t.done, toggleable: true });
+    const itemType: RoadmapItemType = t.isLearning ? 'learning' : 'task';
+    items.push({ id: t.id, title: t.title, type: itemType, done: t.done, toggleable: true });
   });
 
   // Milestone section removed — TodayEngine handles this
