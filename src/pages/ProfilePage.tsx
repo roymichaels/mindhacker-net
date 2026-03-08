@@ -69,6 +69,11 @@ export default function ProfilePage() {
           <AchievementGallery />
         </div>
 
+        {/* ═══════ LOOT INVENTORY ═══════ */}
+        <div className="px-4 mt-5 max-w-sm mx-auto w-full">
+          <InventoryBag />
+        </div>
+
         {/* ═══════ PROFILE CONTENT ═══════ */}
         <div className="px-4 mt-4">
           {traitsOpen ? (
