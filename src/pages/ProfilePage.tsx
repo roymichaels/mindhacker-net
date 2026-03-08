@@ -7,6 +7,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { OrbNFTCard } from '@/components/gamification/OrbNFTCard';
 import { AchievementGallery } from '@/components/gamification/AchievementGallery';
+import { InventoryBag } from '@/components/gamification/InventoryBag';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { PracticesModal } from '@/components/modals/PracticesModal';
@@ -66,6 +67,11 @@ export default function ProfilePage() {
         {/* ═══════ ACHIEVEMENT COLLECTION ═══════ */}
         <div className="px-4 mt-5 max-w-sm mx-auto w-full">
           <AchievementGallery />
+        </div>
+
+        {/* ═══════ LOOT INVENTORY ═══════ */}
+        <div className="px-4 mt-5 max-w-sm mx-auto w-full">
+          <InventoryBag />
         </div>
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
