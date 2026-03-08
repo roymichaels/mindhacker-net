@@ -13,7 +13,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { usePillarAccess } from '@/hooks/usePillarAccess';
-import { NowQueueItem } from '@/hooks/useNowEngine';
+import { NowQueueItem } from '@/types/planning';
 import { TodayScheduleCard } from './TodayScheduleCard';
 import { MovementScoreCard } from './MovementScoreCard';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
