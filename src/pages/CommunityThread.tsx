@@ -17,6 +17,7 @@ import { he as heLocale, enUS } from 'date-fns/locale';
 import { getRankForPillar } from '@/lib/communityHelpers';
 import { getDomainById } from '@/navigation/lifeDomains';
 import PlayerAvatar from '@/components/community/PlayerAvatar';
+import { useSidebars } from '@/hooks/useSidebars';
 
 export default function CommunityThread() {
   const { postId } = useParams<{ postId: string }>();
