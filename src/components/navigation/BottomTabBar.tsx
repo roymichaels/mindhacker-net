@@ -171,7 +171,7 @@ export function BottomTabBar() {
             </button>
             <span className={cn(
               "text-[10px] font-semibold",
-              isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400 opacity-50"
+              isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600 dark:text-cyan-400 opacity-50"
             )}>
               {isHe ? 'מסלול' : 'Path'}
             </span>
