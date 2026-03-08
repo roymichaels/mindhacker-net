@@ -1,0 +1,1 @@
+ALTER TABLE public.user_practices ADD CONSTRAINT user_practices_user_practice_unique UNIQUE (user_id, practice_id);
