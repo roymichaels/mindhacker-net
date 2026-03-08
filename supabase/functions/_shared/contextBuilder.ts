@@ -483,7 +483,6 @@ export async function buildContext(
   }
 
   // ── Assemble context ───────────────────────────────────
-  const now = new Date();
   const ctx: AuroraContext = {
     context_hash: "", // computed below
     built_at: now.toISOString(),
@@ -498,16 +497,27 @@ export async function buildContext(
 
     today,
     current_time: now.toISOString().slice(11, 16),
+    current_time_israel: israelTimeStr,
+    day_of_week: dayOfWeek,
+    day_of_week_he: dayOfWeekHe,
     life_plan: lifePlan ? {
       active: true,
       start_date: lifePlan.start_date,
+      current_day: currentDay,
       current_week: currentWeek,
-      total_weeks: 12,
+      total_weeks: 15,
+      days_remaining: daysRemaining,
     } : null,
 
     action_items: {
-      overdue_tasks: overdueTasks.map((t: any) => ({ title: t.title, due_at: t.due_at, pillar: t.pillar })),
-      today_tasks: todayTasks.map((t: any) => ({ id: t.id, title: t.title, status: t.status, pillar: t.pillar })),
+      overdue_tasks: overdueTasks.map((t: any) => ({ title: t.title, due_at: t.due_at, pillar: t.pillar, scheduled_date: t.scheduled_date })),
+      today_tasks: todayTasks.map((t: any) => ({ id: t.id, title: t.title, status: t.status, pillar: t.pillar, scheduled_date: t.scheduled_date })),
+      today_completed: todayCompleted.map((t: any) => ({ title: t.title, completed_at: t.completed_at, pillar: t.pillar })),
+      upcoming_tasks: upcomingTasks.map((t: any) => ({ title: t.title, scheduled_date: t.scheduled_date, pillar: t.pillar })),
+      recently_completed: recentlyCompleted.map((t: any) => {
+        const daysAgo = Math.floor((now.getTime() - new Date(t.completed_at).getTime()) / (1000 * 60 * 60 * 24));
+        return { title: t.title, completed_at: t.completed_at, pillar: t.pillar, days_ago: daysAgo };
+      }),
       habits: habitsWithStatus,
       milestones: milestones.map((m: any) => ({
         title: m.title,
