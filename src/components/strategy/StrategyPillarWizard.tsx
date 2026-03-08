@@ -157,7 +157,7 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
     if (!user?.id || !allAssessed) return;
     setGenerating(true);
     try {
-      const { error } = await supabase.functions.invoke('generate-100day-strategy', {
+      const { data, error } = await supabase.functions.invoke('generate-100day-strategy', {
         body: {
           user_id: user.id,
           hub: 'both',
@@ -166,6 +166,18 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
         },
       });
       if (error) throw error;
+      
+      // Auto-trigger tactical schedule generation for new plans (fire and forget)
+      if (data?.plans) {
+        for (const plan of data.plans) {
+          if (plan.plan_id && plan.milestones > 0) {
+            supabase.functions.invoke('generate-tactical-schedule', {
+              body: { user_id: user.id, plan_id: plan.plan_id, phase_number: 1 },
+            }).catch(err => console.warn('Tactical schedule generation:', err));
+          }
+        }
+      }
+      
       toast.success(isHe ? 'התוכנית נוצרה בהצלחה!' : 'Plan generated successfully!');
       onOpenChange(false);
       onPlanGenerated?.();

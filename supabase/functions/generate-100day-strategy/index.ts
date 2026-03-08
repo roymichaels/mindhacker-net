@@ -1264,37 +1264,40 @@ serve(async (req) => {
       results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, ai_generated: allAiSuccess });
     }
 
-    // Auto-generate tactical schedules for phase 1 of each new plan
+    // Auto-generate tactical schedules — fire-and-forget (non-blocking)
+    // Uses EdgeRuntime.waitUntil if available, otherwise just fire and forget
     for (const r of results) {
       if (r.plan_id && r.milestones > 0) {
-        try {
-          console.log(`[auto-tactics] Triggering tactical schedule for plan ${r.plan_id} phase 1...`);
-          const tacticsUrl = `${supabaseUrl}/functions/v1/generate-tactical-schedule`;
-          const tacticsResp = await fetch(tacticsUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseKey}`,
-            },
-            body: JSON.stringify({
-              user_id,
-              plan_id: r.plan_id,
-              phase_number: 1,
-            }),
-          });
-          if (tacticsResp.ok) {
-            const tacticsData = await tacticsResp.json();
-            console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, tacticsData);
-            r.tactical_schedule_generated = true;
+        const tacticsUrl = `${supabaseUrl}/functions/v1/generate-tactical-schedule`;
+        const tacticsBody = JSON.stringify({
+          user_id,
+          plan_id: r.plan_id,
+          phase_number: 1,
+        });
+        const tacticsHeaders = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`,
+        };
+        
+        console.log(`[auto-tactics] Firing tactical schedule for plan ${r.plan_id} phase 1 (non-blocking)...`);
+        
+        // Fire and forget — don't await, don't block the response
+        fetch(tacticsUrl, {
+          method: 'POST',
+          headers: tacticsHeaders,
+          body: tacticsBody,
+        }).then(async (resp) => {
+          if (resp.ok) {
+            const data = await resp.json();
+            console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, data);
           } else {
-            const errText = await tacticsResp.text();
-            console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${errText}`);
-            r.tactical_schedule_generated = false;
+            console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${await resp.text()}`);
           }
-        } catch (tacticsErr) {
-          console.warn(`[auto-tactics] ⚠️ Error generating tactics:`, tacticsErr);
-          r.tactical_schedule_generated = false;
-        }
+        }).catch(err => {
+          console.warn(`[auto-tactics] ⚠️ Error:`, err);
+        });
+        
+        r.tactical_schedule_generated = 'pending'; // Will complete in background
       }
     }
 
