@@ -115,7 +115,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
                   level={100}
                 />
               </div>
-              <span className="text-violet-400 opacity-80">
+              <span className="text-violet-600 dark:text-violet-400 opacity-80">
                 Aurora
               </span>
             </button>
