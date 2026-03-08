@@ -19,22 +19,6 @@ import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  leftSidebar?: ReactNode;
-  rightSidebar?: ReactNode;
-  currentConversationId?: string | null;
-  onNewChat?: () => void | Promise<boolean>;
-  onSelectConversation?: (id: string) => void;
-}
-
-/** On mobile, wrap sidebar in a full-screen overlay */
-function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-[60] bg-background flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
-        {children}
-      </div>
-    </div>
-  );
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
