@@ -115,6 +115,7 @@ export function DailyRoadmap() {
     switch (type) {
       case 'habit': return <Sparkles className="w-3.5 h-3.5 text-emerald-500" />;
       case 'task': return <ListChecks className="w-3.5 h-3.5 text-violet-500" />;
+      case 'learning': return <BookOpen className="w-3.5 h-3.5 text-cyan-400" />;
       case 'milestone': return <MapPin className="w-3.5 h-3.5 text-amber-500" />;
       case 'pulse': return <Activity className="w-3.5 h-3.5 text-primary" />;
     }
