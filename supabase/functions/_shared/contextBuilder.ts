@@ -269,15 +269,21 @@ export async function buildContext(
     supabase.from("user_projects").select("*").eq("user_id", userId).in("status", ["active", "paused"]).order("updated_at", { ascending: false }),
     supabase.from("launchpad_summary").select("*").eq("user_id", userId).single(),
     // Overdue tasks from action_items
-    supabase.from("action_items").select("id, title, due_at, pillar").eq("user_id", userId).eq("type", "task").in("status", ["todo", "doing"]).lt("due_at", `${today}T00:00:00`),
-    // Today's tasks from action_items
-    supabase.from("action_items").select("id, title, status, pillar").eq("user_id", userId).in("type", ["task"]).in("status", ["todo", "doing"]).gte("due_at", `${today}T00:00:00`).lte("due_at", `${today}T23:59:59`),
+    supabase.from("action_items").select("id, title, due_at, pillar, scheduled_date").eq("user_id", userId).eq("type", "task").in("status", ["todo", "doing"]).lt("due_at", `${today}T00:00:00`),
+    // Today's tasks from action_items (pending)
+    supabase.from("action_items").select("id, title, status, pillar, scheduled_date").eq("user_id", userId).in("type", ["task"]).in("status", ["todo", "doing"]).or(`scheduled_date.eq.${today},and(due_at.gte.${today}T00:00:00,due_at.lte.${today}T23:59:59)`),
     // Habits from action_items
     supabase.from("action_items").select("id, title, completed_at, metadata").eq("user_id", userId).eq("type", "habit"),
     // Milestones from action_items
     supabase.from("action_items").select("id, title, status, metadata, plan_id").eq("user_id", userId).eq("type", "milestone").order("order_index"),
     // Parent tasks (checklists) with child counts
     supabase.from("action_items").select("id, title").eq("user_id", userId).eq("type", "task").is("parent_id", null).in("status", ["todo", "doing"]),
+    // Today's completed tasks
+    supabase.from("action_items").select("title, completed_at, pillar").eq("user_id", userId).eq("status", "done").gte("completed_at", `${today}T00:00:00`).lte("completed_at", `${today}T23:59:59`),
+    // Recently completed tasks (last 7 days, excluding today)
+    supabase.from("action_items").select("title, completed_at, pillar").eq("user_id", userId).eq("status", "done").gte("completed_at", new Date(Date.now() - 7 * 86400000).toISOString()).lt("completed_at", `${today}T00:00:00`).order("completed_at", { ascending: false }).limit(20),
+    // Upcoming tasks (next 3 days)
+    supabase.from("action_items").select("title, scheduled_date, pillar").eq("user_id", userId).in("type", ["task"]).in("status", ["todo", "doing"]).gt("scheduled_date", today).lte("scheduled_date", new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0]).order("scheduled_date"),
     // Pulse: today
     supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).eq("log_date", today).maybeSingle(),
     // Pulse: last 7 days
