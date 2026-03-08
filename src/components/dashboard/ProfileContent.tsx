@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadData } from '@/hooks/useLaunchpadData';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';

@@ -19,7 +19,6 @@ export default function Go() {
   const { isRTL } = useTranslation();
   const { trackLead } = useConversionEvents();
   const { smartNavigate } = useSmartOnboarding();
-  const { trackLead } = useConversionEvents();
 
   useEffect(() => {
     flowAudit.route('(entry)', '/go');
