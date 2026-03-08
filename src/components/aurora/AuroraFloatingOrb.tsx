@@ -126,7 +126,7 @@ export function AuroraFloatingOrb() {
       role="button"
       tabIndex={0}
     >
-      <AuroraHoloOrb size={ORB_SIZE} glow="full" />
+      <StandaloneMorphOrb size={ORB_SIZE} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
     </motion.div>
   );
 }
