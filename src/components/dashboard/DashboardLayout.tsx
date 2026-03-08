@@ -13,8 +13,6 @@ import { AuroraFloatingOrb } from '@/components/aurora/AuroraFloatingOrb';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { BottomHudBar } from '@/components/navigation/BottomHudBar';
 import { SettingsModal } from '@/components/settings';
-import { HudSidebar } from '@/components/dashboard/HudSidebar';
-import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
