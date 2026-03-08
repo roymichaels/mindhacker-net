@@ -27,7 +27,8 @@ export interface AuroraContext {
   // Dates & plan
   today: string;
   current_time: string;
-  current_time_israel: string;
+  current_time_local: string;
+  user_timezone: string;
   day_of_week: string;
   day_of_week_he: string;
   life_plan: {
@@ -203,13 +204,14 @@ export async function buildContext(
 ): Promise<AuroraContext> {
   const now = new Date();
   const today = now.toISOString().split("T")[0];
-  // Israel time awareness
-  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
-  const israelTimeStr = israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  // Timezone-aware: infer from language, fallback to UTC
+  const userTimezone = language === 'he' ? 'Asia/Jerusalem' : 'UTC';
+  const localTime = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }));
+  const localTimeStr = localTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
-  const dayOfWeek = dayNames[israelTime.getDay()];
-  const dayOfWeekHe = dayNamesHe[israelTime.getDay()];
+  const dayOfWeek = dayNames[localTime.getDay()];
+  const dayOfWeekHe = dayNamesHe[localTime.getDay()];
 
   if (!userId) {
     const emptyCtx = createEmptyContext(today);
@@ -497,7 +499,8 @@ export async function buildContext(
 
     today,
     current_time: now.toISOString().slice(11, 16),
-    current_time_israel: israelTimeStr,
+    current_time_local: localTimeStr,
+    user_timezone: userTimezone,
     day_of_week: dayOfWeek,
     day_of_week_he: dayOfWeekHe,
     life_plan: lifePlan ? {
@@ -677,7 +680,6 @@ export async function buildContext(
 
 function createEmptyContext(today: string): AuroraContext {
   const now = new Date();
-  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
   return {
@@ -686,9 +688,10 @@ function createEmptyContext(today: string): AuroraContext {
     profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
     today,
     current_time: now.toISOString().slice(11, 16),
-    current_time_israel: israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-    day_of_week: dayNames[israelTime.getDay()],
-    day_of_week_he: dayNamesHe[israelTime.getDay()],
+    current_time_local: now.toISOString().slice(11, 16),
+    user_timezone: "UTC",
+    day_of_week: dayNames[now.getUTCDay()],
+    day_of_week_he: dayNamesHe[now.getUTCDay()],
     life_plan: null,
     action_items: { overdue_tasks: [], today_tasks: [], today_completed: [], upcoming_tasks: [], recently_completed: [], habits: [], milestones: [], open_checklists: [] },
     habits_status: { completed: 0, total: 0 },

@@ -267,8 +267,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
 
   // Dates & Time Awareness (enriched)
   parts.push(isHe
-    ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה נוכחית (ישראל): ${ctx.current_time_israel}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
-    : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Current time (Israel): ${ctx.current_time_israel}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
+    ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה מקומית: ${ctx.current_time_local}\n- אזור זמן: ${ctx.user_timezone}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
+    : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Local time: ${ctx.current_time_local}\n- Timezone: ${ctx.user_timezone}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
 
   if (ctx.life_plan) {
     parts.push(isHe
@@ -809,7 +809,7 @@ I can help you with many things through our conversation:
 - Identify patterns and insights
 
 ## Temporal Awareness — MANDATORY!
-You are always aware of the current date and time (Israel timezone). Use this awareness:
+You are always aware of the current date and time in the user's local timezone. Use this awareness:
 - **Morning (06:00-12:00)**: Open with energy, review the day ahead
 - **Afternoon (12:00-17:00)**: Check progress, encourage completing open tasks
 - **Evening (17:00-21:00)**: Summarize the day, celebrate achievements, prepare for tomorrow
