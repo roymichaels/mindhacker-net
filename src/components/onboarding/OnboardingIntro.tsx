@@ -55,20 +55,6 @@ function OnboardingShowcaseOrb({ size }: { size: number }) {
   );
 }
 
-class ErrorBoundaryOrb extends React.Component<
-  { children: React.ReactNode; fallbackSize: number; onError: () => void },
-  { hasError: boolean }
-> {
-  state = { hasError: false };
-  static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch() { this.props.onError(); }
-  render() {
-    if (this.state.hasError) {
-      return <CSSOrb size={this.props.fallbackSize} state="breathing" profile={DEFAULT_ORB_PROFILE} />;
-    }
-    return this.props.children;
-  }
-}
 
 interface OnboardingIntroProps {
   onComplete: (basicInfo: { name: string; gender: string; ageBracket: string }) => void;
