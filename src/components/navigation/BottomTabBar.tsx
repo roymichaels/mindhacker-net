@@ -116,8 +116,11 @@ export function BottomTabBar() {
         {/* Left: FM */}
         {leftTabs.map(renderTab)}
 
-        {/* Aurora orb — between FM and Path */}
-        <div className="relative flex flex-col items-center gap-0.5">
+        {/* Aurora — styled like other tabs */}
+        <button
+          onClick={openAurora}
+          className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border bg-violet-500/5 border-violet-500/15"
+        >
           <AnimatePresence>
             {showBalloon && (
               <motion.div
@@ -125,7 +128,7 @@ export function BottomTabBar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.9 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={dismissBalloon}
+                onClick={(e) => { e.stopPropagation(); dismissBalloon(); }}
                 className="absolute bottom-full mb-2 z-50 cursor-pointer"
               >
                 <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
@@ -141,19 +144,16 @@ export function BottomTabBar() {
             )}
           </AnimatePresence>
 
-          <button
-            onClick={openAurora}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-600/20 to-cyan-500/20 border border-violet-500/30"
-          >
+          <div className="w-6 h-6 rounded-full overflow-hidden">
             <StandaloneMorphOrb
-              size={32}
+              size={24}
               profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               level={100}
             />
-          </button>
+          </div>
           <span className="text-[10px] font-semibold text-violet-400 opacity-70">Aurora</span>
-        </div>
+        </button>
 
         {/* Path — center elevated button */}
         {planTab && (
