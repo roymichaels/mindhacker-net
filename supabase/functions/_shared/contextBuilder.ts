@@ -41,8 +41,11 @@ export interface AuroraContext {
 
   // Action Items (unified)
   action_items: {
-    overdue_tasks: { title: string; due_at: string; pillar: string | null }[];
-    today_tasks: { id: string; title: string; status: string; pillar: string | null }[];
+    overdue_tasks: { title: string; due_at: string; pillar: string | null; scheduled_date: string | null }[];
+    today_tasks: { id: string; title: string; status: string; pillar: string | null; scheduled_date: string | null }[];
+    today_completed: { title: string; completed_at: string; pillar: string | null }[];
+    upcoming_tasks: { title: string; scheduled_date: string; pillar: string | null }[];
+    recently_completed: { title: string; completed_at: string; pillar: string | null; days_ago: number }[];
     habits: { id: string; title: string; completed_today: boolean; streak: number }[];
     milestones: { title: string; week_number: number | null; is_completed: boolean; plan_id: string | null }[];
     open_checklists: { id: string; title: string; children_total: number; children_done: number }[];
