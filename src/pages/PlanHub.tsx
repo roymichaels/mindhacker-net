@@ -28,7 +28,7 @@ export default function PlanHub() {
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Tab switcher */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="flex gap-1 p-1 rounded-2xl bg-muted/30 border border-border/30">
+        <div className="flex gap-1 p-1 rounded-2xl bg-muted/40 border border-border/40">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
@@ -37,16 +37,16 @@ export default function PlanHub() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors",
+                  "relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-colors",
                   isActive
                     ? "text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground/70"
+                    : "text-foreground/70 hover:text-foreground"
                 )}
               >
                 {isActive && (
                   <motion.div
                     layoutId="plan-tab-bg"
-                    className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                    className="absolute inset-0 rounded-xl bg-primary shadow-md shadow-primary/30 ring-1 ring-primary/50"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
