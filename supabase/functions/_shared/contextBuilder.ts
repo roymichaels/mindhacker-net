@@ -204,13 +204,14 @@ export async function buildContext(
 ): Promise<AuroraContext> {
   const now = new Date();
   const today = now.toISOString().split("T")[0];
-  // Israel time awareness
-  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
-  const israelTimeStr = israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  // Timezone-aware: infer from language, fallback to UTC
+  const userTimezone = language === 'he' ? 'Asia/Jerusalem' : 'UTC';
+  const localTime = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }));
+  const localTimeStr = localTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
-  const dayOfWeek = dayNames[israelTime.getDay()];
-  const dayOfWeekHe = dayNamesHe[israelTime.getDay()];
+  const dayOfWeek = dayNames[localTime.getDay()];
+  const dayOfWeekHe = dayNamesHe[localTime.getDay()];
 
   if (!userId) {
     const emptyCtx = createEmptyContext(today);
