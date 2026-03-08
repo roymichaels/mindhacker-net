@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import PersonalizedOrb from './PersonalizedOrb';
-import type { OrbProfile } from './types';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useXpProgress } from '@/hooks/useGameState';
 import { StandaloneMorphOrb } from './GalleryMorphOrb';
+import type { OrbProfile } from './types';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
