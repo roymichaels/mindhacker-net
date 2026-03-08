@@ -34,6 +34,24 @@ const PILLAR_ICONS: Record<string, string> = {
   influence: '👑', relationships: '🤝', business: '💼', projects: '📋', play: '🎮',
 };
 
+/** HSL color values per pillar for inline styling */
+const PILLAR_HSL: Record<string, string> = {
+  consciousness: '217 91% 60%',  // blue
+  presence: '292 84% 61%',       // fuchsia
+  power: '0 84% 60%',            // red
+  vitality: '38 92% 50%',        // amber
+  focus: '187 96% 42%',          // cyan
+  combat: '215 16% 47%',         // slate
+  expansion: '239 84% 67%',      // indigo
+  wealth: '160 84% 39%',         // emerald
+  influence: '271 81% 56%',      // purple
+  relationships: '199 89% 48%',  // sky
+  business: '347 77% 50%',       // rose
+  projects: '38 92% 50%',        // amber
+  play: '258 90% 66%',           // violet
+  order: '173 80% 40%',          // teal
+};
+
 const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
