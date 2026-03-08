@@ -8,6 +8,7 @@ import { FMTopNav } from '@/components/fm/FMTopNav';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
+import { DesktopSideNav } from '@/components/navigation/DesktopSideNav';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { AuroraFloatingOrb } from '@/components/aurora/AuroraFloatingOrb';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
@@ -54,6 +55,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           )}
 
           <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
+            {/* Desktop sidebar — hidden on mobile, hidden on FM routes */}
+            {!isMobile && !isFM && <DesktopSideNav />}
+
             <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-20 md:pb-4'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {children}
             </main>
