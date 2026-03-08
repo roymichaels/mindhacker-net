@@ -433,11 +433,12 @@ interface StandaloneMorphOrbProps {
 
 export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 }: StandaloneMorphOrbProps) {
   return (
-    <div style={{ width: size, height: size }}>
+    <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
       <Canvas
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         camera={{ position: [0, 0, 2.2], fov: 45 }}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: size, height: size }}
+        resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
       >
         <OrbLighting />
         <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
