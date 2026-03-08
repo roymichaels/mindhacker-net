@@ -25,6 +25,7 @@ interface NextActionBannerProps {
 export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBannerProps) {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { user } = useAuth();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete, completionPercentage } = useLaunchpadProgress();
