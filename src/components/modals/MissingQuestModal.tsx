@@ -30,6 +30,25 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
   const queryClient = useQueryClient();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Load existing quest answers from DB
+  const { data: existingAnswers } = useQuery({
+    queryKey: ['quest-saved-answers', user?.id, quest.pillarId],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('launchpad_progress')
+        .select('step_2_profile_data')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!data) return null;
+      const profileData = (data.step_2_profile_data as Record<string, unknown>) ?? {};
+      const quests = (profileData.pillar_quests as Record<string, { answers?: Record<string, unknown> }>) ?? {};
+      return (quests[quest.pillarId]?.answers as Record<string, unknown>) ?? null;
+    },
+    enabled: !!user?.id,
+    staleTime: 30_000,
+  });
+
   const spec = getFlowSpec(`quest-${quest.pillarId}`);
 
   const saveMutation = useMutation({
