@@ -25,6 +25,7 @@ import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
+import { useUserJob } from '@/hooks/useUserJob';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
