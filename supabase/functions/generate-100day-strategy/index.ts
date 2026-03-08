@@ -1265,8 +1265,6 @@ serve(async (req) => {
     }
 
     // Auto-generate tactical schedules for phase 1 of each new plan
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     for (const r of results) {
       if (r.plan_id && r.milestones > 0) {
         try {
