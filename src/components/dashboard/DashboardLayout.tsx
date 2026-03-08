@@ -54,7 +54,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           )}
 
           <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
-            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-32 md:pb-20'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-20 md:pb-4'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {children}
             </main>
           </div>
