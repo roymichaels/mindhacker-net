@@ -20,7 +20,7 @@ export function FMBottomNav() {
   const activePath = location.pathname;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-background/95 via-orange-50/90 to-amber-50/95 backdrop-blur-xl border-t border-amber-300/40 dark:from-background/95 dark:via-amber-900/20 dark:to-amber-950/40 dark:border-amber-500/20 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-background/95 via-orange-50/90 to-amber-50/95 backdrop-blur-xl border-t dark:from-background/95 dark:via-amber-900/20 dark:to-amber-950/40 md:hidden" style={{ borderTopColor: 'hsl(var(--gold) / 0.3)' }}>
       <div className="flex items-center justify-around max-w-md mx-auto h-14">
         {FM_TABS.map((tab) => {
           const isActive =
