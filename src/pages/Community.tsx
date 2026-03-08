@@ -248,9 +248,9 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </button>
           )}
 
-          {/* ── Feed mode toggle ── */}
+          {/* ── Feed mode toggle (desktop: always show when not all; mobile: when topic selected) ── */}
           {(!isAll && (selectedTopic || subcategories.length === 0)) && (
-            <div className="flex bg-muted/40 rounded-lg p-0.5 w-fit">
+            <div className="flex bg-muted/40 rounded-lg p-0.5 w-fit lg:hidden">
               <button
                 onClick={() => setFeedMode('latest')}
                 className={cn(
@@ -274,14 +274,16 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           )}
 
-          {/* ── Thread Feed (shown when inside a pillar, topic selected or no subcategories) ── */}
+          {/* ── Thread Feed mobile (shown when inside a pillar, topic selected or no subcategories) ── */}
           {!isAll && (selectedTopic || subcategories.length === 0) && (
-            <ThreadList
-              pillarFilter={selectedPillar}
-              topicFilter={selectedTopic}
-              mode={feedMode}
-              onProfileClick={setProfileUserId}
-            />
+            <div className="lg:hidden">
+              <ThreadList
+                pillarFilter={selectedPillar}
+                topicFilter={selectedTopic}
+                mode={feedMode}
+                onProfileClick={setProfileUserId}
+              />
+            </div>
           )}
 
           {/* Also show feed in "all threads" for a pillar (no specific topic) when subcategories exist but user wants the full pillar feed */}
