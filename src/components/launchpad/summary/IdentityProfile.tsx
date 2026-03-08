@@ -24,21 +24,7 @@ interface IdentityProfileProps {
   };
 }
 
-const EGO_STATE_ICONS: Record<string, string> = {
-  warrior: '⚔️',
-  guardian: '🛡️',
-  creator: '🎨',
-  seeker: '🔍',
-  sage: '🧙',
-};
-
-const EGO_STATE_LABELS: Record<string, { en: string; he: string }> = {
-  warrior: { en: 'Warrior', he: 'לוחם' },
-  guardian: { en: 'Guardian', he: 'שומר' },
-  creator: { en: 'Creator', he: 'יוצר' },
-  seeker: { en: 'Seeker', he: 'מחפש' },
-  sage: { en: 'Sage', he: 'חכם' },
-};
+// Using shared ego state labels from @/lib/egoStateLabels
 
 export function IdentityProfile({ profile, behavioral }: IdentityProfileProps) {
   const { language, isRTL } = useTranslation();
