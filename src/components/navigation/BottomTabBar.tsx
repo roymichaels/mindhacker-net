@@ -111,7 +111,7 @@ export function BottomTabBar() {
   };
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg">
+    <nav className="fixed bottom-0 inset-x-0 z-50 border-t bg-background/95 backdrop-blur-lg" style={{ borderTopColor: 'hsl(var(--gold-border) / 0.3)' }}>
       <div className="flex items-center justify-around h-16 px-2">
         {/* Left: FM */}
         {leftTabs.map(renderTab)}

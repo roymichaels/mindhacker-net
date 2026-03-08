@@ -143,6 +143,12 @@
     /* Accent - Gold/Amber */
     --accent: 38 95% 50%;
     --accent-foreground: 260 60% 5%;
+    
+    /* Gold detail tokens */
+    --gold: 42 87% 55%;
+    --gold-muted: 38 40% 45%;
+    --gold-border: 38 40% 30%;
+    --gold-glow: 42 90% 50%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
