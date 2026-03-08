@@ -20,6 +20,8 @@ export interface OsTab {
   comingSoon?: boolean;
   /** If true, BottomTabBar renders the user orb instead of icon */
   useOrb?: boolean;
+  /** If true, rendered as floating center button */
+  isCenter?: boolean;
 }
 
 /** The main tabs visible to every authenticated user */
