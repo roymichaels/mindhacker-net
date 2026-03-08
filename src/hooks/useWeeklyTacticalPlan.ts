@@ -313,6 +313,19 @@ function parseAiSchedule(
 
 // ── Fallback ──
 
+// ── Map focus_area to proper block category for fallback grouping ──
+function focusAreaToCategory(focusArea: string | null): BlockCategory {
+  if (!focusArea) return 'action';
+  const fa = focusArea.toLowerCase();
+  if (['vitality', 'presence'].includes(fa)) return 'health';
+  if (['power', 'combat'].includes(fa)) return 'training';
+  if (['focus', 'consciousness', 'expansion'].includes(fa)) return 'focus';
+  if (['wealth', 'influence', 'business'].includes(fa)) return 'action';
+  if (['projects', 'order', 'craft'].includes(fa)) return 'creation';
+  if (['relationships', 'play'].includes(fa)) return 'social';
+  return 'action';
+}
+
 function buildFallbackDays(
   milestones: any[],
   phaseDates: string[],
@@ -321,16 +334,24 @@ function buildFallbackDays(
 ): DayPlan[] {
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
   const dayLoad = new Array(10).fill(0);
-  const dayActions: TacticalAction[][] = Array.from({ length: 10 }, () => []);
+  // Store actions grouped by day AND category
+  const dayActionsByCategory: Record<string, TacticalAction[]>[] = Array.from({ length: 10 }, () => ({}));
 
   for (const mm of milestones) {
+    if (mm.is_completed) continue;
     let bestDay = 0;
     for (let d = 1; d < 10; d++) {
       if (dayLoad[d] < dayLoad[bestDay]) bestDay = d;
     }
     dayLoad[bestDay] += 15;
     const absDay = phaseStartDay + bestDay;
-    dayActions[bestDay].push({
+    const category = focusAreaToCategory(mm.focus_area);
+
+    if (!dayActionsByCategory[bestDay][category]) {
+      dayActionsByCategory[bestDay][category] = [];
+    }
+
+    dayActionsByCategory[bestDay][category].push({
       id: `${mm.id}-d${bestDay}`,
       title: mm.title || '',
       titleEn: mm.title_en || mm.title || '',
@@ -344,8 +365,8 @@ function buildFallbackDays(
       completed: false,
       completedAt: null,
       xpReward: 10,
-      blockCategory: 'action',
-      difficulty: 3 as Difficulty,
+      blockCategory: category,
+      difficulty: (mm.difficulty || 3) as Difficulty,
       scheduledDay: absDay,
       calendarDate: phaseDates[bestDay] || '',
       focusArea: mm.focus_area || null,
@@ -357,26 +378,34 @@ function buildFallbackDays(
   }
 
   return phaseDates.map((date, d) => {
-    const actions = dayActions[d];
-    const blocks: TacticalBlock[] = actions.length > 0 ? [{
-      id: `fallback-block-${d}`,
-      title: BLOCK_LABELS.action.he,
-      titleEn: BLOCK_LABELS.action.en,
-      emoji: '⚡',
-      category: 'action',
-      estimatedMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
-      actions,
-      completedCount: 0,
-      startTime: null,
-      endTime: null,
-    }] : [];
+    const catGroups = dayActionsByCategory[d];
+    const categoryOrder: BlockCategory[] = ['health', 'training', 'focus', 'action', 'creation', 'social', 'review'];
 
+    const blocks: TacticalBlock[] = categoryOrder
+      .filter(cat => catGroups[cat] && catGroups[cat].length > 0)
+      .map((cat, bIdx) => {
+        const actions = catGroups[cat];
+        return {
+          id: `fallback-block-${d}-${bIdx}`,
+          title: BLOCK_LABELS[cat]?.he || 'בלוק',
+          titleEn: BLOCK_LABELS[cat]?.en || 'Block',
+          emoji: BLOCK_EMOJIS[cat] || '📋',
+          category: cat,
+          estimatedMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
+          actions,
+          completedCount: 0,
+          startTime: null,
+          endTime: null,
+        };
+      });
+
+    const totalActions = blocks.reduce((s, b) => s + b.actions.length, 0);
     return {
       dayIndex: d, label: `יום ${d + 1}`, labelEn: `Day ${d + 1}`,
       date, dayNumber: d + 1, blocks,
-      totalActions: actions.length,
+      totalActions,
       completedActions: 0,
-      totalMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
+      totalMinutes: blocks.reduce((s, b) => s + b.estimatedMinutes, 0),
       isToday: date === todayStr,
     };
   });
