@@ -175,13 +175,20 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
               <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-400">
                 <Flame className="h-3 w-3" /> {streak.streak}{streak.isActiveToday ? ' ✓' : ''}
               </span>
-              <button
-                onClick={() => setTraitsOpen(true)}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
-              >
-                <Sparkles className="w-3 h-3" />
-                {isHe ? 'תכונות' : 'Traits'}
-              </button>
+                <button
+                  onClick={() => setTraitsOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  {isHe ? 'תכונות' : 'Traits'}
+                </button>
+                <button
+                  onClick={() => setPracticesOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  <Dumbbell className="w-3 h-3" />
+                  {isHe ? 'תרגולים' : 'Practices'}
+                </button>
             </div>
           </div>
         </div>
