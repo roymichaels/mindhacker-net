@@ -225,6 +225,7 @@ ${adjustmentContext}
           "milestones": [
             {
               "milestone_id": "actual-uuid-from-list",
+              "practice_id": null,
               "focus_area": "vitality",
               "title_en": "Morning breathwork protocol",
               "title_he": "פרוטוקול נשימת בוקר",
@@ -235,30 +236,20 @@ ${adjustmentContext}
               "order_index": 0
             },
             {
-              "milestone_id": "actual-uuid-from-list",
-              "focus_area": "power",
-              "title_en": "Full-body stretch routine",
-              "title_he": "שגרת מתיחות מלאה",
+              "milestone_id": null,
+              "practice_id": "actual-practice-id",
+              "focus_area": "consciousness",
+              "title_en": "Tai Chi practice",
+              "title_he": "תרגול טאי צ'י",
               "duration_minutes": 20,
               "difficulty": 2,
               "xp_reward": 10,
               "execution_template": "timer_focus",
               "order_index": 1
-            },
-            {
-              "milestone_id": "actual-uuid-from-list",
-              "focus_area": "combat",
-              "title_en": "Cold exposure protocol",
-              "title_he": "פרוטוקול חשיפה לקור",
-              "duration_minutes": 10,
-              "difficulty": 3,
-              "xp_reward": 10,
-              "execution_template": "timer_focus",
-              "order_index": 2
             }
           ],
-          "total_minutes": 45,
-          "milestone_count": 3
+          "total_minutes": 35,
+          "milestone_count": 2
         }
       ],
       "total_minutes": 150,
