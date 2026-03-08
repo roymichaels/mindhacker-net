@@ -100,6 +100,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 
   return (<>
     <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
+    <PracticesModal open={practicesOpen} onOpenChange={setPracticesOpen} />
     {createPortal(
     <div
       role="dialog"
