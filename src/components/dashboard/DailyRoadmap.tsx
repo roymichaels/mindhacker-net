@@ -101,7 +101,7 @@ export function DailyRoadmap() {
     if (!item.toggleable) return;
     if (item.type === 'habit') {
       toggleHabit(item.id, !item.done);
-    } else if (item.type === 'task') {
+    } else if (item.type === 'task' || item.type === 'learning') {
       const newDone = !item.done;
       await supabase.from('action_items').update({
         status: newDone ? 'done' : 'todo',
