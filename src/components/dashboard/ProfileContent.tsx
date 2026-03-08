@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadData } from '@/hooks/useLaunchpadData';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
@@ -30,6 +31,7 @@ interface ProfileContentProps {
 
 export function ProfileContent({ onClose }: ProfileContentProps) {
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -77,7 +79,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
   const handleEditJourney = () => {
     onClose?.();
-    navigate('/onboarding');
+    smartNavigate();
   };
 
   if (isLoading) {

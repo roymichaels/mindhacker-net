@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useProjects } from '@/hooks/useProjects';
 import { ProjectCard } from '@/components/projects/ProjectCard';
@@ -23,6 +24,7 @@ interface ProjectsProps {
 const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { projects, isLoading } = useProjects();
   const { canAccessProjects } = useSubscriptionGate();
   const { isLaunchpadComplete } = useLaunchpadProgress();
@@ -82,7 +84,7 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
             ))}
           </div>
           <Button
-            onClick={() => navigate('/onboarding')}
+            onClick={() => smartNavigate()}
             size="lg"
             className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
           >

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 
@@ -50,6 +51,7 @@ export const extractCommandTags = (message: string): AuroraCommand[] => {
 
 export const useAuroraCommands = () => {
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { setTheme, theme } = useTheme();
 
   // Navigation commands
@@ -60,7 +62,7 @@ export const useAuroraCommands = () => {
     health: () => navigate('/health'),
     business: () => navigate('/business'),
     life_plan: () => navigate('/plan'),
-    launchpad: () => navigate('/onboarding'),
+    launchpad: () => smartNavigate(),
     community: () => navigate('/community'),
     settings: () => navigate('/settings'),
     profile: () => navigate('/profile'),

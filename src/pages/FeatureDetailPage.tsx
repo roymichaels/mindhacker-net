@@ -3,6 +3,7 @@
  * Route: /features/:slug
  */
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { FEATURES } from '@/data/featureShowcaseData';
 import { FEATURE_DETAILS } from '@/data/featureDetailData';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -23,6 +24,7 @@ export default function FeatureDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
 
   const featureIdx = FEATURES.findIndex(f => f.slug === slug);
   const feature = FEATURES[featureIdx];
@@ -223,7 +225,7 @@ export default function FeatureDetailPage() {
             </p>
             <Button
               size="lg"
-              onClick={() => navigate('/onboarding')}
+              onClick={() => smartNavigate()}
               className="rounded-full px-10 text-base"
             >
               {isRTL ? 'התחל את המסע' : 'Start Your Journey'}

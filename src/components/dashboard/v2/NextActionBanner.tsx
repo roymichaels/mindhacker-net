@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { AlertCircle, Sparkles, Target, CheckCircle2, Brain, ArrowRight, Rocket, MessageCircle, FolderKanban, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ interface NextActionBannerProps {
 export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBannerProps) {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { user } = useAuth();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete, completionPercentage } = useLaunchpadProgress();
@@ -71,7 +73,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: language === 'he' 
           ? `${completionPercentage}% הושלמו - זה הבסיס להכל`
           : `${completionPercentage}% complete - this is the foundation for everything`,
-        action: () => navigate('/onboarding'),
+        action: () => smartNavigate(),
         actionLabel: language === 'he' ? 'המשך במסע' : 'Continue Journey',
       };
     }

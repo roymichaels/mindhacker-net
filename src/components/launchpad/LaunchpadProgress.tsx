@@ -4,6 +4,7 @@ import { useLaunchpadProgress, STEPS, PHASES, getPhaseForStep } from '@/hooks/us
 import { Check, Lock, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 
 interface LaunchpadProgressProps {
   className?: string;
@@ -14,6 +15,7 @@ interface LaunchpadProgressProps {
 export function LaunchpadProgress({ className, compact = false, onClick }: LaunchpadProgressProps) {
   const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { 
     completionPercentage, 
     currentStep, 
@@ -29,7 +31,7 @@ export function LaunchpadProgress({ className, compact = false, onClick }: Launc
     if (onClick) {
       onClick();
     } else {
-      navigate('/onboarding');
+      smartNavigate();
     }
   };
 

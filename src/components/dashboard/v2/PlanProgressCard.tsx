@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,7 @@ import { cn } from '@/lib/utils';
 export function PlanProgressCard() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { user } = useAuth();
 
   // Fetch active plan and milestone
@@ -81,7 +83,7 @@ export function PlanProgressCard() {
           <p className="text-sm text-muted-foreground mb-3">
             {t('planProgress.noActivePlan')}
           </p>
-          <Button size="sm" onClick={() => navigate('/onboarding')}>
+          <Button size="sm" onClick={() => smartNavigate()}>
             {t('planProgress.createPlan')}
           </Button>
         </CardContent>

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SmartOnboardingProvider } from "@/contexts/SmartOnboardingContext";
 import { CoachesModalProvider } from "@/contexts/CoachesModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
@@ -234,7 +235,8 @@ const App = () => (
                    <FlowAuditProvider>
                    <AffiliateTracker />
                    <UTMTrackerMount />
-                   <AnalyticsProvider>
+                    <AnalyticsProvider>
+                    <SmartOnboardingProvider>
                     <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         {/* Public routes */}
@@ -506,6 +508,7 @@ const App = () => (
                       <SubscriptionsModal />
                       
                     </Suspense>
+                    </SmartOnboardingProvider>
                   </AnalyticsProvider>
                    </FlowAuditProvider>
                 </BrowserRouter>
