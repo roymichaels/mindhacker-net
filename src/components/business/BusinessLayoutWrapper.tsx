@@ -1,9 +1,8 @@
 /**
- * BusinessLayoutWrapper — Wraps business routes to show FM bottom nav.
- * Hides default DashboardLayout sidebars since business is part of the FM sub-app.
+ * BusinessLayoutWrapper — Wraps business routes.
+ * Hides all sidebars. No chat dock — business is a standalone hub.
  */
 import { Suspense, lazy } from 'react';
-import { FMBottomNav } from '@/components/fm/FMBottomNav';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
 
@@ -14,12 +13,9 @@ export function BusinessIndexWrapper() {
   useSidebars(null, null, []);
 
   return (
-    <>
-      <Suspense fallback={<PageSkeleton />}>
-        <Business />
-      </Suspense>
-      <FMBottomNav />
-    </>
+    <Suspense fallback={<PageSkeleton />}>
+      <Business />
+    </Suspense>
   );
 }
 
@@ -27,11 +23,20 @@ export function BusinessDashboardWrapper() {
   useSidebars(null, null, []);
 
   return (
-    <>
-      <Suspense fallback={<PageSkeleton />}>
-        <BusinessDashboard />
-      </Suspense>
-      <FMBottomNav />
-    </>
+    <Suspense fallback={<PageSkeleton />}>
+      <BusinessDashboard />
+    </Suspense>
+  );
+}
+
+export function BusinessJourneyWrapper() {
+  useSidebars(null, null, []);
+
+  const BusinessJourney = lazy(() => import('@/pages/BusinessJourney'));
+
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <BusinessJourney />
+    </Suspense>
   );
 }
