@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
+import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
