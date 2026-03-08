@@ -235,7 +235,8 @@ const App = () => (
                    <FlowAuditProvider>
                    <AffiliateTracker />
                    <UTMTrackerMount />
-                   <AnalyticsProvider>
+                    <AnalyticsProvider>
+                    <SmartOnboardingProvider>
                     <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         {/* Public routes */}
