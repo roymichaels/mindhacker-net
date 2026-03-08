@@ -58,7 +58,7 @@ const KNOWN_ROUTES = [
   '/launchpad', '/settings',
   '/community', '/content',
   '/success', '/auth',
-  '/strategy', '/tactics',
+  '/strategy', '/tactics', '/plan',
 ];
 
 /**

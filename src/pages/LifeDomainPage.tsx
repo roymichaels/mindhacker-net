@@ -34,7 +34,7 @@ export default function LifeDomainPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <p className="text-muted-foreground">{t('lifeDomain.notFound')}</p>
-          <Button variant="outline" onClick={() => navigate('/strategy')}>
+          <Button variant="outline" onClick={() => navigate('/plan')}>
             {t('lifeDomain.goBack')}
           </Button>
         </div>
@@ -80,7 +80,7 @@ export default function LifeDomainPage() {
       <div className="space-y-6">
         {/* Back button */}
         <button
-          onClick={() => navigate('/strategy')}
+          onClick={() => navigate('/plan')}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <BackArrow className="w-4 h-4" />

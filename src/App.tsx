@@ -90,6 +90,7 @@ import FreelancerLayoutWrapper from "./components/freelancer/FreelancerLayoutWra
 import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
+const PlanLayoutWrapper = lazy(() => import("./components/plan/PlanLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 
 const PresenceHome = lazy(() => import("./pages/presence/PresenceHome"));
@@ -180,7 +181,7 @@ const queryClient = new QueryClient({
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
-// Redirect old /arena/:domainId/* → /strategy/:domainId/*
+// Redirect old /arena/:domainId/* → /plan (via /strategy/:domainId/*)
 function ArenaToStrategyRedirect() {
   const loc = window.location.pathname;
   const newPath = loc.replace(/^\/arena/, '/strategy');
@@ -303,8 +304,10 @@ const App = () => (
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
                           {/* Now (was /dashboard) */}
                           <Route path="/now" element={<DashboardLayoutWrapper />} />
-                          {/* Strategy (was /life) */}
-                          <Route path="/strategy" element={<LifeLayoutWrapper />} />
+                          {/* Plan (merged Strategy + Tactics) */}
+                          <Route path="/plan" element={<PlanLayoutWrapper />} />
+                          {/* Strategy sub-routes for pillar assessments */}
+                          <Route path="/strategy" element={<Navigate to="/plan" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
                           <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                           <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
@@ -363,10 +366,9 @@ const App = () => (
                           <Route path="/strategy/play/results" element={<PlayResults />} />
                           {/* Strategy domain catch-all */}
                           <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
-                          {/* Tactics (was /arena) */}
-                          <Route path="/tactics" element={<ArenaLayoutWrapper />} />
-                          {/* Legacy /arena redirects */}
-                          <Route path="/arena" element={<Navigate to="/tactics" replace />} />
+                          {/* Legacy redirects */}
+                          <Route path="/tactics" element={<Navigate to="/plan" replace />} />
+                          <Route path="/arena" element={<Navigate to="/plan" replace />} />
                           <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
@@ -423,31 +425,31 @@ const App = () => (
                         <Route path="/plan" element={<Navigate to="/now" replace />} />
                         <Route path="/me" element={<Navigate to="/now" replace />} />
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
-                        <Route path="/projects" element={<Navigate to="/strategy" replace />} />
-                        {/* Legacy /life redirects → /strategy */}
-                        <Route path="/life" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/life/*" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/projects" element={<Navigate to="/plan" replace />} />
+                        {/* Legacy /life redirects → /plan */}
+                        <Route path="/life" element={<Navigate to="/plan" replace />} />
+                        <Route path="/life/*" element={<Navigate to="/plan" replace />} />
                         {/* Old pillar routes */}
-                        <Route path="/consciousness" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/health" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/health/journey" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/health/journey/:id" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/health/plan" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/relationships" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/relationships/journey" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/relationships/journey/:id" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/finances" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/finances/journey" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/finances/journey/:id" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/learning" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/learning/journey" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/learning/journey/:id" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/purpose" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/purpose/journey" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/purpose/journey/:id" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/hobbies" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/hobbies/journey" element={<Navigate to="/strategy" replace />} />
-                        <Route path="/hobbies/journey/:id" element={<Navigate to="/strategy" replace />} />
+                        <Route path="/consciousness" element={<Navigate to="/plan" replace />} />
+                        <Route path="/health" element={<Navigate to="/plan" replace />} />
+                        <Route path="/health/journey" element={<Navigate to="/plan" replace />} />
+                        <Route path="/health/journey/:id" element={<Navigate to="/plan" replace />} />
+                        <Route path="/health/plan" element={<Navigate to="/plan" replace />} />
+                        <Route path="/relationships" element={<Navigate to="/plan" replace />} />
+                        <Route path="/relationships/journey" element={<Navigate to="/plan" replace />} />
+                        <Route path="/relationships/journey/:id" element={<Navigate to="/plan" replace />} />
+                        <Route path="/finances" element={<Navigate to="/plan" replace />} />
+                        <Route path="/finances/journey" element={<Navigate to="/plan" replace />} />
+                        <Route path="/finances/journey/:id" element={<Navigate to="/plan" replace />} />
+                        <Route path="/learning" element={<Navigate to="/plan" replace />} />
+                        <Route path="/learning/journey" element={<Navigate to="/plan" replace />} />
+                        <Route path="/learning/journey/:id" element={<Navigate to="/plan" replace />} />
+                        <Route path="/purpose" element={<Navigate to="/plan" replace />} />
+                        <Route path="/purpose/journey" element={<Navigate to="/plan" replace />} />
+                        <Route path="/purpose/journey/:id" element={<Navigate to="/plan" replace />} />
+                        <Route path="/hobbies" element={<Navigate to="/plan" replace />} />
+                        <Route path="/hobbies/journey" element={<Navigate to="/plan" replace />} />
+                        <Route path="/hobbies/journey/:id" element={<Navigate to="/plan" replace />} />
                         {/* Admin redirects */}
                         <Route path="/admin" element={<Navigate to="/admin-hub" replace />} />
                         <Route path="/admin/*" element={<Navigate to="/admin-hub" replace />} />
