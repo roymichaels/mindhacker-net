@@ -73,9 +73,9 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
               : colors.bgInactive
         )}
       >
-        <Icon className={cn("h-4 w-4", active ? colors.active : `${colors.active} opacity-50`)} />
+        <Icon className={cn("h-4 w-4", active ? colors.active : `${colors.active} opacity-80`)} />
         <span className={cn(
-          active ? colors.active : `${colors.active} opacity-50`
+          active ? colors.active : `${colors.active} opacity-80`
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
         </span>
