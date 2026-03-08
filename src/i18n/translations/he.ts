@@ -5356,7 +5356,7 @@ export const he = {
       allAges: 'כל הגילאים',
     },
     planProgress: {
-      ninetyDayPlan: 'תוכנית 90 יום',
+      ninetyDayPlan: 'תוכנית 100 יום',
       noActivePlan: 'עדיין אין לך תוכנית פעילה',
       createPlan: 'צור תוכנית',
       week: 'שבוע',
