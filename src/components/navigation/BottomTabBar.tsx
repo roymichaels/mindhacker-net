@@ -69,13 +69,12 @@ export function BottomTabBar() {
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
   };
 
-  // Separate FM (center) from regular tabs
-  const fmTab = allTabs.find(t => t.id === 'fm');
-  const regularTabs = allTabs.filter(t => t.id !== 'fm');
+  // Separate Path (center) from regular tabs
+  const planTab = allTabs.find(t => t.id === 'plan');
+  const regularTabs = allTabs.filter(t => t.id !== 'plan');
 
-  // Layout order (LTR): Plan | Aurora | FM(center) | Community | Study
-  // In RTL this reverses visually
-  const leftTabs = regularTabs.slice(0, 1); // Plan
+  // Layout order (LTR): FM | Aurora | Path(center) | Community | Study
+  const leftTabs = regularTabs.slice(0, 1); // FM
   const rightTabs = regularTabs.slice(1);   // Community, Study
 
   const renderTab = (tab: typeof allTabs[0]) => {
