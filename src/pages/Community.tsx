@@ -143,24 +143,25 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               {LIFE_DOMAINS.map((d) => {
                 const Icon = d.icon;
                 const count = pillarCounts?.[d.id] || 0;
+                const c = d.color; // tailwind color name e.g. 'blue','red','amber'
                 return (
                   <button
                     key={d.id}
                     onClick={() => onPillarSelect?.(d.id)}
                     className={cn(
-                      "group flex flex-col items-center gap-2 p-4 rounded-2xl border border-border/40",
-                      "bg-card/60 hover:bg-accent/30 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
-                      "active:scale-[0.98] transition-all duration-200"
+                      "group flex flex-col items-center gap-2 p-4 rounded-2xl border",
+                      "active:scale-[0.98] transition-all duration-200",
+                      `bg-${c}-500/5 border-${c}-500/20 hover:bg-${c}-500/15 hover:border-${c}-500/40 hover:shadow-lg hover:shadow-${c}-500/10`
                     )}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Icon className="h-6 w-6 text-primary" />
+                    <div className={`w-12 h-12 rounded-xl bg-${c}-500/15 flex items-center justify-center group-hover:bg-${c}-500/25 transition-colors`}>
+                      <Icon className={`h-6 w-6 text-${c}-500 dark:text-${c}-400`} />
                     </div>
-                    <span className="text-sm font-semibold text-foreground text-center leading-tight">
+                    <span className={`text-sm font-semibold text-${c}-600 dark:text-${c}-300 text-center leading-tight`}>
                       {isHe ? d.labelHe : d.labelEn}
                     </span>
                     {count > 0 && (
-                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <div className={`flex items-center gap-1 text-[11px] text-${c}-500/70 dark:text-${c}-400/70`}>
                         <MessageSquare className="h-3 w-3" />
                         <span>{count}</span>
                       </div>
