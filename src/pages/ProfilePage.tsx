@@ -81,7 +81,7 @@ export default function ProfilePage() {
               <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 border border-amber-500/20">
                 <Star className="h-3 w-3 fill-amber-400" /> Lv.{xp.level}
               </span>
-              <div className="flex-1 h-2 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+              <div className="flex-1 h-2 rounded-full bg-muted border border-border overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
                   style={{ background: 'linear-gradient(90deg, hsl(35 80% 50%), hsl(45 90% 55%))' }}
