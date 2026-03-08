@@ -25,6 +25,7 @@ import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
+import { useUserJob } from '@/hooks/useUserJob';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
@@ -46,6 +47,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
+  const { currentJob } = useUserJob();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -113,13 +115,39 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               compact ? "gap-1.5" : "gap-2"
             )}
           >
-            <AuroraOrbIcon className={cn(compact ? "w-7 h-7" : "w-10 h-10", "text-foreground")} size={compact ? 28 : 40} />
-            <span className={cn(
-              "font-bold text-foreground",
-              compact ? "text-sm" : "text-base"
-            )}>
-              {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
-            </span>
+            {user ? (
+              <>
+                <div className={cn(compact ? "w-7 h-7" : "w-9 h-9", "rounded-full overflow-hidden shrink-0")}>
+                  <PersonalizedOrb size={compact ? 28 : 36} state="idle" />
+                </div>
+                <div className="flex flex-col items-start leading-tight">
+                  <span className={cn(
+                    "font-bold text-foreground truncate max-w-[120px]",
+                    compact ? "text-xs" : "text-sm"
+                  )}>
+                    {displayName}
+                  </span>
+                  {currentJob?.jobs && (
+                    <span className={cn(
+                      "text-muted-foreground truncate max-w-[120px]",
+                      compact ? "text-[10px]" : "text-xs"
+                    )}>
+                      {language === 'he' ? (currentJob.jobs.name_he || currentJob.jobs.name) : currentJob.jobs.name}
+                    </span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <AuroraOrbIcon className={cn(compact ? "w-7 h-7" : "w-10 h-10", "text-foreground")} size={compact ? 28 : 40} />
+                <span className={cn(
+                  "font-bold text-foreground",
+                  compact ? "text-sm" : "text-base"
+                )}>
+                  {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
+                </span>
+              </>
+            )}
             <ChevronDown className={cn(compact ? "h-3.5 w-3.5" : "h-4 w-4", "text-muted-foreground")} />
           </button>
         </DropdownMenuTrigger>
