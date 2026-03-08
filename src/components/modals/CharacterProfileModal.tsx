@@ -143,7 +143,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             {dashboard.identityTitle && (
               <div className="flex items-center justify-center gap-2">
                 <span className="text-lg">{dashboard.identityTitle.icon}</span>
-                <h2 className="text-lg font-bold text-white tracking-wide">
+                <h2 className="text-lg font-bold text-foreground tracking-wide">
                   {isHe ? dashboard.identityTitle.title : dashboard.identityTitle.titleEn}
                 </h2>
               </div>
