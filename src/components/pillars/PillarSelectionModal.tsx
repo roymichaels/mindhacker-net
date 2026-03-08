@@ -135,7 +135,13 @@ export function PillarSelectionModal({ open, onOpenChange, onComplete }: PillarS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg" dir={isRTL ? 'rtl' : 'ltr'}>
+      <DialogContent className="max-w-lg relative" dir={isRTL ? 'rtl' : 'ltr'}>
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-3 end-3 z-10 p-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+        >
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
         <DialogHeader>
           <DialogTitle className="text-lg">
             {isHe ? 'בחר את הפילרים שלך' : 'Choose Your Pillars'}
