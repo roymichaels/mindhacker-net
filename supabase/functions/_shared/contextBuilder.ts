@@ -27,11 +27,16 @@ export interface AuroraContext {
   // Dates & plan
   today: string;
   current_time: string;
+  current_time_israel: string;
+  day_of_week: string;
+  day_of_week_he: string;
   life_plan: {
     active: boolean;
     start_date: string | null;
+    current_day: number;
     current_week: number;
     total_weeks: number;
+    days_remaining: number;
   } | null;
 
   // Action Items (unified)
