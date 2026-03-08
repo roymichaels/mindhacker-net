@@ -63,6 +63,11 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* ═══════ ACHIEVEMENT COLLECTION ═══════ */}
+        <div className="px-4 mt-5 max-w-sm mx-auto w-full">
+          <AchievementGallery />
+        </div>
+
         {/* ═══════ PROFILE CONTENT ═══════ */}
         <div className="px-4 mt-4">
           {traitsOpen ? (
