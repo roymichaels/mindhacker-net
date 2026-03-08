@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { AlertCircle, Sparkles, Target, CheckCircle2, Brain, ArrowRight, Rocket, MessageCircle, FolderKanban, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

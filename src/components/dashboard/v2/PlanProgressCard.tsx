@@ -83,7 +83,7 @@ export function PlanProgressCard() {
           <p className="text-sm text-muted-foreground mb-3">
             {t('planProgress.noActivePlan')}
           </p>
-          <Button size="sm" onClick={() => navigate('/onboarding')}>
+          <Button size="sm" onClick={() => smartNavigate()}>
             {t('planProgress.createPlan')}
           </Button>
         </CardContent>
