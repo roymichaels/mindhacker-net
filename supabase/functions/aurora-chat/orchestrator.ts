@@ -267,8 +267,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
 
   // Dates & Time Awareness (enriched)
   parts.push(isHe
-    ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה נוכחית (ישראל): ${ctx.current_time_israel}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
-    : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Current time (Israel): ${ctx.current_time_israel}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
+    ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה מקומית: ${ctx.current_time_local}\n- אזור זמן: ${ctx.user_timezone}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
+    : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Local time: ${ctx.current_time_local}\n- Timezone: ${ctx.user_timezone}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
 
   if (ctx.life_plan) {
     parts.push(isHe
