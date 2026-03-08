@@ -251,8 +251,8 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               }}
               className={cn(
                 "w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-bold",
-                "bg-gradient-to-r from-amber-600/90 via-yellow-500/80 to-amber-600/90 text-white",
-                "border border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.3),inset_0_1px_0_rgba(255,255,255,0.25)]",
+                "bg-gradient-to-r from-amber-500/90 via-yellow-500/70 to-[hsl(var(--background))] text-white",
+                "border border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]",
                 "hover:shadow-[0_0_20px_rgba(245,158,11,0.5),inset_0_1px_0_rgba(255,255,255,0.35)] hover:scale-[1.02]",
                 "active:scale-[0.98] transition-all duration-200",
                 "backdrop-blur-sm relative overflow-hidden"
