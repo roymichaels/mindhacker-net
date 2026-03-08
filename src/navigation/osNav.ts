@@ -18,6 +18,8 @@ export interface OsTab {
   /** Role required to see this tab (undefined = visible to all authenticated users) */
   requiredRole?: 'admin' | 'practitioner';
   comingSoon?: boolean;
+  /** If true, BottomTabBar renders the user orb instead of icon */
+  useOrb?: boolean;
 }
 
 /** The main tabs visible to every authenticated user */
