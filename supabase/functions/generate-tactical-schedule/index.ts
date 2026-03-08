@@ -50,9 +50,47 @@ serve(async (req) => {
     const profile = profileRes.data;
     const milestones = milestonesRes.data || [];
     const missions = missionsRes.data || [];
-    const userPractices = userPracticesRes.data || [];
+    let userPractices = userPracticesRes.data || [];
     const identityElements = identityRes.data || [];
     const direction = directionRes.data?.[0];
+
+    // Auto-populate user_practices if empty (bridge from selected pillars)
+    if (userPractices.length === 0) {
+      const { data: profileData } = await supabase.from("profiles").select("selected_pillars").eq("id", user_id).single();
+      const selectedPillars = profileData?.selected_pillars as Record<string, string[]> | null;
+      const allUserPillars = new Set([
+        ...(selectedPillars?.core || []),
+        ...(selectedPillars?.arena || []),
+      ]);
+
+      if (allUserPillars.size > 0) {
+        const { data: allPractices } = await supabase.from("practices").select("id, name, pillar, energy_type, default_duration, category");
+        if (allPractices && allPractices.length > 0) {
+          const rows = allPractices
+            .filter(p => allUserPillars.has(p.pillar))
+            .map(p => ({
+              user_id,
+              practice_id: p.id,
+              is_active: true,
+              is_core_practice: true,
+              energy_phase: p.energy_type || 'day',
+              preferred_duration: p.default_duration || 15,
+              frequency_per_week: p.category === 'training' ? 5 : 7,
+              skill_level: 1,
+            }));
+
+          if (rows.length > 0) {
+            await supabase.from("user_practices").upsert(rows, { onConflict: 'user_id,practice_id', ignoreDuplicates: true });
+            const { data: refreshed } = await supabase
+              .from("user_practices")
+              .select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)")
+              .eq("user_id", user_id).eq("is_active", true);
+            userPractices = refreshed || [];
+            console.log(`[practices-bridge] Auto-populated ${rows.length} practices for tactical schedule`);
+          }
+        }
+      }
+    }
 
     if (milestones.length === 0) throw new Error("No milestones found for this phase");
 
