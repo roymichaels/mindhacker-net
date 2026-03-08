@@ -73,7 +73,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: language === 'he' 
           ? `${completionPercentage}% הושלמו - זה הבסיס להכל`
           : `${completionPercentage}% complete - this is the foundation for everything`,
-        action: () => navigate('/onboarding'),
+        action: () => smartNavigate(),
         actionLabel: language === 'he' ? 'המשך במסע' : 'Continue Journey',
       };
     }
