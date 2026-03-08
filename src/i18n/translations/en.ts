@@ -5275,7 +5275,7 @@ export const en: TranslationKeys = {
       allAges: 'All Ages',
     },
     planProgress: {
-      ninetyDayPlan: '90-Day Plan',
+      ninetyDayPlan: '100-Day Plan',
       noActivePlan: "You don't have an active plan yet",
       createPlan: 'Create Plan',
       week: 'Week',
