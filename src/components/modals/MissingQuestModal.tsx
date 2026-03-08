@@ -2,14 +2,14 @@
  * MissingQuestModal — Pops pillar quest questions inline for users
  * who already completed onboarding but have unanswered quest assessments.
  */
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFlowSpec } from '@/lib/flow/flowSpec';
 import { FlowRenderer } from '@/components/flow/FlowRenderer';
 import { toast } from 'sonner';
@@ -29,6 +29,25 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load existing quest answers from DB
+  const { data: existingAnswers } = useQuery({
+    queryKey: ['quest-saved-answers', user?.id, quest.pillarId],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('launchpad_progress')
+        .select('step_2_profile_data')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!data) return null;
+      const profileData = (data.step_2_profile_data as Record<string, unknown>) ?? {};
+      const quests = (profileData.pillar_quests as Record<string, { answers?: Record<string, unknown> }>) ?? {};
+      return (quests[quest.pillarId]?.answers as Record<string, unknown>) ?? null;
+    },
+    enabled: !!user?.id,
+    staleTime: 30_000,
+  });
 
   const spec = getFlowSpec(`quest-${quest.pillarId}`);
 
@@ -155,6 +174,8 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
             step={stepSpec}
             stepNumber={1}
             totalSteps={1}
+            savedAnswers={existingAnswers ?? undefined}
+            skipAnswered={!!existingAnswers}
             onAutoSave={handleAutoSave}
             onComplete={handleComplete}
           />
