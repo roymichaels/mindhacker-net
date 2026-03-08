@@ -6,7 +6,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -125,7 +126,7 @@ export function AuroraFloatingOrb() {
       role="button"
       tabIndex={0}
     >
-      <AuroraHoloOrb size={ORB_SIZE} glow="full" />
+      <StandaloneMorphOrb size={ORB_SIZE} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
     </motion.div>
   );
 }
@@ -166,7 +167,7 @@ export function AuroraDockOrb({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       aria-label="Close Aurora dock"
     >
-      <AuroraHoloOrb size={36} glow="full" />
+      <StandaloneMorphOrb size={36} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
     </motion.button>
   );
 }
