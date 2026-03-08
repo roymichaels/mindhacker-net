@@ -6,6 +6,7 @@
  * Milestones show 1-5 difficulty stars and open journey modal on click.
  */
 import { useState, useMemo, useCallback } from 'react';
+import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -161,9 +162,7 @@ export default function LifeHub() {
   });
 
   const currentDay = useMemo(() => {
-    if (!plan?.start_date) return 1;
-    const diff = Date.now() - new Date(plan.start_date).getTime();
-    return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
+    return getCurrentDayInIsrael(plan?.start_date);
   }, [plan?.start_date]);
 
   // ========== NORMALIZED VIEW MODEL ==========

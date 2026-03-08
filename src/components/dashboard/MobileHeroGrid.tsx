@@ -4,6 +4,7 @@
  * No graying, no exact times — just themed quests to tackle.
  */
 import { useState, useMemo } from 'react';
+import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -76,9 +77,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
   const currentDay = useMemo(() => {
-    if (!plan?.start_date) return 1;
-    const diff = Date.now() - new Date(plan.start_date).getTime();
-    return Math.max(1, Math.min(100, Math.ceil(diff / (1000 * 60 * 60 * 24))));
+    return getCurrentDayInIsrael(plan?.start_date);
   }, [plan?.start_date]);
 
   // No empty-deps memo — must reflect current local date (not stale after midnight)

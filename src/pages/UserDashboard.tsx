@@ -5,6 +5,7 @@
 import { MobileHeroGrid } from '@/components/dashboard/MobileHeroGrid';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { getCurrentDayInIsrael } from '@/utils/currentDay';
 
 export default function UserDashboard() {
   const { plan, milestones, isLoading } = useLifePlanWithMilestones();
@@ -12,7 +13,7 @@ export default function UserDashboard() {
   if (isLoading) return <PageSkeleton />;
 
   const currentWeek = plan
-    ? Math.min(10, Math.max(1, Math.ceil((Date.now() - new Date(plan.start_date).getTime()) / (1000 * 60 * 60 * 24 * 10))))
+    ? Math.min(10, Math.max(1, Math.ceil(getCurrentDayInIsrael(plan.start_date) / 10)))
     : 1;
 
   const completedCount = milestones.filter((m: any) => m.is_completed).length;
