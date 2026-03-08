@@ -301,7 +301,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                   animate={{ scale: 1, opacity: 1 }}
                   className="flex justify-center mb-4"
                 >
-                  <PresetOrb size={80} />
+                  <OnboardingShowcaseOrb size={80} />
                 </motion.div>
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   {authStep === 'otp' ? t('auth.enterCode') : t('auth.connectToMindOS')}
