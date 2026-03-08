@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useSidebarContext } from '@/contexts/SidebarContext';
 import { FMTopNav } from '@/components/fm/FMTopNav';
 
 import { TopNavBar } from '@/components/navigation/TopNavBar';
@@ -14,33 +13,15 @@ import { AuroraFloatingOrb } from '@/components/aurora/AuroraFloatingOrb';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { BottomHudBar } from '@/components/navigation/BottomHudBar';
 import { SettingsModal } from '@/components/settings';
-import { HudSidebar } from '@/components/dashboard/HudSidebar';
-import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  leftSidebar?: ReactNode;
-  rightSidebar?: ReactNode;
-  currentConversationId?: string | null;
-  onNewChat?: () => void | Promise<boolean>;
-  onSelectConversation?: (id: string) => void;
 }
 
-/** On mobile, wrap sidebar in a full-screen overlay */
-function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-[60] bg-background flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRight }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { isRTL, language } = useTranslation();
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -48,12 +29,6 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
   const [settingsOpen, setSettingsOpen] = useState(false);
   const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business') || location.pathname.startsWith('/freelancer') || location.pathname.startsWith('/creator');
   useLearnPillarAction();
-
-  // Read from SidebarContext (set by hub pages via useSidebars hook)
-  // Props take priority > context > defaults
-  const ctx = useSidebarContext();
-  const leftSidebar = propLeft !== undefined ? propLeft : ctx.leftSidebar;
-  const rightSidebar = propRight !== undefined ? propRight : ctx.rightSidebar;
 
   return (
     <AuroraActionsProvider>
@@ -78,14 +53,10 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
             <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
           )}
 
-          <div className="flex-1 min-h-0 flex !flex-row [&>aside]:pb-16 lg:[&>aside]:pb-14 [&>aside]:flex-shrink-0 [&>aside]:transition-all [&>aside]:duration-300" dir="ltr">
-            {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
-
-            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-52 md:pb-24'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
+            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 ${isFM ? 'pb-16 md:pb-4' : 'pb-32 md:pb-20'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {children}
             </main>
-
-            {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
           </div>
 
           {/* AuroraFloatingOrb removed — Aurora orb now lives in BottomHudBar */}
