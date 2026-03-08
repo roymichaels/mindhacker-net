@@ -220,11 +220,11 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-[calc(100vh-4rem)] bg-background flex flex-col items-center justify-center relative py-8" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Exit button */}
       <button
         onClick={() => navigate(user ? '/today' : '/')}
-        className="absolute top-6 end-6 z-10 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        className="absolute top-4 end-4 z-10 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         aria-label="Exit"
       >
         <X className="w-5 h-5" />
