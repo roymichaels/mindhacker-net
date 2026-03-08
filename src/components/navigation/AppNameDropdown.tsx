@@ -17,6 +17,9 @@ import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useXpProgress } from '@/hooks/useGameState';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
@@ -48,6 +51,8 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
   const { currentJob } = useUserJob();
+  const { profile: userOrbProfile } = useOrbProfile();
+  const xp = useXpProgress();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -118,7 +123,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {user ? (
               <>
                 <div className={cn(compact ? "w-7 h-7" : "w-9 h-9", "rounded-full overflow-hidden shrink-0")}>
-                  <PersonalizedOrb size={compact ? 28 : 36} state="idle" />
+                  <StandaloneMorphOrb
+                    size={compact ? 28 : 36}
+                    profile={userOrbProfile}
+                    geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
+                    level={xp.level}
+                  />
                 </div>
                 <div className="flex flex-col items-start leading-tight">
                   <span className={cn(
