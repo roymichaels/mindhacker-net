@@ -15,6 +15,7 @@ interface LaunchpadProgressProps {
 export function LaunchpadProgress({ className, compact = false, onClick }: LaunchpadProgressProps) {
   const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
+  const { smartNavigate } = useSmartOnboarding();
   const { 
     completionPercentage, 
     currentStep, 
