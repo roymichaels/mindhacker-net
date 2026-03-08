@@ -103,6 +103,9 @@ function buildUserContext(
   userBusinesses: any[],
   auroraMemory: any[],
   hobbies?: string[],
+  identityData?: any,
+  practicesData?: any[],
+  skillsData?: any[],
 ): string {
   const projectsSection = userProjects
     .map(p => `- "${p.name}" (${p.status}) — ${p.description || ''} | Pillar: ${p.life_pillar || 'general'} | Goals: ${JSON.stringify(p.goals || []).slice(0, 200)}`)
@@ -128,17 +131,53 @@ function buildUserContext(
     ? `\n## HOBBIES & PLAY PREFERENCES (from onboarding)\n${hobbies.join(', ')}\n\nCRITICAL: For the "play" pillar, milestones MUST be based on these actual hobbies and interests.\nDo NOT generate generic "smile protocols" or abstract play tasks.\nGenerate milestones like: "Weekly hiking trip", "Join a local basketball game", "Plan a camping weekend", "30min photography walk", etc.\n`
     : '';
 
+  // ── Identity & Direction (NEW) ──
+  let identitySection = '';
+  if (identityData) {
+    const { direction, identity, visions } = identityData;
+    const parts: string[] = [];
+    if (direction) parts.push(`Life Direction: ${direction.content} (clarity: ${direction.clarity_score || '?'}/100)`);
+    if (identity?.values?.length) parts.push(`Core Values: ${identity.values.join(', ')}`);
+    if (identity?.principles?.length) parts.push(`Principles: ${identity.principles.join(', ')}`);
+    if (identity?.self_concepts?.length) parts.push(`Self-Concepts: ${identity.self_concepts.join(', ')}`);
+    if (identity?.vision_statements?.length) parts.push(`Vision Statements: ${identity.vision_statements.join(', ')}`);
+    if (visions?.length) parts.push(`Life Visions:\n${visions.map((v: any) => `  - [${v.timeframe}] ${v.title}`).join('\n')}`);
+    if (parts.length > 0) {
+      identitySection = `\n## USER IDENTITY & DIRECTION\n${parts.join('\n')}\n\nCRITICAL: The 100-day plan MUST align with this user's identity, values, and life direction.\nMilestones should feel like steps toward who this person is becoming.\n`;
+    }
+  }
+
+  // ── Practices (NEW) ──
+  let practicesSection = '';
+  if (practicesData && practicesData.length > 0) {
+    const practiceLines = practicesData.map((p: any) => 
+      `- ${p.practice_name} [${p.energy_phase}] ${p.preferred_duration}min, ${p.frequency_per_week}x/week, skill_level:${p.skill_level}, ${p.is_core_practice ? 'CORE' : 'optional'} (pillar: ${p.pillar || 'general'})`
+    ).join('\n');
+    practicesSection = `\n## USER'S ACTIVE PRACTICES (from practice library)\n${practiceLines}\n\nCRITICAL: When generating milestones for relevant pillars, reference these actual practices.\nDo NOT invent generic "breathing exercise" or "meditation" if the user has specific practices.\nUse the user's chosen practices as the foundation for daily rituals and skill development.\n`;
+  }
+
+  // ── Skills (NEW) ──
+  let skillsSection = '';
+  if (skillsData && skillsData.length > 0) {
+    const skillLines = skillsData.map((s: any) => 
+      `- ${s.name} (${s.pillar || 'general'}) level:${s.level || 1} xp:${s.xp_total || 0}`
+    ).join('\n');
+    skillsSection = `\n## USER'S ACTIVE SKILLS\n${skillLines}\n\nMilestones should include skill training sessions where relevant.\n`;
+  }
+
   return `## USER
 Name: ${profileData?.name || 'Unknown'}
 Intention: ${JSON.stringify(profileData?.intention || '')}
 Today: ${new Date().toISOString().split('T')[0]}
+Wake Time: ${profileData?.wake_time || 'Unknown'}
+Sleep Time: ${profileData?.sleep_time || 'Unknown'}
 
 ## PROJECTS (with goals and pillar mapping)
 ${projectsSection}
 
 ## BUSINESSES (with journey data)
 ${businessSection}
-${hobbiesSection}
+${hobbiesSection}${identitySection}${practicesSection}${skillsSection}
 ## USER MEMORY (25 most recent, timeline-aware)
 ${memorySnippets}`;
 }
