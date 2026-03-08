@@ -174,6 +174,8 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
             step={stepSpec}
             stepNumber={1}
             totalSteps={1}
+            savedAnswers={existingAnswers ?? undefined}
+            skipAnswered={!!existingAnswers}
             onAutoSave={handleAutoSave}
             onComplete={handleComplete}
           />
