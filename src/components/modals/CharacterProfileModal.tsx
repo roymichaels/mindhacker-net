@@ -389,6 +389,44 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {/* Stat Wheel */}
       <StatWheel isHe={isHe} />
 
+      {/* ── IDENTITY PROFILE: Full-width card ── */}
+      {identityProfile && (
+        <EmpireCard className="text-center">
+          <SectionTitle
+            icon={<UserCircle className="w-4 h-4 text-rose-400" />}
+            title={isHe ? 'פרופיל זהות' : 'Identity Profile'}
+            accentColor="bg-rose-500/10"
+          />
+          {identityProfile.suggested_ego_state && (
+            <div className="flex items-center justify-center gap-2 mb-3 p-2 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+              <span className="text-lg">
+                {({ warrior: '⚔️', guardian: '🛡️', creator: '🎨', seeker: '🔍', sage: '🧙' } as Record<string, string>)[identityProfile.suggested_ego_state.toLowerCase()] || '🛡️'}
+              </span>
+              <span className="text-sm font-bold text-amber-400">
+                {identityProfile.suggested_ego_state}
+              </span>
+            </div>
+          )}
+          {identityProfile.dominant_traits?.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {identityProfile.dominant_traits.map((t: string, i: number) => (
+                <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">{t}</span>
+              ))}
+            </div>
+          )}
+          {identityProfile.values_hierarchy?.length > 0 && (
+            <div className="mt-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'היררכיית ערכים' : 'Values Hierarchy'}</p>
+              <div className="flex flex-wrap justify-center gap-1.5">
+                {identityProfile.values_hierarchy.map((v: string, i: number) => (
+                  <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/15">{v}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </EmpireCard>
+      )}
+
       {/* ── IDENTITY & VALUES: Below stats ── */}
       {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
         <EmpireCard className="text-center">
