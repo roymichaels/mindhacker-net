@@ -47,6 +47,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
+  const { currentJob } = useUserJob();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
