@@ -15,7 +15,7 @@ import { PracticesModal } from '@/components/modals/PracticesModal';
 import { Star, Flame, Zap } from 'lucide-react';
 import { Sparkles, Dumbbell } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { CharacterProfileContent } from '@/components/modals/CharacterProfileModal';
+import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
