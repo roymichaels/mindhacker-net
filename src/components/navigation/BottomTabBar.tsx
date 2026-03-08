@@ -18,12 +18,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Flame } from 'lucide-react';
 
 
-/** Per-tab color schemes */
+/** Per-tab color schemes — light/dark adaptive */
 const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: string; ring: string }> = {
-  plan:      { active: 'text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30',       bgInactive: 'bg-cyan-500/5 border-cyan-500/15',     ring: 'ring-cyan-400/40' },
-  fm:        { active: 'text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',     bgInactive: 'bg-amber-500/5 border-amber-500/15',   ring: 'ring-amber-400/40' },
-  community: { active: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30', bgInactive: 'bg-emerald-500/5 border-emerald-500/15', ring: 'ring-emerald-400/40' },
-  study:     { active: 'text-violet-400',  bg: 'bg-violet-500/15 border-violet-500/30',   bgInactive: 'bg-violet-500/5 border-violet-500/15', ring: 'ring-violet-400/40' },
+  plan:      { active: 'text-cyan-600 dark:text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30',       bgInactive: 'bg-cyan-500/5 border-cyan-500/15',     ring: 'ring-cyan-400/40' },
+  fm:        { active: 'text-amber-600 dark:text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',     bgInactive: 'bg-amber-500/5 border-amber-500/15',   ring: 'ring-amber-400/40' },
+  community: { active: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30', bgInactive: 'bg-emerald-500/5 border-emerald-500/15', ring: 'ring-emerald-400/40' },
+  study:     { active: 'text-violet-600 dark:text-violet-400',  bg: 'bg-violet-500/15 border-violet-500/30',   bgInactive: 'bg-violet-500/5 border-violet-500/15', ring: 'ring-violet-400/40' },
 };
 
 export function BottomTabBar() {
@@ -119,7 +119,7 @@ export function BottomTabBar() {
         {/* Aurora — styled like other tabs */}
         <button
           onClick={openAurora}
-          className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border bg-violet-500/5 border-violet-500/15"
+          className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border bg-violet-500/5 border-violet-500/15 hover:bg-violet-500/15"
         >
           <AnimatePresence>
             {showBalloon && (
@@ -152,7 +152,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className="text-[10px] font-semibold text-violet-400 opacity-70">Aurora</span>
+          <span className="text-[10px] font-semibold text-violet-600 dark:text-violet-400 opacity-70">Aurora</span>
         </button>
 
         {/* Path — center elevated button */}
@@ -167,11 +167,11 @@ export function BottomTabBar() {
                   : "bg-gradient-to-br from-cyan-600/15 to-teal-500/10 border-cyan-500/20 ring-cyan-500/10"
               )}
             >
-              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400/60")} />
+              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/60 dark:text-cyan-400/60")} />
             </button>
             <span className={cn(
               "text-[10px] font-semibold",
-              isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400 opacity-50"
+              isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600 dark:text-cyan-400 opacity-50"
             )}>
               {isHe ? 'מסלול' : 'Path'}
             </span>
