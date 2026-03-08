@@ -99,10 +99,10 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
           <AppNameDropdown onOpenSettings={onOpenSettings} />
 
           <nav className="flex items-center gap-1.5">
-            {/* Path */}
-            {planTab && renderTab(planTab)}
+            {/* FM */}
+            {fmTab && renderTab(fmTab)}
 
-            {/* Aurora tab — between Path and FM */}
+            {/* Aurora tab — between FM and Path */}
             <button
               onClick={openAurora}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all border bg-violet-500/5 border-violet-500/15 hover:bg-violet-500/15 hover:border-violet-500/30"
@@ -120,8 +120,8 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
               </span>
             </button>
 
-            {/* FM */}
-            {fmTab && renderTab(fmTab)}
+            {/* Path */}
+            {planTab && renderTab(planTab)}
 
             {/* Community, Study */}
             {otherTabs.map(renderTab)}
