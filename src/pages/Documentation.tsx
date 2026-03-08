@@ -417,7 +417,7 @@ export default function Documentation() {
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-lg">
+      <div className="sticky top-0 z-50 border-b border-border bg-background backdrop-blur-lg">
         <div className="flex items-center h-14 px-4 gap-3">
           {/* Left: Sidebar toggle */}
           <button
