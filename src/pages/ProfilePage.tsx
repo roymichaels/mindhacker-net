@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { OrbNFTCard } from '@/components/gamification/OrbNFTCard';
+import { AchievementGallery } from '@/components/gamification/AchievementGallery';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { PracticesModal } from '@/components/modals/PracticesModal';
