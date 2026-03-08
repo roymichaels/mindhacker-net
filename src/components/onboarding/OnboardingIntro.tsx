@@ -211,7 +211,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              <PresetOrb size={180} />
+              <OnboardingShowcaseOrb size={180} />
             </motion.div>
 
             {/* Title */}
