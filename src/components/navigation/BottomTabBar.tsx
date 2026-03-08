@@ -9,12 +9,17 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 import { getVisibleTabs } from '@/navigation/osNav';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useXpProgress } from '@/hooks/useGameState';
 
 export function BottomTabBar() {
   const { language } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
+  const { profile: userOrbProfile } = useOrbProfile();
+  const xp = useXpProgress();
 
   // Hide global bottom nav when inside FM or FM-related hubs (they have their own nav)
   if (location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
@@ -46,7 +51,21 @@ export function BottomTabBar() {
                     : "text-muted-foreground"
               )}
             >
-              <Icon className="h-5 w-5" />
+              {tab.useOrb ? (
+                <div className={cn(
+                  "w-6 h-6 rounded-full overflow-hidden transition-all",
+                  active && "ring-1 ring-amber-500/50"
+                )}>
+                  <StandaloneMorphOrb
+                    size={24}
+                    profile={userOrbProfile}
+                    geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
+                    level={xp.level}
+                  />
+                </div>
+              ) : (
+                <Icon className="h-5 w-5" />
+              )}
               <span className="text-[10px] font-medium">{language === 'he' ? tab.labelHe : tab.labelEn}</span>
               {isComingSoon && (
                 <span className="absolute -top-1 -right-1 text-[7px] font-bold px-1 py-px rounded-full leading-tight" style={{ backgroundColor: 'hsl(0, 84%, 50%)', color: 'white' }}>

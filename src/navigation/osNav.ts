@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { LayoutDashboard, Flame, Swords, Shield, Users, Briefcase, GraduationCap, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Flame, Swords, Shield, Users, Briefcase, GraduationCap, User, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
@@ -18,6 +18,8 @@ export interface OsTab {
   /** Role required to see this tab (undefined = visible to all authenticated users) */
   requiredRole?: 'admin' | 'practitioner';
   comingSoon?: boolean;
+  /** If true, BottomTabBar renders the user orb instead of icon */
+  useOrb?: boolean;
 }
 
 /** The main tabs visible to every authenticated user */
@@ -25,8 +27,8 @@ export const OS_TABS: OsTab[] = [
   { id: 'dashboard', path: '/now', icon: LayoutDashboard, labelEn: 'Now', labelHe: 'עכשיו' },
   { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Plan',      labelHe: 'תוכנית' },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
-  
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
+  { id: 'profile',   path: '/profile',   icon: User,           labelEn: 'Profile',   labelHe: 'פרופיל', useOrb: true },
 ];
 
 /** Coach tab — now nested under FM, not a top-level tab */

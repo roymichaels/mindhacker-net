@@ -89,6 +89,7 @@ const Creator = lazy(() => import("./pages/Creator"));
 import FreelancerLayoutWrapper from "./components/freelancer/FreelancerLayoutWrapper";
 import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
 const LifeHub = lazy(() => import("./pages/LifeHub"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
 const PlanLayoutWrapper = lazy(() => import("./components/plan/PlanLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
@@ -306,6 +307,8 @@ const App = () => (
                           <Route path="/now" element={<DashboardLayoutWrapper />} />
                           {/* Plan (merged Strategy + Tactics) */}
                           <Route path="/plan" element={<PlanLayoutWrapper />} />
+                          {/* Profile page */}
+                          <Route path="/profile" element={<ProfilePage />} />
                           {/* Strategy sub-routes for pillar assessments */}
                           <Route path="/strategy" element={<Navigate to="/plan" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
