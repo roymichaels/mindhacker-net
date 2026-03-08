@@ -13,6 +13,7 @@ import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useAuth } from '@/contexts/AuthContext';
+import { getEgoStateLabel } from '@/lib/egoStateLabels';
 import { supabase } from '@/integrations/supabase/client';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
@@ -403,7 +404,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
                 {({ warrior: '⚔️', guardian: '🛡️', creator: '🎨', seeker: '🔍', sage: '🧙' } as Record<string, string>)[identityProfile.suggested_ego_state.toLowerCase()] || '🛡️'}
               </span>
               <span className="text-sm font-bold text-amber-400">
-                {identityProfile.suggested_ego_state}
+                {getEgoStateLabel(identityProfile.suggested_ego_state, isHe ? 'he' : 'en')}
               </span>
             </div>
           )}
