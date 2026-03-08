@@ -265,15 +265,15 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
   const isHe = language === "he";
   const parts: string[] = [];
 
-  // Dates
+  // Dates & Time Awareness (enriched)
   parts.push(isHe
-    ? `## תאריכים ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה נוכחית: ${ctx.current_time} (UTC)`
-    : `## Dates & Tracking\n- Current date: ${ctx.today}\n- Current time: ${ctx.current_time} (UTC)`);
+    ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה נוכחית (ישראל): ${ctx.current_time_israel}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
+    : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Current time (Israel): ${ctx.current_time_israel}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
 
   if (ctx.life_plan) {
     parts.push(isHe
-      ? `- תוכנית חיים פעילה מאז: ${ctx.life_plan.start_date}\n- שבוע נוכחי: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`
-      : `- Active life plan since: ${ctx.life_plan.start_date}\n- Current week: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`);
+      ? `- תוכנית חיים פעילה מאז: ${ctx.life_plan.start_date}\n- **יום ${ctx.life_plan.current_day} מתוך 100** (נותרו ${ctx.life_plan.days_remaining} ימים)\n- שבוע נוכחי: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`
+      : `- Active life plan since: ${ctx.life_plan.start_date}\n- **Day ${ctx.life_plan.current_day} of 100** (${ctx.life_plan.days_remaining} days remaining)\n- Current week: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`);
   }
 
   // Habits
@@ -314,19 +314,50 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
   if (ctx.action_items.overdue_tasks.length > 0) {
     const lines = ctx.action_items.overdue_tasks.map(t => {
       const daysOverdue = Math.ceil((new Date(ctx.today).getTime() - new Date(t.due_at).getTime()) / (1000 * 60 * 60 * 24));
-      return `- "${t.title}" - ${daysOverdue} ${isHe ? "ימים באיחור" : "days overdue"}`;
+      return `- "${t.title}" - ${daysOverdue} ${isHe ? "ימים באיחור" : "days overdue"}${t.pillar ? ` [${t.pillar}]` : ''}`;
     });
     parts.push(isHe
       ? `## ⚠️ משימות באיחור!\n${lines.join("\n")}\nחשוב: כשמתחילה שיחה ויש משימות באיחור, שאל עליהן בעדינות!`
       : `## ⚠️ Overdue Tasks!\n${lines.join("\n")}`);
   }
 
-  // Today's tasks
+  // Today's pending tasks
   if (ctx.action_items.today_tasks.length > 0) {
-    const lines = ctx.action_items.today_tasks.map(t => `- "${t.title}"`);
+    const lines = ctx.action_items.today_tasks.map(t => `- "${t.title}" [${t.status}]${t.pillar ? ` (${t.pillar})` : ''}`);
     parts.push(isHe
-      ? `## 📅 משימות להיום\n${lines.join("\n")}`
-      : `## 📅 Today's Tasks\n${lines.join("\n")}`);
+      ? `## 📅 משימות להיום (ממתינות)\n${lines.join("\n")}`
+      : `## 📅 Today's Pending Tasks\n${lines.join("\n")}`);
+  }
+
+  // Today's completed tasks
+  if (ctx.action_items.today_completed.length > 0) {
+    const lines = ctx.action_items.today_completed.map(t => {
+      const time = new Date(t.completed_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' });
+      return `- ✅ "${t.title}" (${isHe ? 'הושלם ב-' : 'completed at '}${time})${t.pillar ? ` [${t.pillar}]` : ''}`;
+    });
+    parts.push(isHe
+      ? `## ✅ משימות שהושלמו היום\n${lines.join("\n")}`
+      : `## ✅ Tasks Completed Today\n${lines.join("\n")}`);
+  }
+
+  // Recently completed (last 7 days)
+  if (ctx.action_items.recently_completed.length > 0) {
+    const lines = ctx.action_items.recently_completed.slice(0, 10).map(t => 
+      `- "${t.title}" (${t.days_ago} ${isHe ? 'ימים' : 'days'} ago)${t.pillar ? ` [${t.pillar}]` : ''}`
+    );
+    parts.push(isHe
+      ? `## 📜 משימות שהושלמו לאחרונה (7 ימים)\n${lines.join("\n")}`
+      : `## 📜 Recently Completed (7 days)\n${lines.join("\n")}`);
+  }
+
+  // Upcoming tasks
+  if (ctx.action_items.upcoming_tasks.length > 0) {
+    const lines = ctx.action_items.upcoming_tasks.map(t => 
+      `- "${t.title}" → ${t.scheduled_date}${t.pillar ? ` [${t.pillar}]` : ''}`
+    );
+    parts.push(isHe
+      ? `## 🔜 משימות קרובות (3 ימים הקרובים)\n${lines.join("\n")}`
+      : `## 🔜 Upcoming Tasks (next 3 days)\n${lines.join("\n")}`);
   }
 
   // Profile
