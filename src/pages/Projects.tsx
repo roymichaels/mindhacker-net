@@ -84,7 +84,7 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
             ))}
           </div>
           <Button
-            onClick={() => navigate('/onboarding')}
+            onClick={() => smartNavigate()}
             size="lg"
             className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
           >

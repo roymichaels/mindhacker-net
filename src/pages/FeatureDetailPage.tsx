@@ -225,7 +225,7 @@ export default function FeatureDetailPage() {
             </p>
             <Button
               size="lg"
-              onClick={() => navigate('/onboarding')}
+              onClick={() => smartNavigate()}
               className="rounded-full px-10 text-base"
             >
               {isRTL ? 'התחל את המסע' : 'Start Your Journey'}
