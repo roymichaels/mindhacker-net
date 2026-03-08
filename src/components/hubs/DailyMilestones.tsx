@@ -185,10 +185,16 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
 
       // Find which mission this milestone belongs to
       const parentMission = pillarMissions.find(m => m.id === target.mission_id);
+      
+      // Find trait name via mission's primary_skill_id
+      const traitSkillId = parentMission?.primary_skill_id;
+      const trait = traitSkillId ? (traits || []).find(t => t.id === traitSkillId) : null;
+      const traitName = trait ? (isHe ? (trait.name_he || trait.name) : trait.name) : '';
 
       results.push({
         pillarId: domain.id,
         domain,
+        traitName,
         missionTitle: isHe ? (parentMission?.title || '') : (parentMission?.title_en || parentMission?.title || ''),
         milestoneTitle: isHe ? (target.title || '') : (target.title_en || target.title || ''),
         milestoneId: target.id,
