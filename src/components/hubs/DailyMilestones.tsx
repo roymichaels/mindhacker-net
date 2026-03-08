@@ -536,10 +536,18 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                   dm.isCompleted && 'opacity-50'
                 )}
               >
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <span className={cn('text-[10px] font-bold uppercase tracking-wider', domainColorMap[dm.domain.color])}>
                     {isHe ? dm.domain.labelHe : dm.domain.labelEn}
                   </span>
+                  {dm.traitName && (
+                    <>
+                      <span className="text-[9px] text-muted-foreground/30">›</span>
+                      <span className="text-[9px] text-muted-foreground/60 font-medium truncate max-w-[100px]">
+                        {dm.traitName}
+                      </span>
+                    </>
+                  )}
                   <span className="text-[9px] text-muted-foreground/40 font-medium">
                     {dm.milestoneIndex}/{dm.totalMilestones}
                   </span>
@@ -555,7 +563,9 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                 )}>
                   {dm.milestoneTitle}
                 </p>
-                <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{dm.missionTitle}</p>
+                <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">
+                  {dm.missionTitle && <><span className="opacity-40">↳</span> {dm.missionTitle}</>}
+                </p>
               </button>
 
               {/* Execute arrow */}
