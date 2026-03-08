@@ -262,7 +262,7 @@ export default function BusinessCreationWizard({ onClose, onComplete }: Business
       </div>
 
       {/* Input or Create button */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent px-4 py-4">
+      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent px-4 pt-4 pb-20">
         <div className="max-w-2xl mx-auto">
           {isReady ? (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
