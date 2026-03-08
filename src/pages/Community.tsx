@@ -157,7 +157,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
           {/* ── ALL VIEW: Pillar Cards Grid ── */}
           {isAll && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {LIFE_DOMAINS.map((d) => {
                 const Icon = d.icon;
                 const count = pillarCounts?.[d.id] || 0;
