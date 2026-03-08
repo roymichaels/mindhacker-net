@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { PresetOrb } from '@/components/orb';
 import { ArrowRight, ChevronLeft, Sparkles, User, Calendar, Users, X, Mail, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
