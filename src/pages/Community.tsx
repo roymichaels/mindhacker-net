@@ -183,9 +183,9 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           )}
 
-          {/* ── PILLAR VIEW: Topic Cards (no topic selected yet) ── */}
+          {/* ── PILLAR VIEW: Topic Cards (mobile only, sidebar handles desktop) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 lg:hidden">
               {/* "All threads" card */}
               <button
                 onClick={() => onSelectTopic?.(null)}
@@ -225,11 +225,23 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           )}
 
-          {/* ── TOPIC SELECTED: back chip + feed ── */}
+          {/* ── Desktop: always show feed when pillar selected (sidebar handles topics) ── */}
+          {!isAll && (
+            <div className="hidden lg:block">
+              <ThreadList
+                pillarFilter={selectedPillar}
+                topicFilter={selectedTopic}
+                mode={feedMode}
+                onProfileClick={setProfileUserId}
+              />
+            </div>
+          )}
+
+          {/* ── TOPIC SELECTED: back chip + feed (mobile only) ── */}
           {!isAll && selectedTopic && (
             <button
               onClick={() => onSelectTopic?.(null)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors w-fit"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors w-fit lg:hidden"
             >
               <ChevronLeft className={cn("h-3.5 w-3.5", isHe && "rotate-180")} />
               {isHe ? 'חזרה לנושאים' : 'Back to topics'}
