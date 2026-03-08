@@ -388,9 +388,12 @@ serve(async (req) => {
             descriptionEn: obj.description_en,
             pillar: mission?.pillar || milestone?.focus_area || "focus",
             missionTitle: isHe ? (mission?.title || mission?.title_en) : (mission?.title_en || mission?.title),
+            missionId: mission?.id || null,
+            milestoneId: milestone?.id || null,
+            planId: milestone?.plan_id || null,
             executionTemplate: obj.execution_template,
             actionType: obj.action_type,
-            cadence: null, // Will be inferred
+            cadence: null,
           };
         });
 
