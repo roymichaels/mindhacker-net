@@ -355,6 +355,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 }) {
   const { user } = useAuth();
   const [archetypeData, setArchetypeData] = useState<any>(null);
+  const [identityProfile, setIdentityProfile] = useState<any>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -371,6 +372,9 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           const sd = data.summary_data as any;
           if (sd.identity_profile?.archetype) {
             setArchetypeData(sd.identity_profile.archetype);
+          }
+          if (sd.identity_profile) {
+            setIdentityProfile(sd.identity_profile);
           }
         }
       } catch {}
