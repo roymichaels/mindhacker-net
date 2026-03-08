@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
+import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -64,6 +65,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   const [traitsOpen, setTraitsOpen] = useState(false);
   const [practicesOpen, setPracticesOpen] = useState(false);
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
+  const [orbFullscreenOpen, setOrbFullscreenOpen] = useState(false);
 
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
   const archetypeName = getArchetypeName(dominantArchetype, isHe);
@@ -101,6 +103,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   return (<>
     <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
     <PracticesModal open={practicesOpen} onOpenChange={setPracticesOpen} />
+    <OrbFullscreenViewer open={orbFullscreenOpen} onClose={() => setOrbFullscreenOpen(false)} />
     {createPortal(
     <div
       role="dialog"
@@ -129,7 +132,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
           {/* Orb with gold ring */}
           <button
             className="relative cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => setOrbDNAOpen(true)}
+            onClick={() => setOrbFullscreenOpen(true)}
           >
             <div className="absolute -inset-2 rounded-full border border-amber-500/30" style={{ boxShadow: '0 0 20px hsla(35, 80%, 50%, 0.15)' }} />
             <PersonalizedOrb size={80} state="idle" />

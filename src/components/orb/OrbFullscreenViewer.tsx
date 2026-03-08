@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import PersonalizedOrb from './PersonalizedOrb';
-import type { OrbProfile } from './types';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useXpProgress } from '@/hooks/useGameState';
 import { StandaloneMorphOrb } from './GalleryMorphOrb';
+import type { OrbProfile } from './types';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
@@ -14,7 +15,12 @@ interface OrbFullscreenViewerProps {
   level?: number;
 }
 
-export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, level = 100 }: OrbFullscreenViewerProps) {
+export function OrbFullscreenViewer({ open, onClose, profile: profileProp, geometryFamily, level: levelProp }: OrbFullscreenViewerProps) {
+  const { profile: userProfile } = useOrbProfile();
+  const { level: userLevel } = useXpProgress();
+  const activeProfile = profileProp || userProfile;
+  const activeLevel = levelProp ?? userLevel;
+  const activeGeometry = geometryFamily || activeProfile.geometryFamily || 'sphere';
   const [orbSize, setOrbSize] = useState(280);
 
   useEffect(() => {
@@ -94,20 +100,12 @@ export function OrbFullscreenViewer({ open, onClose, profile, geometryFamily, le
                 background: 'radial-gradient(circle, hsl(var(--primary) / 0.6) 0%, transparent 70%)',
               }}
             />
-            {profile ? (
-              <StandaloneMorphOrb
-                size={orbSize}
-                profile={profile}
-                geometryFamily={geometryFamily || profile.geometryFamily || 'sphere'}
-                level={level}
-              />
-            ) : (
-              <PersonalizedOrb
-                size={orbSize}
-                state="idle"
-                showGlow
-              />
-            )}
+            <StandaloneMorphOrb
+              size={orbSize}
+              profile={activeProfile}
+              geometryFamily={activeGeometry}
+              level={activeLevel}
+            />
           </motion.div>
 
           <motion.p
