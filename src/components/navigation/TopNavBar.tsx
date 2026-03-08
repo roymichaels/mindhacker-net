@@ -48,9 +48,9 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
     }
   };
 
-  // Build ordered nav items: Plan | Aurora | FM | Community | Study
-  const planTab = allTabs.find(t => t.id === 'plan');
+  // Build ordered nav items: FM | Aurora | Path | Community | Study
   const fmTab = allTabs.find(t => t.id === 'fm');
+  const planTab = allTabs.find(t => t.id === 'plan');
   const otherTabs = allTabs.filter(t => t.id !== 'plan' && t.id !== 'fm');
 
   const renderTab = (tab: typeof allTabs[0]) => {
