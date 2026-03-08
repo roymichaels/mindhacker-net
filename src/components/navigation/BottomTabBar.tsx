@@ -62,9 +62,9 @@ export function BottomTabBar() {
         key={tab.id}
         onClick={() => !isComingSoon && navigate(tab.path)}
         className={cn(
-          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px]",
+          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
           isComingSoon && "opacity-40 grayscale cursor-default",
-          active ? `${colors.bg} border` : "border border-transparent"
+          active ? colors.bg : colors.bgInactive
         )}
       >
         {tab.useOrb ? (
