@@ -406,12 +406,16 @@ export async function buildContext(
     });
   }
 
-  // ── Compute plan week ──────────────────────────────────
+  // ── Compute plan day & week ─────────────────────────────
   let currentWeek = 0;
+  let currentDay = 0;
+  let daysRemaining = 100;
   if (lifePlan) {
     const startDate = new Date(lifePlan.start_date);
-    const diffDays = Math.floor((new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    currentWeek = Math.min(12, Math.max(1, Math.floor(diffDays / 7) + 1));
+    const diffDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    currentDay = Math.max(1, Math.min(100, diffDays + 1));
+    currentWeek = Math.min(15, Math.max(1, Math.floor(diffDays / 7) + 1));
+    daysRemaining = Math.max(0, 100 - currentDay);
   }
 
   // ── Compute opener hints ───────────────────────────────
