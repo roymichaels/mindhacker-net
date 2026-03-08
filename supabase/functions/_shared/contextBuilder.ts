@@ -584,6 +584,44 @@ export async function buildContext(
     // Biological profile & constraints
     biological_profile: biologicalProfile,
     willingness,
+
+    // ─── Practice Library Integration ─────────────────
+    user_practices: userPracticesData.map((up: any) => {
+      const p = up.practices || {};
+      return {
+        practice_name: p.name || 'Unknown',
+        practice_name_he: p.name_he || null,
+        category: p.category || 'general',
+        pillar: p.pillar || null,
+        skill_level: up.skill_level || 1,
+        preferred_duration: up.preferred_duration || p.default_duration || 15,
+        frequency_per_week: up.frequency_per_week || 3,
+        is_core_practice: up.is_core_practice || false,
+        energy_phase: up.energy_phase || p.energy_type || 'day',
+        difficulty_level: p.difficulty_level || 1,
+        instructions: p.instructions || null,
+        practice_id: up.practice_id,
+      };
+    }),
+
+    // ─── Active Skills ────────────────────────────────
+    active_skills: activeSkillsData.map((s: any) => ({
+      id: s.id,
+      name: s.name || '',
+      name_he: s.name_he || null,
+      pillar: s.pillar || null,
+      category: s.category || null,
+      level: s.level || 1,
+      xp_total: s.xp_total || 0,
+    })),
+
+    // ─── Schedule Preferences ─────────────────────────
+    schedule_prefs: {
+      wake_time: profile?.wake_time || biologicalProfile.sleep.wake || null,
+      sleep_time: profile?.sleep_time || biologicalProfile.sleep.time || null,
+      focus_peak_start: profile?.focus_peak_start || null,
+      focus_peak_end: profile?.focus_peak_end || null,
+    },
   };
 
   // Compute hash for tracing
