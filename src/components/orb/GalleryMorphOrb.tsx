@@ -436,7 +436,7 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
     <div style={{ width: size, height: size }}>
       <Canvas
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 2.8], fov: 40 }}
+        camera={{ position: [0, 0, 2.2], fov: 45 }}
         style={{ width: '100%', height: '100%' }}
       >
         <OrbLighting />
