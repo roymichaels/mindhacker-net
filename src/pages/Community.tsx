@@ -34,6 +34,24 @@ const PILLAR_ICONS: Record<string, string> = {
   influence: '👑', relationships: '🤝', business: '💼', projects: '📋', play: '🎮',
 };
 
+/** HSL color values per pillar for inline styling */
+const PILLAR_HSL: Record<string, string> = {
+  consciousness: '217 91% 60%',  // blue
+  presence: '292 84% 61%',       // fuchsia
+  power: '0 84% 60%',            // red
+  vitality: '38 92% 50%',        // amber
+  focus: '187 96% 42%',          // cyan
+  combat: '215 16% 47%',         // slate
+  expansion: '239 84% 67%',      // indigo
+  wealth: '160 84% 39%',         // emerald
+  influence: '271 81% 56%',      // purple
+  relationships: '199 89% 48%',  // sky
+  business: '347 77% 50%',       // rose
+  projects: '38 92% 50%',        // amber
+  play: '258 90% 66%',           // violet
+  order: '173 80% 40%',          // teal
+};
+
 const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -143,24 +161,41 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               {LIFE_DOMAINS.map((d) => {
                 const Icon = d.icon;
                 const count = pillarCounts?.[d.id] || 0;
+                const hsl = PILLAR_HSL[d.id] || '217 91% 60%';
                 return (
                   <button
                     key={d.id}
                     onClick={() => onPillarSelect?.(d.id)}
                     className={cn(
-                      "group flex flex-col items-center gap-2 p-4 rounded-2xl border border-border/40",
-                      "bg-card/60 hover:bg-accent/30 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
+                      "group flex flex-col items-center gap-2 p-4 rounded-2xl border",
                       "active:scale-[0.98] transition-all duration-200"
                     )}
+                    style={{
+                      backgroundColor: `hsl(${hsl} / 0.06)`,
+                      borderColor: `hsl(${hsl} / 0.2)`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.15)`;
+                      e.currentTarget.style.borderColor = `hsl(${hsl} / 0.4)`;
+                      e.currentTarget.style.boxShadow = `0 8px 25px -5px hsl(${hsl} / 0.15)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.06)`;
+                      e.currentTarget.style.borderColor = `hsl(${hsl} / 0.2)`;
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Icon className="h-6 w-6 text-primary" />
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                      style={{ backgroundColor: `hsl(${hsl} / 0.15)` }}
+                    >
+                      <Icon className="h-6 w-6" style={{ color: `hsl(${hsl})` }} />
                     </div>
-                    <span className="text-sm font-semibold text-foreground text-center leading-tight">
+                    <span className="text-sm font-semibold text-center leading-tight" style={{ color: `hsl(${hsl})` }}>
                       {isHe ? d.labelHe : d.labelEn}
                     </span>
                     {count > 0 && (
-                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <div className="flex items-center gap-1 text-[11px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
                         <MessageSquare className="h-3 w-3" />
                         <span>{count}</span>
                       </div>
