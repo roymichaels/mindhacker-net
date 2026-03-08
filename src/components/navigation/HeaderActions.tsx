@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
-import { Wallet, Store, HelpCircle } from 'lucide-react';
+import { Wallet, HelpCircle } from 'lucide-react';
 import { FMWalletModal } from '@/components/fm/FMWalletModal';
 import { UserDocsModal } from '@/components/modals/UserDocsModal';
 
@@ -34,15 +34,6 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
           title="Wallet"
         >
           <Wallet className="w-5 h-5" />
-        </button>
-      )}
-      {!isFM && (
-        <button
-          onClick={() => navigate('/fm')}
-          className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-          title="Free Market"
-        >
-          <Store className="w-5 h-5" />
         </button>
       )}
       <UserNotificationBell />

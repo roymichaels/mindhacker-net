@@ -15,7 +15,8 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Store } from 'lucide-react';
+import { Flame } from 'lucide-react';
+
 
 /** Per-tab color schemes */
 const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: string; ring: string }> = {
@@ -69,13 +70,12 @@ export function BottomTabBar() {
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
   };
 
-  // Separate FM (center) from regular tabs
-  const fmTab = allTabs.find(t => t.id === 'fm');
-  const regularTabs = allTabs.filter(t => t.id !== 'fm');
+  // Separate Path (center) from regular tabs
+  const planTab = allTabs.find(t => t.id === 'plan');
+  const regularTabs = allTabs.filter(t => t.id !== 'plan');
 
-  // Layout order (LTR): Plan | Aurora | FM(center) | Community | Study
-  // In RTL this reverses visually
-  const leftTabs = regularTabs.slice(0, 1); // Plan
+  // Layout order (LTR): FM | Aurora | Path(center) | Community | Study
+  const leftTabs = regularTabs.slice(0, 1); // FM
   const rightTabs = regularTabs.slice(1);   // Community, Study
 
   const renderTab = (tab: typeof allTabs[0]) => {
@@ -113,10 +113,10 @@ export function BottomTabBar() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg md:hidden">
       <div className="flex items-center justify-around h-16 px-2">
-        {/* Left: Path */}
+        {/* Left: FM */}
         {leftTabs.map(renderTab)}
 
-        {/* Aurora orb — between Path and FM */}
+        {/* Aurora orb — between FM and Path */}
         <div className="relative flex flex-col items-center gap-0.5">
           <AnimatePresence>
             {showBalloon && (
@@ -155,25 +155,25 @@ export function BottomTabBar() {
           <span className="text-[10px] font-semibold text-violet-400 opacity-70">Aurora</span>
         </div>
 
-        {/* FM — center elevated button */}
-        {fmTab && (
+        {/* Path — center elevated button */}
+        {planTab && (
           <div className="relative -mt-5 flex flex-col items-center gap-0.5">
             <button
-              onClick={() => navigate(fmTab.path)}
+              onClick={() => navigate(planTab.path)}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 border ring-2",
-                isActive(fmTab.path)
-                  ? "bg-gradient-to-br from-amber-500/30 to-orange-500/20 border-amber-500/40 ring-amber-400/30"
-                  : "bg-gradient-to-br from-amber-600/15 to-orange-500/10 border-amber-500/20 ring-amber-500/10"
+                "w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 border ring-2",
+                isActive(planTab.path)
+                  ? "bg-gradient-to-br from-cyan-500/30 to-teal-500/20 border-cyan-500/40 ring-cyan-400/30"
+                  : "bg-gradient-to-br from-cyan-600/15 to-teal-500/10 border-cyan-500/20 ring-cyan-500/10"
               )}
             >
-              <Store className={cn("h-5 w-5", isActive(fmTab.path) ? "text-amber-400" : "text-amber-400/60")} />
+              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400/60")} />
             </button>
             <span className={cn(
               "text-[10px] font-semibold",
-              isActive(fmTab.path) ? "text-amber-400" : "text-amber-400 opacity-50"
+              isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400 opacity-50"
             )}>
-              FM
+              {isHe ? 'מסלול' : 'Path'}
             </span>
           </div>
         )}

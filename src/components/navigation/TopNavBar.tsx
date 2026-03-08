@@ -48,9 +48,9 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
     }
   };
 
-  // Build ordered nav items: Plan | Aurora | FM | Community | Study
-  const planTab = allTabs.find(t => t.id === 'plan');
+  // Build ordered nav items: FM | Aurora | Path | Community | Study
   const fmTab = allTabs.find(t => t.id === 'fm');
+  const planTab = allTabs.find(t => t.id === 'plan');
   const otherTabs = allTabs.filter(t => t.id !== 'plan' && t.id !== 'fm');
 
   const renderTab = (tab: typeof allTabs[0]) => {
@@ -99,10 +99,10 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
           <AppNameDropdown onOpenSettings={onOpenSettings} />
 
           <nav className="flex items-center gap-1.5">
-            {/* Path */}
-            {planTab && renderTab(planTab)}
+            {/* FM */}
+            {fmTab && renderTab(fmTab)}
 
-            {/* Aurora tab — between Path and FM */}
+            {/* Aurora tab — between FM and Path */}
             <button
               onClick={openAurora}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all border bg-violet-500/5 border-violet-500/15 hover:bg-violet-500/15 hover:border-violet-500/30"
@@ -120,8 +120,8 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
               </span>
             </button>
 
-            {/* FM */}
-            {fmTab && renderTab(fmTab)}
+            {/* Path */}
+            {planTab && renderTab(planTab)}
 
             {/* Community, Study */}
             {otherTabs.map(renderTab)}
