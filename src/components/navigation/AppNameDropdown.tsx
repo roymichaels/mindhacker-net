@@ -165,7 +165,8 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
         <DropdownMenuContent
           align={isRTL ? "end" : "start"}
           side="bottom"
-          className="w-72 bg-popover border border-border shadow-xl z-[100]"
+          className="w-72 bg-popover shadow-xl z-[100]"
+          style={{ border: '1px solid hsl(var(--gold-border) / 0.25)' }}
         >
           {/* Gamified profile card */}
           <div
@@ -188,6 +189,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                 }}
               >
                 <div className="absolute inset-[-40%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-xl pointer-events-none" />
+                <div className="absolute inset-[-4px] rounded-full pointer-events-none" style={{ border: '1.5px solid hsl(var(--gold) / 0.35)', boxShadow: '0 0 10px hsl(var(--gold-glow) / 0.15)' }} />
                 <div className="relative z-10">
                   <PersonalizedOrb size={80} state="idle" />
                 </div>

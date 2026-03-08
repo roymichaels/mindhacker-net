@@ -36,9 +36,13 @@ export const UserNotificationBell = () => {
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button
-          className={`relative h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center hover:scale-110 transition-transform ${isAnimating ? 'animate-bounce' : ''}`}
+          className={`relative h-10 w-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform ${isAnimating ? 'animate-bounce' : ''}`}
+          style={{ 
+            backgroundColor: 'hsl(var(--gold) / 0.12)',
+            boxShadow: unreadCount > 0 ? '0 0 8px hsl(var(--gold-glow) / 0.3)' : 'none'
+          }}
         >
-          <Bell className={`h-5 w-5 ${unreadCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`} />
+          <Bell className="h-5 w-5" style={{ color: 'hsl(var(--gold))' }} />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"

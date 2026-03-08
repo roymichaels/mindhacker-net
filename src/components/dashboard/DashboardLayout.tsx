@@ -39,7 +39,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             isFM ? (
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
-              <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
+              <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-lg" style={{ borderBottomColor: 'hsl(var(--gold-border) / 0.3)' }}>
                 <div className="flex h-14 items-center justify-between px-3">
                   <div className="flex items-center gap-1">
                     <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
