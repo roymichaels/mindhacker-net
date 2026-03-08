@@ -98,6 +98,19 @@ serve(async (req) => {
       ? `\n## DAILY ADJUSTMENT (Day ${adjust_day}):\nAdjust day ${adjust_day} based on completed items.\nExisting: ${JSON.stringify(existingSchedule.schedule_data).substring(0, 2000)}\n`
       : "";
 
+    // Build practices context for prompt
+    const practicesBlock = userPractices.length > 0
+      ? `\n## USER'S ACTIVE PRACTICES (from practice library — USE THESE):\n${userPractices.map((up: any) => {
+          const p = up.practices || {};
+          return `- ${p.name || 'Unknown'} [${up.energy_phase || p.energy_type || 'day'}] ${up.preferred_duration || p.default_duration || 15}min, ${up.frequency_per_week || 3}x/week, ${up.is_core_practice ? 'CORE' : 'optional'} (pillar: ${p.pillar || 'general'})`;
+        }).join('\n')}\n\nCRITICAL: Include the user's ACTUAL practices in the schedule blocks.\nMorning practices go in Morning blocks. Training practices go in Training blocks.\nDo NOT invent generic "breathing" or "meditation" if the user has specific practices listed above.\n`
+      : '';
+
+    // Build identity context
+    const identityBlock = direction
+      ? `\n## USER IDENTITY:\nLife Direction: ${direction.content}\nValues: ${identityElements.filter((i: any) => i.element_type === 'value').map((i: any) => i.content).join(', ') || 'N/A'}\n`
+      : '';
+
     const prompt = `You are Aurora, the AI schedule architect for Mind OS. Generate a COMPLETE 10-day tactical schedule organized into THEMED BLOCKS.
 
 ## USER PREFERENCES:
@@ -105,6 +118,7 @@ serve(async (req) => {
 - Sleep time: ${sleepTime}
 - Peak focus window: ${focusPeakStart} - ${focusPeakEnd}
 - Name: ${profile?.full_name || "User"}
+${practicesBlock}${identityBlock}
 
 ## MILESTONES TO SCHEDULE (${enrichedMilestones.length} total):
 ${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] [Difficulty: ${m.difficulty}/5] "${m.title_en}" (HE: "${m.title}") — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
