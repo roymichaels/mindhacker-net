@@ -59,9 +59,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
           </div>
 
-          {/* AuroraFloatingOrb removed — Aurora orb now lives in BottomHudBar */}
+          <AuroraFloatingOrb />
           <AuroraDock />
-          <BottomHudBar />
           {isMobile && <BottomTabBar />}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
