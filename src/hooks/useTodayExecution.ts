@@ -176,8 +176,8 @@ export function useTodayExecution() {
   }), [wakeTime, sleepTime]);
 
   // Use local date (not UTC) to match the user's actual day
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const localNow = new Date();
+  const today = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
 
   // Completed action IDs for today
   const { data: completedIds = new Set<string>() } = useQuery({
