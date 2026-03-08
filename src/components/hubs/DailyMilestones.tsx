@@ -211,6 +211,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         results.unshift({
           pillarId: 'consciousness-hypnosis',
           domain: consciousnessDomain,
+          traitName: '',
           missionTitle: isHe ? 'טרנספורמציה יומית' : 'Daily Transformation',
           milestoneTitle: isHe ? '🧠 היפנוזה יומית — סשן תודעה מותאם אישית' : '🧠 Daily Hypnosis — Personalized Session',
           milestoneId: 'hypnosis',
