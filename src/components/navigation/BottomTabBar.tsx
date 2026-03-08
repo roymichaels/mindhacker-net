@@ -67,14 +67,6 @@ export function BottomTabBar() {
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
   };
 
-  // Show balloon after 3s, auto-hide after 8s
-  useEffect(() => {
-    const dismissed = sessionStorage.getItem('aurora-bar-balloon-dismissed');
-    if (dismissed) return;
-    const showTimer = setTimeout(() => setShowBalloon(true), 3000);
-    const hideTimer = setTimeout(() => setShowBalloon(false), 11000);
-    return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
-  }, []);
 
   // Split tabs into left and right halves for Aurora orb center
   const leftTabs = tabs.slice(0, 2);
