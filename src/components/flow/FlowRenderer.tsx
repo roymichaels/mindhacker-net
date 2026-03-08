@@ -59,7 +59,18 @@ export function FlowRenderer({
     return initial;
   });
 
-  const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
+  // Compute visible mini-steps from initial answers for skipAnswered calculation
+  const initialVisibleSteps = getVisibleMiniSteps(step, answers);
+
+  const [currentMiniIdx, setCurrentMiniIdx] = useState(() => {
+    if (!skipAnswered || !savedAnswers) return 0;
+    // Find first unanswered mini-step
+    const firstUnanswered = initialVisibleSteps.findIndex(
+      ms => savedAnswers[ms.id] === undefined || savedAnswers[ms.id] === null || savedAnswers[ms.id] === ''
+    );
+    // If all answered, go to last one (so user can confirm & complete)
+    return firstUnanswered === -1 ? Math.max(0, initialVisibleSteps.length - 1) : firstUnanswered;
+  });
 
   // Recompute visible mini-steps when answers change
   const visibleMiniSteps = getVisibleMiniSteps(step, answers);
