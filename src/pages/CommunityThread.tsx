@@ -28,6 +28,9 @@ export default function CommunityThread() {
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
 
+  // Suppress all sidebars on thread pages
+  useSidebars(null, null, []);
+
   const { data: post, isLoading } = useQuery({
     queryKey: ['community-post', postId],
     enabled: !!postId,
