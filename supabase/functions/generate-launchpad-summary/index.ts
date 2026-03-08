@@ -116,11 +116,11 @@ Deno.serve(async (req) => {
 
     console.log('Summary saved:', summaryRecord.id);
 
-    // NOTE: Plan creation is handled by generate-90day-strategy.
+    // NOTE: Plan creation is handled by generate-100day-strategy.
     // This function ONLY generates identity/summary data.
     // DO NOT create or delete life_plans here — it would nuke the strategy plan.
     
-    console.log('Skipping plan creation (handled by generate-90day-strategy)');
+    console.log('Skipping plan creation (handled by generate-100day-strategy)');
 
     // Award XP for completing launchpad (only if not already awarded)
     try {
