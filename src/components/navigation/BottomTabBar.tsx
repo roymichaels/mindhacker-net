@@ -94,10 +94,10 @@ export function BottomTabBar() {
           active ? colors.bg : colors.bgInactive
         )}
       >
-        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-50`)} />
+        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-80`)} />
         <span className={cn(
-          "text-[10px] font-semibold",
-          active ? colors.active : `${colors.active} opacity-50`
+          "text-[10px] font-bold",
+          active ? colors.active : `${colors.active} opacity-80`
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
         </span>
