@@ -16,10 +16,10 @@ export interface RouteTheme {
   id: RouteThemeId;
   /** Header border color */
   borderColor: string;
-  /** Header bg gradient (light) */
-  headerGradient: string;
-  /** Header bg gradient (dark) */
-  headerGradientDark: string;
+  /** Header background gradient (CSS value) */
+  headerBg: string;
+  /** Header background gradient dark mode (CSS value) */
+  headerBgDark: string;
   /** Page ambient glow */
   ambientGlow: string;
   /** Text color for active elements */
@@ -34,8 +34,8 @@ const THEMES: Record<RouteThemeId, RouteTheme> = {
   plan: {
     id: 'plan',
     borderColor: 'rgba(6, 182, 212, 0.3)',
-    headerGradient: 'from-cyan-50/95 via-sky-50/90 to-background/95',
-    headerGradientDark: 'dark:from-cyan-950/40 dark:via-cyan-900/20 dark:to-background/95',
+    headerBg: 'linear-gradient(to bottom, rgba(236, 254, 255, 0.95), rgba(240, 249, 255, 0.9), rgba(var(--background-rgb, 255,255,255), 0.95))',
+    headerBgDark: 'linear-gradient(to bottom, rgba(22, 78, 99, 0.4), rgba(21, 94, 117, 0.2), rgba(var(--background-rgb, 0,0,0), 0.95))',
     ambientGlow: 'radial-gradient(ellipse at top, rgba(6, 182, 212, 0.04), transparent 50%)',
     activeText: 'text-cyan-700 dark:text-cyan-300',
     accentBg: 'bg-cyan-500/10',
@@ -44,8 +44,8 @@ const THEMES: Record<RouteThemeId, RouteTheme> = {
   fm: {
     id: 'fm',
     borderColor: 'rgba(245, 158, 11, 0.3)',
-    headerGradient: 'from-amber-50/95 via-orange-50/90 to-background/95',
-    headerGradientDark: 'dark:from-amber-950/40 dark:via-amber-900/20 dark:to-background/95',
+    headerBg: 'linear-gradient(to bottom, rgba(255, 251, 235, 0.95), rgba(255, 247, 237, 0.9), rgba(var(--background-rgb, 255,255,255), 0.95))',
+    headerBgDark: 'linear-gradient(to bottom, rgba(69, 26, 3, 0.4), rgba(120, 53, 15, 0.2), rgba(var(--background-rgb, 0,0,0), 0.95))',
     ambientGlow: 'radial-gradient(ellipse at top, rgba(245, 158, 11, 0.04), transparent 50%)',
     activeText: 'text-amber-700 dark:text-amber-300',
     accentBg: 'bg-amber-500/10',
@@ -54,8 +54,8 @@ const THEMES: Record<RouteThemeId, RouteTheme> = {
   community: {
     id: 'community',
     borderColor: 'rgba(16, 185, 129, 0.3)',
-    headerGradient: 'from-emerald-50/95 via-green-50/90 to-background/95',
-    headerGradientDark: 'dark:from-emerald-950/40 dark:via-emerald-900/20 dark:to-background/95',
+    headerBg: 'linear-gradient(to bottom, rgba(236, 253, 245, 0.95), rgba(240, 253, 244, 0.9), rgba(var(--background-rgb, 255,255,255), 0.95))',
+    headerBgDark: 'linear-gradient(to bottom, rgba(6, 78, 59, 0.4), rgba(6, 95, 70, 0.2), rgba(var(--background-rgb, 0,0,0), 0.95))',
     ambientGlow: 'radial-gradient(ellipse at top, rgba(16, 185, 129, 0.04), transparent 50%)',
     activeText: 'text-emerald-700 dark:text-emerald-300',
     accentBg: 'bg-emerald-500/10',
@@ -64,8 +64,8 @@ const THEMES: Record<RouteThemeId, RouteTheme> = {
   study: {
     id: 'study',
     borderColor: 'rgba(139, 92, 246, 0.3)',
-    headerGradient: 'from-violet-50/95 via-purple-50/90 to-background/95',
-    headerGradientDark: 'dark:from-violet-950/40 dark:via-violet-900/20 dark:to-background/95',
+    headerBg: 'linear-gradient(to bottom, rgba(245, 243, 255, 0.95), rgba(250, 245, 255, 0.9), rgba(var(--background-rgb, 255,255,255), 0.95))',
+    headerBgDark: 'linear-gradient(to bottom, rgba(46, 16, 101, 0.4), rgba(76, 29, 149, 0.2), rgba(var(--background-rgb, 0,0,0), 0.95))',
     ambientGlow: 'radial-gradient(ellipse at top, rgba(139, 92, 246, 0.04), transparent 50%)',
     activeText: 'text-violet-700 dark:text-violet-300',
     accentBg: 'bg-violet-500/10',

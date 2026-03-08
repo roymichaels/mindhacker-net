@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRouteTheme } from '@/hooks/useRouteTheme';
+import { useTheme } from 'next-themes';
 import { FMTopNav } from '@/components/fm/FMTopNav';
 
 import { TopNavBar } from '@/components/navigation/TopNavBar';
@@ -31,7 +32,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const theme = useRouteTheme();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const isFM = theme.id === 'fm';
+  const headerBg = isDark ? theme.headerBgDark : theme.headerBg;
   useLearnPillarAction();
 
   return (
@@ -43,12 +47,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
               <header
-                className={cn(
-                  "sticky top-0 z-50 w-full border-b backdrop-blur-xl bg-gradient-to-b",
-                  theme.headerGradient,
-                  theme.headerGradientDark
-                )}
-                style={{ borderBottomColor: theme.borderColor }}
+                className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
+                style={{
+                  borderBottomColor: theme.borderColor,
+                  background: headerBg,
+                }}
+                data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-3">
                   <div className="flex items-center gap-1">
@@ -62,13 +66,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
             <header
-              className={cn(
-                "sticky top-0 z-50 w-full border-b backdrop-blur-xl bg-gradient-to-b",
-                theme.headerGradient,
-                theme.headerGradientDark
-              )}
-              style={{ borderBottomColor: theme.borderColor }}
+              className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
+              style={{
+                borderBottomColor: theme.borderColor,
+                background: headerBg,
+              }}
               dir={isRTL ? 'rtl' : 'ltr'}
+              data-theme-header
             >
               <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
                 <AppNameDropdown onOpenSettings={() => setSettingsOpen(true)} />
