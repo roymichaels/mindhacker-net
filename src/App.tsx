@@ -304,8 +304,10 @@ const App = () => (
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
                           {/* Now (was /dashboard) */}
                           <Route path="/now" element={<DashboardLayoutWrapper />} />
-                          {/* Strategy (was /life) */}
-                          <Route path="/strategy" element={<LifeLayoutWrapper />} />
+                          {/* Plan (merged Strategy + Tactics) */}
+                          <Route path="/plan" element={<PlanLayoutWrapper />} />
+                          {/* Strategy sub-routes for pillar assessments */}
+                          <Route path="/strategy" element={<Navigate to="/plan" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
                           <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                           <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
@@ -364,10 +366,9 @@ const App = () => (
                           <Route path="/strategy/play/results" element={<PlayResults />} />
                           {/* Strategy domain catch-all */}
                           <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
-                          {/* Tactics (was /arena) */}
-                          <Route path="/tactics" element={<ArenaLayoutWrapper />} />
-                          {/* Legacy /arena redirects */}
-                          <Route path="/arena" element={<Navigate to="/tactics" replace />} />
+                          {/* Legacy redirects */}
+                          <Route path="/tactics" element={<Navigate to="/plan" replace />} />
+                          <Route path="/arena" element={<Navigate to="/plan" replace />} />
                           <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
