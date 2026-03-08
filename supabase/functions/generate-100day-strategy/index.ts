@@ -1301,6 +1301,34 @@ serve(async (req) => {
       }
     }
 
+    // Auto-generate plan-driven courses — fire-and-forget (non-blocking)
+    const planIds = results.map((r: any) => r.plan_id).filter(Boolean);
+    if (planIds.length > 0) {
+      const orchestratorUrl = `${supabaseUrl}/functions/v1/course-orchestrator`;
+      const orchestratorBody = JSON.stringify({ user_id, plan_ids: planIds });
+      const orchestratorHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`,
+      };
+      
+      console.log(`[auto-courses] Firing course orchestrator for ${planIds.length} plans (non-blocking)...`);
+      
+      fetch(orchestratorUrl, {
+        method: 'POST',
+        headers: orchestratorHeaders,
+        body: orchestratorBody,
+      }).then(async (resp) => {
+        if (resp.ok) {
+          const data = await resp.json();
+          console.log(`[auto-courses] ✅ Generated courses:`, data);
+        } else {
+          console.warn(`[auto-courses] ⚠️ Failed: ${await resp.text()}`);
+        }
+      }).catch(err => {
+        console.warn(`[auto-courses] ⚠️ Error:`, err);
+      });
+    }
+
     return new Response(
       JSON.stringify({ success: true, plans: results }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
