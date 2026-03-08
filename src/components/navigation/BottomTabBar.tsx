@@ -167,7 +167,7 @@ export function BottomTabBar() {
                   : "bg-gradient-to-br from-cyan-600/15 to-teal-500/10 border-cyan-500/20 ring-cyan-500/10"
               )}
             >
-              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400/60")} />
+              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/60 dark:text-cyan-400/60")} />
             </button>
             <span className={cn(
               "text-[10px] font-semibold",
