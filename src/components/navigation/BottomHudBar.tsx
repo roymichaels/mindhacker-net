@@ -1,17 +1,17 @@
 /**
  * BottomHudBar — 3-column grid HUD.
- * Left: Personalized orb + job title → opens Profile
+ * Left: Personalized orb + job title → navigates to /profile
  * Middle: XP progress bar
  * Right: Aurora orb → opens Aurora dock (with intro balloon)
  */
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
-import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -21,13 +21,13 @@ import { useTodayExecution } from '@/hooks/useTodayExecution';
 export function BottomHudBar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const navigate = useNavigate();
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
   const { movementScore } = useTodayExecution();
   const { profile: userOrbProfile } = useOrbProfile();
 
-  const [profileOpen, setProfileOpen] = useState(false);
   const [showBalloon, setShowBalloon] = useState(false);
 
   const identityTitle = dashboard.identityTitle;
@@ -68,106 +68,101 @@ export function BottomHudBar() {
   };
 
   return (
-    <>
-      <div
-        className={cn(
-          "fixed inset-x-0 z-40 border-t border-border/50 bg-background/95 backdrop-blur-lg",
-          "bottom-14 md:bottom-0"
-        )}
-        dir={isRTL ? 'rtl' : 'ltr'}
-      >
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2 max-w-screen-xl mx-auto">
-          {/* ── LEFT: Orb + Job Title → Profile ── */}
-          <button
-            onClick={() => setProfileOpen(true)}
-            className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
+    <div
+      className={cn(
+        "fixed inset-x-0 z-40 border-t border-border/50 bg-background/95 backdrop-blur-lg",
+        "bottom-14 md:bottom-0"
+      )}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2 max-w-screen-xl mx-auto">
+        {/* ── LEFT: Orb + Job Title → Profile Page ── */}
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
+        >
+          <div
+            className="flex-shrink-0 rounded-full transition-shadow duration-700"
+            style={{ width: 44, height: 44, ...orbGlowStyle }}
           >
-            <div
-              className="flex-shrink-0 rounded-full transition-shadow duration-700"
-              style={{ width: 44, height: 44, ...orbGlowStyle }}
-            >
-              <StandaloneMorphOrb
-                size={44}
-                profile={userOrbProfile}
-                geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
-                level={xp.level}
-              />
-            </div>
-            {identityTitle && (
-              <div className="min-w-0 flex flex-col">
-                <span className="text-[10px] text-muted-foreground leading-none">
-                  {identityTitle.icon}
-                </span>
-                <span className="text-[11px] font-bold text-foreground max-w-[100px] leading-tight line-clamp-2">
-                  {isHe ? identityTitle.title : identityTitle.titleEn}
-                </span>
-              </div>
-            )}
-          </button>
-
-          {/* ── MIDDLE: XP Progress Bar ── */}
-          <div className="flex flex-col items-center justify-center gap-0.5 px-2 min-w-0">
-            <div className="flex items-center gap-1.5 w-full">
-              <span className="text-[9px] font-bold text-primary whitespace-nowrap">
-                Lv.{xp.level}
-              </span>
-              <Progress value={xp.percentage} className="h-1.5 flex-1 bg-muted/50" />
-              <span className="text-[8px] text-muted-foreground whitespace-nowrap tabular-nums">
-                {xp.current ?? 0}/{xp.required ?? 100}
-              </span>
-            </div>
+            <StandaloneMorphOrb
+              size={44}
+              profile={userOrbProfile}
+              geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
+              level={xp.level}
+            />
           </div>
+          {identityTitle && (
+            <div className="min-w-0 flex flex-col">
+              <span className="text-[10px] text-muted-foreground leading-none">
+                {identityTitle.icon}
+              </span>
+              <span className="text-[11px] font-bold text-foreground max-w-[100px] leading-tight line-clamp-2">
+                {isHe ? identityTitle.title : identityTitle.titleEn}
+              </span>
+            </div>
+          )}
+        </button>
 
-          {/* ── RIGHT: Aurora Orb → Opens Dock ── */}
-          <div className="relative">
-            {/* Balloon tooltip */}
-            <AnimatePresence>
-              {showBalloon && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.9 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  onClick={dismissBalloon}
-                  className={cn(
-                    "absolute bottom-full mb-2 z-50 cursor-pointer",
-                    isRTL ? "left-0" : "right-0"
-                  )}
-                >
-                  <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
-                    <p className="text-[11px] font-semibold leading-tight">
-                      {isHe ? '👋 היי, אני אורורה!' : '👋 Hey, I\'m Aurora!'}
-                    </p>
-                    <p className="text-[10px] opacity-90 mt-0.5">
-                      {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
-                    </p>
-                    {/* Tail arrow */}
-                    <div className={cn(
-                      "absolute -bottom-1.5 w-3 h-3 bg-primary rotate-45 rounded-sm",
-                      isRTL ? "left-4" : "right-4"
-                    )} />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <button
-              onClick={openAurora}
-              className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:bg-muted/30 active:scale-[0.95] transition-all"
-            >
-              <StandaloneMorphOrb
-                size={44}
-                profile={AURORA_ORB_PROFILE}
-                geometryFamily="octa"
-                level={100}
-              />
-            </button>
+        {/* ── MIDDLE: XP Progress Bar ── */}
+        <div className="flex flex-col items-center justify-center gap-0.5 px-2 min-w-0">
+          <div className="flex items-center gap-1.5 w-full">
+            <span className="text-[9px] font-bold text-primary whitespace-nowrap">
+              Lv.{xp.level}
+            </span>
+            <Progress value={xp.percentage} className="h-1.5 flex-1 bg-muted/50" />
+            <span className="text-[8px] text-muted-foreground whitespace-nowrap tabular-nums">
+              {xp.current ?? 0}/{xp.required ?? 100}
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* Modals */}
-      <CharacterProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
-    </>
+        {/* ── RIGHT: Aurora Orb → Opens Dock ── */}
+        <div className="relative">
+          {/* Balloon tooltip */}
+          <AnimatePresence>
+            {showBalloon && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={dismissBalloon}
+                className={cn(
+                  "absolute bottom-full mb-2 z-50 cursor-pointer",
+                  isRTL ? "left-0" : "right-0"
+                )}
+              >
+                <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
+                  <p className="text-[11px] font-semibold leading-tight">
+                    {isHe ? '👋 היי, אני אורורה!' : '👋 Hey, I\'m Aurora!'}
+                  </p>
+                  <p className="text-[10px] opacity-90 mt-0.5">
+                    {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
+                  </p>
+                  {/* Tail arrow */}
+                  <div className={cn(
+                    "absolute -bottom-1.5 w-3 h-3 bg-primary rotate-45 rounded-sm",
+                    isRTL ? "left-4" : "right-4"
+                  )} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={openAurora}
+            className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:bg-muted/30 active:scale-[0.95] transition-all"
+          >
+            <StandaloneMorphOrb
+              size={44}
+              profile={AURORA_ORB_PROFILE}
+              geometryFamily="octa"
+              level={100}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
