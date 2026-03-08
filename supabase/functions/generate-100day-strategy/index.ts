@@ -103,6 +103,9 @@ function buildUserContext(
   userBusinesses: any[],
   auroraMemory: any[],
   hobbies?: string[],
+  identityData?: any,
+  practicesData?: any[],
+  skillsData?: any[],
 ): string {
   const projectsSection = userProjects
     .map(p => `- "${p.name}" (${p.status}) — ${p.description || ''} | Pillar: ${p.life_pillar || 'general'} | Goals: ${JSON.stringify(p.goals || []).slice(0, 200)}`)
@@ -128,17 +131,53 @@ function buildUserContext(
     ? `\n## HOBBIES & PLAY PREFERENCES (from onboarding)\n${hobbies.join(', ')}\n\nCRITICAL: For the "play" pillar, milestones MUST be based on these actual hobbies and interests.\nDo NOT generate generic "smile protocols" or abstract play tasks.\nGenerate milestones like: "Weekly hiking trip", "Join a local basketball game", "Plan a camping weekend", "30min photography walk", etc.\n`
     : '';
 
+  // ── Identity & Direction (NEW) ──
+  let identitySection = '';
+  if (identityData) {
+    const { direction, identity, visions } = identityData;
+    const parts: string[] = [];
+    if (direction) parts.push(`Life Direction: ${direction.content} (clarity: ${direction.clarity_score || '?'}/100)`);
+    if (identity?.values?.length) parts.push(`Core Values: ${identity.values.join(', ')}`);
+    if (identity?.principles?.length) parts.push(`Principles: ${identity.principles.join(', ')}`);
+    if (identity?.self_concepts?.length) parts.push(`Self-Concepts: ${identity.self_concepts.join(', ')}`);
+    if (identity?.vision_statements?.length) parts.push(`Vision Statements: ${identity.vision_statements.join(', ')}`);
+    if (visions?.length) parts.push(`Life Visions:\n${visions.map((v: any) => `  - [${v.timeframe}] ${v.title}`).join('\n')}`);
+    if (parts.length > 0) {
+      identitySection = `\n## USER IDENTITY & DIRECTION\n${parts.join('\n')}\n\nCRITICAL: The 100-day plan MUST align with this user's identity, values, and life direction.\nMilestones should feel like steps toward who this person is becoming.\n`;
+    }
+  }
+
+  // ── Practices (NEW) ──
+  let practicesSection = '';
+  if (practicesData && practicesData.length > 0) {
+    const practiceLines = practicesData.map((p: any) => 
+      `- ${p.practice_name} [${p.energy_phase}] ${p.preferred_duration}min, ${p.frequency_per_week}x/week, skill_level:${p.skill_level}, ${p.is_core_practice ? 'CORE' : 'optional'} (pillar: ${p.pillar || 'general'})`
+    ).join('\n');
+    practicesSection = `\n## USER'S ACTIVE PRACTICES (from practice library)\n${practiceLines}\n\nCRITICAL: When generating milestones for relevant pillars, reference these actual practices.\nDo NOT invent generic "breathing exercise" or "meditation" if the user has specific practices.\nUse the user's chosen practices as the foundation for daily rituals and skill development.\n`;
+  }
+
+  // ── Skills (NEW) ──
+  let skillsSection = '';
+  if (skillsData && skillsData.length > 0) {
+    const skillLines = skillsData.map((s: any) => 
+      `- ${s.name} (${s.pillar || 'general'}) level:${s.level || 1} xp:${s.xp_total || 0}`
+    ).join('\n');
+    skillsSection = `\n## USER'S ACTIVE SKILLS\n${skillLines}\n\nMilestones should include skill training sessions where relevant.\n`;
+  }
+
   return `## USER
 Name: ${profileData?.name || 'Unknown'}
 Intention: ${JSON.stringify(profileData?.intention || '')}
 Today: ${new Date().toISOString().split('T')[0]}
+Wake Time: ${profileData?.wake_time || 'Unknown'}
+Sleep Time: ${profileData?.sleep_time || 'Unknown'}
 
 ## PROJECTS (with goals and pillar mapping)
 ${projectsSection}
 
 ## BUSINESSES (with journey data)
 ${businessSection}
-${hobbiesSection}
+${hobbiesSection}${identitySection}${practicesSection}${skillsSection}
 ## USER MEMORY (25 most recent, timeline-aware)
 ${memorySnippets}`;
 }
@@ -721,7 +760,7 @@ serve(async (req) => {
     // === FETCH USER DATA FOR AI CONTEXT ===
     const allPillarIds = [...CORE_PILLAR_IDS, ...ARENA_PILLAR_IDS];
 
-    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes, launchpadRes] = await Promise.all([
+    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes, profileSelectedRes, launchpadRes, identityRes, directionRes, visionsRes, userPracticesRes, existingSkillsRes] = await Promise.all([
       supabaseClient.from('profiles').select('*').eq('id', user_id).single(),
       supabaseClient.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
       supabaseClient.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
@@ -729,6 +768,14 @@ serve(async (req) => {
       supabaseClient.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
       supabaseClient.from('profiles').select('selected_pillars').eq('id', user_id).single(),
       supabaseClient.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user_id).maybeSingle(),
+      // NEW: Identity data for enriched context
+      supabaseClient.from('aurora_identity_elements').select('element_type, content').eq('user_id', user_id),
+      supabaseClient.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user_id).order('created_at', { ascending: false }).limit(1),
+      supabaseClient.from('aurora_life_visions').select('timeframe, title').eq('user_id', user_id),
+      // NEW: User practices with practice details
+      supabaseClient.from('user_practices').select('*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)').eq('user_id', user_id).eq('is_active', true),
+      // NEW: Existing skills
+      supabaseClient.from('skills').select('id, name, name_he, pillar, category').eq('user_id', user_id).eq('is_active', true),
     ]);
 
     const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
@@ -741,12 +788,47 @@ serve(async (req) => {
     const playActivities = playQuest?.play_activities as string[] | undefined;
     const allHobbies = [...new Set([...(onboardingHobbies || []), ...(playActivities || [])])];
 
+    // Build identity context for enriched prompts
+    const identityElements = identityRes.data || [];
+    const identityContext = {
+      direction: directionRes.data?.[0] || null,
+      identity: {
+        values: identityElements.filter((i: any) => i.element_type === 'value').map((i: any) => i.content),
+        principles: identityElements.filter((i: any) => i.element_type === 'principle').map((i: any) => i.content),
+        self_concepts: identityElements.filter((i: any) => i.element_type === 'self_concept').map((i: any) => i.content),
+        vision_statements: identityElements.filter((i: any) => i.element_type === 'vision_statement').map((i: any) => i.content),
+      },
+      visions: visionsRes.data || [],
+    };
+
+    // Build practices context
+    const practicesContext = (userPracticesRes.data || []).map((up: any) => {
+      const p = up.practices || {};
+      return {
+        practice_name: p.name || 'Unknown',
+        energy_phase: up.energy_phase || p.energy_type || 'day',
+        preferred_duration: up.preferred_duration || p.default_duration || 15,
+        frequency_per_week: up.frequency_per_week || 3,
+        skill_level: up.skill_level || 1,
+        is_core_practice: up.is_core_practice || false,
+        pillar: p.pillar || null,
+      };
+    });
+
+    const skillsContext = (existingSkillsRes.data || []).map((s: any) => ({
+      name: s.name, pillar: s.pillar, category: s.category, level: 1,
+      xp_total: 0,
+    }));
+
     const userContext = buildUserContext(
       profileRes.data,
       projectsRes.data || [],
       businessRes.data || [],
       memoryRes.data || [],
       allHobbies,
+      identityContext,
+      practicesContext,
+      skillsContext,
     );
     
     // Determine which pillars are "selected" by the user

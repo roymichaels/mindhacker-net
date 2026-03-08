@@ -123,7 +123,7 @@ export interface AuroraContext {
   behavioral_risks: { risk: string; severity: string; action: string }[];
   last_recalibration: { week: number; compliance: number; cognitive_load: number; recovery_debt: number; adjustments: string } | null;
 
-  // ─── Biological Profile & Constraints (NEW) ───────────
+  // ─── Biological Profile & Constraints ───────────
   biological_profile: {
     diet_type: string[];
     meals_per_day: string | null;
@@ -140,6 +140,41 @@ export interface AuroraContext {
 
   // Per-domain willingness (what user will/won't do)
   willingness: Record<string, { willing: string[]; not_willing: string[]; constraints: string[] }>;
+
+  // ─── Practice Library Integration (NEW) ─────────
+  user_practices: {
+    practice_name: string;
+    practice_name_he: string | null;
+    category: string;
+    pillar: string | null;
+    skill_level: number;
+    preferred_duration: number;
+    frequency_per_week: number;
+    is_core_practice: boolean;
+    energy_phase: string;
+    difficulty_level: number;
+    instructions: string | null;
+    practice_id: string;
+  }[];
+
+  // ─── Active Skills (NEW) ────────────────────────
+  active_skills: {
+    id: string;
+    name: string;
+    name_he: string | null;
+    pillar: string | null;
+    category: string | null;
+    level: number;
+    xp_total: number;
+  }[];
+
+  // ─── Schedule Preferences (NEW) ─────────────────
+  schedule_prefs: {
+    wake_time: string | null;
+    sleep_time: string | null;
+    focus_peak_start: string | null;
+    focus_peak_end: string | null;
+  };
 }
 
 // ─── Hash ──────────────────────────────────────────────────
@@ -194,9 +229,12 @@ export async function buildContext(
     pulseWeekRes,
     recalibRes,
     crossConvRes,
-    // NEW: life domains + launchpad for biological profile
+    // Life domains + launchpad for biological profile
     lifeDomainsRes,
     launchpadProfileRes,
+    // NEW: Practices, skills, schedule
+    userPracticesRes,
+    activeSkillsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -245,6 +283,17 @@ export async function buildContext(
     supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
     // Launchpad profile (biological baseline from onboarding)
     supabase.from("launchpad_progress").select("step_2_profile_data, step_3_lifestyle_data").eq("user_id", userId).maybeSingle(),
+    // NEW: User practices with practice library join
+    supabase.from("user_practices").select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions, instructions_he)").eq("user_id", userId).eq("is_active", true),
+    // NEW: Active skills with progress
+    (async () => {
+      const { data: skills } = await supabase.from("skills").select("id, name, name_he, pillar, category, is_active").eq("user_id", userId).eq("is_active", true);
+      if (!skills || skills.length === 0) return { data: [], error: null };
+      const skillIds = skills.map((s: any) => s.id);
+      const { data: progress } = await supabase.from("user_skill_progress").select("skill_id, xp_total, level").in("skill_id", skillIds);
+      const progressMap = new Map((progress || []).map((p: any) => [p.skill_id, p]));
+      return { data: skills.map((s: any) => ({ ...s, ...progressMap.get(s.id) })), error: null };
+    })(),
   ]);
 
   const profile = profileRes.data;
@@ -270,6 +319,8 @@ export async function buildContext(
   const habits = habitsRes.data || [];
   const milestones = milestonesRes.data || [];
   const parentTasks = parentTasksRes.data || [];
+  const userPracticesData = userPracticesRes.data || [];
+  const activeSkillsData = (activeSkillsRes as any)?.data || [];
 
   // Pulse data
   const pulseToday = pulseTodayRes.data;
@@ -533,6 +584,44 @@ export async function buildContext(
     // Biological profile & constraints
     biological_profile: biologicalProfile,
     willingness,
+
+    // ─── Practice Library Integration ─────────────────
+    user_practices: userPracticesData.map((up: any) => {
+      const p = up.practices || {};
+      return {
+        practice_name: p.name || 'Unknown',
+        practice_name_he: p.name_he || null,
+        category: p.category || 'general',
+        pillar: p.pillar || null,
+        skill_level: up.skill_level || 1,
+        preferred_duration: up.preferred_duration || p.default_duration || 15,
+        frequency_per_week: up.frequency_per_week || 3,
+        is_core_practice: up.is_core_practice || false,
+        energy_phase: up.energy_phase || p.energy_type || 'day',
+        difficulty_level: p.difficulty_level || 1,
+        instructions: p.instructions || null,
+        practice_id: up.practice_id,
+      };
+    }),
+
+    // ─── Active Skills ────────────────────────────────
+    active_skills: activeSkillsData.map((s: any) => ({
+      id: s.id,
+      name: s.name || '',
+      name_he: s.name_he || null,
+      pillar: s.pillar || null,
+      category: s.category || null,
+      level: s.level || 1,
+      xp_total: s.xp_total || 0,
+    })),
+
+    // ─── Schedule Preferences ─────────────────────────
+    schedule_prefs: {
+      wake_time: profile?.wake_time || biologicalProfile.sleep.wake || null,
+      sleep_time: profile?.sleep_time || biologicalProfile.sleep.time || null,
+      focus_peak_start: profile?.focus_peak_start || null,
+      focus_peak_end: profile?.focus_peak_end || null,
+    },
   };
 
   // Compute hash for tracing
@@ -583,5 +672,8 @@ function createEmptyContext(today: string): AuroraContext {
       activity_level: null, training_window: null, age_bracket: null, gender: null,
     },
     willingness: {},
+    user_practices: [],
+    active_skills: [],
+    schedule_prefs: { wake_time: null, sleep_time: null, focus_peak_start: null, focus_peak_end: null },
   };
 }

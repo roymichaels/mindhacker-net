@@ -28,8 +28,8 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
 
-    // Parallel fetches
-    const [profileRes, milestonesRes, missionsRes, planRes] = await Promise.all([
+    // Parallel fetches — now includes practices, skills, identity
+    const [profileRes, milestonesRes, missionsRes, planRes, userPracticesRes, identityRes, directionRes] = await Promise.all([
       supabase.from("profiles").select("full_name, wake_time, sleep_time, focus_peak_start, focus_peak_end").eq("id", user_id).single(),
       supabase.from("life_plan_milestones")
         .select("id, title, title_en, description, description_en, focus_area, week_number, mission_id, is_completed, difficulty")
@@ -40,11 +40,19 @@ serve(async (req) => {
         .select("id, title, title_en, pillar")
         .eq("plan_id", plan_id),
       supabase.from("life_plans").select("start_date").eq("id", plan_id).single(),
+      // NEW: User practices with practice library details
+      supabase.from("user_practices").select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)").eq("user_id", user_id).eq("is_active", true),
+      // NEW: Identity elements
+      supabase.from("aurora_identity_elements").select("element_type, content").eq("user_id", user_id),
+      supabase.from("aurora_life_direction").select("content, clarity_score").eq("user_id", user_id).order("created_at", { ascending: false }).limit(1),
     ]);
 
     const profile = profileRes.data;
     const milestones = milestonesRes.data || [];
     const missions = missionsRes.data || [];
+    const userPractices = userPracticesRes.data || [];
+    const identityElements = identityRes.data || [];
+    const direction = directionRes.data?.[0];
 
     if (milestones.length === 0) throw new Error("No milestones found for this phase");
 
@@ -90,6 +98,19 @@ serve(async (req) => {
       ? `\n## DAILY ADJUSTMENT (Day ${adjust_day}):\nAdjust day ${adjust_day} based on completed items.\nExisting: ${JSON.stringify(existingSchedule.schedule_data).substring(0, 2000)}\n`
       : "";
 
+    // Build practices context for prompt
+    const practicesBlock = userPractices.length > 0
+      ? `\n## USER'S ACTIVE PRACTICES (from practice library — USE THESE):\n${userPractices.map((up: any) => {
+          const p = up.practices || {};
+          return `- ${p.name || 'Unknown'} [${up.energy_phase || p.energy_type || 'day'}] ${up.preferred_duration || p.default_duration || 15}min, ${up.frequency_per_week || 3}x/week, ${up.is_core_practice ? 'CORE' : 'optional'} (pillar: ${p.pillar || 'general'})`;
+        }).join('\n')}\n\nCRITICAL: Include the user's ACTUAL practices in the schedule blocks.\nMorning practices go in Morning blocks. Training practices go in Training blocks.\nDo NOT invent generic "breathing" or "meditation" if the user has specific practices listed above.\n`
+      : '';
+
+    // Build identity context
+    const identityBlock = direction
+      ? `\n## USER IDENTITY:\nLife Direction: ${direction.content}\nValues: ${identityElements.filter((i: any) => i.element_type === 'value').map((i: any) => i.content).join(', ') || 'N/A'}\n`
+      : '';
+
     const prompt = `You are Aurora, the AI schedule architect for Mind OS. Generate a COMPLETE 10-day tactical schedule organized into THEMED BLOCKS.
 
 ## USER PREFERENCES:
@@ -97,6 +118,7 @@ serve(async (req) => {
 - Sleep time: ${sleepTime}
 - Peak focus window: ${focusPeakStart} - ${focusPeakEnd}
 - Name: ${profile?.full_name || "User"}
+${practicesBlock}${identityBlock}
 
 ## MILESTONES TO SCHEDULE (${enrichedMilestones.length} total):
 ${enrichedMilestones.map((m, i) => `${i + 1}. [ID: ${m.id}] [${m.focus_area}] [Difficulty: ${m.difficulty}/5] "${m.title_en}" (HE: "${m.title}") — ${m.description} (Mission: ${m.mission_title})${m.is_completed ? ' ✅ DONE' : ''}`).join("\n")}
