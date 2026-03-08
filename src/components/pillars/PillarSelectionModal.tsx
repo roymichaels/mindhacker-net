@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const domainColorMap: Record<string, string> = {
