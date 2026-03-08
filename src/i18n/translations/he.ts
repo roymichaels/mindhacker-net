@@ -2785,7 +2785,7 @@ export const he = {
     coachingFeature5: "זמינה בכל שעה, כל יום",
     
     // Life Plan / Transformation Journey
-    lifePlanTitle: "תוכנית 90 ימים לחיים חדשים",
+    lifePlanTitle: "תוכנית 100 ימים לחיים חדשים",
     lifePlanSubtitle: "9 שלבים במסע הטרנספורמציה → תוכנית אישית מלאה",
     transformationJourney: "מסע הטרנספורמציה",
     editTransformationJourney: "ערוך מסע טרנספורמציה",
