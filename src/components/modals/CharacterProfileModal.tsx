@@ -109,14 +109,14 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
       role="dialog"
       className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
-      style={{ background: 'linear-gradient(180deg, hsl(220 25% 6%) 0%, hsl(225 20% 10%) 40%, hsl(220 25% 6%) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end, var(--background))) 40%, hsl(var(--background)) 100%)' }}
     >
       {/* Close button */}
       <button
         onClick={() => onOpenChange(false)}
-        className="absolute top-4 end-4 z-10 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-sm"
+        className="absolute top-4 end-4 z-10 p-2 rounded-full bg-muted/50 border border-border hover:bg-muted transition-colors backdrop-blur-sm"
       >
-        <X className="w-5 h-5 text-white/70" />
+        <X className="w-5 h-5 text-muted-foreground" />
       </button>
 
       <div className="flex-1 overflow-y-auto scrollbar-hide">
