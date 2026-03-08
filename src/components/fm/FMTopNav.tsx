@@ -1,76 +1,30 @@
 /**
- * FMTopNav — MapleStory FM-inspired top navigation.
- * Warm merchant golds, fantasy shop signboard feel.
- * Uses same AppNameDropdown as the main app for the FM brand area.
+ * FMTopNav — FM top navigation header.
+ * Uses AppNameDropdown + header actions, no sub-tabs (those are in-page now).
  */
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Target, Briefcase, ArrowLeft, Store, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
-
-const FM_TABS = [
-  { id: 'earn',   path: '/fm/earn',   icon: Target,       labelEn: 'Earn',   labelHe: 'הרוויח' },
-  { id: 'market', path: '/fm/market', icon: ShoppingBag,  labelEn: 'Market', labelHe: 'מרקט' },
-  { id: 'work',   path: '/fm/work',   icon: Briefcase,    labelEn: 'Career', labelHe: 'קריירה' },
-] as const;
 
 interface FMTopNavProps {
   onOpenSettings: () => void;
 }
 
 export function FMTopNav({ onOpenSettings }: FMTopNavProps) {
-  const { language, isRTL } = useTranslation();
+  const { isRTL, language } = useTranslation();
   const isHe = language === 'he';
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const isTabActive = (tab: typeof FM_TABS[number]) => {
-    const p = location.pathname;
-    if (tab.id === 'earn') return p.startsWith('/fm/earn');
-    if (tab.id === 'market') return p.startsWith('/fm/market');
-    if (tab.id === 'work') return p.startsWith('/fm/work') || p.startsWith('/coaches') || p.startsWith('/business');
-    return false;
-  };
 
   return (
     <header
       className="sticky top-0 z-50 w-full border-b border-amber-300/40 bg-gradient-to-b from-amber-50/95 via-orange-50/90 to-background/95 backdrop-blur-xl dark:from-amber-950/40 dark:via-amber-900/20 dark:to-background/95 dark:border-amber-500/20"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="flex h-12 sm:h-16 items-center justify-between px-2 sm:px-4 lg:px-6 max-w-screen-2xl mx-auto">
-        {/* Left: AppNameDropdown (same as main app) + FM tabs */}
-        <div className="flex items-center gap-2 sm:gap-6">
-          <AppNameDropdown compact onOpenSettings={onOpenSettings} />
+      <div className="flex h-12 sm:h-14 items-center justify-between px-2 sm:px-4 lg:px-6 max-w-screen-2xl mx-auto">
+        <AppNameDropdown compact onOpenSettings={onOpenSettings} />
 
-          <nav className="hidden sm:flex items-center gap-0.5 sm:gap-1">
-            {FM_TABS.map((tab) => {
-              const active = isTabActive(tab);
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => navigate(tab.path)}
-                  className={cn(
-                    "relative flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all",
-                    active
-                      ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 shadow-inner shadow-amber-500/10"
-                      : "text-amber-600/80 dark:text-amber-200/80 hover:text-amber-700 dark:hover:text-amber-200 hover:bg-amber-500/10"
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span>{isHe ? tab.labelHe : tab.labelEn}</span>
-                  {active && (
-                    <span className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 w-8 h-0.5 bg-amber-400 rounded-full" />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Right: Back to OS + actions */}
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => navigate('/dashboard')}
