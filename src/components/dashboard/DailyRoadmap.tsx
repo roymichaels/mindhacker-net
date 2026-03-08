@@ -14,7 +14,7 @@ import { Sparkles, ListChecks, MapPin, Activity, Check, ChevronDown, BookOpen } 
 import { Progress } from '@/components/ui/progress';
 import { AnimatePresence, motion } from 'framer-motion';
 
-type RoadmapItemType = 'pulse' | 'habit' | 'task' | 'milestone';
+type RoadmapItemType = 'pulse' | 'habit' | 'task' | 'milestone' | 'learning';
 
 interface RoadmapItem {
   id: string;
