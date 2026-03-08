@@ -109,14 +109,14 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
       role="dialog"
       className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
-      style={{ background: 'linear-gradient(180deg, hsl(220 25% 6%) 0%, hsl(225 20% 10%) 40%, hsl(220 25% 6%) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end, var(--background))) 40%, hsl(var(--background)) 100%)' }}
     >
       {/* Close button */}
       <button
         onClick={() => onOpenChange(false)}
-        className="absolute top-4 end-4 z-10 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-sm"
+        className="absolute top-4 end-4 z-10 p-2 rounded-full bg-muted/50 border border-border hover:bg-muted transition-colors backdrop-blur-sm"
       >
-        <X className="w-5 h-5 text-white/70" />
+        <X className="w-5 h-5 text-muted-foreground" />
       </button>
 
       <div className="flex-1 overflow-y-auto scrollbar-hide">
@@ -143,7 +143,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             {dashboard.identityTitle && (
               <div className="flex items-center justify-center gap-2">
                 <span className="text-lg">{dashboard.identityTitle.icon}</span>
-                <h2 className="text-lg font-bold text-white tracking-wide">
+                <h2 className="text-lg font-bold text-foreground tracking-wide">
                   {isHe ? dashboard.identityTitle.title : dashboard.identityTitle.titleEn}
                 </h2>
               </div>
@@ -160,7 +160,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
               <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 border border-amber-500/20">
                 <Star className="h-3 w-3 fill-amber-400" /> Lv.{xp.level}
               </span>
-              <div className="flex-1 h-2 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+              <div className="flex-1 h-2 rounded-full bg-muted border border-border overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
                   style={{ background: 'linear-gradient(90deg, hsl(35 80% 50%), hsl(45 90% 55%))' }}
@@ -169,7 +169,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
                   transition={{ duration: 0.8, ease: 'easeOut' }}
                 />
               </div>
-              <span className="text-[10px] text-white/30 tabular-nums font-mono">{xp.current}/{xp.required}</span>
+              <span className="text-[10px] text-muted-foreground tabular-nums font-mono">{xp.current}/{xp.required}</span>
             </div>
 
             <div className="flex items-center justify-center gap-4">
