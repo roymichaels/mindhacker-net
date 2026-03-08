@@ -672,5 +672,8 @@ function createEmptyContext(today: string): AuroraContext {
       activity_level: null, training_window: null, age_bracket: null, gender: null,
     },
     willingness: {},
+    user_practices: [],
+    active_skills: [],
+    schedule_prefs: { wake_time: null, sleep_time: null, focus_peak_start: null, focus_peak_end: null },
   };
 }
