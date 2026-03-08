@@ -100,20 +100,12 @@ export function OrbFullscreenViewer({ open, onClose, profile: profileProp, geome
                 background: 'radial-gradient(circle, hsl(var(--primary) / 0.6) 0%, transparent 70%)',
               }}
             />
-            {profile ? (
-              <StandaloneMorphOrb
-                size={orbSize}
-                profile={profile}
-                geometryFamily={geometryFamily || profile.geometryFamily || 'sphere'}
-                level={level}
-              />
-            ) : (
-              <PersonalizedOrb
-                size={orbSize}
-                state="idle"
-                showGlow
-              />
-            )}
+            <StandaloneMorphOrb
+              size={orbSize}
+              profile={activeProfile}
+              geometryFamily={activeGeometry}
+              level={activeLevel}
+            />
           </motion.div>
 
           <motion.p
