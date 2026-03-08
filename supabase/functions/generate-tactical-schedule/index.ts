@@ -136,12 +136,34 @@ serve(async (req) => {
       ? `\n## DAILY ADJUSTMENT (Day ${adjust_day}):\nAdjust day ${adjust_day} based on completed items.\nExisting: ${JSON.stringify(existingSchedule.schedule_data).substring(0, 2000)}\n`
       : "";
 
-    // Build practices context for prompt
-    const practicesBlock = userPractices.length > 0
-      ? `\n## USER'S ACTIVE PRACTICES (from practice library — USE THESE):\n${userPractices.map((up: any) => {
-          const p = up.practices || {};
-          return `- ${p.name || 'Unknown'} [${up.energy_phase || p.energy_type || 'day'}] ${up.preferred_duration || p.default_duration || 15}min, ${up.frequency_per_week || 3}x/week, ${up.is_core_practice ? 'CORE' : 'optional'} (pillar: ${p.pillar || 'general'})`;
-        }).join('\n')}\n\nCRITICAL: Include the user's ACTUAL practices in the schedule blocks.\nMorning practices go in Morning blocks. Training practices go in Training blocks.\nDo NOT invent generic "breathing" or "meditation" if the user has specific practices listed above.\n`
+    // Build practices as SCHEDULABLE items alongside milestones
+    const practiceItems = userPractices.map((up: any, idx: number) => {
+      const p = up.practices || {};
+      return {
+        practice_id: up.practice_id || `practice_${idx}`,
+        name: p.name || 'Unknown',
+        name_he: p.name_he || p.name || '',
+        pillar: p.pillar || 'general',
+        energy_type: up.energy_phase || p.energy_type || 'day',
+        duration: up.preferred_duration || p.default_duration || 15,
+        frequency: up.frequency_per_week || 3,
+        is_core: up.is_core_practice || false,
+        category: p.category || 'health',
+        difficulty: p.difficulty_level || 2,
+      };
+    });
+
+    const practicesBlock = practiceItems.length > 0
+      ? `\n## USER'S COMMITTED PRACTICES (MUST be scheduled — these are the user's real daily rituals):
+${practiceItems.map((p: any, i: number) => `P${i + 1}. [PRACTICE_ID: ${p.practice_id}] [${p.pillar}] "${p.name}" (HE: "${p.name_he}") — ${p.duration}min, ${p.frequency}x/week, energy: ${p.energy_type}, ${p.is_core ? 'CORE (must appear daily)' : 'optional'}, category: ${p.category}`).join('\n')}
+
+CRITICAL RULES FOR PRACTICES:
+- CORE practices MUST appear in EVERY day's schedule.
+- Non-core practices should appear ${Math.min(practiceItems.length, 3)}-${Math.min(practiceItems.length * 2, 6)} times across 10 days based on frequency.
+- Place practices in their matching energy_type block: "morning" → Morning Activation, "training" → Training Block, "evening" → Evening Review, "day" → Focused Productivity.
+- Use practice_id (not milestone_id) for practice entries. Set milestone_id to null for practices.
+- Use the EXACT practice names — do NOT invent generic alternatives like "breathing exercise" or "meditation".
+- Practices and milestones COEXIST in the same blocks. A Morning block might have 1 practice + 1 milestone.\n`
       : '';
 
     // Build identity context
@@ -203,6 +225,7 @@ ${adjustmentContext}
           "milestones": [
             {
               "milestone_id": "actual-uuid-from-list",
+              "practice_id": null,
               "focus_area": "vitality",
               "title_en": "Morning breathwork protocol",
               "title_he": "פרוטוקול נשימת בוקר",
@@ -213,30 +236,20 @@ ${adjustmentContext}
               "order_index": 0
             },
             {
-              "milestone_id": "actual-uuid-from-list",
-              "focus_area": "power",
-              "title_en": "Full-body stretch routine",
-              "title_he": "שגרת מתיחות מלאה",
+              "milestone_id": null,
+              "practice_id": "actual-practice-id",
+              "focus_area": "consciousness",
+              "title_en": "Tai Chi practice",
+              "title_he": "תרגול טאי צ'י",
               "duration_minutes": 20,
               "difficulty": 2,
               "xp_reward": 10,
               "execution_template": "timer_focus",
               "order_index": 1
-            },
-            {
-              "milestone_id": "actual-uuid-from-list",
-              "focus_area": "combat",
-              "title_en": "Cold exposure protocol",
-              "title_he": "פרוטוקול חשיפה לקור",
-              "duration_minutes": 10,
-              "difficulty": 3,
-              "xp_reward": 10,
-              "execution_template": "timer_focus",
-              "order_index": 2
             }
           ],
-          "total_minutes": 45,
-          "milestone_count": 3
+          "total_minutes": 35,
+          "milestone_count": 2
         }
       ],
       "total_minutes": 150,
@@ -245,9 +258,9 @@ ${adjustmentContext}
   ]
 }
 
-WARNING: If any block has fewer than 2 milestones in its "milestones" array, your output is INVALID. Every block must group multiple actions together. This is the most critical requirement.
+WARNING: If any block has fewer than 2 milestones/practices in its "milestones" array, your output is INVALID. Every block must group multiple actions together. This is the most critical requirement.
 
-IMPORTANT: Use the EXACT milestone IDs from the list above. Group related milestones into blocks by theme. Generate ALL 10 days.`;
+IMPORTANT: Use the EXACT milestone IDs and practice IDs from the lists above. For practice entries, set milestone_id to null and use practice_id. For milestone entries, set practice_id to null. Group related items into blocks by theme. Generate ALL 10 days.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -300,21 +313,23 @@ IMPORTANT: Use the EXACT milestone IDs from the list above. Group related milest
       throw new Error("AI returned no schedule days");
     }
 
-    // Validate milestone IDs, add stable block_id, and enrich with mission lineage
-    const validIds = new Set(milestones.map(m => m.id));
+    // Validate milestone/practice IDs, add stable block_id, and enrich with lineage
+    const validMilestoneIds = new Set(milestones.map(m => m.id));
+    const validPracticeIds = new Set(practiceItems.map((p: any) => p.practice_id));
     let blockCounter = 0;
     for (const day of parsed.days) {
       if (!day.blocks) day.blocks = [];
       for (const block of day.blocks) {
-        // Add stable block_id for traceability: daily action → tactical block
         block.block_id = `phase${phase_number}_d${day.day_number}_b${blockCounter++}`;
-        
         if (!block.milestones) block.milestones = [];
         block.milestones = block.milestones.map((m: any, idx: number) => {
-          if (m.milestone_id && !validIds.has(m.milestone_id)) {
+          if (m.milestone_id && !validMilestoneIds.has(m.milestone_id)) {
             m.milestone_id = null;
           }
-          // Enrich each milestone with mission lineage from upstream data
+          if (m.practice_id && !validPracticeIds.has(m.practice_id)) {
+            m.practice_id = null;
+          }
+          m.source_type = m.practice_id ? 'practice' : 'milestone';
           if (m.milestone_id) {
             const sourceMilestone = milestones.find(ms => ms.id === m.milestone_id);
             if (sourceMilestone?.mission_id) {
