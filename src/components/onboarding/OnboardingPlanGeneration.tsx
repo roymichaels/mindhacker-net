@@ -134,7 +134,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       
       // Both run concurrently — strategy creates the plan, launchpad-summary creates identity data
       const [strategyResult] = await Promise.allSettled([
-        supabase.functions.invoke('generate-90day-strategy', {
+        supabase.functions.invoke('generate-100day-strategy', {
           body: { 
             user_id: user.id, 
             hub: 'both',

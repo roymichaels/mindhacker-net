@@ -97,7 +97,7 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
     try {
       // Generate FULL plan for ALL 14 pillars (not just selected).
       // Assessed pillars get personalized plans; unassessed get best-practice defaults.
-      const { error } = await supabase.functions.invoke('generate-90day-strategy', {
+      const { error } = await supabase.functions.invoke('generate-100day-strategy', {
         body: {
           user_id: user.id,
           hub: 'both',
