@@ -201,7 +201,15 @@ export async function buildContext(
   userId: string,
   language: string
 ): Promise<AuroraContext> {
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  // Israel time awareness
+  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
+  const israelTimeStr = israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+  const dayOfWeek = dayNames[israelTime.getDay()];
+  const dayOfWeekHe = dayNamesHe[israelTime.getDay()];
 
   if (!userId) {
     const emptyCtx = createEmptyContext(today);
