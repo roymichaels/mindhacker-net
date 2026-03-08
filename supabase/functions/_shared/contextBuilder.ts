@@ -499,7 +499,8 @@ export async function buildContext(
 
     today,
     current_time: now.toISOString().slice(11, 16),
-    current_time_israel: israelTimeStr,
+    current_time_local: localTimeStr,
+    user_timezone: userTimezone,
     day_of_week: dayOfWeek,
     day_of_week_he: dayOfWeekHe,
     life_plan: lifePlan ? {
