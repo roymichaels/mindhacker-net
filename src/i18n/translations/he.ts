@@ -2832,7 +2832,7 @@ export const he = {
       },
       strategy: {
         title: "אסטרטגיה וכיוון",
-        desc: "תוכנית 90 יום עם יעדים ו-Milestones — תמיד יודע לאן הולך",
+        desc: "תוכנית 100 יום עם יעדים ו-Milestones — תמיד יודע לאן הולך",
       },
       avatar: {
         title: "אווטר שמראה לך מי אתה",
