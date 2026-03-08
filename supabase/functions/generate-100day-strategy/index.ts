@@ -1264,6 +1264,42 @@ serve(async (req) => {
       results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, ai_generated: allAiSuccess });
     }
 
+    // Auto-generate tactical schedules for phase 1 of each new plan
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    for (const r of results) {
+      if (r.plan_id && r.milestones > 0) {
+        try {
+          console.log(`[auto-tactics] Triggering tactical schedule for plan ${r.plan_id} phase 1...`);
+          const tacticsUrl = `${supabaseUrl}/functions/v1/generate-tactical-schedule`;
+          const tacticsResp = await fetch(tacticsUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+            },
+            body: JSON.stringify({
+              user_id,
+              plan_id: r.plan_id,
+              phase_number: 1,
+            }),
+          });
+          if (tacticsResp.ok) {
+            const tacticsData = await tacticsResp.json();
+            console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, tacticsData);
+            r.tactical_schedule_generated = true;
+          } else {
+            const errText = await tacticsResp.text();
+            console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${errText}`);
+            r.tactical_schedule_generated = false;
+          }
+        } catch (tacticsErr) {
+          console.warn(`[auto-tactics] ⚠️ Error generating tactics:`, tacticsErr);
+          r.tactical_schedule_generated = false;
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, plans: results }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
