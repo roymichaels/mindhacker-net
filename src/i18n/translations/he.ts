@@ -2886,7 +2886,7 @@ export const he = {
     phaseFoundationFeature3: "פתח סשני היפנוזה ראשונים",
     
     phaseDeepWorkTitle: "עבודה עמוקה",
-    phaseDeepWorkDesc: "הפעל את תוכנית 90 הימים עם משימות יומיות, מעקב הרגלים ותובנות שבועיות מ-Aurora.",
+    phaseDeepWorkDesc: "הפעל את תוכנית 100 הימים עם משימות יומיות, מעקב הרגלים ותובנות שבועיות מ-Aurora.",
     phaseDeepWorkFeature1: "משימות יומיות ב-8 תחומי חיים",
     phaseDeepWorkFeature2: "צבירת XP ועליית רמות",
     phaseDeepWorkFeature3: "זיהוי דפוסים ותובנות שבועיות",
