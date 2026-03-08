@@ -27,6 +27,7 @@ function OnboardingShowcaseOrb({ size }: { size: number }) {
   return <StandaloneMorphOrb size={size} profile={profile} geometryFamily={profile.geometryFamily || 'sphere'} level={1} />;
 }
 
+interface OnboardingIntroProps {
   onComplete: (basicInfo: { name: string; gender: string; ageBracket: string }) => void;
 }
 
