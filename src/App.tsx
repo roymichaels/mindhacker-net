@@ -87,8 +87,6 @@ const Freelancer = lazy(() => import("./pages/Freelancer"));
 const Creator = lazy(() => import("./pages/Creator"));
 import FreelancerLayoutWrapper from "./components/freelancer/FreelancerLayoutWrapper";
 import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
-const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
-const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
