@@ -27,17 +27,25 @@ export interface AuroraContext {
   // Dates & plan
   today: string;
   current_time: string;
+  current_time_israel: string;
+  day_of_week: string;
+  day_of_week_he: string;
   life_plan: {
     active: boolean;
     start_date: string | null;
+    current_day: number;
     current_week: number;
     total_weeks: number;
+    days_remaining: number;
   } | null;
 
   // Action Items (unified)
   action_items: {
-    overdue_tasks: { title: string; due_at: string; pillar: string | null }[];
-    today_tasks: { id: string; title: string; status: string; pillar: string | null }[];
+    overdue_tasks: { title: string; due_at: string; pillar: string | null; scheduled_date: string | null }[];
+    today_tasks: { id: string; title: string; status: string; pillar: string | null; scheduled_date: string | null }[];
+    today_completed: { title: string; completed_at: string; pillar: string | null }[];
+    upcoming_tasks: { title: string; scheduled_date: string; pillar: string | null }[];
+    recently_completed: { title: string; completed_at: string; pillar: string | null; days_ago: number }[];
     habits: { id: string; title: string; completed_today: boolean; streak: number }[];
     milestones: { title: string; week_number: number | null; is_completed: boolean; plan_id: string | null }[];
     open_checklists: { id: string; title: string; children_total: number; children_done: number }[];
@@ -193,7 +201,15 @@ export async function buildContext(
   userId: string,
   language: string
 ): Promise<AuroraContext> {
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  // Israel time awareness
+  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
+  const israelTimeStr = israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+  const dayOfWeek = dayNames[israelTime.getDay()];
+  const dayOfWeekHe = dayNamesHe[israelTime.getDay()];
 
   if (!userId) {
     const emptyCtx = createEmptyContext(today);
@@ -225,6 +241,9 @@ export async function buildContext(
     habitsRes,
     milestonesRes,
     parentTasksRes,
+    todayCompletedRes,
+    recentlyCompletedRes,
+    upcomingTasksRes,
     pulseTodayRes,
     pulseWeekRes,
     recalibRes,
@@ -253,15 +272,21 @@ export async function buildContext(
     supabase.from("user_projects").select("*").eq("user_id", userId).in("status", ["active", "paused"]).order("updated_at", { ascending: false }),
     supabase.from("launchpad_summary").select("*").eq("user_id", userId).single(),
     // Overdue tasks from action_items
-    supabase.from("action_items").select("id, title, due_at, pillar").eq("user_id", userId).eq("type", "task").in("status", ["todo", "doing"]).lt("due_at", `${today}T00:00:00`),
-    // Today's tasks from action_items
-    supabase.from("action_items").select("id, title, status, pillar").eq("user_id", userId).in("type", ["task"]).in("status", ["todo", "doing"]).gte("due_at", `${today}T00:00:00`).lte("due_at", `${today}T23:59:59`),
+    supabase.from("action_items").select("id, title, due_at, pillar, scheduled_date").eq("user_id", userId).eq("type", "task").in("status", ["todo", "doing"]).lt("due_at", `${today}T00:00:00`),
+    // Today's tasks from action_items (pending)
+    supabase.from("action_items").select("id, title, status, pillar, scheduled_date").eq("user_id", userId).in("type", ["task"]).in("status", ["todo", "doing"]).or(`scheduled_date.eq.${today},and(due_at.gte.${today}T00:00:00,due_at.lte.${today}T23:59:59)`),
     // Habits from action_items
     supabase.from("action_items").select("id, title, completed_at, metadata").eq("user_id", userId).eq("type", "habit"),
     // Milestones from action_items
     supabase.from("action_items").select("id, title, status, metadata, plan_id").eq("user_id", userId).eq("type", "milestone").order("order_index"),
     // Parent tasks (checklists) with child counts
     supabase.from("action_items").select("id, title").eq("user_id", userId).eq("type", "task").is("parent_id", null).in("status", ["todo", "doing"]),
+    // Today's completed tasks
+    supabase.from("action_items").select("title, completed_at, pillar").eq("user_id", userId).eq("status", "done").gte("completed_at", `${today}T00:00:00`).lte("completed_at", `${today}T23:59:59`),
+    // Recently completed tasks (last 7 days, excluding today)
+    supabase.from("action_items").select("title, completed_at, pillar").eq("user_id", userId).eq("status", "done").gte("completed_at", new Date(Date.now() - 7 * 86400000).toISOString()).lt("completed_at", `${today}T00:00:00`).order("completed_at", { ascending: false }).limit(20),
+    // Upcoming tasks (next 3 days)
+    supabase.from("action_items").select("title, scheduled_date, pillar").eq("user_id", userId).in("type", ["task"]).in("status", ["todo", "doing"]).gt("scheduled_date", today).lte("scheduled_date", new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0]).order("scheduled_date"),
     // Pulse: today
     supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).eq("log_date", today).maybeSingle(),
     // Pulse: last 7 days
@@ -319,6 +344,9 @@ export async function buildContext(
   const habits = habitsRes.data || [];
   const milestones = milestonesRes.data || [];
   const parentTasks = parentTasksRes.data || [];
+  const todayCompleted = todayCompletedRes.data || [];
+  const recentlyCompleted = recentlyCompletedRes.data || [];
+  const upcomingTasks = upcomingTasksRes.data || [];
   const userPracticesData = userPracticesRes.data || [];
   const activeSkillsData = (activeSkillsRes as any)?.data || [];
 
@@ -378,12 +406,16 @@ export async function buildContext(
     });
   }
 
-  // ── Compute plan week ──────────────────────────────────
+  // ── Compute plan day & week ─────────────────────────────
   let currentWeek = 0;
+  let currentDay = 0;
+  let daysRemaining = 100;
   if (lifePlan) {
     const startDate = new Date(lifePlan.start_date);
-    const diffDays = Math.floor((new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    currentWeek = Math.min(12, Math.max(1, Math.floor(diffDays / 7) + 1));
+    const diffDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    currentDay = Math.max(1, Math.min(100, diffDays + 1));
+    currentWeek = Math.min(15, Math.max(1, Math.floor(diffDays / 7) + 1));
+    daysRemaining = Math.max(0, 100 - currentDay);
   }
 
   // ── Compute opener hints ───────────────────────────────
@@ -451,7 +483,6 @@ export async function buildContext(
   }
 
   // ── Assemble context ───────────────────────────────────
-  const now = new Date();
   const ctx: AuroraContext = {
     context_hash: "", // computed below
     built_at: now.toISOString(),
@@ -466,16 +497,27 @@ export async function buildContext(
 
     today,
     current_time: now.toISOString().slice(11, 16),
+    current_time_israel: israelTimeStr,
+    day_of_week: dayOfWeek,
+    day_of_week_he: dayOfWeekHe,
     life_plan: lifePlan ? {
       active: true,
       start_date: lifePlan.start_date,
+      current_day: currentDay,
       current_week: currentWeek,
-      total_weeks: 12,
+      total_weeks: 15,
+      days_remaining: daysRemaining,
     } : null,
 
     action_items: {
-      overdue_tasks: overdueTasks.map((t: any) => ({ title: t.title, due_at: t.due_at, pillar: t.pillar })),
-      today_tasks: todayTasks.map((t: any) => ({ id: t.id, title: t.title, status: t.status, pillar: t.pillar })),
+      overdue_tasks: overdueTasks.map((t: any) => ({ title: t.title, due_at: t.due_at, pillar: t.pillar, scheduled_date: t.scheduled_date })),
+      today_tasks: todayTasks.map((t: any) => ({ id: t.id, title: t.title, status: t.status, pillar: t.pillar, scheduled_date: t.scheduled_date })),
+      today_completed: todayCompleted.map((t: any) => ({ title: t.title, completed_at: t.completed_at, pillar: t.pillar })),
+      upcoming_tasks: upcomingTasks.map((t: any) => ({ title: t.title, scheduled_date: t.scheduled_date, pillar: t.pillar })),
+      recently_completed: recentlyCompleted.map((t: any) => {
+        const daysAgo = Math.floor((now.getTime() - new Date(t.completed_at).getTime()) / (1000 * 60 * 60 * 24));
+        return { title: t.title, completed_at: t.completed_at, pillar: t.pillar, days_ago: daysAgo };
+      }),
       habits: habitsWithStatus,
       milestones: milestones.map((m: any) => ({
         title: m.title,
@@ -634,14 +676,21 @@ export async function buildContext(
 // ─── Empty context fallback ────────────────────────────────
 
 function createEmptyContext(today: string): AuroraContext {
+  const now = new Date();
+  const israelTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
   return {
     context_hash: "",
-    built_at: new Date().toISOString(),
+    built_at: now.toISOString(),
     profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
     today,
-    current_time: new Date().toISOString().slice(11, 16),
+    current_time: now.toISOString().slice(11, 16),
+    current_time_israel: israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+    day_of_week: dayNames[israelTime.getDay()],
+    day_of_week_he: dayNamesHe[israelTime.getDay()],
     life_plan: null,
-    action_items: { overdue_tasks: [], today_tasks: [], habits: [], milestones: [], open_checklists: [] },
+    action_items: { overdue_tasks: [], today_tasks: [], today_completed: [], upcoming_tasks: [], recently_completed: [], habits: [], milestones: [], open_checklists: [] },
     habits_status: { completed: 0, total: 0 },
     direction: null,
     identity: { values: [], principles: [], self_concepts: [], vision_statements: [] },
