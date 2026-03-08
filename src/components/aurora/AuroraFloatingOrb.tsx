@@ -11,7 +11,7 @@ import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-const ORB_SIZE = 48;
+const ORB_SIZE = 96;
 
 export function AuroraFloatingOrb() {
   const ctx = useAuroraChatContextSafe();
