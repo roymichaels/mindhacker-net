@@ -6,6 +6,7 @@
  * Milestones show 1-5 difficulty stars and open journey modal on click.
  */
 import { useState, useMemo, useCallback } from 'react';
+import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
