@@ -29,8 +29,8 @@ export interface OsTab {
  *  Order (LTR): Path | FM(center) | Aurora(injected) | Community | Study
  */
 export const OS_TABS: OsTab[] = [
-  { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Path',      labelHe: 'מסלול' },
-  { id: 'fm',        path: '/fm/earn',   icon: Store,          labelEn: 'FM',        labelHe: 'FM', isCenter: true },
+  { id: 'fm',        path: '/fm/earn',   icon: Store,          labelEn: 'FM',        labelHe: 'FM' },
+  { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Path',      labelHe: 'מסלול', isCenter: true },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
 ];

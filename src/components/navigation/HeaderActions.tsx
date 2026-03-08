@@ -36,15 +36,6 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
           <Wallet className="w-5 h-5" />
         </button>
       )}
-      {!isFM && (
-        <button
-          onClick={() => navigate('/fm')}
-          className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-          title="Free Market"
-        >
-          <Store className="w-5 h-5" />
-        </button>
-      )}
       <UserNotificationBell />
       {isFM && <FMWalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />}
       <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
