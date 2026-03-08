@@ -32,7 +32,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const theme = useRouteTheme();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const isFM = theme.id === 'fm';
+  const headerBg = isDark ? theme.headerBgDark : theme.headerBg;
   useLearnPillarAction();
 
   return (
