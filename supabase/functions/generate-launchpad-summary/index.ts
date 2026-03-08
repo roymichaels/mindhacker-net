@@ -6,7 +6,7 @@ import {
   type PlanData 
 } from '../_shared/launchpad-defaults.ts';
 import { LAUNCHPAD_SYSTEM_PROMPT } from '../_shared/launchpad-ai-prompt.ts';
-// checklist helpers removed — plan creation handled by generate-90day-strategy
+// checklist helpers removed — plan creation handled by generate-100day-strategy
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

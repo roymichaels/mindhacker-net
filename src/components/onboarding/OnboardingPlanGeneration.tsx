@@ -1,6 +1,6 @@
 /**
  * OnboardingPlanGeneration — Shows animated analysis screen while generating the 100-day plan.
- * Calls generate-90day-strategy edge function, then completes onboarding.
+ * Calls generate-100day-strategy edge function, then completes onboarding.
  */
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
