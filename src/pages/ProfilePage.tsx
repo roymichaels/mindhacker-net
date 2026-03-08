@@ -90,7 +90,7 @@ export default function ProfilePage() {
                   transition={{ duration: 0.8, ease: 'easeOut' }}
                 />
               </div>
-              <span className="text-[10px] text-white/30 tabular-nums font-mono">{xp.current}/{xp.required}</span>
+              <span className="text-[10px] text-muted-foreground tabular-nums font-mono">{xp.current}/{xp.required}</span>
             </div>
 
             <div className="flex items-center justify-center gap-4">
