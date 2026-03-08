@@ -402,8 +402,8 @@ const App = () => (
                           <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
                           {/* Business */}
                           <Route path="/business" element={<BusinessIndexWrapper />} />
-                          <Route path="/business/journey" element={<BusinessJourney />} />
-                          <Route path="/business/journey/:journeyId" element={<BusinessJourney />} />
+                          <Route path="/business/journey" element={<BusinessJourneyWrapper />} />
+                          <Route path="/business/journey/:journeyId" element={<BusinessJourneyWrapper />} />
                           <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
                           {/* Freelancer */}
                           <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
