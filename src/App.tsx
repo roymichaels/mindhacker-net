@@ -73,8 +73,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
-const Business = lazy(() => import("./pages/Business"));
-import { BusinessIndexWrapper, BusinessDashboardWrapper } from './components/business/BusinessLayoutWrapper';
+import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
 import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
