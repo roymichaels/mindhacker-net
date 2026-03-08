@@ -37,7 +37,7 @@ function MobileSidebarOverlay({ children, onClose }: { children: ReactNode; onCl
   );
 }
 
-const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRight }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { isRTL, language } = useTranslation();
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -45,12 +45,6 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
   const [settingsOpen, setSettingsOpen] = useState(false);
   const isFM = location.pathname.startsWith('/fm') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business') || location.pathname.startsWith('/freelancer') || location.pathname.startsWith('/creator');
   useLearnPillarAction();
-
-  // Read from SidebarContext (set by hub pages via useSidebars hook)
-  // Props take priority > context > defaults
-  const ctx = useSidebarContext();
-  const leftSidebar = propLeft !== undefined ? propLeft : ctx.leftSidebar;
-  const rightSidebar = propRight !== undefined ? propRight : ctx.rightSidebar;
 
   return (
     <AuroraActionsProvider>
