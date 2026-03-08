@@ -153,7 +153,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => navigate('/plan')}}
+              onClick={() => navigate('/plan')}
               className="px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
               <Sparkles className="w-4 h-4" />
