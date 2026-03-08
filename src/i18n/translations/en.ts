@@ -3227,7 +3227,7 @@ export const en: TranslationKeys = {
     tokens: "Tokens",
     overview: "Overview",
     analysis: "AI Analysis",
-    plan: "90-Day Plan",
+    plan: "100-Day Plan",
     identity: "Identity",
     tasks: "Tasks",
     patterns: "Patterns",
