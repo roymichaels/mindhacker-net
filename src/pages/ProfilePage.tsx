@@ -43,7 +43,7 @@ export default function ProfilePage() {
       <div
         className="flex-1 flex flex-col overflow-y-auto scrollbar-hide pb-32"
         dir={isRTL ? 'rtl' : 'ltr'}
-        style={{ background: 'linear-gradient(180deg, hsl(220 25% 6%) 0%, hsl(225 20% 10%) 40%, hsl(220 25% 6%) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end)) 40%, hsl(var(--background)) 100%)' }}
       >
         {/* ═══════ HEADER: Royal Character Card ═══════ */}
         <div className="relative pt-10 pb-5 px-4 flex flex-col items-center text-center">
