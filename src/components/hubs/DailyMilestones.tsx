@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import type { NowQueueItem } from '@/hooks/useNowEngine';
+import type { NowQueueItem } from '@/types/planning';
 
 const domainColorMap: Record<string, string> = {
   blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',

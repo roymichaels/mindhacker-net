@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
-import type { NowQueueItem, ExecutionTemplate } from '@/hooks/useNowEngine';
+import type { NowQueueItem, ExecutionTemplate } from '@/types/planning';
 
 export type TimeBlock = 'morning' | 'midday' | 'evening' | 'deepwork' | 'training' | 'recovery' | 'admin' | 'social' | 'play';
 

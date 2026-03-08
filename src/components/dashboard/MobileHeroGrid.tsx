@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useTodayExecution, type ScheduleSlot } from '@/hooks/useTodayExecution';
-import { type NowQueueItem } from '@/hooks/useNowEngine';
+import { type NowQueueItem } from '@/types/planning';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
