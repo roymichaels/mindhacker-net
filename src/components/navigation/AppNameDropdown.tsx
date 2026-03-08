@@ -51,6 +51,8 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
   const { currentJob } = useUserJob();
+  const { profile: userOrbProfile } = useOrbProfile();
+  const xp = useXpProgress();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
