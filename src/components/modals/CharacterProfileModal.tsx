@@ -179,20 +179,28 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
               <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-400">
                 <Flame className="h-3 w-3" /> {streak.streak}{streak.isActiveToday ? ' ✓' : ''}
               </span>
-                <button
-                  onClick={() => setTraitsOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  {isHe ? 'תכונות' : 'Traits'}
-                </button>
-                <button
-                  onClick={() => setPracticesOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors"
-                >
-                  <Dumbbell className="w-3 h-3" />
-                  {isHe ? 'תרגולים' : 'Practices'}
-                </button>
+            </div>
+
+            {/* Traits & Practices cards */}
+            <div className="grid grid-cols-2 gap-2.5 mt-3 w-full max-w-[280px]">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setTraitsOpen(true)}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/25 bg-primary/[0.08] hover:bg-primary/[0.14] transition-colors"
+              >
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-xs font-bold text-primary">{isHe ? 'תכונות' : 'Traits'}</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setPracticesOpen(true)}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.08] hover:bg-amber-500/[0.14] transition-colors"
+              >
+                <Dumbbell className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-amber-400">{isHe ? 'תרגולים' : 'Practices'}</span>
+              </motion.button>
             </div>
           </div>
         </div>
