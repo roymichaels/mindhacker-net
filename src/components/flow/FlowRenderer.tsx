@@ -45,6 +45,7 @@ export function FlowRenderer({
   onAutoSave,
   onComplete,
   isCompleting,
+  skipAnswered,
 }: FlowRendererProps) {
   const { language, isRTL } = useTranslation();
 
