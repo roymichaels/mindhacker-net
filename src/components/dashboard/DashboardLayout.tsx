@@ -63,7 +63,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
 
           <AuroraDock />
-          {isMobile && <BottomTabBar />}
+          <BottomTabBar />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
       </SidebarProvider>
