@@ -123,7 +123,7 @@ export interface AuroraContext {
   behavioral_risks: { risk: string; severity: string; action: string }[];
   last_recalibration: { week: number; compliance: number; cognitive_load: number; recovery_debt: number; adjustments: string } | null;
 
-  // ─── Biological Profile & Constraints (NEW) ───────────
+  // ─── Biological Profile & Constraints ───────────
   biological_profile: {
     diet_type: string[];
     meals_per_day: string | null;
@@ -140,6 +140,41 @@ export interface AuroraContext {
 
   // Per-domain willingness (what user will/won't do)
   willingness: Record<string, { willing: string[]; not_willing: string[]; constraints: string[] }>;
+
+  // ─── Practice Library Integration (NEW) ─────────
+  user_practices: {
+    practice_name: string;
+    practice_name_he: string | null;
+    category: string;
+    pillar: string | null;
+    skill_level: number;
+    preferred_duration: number;
+    frequency_per_week: number;
+    is_core_practice: boolean;
+    energy_phase: string;
+    difficulty_level: number;
+    instructions: string | null;
+    practice_id: string;
+  }[];
+
+  // ─── Active Skills (NEW) ────────────────────────
+  active_skills: {
+    id: string;
+    name: string;
+    name_he: string | null;
+    pillar: string | null;
+    category: string | null;
+    level: number;
+    xp_total: number;
+  }[];
+
+  // ─── Schedule Preferences (NEW) ─────────────────
+  schedule_prefs: {
+    wake_time: string | null;
+    sleep_time: string | null;
+    focus_peak_start: string | null;
+    focus_peak_end: string | null;
+  };
 }
 
 // ─── Hash ──────────────────────────────────────────────────
