@@ -52,19 +52,19 @@ export default function ProfilePage() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setTraitsOpen(true)}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/25 bg-primary/[0.08] hover:bg-primary/[0.14] transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-cyan-500/25 bg-cyan-500/[0.08] hover:bg-cyan-500/[0.14] transition-colors"
             >
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold text-primary">{isHe ? 'תכונות' : 'Traits'}</span>
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-bold text-cyan-400">{isHe ? 'תכונות' : 'Traits'}</span>
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setPracticesOpen(true)}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.08] hover:bg-amber-500/[0.14] transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] transition-colors"
             >
-              <Dumbbell className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-bold text-amber-400">{isHe ? 'תרגולים' : 'Practices'}</span>
+              <Dumbbell className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-bold text-emerald-400">{isHe ? 'תרגולים' : 'Practices'}</span>
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.03 }}
@@ -79,10 +79,10 @@ export default function ProfilePage() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setInventoryOpen(true)}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.08] hover:bg-amber-500/[0.14] transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-purple-500/25 bg-purple-500/[0.08] hover:bg-purple-500/[0.14] transition-colors"
             >
-              <Package className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-bold text-amber-400">{isHe ? 'שלל' : 'Loot'}</span>
+              <Package className="w-4 h-4 text-purple-400" />
+              <span className="text-xs font-bold text-purple-400">{isHe ? 'שלל' : 'Loot'}</span>
             </motion.button>
           </div>
         </div>
