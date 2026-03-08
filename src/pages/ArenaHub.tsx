@@ -638,6 +638,9 @@ function DayView({
           </motion.div>
         );
       })}
+          </div>
+        );
+      })}
     </div>
   );
 }
