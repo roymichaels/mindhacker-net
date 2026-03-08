@@ -4,7 +4,7 @@
  * Phase 2: Signup/Login (skipped if already authenticated)
  * Phase 3: Name, Gender, Age bracket collection
  */
-import { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +12,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { useOrbPresetMorph } from '@/hooks/useOrbPresetMorph';
+import { CSSOrb } from '@/components/orb/CSSOrb';
+import { DEFAULT_ORB_PROFILE } from '@/hooks/useOrbProfile';
 import { ArrowRight, ChevronLeft, Sparkles, User, Calendar, Users, X, Mail, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -22,10 +24,37 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
+/** Simple error boundary for WebGL orb */
+class ErrorBoundaryOrb extends React.Component<
+  { children: React.ReactNode; fallbackSize: number; onError: () => void },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch() { this.props.onError(); }
+  render() {
+    if (this.state.hasError) {
+      return <CSSOrb size={this.props.fallbackSize} state="breathing" profile={DEFAULT_ORB_PROFILE} />;
+    }
+    return this.props.children;
+  }
+}
+
 function OnboardingShowcaseOrb({ size }: { size: number }) {
   const profile = useOrbPresetMorph({ startIndex: 0 });
-  return <StandaloneMorphOrb size={size} profile={profile} geometryFamily={profile.geometryFamily || 'sphere'} level={1} />;
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return <CSSOrb size={size} state="breathing" profile={DEFAULT_ORB_PROFILE} />;
+  }
+
+  return (
+    <ErrorBoundaryOrb fallbackSize={size} onError={() => setHasError(true)}>
+      <StandaloneMorphOrb size={size} profile={profile} geometryFamily={profile.geometryFamily || 'sphere'} level={1} />
+    </ErrorBoundaryOrb>
+  );
 }
+
 
 interface OnboardingIntroProps {
   onComplete: (basicInfo: { name: string; gender: string; ageBracket: string }) => void;
