@@ -2709,7 +2709,7 @@ export const en: TranslationKeys = {
     wrapDailyItem3: "Habit tracking",
     wrapDailyItem4: "Schedule & calendar",
     wrapLongTitle: "The Long Term",
-    wrapLongItem1: "90-day plan",
+    wrapLongItem1: "100-day plan",
     wrapLongItem2: "Goals & objectives",
     wrapLongItem3: "Personal Life Model",
     wrapLongItem4: "Pattern analysis",
