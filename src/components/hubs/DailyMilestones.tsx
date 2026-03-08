@@ -223,7 +223,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     }
 
     return results;
-  }, [missions, milestones, allDomains, corePlan, arenaPlan, isHe, hub]);
+  }, [missions, milestones, traits, allDomains, corePlan, arenaPlan, isHe, hub]);
 
   const handleExecute = (dm: DailyMilestone) => {
     if (dm.pillarId === 'consciousness-hypnosis') {
