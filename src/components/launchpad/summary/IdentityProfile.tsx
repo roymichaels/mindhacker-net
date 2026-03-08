@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { User, Heart, Shield } from 'lucide-react';
+import { getEgoStateIcon, getEgoStateLabel, EGO_STATE_ICONS, EGO_STATE_LABELS } from '@/lib/egoStateLabels';
 
 interface IdentityProfileProps {
   profile: {
