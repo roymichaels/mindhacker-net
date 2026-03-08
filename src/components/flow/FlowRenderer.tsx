@@ -32,6 +32,8 @@ interface FlowRendererProps {
   onComplete: (data: Record<string, unknown>) => void;
   /** Is the parent completing/saving */
   isCompleting?: boolean;
+  /** If true, auto-skip to the first unanswered question */
+  skipAnswered?: boolean;
 }
 
 export function FlowRenderer({
