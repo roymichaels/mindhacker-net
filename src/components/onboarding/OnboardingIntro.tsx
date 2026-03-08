@@ -210,7 +210,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              <PersonalizedOrb size={180} state="idle" />
+              <PersonalizedOrb size={180} state="idle" renderer="css" disablePersonalization />
             </motion.div>
 
             {/* Title */}
@@ -300,7 +300,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
                   animate={{ scale: 1, opacity: 1 }}
                   className="flex justify-center mb-4"
                 >
-                  <PersonalizedOrb size={80} state="idle" />
+                  <PersonalizedOrb size={80} state="idle" renderer="css" disablePersonalization />
                 </motion.div>
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   {authStep === 'otp' ? t('auth.enterCode') : t('auth.connectToMindOS')}
