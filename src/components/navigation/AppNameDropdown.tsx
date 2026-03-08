@@ -165,7 +165,8 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
         <DropdownMenuContent
           align={isRTL ? "end" : "start"}
           side="bottom"
-          className="w-72 bg-popover border border-border shadow-xl z-[100]"
+          className="w-72 bg-popover shadow-xl z-[100]"
+          style={{ border: '1px solid hsl(var(--gold-border) / 0.25)' }}
         >
           {/* Gamified profile card */}
           <div
