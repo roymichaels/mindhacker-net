@@ -303,8 +303,8 @@ const App = () => (
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/ai" element={<MessageThread />} />
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
-                          {/* Now (was /dashboard) */}
-                          <Route path="/now" element={<DashboardLayoutWrapper />} />
+                          {/* Now redirects to Plan (merged) */}
+                          <Route path="/now" element={<Navigate to="/plan" replace />} />
                           {/* Plan (merged Strategy + Tactics) */}
                           <Route path="/plan" element={<PlanLayoutWrapper />} />
                           {/* Profile page */}
