@@ -40,13 +40,13 @@ export default function PlanHub() {
                   "relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all",
                   isActive
                     ? "text-primary-foreground"
-                    : "text-foreground hover:text-foreground"
+                    : "text-foreground/90 hover:text-foreground hover:bg-muted/50"
                 )}
               >
                 {isActive && (
                   <motion.div
                     layoutId="plan-tab-bg"
-                    className="absolute inset-0 rounded-xl bg-primary shadow-lg shadow-primary/40 ring-2 ring-primary/60"
+                    className="absolute inset-0 rounded-xl bg-primary shadow-lg shadow-primary/50 ring-2 ring-primary/70"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
