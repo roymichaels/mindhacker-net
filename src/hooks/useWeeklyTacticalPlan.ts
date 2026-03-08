@@ -1,5 +1,12 @@
 /**
- * useWeeklyTacticalPlan — Consumes AI-generated tactical schedules.
+ * useWeeklyTacticalPlan — Layer 3: Weekly Tactical Planner.
+ * 
+ * PURPOSE: Converts active phase milestones into a structured 10-day plan.
+ * Consumes AI-generated tactical schedules from `tactical_schedules` table.
+ * 
+ * Pipeline position:
+ * Identity → Strategy → Phase → **WEEKLY PLAN** → Daily Queue → Now Execution
+ * 
  * Schedule structure: Day → Themed Blocks → Milestones inside each block.
  */
 import { useMemo, useCallback } from 'react';
