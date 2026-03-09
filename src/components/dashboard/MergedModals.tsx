@@ -210,13 +210,20 @@ export function MergedInsightsModal({ open, onOpenChange, language, initialTab }
         if (data?.summary_data) {
           const sd = data.summary_data as any;
           const diag = sd.diagnostics || sd.diagnostic_scores || {};
+          // Helper to resolve score from nested object or flat number
+          const rs = (key: string, fallback?: string): number => {
+            if (diag[key]?.score != null) return diag[key].score;
+            if (typeof diag[key] === 'number') return diag[key];
+            if (fallback && diag[fallback] != null) return diag[fallback];
+            return 0;
+          };
           setDiagnosticScores([
-            { key: 'energy_stability', label: 'יציבות אנרגיה', labelEn: 'Energy Stability', value: diag.energy_stability?.score ?? diag.nervous_system_score ?? 0, interpretation: diag.energy_stability?.interpretation || 'לא זמין', interpretationEn: diag.energy_stability?.interpretation_en || 'Not available', icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-            { key: 'recovery_debt', label: 'חוב ריקברי', labelEn: 'Recovery Debt', value: diag.recovery_debt?.score ?? diag.recovery_debt_score ?? 0, interpretation: diag.recovery_debt?.interpretation || 'לא זמין', interpretationEn: diag.recovery_debt?.interpretation_en || 'Not available', icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-            { key: 'dopamine_load', label: 'עומס דופמין', labelEn: 'Dopamine Load', value: diag.dopamine_load?.score ?? diag.dopamine_load_score ?? 0, interpretation: diag.dopamine_load?.interpretation || 'לא זמין', interpretationEn: diag.dopamine_load?.interpretation_en || 'Not available', icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-            { key: 'execution_reliability', label: 'אמינות ביצוע', labelEn: 'Execution Reliability', value: diag.execution_reliability?.score ?? diag.execution_reliability_score ?? 0, interpretation: diag.execution_reliability?.interpretation || 'לא זמין', interpretationEn: diag.execution_reliability?.interpretation_en || 'Not available', icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-            { key: 'time_leverage', label: 'מינוף זמן', labelEn: 'Time Leverage', value: diag.time_leverage?.score ?? diag.time_optimization_score ?? 0, interpretation: diag.time_leverage?.interpretation || 'לא זמין', interpretationEn: diag.time_leverage?.interpretation_en || 'Not available', icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-            { key: 'hormonal_risk', label: 'סיכון הורמונלי', labelEn: 'Hormonal Risk', value: diag.hormonal_risk?.score ?? diag.hormonal_risk_score ?? 0, interpretation: diag.hormonal_risk?.interpretation || 'לא זמין', interpretationEn: diag.hormonal_risk?.interpretation_en || 'Not available', icon: Activity, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
+            { key: 'energy_stability', label: 'יציבות אנרגיה', labelEn: 'Energy Stability', value: rs('energy_stability', 'nervous_system_score'), interpretation: diag.energy_stability?.interpretation || 'לא זמין', interpretationEn: diag.energy_stability?.interpretation_en || 'Not available', icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+            { key: 'recovery_debt', label: 'חוב ריקברי', labelEn: 'Recovery Debt', value: rs('recovery_debt', 'recovery_debt_score'), interpretation: diag.recovery_debt?.interpretation || 'לא זמין', interpretationEn: diag.recovery_debt?.interpretation_en || 'Not available', icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
+            { key: 'dopamine_load', label: 'עומס דופמין', labelEn: 'Dopamine Load', value: rs('dopamine_load', 'dopamine_load_score'), interpretation: diag.dopamine_load?.interpretation || 'לא זמין', interpretationEn: diag.dopamine_load?.interpretation_en || 'Not available', icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
+            { key: 'execution_reliability', label: 'אמינות ביצוע', labelEn: 'Execution Reliability', value: rs('execution_reliability', 'execution_reliability_score'), interpretation: diag.execution_reliability?.interpretation || 'לא זמין', interpretationEn: diag.execution_reliability?.interpretation_en || 'Not available', icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
+            { key: 'time_leverage', label: 'מינוף זמן', labelEn: 'Time Leverage', value: rs('time_leverage', 'time_optimization_score'), interpretation: diag.time_leverage?.interpretation || 'לא זמין', interpretationEn: diag.time_leverage?.interpretation_en || 'Not available', icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
+            { key: 'hormonal_risk', label: 'סיכון הורמונלי', labelEn: 'Hormonal Risk', value: rs('hormonal_risk', 'hormonal_risk_score'), interpretation: diag.hormonal_risk?.interpretation || 'לא זמין', interpretationEn: diag.hormonal_risk?.interpretation_en || 'Not available', icon: Activity, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
           ]);
         }
       } catch (err) {

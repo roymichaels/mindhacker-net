@@ -275,22 +275,47 @@ function StatWheel({ isHe }: { isHe: boolean }) {
     if (!user) return;
     async function fetch() {
       try {
-        const { data } = await supabase
-          .from('launchpad_summaries')
-          .select('summary_data, consciousness_score, clarity_score, transformation_readiness')
-          .eq('user_id', user!.id)
-          .order('generated_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        // Fetch from launchpad_summaries AND onboarding diagnostic_scores as fallback
+        const [summaryRes, progressRes] = await Promise.all([
+          supabase
+            .from('launchpad_summaries')
+            .select('summary_data, consciousness_score, clarity_score, transformation_readiness')
+            .eq('user_id', user!.id)
+            .order('generated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from('launchpad_progress')
+            .select('step_1_intention')
+            .eq('user_id', user!.id)
+            .maybeSingle(),
+        ]);
+
+        const data = summaryRes.data;
         if (data) {
           const sd = (data.summary_data as any) || {};
           const diag = sd.diagnostics || sd.diagnostic_scores || {};
+          // Also check onboarding diagnostic_scores as fallback
+          const onboardingDiag = ((progressRes.data?.step_1_intention as any)?.diagnostic_scores) || {};
+
+          // Helper: resolve score from multiple sources (nested .score object, flat number, onboarding fallback)
+          const resolveScore = (diagKey: string, onboardingKey?: string): number => {
+            // 1. From summary diagnostics (nested { score: N })
+            if (diag[diagKey]?.score != null) return diag[diagKey].score;
+            // 2. From summary diagnostics (flat number)
+            if (typeof diag[diagKey] === 'number') return diag[diagKey];
+            // 3. From onboarding diagnostic_scores
+            const obKey = onboardingKey || diagKey;
+            if (onboardingDiag[obKey] != null) return onboardingDiag[obKey];
+            return 0;
+          };
+
           setScores([
-            { key: 'energy', score: diag.energy_stability?.score ?? 0, color: '45 95% 55%' },
-            { key: 'recovery', score: diag.recovery_debt?.score ?? 0, color: '0 85% 55%' },
-            { key: 'dopamine', score: diag.dopamine_load?.score ?? 0, color: '270 70% 55%' },
-            { key: 'execution', score: diag.execution_reliability?.score ?? 0, color: '150 70% 45%' },
-            { key: 'time', score: diag.time_leverage?.score ?? 0, color: '210 100% 50%' },
+            { key: 'energy', score: resolveScore('energy_stability'), color: '45 95% 55%' },
+            { key: 'recovery', score: resolveScore('recovery_debt'), color: '0 85% 55%' },
+            { key: 'dopamine', score: resolveScore('dopamine_load'), color: '270 70% 55%' },
+            { key: 'execution', score: resolveScore('execution_reliability'), color: '150 70% 45%' },
+            { key: 'time', score: resolveScore('time_leverage'), color: '210 100% 50%' },
             { key: 'consciousness', score: data.consciousness_score ?? 0, color: '168 70% 55%' },
             { key: 'clarity', score: data.clarity_score ?? 0, color: '210 80% 55%' },
             { key: 'readiness', score: data.transformation_readiness ?? 0, color: '150 60% 50%' },
