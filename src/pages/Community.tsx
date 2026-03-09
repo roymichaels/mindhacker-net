@@ -36,7 +36,7 @@ const PILLAR_ICONS: Record<string, string> = {
 
 /** HSL color values per pillar for inline styling */
 const PILLAR_HSL: Record<string, string> = {
-  consciousness: '217 91% 60%',  // blue
+  consciousness: '263 70% 58%',  // violet
   presence: '292 84% 61%',       // fuchsia
   power: '0 84% 60%',            // red
   vitality: '38 92% 50%',        // amber
@@ -46,10 +46,11 @@ const PILLAR_HSL: Record<string, string> = {
   wealth: '160 84% 39%',         // emerald
   influence: '271 81% 56%',      // purple
   relationships: '199 89% 48%',  // sky
-  business: '347 77% 50%',       // rose
-  projects: '38 92% 50%',        // amber
-  play: '258 90% 66%',           // violet
+  business: '25 95% 53%',        // orange
+  projects: '217 91% 60%',       // blue
+  play: '84 81% 44%',            // lime
   order: '173 80% 40%',          // teal
+  romantics: '347 77% 50%',      // rose
 };
 
 const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
