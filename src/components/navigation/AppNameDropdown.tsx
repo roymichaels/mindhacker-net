@@ -49,6 +49,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const { openSubscriptions } = useSubscriptionsModal();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
   const { currentJob } = useUserJob();
