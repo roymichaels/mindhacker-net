@@ -276,22 +276,31 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     const arr = positions.array as Float32Array;
     const vertCount = arr.length / 3;
 
+    // Global pulsation — organic breathing scale
+    const pulse = 1.0
+      + Math.sin(t * 1.2 + st.seed1) * 0.035
+      + Math.sin(t * 0.7 + st.seed3) * 0.025
+      + Math.sin(t * 2.1 + st.seed5) * 0.015;
+
     if (shapes.length <= 1) {
-      // Single shape with organic breathing
+      // Single shape with rich organic breathing + pulsation
       const from = shapeArrays[0];
       for (let vi = 0; vi < vertCount; vi++) {
         const i3 = vi * 3;
         const bx = from[i3], by = from[i3 + 1], bz = from[i3 + 2];
-        const n = noise3D(bx * 2 + t * 0.3 + st.seed1, by * 2 + t * 0.25, bz * 2 + t * 0.2);
-        const disp = 0.05 + 0.04 * Math.sin(t * 0.5 + vi * 0.03);
-        const s = 0.82;
+        // Layered noise for alien surface crawl
+        const n1 = noise3D(bx * 2.5 + t * 0.6 + st.seed1, by * 2.5 + t * 0.5, bz * 2.5 + t * 0.4);
+        const n2 = noise3D(bx * 5 + t * 0.9 + st.seed2, by * 5 - t * 0.7, bz * 5 + t * 0.8 + st.seed4);
+        const disp = 0.08 + 0.06 * Math.sin(t * 0.8 + vi * 0.05 + st.seed3);
+        const n = n1 * 0.7 + n2 * 0.3;
+        const s = 0.82 * pulse;
         arr[i3]     = (bx + bx * n * disp) * s;
         arr[i3 + 1] = (by + by * n * disp) * s;
         arr[i3 + 2] = (bz + bz * n * disp) * s;
       }
     } else {
-      // Fast morph, chaotic multi-shape blending
-      const morphSpeed = 1.0;
+      // Multi-shape: smooth, continuous alien shape-shifting
+      const morphSpeed = 0.6; // Slower = smoother transitions
       const totalShapes = shapes.length;
 
       for (let vi = 0; vi < vertCount; vi++) {
@@ -300,14 +309,14 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
         let totalWeight = 0;
 
         for (let si = 0; si < totalShapes; si++) {
-          // Irrational frequency ratios ensure weights never fully align → never settles
+          // Smooth sinusoidal weights with irrational frequencies for endless non-repeating motion
           const phase = st.seed1 + si * 2.39996;
           const w = Math.max(0.01,
-            Math.sin(t * morphSpeed + phase) * 0.35 +
-            Math.sin(t * morphSpeed * 1.618 + phase * 0.7 + st.seed2) * 0.25 +
-            Math.sin(t * morphSpeed * 0.7071 + phase * 2.1 + st.seed3) * 0.2 +
-            Math.cos(t * morphSpeed * 1.2247 + si * st.seed4 * 0.3) * 0.15 +
-            0.15
+            Math.sin(t * morphSpeed * 0.8 + phase) * 0.3 +
+            Math.sin(t * morphSpeed * 0.5 + phase * 0.7 + st.seed2) * 0.25 +
+            Math.sin(t * morphSpeed * 0.3 + phase * 1.3 + st.seed3) * 0.2 +
+            Math.cos(t * morphSpeed * 0.4 + si * st.seed4 * 0.3) * 0.15 +
+            0.2
           );
           bx += shapeArrays[si][i3] * w;
           by += shapeArrays[si][i3 + 1] * w;
@@ -321,15 +330,21 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
           bz /= totalWeight;
         }
 
-        // More aggressive organic displacement
-        const n = noise3D(
+        // Rich layered displacement — alien surface crawl
+        const n1 = noise3D(
           bx * 3 + t * 0.5 + st.seed1,
           by * 3 + t * 0.4 + st.seed2,
           bz * 3 + t * 0.35 + st.seed3
         );
-        const disp = 0.035 + 0.025 * Math.sin(t * 0.8 + vi * 0.03 + st.seed4);
+        const n2 = noise3D(
+          bx * 6 + t * 0.8 + st.seed4,
+          by * 6 - t * 0.6 + st.seed5,
+          bz * 6 + t * 0.7 + st.seed1
+        );
+        const n = n1 * 0.65 + n2 * 0.35;
+        const disp = 0.06 + 0.04 * Math.sin(t * 0.6 + vi * 0.04 + st.seed4);
 
-        const s = 0.82;
+        const s = 0.82 * pulse;
         arr[i3]     = (bx + bx * n * disp) * s;
         arr[i3 + 1] = (by + by * n * disp) * s;
         arr[i3 + 2] = (bz + bz * n * disp) * s;
@@ -339,10 +354,10 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     positions.needsUpdate = true;
     meshRef.current.geometry.computeVertexNormals();
 
-    // Very slow, dreamy rotation
-    meshRef.current.rotation.y += delta * 0.04;
-    meshRef.current.rotation.x = Math.sin(t * 0.05 + st.seed1) * 0.12 + Math.sin(t * 0.03 + st.seed3) * 0.06;
-    meshRef.current.rotation.z = Math.cos(t * 0.04 + st.seed2) * 0.08 + Math.sin(t * 0.06 + st.seed5) * 0.04;
+    // Smooth dreamy rotation — continuous slow tumble
+    meshRef.current.rotation.y += delta * 0.08;
+    meshRef.current.rotation.x = Math.sin(t * 0.09 + st.seed1) * 0.18 + Math.sin(t * 0.05 + st.seed3) * 0.1;
+    meshRef.current.rotation.z = Math.cos(t * 0.07 + st.seed2) * 0.12 + Math.sin(t * 0.11 + st.seed5) * 0.06;
 
     // Animate emissive for fire/plasma types
     if (mat === 'plasma' && matRef.current) {
