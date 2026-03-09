@@ -213,7 +213,7 @@ function ChipGroup({ icon, label, items, variant }: { icon: string; label: strin
     <div>
       <div className="flex items-center justify-center gap-1.5 mb-1.5">
         <span className="text-xs">{icon}</span>
-        <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{label}</span>
+        <span className="text-[10px] text-muted-foreground/60 uppercase tracking-[0.12em] font-semibold">{label}</span>
       </div>
       <div className="flex flex-wrap justify-center gap-1">
         {items.slice(0, 4).map((item, i) => (
