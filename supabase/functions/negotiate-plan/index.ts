@@ -12,6 +12,9 @@ serve(async (req) => {
   try {
     const { user_id, action_type, task_title, task_title_en, task_pillar, task_duration, user_input, milestone_id } = await req.json();
 
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -20,17 +23,29 @@ serve(async (req) => {
     // Get user's practice library for swap suggestions
     let practiceContext = "";
     if (action_type === "swap") {
-      const { data: practices } = await supabase
-        .from("life_plan_milestones")
-        .select("title, title_en, focus_area, tasks")
-        .eq("plan_id", (await supabase.from("life_plans").select("id").eq("user_id", user_id).eq("status", "active").maybeSingle()).data?.id || "")
-        .eq("is_completed", false)
-        .limit(20);
+      const { data: plan } = await supabase
+        .from("life_plans")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("status", "active")
+        .maybeSingle();
 
-      if (practices?.length) {
-        practiceContext = `\nAvailable milestones in user's plan:\n${practices.map(p => `- ${p.title_en || p.title} (${p.focus_area || 'general'})`).join("\n")}`;
+      if (plan?.id) {
+        const { data: practices } = await supabase
+          .from("life_plan_milestones")
+          .select("title, title_en, focus_area, tasks")
+          .eq("plan_id", plan.id)
+          .eq("is_completed", false)
+          .limit(20);
+
+        if (practices?.length) {
+          practiceContext = `\nAvailable milestones in user's plan:\n${practices.map(p => `- ${p.title_en || p.title} (${p.focus_area || 'general'})`).join("\n")}`;
+        }
       }
     }
+
+    const isHebrew = task_title !== task_title_en;
+    const lang = isHebrew ? "Hebrew" : "English";
 
     const systemPrompt = `You are Aurora, an AI life coach. A user wants to ${action_type} a task in their daily plan.
 
@@ -46,15 +61,15 @@ Rules for evaluation:
 Respond in JSON format:
 {
   "approved": true/false,
-  "reason": "explanation in ${task_title === task_title_en ? 'English' : 'Hebrew'}",
+  "reason": "explanation in ${lang}",
   "suggestion": "alternative suggestion if not approved (optional)",
   "replacement": { "title": "Hebrew title", "titleEn": "English title", "durationMin": number, "pillar": "pillar_id" } // only for approved swaps
 }`;
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${Deno.env.get("OPENROUTER_API_KEY")}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -73,7 +88,6 @@ Respond in JSON format:
     
     let parsed;
     try {
-      // Strip markdown code fences if present
       const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       parsed = JSON.parse(cleaned);
     } catch {
