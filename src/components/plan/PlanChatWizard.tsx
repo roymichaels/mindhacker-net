@@ -29,16 +29,16 @@ interface PlanChatWizardProps {
 }
 
 const QUICK_ACTIONS_HE = [
+  'ספר לי מה עשיתי היום',
+  'החלף משימה באחרת',
   'הוסף תרגול חדש לתוכנית',
-  'הסר משימה מהשבוע הנוכחי',
-  'שנה את הפוקוס של אבן דרך',
-  'החלף פעילות בתוכנית',
+  'סמן משימות כהושלמו',
 ];
 const QUICK_ACTIONS_EN = [
+  'Tell you about my day',
+  'Swap a task for another',
   'Add a new practice to my plan',
-  'Remove a task from this week',
-  'Change a milestone focus area',
-  'Swap an activity in my plan',
+  'Mark tasks as completed',
 ];
 
 export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
