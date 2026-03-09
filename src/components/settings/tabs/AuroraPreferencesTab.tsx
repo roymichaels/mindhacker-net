@@ -1,4 +1,5 @@
 import { Sun, Zap, MessageCircle } from 'lucide-react';
+import SocraticModeToggle from '@/components/aurora/SocraticModeToggle';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -138,6 +139,8 @@ const AuroraPreferencesTab = ({
           </div>
         </RadioGroup>
       </div>
+      {/* Socratic Mode */}
+      <SocraticModeToggle />
     </div>
   );
 };

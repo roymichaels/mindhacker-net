@@ -31,6 +31,7 @@ export interface AuroraContext {
     gender: string | null;
     preferred_tone: string;
     challenge_intensity: string;
+    socratic_mode: boolean;
   };
 
   // Dates & plan
@@ -512,6 +513,7 @@ export async function buildContext(
       gender: profile?.aurora_preferences?.gender || null,
       preferred_tone: profile?.aurora_preferences?.tone || "warm",
       challenge_intensity: profile?.aurora_preferences?.intensity || "balanced",
+      socratic_mode: profile?.aurora_preferences?.socratic_mode === true,
     },
 
     today,
@@ -712,7 +714,7 @@ function createEmptyContext(today: string): AuroraContext {
   return {
     context_hash: "",
     built_at: now.toISOString(),
-    profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
+    profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced", socratic_mode: false },
     today,
     current_time: now.toISOString().slice(11, 16),
     current_time_local: now.toISOString().slice(11, 16),
