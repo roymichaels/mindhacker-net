@@ -82,7 +82,7 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-primary/30 bg-background/95 backdrop-blur-xl">
+      <DialogContent preventClose className="sm:max-w-lg p-0 overflow-hidden border-primary/30 bg-background/95 backdrop-blur-xl">
         <AnimatePresence mode="wait">
           {phase === 'intro' && (
             <motion.div

@@ -32,8 +32,9 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     hideCloseButton?: boolean;
+    preventClose?: boolean;
   }
->(({ className, children, hideCloseButton = false, ...props }, ref) => {
+>(({ className, children, hideCloseButton = false, preventClose = false, ...props }, ref) => {
   const swipeHandlers = useSwipeable({
     onSwipedDown: (eventData) => {
       if (eventData.velocity > 0.5 && window.innerWidth < 640) {
@@ -51,6 +52,9 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         {...swipeHandlers}
+        onInteractOutside={preventClose ? (e) => e.preventDefault() : undefined}
+        onPointerDownOutside={preventClose ? (e) => e.preventDefault() : undefined}
+        onEscapeKeyDown={preventClose ? (e) => e.preventDefault() : undefined}
         className={cn(
           "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
           "border border-border/50 p-6 text-foreground",

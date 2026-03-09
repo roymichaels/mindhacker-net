@@ -210,7 +210,7 @@ export default function CoachLandingPagesTab() {
 
       {/* Aurora Wizard Dialog */}
       <Dialog open={showWizard} onOpenChange={setShowWizard}>
-        <DialogContent className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+        <DialogContent preventClose className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
           <AuroraLandingWizard
             coachProfile={coachProfile}
             onComplete={handleWizardComplete}
@@ -221,7 +221,7 @@ export default function CoachLandingPagesTab() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingPage} onOpenChange={open => !open && setEditingPage(null)}>
-        <DialogContent className="max-w-4xl h-[95vh] sm:max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
+        <DialogContent preventClose className="max-w-4xl h-[95vh] sm:max-h-[95vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
           {editingPage && (
             <AuroraPageEditor
               page={editingPage}

@@ -431,7 +431,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      <DialogContent preventClose className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <DialogHeader className="px-4 pt-4 pb-3 border-b border-border/50 shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
