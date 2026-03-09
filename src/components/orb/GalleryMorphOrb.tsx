@@ -257,11 +257,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── CRYSTAL: Sharp facets, semi-transparent, sparkle ──
     case 'crystal': {
-      const crystalC = new THREE.Color().setHSL(hsl.h, 0.75, 0.65);
-      const refract = new THREE.Color().setHSL((hsl.h + 0.1) % 1, 0.85, 0.55);
+      const crystalC = new THREE.Color().setHSL(hsl.h, 0.65, 0.5);
+      const refract = new THREE.Color().setHSL((hsl.h + 0.1) % 1, 0.6, 0.3);
       return { ...base, color: crystalC, emissive: refract,
         metalness: 0.1, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.5, envMapIntensity: 2.5,
+        emissiveIntensity: 0.15, envMapIntensity: 2.0,
         transmission: 0.3, ior: 2.4, thickness: 1.0,
         opacity: 0.75, transparent: true, flatShading: true, wireframe: false,
       };
