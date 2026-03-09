@@ -2,7 +2,7 @@
  * FMMarket — Earn hub with Services, Bounties, and P2P Marketplace.
  * Route: /fm/earn — all publishing flows use Aurora AI wizard.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Briefcase, ShoppingBag, BookOpen, Image, Gem,
