@@ -12,6 +12,7 @@ import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
+import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';
 import { AuroraDockOrb } from '@/components/aurora/AuroraFloatingOrb';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
