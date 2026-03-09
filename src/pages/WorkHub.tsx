@@ -428,6 +428,13 @@ export default function WorkHub() {
           </div>
         </Tabs>
       </div>
+
+      {/* AI Chat Wizards */}
+      <WorkChatWizard
+        open={chatMode !== null}
+        onOpenChange={(open) => { if (!open) setChatMode(null); }}
+        mode={chatMode || 'chat'}
+      />
     </div>
   );
 }
