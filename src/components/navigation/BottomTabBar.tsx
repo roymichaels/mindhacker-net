@@ -116,14 +116,11 @@ export function BottomTabBar() {
         {leftTabs.map(renderTab)}
 
         {/* Aurora — styled like other tabs */}
-        {(() => {
-          const auroraActive = location.pathname === '/aurora';
-          return (
         <button
           onClick={openAurora}
           className={cn(
             "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
-            auroraActive
+            location.pathname === '/aurora'
               ? "bg-pink-500/15 border-pink-500/30"
               : "bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15"
           )}
