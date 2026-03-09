@@ -4,8 +4,9 @@
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords, Zap } from 'lucide-react';
+import { Flame, Swords, Zap, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
@@ -17,6 +18,7 @@ export default function PlanHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [activeTab, setActiveTab] = useState<PlanTab>('now');
+  const [chatOpen, setChatOpen] = useState(false);
 
   const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
     { id: 'strategy', labelHe: 'אסטרטגיה', labelEn: 'Strategy', icon: Flame },
@@ -60,12 +62,25 @@ export default function PlanHub() {
         </div>
       </div>
 
+      {/* Talk to your plan button */}
+      <div className="w-full max-w-xl px-4 pb-2">
+        <button
+          onClick={() => setChatOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
+        >
+          <MessageSquare className="w-4 h-4" />
+          {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
+        </button>
+      </div>
+
       {/* Tab content */}
       <Suspense fallback={null}>
         {activeTab === 'strategy' && <LifeHub />}
         {activeTab === 'now' && <UserDashboard />}
         {activeTab === 'tactics' && <ArenaHub />}
       </Suspense>
+
+      <PlanChatWizard open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 }

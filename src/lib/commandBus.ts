@@ -235,6 +235,7 @@ export function stripAllTags(content: string): string {
     .replace(/\[identity:[^\]]+\]/g, '')
     .replace(/\[reminder:[^\]]+\]/g, '')
     .replace(/\[focus:[^\]]+\]/g, '')
+    .replace(/\[practice:[^\]]+\]/g, '')
     .trim();
 }
 
