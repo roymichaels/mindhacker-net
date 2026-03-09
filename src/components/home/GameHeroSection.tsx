@@ -23,7 +23,7 @@ export default function GameHeroSection() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const total = ORB_PRESETS.length;
+  const total = HERO_ORBS.length;
   const visibleCount = isMobile ? 3 : 5;
 
   const resetTimer = useCallback(() => {
