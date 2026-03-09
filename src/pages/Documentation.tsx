@@ -353,6 +353,7 @@ export default function Documentation() {
         `The blog is accessible from the main menu dropdown for both authenticated and guest users — serving as an organic marketing engine, SEO driver, and thought leadership platform. Each post supports status (draft/published) with publication date.`,
       ],
     },
+    {
       id: 'gamification',
       number: '11',
       title: he ? 'גיימיפיקציה עמוקה' : 'Deep Gamification',
