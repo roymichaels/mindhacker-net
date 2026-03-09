@@ -14,7 +14,7 @@ interface DomainAssessModalProps {
 export function DomainAssessModal({ open, onOpenChange, domainId }: DomainAssessModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden border-border/50 bg-background/95 backdrop-blur-xl flex flex-col">
+      <DialogContent preventClose className="max-w-2xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden border-border/50 bg-background/95 backdrop-blur-xl flex flex-col">
         <DomainAssessChat domainId={domainId} asModal onClose={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
