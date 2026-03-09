@@ -4,8 +4,9 @@
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords, Zap } from 'lucide-react';
+import { Flame, Swords, Zap, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
