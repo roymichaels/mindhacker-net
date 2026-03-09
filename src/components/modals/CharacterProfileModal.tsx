@@ -411,7 +411,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           {identityProfile.dominant_traits?.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1.5">
               {identityProfile.dominant_traits.map((t: string, i: number) => (
-                <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">{t}</span>
+                <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 dark:border-amber-500/15">{t}</span>
               ))}
             </div>
           )}
