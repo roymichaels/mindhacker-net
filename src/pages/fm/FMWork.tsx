@@ -1,15 +1,12 @@
 /**
- * FMWork (Career) — Professional identity hub with drill-down views.
+ * FMWork (Career) — Professional identity hub with career path cards.
  * Route: /fm/work
- * Now shows the CareerWizard inline instead of navigating away.
+ * Cards navigate to the unified CareerHub for each path.
  */
-import { useState } from 'react';
 import { GraduationCap, Briefcase, Palette, Code, Sparkles, Heart } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { motion } from 'framer-motion';
-import CareerWizard, { type CareerType } from '@/components/career/CareerWizard';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 const RARITY_STYLES: Record<string, { border: string; bg: string; iconBg: string; glow: string; label: { en: string; he: string; color: string } }> = {
   legendary: { border: 'border-amber-500/50', bg: 'from-amber-500/12 to-orange-500/5', iconBg: 'from-amber-500 to-orange-600', glow: 'hover:shadow-amber-500/15', label: { en: 'LEGENDARY', he: 'אגדי', color: 'text-amber-400' } },
@@ -19,7 +16,7 @@ const RARITY_STYLES: Record<string, { border: string; bg: string; iconBg: string
   heroic: { border: 'border-rose-500/50', bg: 'from-rose-500/12 to-pink-500/5', iconBg: 'from-rose-500 to-pink-600', glow: 'hover:shadow-rose-500/15', label: { en: 'HEROIC', he: 'הרואי', color: 'text-rose-400' } },
 };
 
-const PROFESSIONAL_PATHS: { id: CareerType; icon: typeof Briefcase; titleEn: string; titleHe: string; descEn: string; descHe: string; rarity: string }[] = [
+const PROFESSIONAL_PATHS = [
   {
     id: 'business',
     icon: Briefcase,
@@ -27,6 +24,7 @@ const PROFESSIONAL_PATHS: { id: CareerType; icon: typeof Briefcase; titleEn: str
     titleHe: 'בעל עסק',
     descEn: 'Plan, launch and grow your business with AI-guided strategy',
     descHe: 'תכנן, השק וצמח את העסק שלך עם אסטרטגיה מונחית AI',
+    path: '/business',
     rarity: 'legendary',
   },
   {
@@ -36,6 +34,7 @@ const PROFESSIONAL_PATHS: { id: CareerType; icon: typeof Briefcase; titleEn: str
     titleHe: 'מאמן',
     descEn: 'Build your coaching practice — clients, sessions & content',
     descHe: 'בנה את הפרקטיקה שלך — לקוחות, פגישות ותוכן',
+    path: '/coaches',
     rarity: 'epic',
   },
   {
@@ -45,6 +44,7 @@ const PROFESSIONAL_PATHS: { id: CareerType; icon: typeof Briefcase; titleEn: str
     titleHe: 'מטפל',
     descEn: 'Manage your therapy practice — clients, scheduling & growth',
     descHe: 'נהל את הפרקטיקה הטיפולית שלך — לקוחות, תורים וצמיחה',
+    path: '/therapist',
     rarity: 'heroic',
   },
   {
@@ -54,6 +54,7 @@ const PROFESSIONAL_PATHS: { id: CareerType; icon: typeof Briefcase; titleEn: str
     titleHe: 'יוצר תוכן',
     descEn: 'Create courses, content & digital products to monetize your expertise',
     descHe: 'צור קורסים, תוכן ומוצרים דיגיטליים כדי למנף את המומחיות שלך',
+    path: '/creator',
     rarity: 'rare',
   },
   {
@@ -63,6 +64,7 @@ const PROFESSIONAL_PATHS: { id: CareerType; icon: typeof Briefcase; titleEn: str
     titleHe: 'פרילנסר',
     descEn: 'Find gigs, manage projects & earn MOS tokens for your skills',
     descHe: 'מצא עבודות, נהל פרויקטים והרוויח טוקנים עבור הכישורים שלך',
+    path: '/freelancer',
     rarity: 'uncommon',
   },
 ];
@@ -71,37 +73,9 @@ export default function FMWork() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
-  const [activeWizard, setActiveWizard] = useState<CareerType | null>(null);
-
-  const handleWizardComplete = (type: CareerType, journeyId: string) => {
-    setActiveWizard(null);
-    // Navigate to the appropriate journey/dashboard
-    if (type === 'business') {
-      navigate(`/business/journey/${journeyId}`);
-    } else if (type === 'coach') {
-      navigate(`/coaching/journey/${journeyId}`);
-    } else {
-      // For therapist, creator, freelancer — stay in FM for now, show success
-      toast.success(isHe ? 'נוצר בהצלחה! הפרופיל שלך מוכן.' : 'Created successfully! Your profile is ready.');
-    }
-  };
-
-  // Show wizard inline if a career type is selected
-  if (activeWizard) {
-    return (
-      <div className="max-w-2xl mx-auto w-full h-[calc(100dvh-10rem)]">
-        <CareerWizard
-          careerType={activeWizard}
-          onBack={() => setActiveWizard(null)}
-          onComplete={(journeyId) => handleWizardComplete(activeWizard, journeyId)}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* ═══ OVERVIEW ═══ */}
       <div className="space-y-5">
         <div className="text-center">
           <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
@@ -123,7 +97,7 @@ export default function FMWork() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
-                onClick={() => setActiveWizard(path.id)}
+                onClick={() => navigate(path.path)}
                 className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 bg-gradient-to-br transition-all hover:scale-[1.03] active:scale-[0.97] hover:shadow-xl ${style.border} ${style.bg} ${style.glow}`}
               >
                 <span className={`absolute top-1.5 end-2 text-[7px] font-black uppercase tracking-[0.15em] ${style.label.color}`}>
