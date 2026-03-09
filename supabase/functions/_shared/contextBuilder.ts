@@ -193,6 +193,9 @@ export interface AuroraContext {
     focus_peak_start: string | null;
     focus_peak_end: string | null;
   };
+
+  // ─── Memory Graph (Knowledge Graph) ─────────────
+  memory_graph: MemoryGraphNode[];
 }
 
 // ─── Hash ──────────────────────────────────────────────────
