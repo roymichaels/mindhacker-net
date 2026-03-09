@@ -52,6 +52,11 @@ export default function FMAppShell() {
       {/* Subtle warm ambient glow for the whole FM area */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.04),transparent_50%)] pointer-events-none" />
 
+      {/* Persistent Earn Launchpad banner — above tabs */}
+      <div className="relative z-10 px-4 pt-2 pb-0">
+        <EarnLaunchpadBanner />
+      </div>
+
       {/* Top tabs — styled like Path page tabs */}
       <div className="relative z-10 px-4 pt-2 pb-0">
         <div className="flex items-center gap-1 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 p-1">
@@ -73,11 +78,6 @@ export default function FMAppShell() {
               </button>
             );
           })}
-        </div>
-
-        {/* Persistent Earn Launchpad banner */}
-        <div className="mt-3">
-          <EarnLaunchpadBanner />
         </div>
       </div>
 
