@@ -70,12 +70,28 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
     <div className="flex flex-col items-center gap-3 w-full px-2">
       {/* Orb */}
       <div
-        className="relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+        className={cn(
+          "relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform",
+          isWorking && "animate-pulse"
+        )}
         onClick={() => setOrbViewerOpen(true)}
       >
-        <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/10 to-transparent blur-xl pointer-events-none" />
+        <div className={cn(
+          "absolute inset-[-30%] rounded-full blur-xl pointer-events-none transition-colors duration-700",
+          isWorking && isDeepWork
+            ? "bg-gradient-radial from-violet-500/40 via-violet-500/15 to-transparent"
+            : isWorking
+              ? "bg-gradient-radial from-primary/40 via-primary/15 to-transparent"
+              : "bg-gradient-radial from-primary/30 via-primary/10 to-transparent"
+        )} />
+        {isWorking && (
+          <div className={cn(
+            "absolute inset-[-8px] rounded-full animate-ping opacity-20",
+            isDeepWork ? "bg-violet-500" : "bg-primary"
+          )} />
+        )}
         <div className="relative z-10">
-          <PersonalizedOrb size={88} state="idle" />
+          <PersonalizedOrb size={88} state={isWorking ? 'active' : 'idle'} />
         </div>
       </div>
 
