@@ -432,7 +432,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
         <EmpireCard className="text-center">
           <SectionTitle
-            icon={<UserCircle className="w-4 h-4 text-purple-400" />}
+            icon={<UserCircle className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
             title={isHe ? 'זהות וערכים' : 'Identity & Values'}
             accentColor="bg-purple-500/10"
           />
