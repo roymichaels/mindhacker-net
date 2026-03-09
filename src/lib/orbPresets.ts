@@ -185,10 +185,10 @@ export const ORB_PRESETS: OrbPreset[] = [
     }),
   },
   {
-    id: 'obsidian-wire',
-    name: 'Obsidian Wire',
+    id: 'obsidian-edge',
+    name: 'Obsidian Edge',
     profile: preset({
-      materialType: 'wire',
+      materialType: 'obsidian',
       gradientMode: 'radial',
       patternType: 'shards',
       geometryFamily: 'octa',
@@ -197,7 +197,7 @@ export const ORB_PRESETS: OrbPreset[] = [
       gradientStops: ['0 0% 8%', '270 40% 20%', '220 50% 35%'],
       coreGradient: ['0 0% 8%', '270 40% 20%'],
       rimLightColor: '220 50% 35%',
-      primaryColor: '270 40% 20%',
+      primaryColor: '270 40% 30%',
       secondaryColors: ['0 0% 8%', '220 50% 35%'],
       accentColor: '220 50% 35%',
       materialParams: { metalness: 0.4, roughness: 0.5, clearcoat: 0.2, transmission: 0.0, ior: 1.5, emissiveIntensity: 0.1 },
