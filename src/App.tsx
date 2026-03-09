@@ -417,6 +417,8 @@ const App = () => (
                           <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
                           {/* Creator */}
                           <Route path="/creator" element={<CreatorLayoutWrapper />} />
+                          {/* Therapist */}
+                          <Route path="/therapist" element={<TherapistLayoutWrapper />} />
                           {/* Personal Hypnosis */}
                           <Route path="/personal-hypnosis/success" element={<PersonalHypnosisSuccess />} />
                           <Route path="/personal-hypnosis/pending" element={<PersonalHypnosisPending />} />
