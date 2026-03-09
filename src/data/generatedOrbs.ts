@@ -164,7 +164,7 @@ const DESC_ADJ_HE = [
 ];
 
 // ─── Trait arrays ───
-const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'wire', 'lava', 'crystal', 'matte', 'nebula', 'obsidian', 'tiger', 'thorny', 'bone', 'ember', 'ice', 'void', 'holographic'];
+const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'lava', 'crystal', 'matte', 'nebula', 'obsidian', 'tiger', 'thorny', 'bone', 'ember', 'ice', 'void', 'holographic'];
 const PATTERNS: PatternType[] = ['voronoi', 'cellular', 'fractal', 'shards', 'swirl', 'strata'];
 const GEOS: GeometryFamily[] = ['sphere', 'dodeca', 'icosa', 'octa', 'torus', 'spiky', 'tetra', 'cube', 'cone', 'cylinder', 'capsule', 'knot'];
 const GLOWS: GlowLevel[] = ['none', 'soft', 'medium', 'intense', 'cosmic'];
@@ -225,7 +225,7 @@ function hueProfile(
 
 // ─── Generator ───
 export function generateOrbs(count: number, startId: number): GalleryOrb[] {
-  const rng = mulberry32(42_777); // Fixed seed for deterministic output
+  const rng = mulberry32(98_331); // New seed for fresh collection
   const usedNames = new Set<string>();
   const orbs: GalleryOrb[] = [];
 

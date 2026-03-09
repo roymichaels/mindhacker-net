@@ -104,7 +104,7 @@ function hueProfile(
 
 // ─────────────────────────── 100 ORBS ───────────────────────────
 
-const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'wire'];
+const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'crystal'];
 const PATTERNS: PatternType[] = ['voronoi', 'cellular', 'fractal', 'shards', 'swirl', 'strata'];
 const GEOS: GeometryFamily[] = ['sphere', 'dodeca', 'icosa', 'octa', 'torus', 'spiky'];
 
@@ -153,10 +153,10 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: ORB_PRESETS.find(x => x.id === 'rose-quartz')!.profile,
   },
   {
-    id: 'obsidian-wire', nameEn: 'Obsidian Wire', nameHe: 'שלד אובסידיאן',
-    descEn: 'The skeleton of raw potential', descHe: 'השלד של פוטנציאל גולמי',
-    rarity: 'uncommon', traits: { material: 'wire', pattern: 'shards', geometry: 'octa', glow: 'none', particles: false },
-    profile: ORB_PRESETS.find(x => x.id === 'obsidian-wire')!.profile,
+    id: 'obsidian-edge', nameEn: 'Obsidian Edge', nameHe: 'קצה אובסידיאן',
+    descEn: 'The edge of raw potential', descHe: 'הקצה של פוטנציאל גולמי',
+    rarity: 'uncommon', traits: { material: 'obsidian', pattern: 'shards', geometry: 'octa', glow: 'none', particles: false },
+    profile: hueProfile(270, 'obsidian', 'shards', 'octa', 0.35),
   },
   {
     id: 'aurora-skin', nameEn: 'Aurora Skin', nameHe: 'עור אורורה',
@@ -193,8 +193,8 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   {
     id: 'neon-pulse', nameEn: 'Neon Pulse', nameHe: 'פולס ניאון',
     descEn: 'Electric current through digital veins', descHe: 'זרם חשמלי בוורידים דיגיטליים',
-    rarity: 'rare', traits: { material: 'wire', pattern: 'cellular', geometry: 'torus', glow: 'intense', particles: true },
-    profile: hueProfile(165, 'wire', 'cellular', 'torus', 0.75, { particles: true }),
+    rarity: 'rare', traits: { material: 'plasma', pattern: 'cellular', geometry: 'torus', glow: 'intense', particles: true },
+    profile: hueProfile(165, 'plasma', 'cellular', 'torus', 0.75, { particles: true }),
   },
   {
     id: 'desert-ember', nameEn: 'Desert Ember', nameHe: 'גחלת מדבר',
@@ -209,10 +209,10 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: hueProfile(335, 'plasma', 'swirl', 'spiky', 0.95, { particles: true, hueSpread: 40 }),
   },
   {
-    id: 'frozen-wire', nameEn: 'Frozen Wire', nameHe: 'חוט קפוא',
+    id: 'frozen-crystal', nameEn: 'Frozen Crystal', nameHe: 'קריסטל קפוא',
     descEn: 'Structure laid bare — raw potential', descHe: 'מבנה חשוף — פוטנציאל גולמי',
-    rarity: 'common', traits: { material: 'wire', pattern: 'shards', geometry: 'icosa', glow: 'none', particles: false },
-    profile: hueProfile(205, 'wire', 'shards', 'icosa', 0.1),
+    rarity: 'common', traits: { material: 'ice', pattern: 'shards', geometry: 'icosa', glow: 'none', particles: false },
+    profile: hueProfile(205, 'ice', 'shards', 'icosa', 0.1),
   },
   {
     id: 'emerald-swirl', nameEn: 'Emerald Swirl', nameHe: 'מערבולת אזמרגד',
@@ -771,8 +771,8 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   {
     id: 'neon-cube', nameEn: 'Neon Cube', nameHe: 'קוביית ניאון',
     descEn: 'Digital architecture glowing', descHe: 'ארכיטקטורה דיגיטלית זוהרת',
-    rarity: 'rare', traits: { material: 'wire', pattern: 'cellular', geometry: 'cube', glow: 'medium', particles: true },
-    profile: hueProfile(160, 'wire', 'cellular', 'cube', 0.62, { particles: true }),
+    rarity: 'rare', traits: { material: 'holographic', pattern: 'cellular', geometry: 'cube', glow: 'medium', particles: true },
+    profile: hueProfile(160, 'holographic', 'cellular', 'cube', 0.62, { particles: true }),
   },
   {
     id: 'fire-cone', nameEn: 'Fire Cone', nameHe: 'חרוט אש',
@@ -821,7 +821,18 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
       { value: 'metal', labelEn: 'Metal', labelHe: 'מתכת' },
       { value: 'iridescent', labelEn: 'Iridescent', labelHe: 'אופלסנט' },
       { value: 'plasma', labelEn: 'Plasma', labelHe: 'פלזמה' },
-      { value: 'wire', labelEn: 'Wire', labelHe: 'שלד' },
+      { value: 'crystal', labelEn: 'Crystal', labelHe: 'קריסטל' },
+      { value: 'lava', labelEn: 'Lava', labelHe: 'לבה' },
+      { value: 'nebula', labelEn: 'Nebula', labelHe: 'ערפילית' },
+      { value: 'obsidian', labelEn: 'Obsidian', labelHe: 'אובסידיאן' },
+      { value: 'ice', labelEn: 'Ice', labelHe: 'קרח' },
+      { value: 'holographic', labelEn: 'Holographic', labelHe: 'הולוגרפי' },
+      { value: 'tiger', labelEn: 'Tiger', labelHe: 'טייגר' },
+      { value: 'ember', labelEn: 'Ember', labelHe: 'גחלת' },
+      { value: 'matte', labelEn: 'Matte', labelHe: 'מאט' },
+      { value: 'bone', labelEn: 'Bone', labelHe: 'עצם' },
+      { value: 'thorny', labelEn: 'Thorny', labelHe: 'קוצני' },
+      { value: 'void', labelEn: 'Void', labelHe: 'ריק' },
     ],
   },
   {
