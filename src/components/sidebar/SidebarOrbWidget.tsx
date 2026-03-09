@@ -21,6 +21,7 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
+  const { isWorking, isDeepWork } = useActiveWorkSession();
 
   const level = dashboard.level;
   const tokens = dashboard.tokens;
