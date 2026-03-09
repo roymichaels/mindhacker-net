@@ -391,8 +391,9 @@ export default function LifeHub() {
                     onClick={() => {
                       const allTraits = pillarGroups.flatMap(g => g.traits);
                       exportPlanPDF({
+                        isRTL: isHe,
                         title: isHe ? 'תוכנית 100 יום' : '100-Day Plan',
-                        dayProgress: `${overallPct}% · ${completedMilestones}/${totalMilestones} milestones`,
+                        dayProgress: `${overallPct}% · ${completedMilestones}/${totalMilestones} ${isHe ? 'אבני דרך' : 'milestones'}`,
                         traits: allTraits.map(t => ({ name: t.displayName, pillar: t.pillar, level: t.level, missionCount: t.missionCount })),
                         milestones: allTraits.flatMap(t => t.missions.flatMap(m => m.milestones.map(ms => ({
                           title: isHe ? ms.title : (ms.title_en || ms.title),
