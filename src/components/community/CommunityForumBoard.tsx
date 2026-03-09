@@ -73,15 +73,30 @@ function PillarCard({
   const Icon = domain.icon;
   const totalThreads = counts[domain.id] || 0;
 
+  const iconBgMap: Record<string, string> = {
+    violet: 'bg-violet-500/10', fuchsia: 'bg-fuchsia-500/10', red: 'bg-red-500/10',
+    amber: 'bg-amber-500/10', cyan: 'bg-cyan-500/10', slate: 'bg-slate-500/10',
+    indigo: 'bg-indigo-500/10', emerald: 'bg-emerald-500/10', purple: 'bg-purple-500/10',
+    sky: 'bg-sky-500/10', orange: 'bg-orange-500/10', blue: 'bg-blue-500/10',
+    lime: 'bg-lime-500/10', teal: 'bg-teal-500/10', rose: 'bg-rose-500/10',
+  };
+  const iconTextMap: Record<string, string> = {
+    violet: 'text-violet-500', fuchsia: 'text-fuchsia-500', red: 'text-red-500',
+    amber: 'text-amber-500', cyan: 'text-cyan-500', slate: 'text-slate-500',
+    indigo: 'text-indigo-500', emerald: 'text-emerald-500', purple: 'text-purple-500',
+    sky: 'text-sky-500', orange: 'text-orange-500', blue: 'text-blue-500',
+    lime: 'text-lime-500', teal: 'text-teal-500', rose: 'text-rose-500',
+  };
+
   return (
     <div className="rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
       {/* Pillar header */}
       <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/30">
         <div className={cn(
           "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-          "bg-primary/10"
+          iconBgMap[domain.color] || 'bg-primary/10'
         )}>
-          <Icon className="h-5 w-5 text-primary" />
+          <Icon className={cn("h-5 w-5", iconTextMap[domain.color] || 'text-primary')} />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-bold text-foreground">

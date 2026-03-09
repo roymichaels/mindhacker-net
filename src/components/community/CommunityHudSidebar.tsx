@@ -1,6 +1,6 @@
 /**
  * CommunityHudSidebar - Left sidebar for community pillar navigation.
- * Includes the Player Card HUD at the top.
+ * Includes the Player Card HUD at the top. Per-pillar color theming.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,34 @@ const PILLAR_ICONS: Record<string, string> = {
   consciousness: '🔮', presence: '👁️', power: '💪', vitality: '☀️',
   focus: '🎯', combat: '⚔️', expansion: '🧠', wealth: '📈',
   influence: '👑', relationships: '🤝', business: '💼', projects: '📋', play: '🎮',
+  order: '✨', romantics: '💋',
+};
+
+/** Color maps keyed by the domain.color field */
+const activeBgMap: Record<string, string> = {
+  violet: 'bg-violet-500/20 border-violet-500/40',
+  fuchsia: 'bg-fuchsia-500/20 border-fuchsia-500/40',
+  red: 'bg-red-500/20 border-red-500/40',
+  amber: 'bg-amber-500/20 border-amber-500/40',
+  cyan: 'bg-cyan-500/20 border-cyan-500/40',
+  slate: 'bg-slate-500/20 border-slate-500/40',
+  indigo: 'bg-indigo-500/20 border-indigo-500/40',
+  emerald: 'bg-emerald-500/20 border-emerald-500/40',
+  purple: 'bg-purple-500/20 border-purple-500/40',
+  sky: 'bg-sky-500/20 border-sky-500/40',
+  orange: 'bg-orange-500/20 border-orange-500/40',
+  blue: 'bg-blue-500/20 border-blue-500/40',
+  lime: 'bg-lime-500/20 border-lime-500/40',
+  teal: 'bg-teal-500/20 border-teal-500/40',
+  rose: 'bg-rose-500/20 border-rose-500/40',
+};
+
+const activeTextMap: Record<string, string> = {
+  violet: 'text-violet-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
+  amber: 'text-amber-400', cyan: 'text-cyan-400', slate: 'text-slate-400',
+  indigo: 'text-indigo-400', emerald: 'text-emerald-400', purple: 'text-purple-400',
+  sky: 'text-sky-400', orange: 'text-orange-400', blue: 'text-blue-400',
+  lime: 'text-lime-400', teal: 'text-teal-400', rose: 'text-rose-400',
 };
 
 export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateThread }: CommunityHudSidebarProps) {
@@ -29,6 +57,10 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
+
+  // Find the color for the currently selected pillar
+  const selectedDomain = LIFE_DOMAINS.find(d => d.id === selectedPillar);
+  const selectedColor = selectedDomain?.color || 'violet';
 
   return (
     <aside className={cn(
@@ -78,7 +110,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
               className={cn(
                 "w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-colors",
                 selectedPillar === domain.id
-                  ? "bg-violet-500/20 border border-violet-500/40"
+                  ? `${activeBgMap[domain.color] || 'bg-violet-500/20 border-violet-500/40'} border`
                   : "bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10"
               )}
               title={isHe ? domain.labelHe : domain.labelEn}
@@ -94,7 +126,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
         <div className="flex flex-col gap-2 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
           {user && <CommunityPlayerCard userId={user.id} />}
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-border/30 to-transparent" />
 
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
             {isHe ? 'עמודים' : 'Pillars'}
@@ -124,14 +156,14 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
                 className={cn(
                   "w-full rounded-xl p-2 flex items-center gap-2.5 transition-all border text-start",
                   selectedPillar === domain.id
-                    ? "bg-violet-500/15 border-violet-500/30 shadow-sm"
+                    ? `${activeBgMap[domain.color]?.replace('border-', 'border-').replace('/40', '/30') || 'bg-violet-500/15 border-violet-500/30'} shadow-sm`
                     : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
                 )}
               >
                 <span className="text-sm">{PILLAR_ICONS[domain.id] || '⚡'}</span>
                 <span className={cn(
                   "text-xs font-medium flex-1",
-                  selectedPillar === domain.id ? 'text-violet-400' : 'text-foreground'
+                  selectedPillar === domain.id ? (activeTextMap[domain.color] || 'text-violet-400') : 'text-foreground'
                 )}>
                   {isHe ? domain.labelHe : domain.labelEn}
                 </span>
@@ -139,7 +171,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
             ))}
           </div>
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-border/30 to-transparent" />
         </div>
       )}
     </aside>
