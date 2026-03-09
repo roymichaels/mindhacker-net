@@ -3,11 +3,10 @@
  * Route: /fm/market — drill-down views for each section.
  */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Briefcase, ShoppingBag, BookOpen, Image, Gem,
-  ArrowRight, Coins, Package, Sparkles, Search, Plus, X,
+  Coins, Package, Sparkles, Search, Plus, X,
   Send, Loader2, Users, Clock, PlayCircle, CheckCircle2, XCircle
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -24,7 +23,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
 
-type MarketView = 'overview' | 'services' | 'bounties' | 'marketplace';
+type MarketView = 'services' | 'bounties' | 'marketplace';
 
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
@@ -37,11 +36,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const [view, setView] = useState<MarketView>('overview');
+  const [view, setView] = useState<MarketView>('services');
 
   // ── Data queries ──
   const { data: bounties = [], isLoading: bLoading } = useFMBounties();
@@ -177,19 +175,6 @@ export default function FMMarket() {
     return <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.cls}`}>{isHe ? s.he : s.en}</span>;
   };
 
-  const RARITY_STYLES: Record<string, { border: string; bg: string; iconBg: string; glow: string; label: { en: string; he: string; color: string } }> = {
-    legendary: { border: 'border-amber-500/50', bg: 'from-amber-500/12 to-orange-500/5', iconBg: 'from-amber-500 to-orange-600', glow: 'hover:shadow-amber-500/15', label: { en: 'LEGENDARY', he: 'אגדי', color: 'text-amber-400' } },
-    epic: { border: 'border-purple-500/50', bg: 'from-purple-500/12 to-fuchsia-500/5', iconBg: 'from-purple-500 to-fuchsia-600', glow: 'hover:shadow-purple-500/15', label: { en: 'EPIC', he: 'אפי', color: 'text-purple-400' } },
-    rare: { border: 'border-sky-500/50', bg: 'from-sky-500/12 to-blue-500/5', iconBg: 'from-sky-500 to-blue-600', glow: 'hover:shadow-sky-500/15', label: { en: 'RARE', he: 'נדיר', color: 'text-sky-400' } },
-    uncommon: { border: 'border-emerald-500/50', bg: 'from-emerald-500/12 to-teal-500/5', iconBg: 'from-emerald-500 to-teal-600', glow: 'hover:shadow-emerald-500/15', label: { en: 'UNCOMMON', he: 'לא שכיח', color: 'text-emerald-400' } },
-  };
-
-  const overviewCards = [
-    { id: 'services' as const, icon: <Briefcase className="w-6 h-6" />, labelEn: 'Services', labelHe: 'שירותים', descEn: 'Browse & offer freelance services', descHe: 'גלה והצע שירותים פרילנס', rarity: 'rare', statValue: gigs.length, statLabelEn: 'open', statLabelHe: 'פתוחים' },
-    { id: 'bounties' as const, icon: <Target className="w-6 h-6" />, labelEn: 'Bounties', labelHe: 'באונטיז', descEn: 'Complete tasks & earn MOS', descHe: 'השלם משימות והרוויח MOS', rarity: 'epic', statValue: bounties.length, statLabelEn: 'available', statLabelHe: 'זמינים' },
-    { id: 'marketplace' as const, icon: <ShoppingBag className="w-6 h-6" />, labelEn: 'Marketplace', labelHe: 'מרקטפלייס', descEn: 'Trade digital products, courses & NFTs', descHe: 'סחרו במוצרים דיגיטליים, קורסים ו-NFTs', rarity: 'legendary', statValue: 0, statLabelEn: 'listings', statLabelHe: 'פריטים' },
-  ];
-
   const marketplaceCategories = [
     { icon: BookOpen, labelEn: 'Courses', labelHe: 'קורסים', count: 0, color: 'from-sky-500/15 to-sky-500/5 border-sky-500/25', iconColor: 'text-sky-400' },
     { icon: Package, labelEn: 'Digital Products', labelHe: 'מוצרים דיגיטליים', count: 0, color: 'from-purple-500/15 to-purple-500/5 border-purple-500/25', iconColor: 'text-purple-400' },
@@ -197,60 +182,46 @@ export default function FMMarket() {
     { icon: Sparkles, labelEn: 'Templates', labelHe: 'תבניות', count: 0, color: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/25', iconColor: 'text-emerald-400' },
   ];
 
+  const marketTabs = [
+    { id: 'services' as const, icon: Briefcase, labelEn: 'Services', labelHe: 'שירותים' },
+    { id: 'bounties' as const, icon: Target, labelEn: 'Bounties', labelHe: 'באונטיז' },
+    { id: 'marketplace' as const, icon: ShoppingBag, labelEn: 'Marketplace', labelHe: 'מרקטפלייס' },
+  ];
+
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      {/* ═══ OVERVIEW ═══ */}
-      {view === 'overview' && (
-        <div className="space-y-5">
-          <div className="text-center">
-            <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
-              <ShoppingBag className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
-              {isHe ? 'מרקט' : 'Market'}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isHe ? 'שירותים, באונטיז ומסחר P2P' : 'Services, bounties & P2P trading'}
-            </p>
-          </div>
+      <div className="text-center">
+        <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
+          <ShoppingBag className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
+          {isHe ? 'מרקט' : 'Market'}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isHe ? 'שירותים, באונטיז ומסחר P2P' : 'Services, bounties & P2P trading'}
+        </p>
+      </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {overviewCards.map((card, i) => {
-              const style = RARITY_STYLES[card.rarity] || RARITY_STYLES.uncommon;
-              return (
-                <motion.button
-                  key={card.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
-                  onClick={() => setView(card.id)}
-                  className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 bg-gradient-to-br transition-all hover:scale-[1.03] active:scale-[0.97] hover:shadow-xl ${style.border} ${style.bg} ${style.glow} ${card.id === 'marketplace' ? 'col-span-2' : ''}`}
-                >
-                  <span className={`absolute top-1.5 end-2 text-[7px] font-black uppercase tracking-[0.15em] ${style.label.color}`}>
-                    {isHe ? style.label.he : style.label.en}
-                  </span>
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${style.iconBg} flex items-center justify-center shadow-lg`}>
-                    <span className="text-white/90">{card.icon}</span>
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground">{isHe ? card.labelHe : card.labelEn}</h3>
-                  <p className="text-[10px] text-muted-foreground">{isHe ? card.descHe : card.descEn}</p>
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    {card.statValue} {isHe ? card.statLabelHe : card.statLabelEn}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* In-page tabs below title/subtitle */}
+      <div className="flex items-center gap-1 rounded-xl bg-amber-500/5 border border-amber-500/15 p-1">
+        {marketTabs.map((tab) => {
+          const active = view === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setView(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
+                active
+                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25'
+                  : 'text-amber-600/60 dark:text-amber-400/50 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-500/5'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span>{isHe ? tab.labelHe : tab.labelEn}</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* ═══ BACK BUTTON (for drill-down views) ═══ */}
-      {view !== 'overview' && (
-        <button onClick={() => setView('overview')} className="flex items-center gap-1 text-sm text-amber-400/70 hover:text-amber-300 font-semibold transition-colors">
-          <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
-          {isHe ? 'חזרה למרקט' : 'Back to Market'}
-        </button>
-      )}
-
-      {/* ═══ SERVICES VIEW ═══ */}
+      {/* Services tab content */}
       {view === 'services' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -343,7 +314,7 @@ export default function FMMarket() {
         </div>
       )}
 
-      {/* ═══ BOUNTIES VIEW ═══ */}
+      {/* Bounties tab content */}
       {view === 'bounties' && (
         <div className="space-y-4">
           <h2 className="font-bold text-foreground">{isHe ? 'באונטיז' : 'Bounties'}</h2>
@@ -407,7 +378,7 @@ export default function FMMarket() {
         </div>
       )}
 
-      {/* ═══ MARKETPLACE VIEW ═══ */}
+      {/* Marketplace tab content */}
       {view === 'marketplace' && (
         <div className="space-y-5">
           <h2 className="font-bold text-foreground">{isHe ? 'מרקטפלייס' : 'Marketplace'}</h2>
