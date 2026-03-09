@@ -29,20 +29,21 @@ const XP_PER_LEVEL = 100;
 
 // Pillar glow colors (HSL values for CSS)
 export const PILLAR_COLORS: Record<string, string> = {
-  consciousness: '280 80% 60%',
-  presence: '330 80% 60%',
-  power: '0 80% 55%',
-  vitality: '140 70% 45%',
-  focus: '200 85% 55%',
-  combat: '15 90% 55%',
-  expansion: '260 70% 60%',
-  wealth: '45 95% 50%',
-  influence: '270 70% 60%',
-  relationships: '340 80% 60%',
-  business: '160 60% 45%',
-  projects: '30 70% 50%',
-  play: '50 90% 55%',
-  order: '190 80% 50%',
+  consciousness: '263 70% 58%',  // violet — mystical awareness
+  presence: '292 84% 61%',       // fuchsia — style & aesthetics
+  power: '0 72% 51%',            // red — raw strength
+  vitality: '38 92% 50%',        // amber — sun energy
+  focus: '188 85% 53%',          // cyan — laser clarity
+  combat: '215 14% 54%',         // slate — steel discipline
+  expansion: '239 84% 67%',      // indigo — deep mind
+  wealth: '160 84% 39%',         // emerald — money
+  influence: '271 81% 56%',      // purple — royalty
+  relationships: '199 89% 48%',  // sky — open connection
+  business: '25 95% 53%',        // orange — entrepreneurship
+  projects: '217 91% 60%',       // blue — structure
+  play: '84 81% 44%',            // lime — fun energy
+  order: '173 80% 40%',          // teal — clean precision
+  romantics: '347 77% 50%',      // rose — love & passion
 };
 
 export function useTraitGallery() {

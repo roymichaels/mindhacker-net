@@ -32,29 +32,47 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   const { journeys: businesses } = useBusinessJourneys();
 
   const domainColorMap: Record<string, string> = {
-    emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400', amber: 'text-amber-400', orange: 'text-orange-400', rose: 'text-rose-400', violet: 'text-violet-400', teal: 'text-teal-400',
+    violet: 'text-violet-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
+    amber: 'text-amber-400', cyan: 'text-cyan-400', slate: 'text-slate-400',
+    indigo: 'text-indigo-400', emerald: 'text-emerald-400', purple: 'text-purple-400',
+    sky: 'text-sky-400', orange: 'text-orange-400', blue: 'text-blue-400',
+    lime: 'text-lime-400', teal: 'text-teal-400', rose: 'text-rose-400',
   };
 
   const activeColorMap: Record<string, string> = {
+    violet: 'bg-violet-500/20 border-violet-500/30',
+    fuchsia: 'bg-fuchsia-500/20 border-fuchsia-500/30',
+    red: 'bg-red-500/20 border-red-500/30',
+    amber: 'bg-amber-500/20 border-amber-500/30',
+    cyan: 'bg-cyan-500/20 border-cyan-500/30',
+    slate: 'bg-slate-500/20 border-slate-500/30',
+    indigo: 'bg-indigo-500/20 border-indigo-500/30',
     emerald: 'bg-emerald-500/20 border-emerald-500/30',
     purple: 'bg-purple-500/20 border-purple-500/30',
     sky: 'bg-sky-500/20 border-sky-500/30',
-    amber: 'bg-amber-500/20 border-amber-500/30',
     orange: 'bg-orange-500/20 border-orange-500/30',
-    rose: 'bg-rose-500/20 border-rose-500/30',
-    violet: 'bg-violet-500/20 border-violet-500/30',
+    blue: 'bg-blue-500/20 border-blue-500/30',
+    lime: 'bg-lime-500/20 border-lime-500/30',
     teal: 'bg-teal-500/20 border-teal-500/30',
+    rose: 'bg-rose-500/20 border-rose-500/30',
   };
 
   const inactiveColorMap: Record<string, string> = {
+    violet: 'bg-violet-500/8 border-violet-500/15 hover:bg-violet-500/15',
+    fuchsia: 'bg-fuchsia-500/8 border-fuchsia-500/15 hover:bg-fuchsia-500/15',
+    red: 'bg-red-500/8 border-red-500/15 hover:bg-red-500/15',
+    amber: 'bg-amber-500/8 border-amber-500/15 hover:bg-amber-500/15',
+    cyan: 'bg-cyan-500/8 border-cyan-500/15 hover:bg-cyan-500/15',
+    slate: 'bg-slate-500/8 border-slate-500/15 hover:bg-slate-500/15',
+    indigo: 'bg-indigo-500/8 border-indigo-500/15 hover:bg-indigo-500/15',
     emerald: 'bg-emerald-500/8 border-emerald-500/15 hover:bg-emerald-500/15',
     purple: 'bg-purple-500/8 border-purple-500/15 hover:bg-purple-500/15',
     sky: 'bg-sky-500/8 border-sky-500/15 hover:bg-sky-500/15',
-    amber: 'bg-amber-500/8 border-amber-500/15 hover:bg-amber-500/15',
     orange: 'bg-orange-500/8 border-orange-500/15 hover:bg-orange-500/15',
-    rose: 'bg-rose-500/8 border-rose-500/15 hover:bg-rose-500/15',
-    violet: 'bg-violet-500/8 border-violet-500/15 hover:bg-violet-500/15',
+    blue: 'bg-blue-500/8 border-blue-500/15 hover:bg-blue-500/15',
+    lime: 'bg-lime-500/8 border-lime-500/15 hover:bg-lime-500/15',
     teal: 'bg-teal-500/8 border-teal-500/15 hover:bg-teal-500/15',
+    rose: 'bg-rose-500/8 border-rose-500/15 hover:bg-rose-500/15',
   };
 
   const activeProjects = projects.filter(p => p.status === 'active');

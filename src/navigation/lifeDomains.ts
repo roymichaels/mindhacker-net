@@ -36,7 +36,7 @@ export interface LifeDomain {
 
 /** All 14 pillars — unified under Core */
 export const CORE_DOMAINS: LifeDomain[] = [
-  { id: 'consciousness', labelEn: 'Consciousness', labelHe: 'תודעה', icon: Orbit, color: 'blue', description: 'Identity map, traits, consciousness patterns, self-awareness', descriptionHe: 'מפת זהות, תכונות, דפוסי תודעה, מודעות עצמית' },
+  { id: 'consciousness', labelEn: 'Consciousness', labelHe: 'תודעה', icon: Orbit, color: 'violet', description: 'Identity map, traits, consciousness patterns, self-awareness', descriptionHe: 'מפת זהות, תכונות, דפוסי תודעה, מודעות עצמית' },
   { id: 'presence',  labelEn: 'Image',     labelHe: 'תדמית',    icon: Eye,        color: 'fuchsia',  description: 'Face, body aesthetics, grooming, posture, style',                    descriptionHe: 'פנים, אסתטיקה גופנית, טיפוח, יציבה, סגנון' },
   { id: 'power',     labelEn: 'Power',     labelHe: 'עוצמה',    icon: Dumbbell,   color: 'red',      description: 'Strength, calisthenics, skill progressions',                        descriptionHe: 'כוח, קליסטניקס, התקדמות מיומנויות' },
   { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות',  icon: Sun,        color: 'amber',    description: 'Sleep, nutrition, recovery, hormones',                              descriptionHe: 'שינה, תזונה, התאוששות, הורמונים' },
@@ -46,9 +46,9 @@ export const CORE_DOMAINS: LifeDomain[] = [
   { id: 'wealth',        labelEn: 'Wealth',        labelHe: 'עושר',       icon: TrendingUp,   color: 'emerald', description: 'Income, business, career, monetization',    descriptionHe: 'הכנסה, עסקים, קריירה, מוניטיזציה' },
   { id: 'influence',     labelEn: 'Influence',     labelHe: 'השפעה',      icon: Crown,        color: 'purple',  description: 'Communication, leadership, charisma',       descriptionHe: 'תקשורת, מנהיגות, כריזמה' },
   { id: 'relationships', labelEn: 'Relationships', labelHe: 'קשרים',     icon: Users,        color: 'sky',     description: 'Connections, partnerships, social capital',  descriptionHe: 'קשרים, שותפויות, הון חברתי' },
-  { id: 'business',      labelEn: 'Business',      labelHe: 'עסקים',     icon: Briefcase,    color: 'rose',    description: 'Build & manage businesses',                  descriptionHe: 'בנייה וניהול עסקים' },
-  { id: 'projects',      labelEn: 'Projects',      labelHe: 'פרויקטים',  icon: FolderKanban, color: 'amber',   description: 'Manage projects & goals',                    descriptionHe: 'ניהול פרויקטים ויעדים' },
-  { id: 'play',          labelEn: 'Play',          labelHe: 'משחק',      icon: Gamepad2,     color: 'violet',  description: 'Intentional regeneration & joyful movement', descriptionHe: 'התחדשות מכוונת ותנועה משמחת' },
+  { id: 'business',      labelEn: 'Business',      labelHe: 'עסקים',     icon: Briefcase,    color: 'orange',  description: 'Build & manage businesses',                  descriptionHe: 'בנייה וניהול עסקים' },
+  { id: 'projects',      labelEn: 'Projects',      labelHe: 'פרויקטים',  icon: FolderKanban, color: 'blue',    description: 'Manage projects & goals',                    descriptionHe: 'ניהול פרויקטים ויעדים' },
+  { id: 'play',          labelEn: 'Play',          labelHe: 'משחק',      icon: Gamepad2,     color: 'lime',    description: 'Intentional regeneration & joyful movement', descriptionHe: 'התחדשות מכוונת ותנועה משמחת' },
   { id: 'order',         labelEn: 'Order',         labelHe: 'סדר',       icon: Sparkles,     color: 'teal',    description: 'Clean spaces, organized systems, environmental mastery', descriptionHe: 'סביבה נקייה, מערכות מסודרות, שליטה בסביבה' },
   { id: 'romantics',     labelEn: 'Romantics',     labelHe: 'רומנטיקה',  icon: Heart,        color: 'rose',    description: 'Intimate relationships, dating, seduction, polarity & romantic mastery', descriptionHe: 'מערכות יחסים אינטימיות, דייטינג, פיתוי, קוטביות ושליטה רומנטית' },
 ];
