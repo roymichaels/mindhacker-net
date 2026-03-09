@@ -10,6 +10,15 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Types ─────────────────────────────────────────────────
 
+export interface MemoryGraphNode {
+  node_type: string;
+  content: string;
+  strength: number;
+  pillar: string | null;
+  reference_count: number;
+  first_seen: string;
+}
+
 export interface AuroraContext {
   // Metadata
   context_hash: string;
