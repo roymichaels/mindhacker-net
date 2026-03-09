@@ -89,6 +89,12 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* ═══════ ORB NARRATIVE + TRANSFORMATION REPORT ═══════ */}
+        <div className="px-4 mt-3 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full space-y-2.5">
+          <OrbNarrativeCard />
+          <TransformationReportCard />
+        </div>
+
         {/* ═══════ PROFILE CONTENT ═══════ */}
         <div className="px-4 mt-4 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
           {traitsOpen ? (
