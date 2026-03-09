@@ -24,7 +24,6 @@ export function FMBottomNav() {
         {FM_TABS.map((tab) => {
           const isActive =
             (tab.id === 'earn' && activePath.startsWith('/fm/earn')) ||
-            (tab.id === 'market' && activePath.startsWith('/fm/market')) ||
             (tab.id === 'work' && (activePath.startsWith('/fm/work') || activePath.startsWith('/coaches') || activePath.startsWith('/business')));
           return (
             <button
