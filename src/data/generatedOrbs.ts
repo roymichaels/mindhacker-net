@@ -180,46 +180,46 @@ function hueProfile(
   const h1 = hue;
   const h2 = (hue + hueSpread) % 360;
   const h3 = (hue + hueSpread * 2) % 360;
-  const sat = Math.min(95, 35 + intensity * 50 + satBoost);
-  const lit = Math.min(65, 20 + intensity * 35 + litBoost);
+  const sat = Math.min(98, Math.max(20, 40 + intensity * 55 + satBoost));
+  const lit = Math.min(72, Math.max(18, 25 + intensity * 38 + litBoost));
 
-  const metalness = mat === 'metal' ? 0.6 + intensity * 0.35 : mat === 'wire' ? 0.15 : mat === 'iridescent' ? 0.25 + intensity * 0.2 : mat === 'plasma' ? 0.1 : 0.05;
-  const roughness = mat === 'metal' ? 0.45 - intensity * 0.35 : mat === 'wire' ? 0.5 : mat === 'glass' ? 0.15 : 0.08;
-  const clearcoat = mat === 'glass' ? 0.5 + intensity * 0.45 : mat === 'iridescent' ? 0.7 + intensity * 0.3 : intensity * 0.45;
-  const transmission = mat === 'glass' ? 0.25 + intensity * 0.35 : mat === 'plasma' ? 0.15 + intensity * 0.25 : 0;
-  const emissive = mat === 'plasma' ? 0.3 + intensity * 0.7 : intensity * 0.5;
+  const metalness = mat === 'metal' ? 0.65 + intensity * 0.35 : mat === 'wire' ? 0.12 : mat === 'iridescent' ? 0.3 + intensity * 0.25 : mat === 'plasma' ? 0.08 : 0.04;
+  const roughness = mat === 'metal' ? 0.4 - intensity * 0.35 : mat === 'wire' ? 0.55 : mat === 'glass' ? 0.12 : 0.06;
+  const clearcoat = mat === 'glass' ? 0.55 + intensity * 0.45 : mat === 'iridescent' ? 0.75 + intensity * 0.25 : intensity * 0.4;
+  const transmission = mat === 'glass' ? 0.3 + intensity * 0.4 : mat === 'plasma' ? 0.2 + intensity * 0.3 : 0;
+  const emissive = mat === 'plasma' ? 0.4 + intensity * 0.6 : mat === 'iridescent' ? 0.15 + intensity * 0.35 : intensity * 0.4;
 
   return p({
     materialType: mat,
     gradientMode: intensity > 0.6 ? 'noise' : intensity > 0.3 ? 'radial' : 'vertical',
     patternType: pat,
     geometryFamily: geo,
-    bloomStrength: intensity * 1.0,
-    chromaShift: intensity * 0.7,
+    bloomStrength: intensity * 1.2,
+    chromaShift: intensity * 0.85,
     gradientStops: [
-      `${h1} ${sat}% ${lit - 5}%`,
-      `${h1} ${sat + 10}% ${lit + 10}%`,
-      `${h2} ${sat}% ${lit + 20}%`,
-      `${h3} ${sat - 10}% ${lit + 30}%`,
+      `${h1} ${sat}% ${lit - 8}%`,
+      `${h1} ${Math.min(98, sat + 15)}% ${lit + 12}%`,
+      `${h2} ${sat}% ${lit + 22}%`,
+      `${h3} ${Math.max(15, sat - 12)}% ${lit + 32}%`,
     ],
-    coreGradient: [`${h1} ${sat}% ${lit}%`, `${h2} ${sat}% ${lit + 20}%`],
-    rimLightColor: `${h3} ${sat - 10}% ${lit + 30}%`,
-    primaryColor: `${h1} ${sat + 10}% ${lit + 10}%`,
-    secondaryColors: [`${h1} ${sat}% ${lit}%`, `${h2} ${sat}% ${lit + 20}%`, `${h3} ${sat - 5}% ${lit + 15}%`],
-    accentColor: `${h3} ${sat - 10}% ${lit + 30}%`,
+    coreGradient: [`${h1} ${sat}% ${lit}%`, `${h2} ${sat}% ${lit + 22}%`],
+    rimLightColor: `${h3} ${Math.max(15, sat - 12)}% ${lit + 32}%`,
+    primaryColor: `${h1} ${Math.min(98, sat + 15)}% ${lit + 12}%`,
+    secondaryColors: [`${h1} ${sat}% ${lit}%`, `${h2} ${sat}% ${lit + 22}%`, `${h3} ${Math.max(20, sat - 8)}% ${lit + 18}%`],
+    accentColor: `${h3} ${Math.max(15, sat - 12)}% ${lit + 32}%`,
     materialParams: {
       metalness, roughness, clearcoat, transmission,
       ior: 1.3 + intensity * 0.7,
       emissiveIntensity: emissive,
     },
-    morphIntensity: 0.3 + intensity * 0.5,
-    morphSpeed: 0.4 + intensity * 0.7,
-    motionSpeed: 0.4 + intensity * 0.8,
-    patternIntensity: 0.15 + intensity * 0.55,
+    morphIntensity: 0.35 + intensity * 0.55,
+    morphSpeed: 0.45 + intensity * 0.75,
+    motionSpeed: 0.45 + intensity * 0.85,
+    patternIntensity: 0.2 + intensity * 0.6,
     layerCount: Math.round(2 + intensity * 4),
-    coreIntensity: 0.3 + intensity * 0.65,
+    coreIntensity: 0.35 + intensity * 0.6,
     particleEnabled: particles,
-    particleCount: particles ? Math.round(6 + intensity * 20) : 0,
+    particleCount: particles ? Math.round(8 + intensity * 22) : 0,
   });
 }
 
@@ -244,21 +244,21 @@ export function generateOrbs(count: number, startId: number): GalleryOrb[] {
     }
 
     // Higher rarity = more likely particles
-    const particles = rarity === 'legendary' ? rng() > 0.2
-      : rarity === 'epic' ? rng() > 0.5
-      : rarity === 'rare' ? rng() > 0.75
-      : rng() > 0.9;
+    const particles = rarity === 'legendary' ? rng() > 0.1
+      : rarity === 'epic' ? rng() > 0.35
+      : rarity === 'rare' ? rng() > 0.6
+      : rng() > 0.85;
 
-    // Intensity correlates with rarity but with wider spread
-    const baseIntensity = rarity === 'legendary' ? 0.88 : rarity === 'epic' ? 0.72 : rarity === 'rare' ? 0.52 : rarity === 'uncommon' ? 0.32 : 0.18;
-    const intensity = Math.min(1, Math.max(0.05, baseIntensity + (rng() - 0.5) * 0.35));
+    // Intensity: wider spread with guaranteed floor per rarity
+    const baseIntensity = rarity === 'legendary' ? 0.92 : rarity === 'epic' ? 0.75 : rarity === 'rare' ? 0.55 : rarity === 'uncommon' ? 0.38 : 0.2;
+    const intensity = Math.min(1, Math.max(0.08, baseIntensity + (rng() - 0.5) * 0.45));
 
-    // Hue spread across the full spectrum with wider variance
+    // Full spectrum hue with much wider spread for complementary/triadic colors
     const hue = Math.floor(rng() * 360);
-    const hueSpread = 15 + Math.floor(rng() * 70);
-    // Extra sat/lit variance for visual diversity
-    const satBoost = Math.floor((rng() - 0.5) * 20);
-    const litBoost = Math.floor((rng() - 0.5) * 16);
+    const hueSpread = 25 + Math.floor(rng() * 110); // up to 135° spread
+    // Dramatic sat/lit variance
+    const satBoost = Math.floor((rng() - 0.5) * 35);
+    const litBoost = Math.floor((rng() - 0.5) * 28);
 
     // Generate unique name
     let nameEn = '';
