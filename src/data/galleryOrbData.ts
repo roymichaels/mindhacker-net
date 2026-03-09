@@ -1,6 +1,6 @@
 /**
- * galleryOrbData.ts – 100 unique orb archetypes for the NFT-style gallery.
- * Each orb has unique name, colors, traits, and rarity.
+ * galleryOrbData.ts – 1000 unique orb archetypes for the NFT-style gallery.
+ * 100 hand-crafted + 900 procedurally generated.
  */
 import type { OrbProfile, MaterialType, PatternType, GeometryFamily } from '@/components/orb/types';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
