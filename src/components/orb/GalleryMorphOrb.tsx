@@ -574,11 +574,12 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
 function OrbLighting() {
   return (
     <>
-      <ambientLight intensity={0.12} />
-      <directionalLight position={[5, 5, 8]} intensity={1.4} color="#ffffff" />
-      <directionalLight position={[-3, 2, -4]} intensity={0.5} color="#8888ff" />
-      <directionalLight position={[0, -3, 2]} intensity={0.25} color="#ff88cc" />
-      <pointLight position={[2, 3, 4]} intensity={0.6} color="#ffffff" distance={15} />
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 8]} intensity={2.0} color="#ffffff" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.8} color="#aaaaff" />
+      <directionalLight position={[0, -3, 2]} intensity={0.5} color="#ffaadd" />
+      <directionalLight position={[0, 5, 0]} intensity={0.6} color="#ffffff" />
+      <pointLight position={[2, 3, 4]} intensity={1.0} color="#ffffff" distance={15} />
       <Environment preset="city" background={false} />
     </>
   );
