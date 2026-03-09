@@ -350,12 +350,6 @@ const GlobalChatInput = () => {
             />
           </div>
 
-          {/* Voice Note Button */}
-          <VoiceNoteButton
-            onVoiceNote={handleVoiceNote}
-            disabled={isStreaming || isRecording}
-          />
-
           {/* Input Container */}
           <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
             <textarea
