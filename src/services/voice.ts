@@ -55,7 +55,7 @@ export async function synthesizeSpeech(
   const { provider = 'elevenlabs', voice = 'sarah', speed = 1.0, stability, similarityBoost, style } = options;
 
   // Try ElevenLabs first (primary TTS provider)
-  const result = await tryElevenLabsTTS(text, voice, speed);
+  const result = await tryElevenLabsTTS(text, voice, speed, stability, similarityBoost, style);
   if (result) return result;
 
   // Final fallback to browser speech synthesis
