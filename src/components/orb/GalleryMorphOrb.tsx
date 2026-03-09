@@ -315,6 +315,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
 
   // Stable random seed per instance for consistent randomness
   const instanceSeed = useRef(Math.random());
+  const mat = profile.materialType || 'glass';
 
   const shapes = useMemo(() => {
     // If morphIntensity is 0, use single shape (no morphing)
@@ -336,11 +337,16 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
   }, [geometryFamily, level, randomShapeCount, profile.morphIntensity, profile.morphSpeed]);
 
   const { geometry, shapeArrays } = useMemo(() => {
-    const geo = new THREE.IcosahedronGeometry(1, 4);
+    // Vary geometry detail by material for visual distinction
+    const detail = mat === 'crystal' || mat === 'obsidian' || mat === 'ice' ? 2
+      : mat === 'lava' || mat === 'ember' || mat === 'thorny' ? 3
+      : mat === 'matte' || mat === 'bone' ? 5
+      : 4;
+    const geo = new THREE.IcosahedronGeometry(1, detail);
     const base = (geo.attributes.position.array as Float32Array).slice();
     const arrays = shapes.map(s => computeShapePositions(base, s, 1));
     return { geometry: geo, shapeArrays: arrays, basePositions: base };
-  }, [shapes]);
+  }, [shapes, mat]);
 
   const matProps = useMemo(() => getElementalMaterial(profile), [profile]);
 
@@ -354,43 +360,61 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     seed5: Math.random() * 100,
   });
 
-  const mat = profile.materialType || 'glass';
+  // Per-material displacement & animation parameters
+  const matBehavior = useMemo(() => {
+    switch (mat) {
+      case 'lava': return { dispScale: 0.18, dispFreq: 4, noiseSpeed: 1.2, pulseAmp: 0.06, rotSpeed: 0.04, emissiveFlicker: true, flickerSpeed: 2.5 };
+      case 'ember': return { dispScale: 0.14, dispFreq: 5, noiseSpeed: 1.0, pulseAmp: 0.05, rotSpeed: 0.05, emissiveFlicker: true, flickerSpeed: 3.5 };
+      case 'plasma': return { dispScale: 0.12, dispFreq: 3.5, noiseSpeed: 1.5, pulseAmp: 0.07, rotSpeed: 0.12, emissiveFlicker: true, flickerSpeed: 5 };
+      case 'thorny': return { dispScale: 0.25, dispFreq: 8, noiseSpeed: 0.3, pulseAmp: 0.03, rotSpeed: 0.03, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'crystal': return { dispScale: 0.02, dispFreq: 1, noiseSpeed: 0.15, pulseAmp: 0.015, rotSpeed: 0.06, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'ice': return { dispScale: 0.03, dispFreq: 1.5, noiseSpeed: 0.1, pulseAmp: 0.01, rotSpeed: 0.04, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'matte': return { dispScale: 0.02, dispFreq: 2, noiseSpeed: 0.2, pulseAmp: 0.01, rotSpeed: 0.02, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'bone': return { dispScale: 0.04, dispFreq: 2.5, noiseSpeed: 0.15, pulseAmp: 0.01, rotSpeed: 0.02, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'metal': return { dispScale: 0.03, dispFreq: 2, noiseSpeed: 0.2, pulseAmp: 0.02, rotSpeed: 0.03, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'obsidian': return { dispScale: 0.02, dispFreq: 1.5, noiseSpeed: 0.15, pulseAmp: 0.015, rotSpeed: 0.04, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'wire': return { dispScale: 0.06, dispFreq: 3, noiseSpeed: 0.5, pulseAmp: 0.03, rotSpeed: 0.07, emissiveFlicker: true, flickerSpeed: 1.5 };
+      case 'void': return { dispScale: 0.04, dispFreq: 1.5, noiseSpeed: 0.08, pulseAmp: 0.02, rotSpeed: 0.015, emissiveFlicker: true, flickerSpeed: 0.8 };
+      case 'nebula': return { dispScale: 0.1, dispFreq: 2, noiseSpeed: 0.3, pulseAmp: 0.04, rotSpeed: 0.025, emissiveFlicker: true, flickerSpeed: 1.2 };
+      case 'tiger': return { dispScale: 0.06, dispFreq: 3, noiseSpeed: 0.35, pulseAmp: 0.02, rotSpeed: 0.05, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'holographic': return { dispScale: 0.05, dispFreq: 2.5, noiseSpeed: 0.6, pulseAmp: 0.03, rotSpeed: 0.1, emissiveFlicker: true, flickerSpeed: 2 };
+      case 'iridescent': return { dispScale: 0.06, dispFreq: 2, noiseSpeed: 0.4, pulseAmp: 0.03, rotSpeed: 0.06, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'glass': default: return { dispScale: 0.08, dispFreq: 3, noiseSpeed: 0.5, pulseAmp: 0.035, rotSpeed: 0.08, emissiveFlicker: false, flickerSpeed: 0 };
+    }
+  }, [mat]);
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
     const st = stateRef.current;
     st.timer += delta;
     const t = st.timer;
+    const mb = matBehavior;
 
     const positions = meshRef.current.geometry.attributes.position;
     const arr = positions.array as Float32Array;
     const vertCount = arr.length / 3;
 
-    // Global pulsation — organic breathing scale
+    // Global pulsation — varies by material
     const pulse = 1.0
-      + Math.sin(t * 1.2 + st.seed1) * 0.035
-      + Math.sin(t * 0.7 + st.seed3) * 0.025
-      + Math.sin(t * 2.1 + st.seed5) * 0.015;
+      + Math.sin(t * 1.2 + st.seed1) * mb.pulseAmp
+      + Math.sin(t * 0.7 + st.seed3) * mb.pulseAmp * 0.7
+      + Math.sin(t * 2.1 + st.seed5) * mb.pulseAmp * 0.4;
 
     if (shapes.length <= 1) {
-      // Single shape with rich organic breathing + pulsation
       const from = shapeArrays[0];
       for (let vi = 0; vi < vertCount; vi++) {
         const i3 = vi * 3;
         const bx = from[i3], by = from[i3 + 1], bz = from[i3 + 2];
-        // Layered noise for alien surface crawl
-        const n1 = noise3D(bx * 2.5 + t * 0.6 + st.seed1, by * 2.5 + t * 0.5, bz * 2.5 + t * 0.4);
-        const n2 = noise3D(bx * 5 + t * 0.9 + st.seed2, by * 5 - t * 0.7, bz * 5 + t * 0.8 + st.seed4);
-        const disp = 0.08 + 0.06 * Math.sin(t * 0.8 + vi * 0.05 + st.seed3);
+        const n1 = noise3D(bx * mb.dispFreq + t * mb.noiseSpeed + st.seed1, by * mb.dispFreq + t * mb.noiseSpeed * 0.8, bz * mb.dispFreq + t * mb.noiseSpeed * 0.6);
+        const n2 = noise3D(bx * mb.dispFreq * 2 + t * mb.noiseSpeed * 1.5 + st.seed2, by * mb.dispFreq * 2 - t * mb.noiseSpeed * 1.1, bz * mb.dispFreq * 2 + t * mb.noiseSpeed * 1.3 + st.seed4);
         const n = n1 * 0.7 + n2 * 0.3;
         const s = 0.82 * pulse;
-        arr[i3]     = (bx + bx * n * disp) * s;
-        arr[i3 + 1] = (by + by * n * disp) * s;
-        arr[i3 + 2] = (bz + bz * n * disp) * s;
+        arr[i3]     = (bx + bx * n * mb.dispScale) * s;
+        arr[i3 + 1] = (by + by * n * mb.dispScale) * s;
+        arr[i3 + 2] = (bz + bz * n * mb.dispScale) * s;
       }
     } else {
-      // Multi-shape: smooth, continuous alien shape-shifting
-      const morphSpeed = 0.6; // Slower = smoother transitions
+      const morphSpeed = 0.6;
       const totalShapes = shapes.length;
 
       for (let vi = 0; vi < vertCount; vi++) {
@@ -399,7 +423,6 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
         let totalWeight = 0;
 
         for (let si = 0; si < totalShapes; si++) {
-          // Smooth sinusoidal weights with irrational frequencies for endless non-repeating motion
           const phase = st.seed1 + si * 2.39996;
           const w = Math.max(0.01,
             Math.sin(t * morphSpeed * 0.8 + phase) * 0.3 +
@@ -414,45 +437,31 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
           totalWeight += w;
         }
 
-        if (totalWeight > 0) {
-          bx /= totalWeight;
-          by /= totalWeight;
-          bz /= totalWeight;
-        }
+        if (totalWeight > 0) { bx /= totalWeight; by /= totalWeight; bz /= totalWeight; }
 
-        // Rich layered displacement — alien surface crawl
-        const n1 = noise3D(
-          bx * 3 + t * 0.5 + st.seed1,
-          by * 3 + t * 0.4 + st.seed2,
-          bz * 3 + t * 0.35 + st.seed3
-        );
-        const n2 = noise3D(
-          bx * 6 + t * 0.8 + st.seed4,
-          by * 6 - t * 0.6 + st.seed5,
-          bz * 6 + t * 0.7 + st.seed1
-        );
+        const n1 = noise3D(bx * mb.dispFreq + t * mb.noiseSpeed + st.seed1, by * mb.dispFreq + t * mb.noiseSpeed * 0.8 + st.seed2, bz * mb.dispFreq + t * mb.noiseSpeed * 0.6 + st.seed3);
+        const n2 = noise3D(bx * mb.dispFreq * 2 + t * mb.noiseSpeed * 1.5 + st.seed4, by * mb.dispFreq * 2 - t * mb.noiseSpeed * 1.1 + st.seed5, bz * mb.dispFreq * 2 + t * mb.noiseSpeed * 1.3 + st.seed1);
         const n = n1 * 0.65 + n2 * 0.35;
-        const disp = 0.06 + 0.04 * Math.sin(t * 0.6 + vi * 0.04 + st.seed4);
 
         const s = 0.82 * pulse;
-        arr[i3]     = (bx + bx * n * disp) * s;
-        arr[i3 + 1] = (by + by * n * disp) * s;
-        arr[i3 + 2] = (bz + bz * n * disp) * s;
+        arr[i3]     = (bx + bx * n * mb.dispScale) * s;
+        arr[i3 + 1] = (by + by * n * mb.dispScale) * s;
+        arr[i3 + 2] = (bz + bz * n * mb.dispScale) * s;
       }
     }
 
     positions.needsUpdate = true;
     meshRef.current.geometry.computeVertexNormals();
 
-    // Smooth dreamy rotation — continuous slow tumble
-    meshRef.current.rotation.y += delta * 0.08;
+    // Rotation speed varies by material
+    meshRef.current.rotation.y += delta * mb.rotSpeed;
     meshRef.current.rotation.x = Math.sin(t * 0.09 + st.seed1) * 0.18 + Math.sin(t * 0.05 + st.seed3) * 0.1;
     meshRef.current.rotation.z = Math.cos(t * 0.07 + st.seed2) * 0.12 + Math.sin(t * 0.11 + st.seed5) * 0.06;
 
-    // Animate emissive for fire/plasma types
-    if (mat === 'plasma' && matRef.current) {
-      const flicker = 0.8 + Math.sin(t * 3 + st.seed1) * 0.3 + Math.sin(t * 7 + st.seed2) * 0.15;
-      matRef.current.emissiveIntensity = flicker;
+    // Emissive flicker for glowing materials
+    if (mb.emissiveFlicker && matRef.current) {
+      const flicker = 0.6 + Math.sin(t * mb.flickerSpeed + st.seed1) * 0.3 + Math.sin(t * mb.flickerSpeed * 2.3 + st.seed2) * 0.15;
+      matRef.current.emissiveIntensity = matProps.emissiveIntensity * flicker;
     }
   });
 
