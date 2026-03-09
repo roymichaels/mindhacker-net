@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { GalleryCanvas, StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { CSSGalleryOrb } from '@/components/orb/CSSGalleryOrb';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
