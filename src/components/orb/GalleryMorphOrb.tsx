@@ -193,11 +193,11 @@ function getElementalMaterial(profile: OrbProfile) {
   switch (mat) {
     // ── METAL: Bright polished chrome, strong reflections ──
     case 'metal': {
-      const brightMetal = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.7, 0.5), 0.5);
-      const highlight = new THREE.Color().setHSL(hsl.h, 0.4, 0.4);
+      const brightMetal = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.7, 0.5), 0.4);
+      const highlight = new THREE.Color().setHSL(hsl.h, 0.3, 0.2);
       return { ...base, color: brightMetal, emissive: highlight,
-        metalness: 1.0, roughness: 0.08, clearcoat: 1.0, clearcoatRoughness: 0.02,
-        emissiveIntensity: 0.5, envMapIntensity: 4.0,
+        metalness: 1.0, roughness: 0.15, clearcoat: 0.8, clearcoatRoughness: 0.05,
+        emissiveIntensity: 0.15, envMapIntensity: 2.5,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
