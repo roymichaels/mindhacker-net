@@ -31,6 +31,7 @@ export interface AuroraContext {
     gender: string | null;
     preferred_tone: string;
     challenge_intensity: string;
+    socratic_mode: boolean;
   };
 
   // Dates & plan
