@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import { MessageSquarePlus, ChevronLeft, Clock, Flame, MessageSquare } from 'lucide-react';
+import { MessageSquarePlus, ChevronLeft, Clock, Flame, MessageSquare, CalendarDays, MapPin, Sparkles, Users, ArrowRight } from 'lucide-react';
 import UsernameGate from '@/components/community/UsernameGate';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
@@ -156,55 +156,135 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
             </div>
           </div>
 
-          {/* ── ALL VIEW: Pillar Cards Grid ── */}
+          {/* ── ALL VIEW: Events + AI Match + Pillar Cards ── */}
           {isAll && (
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {LIFE_DOMAINS.map((d) => {
-                const Icon = d.icon;
-                const count = pillarCounts?.[d.id] || 0;
-                const hsl = PILLAR_HSL[d.id] || '217 91% 60%';
-                return (
-                  <button
-                    key={d.id}
-                    onClick={() => onPillarSelect?.(d.id)}
-                    className={cn(
-                      "group flex flex-col items-center gap-2 p-4 rounded-2xl border",
-                      "active:scale-[0.98] transition-all duration-200"
-                    )}
-                    style={{
-                      backgroundColor: `hsl(${hsl} / 0.06)`,
-                      borderColor: `hsl(${hsl} / 0.2)`,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.15)`;
-                      e.currentTarget.style.borderColor = `hsl(${hsl} / 0.4)`;
-                      e.currentTarget.style.boxShadow = `0 8px 25px -5px hsl(${hsl} / 0.15)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.06)`;
-                      e.currentTarget.style.borderColor = `hsl(${hsl} / 0.2)`;
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
-                      style={{ backgroundColor: `hsl(${hsl} / 0.15)` }}
-                    >
-                      <Icon className="h-6 w-6" style={{ color: `hsl(${hsl})` }} />
+            <>
+              {/* ── Top Banners: Events & AI Match ── */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Events Card */}
+                <button
+                  onClick={() => {/* TODO: open events modal */}}
+                  className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.08] to-sky-600/[0.03] p-4 text-start transition-all hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 active:scale-[0.99]"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center flex-shrink-0">
+                      <CalendarDays className="w-5 h-5 text-sky-500" />
                     </div>
-                    <span className="text-sm font-semibold text-center leading-tight" style={{ color: `hsl(${hsl})` }}>
-                      {isHe ? d.labelHe : d.labelEn}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-foreground">
+                        {isHe ? 'אירועים קרובים' : 'Upcoming Events'}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                        {isHe ? 'מפגשים חיים, סדנאות ואתגרים קהילתיים' : 'Live meetups, workshops & community challenges'}
+                      </p>
+                    </div>
+                    <ArrowRight className={cn("w-4 h-4 text-sky-500/60 group-hover:text-sky-500 transition-colors mt-1 flex-shrink-0", isHe && "rotate-180")} />
+                  </div>
+                  {/* Event preview pills */}
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/15">
+                      {isHe ? '🎯 אתגר שבועי' : '🎯 Weekly Challenge'}
                     </span>
-                    {count > 0 && (
-                      <div className="flex items-center gap-1 text-[11px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
-                        <MessageSquare className="h-3 w-3" />
-                        <span>{count}</span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/15">
+                      {isHe ? '🎙️ שיחה פתוחה' : '🎙️ Open Talk'}
+                    </span>
+                  </div>
+                </button>
+
+                {/* AI Match Card */}
+                <button
+                  onClick={() => {/* TODO: open AI match flow */}}
+                  className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] via-rose-500/[0.04] to-violet-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
+                >
+                  {/* Glow accent */}
+                  <div className="absolute top-0 end-0 w-24 h-24 rounded-full bg-amber-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="relative flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-rose-500/15 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-amber-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-sm font-bold text-foreground">
+                          {isHe ? 'AI Match' : 'AI Match'}
+                        </h3>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 uppercase tracking-wider">
+                          {isHe ? 'חדש' : 'New'}
+                        </span>
                       </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                        {isHe
+                          ? 'Aurora תחבר אותך לשחקנים קרובים אליך שישחיזו אותך — אימונים, פגישות ושיתופי פעולה בחיים האמיתיים'
+                          : 'Aurora connects you with nearby players who sharpen you — train together, meet up & build real-life bonds'}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Feature highlights */}
+                  <div className="relative flex flex-wrap gap-1.5 mt-3">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/15 flex items-center gap-1">
+                      <MapPin className="w-2.5 h-2.5" />
+                      {isHe ? 'לפי מיקום' : 'Location-based'}
+                    </span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/15 flex items-center gap-1">
+                      <Users className="w-2.5 h-2.5" />
+                      {isHe ? 'שיתופי פעולה' : 'Collaborations'}
+                    </span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/15 flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      {isHe ? 'התאמה חכמה' : 'Smart matching'}
+                    </span>
+                  </div>
+                </button>
+              </div>
+
+              {/* ── Pillar Cards Grid ── */}
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {LIFE_DOMAINS.map((d) => {
+                  const Icon = d.icon;
+                  const count = pillarCounts?.[d.id] || 0;
+                  const hsl = PILLAR_HSL[d.id] || '217 91% 60%';
+                  return (
+                    <button
+                      key={d.id}
+                      onClick={() => onPillarSelect?.(d.id)}
+                      className={cn(
+                        "group flex flex-col items-center gap-2 p-4 rounded-2xl border",
+                        "active:scale-[0.98] transition-all duration-200"
+                      )}
+                      style={{
+                        backgroundColor: `hsl(${hsl} / 0.06)`,
+                        borderColor: `hsl(${hsl} / 0.2)`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.15)`;
+                        e.currentTarget.style.borderColor = `hsl(${hsl} / 0.4)`;
+                        e.currentTarget.style.boxShadow = `0 8px 25px -5px hsl(${hsl} / 0.15)`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.06)`;
+                        e.currentTarget.style.borderColor = `hsl(${hsl} / 0.2)`;
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                        style={{ backgroundColor: `hsl(${hsl} / 0.15)` }}
+                      >
+                        <Icon className="h-6 w-6" style={{ color: `hsl(${hsl})` }} />
+                      </div>
+                      <span className="text-sm font-semibold text-center leading-tight" style={{ color: `hsl(${hsl})` }}>
+                        {isHe ? d.labelHe : d.labelEn}
+                      </span>
+                      {count > 0 && (
+                        <div className="flex items-center gap-1 text-[11px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
+                          <MessageSquare className="h-3 w-3" />
+                          <span>{count}</span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {/* ── PILLAR VIEW: Topic Cards (no topic selected yet) ── */}
