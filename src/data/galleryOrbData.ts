@@ -104,7 +104,7 @@ function hueProfile(
 
 // ─────────────────────────── 100 ORBS ───────────────────────────
 
-const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'wire'];
+const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'crystal'];
 const PATTERNS: PatternType[] = ['voronoi', 'cellular', 'fractal', 'shards', 'swirl', 'strata'];
 const GEOS: GeometryFamily[] = ['sphere', 'dodeca', 'icosa', 'octa', 'torus', 'spiky'];
 
