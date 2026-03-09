@@ -399,7 +399,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
             accentColor="bg-rose-500/10"
           />
           {identityProfile.suggested_ego_state && (
-            <div className="flex items-center justify-center gap-2 mb-3 p-2 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+            <div className="flex items-center justify-center gap-2 mb-3 p-2 rounded-xl bg-muted/30 dark:bg-white/[0.03] border border-border/20 dark:border-white/[0.05]">
               <span className="text-lg">
                 {({ warrior: '⚔️', guardian: '🛡️', creator: '🎨', seeker: '🔍', sage: '🧙' } as Record<string, string>)[identityProfile.suggested_ego_state.toLowerCase()] || '🛡️'}
               </span>
