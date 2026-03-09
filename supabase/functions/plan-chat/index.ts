@@ -52,13 +52,25 @@ serve(async (req) => {
         ).join("\n")}`;
       }
 
-      // Active action items
+      // Active action items (today + upcoming)
+      const today = new Date().toISOString().slice(0, 10);
       const { data: actions } = await supabase
         .from("action_items")
-        .select("id, title, type, pillar, status, scheduled_date, source")
+        .select("id, title, type, pillar, status, scheduled_date, source, completed_at")
         .eq("user_id", user_id)
-        .in("status", ["pending", "active"])
-        .limit(30);
+        .in("status", ["todo", "doing", "done"])
+        .gte("scheduled_date", today)
+        .order("scheduled_date")
+        .limit(50);
+
+      // Also get today's done items so Aurora knows what was completed
+      const { data: todayDone } = await supabase
+        .from("action_items")
+        .select("id, title, type, pillar, status, scheduled_date, completed_at")
+        .eq("user_id", user_id)
+        .eq("status", "done")
+        .eq("scheduled_date", today)
+        .limit(20);
 
       if (actions?.length) {
         actionContext = `\n\nActive tasks (${actions.length}):\n${actions.map(a =>
