@@ -7,6 +7,7 @@
  */
 
 import { computeAvatarDNA, type UserDataForDNA, type AvatarDNA } from './avatarDNA';
+import { getArchetype, type ArchetypeId } from './archetypes';
 import { generateUserOrb, type UserOrbInput } from './userOrbGenerator';
 import { hashUserId, seedHueOffset, seedFloat, seedInt, pickGeometryFamily, seedMorphPhase } from './orbSeed';
 import { buildVisualDNA, type VisualDNAInput } from './visualDNA';
