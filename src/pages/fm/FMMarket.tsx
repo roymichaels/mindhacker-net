@@ -3,11 +3,10 @@
  * Route: /fm/market — drill-down views for each section.
  */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Briefcase, ShoppingBag, BookOpen, Image, Gem,
-  ArrowRight, Coins, Package, Sparkles, Search, Plus, X,
+  Coins, Package, Sparkles, Search, Plus, X,
   Send, Loader2, Users, Clock, PlayCircle, CheckCircle2, XCircle
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -24,7 +23,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
 
-type MarketView = 'overview' | 'services' | 'bounties' | 'marketplace';
+type MarketView = 'services' | 'bounties' | 'marketplace';
 
 const GIG_CATEGORIES = ['all', 'design', 'writing', 'translation', 'development', 'content', 'other'];
 const BOUNTY_CATEGORIES = ['all', 'writing', 'labeling', 'feedback', 'design', 'translation'];
@@ -37,11 +36,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const [view, setView] = useState<MarketView>('overview');
+  const [view, setView] = useState<MarketView>('services');
 
   // ── Data queries ──
   const { data: bounties = [], isLoading: bLoading } = useFMBounties();
