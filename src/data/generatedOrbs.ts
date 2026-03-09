@@ -295,7 +295,7 @@ export function generateOrbs(count: number, startId: number): GalleryOrb[] {
       descHe,
       rarity,
       traits: { material: mat, pattern: pat, geometry: geo, glow, particles },
-      profile: hueProfile(hue, mat, pat, geo, intensity, particles, hueSpread),
+      profile: hueProfile(hue, mat, pat, geo, intensity, particles, hueSpread, satBoost, litBoost),
     });
   }
 
