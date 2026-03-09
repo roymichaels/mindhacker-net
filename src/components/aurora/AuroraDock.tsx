@@ -139,7 +139,7 @@ export function AuroraDock() {
         className="fixed inset-0 z-[9999] flex flex-col bg-background"
       >
         {/* Top bar with Aurora branding + back button */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+        <div className="relative flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           {/* Close / back */}
           <button
             onClick={closeDock}
@@ -168,6 +168,7 @@ export function AuroraDock() {
                 {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
               </span>
             )}
+            <AuroraSearchBar />
             <button
               onClick={() => setBugReportOpen(true)}
               className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
