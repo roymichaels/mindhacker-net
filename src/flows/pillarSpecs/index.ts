@@ -13,6 +13,7 @@ import './playQuestSpec';
 import './combatQuestSpec';
 import './presenceQuestSpec';
 import './orderQuestSpec';
+import './romanticsQuestSpec';
 
 export { healthQuestSpec } from './healthQuestSpec';
 export { mindQuestSpec } from './mindQuestSpec';
@@ -26,6 +27,7 @@ export { playQuestSpec } from './playQuestSpec';
 export { combatQuestSpec } from './combatQuestSpec';
 export { presenceQuestSpec } from './presenceQuestSpec';
 export { orderQuestSpec } from './orderQuestSpec';
+export { romanticsQuestSpec } from './romanticsQuestSpec';
 
 export interface PillarQuestMeta {
   id: string;
@@ -50,4 +52,5 @@ export const PILLAR_QUESTS: PillarQuestMeta[] = [
   { id: 'spirituality', specId: 'quest-spirituality', icon: '✨', title_he: 'רוחניות ומשמעות', title_en: 'Spirituality & Meaning', color: 'text-violet-500' },
   { id: 'play', specId: 'quest-play', icon: '🎮', title_he: 'משחק והנאה', title_en: 'Play & Recreation', color: 'text-violet-500' },
   { id: 'order', specId: 'quest-order', icon: '📋', title_he: 'סדר ומבנה', title_en: 'Order & Structure', color: 'text-slate-500' },
+  { id: 'romantics', specId: 'quest-romantics', icon: '💋', title_he: 'רומנטיקה', title_en: 'Romantics', color: 'text-rose-500' },
 ];

@@ -55,7 +55,7 @@ export const CORE_DOMAINS: LifeDomain[] = [
 
 /** @deprecated Use CORE_DOMAINS — kept for backwards compatibility */
 export const ARENA_DOMAINS: LifeDomain[] = CORE_DOMAINS.filter(d =>
-  ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order'].includes(d.id)
+  ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order', 'romantics'].includes(d.id)
 );
 
 /** Combined — same as CORE_DOMAINS now */

@@ -22,6 +22,7 @@ const PILLAR_ICONS: Record<string, string> = {
   business: '💼',
   projects: '📋',
   play: '🎮',
+  romantics: '💋',
 };
 
 export default function PillarTabs({ selected, onSelect }: PillarTabsProps) {
