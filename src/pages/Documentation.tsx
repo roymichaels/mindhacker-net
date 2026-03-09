@@ -147,6 +147,20 @@ export default function Documentation() {
             `Completion flow: auto-advance mechanism with a mandatory two-step completion gate (Back to Course or Next Lesson).`,
           ],
         },
+        {
+          title: he ? '4.6 FreeMarket Hub — שוק חופשי וקריירה' : '4.6 FreeMarket Hub — Marketplace & Career',
+          paragraphs: he ? [
+            `FreeMarket הוא ה-Hub השישי — מרכז הכלכלה, הקריירה, והמסחר של ${brandName}. בנוי משלושה טאבים: Earn (הרוויח), Career (קריירה), ו-Wallet (ארנק). ה-Earn Launchpad מנחה משתמשים חדשים דרך תהליך אונבורדינג כלכלי ומוצג מעל הטאבים כ-banner מתמיד.`,
+            `ב-Career Hub, המשתמש בוחר מסלול קריירה מתוך 5 מסלולים מאוחדים בסגנון כרטיסי רריטי (Legendary, Epic, Heroic, Rare, Uncommon): בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר. כל מסלול כולל ויזארד AI שמנחה את תהליך ההקמה (גם לעסקים חדשים וגם קיימים), עם אפשרות מחיקה לעסקים שלא התקדמו מעבר ל-1%.`,
+            `כל מסלול קריירה מנותב ל-CareerHub מאוחד — דשבורד ניהול מלא עם טאבים: סקירה, לקוחות, לידים, מוצרים/שירותים, תוכן, שיווק, אנליטיקס, והגדרות. הפיצ'רים משותפים לכל המסלולים עם התאמות ויזואליות וטרמינולוגיות לפי הפרופסיה.`,
+            `ה-Wallet מנהל את יתרת ה-MOS עם ספר חשבונות מלא (fm_transactions), היסטוריית עסקאות, cashout ל-Stripe או Solana, ו-bridge בין מטבעות.`,
+          ] : [
+            `FreeMarket is the sixth Hub — the economy, career, and commerce center of ${brandName}. Built with three tabs: Earn, Career, and Wallet. The Earn Launchpad guides new users through an economic onboarding process, displayed as a persistent banner above the tabs.`,
+            `In the Career Hub, users choose from 5 unified career paths displayed as rarity-themed cards (Legendary, Epic, Heroic, Rare, Uncommon): Business Owner, Coach, Therapist, Content Creator, Freelancer. Each path includes an AI-guided setup wizard (supporting both new and existing businesses), with delete capability for entries that haven't progressed past 1%.`,
+            `Every career path routes to a unified CareerHub — a full management dashboard with tabs: Overview, Clients, Leads, Products/Services, Content, Marketing, Analytics, and Settings. Features are shared across all paths with visual and terminology adaptations per profession.`,
+            `The Wallet manages MOS balance with a full ledger (fm_transactions), transaction history, cashout to Stripe or Solana, and a cross-currency bridge.`,
+          ],
+        },
       ],
     },
     {
