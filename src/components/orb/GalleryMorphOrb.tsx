@@ -179,6 +179,12 @@ function getElementalMaterial(profile: OrbProfile) {
   const hsl = { h: 0, s: 0, l: 0 };
   primary.getHSL(hsl);
 
+  // ── NORMALIZE brightness: clamp lightness to a consistent range ──
+  // This ensures ALL orbs render at the same perceived brightness
+  // regardless of what the profile data says
+  hsl.l = 0.55; // fixed target lightness for uniform brightness
+  hsl.s = Math.max(hsl.s, 0.4); // ensure minimum saturation
+
   const base = {
     sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
     iridescence: 0, iridescenceIOR: 1.3,
@@ -188,11 +194,11 @@ function getElementalMaterial(profile: OrbProfile) {
   switch (mat) {
     // ── METAL: Bright polished chrome, strong reflections ──
     case 'metal': {
-      const brightMetal = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.6, 0.5), 0.45);
+      const brightMetal = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.7, 0.5), 0.5);
       const highlight = new THREE.Color().setHSL(hsl.h, 0.4, 0.4);
       return { ...base, color: brightMetal, emissive: highlight,
         metalness: 1.0, roughness: 0.08, clearcoat: 1.0, clearcoatRoughness: 0.02,
-        emissiveIntensity: 0.6, envMapIntensity: 5.0,
+        emissiveIntensity: 0.5, envMapIntensity: 4.0,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
