@@ -5,11 +5,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Timer, ListTodo, Clock, BarChart3, Play, Square, Plus, Trash2, Brain, Zap } from 'lucide-react';
+import { Timer, ListTodo, Clock, BarChart3, Play, Square, Plus, Trash2, Brain, Zap, MessageSquare, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useTodayWorkSessions,
