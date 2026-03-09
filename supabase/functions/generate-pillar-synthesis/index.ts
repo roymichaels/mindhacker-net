@@ -243,11 +243,24 @@ Deno.serve(async (req) => {
     console.log('[pillar-synthesis] AI analysis complete, saving to DB...');
 
     // 5. Save new summary
+    // Embed diagnostic scores into summary_data so StatWheel can read them
+    const enrichedSummary = {
+      ...summary,
+      diagnostics: {
+        energy_stability: { score: scores.energy_stability ?? 0 },
+        recovery_debt: { score: scores.recovery_debt ?? 0 },
+        dopamine_load: { score: scores.dopamine_load ?? 0 },
+        execution_reliability: { score: scores.execution_reliability ?? 0 },
+        time_leverage: { score: scores.time_leverage ?? 0 },
+        hormonal_risk: { score: scores.hormonal_risk ?? 0 },
+      },
+    };
+
     const { data: summaryRecord, error: summaryError } = await supabase
       .from('launchpad_summaries')
       .upsert({
         user_id: userId,
-        summary_data: summary,
+        summary_data: enrichedSummary,
         consciousness_score: scores.consciousness,
         transformation_readiness: scores.readiness,
         clarity_score: scores.clarity,
