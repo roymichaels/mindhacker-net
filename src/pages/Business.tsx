@@ -56,7 +56,16 @@ export default function Business() {
     <PageShell className="pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/fm/work')}
+            className="shrink-0"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Building2 className="h-6 w-6 text-amber-500" />
             {isHe ? 'העסקים שלי' : 'My Businesses'}
