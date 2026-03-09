@@ -463,7 +463,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {lifeDirection && (
         <EmpireCard glow="hsla(35, 80%, 50%, 0.06)" className="text-center">
           <SectionTitle
-            icon={<Compass className="w-4 h-4 text-amber-400" />}
+            icon={<Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
             title={isHe ? 'כיוון חיים' : 'Life Direction'}
             accentColor="bg-amber-500/10"
           />
