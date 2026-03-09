@@ -152,7 +152,7 @@ export function PlanNegotiateModal({ open, onOpenChange, task, onApplied }: Plan
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
+      <DialogContent preventClose className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
             <MessageSquare className="h-5 w-5 text-primary" />
