@@ -105,7 +105,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "XP, leveling & streaks",
     ],
     he: [
-      "2 פילרים מתוך 14 תחומי חיים",
+      "2 פילרים מתוך 15 תחומי חיים",
       "אבחון מלא",
       "5 הודעות יומיות לאורורה",
       "דאשבורד ומבנה יומי",
