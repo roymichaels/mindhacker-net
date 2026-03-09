@@ -36,6 +36,7 @@ export function BottomTabBar() {
   const { profile: userOrbProfile } = useOrbProfile();
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
+  const unreadCount = useUnreadBadge();
   const [showBalloon, setShowBalloon] = useState(false);
 
   // Show balloon after 3s, auto-hide after 8s
