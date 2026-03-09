@@ -38,6 +38,15 @@ serve(async (req) => {
     let practiceContext = "";
     let actionContext = "";
 
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    const twoDaysAgoStr = twoDaysAgo.toISOString().slice(0, 10);
+
     if (plan?.id) {
       // Milestones
       const { data: milestones } = await supabase
@@ -52,40 +61,73 @@ serve(async (req) => {
         ).join("\n")}`;
       }
 
-      // Active action items (today + upcoming)
-      const today = new Date().toISOString().slice(0, 10);
-      const { data: actions } = await supabase
+      // Fetch tasks from last 2 days + today + upcoming
+      const { data: recentAndUpcoming } = await supabase
         .from("action_items")
         .select("id, title, type, pillar, status, scheduled_date, source, completed_at")
         .eq("user_id", user_id)
         .in("status", ["todo", "doing", "done"])
-        .gte("scheduled_date", today)
+        .gte("scheduled_date", twoDaysAgoStr)
         .order("scheduled_date")
-        .limit(50);
+        .limit(100);
 
-      // Also get today's done items so Aurora knows what was completed
-      const { data: todayDone } = await supabase
-        .from("action_items")
-        .select("id, title, type, pillar, status, scheduled_date, completed_at")
-        .eq("user_id", user_id)
-        .eq("status", "done")
-        .eq("scheduled_date", today)
-        .limit(20);
+      if (recentAndUpcoming?.length) {
+        // Group by date
+        const yesterdayTasks = recentAndUpcoming.filter(a => a.scheduled_date === yesterdayStr);
+        const todayTasks = recentAndUpcoming.filter(a => a.scheduled_date === todayStr);
+        const futureTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date > todayStr);
+        const olderTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date < yesterdayStr);
 
-      if (actions?.length) {
-        const pending = actions.filter(a => a.status !== 'done');
-        const done = actions.filter(a => a.status === 'done');
-        actionContext = `\n\nToday's date: ${today}`;
-        if (pending.length) {
-          actionContext += `\n\nPending tasks (${pending.length}):\n${pending.map(a =>
-            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} date:${a.scheduled_date || 'unscheduled'} (id: ${a.id})`
-          ).join("\n")}`;
+        actionContext = `\n\nToday's date: ${todayStr}\nYesterday's date: ${yesterdayStr}`;
+
+        // Yesterday's tasks (critical for retroactive management)
+        if (yesterdayTasks.length) {
+          const yPending = yesterdayTasks.filter(a => a.status !== 'done');
+          const yDone = yesterdayTasks.filter(a => a.status === 'done');
+          actionContext += `\n\n📅 YESTERDAY'S TASKS (${yesterdayStr}):`;
+          if (yPending.length) {
+            actionContext += `\nIncomplete (${yPending.length}):\n${yPending.map(a =>
+              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} (id: ${a.id})`
+            ).join("\n")}`;
+          }
+          if (yDone.length) {
+            actionContext += `\nCompleted (${yDone.length}):\n${yDone.map(a =>
+              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅ (id: ${a.id})`
+            ).join("\n")}`;
+          }
         }
-        if (done.length || todayDone?.length) {
-          const allDone = [...(done || []), ...(todayDone || [])];
-          const unique = [...new Map(allDone.map(d => [d.id, d])).values()];
-          actionContext += `\n\nCompleted today (${unique.length}):\n${unique.map(a =>
-            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅`
+
+        // Older incomplete
+        if (olderTasks.length) {
+          const olderPending = olderTasks.filter(a => a.status !== 'done');
+          if (olderPending.length) {
+            actionContext += `\n\n📅 OLDER INCOMPLETE:\n${olderPending.map(a =>
+              `- "${a.title}" [${a.pillar || 'general'}] date:${a.scheduled_date} status:${a.status} (id: ${a.id})`
+            ).join("\n")}`;
+          }
+        }
+
+        // Today's tasks
+        if (todayTasks.length) {
+          const tPending = todayTasks.filter(a => a.status !== 'done');
+          const tDone = todayTasks.filter(a => a.status === 'done');
+          actionContext += `\n\n📅 TODAY'S TASKS (${todayStr}):`;
+          if (tPending.length) {
+            actionContext += `\nPending (${tPending.length}):\n${tPending.map(a =>
+              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} (id: ${a.id})`
+            ).join("\n")}`;
+          }
+          if (tDone.length) {
+            actionContext += `\nCompleted (${tDone.length}):\n${tDone.map(a =>
+              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅ (id: ${a.id})`
+            ).join("\n")}`;
+          }
+        }
+
+        // Upcoming
+        if (futureTasks.length) {
+          actionContext += `\n\nUpcoming (${futureTasks.length}):\n${futureTasks.slice(0, 15).map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] date:${a.scheduled_date} status:${a.status} (id: ${a.id})`
           ).join("\n")}`;
         }
       }
@@ -128,7 +170,7 @@ serve(async (req) => {
 
 CRITICAL RULES:
 1. NEVER suggest regenerating or recreating the plan. Only make targeted, surgical modifications.
-2. You can help with: adding/removing practices, modifying milestones, adjusting tasks, changing focus areas, swapping activities, rescheduling, and adjusting priorities.
+2. You can help with: adding/removing practices, modifying milestones, adjusting tasks, changing focus areas, swapping activities, rescheduling, marking tasks complete, and adjusting priorities.
 3. When the user requests a change, respond with BOTH a conversational explanation AND structured commands using tags.
 4. Always confirm what you understood before making changes.
 5. Respond in ${isHe ? 'Hebrew' : 'English'}.
@@ -136,10 +178,10 @@ CRITICAL RULES:
 AVAILABLE COMMANDS (embed in your response, the frontend parses and executes them):
 
 TASK MANAGEMENT:
-- [task:complete:TASK_ID] — Mark a task/habit as done (use the id from the context)
+- [task:complete:TASK_ID] — Mark a task/habit as done (use the actual UUID id from the context). Works for ANY date including yesterday.
 - [task:create:title] — Create a new action item for today
-- [task:delete:TASK_ID] — Remove an action item
-- [task:swap:OLD_TASK_ID:new task title] — Remove old task and create a replacement
+- [task:delete:TASK_ID] — Remove an action item (use UUID)
+- [task:swap:OLD_TASK_ID:new task title] — Remove old task and create a replacement with a new title
 
 HABIT MANAGEMENT:
 - [habit:create:title] — Create a new daily habit
@@ -159,11 +201,18 @@ PRACTICE MANAGEMENT:
 - [practice:remove:USER_PRACTICE_ID] — Remove a user practice
 - [practice:update:USER_PRACTICE_ID:field=value] — Update practice settings
 
-IMPORTANT BEHAVIOR:
-- When the user tells you about their day (e.g., "I did meditation and journaling today"), find the matching tasks by title and mark them complete using [task:complete:ID].
-- When the user wants to swap a task, use [task:swap:OLD_ID:new title] which deletes the old and creates the new.
-- You can emit MULTIPLE commands in a single response.
-- Always use the actual task/practice IDs from the context above.
+CRITICAL BEHAVIORS FOR RETROACTIVE TASK MANAGEMENT:
+- You have full visibility of YESTERDAY's tasks (both completed and incomplete).
+- When the user says "I actually did X instead of Y yesterday", you should:
+  1. Find the task Y from yesterday's list by matching the title/description
+  2. Use [task:swap:OLD_ID:new equivalent title] to replace it, OR
+  3. Use [task:complete:ID] to mark the original as done if they did do it
+  4. Use [task:delete:OLD_ID] + [task:create:new title] if the replacement is very different
+- When the user says "I did these yesterday" or "mark yesterday's tasks as done", find the matching tasks from YESTERDAY'S TASKS section and use [task:complete:ID] for each one.
+- When the user says "I didn't do X but I did Y instead which is equivalent", swap the task and mark the new one as done.
+- Be smart about equivalences: if the user says "I did yoga instead of stretching", those are equivalent body practices - swap and complete.
+- You CAN emit MULTIPLE commands in a single response. Do it when handling multiple tasks at once.
+- Always use the actual task UUIDs from the context. Never guess IDs.
 
 PLAN CONTEXT:
 Plan: ${plan ? `"${plan.title}" started ${plan.start_date}, ${plan.duration_days} days, status: ${plan.status}` : 'No active plan'}
