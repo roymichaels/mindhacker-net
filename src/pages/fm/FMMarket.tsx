@@ -37,7 +37,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const [view, setView] = useState<MarketView>('services');
@@ -290,12 +290,14 @@ export default function FMMarket() {
       {/* Bounties tab content */}
       {view === 'bounties' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+           <div className="flex items-center justify-between">
             <h2 className="font-bold text-foreground">{isHe ? 'באונטיז' : 'Bounties'}</h2>
-            <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('bounty')}>
-              <Sparkles className="w-3.5 h-3.5" />
-              {isHe ? 'צור עם Aurora' : 'Create with Aurora'}
-            </Button>
+            {isAdmin && (
+              <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('bounty')}>
+                <Sparkles className="w-3.5 h-3.5" />
+                {isHe ? 'צור עם Aurora' : 'Create with Aurora'}
+              </Button>
+            )}
           </div>
           <div className="relative">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -314,10 +316,12 @@ export default function FMMarket() {
             <div className="text-center py-12 space-y-3">
               <Target className="w-10 h-10 text-muted-foreground/40 mx-auto" />
               <p className="text-muted-foreground text-sm">{isHe ? 'אין באונטיז כרגע.' : 'No bounties right now.'}</p>
-              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('bounty')}>
-                <Sparkles className="w-3.5 h-3.5" />
-                {isHe ? 'צור באונטי ראשון' : 'Create first bounty'}
-              </Button>
+              {isAdmin && (
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('bounty')}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {isHe ? 'צור באונטי ראשון' : 'Create first bounty'}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
