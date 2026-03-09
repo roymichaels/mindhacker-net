@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
-import { useAuth } from '@/contexts/AuthContext';
 import {
   useTodayWorkSessions,
   useRecentWorkSessions,
