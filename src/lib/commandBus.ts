@@ -231,6 +231,14 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'setFocus', title: m[1].trim(), days: parseInt(m[2]) });
   }
 
+  // Memory Graph: [memory:type:content] and [memory:strengthen:content]
+  for (const m of content.matchAll(/\[memory:(belief|fear|breakthrough|pattern|blocker|insight|value_shift|dream):(.+?)\]/g)) {
+    commands.push({ type: 'memoryGraphUpsert', nodeType: m[1], content: m[2].trim() });
+  }
+  for (const m of content.matchAll(/\[memory:strengthen:(.+?)\]/g)) {
+    commands.push({ type: 'memoryGraphStrengthen', content: m[1].trim() });
+  }
+
   return commands;
 }
 
