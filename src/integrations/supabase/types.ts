@@ -3025,6 +3025,60 @@ export type Database = {
           },
         ]
       }
+      creator_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          creator_name: string | null
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_niche: Json | null
+          step_3_content_strategy: Json | null
+          step_4_audience: Json | null
+          step_5_monetization: Json | null
+          step_6_platforms: Json | null
+          step_7_growth: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          creator_name?: string | null
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_niche?: Json | null
+          step_3_content_strategy?: Json | null
+          step_4_audience?: Json | null
+          step_5_monetization?: Json | null
+          step_6_platforms?: Json | null
+          step_7_growth?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          creator_name?: string | null
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_niche?: Json | null
+          step_3_content_strategy?: Json | null
+          step_4_audience?: Json | null
+          step_5_monetization?: Json | null
+          step_6_platforms?: Json | null
+          step_7_growth?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       custom_forms: {
         Row: {
           access_token: string
@@ -4354,6 +4408,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      freelancer_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          freelancer_name: string | null
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_skills: Json | null
+          step_3_portfolio: Json | null
+          step_4_target_clients: Json | null
+          step_5_pricing: Json | null
+          step_6_marketing: Json | null
+          step_7_operations: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          freelancer_name?: string | null
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_skills?: Json | null
+          step_3_portfolio?: Json | null
+          step_4_target_clients?: Json | null
+          step_5_pricing?: Json | null
+          step_6_marketing?: Json | null
+          step_7_operations?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          freelancer_name?: string | null
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_skills?: Json | null
+          step_3_portfolio?: Json | null
+          step_4_target_clients?: Json | null
+          step_5_pricing?: Json | null
+          step_6_marketing?: Json | null
+          step_7_operations?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       health_journeys: {
         Row: {
@@ -8061,6 +8169,60 @@ export type Database = {
           setting_type?: string | null
           setting_value?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      therapist_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          practice_name: string | null
+          step_1_vision: Json | null
+          step_2_specialization: Json | null
+          step_3_methodology: Json | null
+          step_4_ideal_client: Json | null
+          step_5_credentials: Json | null
+          step_6_services: Json | null
+          step_7_operations: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          practice_name?: string | null
+          step_1_vision?: Json | null
+          step_2_specialization?: Json | null
+          step_3_methodology?: Json | null
+          step_4_ideal_client?: Json | null
+          step_5_credentials?: Json | null
+          step_6_services?: Json | null
+          step_7_operations?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          practice_name?: string | null
+          step_1_vision?: Json | null
+          step_2_specialization?: Json | null
+          step_3_methodology?: Json | null
+          step_4_ideal_client?: Json | null
+          step_5_credentials?: Json | null
+          step_6_services?: Json | null
+          step_7_operations?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
