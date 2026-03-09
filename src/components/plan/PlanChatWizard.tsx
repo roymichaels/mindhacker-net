@@ -276,9 +276,9 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
   const processCommands = useCallback(async (fullText: string) => {
     const commands = parseAllTags(fullText);
 
-    const practiceAddRegex = /\\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\\]/g;
-    const practiceRemoveRegex = /\\[practice:remove:([a-f0-9-]+)\\]/g;
-    const practiceUpdateRegex = /\\[practice:update:([a-f0-9-]+):(.+?)\\]/g;
+    const practiceAddRegex = /\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\]/g;
+    const practiceRemoveRegex = /\[practice:remove:([a-f0-9-]+)\]/g;
+    const practiceUpdateRegex = /\[practice:update:([a-f0-9-]+):(.+?)\]/g;
 
     let changesMade = false;
     let match;
