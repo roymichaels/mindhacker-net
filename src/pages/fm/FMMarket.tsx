@@ -316,10 +316,12 @@ export default function FMMarket() {
             <div className="text-center py-12 space-y-3">
               <Target className="w-10 h-10 text-muted-foreground/40 mx-auto" />
               <p className="text-muted-foreground text-sm">{isHe ? 'אין באונטיז כרגע.' : 'No bounties right now.'}</p>
-              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('bounty')}>
-                <Sparkles className="w-3.5 h-3.5" />
-                {isHe ? 'צור באונטי ראשון' : 'Create first bounty'}
-              </Button>
+              {isAdmin && (
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('bounty')}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {isHe ? 'צור באונטי ראשון' : 'Create first bounty'}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
