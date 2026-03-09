@@ -18,6 +18,7 @@ import { useWeeklyTacticalPlan, type DayPlan, type TacticalAction, type Tactical
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
+import { exportTacticsPDF } from '@/utils/exportTacticsPDF';
 
 const BLOCK_ICONS: Record<BlockCategory, typeof Swords> = {
   health: Zap,
