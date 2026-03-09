@@ -83,6 +83,9 @@ export default function FMMarket() {
   const [submission, setSubmission] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
 
+  // ── Marketplace state ──
+  const [mpFilter, setMpFilter] = useState('all');
+
   const claimsByBounty = new Map(claims.map((c: any) => [c.bounty_id, c]));
   const proposalsByGig = new Map(myProposals.map((p: any) => [p.gig_id, p]));
   const filteredGigs = gigs.filter((g: Gig) => gFilter === 'all' || g.category === gFilter);
