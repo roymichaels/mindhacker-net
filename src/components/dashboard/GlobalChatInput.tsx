@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Send, Loader2, Plus, Image, Camera, X } from 'lucide-react';
+import { Send, Loader2, Plus, Image, Camera, X, Mic } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
