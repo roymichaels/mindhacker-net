@@ -97,7 +97,7 @@ export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena:
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "2 pillars from 14 life domains",
+      "2 pillars from 15 life domains",
       "Full diagnostic assessment",
       "5 Aurora messages/day",
       "Dashboard & daily structure",
