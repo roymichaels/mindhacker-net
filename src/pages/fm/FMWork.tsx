@@ -87,7 +87,7 @@ export default function FMWork() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {PROFESSIONAL_PATHS.map((path, i) => {
             const Icon = path.icon;
             const style = RARITY_STYLES[path.rarity];
