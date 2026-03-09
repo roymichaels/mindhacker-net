@@ -418,12 +418,12 @@ export default function Documentation() {
       number: '17',
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
-        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
-        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת, מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת מאמנים מלאה, קהילה פעילה עם Aurora AI, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
+        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
+        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת, מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת (עסקים, מאמנים, מטפלים, יוצרי תוכן, פרילנסרים), קהילה פעילה עם Aurora AI, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
-        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, and dynamic NFT identity into a single experience that wraps around the user's life.`,
-        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, guided hypnosis with real-time TTS, an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a full coach platform, an active community with Aurora AI, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
+        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, a unified career platform with 5 professional paths, and dynamic NFT identity into a single experience that wraps around the user's life.`,
+        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, AI-powered coach matching, guided hypnosis with real-time TTS, an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a unified career platform (Business, Coaches, Therapists, Creators, Freelancers), an active community with Aurora AI, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
