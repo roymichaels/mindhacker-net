@@ -4,19 +4,19 @@
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { Send, Loader2, Sparkles, Wrench } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Wrench } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { parseAllTags, stripAllTags, type AppCommand } from '@/lib/commandBus';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import ReactMarkdown from 'react-markdown';
+import AuroraChatMessage from '@/components/aurora/AuroraChatMessage';
+import AuroraTypingIndicator from '@/components/aurora/AuroraTypingIndicator';
+import AuroraChatInput from '@/components/aurora/AuroraChatInput';
 
 interface ChatMsg {
   role: 'user' | 'assistant';
