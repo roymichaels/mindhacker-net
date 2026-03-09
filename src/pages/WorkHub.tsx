@@ -427,6 +427,10 @@ export default function WorkHub() {
             <TabsContent value="stats">
               <WorkStats />
             </TabsContent>
+
+            <TabsContent value="analytics">
+              <WorkAnalytics />
+            </TabsContent>
           </div>
         </Tabs>
       </div>
