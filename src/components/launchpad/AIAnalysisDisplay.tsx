@@ -96,8 +96,8 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
   if (!summary) {
     return (
       <div className="text-center py-12 space-y-4">
-        <Brain className="w-16 h-16 mx-auto text-white/10" />
-        <p className="text-white/30 text-sm">
+        <Brain className="w-16 h-16 mx-auto text-muted-foreground/20" />
+        <p className="text-muted-foreground/50 text-sm">
           {language === 'he' 
             ? 'אין ניתוח AI עדיין. לחץ על "חשב מחדש" ליצירת ניתוח.'
             : 'No AI analysis yet. Click "Regenerate" to create analysis.'}
