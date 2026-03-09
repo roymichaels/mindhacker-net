@@ -37,10 +37,7 @@ export function DesktopSideNav() {
   };
 
   const openAurora = () => {
-    if (ctx) {
-      ctx.setIsDockVisible(true);
-      ctx.setIsChatExpanded(true);
-    }
+    navigate('/aurora');
   };
 
   // Same order as bottom bar: FM | Aurora | Path | Community | Study
