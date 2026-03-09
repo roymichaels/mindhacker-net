@@ -268,11 +268,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── MATTE: Flat, chalky, uniform ──
     case 'matte': {
-      const flat = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.45), 0.6);
-      const matteGlow = new THREE.Color().setHSL(hsl.h, 0.35, 0.4);
+      const flat = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.4), 0.45);
+      const matteGlow = new THREE.Color().setHSL(hsl.h, 0.25, 0.2);
       return { ...base, color: flat, emissive: matteGlow,
         metalness: 0.0, roughness: 1.0, clearcoat: 0.0, clearcoatRoughness: 1.0,
-        emissiveIntensity: 0.3, envMapIntensity: 0.3,
+        emissiveIntensity: 0.08, envMapIntensity: 0.3,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
