@@ -12,7 +12,7 @@ import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Briefcase, ArrowRight, ArrowLeft, Sparkles, Loader2, Building2, Target, TrendingUp } from 'lucide-react';
+import { Plus, Briefcase, ArrowRight, ArrowLeft, Sparkles, Loader2, Building2, Target, TrendingUp, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import BusinessCreationWizard from '@/components/business/BusinessCreationWizard';
@@ -56,7 +56,16 @@ export default function Business() {
     <PageShell className="pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/fm/work')}
+            className="shrink-0"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Building2 className="h-6 w-6 text-amber-500" />
             {isHe ? 'העסקים שלי' : 'My Businesses'}
@@ -64,6 +73,7 @@ export default function Business() {
           <p className="text-sm text-muted-foreground mt-1">
             {isHe ? 'נהל, בנה והקם את העסקים שלך עם Aurora' : 'Manage, build and launch your businesses with Aurora'}
           </p>
+          </div>
         </div>
         <Button
           onClick={() => setShowWizard(true)}
