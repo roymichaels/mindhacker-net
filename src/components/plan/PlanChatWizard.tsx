@@ -236,7 +236,44 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         return !error;
       }
 
+      case 'completeActionItem': {
+        // Try by ID first (UUID format), then by title match
+        const isUuid = /^[a-f0-9-]{36}$/.test(command.identifier);
+        if (isUuid) {
+          const { error } = await supabase.from('action_items')
+            .update({ status: 'done', completed_at: new Date().toISOString() })
+            .eq('id', command.identifier).eq('user_id', user.id);
+          return !error;
+        }
+        // Fuzzy match by title
+        const { data: item } = await supabase.from('action_items')
+          .select('id').eq('user_id', user.id).in('status', ['todo', 'doing'])
+          .ilike('title', `%${command.identifier}%`).limit(1).maybeSingle();
+        if (!item) return false;
+        const { error } = await supabase.from('action_items')
+          .update({ status: 'done', completed_at: new Date().toISOString() })
+          .eq('id', item.id);
+        return !error;
+      }
+
+      case 'completeHabit': {
+        const { data: habit } = await supabase.from('action_items')
+          .select('id').eq('user_id', user.id).eq('type', 'habit').in('status', ['todo', 'doing'])
+          .ilike('title', `%${command.name}%`).limit(1).maybeSingle();
+        if (!habit) return false;
+        const { error } = await supabase.from('action_items')
+          .update({ status: 'done', completed_at: new Date().toISOString() })
+          .eq('id', habit.id);
+        return !error;
+      }
+
       case 'deleteActionItem': {
+        // Try by ID first
+        const isUuid = /^[a-f0-9-]{36}$/.test(command.identifier);
+        if (isUuid) {
+          const { error } = await supabase.from('action_items').delete().eq('id', command.identifier).eq('user_id', user.id);
+          return !error;
+        }
         const { data: item } = await supabase.from('action_items')
           .select('id').eq('user_id', user.id)
           .ilike('title', `%${command.identifier}%`).limit(1).maybeSingle();
