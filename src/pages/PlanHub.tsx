@@ -62,12 +62,25 @@ export default function PlanHub() {
         </div>
       </div>
 
+      {/* Talk to your plan button */}
+      <div className="w-full max-w-xl px-4 pb-2">
+        <button
+          onClick={() => setChatOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
+        >
+          <MessageSquare className="w-4 h-4" />
+          {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
+        </button>
+      </div>
+
       {/* Tab content */}
       <Suspense fallback={null}>
         {activeTab === 'strategy' && <LifeHub />}
         {activeTab === 'now' && <UserDashboard />}
         {activeTab === 'tactics' && <ArenaHub />}
       </Suspense>
+
+      <PlanChatWizard open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 }
