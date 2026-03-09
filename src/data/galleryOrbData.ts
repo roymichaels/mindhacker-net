@@ -1,6 +1,6 @@
 /**
- * galleryOrbData.ts – 100 unique orb archetypes for the NFT-style gallery.
- * Each orb has unique name, colors, traits, and rarity.
+ * galleryOrbData.ts – 1000 unique orb archetypes for the NFT-style gallery.
+ * 100 hand-crafted + 900 procedurally generated.
  */
 import type { OrbProfile, MaterialType, PatternType, GeometryFamily } from '@/components/orb/types';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
@@ -108,7 +108,7 @@ const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'wi
 const PATTERNS: PatternType[] = ['voronoi', 'cellular', 'fractal', 'shards', 'swirl', 'strata'];
 const GEOS: GeometryFamily[] = ['sphere', 'dodeca', 'icosa', 'octa', 'torus', 'spiky'];
 
-export const GALLERY_ORBS: GalleryOrb[] = [
+const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   // ═══════════ 1-10: Original presets ═══════════
   {
     id: 'abyss-glass', nameEn: 'Abyss Glass', nameHe: 'זכוכית התהום',
@@ -799,6 +799,10 @@ export const GALLERY_ORBS: GalleryOrb[] = [
     profile: hueProfile(42, 'metal', 'voronoi', 'cylinder', 0.58),
   },
 ];
+
+// ─── Merge hand-crafted + generated orbs for 1000 total ───
+import { GENERATED_ORBS } from './generatedOrbs';
+export const GALLERY_ORBS: GalleryOrb[] = [...HAND_CRAFTED_ORBS, ...GENERATED_ORBS];
 
 /* ─── Trait filter definitions ─── */
 
