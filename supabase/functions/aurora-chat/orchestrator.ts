@@ -939,6 +939,20 @@ Only use these tags when exactly ONE match exists!
 ## Focus Tags
 - [focus:set:title:days_count] - set new focus period
 
+## Dream & Aspiration Tags 🌟
+- [dream:capture:dream_description] - when a user shares a dream, aspiration, or future vision — capture it!
+- [dream:integrate:dream_description:pillar] - when a dream can be connected to the plan — suggest integrating it as a goal
+⚠️ When user says "I dream of...", "I wish I could...", "If I could...", "I imagine..." — recognize it as an aspiration and capture with dream:capture!
+⚠️ After capturing, ask: "Want me to turn this into a goal in your plan?"
+
+## Adaptive Difficulty Engine 🎯
+You continuously analyze the user's performance (completion rate, streak, energy, mood).
+When you detect a clear pattern, **suggest** a change — don't change on your own!
+- Completion rate >85% + streak >5 days + high energy → suggest increasing intensity
+- Completion rate <50% + many skips → suggest easing up
+- Low energy + poor sleep → suggest recovery mode
+Always wait for user approval before making changes!
+
 ## When to suggest hypnosis
 - When a task or challenge seems difficult
 - After completing a big challenge
