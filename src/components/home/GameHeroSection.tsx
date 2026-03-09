@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { SharedOrbView } from '@/components/orb/SharedOrbView';
-import { ORB_PRESETS } from '@/lib/orbPresets';
+import { GALLERY_ORBS } from '@/data/galleryOrbData';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+const HERO_ORBS = GALLERY_ORBS.slice(0, 10);
 
 const AUTO_SLIDE_INTERVAL = 3000;
 
@@ -21,7 +23,7 @@ export default function GameHeroSection() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const total = ORB_PRESETS.length;
+  const total = HERO_ORBS.length;
   const visibleCount = isMobile ? 3 : 5;
 
   const resetTimer = useCallback(() => {
@@ -108,7 +110,7 @@ export default function GameHeroSection() {
           >
             <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[180px] sm:min-h-[240px]">
               {visibleIndices.map((presetIdx, slotIdx) => {
-                const preset = ORB_PRESETS[presetIdx];
+                const preset = HERO_ORBS[presetIdx];
                 const distFromCenter = slotIdx - half;
                 const isCenter = distFromCenter === 0;
                 const scale = isCenter ? 1 : 0.7 - Math.abs(distFromCenter) * 0.08;
@@ -144,7 +146,7 @@ export default function GameHeroSection() {
 
             {/* Dot indicators */}
             <div className="flex items-center justify-center gap-1.5 mt-4">
-              {ORB_PRESETS.map((_, idx) => (
+              {HERO_ORBS.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => goTo(idx)}
