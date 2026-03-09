@@ -37,6 +37,7 @@ const DialogContent = React.forwardRef<
 >(({ className, children, hideCloseButton = false, preventClose = false, ...props }, ref) => {
   const swipeHandlers = useSwipeable({
     onSwipedDown: (eventData) => {
+      if (preventClose) return;
       if (eventData.velocity > 0.5 && window.innerWidth < 640) {
         const closeButton = document.querySelector('[data-dialog-close]') as HTMLButtonElement;
         closeButton?.click();
@@ -48,7 +49,7 @@ const DialogContent = React.forwardRef<
 
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay onClick={preventClose ? (e) => e.preventDefault() : undefined} />
       <DialogPrimitive.Content
         ref={ref}
         {...swipeHandlers}
