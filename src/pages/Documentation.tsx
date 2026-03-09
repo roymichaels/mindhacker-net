@@ -33,8 +33,8 @@ export default function Documentation() {
   const founderName = he ? theme.founder_name : theme.founder_name_en;
 
   const abstractText = he
-    ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי (FreeMarket), ופלטפורמת מאמנים — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
-    : `${brandName} is an AI-powered Personal Operating System that integrates Play-to-Earn (P2E) mechanics, unique digital assets (NFTs), deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace (FreeMarket), and a coach platform — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine (Aurora), subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a data mining model that rewards genuine human activity.`;
+    ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי (FreeMarket) עם 5 מסלולי קריירה מאוחדים (בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר), התאמת מאמנים מבוססת AI, ופלטפורמת מאמנים — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
+    : `${brandName} is an AI-powered Personal Operating System that integrates Play-to-Earn (P2E) mechanics, unique digital assets (NFTs), deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace (FreeMarket) with 5 unified career paths (Business Owner, Coach, Therapist, Content Creator, Freelancer), AI-powered coach matching, and a coach platform — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine (Aurora), subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a data mining model that rewards genuine human activity.`;
 
   const sections: Section[] = [
     {
@@ -82,11 +82,11 @@ export default function Documentation() {
     {
       id: 'solution',
       number: '4',
-      title: he ? 'הפתרון — חמישה Hubs' : 'The Solution — Five Hubs',
+      title: he ? 'הפתרון — שישה Hubs' : 'The Solution — Six Hubs',
       paragraphs: he ? [
-        `${brandName} הוא Human Operating System — מערכת הפעלה אנושית שמאחדת את כל ממדי החיים תחת קורת גג אחת. הפלטפורמה בנויה מחמישה Hubs בסדר עדיפות ביצועי:`,
+        `${brandName} הוא Human Operating System — מערכת הפעלה אנושית שמאחדת את כל ממדי החיים תחת קורת גג אחת. הפלטפורמה בנויה מששה Hubs בסדר עדיפות ביצועי:`,
       ] : [
-        `${brandName} is a Human Operating System that unifies all life dimensions under one roof. The platform is built from five Hubs in execution-priority order:`,
+        `${brandName} is a Human Operating System that unifies all life dimensions under one roof. The platform is built from six Hubs in execution-priority order:`,
       ],
       subsections: [
         {
@@ -117,10 +117,12 @@ export default function Documentation() {
             `Strategy מציג את ה"למה" ומנהל את Pipeline האסטרטגי המלא. התהליך: (1) בחירת עמודי חיים (2-14 לפי רמת מנוי) דרך StrategyPillarWizard, (2) סריקת AI עומק לכל עמוד עם ציון 0-100, (3) יצירת תוכנית 100 ימים מחולקת ל-10 שלבים עם Milestones ופעולות יומיות.`,
             `כולל: תכונות אופי (Traits), משימות חיים (Missions), יעדים (Goals), ומערכת "כיול מחדש" (Recalibrate) שמאפשרת לעדכן את האסטרטגיה. במנוי Apex, השלמת הערכה מזריקה אסטרטגיות חדשות לתוכנית הפעילה ללא צורך ביצירה מחדש.`,
             `14 עמודי החיים: נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות, תודעה, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, ואומנות.`,
+            `התאמת מאמן מבוססת AI: בתוך ה-Strategy Hub, המשתמש יכול לבקש מ-Aurora למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל. Aurora מנהלת שיחת זיהוי צרכים (תחום, אתגרים, העדפות) וממליצה על מאמנים מתאימים מתוך הפלטפורמה — מחברת בין משתמשים למאמנים בצורה אורגנית.`,
           ] : [
             `Strategy shows the "Why" and manages the full strategic pipeline. The process: (1) select life pillars (2-14 based on subscription tier) via StrategyPillarWizard, (2) AI deep scan for each pillar scoring 0-100, (3) generate a 100-day plan divided into 10 phases with milestones and daily actions.`,
             `Includes: character Traits, life Missions, Goals, and a "Recalibrate" system for strategy updates. On the Apex tier, completing an assessment injects new strategies into the active plan without full regeneration.`,
             `The 14 Life Pillars: Presence, Power, Vitality, Focus, Combat, Expansion, Consciousness, Wealth, Influence, Relationships, Business, Projects, Play, and Craft.`,
+            `AI Coach Matching: Within the Strategy Hub, users can ask Aurora to find a coach to help execute their strategy. Aurora conducts a needs-discovery conversation (domain, challenges, preferences) and recommends matching coaches from the platform — organically connecting users with practitioners.`,
           ],
         },
         {
@@ -143,6 +145,20 @@ export default function Documentation() {
             `"Aurora Teaches You" — an adaptive learning system with a dual-sidebar HUD: left sidebar for course navigation and right sidebar for the curriculum tree. Uses a "Lazy Generation" model — course skeleton is created instantly, and content is generated dynamically only when the user reaches a specific lesson, then cached.`,
             `Each lesson includes practical exercises that are auto-summarized as a "Plan Integration Summary" and synced to the execution queue (Tactics Hub) as plan actions. The "Build the Curriculum!" button is accessible from anywhere via the Aurora Dock. Includes onboarding journey, business journey (10 steps), coaching journey (10 steps), and projects journey.`,
             `Completion flow: auto-advance mechanism with a mandatory two-step completion gate (Back to Course or Next Lesson).`,
+          ],
+        },
+        {
+          title: he ? '4.6 FreeMarket Hub — שוק חופשי וקריירה' : '4.6 FreeMarket Hub — Marketplace & Career',
+          paragraphs: he ? [
+            `FreeMarket הוא ה-Hub השישי — מרכז הכלכלה, הקריירה, והמסחר של ${brandName}. בנוי משלושה טאבים: Earn (הרוויח), Career (קריירה), ו-Wallet (ארנק). ה-Earn Launchpad מנחה משתמשים חדשים דרך תהליך אונבורדינג כלכלי ומוצג מעל הטאבים כ-banner מתמיד.`,
+            `ב-Career Hub, המשתמש בוחר מסלול קריירה מתוך 5 מסלולים מאוחדים בסגנון כרטיסי רריטי (Legendary, Epic, Heroic, Rare, Uncommon): בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר. כל מסלול כולל ויזארד AI שמנחה את תהליך ההקמה (גם לעסקים חדשים וגם קיימים), עם אפשרות מחיקה לעסקים שלא התקדמו מעבר ל-1%.`,
+            `כל מסלול קריירה מנותב ל-CareerHub מאוחד — דשבורד ניהול מלא עם טאבים: סקירה, לקוחות, לידים, מוצרים/שירותים, תוכן, שיווק, אנליטיקס, והגדרות. הפיצ'רים משותפים לכל המסלולים עם התאמות ויזואליות וטרמינולוגיות לפי הפרופסיה.`,
+            `ה-Wallet מנהל את יתרת ה-MOS עם ספר חשבונות מלא (fm_transactions), היסטוריית עסקאות, cashout ל-Stripe או Solana, ו-bridge בין מטבעות.`,
+          ] : [
+            `FreeMarket is the sixth Hub — the economy, career, and commerce center of ${brandName}. Built with three tabs: Earn, Career, and Wallet. The Earn Launchpad guides new users through an economic onboarding process, displayed as a persistent banner above the tabs.`,
+            `In the Career Hub, users choose from 5 unified career paths displayed as rarity-themed cards (Legendary, Epic, Heroic, Rare, Uncommon): Business Owner, Coach, Therapist, Content Creator, Freelancer. Each path includes an AI-guided setup wizard (supporting both new and existing businesses), with delete capability for entries that haven't progressed past 1%.`,
+            `Every career path routes to a unified CareerHub — a full management dashboard with tabs: Overview, Clients, Leads, Products/Services, Content, Marketing, Analytics, and Settings. Features are shared across all paths with visual and terminology adaptations per profession.`,
+            `The Wallet manages MOS balance with a full ledger (fm_transactions), transaction history, cashout to Stripe or Solana, and a cross-currency bridge.`,
           ],
         },
       ],
@@ -278,27 +294,33 @@ export default function Documentation() {
     {
       id: 'freemarket',
       number: '9',
-      title: he ? 'FreeMarket — שוק פנימי' : 'FreeMarket — Internal Marketplace',
+      title: he ? 'FreeMarket — שוק פנימי וכלכלת קריירה' : 'FreeMarket — Internal Marketplace & Career Economy',
       paragraphs: he ? [
-        `FreeMarket הוא השוק הפנימי של ${brandName} — מקום בו משתמשים יכולים להרוויח MOS על ידי מכירת שירותים, ביצוע בונטי (משימות קהילתיות), וגיגים. השוק כולל שלושה טאבים: Earn (הרוויח), Work (עבודה), ו-Partners (שותפים).`,
-        `Earn כולל: בונטי (Bounties) — משימות עם תגמול MOS, גיגים (Gigs) — הצעות עבודה זמניות. Work כולל: ניהול שירותים, הזמנות, ולוח בקרה לנותני שירות. Partners כולל: תוכנית שותפים (Affiliate) עם עמלות על הפניות, קודי הפניה ייחודיים, ודשבורד מעקב אחרי רפרלים ותשלומים.`,
-        `כולל דשבורד "Proof of Growth Mining" שמציג סטטיסטיקות כרייה בזמן אמת: MOS שנכרו היום, סך הכרייה, תקרה יומית, וחלון cooldown.`,
+        `FreeMarket הוא מרכז הכלכלה והקריירה של ${brandName}. בנוי משלושה טאבים ראשיים: Earn (הרוויח — בונטי, גיגים, כרייה), Career (קריירה — 5 מסלולי קריירה מאוחדים), ו-Wallet (ארנק — יתרות, היסטוריה, cashout).`,
+        `Earn כולל: בונטי (Bounties) — משימות קהילתיות עם תגמול MOS, גיגים (Gigs) — הצעות עבודה זמניות, ודשבורד "Proof of Growth Mining" שמציג סטטיסטיקות כרייה בזמן אמת עם תקרה יומית. ה-Earn Launchpad מוצג כ-banner מתמיד מעל הטאבים ומנחה אונבורדינג כלכלי.`,
+        `Career כולל: 5 מסלולים מקצועיים בכרטיסי רריטי (בעל עסק — Legendary, מאמן — Epic, מטפל — Heroic, יוצר תוכן — Rare, פרילנסר — Uncommon). כל מסלול מנותב ל-CareerHub מאוחד עם טאבים משותפים: סקירה, לקוחות, לידים, מוצרים, תוכן, שיווק, אנליטיקס, והגדרות — עם התאמות תימטיות לפי הפרופסיה.`,
+        `Wallet כולל: ארנק פנימי עם ספר חשבונות, שותפים (Affiliate) עם קודי הפניה ועמלות, cashout ו-bridge בין מטבעות.`,
       ] : [
-        `FreeMarket is the internal marketplace of ${brandName} — where users can earn MOS by selling services, completing bounties (community tasks), and gigs. The marketplace includes three tabs: Earn, Work, and Partners.`,
-        `Earn includes: Bounties — tasks with MOS rewards, Gigs — temporary work offers. Work includes: service management, bookings, and a dashboard for service providers. Partners includes: affiliate program with referral commissions, unique referral codes, and a tracking dashboard for referrals and payouts.`,
-        `Includes a "Proof of Growth Mining" dashboard showing real-time mining statistics: MOS mined today, total mined, daily cap, and cooldown window.`,
+        `FreeMarket is the economy and career center of ${brandName}. Built with three main tabs: Earn (bounties, gigs, mining), Career (5 unified career paths), and Wallet (balances, history, cashout).`,
+        `Earn includes: Bounties — community tasks with MOS rewards, Gigs — temporary work offers, and a "Proof of Growth Mining" dashboard showing real-time mining statistics with daily caps. The Earn Launchpad is displayed as a persistent banner above the tabs, guiding economic onboarding.`,
+        `Career includes: 5 professional paths with rarity-themed cards (Business Owner — Legendary, Coach — Epic, Therapist — Heroic, Content Creator — Rare, Freelancer — Uncommon). Each path routes to a unified CareerHub with shared tabs: Overview, Clients, Leads, Products, Content, Marketing, Analytics, and Settings — with thematic adaptations per profession.`,
+        `Wallet includes: internal wallet with ledger, affiliate program with referral codes and commissions, cashout, and a cross-currency bridge.`,
       ],
     },
     {
-      id: 'coaches',
+      id: 'career-platform',
       number: '10',
-      title: he ? 'פלטפורמת מאמנים' : 'Coach Platform',
+      title: he ? 'פלטפורמת קריירה מאוחדת' : 'Unified Career Platform',
       paragraphs: he ? [
-        `${brandName} כולל פלטפורמת מאמנים מלאה — מאמנים יכולים להירשם, להגדיר שירותים, לקבל הזמנות, לנהל לקוחות, וליצור דפי נחיתה. כולל מנוי מאמנים עם רמות (Starter, Pro, Enterprise).`,
-        `המאמנים מקבלים כלי AI: יצירת תוכניות ללקוחות, ניתוח התקדמות, ובניית דפי נחיתה אוטומטיים. כל מאמן מקבל עמוד פרופיל ציבורי עם ביקורות, שירותים, וכפתור הזמנה.`,
+        `${brandName} כולל פלטפורמת קריירה מאוחדת שמשרתת 5 מסלולים מקצועיים תחת ארכיטקטורה אחת. כל מסלול כולל ויזארד AI (Aurora) שמנחה את תהליך ההקמה — לעסקים חדשים וקיימים כאחד — עם שמירת נתונים מצטברת ואפשרות מחיקה לפני התקדמות של 1%.`,
+        `מסלולים: (1) בעל עסק — תכנון, השקה וצמיחה עם אסטרטגיית AI, (2) מאמן — בניית פרקטיקה עם CRM, לקוחות, לידים ודפי נחיתה, (3) מטפל — ניהול פרקטיקה טיפולית עם תורים וצמיחה, (4) יוצר תוכן — קורסים, תוכן ומוצרים דיגיטליים, (5) פרילנסר — גיגים, פרויקטים וטוקנים.`,
+        `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, בניית דפי נחיתה אוטומטיים, מערכת CRM מלאה, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת לכלים.`,
+        `התאמת מאמן מבוססת AI: משתמשים יכולים למצוא מאמן מתאים דרך ויזארד Aurora — גם מתוך ה-Career Hub וגם מתוך ה-Strategy Hub. Aurora מנהלת שיחת זיהוי צרכים (תחום, אתגרים, סגנון) וממליצה על מאמנים מתאימים מתוך הפלטפורמה.`,
       ] : [
-        `${brandName} includes a full coach platform — coaches can register, define services, receive bookings, manage clients, and create landing pages. Includes coach subscriptions with tiers (Starter, Pro, Enterprise).`,
-        `Coaches receive AI tools: client plan generation, progress analysis, and automatic landing page building. Each coach gets a public profile page with reviews, services, and a booking button.`,
+        `${brandName} includes a unified career platform serving 5 professional paths under a single architecture. Each path includes an AI wizard (Aurora) guiding the setup process — for both new and existing businesses — with cumulative data persistence and delete capability before 1% progress.`,
+        `Paths: (1) Business Owner — plan, launch and grow with AI strategy, (2) Coach — build a practice with CRM, clients, leads and landing pages, (3) Therapist — manage therapeutic practice with scheduling and growth, (4) Content Creator — courses, content and digital products, (5) Freelancer — gigs, projects and tokens.`,
+        `AI tools for professionals: client plan generation, progress analysis, automatic landing page building, full CRM system, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access to tools.`,
+        `AI Coach Matching: Users can find a matching coach through the Aurora wizard — from both the Career Hub and the Strategy Hub. Aurora conducts a needs-discovery conversation (domain, challenges, style) and recommends suitable coaches from the platform.`,
       ],
     },
     {
@@ -396,12 +418,12 @@ export default function Documentation() {
       number: '17',
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
-        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
-        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת, מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת מאמנים מלאה, קהילה פעילה עם Aurora AI, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
+        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
+        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת, מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת (עסקים, מאמנים, מטפלים, יוצרי תוכן, פרילנסרים), קהילה פעילה עם Aurora AI, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
-        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, and dynamic NFT identity into a single experience that wraps around the user's life.`,
-        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, guided hypnosis with real-time TTS, an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a full coach platform, an active community with Aurora AI, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
+        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, a unified career platform with 5 professional paths, and dynamic NFT identity into a single experience that wraps around the user's life.`,
+        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, AI-powered coach matching, guided hypnosis with real-time TTS, an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a unified career platform (Business, Coaches, Therapists, Creators, Freelancers), an active community with Aurora AI, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
@@ -503,14 +525,14 @@ export default function Documentation() {
               </p>
               <p className="text-base text-muted-foreground max-w-2xl mx-auto">
                 {he
-                  ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · פיתוח אישי'
-                  : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Personal Development'
+                  ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · קריירה מאוחדת · פיתוח אישי'
+                  : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Unified Career · Personal Development'
                 }
               </p>
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>{he ? `מאת ${founderName}` : `By ${founderName}`}</p>
                 <p>{theme.company_legal_name} · {theme.company_country}</p>
-                <p>{he ? 'גרסה 3.0 · מרץ 2026' : 'Version 3.0 · March 2026'}</p>
+                <p>{he ? 'גרסה 4.0 · מרץ 2026' : 'Version 4.0 · March 2026'}</p>
               </div>
             </motion.div>
 
