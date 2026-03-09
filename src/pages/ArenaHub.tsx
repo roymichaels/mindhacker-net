@@ -206,22 +206,75 @@ export default function ArenaHub() {
                       {hasAiSchedule && <span className="ms-1.5 text-primary">⚡ AI</span>}
                     </p>
                   </div>
-                  <button
-                    onClick={handleGenerateSchedule}
-                    disabled={scheduleGenerating}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[hsl(204,88%,53%)]/10 border border-[hsl(204,88%,53%)]/25 hover:bg-[hsl(204,88%,53%)]/20 transition-all text-[hsl(204,88%,53%)] text-[11px] font-semibold disabled:opacity-50"
-                  >
-                    {scheduleGenerating ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Wand2 className="w-3.5 h-3.5" />
-                    )}
-                    {scheduleGenerating
-                      ? (isHe ? 'יוצר לו"ז...' : 'Generating...')
-                      : hasAiSchedule
-                        ? (isHe ? 'כיול מחדש' : 'Recalibrate')
-                        : (isHe ? 'צור לו"ז AI' : 'Generate AI Schedule')}
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        const BLOCK_LABELS: Record<string, { he: string; en: string }> = {
+                          health: { he: 'בריאות', en: 'Health' },
+                          training: { he: 'אימון', en: 'Training' },
+                          focus: { he: 'מיקוד', en: 'Focus' },
+                          action: { he: 'ביצוע', en: 'Action' },
+                          creation: { he: 'יצירה', en: 'Creation' },
+                          review: { he: 'סקירה', en: 'Review' },
+                          social: { he: 'חברתי', en: 'Social' },
+                        };
+                        const BLOCK_EMOJIS: Record<string, string> = {
+                          health: '💚', training: '⚔️', focus: '🎯', action: '✅', creation: '✨', review: '📊', social: '🏆',
+                        };
+                        exportTacticsPDF({
+                          isRTL: isHe,
+                          title: isHe ? 'תוכנית טקטית — 10 ימים' : 'Tactical Plan — 10 Days',
+                          phaseLabel: isHe ? `שלב ${phase}` : `Phase ${phase}`,
+                          progress: `${completedActions}/${totalActions} ${isHe ? 'משימות' : 'actions'} · ${completionPct}%`,
+                          days: days.map(d => ({
+                            dayNumber: d.dayNumber,
+                            label: d.label,
+                            labelEn: d.labelEn,
+                            isToday: d.isToday,
+                            totalActions: d.totalActions,
+                            completedActions: d.completedActions,
+                            totalMinutes: d.totalMinutes,
+                            blocks: d.blocks.map(b => ({
+                              category: b.category,
+                              emoji: b.emoji || BLOCK_EMOJIS[b.category] || '📋',
+                              label: BLOCK_LABELS[b.category]?.he || b.title,
+                              labelEn: BLOCK_LABELS[b.category]?.en || b.titleEn,
+                              estimatedMinutes: b.estimatedMinutes,
+                              completedCount: b.completedCount,
+                              actions: b.actions.map(a => ({
+                                title: a.title,
+                                titleEn: a.titleEn || a.title,
+                                focusArea: a.focusArea || a.blockCategory,
+                                estimatedMinutes: a.estimatedMinutes,
+                                isCompleted: a.completed,
+                              })),
+                            })),
+                          })),
+                        });
+                        toast({ title: isHe ? 'PDF הורד' : 'PDF downloaded' });
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                      title={isHe ? 'ייצוא PDF' : 'Export PDF'}
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={handleGenerateSchedule}
+                      disabled={scheduleGenerating}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[hsl(204,88%,53%)]/10 border border-[hsl(204,88%,53%)]/25 hover:bg-[hsl(204,88%,53%)]/20 transition-all text-[hsl(204,88%,53%)] text-[11px] font-semibold disabled:opacity-50"
+                    >
+                      {scheduleGenerating ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3.5 h-3.5" />
+                      )}
+                      {scheduleGenerating
+                        ? (isHe ? 'יוצר לו"ז...' : 'Generating...')
+                        : hasAiSchedule
+                          ? (isHe ? 'כיול מחדש' : 'Recalibrate')
+                          : (isHe ? 'צור לו"ז AI' : 'Generate AI Schedule')}
+                    </button>
+                  </div>
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
                   <motion.div
