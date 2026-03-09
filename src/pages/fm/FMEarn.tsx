@@ -1,40 +1,49 @@
 /**
- * Earn page — unified marketplace for earning MOS.
- * Tabs: Data | Activity | Mining | Partners
+ * Earn page — 10-milestone Earn Launchpad roadmap.
+ * Guides users through enabling data monetization, mining, and partners.
  * Route: /fm/earn
  */
-import { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Clock, Coins, Search, Send, CheckCircle2, Loader2, XCircle, PlayCircle,
-  BarChart3, ListChecks, Shield, Eye, EyeOff, Lock,
-  ArrowRight, Pickaxe,
-  Link2, Copy, UserPlus, DollarSign, TrendingUp,
+  Coins, CheckCircle2, Loader2, Circle, Lock,
+  BarChart3, Pickaxe, Link2, UserPlus, Shield,
+  Rocket, Star, Trophy, Zap, Gift, Target, TrendingUp, Eye,
 } from 'lucide-react';
-import { MiningDashboard } from '@/components/fm/MiningDashboard';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useFMClaims } from '@/hooks/useFMWallet';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
-type EarnTab = 'overview' | 'data' | 'activity' | 'mining' | 'partners';
-
-// ──── Data Offers ────
-interface DataOffer {
-  id: string; type: string; icon: string;
-  labelEn: string; labelHe: string; descEn: string; descHe: string;
-  days: number; reward: number; fieldsEn: string[]; fieldsHe: string[];
+interface EarnMilestone {
+  id: string;
+  index: number;
+  titleEn: string;
+  titleHe: string;
+  descEn: string;
+  descHe: string;
+  icon: React.ReactNode;
+  action: 'toggle_data' | 'toggle_mining' | 'toggle_partners' | 'navigate' | 'auto';
+  actionTarget?: string;
+  rewardMos: number;
 }
-const DATA_OFFERS: DataOffer[] = [
-  { id: 'sleep', type: 'sleep_patterns', icon: '😴', labelEn: 'Sleep Patterns', labelHe: 'דפוסי שינה', descEn: 'Help researchers understand healthy sleep cycles', descHe: 'עזור לחוקרים להבין מחזורי שינה בריאים', days: 30, reward: 100, fieldsEn: ['Average sleep duration', 'Sleep consistency score', 'Wake frequency'], fieldsHe: ['ממוצע שעות שינה', 'ציון עקביות שינה', 'תדירות התעוררות'] },
-  { id: 'habits', type: 'habit_trends', icon: '🎯', labelEn: 'Habit Completion Trends', labelHe: 'מגמות השלמת הרגלים', descEn: 'Improve habit-building algorithms for everyone', descHe: 'שפר אלגוריתמי בניית הרגלים לכולם', days: 90, reward: 250, fieldsEn: ['Completion rates per category', 'Streak patterns', 'Drop-off points'], fieldsHe: ['שיעורי השלמה לפי קטגוריה', 'דפוסי רצף', 'נקודות נשירה'] },
-  { id: 'mood', type: 'mood_signals', icon: '🧠', labelEn: 'Mood & Energy Signals', labelHe: 'אותות מצב רוח ואנרגיה', descEn: 'Advance mental wellness research anonymously', descHe: 'קדם מחקר בריאות נפשית באופן אנונימי', days: 60, reward: 150, fieldsEn: ['Daily energy averages', 'Mood trend curves', 'Activity correlations'], fieldsHe: ['ממוצעי אנרגיה יומיים', 'עקומות מגמת מצב רוח', 'מתאמי פעילות'] },
-  { id: 'training', type: 'training_results', icon: '💪', labelEn: 'Training & Session Data', labelHe: 'נתוני אימון וסשנים', descEn: 'Help optimize coaching and training programs', descHe: 'עזור לשפר תכניות אימון וקואצ׳ינג', days: 60, reward: 180, fieldsEn: ['Session completion rates', 'Engagement metrics', 'Outcome scores'], fieldsHe: ['שיעורי השלמת סשנים', 'מדדי מעורבות', 'ציוני תוצאה'] },
+
+const MILESTONES: EarnMilestone[] = [
+  { id: 'welcome', index: 0, titleEn: 'Welcome to Earn', titleHe: 'ברוכים הבאים להרוויח', descEn: 'Open the Earn hub for the first time', descHe: 'פתח את מרכז ההרווחה בפעם הראשונה', icon: <Rocket className="w-5 h-5" />, action: 'auto', rewardMos: 5 },
+  { id: 'enable_data', index: 1, titleEn: 'Enable Data Monetization', titleHe: 'הפעל מונטיזציה של נתונים', descEn: 'Allow anonymous data sharing to earn passively', descHe: 'אפשר שיתוף נתונים אנונימי כדי להרוויח פסיבית', icon: <BarChart3 className="w-5 h-5" />, action: 'toggle_data', rewardMos: 50 },
+  { id: 'enable_mining', index: 2, titleEn: 'Activate Mining', titleHe: 'הפעל כרייה', descEn: 'Start mining MOS through daily activity', descHe: 'התחל לכרות MOS דרך פעילות יומית', icon: <Pickaxe className="w-5 h-5" />, action: 'toggle_mining', rewardMos: 25 },
+  { id: 'first_mine', index: 3, titleEn: 'Mine Your First MOS', titleHe: 'כרה את ה-MOS הראשון שלך', descEn: 'Complete a daily activity to mine tokens', descHe: 'השלם פעילות יומית כדי לכרות טוקנים', icon: <Zap className="w-5 h-5" />, action: 'navigate', actionTarget: '/fm/earn', rewardMos: 10 },
+  { id: 'enable_partners', index: 4, titleEn: 'Join Partners Program', titleHe: 'הצטרף לתוכנית שותפים', descEn: 'Get your referral link and start earning commissions', descHe: 'קבל קישור הפניה והתחל להרוויח עמלות', icon: <Link2 className="w-5 h-5" />, action: 'toggle_partners', rewardMos: 25 },
+  { id: 'share_link', index: 5, titleEn: 'Share Your Link', titleHe: 'שתף את הקישור שלך', descEn: 'Copy and share your referral link', descHe: 'העתק ושתף את קישור ההפניה שלך', icon: <UserPlus className="w-5 h-5" />, action: 'navigate', actionTarget: '/fm/earn', rewardMos: 10 },
+  { id: 'first_referral', index: 6, titleEn: 'Get Your First Referral', titleHe: 'קבל הפניה ראשונה', descEn: 'Someone signs up through your link', descHe: 'מישהו נרשם דרך הקישור שלך', icon: <Star className="w-5 h-5" />, action: 'auto', rewardMos: 50 },
+  { id: 'earn_100', index: 7, titleEn: 'Earn 100 MOS', titleHe: 'הרוויח 100 MOS', descEn: 'Reach a total of 100 MOS earned', descHe: 'הגע לסכום כולל של 100 MOS שהרווחת', icon: <Target className="w-5 h-5" />, action: 'auto', rewardMos: 25 },
+  { id: 'week_streak', index: 8, titleEn: '7-Day Mining Streak', titleHe: 'רצף כרייה של 7 ימים', descEn: 'Mine for 7 days in a row', descHe: 'כרה 7 ימים ברציפות', icon: <TrendingUp className="w-5 h-5" />, action: 'auto', rewardMos: 50 },
+  { id: 'launchpad_complete', index: 9, titleEn: 'Earn Master', titleHe: 'מאסטר הרווחה', descEn: 'Complete all milestones and unlock full earning potential', descHe: 'השלם את כל אבני הדרך ושחרר פוטנציאל מלא', icon: <Trophy className="w-5 h-5" />, action: 'auto', rewardMos: 100 },
 ];
 
 interface FMEarnProps {
@@ -44,400 +53,330 @@ interface FMEarnProps {
   onCategoryChange?: (cat: string) => void;
 }
 
-export default function FMEarn({ activeTab: externalTab, onTabChange, categoryFilter: externalCatFilter, onCategoryChange }: FMEarnProps) {
+export default function FMEarn({ activeTab, onTabChange, categoryFilter, onCategoryChange }: FMEarnProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [togglingField, setTogglingField] = useState<string | null>(null);
 
-  const initialTab = externalTab || (searchParams.get('tab') as EarnTab) || 'overview';
-  const [internalTab, setInternalTab] = useState<EarnTab>(initialTab as EarnTab);
-  const tab = (externalTab as EarnTab) || internalTab;
-
-  const switchTab = (t: EarnTab) => {
-    if (onTabChange) {
-      onTabChange(t);
-    } else {
-      setInternalTab(t);
-      if (t === 'overview') searchParams.delete('tab');
-      else searchParams.set('tab', t);
-      setSearchParams(searchParams, { replace: true });
-    }
-  };
-
-  // ──── Claims (for activity tab) ────
-  const { data: claims = [] } = useFMClaims();
-
-  // ──── Data contribution state ────
-  const [expandedDataId, setExpandedDataId] = useState<string | null>(null);
-  const [confirmDataId, setConfirmDataId] = useState<string | null>(null);
-
-  const { data: existingContributions = [] } = useQuery({
-    queryKey: ['fm-data-contributions', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const { data, error } = await supabase.from('fm_data_contributions').select('*').eq('user_id', user.id);
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!user?.id,
-  });
-
-  const getContribution = (type: string) => existingContributions.find((c: any) => c.data_type === type && !c.revoked_at);
-
-  const handleShareData = async (offer: DataOffer) => {
-    if (!user?.id) return;
-    try {
-      const { error } = await supabase.from('fm_data_contributions').insert({ user_id: user.id, data_type: offer.type, days_shared: offer.days, reward_mos: offer.reward, consent_hash: `consent_${user.id}_${offer.type}_${Date.now()}`, status: 'active' });
-      if (error) throw error;
-      toast.success(isHe ? `${offer.reward} MOS יתווספו!` : `${offer.reward} MOS will be added!`);
-      setConfirmDataId(null);
-      queryClient.invalidateQueries({ queryKey: ['fm-data-contributions'] });
-    } catch (e: any) { toast.error(e.message || 'Failed'); }
-  };
-
-  const handleRevoke = async (id: string) => {
-    try {
-      const { error } = await supabase.from('fm_data_contributions').update({ revoked_at: new Date().toISOString(), status: 'revoked' }).eq('id', id);
-      if (error) throw error;
-      toast.success(isHe ? 'הגישה בוטלה.' : 'Access revoked.');
-      queryClient.invalidateQueries({ queryKey: ['fm-data-contributions'] });
-    } catch (e: any) { toast.error(e.message || 'Failed'); }
-  };
-
-  // ──── Partners / Affiliate state ────
-  const { data: affiliateData } = useQuery({
-    queryKey: ['fm-affiliate', user?.id],
+  // Fetch launchpad progress
+  const { data: progress, isLoading } = useQuery({
+    queryKey: ['earn-launchpad', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      const { data, error } = await supabase.from('affiliates').select('*').eq('user_id', user.id).maybeSingle();
+      const { data, error } = await supabase
+        .from('earn_launchpad_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
       if (error) throw error;
+
+      // Auto-create on first visit
+      if (!data) {
+        const { data: created, error: insertError } = await supabase
+          .from('earn_launchpad_progress')
+          .insert({ user_id: user.id, milestones_completed: ['welcome'] })
+          .select()
+          .single();
+        if (insertError) throw insertError;
+        return created;
+      }
       return data;
     },
     enabled: !!user?.id,
   });
 
-  const { data: affiliateReferrals = [] } = useQuery({
-    queryKey: ['fm-affiliate-referrals', affiliateData?.id],
-    queryFn: async () => {
-      if (!affiliateData?.id) return [];
-      const { data, error } = await supabase.from('affiliate_referrals').select('*').eq('affiliate_id', affiliateData.id).order('created_at', { ascending: false }).limit(20);
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!affiliateData?.id,
-  });
+  const completedMilestones: string[] = (progress?.milestones_completed as string[]) || [];
 
-  const affiliateLink = affiliateData ? `https://mindos.space/?ref=${affiliateData.affiliate_code}` : '';
+  const completeMilestone = useCallback(async (milestoneId: string) => {
+    if (!user?.id || !progress) return;
+    if (completedMilestones.includes(milestoneId)) return;
 
-  const handleCopyAffiliateLink = () => {
-    if (!affiliateLink) return;
-    navigator.clipboard.writeText(affiliateLink);
-    toast.success(isHe ? 'הקישור הועתק!' : 'Link copied!');
-  };
+    const updated = [...completedMilestones, milestoneId];
+    const { error } = await supabase
+      .from('earn_launchpad_progress')
+      .update({ milestones_completed: updated })
+      .eq('user_id', user.id);
+    if (error) {
+      toast.error(isHe ? 'שגיאה' : 'Error');
+      return;
+    }
 
-  const handleBecomeAffiliate = async () => {
-    if (!user?.id) return;
+    const milestone = MILESTONES.find(m => m.id === milestoneId);
+    if (milestone && milestone.rewardMos > 0) {
+      // Award MOS via fm_post_transaction
+      await supabase.rpc('fm_post_transaction', {
+        p_user_id: user.id,
+        p_type: 'earn_bounty',
+        p_amount: milestone.rewardMos,
+        p_description: `Earn Launchpad: ${milestone.titleEn}`,
+        p_idempotency_key: `earn_lp_${milestoneId}_${user.id}`,
+      });
+    }
+
+    toast.success(
+      isHe
+        ? `🎉 +${milestone?.rewardMos || 0} MOS! ${milestone?.titleHe || ''}`
+        : `🎉 +${milestone?.rewardMos || 0} MOS! ${milestone?.titleEn || ''}`
+    );
+    queryClient.invalidateQueries({ queryKey: ['earn-launchpad'] });
+    queryClient.invalidateQueries({ queryKey: ['fm-wallet'] });
+  }, [user?.id, progress, completedMilestones, isHe, queryClient]);
+
+  const handleToggle = useCallback(async (field: 'data_enabled' | 'mining_enabled' | 'partners_enabled', milestoneId: string) => {
+    if (!user?.id || !progress) return;
+    setTogglingField(field);
+
     try {
-      const code = user.id.slice(0, 8);
-      const { error } = await supabase.from('affiliates').insert({ user_id: user.id, affiliate_code: code });
+      const newValue = !(progress as any)[field];
+      const { error } = await supabase
+        .from('earn_launchpad_progress')
+        .update({ [field]: newValue })
+        .eq('user_id', user.id);
       if (error) throw error;
-      toast.success(isHe ? 'נרשמת בהצלחה כשותף!' : 'Successfully registered as a partner!');
-      queryClient.invalidateQueries({ queryKey: ['fm-affiliate'] });
-    } catch (e: any) { toast.error(e.message || 'Failed'); }
-  };
 
-  // ──── Helpers ────
-  const claimBadge = (status: string) => {
-    const m: Record<string, { icon: React.ReactNode; label: string; cls: string }> = {
-      claimed: { icon: <PlayCircle className="w-3 h-3" />, label: isHe ? 'נתפס' : 'Claimed', cls: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
-      pending: { icon: <Loader2 className="w-3 h-3 animate-spin" />, label: isHe ? 'ממתין' : 'Pending', cls: 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400' },
-      approved: { icon: <CheckCircle2 className="w-3 h-3" />, label: isHe ? 'אושר ✓' : 'Approved ✓', cls: 'bg-green-500/15 text-green-600 dark:text-green-400' },
-      rejected: { icon: <XCircle className="w-3 h-3" />, label: isHe ? 'נדחה' : 'Rejected', cls: 'bg-red-500/15 text-red-600 dark:text-red-400' },
-    };
-    const b = m[status]; if (!b) return null;
-    return <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${b.cls}`}>{b.icon} {b.label}</span>;
-  };
+      // If turning on and milestone not completed, complete it
+      if (newValue && !completedMilestones.includes(milestoneId)) {
+        await completeMilestone(milestoneId);
+      }
 
-  // ──── TAB CONFIG — MapleStory item rarity style ────
-  const TABS: { id: EarnTab; labelEn: string; labelHe: string; icon: React.ReactNode; rarity: string; statValue: number; statLabelEn: string; statLabelHe: string }[] = [
-    { id: 'data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-6 h-6" />, rarity: 'uncommon', statValue: DATA_OFFERS.length, statLabelEn: 'offers', statLabelHe: 'הצעות' },
-    { id: 'activity', labelEn: 'Activity', labelHe: 'פעילות', icon: <ListChecks className="w-6 h-6" />, rarity: 'common', statValue: claims.length, statLabelEn: 'claims', statLabelHe: 'הגשות' },
-    { id: 'mining', labelEn: 'Mining', labelHe: 'כרייה', icon: <Pickaxe className="w-6 h-6" />, rarity: 'legendary', statValue: 0, statLabelEn: 'mined today', statLabelHe: 'נכרו היום' },
-    { id: 'partners', labelEn: 'Partners', labelHe: 'שותפים', icon: <Link2 className="w-6 h-6" />, rarity: 'common', statValue: affiliateReferrals.length, statLabelEn: 'referrals', statLabelHe: 'הפניות' },
-  ];
+      // If turning on partners, auto-create affiliate
+      if (field === 'partners_enabled' && newValue) {
+        const { data: existing } = await supabase.from('affiliates').select('id').eq('user_id', user.id).maybeSingle();
+        if (!existing) {
+          await supabase.from('affiliates').insert({
+            user_id: user.id,
+            affiliate_code: user.id.slice(0, 8),
+          });
+        }
+      }
 
-  const RARITY_STYLES: Record<string, { border: string; bg: string; iconBg: string; glow: string; label: { en: string; he: string; color: string } }> = {
-    legendary: { border: 'border-amber-500/50', bg: 'from-amber-500/12 to-orange-500/5', iconBg: 'from-amber-500 to-orange-600', glow: 'hover:shadow-amber-500/15', label: { en: 'LEGENDARY', he: 'אגדי', color: 'text-amber-400' } },
-    epic: { border: 'border-purple-500/50', bg: 'from-purple-500/12 to-fuchsia-500/5', iconBg: 'from-purple-500 to-fuchsia-600', glow: 'hover:shadow-purple-500/15', label: { en: 'EPIC', he: 'אפי', color: 'text-purple-400' } },
-    rare: { border: 'border-sky-500/50', bg: 'from-sky-500/12 to-blue-500/5', iconBg: 'from-sky-500 to-blue-600', glow: 'hover:shadow-sky-500/15', label: { en: 'RARE', he: 'נדיר', color: 'text-sky-400' } },
-    uncommon: { border: 'border-emerald-500/50', bg: 'from-emerald-500/12 to-teal-500/5', iconBg: 'from-emerald-500 to-teal-600', glow: 'hover:shadow-emerald-500/15', label: { en: 'UNCOMMON', he: 'לא שכיח', color: 'text-emerald-400' } },
-    common: { border: 'border-zinc-400/40', bg: 'from-zinc-500/10 to-zinc-400/5', iconBg: 'from-zinc-500 to-zinc-600', glow: 'hover:shadow-zinc-500/10', label: { en: 'COMMON', he: 'רגיל', color: 'text-zinc-400' } },
-  };
+      // If turning on data, auto-create all data contributions
+      if (field === 'data_enabled' && newValue) {
+        const dataTypes = ['sleep_patterns', 'habit_trends', 'mood_signals', 'training_results'];
+        for (const dt of dataTypes) {
+          const { data: existing } = await supabase.from('fm_data_contributions')
+            .select('id').eq('user_id', user.id).eq('data_type', dt).is('revoked_at', null).maybeSingle();
+          if (!existing) {
+            await supabase.from('fm_data_contributions').insert({
+              user_id: user.id, data_type: dt, days_shared: 90, reward_mos: 0,
+              consent_hash: `consent_${user.id}_${dt}_${Date.now()}`, status: 'active',
+            });
+          }
+        }
+      }
 
-  const showDashboard = tab === 'overview';
+      queryClient.invalidateQueries({ queryKey: ['earn-launchpad'] });
+      toast.success(
+        newValue
+          ? (isHe ? 'הופעל בהצלחה ✓' : 'Enabled ✓')
+          : (isHe ? 'כובה' : 'Disabled')
+      );
+    } catch (e: any) {
+      toast.error(e.message || 'Failed');
+    } finally {
+      setTogglingField(null);
+    }
+  }, [user?.id, progress, completedMilestones, completeMilestone, isHe, queryClient]);
+
+  const completedCount = completedMilestones.length;
+  const progressPercent = Math.round((completedCount / MILESTONES.length) * 100);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
+    <div className="space-y-5 max-w-2xl mx-auto w-full py-4">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
+          <Coins className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
+          {isHe ? 'הרוויח MOS' : 'Earn MOS'}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {isHe ? 'השלם את 10 אבני הדרך ושחרר את כל ערוצי ההרווחה' : 'Complete 10 milestones to unlock all earning channels'}
+        </p>
+      </div>
 
-      {/* ═══════ DASHBOARD OVERVIEW ═══════ */}
-      {showDashboard && (
-        <div className="space-y-5">
-          <div className="text-center">
-            <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
-              <Coins className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
-              {isHe ? 'הרוויח MOS' : 'Earn MOS'}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isHe ? 'בחר קטגוריה והתחל להרוויח' : 'Pick a category and start earning'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {TABS.map((t, i) => {
-              const style = RARITY_STYLES[t.rarity] || RARITY_STYLES.common;
-              return (
-                <motion.button
-                  key={t.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
-                  onClick={() => switchTab(t.id)}
-                  className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 bg-gradient-to-br transition-all hover:scale-[1.03] active:scale-[0.97] hover:shadow-xl ${style.border} ${style.bg} ${style.glow}`}
-                >
-                  <span className={`absolute top-1.5 end-2 text-[7px] font-black uppercase tracking-[0.15em] ${style.label.color}`}>
-                    {isHe ? style.label.he : style.label.en}
-                  </span>
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${style.iconBg} flex items-center justify-center shadow-lg`}>
-                    <span className="text-white/90">{t.icon}</span>
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground">{isHe ? t.labelHe : t.labelEn}</h3>
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    {t.statValue} {isHe ? t.statLabelHe : t.statLabelEn}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
+      {/* Progress bar */}
+      <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Rocket className="w-4 h-4 text-primary" />
+            {isHe ? 'לאנצ׳פד הרווחה' : 'Earn Launchpad'}
+          </span>
+          <span className="text-xs font-bold text-primary">{completedCount}/{MILESTONES.length}</span>
         </div>
-      )}
+        <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-amber-400 to-primary rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          />
+        </div>
+        <p className="text-[11px] text-muted-foreground text-center">
+          {progressPercent === 100
+            ? (isHe ? '🎉 הלאנצ׳פד הושלם! כל ערוצי ההרווחה פתוחים.' : '🎉 Launchpad complete! All earning channels unlocked.')
+            : (isHe ? `${progressPercent}% הושלם — המשך להרוויח` : `${progressPercent}% complete — keep earning`)
+          }
+        </p>
+      </div>
 
-      {/* ═══════ BACK BUTTON (for drill-down views) ═══════ */}
-      {!showDashboard && (
-        <button onClick={() => switchTab('overview')} className="flex items-center gap-1 text-sm text-amber-400/70 hover:text-amber-300 font-semibold transition-colors">
-          <ArrowRight className={`w-4 h-4 ${isHe ? '' : 'rotate-180'}`} />
-          {isHe ? 'חזרה' : 'Back'}
-        </button>
-      )}
-
-      {/* ═══════ DATA TAB ═══════ */}
-      {!showDashboard && tab === 'data' && (
-        <div className="space-y-4">
-          <h2 className="font-bold text-foreground">{isHe ? 'נתונים' : 'Data'}</h2>
-          <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 flex items-start gap-3">
-            <BarChart3 className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-medium text-foreground">{isHe ? 'אנחנו לא לוקחים — אנחנו מבקשים.' : "We don't take — we ask."}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{isHe ? 'כל מידע אנונימי. אתה בוחר מה לשתף ויכול לבטל בכל עת.' : 'All data is anonymized. You choose what to share and can revoke anytime.'}</p>
+      {/* Toggle switches for active channels */}
+      <div className="grid grid-cols-3 gap-2">
+        {([
+          { field: 'data_enabled' as const, milestoneId: 'enable_data', labelEn: 'Data', labelHe: 'נתונים', icon: <BarChart3 className="w-4 h-4" />, color: 'text-emerald-500' },
+          { field: 'mining_enabled' as const, milestoneId: 'enable_mining', labelEn: 'Mining', labelHe: 'כרייה', icon: <Pickaxe className="w-4 h-4" />, color: 'text-amber-500' },
+          { field: 'partners_enabled' as const, milestoneId: 'enable_partners', labelEn: 'Partners', labelHe: 'שותפים', icon: <Link2 className="w-4 h-4" />, color: 'text-purple-500' },
+        ]).map((ch) => {
+          const enabled = progress ? (progress as any)[ch.field] : false;
+          return (
+            <div key={ch.field} className="bg-card border border-border rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className={cn("flex items-center gap-1.5 text-xs font-semibold", ch.color)}>
+                  {ch.icon}
+                  {isHe ? ch.labelHe : ch.labelEn}
+                </span>
+                <Switch
+                  checked={enabled}
+                  onCheckedChange={() => handleToggle(ch.field, ch.milestoneId)}
+                  disabled={togglingField === ch.field}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                {enabled ? (isHe ? 'פעיל' : 'Active') : (isHe ? 'כבוי' : 'Off')}
+              </p>
             </div>
-          </div>
-          <div className="space-y-3">
-            {DATA_OFFERS.map((offer) => {
-              const contribution = getContribution(offer.type);
-              const isActive = !!contribution;
-              const expanded = expandedDataId === offer.id;
-              const confirming = confirmDataId === offer.id;
+          );
+        })}
+      </div>
+
+      {/* Privacy notice */}
+      <div className="bg-accent/5 border border-accent/20 rounded-xl p-3 flex items-start gap-2.5">
+        <Shield className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+        <p className="text-[11px] text-muted-foreground">
+          {isHe
+            ? 'כל הנתונים אנונימיים. אתה יכול לכבות בכל עת. MindOS לא מוכרת מידע אישי.'
+            : 'All data is anonymous. You can disable anytime. MindOS never sells personal info.'}
+        </p>
+      </div>
+
+      {/* Milestones Roadmap */}
+      <div className="space-y-1">
+        <h2 className="text-sm font-bold text-foreground px-1 mb-3">
+          {isHe ? 'מפת הדרכים' : 'Roadmap'}
+        </h2>
+
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="absolute start-[18px] top-4 bottom-4 w-0.5 bg-border" />
+
+          <div className="space-y-0">
+            {MILESTONES.map((milestone, i) => {
+              const isCompleted = completedMilestones.includes(milestone.id);
+              const prevCompleted = i === 0 || completedMilestones.includes(MILESTONES[i - 1].id);
+              const isCurrent = !isCompleted && prevCompleted;
+              const isLocked = !isCompleted && !isCurrent;
+
               return (
-                <motion.div key={offer.id} layout className="bg-card border border-border rounded-xl p-4 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl mt-0.5">{offer.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="font-semibold text-sm text-foreground">{isHe ? offer.labelHe : offer.labelEn}</h3>
-                          <p className="text-[11px] text-muted-foreground">{isHe ? offer.descHe : offer.descEn}</p>
-                        </div>
-                        {isActive && <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0"><CheckCircle2 className="w-3 h-3" /> {isHe ? 'פעיל' : 'Active'}</span>}
-                      </div>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /><span className="font-semibold text-foreground">{offer.reward} MOS</span></span>
-                        <span>{offer.days} {isHe ? 'ימים' : 'days'}</span>
-                      </div>
-                    </div>
+                <motion.div
+                  key={milestone.id}
+                  initial={{ opacity: 0, x: isHe ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className={cn(
+                    "relative flex items-start gap-3 py-3 px-1 rounded-lg transition-all",
+                    isCurrent && "bg-primary/5",
+                    isLocked && "opacity-50",
+                  )}
+                >
+                  {/* Node */}
+                  <div className={cn(
+                    "relative z-10 w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0 border-2 transition-all",
+                    isCompleted && "bg-primary border-primary text-primary-foreground",
+                    isCurrent && "bg-background border-primary text-primary animate-pulse",
+                    isLocked && "bg-muted border-border text-muted-foreground",
+                  )}>
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : isLocked ? (
+                      <Lock className="w-4 h-4" />
+                    ) : (
+                      milestone.icon
+                    )}
                   </div>
-                  <AnimatePresence>
-                    {expanded && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-muted/50 rounded-lg p-3 space-y-1.5 overflow-hidden">
-                        <p className="text-xs font-medium text-foreground flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> {isHe ? 'מה בדיוק משותף:' : "Exactly what's shared:"}</p>
-                        <ul className="space-y-1">{(isHe ? offer.fieldsHe : offer.fieldsEn).map((f, i) => <li key={i} className="text-xs text-muted-foreground flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-accent shrink-0" /> {f}</li>)}</ul>
-                        <div className="flex items-center gap-1.5 pt-1.5 border-t border-border/50"><Lock className="w-3 h-3 text-muted-foreground" /><p className="text-[10px] text-muted-foreground">{isHe ? 'ללא מידע מזהה אישי' : 'No personally identifiable info'}</p></div>
-                      </motion.div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 pt-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className={cn(
+                        "text-sm font-semibold",
+                        isCompleted ? "text-muted-foreground line-through" : "text-foreground",
+                      )}>
+                        {isHe ? milestone.titleHe : milestone.titleEn}
+                      </h3>
+                      <span className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
+                        isCompleted
+                          ? "bg-primary/10 text-primary"
+                          : "bg-amber-500/10 text-amber-500",
+                      )}>
+                        +{milestone.rewardMos} MOS
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {isHe ? milestone.descHe : milestone.descEn}
+                    </p>
+
+                    {/* Action button for current milestone */}
+                    {isCurrent && milestone.action === 'toggle_data' && (
+                      <Button
+                        size="sm"
+                        className="mt-2 gap-1.5 text-xs"
+                        onClick={() => handleToggle('data_enabled', milestone.id)}
+                        disabled={!!togglingField}
+                      >
+                        <BarChart3 className="w-3.5 h-3.5" />
+                        {isHe ? 'הפעל נתונים' : 'Enable Data'}
+                      </Button>
                     )}
-                  </AnimatePresence>
-                  <AnimatePresence>
-                    {confirming && !isActive && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-accent/5 border border-accent/20 rounded-lg p-3 space-y-2 overflow-hidden">
-                        <p className="text-xs font-medium text-foreground">{isHe ? 'אני מאשר/ת:' : 'I confirm:'}</p>
-                        <ul className="space-y-1 text-[11px] text-muted-foreground">
-                          <li>✓ {isHe ? 'נתונים אנונימיים' : 'Anonymous data'}</li>
-                          <li>✓ {isHe ? 'ביטול בכל עת' : 'Revoke anytime'}</li>
-                          <li>✓ {isHe ? `${offer.reward} MOS תגמול` : `${offer.reward} MOS reward`}</li>
-                        </ul>
-                        <div className="flex gap-2 pt-1">
-                          <Button size="sm" onClick={() => handleShareData(offer)} className="gap-1 text-xs"><Shield className="w-3.5 h-3.5" /> {isHe ? 'אישור' : 'Confirm'}</Button>
-                          <Button size="sm" variant="ghost" onClick={() => setConfirmDataId(null)} className="text-xs">{isHe ? 'ביטול' : 'Cancel'}</Button>
-                        </div>
-                      </motion.div>
+                    {isCurrent && milestone.action === 'toggle_mining' && (
+                      <Button
+                        size="sm"
+                        className="mt-2 gap-1.5 text-xs"
+                        onClick={() => handleToggle('mining_enabled', milestone.id)}
+                        disabled={!!togglingField}
+                      >
+                        <Pickaxe className="w-3.5 h-3.5" />
+                        {isHe ? 'הפעל כרייה' : 'Enable Mining'}
+                      </Button>
                     )}
-                  </AnimatePresence>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => setExpandedDataId(expanded ? null : offer.id)} className="gap-1 text-xs text-muted-foreground">
-                      {expanded ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />} {expanded ? (isHe ? 'הסתר' : 'Hide') : (isHe ? 'פרטים' : 'Details')}
-                    </Button>
-                    {isActive ? (
-                      <Button size="sm" variant="ghost" onClick={() => handleRevoke(contribution!.id)} className="gap-1 text-xs text-destructive hover:text-destructive"><XCircle className="w-3.5 h-3.5" /> {isHe ? 'בטל' : 'Revoke'}</Button>
-                    ) : confirming ? null : (
-                      <Button size="sm" onClick={() => setConfirmDataId(offer.id)} className="gap-1 text-xs"><Coins className="w-3.5 h-3.5" /> {isHe ? 'שתף →' : 'Share →'}</Button>
+                    {isCurrent && milestone.action === 'toggle_partners' && (
+                      <Button
+                        size="sm"
+                        className="mt-2 gap-1.5 text-xs"
+                        onClick={() => handleToggle('partners_enabled', milestone.id)}
+                        disabled={!!togglingField}
+                      >
+                        <Link2 className="w-3.5 h-3.5" />
+                        {isHe ? 'הצטרף לשותפים' : 'Join Partners'}
+                      </Button>
                     )}
                   </div>
                 </motion.div>
               );
             })}
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/50 pt-2"><Shield className="w-4 h-4 shrink-0" /><span>{isHe ? 'MindOS לא מוכרת מידע אישי. לעולם.' : 'MindOS never sells personal data. Ever.'}</span></div>
         </div>
-      )}
-
-      {/* ═══════ ACTIVITY TAB ═══════ */}
-      {!showDashboard && tab === 'activity' && (
-        <div className="space-y-3">
-          <h2 className="font-bold text-foreground">{isHe ? 'פעילות' : 'Activity'}</h2>
-          {claims.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-sm">{isHe ? 'אין הגשות עדיין.' : 'No claims yet.'}</p>
-              <Button size="sm" className="mt-3" onClick={() => navigate('/fm/market')}>{isHe ? 'עבור למרקט' : 'Browse Market'}</Button>
-            </div>
-          ) : (
-            claims.map((claim: any) => (
-              <div key={claim.id} className="bg-card border border-border rounded-xl p-4 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-sm text-foreground">{claim.fm_bounties?.title || (isHe ? 'באונטי' : 'Bounty')}</h3>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(claim.created_at).toLocaleDateString()}</p>
-                  </div>
-                  {claimBadge(claim.status)}
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <Coins className="w-3.5 h-3.5 text-accent" />
-                  <span className="font-semibold text-foreground">{claim.fm_bounties?.reward_mos || 0} MOS</span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* ═══════ MINING TAB ═══════ */}
-      {!showDashboard && tab === 'mining' && (
-        <div className="space-y-4">
-          <h2 className="font-bold text-foreground">{isHe ? 'כרייה' : 'Mining'}</h2>
-          <MiningDashboard />
-        </div>
-      )}
-
-      {/* ═══════ PARTNERS TAB ═══════ */}
-      {!showDashboard && tab === 'partners' && (
-        <div className="space-y-4">
-          <h2 className="font-bold text-foreground">{isHe ? 'שותפים' : 'Partners'}</h2>
-          {!affiliateData ? (
-            <div className="text-center py-12 space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-pink-500/10 flex items-center justify-center mx-auto">
-                <Link2 className="w-8 h-8 text-pink-500" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg text-foreground">{isHe ? 'הצטרף לתוכנית השותפים' : 'Join the Partners Program'}</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-                  {isHe ? 'שתף את הקישור שלך, הפנה חברים והרוויח עמלות על כל רכישה.' : 'Share your link, refer friends and earn commissions on every purchase.'}
-                </p>
-              </div>
-              <Button onClick={handleBecomeAffiliate} className="gap-2">
-                <UserPlus className="w-4 h-4" />
-                {isHe ? 'הצטרף עכשיו' : 'Join Now'}
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { labelEn: 'Total Earnings', labelHe: 'סה"כ הכנסות', value: `₪${affiliateData.total_earnings?.toLocaleString() || '0'}`, icon: <DollarSign className="w-4 h-4" />, color: 'text-emerald-500' },
-                  { labelEn: 'Total Paid', labelHe: 'שולם', value: `₪${affiliateData.total_paid?.toLocaleString() || '0'}`, icon: <Coins className="w-4 h-4" />, color: 'text-accent' },
-                  { labelEn: 'Referrals', labelHe: 'הפניות', value: affiliateReferrals.length.toString(), icon: <UserPlus className="w-4 h-4" />, color: 'text-blue-500' },
-                  { labelEn: 'Commission', labelHe: 'עמלה', value: `${affiliateData.commission_rate || 10}%`, icon: <TrendingUp className="w-4 h-4" />, color: 'text-pink-500' },
-                ].map((stat, i) => (
-                  <div key={i} className="bg-card border border-border rounded-xl p-3.5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{isHe ? stat.labelHe : stat.labelEn}</span>
-                      <span className={stat.color}>{stat.icon}</span>
-                    </div>
-                    <p className="text-lg font-bold text-foreground">{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-                <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                  <Link2 className="w-4 h-4 text-pink-500" />
-                  {isHe ? 'הקישור שלך' : 'Your Link'}
-                </h3>
-                <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg">
-                  <code className="flex-1 text-xs break-all text-muted-foreground">{affiliateLink}</code>
-                  <Button size="sm" variant="outline" onClick={handleCopyAffiliateLink} className="shrink-0 gap-1">
-                    <Copy className="w-3.5 h-3.5" />
-                    {isHe ? 'העתק' : 'Copy'}
-                  </Button>
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {isHe ? 'שתף את הקישור הזה. כל רכישה דרכו תזכה אותך בעמלה.' : 'Share this link. Every purchase through it earns you a commission.'}
-                </p>
-              </div>
-
-              <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-                <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                  <UserPlus className="w-4 h-4 text-blue-500" />
-                  {isHe ? 'הפניות אחרונות' : 'Recent Referrals'}
-                </h3>
-                {affiliateReferrals.length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-4 text-center">{isHe ? 'אין הפניות עדיין. שתף את הקישור שלך!' : 'No referrals yet. Share your link!'}</p>
-                ) : (
-                  <div className="space-y-2">
-                    {affiliateReferrals.slice(0, 5).map((ref: any) => (
-                      <div key={ref.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                        <div className="space-y-0.5">
-                          <p className="text-xs font-medium text-foreground">₪{ref.order_amount?.toLocaleString()}</p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(ref.created_at).toLocaleDateString()}</p>
-                        </div>
-                        <div className="text-end space-y-0.5">
-                          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">+₪{ref.commission_amount?.toLocaleString()}</p>
-                          <span className={`inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                            ref.status === 'approved' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                            : ref.status === 'paid' ? 'bg-accent/15 text-accent'
-                            : 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'
-                          }`}>
-                            {isHe ? (ref.status === 'approved' ? 'אושר' : ref.status === 'paid' ? 'שולם' : 'ממתין') : ref.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }
