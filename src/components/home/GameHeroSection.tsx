@@ -110,7 +110,7 @@ export default function GameHeroSection() {
           >
             <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 min-h-[180px] sm:min-h-[240px]">
               {visibleIndices.map((presetIdx, slotIdx) => {
-                const preset = ORB_PRESETS[presetIdx];
+                const preset = HERO_ORBS[presetIdx];
                 const distFromCenter = slotIdx - half;
                 const isCenter = distFromCenter === 0;
                 const scale = isCenter ? 1 : 0.7 - Math.abs(distFromCenter) * 0.08;
