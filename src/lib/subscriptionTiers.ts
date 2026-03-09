@@ -115,7 +115,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   },
   plus: {
     en: [
-      "6 pillars from all 14 domains",
+      "6 pillars from all 15 domains",
       "Unlimited Aurora with memory",
       "Full 100-day Transformation Plan",
       "AI Hypnosis & daily scripts",
