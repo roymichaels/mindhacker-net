@@ -149,7 +149,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
           {summary.career_path && (
             <GlassCard>
               <CardHeader icon={<Briefcase className="h-4 w-4 text-blue-400" />} title={isHebrew ? 'קריירה' : 'Career'} accent="bg-blue-500/10" />
-              {summary.career_path.aspiration && <p className="text-xs text-white/60 mb-2 line-clamp-3">{summary.career_path.aspiration}</p>}
+              {summary.career_path.aspiration && <p className="text-xs text-muted-foreground mb-2 line-clamp-3">{summary.career_path.aspiration}</p>}
               {summary.career_path.key_steps?.length ? (
                 <div className="flex flex-wrap justify-center gap-1">
                   {summary.career_path.key_steps.slice(0, 2).map((s, i) => (
