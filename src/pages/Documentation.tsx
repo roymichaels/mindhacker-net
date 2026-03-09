@@ -330,6 +330,29 @@ export default function Documentation() {
       ],
     },
     {
+      id: 'consciousness-leap',
+      number: '10.1',
+      title: he ? 'Consciousness Leap — תוכנית טרנספורמציה פרימיום' : 'Consciousness Leap — Premium Transformation Program',
+      paragraphs: he ? [
+        `Consciousness Leap הוא מוצר פרימיום של ${brandName} — תוכנית טרנספורמציה אישית מעמיקה שמשלבת את כל יכולות הפלטפורמה תחת מעטפת אישית. כולל: דף נחיתה ייעודי (/consciousness-leap) עם תיאור הבעיות, תהליך 4 שלבים, יתרונות, עדויות, ו-FAQ.`,
+        `תהליך ההצטרפות: (1) טופס הגשה עם שם, אימייל, טלפון, ותיאור אתגר, (2) שיחת התאמה עם Aurora, (3) בניית תוכנית מותאמת, (4) ליווי יומי עם סשנים, היפנוזה, ומעקב AI. זהו מוצר B2C premium שמייצר הכנסה חוזרת.`,
+      ] : [
+        `Consciousness Leap is a premium ${brandName} product — a deep personal transformation program combining all platform capabilities under a personalized wrapper. Includes: a dedicated landing page (/consciousness-leap) with pain point descriptions, a 4-step process, benefits, testimonials, and FAQ.`,
+        `Application process: (1) submission form with name, email, phone, and challenge description, (2) matching conversation with Aurora, (3) building a custom plan, (4) daily support with sessions, hypnosis, and AI tracking. This is a premium B2C product generating recurring revenue.`,
+      ],
+    },
+    {
+      id: 'blog',
+      number: '10.2',
+      title: he ? 'Aurora Codex — בלוג ומערכת תוכן' : 'Aurora Codex — Blog & Content System',
+      paragraphs: he ? [
+        `Aurora Codex (/blog) הוא מערכת הבלוג והתוכן של ${brandName}. מאמרים דו-לשוניים (עברית/אנגלית) עם תמיכת SEO מלאה (meta title, description, keywords), slug ייחודי, תגיות, זמן קריאה, ותמונת כיסוי.`,
+        `הבלוג נגיש מתפריט הראשי (Dropdown) הן למשתמשים מחוברים והן לאורחים — משמש כמנוע שיווק אורגני, SEO, ו-thought leadership. כל פוסט תומך בסטטוס (draft/published) עם תאריך פרסום.`,
+      ] : [
+        `Aurora Codex (/blog) is the blog and content system of ${brandName}. Bilingual articles (Hebrew/English) with full SEO support (meta title, description, keywords), unique slug, tags, reading time, and cover image.`,
+        `The blog is accessible from the main menu dropdown for both authenticated and guest users — serving as an organic marketing engine, SEO driver, and thought leadership platform. Each post supports status (draft/published) with publication date.`,
+      ],
+    },
       id: 'gamification',
       number: '11',
       title: he ? 'גיימיפיקציה עמוקה' : 'Deep Gamification',
