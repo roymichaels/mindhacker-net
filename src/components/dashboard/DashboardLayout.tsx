@@ -33,6 +33,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const isDark = resolvedTheme === 'dark';
   const isFM = theme.id === 'fm';
   const headerBg = isDark ? theme.headerBgDark : theme.headerBg;
+  const swipeHandlers = useSwipeNavigation();
   useLearnPillarAction();
 
   return (
