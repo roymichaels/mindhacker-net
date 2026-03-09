@@ -128,80 +128,170 @@ function getElementalMaterial(profile: OrbProfile) {
   const hsl = { h: 0, s: 0, l: 0 };
   primary.getHSL(hsl);
 
+  const base = {
+    sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
+    iridescence: 0, iridescenceIOR: 1.3,
+    transmission: 0, ior: 1.5, thickness: 0,
+  };
+
   switch (mat) {
     case 'metal': {
-      // EARTH/METAL: Dark, heavy, ultra-reflective, faceted
       const darkColor = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.8, 0.6), 0.22);
       const warmEmissive = new THREE.Color().setHSL(hsl.h, 0.5, 0.12);
-      return {
-        color: darkColor, emissive: warmEmissive,
-        metalness: 1.0, roughness: 0.2,
-        clearcoat: 0.0, clearcoatRoughness: 0.0,
+      return { ...base, color: darkColor, emissive: warmEmissive,
+        metalness: 1.0, roughness: 0.2, clearcoat: 0.0, clearcoatRoughness: 0.0,
         emissiveIntensity: 0.15, envMapIntensity: 1.8,
-        transmission: 0, ior: 1.5, thickness: 0,
-        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-        iridescence: 0, iridescenceIOR: 1.3,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
     case 'glass': {
-      // WATER/ICE: Translucent, colored, high clearcoat
       const paleColor = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.5), 0.55);
       const shimmer = new THREE.Color().setHSL(hsl.h, 0.6, 0.45);
-      return {
-        color: paleColor, emissive: shimmer,
-        metalness: 0.0, roughness: 0.05,
-        clearcoat: 1.0, clearcoatRoughness: 0.0,
+      return { ...base, color: paleColor, emissive: shimmer,
+        metalness: 0.0, roughness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.0,
         emissiveIntensity: 0.2, envMapIntensity: 1.0,
-        transmission: 0, ior: 1.5, thickness: 0,
-        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-        iridescence: 0, iridescenceIOR: 1.3,
         opacity: 0.7, transparent: true, flatShading: false, wireframe: false,
       };
     }
     case 'plasma': {
-      // FIRE/LAVA: Bright glowing emissive, saturated, hot
       const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.45);
       const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.5);
-      return {
-        color: hotCore, emissive: glow,
-        metalness: 0.0, roughness: 0.35,
-        clearcoat: 0.2, clearcoatRoughness: 0.3,
+      return { ...base, color: hotCore, emissive: glow,
+        metalness: 0.0, roughness: 0.35, clearcoat: 0.2, clearcoatRoughness: 0.3,
         emissiveIntensity: 1.2, envMapIntensity: 0.2,
-        transmission: 0, ior: 1.5, thickness: 0,
-        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-        iridescence: 0, iridescenceIOR: 1.3,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
     case 'iridescent': {
-      // ETHER/SPIRIT: Pearlescent, rainbow-shifting, luminous
       const pearl = new THREE.Color().setHSL(hsl.h, 0.7, 0.5);
       const glow = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.9, 0.45);
-      return {
-        color: pearl, emissive: glow,
-        metalness: 0.5, roughness: 0.05,
-        clearcoat: 1.0, clearcoatRoughness: 0.0,
+      return { ...base, color: pearl, emissive: glow,
+        metalness: 0.5, roughness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.0,
         emissiveIntensity: 0.3, envMapIntensity: 1.5,
-        transmission: 0, ior: 1.5, thickness: 0,
         sheen: 1.0, sheenRoughness: 0.1, sheenColor: glow,
         iridescence: 1.0, iridescenceIOR: 2.4,
         opacity: 0.85, transparent: true, flatShading: false, wireframe: false,
       };
     }
     case 'wire': {
-      // AIR/WIND: Wireframe, ghostly, skeletal structure visible
       const ghostColor = new THREE.Color().setHSL(hsl.h, 0.4, 0.5);
       const innerGlow = new THREE.Color().setHSL(hsl.h, 0.6, 0.35);
-      return {
-        color: ghostColor, emissive: innerGlow,
-        metalness: 0.2, roughness: 0.5,
-        clearcoat: 0.0, clearcoatRoughness: 0.5,
+      return { ...base, color: ghostColor, emissive: innerGlow,
+        metalness: 0.2, roughness: 0.5, clearcoat: 0.0, clearcoatRoughness: 0.5,
         emissiveIntensity: 0.5, envMapIntensity: 0.3,
-        transmission: 0, ior: 1.5, thickness: 0,
-        sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
-        iridescence: 0, iridescenceIOR: 1.3,
         opacity: 0.7, transparent: true, flatShading: true, wireframe: true,
+      };
+    }
+    case 'lava': {
+      const crust = new THREE.Color().setHSL(hsl.h, 0.8, 0.12);
+      const magma = new THREE.Color().setHSL(hsl.h, 1.0, 0.55);
+      return { ...base, color: crust, emissive: magma,
+        metalness: 0.1, roughness: 0.8, clearcoat: 0.0, clearcoatRoughness: 0.8,
+        emissiveIntensity: 1.8, envMapIntensity: 0.1,
+        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+      };
+    }
+    case 'crystal': {
+      const crystalColor = new THREE.Color().setHSL(hsl.h, 0.75, 0.6);
+      const refraction = new THREE.Color().setHSL((hsl.h + 0.1) % 1, 0.8, 0.5);
+      return { ...base, color: crystalColor, emissive: refraction,
+        metalness: 0.15, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.25, envMapIntensity: 1.6,
+        transmission: 0.3, ior: 2.2, thickness: 1.5,
+        opacity: 0.8, transparent: true, flatShading: true, wireframe: false,
+      };
+    }
+    case 'matte': {
+      const flat = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.4), 0.45);
+      const dim = new THREE.Color().setHSL(hsl.h, 0.15, 0.15);
+      return { ...base, color: flat, emissive: dim,
+        metalness: 0.0, roughness: 1.0, clearcoat: 0.0, clearcoatRoughness: 1.0,
+        emissiveIntensity: 0.05, envMapIntensity: 0.15,
+        opacity: 1, transparent: false, flatShading: false, wireframe: false,
+      };
+    }
+    case 'nebula': {
+      const nebColor = new THREE.Color().setHSL((hsl.h + 0.7) % 1, 0.7, 0.25);
+      const starGlow = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.9, 0.5);
+      return { ...base, color: nebColor, emissive: starGlow,
+        metalness: 0.0, roughness: 0.6, clearcoat: 0.3, clearcoatRoughness: 0.3,
+        emissiveIntensity: 0.8, envMapIntensity: 0.3,
+        opacity: 0.85, transparent: true, flatShading: false, wireframe: false,
+      };
+    }
+    case 'obsidian': {
+      const obsColor = new THREE.Color().setHSL(hsl.h, 0.15, 0.06);
+      const edgeGlow = new THREE.Color().setHSL(hsl.h, 0.3, 0.15);
+      return { ...base, color: obsColor, emissive: edgeGlow,
+        metalness: 0.7, roughness: 0.1, clearcoat: 0.8, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.08, envMapIntensity: 1.2,
+        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+      };
+    }
+    case 'tiger': {
+      const stripeBase = new THREE.Color().setHSL(hsl.h, 0.85, 0.45);
+      const warm = new THREE.Color().setHSL(hsl.h, 0.6, 0.2);
+      return { ...base, color: stripeBase, emissive: warm,
+        metalness: 0.05, roughness: 0.65, clearcoat: 0.3, clearcoatRoughness: 0.4,
+        emissiveIntensity: 0.1, envMapIntensity: 0.3,
+        opacity: 1, transparent: false, flatShading: false, wireframe: false,
+      };
+    }
+    case 'thorny': {
+      const thornColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.3);
+      const darkEmissive = new THREE.Color().setHSL(hsl.h, 0.4, 0.12);
+      return { ...base, color: thornColor, emissive: darkEmissive,
+        metalness: 0.3, roughness: 0.85, clearcoat: 0.0, clearcoatRoughness: 0.8,
+        emissiveIntensity: 0.1, envMapIntensity: 0.2,
+        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+      };
+    }
+    case 'bone': {
+      const boneColor = new THREE.Color().setHSL(hsl.h, 0.08, 0.72);
+      const marrow = new THREE.Color().setHSL(hsl.h, 0.05, 0.35);
+      return { ...base, color: boneColor, emissive: marrow,
+        metalness: 0.0, roughness: 0.9, clearcoat: 0.1, clearcoatRoughness: 0.6,
+        emissiveIntensity: 0.03, envMapIntensity: 0.15,
+        opacity: 1, transparent: false, flatShading: false, wireframe: false,
+      };
+    }
+    case 'ember': {
+      const ashColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.1);
+      const emberGlow = new THREE.Color().setHSL(hsl.h, 1.0, 0.5);
+      return { ...base, color: ashColor, emissive: emberGlow,
+        metalness: 0.05, roughness: 0.7, clearcoat: 0.0, clearcoatRoughness: 0.5,
+        emissiveIntensity: 1.0, envMapIntensity: 0.1,
+        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+      };
+    }
+    case 'ice': {
+      const iceColor = new THREE.Color().setHSL(hsl.h, 0.45, 0.78);
+      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.6);
+      return { ...base, color: iceColor, emissive: frostGlow,
+        metalness: 0.05, roughness: 0.02, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.15, envMapIntensity: 1.4,
+        transmission: 0.4, ior: 1.31, thickness: 2.0,
+        opacity: 0.75, transparent: true, flatShading: true, wireframe: false,
+      };
+    }
+    case 'void': {
+      const voidColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.02);
+      const edgePulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.8, 0.2);
+      return { ...base, color: voidColor, emissive: edgePulse,
+        metalness: 0.9, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.15, envMapIntensity: 0.8,
+        opacity: 0.95, transparent: true, flatShading: false, wireframe: false,
+      };
+    }
+    case 'holographic': {
+      const holoColor = new THREE.Color().setHSL(hsl.h, 0.8, 0.55);
+      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 1.0, 0.5);
+      return { ...base, color: holoColor, emissive: holoGlow,
+        metalness: 0.6, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.4, envMapIntensity: 1.6,
+        sheen: 1.0, sheenRoughness: 0.05, sheenColor: holoGlow,
+        iridescence: 1.0, iridescenceIOR: 2.8,
+        opacity: 0.9, transparent: true, flatShading: false, wireframe: false,
       };
     }
     default:
