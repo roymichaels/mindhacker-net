@@ -197,7 +197,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
                 {/* AI Match Card */}
                 <button
-                  onClick={() => {/* TODO: open AI match flow */}}
+                  onClick={() => setMatchOpen(true)}
                   className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] via-rose-500/[0.04] to-violet-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
                 >
                   {/* Glow accent */}
