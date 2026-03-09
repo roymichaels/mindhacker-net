@@ -3,7 +3,7 @@
  * Uses distinct base geometries per family and dramatically different
  * material presets so every orb is visually unique in WebGL.
  */
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
