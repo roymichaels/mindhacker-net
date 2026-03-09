@@ -280,30 +280,6 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             </>
           )}
 
-          {/* Panel Links */}
-          {!isInPanel && (
-            <>
-              {isAdmin && (
-                <DropdownMenuItem onClick={() => navigate('/panel')}>
-                  <Shield className="h-4 w-4 me-2" />
-                  {language === 'he' ? 'פאנל ניהול' : 'Admin Panel'}
-                </DropdownMenuItem>
-              )}
-              {isPractitioner && (
-                <DropdownMenuItem onClick={() => navigate('/coach')}>
-                  <UserCog className="h-4 w-4 me-2" />
-                  {language === 'he' ? 'פאנל מאמן' : 'Coach Panel'}
-                </DropdownMenuItem>
-              )}
-              {isAffiliate && (
-                <DropdownMenuItem onClick={() => navigate('/affiliate')}>
-                  <Link2 className="h-4 w-4 me-2" />
-                  {language === 'he' ? 'פאנל שותפים' : 'Affiliate Panel'}
-                </DropdownMenuItem>
-              )}
-              {(isAdmin || isPractitioner || isAffiliate) && <DropdownMenuSeparator />}
-            </>
-          )}
 
           {/* Blog */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/blog'); }}>
