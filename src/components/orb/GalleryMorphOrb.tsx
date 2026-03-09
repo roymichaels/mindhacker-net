@@ -288,11 +288,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── OBSIDIAN: Dark with reflections and edge glow ──
     case 'obsidian': {
-      const obsBlack = new THREE.Color().setHSL(hsl.h, 0.2, 0.2);
-      const edgeGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.35);
+      const obsBlack = new THREE.Color().setHSL(hsl.h, 0.15, 0.12);
+      const edgeGlow = new THREE.Color().setHSL(hsl.h, 0.4, 0.2);
       return { ...base, color: obsBlack, emissive: edgeGlow,
-        metalness: 0.9, roughness: 0.02, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.5, envMapIntensity: 3.5,
+        metalness: 0.9, roughness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.15, envMapIntensity: 2.5,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
