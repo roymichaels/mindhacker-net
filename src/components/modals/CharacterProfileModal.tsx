@@ -517,9 +517,9 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           <div className="space-y-2">
             {commitments.slice(0, 4).map((c) => (
-              <div key={c.id} className="flex items-center justify-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                <p className="text-sm text-white/70 font-medium">{c.title}</p>
+               <div key={c.id} className="flex items-center justify-center gap-2.5 p-2 rounded-xl bg-muted/20 dark:bg-white/[0.02] border border-border/20 dark:border-white/[0.04]">
+                 <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                 <p className="text-sm text-foreground/70 font-medium">{c.title}</p>
               </div>
             ))}
           </div>
