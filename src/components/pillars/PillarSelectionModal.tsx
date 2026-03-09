@@ -15,14 +15,15 @@ import { CheckCircle2, Lock, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const domainColorMap: Record<string, string> = {
-  blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
+  violet: 'text-violet-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
   amber: 'text-amber-400', cyan: 'text-cyan-400', slate: 'text-slate-400',
   indigo: 'text-indigo-400', emerald: 'text-emerald-400', purple: 'text-purple-400',
-  sky: 'text-sky-400', rose: 'text-rose-400', violet: 'text-violet-400', teal: 'text-teal-400',
+  sky: 'text-sky-400', orange: 'text-orange-400', blue: 'text-blue-400',
+  lime: 'text-lime-400', teal: 'text-teal-400', rose: 'text-rose-400',
 };
 
 const cardBgMap: Record<string, string> = {
-  blue: 'from-blue-500/10 to-blue-600/5 border-blue-500/40',
+  violet: 'from-violet-500/10 to-violet-600/5 border-violet-500/40',
   fuchsia: 'from-fuchsia-500/10 to-fuchsia-600/5 border-fuchsia-500/40',
   red: 'from-red-500/10 to-red-600/5 border-red-500/40',
   amber: 'from-amber-500/10 to-amber-600/5 border-amber-500/40',
@@ -32,9 +33,11 @@ const cardBgMap: Record<string, string> = {
   emerald: 'from-emerald-500/10 to-emerald-600/5 border-emerald-500/40',
   purple: 'from-purple-500/10 to-purple-600/5 border-purple-500/40',
   sky: 'from-sky-500/10 to-sky-600/5 border-sky-500/40',
-  rose: 'from-rose-500/10 to-rose-600/5 border-rose-500/40',
-  violet: 'from-violet-500/10 to-violet-600/5 border-violet-500/40',
+  orange: 'from-orange-500/10 to-orange-600/5 border-orange-500/40',
+  blue: 'from-blue-500/10 to-blue-600/5 border-blue-500/40',
+  lime: 'from-lime-500/10 to-lime-600/5 border-lime-500/40',
   teal: 'from-teal-500/10 to-teal-600/5 border-teal-500/40',
+  rose: 'from-rose-500/10 to-rose-600/5 border-rose-500/40',
 };
 
 interface PillarSelectionModalProps {

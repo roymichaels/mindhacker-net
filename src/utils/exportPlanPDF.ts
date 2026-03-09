@@ -44,10 +44,10 @@ export interface PlanExportData {
 
 // ── Pillar colors ──
 const PILLAR_COLORS: Record<string, string> = {
-  presence: '#06b6d4', power: '#8b5cf6', vitality: '#10b981', focus: '#f59e0b',
-  combat: '#ef4444', expansion: '#3b82f6', consciousness: '#a855f7', wealth: '#eab308',
-  influence: '#f97316', relationships: '#ec4899', business: '#14b8a6', projects: '#6366f1',
-  play: '#22c55e', craft: '#d946ef', order: '#6b7280', romantics: '#f43f5e',
+  consciousness: '#8b5cf6', presence: '#d946ef', power: '#ef4444', vitality: '#f59e0b',
+  focus: '#06b6d4', combat: '#64748b', expansion: '#6366f1', wealth: '#10b981',
+  influence: '#a855f7', relationships: '#0ea5e9', business: '#f97316', projects: '#3b82f6',
+  play: '#84cc16', order: '#14b8a6', romantics: '#f43f5e',
 };
 
 function c(pillar: string): string {
