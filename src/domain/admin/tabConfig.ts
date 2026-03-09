@@ -49,6 +49,7 @@ const AdminSettings     = lazy(() => import('@/pages/admin/Settings'));
 const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoveragePanel'));
 const AdminFMBounties   = lazy(() => import('@/pages/admin/FMBounties'));
 const AdminBlog         = lazy(() => import('@/pages/admin/Blog'));
+const WorkMonitor       = lazy(() => import('@/pages/admin/WorkMonitor'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
