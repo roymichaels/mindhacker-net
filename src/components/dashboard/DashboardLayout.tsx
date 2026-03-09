@@ -7,14 +7,10 @@ import { useRouteTheme } from '@/hooks/useRouteTheme';
 import { useTheme } from 'next-themes';
 import { FMTopNav } from '@/components/fm/FMTopNav';
 
-import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
-import { DesktopSideNav } from '@/components/navigation/DesktopSideNav';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
-import { AuroraFloatingOrb } from '@/components/aurora/AuroraFloatingOrb';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
-import { BottomHudBar } from '@/components/navigation/BottomHudBar';
 import { SettingsModal } from '@/components/settings';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
