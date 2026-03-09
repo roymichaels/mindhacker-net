@@ -401,7 +401,7 @@ export default function Documentation() {
         `Q1 2026: השקת Beta ציבורי, 6 Hubs פעילים (Now, Tactics, Strategy, Community, Learn, FreeMarket), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, Quest Runner, הערכות עמודים מבוססות שיחה, Plan Chat Wizard, התאמת מאמן AI, היפנוזה אישית, תוכנית Consciousness Leap, בלוג Aurora Codex. Q2 2026: פלטפורמת מאמנים מלאה, FreeMarket עם שוק נתונים, תוכנית שותפים, API פתוח. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
         `2027: Blockchain integration, DAO governance, מטבע MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט.`,
       ] : [
-        `Q1 2026: Public Beta launch, 5 active Hubs, MOS Mining Engine, AI Hypnosis, 100-Day Plan. Q2 2026: Coach platform, FreeMarket with Data Marketplace, affiliate program, open API. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
+        `Q1 2026: Public Beta launch, 6 active Hubs (Now, Tactics, Strategy, Community, Learn, FreeMarket), MOS Mining Engine, AI Hypnosis, 100-Day Plan, Quest Runner, chat-based pillar assessments, Plan Chat Wizard, AI coach matching, personal hypnosis, Consciousness Leap program, Aurora Codex blog. Q2 2026: Full coach platform, FreeMarket with Data Marketplace, affiliate program, open API. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
         `2027: Blockchain integration, DAO governance, MOS token on Solana network, external NFT marketplace, Stripe fiat settlement.`,
       ],
     },
