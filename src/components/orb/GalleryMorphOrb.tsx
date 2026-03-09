@@ -179,11 +179,10 @@ function getElementalMaterial(profile: OrbProfile) {
   const hsl = { h: 0, s: 0, l: 0 };
   primary.getHSL(hsl);
 
-  // ── NORMALIZE brightness: clamp lightness to a consistent range ──
-  // This ensures ALL orbs render at the same perceived brightness
-  // regardless of what the profile data says
-  hsl.l = 0.55; // fixed target lightness for uniform brightness
-  hsl.s = Math.max(hsl.s, 0.4); // ensure minimum saturation
+  // ── NORMALIZE brightness: keep lightness in a moderate range for 3D depth ──
+  // Too bright kills shadows/highlights → looks flat 2D
+  hsl.l = Math.max(0.35, Math.min(hsl.l, 0.55)); // keep in 3D-friendly range
+  hsl.s = Math.max(hsl.s, 0.35); // ensure minimum saturation
 
   const base = {
     sheen: 0, sheenRoughness: 0, sheenColor: undefined as THREE.Color | undefined,
