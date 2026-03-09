@@ -17,9 +17,11 @@ import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield, Download } from 'lucide-react';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
+import { exportNowPDF, type NowExportData, type NowPDFSlot } from '@/utils/exportNowPDF';
+import { toast } from 'sonner';
 
 // ── Adventure-themed block labels ──
 const JOURNEY_THEMES: Record<string, { he: string; en: string; emoji: string; accent: string }> = {
