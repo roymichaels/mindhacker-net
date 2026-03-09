@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import FMPublishWizard, { type FMPublishType } from '@/components/fm/FMPublishWizard';
+import { useUserRoles } from '@/hooks/useUserRoles';
 
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
