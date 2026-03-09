@@ -528,7 +528,6 @@ export default function Documentation() {
                   ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · קריירה מאוחדת · פיתוח אישי'
                   : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Unified Career · Personal Development'
                 }
-                }
               </p>
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>{he ? `מאת ${founderName}` : `By ${founderName}`}</p>
