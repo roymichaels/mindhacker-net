@@ -153,10 +153,10 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: ORB_PRESETS.find(x => x.id === 'rose-quartz')!.profile,
   },
   {
-    id: 'obsidian-wire', nameEn: 'Obsidian Wire', nameHe: 'שלד אובסידיאן',
-    descEn: 'The skeleton of raw potential', descHe: 'השלד של פוטנציאל גולמי',
-    rarity: 'uncommon', traits: { material: 'wire', pattern: 'shards', geometry: 'octa', glow: 'none', particles: false },
-    profile: ORB_PRESETS.find(x => x.id === 'obsidian-wire')!.profile,
+    id: 'obsidian-edge', nameEn: 'Obsidian Edge', nameHe: 'קצה אובסידיאן',
+    descEn: 'The edge of raw potential', descHe: 'הקצה של פוטנציאל גולמי',
+    rarity: 'uncommon', traits: { material: 'obsidian', pattern: 'shards', geometry: 'octa', glow: 'none', particles: false },
+    profile: hueProfile(270, 'obsidian', 'shards', 'octa', 0.35),
   },
   {
     id: 'aurora-skin', nameEn: 'Aurora Skin', nameHe: 'עור אורורה',
