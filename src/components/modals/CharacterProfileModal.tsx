@@ -253,9 +253,9 @@ function SectionTitle({ icon, title, accentColor }: { icon: React.ReactNode; tit
 
 function EmpireBadge({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'gold' | 'glass' }) {
   const styles = {
-    default: 'bg-muted/50 dark:bg-white/[0.06] text-foreground/70 dark:text-white/70 border-border/30 dark:border-white/[0.08]',
-    gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-    glass: 'bg-muted/30 dark:bg-white/[0.04] text-foreground/50 dark:text-white/50 border-border/20 dark:border-white/[0.06]',
+    default: 'bg-muted/50 dark:bg-white/[0.06] text-foreground/80 dark:text-white/70 border-border/40 dark:border-white/[0.08]',
+    gold: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25 dark:border-amber-500/20',
+    glass: 'bg-muted/40 dark:bg-white/[0.04] text-foreground/70 dark:text-white/50 border-border/30 dark:border-white/[0.06]',
   };
   return (
     <span className={cn("text-xs font-medium px-2.5 py-1 rounded-lg border inline-block", styles[variant])}>
