@@ -2,11 +2,12 @@
  * Orb Profile Generator - Dynamic Identity-Based Avatar System
  * 
  * Generates personalized orb profiles based on user's actual identity data.
- * Now includes deterministic per-user seed for structural variance.
+ * Now delegates to the gallery-quality userOrbGenerator for visual output,
+ * while preserving the DNA/archetype computation pipeline.
  */
 
 import { computeAvatarDNA, type UserDataForDNA, type AvatarDNA } from './avatarDNA';
-import { getArchetype, type ArchetypeId } from './archetypes';
+import { generateUserOrb, type UserOrbInput } from './userOrbGenerator';
 import { hashUserId, seedHueOffset, seedFloat, seedInt, pickGeometryFamily, seedMorphPhase } from './orbSeed';
 import { buildVisualDNA, type VisualDNAInput } from './visualDNA';
 import type { OrbProfile } from '@/components/orb/types';
