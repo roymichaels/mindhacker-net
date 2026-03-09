@@ -123,8 +123,9 @@ function toDateStr(d: Date): string {
 }
 
 function getPhaseWindow(planStartDate: string, phaseNumber: number) {
-  const planStart = new Date(planStartDate);
-  planStart.setHours(0, 0, 0, 0);
+  // Use date-only string to avoid timezone drift (consistent with getCurrentDayInIsrael)
+  const startOnly = planStartDate.slice(0, 10); // "YYYY-MM-DD"
+  const planStart = new Date(startOnly + 'T00:00:00'); // local midnight
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
   const dates: string[] = [];
   for (let i = 0; i < 10; i++) {
