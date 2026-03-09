@@ -480,7 +480,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {(anchors.length > 0 || dashboard.principles.length > 0) && (
         <EmpireCard className="text-center">
           <SectionTitle
-            icon={<Activity className="w-4 h-4 text-cyan-400" />}
+            icon={<Activity className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />}
             title={isHe ? 'משמעת וסדר' : 'Disciplines & Order'}
             accentColor="bg-cyan-500/10"
           />
