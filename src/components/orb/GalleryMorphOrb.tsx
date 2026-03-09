@@ -359,11 +359,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── HOLOGRAPHIC: Rainbow, high sheen, shifting ──
     case 'holographic': {
-      const holoC = new THREE.Color().setHSL(hsl.h, 0.9, 0.6);
-      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 0.9, 0.55);
+      const holoC = new THREE.Color().setHSL(hsl.h, 0.8, 0.45);
+      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 0.7, 0.3);
       return { ...base, color: holoC, emissive: holoGlow,
         metalness: 0.7, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.6, envMapIntensity: 2.5,
+        emissiveIntensity: 0.2, envMapIntensity: 2.0,
         sheen: 1.0, sheenRoughness: 0.02, sheenColor: holoGlow,
         iridescence: 1.0, iridescenceIOR: 3.0,
         opacity: 0.9, transparent: true, flatShading: false, wireframe: false,

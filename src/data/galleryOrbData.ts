@@ -800,9 +800,9 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   },
 ];
 
-// ─── Merge hand-crafted + generated orbs for 1000 total ───
+// ─── Only generated orbs (hand-crafted removed) ───
 import { GENERATED_ORBS } from './generatedOrbs';
-export const GALLERY_ORBS: GalleryOrb[] = [...HAND_CRAFTED_ORBS, ...GENERATED_ORBS];
+export const GALLERY_ORBS: GalleryOrb[] = [...GENERATED_ORBS];
 
 /* ─── Trait filter definitions ─── */
 
