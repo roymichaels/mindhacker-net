@@ -117,10 +117,12 @@ export default function Documentation() {
             `Strategy מציג את ה"למה" ומנהל את Pipeline האסטרטגי המלא. התהליך: (1) בחירת עמודי חיים (2-14 לפי רמת מנוי) דרך StrategyPillarWizard, (2) סריקת AI עומק לכל עמוד עם ציון 0-100, (3) יצירת תוכנית 100 ימים מחולקת ל-10 שלבים עם Milestones ופעולות יומיות.`,
             `כולל: תכונות אופי (Traits), משימות חיים (Missions), יעדים (Goals), ומערכת "כיול מחדש" (Recalibrate) שמאפשרת לעדכן את האסטרטגיה. במנוי Apex, השלמת הערכה מזריקה אסטרטגיות חדשות לתוכנית הפעילה ללא צורך ביצירה מחדש.`,
             `14 עמודי החיים: נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות, תודעה, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, ואומנות.`,
+            `התאמת מאמן מבוססת AI: בתוך ה-Strategy Hub, המשתמש יכול לבקש מ-Aurora למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל. Aurora מנהלת שיחת זיהוי צרכים (תחום, אתגרים, העדפות) וממליצה על מאמנים מתאימים מתוך הפלטפורמה — מחברת בין משתמשים למאמנים בצורה אורגנית.`,
           ] : [
             `Strategy shows the "Why" and manages the full strategic pipeline. The process: (1) select life pillars (2-14 based on subscription tier) via StrategyPillarWizard, (2) AI deep scan for each pillar scoring 0-100, (3) generate a 100-day plan divided into 10 phases with milestones and daily actions.`,
             `Includes: character Traits, life Missions, Goals, and a "Recalibrate" system for strategy updates. On the Apex tier, completing an assessment injects new strategies into the active plan without full regeneration.`,
             `The 14 Life Pillars: Presence, Power, Vitality, Focus, Combat, Expansion, Consciousness, Wealth, Influence, Relationships, Business, Projects, Play, and Craft.`,
+            `AI Coach Matching: Within the Strategy Hub, users can ask Aurora to find a coach to help execute their strategy. Aurora conducts a needs-discovery conversation (domain, challenges, preferences) and recommends matching coaches from the platform — organically connecting users with practitioners.`,
           ],
         },
         {
