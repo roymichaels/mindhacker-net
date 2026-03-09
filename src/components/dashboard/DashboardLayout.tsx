@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useLearnPillarAction } from '@/hooks/useLearnPillarAction';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRouteTheme } from '@/hooks/useRouteTheme';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useTheme } from 'next-themes';
 import { FMTopNav } from '@/components/fm/FMTopNav';
 
