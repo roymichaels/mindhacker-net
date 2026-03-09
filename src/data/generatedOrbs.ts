@@ -244,21 +244,21 @@ export function generateOrbs(count: number, startId: number): GalleryOrb[] {
     }
 
     // Higher rarity = more likely particles
-    const particles = rarity === 'legendary' ? rng() > 0.2
-      : rarity === 'epic' ? rng() > 0.5
-      : rarity === 'rare' ? rng() > 0.75
-      : rng() > 0.9;
+    const particles = rarity === 'legendary' ? rng() > 0.1
+      : rarity === 'epic' ? rng() > 0.35
+      : rarity === 'rare' ? rng() > 0.6
+      : rng() > 0.85;
 
-    // Intensity correlates with rarity but with wider spread
-    const baseIntensity = rarity === 'legendary' ? 0.88 : rarity === 'epic' ? 0.72 : rarity === 'rare' ? 0.52 : rarity === 'uncommon' ? 0.32 : 0.18;
-    const intensity = Math.min(1, Math.max(0.05, baseIntensity + (rng() - 0.5) * 0.35));
+    // Intensity: wider spread with guaranteed floor per rarity
+    const baseIntensity = rarity === 'legendary' ? 0.92 : rarity === 'epic' ? 0.75 : rarity === 'rare' ? 0.55 : rarity === 'uncommon' ? 0.38 : 0.2;
+    const intensity = Math.min(1, Math.max(0.08, baseIntensity + (rng() - 0.5) * 0.45));
 
-    // Hue spread across the full spectrum with wider variance
+    // Full spectrum hue with much wider spread for complementary/triadic colors
     const hue = Math.floor(rng() * 360);
-    const hueSpread = 15 + Math.floor(rng() * 70);
-    // Extra sat/lit variance for visual diversity
-    const satBoost = Math.floor((rng() - 0.5) * 20);
-    const litBoost = Math.floor((rng() - 0.5) * 16);
+    const hueSpread = 25 + Math.floor(rng() * 110); // up to 135° spread
+    // Dramatic sat/lit variance
+    const satBoost = Math.floor((rng() - 0.5) * 35);
+    const litBoost = Math.floor((rng() - 0.5) * 28);
 
     // Generate unique name
     let nameEn = '';
