@@ -590,7 +590,7 @@ export default function Documentation() {
                 variants={fadeUp}
                 className="space-y-4 scroll-mt-20"
               >
-                <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2">
+                <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2" style={{ unicodeBidi: 'plaintext' }}>
                   <span className="text-primary/60 font-mono me-2">{section.number}.</span>
                   {section.title}
                 </h2>
