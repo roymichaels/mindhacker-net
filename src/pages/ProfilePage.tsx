@@ -15,6 +15,8 @@ import { InventoryBagModal } from '@/components/modals/InventoryBagModal';
 import { Sparkles, Dumbbell, Trophy, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
+import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
+import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
