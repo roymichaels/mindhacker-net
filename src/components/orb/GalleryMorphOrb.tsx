@@ -247,11 +247,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── LAVA: Dark crust with molten glow ──
     case 'lava': {
-      const crust = new THREE.Color().setHSL(hsl.h, 0.6, 0.2);
-      const magma = new THREE.Color().setHSL(hsl.h, 1.0, 0.6);
+      const crust = new THREE.Color().setHSL(hsl.h, 0.6, 0.15);
+      const magma = new THREE.Color().setHSL(hsl.h, 1.0, 0.45);
       return { ...base, color: crust, emissive: magma,
-        metalness: 0.0, roughness: 0.9, clearcoat: 0.0, clearcoatRoughness: 1.0,
-        emissiveIntensity: 2.0, envMapIntensity: 0.15,
+        metalness: 0.0, roughness: 0.85, clearcoat: 0.0, clearcoatRoughness: 1.0,
+        emissiveIntensity: 0.7, envMapIntensity: 0.2,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
