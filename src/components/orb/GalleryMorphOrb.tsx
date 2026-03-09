@@ -1,8 +1,7 @@
 /**
  * GalleryMorphOrb – R3F-based morphing orb for the gallery.
- * Uses drei View to share a single WebGL context across all orbs.
- * Each orb smoothly morphs between geometric shapes in a continuous,
- * organic, alien-liquid way with proper 3D lighting and materials.
+ * Uses distinct base geometries per family and dramatically different
+ * material presets so every orb is visually unique in WebGL.
  */
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -24,25 +23,79 @@ function projectVertex(nx: number, ny: number, nz: number, shape: string): [numb
     }
     case 'cylinder': {
       const xz = Math.sqrt(nx * nx + nz * nz) || 0.001;
-      const scale = Math.min(0.85 / xz, 1.5);
-      const y = Math.sign(ny) * Math.min(Math.abs(ny * 1.2), 1);
-      return [nx * scale, y, nz * scale];
+      const capScale = Math.min(0.7 / xz, 1.5);
+      const y = Math.sign(ny) * Math.min(Math.abs(ny * 1.4), 1);
+      return [nx * capScale, y, nz * capScale];
     }
     case 'star': {
       const angle = Math.atan2(nz, nx);
       const elev = Math.abs(ny);
-      const spike = 0.5 + 0.5 * Math.pow(Math.abs(Math.cos(angle * 5)), 0.6) * (1 - elev * 0.5);
-      return [nx * spike, ny * spike * 0.8, nz * spike];
+      const spike = 0.4 + 0.6 * Math.pow(Math.abs(Math.cos(angle * 5)), 0.4) * (1 - elev * 0.5);
+      return [nx * spike, ny * spike * 0.7, nz * spike];
     }
     case 'diamond': {
       const ay = Math.abs(ny);
-      const waist = 1.2 * (1 - ay * 0.8);
-      return [nx * waist, ny * 1.1, nz * waist];
+      const waist = 1.3 * (1 - ay * 0.85);
+      return [nx * waist, ny * 1.2, nz * waist];
     }
     case 'tetra': {
-      const ty = ny * 1.2;
-      const tscale = 1.0 - Math.max(0, ny) * 0.6;
+      const ty = ny * 1.3;
+      const tscale = 1.0 - Math.max(0, ny) * 0.7;
       return [nx * tscale, ty, nz * tscale];
+    }
+    case 'torus': {
+      // Project sphere onto a donut (torus) shape
+      const theta = Math.atan2(nz, nx); // angle around major axis
+      const R = 0.7; // major radius
+      const r = 0.35; // minor radius
+      // Map ny to angle around the tube
+      const phi = ny * Math.PI;
+      const cx = Math.cos(theta) * R;
+      const cz = Math.sin(theta) * R;
+      const tubeX = Math.cos(theta) * (R + r * Math.cos(phi));
+      const tubeZ = Math.sin(theta) * (R + r * Math.cos(phi));
+      const tubeY = r * Math.sin(phi);
+      return [tubeX, tubeY, tubeZ];
+    }
+    case 'knot': {
+      // Trefoil knot-like projection
+      const t2 = Math.atan2(nz, nx) * 1.5;
+      const kR = 0.55 + 0.25 * Math.cos(3 * t2);
+      const kY = 0.35 * Math.sin(3 * t2);
+      const kr = 0.22;
+      const kphi = ny * Math.PI;
+      return [
+        Math.cos(t2) * (kR + kr * Math.cos(kphi)),
+        kY + kr * Math.sin(kphi),
+        Math.sin(t2) * (kR + kr * Math.cos(kphi)),
+      ];
+    }
+    case 'capsule': {
+      const xzLen = Math.sqrt(nx * nx + nz * nz) || 0.001;
+      const capsR = 0.55;
+      const capH = 0.5;
+      const capScale = capsR / xzLen;
+      if (Math.abs(ny) > capH) {
+        // Hemisphere caps
+        const capNy = Math.sign(ny);
+        const sphereScale = capsR / Math.sqrt(nx * nx + (ny - capNy * capH) * (ny - capNy * capH) + nz * nz || 0.001);
+        return [nx * sphereScale, (ny - capNy * capH) * sphereScale + capNy * capH, nz * sphereScale];
+      }
+      return [nx * Math.min(capScale, 1.5), ny * 1.2, nz * Math.min(capScale, 1.5)];
+    }
+    case 'cone': {
+      const coneY = ny * 1.1;
+      const coneScale = Math.max(0.05, 1.0 - (ny + 1) * 0.45);
+      return [nx * coneScale, coneY, nz * coneScale];
+    }
+    case 'spike': {
+      // Extreme spiky projection
+      const spikeAngle = Math.atan2(nz, nx);
+      const spikeElev = Math.acos(ny);
+      const spikeN = 6;
+      const spikeStr = Math.pow(Math.abs(Math.cos(spikeAngle * spikeN)), 2.0) * Math.pow(Math.abs(Math.sin(spikeElev * spikeN)), 2.0);
+      const spikeR = 0.5 + spikeStr * 0.7;
+      return [nx * spikeR, ny * spikeR, nz * spikeR];
     }
     default:
       return [nx, ny, nz];
@@ -63,20 +116,21 @@ function computeShapePositions(basePos: Float32Array, shape: string, radius: num
 }
 
 // ─── Full shape pool per geometry family (5 shapes each) ───
+// Each family morphs between shapes that showcase its unique identity
 
 const ALL_SHAPES: Record<string, string[]> = {
   sphere:   ['sphere', 'cube', 'diamond', 'star', 'octahedron'],
-  cube:     ['cube', 'octahedron', 'sphere', 'diamond', 'star'],
+  cube:     ['cube', 'octahedron', 'sphere', 'diamond', 'cylinder'],
   dodeca:   ['sphere', 'octahedron', 'star', 'diamond', 'cube'],
   icosa:    ['sphere', 'star', 'diamond', 'octahedron', 'cube'],
   octa:     ['octahedron', 'cube', 'diamond', 'sphere', 'star'],
-  spiky:    ['star', 'octahedron', 'sphere', 'diamond', 'cube'],
-  tetra:    ['diamond', 'octahedron', 'sphere', 'tetra', 'star'],
-  torus:    ['sphere', 'cylinder', 'star', 'diamond', 'octahedron'],
-  cone:     ['diamond', 'sphere', 'octahedron', 'star', 'cube'],
-  cylinder: ['cylinder', 'cube', 'sphere', 'diamond', 'star'],
-  capsule:  ['sphere', 'cylinder', 'diamond', 'star', 'octahedron'],
-  knot:     ['star', 'sphere', 'octahedron', 'diamond', 'cube'],
+  spiky:    ['spike', 'star', 'octahedron', 'sphere', 'diamond'],
+  tetra:    ['tetra', 'diamond', 'octahedron', 'cone', 'star'],
+  torus:    ['torus', 'sphere', 'cylinder', 'torus', 'star'],
+  cone:     ['cone', 'diamond', 'tetra', 'sphere', 'octahedron'],
+  cylinder: ['cylinder', 'cube', 'capsule', 'sphere', 'diamond'],
+  capsule:  ['capsule', 'sphere', 'cylinder', 'diamond', 'star'],
+  knot:     ['knot', 'torus', 'sphere', 'star', 'knot'],
 };
 
 export function getShapeCountForLevel(level: number): number {
@@ -106,7 +160,6 @@ function hslToColor(hsl: string): THREE.Color {
 // ─── Organic noise displacement ───
 
 function noise3D(x: number, y: number, z: number): number {
-  // Simple pseudo-noise using sin combinations for organic feel
   return (
     Math.sin(x * 1.7 + y * 2.3) * 0.3 +
     Math.sin(y * 3.1 + z * 1.4) * 0.25 +
@@ -117,14 +170,12 @@ function noise3D(x: number, y: number, z: number): number {
 }
 
 // ─── Elemental material presets ───
-// Each materialType produces a VISUALLY DISTINCT elemental appearance
+// DRAMATICALLY DISTINCT materials - each must be recognizable at 90px
 
 function getElementalMaterial(profile: OrbProfile) {
   const primary = hslToColor(profile.primaryColor || '200 50% 50%');
-  const accent = hslToColor(profile.accentColor || profile.primaryColor || '200 50% 60%');
   const mat = profile.materialType || 'glass';
 
-  // Parse primary hue for tinting
   const hsl = { h: 0, s: 0, l: 0 };
   primary.getHSL(hsl);
 
@@ -135,167 +186,198 @@ function getElementalMaterial(profile: OrbProfile) {
   };
 
   switch (mat) {
+    // ── METAL: Dark, mirror-like, strong reflections, faceted ──
     case 'metal': {
-      const darkColor = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.8, 0.6), 0.22);
-      const warmEmissive = new THREE.Color().setHSL(hsl.h, 0.5, 0.12);
-      return { ...base, color: darkColor, emissive: warmEmissive,
-        metalness: 1.0, roughness: 0.2, clearcoat: 0.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.15, envMapIntensity: 1.8,
+      const darkMetal = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s * 0.5, 0.3), 0.08);
+      const highlight = new THREE.Color().setHSL(hsl.h, 0.2, 0.04);
+      return { ...base, color: darkMetal, emissive: highlight,
+        metalness: 1.0, roughness: 0.08, clearcoat: 1.0, clearcoatRoughness: 0.02,
+        emissiveIntensity: 0.05, envMapIntensity: 3.0,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
+    // ── GLASS: Transparent, bright, smooth, refractive ──
     case 'glass': {
-      const paleColor = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.5), 0.55);
-      const shimmer = new THREE.Color().setHSL(hsl.h, 0.6, 0.45);
-      return { ...base, color: paleColor, emissive: shimmer,
-        metalness: 0.0, roughness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.2, envMapIntensity: 1.0,
-        opacity: 0.7, transparent: true, flatShading: false, wireframe: false,
+      const paleGlass = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.6), 0.7);
+      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.7, 0.5);
+      return { ...base, color: paleGlass, emissive: innerGlow,
+        metalness: 0.0, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.15, envMapIntensity: 1.0,
+        transmission: 0.6, ior: 1.8, thickness: 1.5,
+        opacity: 0.45, transparent: true, flatShading: false, wireframe: false,
       };
     }
+    // ── PLASMA: Extremely bright self-illuminating, pulsing ──
     case 'plasma': {
-      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.45);
-      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.5);
+      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.5);
+      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.6);
       return { ...base, color: hotCore, emissive: glow,
-        metalness: 0.0, roughness: 0.35, clearcoat: 0.2, clearcoatRoughness: 0.3,
-        emissiveIntensity: 1.2, envMapIntensity: 0.2,
-        opacity: 1, transparent: false, flatShading: true, wireframe: false,
+        metalness: 0.0, roughness: 0.4, clearcoat: 0.0, clearcoatRoughness: 0.5,
+        emissiveIntensity: 2.0, envMapIntensity: 0.1,
+        opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
+    // ── IRIDESCENT: Rainbow sheen, pearlescent, color-shifting ──
     case 'iridescent': {
-      const pearl = new THREE.Color().setHSL(hsl.h, 0.7, 0.5);
-      const glow = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.9, 0.45);
-      return { ...base, color: pearl, emissive: glow,
-        metalness: 0.5, roughness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.3, envMapIntensity: 1.5,
-        sheen: 1.0, sheenRoughness: 0.1, sheenColor: glow,
-        iridescence: 1.0, iridescenceIOR: 2.4,
-        opacity: 0.85, transparent: true, flatShading: false, wireframe: false,
+      const pearl = new THREE.Color().setHSL(hsl.h, 0.6, 0.55);
+      const shift = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.8, 0.4);
+      return { ...base, color: pearl, emissive: shift,
+        metalness: 0.4, roughness: 0.1, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.2, envMapIntensity: 1.5,
+        sheen: 1.0, sheenRoughness: 0.05, sheenColor: shift,
+        iridescence: 1.0, iridescenceIOR: 2.5,
+        opacity: 0.9, transparent: true, flatShading: false, wireframe: false,
       };
     }
+    // ── WIRE: Wireframe only, glowing edges, see-through ──
     case 'wire': {
-      const ghostColor = new THREE.Color().setHSL(hsl.h, 0.4, 0.5);
-      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.6, 0.35);
-      return { ...base, color: ghostColor, emissive: innerGlow,
-        metalness: 0.2, roughness: 0.5, clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 0.5, envMapIntensity: 0.3,
-        opacity: 0.7, transparent: true, flatShading: true, wireframe: true,
+      const wireColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.55);
+      const wireGlow = new THREE.Color().setHSL(hsl.h, 0.7, 0.4);
+      return { ...base, color: wireColor, emissive: wireGlow,
+        metalness: 0.1, roughness: 0.5, clearcoat: 0.0, clearcoatRoughness: 0.5,
+        emissiveIntensity: 0.6, envMapIntensity: 0.2,
+        opacity: 0.8, transparent: true, flatShading: false, wireframe: true,
       };
     }
+    // ── LAVA: Dark crust with BRIGHT molten glow ──
     case 'lava': {
-      const crust = new THREE.Color().setHSL(hsl.h, 0.8, 0.12);
+      const crust = new THREE.Color().setHSL(hsl.h, 0.6, 0.05);
       const magma = new THREE.Color().setHSL(hsl.h, 1.0, 0.55);
       return { ...base, color: crust, emissive: magma,
-        metalness: 0.1, roughness: 0.8, clearcoat: 0.0, clearcoatRoughness: 0.8,
-        emissiveIntensity: 1.8, envMapIntensity: 0.1,
+        metalness: 0.0, roughness: 0.9, clearcoat: 0.0, clearcoatRoughness: 1.0,
+        emissiveIntensity: 2.5, envMapIntensity: 0.05,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
+    // ── CRYSTAL: Sharp facets, semi-transparent, refractive sparkle ──
     case 'crystal': {
-      const crystalColor = new THREE.Color().setHSL(hsl.h, 0.75, 0.6);
-      const refraction = new THREE.Color().setHSL((hsl.h + 0.1) % 1, 0.8, 0.5);
-      return { ...base, color: crystalColor, emissive: refraction,
-        metalness: 0.15, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.25, envMapIntensity: 1.6,
-        transmission: 0.3, ior: 2.2, thickness: 1.5,
-        opacity: 0.8, transparent: true, flatShading: true, wireframe: false,
+      const crystalC = new THREE.Color().setHSL(hsl.h, 0.8, 0.55);
+      const refract = new THREE.Color().setHSL((hsl.h + 0.1) % 1, 0.9, 0.45);
+      return { ...base, color: crystalC, emissive: refract,
+        metalness: 0.1, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.3, envMapIntensity: 2.0,
+        transmission: 0.35, ior: 2.4, thickness: 1.0,
+        opacity: 0.7, transparent: true, flatShading: true, wireframe: false,
       };
     }
+    // ── MATTE: Completely flat, no shine, chalky ──
     case 'matte': {
-      const flat = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.4), 0.45);
-      const dim = new THREE.Color().setHSL(hsl.h, 0.15, 0.15);
-      return { ...base, color: flat, emissive: dim,
+      const flat = new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.35), 0.5);
+      return { ...base, color: flat, emissive: new THREE.Color(0, 0, 0),
         metalness: 0.0, roughness: 1.0, clearcoat: 0.0, clearcoatRoughness: 1.0,
-        emissiveIntensity: 0.05, envMapIntensity: 0.15,
+        emissiveIntensity: 0.0, envMapIntensity: 0.05,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
+    // ── NEBULA: Deep cosmic colors, inner glow, smoky ──
     case 'nebula': {
-      const nebColor = new THREE.Color().setHSL((hsl.h + 0.7) % 1, 0.7, 0.25);
-      const starGlow = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.9, 0.5);
-      return { ...base, color: nebColor, emissive: starGlow,
-        metalness: 0.0, roughness: 0.6, clearcoat: 0.3, clearcoatRoughness: 0.3,
-        emissiveIntensity: 0.8, envMapIntensity: 0.3,
-        opacity: 0.85, transparent: true, flatShading: false, wireframe: false,
+      const deepSpace = new THREE.Color().setHSL((hsl.h + 0.7) % 1, 0.8, 0.15);
+      const starGlow = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 1.0, 0.55);
+      return { ...base, color: deepSpace, emissive: starGlow,
+        metalness: 0.0, roughness: 0.5, clearcoat: 0.2, clearcoatRoughness: 0.3,
+        emissiveIntensity: 1.2, envMapIntensity: 0.2,
+        opacity: 0.8, transparent: true, flatShading: false, wireframe: false,
       };
     }
+    // ── OBSIDIAN: Nearly black, mirror reflections, menacing ──
     case 'obsidian': {
-      const obsColor = new THREE.Color().setHSL(hsl.h, 0.15, 0.06);
-      const edgeGlow = new THREE.Color().setHSL(hsl.h, 0.3, 0.15);
-      return { ...base, color: obsColor, emissive: edgeGlow,
-        metalness: 0.7, roughness: 0.1, clearcoat: 0.8, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.08, envMapIntensity: 1.2,
+      const obsBlack = new THREE.Color().setHSL(hsl.h, 0.1, 0.02);
+      const edgeGlow = new THREE.Color().setHSL(hsl.h, 0.3, 0.08);
+      return { ...base, color: obsBlack, emissive: edgeGlow,
+        metalness: 0.9, roughness: 0.02, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.05, envMapIntensity: 2.5,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
+    // ── TIGER: Warm, slightly rough, organic texture feel ──
     case 'tiger': {
-      const stripeBase = new THREE.Color().setHSL(hsl.h, 0.85, 0.45);
-      const warm = new THREE.Color().setHSL(hsl.h, 0.6, 0.2);
-      return { ...base, color: stripeBase, emissive: warm,
-        metalness: 0.05, roughness: 0.65, clearcoat: 0.3, clearcoatRoughness: 0.4,
-        emissiveIntensity: 0.1, envMapIntensity: 0.3,
+      const warmBase = new THREE.Color().setHSL(hsl.h, 0.9, 0.4);
+      const warmGlow = new THREE.Color().setHSL(hsl.h, 0.7, 0.2);
+      return { ...base, color: warmBase, emissive: warmGlow,
+        metalness: 0.0, roughness: 0.55, clearcoat: 0.4, clearcoatRoughness: 0.3,
+        emissiveIntensity: 0.15, envMapIntensity: 0.4,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
+    // ── THORNY: Aggressive displacement, rough, dark ──
     case 'thorny': {
-      const thornColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.3);
-      const darkEmissive = new THREE.Color().setHSL(hsl.h, 0.4, 0.12);
-      return { ...base, color: thornColor, emissive: darkEmissive,
-        metalness: 0.3, roughness: 0.85, clearcoat: 0.0, clearcoatRoughness: 0.8,
-        emissiveIntensity: 0.1, envMapIntensity: 0.2,
+      const thornC = new THREE.Color().setHSL(hsl.h, 0.4, 0.2);
+      const thornE = new THREE.Color().setHSL(hsl.h, 0.5, 0.1);
+      return { ...base, color: thornC, emissive: thornE,
+        metalness: 0.2, roughness: 0.9, clearcoat: 0.0, clearcoatRoughness: 0.8,
+        emissiveIntensity: 0.1, envMapIntensity: 0.15,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
+    // ── BONE: Off-white, smooth, organic ──
     case 'bone': {
-      const boneColor = new THREE.Color().setHSL(hsl.h, 0.08, 0.72);
-      const marrow = new THREE.Color().setHSL(hsl.h, 0.05, 0.35);
-      return { ...base, color: boneColor, emissive: marrow,
-        metalness: 0.0, roughness: 0.9, clearcoat: 0.1, clearcoatRoughness: 0.6,
-        emissiveIntensity: 0.03, envMapIntensity: 0.15,
+      const boneC = new THREE.Color().setHSL(hsl.h, 0.06, 0.75);
+      const marrow = new THREE.Color().setHSL(hsl.h, 0.04, 0.3);
+      return { ...base, color: boneC, emissive: marrow,
+        metalness: 0.0, roughness: 0.85, clearcoat: 0.15, clearcoatRoughness: 0.5,
+        emissiveIntensity: 0.02, envMapIntensity: 0.1,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
+    // ── EMBER: Smoldering, dark body with hot spots ──
     case 'ember': {
-      const ashColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.1);
-      const emberGlow = new THREE.Color().setHSL(hsl.h, 1.0, 0.5);
-      return { ...base, color: ashColor, emissive: emberGlow,
-        metalness: 0.05, roughness: 0.7, clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 1.0, envMapIntensity: 0.1,
+      const ashC = new THREE.Color().setHSL(hsl.h, 0.4, 0.06);
+      const hotSpot = new THREE.Color().setHSL(hsl.h, 1.0, 0.5);
+      return { ...base, color: ashC, emissive: hotSpot,
+        metalness: 0.0, roughness: 0.75, clearcoat: 0.0, clearcoatRoughness: 0.5,
+        emissiveIntensity: 1.5, envMapIntensity: 0.05,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
+    // ── ICE: Very pale, frosted, slightly transparent, faceted ──
     case 'ice': {
-      const iceColor = new THREE.Color().setHSL(hsl.h, 0.45, 0.78);
-      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.6);
-      return { ...base, color: iceColor, emissive: frostGlow,
-        metalness: 0.05, roughness: 0.02, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.15, envMapIntensity: 1.4,
-        transmission: 0.4, ior: 1.31, thickness: 2.0,
-        opacity: 0.75, transparent: true, flatShading: true, wireframe: false,
+      const iceC = new THREE.Color().setHSL(hsl.h, 0.3, 0.85);
+      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.4, 0.65);
+      return { ...base, color: iceC, emissive: frostGlow,
+        metalness: 0.0, roughness: 0.15, clearcoat: 1.0, clearcoatRoughness: 0.1,
+        emissiveIntensity: 0.1, envMapIntensity: 1.2,
+        transmission: 0.3, ior: 1.31, thickness: 2.0,
+        opacity: 0.65, transparent: true, flatShading: true, wireframe: false,
       };
     }
+    // ── VOID: Nearly invisible, dark hole with edge glow ──
     case 'void': {
-      const voidColor = new THREE.Color().setHSL(hsl.h, 0.5, 0.02);
-      const edgePulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.8, 0.2);
-      return { ...base, color: voidColor, emissive: edgePulse,
-        metalness: 0.9, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.15, envMapIntensity: 0.8,
-        opacity: 0.95, transparent: true, flatShading: false, wireframe: false,
+      const voidC = new THREE.Color(0.01, 0.01, 0.01);
+      const rimPulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.9, 0.25);
+      return { ...base, color: voidC, emissive: rimPulse,
+        metalness: 0.95, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.2, envMapIntensity: 1.0,
+        opacity: 0.92, transparent: true, flatShading: false, wireframe: false,
       };
     }
+    // ── HOLOGRAPHIC: Rainbow, high sheen, shifting colors ──
     case 'holographic': {
-      const holoColor = new THREE.Color().setHSL(hsl.h, 0.8, 0.55);
-      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 1.0, 0.5);
-      return { ...base, color: holoColor, emissive: holoGlow,
-        metalness: 0.6, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.4, envMapIntensity: 1.6,
-        sheen: 1.0, sheenRoughness: 0.05, sheenColor: holoGlow,
-        iridescence: 1.0, iridescenceIOR: 2.8,
-        opacity: 0.9, transparent: true, flatShading: false, wireframe: false,
+      const holoC = new THREE.Color().setHSL(hsl.h, 0.9, 0.6);
+      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 1.0, 0.55);
+      return { ...base, color: holoC, emissive: holoGlow,
+        metalness: 0.7, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.5, envMapIntensity: 2.0,
+        sheen: 1.0, sheenRoughness: 0.02, sheenColor: holoGlow,
+        iridescence: 1.0, iridescenceIOR: 3.0,
+        opacity: 0.88, transparent: true, flatShading: false, wireframe: false,
       };
     }
     default:
       return getElementalMaterial({ ...profile, materialType: 'glass' });
+  }
+}
+
+// ─── Geometry detail per material ───
+function getGeometryDetail(mat: string): number {
+  // Low detail = visible facets, high = smooth
+  switch (mat) {
+    case 'crystal': case 'obsidian': case 'ice': return 1;
+    case 'lava': case 'ember': case 'thorny': return 2;
+    case 'metal': return 2;
+    case 'wire': return 1;
+    case 'matte': case 'bone': case 'tiger': return 4;
+    case 'glass': case 'iridescent': case 'holographic': case 'plasma': case 'nebula': case 'void': return 3;
+    default: return 3;
   }
 }
 
@@ -305,7 +387,6 @@ interface MorphOrbMeshProps {
   profile: OrbProfile;
   geometryFamily?: string;
   level?: number;
-  /** For gallery: override shape count with random 1-5 */
   randomShapeCount?: boolean;
 }
 
@@ -313,12 +394,10 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
-  // Stable random seed per instance for consistent randomness
   const instanceSeed = useRef(Math.random());
   const mat = profile.materialType || 'glass';
 
   const shapes = useMemo(() => {
-    // If morphIntensity is 0, use single shape (no morphing)
     if (profile.morphIntensity === 0 || profile.morphSpeed === 0) {
       const all = ALL_SHAPES[geometryFamily] || ALL_SHAPES.sphere;
       return [all[0]];
@@ -337,20 +416,15 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
   }, [geometryFamily, level, randomShapeCount, profile.morphIntensity, profile.morphSpeed]);
 
   const { geometry, shapeArrays } = useMemo(() => {
-    // Vary geometry detail by material for visual distinction
-    const detail = mat === 'crystal' || mat === 'obsidian' || mat === 'ice' ? 2
-      : mat === 'lava' || mat === 'ember' || mat === 'thorny' ? 3
-      : mat === 'matte' || mat === 'bone' ? 5
-      : 4;
+    const detail = getGeometryDetail(mat);
     const geo = new THREE.IcosahedronGeometry(1, detail);
-    const base = (geo.attributes.position.array as Float32Array).slice();
-    const arrays = shapes.map(s => computeShapePositions(base, s, 1));
-    return { geometry: geo, shapeArrays: arrays, basePositions: base };
+    const baseArr = (geo.attributes.position.array as Float32Array).slice();
+    const arrays = shapes.map(s => computeShapePositions(baseArr, s, 1));
+    return { geometry: geo, shapeArrays: arrays };
   }, [shapes, mat]);
 
   const matProps = useMemo(() => getElementalMaterial(profile), [profile]);
 
-  // Multiple random seeds for chaotic organic variation
   const stateRef = useRef({
     timer: Math.random() * 200,
     seed1: Math.random() * 100,
@@ -360,26 +434,26 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     seed5: Math.random() * 100,
   });
 
-  // Per-material displacement & animation parameters
+  // Per-material animation behavior
   const matBehavior = useMemo(() => {
     switch (mat) {
-      case 'lava': return { dispScale: 0.18, dispFreq: 4, noiseSpeed: 1.2, pulseAmp: 0.06, rotSpeed: 0.04, emissiveFlicker: true, flickerSpeed: 2.5 };
-      case 'ember': return { dispScale: 0.14, dispFreq: 5, noiseSpeed: 1.0, pulseAmp: 0.05, rotSpeed: 0.05, emissiveFlicker: true, flickerSpeed: 3.5 };
-      case 'plasma': return { dispScale: 0.12, dispFreq: 3.5, noiseSpeed: 1.5, pulseAmp: 0.07, rotSpeed: 0.12, emissiveFlicker: true, flickerSpeed: 5 };
-      case 'thorny': return { dispScale: 0.25, dispFreq: 8, noiseSpeed: 0.3, pulseAmp: 0.03, rotSpeed: 0.03, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'crystal': return { dispScale: 0.02, dispFreq: 1, noiseSpeed: 0.15, pulseAmp: 0.015, rotSpeed: 0.06, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'ice': return { dispScale: 0.03, dispFreq: 1.5, noiseSpeed: 0.1, pulseAmp: 0.01, rotSpeed: 0.04, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'matte': return { dispScale: 0.02, dispFreq: 2, noiseSpeed: 0.2, pulseAmp: 0.01, rotSpeed: 0.02, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'bone': return { dispScale: 0.04, dispFreq: 2.5, noiseSpeed: 0.15, pulseAmp: 0.01, rotSpeed: 0.02, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'metal': return { dispScale: 0.03, dispFreq: 2, noiseSpeed: 0.2, pulseAmp: 0.02, rotSpeed: 0.03, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'obsidian': return { dispScale: 0.02, dispFreq: 1.5, noiseSpeed: 0.15, pulseAmp: 0.015, rotSpeed: 0.04, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'wire': return { dispScale: 0.06, dispFreq: 3, noiseSpeed: 0.5, pulseAmp: 0.03, rotSpeed: 0.07, emissiveFlicker: true, flickerSpeed: 1.5 };
-      case 'void': return { dispScale: 0.04, dispFreq: 1.5, noiseSpeed: 0.08, pulseAmp: 0.02, rotSpeed: 0.015, emissiveFlicker: true, flickerSpeed: 0.8 };
-      case 'nebula': return { dispScale: 0.1, dispFreq: 2, noiseSpeed: 0.3, pulseAmp: 0.04, rotSpeed: 0.025, emissiveFlicker: true, flickerSpeed: 1.2 };
-      case 'tiger': return { dispScale: 0.06, dispFreq: 3, noiseSpeed: 0.35, pulseAmp: 0.02, rotSpeed: 0.05, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'holographic': return { dispScale: 0.05, dispFreq: 2.5, noiseSpeed: 0.6, pulseAmp: 0.03, rotSpeed: 0.1, emissiveFlicker: true, flickerSpeed: 2 };
-      case 'iridescent': return { dispScale: 0.06, dispFreq: 2, noiseSpeed: 0.4, pulseAmp: 0.03, rotSpeed: 0.06, emissiveFlicker: false, flickerSpeed: 0 };
-      case 'glass': default: return { dispScale: 0.08, dispFreq: 3, noiseSpeed: 0.5, pulseAmp: 0.035, rotSpeed: 0.08, emissiveFlicker: false, flickerSpeed: 0 };
+      case 'lava':        return { dispScale: 0.20, dispFreq: 4, noiseSpeed: 1.2, pulseAmp: 0.07, rotSpeed: 0.04, emissiveFlicker: true, flickerSpeed: 2.5, flickerRange: 0.5 };
+      case 'ember':       return { dispScale: 0.16, dispFreq: 5, noiseSpeed: 1.0, pulseAmp: 0.06, rotSpeed: 0.05, emissiveFlicker: true, flickerSpeed: 3.5, flickerRange: 0.4 };
+      case 'plasma':      return { dispScale: 0.14, dispFreq: 3.5, noiseSpeed: 1.8, pulseAmp: 0.08, rotSpeed: 0.15, emissiveFlicker: true, flickerSpeed: 6, flickerRange: 0.4 };
+      case 'thorny':      return { dispScale: 0.30, dispFreq: 8, noiseSpeed: 0.25, pulseAmp: 0.02, rotSpeed: 0.02, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'crystal':     return { dispScale: 0.01, dispFreq: 1, noiseSpeed: 0.1, pulseAmp: 0.01, rotSpeed: 0.05, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'ice':         return { dispScale: 0.02, dispFreq: 1.5, noiseSpeed: 0.08, pulseAmp: 0.008, rotSpeed: 0.03, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'matte':       return { dispScale: 0.015, dispFreq: 2, noiseSpeed: 0.15, pulseAmp: 0.008, rotSpeed: 0.015, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'bone':        return { dispScale: 0.03, dispFreq: 2.5, noiseSpeed: 0.12, pulseAmp: 0.008, rotSpeed: 0.015, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'metal':       return { dispScale: 0.015, dispFreq: 2, noiseSpeed: 0.1, pulseAmp: 0.01, rotSpeed: 0.02, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'obsidian':    return { dispScale: 0.01, dispFreq: 1.5, noiseSpeed: 0.08, pulseAmp: 0.01, rotSpeed: 0.025, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'wire':        return { dispScale: 0.08, dispFreq: 3, noiseSpeed: 0.5, pulseAmp: 0.04, rotSpeed: 0.08, emissiveFlicker: true, flickerSpeed: 1.5, flickerRange: 0.3 };
+      case 'void':        return { dispScale: 0.03, dispFreq: 1.5, noiseSpeed: 0.06, pulseAmp: 0.015, rotSpeed: 0.01, emissiveFlicker: true, flickerSpeed: 0.6, flickerRange: 0.5 };
+      case 'nebula':      return { dispScale: 0.12, dispFreq: 2, noiseSpeed: 0.3, pulseAmp: 0.05, rotSpeed: 0.02, emissiveFlicker: true, flickerSpeed: 1.0, flickerRange: 0.3 };
+      case 'tiger':       return { dispScale: 0.05, dispFreq: 3, noiseSpeed: 0.3, pulseAmp: 0.02, rotSpeed: 0.04, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'holographic':  return { dispScale: 0.04, dispFreq: 2.5, noiseSpeed: 0.5, pulseAmp: 0.03, rotSpeed: 0.1, emissiveFlicker: true, flickerSpeed: 2, flickerRange: 0.3 };
+      case 'iridescent':  return { dispScale: 0.05, dispFreq: 2, noiseSpeed: 0.35, pulseAmp: 0.025, rotSpeed: 0.05, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
+      case 'glass': default: return { dispScale: 0.06, dispFreq: 3, noiseSpeed: 0.4, pulseAmp: 0.03, rotSpeed: 0.06, emissiveFlicker: false, flickerSpeed: 0, flickerRange: 0 };
     }
   }, [mat]);
 
@@ -394,7 +468,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     const arr = positions.array as Float32Array;
     const vertCount = arr.length / 3;
 
-    // Global pulsation — varies by material
+    // Global pulsation
     const pulse = 1.0
       + Math.sin(t * 1.2 + st.seed1) * mb.pulseAmp
       + Math.sin(t * 0.7 + st.seed3) * mb.pulseAmp * 0.7
@@ -453,14 +527,14 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
     positions.needsUpdate = true;
     meshRef.current.geometry.computeVertexNormals();
 
-    // Rotation speed varies by material
+    // Rotation
     meshRef.current.rotation.y += delta * mb.rotSpeed;
     meshRef.current.rotation.x = Math.sin(t * 0.09 + st.seed1) * 0.18 + Math.sin(t * 0.05 + st.seed3) * 0.1;
     meshRef.current.rotation.z = Math.cos(t * 0.07 + st.seed2) * 0.12 + Math.sin(t * 0.11 + st.seed5) * 0.06;
 
-    // Emissive flicker for glowing materials
+    // Emissive flicker
     if (mb.emissiveFlicker && matRef.current) {
-      const flicker = 0.6 + Math.sin(t * mb.flickerSpeed + st.seed1) * 0.3 + Math.sin(t * mb.flickerSpeed * 2.3 + st.seed2) * 0.15;
+      const flicker = (1 - mb.flickerRange) + Math.sin(t * mb.flickerSpeed + st.seed1) * mb.flickerRange * 0.6 + Math.sin(t * mb.flickerSpeed * 2.3 + st.seed2) * mb.flickerRange * 0.4;
       matRef.current.emissiveIntensity = matProps.emissiveIntensity * flicker;
     }
   });
@@ -494,23 +568,22 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
   );
 }
 
-// ─── Shared lighting rig for rich 3D look ───
+// ─── Shared lighting rig ───
 
 function OrbLighting() {
   return (
     <>
-      <ambientLight intensity={0.15} />
-      <directionalLight position={[5, 5, 8]} intensity={1.2} color="#ffffff" />
-      <directionalLight position={[-3, 2, -4]} intensity={0.4} color="#8888ff" />
-      <directionalLight position={[0, -3, 2]} intensity={0.2} color="#ff88cc" />
-      <pointLight position={[2, 3, 4]} intensity={0.5} color="#ffffff" distance={15} />
+      <ambientLight intensity={0.12} />
+      <directionalLight position={[5, 5, 8]} intensity={1.4} color="#ffffff" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.5} color="#8888ff" />
+      <directionalLight position={[0, -3, 2]} intensity={0.25} color="#ff88cc" />
+      <pointLight position={[2, 3, 4]} intensity={0.6} color="#ffffff" distance={15} />
       <Environment preset="city" background={false} />
     </>
   );
 }
 
 // ─── Public: GalleryOrbView ───
-// Now uses standalone inline Canvas (no shared context needed)
 
 interface GalleryOrbViewProps {
   profile: OrbProfile;
@@ -562,7 +635,6 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
 }
 
 // ─── Public: GalleryCanvas ───
-// Uses SharedOrbCanvas for a single shared WebGL context
 
 import { SharedOrbCanvas } from './SharedOrbCanvas';
 
