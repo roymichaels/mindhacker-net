@@ -10,9 +10,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Send, Loader2, Sparkles, Wrench, X } from 'lucide-react';
+import { Send, Loader2, Sparkles, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseAllTags, stripAllTags } from '@/lib/commandBus';
+import { parseAllTags, stripAllTags, type AppCommand } from '@/lib/commandBus';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -50,17 +50,16 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [appliedCount, setAppliedCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Focus input on open
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 200);
   }, [open]);
@@ -69,31 +68,207 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     if (!val) {
       setMessages([]);
       setInput('');
+      setAppliedCount(0);
     }
     onOpenChange(val);
   };
 
-  const processCommands = useCallback(async (fullText: string) => {
-    // Parse commands from Aurora's response
-    const commands = parseAllTags(fullText);
-    if (commands.length === 0) return;
+  const invalidatePlanQueries = useCallback(() => {
+    const keys = [
+      'life-plan', 'milestones', 'strategy-plans', 'strategy-missions',
+      'strategy-milestones', 'strategy-traits', 'strategy-skill-progress',
+      'daily-queue', 'trait-gallery', 'user-practices', 'action-items',
+      'daily-habits', 'current-week-milestone',
+    ];
+    keys.forEach(k => queryClient.invalidateQueries({ queryKey: [k] }));
+  }, [queryClient]);
 
-    // Process practice commands specifically
+  // Execute a single parsed command against the database
+  const executeCommand = useCallback(async (command: AppCommand): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    const getActivePlanId = async (): Promise<string | null> => {
+      const { data } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').maybeSingle();
+      return data?.id || null;
+    };
+
+    switch (command.type) {
+      case 'editMilestone': {
+        const allowedFields = ['title', 'title_en', 'description', 'description_en', 'goal', 'goal_en', 'focus_area', 'focus_area_en'];
+        const safeUpdates: Record<string, string> = {};
+        for (const [k, v] of Object.entries(command.updates)) {
+          if (allowedFields.includes(k)) safeUpdates[k] = v;
+        }
+        if (Object.keys(safeUpdates).length === 0) return false;
+        const { error } = await supabase.from('life_plan_milestones').update(safeUpdates).eq('id', command.milestoneId);
+        return !error;
+      }
+
+      case 'addMilestoneTask': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const { data: milestone } = await supabase.from('life_plan_milestones').select('id, tasks').eq('plan_id', planId).eq('week_number', command.weekNumber).single();
+        if (!milestone) return false;
+        const tasks = Array.isArray(milestone.tasks) ? [...milestone.tasks] : [];
+        tasks.push(command.task);
+        const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
+        return !error;
+      }
+
+      case 'removeMilestoneTask': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const { data: milestone } = await supabase.from('life_plan_milestones').select('id, tasks').eq('plan_id', planId).eq('week_number', command.weekNumber).single();
+        if (!milestone) return false;
+        const tasks = Array.isArray(milestone.tasks) ? [...milestone.tasks] : [];
+        if (command.taskIndex < 0 || command.taskIndex >= tasks.length) return false;
+        tasks.splice(command.taskIndex, 1);
+        const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
+        return !error;
+      }
+
+      case 'replaceMilestoneTask': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const { data: milestone } = await supabase.from('life_plan_milestones').select('id, tasks').eq('plan_id', planId).eq('week_number', command.weekNumber).single();
+        if (!milestone) return false;
+        const tasks = Array.isArray(milestone.tasks) ? [...milestone.tasks] : [];
+        if (command.taskIndex < 0 || command.taskIndex >= tasks.length) return false;
+        tasks[command.taskIndex] = command.newTask;
+        const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
+        return !error;
+      }
+
+      case 'updatePlan': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const updateData: Record<string, string> = { [command.field]: command.value };
+        const { error } = await supabase.from('life_plan_milestones').update(updateData).eq('plan_id', planId).eq('week_number', command.weekNumber);
+        return !error;
+      }
+
+      case 'addMilestone': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const { error } = await supabase.from('life_plan_milestones').insert({
+          plan_id: planId,
+          week_number: command.weekNumber,
+          month_number: Math.ceil(command.weekNumber / 4),
+          title: command.title,
+          goal: command.goal || null,
+          focus_area: command.focusArea || null,
+        });
+        return !error;
+      }
+
+      case 'removeMilestone': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const { error } = await supabase.from('life_plan_milestones').delete().eq('plan_id', planId).eq('week_number', command.weekNumber);
+        return !error;
+      }
+
+      case 'completeMilestone': {
+        const planId = await getActivePlanId();
+        if (!planId) return false;
+        const { error } = await supabase.from('life_plan_milestones')
+          .update({ is_completed: true, completed_at: new Date().toISOString() })
+          .eq('plan_id', planId).eq('week_number', command.weekNumber);
+        return !error;
+      }
+
+      case 'bulkReplacePlan': {
+        const { data: plans } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active');
+        if (!plans?.length) return false;
+        const regex = new RegExp(command.oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        let updated = 0;
+        for (const plan of plans) {
+          const { data: milestones } = await supabase.from('life_plan_milestones').select('id, title, title_en, description, description_en, tasks').eq('plan_id', plan.id);
+          if (milestones) {
+            for (const m of milestones) {
+              const updates: Record<string, any> = {};
+              for (const field of ['title', 'title_en', 'description', 'description_en'] as const) {
+                const val = (m as any)[field];
+                if (typeof val === 'string' && regex.test(val)) {
+                  updates[field] = val.replace(regex, command.newText); regex.lastIndex = 0;
+                }
+              }
+              if (Array.isArray(m.tasks)) {
+                const newTasks = (m.tasks as any[]).map(t => {
+                  if (typeof t === 'string') { regex.lastIndex = 0; return t.replace(regex, command.newText); }
+                  return t;
+                });
+                regex.lastIndex = 0;
+                if (JSON.stringify(newTasks) !== JSON.stringify(m.tasks)) updates.tasks = newTasks;
+              }
+              if (Object.keys(updates).length > 0) {
+                await supabase.from('life_plan_milestones').update(updates).eq('id', m.id);
+                updated++;
+              }
+            }
+          }
+        }
+        return updated > 0;
+      }
+
+      case 'createHabit': {
+        const { error } = await supabase.from('action_items').insert({
+          user_id: user.id, type: 'habit', source: 'aurora', status: 'todo',
+          title: command.name, recurrence_rule: 'daily', xp_reward: 10,
+        });
+        return !error;
+      }
+
+      case 'removeHabit': {
+        const { data: habit } = await supabase.from('action_items')
+          .select('id').eq('user_id', user.id).eq('type', 'habit')
+          .ilike('title', `%${command.name}%`).limit(1).maybeSingle();
+        if (!habit) return false;
+        const { error } = await supabase.from('action_items').delete().eq('id', habit.id);
+        return !error;
+      }
+
+      case 'createActionItem': {
+        const { error } = await supabase.from('action_items').insert({
+          user_id: user.id, type: 'task', source: 'aurora', status: 'todo',
+          title: command.title, scheduled_date: new Date().toISOString().slice(0, 10),
+        });
+        return !error;
+      }
+
+      case 'deleteActionItem': {
+        const { data: item } = await supabase.from('action_items')
+          .select('id').eq('user_id', user.id)
+          .ilike('title', `%${command.identifier}%`).limit(1).maybeSingle();
+        if (!item) return false;
+        const { error } = await supabase.from('action_items').delete().eq('id', item.id);
+        return !error;
+      }
+
+      default:
+        return false;
+    }
+  }, [user?.id]);
+
+  const processCommands = useCallback(async (fullText: string) => {
+    // 1. Parse standard command tags
+    const commands = parseAllTags(fullText);
+
+    // 2. Parse practice-specific tags (not in standard parser)
     const practiceAddRegex = /\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\]/g;
     const practiceRemoveRegex = /\[practice:remove:([a-f0-9-]+)\]/g;
+    const practiceUpdateRegex = /\[practice:update:([a-f0-9-]+):(.+?)\]/g;
 
-    let match;
     let changesMade = false;
+    let match;
 
     // Practice additions
     while ((match = practiceAddRegex.exec(fullText)) !== null) {
       const [, practiceId, duration, frequency, isCore] = match;
       if (user?.id) {
         const { error } = await supabase.from('user_practices').insert({
-          user_id: user.id,
-          practice_id: practiceId,
-          duration_minutes: parseInt(duration),
-          frequency,
+          user_id: user.id, practice_id: practiceId,
+          duration_minutes: parseInt(duration), frequency,
           is_core: isCore === 'true',
         });
         if (!error) changesMade = true;
@@ -103,24 +278,44 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     // Practice removals
     while ((match = practiceRemoveRegex.exec(fullText)) !== null) {
       const [, userPracticeId] = match;
-      const { error } = await supabase
-        .from('user_practices')
-        .delete()
-        .eq('id', userPracticeId);
+      const { error } = await supabase.from('user_practices').delete().eq('id', userPracticeId);
       if (!error) changesMade = true;
     }
 
-    if (changesMade || commands.length > 0) {
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['user-practices'] });
-      queryClient.invalidateQueries({ queryKey: ['strategy-missions'] });
-      queryClient.invalidateQueries({ queryKey: ['strategy-milestones'] });
-      queryClient.invalidateQueries({ queryKey: ['strategy-traits'] });
-      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
-      queryClient.invalidateQueries({ queryKey: ['daily-queue'] });
-      queryClient.invalidateQueries({ queryKey: ['trait-gallery'] });
+    // Practice updates
+    while ((match = practiceUpdateRegex.exec(fullText)) !== null) {
+      const [, userPracticeId, fieldsStr] = match;
+      const updates: Record<string, any> = {};
+      fieldsStr.split('|').forEach(pair => {
+        const [k, ...v] = pair.split('=');
+        if (k && v.length) {
+          const val = v.join('=').trim();
+          updates[k.trim()] = val === 'true' ? true : val === 'false' ? false : isNaN(Number(val)) ? val : Number(val);
+        }
+      });
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase.from('user_practices').update(updates).eq('id', userPracticeId);
+        if (!error) changesMade = true;
+      }
     }
-  }, [user?.id, queryClient]);
+
+    // 3. Execute standard commands
+    let executedCount = 0;
+    for (const cmd of commands) {
+      const success = await executeCommand(cmd);
+      if (success) executedCount++;
+    }
+
+    if (changesMade || executedCount > 0) {
+      invalidatePlanQueries();
+      setAppliedCount(prev => prev + executedCount + (changesMade ? 1 : 0));
+      toast.success(
+        isHe
+          ? `✅ ${executedCount + (changesMade ? 1 : 0)} שינויים הוחלו`
+          : `✅ ${executedCount + (changesMade ? 1 : 0)} changes applied`
+      );
+    }
+  }, [user?.id, executeCommand, invalidatePlanQueries, isHe]);
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || !user?.id || isStreaming) return;
@@ -241,6 +436,11 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
                 {isHe ? 'שינויים כירורגיים בלבד — בלי ליצור מחדש' : 'Surgical changes only — no regeneration'}
               </span>
             </div>
+            {appliedCount > 0 && (
+              <span className="ms-auto text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium">
+                {appliedCount} {isHe ? 'שינויים' : 'changes'}
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
 
