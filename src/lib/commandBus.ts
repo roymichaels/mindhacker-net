@@ -111,19 +111,38 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'renameChecklist', oldTitle: m[1].trim(), newTitle: m[2].trim() });
   }
 
-  // Task/checklist item add: [checklist:add:List:Item] or [task:create:List:Item]
-  for (const m of content.matchAll(/\[(?:checklist:add|task:create):(.+?):(.+?)\]/g)) {
-    commands.push({ type: 'createActionItem', checklistTitle: m[1].trim(), title: m[2].trim() });
+  // Task complete by ID: [task:complete:UUID]
+  for (const m of content.matchAll(/\[task:complete:([a-f0-9-]{36})\]/g)) {
+    commands.push({ type: 'completeActionItem', identifier: m[1] });
   }
 
-  // Task complete: [checklist:complete:List:Item] or [task:complete:List:Item]
-  for (const m of content.matchAll(/\[(?:checklist:complete|task:complete):(.+?):(.+?)\]/g)) {
+  // Task complete with list: [checklist:complete:List:Item] or [task:complete:List:Item]
+  for (const m of content.matchAll(/\[(?:checklist:complete|task:complete):([^:\]]+):([^:\]]+)\]/g)) {
+    // Skip if first arg is a UUID (already handled above)
+    if (/^[a-f0-9-]{36}$/.test(m[1])) continue;
     commands.push({ type: 'completeActionItem', checklistTitle: m[1].trim(), identifier: m[2].trim() });
   }
 
-  // Task delete: [task:delete:List:Item]
-  for (const m of content.matchAll(/\[task:delete:(.+?):(.+?)\]/g)) {
+  // Task delete by ID: [task:delete:UUID]
+  for (const m of content.matchAll(/\[task:delete:([a-f0-9-]{36})\]/g)) {
+    commands.push({ type: 'deleteActionItem', identifier: m[1] });
+  }
+
+  // Task delete with list: [task:delete:List:Item]
+  for (const m of content.matchAll(/\[task:delete:([^:\]]+):([^:\]]+)\]/g)) {
+    if (/^[a-f0-9-]{36}$/.test(m[1])) continue;
     commands.push({ type: 'deleteActionItem', checklistTitle: m[1].trim(), identifier: m[2].trim() });
+  }
+
+  // Task swap: [task:swap:OLD_ID:new title]
+  for (const m of content.matchAll(/\[task:swap:([a-f0-9-]{36}):(.+?)\]/g)) {
+    commands.push({ type: 'deleteActionItem', identifier: m[1] });
+    commands.push({ type: 'createActionItem', title: m[2].trim() });
+  }
+
+  // Task create (simple): [task:create:title]
+  for (const m of content.matchAll(/\[task:create:([^:\]]+)\]/g)) {
+    commands.push({ type: 'createActionItem', title: m[1].trim() });
   }
 
   // Task reschedule: [task:reschedule:List:Item:YYYY-MM-DD]
@@ -222,6 +241,7 @@ export function stripAllTags(content: string): string {
     .replace(/\[setting:[^\]]+\]/g, '')
     .replace(/\[checklist:[^\]]+\]/g, '')
     .replace(/\[task:[^\]]+\]/g, '')
+    .replace(/\[task:swap:[^\]]+\]/g, '')
     .replace(/\[milestone:[^\]]+\]/g, '')
     .replace(/\[habit:[^\]]+\]/g, '')
     .replace(/\[plan:[^\]]+\]/g, '')
