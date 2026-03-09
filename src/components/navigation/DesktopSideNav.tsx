@@ -96,7 +96,7 @@ export function DesktopSideNav() {
       {/* Aurora */}
       <button
         onClick={openAurora}
-        className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border bg-violet-500/5 border-violet-500/15 hover:bg-violet-500/15 hover:border-violet-500/30"
+        className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15 hover:border-pink-500/30"
       >
         <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
           <StandaloneMorphOrb
@@ -106,7 +106,7 @@ export function DesktopSideNav() {
             level={100}
           />
         </div>
-        <span className="text-violet-600 dark:text-violet-400 opacity-90 truncate">Aurora</span>
+        <span className="text-pink-600 dark:text-pink-400 opacity-90 truncate">Aurora</span>
       </button>
 
       {/* Path — highlighted */}
