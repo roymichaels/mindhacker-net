@@ -1,11 +1,13 @@
 /**
  * SidebarOrbWidget - Full identity card for sidebar with orb, title, stats, XP bar.
  * Matches the gamified profile card design.
+ * Pulses with a work-glow ring when an active work session is running.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useActiveWorkSession } from '@/hooks/useActiveWorkSession';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { Star, Flame, Zap } from 'lucide-react';
