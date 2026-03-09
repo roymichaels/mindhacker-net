@@ -81,10 +81,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </header>
           )}
 
-          <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
+          <div className="flex-1 min-h-0 flex !flex-row" dir="ltr" {...(isMobile ? swipeHandlers : {})}>
             <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 relative ${isFM ? 'pb-16 md:pb-4' : 'pb-20 md:pb-4'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {/* Route-colored ambient glow */}
-              <div className="absolute inset-0 pointer-events-none" style={{ background: theme.ambientGlow }} />
+              <div className="absolute inset-0 pointer-events-none" style={{ background: isDark ? theme.ambientGlowDark : theme.ambientGlow }} />
               <div className="relative z-10 flex flex-col flex-1">
                 {children}
               </div>
