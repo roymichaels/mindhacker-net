@@ -302,8 +302,9 @@ const App = () => (
                           <Route path="/community/post/:postId" element={<CommunityThread />} />
                           {/* Messages */}
                           <Route path="/messages" element={<Messages />} />
-                          <Route path="/messages/ai" element={<MessageThread />} />
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
+                          {/* Aurora Chat */}
+                          <Route path="/aurora" element={<AuroraPage />} />
                           {/* Now redirects to Plan (merged) */}
                           <Route path="/now" element={<Navigate to="/plan" replace />} />
                           {/* Plan (merged Strategy + Tactics) */}
