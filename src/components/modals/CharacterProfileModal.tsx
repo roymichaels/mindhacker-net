@@ -469,7 +469,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           <div className="flex gap-0.5 mb-2 justify-center">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-white/10")} />
+              <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30")} />
             ))}
           </div>
           <p className="text-sm text-white/60 leading-relaxed">{lifeDirection.content}</p>
