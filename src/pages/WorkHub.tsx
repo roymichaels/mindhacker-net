@@ -5,12 +5,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Timer, ListTodo, Clock, BarChart3, Play, Square, Plus, Trash2, Brain, Zap } from 'lucide-react';
+import { Timer, ListTodo, Clock, BarChart3, Play, Square, Plus, Trash2, Brain, Zap, MessageSquare, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import {
   useTodayWorkSessions,
   useRecentWorkSessions,
@@ -21,6 +22,7 @@ import {
 } from '@/hooks/useWorkSessions';
 import { toast } from 'sonner';
 import type { WorkSession } from '@/services/workSessions';
+import { WorkChatWizard } from '@/components/work/WorkChatWizard';
 
 // ── Timer Component ──────────────────────────────────
 function WorkTimer() {
@@ -345,6 +347,8 @@ function WorkStats() {
 export default function WorkHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const { isPlus } = useSubscriptionGate();
+  const [chatMode, setChatMode] = useState<'chat' | 'wizard' | null>(null);
 
   const tabs = [
     { id: 'timer', labelHe: 'טיימר', labelEn: 'Timer', icon: Timer },
@@ -362,6 +366,26 @@ export default function WorkHub() {
         <p className="text-sm text-muted-foreground">
           {isHe ? 'עקוב אחר שעות העבודה שלך ומדוד פרודוקטיביות' : 'Track your work hours and measure productivity'}
         </p>
+      </div>
+
+      {/* AI Action buttons */}
+      <div className="w-full max-w-xl px-4 pb-2 space-y-2">
+        <button
+          onClick={() => setChatMode('chat')}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
+        >
+          <MessageSquare className="w-4 h-4" />
+          {isHe ? 'דבר עם תוכנית העבודה' : 'Talk to Work Plan'}
+          {!isPlus && <Lock className="w-3 h-3 opacity-60" />}
+        </button>
+        <button
+          onClick={() => setChatMode('wizard')}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-accent/30 bg-accent/5 hover:bg-accent/10 hover:border-accent/50 transition-all text-sm font-medium text-accent-foreground"
+        >
+          <Sparkles className="w-4 h-4" />
+          {isHe ? '✨ אשף עבודה AI' : '✨ AI Work Wizard'}
+          {!isPlus && <Lock className="w-3 h-3 opacity-60" />}
+        </button>
       </div>
 
       {/* Tab bar — matching PlanHub style */}
@@ -404,6 +428,13 @@ export default function WorkHub() {
           </div>
         </Tabs>
       </div>
+
+      {/* AI Chat Wizards */}
+      <WorkChatWizard
+        open={chatMode !== null}
+        onOpenChange={(open) => { if (!open) setChatMode(null); }}
+        mode={chatMode || 'chat'}
+      />
     </div>
   );
 }
