@@ -73,9 +73,21 @@ serve(async (req) => {
         .limit(20);
 
       if (actions?.length) {
-        actionContext = `\n\nActive tasks (${actions.length}):\n${actions.map(a =>
-          `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} source:${a.source} date:${a.scheduled_date || 'unscheduled'} (id: ${a.id})`
-        ).join("\n")}`;
+        const pending = actions.filter(a => a.status !== 'done');
+        const done = actions.filter(a => a.status === 'done');
+        actionContext = `\n\nToday's date: ${today}`;
+        if (pending.length) {
+          actionContext += `\n\nPending tasks (${pending.length}):\n${pending.map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} date:${a.scheduled_date || 'unscheduled'} (id: ${a.id})`
+          ).join("\n")}`;
+        }
+        if (done.length || todayDone?.length) {
+          const allDone = [...(done || []), ...(todayDone || [])];
+          const unique = [...new Map(allDone.map(d => [d.id, d])).values()];
+          actionContext += `\n\nCompleted today (${unique.length}):\n${unique.map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅`
+          ).join("\n")}`;
+        }
       }
     }
 
