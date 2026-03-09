@@ -241,6 +241,7 @@ export function stripAllTags(content: string): string {
     .replace(/\[setting:[^\]]+\]/g, '')
     .replace(/\[checklist:[^\]]+\]/g, '')
     .replace(/\[task:[^\]]+\]/g, '')
+    .replace(/\[task:swap:[^\]]+\]/g, '')
     .replace(/\[milestone:[^\]]+\]/g, '')
     .replace(/\[habit:[^\]]+\]/g, '')
     .replace(/\[plan:[^\]]+\]/g, '')
