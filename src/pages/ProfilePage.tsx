@@ -15,6 +15,8 @@ import { InventoryBagModal } from '@/components/modals/InventoryBagModal';
 import { Sparkles, Dumbbell, Trophy, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
+import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
+import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -85,6 +87,12 @@ export default function ProfilePage() {
               <span className="text-xs font-bold text-purple-400">{isHe ? 'שלל' : 'Loot'}</span>
             </motion.button>
           </div>
+        </div>
+
+        {/* ═══════ ORB NARRATIVE + TRANSFORMATION REPORT ═══════ */}
+        <div className="px-4 mt-3 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full space-y-2.5">
+          <OrbNarrativeCard />
+          <TransformationReportCard />
         </div>
 
         {/* ═══════ PROFILE CONTENT ═══════ */}
