@@ -33,7 +33,9 @@ export type AppCommand =
   | { type: 'setFocus'; title: string; days: number }
   | { type: 'setTheme'; value: 'light' | 'dark' | 'system' }
   | { type: 'toggleTheme' }
-  | { type: 'triggerAnalysis' };
+  | { type: 'triggerAnalysis' }
+  | { type: 'memoryGraphUpsert'; nodeType: string; content: string }
+  | { type: 'memoryGraphStrengthen'; content: string };
 
 export type CommandType = AppCommand['type'];
 
@@ -42,7 +44,7 @@ export type RiskLevel = 'safe' | 'moderate' | 'destructive';
 // ─── Risk Classification ─────────────────────────────────────────────────────
 
 const SAFE_COMMANDS: CommandType[] = [
-  'openTab', 'openModal', 'setTheme', 'toggleTheme', 'triggerAnalysis',
+  'openTab', 'openModal', 'setTheme', 'toggleTheme', 'triggerAnalysis', 'memoryGraphUpsert', 'memoryGraphStrengthen',
 ];
 
 const DESTRUCTIVE_COMMANDS: CommandType[] = [
@@ -229,6 +231,14 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'setFocus', title: m[1].trim(), days: parseInt(m[2]) });
   }
 
+  // Memory Graph: [memory:type:content] and [memory:strengthen:content]
+  for (const m of content.matchAll(/\[memory:(belief|fear|breakthrough|pattern|blocker|insight|value_shift|dream):(.+?)\]/g)) {
+    commands.push({ type: 'memoryGraphUpsert', nodeType: m[1], content: m[2].trim() });
+  }
+  for (const m of content.matchAll(/\[memory:strengthen:(.+?)\]/g)) {
+    commands.push({ type: 'memoryGraphStrengthen', content: m[1].trim() });
+  }
+
   return commands;
 }
 
@@ -256,6 +266,8 @@ export function stripAllTags(content: string): string {
     .replace(/\[reminder:[^\]]+\]/g, '')
     .replace(/\[focus:[^\]]+\]/g, '')
     .replace(/\[practice:[^\]]+\]/g, '')
+    .replace(/\[memory:[^\]]+\]/g, '')
+    .replace(/\[dream:[^\]]+\]/g, '')
     .trim();
 }
 

@@ -10,6 +10,15 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Types ─────────────────────────────────────────────────
 
+export interface MemoryGraphNode {
+  node_type: string;
+  content: string;
+  strength: number;
+  pillar: string | null;
+  reference_count: number;
+  first_seen: string;
+}
+
 export interface AuroraContext {
   // Metadata
   context_hash: string;
@@ -184,6 +193,9 @@ export interface AuroraContext {
     focus_peak_start: string | null;
     focus_peak_end: string | null;
   };
+
+  // ─── Memory Graph (Knowledge Graph) ─────────────
+  memory_graph: MemoryGraphNode[];
 }
 
 // ─── Hash ──────────────────────────────────────────────────
@@ -256,6 +268,8 @@ export async function buildContext(
     // NEW: Practices, skills, schedule
     userPracticesRes,
     activeSkillsRes,
+    // NEW: Memory Graph (knowledge graph)
+    memoryGraphRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -321,6 +335,8 @@ export async function buildContext(
       const progressMap = new Map((progress || []).map((p: any) => [p.skill_id, p]));
       return { data: skills.map((s: any) => ({ ...s, ...progressMap.get(s.id) })), error: null };
     })(),
+    // NEW: Memory Graph — top active nodes by strength
+    supabase.from("aurora_memory_graph").select("node_type, content, strength, pillar, reference_count, first_seen_at").eq("user_id", userId).eq("is_active", true).order("strength", { ascending: false }).limit(20),
   ]);
 
   const profile = profileRes.data;
@@ -351,6 +367,7 @@ export async function buildContext(
   const upcomingTasks = upcomingTasksRes.data || [];
   const userPracticesData = userPracticesRes.data || [];
   const activeSkillsData = (activeSkillsRes as any)?.data || [];
+  const memoryGraphData = memoryGraphRes.data || [];
 
   // Pulse data
   const pulseToday = pulseTodayRes.data;
@@ -667,6 +684,16 @@ export async function buildContext(
       focus_peak_start: profile?.focus_peak_start || null,
       focus_peak_end: profile?.focus_peak_end || null,
     },
+
+    // ─── Memory Graph (Knowledge Graph) ───────────────
+    memory_graph: memoryGraphData.map((n: any) => ({
+      node_type: n.node_type,
+      content: n.content,
+      strength: n.strength || 1,
+      pillar: n.pillar || null,
+      reference_count: n.reference_count || 1,
+      first_seen: n.first_seen_at ? new Date(n.first_seen_at).toISOString().split("T")[0] : "",
+    })),
   };
 
   // Compute hash for tracing
@@ -727,5 +754,6 @@ function createEmptyContext(today: string): AuroraContext {
     user_practices: [],
     active_skills: [],
     schedule_prefs: { wake_time: null, sleep_time: null, focus_peak_start: null, focus_peak_end: null },
+    memory_graph: [],
   };
 }

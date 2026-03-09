@@ -502,6 +502,38 @@ export const useCommandBus = () => {
         return makeReceipt('focus', 'create', !error, command.title, `${command.days} ${isHebrew ? 'ימים' : 'days'}`);
       }
 
+      // ── Memory Graph (silent, auto-executed) ──
+      case 'memoryGraphUpsert': {
+        if (!user?.id) return null;
+        await supabase.from('aurora_memory_graph').insert({
+          user_id: user.id,
+          node_type: command.nodeType,
+          content: command.content,
+          strength: 1,
+          reference_count: 1,
+        });
+        return null; // Silent — no UI feedback needed
+      }
+      case 'memoryGraphStrengthen': {
+        if (!user?.id) return null;
+        const { data: existing } = await supabase
+          .from('aurora_memory_graph')
+          .select('id, strength, reference_count')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .ilike('content', `%${command.content.slice(0, 50)}%`)
+          .limit(1)
+          .maybeSingle();
+        if (existing) {
+          await supabase.from('aurora_memory_graph').update({
+            strength: Math.min(10, (existing.strength || 1) + 1),
+            reference_count: (existing.reference_count || 1) + 1,
+            last_referenced_at: new Date().toISOString(),
+          }).eq('id', existing.id);
+        }
+        return null; // Silent
+      }
+
       // ── Analysis ──
       case 'triggerAnalysis':
         // Handled externally by useAuroraChat

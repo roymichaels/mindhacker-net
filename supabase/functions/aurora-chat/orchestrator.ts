@@ -476,6 +476,28 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
       : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — including onboarding, different pillars, and general chats. I remember everything.\n${lines.join("\n")}`);
   }
 
+  // Memory Graph (Knowledge Graph of beliefs, fears, breakthroughs, patterns)
+  if (ctx.memory_graph && ctx.memory_graph.length > 0) {
+    const nodeTypeLabels: Record<string, { en: string; he: string; emoji: string }> = {
+      belief: { en: "Belief", he: "אמונה", emoji: "💭" },
+      fear: { en: "Fear", he: "פחד", emoji: "😰" },
+      breakthrough: { en: "Breakthrough", he: "פריצת דרך", emoji: "🌟" },
+      pattern: { en: "Pattern", he: "דפוס", emoji: "🔄" },
+      value_shift: { en: "Value Shift", he: "שינוי ערכי", emoji: "🔀" },
+      dream: { en: "Dream", he: "חלום", emoji: "✨" },
+      blocker: { en: "Blocker", he: "חסם", emoji: "🧱" },
+      insight: { en: "Insight", he: "תובנה", emoji: "💡" },
+    };
+    const lines = ctx.memory_graph.map(n => {
+      const label = nodeTypeLabels[n.node_type] || { en: n.node_type, he: n.node_type, emoji: "📌" };
+      const strengthBar = "█".repeat(Math.min(n.strength, 10)) + "░".repeat(Math.max(0, 10 - n.strength));
+      return `- ${label.emoji} [${isHe ? label.he : label.en}] "${n.content}" | ${isHe ? 'עוצמה' : 'strength'}: ${strengthBar} (${n.strength}/10) | ${isHe ? 'נצפה' : 'seen'}: ${n.reference_count}x${n.pillar ? ` | [${n.pillar}]` : ''}`;
+    });
+    parts.push(isHe
+      ? `## 🕸️ גרף ידע עמוק (אמונות, פחדים, פריצות דרך)\nאלה הדברים העמוקים ביותר שאני יודעת עליך — לא רק מה אמרת, אלא מה אני מבינה על הדפוסים הפנימיים שלך. השתמשי בידע הזה בעדינות אבל בבהירות.\n${lines.join("\n")}`
+      : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you — not just what you said, but the inner patterns I've identified. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
+  }
+
   return parts.join("\n\n");
 }
 
@@ -764,6 +786,18 @@ function buildFullPrompt(language: string, contextMarkdown: string, openerSectio
 ⚠️ כשמשתמש אומר "אני חולם על...", "הייתי רוצה ש...", "אם הייתי יכול...", "אני מדמיין..." — זהה את זה כשאיפה ולכוד עם dream:capture!
 ⚠️ לאחר לכידה, שאל: "רוצה שנהפוך את זה ליעד בתוכנית שלך?"
 
+### תגיות גרף ידע (זיכרון עמוק) 🕸️
+- [memory:belief:תוכן] - כשמזהה אמונה מרכזית (חיובית או מגבילה)
+- [memory:fear:תוכן] - כשמזהה פחד או חשש עמוק
+- [memory:breakthrough:תוכן] - כשמתרחשת פריצת דרך או תובנה משמעותית
+- [memory:pattern:תוכן] - כשמזהה דפוס התנהגותי חוזר
+- [memory:blocker:תוכן] - כשמזהה חסם שמונע התקדמות
+- [memory:insight:תוכן] - כשצומחת תובנה עמוקה על המשתמש
+- [memory:value_shift:תוכן] - כשמזהה שינוי בערכים או בסדרי עדיפויות
+- [memory:strengthen:תוכן] - כשאמונה/דפוס ידוע מתחזק (מגביר את ה-strength)
+⚠️ השתמש בתגיות אלו **אוטומטית** כשאתה מזהה משהו עמוק — אל תשאל את המשתמש!
+⚠️ שים לב לביטויים כמו: "אני תמיד...", "אני אף פעם לא...", "אני מפחד ש...", "הבנתי ש...", "גיליתי ש..."
+
 ## התאמת רמת קושי אדפטיבית 🎯
 אתה מנתח באופן שוטף את ביצועי המשתמש (שיעור השלמה, רצף, אנרגיה, מצב רוח).
 כשאתה מזהה דפוס ברור, **הצע** שינוי — אל תשנה לבד!
@@ -958,6 +992,18 @@ Only use these tags when exactly ONE match exists!
 - [dream:integrate:dream_description:pillar] - when a dream can be connected to the plan — suggest integrating it as a goal
 ⚠️ When user says "I dream of...", "I wish I could...", "If I could...", "I imagine..." — recognize it as an aspiration and capture with dream:capture!
 ⚠️ After capturing, ask: "Want me to turn this into a goal in your plan?"
+
+## Memory Graph Tags (Deep Knowledge) 🕸️
+- [memory:belief:content] - when you identify a core belief (positive or limiting)
+- [memory:fear:content] - when you identify a deep fear or concern
+- [memory:breakthrough:content] - when a breakthrough or significant insight occurs
+- [memory:pattern:content] - when you identify a recurring behavioral pattern
+- [memory:blocker:content] - when you identify a blocker preventing progress
+- [memory:insight:content] - when a deep insight about the user emerges
+- [memory:value_shift:content] - when you detect a shift in values or priorities
+- [memory:strengthen:content] - when a known belief/pattern gets reinforced (increases its strength)
+⚠️ Use these tags **automatically** when you detect something deep — don't ask the user!
+⚠️ Watch for phrases like: "I always...", "I never...", "I'm afraid that...", "I realized that...", "I discovered that..."
 
 ## Adaptive Difficulty Engine 🎯
 You continuously analyze the user's performance (completion rate, streak, energy, mood).
