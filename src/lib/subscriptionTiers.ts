@@ -140,7 +140,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   apex: {
     en: [
       "Everything in Plus",
-      "All 14 pillars unlocked",
+      "All 15 pillars unlocked",
       "Auto-update plan on assessment",
       "Full proactive intelligence engine",
       "Morning briefings & mid-day checks",
