@@ -230,6 +230,32 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
         // Orb generation is non-blocking
       }
 
+      // ─── Quick Win: Insert an immediate "first action" so users feel progress ───
+      try {
+        const quickWinTitle = language === 'he'
+          ? '🎯 צעד ראשון: כתוב 3 דברים שאתה אסיר תודה עליהם היום'
+          : '🎯 First step: Write 3 things you are grateful for today';
+        const quickWinDesc = language === 'he'
+          ? 'התחל את המסע עם תרגיל תודעה קצר. פתח את היומן וכתוב 3 דברים שאתה מעריך ברגע הזה.'
+          : 'Start your journey with a short awareness exercise. Open your journal and write 3 things you appreciate right now.';
+
+        await supabase.from('action_items').insert({
+          user_id: user.id,
+          title: quickWinTitle,
+          description: quickWinDesc,
+          type: 'task',
+          source: 'system',
+          status: 'todo',
+          pillar: 'consciousness',
+          scheduled_date: new Date().toISOString().split('T')[0],
+          order_index: 0,
+          xp_reward: 25,
+          token_reward: 5,
+        });
+      } catch {
+        // Non-blocking — quick win is nice-to-have
+      }
+
       // Mark onboarding as fully complete and clear the phase so refresh won't re-trigger
       await supabase.from('launchpad_progress').upsert({
         user_id: user.id,
