@@ -4,9 +4,12 @@
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords, Zap, MessageSquare } from 'lucide-react';
+import { Flame, Swords, Zap, MessageSquare, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
@@ -19,12 +22,28 @@ export default function PlanHub() {
   const isHe = language === 'he';
   const [activeTab, setActiveTab] = useState<PlanTab>('now');
   const [chatOpen, setChatOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const auroraChat = useAuroraChatContextSafe();
 
   const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
     { id: 'strategy', labelHe: 'אסטרטגיה', labelEn: 'Strategy', icon: Flame },
     { id: 'now', labelHe: 'עכשיו', labelEn: 'Now', icon: Zap },
     { id: 'tactics', labelHe: 'טקטיקה', labelEn: 'Tactics', icon: Swords },
   ];
+
+  const openFindCoachWizard = () => {
+    if (!user) { navigate('/auth'); return; }
+    if (!auroraChat) return;
+    auroraChat.setActivePillar('coach-find');
+    auroraChat.setIsDockVisible(true);
+    auroraChat.setIsChatExpanded(true);
+    auroraChat.setPendingAssistantGreeting(
+      isHe
+        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**\n\nזה יכול להיות:\n- 🧠 בריאות נפשית ומיינדסט\n- 💪 כושר ותזונה\n- 💼 קריירה ועסקים\n- ❤️ זוגיות ומערכות יחסים\n- 🎯 מטרות ומוטיבציה\n\nככל שתהיה ספציפי יותר, כך אמצא לך התאמה טובה יותר.'
+        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**\n\nIt could be:\n- 🧠 Mental health & mindset\n- 💪 Fitness & nutrition\n- 💼 Career & business\n- ❤️ Relationships\n- 🎯 Goals & motivation\n\nThe more specific you are, the better match I'll find for you."
+    );
+  };
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -63,7 +82,7 @@ export default function PlanHub() {
       </div>
 
       {/* Talk to your plan button */}
-      <div className="w-full max-w-xl px-4 pb-2">
+      <div className="w-full max-w-xl px-4 pb-2 space-y-2">
         <button
           onClick={() => setChatOpen(true)}
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
@@ -71,6 +90,19 @@ export default function PlanHub() {
           <MessageSquare className="w-4 h-4" />
           {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
         </button>
+
+        {/* Find a Coach CTA — visible on Strategy tab */}
+        {activeTab === 'strategy' && (
+          <motion.button
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={openFindCoachWizard}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-accent/30 bg-accent/5 hover:bg-accent/10 hover:border-accent/50 transition-all text-sm font-medium text-accent-foreground"
+          >
+            <Search className="w-4 h-4" />
+            {isHe ? '🎯 מצא מאמן שיעזור לך להגשים את האסטרטגיה' : '🎯 Find a Coach to Help Execute Your Strategy'}
+          </motion.button>
+        )}
       </div>
 
       {/* Tab content */}
