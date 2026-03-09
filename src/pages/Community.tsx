@@ -387,6 +387,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
         <CommunityMiniProfile userId={profileUserId} open={!!profileUserId} onClose={() => setProfileUserId(null)} />
         <AddToPlanModal thread={planThread} open={!!planThread} onClose={() => setPlanThread(null)} />
         <SuggestTopicModal open={suggestOpen} onOpenChange={setSuggestOpen} pillar={selectedPillar} />
+        <EventsModal open={eventsOpen} onOpenChange={setEventsOpen} />
+        <AIMatchModal open={matchOpen} onOpenChange={setMatchOpen} />
       </PageShell>
     </UsernameGate>
   );
