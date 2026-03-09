@@ -18,6 +18,7 @@ export default function PlanHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [activeTab, setActiveTab] = useState<PlanTab>('now');
+  const [chatOpen, setChatOpen] = useState(false);
 
   const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
     { id: 'strategy', labelHe: 'אסטרטגיה', labelEn: 'Strategy', icon: Flame },
