@@ -1,31 +1,19 @@
-import { useState, lazy, Suspense, useEffect } from 'react';
+/**
+ * Coaches page — now directly renders the unified CareerHub for coaches.
+ * No more "Find a Coach / Become a Coach" decision screen.
+ */
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useMyCoachProfile } from '@/domain/coaches';
-import { useUserRoles } from '@/hooks/useUserRoles';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCoachSubscription } from '@/hooks/useCoachSubscription';
-import { PageSkeleton } from '@/components/ui/skeleton';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { toast } from 'sonner';
+import CareerHub from './CareerHub';
 
-const CoachHub = lazy(() => import('./CoachHub'));
-const CoachesLanding = lazy(() => import('@/components/coach/CoachesLanding'));
-const CoachPricingPage = lazy(() => import('@/components/coach/CoachPricingPage'));
-
-// Legacy export kept for compatibility — no longer used
-export function useCoachSidebars() {
-  return { leftSidebar: null, rightSidebar: null };
-}
-
-export default function Marketplace() {
-  const { data: myProfile, isLoading: profileLoading } = useMyCoachProfile();
-  const { hasRole, loading: rolesLoading, refetch: refetchRoles } = useUserRoles();
-  const { user } = useAuth();
+export default function Coaches() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get('tab');
   const checkoutStatus = searchParams.get('checkout');
-  const { data: coachSub, refetch: refetchCoachSub } = useCoachSubscription();
-
-  const isPractitioner = hasRole('practitioner');
+  const { refetch: refetchCoachSub } = useCoachSubscription();
+  const { refetch: refetchRoles } = useUserRoles();
 
   useEffect(() => {
     if (checkoutStatus === 'success') {
@@ -42,27 +30,5 @@ export default function Marketplace() {
     }
   }, [checkoutStatus]);
 
-  if (rolesLoading || profileLoading) return <PageSkeleton />;
-
-  if (user && isPractitioner) {
-    return (
-      <Suspense fallback={<PageSkeleton />}>
-        <CoachHub />
-      </Suspense>
-    );
-  }
-
-  if (tab === 'pricing') {
-    return (
-      <Suspense fallback={<PageSkeleton />}>
-        <CoachPricingPage onBack={() => setSearchParams({})} />
-      </Suspense>
-    );
-  }
-
-  return (
-    <Suspense fallback={<PageSkeleton />}>
-      <CoachesLanding />
-    </Suspense>
-  );
+  return <CareerHub careerPath="coach" />;
 }
