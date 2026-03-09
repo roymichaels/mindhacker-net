@@ -714,7 +714,7 @@ function createEmptyContext(today: string): AuroraContext {
   return {
     context_hash: "",
     built_at: now.toISOString(),
-    profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
+    profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced", socratic_mode: false },
     today,
     current_time: now.toISOString().slice(11, 16),
     current_time_local: now.toISOString().slice(11, 16),
