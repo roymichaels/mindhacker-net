@@ -14,6 +14,7 @@ import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { useUnreadBadge } from '@/hooks/useUnreadBadge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame } from 'lucide-react';
 
