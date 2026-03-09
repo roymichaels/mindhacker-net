@@ -438,7 +438,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           {dashboard.values.length > 0 && (
             <div className="mb-2">
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {dashboard.values.map((v, i) => (
                   <EmpireBadge key={i} variant="gold">{v}</EmpireBadge>
