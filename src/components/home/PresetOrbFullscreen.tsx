@@ -22,7 +22,7 @@ export function PresetOrbFullscreen({ open, onClose, profile }: PresetOrbFullscr
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(min * 0.7, 600));
+      setOrbSize(Math.min(min * 0.5, 500));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
@@ -81,7 +81,7 @@ export function PresetOrbFullscreen({ open, onClose, profile }: PresetOrbFullscr
           </motion.button>
 
           <motion.div
-            style={{ position: 'relative', zIndex: 5 }}
+            style={{ position: 'relative', zIndex: 5, overflow: 'visible' }}
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.2, opacity: 0 }}
