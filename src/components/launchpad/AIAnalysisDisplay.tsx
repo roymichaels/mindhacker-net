@@ -96,8 +96,8 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
   if (!summary) {
     return (
       <div className="text-center py-12 space-y-4">
-        <Brain className="w-16 h-16 mx-auto text-white/10" />
-        <p className="text-white/30 text-sm">
+        <Brain className="w-16 h-16 mx-auto text-muted-foreground/20" />
+        <p className="text-muted-foreground/50 text-sm">
           {language === 'he' 
             ? 'אין ניתוח AI עדיין. לחץ על "חשב מחדש" ליצירת ניתוח.'
             : 'No AI analysis yet. Click "Regenerate" to create analysis.'}
@@ -118,7 +118,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         <GlassCard>
           <CardHeader icon={<Brain className="h-4 w-4 text-purple-400" />} title={isHebrew ? 'ניתוח תודעה' : 'Consciousness Analysis'} accent="bg-purple-500/10" />
           {summary.consciousness_analysis.current_state && (
-            <p className="text-sm text-white/50 leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
           )}
           <div className="grid grid-cols-2 gap-2.5">
             {summary.consciousness_analysis.strengths?.length ? <ChipGroup icon="✨" label={isHebrew ? 'חוזקות' : 'Strengths'} items={summary.consciousness_analysis.strengths} variant="green" /> : null}
@@ -149,11 +149,11 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
           {summary.career_path && (
             <GlassCard>
               <CardHeader icon={<Briefcase className="h-4 w-4 text-blue-400" />} title={isHebrew ? 'קריירה' : 'Career'} accent="bg-blue-500/10" />
-              {summary.career_path.aspiration && <p className="text-xs text-white/60 mb-2 line-clamp-3">{summary.career_path.aspiration}</p>}
+              {summary.career_path.aspiration && <p className="text-xs text-muted-foreground mb-2 line-clamp-3">{summary.career_path.aspiration}</p>}
               {summary.career_path.key_steps?.length ? (
                 <div className="flex flex-wrap justify-center gap-1">
                   {summary.career_path.key_steps.slice(0, 2).map((s, i) => (
-                    <span key={i} className="text-[10px] font-medium px-1.5 py-0.5 rounded-lg bg-white/[0.04] text-white/50 border border-white/[0.06]">{s}</span>
+                    <span key={i} className="text-[10px] font-medium px-1.5 py-0.5 rounded-lg bg-muted/50 text-muted-foreground border border-border/30">{s}</span>
                   ))}
                 </div>
               ) : null}
@@ -167,7 +167,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20">{summary.transformation_potential.primary_focus}</span>
                 )}
                 {summary.transformation_potential.secondary_focus && (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-white/[0.04] text-amber-400/60 border border-amber-500/10">{summary.transformation_potential.secondary_focus}</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-muted/50 text-amber-600 dark:text-amber-400/60 border border-amber-500/10">{summary.transformation_potential.secondary_focus}</span>
                 )}
               </div>
             </GlassCard>
@@ -183,8 +183,8 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 function GlassCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.06] p-4 text-center"
-      style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
+      className="rounded-2xl border border-border/30 dark:border-white/[0.06] p-4 text-center bg-gradient-to-br from-muted/40 to-muted/20 dark:from-white/[0.04] dark:to-white/[0.01] backdrop-blur-sm"
+      style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
     >
       {children}
     </div>
@@ -195,7 +195,7 @@ function CardHeader({ icon, title, accent }: { icon: React.ReactNode; title: str
   return (
     <div className="flex items-center justify-center gap-2 mb-3">
       <div className={cn("p-1.5 rounded-lg", accent)}>{icon}</div>
-      <h4 className="text-sm font-bold text-white/90 tracking-wide">{title}</h4>
+      <h4 className="text-sm font-bold text-foreground/90 tracking-wide">{title}</h4>
     </div>
   );
 }
@@ -213,7 +213,7 @@ function ChipGroup({ icon, label, items, variant }: { icon: string; label: strin
     <div>
       <div className="flex items-center justify-center gap-1.5 mb-1.5">
         <span className="text-xs">{icon}</span>
-        <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{label}</span>
+        <span className="text-[10px] text-muted-foreground/60 uppercase tracking-[0.12em] font-semibold">{label}</span>
       </div>
       <div className="flex flex-wrap justify-center gap-1">
         {items.slice(0, 4).map((item, i) => (
