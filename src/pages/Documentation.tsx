@@ -497,13 +497,12 @@ export default function Documentation() {
         </div>
       </div>
 
-      <div className="flex">
+      <div className={cn("flex", isRTL && "flex-row-reverse")}>
         {/* Sidebar - Desktop always visible, mobile toggle */}
         <aside
           className={cn(
-            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-64 border-border bg-background shrink-0 transition-transform duration-200 overflow-hidden",
-            isRTL ? "border-l lg:order-2" : "border-r lg:order-none",
-            // LTR: slide from left; RTL: slide from right
+            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-64 bg-background shrink-0 transition-transform duration-200 overflow-hidden",
+            isRTL ? "border-l border-border" : "border-r border-border",
             !isRTL && (sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"),
             isRTL && (sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"),
           )}
@@ -520,10 +519,9 @@ export default function Documentation() {
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
-                  dir="rtl"
                 >
-                  <span className="font-mono text-xs text-primary/60 shrink-0">.{item.number}</span>
-                  <span className="min-w-0 text-wrap leading-snug" dir="rtl">{item.title}</span>
+                  <span className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
+                  <span className="min-w-0 text-wrap leading-snug">{item.title}</span>
                 </button>
               ))}
             </div>
@@ -539,7 +537,7 @@ export default function Documentation() {
         )}
 
         {/* Main content */}
-        <main className={cn("flex-1 min-w-0", isRTL && "lg:order-1")}>
+        <main className="flex-1 min-w-0">
           <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 space-y-8">
             {/* Title Page */}
             <motion.div
