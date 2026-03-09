@@ -394,7 +394,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {identityProfile && (
         <EmpireCard className="text-center">
           <SectionTitle
-            icon={<UserCircle className="w-4 h-4 text-rose-400" />}
+            icon={<UserCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
             title={isHe ? 'פרופיל זהות' : 'Identity Profile'}
             accentColor="bg-rose-500/10"
           />
