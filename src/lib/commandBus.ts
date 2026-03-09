@@ -44,7 +44,7 @@ export type RiskLevel = 'safe' | 'moderate' | 'destructive';
 // ─── Risk Classification ─────────────────────────────────────────────────────
 
 const SAFE_COMMANDS: CommandType[] = [
-  'openTab', 'openModal', 'setTheme', 'toggleTheme', 'triggerAnalysis',
+  'openTab', 'openModal', 'setTheme', 'toggleTheme', 'triggerAnalysis', 'memoryGraphUpsert', 'memoryGraphStrengthen',
 ];
 
 const DESTRUCTIVE_COMMANDS: CommandType[] = [
