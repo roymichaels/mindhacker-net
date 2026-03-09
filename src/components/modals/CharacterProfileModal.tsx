@@ -417,7 +417,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
           {identityProfile.values_hierarchy?.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'היררכיית ערכים' : 'Values Hierarchy'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'היררכיית ערכים' : 'Values Hierarchy'}</p>
               <div className="flex flex-wrap justify-center gap-1.5">
                 {identityProfile.values_hierarchy.map((v: string, i: number) => (
                   <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/15">{v}</span>
