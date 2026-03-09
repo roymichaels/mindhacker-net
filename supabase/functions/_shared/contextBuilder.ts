@@ -268,6 +268,8 @@ export async function buildContext(
     // NEW: Practices, skills, schedule
     userPracticesRes,
     activeSkillsRes,
+    // NEW: Memory Graph (knowledge graph)
+    memoryGraphRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
