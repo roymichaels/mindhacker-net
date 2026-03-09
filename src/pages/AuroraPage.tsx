@@ -5,6 +5,7 @@
  */
 import { Bug } from 'lucide-react';
 import { useState } from 'react';
+import SocraticModeToggle from '@/components/aurora/SocraticModeToggle';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
