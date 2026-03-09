@@ -7,6 +7,7 @@ import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
+import { EarnLaunchpadBanner } from '@/components/fm/EarnLaunchpadBanner';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
 import { Target, ShoppingBag, Briefcase, Wallet } from 'lucide-react';
@@ -74,6 +75,11 @@ export default function FMAppShell() {
               </button>
             );
           })}
+        </div>
+
+        {/* Persistent Earn Launchpad banner (hides when complete or on /fm/earn) */}
+        <div className="mt-3">
+          <EarnLaunchpadBanner />
         </div>
       </div>
 
