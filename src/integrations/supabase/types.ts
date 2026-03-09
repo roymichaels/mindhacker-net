@@ -9164,6 +9164,125 @@ export type Database = {
           },
         ]
       }
+      work_scores: {
+        Row: {
+          created_at: string
+          deep_work_minutes: number | null
+          id: string
+          metadata: Json | null
+          productivity_score: number | null
+          score_date: string
+          tasks_completed: number | null
+          total_minutes: number | null
+          updated_at: string
+          user_id: string
+          velocity: number | null
+        }
+        Insert: {
+          created_at?: string
+          deep_work_minutes?: number | null
+          id?: string
+          metadata?: Json | null
+          productivity_score?: number | null
+          score_date?: string
+          tasks_completed?: number | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id: string
+          velocity?: number | null
+        }
+        Update: {
+          created_at?: string
+          deep_work_minutes?: number | null
+          id?: string
+          metadata?: Json | null
+          productivity_score?: number | null
+          score_date?: string
+          tasks_completed?: number | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+          velocity?: number | null
+        }
+        Relationships: []
+      }
+      work_sessions: {
+        Row: {
+          action_item_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          ended_at: string | null
+          energy_level: string | null
+          id: string
+          is_deep_work: boolean | null
+          metadata: Json | null
+          notes: string | null
+          started_at: string
+          tags: string[] | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_item_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          energy_level?: string | null
+          id?: string
+          is_deep_work?: boolean | null
+          metadata?: Json | null
+          notes?: string | null
+          started_at?: string
+          tags?: string[] | null
+          title?: string
+          user_id: string
+        }
+        Update: {
+          action_item_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          energy_level?: string | null
+          id?: string
+          is_deep_work?: boolean | null
+          metadata?: Json | null
+          notes?: string | null
+          started_at?: string
+          tags?: string[] | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_sessions_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_sessions_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_sessions_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_sessions_action_item_id_fkey"
+            columns: ["action_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xp_events: {
         Row: {
           amount: number
