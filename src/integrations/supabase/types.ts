@@ -956,6 +956,65 @@ export type Database = {
         }
         Relationships: []
       }
+      aurora_memory_graph: {
+        Row: {
+          content: string
+          context: string | null
+          created_at: string
+          first_seen_at: string
+          id: string
+          is_active: boolean | null
+          last_referenced_at: string
+          metadata: Json | null
+          node_type: string
+          pillar: string | null
+          reference_count: number | null
+          related_node_ids: string[] | null
+          strength: number | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          context?: string | null
+          created_at?: string
+          first_seen_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_referenced_at?: string
+          metadata?: Json | null
+          node_type: string
+          pillar?: string | null
+          reference_count?: number | null
+          related_node_ids?: string[] | null
+          strength?: number | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          context?: string | null
+          created_at?: string
+          first_seen_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_referenced_at?: string
+          metadata?: Json | null
+          node_type?: string
+          pillar?: string | null
+          reference_count?: number | null
+          related_node_ids?: string[] | null
+          strength?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aurora_memory_graph_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aurora_onboarding_progress: {
         Row: {
           direction_clarity: string
@@ -9054,6 +9113,56 @@ export type Database = {
           utm_term?: string | null
         }
         Relationships: []
+      }
+      weekly_briefings: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          id: string
+          key_focus: string | null
+          metadata: Json | null
+          opportunities: string[] | null
+          risks: string[] | null
+          summary_text: string
+          title: string | null
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          id?: string
+          key_focus?: string | null
+          metadata?: Json | null
+          opportunities?: string[] | null
+          risks?: string[] | null
+          summary_text: string
+          title?: string | null
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          id?: string
+          key_focus?: string | null
+          metadata?: Json | null
+          opportunities?: string[] | null
+          risks?: string[] | null
+          summary_text?: string
+          title?: string | null
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_briefings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       xp_events: {
         Row: {
