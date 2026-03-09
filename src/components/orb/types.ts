@@ -22,7 +22,7 @@ export type DiagnosticState = 'ok' | 'missing_data' | 'no_user';
 
 // === NEW visual uniqueness types ===
 export type GradientMode = 'vertical' | 'radial' | 'noise' | 'rim';
-export type MaterialType = 'wire' | 'metal' | 'glass' | 'plasma' | 'iridescent';
+export type MaterialType = 'wire' | 'metal' | 'glass' | 'plasma' | 'iridescent' | 'lava' | 'crystal' | 'matte' | 'nebula' | 'obsidian' | 'tiger' | 'thorny' | 'bone' | 'ember' | 'ice' | 'void' | 'holographic';
 export type PatternType = 'voronoi' | 'cellular' | 'fractal' | 'shards' | 'swirl' | 'strata';
 export type ParticleMode = 'single' | 'cycle' | 'random' | 'byVelocity' | 'byRadius';
 export type ParticleBehavior = 'orbit' | 'spiral' | 'halo' | 'burst' | 'drift';
