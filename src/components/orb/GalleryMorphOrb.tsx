@@ -298,11 +298,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── TIGER: Warm, vibrant, organic ──
     case 'tiger': {
-      const warmBase = new THREE.Color().setHSL(hsl.h, 0.85, 0.5);
-      const warmGlow = new THREE.Color().setHSL(hsl.h, 0.8, 0.4);
+      const warmBase = new THREE.Color().setHSL(hsl.h, 0.75, 0.4);
+      const warmGlow = new THREE.Color().setHSL(hsl.h, 0.6, 0.2);
       return { ...base, color: warmBase, emissive: warmGlow,
         metalness: 0.0, roughness: 0.55, clearcoat: 0.4, clearcoatRoughness: 0.3,
-        emissiveIntensity: 0.4, envMapIntensity: 0.6,
+        emissiveIntensity: 0.15, envMapIntensity: 0.6,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
