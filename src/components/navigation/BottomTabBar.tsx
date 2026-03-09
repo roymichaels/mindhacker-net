@@ -154,7 +154,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 opacity-90">Aurora</span>
+          <span className="text-[10px] font-bold text-pink-600 dark:text-pink-400 opacity-90">Aurora</span>
           {/* Unread badge */}
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">

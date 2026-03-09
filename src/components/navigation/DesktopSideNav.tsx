@@ -106,7 +106,7 @@ export function DesktopSideNav() {
             level={100}
           />
         </div>
-        <span className="text-violet-600 dark:text-violet-400 opacity-90 truncate">Aurora</span>
+        <span className="text-pink-600 dark:text-pink-400 opacity-90 truncate">Aurora</span>
       </button>
 
       {/* Path — highlighted */}
