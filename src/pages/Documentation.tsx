@@ -94,10 +94,12 @@ export default function Documentation() {
           paragraphs: he ? [
             `Now הוא דף הנחיתה ומרכז הביצוע של ${brandName}. הדשבורד מציג את פעולות היום מחולקות ל-4 רבעוני יום (בוקר, צהריים, אחר הצהריים, ערב) — כל רבע מקבל שם הרפתקני ייחודי שמתחדש כל יום ("Dawn Forge", "Summit Push", "Iron Hour" וכו').`,
             `ה-Movement Score מודד מומנטום בזמן אמת — אחוז ההשלמה היומי שמניע את האורב. כולל: סטטוס אנרגיה, streak יומי, XP, טוקנים, ומערכת Quest — כל יום הוא משימה (Quest) עם שם ייחודי, ושבוע שלם מרכיב קמפיין.`,
+            `מערכת Quest Runner (/quests/:pillar) מאפשרת ניווט ל-Quest ייעודי לפי עמוד חיים — כל Quest מרנדר flow אינטראקטיבי מותאם עם שאלות, תובנות, ופעולות שנשמרות בחזרה לתוכנית.`,
             `כשלמשתמש אין תוכנית פעילה, Now מפנה אוטומטית ל-Strategy Hub ליצירת תוכנית 100 ימים.`,
           ] : [
             `Now is the landing page and execution center of ${brandName}. The dashboard displays today's actions divided into 4 day quarters (morning, midday, afternoon, evening) — each quarter receives a unique adventure name that refreshes daily ("Dawn Forge", "Summit Push", "Iron Hour", etc.).`,
             `The Movement Score measures real-time momentum — the daily completion percentage that drives the orb. Includes: energy status, daily streak, XP, tokens, and a Quest system — each day is a Quest with a unique name, and an entire week forms a Campaign.`,
+            `The Quest Runner system (/quests/:pillar) enables navigating to a dedicated Quest per life pillar — each Quest renders a custom interactive flow with questions, insights, and actions that sync back to the plan.`,
             `When the user has no active plan, Now automatically redirects to Strategy Hub for 100-day plan creation.`,
           ],
         },
