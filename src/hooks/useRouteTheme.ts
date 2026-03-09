@@ -14,19 +14,13 @@ export type RouteThemeId = 'plan' | 'fm' | 'community' | 'study';
 
 export interface RouteTheme {
   id: RouteThemeId;
-  /** Header border color */
   borderColor: string;
-  /** Header background gradient (CSS value) */
   headerBg: string;
-  /** Header background gradient dark mode (CSS value) */
   headerBgDark: string;
-  /** Page ambient glow */
   ambientGlow: string;
-  /** Text color for active elements */
+  ambientGlowDark: string;
   activeText: string;
-  /** Accent bg for buttons/badges */
   accentBg: string;
-  /** Accent border */
   accentBorder: string;
 }
 
