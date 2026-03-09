@@ -68,9 +68,17 @@ export async function synthesizeSpeech(
 async function tryElevenLabsTTS(
   text: string,
   voice: string,
-  speed: number
+  speed: number,
+  stability?: number,
+  similarityBoost?: number,
+  style?: number,
 ): Promise<{ audioUrl: string; usedFallback: boolean; provider: VoiceProvider } | null> {
   try {
+    const payload: Record<string, unknown> = { text, voiceId: voice, speed };
+    if (stability !== undefined) payload.stability = stability;
+    if (similarityBoost !== undefined) payload.similarityBoost = similarityBoost;
+    if (style !== undefined) payload.style = style;
+
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
       {
@@ -80,7 +88,7 @@ async function tryElevenLabsTTS(
           'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ text, voiceId: voice, speed }),
+        body: JSON.stringify(payload),
       }
     );
 
