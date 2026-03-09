@@ -252,10 +252,12 @@ export default function FMMarket() {
             <div className="text-center py-12 space-y-3">
               <Users className="w-10 h-10 text-muted-foreground/40 mx-auto" />
               <p className="text-muted-foreground text-sm">{isHe ? 'אין שירותים בקטגוריה הזו.' : 'No services in this category.'}</p>
-              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('service')}>
-                <Sparkles className="w-3.5 h-3.5" />
-                {isHe ? 'פרסם שירות ראשון' : 'Publish first service'}
-              </Button>
+              {canCreateService && (
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('service')}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {isHe ? 'פרסם שירות ראשון' : 'Publish first service'}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
