@@ -442,6 +442,20 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
     ? `## סטטוס התקדמות\n- בהירות כיוון: ${ctx.onboarding.direction_clarity}\n- הבנת זהות: ${ctx.onboarding.identity_understanding}\n- מיפוי אנרגיה: ${ctx.onboarding.energy_patterns_status}`
     : `## Progress Status\n- Direction clarity: ${ctx.onboarding.direction_clarity}\n- Identity understanding: ${ctx.onboarding.identity_understanding}\n- Energy mapping: ${ctx.onboarding.energy_patterns_status}`);
 
+  // Adaptive Difficulty Signals
+  if (ctx.pulse_week) {
+    const pw = ctx.pulse_week;
+    // Compute completion stats from action items
+    const totalToday = ctx.action_items.today_tasks.length + ctx.action_items.today_completed.length;
+    const completedToday = ctx.action_items.today_completed.length;
+    const completionPct = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
+    const habitsCompletionPct = ctx.habits_status.total > 0 ? Math.round((ctx.habits_status.completed / ctx.habits_status.total) * 100) : 0;
+    
+    parts.push(isHe
+      ? `## 📊 מנוע התאמת קושי אדפטיבית\n- אנרגיה ממוצעת (7 ימים): ${pw.avg_energy}/5\n- ביטחון ממוצע: ${pw.avg_confidence}/5\n- ציות כללי: ${pw.compliance}%\n- חוב התאוששות: ${pw.recovery_debt}%\n- השלמת משימות היום: ${completionPct}%\n- השלמת הרגלים היום: ${habitsCompletionPct}%\n- ימים מתועדים השבוע: ${pw.days_logged}/7\n⚠️ אם אתה מזהה דפוס ברור (חיובי או שלילי), הצע שינוי רמת קושי למשתמש!`
+      : `## 📊 Adaptive Difficulty Engine\n- Avg energy (7d): ${pw.avg_energy}/5\n- Avg confidence: ${pw.avg_confidence}/5\n- Overall compliance: ${pw.compliance}%\n- Recovery debt: ${pw.recovery_debt}%\n- Today's task completion: ${completionPct}%\n- Today's habit completion: ${habitsCompletionPct}%\n- Days logged this week: ${pw.days_logged}/7\n⚠️ If you detect a clear pattern (positive or negative), suggest a difficulty change to the user!`);
+  }
+
   // Recent insights
   if (ctx.recent_insights.length > 0) {
     const lines = ctx.recent_insights.map(i => `- ${i.type}: "${i.content}"`);
