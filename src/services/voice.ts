@@ -47,9 +47,12 @@ export async function synthesizeSpeech(
     provider?: VoiceProvider;
     voice?: string;
     speed?: number;
+    stability?: number;
+    similarityBoost?: number;
+    style?: number;
   } = {}
 ): Promise<{ audioUrl: string; usedFallback: boolean; provider: VoiceProvider } | null> {
-  const { provider = 'elevenlabs', voice = 'sarah', speed = 1.0 } = options;
+  const { provider = 'elevenlabs', voice = 'sarah', speed = 1.0, stability, similarityBoost, style } = options;
 
   // Try ElevenLabs first (primary TTS provider)
   const result = await tryElevenLabsTTS(text, voice, speed);
