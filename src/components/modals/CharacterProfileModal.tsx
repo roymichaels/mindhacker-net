@@ -253,9 +253,9 @@ function SectionTitle({ icon, title, accentColor }: { icon: React.ReactNode; tit
 
 function EmpireBadge({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'gold' | 'glass' }) {
   const styles = {
-    default: 'bg-muted/50 dark:bg-white/[0.06] text-foreground/70 dark:text-white/70 border-border/30 dark:border-white/[0.08]',
-    gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-    glass: 'bg-muted/30 dark:bg-white/[0.04] text-foreground/50 dark:text-white/50 border-border/20 dark:border-white/[0.06]',
+    default: 'bg-muted/50 dark:bg-white/[0.06] text-foreground/80 dark:text-white/70 border-border/40 dark:border-white/[0.08]',
+    gold: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25 dark:border-amber-500/20',
+    glass: 'bg-muted/40 dark:bg-white/[0.04] text-foreground/70 dark:text-white/50 border-border/30 dark:border-white/[0.06]',
   };
   return (
     <span className={cn("text-xs font-medium px-2.5 py-1 rounded-lg border inline-block", styles[variant])}>
@@ -394,7 +394,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {identityProfile && (
         <EmpireCard className="text-center">
           <SectionTitle
-            icon={<UserCircle className="w-4 h-4 text-rose-400" />}
+            icon={<UserCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
             title={isHe ? 'פרופיל זהות' : 'Identity Profile'}
             accentColor="bg-rose-500/10"
           />
@@ -403,7 +403,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
               <span className="text-lg">
                 {({ warrior: '⚔️', guardian: '🛡️', creator: '🎨', seeker: '🔍', sage: '🧙' } as Record<string, string>)[identityProfile.suggested_ego_state.toLowerCase()] || '🛡️'}
               </span>
-              <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+              <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
                 {getEgoStateLabel(identityProfile.suggested_ego_state, isHe ? 'he' : 'en')}
               </span>
             </div>
@@ -411,7 +411,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           {identityProfile.dominant_traits?.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1.5">
               {identityProfile.dominant_traits.map((t: string, i: number) => (
-                <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">{t}</span>
+                <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 dark:border-amber-500/15">{t}</span>
               ))}
             </div>
           )}
@@ -420,7 +420,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
               <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'היררכיית ערכים' : 'Values Hierarchy'}</p>
               <div className="flex flex-wrap justify-center gap-1.5">
                 {identityProfile.values_hierarchy.map((v: string, i: number) => (
-                  <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/15">{v}</span>
+                  <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 dark:border-rose-500/15">{v}</span>
                 ))}
               </div>
             </div>
@@ -432,7 +432,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
         <EmpireCard className="text-center">
           <SectionTitle
-            icon={<UserCircle className="w-4 h-4 text-purple-400" />}
+            icon={<UserCircle className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
             title={isHe ? 'זהות וערכים' : 'Identity & Values'}
             accentColor="bg-purple-500/10"
           />
@@ -463,7 +463,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {lifeDirection && (
         <EmpireCard glow="hsla(35, 80%, 50%, 0.06)" className="text-center">
           <SectionTitle
-            icon={<Compass className="w-4 h-4 text-amber-400" />}
+            icon={<Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
             title={isHe ? 'כיוון חיים' : 'Life Direction'}
             accentColor="bg-amber-500/10"
           />
@@ -480,7 +480,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {(anchors.length > 0 || dashboard.principles.length > 0) && (
         <EmpireCard className="text-center">
           <SectionTitle
-            icon={<Activity className="w-4 h-4 text-cyan-400" />}
+            icon={<Activity className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />}
             title={isHe ? 'משמעת וסדר' : 'Disciplines & Order'}
             accentColor="bg-cyan-500/10"
           />
@@ -511,7 +511,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {commitments.length > 0 && (
         <EmpireCard glow="hsla(204, 88%, 53%, 0.05)" className="text-center">
           <SectionTitle
-            icon={<Target className="w-4 h-4 text-primary" />}
+            icon={<Target className="w-4 h-4 text-primary dark:text-primary" />}
             title={isHe ? 'מחויבויות' : 'Active Commitments'}
             accentColor="bg-primary/10"
           />
