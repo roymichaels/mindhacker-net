@@ -3218,6 +3218,39 @@ export type Database = {
         }
         Relationships: []
       }
+      earn_launchpad_progress: {
+        Row: {
+          created_at: string
+          data_enabled: boolean
+          id: string
+          milestones_completed: Json
+          mining_enabled: boolean
+          partners_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_enabled?: boolean
+          id?: string
+          milestones_completed?: Json
+          mining_enabled?: boolean
+          partners_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_enabled?: boolean
+          id?: string
+          milestones_completed?: Json
+          mining_enabled?: boolean
+          partners_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       edge_function_errors: {
         Row: {
           created_at: string
