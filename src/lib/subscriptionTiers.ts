@@ -126,7 +126,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "Community & leaderboards",
     ],
     he: [
-      "6 פילרים מתוך 14 תחומי חיים",
+      "6 פילרים מתוך 15 תחומי חיים",
       "אורורה ללא הגבלה עם זיכרון",
       "תוכנית טרנספורמציה 100 יום",
       "היפנוזה AI ותסריטים יומיים",
