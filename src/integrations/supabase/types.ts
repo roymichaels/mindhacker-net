@@ -462,6 +462,42 @@ export type Database = {
           },
         ]
       }
+      ai_matches: {
+        Row: {
+          created_at: string
+          id: string
+          match_reason: string | null
+          match_score: number | null
+          matched_user_id: string
+          responded_at: string | null
+          shared_pillars: string[] | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_reason?: string | null
+          match_score?: number | null
+          matched_user_id: string
+          responded_at?: string | null
+          shared_pillars?: string[] | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_reason?: string | null
+          match_score?: number | null
+          matched_user_id?: string
+          responded_at?: string | null
+          shared_pillars?: string[] | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_response_logs: {
         Row: {
           context_hash: string
@@ -8278,6 +8314,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_locations: {
+        Row: {
+          city: string | null
+          country: string | null
+          id: string
+          latitude: number
+          longitude: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_notifications: {
         Row: {
