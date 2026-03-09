@@ -193,8 +193,8 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   {
     id: 'neon-pulse', nameEn: 'Neon Pulse', nameHe: 'פולס ניאון',
     descEn: 'Electric current through digital veins', descHe: 'זרם חשמלי בוורידים דיגיטליים',
-    rarity: 'rare', traits: { material: 'wire', pattern: 'cellular', geometry: 'torus', glow: 'intense', particles: true },
-    profile: hueProfile(165, 'wire', 'cellular', 'torus', 0.75, { particles: true }),
+    rarity: 'rare', traits: { material: 'plasma', pattern: 'cellular', geometry: 'torus', glow: 'intense', particles: true },
+    profile: hueProfile(165, 'plasma', 'cellular', 'torus', 0.75, { particles: true }),
   },
   {
     id: 'desert-ember', nameEn: 'Desert Ember', nameHe: 'גחלת מדבר',
