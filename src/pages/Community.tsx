@@ -63,6 +63,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
+  const [eventsOpen, setEventsOpen] = useState(false);
+  const [matchOpen, setMatchOpen] = useState(false);
   const { language } = useTranslation();
   const isHe = language === 'he';
 
