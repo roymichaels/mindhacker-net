@@ -4,17 +4,18 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Briefcase, Palette, Code, Sparkles, ArrowRight } from 'lucide-react';
+import { GraduationCap, Briefcase, Palette, Code, Sparkles, ArrowRight, Heart } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion } from 'framer-motion';
 
-type CareerView = 'overview' | 'business' | 'coach' | 'creator' | 'freelancer';
+type CareerView = 'overview' | 'business' | 'coach' | 'therapist' | 'creator' | 'freelancer';
 
 const RARITY_STYLES: Record<string, { border: string; bg: string; iconBg: string; glow: string; label: { en: string; he: string; color: string } }> = {
   legendary: { border: 'border-amber-500/50', bg: 'from-amber-500/12 to-orange-500/5', iconBg: 'from-amber-500 to-orange-600', glow: 'hover:shadow-amber-500/15', label: { en: 'LEGENDARY', he: 'אגדי', color: 'text-amber-400' } },
   epic: { border: 'border-purple-500/50', bg: 'from-purple-500/12 to-fuchsia-500/5', iconBg: 'from-purple-500 to-fuchsia-600', glow: 'hover:shadow-purple-500/15', label: { en: 'EPIC', he: 'אפי', color: 'text-purple-400' } },
   rare: { border: 'border-sky-500/50', bg: 'from-sky-500/12 to-blue-500/5', iconBg: 'from-sky-500 to-blue-600', glow: 'hover:shadow-sky-500/15', label: { en: 'RARE', he: 'נדיר', color: 'text-sky-400' } },
   uncommon: { border: 'border-emerald-500/50', bg: 'from-emerald-500/12 to-teal-500/5', iconBg: 'from-emerald-500 to-teal-600', glow: 'hover:shadow-emerald-500/15', label: { en: 'UNCOMMON', he: 'לא שכיח', color: 'text-emerald-400' } },
+  heroic: { border: 'border-rose-500/50', bg: 'from-rose-500/12 to-pink-500/5', iconBg: 'from-rose-500 to-pink-600', glow: 'hover:shadow-rose-500/15', label: { en: 'HEROIC', he: 'הרואי', color: 'text-rose-400' } },
 };
 
 const PROFESSIONAL_PATHS = [
@@ -31,12 +32,22 @@ const PROFESSIONAL_PATHS = [
   {
     id: 'coach' as const,
     icon: GraduationCap,
-    titleEn: 'Coach / Practitioner',
-    titleHe: 'מאמן / מטפל',
-    descEn: 'Build your coaching practice — clients, sessions, landing pages & content',
-    descHe: 'בנה את הפרקטיקה שלך — לקוחות, פגישות, דפי נחיתה ותוכן',
+    titleEn: 'Coach',
+    titleHe: 'מאמן',
+    descEn: 'Build your coaching practice — clients, sessions & content',
+    descHe: 'בנה את הפרקטיקה שלך — לקוחות, פגישות ותוכן',
     path: '/coaches',
     rarity: 'epic',
+  },
+  {
+    id: 'therapist' as const,
+    icon: Heart,
+    titleEn: 'Therapist',
+    titleHe: 'מטפל',
+    descEn: 'Manage your therapy practice — clients, scheduling & growth',
+    descHe: 'נהל את הפרקטיקה הטיפולית שלך — לקוחות, תורים וצמיחה',
+    path: '/coaches',
+    rarity: 'heroic',
   },
   {
     id: 'creator' as const,

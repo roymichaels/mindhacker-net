@@ -61,10 +61,7 @@ export function BottomTabBar() {
   const openAurora = () => {
     setShowBalloon(false);
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
-    if (ctx) {
-      ctx.setIsDockVisible(true);
-      ctx.setIsChatExpanded(true);
-    }
+    navigate('/aurora');
   };
 
   const dismissBalloon = () => {
