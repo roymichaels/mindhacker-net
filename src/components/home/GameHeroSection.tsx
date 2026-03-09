@@ -146,7 +146,7 @@ export default function GameHeroSection() {
 
             {/* Dot indicators */}
             <div className="flex items-center justify-center gap-1.5 mt-4">
-              {ORB_PRESETS.map((_, idx) => (
+              {HERO_ORBS.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => goTo(idx)}
