@@ -22,6 +22,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
 import { PILLAR_COLORS } from '@/hooks/useTraitGallery';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
+import { exportPlanPDF } from '@/utils/exportPlanPDF';
+import { downloadICS, CalendarEvent } from '@/utils/calendarExport';
+import { toast } from 'sonner';
 
 // ========== TYPES ==========
 interface TraitView {
