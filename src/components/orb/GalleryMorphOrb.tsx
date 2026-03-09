@@ -203,13 +203,13 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── GLASS: Translucent, bright, smooth, refractive ──
     case 'glass': {
-      const paleGlass = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.6), 0.7);
-      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.8, 0.6);
+      const paleGlass = new THREE.Color().setHSL(hsl.h, Math.max(hsl.s, 0.5), 0.55);
+      const innerGlow = new THREE.Color().setHSL(hsl.h, 0.6, 0.3);
       return { ...base, color: paleGlass, emissive: innerGlow,
-        metalness: 0.0, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.5, envMapIntensity: 1.8,
-        transmission: 0.45, ior: 1.8, thickness: 1.5,
-        opacity: 0.55, transparent: true, flatShading: false, wireframe: false,
+        metalness: 0.0, roughness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.15, envMapIntensity: 1.5,
+        transmission: 0.4, ior: 1.8, thickness: 1.5,
+        opacity: 0.6, transparent: true, flatShading: false, wireframe: false,
       };
     }
     // ── PLASMA: Self-illuminating, pulsing ──
