@@ -167,7 +167,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Events Card */}
                 <button
-                  onClick={() => {/* TODO: open events modal */}}
+                  onClick={() => setEventsOpen(true)}
                   className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.08] to-sky-600/[0.03] p-4 text-start transition-all hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 active:scale-[0.99]"
                 >
                   <div className="flex items-start gap-3">
