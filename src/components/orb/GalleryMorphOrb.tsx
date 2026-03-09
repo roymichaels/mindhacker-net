@@ -224,11 +224,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── IRIDESCENT: Rainbow sheen, pearlescent, color-shifting ──
     case 'iridescent': {
-      const pearl = new THREE.Color().setHSL(hsl.h, 0.7, 0.65);
-      const shift = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.9, 0.55);
+      const pearl = new THREE.Color().setHSL(hsl.h, 0.6, 0.5);
+      const shift = new THREE.Color().setHSL((hsl.h + 0.3) % 1, 0.7, 0.3);
       return { ...base, color: pearl, emissive: shift,
-        metalness: 0.4, roughness: 0.1, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.5, envMapIntensity: 2.0,
+        metalness: 0.4, roughness: 0.12, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.15, envMapIntensity: 1.8,
         sheen: 1.0, sheenRoughness: 0.05, sheenColor: shift,
         iridescence: 1.0, iridescenceIOR: 2.5,
         opacity: 0.9, transparent: true, flatShading: false, wireframe: false,
