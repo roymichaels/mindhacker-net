@@ -39,7 +39,14 @@ export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user, isAdmin } = useAuth();
+  const { hasAnyRole } = useUserRoles();
   const queryClient = useQueryClient();
+
+  /** Only business owners, freelancers, coaches (practitioners), and therapists can publish services */
+  const canCreateService = useMemo(
+    () => isAdmin || hasAnyRole(['practitioner', 'freelancer', 'business', 'therapist'] as any[]),
+    [isAdmin, hasAnyRole]
+  );
 
   const [view, setView] = useState<MarketView>('services');
 
