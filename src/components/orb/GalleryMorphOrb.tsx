@@ -338,11 +338,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── ICE: Pale, frosted, faceted ──
     case 'ice': {
-      const iceC = new THREE.Color().setHSL(hsl.h, 0.35, 0.8);
-      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.65);
+      const iceC = new THREE.Color().setHSL(hsl.h, 0.3, 0.65);
+      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.35, 0.35);
       return { ...base, color: iceC, emissive: frostGlow,
         metalness: 0.0, roughness: 0.15, clearcoat: 1.0, clearcoatRoughness: 0.1,
-        emissiveIntensity: 0.35, envMapIntensity: 1.8,
+        emissiveIntensity: 0.1, envMapIntensity: 1.5,
         transmission: 0.25, ior: 1.31, thickness: 2.0,
         opacity: 0.75, transparent: true, flatShading: true, wireframe: false,
       };
