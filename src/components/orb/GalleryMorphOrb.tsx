@@ -349,11 +349,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── VOID: Dark with rim glow ──
     case 'void': {
-      const voidC = new THREE.Color(0.1, 0.1, 0.1);
-      const rimPulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.9, 0.45);
+      const voidC = new THREE.Color(0.05, 0.05, 0.05);
+      const rimPulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.7, 0.25);
       return { ...base, color: voidC, emissive: rimPulse,
         metalness: 0.95, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.6, envMapIntensity: 2.5,
+        emissiveIntensity: 0.2, envMapIntensity: 2.0,
         opacity: 0.92, transparent: true, flatShading: false, wireframe: false,
       };
     }
