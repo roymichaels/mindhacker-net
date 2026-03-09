@@ -363,6 +363,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
     </>
   );
 }
