@@ -71,6 +71,7 @@ const Go = lazy(() => import("./pages/Go"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
+const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
