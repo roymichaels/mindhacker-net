@@ -118,7 +118,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
         <GlassCard>
           <CardHeader icon={<Brain className="h-4 w-4 text-purple-400" />} title={isHebrew ? 'ניתוח תודעה' : 'Consciousness Analysis'} accent="bg-purple-500/10" />
           {summary.consciousness_analysis.current_state && (
-            <p className="text-sm text-white/50 leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">{summary.consciousness_analysis.current_state}</p>
           )}
           <div className="grid grid-cols-2 gap-2.5">
             {summary.consciousness_analysis.strengths?.length ? <ChipGroup icon="✨" label={isHebrew ? 'חוזקות' : 'Strengths'} items={summary.consciousness_analysis.strengths} variant="green" /> : null}
