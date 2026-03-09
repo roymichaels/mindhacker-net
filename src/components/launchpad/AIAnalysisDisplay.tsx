@@ -195,7 +195,7 @@ function CardHeader({ icon, title, accent }: { icon: React.ReactNode; title: str
   return (
     <div className="flex items-center justify-center gap-2 mb-3">
       <div className={cn("p-1.5 rounded-lg", accent)}>{icon}</div>
-      <h4 className="text-sm font-bold text-white/90 tracking-wide">{title}</h4>
+      <h4 className="text-sm font-bold text-foreground/90 tracking-wide">{title}</h4>
     </div>
   );
 }
