@@ -367,6 +367,7 @@ export async function buildContext(
   const upcomingTasks = upcomingTasksRes.data || [];
   const userPracticesData = userPracticesRes.data || [];
   const activeSkillsData = (activeSkillsRes as any)?.data || [];
+  const memoryGraphData = memoryGraphRes.data || [];
 
   // Pulse data
   const pulseToday = pulseTodayRes.data;
