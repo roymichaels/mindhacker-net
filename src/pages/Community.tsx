@@ -10,6 +10,8 @@ import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
 import AddToPlanModal from '@/components/community/AddToPlanModal';
+import EventsModal from '@/components/community/EventsModal';
+import AIMatchModal from '@/components/community/AIMatchModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LIFE_DOMAINS, getDomainById } from '@/navigation/lifeDomains';
