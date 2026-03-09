@@ -684,6 +684,16 @@ export async function buildContext(
       focus_peak_start: profile?.focus_peak_start || null,
       focus_peak_end: profile?.focus_peak_end || null,
     },
+
+    // ─── Memory Graph (Knowledge Graph) ───────────────
+    memory_graph: memoryGraphData.map((n: any) => ({
+      node_type: n.node_type,
+      content: n.content,
+      strength: n.strength || 1,
+      pillar: n.pillar || null,
+      reference_count: n.reference_count || 1,
+      first_seen: n.first_seen_at ? new Date(n.first_seen_at).toISOString().split("T")[0] : "",
+    })),
   };
 
   // Compute hash for tracing
