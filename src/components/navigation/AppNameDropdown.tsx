@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen, User } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen, User, HelpCircle } from 'lucide-react';
 import { Flame, Gem, Star } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -25,6 +25,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
 import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
+import { UserDocsModal } from '@/components/modals/UserDocsModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
@@ -48,6 +49,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const { openSubscriptions } = useSubscriptionsModal();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
   const { currentJob } = useUserJob();
@@ -309,6 +311,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {language === 'he' ? 'בלוג' : 'Blog'}
           </DropdownMenuItem>
 
+          {/* User Guide */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); setDocsOpen(true); }}>
+            <HelpCircle className="h-4 w-4 me-2" />
+            {language === 'he' ? 'מדריך למשתמש' : 'User Guide'}
+          </DropdownMenuItem>
+
           {/* Documentation */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/docs'); }}>
             <FileText className="h-4 w-4 me-2" />
@@ -355,6 +363,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
     </>
   );
 }
