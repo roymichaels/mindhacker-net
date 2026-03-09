@@ -20,6 +20,7 @@ import {
   FolderKanban,
   Gamepad2,
   Sparkles,
+  Heart,
   type LucideIcon,
 } from 'lucide-react';
 
