@@ -228,8 +228,8 @@ function EmpireCard({ children, className, glow }: { children: React.ReactNode; 
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/[0.06] p-4",
-        "bg-gradient-to-br from-white/[0.04] to-white/[0.01]",
+        "rounded-2xl border border-border/30 dark:border-white/[0.06] p-4",
+        "bg-gradient-to-br from-muted/40 to-muted/20 dark:from-white/[0.04] dark:to-white/[0.01]",
         "backdrop-blur-sm",
         className,
       )}
@@ -246,16 +246,16 @@ function SectionTitle({ icon, title, accentColor }: { icon: React.ReactNode; tit
       <div className={cn("p-1.5 rounded-lg", accentColor || "bg-amber-500/10")} >
         {icon}
       </div>
-      <h4 className="text-sm font-bold text-white/90 tracking-wide">{title}</h4>
+      <h4 className="text-sm font-bold text-foreground/90 tracking-wide">{title}</h4>
     </div>
   );
 }
 
 function EmpireBadge({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'gold' | 'glass' }) {
   const styles = {
-    default: 'bg-white/[0.06] text-white/70 border-white/[0.08]',
-    gold: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    glass: 'bg-white/[0.04] text-white/50 border-white/[0.06]',
+    default: 'bg-muted/50 dark:bg-white/[0.06] text-foreground/70 dark:text-white/70 border-border/30 dark:border-white/[0.08]',
+    gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    glass: 'bg-muted/30 dark:bg-white/[0.04] text-foreground/50 dark:text-white/50 border-border/20 dark:border-white/[0.06]',
   };
   return (
     <span className={cn("text-xs font-medium px-2.5 py-1 rounded-lg border inline-block", styles[variant])}>
@@ -336,7 +336,7 @@ function StatWheel({ isHe }: { isHe: boolean }) {
             >
               {s.score}
             </div>
-            <span className="text-[9px] text-white/40 font-medium uppercase tracking-wider text-center">
+            <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider text-center">
               {isHe ? labels[s.key]?.he : labels[s.key]?.en}
             </span>
           </motion.div>
@@ -399,11 +399,11 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
             accentColor="bg-rose-500/10"
           />
           {identityProfile.suggested_ego_state && (
-            <div className="flex items-center justify-center gap-2 mb-3 p-2 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+            <div className="flex items-center justify-center gap-2 mb-3 p-2 rounded-xl bg-muted/30 dark:bg-white/[0.03] border border-border/20 dark:border-white/[0.05]">
               <span className="text-lg">
                 {({ warrior: '⚔️', guardian: '🛡️', creator: '🎨', seeker: '🔍', sage: '🧙' } as Record<string, string>)[identityProfile.suggested_ego_state.toLowerCase()] || '🛡️'}
               </span>
-              <span className="text-sm font-bold text-amber-400">
+              <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
                 {getEgoStateLabel(identityProfile.suggested_ego_state, isHe ? 'he' : 'en')}
               </span>
             </div>
@@ -417,7 +417,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
           {identityProfile.values_hierarchy?.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'היררכיית ערכים' : 'Values Hierarchy'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1.5">{isHe ? 'היררכיית ערכים' : 'Values Hierarchy'}</p>
               <div className="flex flex-wrap justify-center gap-1.5">
                 {identityProfile.values_hierarchy.map((v: string, i: number) => (
                   <span key={i} className="text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/15">{v}</span>
@@ -438,7 +438,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           {dashboard.values.length > 0 && (
             <div className="mb-2">
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'ערכים' : 'Values'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {dashboard.values.map((v, i) => (
                   <EmpireBadge key={i} variant="gold">{v}</EmpireBadge>
@@ -448,7 +448,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
           {dashboard.selfConcepts.length > 0 && (
             <div>
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {dashboard.selfConcepts.map((s, i) => (
                   <EmpireBadge key={i} variant="glass">{s}</EmpireBadge>
@@ -469,10 +469,10 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           <div className="flex gap-0.5 mb-2 justify-center">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-white/10")} />
+              <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30")} />
             ))}
           </div>
-          <p className="text-sm text-white/60 leading-relaxed">{lifeDirection.content}</p>
+          <p className="text-sm text-foreground/60 leading-relaxed">{lifeDirection.content}</p>
         </EmpireCard>
       )}
 
@@ -486,7 +486,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           {anchors.length > 0 && (
             <div className="mb-2">
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עוגנים יומיים' : 'Daily Anchors'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עוגנים יומיים' : 'Daily Anchors'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {anchors.map((a) => (
                   <EmpireBadge key={a.id}>{a.title}</EmpireBadge>
@@ -496,7 +496,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
           {dashboard.principles.length > 0 && (
             <div>
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {dashboard.principles.map((p, i) => (
                   <EmpireBadge key={i}>{p}</EmpireBadge>
@@ -517,9 +517,9 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           />
           <div className="space-y-2">
             {commitments.slice(0, 4).map((c) => (
-              <div key={c.id} className="flex items-center justify-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                <p className="text-sm text-white/70 font-medium">{c.title}</p>
+               <div key={c.id} className="flex items-center justify-center gap-2.5 p-2 rounded-xl bg-muted/20 dark:bg-white/[0.02] border border-border/20 dark:border-white/[0.04]">
+                 <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                 <p className="text-sm text-foreground/70 font-medium">{c.title}</p>
               </div>
             ))}
           </div>
