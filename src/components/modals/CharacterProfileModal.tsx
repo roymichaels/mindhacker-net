@@ -472,7 +472,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
               <Star key={i} className={cn("w-3.5 h-3.5", i < Math.round(lifeDirection.clarityScore / 20) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30")} />
             ))}
           </div>
-          <p className="text-sm text-white/60 leading-relaxed">{lifeDirection.content}</p>
+          <p className="text-sm text-foreground/60 leading-relaxed">{lifeDirection.content}</p>
         </EmpireCard>
       )}
 
