@@ -382,11 +382,16 @@ export const PILLAR_TOPIC_GROUPS: Record<string, TopicGroup[]> = {
     { id: 'network-lead', en: 'Network & Leadership', he: 'רשת ומנהיגות', topicIds: ['social-media', 'networking', 'leadership'] },
   ],
   relationships: [
-    { id: 'dating-attraction', en: 'Dating & Attraction', he: 'היכרויות ומשיכה', topicIds: ['dating', 'attraction', 'charisma'] },
     { id: 'social', en: 'Social Skills', he: 'מיומנויות חברתיות', topicIds: ['social-skills', 'communication', 'emotional-intelligence'] },
     { id: 'boundaries-conflict', en: 'Boundaries & Conflict', he: 'גבולות וקונפליקט', topicIds: ['boundaries', 'conflict-resolution', 'self-worth'] },
     { id: 'community-tribe', en: 'Tribe & Family', he: 'שבט ומשפחה', topicIds: ['tribe', 'family', 'trust-building', 'mentorship'] },
-    { id: 'growth', en: 'Growth & Depth', he: 'צמיחה ועומק', topicIds: ['long-term', 'masculinity'] },
+    { id: 'network-belong', en: 'Network & Belonging', he: 'רשת ושייכות', topicIds: ['networking-social', 'community-belonging'] },
+  ],
+  romantics: [
+    { id: 'dating-attraction', en: 'Dating & Attraction', he: 'היכרויות ומשיכה', topicIds: ['dating', 'attraction', 'charisma', 'seduction'] },
+    { id: 'polarity-energy', en: 'Polarity & Energy', he: 'קוטביות ואנרגיה', topicIds: ['masculinity', 'femininity', 'sexual-energy'] },
+    { id: 'relationship-depth', en: 'Relationship Depth', he: 'עומק זוגי', topicIds: ['long-term', 'intimacy', 'relationship-dynamics', 'romantic-communication'] },
+    { id: 'healing', en: 'Healing & Growth', he: 'ריפוי וצמיחה', topicIds: ['breakups-healing'] },
   ],
   business: [
     { id: 'product-offer', en: 'Product & Offer', he: 'מוצר והצעה', topicIds: ['offer-design', 'pricing', 'business-strategy'] },
