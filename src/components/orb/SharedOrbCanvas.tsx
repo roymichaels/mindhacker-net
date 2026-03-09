@@ -85,12 +85,11 @@ function OrbScene({ entry }: { entry: OrbEntryData }) {
   return (
     <>
       <PerspectiveCamera makeDefault position={[0, 0, 2.8]} fov={40} />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 8]} intensity={1.8} color="#ffffff" />
-      <directionalLight position={[-3, 2, -4]} intensity={0.9} color="#aaaaff" />
-      <directionalLight position={[0, -3, 2]} intensity={0.6} color="#ffaadd" />
-      <directionalLight position={[0, 5, 0]} intensity={0.7} color="#ffffff" />
-      <pointLight position={[2, 3, 4]} intensity={1.0} color="#ffffff" distance={15} />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[5, 5, 8]} intensity={1.4} color="#ffffff" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.6} color="#aaaaff" />
+      <directionalLight position={[0, -3, 2]} intensity={0.3} color="#ffaadd" />
+      <pointLight position={[2, 3, 4]} intensity={0.8} color="#ffffff" distance={15} />
       <Environment preset="city" background={false} />
       <MorphOrbMesh
         profile={entry.profile}
