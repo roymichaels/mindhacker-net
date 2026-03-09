@@ -336,7 +336,7 @@ function StatWheel({ isHe }: { isHe: boolean }) {
             >
               {s.score}
             </div>
-            <span className="text-[9px] text-white/40 font-medium uppercase tracking-wider text-center">
+            <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider text-center">
               {isHe ? labels[s.key]?.he : labels[s.key]?.en}
             </span>
           </motion.div>
