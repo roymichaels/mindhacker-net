@@ -47,7 +47,7 @@ const PILLAR_COLORS: Record<string, string> = {
   presence: '#06b6d4', power: '#8b5cf6', vitality: '#10b981', focus: '#f59e0b',
   combat: '#ef4444', expansion: '#3b82f6', consciousness: '#a855f7', wealth: '#eab308',
   influence: '#f97316', relationships: '#ec4899', business: '#14b8a6', projects: '#6366f1',
-  play: '#22c55e', craft: '#d946ef', order: '#6b7280',
+  play: '#22c55e', craft: '#d946ef', order: '#6b7280', romantics: '#f43f5e',
 };
 
 function c(pillar: string): string {
