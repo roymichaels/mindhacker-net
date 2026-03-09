@@ -54,11 +54,12 @@ export function requireCheckoutUrlOrToast(
 const KNOWN_ROUTES = [
   '/', '/now', '/dashboard', '/onboarding', '/go',
   '/messages', '/messages/ai', '/aurora',
-  '/coaches', '/p/',
+  '/coaches', '/therapist', '/freelancer', '/creator', '/business', '/p/',
   '/launchpad', '/settings',
   '/community', '/content',
   '/success', '/auth',
   '/strategy', '/tactics', '/plan',
+  '/fm',
 ];
 
 /**
