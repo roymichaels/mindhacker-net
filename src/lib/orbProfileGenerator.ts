@@ -85,6 +85,7 @@ function applyHueOffset(hslStr: string, offset: number): string {
 export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   const seed = input.seed ?? (input.userId ? hashUserId(input.userId) : 0);
   
+  // Compute archetype DNA from user traits (kept for metadata)
   const userData: UserDataForDNA = {
     hobbies: input.hobbies || [],
     decisionStyle: input.decisionStyle,
@@ -99,119 +100,30 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   };
   
   const dna = computeAvatarDNA(userData);
-  const baseProfile = dnaToOrbProfile(dna, userData, seed, input.egoState);
   
-  // Merge Visual DNA from ALL intake signals
-  const visualDNA = buildVisualDNA({
-    step1Intention: input.step1Intention,
-    step2ProfileData: input.step2ProfileData,
-    summaryRow: input.summaryRow,
-    gameState: { level: input.level, sessionStreak: input.streak, experience: input.experience },
-    seed,
-  });
-  
-  // Visual DNA overrides the base archetype profile
-  const merged = { ...baseProfile, ...visualDNA };
-  
-  // === CRITICAL: Sync gradient stops with profile's identity colors ===
-  // The visualDNA generates gradient stops from seed (baseHue = seed % 360),
-  // which can produce monochromatic colors that don't match the archetype-derived
-  // primary/secondary/accent colors. Fix: rebuild gradient stops using identity colors.
-  if (merged.primaryColor && merged.secondaryColors?.length) {
-    const profileHues = [merged.primaryColor, ...merged.secondaryColors, merged.accentColor || merged.primaryColor]
-      .map(c => { const m = c.match(/^(\d+)/); return m ? parseInt(m[1]) : 200; });
-    const gradHues = (merged.gradientStops || [])
-      .map((c: string) => { const m = c.match(/^(\d+)/); return m ? parseInt(m[1]) : 200; });
-    
-    // Check if gradient stops are monochromatic (all within 30° hue range)
-    const gradSpread = gradHues.length > 0 ? Math.max(...gradHues) - Math.min(...gradHues) : 0;
-    const profileSpread = Math.max(...profileHues) - Math.min(...profileHues);
-    
-    if (gradSpread < 40 && profileSpread > 20) {
-      // Rebuild gradient stops from profile colors with some seed-based variation
-      const stops: string[] = [];
-      const allColors = [merged.primaryColor, ...merged.secondaryColors, merged.accentColor || merged.primaryColor];
-      for (let i = 0; i < Math.max(allColors.length, 3); i++) {
-        const baseColor = allColors[i % allColors.length];
-        const m = baseColor.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?$/);
-        if (m) {
-          const h = (parseFloat(m[1]) + seedFloat(seed, 30 + i) * 15) % 360;
-          const s = Math.max(50, Math.min(100, parseFloat(m[2]) + seedFloat(seed, 40 + i) * 10));
-          const l = Math.max(35, Math.min(75, parseFloat(m[3]) + seedFloat(seed, 50 + i) * 10));
-          stops.push(`${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}%`);
-        } else {
-          stops.push(baseColor);
-        }
-      }
-      merged.gradientStops = stops;
-      merged.coreGradient = [stops[0], stops[stops.length - 1]] as [string, string];
-    }
-  }
-  
-  // === BLACK ORB PREVENTION: Validate all color fields ===
-  const ensureVisibleHSL = (hsl: string, fallback: string): string => {
-    if (!hsl || hsl.includes('NaN') || hsl.includes('undefined')) return fallback;
-    const m = hsl.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?$/);
-    if (!m) return fallback;
-    const s = parseFloat(m[2]);
-    const l = parseFloat(m[3]);
-    if (s < 15 && l < 20) return fallback;
-    if (l < 15) {
-      return `${m[1]} ${Math.max(50, s)}% 35%`;
-    }
-    return hsl;
+  // ─── Delegate to gallery-quality generator ───
+  const userOrbInput: UserOrbInput = {
+    userId: input.userId || `seed-${seed}`,
+    hobbies: input.hobbies,
+    traits: input.selectedTraitIds,
+    decisionStyle: input.decisionStyle,
+    conflictStyle: input.conflictStyle,
+    problemSolvingStyle: input.problemSolvingStyle,
+    priorities: input.priorities,
+    egoState: input.egoState,
+    level: input.level,
+    experience: input.experience,
+    streak: input.streak,
+    clarityScore: input.clarityScore,
+    consciousnessScore: input.consciousnessScore,
+    dominantArchetype: dna.archetypeBlend.dominantArchetype,
+    secondaryArchetype: dna.archetypeBlend.secondaryArchetype,
+    archetypeWeights: dna.archetypeBlend.archetypes,
   };
-
-  // Validate gradient stops
-  if (!merged.gradientStops || merged.gradientStops.length < 3) {
-    merged.gradientStops = VISUAL_DEFAULTS.gradientStops;
-  }
-  merged.gradientStops = merged.gradientStops.map((stop: string, i: number) => 
-    ensureVisibleHSL(stop, VISUAL_DEFAULTS.gradientStops[i] || '200 80% 50%')
-  );
   
-  // Validate core gradient
-  if (merged.coreGradient) {
-    merged.coreGradient = merged.coreGradient.map((stop: string, i: number) =>
-      ensureVisibleHSL(stop, VISUAL_DEFAULTS.coreGradient[i] || '200 80% 50%')
-    ) as [string, string];
-  }
-
-  // Validate primary/secondary/accent colors
-  if (merged.primaryColor) {
-    merged.primaryColor = ensureVisibleHSL(merged.primaryColor, '200 80% 50%');
-  }
-  if (merged.secondaryColors) {
-    merged.secondaryColors = merged.secondaryColors.map((c: string) => ensureVisibleHSL(c, '220 70% 55%'));
-  }
-  if (merged.accentColor) {
-    merged.accentColor = ensureVisibleHSL(merged.accentColor, '180 75% 60%');
-  }
-  if (merged.particleColor) {
-    merged.particleColor = ensureVisibleHSL(merged.particleColor, '200 80% 50%');
-  }
-  if (merged.rimLightColor) {
-    merged.rimLightColor = ensureVisibleHSL(merged.rimLightColor, '40 80% 65%');
-  }
-  if (merged.particlePalette) {
-    merged.particlePalette = merged.particlePalette.map((c: string) => ensureVisibleHSL(c, '200 70% 55%'));
-  }
-
-  // Validate material params
-  if (merged.materialType !== 'wire' && merged.materialParams) {
-    merged.materialParams = { ...merged.materialParams, emissiveIntensity: Math.max(0.1, merged.materialParams.emissiveIntensity) };
-  }
-  if (merged.bloomStrength !== undefined) {
-    merged.bloomStrength = Math.max(0.1, Math.min(1.5, merged.bloomStrength)); // Min 0.1 instead of 0
-  }
-  if (merged.chromaShift !== undefined) {
-    merged.chromaShift = Math.max(0, Math.min(0.8, merged.chromaShift));
-  }
-  if (merged.patternIntensity !== undefined) {
-    merged.patternIntensity = Math.max(0.1, Math.min(1, merged.patternIntensity)); // Min 0.1 instead of 0
-  }
+  const profile = generateUserOrb(userOrbInput);
   
-  return merged as OrbProfile;
+  return profile;
 }
 
 /**
