@@ -278,11 +278,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── NEBULA: Cosmic colors, inner glow ──
     case 'nebula': {
-      const deepSpace = new THREE.Color().setHSL((hsl.h + 0.7) % 1, 0.75, 0.35);
-      const starGlow = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.9, 0.6);
+      const deepSpace = new THREE.Color().setHSL((hsl.h + 0.7) % 1, 0.65, 0.25);
+      const starGlow = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 0.7, 0.35);
       return { ...base, color: deepSpace, emissive: starGlow,
         metalness: 0.0, roughness: 0.5, clearcoat: 0.2, clearcoatRoughness: 0.3,
-        emissiveIntensity: 1.2, envMapIntensity: 0.4,
+        emissiveIntensity: 0.4, envMapIntensity: 0.5,
         opacity: 0.85, transparent: true, flatShading: false, wireframe: false,
       };
     }
