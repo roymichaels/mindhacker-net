@@ -511,7 +511,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
       {commitments.length > 0 && (
         <EmpireCard glow="hsla(204, 88%, 53%, 0.05)" className="text-center">
           <SectionTitle
-            icon={<Target className="w-4 h-4 text-primary" />}
+            icon={<Target className="w-4 h-4 text-primary dark:text-primary" />}
             title={isHe ? 'מחויבויות' : 'Active Commitments'}
             accentColor="bg-primary/10"
           />
