@@ -9607,6 +9607,8 @@ export type Database = {
         | "affiliate"
         | "freelancer"
         | "creator"
+        | "therapist"
+        | "business"
       content_access_level: "free" | "basic" | "premium" | "vip"
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
@@ -9806,6 +9808,8 @@ export const Constants = {
         "affiliate",
         "freelancer",
         "creator",
+        "therapist",
+        "business",
       ],
       content_access_level: ["free", "basic", "premium", "vip"],
       content_status: ["draft", "published", "archived"],
