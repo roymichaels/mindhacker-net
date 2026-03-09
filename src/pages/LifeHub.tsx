@@ -389,11 +389,12 @@ export default function LifeHub() {
                   {/* Export actions */}
                   <button
                     onClick={() => {
+                      const allTraits = pillarGroups.flatMap(g => g.traits);
                       exportPlanPDF({
                         title: isHe ? 'תוכנית 100 יום' : '100-Day Plan',
                         dayProgress: `${overallPct}% · ${completedMilestones}/${totalMilestones} milestones`,
-                        traits: traitViews.map(t => ({ name: t.displayName, pillar: t.pillar, level: t.level, missionCount: t.missionCount })),
-                        milestones: traitViews.flatMap(t => t.missions.flatMap(m => m.milestones.map(ms => ({
+                        traits: allTraits.map(t => ({ name: t.displayName, pillar: t.pillar, level: t.level, missionCount: t.missionCount })),
+                        milestones: allTraits.flatMap(t => t.missions.flatMap(m => m.milestones.map(ms => ({
                           title: isHe ? ms.title : (ms.title_en || ms.title),
                           isCompleted: ms.is_completed,
                           difficulty: ms.difficulty,
@@ -409,7 +410,8 @@ export default function LifeHub() {
                   </button>
                   <button
                     onClick={() => {
-                      const events: CalendarEvent[] = traitViews.flatMap(t =>
+                      const allTraits = pillarGroups.flatMap(g => g.traits);
+                      const events: CalendarEvent[] = allTraits.flatMap(t =>
                         t.missions.flatMap(m =>
                           m.milestones.filter(ms => !ms.is_completed).map(ms => ({
                             title: isHe ? ms.title : (ms.title_en || ms.title),
