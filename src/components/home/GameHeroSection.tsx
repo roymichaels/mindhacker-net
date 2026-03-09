@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { SharedOrbView } from '@/components/orb/SharedOrbView';
-import { ORB_PRESETS } from '@/lib/orbPresets';
+import { GALLERY_ORBS } from '@/data/galleryOrbData';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+const HERO_ORBS = GALLERY_ORBS.slice(0, 10);
 
 const AUTO_SLIDE_INTERVAL = 3000;
 
