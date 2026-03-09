@@ -221,7 +221,7 @@ export default function FMMarket() {
         })}
       </div>
 
-      {/* ═══ SERVICES VIEW ═══ */}
+      {/* Services tab content */}
       {view === 'services' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -314,7 +314,7 @@ export default function FMMarket() {
         </div>
       )}
 
-      {/* ═══ BOUNTIES VIEW ═══ */}
+      {/* Bounties tab content */}
       {view === 'bounties' && (
         <div className="space-y-4">
           <h2 className="font-bold text-foreground">{isHe ? 'באונטיז' : 'Bounties'}</h2>
@@ -378,7 +378,7 @@ export default function FMMarket() {
         </div>
       )}
 
-      {/* ═══ MARKETPLACE VIEW ═══ */}
+      {/* Marketplace tab content */}
       {view === 'marketplace' && (
         <div className="space-y-5">
           <h2 className="font-bold text-foreground">{isHe ? 'מרקטפלייס' : 'Marketplace'}</h2>
