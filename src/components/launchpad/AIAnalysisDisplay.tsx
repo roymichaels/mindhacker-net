@@ -238,7 +238,7 @@ function ScoreCircle({ label, value, color }: { label: string; value: number; co
       >
         {value}
       </div>
-      <span className="text-[10px] text-white/35 font-medium uppercase tracking-wider">{label}</span>
+      <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
     </div>
   );
 }
