@@ -387,8 +387,8 @@ const App = () => (
                           <Route path="/fm" element={<FMAppShell />}>
                             <Route index element={<Navigate to="/fm/earn" replace />} />
                             <Route path="home" element={<Navigate to="/fm/earn" replace />} />
-                            <Route path="earn" element={<EarnLayoutWrapper />} />
-                            <Route path="market" element={<FMMarketLayoutWrapper />} />
+                            <Route path="earn" element={<FMMarketLayoutWrapper />} />
+                            <Route path="market" element={<Navigate to="/fm/earn" replace />} />
                             <Route path="work" element={<FMWorkLayoutWrapper />} />
                             <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
