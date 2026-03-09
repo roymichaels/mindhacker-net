@@ -9,13 +9,14 @@ import { useFMWallet } from '@/hooks/useFMWallet';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
-import { Target, ShoppingBag, Briefcase } from 'lucide-react';
+import { Target, ShoppingBag, Briefcase, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'market', path: '/fm/market', icon: ShoppingBag, labelEn: 'Market', labelHe: 'מרקט' },
   { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Career', labelHe: 'קריירה' },
+  { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
 export default function FMAppShell() {
