@@ -1,7 +1,7 @@
 /**
  * FMAppShell — Self-contained app shell for the Free Market module.
  * MapleStory FM aesthetic — warm amber merchant tones.
- * Uses in-page top tabs (Earn / Market / Career) like the Path page.
+ * Uses in-page top tabs (Earn / Career / Wallet) like the Path page.
  */
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -10,12 +10,11 @@ import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { EarnLaunchpadBanner } from '@/components/fm/EarnLaunchpadBanner';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
-import { Target, ShoppingBag, Briefcase, Wallet } from 'lucide-react';
+import { Target, Briefcase, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
-  { id: 'market', path: '/fm/market', icon: ShoppingBag, labelEn: 'Market', labelHe: 'מרקט' },
   { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Career', labelHe: 'קריירה' },
   { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
@@ -42,8 +41,7 @@ export default function FMAppShell() {
   }
 
   const isActive = (tabId: string) => {
-    if (tabId === 'earn') return location.pathname.startsWith('/fm/earn') || location.pathname === '/fm';
-    if (tabId === 'market') return location.pathname.startsWith('/fm/market');
+    if (tabId === 'earn') return location.pathname.startsWith('/fm/earn') || location.pathname === '/fm' || location.pathname.startsWith('/fm/market');
     if (tabId === 'work') return location.pathname.startsWith('/fm/work') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
     if (tabId === 'wallet') return location.pathname.startsWith('/fm/wallet') || location.pathname.startsWith('/fm/cashout') || location.pathname.startsWith('/fm/bridge');
     return false;
@@ -77,7 +75,7 @@ export default function FMAppShell() {
           })}
         </div>
 
-        {/* Persistent Earn Launchpad banner (hides when complete or on /fm/earn) */}
+        {/* Persistent Earn Launchpad banner */}
         <div className="mt-3">
           <EarnLaunchpadBanner />
         </div>
