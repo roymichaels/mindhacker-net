@@ -328,11 +328,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── EMBER: Smoldering with hot spots ──
     case 'ember': {
-      const ashC = new THREE.Color().setHSL(hsl.h, 0.5, 0.2);
-      const hotSpot = new THREE.Color().setHSL(hsl.h, 1.0, 0.6);
+      const ashC = new THREE.Color().setHSL(hsl.h, 0.45, 0.15);
+      const hotSpot = new THREE.Color().setHSL(hsl.h, 0.9, 0.4);
       return { ...base, color: ashC, emissive: hotSpot,
         metalness: 0.0, roughness: 0.75, clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 1.5, envMapIntensity: 0.15,
+        emissiveIntensity: 0.5, envMapIntensity: 0.2,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
