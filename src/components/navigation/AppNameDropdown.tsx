@@ -311,6 +311,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {language === 'he' ? 'בלוג' : 'Blog'}
           </DropdownMenuItem>
 
+          {/* User Guide */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); setDocsOpen(true); }}>
+            <HelpCircle className="h-4 w-4 me-2" />
+            {language === 'he' ? 'מדריך למשתמש' : 'User Guide'}
+          </DropdownMenuItem>
+
           {/* Documentation */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/docs'); }}>
             <FileText className="h-4 w-4 me-2" />
