@@ -308,11 +308,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── THORNY: Aggressive, textured ──
     case 'thorny': {
-      const thornC = new THREE.Color().setHSL(hsl.h, 0.55, 0.45);
-      const thornE = new THREE.Color().setHSL(hsl.h, 0.6, 0.35);
+      const thornC = new THREE.Color().setHSL(hsl.h, 0.5, 0.35);
+      const thornE = new THREE.Color().setHSL(hsl.h, 0.4, 0.2);
       return { ...base, color: thornC, emissive: thornE,
-        metalness: 0.2, roughness: 0.9, clearcoat: 0.0, clearcoatRoughness: 0.8,
-        emissiveIntensity: 0.4, envMapIntensity: 0.5,
+        metalness: 0.2, roughness: 0.85, clearcoat: 0.0, clearcoatRoughness: 0.8,
+        emissiveIntensity: 0.12, envMapIntensity: 0.5,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
