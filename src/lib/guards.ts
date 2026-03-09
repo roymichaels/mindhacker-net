@@ -53,7 +53,7 @@ export function requireCheckoutUrlOrToast(
 /** Known application routes for validation */
 const KNOWN_ROUTES = [
   '/', '/now', '/dashboard', '/onboarding', '/go',
-  '/messages', '/messages/ai',
+  '/messages', '/messages/ai', '/aurora',
   '/coaches', '/p/',
   '/launchpad', '/settings',
   '/community', '/content',

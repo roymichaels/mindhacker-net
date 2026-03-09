@@ -71,6 +71,7 @@ const Go = lazy(() => import("./pages/Go"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
+const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -301,8 +302,9 @@ const App = () => (
                           <Route path="/community/post/:postId" element={<CommunityThread />} />
                           {/* Messages */}
                           <Route path="/messages" element={<Messages />} />
-                          <Route path="/messages/ai" element={<MessageThread />} />
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
+                          {/* Aurora Chat */}
+                          <Route path="/aurora" element={<AuroraPage />} />
                           {/* Now redirects to Plan (merged) */}
                           <Route path="/now" element={<Navigate to="/plan" replace />} />
                           {/* Plan (merged Strategy + Tactics) */}
@@ -426,7 +428,7 @@ const App = () => (
                         <Route path="/dashboard" element={<Navigate to="/plan" replace />} />
                         <Route path="/today" element={<Navigate to="/plan" replace />} />
                         <Route path="/me" element={<Navigate to="/plan" replace />} />
-                        <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
+                        <Route path="/messages/ai" element={<Navigate to="/aurora" replace />} />
                         <Route path="/projects" element={<Navigate to="/plan" replace />} />
                         {/* Legacy /life redirects → /plan */}
                         <Route path="/life" element={<Navigate to="/plan" replace />} />

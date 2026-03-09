@@ -61,10 +61,7 @@ export function BottomTabBar() {
   const openAurora = () => {
     setShowBalloon(false);
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
-    if (ctx) {
-      ctx.setIsDockVisible(true);
-      ctx.setIsChatExpanded(true);
-    }
+    navigate('/aurora');
   };
 
   const dismissBalloon = () => {
@@ -121,7 +118,12 @@ export function BottomTabBar() {
         {/* Aurora — styled like other tabs */}
         <button
           onClick={openAurora}
-          className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15"
+          className={cn(
+            "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
+            location.pathname === '/aurora'
+              ? "bg-pink-500/15 border-pink-500/30"
+              : "bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15"
+          )}
         >
           <AnimatePresence>
             {showBalloon && (
