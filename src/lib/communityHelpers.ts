@@ -436,6 +436,7 @@ export function generateAuroraReply(pillar: string, category: string | null, tit
     'wealth': { en: 'Wealth strategy.', he: 'אסטרטגיית עושר.' },
     'influence': { en: 'Influence thread.', he: 'שרשור השפעה.' },
     'relationships': { en: 'Relationships discussion.', he: 'דיון קשרים.' },
+    'romantics': { en: 'Romantics discussion.', he: 'דיון רומנטיקה.' },
     'business': { en: 'Business thread.', he: 'שרשור עסקים.' },
     'projects': { en: 'Projects discussion.', he: 'דיון פרויקטים.' },
     'play': { en: 'Play & regeneration.', he: 'משחק והתחדשות.' },
