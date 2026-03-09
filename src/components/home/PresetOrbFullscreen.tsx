@@ -22,7 +22,7 @@ export function PresetOrbFullscreen({ open, onClose, profile }: PresetOrbFullscr
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(min * 0.7, 600));
+      setOrbSize(Math.min(min * 0.5, 500));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
