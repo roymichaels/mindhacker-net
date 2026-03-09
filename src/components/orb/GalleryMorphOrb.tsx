@@ -315,6 +315,7 @@ export function MorphOrbMesh({ profile, geometryFamily = 'sphere', level = 100, 
 
   // Stable random seed per instance for consistent randomness
   const instanceSeed = useRef(Math.random());
+  const mat = profile.materialType || 'glass';
 
   const shapes = useMemo(() => {
     // If morphIntensity is 0, use single shape (no morphing)
