@@ -225,7 +225,7 @@ function hueProfile(
 
 // ─── Generator ───
 export function generateOrbs(count: number, startId: number): GalleryOrb[] {
-  const rng = mulberry32(42_777); // Fixed seed for deterministic output
+  const rng = mulberry32(98_331); // New seed for fresh collection
   const usedNames = new Set<string>();
   const orbs: GalleryOrb[] = [];
 
