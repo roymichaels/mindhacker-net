@@ -108,7 +108,7 @@ const MATERIALS: MaterialType[] = ['glass', 'metal', 'iridescent', 'plasma', 'wi
 const PATTERNS: PatternType[] = ['voronoi', 'cellular', 'fractal', 'shards', 'swirl', 'strata'];
 const GEOS: GeometryFamily[] = ['sphere', 'dodeca', 'icosa', 'octa', 'torus', 'spiky'];
 
-export const GALLERY_ORBS: GalleryOrb[] = [
+const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   // ═══════════ 1-10: Original presets ═══════════
   {
     id: 'abyss-glass', nameEn: 'Abyss Glass', nameHe: 'זכוכית התהום',
