@@ -249,13 +249,16 @@ export function generateOrbs(count: number, startId: number): GalleryOrb[] {
       : rarity === 'rare' ? rng() > 0.75
       : rng() > 0.9;
 
-    // Intensity correlates with rarity
-    const baseIntensity = rarity === 'legendary' ? 0.85 : rarity === 'epic' ? 0.7 : rarity === 'rare' ? 0.5 : rarity === 'uncommon' ? 0.3 : 0.15;
-    const intensity = Math.min(1, Math.max(0, baseIntensity + (rng() - 0.5) * 0.25));
+    // Intensity correlates with rarity but with wider spread
+    const baseIntensity = rarity === 'legendary' ? 0.88 : rarity === 'epic' ? 0.72 : rarity === 'rare' ? 0.52 : rarity === 'uncommon' ? 0.32 : 0.18;
+    const intensity = Math.min(1, Math.max(0.05, baseIntensity + (rng() - 0.5) * 0.35));
 
-    // Hue spread across the full spectrum
+    // Hue spread across the full spectrum with wider variance
     const hue = Math.floor(rng() * 360);
-    const hueSpread = 20 + Math.floor(rng() * 40);
+    const hueSpread = 15 + Math.floor(rng() * 70);
+    // Extra sat/lit variance for visual diversity
+    const satBoost = Math.floor((rng() - 0.5) * 20);
+    const litBoost = Math.floor((rng() - 0.5) * 16);
 
     // Generate unique name
     let nameEn = '';
