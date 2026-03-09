@@ -26,8 +26,13 @@ const BYPASS_ROUTES = [
 export function OnboardingGate({ children }: OnboardingGateProps) {
   const { isLaunchpadComplete, isLoading } = useLaunchpadProgress();
   const { username, isLoading: usernameLoading } = useCommunityUsername();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const location = useLocation();
+
+  // Admins bypass onboarding entirely
+  if (isAdmin) {
+    return <>{children}</>;
+  }
 
   // Always check if user has an active plan (prevents re-onboarding even if launchpad_complete is stale)
   const { data: hasActivePlan, isLoading: checkingPlan } = useQuery({

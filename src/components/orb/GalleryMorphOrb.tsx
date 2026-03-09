@@ -3,7 +3,7 @@
  * Uses distinct base geometries per family and dramatically different
  * material presets so every orb is visually unique in WebGL.
  */
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
@@ -627,17 +627,28 @@ interface StandaloneMorphOrbProps {
 }
 
 export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 }: StandaloneMorphOrbProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Delay canvas mount by one frame to ensure parent dimensions are settled
+    const raf = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
-    <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-      <Canvas
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 2.2], fov: 45 }}
-        style={{ width: size, height: size }}
-        resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
-      >
-        <OrbLighting />
-        <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
-      </Canvas>
+    <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
+      {mounted && (
+        <Canvas
+          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+          camera={{ position: [0, 0, 2.2], fov: 45 }}
+          style={{ width: size, height: size }}
+          resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
+          dpr={[1, 2]}
+        >
+          <OrbLighting />
+          <MorphOrbMesh profile={profile} geometryFamily={geometryFamily} level={level} />
+        </Canvas>
+      )}
     </div>
   );
 }
