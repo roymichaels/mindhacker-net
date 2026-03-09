@@ -291,6 +291,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                         {isHe ? 'הוסף' : 'Add'}
                       </motion.button>
                     </div>
+                  </div>
                 </div>
 
                 {/* Journey blocks grouped by 4 Day Quarters */}
