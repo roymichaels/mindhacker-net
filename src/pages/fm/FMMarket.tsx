@@ -178,12 +178,14 @@ export default function FMMarket() {
     return <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.cls}`}>{isHe ? s.he : s.en}</span>;
   };
 
-  const marketplaceCategories = [
-    { icon: BookOpen, labelEn: 'Courses', labelHe: 'קורסים', count: 0, color: 'from-sky-500/15 to-sky-500/5 border-sky-500/25', iconColor: 'text-sky-400' },
-    { icon: Package, labelEn: 'Digital Products', labelHe: 'מוצרים דיגיטליים', count: 0, color: 'from-purple-500/15 to-purple-500/5 border-purple-500/25', iconColor: 'text-purple-400' },
-    { icon: Image, labelEn: 'NFTs', labelHe: 'NFTs', count: 0, color: 'from-amber-500/15 to-amber-500/5 border-amber-500/25', iconColor: 'text-amber-400' },
-    { icon: Sparkles, labelEn: 'Templates', labelHe: 'תבניות', count: 0, color: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/25', iconColor: 'text-emerald-400' },
-  ];
+  const MARKETPLACE_CATEGORIES = ['all', 'courses', 'digital_products', 'nfts', 'templates'];
+  const MP_CATEGORY_LABELS: Record<string, { en: string; he: string; icon: typeof BookOpen }> = {
+    all: { en: 'All', he: 'הכל', icon: ShoppingBag },
+    courses: { en: 'Courses', he: 'קורסים', icon: BookOpen },
+    digital_products: { en: 'Digital Products', he: 'מוצרים דיגיטליים', icon: Package },
+    nfts: { en: 'NFTs', he: 'NFTs', icon: Image },
+    templates: { en: 'Templates', he: 'תבניות', icon: Sparkles },
+  };
 
   const marketTabs = [
     { id: 'services' as const, icon: Briefcase, labelEn: 'Services', labelHe: 'שירותים' },
