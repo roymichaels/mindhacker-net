@@ -386,6 +386,50 @@ export default function LifeHub() {
                     <Sparkles className="w-3 h-3" />
                     {isHe ? 'כיול מחדש' : 'Recalibrate'}
                   </motion.button>
+                  {/* Export actions */}
+                  <button
+                    onClick={() => {
+                      exportPlanPDF({
+                        title: isHe ? 'תוכנית 100 יום' : '100-Day Plan',
+                        dayProgress: `${overallPct}% · ${completedMilestones}/${totalMilestones} milestones`,
+                        traits: traitViews.map(t => ({ name: t.displayName, pillar: t.pillar, level: t.level, missionCount: t.missionCount })),
+                        milestones: traitViews.flatMap(t => t.missions.flatMap(m => m.milestones.map(ms => ({
+                          title: isHe ? ms.title : (ms.title_en || ms.title),
+                          isCompleted: ms.is_completed,
+                          difficulty: ms.difficulty,
+                          pillar: t.pillar,
+                        })))),
+                      });
+                      toast.success(isHe ? 'PDF הורד' : 'PDF downloaded');
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                    title={isHe ? 'ייצוא PDF' : 'Export PDF'}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const events: CalendarEvent[] = traitViews.flatMap(t =>
+                        t.missions.flatMap(m =>
+                          m.milestones.filter(ms => !ms.is_completed).map(ms => ({
+                            title: isHe ? ms.title : (ms.title_en || ms.title),
+                            description: ms.description || ms.description_en || undefined,
+                            startDate: new Date(),
+                          }))
+                        )
+                      );
+                      if (events.length === 0) {
+                        toast.info(isHe ? 'אין אבני דרך לייצוא' : 'No milestones to export');
+                        return;
+                      }
+                      downloadICS(events, '100-day-milestones.ics');
+                      toast.success(isHe ? 'קובץ לוח שנה הורד' : 'Calendar file downloaded');
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                    title={isHe ? 'ייצוא ללוח שנה' : 'Export to Calendar'}
+                  >
+                    <CalendarPlus className="w-3.5 h-3.5" />
+                  </button>
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
                   <motion.div
