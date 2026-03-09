@@ -610,7 +610,7 @@ export default function Documentation() {
 
                 {section.subsections?.map((sub, k) => (
                   <div key={k} className="ms-4 border-s-2 border-primary/20 ps-4 space-y-2 pt-2">
-                    <h3 className="text-base font-semibold text-foreground">{sub.title}</h3>
+                    <h3 className="text-base font-semibold text-foreground" style={{ unicodeBidi: 'plaintext' }}>{sub.title}</h3>
                     {sub.paragraphs.map((p, j) => (
                       <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{p}</p>
                     ))}
