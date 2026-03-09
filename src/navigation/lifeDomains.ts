@@ -20,6 +20,7 @@ import {
   FolderKanban,
   Gamepad2,
   Sparkles,
+  Heart,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -49,11 +50,12 @@ export const CORE_DOMAINS: LifeDomain[] = [
   { id: 'projects',      labelEn: 'Projects',      labelHe: 'פרויקטים',  icon: FolderKanban, color: 'amber',   description: 'Manage projects & goals',                    descriptionHe: 'ניהול פרויקטים ויעדים' },
   { id: 'play',          labelEn: 'Play',          labelHe: 'משחק',      icon: Gamepad2,     color: 'violet',  description: 'Intentional regeneration & joyful movement', descriptionHe: 'התחדשות מכוונת ותנועה משמחת' },
   { id: 'order',         labelEn: 'Order',         labelHe: 'סדר',       icon: Sparkles,     color: 'teal',    description: 'Clean spaces, organized systems, environmental mastery', descriptionHe: 'סביבה נקייה, מערכות מסודרות, שליטה בסביבה' },
+  { id: 'romantics',     labelEn: 'Romantics',     labelHe: 'רומנטיקה',  icon: Heart,        color: 'rose',    description: 'Intimate relationships, dating, seduction, polarity & romantic mastery', descriptionHe: 'מערכות יחסים אינטימיות, דייטינג, פיתוי, קוטביות ושליטה רומנטית' },
 ];
 
 /** @deprecated Use CORE_DOMAINS — kept for backwards compatibility */
 export const ARENA_DOMAINS: LifeDomain[] = CORE_DOMAINS.filter(d =>
-  ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order'].includes(d.id)
+  ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order', 'romantics'].includes(d.id)
 );
 
 /** Combined — same as CORE_DOMAINS now */

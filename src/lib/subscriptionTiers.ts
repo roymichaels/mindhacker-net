@@ -90,14 +90,14 @@ export function tierIncludes(userTier: SubscriptionTier, requiredTier: Subscript
 export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena: number }> = {
   free: { core: 2, arena: 0 },   // 2 total pillars
   plus: { core: 6, arena: 0 },   // 6 total pillars
-  apex: { core: 14, arena: 0 },  // all pillars
+  apex: { core: 15, arena: 0 },  // all pillars
 };
 
 /** Features list for each tier (for UI display) */
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "2 pillars from 14 life domains",
+      "2 pillars from 15 life domains",
       "Full diagnostic assessment",
       "5 Aurora messages/day",
       "Dashboard & daily structure",
@@ -105,7 +105,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "XP, leveling & streaks",
     ],
     he: [
-      "2 פילרים מתוך 14 תחומי חיים",
+      "2 פילרים מתוך 15 תחומי חיים",
       "אבחון מלא",
       "5 הודעות יומיות לאורורה",
       "דאשבורד ומבנה יומי",
@@ -115,7 +115,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   },
   plus: {
     en: [
-      "6 pillars from all 14 domains",
+      "6 pillars from all 15 domains",
       "Unlimited Aurora with memory",
       "Full 100-day Transformation Plan",
       "AI Hypnosis & daily scripts",
@@ -126,7 +126,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "Community & leaderboards",
     ],
     he: [
-      "6 פילרים מתוך 14 תחומי חיים",
+      "6 פילרים מתוך 15 תחומי חיים",
       "אורורה ללא הגבלה עם זיכרון",
       "תוכנית טרנספורמציה 100 יום",
       "היפנוזה AI ותסריטים יומיים",
@@ -140,7 +140,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   apex: {
     en: [
       "Everything in Plus",
-      "All 14 pillars unlocked",
+      "All 15 pillars unlocked",
       "Auto-update plan on assessment",
       "Full proactive intelligence engine",
       "Morning briefings & mid-day checks",
@@ -154,7 +154,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     ],
     he: [
       "הכל מ-Plus",
-      "כל 14 הפילרים פתוחים",
+      "כל 15 הפילרים פתוחים",
       "עדכון תוכנית אוטומטי בכל אבחון",
       "מנוע אינטליגנציה פרואקטיבית מלא",
       "תדרוכי בוקר ובדיקות אמצע יום",
