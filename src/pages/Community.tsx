@@ -10,6 +10,8 @@ import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
 import AddToPlanModal from '@/components/community/AddToPlanModal';
+import EventsModal from '@/components/community/EventsModal';
+import AIMatchModal from '@/components/community/AIMatchModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LIFE_DOMAINS, getDomainById } from '@/navigation/lifeDomains';
@@ -61,6 +63,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
+  const [eventsOpen, setEventsOpen] = useState(false);
+  const [matchOpen, setMatchOpen] = useState(false);
   const { language } = useTranslation();
   const isHe = language === 'he';
 
@@ -163,7 +167,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Events Card */}
                 <button
-                  onClick={() => {/* TODO: open events modal */}}
+                  onClick={() => setEventsOpen(true)}
                   className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.08] to-sky-600/[0.03] p-4 text-start transition-all hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 active:scale-[0.99]"
                 >
                   <div className="flex items-start gap-3">
@@ -193,7 +197,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
                 {/* AI Match Card */}
                 <button
-                  onClick={() => {/* TODO: open AI match flow */}}
+                  onClick={() => setMatchOpen(true)}
                   className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] via-rose-500/[0.04] to-violet-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
                 >
                   {/* Glow accent */}
@@ -383,6 +387,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
         <CommunityMiniProfile userId={profileUserId} open={!!profileUserId} onClose={() => setProfileUserId(null)} />
         <AddToPlanModal thread={planThread} open={!!planThread} onClose={() => setPlanThread(null)} />
         <SuggestTopicModal open={suggestOpen} onOpenChange={setSuggestOpen} pillar={selectedPillar} />
+        <EventsModal open={eventsOpen} onOpenChange={setEventsOpen} />
+        <AIMatchModal open={matchOpen} onOpenChange={setMatchOpen} />
       </PageShell>
     </UsernameGate>
   );
