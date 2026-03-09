@@ -132,7 +132,7 @@ export function SharedOrbCanvas({ children }: SharedOrbCanvasProps) {
               width: '100vw',
               height: '100vh',
               pointerEvents: 'none',
-              zIndex: 9999,
+              zIndex: 50,
             }}
           >
             <Canvas
