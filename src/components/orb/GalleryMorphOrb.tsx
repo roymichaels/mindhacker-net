@@ -214,11 +214,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── PLASMA: Self-illuminating, pulsing ──
     case 'plasma': {
-      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.6);
-      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.65);
+      const hotCore = new THREE.Color().setHSL(hsl.h, 1.0, 0.45);
+      const glow = new THREE.Color().setHSL((hsl.h + 0.05) % 1, 1.0, 0.4);
       return { ...base, color: hotCore, emissive: glow,
         metalness: 0.0, roughness: 0.4, clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 1.8, envMapIntensity: 0.3,
+        emissiveIntensity: 0.6, envMapIntensity: 0.3,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
