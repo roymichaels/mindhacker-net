@@ -403,6 +403,17 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                         {action.durationMin}{isHe ? '′' : 'm'}
                                       </span>
                                     )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setNegotiateTask(action);
+                                        setNegotiateOpen(true);
+                                      }}
+                                      className="p-1.5 rounded-lg border border-border/30 bg-card/60 hover:bg-primary/10 hover:border-primary/30 transition-colors shrink-0"
+                                      title={isHe ? 'דבר עם התוכנית' : 'Talk to plan'}
+                                    >
+                                      <MessageSquare className="h-3 w-3 text-muted-foreground" />
+                                    </button>
                                     <Play className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
                                   </button>
                                 );
