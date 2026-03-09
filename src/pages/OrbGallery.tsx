@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { GalleryCanvas, StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { SharedOrbView } from '@/components/orb/SharedOrbView';
+import { CSSGalleryOrb } from '@/components/orb/CSSGalleryOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import {
   GALLERY_ORBS,
@@ -230,9 +230,9 @@ export default function OrbGalleryPage() {
                       {isHe ? RARITY_LABELS[orb.rarity].he : RARITY_LABELS[orb.rarity].en}
                     </span>
 
-                    {/* Orb - rendered via shared WebGL canvas */}
+                    {/* Orb - CSS rendered for consistent visuals */}
                     <div className="group-hover:scale-105 transition-transform duration-300 overflow-hidden mx-auto" style={{ width: isMobile ? 90 : 130, height: isMobile ? 90 : 130 }}>
-                      <SharedOrbView
+                      <CSSGalleryOrb
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
                         size={isMobile ? 90 : 130}
