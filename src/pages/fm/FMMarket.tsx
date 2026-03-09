@@ -2,7 +2,7 @@
  * FMMarket — Earn hub with Services, Bounties, and P2P Marketplace.
  * Route: /fm/earn — all publishing flows use Aurora AI wizard.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Briefcase, ShoppingBag, BookOpen, Image, Gem,
@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import FMPublishWizard, { type FMPublishType } from '@/components/fm/FMPublishWizard';
+import { useUserRoles } from '@/hooks/useUserRoles';
 
 type Bounty = Database['public']['Tables']['fm_bounties']['Row'];
 type Gig = Database['public']['Tables']['fm_gigs']['Row'];
@@ -38,7 +39,14 @@ export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user, isAdmin } = useAuth();
+  const { hasAnyRole } = useUserRoles();
   const queryClient = useQueryClient();
+
+  /** Only business owners, freelancers, coaches (practitioners), and therapists can publish services */
+  const canCreateService = useMemo(
+    () => isAdmin || hasAnyRole(['practitioner', 'freelancer', 'business', 'therapist'] as any[]),
+    [isAdmin, hasAnyRole]
+  );
 
   const [view, setView] = useState<MarketView>('services');
 
@@ -222,10 +230,12 @@ export default function FMMarket() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-foreground">{isHe ? 'שירותים' : 'Services'}</h2>
-            <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('service')}>
-              <Sparkles className="w-3.5 h-3.5" />
-              {isHe ? 'פרסם עם Aurora' : 'Publish with Aurora'}
-            </Button>
+            {canCreateService && (
+              <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('service')}>
+                <Sparkles className="w-3.5 h-3.5" />
+                {isHe ? 'פרסם עם Aurora' : 'Publish with Aurora'}
+              </Button>
+            )}
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -242,10 +252,12 @@ export default function FMMarket() {
             <div className="text-center py-12 space-y-3">
               <Users className="w-10 h-10 text-muted-foreground/40 mx-auto" />
               <p className="text-muted-foreground text-sm">{isHe ? 'אין שירותים בקטגוריה הזו.' : 'No services in this category.'}</p>
-              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('service')}>
-                <Sparkles className="w-3.5 h-3.5" />
-                {isHe ? 'פרסם שירות ראשון' : 'Publish first service'}
-              </Button>
+              {canCreateService && (
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openWizard('service')}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {isHe ? 'פרסם שירות ראשון' : 'Publish first service'}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
