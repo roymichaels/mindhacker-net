@@ -389,18 +389,31 @@ export default function LifeHub() {
                   {/* Export actions */}
                   <button
                     onClick={() => {
-                      const allTraits = pillarGroups.flatMap(g => g.traits);
                       exportPlanPDF({
                         isRTL: isHe,
                         title: isHe ? 'תוכנית 100 יום' : '100-Day Plan',
                         dayProgress: `${overallPct}% · ${completedMilestones}/${totalMilestones} ${isHe ? 'אבני דרך' : 'milestones'}`,
-                        traits: allTraits.map(t => ({ name: t.displayName, pillar: t.pillar, level: t.level, missionCount: t.missionCount })),
-                        milestones: allTraits.flatMap(t => t.missions.flatMap(m => m.milestones.map(ms => ({
-                          title: isHe ? ms.title : (ms.title_en || ms.title),
-                          isCompleted: ms.is_completed,
-                          difficulty: ms.difficulty,
-                          pillar: t.pillar,
-                        })))),
+                        pillars: pillarGroups.map(g => ({
+                          pillarId: g.pillarId,
+                          pillarLabel: g.domain ? (isHe ? g.domain.labelHe : g.domain.labelEn) : g.pillarId,
+                          isSelected: g.isSelected,
+                          milestoneCount: g.milestoneCount,
+                          completedMilestones: g.completedMilestones,
+                          traits: g.traits.map(t => ({
+                            name: t.displayName,
+                            level: t.level,
+                            missionCount: t.missionCount,
+                            missions: t.missions.map(m => ({
+                              title: isHe ? m.title : (m.title_en || m.title),
+                              isCompleted: m.is_completed,
+                              milestones: m.milestones.map(ms => ({
+                                title: isHe ? ms.title : (ms.title_en || ms.title),
+                                isCompleted: ms.is_completed,
+                                difficulty: ms.difficulty,
+                              })),
+                            })),
+                          })),
+                        })),
                       });
                       toast.success(isHe ? 'PDF הורד' : 'PDF downloaded');
                     }}
