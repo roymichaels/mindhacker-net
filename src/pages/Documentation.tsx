@@ -502,10 +502,11 @@ export default function Documentation() {
         <aside
           className={cn(
             "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-72 border-e border-border bg-background shrink-0 transition-transform duration-200",
-            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-            isRTL && !sidebarOpen && "translate-x-full lg:translate-x-0",
-            isRTL && sidebarOpen && "translate-x-0"
+            // LTR: slide from left; RTL: slide from right
+            !isRTL && (sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"),
+            isRTL && (sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"),
           )}
+          style={isRTL ? { right: 0 } : { left: 0 }}
         >
           <ScrollArea className="h-full">
             <div className="p-4 space-y-1">
@@ -519,7 +520,7 @@ export default function Documentation() {
                   className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
                 >
                   <span className="font-mono text-xs text-primary/60 w-5 shrink-0">{item.number}.</span>
-                  <span className="truncate">{item.title}</span>
+                  <span className="truncate" style={{ unicodeBidi: 'plaintext' }}>{item.title}</span>
                 </button>
               ))}
             </div>
