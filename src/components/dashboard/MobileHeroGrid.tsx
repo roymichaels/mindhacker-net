@@ -16,8 +16,9 @@ import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
+import { PlanNegotiateModal } from '@/components/plan/PlanNegotiateModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield, Download } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield, Download, MessageSquare } from 'lucide-react';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exportNowPDF, type NowExportData, type NowPDFSlot } from '@/utils/exportNowPDF';
@@ -77,6 +78,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
+  const [negotiateOpen, setNegotiateOpen] = useState(false);
+  const [negotiateTask, setNegotiateTask] = useState<NowQueueItem | null>(null);
 
   const currentDay = useMemo(() => {
     return getCurrentDayInIsrael(plan?.start_date);
@@ -400,6 +403,17 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                         {action.durationMin}{isHe ? '′' : 'm'}
                                       </span>
                                     )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setNegotiateTask(action);
+                                        setNegotiateOpen(true);
+                                      }}
+                                      className="p-1.5 rounded-lg border border-border/30 bg-card/60 hover:bg-primary/10 hover:border-primary/30 transition-colors shrink-0"
+                                      title={isHe ? 'דבר עם התוכנית' : 'Talk to plan'}
+                                    >
+                                      <MessageSquare className="h-3 w-3 text-muted-foreground" />
+                                    </button>
                                     <Play className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
                                   </button>
                                 );
@@ -441,6 +455,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         focusArea={journeyAction?.pillarId || undefined}
         durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
+      />
+      <PlanNegotiateModal
+        open={negotiateOpen}
+        onOpenChange={setNegotiateOpen}
+        task={negotiateTask}
+        onApplied={() => refetch()}
       />
     </div>
   );
