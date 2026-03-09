@@ -539,7 +539,7 @@ export default function Documentation() {
         )}
 
         {/* Main content */}
-        <main className="flex-1 min-w-0">
+        <main className={cn("flex-1 min-w-0", isRTL && "lg:order-1")}>
           <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 space-y-8">
             {/* Title Page */}
             <motion.div
