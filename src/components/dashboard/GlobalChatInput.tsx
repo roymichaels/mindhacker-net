@@ -15,6 +15,7 @@ import AuroraVoiceMode from '@/components/aurora/AuroraVoiceMode';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
+import VoiceNoteButton from '@/components/aurora/VoiceNoteButton';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
