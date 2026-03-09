@@ -228,8 +228,8 @@ function EmpireCard({ children, className, glow }: { children: React.ReactNode; 
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/[0.06] p-4",
-        "bg-gradient-to-br from-white/[0.04] to-white/[0.01]",
+        "rounded-2xl border border-border/30 dark:border-white/[0.06] p-4",
+        "bg-gradient-to-br from-muted/40 to-muted/20 dark:from-white/[0.04] dark:to-white/[0.01]",
         "backdrop-blur-sm",
         className,
       )}
