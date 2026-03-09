@@ -230,9 +230,9 @@ export default function OrbGalleryPage() {
                       {isHe ? RARITY_LABELS[orb.rarity].he : RARITY_LABELS[orb.rarity].en}
                     </span>
 
-                    {/* Orb - CSS rendered for consistent visuals */}
+                    {/* Orb - WebGL morphing via shared canvas */}
                     <div className="group-hover:scale-105 transition-transform duration-300 overflow-hidden mx-auto" style={{ width: isMobile ? 90 : 130, height: isMobile ? 90 : 130 }}>
-                      <CSSGalleryOrb
+                      <SharedOrbView
                         profile={orb.profile}
                         geometryFamily={orb.traits.geometry}
                         size={isMobile ? 90 : 130}
