@@ -1,22 +1,21 @@
 /**
  * PlanChatWizard — "Talk to your plan" free-form chat for surgical plan edits.
  * Uses Aurora + command bus to make targeted changes without regenerating.
+ * Reuses the same Aurora chat UI components (messages, input, TTS, voice mode).
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
-import { Send, Loader2, Sparkles, Wrench } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Wrench } from 'lucide-react';
 import { parseAllTags, stripAllTags, type AppCommand } from '@/lib/commandBus';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import ReactMarkdown from 'react-markdown';
+import AuroraChatMessage from '@/components/aurora/AuroraChatMessage';
+import AuroraTypingIndicator from '@/components/aurora/AuroraTypingIndicator';
+import AuroraChatInput from '@/components/aurora/AuroraChatInput';
 
 interface ChatMsg {
   role: 'user' | 'assistant';
@@ -48,26 +47,17 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
   const queryClient = useQueryClient();
 
   const [messages, setMessages] = useState<ChatMsg[]>([]);
-  const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [appliedCount, setAppliedCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 200);
-  }, [open]);
 
   const handleClose = (val: boolean) => {
     if (!val) {
       setMessages([]);
-      setInput('');
       setAppliedCount(0);
     }
     onOpenChange(val);
@@ -83,7 +73,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     keys.forEach(k => queryClient.invalidateQueries({ queryKey: [k] }));
   }, [queryClient]);
 
-  // Execute a single parsed command against the database
   const executeCommand = useCallback(async (command: AppCommand): Promise<boolean> => {
     if (!user?.id) return false;
 
@@ -237,7 +226,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
 
       case 'completeActionItem': {
-        // Try by ID first (UUID format), then by title match
         const isUuid = /^[a-f0-9-]{36}$/.test(command.identifier);
         if (isUuid) {
           const { error } = await supabase.from('action_items')
@@ -245,7 +233,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
             .eq('id', command.identifier).eq('user_id', user.id);
           return !error;
         }
-        // Fuzzy match by title
         const { data: item } = await supabase.from('action_items')
           .select('id').eq('user_id', user.id).in('status', ['todo', 'doing'])
           .ilike('title', `%${command.identifier}%`).limit(1).maybeSingle();
@@ -268,7 +255,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
 
       case 'deleteActionItem': {
-        // Try by ID first
         const isUuid = /^[a-f0-9-]{36}$/.test(command.identifier);
         if (isUuid) {
           const { error } = await supabase.from('action_items').delete().eq('id', command.identifier).eq('user_id', user.id);
@@ -288,18 +274,15 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
   }, [user?.id]);
 
   const processCommands = useCallback(async (fullText: string) => {
-    // 1. Parse standard command tags
     const commands = parseAllTags(fullText);
 
-    // 2. Parse practice-specific tags (not in standard parser)
-    const practiceAddRegex = /\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\]/g;
-    const practiceRemoveRegex = /\[practice:remove:([a-f0-9-]+)\]/g;
-    const practiceUpdateRegex = /\[practice:update:([a-f0-9-]+):(.+?)\]/g;
+    const practiceAddRegex = /\\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\\]/g;
+    const practiceRemoveRegex = /\\[practice:remove:([a-f0-9-]+)\\]/g;
+    const practiceUpdateRegex = /\\[practice:update:([a-f0-9-]+):(.+?)\\]/g;
 
     let changesMade = false;
     let match;
 
-    // Practice additions
     while ((match = practiceAddRegex.exec(fullText)) !== null) {
       const [, practiceId, duration, frequency, isCore] = match;
       if (user?.id) {
@@ -312,14 +295,12 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
     }
 
-    // Practice removals
     while ((match = practiceRemoveRegex.exec(fullText)) !== null) {
       const [, userPracticeId] = match;
       const { error } = await supabase.from('user_practices').delete().eq('id', userPracticeId);
       if (!error) changesMade = true;
     }
 
-    // Practice updates
     while ((match = practiceUpdateRegex.exec(fullText)) !== null) {
       const [, userPracticeId, fieldsStr] = match;
       const updates: Record<string, any> = {};
@@ -336,7 +317,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
     }
 
-    // 3. Execute standard commands
     let executedCount = 0;
     for (const cmd of commands) {
       const success = await executeCommand(cmd);
@@ -360,7 +340,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     const userMsg: ChatMsg = { role: 'user', content: text.trim() };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
-    setInput('');
     setIsStreaming(true);
 
     let assistantText = '';
@@ -432,7 +411,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         }
       }
 
-      // Process any commands in the final response
       if (assistantText) {
         await processCommands(assistantText);
       }
@@ -449,18 +427,11 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(input);
-    }
-  };
-
   const quickActions = isHe ? QUICK_ACTIONS_HE : QUICK_ACTIONS_EN;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <DialogHeader className="px-4 pt-4 pb-3 border-b border-border/50 shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
@@ -474,113 +445,69 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
               </span>
             </div>
             {appliedCount > 0 && (
-              <span className="ms-auto text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium">
+              <span className="ms-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
                 {appliedCount} {isHe ? 'שינויים' : 'changes'}
               </span>
             )}
           </DialogTitle>
         </DialogHeader>
 
-        {/* Messages */}
-        <ScrollArea className="flex-1 min-h-0 px-4 py-3" ref={scrollRef}>
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-7 w-7 text-primary" />
-              </div>
-              <div className="text-center space-y-1.5">
-                <p className="text-sm font-semibold text-foreground">
-                  {isHe ? 'מה תרצה לשנות בתוכנית?' : 'What would you like to change?'}
-                </p>
-                <p className="text-xs text-muted-foreground max-w-xs">
-                  {isHe
-                    ? 'אני יכולה להוסיף ולהסיר תרגולים, לשנות אבני דרך, להחליף משימות ועוד — בלי ליצור תוכנית חדשה'
-                    : 'I can add/remove practices, modify milestones, swap tasks and more — without creating a new plan'}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
-                {quickActions.map((qa, i) => (
-                  <button
-                    key={i}
-                    onClick={() => sendMessage(qa)}
-                    className="text-[11px] px-3 py-1.5 rounded-full border border-border/60 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
-                  >
-                    {qa}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <AnimatePresence initial={false}>
-                {messages.map((msg, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={cn(
-                      "flex",
-                      msg.role === 'user' ? (isRTL ? 'justify-start' : 'justify-end') : (isRTL ? 'justify-end' : 'justify-start')
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
-                        msg.role === 'user'
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted/70 border border-border/50 text-foreground"
-                      )}
-                    >
-                      {msg.role === 'assistant' ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
-                          <ReactMarkdown>{stripAllTags(msg.content)}</ReactMarkdown>
-                        </div>
-                      ) : (
-                        msg.content
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
-                <div className={cn("flex", isRTL ? 'justify-end' : 'justify-start')}>
-                  <div className="bg-muted/70 border border-border/50 rounded-2xl px-4 py-3">
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  </div>
+        {/* Messages — uses Aurora's chat message components */}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="h-7 w-7 text-primary" />
                 </div>
-              )}
-            </div>
-          )}
+                <div className="text-center space-y-1.5">
+                  <p className="text-sm font-semibold text-foreground">
+                    {isHe ? 'מה תרצה לשנות בתוכנית?' : 'What would you like to change?'}
+                  </p>
+                  <p className="text-xs text-muted-foreground max-w-xs">
+                    {isHe
+                      ? 'אני יכולה להוסיף ולהסיר תרגולים, לשנות אבני דרך, להחליף משימות ועוד — בלי ליצור תוכנית חדשה'
+                      : 'I can add/remove practices, modify milestones, swap tasks and more — without creating a new plan'}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
+                  {quickActions.map((qa, i) => (
+                    <button
+                      key={i}
+                      onClick={() => sendMessage(qa)}
+                      className="text-[11px] px-3 py-1.5 rounded-full border border-border/60 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
+                    >
+                      {qa}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {messages.map((msg, i) => (
+                  <AuroraChatMessage
+                    key={i}
+                    id={`plan-chat-${i}`}
+                    content={msg.role === 'assistant' ? stripAllTags(msg.content) : msg.content}
+                    isOwn={msg.role === 'user'}
+                    isAI={msg.role === 'assistant'}
+                    isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
+                  />
+                ))}
+
+                {/* Typing indicator — same as Aurora's page */}
+                {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
+                  <AuroraTypingIndicator />
+                )}
+
+                <div ref={scrollRef} />
+              </div>
+            )}
+          </div>
         </ScrollArea>
 
-        {/* Input */}
-        <div className="px-4 pb-4 pt-2 border-t border-border/50 shrink-0">
-          <div className="flex gap-2 items-end">
-            <Textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isHe ? 'ספר לי מה לשנות...' : 'Tell me what to change...'}
-              className="min-h-[44px] max-h-[100px] text-sm resize-none rounded-xl"
-              dir={isRTL ? 'rtl' : 'ltr'}
-              disabled={isStreaming}
-            />
-            <Button
-              size="icon"
-              onClick={() => sendMessage(input)}
-              disabled={!input.trim() || isStreaming}
-              className="shrink-0 h-11 w-11 rounded-xl"
-            >
-              {isStreaming ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className={cn("h-4 w-4", isRTL && "rotate-180")} />
-              )}
-            </Button>
-          </div>
-        </div>
+        {/* Input — full Aurora input with TTS, voice recording, voice mode */}
+        <AuroraChatInput onSend={sendMessage} disabled={isStreaming} bypassLimits />
       </DialogContent>
     </Dialog>
   );
