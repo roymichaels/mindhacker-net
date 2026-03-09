@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import { MessageSquarePlus, ChevronLeft, Clock, Flame, MessageSquare } from 'lucide-react';
+import { MessageSquarePlus, ChevronLeft, Clock, Flame, MessageSquare, CalendarDays, MapPin, Sparkles, Users, ArrowRight } from 'lucide-react';
 import UsernameGate from '@/components/community/UsernameGate';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
