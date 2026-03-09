@@ -17,9 +17,11 @@ import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield, Download } from 'lucide-react';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
+import { exportNowPDF, type NowExportData, type NowPDFSlot } from '@/utils/exportNowPDF';
+import { toast } from 'sonner';
 
 // ── Adventure-themed block labels ──
 const JOURNEY_THEMES: Record<string, { he: string; en: string; emoji: string; accent: string }> = {
@@ -222,15 +224,73 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                         {schedule.length} {isHe ? 'מסלולים' : 'paths'}
                       </span>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setWizardOpen(true)}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
-                    >
-                      <Plus className="w-3 h-3" />
-                      {isHe ? 'הוסף' : 'Add'}
-                    </motion.button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          const quarterOrder = ['q1_morning', 'q2_midday', 'q3_afternoon', 'q4_evening'] as const;
+                          const QUARTER_LABELS: Record<string, { he: string; en: string; emoji: string }> = {
+                            q1_morning:   { he: 'רבעון בוקר',   en: 'Morning Quarter',   emoji: '🌅' },
+                            q2_midday:    { he: 'רבעון צהריים',  en: 'Midday Quarter',    emoji: '☀️' },
+                            q3_afternoon: { he: 'רבעון אחה״צ',  en: 'Afternoon Quarter',  emoji: '⚡' },
+                            q4_evening:   { he: 'רבעון ערב',    en: 'Evening Quarter',    emoji: '🌙' },
+                          };
+                          const grouped = new Map<string, typeof schedule>();
+                          for (const q of quarterOrder) grouped.set(q, []);
+                          for (const slot of schedule) {
+                            const q = QUARTER_MAP[slot.timeBlock] || 'q2_midday';
+                            grouped.get(q)!.push(slot);
+                          }
+                          const quarters = quarterOrder.map(qKey => {
+                            const slots = grouped.get(qKey)!;
+                            const meta = QUARTER_LABELS[qKey];
+                            return {
+                              key: qKey,
+                              label: isHe ? meta.he : meta.en,
+                              emoji: meta.emoji,
+                              slots: slots.map(s => {
+                                const theme = JOURNEY_THEMES[s.timeBlock] || JOURNEY_THEMES.midday;
+                                return {
+                                  timeBlock: s.timeBlock,
+                                  label: theme.he,
+                                  labelEn: theme.en,
+                                  emoji: theme.emoji,
+                                  actions: s.actions.map(a => ({
+                                    title: a.title,
+                                    titleEn: a.titleEn,
+                                    pillarLabel: a.pillarId,
+                                    durationMin: a.durationMin,
+                                    isTimeBased: a.isTimeBased,
+                                  })),
+                                };
+                              }),
+                              totalActions: slots.reduce((s2, sl) => s2 + sl.actions.length, 0),
+                              totalMinutes: slots.reduce((s2, sl) => s2 + sl.actions.reduce((t, a) => t + (a.durationMin || 0), 0), 0),
+                            };
+                          });
+                          exportNowPDF({
+                            isRTL: isHe,
+                            title: isHe ? 'תוכנית יומית' : 'Daily Plan',
+                            subtitle: `${totalActions} ${isHe ? 'פעולות' : 'actions'}`,
+                            dayLabel: `${isHe ? 'יום' : 'Day'} ${currentDay} / 100`,
+                            quarters,
+                          });
+                          toast.success(isHe ? 'PDF הורד' : 'PDF downloaded');
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                        title={isHe ? 'ייצוא PDF' : 'Export PDF'}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setWizardOpen(true)}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-primary text-primary-foreground border border-primary/30 hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        {isHe ? 'הוסף' : 'Add'}
+                      </motion.button>
+                    </div>
                   </div>
                 </div>
 
