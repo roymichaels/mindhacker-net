@@ -7,7 +7,7 @@
  */
 import { useState, useMemo, useCallback } from 'react';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
-import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield, Play } from 'lucide-react';
+import { Flame, Sparkles, Target, CheckCircle2, Circle, Trophy, MapPin, ChevronDown, ChevronUp, Star, Shield, Play, Download, CalendarPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
