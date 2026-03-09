@@ -266,6 +266,8 @@ export function stripAllTags(content: string): string {
     .replace(/\[reminder:[^\]]+\]/g, '')
     .replace(/\[focus:[^\]]+\]/g, '')
     .replace(/\[practice:[^\]]+\]/g, '')
+    .replace(/\[memory:[^\]]+\]/g, '')
+    .replace(/\[dream:[^\]]+\]/g, '')
     .trim();
 }
 
