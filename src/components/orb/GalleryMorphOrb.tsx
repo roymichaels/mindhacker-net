@@ -235,23 +235,24 @@ function getElementalMaterial(profile: OrbProfile) {
         opacity: 0.9, transparent: true, flatShading: false, wireframe: false,
       };
     }
-    // ── WIRE: Wireframe only, glowing edges ──
+    // ── WIRE: Redirect to crystal (wire/mesh removed) ──
     case 'wire': {
-      const wireColor = new THREE.Color().setHSL(hsl.h, 0.7, 0.75);
-      const wireGlow = new THREE.Color().setHSL(hsl.h, 0.9, 0.65);
-      return { ...base, color: wireColor, emissive: wireGlow,
-        metalness: 0.1, roughness: 0.5, clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 1.5, envMapIntensity: 0.5,
-        opacity: 0.9, transparent: true, flatShading: false, wireframe: true,
+      const crystalC2 = new THREE.Color().setHSL(hsl.h, 0.7, 0.65);
+      const refract2 = new THREE.Color().setHSL((hsl.h + 0.1) % 1, 0.8, 0.55);
+      return { ...base, color: crystalC2, emissive: refract2,
+        metalness: 0.1, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
+        emissiveIntensity: 0.5, envMapIntensity: 2.5,
+        transmission: 0.3, ior: 2.4, thickness: 1.0,
+        opacity: 0.75, transparent: true, flatShading: true, wireframe: false,
       };
     }
-    // ── LAVA: Dark crust with BRIGHT molten glow ──
+    // ── LAVA: Dark crust with molten glow ──
     case 'lava': {
-      const crust = new THREE.Color().setHSL(hsl.h, 0.7, 0.15);
-      const magma = new THREE.Color().setHSL(hsl.h, 1.0, 0.65);
+      const crust = new THREE.Color().setHSL(hsl.h, 0.6, 0.2);
+      const magma = new THREE.Color().setHSL(hsl.h, 1.0, 0.6);
       return { ...base, color: crust, emissive: magma,
         metalness: 0.0, roughness: 0.9, clearcoat: 0.0, clearcoatRoughness: 1.0,
-        emissiveIntensity: 3.5, envMapIntensity: 0.15,
+        emissiveIntensity: 2.0, envMapIntensity: 0.15,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
