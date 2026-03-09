@@ -73,6 +73,7 @@ export default function Business() {
           <p className="text-sm text-muted-foreground mt-1">
             {isHe ? 'נהל, בנה והקם את העסקים שלך עם Aurora' : 'Manage, build and launch your businesses with Aurora'}
           </p>
+          </div>
         </div>
         <Button
           onClick={() => setShowWizard(true)}
