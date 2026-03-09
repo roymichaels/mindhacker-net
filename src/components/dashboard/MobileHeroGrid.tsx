@@ -78,6 +78,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
+  const [negotiateOpen, setNegotiateOpen] = useState(false);
+  const [negotiateTask, setNegotiateTask] = useState<NowQueueItem | null>(null);
 
   const currentDay = useMemo(() => {
     return getCurrentDayInIsrael(plan?.start_date);
