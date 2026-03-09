@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import type { WorkSession } from '@/services/workSessions';
 import { WorkChatWizard } from '@/components/work/WorkChatWizard';
+import { WorkAnalytics } from '@/components/work/WorkAnalytics';
 
 // ── Timer Component ──────────────────────────────────
 function WorkTimer() {
