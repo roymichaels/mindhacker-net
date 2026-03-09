@@ -355,6 +355,7 @@ export default function WorkHub() {
     { id: 'timer', labelHe: 'טיימר', labelEn: 'Timer', icon: Timer },
     { id: 'log', labelHe: 'יומן', labelEn: 'Log', icon: Clock },
     { id: 'stats', labelHe: 'סטטיסטיקה', labelEn: 'Stats', icon: BarChart3 },
+    { id: 'analytics', labelHe: 'אנליטיקס', labelEn: 'Analytics', icon: TrendingUp },
   ];
 
   return (
