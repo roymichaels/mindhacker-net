@@ -285,7 +285,7 @@ export default function OrbEvolutionSection() {
                 }}
               />
                 <div
-                  className="rounded-full overflow-hidden flex items-center justify-center"
+                  className="flex items-center justify-center"
                   style={{ width: orbSize, height: orbSize }}
                 >
                   <SharedOrbView
