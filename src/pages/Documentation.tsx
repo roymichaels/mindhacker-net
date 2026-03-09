@@ -82,11 +82,11 @@ export default function Documentation() {
     {
       id: 'solution',
       number: '4',
-      title: he ? 'הפתרון — חמישה Hubs' : 'The Solution — Five Hubs',
+      title: he ? 'הפתרון — שישה Hubs' : 'The Solution — Six Hubs',
       paragraphs: he ? [
-        `${brandName} הוא Human Operating System — מערכת הפעלה אנושית שמאחדת את כל ממדי החיים תחת קורת גג אחת. הפלטפורמה בנויה מחמישה Hubs בסדר עדיפות ביצועי:`,
+        `${brandName} הוא Human Operating System — מערכת הפעלה אנושית שמאחדת את כל ממדי החיים תחת קורת גג אחת. הפלטפורמה בנויה מששה Hubs בסדר עדיפות ביצועי:`,
       ] : [
-        `${brandName} is a Human Operating System that unifies all life dimensions under one roof. The platform is built from five Hubs in execution-priority order:`,
+        `${brandName} is a Human Operating System that unifies all life dimensions under one roof. The platform is built from six Hubs in execution-priority order:`,
       ],
       subsections: [
         {
