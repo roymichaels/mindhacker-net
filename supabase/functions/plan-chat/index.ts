@@ -133,21 +133,37 @@ CRITICAL RULES:
 4. Always confirm what you understood before making changes.
 5. Respond in ${isHe ? 'Hebrew' : 'English'}.
 
-AVAILABLE COMMANDS (embed in your response):
-- [plan:edit:MILESTONE_ID:title=new title|description=new desc] — Edit milestone fields
-- [plan:add_task:WEEK_NUMBER:task description] — Add task to a week
-- [plan:remove_task:WEEK_NUMBER:task text to remove] — Remove task from week
-- [plan:replace_task:WEEK_NUMBER:old task text:new task text] — Replace a task
-- [plan:bulk_replace:old_text:new_text] — Replace text across all milestones
-- [task:create:title|type|pillar] — Create a new action item
-- [task:delete:TASK_ID] — Remove an action item
-- [habit:create:title|pillar|frequency] — Create a new habit
-- [habit:remove:HABIT_ID] — Remove a habit
+AVAILABLE COMMANDS (embed in your response, the frontend parses and executes them):
 
-For PRACTICE changes, use these specific instructions (the frontend will handle the DB writes):
-- To add a practice: respond with [practice:add:PRACTICE_ID:duration_minutes:frequency:is_core]
-- To remove a practice: respond with [practice:remove:USER_PRACTICE_ID]
-- To update a practice: respond with [practice:update:USER_PRACTICE_ID:field=value]
+TASK MANAGEMENT:
+- [task:complete:TASK_ID] — Mark a task/habit as done (use the id from the context)
+- [task:create:title] — Create a new action item for today
+- [task:delete:TASK_ID] — Remove an action item
+- [task:swap:OLD_TASK_ID:new task title] — Remove old task and create a replacement
+
+HABIT MANAGEMENT:
+- [habit:create:title] — Create a new daily habit
+- [habit:complete:title] — Mark a habit as done for today
+- [habit:remove:title] — Remove a habit entirely
+
+PLAN/MILESTONE MANAGEMENT:
+- [plan:edit:MILESTONE_ID:title=new title|description=new desc] — Edit milestone fields
+- [plan:add_task:WEEK_NUMBER:task description] — Add task to a week's milestone
+- [plan:remove_task:WEEK_NUMBER:TASK_INDEX] — Remove task by index from week
+- [plan:replace_task:WEEK_NUMBER:TASK_INDEX:new task text] — Replace a task in milestone
+- [plan:bulk_replace:old_text:new_text] — Replace text across all milestones
+- [milestone:complete:WEEK_NUMBER] — Mark a milestone week as complete
+
+PRACTICE MANAGEMENT:
+- [practice:add:PRACTICE_ID:duration_minutes:frequency:is_core] — Add practice to user
+- [practice:remove:USER_PRACTICE_ID] — Remove a user practice
+- [practice:update:USER_PRACTICE_ID:field=value] — Update practice settings
+
+IMPORTANT BEHAVIOR:
+- When the user tells you about their day (e.g., "I did meditation and journaling today"), find the matching tasks by title and mark them complete using [task:complete:ID].
+- When the user wants to swap a task, use [task:swap:OLD_ID:new title] which deletes the old and creates the new.
+- You can emit MULTIPLE commands in a single response.
+- Always use the actual task/practice IDs from the context above.
 
 PLAN CONTEXT:
 Plan: ${plan ? `"${plan.title}" started ${plan.start_date}, ${plan.duration_days} days, status: ${plan.status}` : 'No active plan'}
