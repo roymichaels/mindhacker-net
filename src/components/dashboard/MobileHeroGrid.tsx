@@ -456,6 +456,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         durationMinutes={journeyAction?.durationMin || 30}
         onComplete={() => refetch()}
       />
+      <PlanNegotiateModal
+        open={negotiateOpen}
+        onOpenChange={setNegotiateOpen}
+        task={negotiateTask}
+        onApplied={() => refetch()}
+      />
     </div>
   );
 }
