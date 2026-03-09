@@ -49,6 +49,7 @@ const AdminSettings     = lazy(() => import('@/pages/admin/Settings'));
 const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoveragePanel'));
 const AdminFMBounties   = lazy(() => import('@/pages/admin/FMBounties'));
 const AdminBlog         = lazy(() => import('@/pages/admin/Blog'));
+const WorkMonitor       = lazy(() => import('@/pages/admin/WorkMonitor'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
@@ -76,6 +77,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
       { id: 'businesses', labelHe: 'עסקים', labelEn: 'Businesses', component: Businesses },
       { id: 'aurora-insights', labelHe: 'תובנות', labelEn: 'Insights', component: AuroraInsights },
       { id: 'fm-bounties', labelHe: 'באונטי FM', labelEn: 'FM Bounties', component: AdminFMBounties },
+      { id: 'work-monitor', labelHe: 'מוניטור עבודה', labelEn: 'Work Monitor', component: WorkMonitor },
     ],
   },
   {

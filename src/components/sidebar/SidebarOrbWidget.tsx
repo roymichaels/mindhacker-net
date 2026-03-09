@@ -1,11 +1,13 @@
 /**
  * SidebarOrbWidget - Full identity card for sidebar with orb, title, stats, XP bar.
  * Matches the gamified profile card design.
+ * Pulses with a work-glow ring when an active work session is running.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useActiveWorkSession } from '@/hooks/useActiveWorkSession';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { Star, Flame, Zap } from 'lucide-react';
@@ -19,6 +21,7 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
+  const { isWorking, isDeepWork } = useActiveWorkSession();
 
   const level = dashboard.level;
   const tokens = dashboard.tokens;
@@ -32,9 +35,18 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
       <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
       <div className="flex flex-col items-center gap-1.5 px-1">
         <div
-          className="relative w-12 h-12 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+          className={cn(
+            "relative w-12 h-12 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform",
+            isWorking && "animate-pulse"
+          )}
           onClick={() => setOrbViewerOpen(true)}
         >
+          {isWorking && (
+            <div className={cn(
+              "absolute inset-[-4px] rounded-full animate-ping opacity-30",
+              isDeepWork ? "bg-violet-500" : "bg-primary"
+            )} />
+          )}
           <PersonalizedOrb size={44} />
         </div>
         <span className="text-[9px] font-bold text-muted-foreground">
@@ -58,12 +70,28 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
     <div className="flex flex-col items-center gap-3 w-full px-2">
       {/* Orb */}
       <div
-        className="relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+        className={cn(
+          "relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform",
+          isWorking && "animate-pulse"
+        )}
         onClick={() => setOrbViewerOpen(true)}
       >
-        <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/10 to-transparent blur-xl pointer-events-none" />
+        <div className={cn(
+          "absolute inset-[-30%] rounded-full blur-xl pointer-events-none transition-colors duration-700",
+          isWorking && isDeepWork
+            ? "bg-gradient-radial from-violet-500/40 via-violet-500/15 to-transparent"
+            : isWorking
+              ? "bg-gradient-radial from-primary/40 via-primary/15 to-transparent"
+              : "bg-gradient-radial from-primary/30 via-primary/10 to-transparent"
+        )} />
+        {isWorking && (
+          <div className={cn(
+            "absolute inset-[-8px] rounded-full animate-ping opacity-20",
+            isDeepWork ? "bg-violet-500" : "bg-primary"
+          )} />
+        )}
         <div className="relative z-10">
-          <PersonalizedOrb size={88} state="idle" />
+          <PersonalizedOrb size={88} state={isWorking ? 'listening' : 'idle'} />
         </div>
       </div>
 

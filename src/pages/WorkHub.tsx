@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Timer, ListTodo, Clock, BarChart3, Play, Square, Plus, Trash2, Brain, Zap, MessageSquare, Sparkles, Lock } from 'lucide-react';
+import { Timer, ListTodo, Clock, BarChart3, Play, Square, Plus, Trash2, Brain, Zap, MessageSquare, Sparkles, Lock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import type { WorkSession } from '@/services/workSessions';
 import { WorkChatWizard } from '@/components/work/WorkChatWizard';
+import { WorkAnalytics } from '@/components/work/WorkAnalytics';
 
 // ── Timer Component ──────────────────────────────────
 function WorkTimer() {
@@ -354,6 +355,7 @@ export default function WorkHub() {
     { id: 'timer', labelHe: 'טיימר', labelEn: 'Timer', icon: Timer },
     { id: 'log', labelHe: 'יומן', labelEn: 'Log', icon: Clock },
     { id: 'stats', labelHe: 'סטטיסטיקה', labelEn: 'Stats', icon: BarChart3 },
+    { id: 'analytics', labelHe: 'אנליטיקס', labelEn: 'Analytics', icon: TrendingUp },
   ];
 
   return (
@@ -424,6 +426,10 @@ export default function WorkHub() {
 
             <TabsContent value="stats">
               <WorkStats />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <WorkAnalytics />
             </TabsContent>
           </div>
         </Tabs>
