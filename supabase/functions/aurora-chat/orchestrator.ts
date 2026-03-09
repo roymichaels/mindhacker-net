@@ -442,6 +442,20 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
     ? `## סטטוס התקדמות\n- בהירות כיוון: ${ctx.onboarding.direction_clarity}\n- הבנת זהות: ${ctx.onboarding.identity_understanding}\n- מיפוי אנרגיה: ${ctx.onboarding.energy_patterns_status}`
     : `## Progress Status\n- Direction clarity: ${ctx.onboarding.direction_clarity}\n- Identity understanding: ${ctx.onboarding.identity_understanding}\n- Energy mapping: ${ctx.onboarding.energy_patterns_status}`);
 
+  // Adaptive Difficulty Signals
+  if (ctx.pulse_week) {
+    const pw = ctx.pulse_week;
+    // Compute completion stats from action items
+    const totalToday = ctx.action_items.today_tasks.length + ctx.action_items.today_completed.length;
+    const completedToday = ctx.action_items.today_completed.length;
+    const completionPct = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
+    const habitsCompletionPct = ctx.habits_status.total > 0 ? Math.round((ctx.habits_status.completed / ctx.habits_status.total) * 100) : 0;
+    
+    parts.push(isHe
+      ? `## 📊 מנוע התאמת קושי אדפטיבית\n- אנרגיה ממוצעת (7 ימים): ${pw.avg_energy}/5\n- ביטחון ממוצע: ${pw.avg_confidence}/5\n- ציות כללי: ${pw.compliance}%\n- חוב התאוששות: ${pw.recovery_debt}%\n- השלמת משימות היום: ${completionPct}%\n- השלמת הרגלים היום: ${habitsCompletionPct}%\n- ימים מתועדים השבוע: ${pw.days_logged}/7\n⚠️ אם אתה מזהה דפוס ברור (חיובי או שלילי), הצע שינוי רמת קושי למשתמש!`
+      : `## 📊 Adaptive Difficulty Engine\n- Avg energy (7d): ${pw.avg_energy}/5\n- Avg confidence: ${pw.avg_confidence}/5\n- Overall compliance: ${pw.compliance}%\n- Recovery debt: ${pw.recovery_debt}%\n- Today's task completion: ${completionPct}%\n- Today's habit completion: ${habitsCompletionPct}%\n- Days logged this week: ${pw.days_logged}/7\n⚠️ If you detect a clear pattern (positive or negative), suggest a difficulty change to the user!`);
+  }
+
   // Recent insights
   if (ctx.recent_insights.length > 0) {
     const lines = ctx.recent_insights.map(i => `- ${i.type}: "${i.content}"`);
@@ -744,6 +758,20 @@ function buildFullPrompt(language: string, contextMarkdown: string, openerSectio
 ### תגיות פוקוס
 - [focus:set:כותרת:מספר_ימים] - הגדרת תקופת פוקוס
 
+### תגיות חלומות ושאיפות 🌟
+- [dream:capture:תיאור_החלום] - כשמשתמש משתף חלום, שאיפה, או חזון לעתיד — לכוד אותו!
+- [dream:integrate:תיאור_החלום:פילר] - כשניתן לחבר חלום לתוכנית — הצע לשלב אותו כיעד
+⚠️ כשמשתמש אומר "אני חולם על...", "הייתי רוצה ש...", "אם הייתי יכול...", "אני מדמיין..." — זהה את זה כשאיפה ולכוד עם dream:capture!
+⚠️ לאחר לכידה, שאל: "רוצה שנהפוך את זה ליעד בתוכנית שלך?"
+
+## התאמת רמת קושי אדפטיבית 🎯
+אתה מנתח באופן שוטף את ביצועי המשתמש (שיעור השלמה, רצף, אנרגיה, מצב רוח).
+כשאתה מזהה דפוס ברור, **הצע** שינוי — אל תשנה לבד!
+- שיעור השלמה >85% + רצף >5 ימים + אנרגיה גבוהה → הצע הגברת עוצמה
+- שיעור השלמה <50% + הרבה דילוגים → הצע הקלה
+- אנרגיה נמוכה + שינה לקויה → הצע מצב התאוששות
+תמיד חכה לאישור המשתמש לפני שינוי!
+
 ## מתי להציע היפנוזה
 - כשמשימה או אתגר נראים קשים - הצע סשן היפנוזה ממוקד
 - אחרי השלמת אתגר גדול - הצע סשן "חיזוק והטמעה"
@@ -924,6 +952,20 @@ Only use these tags when exactly ONE match exists!
 
 ## Focus Tags
 - [focus:set:title:days_count] - set new focus period
+
+## Dream & Aspiration Tags 🌟
+- [dream:capture:dream_description] - when a user shares a dream, aspiration, or future vision — capture it!
+- [dream:integrate:dream_description:pillar] - when a dream can be connected to the plan — suggest integrating it as a goal
+⚠️ When user says "I dream of...", "I wish I could...", "If I could...", "I imagine..." — recognize it as an aspiration and capture with dream:capture!
+⚠️ After capturing, ask: "Want me to turn this into a goal in your plan?"
+
+## Adaptive Difficulty Engine 🎯
+You continuously analyze the user's performance (completion rate, streak, energy, mood).
+When you detect a clear pattern, **suggest** a change — don't change on your own!
+- Completion rate >85% + streak >5 days + high energy → suggest increasing intensity
+- Completion rate <50% + many skips → suggest easing up
+- Low energy + poor sleep → suggest recovery mode
+Always wait for user approval before making changes!
 
 ## When to suggest hypnosis
 - When a task or challenge seems difficult
