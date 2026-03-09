@@ -525,8 +525,9 @@ export default function Documentation() {
               </p>
               <p className="text-base text-muted-foreground max-w-2xl mx-auto">
                 {he
-                  ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · פיתוח אישי'
-                  : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Personal Development'
+                  ? 'ספר לבן — AI · NFT · Play-to-Earn · גיימיפיקציה · היפנוזה · למידה · שוק פנימי · קריירה מאוחדת · פיתוח אישי'
+                  : 'White Paper — AI · NFT · Play-to-Earn · Gamification · Hypnosis · Learning · Marketplace · Unified Career · Personal Development'
+                }
                 }
               </p>
               <div className="text-sm text-muted-foreground space-y-1">
