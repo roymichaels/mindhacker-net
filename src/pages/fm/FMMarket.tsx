@@ -83,6 +83,9 @@ export default function FMMarket() {
   const [submission, setSubmission] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
 
+  // ── Marketplace state ──
+  const [mpFilter, setMpFilter] = useState('all');
+
   const claimsByBounty = new Map(claims.map((c: any) => [c.bounty_id, c]));
   const proposalsByGig = new Map(myProposals.map((p: any) => [p.gig_id, p]));
   const filteredGigs = gigs.filter((g: Gig) => gFilter === 'all' || g.category === gFilter);
@@ -175,12 +178,14 @@ export default function FMMarket() {
     return <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.cls}`}>{isHe ? s.he : s.en}</span>;
   };
 
-  const marketplaceCategories = [
-    { icon: BookOpen, labelEn: 'Courses', labelHe: 'קורסים', count: 0, color: 'from-sky-500/15 to-sky-500/5 border-sky-500/25', iconColor: 'text-sky-400' },
-    { icon: Package, labelEn: 'Digital Products', labelHe: 'מוצרים דיגיטליים', count: 0, color: 'from-purple-500/15 to-purple-500/5 border-purple-500/25', iconColor: 'text-purple-400' },
-    { icon: Image, labelEn: 'NFTs', labelHe: 'NFTs', count: 0, color: 'from-amber-500/15 to-amber-500/5 border-amber-500/25', iconColor: 'text-amber-400' },
-    { icon: Sparkles, labelEn: 'Templates', labelHe: 'תבניות', count: 0, color: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/25', iconColor: 'text-emerald-400' },
-  ];
+  const MARKETPLACE_CATEGORIES = ['all', 'courses', 'digital_products', 'nfts', 'templates'];
+  const MP_CATEGORY_LABELS: Record<string, { en: string; he: string; icon: typeof BookOpen }> = {
+    all: { en: 'All', he: 'הכל', icon: ShoppingBag },
+    courses: { en: 'Courses', he: 'קורסים', icon: BookOpen },
+    digital_products: { en: 'Digital Products', he: 'מוצרים דיגיטליים', icon: Package },
+    nfts: { en: 'NFTs', he: 'NFTs', icon: Image },
+    templates: { en: 'Templates', he: 'תבניות', icon: Sparkles },
+  };
 
   const marketTabs = [
     { id: 'services' as const, icon: Briefcase, labelEn: 'Services', labelHe: 'שירותים' },
@@ -380,28 +385,48 @@ export default function FMMarket() {
 
       {/* Marketplace tab content */}
       {view === 'marketplace' && (
-        <div className="space-y-5">
-          <h2 className="font-bold text-foreground">{isHe ? 'מרקטפלייס' : 'Marketplace'}</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {marketplaceCategories.map((cat) => (
-              <button
-                key={cat.labelEn}
-                className={`flex items-center gap-3 p-3.5 rounded-xl border bg-gradient-to-r ${cat.color} transition-all hover:scale-[1.02] active:scale-[0.98]`}
-              >
-                <cat.icon className={`w-5 h-5 ${cat.iconColor} flex-shrink-0`} />
-                <div className="text-start min-w-0">
-                  <p className="text-xs font-semibold text-foreground">{isHe ? cat.labelHe : cat.labelEn}</p>
-                  <p className="text-[10px] text-muted-foreground">{cat.count} {isHe ? 'פריטים' : 'items'}</p>
-                </div>
-              </button>
-            ))}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-foreground">{isHe ? 'מרקטפלייס' : 'Marketplace'}</h2>
+            <Button size="sm" variant="outline" className="gap-1 h-7 text-xs" disabled>
+              <Plus className="w-3.5 h-3.5" />
+              {isHe ? 'פרסם' : 'List Item'}
+            </Button>
           </div>
-          <div className="rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-orange-500/5 p-4 text-center">
-            <Gem className="w-5 h-5 text-amber-400 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-foreground">
-              {isHe ? 'מרקטפלייס P2P בקרוב!' : 'P2P Marketplace Coming Soon!'}
+
+          {/* Category filter tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {MARKETPLACE_CATEGORIES.map((cat) => {
+              const meta = MP_CATEGORY_LABELS[cat];
+              const CatIcon = meta.icon;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setMpFilter(cat)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                    mpFilter === cat
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                      : 'bg-transparent text-muted-foreground border-border/50 hover:border-amber-500/20 hover:text-foreground'
+                  }`}
+                >
+                  <CatIcon className="w-3.5 h-3.5" />
+                  {isHe ? meta.he : meta.en}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Empty state per category */}
+          <div className="text-center py-12 space-y-3">
+            <Gem className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+            <p className="text-sm font-semibold text-foreground">
+              {mpFilter === 'all'
+                ? (isHe ? 'מרקטפלייס P2P בקרוב!' : 'P2P Marketplace Coming Soon!')
+                : (isHe
+                  ? `אין ${MP_CATEGORY_LABELS[mpFilter]?.he || ''} כרגע`
+                  : `No ${MP_CATEGORY_LABELS[mpFilter]?.en?.toLowerCase() || 'items'} yet`)}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-1">
+            <p className="text-[10px] text-muted-foreground">
               {isHe ? 'סחרו במוצרים דיגיטליים, קורסים ו-NFTs עם משתמשים אחרים' : 'Trade digital products, courses & NFTs with other users'}
             </p>
           </div>
