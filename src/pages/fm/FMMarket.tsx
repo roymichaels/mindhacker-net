@@ -37,7 +37,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const [view, setView] = useState<MarketView>('services');
