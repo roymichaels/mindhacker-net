@@ -387,7 +387,8 @@ const App = () => (
                           <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
                           {/* Learn */}
                           <Route path="/learn" element={<LearnLayoutWrapper />} />
-                          {/* FM — Free Market (self-contained app shell) */}
+                          {/* Work Hub */}
+                          <Route path="/work" element={<WorkLayoutWrapper />} />
                           <Route path="/fm" element={<FMAppShell />}>
                             <Route index element={<Navigate to="/fm/earn" replace />} />
                             <Route path="home" element={<Navigate to="/fm/earn" replace />} />
