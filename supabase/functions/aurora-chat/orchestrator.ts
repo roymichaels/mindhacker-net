@@ -153,8 +153,9 @@ export function prepare(
 
   // Full mode
   const pillarSection = buildPillarSection(pillar, language);
+  const socraticSection = buildSocraticSection(context, language);
   return {
-    systemPrompt: buildFullPrompt(language, contextMarkdown, openerSection) + pillarSection,
+    systemPrompt: buildFullPrompt(language, contextMarkdown, openerSection) + pillarSection + socraticSection,
     model: "google/gemini-2.5-flash",
     maxTokens: 1000,
     temperature: 0.7,
