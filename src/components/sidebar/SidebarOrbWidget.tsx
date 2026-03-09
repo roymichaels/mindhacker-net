@@ -35,9 +35,18 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
       <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
       <div className="flex flex-col items-center gap-1.5 px-1">
         <div
-          className="relative w-12 h-12 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+          className={cn(
+            "relative w-12 h-12 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform",
+            isWorking && "animate-pulse"
+          )}
           onClick={() => setOrbViewerOpen(true)}
         >
+          {isWorking && (
+            <div className={cn(
+              "absolute inset-[-4px] rounded-full animate-ping opacity-30",
+              isDeepWork ? "bg-violet-500" : "bg-primary"
+            )} />
+          )}
           <PersonalizedOrb size={44} />
         </div>
         <span className="text-[9px] font-bold text-muted-foreground">
