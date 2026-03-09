@@ -322,42 +322,42 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── EMBER: Smoldering with bright hot spots ──
     case 'ember': {
-      const ashC = new THREE.Color().setHSL(hsl.h, 0.5, 0.12);
-      const hotSpot = new THREE.Color().setHSL(hsl.h, 1.0, 0.6);
+      const ashC = new THREE.Color().setHSL(hsl.h, 0.6, 0.18);
+      const hotSpot = new THREE.Color().setHSL(hsl.h, 1.0, 0.65);
       return { ...base, color: ashC, emissive: hotSpot,
         metalness: 0.0, roughness: 0.75, clearcoat: 0.0, clearcoatRoughness: 0.5,
-        emissiveIntensity: 2.0, envMapIntensity: 0.1,
+        emissiveIntensity: 2.5, envMapIntensity: 0.15,
         opacity: 1, transparent: false, flatShading: true, wireframe: false,
       };
     }
     // ── ICE: Pale, frosted, bright, faceted ──
     case 'ice': {
-      const iceC = new THREE.Color().setHSL(hsl.h, 0.35, 0.88);
-      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.5, 0.7);
+      const iceC = new THREE.Color().setHSL(hsl.h, 0.4, 0.9);
+      const frostGlow = new THREE.Color().setHSL(hsl.h, 0.6, 0.75);
       return { ...base, color: iceC, emissive: frostGlow,
         metalness: 0.0, roughness: 0.15, clearcoat: 1.0, clearcoatRoughness: 0.1,
-        emissiveIntensity: 0.25, envMapIntensity: 1.5,
+        emissiveIntensity: 0.5, envMapIntensity: 2.0,
         transmission: 0.25, ior: 1.31, thickness: 2.0,
-        opacity: 0.7, transparent: true, flatShading: true, wireframe: false,
+        opacity: 0.75, transparent: true, flatShading: true, wireframe: false,
       };
     }
     // ── VOID: Dark but with visible rim glow ──
     case 'void': {
-      const voidC = new THREE.Color(0.04, 0.04, 0.04);
-      const rimPulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 1.0, 0.4);
+      const voidC = new THREE.Color(0.08, 0.08, 0.08);
+      const rimPulse = new THREE.Color().setHSL((hsl.h + 0.5) % 1, 1.0, 0.5);
       return { ...base, color: voidC, emissive: rimPulse,
         metalness: 0.95, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.5, envMapIntensity: 2.0,
+        emissiveIntensity: 0.8, envMapIntensity: 3.0,
         opacity: 0.92, transparent: true, flatShading: false, wireframe: false,
       };
     }
     // ── HOLOGRAPHIC: Rainbow, high sheen, shifting colors ──
     case 'holographic': {
-      const holoC = new THREE.Color().setHSL(hsl.h, 0.9, 0.65);
-      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 1.0, 0.6);
+      const holoC = new THREE.Color().setHSL(hsl.h, 1.0, 0.7);
+      const holoGlow = new THREE.Color().setHSL((hsl.h + 0.4) % 1, 1.0, 0.65);
       return { ...base, color: holoC, emissive: holoGlow,
         metalness: 0.7, roughness: 0.0, clearcoat: 1.0, clearcoatRoughness: 0.0,
-        emissiveIntensity: 0.7, envMapIntensity: 2.5,
+        emissiveIntensity: 1.0, envMapIntensity: 3.0,
         sheen: 1.0, sheenRoughness: 0.02, sheenColor: holoGlow,
         iridescence: 1.0, iridescenceIOR: 3.0,
         opacity: 0.9, transparent: true, flatShading: false, wireframe: false,
