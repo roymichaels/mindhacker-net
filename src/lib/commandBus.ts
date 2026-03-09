@@ -33,7 +33,9 @@ export type AppCommand =
   | { type: 'setFocus'; title: string; days: number }
   | { type: 'setTheme'; value: 'light' | 'dark' | 'system' }
   | { type: 'toggleTheme' }
-  | { type: 'triggerAnalysis' };
+  | { type: 'triggerAnalysis' }
+  | { type: 'memoryGraphUpsert'; nodeType: string; content: string }
+  | { type: 'memoryGraphStrengthen'; content: string };
 
 export type CommandType = AppCommand['type'];
 
