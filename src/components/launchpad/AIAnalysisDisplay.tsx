@@ -167,7 +167,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20">{summary.transformation_potential.primary_focus}</span>
                 )}
                 {summary.transformation_potential.secondary_focus && (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-white/[0.04] text-amber-400/60 border border-amber-500/10">{summary.transformation_potential.secondary_focus}</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-lg bg-muted/50 text-amber-600 dark:text-amber-400/60 border border-amber-500/10">{summary.transformation_potential.secondary_focus}</span>
                 )}
               </div>
             </GlassCard>
