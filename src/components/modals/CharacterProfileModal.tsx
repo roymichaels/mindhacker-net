@@ -496,7 +496,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
           {dashboard.principles.length > 0 && (
             <div>
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'עקרונות' : 'Principles'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {dashboard.principles.map((p, i) => (
                   <EmpireBadge key={i}>{p}</EmpireBadge>
