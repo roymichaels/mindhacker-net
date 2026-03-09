@@ -209,10 +209,10 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: hueProfile(335, 'plasma', 'swirl', 'spiky', 0.95, { particles: true, hueSpread: 40 }),
   },
   {
-    id: 'frozen-wire', nameEn: 'Frozen Wire', nameHe: 'חוט קפוא',
+    id: 'frozen-crystal', nameEn: 'Frozen Crystal', nameHe: 'קריסטל קפוא',
     descEn: 'Structure laid bare — raw potential', descHe: 'מבנה חשוף — פוטנציאל גולמי',
-    rarity: 'common', traits: { material: 'wire', pattern: 'shards', geometry: 'icosa', glow: 'none', particles: false },
-    profile: hueProfile(205, 'wire', 'shards', 'icosa', 0.1),
+    rarity: 'common', traits: { material: 'ice', pattern: 'shards', geometry: 'icosa', glow: 'none', particles: false },
+    profile: hueProfile(205, 'ice', 'shards', 'icosa', 0.1),
   },
   {
     id: 'emerald-swirl', nameEn: 'Emerald Swirl', nameHe: 'מערבולת אזמרגד',
