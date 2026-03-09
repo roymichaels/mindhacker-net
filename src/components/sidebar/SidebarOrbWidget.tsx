@@ -91,7 +91,7 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
           )} />
         )}
         <div className="relative z-10">
-          <PersonalizedOrb size={88} state={isWorking ? 'active' : 'idle'} />
+          <PersonalizedOrb size={88} state={isWorking ? 'listening' : 'idle'} />
         </div>
       </div>
 
