@@ -12,7 +12,7 @@ import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Briefcase, ArrowRight, ArrowLeft, Sparkles, Loader2, Building2, Target, TrendingUp } from 'lucide-react';
+import { Plus, Briefcase, ArrowRight, ArrowLeft, Sparkles, Loader2, Building2, Target, TrendingUp, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import BusinessCreationWizard from '@/components/business/BusinessCreationWizard';
