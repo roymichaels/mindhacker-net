@@ -513,6 +513,7 @@ export async function buildContext(
       gender: profile?.aurora_preferences?.gender || null,
       preferred_tone: profile?.aurora_preferences?.tone || "warm",
       challenge_intensity: profile?.aurora_preferences?.intensity || "balanced",
+      socratic_mode: profile?.aurora_preferences?.socratic_mode === true,
     },
 
     today,
