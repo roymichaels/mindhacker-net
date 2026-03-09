@@ -320,12 +320,12 @@ export default function Documentation() {
       paragraphs: he ? [
         `${brandName} כולל פלטפורמת קריירה מאוחדת שמשרתת 5 מסלולים מקצועיים תחת ארכיטקטורה אחת. כל מסלול כולל ויזארד AI (Aurora) שמנחה את תהליך ההקמה — לעסקים חדשים וקיימים כאחד — עם שמירת נתונים מצטברת ואפשרות מחיקה לפני התקדמות של 1%.`,
         `מסלולים: (1) בעל עסק — תכנון, השקה וצמיחה עם אסטרטגיית AI, (2) מאמן — בניית פרקטיקה עם CRM, לקוחות, לידים ודפי נחיתה, (3) מטפל — ניהול פרקטיקה טיפולית עם תורים וצמיחה, (4) יוצר תוכן — קורסים, תוכן ומוצרים דיגיטליים, (5) פרילנסר — גיגים, פרויקטים וטוקנים.`,
-        `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, בניית דפי נחיתה אוטומטיים, מערכת CRM מלאה, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת לכלים.`,
+        `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, בניית דפי נחיתה אוטומטיים (Dynamic Landing Pages עם slug ייחודי לכל מאמן), מערכת CRM מלאה, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת לכלים.`,
         `התאמת מאמן מבוססת AI: משתמשים יכולים למצוא מאמן מתאים דרך ויזארד Aurora — גם מתוך ה-Career Hub וגם מתוך ה-Strategy Hub. Aurora מנהלת שיחת זיהוי צרכים (תחום, אתגרים, סגנון) וממליצה על מאמנים מתאימים מתוך הפלטפורמה.`,
       ] : [
         `${brandName} includes a unified career platform serving 5 professional paths under a single architecture. Each path includes an AI wizard (Aurora) guiding the setup process — for both new and existing businesses — with cumulative data persistence and delete capability before 1% progress.`,
         `Paths: (1) Business Owner — plan, launch and grow with AI strategy, (2) Coach — build a practice with CRM, clients, leads and landing pages, (3) Therapist — manage therapeutic practice with scheduling and growth, (4) Content Creator — courses, content and digital products, (5) Freelancer — gigs, projects and tokens.`,
-        `AI tools for professionals: client plan generation, progress analysis, automatic landing page building, full CRM system, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access to tools.`,
+        `AI tools for professionals: client plan generation, progress analysis, automatic landing page building (Dynamic Landing Pages with unique slug per coach), full CRM system, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access to tools.`,
         `AI Coach Matching: Users can find a matching coach through the Aurora wizard — from both the Career Hub and the Strategy Hub. Aurora conducts a needs-discovery conversation (domain, challenges, style) and recommends suitable coaches from the platform.`,
       ],
     },
