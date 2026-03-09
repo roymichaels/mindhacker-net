@@ -448,7 +448,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
           {dashboard.selfConcepts.length > 0 && (
             <div>
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">{isHe ? 'תפיסות עצמיות' : 'Self Concepts'}</p>
               <div className="flex flex-wrap items-center justify-center gap-1">
                 {dashboard.selfConcepts.map((s, i) => (
                   <EmpireBadge key={i} variant="glass">{s}</EmpireBadge>
