@@ -230,10 +230,12 @@ export default function FMMarket() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-foreground">{isHe ? 'שירותים' : 'Services'}</h2>
-            <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('service')}>
-              <Sparkles className="w-3.5 h-3.5" />
-              {isHe ? 'פרסם עם Aurora' : 'Publish with Aurora'}
-            </Button>
+            {canCreateService && (
+              <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('service')}>
+                <Sparkles className="w-3.5 h-3.5" />
+                {isHe ? 'פרסם עם Aurora' : 'Publish with Aurora'}
+              </Button>
+            )}
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
