@@ -318,11 +318,11 @@ function getElementalMaterial(profile: OrbProfile) {
     }
     // ── BONE: Off-white, organic ──
     case 'bone': {
-      const boneC = new THREE.Color().setHSL(hsl.h, 0.1, 0.8);
-      const marrow = new THREE.Color().setHSL(hsl.h, 0.1, 0.45);
+      const boneC = new THREE.Color().setHSL(hsl.h, 0.08, 0.7);
+      const marrow = new THREE.Color().setHSL(hsl.h, 0.08, 0.25);
       return { ...base, color: boneC, emissive: marrow,
         metalness: 0.0, roughness: 0.85, clearcoat: 0.15, clearcoatRoughness: 0.5,
-        emissiveIntensity: 0.25, envMapIntensity: 0.35,
+        emissiveIntensity: 0.08, envMapIntensity: 0.35,
         opacity: 1, transparent: false, flatShading: false, wireframe: false,
       };
     }
