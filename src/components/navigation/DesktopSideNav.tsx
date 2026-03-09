@@ -93,7 +93,12 @@ export function DesktopSideNav() {
       {/* Aurora */}
       <button
         onClick={openAurora}
-        className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15 hover:border-pink-500/30"
+        className={cn(
+          "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border",
+          location.pathname === '/aurora'
+            ? "bg-pink-500/15 border-pink-500/30"
+            : "bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15 hover:border-pink-500/30"
+        )}
       >
         <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
           <StandaloneMorphOrb
