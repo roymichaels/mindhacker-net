@@ -112,6 +112,54 @@ const GlobalChatInput = () => {
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
+  const handleVoiceNote = useCallback(async (audioBlob: Blob, durationSec: number) => {
+    if (!sendMessageRef.current || isStreaming) return;
+    
+    // Subscription gate check
+    if (!canSendMessage) {
+      showUpgradePrompt('aurora_limit');
+      return;
+    }
+
+    // Transcribe the audio first using the existing voice transcription service
+    try {
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'voice-note.webm');
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const transcribeResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-stt`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: formData,
+        }
+      );
+      
+      if (transcribeResponse.ok) {
+        const transcription = await transcribeResponse.json();
+        const text = transcription?.text || transcription?.transcription || '';
+        if (text) {
+          const voicePrefix = isRTL ? `🎤 הודעה קולית (${durationSec}שׂ): ` : `🎤 Voice note (${durationSec}s): `;
+          sendMessageRef.current(voicePrefix + text);
+        } else {
+          toast.error(isRTL ? 'לא הצלחתי לזהות דיבור' : 'Could not recognize speech');
+        }
+      } else {
+        // Fallback: send as text indicator
+        const fallbackMsg = isRTL ? `🎤 נשלחה הודעה קולית (${durationSec} שניות)` : `🎤 Voice note sent (${durationSec}s)`;
+        sendMessageRef.current(fallbackMsg);
+      }
+    } catch (err) {
+      console.error('Voice note processing error:', err);
+      toast.error(isRTL ? 'שגיאה בעיבוד ההודעה הקולית' : 'Failed to process voice note');
+    }
+  }, [sendMessageRef, isStreaming, canSendMessage, showUpgradePrompt, isRTL]);
+
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
