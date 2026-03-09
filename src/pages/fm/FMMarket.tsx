@@ -290,12 +290,14 @@ export default function FMMarket() {
       {/* Bounties tab content */}
       {view === 'bounties' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+           <div className="flex items-center justify-between">
             <h2 className="font-bold text-foreground">{isHe ? 'באונטיז' : 'Bounties'}</h2>
-            <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('bounty')}>
-              <Sparkles className="w-3.5 h-3.5" />
-              {isHe ? 'צור עם Aurora' : 'Create with Aurora'}
-            </Button>
+            {isAdmin && (
+              <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('bounty')}>
+                <Sparkles className="w-3.5 h-3.5" />
+                {isHe ? 'צור עם Aurora' : 'Create with Aurora'}
+              </Button>
+            )}
           </div>
           <div className="relative">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
