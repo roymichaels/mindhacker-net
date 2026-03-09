@@ -139,6 +139,8 @@ const AuroraPreferencesTab = ({
           </div>
         </RadioGroup>
       </div>
+      {/* Socratic Mode */}
+      <SocraticModeToggle />
     </div>
   );
 };
