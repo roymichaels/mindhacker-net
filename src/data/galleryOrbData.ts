@@ -771,8 +771,8 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
   {
     id: 'neon-cube', nameEn: 'Neon Cube', nameHe: 'קוביית ניאון',
     descEn: 'Digital architecture glowing', descHe: 'ארכיטקטורה דיגיטלית זוהרת',
-    rarity: 'rare', traits: { material: 'wire', pattern: 'cellular', geometry: 'cube', glow: 'medium', particles: true },
-    profile: hueProfile(160, 'wire', 'cellular', 'cube', 0.62, { particles: true }),
+    rarity: 'rare', traits: { material: 'holographic', pattern: 'cellular', geometry: 'cube', glow: 'medium', particles: true },
+    profile: hueProfile(160, 'holographic', 'cellular', 'cube', 0.62, { particles: true }),
   },
   {
     id: 'fire-cone', nameEn: 'Fire Cone', nameHe: 'חרוט אש',
