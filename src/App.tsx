@@ -427,7 +427,7 @@ const App = () => (
                         <Route path="/dashboard" element={<Navigate to="/plan" replace />} />
                         <Route path="/today" element={<Navigate to="/plan" replace />} />
                         <Route path="/me" element={<Navigate to="/plan" replace />} />
-                        <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
+                        <Route path="/messages/ai" element={<Navigate to="/aurora" replace />} />
                         <Route path="/projects" element={<Navigate to="/plan" replace />} />
                         {/* Legacy /life redirects → /plan */}
                         <Route path="/life" element={<Navigate to="/plan" replace />} />
