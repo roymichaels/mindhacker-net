@@ -33,8 +33,8 @@ export default function Documentation() {
   const founderName = he ? theme.founder_name : theme.founder_name_en;
 
   const abstractText = he
-    ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי (FreeMarket) עם 5 מסלולי קריירה מאוחדים (בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר), התאמת מאמנים מבוססת AI, ופלטפורמת מאמנים — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
-    : `${brandName} is an AI-powered Personal Operating System that integrates Play-to-Earn (P2E) mechanics, unique digital assets (NFTs), deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace (FreeMarket) with 5 unified career paths (Business Owner, Coach, Therapist, Content Creator, Freelancer), AI-powered coach matching, and a coach platform — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine (Aurora), subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a data mining model that rewards genuine human activity.`;
+    ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI (כולל סשנים אישיים מותאמים), מערכת למידה אדפטיבית, שוק פנימי (FreeMarket) עם 5 מסלולי קריירה מאוחדים (בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר), התאמת מאמנים מבוססת AI, פלטפורמת מאמנים עם דפי נחיתה דינמיים, הערכות עמודים מבוססות שיחת AI, מנגנון Plan Chat Wizard, תוכנית Consciousness Leap, ובלוג Aurora Codex — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
+    : `${brandName} is an AI-powered Personal Operating System that integrates Play-to-Earn (P2E) mechanics, unique digital assets (NFTs), deep gamification, AI-guided hypnosis and meditation (including custom personal sessions), an adaptive learning system, an internal marketplace (FreeMarket) with 5 unified career paths (Business Owner, Coach, Therapist, Content Creator, Freelancer), AI-powered coach matching, a coach platform with dynamic landing pages, chat-based pillar assessments, Plan Chat Wizard, Consciousness Leap program, and Aurora Codex blog — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine (Aurora), subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a data mining model that rewards genuine human activity.`;
 
   const sections: Section[] = [
     {
@@ -94,10 +94,12 @@ export default function Documentation() {
           paragraphs: he ? [
             `Now הוא דף הנחיתה ומרכז הביצוע של ${brandName}. הדשבורד מציג את פעולות היום מחולקות ל-4 רבעוני יום (בוקר, צהריים, אחר הצהריים, ערב) — כל רבע מקבל שם הרפתקני ייחודי שמתחדש כל יום ("Dawn Forge", "Summit Push", "Iron Hour" וכו').`,
             `ה-Movement Score מודד מומנטום בזמן אמת — אחוז ההשלמה היומי שמניע את האורב. כולל: סטטוס אנרגיה, streak יומי, XP, טוקנים, ומערכת Quest — כל יום הוא משימה (Quest) עם שם ייחודי, ושבוע שלם מרכיב קמפיין.`,
+            `מערכת Quest Runner (/quests/:pillar) מאפשרת ניווט ל-Quest ייעודי לפי עמוד חיים — כל Quest מרנדר flow אינטראקטיבי מותאם עם שאלות, תובנות, ופעולות שנשמרות בחזרה לתוכנית.`,
             `כשלמשתמש אין תוכנית פעילה, Now מפנה אוטומטית ל-Strategy Hub ליצירת תוכנית 100 ימים.`,
           ] : [
             `Now is the landing page and execution center of ${brandName}. The dashboard displays today's actions divided into 4 day quarters (morning, midday, afternoon, evening) — each quarter receives a unique adventure name that refreshes daily ("Dawn Forge", "Summit Push", "Iron Hour", etc.).`,
             `The Movement Score measures real-time momentum — the daily completion percentage that drives the orb. Includes: energy status, daily streak, XP, tokens, and a Quest system — each day is a Quest with a unique name, and an entire week forms a Campaign.`,
+            `The Quest Runner system (/quests/:pillar) enables navigating to a dedicated Quest per life pillar — each Quest renders a custom interactive flow with questions, insights, and actions that sync back to the plan.`,
             `When the user has no active plan, Now automatically redirects to Strategy Hub for 100-day plan creation.`,
           ],
         },
@@ -116,12 +118,14 @@ export default function Documentation() {
           paragraphs: he ? [
             `Strategy מציג את ה"למה" ומנהל את Pipeline האסטרטגי המלא. התהליך: (1) בחירת עמודי חיים (2-14 לפי רמת מנוי) דרך StrategyPillarWizard, (2) סריקת AI עומק לכל עמוד עם ציון 0-100, (3) יצירת תוכנית 100 ימים מחולקת ל-10 שלבים עם Milestones ופעולות יומיות.`,
             `כולל: תכונות אופי (Traits), משימות חיים (Missions), יעדים (Goals), ומערכת "כיול מחדש" (Recalibrate) שמאפשרת לעדכן את האסטרטגיה. במנוי Apex, השלמת הערכה מזריקה אסטרטגיות חדשות לתוכנית הפעילה ללא צורך ביצירה מחדש.`,
-            `14 עמודי החיים: נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות, תודעה, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, ואומנות.`,
+            `14 עמודי החיים מחולקים ל-6 עמודי Life (נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות) ו-6 עמודי Arena (עסקים, עושר, השפעה, מערכות יחסים, פרויקטים, משחק) + תודעה ואומנות. כל עמוד כולל הערכה מבוססת שיחת AI (Chat-Based Assessment) עם דף תוצאות מותאם.`,
+            `Plan Chat Wizard ("דבר עם התוכנית"): כפתור קבוע ב-Strategy Hub שמאפשר למשתמש לנהל משא ומתן עם Aurora על התוכנית — לשנות סדרי עדיפויות, להזיז אבני דרך, לבקש התאמות, או לחולל תוכנית מחדש. כולל מנגנון "Negotiate" לעדכון חכם של התוכנית.`,
             `התאמת מאמן מבוססת AI: בתוך ה-Strategy Hub, המשתמש יכול לבקש מ-Aurora למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל. Aurora מנהלת שיחת זיהוי צרכים (תחום, אתגרים, העדפות) וממליצה על מאמנים מתאימים מתוך הפלטפורמה — מחברת בין משתמשים למאמנים בצורה אורגנית.`,
           ] : [
             `Strategy shows the "Why" and manages the full strategic pipeline. The process: (1) select life pillars (2-14 based on subscription tier) via StrategyPillarWizard, (2) AI deep scan for each pillar scoring 0-100, (3) generate a 100-day plan divided into 10 phases with milestones and daily actions.`,
             `Includes: character Traits, life Missions, Goals, and a "Recalibrate" system for strategy updates. On the Apex tier, completing an assessment injects new strategies into the active plan without full regeneration.`,
-            `The 14 Life Pillars: Presence, Power, Vitality, Focus, Combat, Expansion, Consciousness, Wealth, Influence, Relationships, Business, Projects, Play, and Craft.`,
+            `The 14 Life Pillars are split into 6 Life pillars (Presence, Power, Vitality, Focus, Combat, Expansion) and 6 Arena pillars (Business, Wealth, Influence, Relationships, Projects, Play) + Consciousness and Craft. Each pillar includes a Chat-Based Assessment with a personalized results page.`,
+            `Plan Chat Wizard ("Talk to Your Plan"): A persistent button in the Strategy Hub that lets users negotiate with Aurora about their plan — reprioritize, shift milestones, request adaptations, or regenerate the plan. Includes a "Negotiate" mechanism for smart plan updates.`,
             `AI Coach Matching: Within the Strategy Hub, users can ask Aurora to find a coach to help execute their strategy. Aurora conducts a needs-discovery conversation (domain, challenges, preferences) and recommends matching coaches from the platform — organically connecting users with practitioners.`,
           ],
         },
@@ -219,10 +223,12 @@ export default function Documentation() {
         `${brandName} כולל מערכת היפנוזה ומדיטציה מונחית בינה מלאכותית — סשנים מותאמים אישית שנוצרים בזמן אמת בהתבסס על מצב המשתמש, יעדיו, ודפוסי התודעה שלו.`,
         `הסשנים משלבים: (1) תסריטי היפנוזה מותאמים שנוצרים על ידי Aurora בהתבסס על פרופיל המשתמש, (2) המרת טקסט לדיבור (TTS) בזמן אמת ליצירת הנחיות קוליות, (3) שכבת מוזיקת רקע ותדרים בינאוראליים, (4) עבודה עם ego states ותת-מודע, (5) תרגול ויזואליזציה ואפירמציות.`,
         `כל סשן מתגמל 10 MOS ומשפיע על ציון עמוד התודעה (Consciousness Pillar). ההיפנוזה משולבת בליבת ה-AI — Aurora משתמשת בהיסטוריית סשנים קודמים כדי להתאים את התוכן, ומשלבת תובנות מעמודי חיים אחרים לתוך חווית הסשן. התסריטים נוצרים דינמית ומותאמים למצב הרגשי הנוכחי של המשתמש.`,
+        `היפנוזה אישית מותאמת: המשתמש יכול להזמין סשן היפנוזה אישי דרך דף נחיתה ייעודי (/personal-hypnosis). התהליך כולל: (1) תיאור המטרה האישית, (2) יצירת תסריט מותאם על ידי Aurora, (3) עמוד המתנה עם עדכון סטטוס, (4) עמוד הצלחה עם גישה לסשן המוכן. זהו מוצר פרימיום שמייצר הכנסה נוספת.`,
       ] : [
         `${brandName} includes an AI-guided hypnosis and meditation system — personalized sessions generated in real-time based on the user's state, goals, and consciousness patterns.`,
         `Sessions combine: (1) custom hypnosis scripts generated by Aurora based on the user's profile, (2) real-time Text-to-Speech (TTS) conversion for voice guidance, (3) background music and binaural frequency layers, (4) ego state and subconscious work, (5) visualization and affirmation practice.`,
         `Each session rewards 10 MOS and affects the Consciousness Pillar score. Hypnosis is integrated into the AI core — Aurora uses previous session history to tailor content, and weaves insights from other life pillars into the session experience. Scripts are dynamically generated and adapted to the user's current emotional state.`,
+        `Personal Custom Hypnosis: Users can order a personalized hypnosis session through a dedicated landing page (/personal-hypnosis). The flow includes: (1) describing the personal goal, (2) Aurora generates a custom script, (3) a pending page with status updates, (4) a success page with access to the ready session. This is a premium product generating additional revenue.`,
       ],
     },
     {
@@ -314,13 +320,37 @@ export default function Documentation() {
       paragraphs: he ? [
         `${brandName} כולל פלטפורמת קריירה מאוחדת שמשרתת 5 מסלולים מקצועיים תחת ארכיטקטורה אחת. כל מסלול כולל ויזארד AI (Aurora) שמנחה את תהליך ההקמה — לעסקים חדשים וקיימים כאחד — עם שמירת נתונים מצטברת ואפשרות מחיקה לפני התקדמות של 1%.`,
         `מסלולים: (1) בעל עסק — תכנון, השקה וצמיחה עם אסטרטגיית AI, (2) מאמן — בניית פרקטיקה עם CRM, לקוחות, לידים ודפי נחיתה, (3) מטפל — ניהול פרקטיקה טיפולית עם תורים וצמיחה, (4) יוצר תוכן — קורסים, תוכן ומוצרים דיגיטליים, (5) פרילנסר — גיגים, פרויקטים וטוקנים.`,
-        `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, בניית דפי נחיתה אוטומטיים, מערכת CRM מלאה, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת לכלים.`,
+        `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, בניית דפי נחיתה אוטומטיים (Dynamic Landing Pages עם slug ייחודי לכל מאמן), מערכת CRM מלאה, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת לכלים.`,
         `התאמת מאמן מבוססת AI: משתמשים יכולים למצוא מאמן מתאים דרך ויזארד Aurora — גם מתוך ה-Career Hub וגם מתוך ה-Strategy Hub. Aurora מנהלת שיחת זיהוי צרכים (תחום, אתגרים, סגנון) וממליצה על מאמנים מתאימים מתוך הפלטפורמה.`,
       ] : [
         `${brandName} includes a unified career platform serving 5 professional paths under a single architecture. Each path includes an AI wizard (Aurora) guiding the setup process — for both new and existing businesses — with cumulative data persistence and delete capability before 1% progress.`,
         `Paths: (1) Business Owner — plan, launch and grow with AI strategy, (2) Coach — build a practice with CRM, clients, leads and landing pages, (3) Therapist — manage therapeutic practice with scheduling and growth, (4) Content Creator — courses, content and digital products, (5) Freelancer — gigs, projects and tokens.`,
-        `AI tools for professionals: client plan generation, progress analysis, automatic landing page building, full CRM system, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access to tools.`,
+        `AI tools for professionals: client plan generation, progress analysis, automatic landing page building (Dynamic Landing Pages with unique slug per coach), full CRM system, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access to tools.`,
         `AI Coach Matching: Users can find a matching coach through the Aurora wizard — from both the Career Hub and the Strategy Hub. Aurora conducts a needs-discovery conversation (domain, challenges, style) and recommends suitable coaches from the platform.`,
+      ],
+    },
+    {
+      id: 'consciousness-leap',
+      number: '10.1',
+      title: he ? 'Consciousness Leap — תוכנית טרנספורמציה פרימיום' : 'Consciousness Leap — Premium Transformation Program',
+      paragraphs: he ? [
+        `Consciousness Leap הוא מוצר פרימיום של ${brandName} — תוכנית טרנספורמציה אישית מעמיקה שמשלבת את כל יכולות הפלטפורמה תחת מעטפת אישית. כולל: דף נחיתה ייעודי (/consciousness-leap) עם תיאור הבעיות, תהליך 4 שלבים, יתרונות, עדויות, ו-FAQ.`,
+        `תהליך ההצטרפות: (1) טופס הגשה עם שם, אימייל, טלפון, ותיאור אתגר, (2) שיחת התאמה עם Aurora, (3) בניית תוכנית מותאמת, (4) ליווי יומי עם סשנים, היפנוזה, ומעקב AI. זהו מוצר B2C premium שמייצר הכנסה חוזרת.`,
+      ] : [
+        `Consciousness Leap is a premium ${brandName} product — a deep personal transformation program combining all platform capabilities under a personalized wrapper. Includes: a dedicated landing page (/consciousness-leap) with pain point descriptions, a 4-step process, benefits, testimonials, and FAQ.`,
+        `Application process: (1) submission form with name, email, phone, and challenge description, (2) matching conversation with Aurora, (3) building a custom plan, (4) daily support with sessions, hypnosis, and AI tracking. This is a premium B2C product generating recurring revenue.`,
+      ],
+    },
+    {
+      id: 'blog',
+      number: '10.2',
+      title: he ? 'Aurora Codex — בלוג ומערכת תוכן' : 'Aurora Codex — Blog & Content System',
+      paragraphs: he ? [
+        `Aurora Codex (/blog) הוא מערכת הבלוג והתוכן של ${brandName}. מאמרים דו-לשוניים (עברית/אנגלית) עם תמיכת SEO מלאה (meta title, description, keywords), slug ייחודי, תגיות, זמן קריאה, ותמונת כיסוי.`,
+        `הבלוג נגיש מתפריט הראשי (Dropdown) הן למשתמשים מחוברים והן לאורחים — משמש כמנוע שיווק אורגני, SEO, ו-thought leadership. כל פוסט תומך בסטטוס (draft/published) עם תאריך פרסום.`,
+      ] : [
+        `Aurora Codex (/blog) is the blog and content system of ${brandName}. Bilingual articles (Hebrew/English) with full SEO support (meta title, description, keywords), unique slug, tags, reading time, and cover image.`,
+        `The blog is accessible from the main menu dropdown for both authenticated and guest users — serving as an organic marketing engine, SEO driver, and thought leadership platform. Each post supports status (draft/published) with publication date.`,
       ],
     },
     {
@@ -392,10 +422,10 @@ export default function Documentation() {
       number: '15',
       title: he ? 'מפת דרכים' : 'Roadmap',
       paragraphs: he ? [
-        `Q1 2026: השקת Beta ציבורי, 5 Hubs פעילים, מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים. Q2 2026: פלטפורמת מאמנים, FreeMarket עם שוק נתונים, תוכנית שותפים, API פתוח. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
+        `Q1 2026: השקת Beta ציבורי, 6 Hubs פעילים (Now, Tactics, Strategy, Community, Learn, FreeMarket), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, Quest Runner, הערכות עמודים מבוססות שיחה, Plan Chat Wizard, התאמת מאמן AI, היפנוזה אישית, תוכנית Consciousness Leap, בלוג Aurora Codex. Q2 2026: פלטפורמת מאמנים מלאה, FreeMarket עם שוק נתונים, תוכנית שותפים, API פתוח. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
         `2027: Blockchain integration, DAO governance, מטבע MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט.`,
       ] : [
-        `Q1 2026: Public Beta launch, 5 active Hubs, MOS Mining Engine, AI Hypnosis, 100-Day Plan. Q2 2026: Coach platform, FreeMarket with Data Marketplace, affiliate program, open API. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
+        `Q1 2026: Public Beta launch, 6 active Hubs (Now, Tactics, Strategy, Community, Learn, FreeMarket), MOS Mining Engine, AI Hypnosis, 100-Day Plan, Quest Runner, chat-based pillar assessments, Plan Chat Wizard, AI coach matching, personal hypnosis, Consciousness Leap program, Aurora Codex blog. Q2 2026: Full coach platform, FreeMarket with Data Marketplace, affiliate program, open API. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
         `2027: Blockchain integration, DAO governance, MOS token on Solana network, external NFT marketplace, Stripe fiat settlement.`,
       ],
     },
@@ -419,11 +449,11 @@ export default function Documentation() {
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
         `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
-        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת, מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת (עסקים, מאמנים, מטפלים, יוצרי תוכן, פרילנסרים), קהילה פעילה עם Aurora AI, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
+        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, Quest Runner לכל עמוד חיים, הערכות מבוססות שיחת AI, Plan Chat Wizard למשא ומתן עם התוכנית, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת (כולל סשנים אישיים), מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת עם דפי נחיתה דינמיים, קהילה פעילה עם Aurora AI, תוכנית Consciousness Leap, בלוג Aurora Codex, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
         `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, a unified career platform with 5 professional paths, and dynamic NFT identity into a single experience that wraps around the user's life.`,
-        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, AI-powered coach matching, guided hypnosis with real-time TTS, an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a unified career platform (Business, Coaches, Therapists, Creators, Freelancers), an active community with Aurora AI, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
+        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, Quest Runner for each life pillar, chat-based AI assessments, Plan Chat Wizard for plan negotiation, AI-powered coach matching, guided hypnosis with real-time TTS (including custom personal sessions), an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a unified career platform with dynamic landing pages, an active community with Aurora AI, Consciousness Leap program, Aurora Codex blog, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
