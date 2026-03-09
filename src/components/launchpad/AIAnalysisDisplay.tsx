@@ -153,7 +153,7 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
               {summary.career_path.key_steps?.length ? (
                 <div className="flex flex-wrap justify-center gap-1">
                   {summary.career_path.key_steps.slice(0, 2).map((s, i) => (
-                    <span key={i} className="text-[10px] font-medium px-1.5 py-0.5 rounded-lg bg-white/[0.04] text-white/50 border border-white/[0.06]">{s}</span>
+                    <span key={i} className="text-[10px] font-medium px-1.5 py-0.5 rounded-lg bg-muted/50 text-muted-foreground border border-border/30">{s}</span>
                   ))}
                 </div>
               ) : null}
