@@ -288,14 +288,42 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     }
   }, [user?.id]);
 
-  /** Extract all pending changes from Aurora's response without executing them */
-  const extractPendingChanges = useCallback((fullText: string): PendingChange[] => {
+  /** Extract all pending changes from Aurora's response and resolve human-readable titles */
+  const extractPendingChanges = useCallback(async (fullText: string): Promise<PendingChange[]> => {
     const changes: PendingChange[] = [];
 
     // Parse standard commands
     const commands = parseAllTags(fullText);
+    
+    // Collect UUIDs that need title resolution
+    const uuidsToResolve = new Set<string>();
+    for (const cmd of commands) {
+      if ('identifier' in cmd && typeof cmd.identifier === 'string' && cmd.identifier.length > 8) {
+        uuidsToResolve.add(cmd.identifier);
+      }
+    }
+
+    // Batch-fetch task titles from DB
+    const titleMap = new Map<string, string>();
+    if (uuidsToResolve.size > 0) {
+      const { data: tasks } = await supabase
+        .from('action_items')
+        .select('id, title')
+        .in('id', Array.from(uuidsToResolve));
+      if (tasks) {
+        for (const t of tasks) titleMap.set(t.id, t.title);
+      }
+    }
+
     for (const cmd of commands) {
       const desc = describeCommand(cmd, isHe);
+      // Replace raw UUID with resolved title
+      if ('identifier' in cmd && typeof cmd.identifier === 'string') {
+        const resolvedTitle = titleMap.get(cmd.identifier);
+        if (resolvedTitle) {
+          desc.description = resolvedTitle;
+        }
+      }
       changes.push({
         label: desc.label,
         description: desc.description,
@@ -313,7 +341,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     while ((match = practiceAddRegex.exec(fullText)) !== null) {
       changes.push({
         label: isHe ? 'הוספת תרגול' : 'Add Practice',
-        description: `ID: ${match[1].slice(0, 8)}… (${match[2]}min, ${match[3]})`,
+        description: `${match[2]}min, ${match[3]}`,
         command: null,
         rawTag: match[0],
       });
@@ -503,7 +531,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
 
       // After streaming complete, extract commands and show confirmation
       if (assistantText) {
-        const changes = extractPendingChanges(assistantText);
+        const changes = await extractPendingChanges(assistantText);
         if (changes.length > 0) {
           setPendingChanges(changes);
           setPendingRawText(assistantText);
