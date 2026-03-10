@@ -254,8 +254,34 @@ export function useTodayExecution() {
   const wakeH = parseInt(prefs.wake_time?.split(':')[0] || '6');
   const sleepH = parseInt(prefs.sleep_time?.split(':')[0] || '23');
 
-  // Build schedule from tactical blocks
-  const schedule = useMemo(() => buildScheduleFromTactics(todayPlan), [todayPlan]);
+  // Build schedule from tactical blocks (always includes hypnosis)
+  const schedule = useMemo(() => {
+    const slots = buildScheduleFromTactics(todayPlan);
+    // If no tactical plan exists, still inject morning & evening hypnosis
+    if (slots.length === 0) {
+      return [
+        {
+          id: 'hypnosis-morning',
+          timeBlock: 'morning' as TimeBlock,
+          startTime: '',
+          endTime: '',
+          labelKey: 'today.morning',
+          actions: [makeHypnosisItem('morning')],
+          status: 'upcoming' as const,
+        },
+        {
+          id: 'hypnosis-evening',
+          timeBlock: 'evening' as TimeBlock,
+          startTime: '',
+          endTime: '',
+          labelKey: 'today.evening',
+          actions: [makeHypnosisItem('evening')],
+          status: 'upcoming' as const,
+        },
+      ];
+    }
+    return slots;
+  }, [todayPlan]);
 
   const movement = computeMovementScore(queue, completedIds);
 
