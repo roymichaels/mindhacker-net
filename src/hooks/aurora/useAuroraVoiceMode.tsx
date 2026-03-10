@@ -40,11 +40,9 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     }
     mediaRecorderRef.current = null;
 
-    // Stop audio playback
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    // Stop TTS playback
+    ttsCancelRef.current?.();
+    ttsCancelRef.current = null;
 
     // Stop any active mic streams
     if (mediaRecorderRef.current) {
