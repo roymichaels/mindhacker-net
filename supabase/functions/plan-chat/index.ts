@@ -325,6 +325,7 @@ ${plans.length > 0 ? plans.map(p => {
   const t = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || p.plan_data?.title || 'Plan';
   return `Plan: "${t}" started ${p.start_date}, status: ${p.status}`;
 }).join("\n") : 'No active plan'}
+${milestoneContext}${missionsContext}
 ${practiceContext}${libraryContext}
 ${tacticalContext}${actionContext}`;
 
