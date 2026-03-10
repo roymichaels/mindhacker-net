@@ -68,14 +68,12 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
   const [isExecuting, setIsExecuting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-inject task context when opening with a focused task
+  const [autoSendQueued, setAutoSendQueued] = useState(false);
+
+  // Queue auto-send when opening with a focused task
   useEffect(() => {
     if (open && focusTaskTitle && messages.length === 0) {
-      const contextMsg = isHe
-        ? `אני רוצה לדבר על המשימה: "${focusTaskTitle}"${focusDayNumber ? ` (יום ${focusDayNumber})` : ''}`
-        : `I want to talk about the task: "${focusTaskTitle}"${focusDayNumber ? ` (Day ${focusDayNumber})` : ''}`;
-      // Send automatically as first user message
-      setTimeout(() => sendMessage(contextMsg), 300);
+      setAutoSendQueued(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, focusTaskTitle]);
