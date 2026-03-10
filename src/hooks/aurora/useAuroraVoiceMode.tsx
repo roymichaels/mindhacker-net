@@ -149,57 +149,24 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     setAuroraResponse(text);
     setState('speaking');
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            text: text.slice(0, 2000), // cap TTS length
-            voice: 'cgSgspJ2msm6clMCkdW9', // Jessica
-          }),
-        }
-      );
-
-      if (!response.ok || !activeRef.current) {
-        // TTS failed, skip to listening
+    const handle = playTTS(text, {
+      voiceId: persona.voiceId,
+      speed: persona.speed,
+      stability: persona.stability,
+      similarityBoost: persona.similarityBoost,
+      style: persona.style,
+      onEnd: () => {
+        ttsCancelRef.current = null;
         if (activeRef.current) startListening();
-        return;
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType?.includes('audio')) {
+      },
+      onError: () => {
+        ttsCancelRef.current = null;
         if (activeRef.current) startListening();
-        return;
-      }
+      },
+    });
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
-        audioRef.current = null;
-        if (activeRef.current) startListening();
-      };
-
-      audio.onerror = () => {
-        URL.revokeObjectURL(audioUrl);
-        audioRef.current = null;
-        if (activeRef.current) startListening();
-      };
-
-      await audio.play();
-    } catch (err) {
-      console.error('Voice mode: TTS error', err);
-      if (activeRef.current) startListening();
-    }
-  }, [startListening]);
+    ttsCancelRef.current = handle.cancel;
+  }, [startListening, persona]);
 
   const open = useCallback(async () => {
     setIsActive(true);
