@@ -28,6 +28,8 @@ serve(async (req) => {
   }
 
   try {
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
     const { form_submission_id, responses, language = "he" } = await req.json();
 
     if (!form_submission_id || !responses) {
