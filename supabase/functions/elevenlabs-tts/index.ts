@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, isCorsPreFlight, handleCorsPreFlight } from "../_shared/cors.ts";
 import { jsonResponse, badRequestResponse, audioResponse } from "../_shared/responses.ts";
 import { logError } from "../_shared/errorHandling.ts";
+import { requireAuth } from "../_shared/auth.ts";
 
 interface ElevenLabsTTSRequest {
   text: string;
