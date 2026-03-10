@@ -218,6 +218,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
 
       case 'createActionItem': {
+        // If the title hints at a past activity (from swap), still schedule for today
         const { error } = await supabase.from('action_items').insert({
           user_id: user.id, type: 'task', source: 'aurora', status: 'todo',
           title: command.title, scheduled_date: new Date().toISOString().slice(0, 10),
