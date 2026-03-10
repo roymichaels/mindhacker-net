@@ -33,7 +33,7 @@ export default function OnboardingCeremony() {
   const navigate = useNavigate();
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
-  const { orbProfile } = useOrbProfile();
+  const { profile: orbProfile } = useOrbProfile();
   const isHe = language === 'he';
 
   // Fetch identity data
