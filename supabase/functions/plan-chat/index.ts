@@ -290,14 +290,24 @@ MATCHING RULES:
 - The title in create_done MUST match a title from the TACTICAL SCHEDULE below. Use the EXACT Hebrew title shown there.
 - If no schedule item matches, use the activity name the user reported.
 
-SWAP / REPLACE RULES:
-- When user says "replace X with Y" or "תחליפי X ב-Y":
-  1. If X exists in action_items → use [task:delete:UUID] + [task:create:Y] or [task:swap:UUID:Y]
-  2. If X only exists in the TACTICAL SCHEDULE (no UUID) → use [task:swap_by_title:X:Y:YYYY-MM-DD]
-  3. CRITICAL: Match the EXACT title. "טאי צ'י" ≠ "שאדו בוקסינג". Read the titles carefully.
-- For retroactive swaps (e.g., "שלשום תחליפי X ב-Y"), use the correct date.
+PRACTICE-BASED SWAP RULES (CRITICAL):
+All task swaps MUST be linked to a practice from the user's practice library or the available practices.
+When user says "replace X with Y" or "change X to Y" or "תחליפי X ב-Y":
+1. First, check if Y matches any practice in the USER'S ACTIVE PRACTICES below (by name, name_he, or semantic match).
+   - If YES: emit the swap command using the practice's Hebrew name (name_he) as the new title.
+   - Use [task:swap_by_title:X:PRACTICE_NAME_HE:YYYY-MM-DD] or [task:swap:UUID:PRACTICE_NAME_HE]
+2. If Y is NOT in the user's active practices, check the AVAILABLE PRACTICES LIBRARY below.
+   - If found: DO NOT swap yet. Instead, ask the user in a conversational message:
+     "${isHe ? 'התרגול הזה לא נמצא בספריית התרגולים שלך. האם להוסיף אותו לפני ההחלפה?' : 'This practice is not in your library. Should I add it before swapping?'}"
+     Then WAIT for user confirmation. Do NOT emit any command tags yet.
+   - When the user confirms, emit BOTH: [practice:add:PRACTICE_ID:DURATION:daily:false] AND [task:swap_by_title:X:PRACTICE_NAME_HE:YYYY-MM-DD]
+3. If Y is NOT in either list (doesn't exist as a practice at all):
+   - Ask the user: "${isHe ? 'התרגול הזה לא קיים במערכת. תרצה שאציע חלופה מהתרגולים הקיימים?' : 'This practice doesn\'t exist in the system. Want me to suggest an alternative from existing practices?'}"
+   - Then suggest 2-3 alternatives from user practices or available library that match the same pillar/category.
 
-FORBIDDEN: Bullet points, asterisks (**), explanations, headers. Only tags.
+RETROACTIVE SWAPS: For swaps on past dates (e.g., "שלשום תחליפי X ב-Y"), use the correct date.
+
+FORBIDDEN: Bullet points, asterisks (**), headers. Only brief text + tags.
 
 COMMANDS:
 [task:complete:UUID] — mark existing action_item done
@@ -315,6 +325,7 @@ ${plans.length > 0 ? plans.map(p => {
   const t = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || p.plan_data?.title || 'Plan';
   return `Plan: "${t}" started ${p.start_date}, status: ${p.status}`;
 }).join("\n") : 'No active plan'}
+${practiceContext}${libraryContext}
 ${tacticalContext}${actionContext}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
