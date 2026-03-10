@@ -216,7 +216,7 @@ export default function FMMarket() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 onClick={() => navigate(cp.path)}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card transition-all hover:scale-[1.04] active:scale-[0.97] hover:shadow-lg ${cp.border}`}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all hover:scale-[1.04] active:scale-[0.97]"
               >
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cp.color} flex items-center justify-center shadow-md`}>
                   <Icon className="w-5 h-5 text-white/90" />
