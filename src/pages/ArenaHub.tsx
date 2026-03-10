@@ -3,7 +3,7 @@
  * AI-generated 10-day phase schedule with themed blocks containing milestones.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, CheckCircle2, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, Wand2, Play, Download, MessageSquare } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, Wand2, Play, Download, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -61,7 +61,7 @@ export default function ArenaHub() {
   const [dayChatOpen, setDayChatOpen] = useState(false);
   const [dayChatDayNumber, setDayChatDayNumber] = useState<number | null>(null);
   const phasePlan = useWeeklyTacticalPlan();
-  const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime } = phasePlan;
+  const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime, toggleActionComplete } = phasePlan as any;
 
   const handleGenerateSchedule = useCallback(async () => {
     if (scheduleGenerating) return;
@@ -327,6 +327,7 @@ export default function ArenaHub() {
                       setDayChatDayNumber(dayNumber);
                       setDayChatOpen(true);
                     }}
+                    onToggleComplete={toggleActionComplete}
                   />
                 )}
               </div>
@@ -378,12 +379,14 @@ function DayView({
   onExecuteAction,
   hasAiSchedule,
   onTalkToPlan,
+  onToggleComplete,
 }: {
   day: DayPlan;
   isHe: boolean;
   onExecuteAction: (action: TacticalAction) => void;
   hasAiSchedule: boolean;
   onTalkToPlan: (dayNumber: number) => void;
+  onToggleComplete: (action: TacticalAction) => void;
 }) {
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
@@ -479,17 +482,33 @@ function DayView({
                 >
                   <div className="px-4 pb-3 space-y-1.5 border-t border-border/20 pt-2">
                     {block.actions.map((action) => (
-                      <button
+                      <div
                         key={action.id}
-                        onClick={() => onExecuteAction(action)}
                         className={cn(
                           "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border",
                           action.completed
                             ? "border-emerald-500/20 bg-emerald-500/5 opacity-60"
-                            : "border-border/30 hover:border-primary/30 bg-card/80 hover:bg-accent/10 active:scale-[0.99]"
+                            : "border-border/30 bg-card/80"
                         )}
                       >
-                        <div className="flex-1 min-w-0">
+                        {/* Checkbox */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleComplete(action); }}
+                          className="shrink-0 p-0.5 rounded-full hover:bg-muted/50 transition-colors"
+                          aria-label={action.completed ? 'Mark incomplete' : 'Mark complete'}
+                        >
+                          {action.completed ? (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                          ) : (
+                            <Circle className="h-4 w-4 text-muted-foreground/50 hover:text-primary" />
+                          )}
+                        </button>
+
+                        {/* Content — clickable to open execution */}
+                        <button
+                          onClick={() => onExecuteAction(action)}
+                          className="flex-1 min-w-0 text-start hover:opacity-80 transition-opacity"
+                        >
                           <p className={cn(
                             "text-xs font-semibold line-clamp-1",
                             action.completed ? "line-through text-muted-foreground" : "text-foreground"
@@ -500,13 +519,10 @@ function DayView({
                             {action.estimatedMinutes}{isHe ? ' דק׳' : 'm'}
                             {action.focusArea && <span className="ms-1.5 opacity-60">· {action.focusArea}</span>}
                           </p>
-                        </div>
-                        {action.completed ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <Play className="h-3.5 w-3.5 text-primary shrink-0" />
-                        )}
-                      </button>
+                        </button>
+
+                        <Play className="h-3.5 w-3.5 text-primary shrink-0 opacity-40" />
+                      </div>
                     ))}
                   </div>
                 </motion.div>

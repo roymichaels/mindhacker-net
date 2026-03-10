@@ -637,7 +637,54 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     };
   }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedules, completedItemsMap]);
 
-  return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating };
+  const toggleActionComplete = useCallback(async (action: TacticalAction) => {
+    if (!user?.id) return;
+    const newDone = !action.completed;
+    const date = action.calendarDate || todayStr;
+
+    if (newDone) {
+      // Upsert an action_item as done
+      const { error } = await supabase.from('action_items').upsert({
+        user_id: user.id,
+        title: action.title,
+        type: 'task',
+        source: 'plan',
+        status: 'done',
+        scheduled_date: date,
+        completed_at: new Date().toISOString(),
+        pillar: action.focusArea || null,
+        order_index: action.orderIndex || 0,
+      }, { onConflict: 'user_id,title,scheduled_date', ignoreDuplicates: false });
+      if (error) {
+        // If upsert fails due to missing unique constraint, try insert
+        if (error.code === '42P10' || error.message?.includes('unique')) {
+          await supabase.from('action_items').insert({
+            user_id: user.id,
+            title: action.title,
+            type: 'task',
+            source: 'plan',
+            status: 'done',
+            scheduled_date: date,
+            completed_at: new Date().toISOString(),
+            pillar: action.focusArea || null,
+            order_index: action.orderIndex || 0,
+          });
+        }
+      }
+    } else {
+      // Mark as todo — find by title + date
+      await supabase
+        .from('action_items')
+        .update({ status: 'todo', completed_at: null })
+        .eq('user_id', user.id)
+        .ilike('title', action.title)
+        .eq('scheduled_date', date);
+    }
+    // Refresh completion data
+    queryClient.invalidateQueries({ queryKey: ['action-items-completed'] });
+  }, [user?.id, todayStr, queryClient]);
+
+  return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating, toggleActionComplete } as PhasePlan & { isLoading: boolean; generateSchedule: () => Promise<void>; isGenerating: boolean; toggleActionComplete: (action: TacticalAction) => Promise<void> };
 }
 
 // Classification exports

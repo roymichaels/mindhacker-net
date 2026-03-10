@@ -5,12 +5,15 @@
  */
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Clock, CheckCircle2, Sparkles, Loader2, ChevronDown, ChevronUp, Play, Lock } from 'lucide-react';
+import { Flame, Clock, CheckCircle2, Circle, Sparkles, Loader2, ChevronDown, ChevronUp, Play, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution, type ScheduleSlot } from '@/hooks/useTodayExecution';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { type NowQueueItem } from '@/types/planning';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
@@ -52,6 +55,7 @@ function QuarterBlockRow({
   onToggle,
   isOpen,
   onExecute,
+  onToggleComplete,
   isHe,
 }: {
   slot: ScheduleSlot;
@@ -59,6 +63,7 @@ function QuarterBlockRow({
   onToggle: () => void;
   isOpen: boolean;
   onExecute: (item: NowQueueItem) => void;
+  onToggleComplete: (item: NowQueueItem) => void;
   isHe: boolean;
 }) {
   const blockInfo = QUARTER_LABELS[slot.timeBlock] || QUARTER_LABELS.midday;
@@ -111,12 +116,24 @@ function QuarterBlockRow({
           >
             <div className="px-4 pb-3 space-y-1.5 border-t border-border/20 pt-2">
               {slot.actions.map((action, i) => (
-                <button
+                <div
                   key={`${action.actionType}-${i}`}
-                  onClick={() => onExecute(action)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/30 hover:border-primary/30 bg-card/80 hover:bg-accent/10 active:scale-[0.99]"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/30 bg-card/80"
                 >
-                  <div className="flex-1 min-w-0">
+                  {/* Checkbox */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onToggleComplete(action); }}
+                    className="shrink-0 p-0.5 rounded-full hover:bg-muted/50 transition-colors"
+                    aria-label="Mark complete"
+                  >
+                    <Circle className="h-4 w-4 text-muted-foreground/50 hover:text-primary" />
+                  </button>
+
+                  {/* Content — clickable to open execution */}
+                  <button
+                    onClick={() => onExecute(action)}
+                    className="flex-1 min-w-0 text-start hover:opacity-80 transition-opacity"
+                  >
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <PillarBadge pillarId={action.pillarId} hub={action.hub} />
                       {action.missionTitle && (
@@ -131,15 +148,16 @@ function QuarterBlockRow({
                         <span className="opacity-40">↳</span> {action.milestoneTitle}
                       </p>
                     )}
-                  </div>
+                  </button>
+
                   {action.isTimeBased && (
                     <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
                       <Clock className="h-2.5 w-2.5" />
                       {action.durationMin}{isHe ? '′' : 'm'}
                     </span>
                   )}
-                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-                </button>
+                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 opacity-40" />
+                </div>
               ))}
             </div>
           </motion.div>
@@ -159,6 +177,9 @@ export function NowSection() {
   const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const handleExecute = (item: NowQueueItem) => {
     if (item.milestoneId) {
       setJourneyAction(item);
@@ -167,6 +188,39 @@ export function NowSection() {
       setExecutionAction(item);
       setExecutionOpen(true);
     }
+  };
+
+  const handleToggleComplete = async (item: NowQueueItem) => {
+    if (!user?.id) return;
+    const today = new Date().toISOString().slice(0, 10);
+    await supabase.from('action_items').upsert({
+      user_id: user.id,
+      title: item.title,
+      type: 'task',
+      source: 'plan',
+      status: 'done',
+      scheduled_date: today,
+      completed_at: new Date().toISOString(),
+      pillar: item.pillarId || null,
+      order_index: 0,
+    }, { onConflict: 'user_id,title,scheduled_date', ignoreDuplicates: false }).then(({ error }) => {
+      if (error) {
+        // Fallback: insert if upsert fails
+        supabase.from('action_items').insert({
+          user_id: user.id,
+          title: item.title,
+          type: 'task',
+          source: 'plan',
+          status: 'done',
+          scheduled_date: today,
+          completed_at: new Date().toISOString(),
+          pillar: item.pillarId || null,
+          order_index: 0,
+        });
+      }
+    });
+    queryClient.invalidateQueries({ queryKey: ['action-items-completed'] });
+    refetch();
   };
 
   const toggleBlock = (slotId: string) => {
@@ -200,6 +254,7 @@ export function NowSection() {
             onToggle={() => toggleBlock(slot.id)}
             isOpen={isSlotOpen(slot.id)}
             onExecute={handleExecute}
+            onToggleComplete={handleToggleComplete}
             isHe={isHe}
           />
         ))}
