@@ -15,7 +15,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { user_id, messages, language, timezone } = await req.json();
+    const { user_id, messages, language, timezone, focus_day } = await req.json();
     if (!user_id) throw new Error("user_id required");
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
