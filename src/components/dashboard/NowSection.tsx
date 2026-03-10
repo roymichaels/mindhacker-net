@@ -177,6 +177,9 @@ export function NowSection() {
   const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
   const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const handleExecute = (item: NowQueueItem) => {
     if (item.milestoneId) {
       setJourneyAction(item);
@@ -185,6 +188,39 @@ export function NowSection() {
       setExecutionAction(item);
       setExecutionOpen(true);
     }
+  };
+
+  const handleToggleComplete = async (item: NowQueueItem) => {
+    if (!user?.id) return;
+    const today = new Date().toISOString().slice(0, 10);
+    await supabase.from('action_items').upsert({
+      user_id: user.id,
+      title: item.title,
+      type: 'task',
+      source: 'plan',
+      status: 'done',
+      scheduled_date: today,
+      completed_at: new Date().toISOString(),
+      pillar: item.pillarId || null,
+      order_index: 0,
+    }, { onConflict: 'user_id,title,scheduled_date', ignoreDuplicates: false }).then(({ error }) => {
+      if (error) {
+        // Fallback: insert if upsert fails
+        supabase.from('action_items').insert({
+          user_id: user.id,
+          title: item.title,
+          type: 'task',
+          source: 'plan',
+          status: 'done',
+          scheduled_date: today,
+          completed_at: new Date().toISOString(),
+          pillar: item.pillarId || null,
+          order_index: 0,
+        });
+      }
+    });
+    queryClient.invalidateQueries({ queryKey: ['action-items-completed'] });
+    refetch();
   };
 
   const toggleBlock = (slotId: string) => {
