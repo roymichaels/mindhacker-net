@@ -35,6 +35,9 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Newsletter sending requires admin privileges
+    const auth = await requireAdmin(req);
+    if (auth instanceof Response) return auth;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
