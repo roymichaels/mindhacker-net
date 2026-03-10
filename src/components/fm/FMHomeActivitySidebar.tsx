@@ -91,7 +91,7 @@ export function FMHomeActivitySidebar() {
           )}
 
           <button
-            onClick={() => navigate('/fm/wallet')}
+            onClick={() => navigate('/fm')}
             className="text-[11px] text-accent hover:underline flex items-center gap-1 justify-center pt-1"
           >
             {isHe ? 'הצג הכל' : 'View all'} <ArrowRight className="w-3 h-3" />

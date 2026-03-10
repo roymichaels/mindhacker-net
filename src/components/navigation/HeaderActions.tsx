@@ -5,6 +5,7 @@ import { Shield, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';
 import { cn } from '@/lib/utils';
+import { useWalletModal } from '@/contexts/WalletModalContext';
 
 interface HeaderActionsProps {
   compact?: boolean;
@@ -14,9 +15,9 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { openWallet, isOpen: isWalletOpen } = useWalletModal();
   const isAuroraPage = location.pathname === '/aurora';
   const isFMPage = location.pathname.startsWith('/fm');
-  const isWalletActive = location.pathname.startsWith('/fm/wallet') || location.pathname.startsWith('/fm/cashout') || location.pathname.startsWith('/fm/bridge');
 
   return (
     <div className="flex items-center gap-1">
@@ -38,11 +39,11 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
           size="icon"
           className={cn(
             "h-8 w-8",
-            isWalletActive
+            isWalletOpen
               ? "text-amber-500 dark:text-amber-400"
               : "text-muted-foreground hover:text-amber-500 dark:hover:text-amber-400"
           )}
-          onClick={() => navigate('/fm/wallet')}
+          onClick={openWallet}
           title="Wallet"
         >
           <Wallet className="h-4 w-4" />

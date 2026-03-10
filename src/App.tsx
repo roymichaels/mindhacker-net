@@ -516,6 +516,7 @@ const App = () => (
                    </FlowAuditProvider>
                 </BrowserRouter>
                 </TooltipProvider>
+                </WalletModalProvider>
                 </CoachesModalProvider>
                 </SubscriptionsModalProvider>
               </GameStateProvider>
