@@ -444,41 +444,6 @@ export default function FMEarn({ activeTab, onTabChange, categoryFilter, onCateg
         })}
       </div>
 
-      {/* Career Paths */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          {isHe ? 'מסלולי קריירה' : 'Career Paths'}
-        </h2>
-        <div className="grid grid-cols-5 gap-2">
-          {([
-            { id: 'business', icon: Briefcase, titleEn: 'Business', titleHe: 'בעל עסק', path: '/business', color: 'from-amber-500 to-orange-600', border: 'border-amber-500/40' },
-            { id: 'coach', icon: GraduationCap, titleEn: 'Coach', titleHe: 'מאמן', path: '/coaches', color: 'from-purple-500 to-fuchsia-600', border: 'border-purple-500/40' },
-            { id: 'therapist', icon: Heart, titleEn: 'Therapist', titleHe: 'מטפל', path: '/therapist', color: 'from-rose-500 to-pink-600', border: 'border-rose-500/40' },
-            { id: 'creator', icon: Palette, titleEn: 'Creator', titleHe: 'יוצר תוכן', path: '/creator', color: 'from-sky-500 to-blue-600', border: 'border-sky-500/40' },
-            { id: 'freelancer', icon: Code, titleEn: 'Freelancer', titleHe: 'פרילנסר', path: '/freelancer', color: 'from-emerald-500 to-teal-600', border: 'border-emerald-500/40' },
-          ]).map((cp, i) => {
-            const Icon = cp.icon;
-            return (
-              <motion.button
-                key={cp.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => navigate(cp.path)}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card transition-all hover:scale-[1.04] active:scale-[0.97] hover:shadow-lg ${cp.border}`}
-              >
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cp.color} flex items-center justify-center shadow-md`}>
-                  <Icon className="w-5 h-5 text-white/90" />
-                </div>
-                <span className="text-[11px] font-bold text-foreground leading-tight text-center">
-                  {isHe ? cp.titleHe : cp.titleEn}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Privacy notice */}
       <div className="bg-accent/5 border border-accent/20 rounded-xl p-3 flex items-start gap-2.5">
