@@ -70,6 +70,7 @@ const Users = () => {
     full_name: string | null;
   } | null>(null);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
 
