@@ -257,6 +257,18 @@ serve(async (req) => {
     const planTitle = plan?.plan_data?.title || plan?.plan_data?.plan_title || 'Untitled Plan';
     const planDuration = plan?.duration_months ? `${plan.duration_months} months` : '100 days';
 
+    // Compute focus day context
+    let focusDayContext = "";
+    if (focus_day && typeof focus_day === "number" && plans.length > 0) {
+      const p = plans[0];
+      if (p.start_date) {
+        const focusDate = new Date(p.start_date + "T00:00:00");
+        focusDate.setDate(focusDate.getDate() + focus_day - 1);
+        const focusDateStr = dateFormatter.format(focusDate);
+        focusDayContext = `\n\n🎯 USER IS VIEWING DAY ${focus_day} (${focusDateStr}). All questions are about THIS day unless they explicitly mention another date.`;
+      }
+    }
+
     const systemPrompt = `You are Aurora, a plan editor AI. You output COMMAND TAGS that the frontend executes.
 
 FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tags. Nothing else.
@@ -264,7 +276,7 @@ FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tag
 DATE AWARENESS:
 - Today / היום = ${todayStr}
 - Yesterday / אתמול = ${yesterdayStr}
-- Two days ago / שלשום = ${twoDaysAgoStr}
+- Two days ago / שלשום = ${twoDaysAgoStr}${focusDayContext}
 When user says "שלשום" or "two days ago", use date ${twoDaysAgoStr}.
 When user says "אתמול" or "yesterday", use date ${yesterdayStr}.
 
