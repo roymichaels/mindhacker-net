@@ -116,7 +116,7 @@ serve(async (req) => {
     const tierModel = TIER_MODELS[userTier] || "google/gemini-2.5-flash-lite";
     const model = hasImages ? "google/gemini-2.5-flash" : (mode === "widget" ? widgetModel : tierModel);
 
-    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || "guest"}, Tier: ${userTier}, Model: ${model}, Version: ${orchestrated.promptVersion}, ContextHash: ${context.context_hash.slice(0, 8)}`);
+    console.log("Aurora chat - Mode: " + mode + ", User: " + (userId || "guest") + ", Tier: " + userTier + ", Model: " + model + ", Version: " + orchestrated.promptVersion + ", ContextHash: " + context.context_hash.slice(0, 8));
 
     // 5. Call LLM with timeout (Layer 3 - model call)
     let response: Response;
