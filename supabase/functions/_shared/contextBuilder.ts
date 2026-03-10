@@ -98,7 +98,7 @@ export interface AuroraContext {
   pending_reminders: { message: string; created_at: string }[];
 
   // Cross-conversation memory (one brain)
-  cross_conversation_history: { pillar: string | null; role: string; content: string; date: string }[];
+  cross_conversation_history: { pillar: string | null; role: string; content: string; date: string; time: string; days_ago: number }[];
 
   // Launchpad
   launchpad_summary: {

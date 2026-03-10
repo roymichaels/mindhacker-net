@@ -524,11 +524,12 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
     const lines = ctx.cross_conversation_history.map(m => {
       const pillarTag = m.pillar ? ` [${m.pillar}]` : '';
       const roleLabel = m.role === 'aurora' ? 'Aurora' : (isHe ? 'משתמש' : 'User');
-      return `- ${m.date}${pillarTag} ${roleLabel}: ${m.content}`;
+      const recency = m.days_ago === 0 ? (isHe ? 'היום' : 'today') : m.days_ago === 1 ? (isHe ? 'אתמול' : 'yesterday') : `${m.days_ago}d`;
+      return `- ${m.date} ${m.time} (${recency})${pillarTag} ${roleLabel}: ${m.content}`;
     });
     parts.push(isHe
-      ? `## 🧠 זיכרון צולב-שיחות (כל השיחות שלי עם המשתמש)\nאלה קטעים אחרונים מכל השיחות שלנו - כולל שיחות מהאונבורדינג, פילרים שונים, ושיחות כלליות. אני זוכרת הכל.\n${lines.join("\n")}`
-      : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — including onboarding, different pillars, and general chats. I remember everything.\n${lines.join("\n")}`);
+      ? `## 🧠 זיכרון צולב-שיחות (כל השיחות שלי עם המשתמש)\nאלה קטעים אחרונים מכל השיחות שלנו — כולל זמנים מדויקים. אני זוכרת הכל.\n${lines.join("\n")}`
+      : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — with exact timestamps. I remember everything.\n${lines.join("\n")}`);
   }
 
   // Memory Graph (Knowledge Graph of beliefs, fears, breakthroughs, patterns)
