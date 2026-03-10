@@ -1,6 +1,6 @@
 /**
  * Layer 3: Aurora Chat Handler (thin orchestrator)
- * 
+ * v2 — timezone fix
  * ~80 lines. Parses request, calls contextBuilder + orchestrator,
  * streams LLM response, logs tracing metadata.
  */
