@@ -476,6 +476,37 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     staleTime: 5 * 60_000,
   });
 
+
+  // ── Fetch completed action_items for the phase date range ──
+  const { data: completedItemsRaw } = useQuery({
+    queryKey: ['action-items-completed', user?.id, phaseStart, phaseEnd],
+    queryFn: async () => {
+      if (!user?.id || !phaseStart || !phaseEnd) return [];
+      const { data, error } = await supabase
+        .from('action_items')
+        .select('title, scheduled_date, completed_at, status')
+        .eq('user_id', user.id)
+        .eq('status', 'done')
+        .gte('scheduled_date', phaseStart)
+        .lte('scheduled_date', phaseEnd);
+      if (error) { console.error('Failed to fetch completed items:', error); return []; }
+      return data || [];
+    },
+    enabled: !!user?.id && !!phaseStart && !!phaseEnd,
+    staleTime: 30_000,
+  });
+
+  const completedItemsMap = useMemo(() => {
+    const map = new Map<string, { title: string; completedAt: string }[]>();
+    if (!completedItemsRaw) return map;
+    for (const item of completedItemsRaw) {
+      const date = item.scheduled_date || '';
+      if (!map.has(date)) map.set(date, []);
+      map.get(date)!.push({ title: item.title, completedAt: item.completed_at || '' });
+    }
+    return map;
+  }, [completedItemsRaw]);
+
   const generateSchedule = useCallback(async () => {
     if (!user?.id || !planId || !currentPhase) return;
     try {
