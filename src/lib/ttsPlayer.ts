@@ -22,7 +22,7 @@ function stripMarkdown(text: string): string {
 }
 
 /** Split text into chunks at sentence boundaries */
-function splitTextIntoChunks(text: string, maxLen = 2000): string[] {
+function splitTextIntoChunks(text: string, maxLen = 800): string[] {
   if (text.length <= maxLen) return [text];
 
   const chunks: string[] = [];
