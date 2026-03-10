@@ -163,7 +163,7 @@ const AuroraAccountDropdown = ({
                   <p className="text-[10px] text-muted-foreground truncate leading-tight">{user?.email}</p>
                 </div>
                 <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
-                  <div className="absolute inset-[-25%] rounded-full bg-gradient-radial from-primary/25 via-primary/10 to-transparent blur-md pointer-events-none" />
+                  <div className="absolute inset-[-25%] rounded-full bg-primary/15 blur-md pointer-events-none" />
                   <div className="relative z-10">
                     <PersonalizedOrb size={80} state="idle" />
                   </div>

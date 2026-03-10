@@ -316,7 +316,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               onClick={pillarActionCallback}
               disabled={pillarActionLoading}
               size="lg"
-              className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+              className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8"
             >
               {pillarActionLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

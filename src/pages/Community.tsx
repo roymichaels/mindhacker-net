@@ -203,7 +203,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                   {/* Glow accent */}
                   <div className="absolute top-0 end-0 w-24 h-24 rounded-full bg-amber-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-rose-500/15 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
                       <Sparkles className="w-5 h-5 text-amber-500" />
                     </div>
                     <div className="flex-1 min-w-0">
