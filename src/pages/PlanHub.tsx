@@ -84,7 +84,7 @@ export default function PlanHub() {
       </div>
 
       {/* Talk to your plan button — hidden on Work tab */}
-      {activeTab !== 'work' && (
+      {activeTab !== 'work' && activeTab !== 'tactics' && (
         <div className="w-full max-w-xl px-4 pb-2 space-y-2">
           <button
             onClick={() => setChatOpen(true)}
