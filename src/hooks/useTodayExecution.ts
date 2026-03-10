@@ -88,6 +88,8 @@ function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQu
     milestoneId: action.sourceMilestoneId || undefined,
     milestoneTitle: action.title,
     executionTemplate: (action.executionTemplate as ExecutionTemplate) || 'step_by_step',
+    completed: !!action.completed,
+    calendarDate: action.calendarDate,
   };
 }
 // ── Map block category → TimeBlock ──
@@ -205,7 +207,7 @@ export function useTodayExecution() {
   const { user } = useAuth();
   const { language } = useTranslation();
   const tacticalPlan = useWeeklyTacticalPlan();
-  const { days, isLoading: tacticsLoading, hasAiSchedule, wakeTime, sleepTime, generateSchedule } = tacticalPlan;
+  const { days, isLoading: tacticsLoading, hasAiSchedule, wakeTime, sleepTime, generateSchedule, toggleActionComplete } = tacticalPlan as any;
 
   // Find today's plan from the tactical schedule
   const todayPlan = useMemo(() => {
@@ -275,6 +277,21 @@ export function useTodayExecution() {
   const hasPlan = hasAiSchedule || (todayPlan !== null && todayPlan.totalActions > 0);
   const tier = 'clarity'; // Tier is subscription-based, not NowEngine-based
 
+  // Toggle completion — delegates to the tactical plan's toggle
+  const handleToggleComplete = async (item: NowQueueItem) => {
+    if (!toggleActionComplete) return;
+    // Convert NowQueueItem back to a TacticalAction-like shape for the toggle function
+    await toggleActionComplete({
+      id: item.sourceId || '',
+      title: item.title,
+      titleEn: item.titleEn,
+      completed: !!item.completed,
+      calendarDate: item.calendarDate,
+      focusArea: item.pillarId,
+      orderIndex: 0,
+    } as any);
+  };
+
   return {
     queue,
     nextAction: hasPlan ? nextAction : null,
@@ -300,5 +317,6 @@ export function useTodayExecution() {
 
     isLoading: tacticsLoading,
     refetch: generateSchedule,
+    toggleActionComplete: handleToggleComplete,
   };
 }

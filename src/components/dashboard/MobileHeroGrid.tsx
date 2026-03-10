@@ -3,7 +3,7 @@
  * Each tactical block = a "journey" in today's adventure.
  * No graying, no exact times — just themed quests to tackle.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +19,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { PlanNegotiateModal } from '@/components/plan/PlanNegotiateModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, Compass, Swords, Shield, Download, MessageSquare } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, Compass, Swords, Shield, Download, MessageSquare, CheckCircle2, Circle } from 'lucide-react';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exportNowPDF, type NowExportData, type NowPDFSlot } from '@/utils/exportNowPDF';
@@ -68,7 +68,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { openHypnosis } = useAuroraActions();
   const isHe = language === 'he';
 
-  const { queue, schedule, isLoading, refetch, hasPlan } = useTodayExecution();
+  const { queue, schedule, isLoading, refetch, hasPlan, toggleActionComplete } = useTodayExecution();
 
   const { plan } = useLifePlanWithMilestones();
   const { statusMap } = useLifeDomains();
@@ -137,6 +137,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       setExecutionOpen(true);
     }
   };
+
+  const handleToggleComplete = useCallback(async (item: NowQueueItem) => {
+    await toggleActionComplete(item);
+    refetch();
+  }, [toggleActionComplete, refetch]);
 
   // Block toggle removed — tasks are always visible now
 
@@ -344,8 +349,24 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                             >
                               <button
                                 onClick={() => handleExecute(action)}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/20 bg-card/60 hover:bg-card hover:border-primary/30 active:scale-[0.99]"
+                                className={cn(
+                                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/20 bg-card/60 hover:bg-card hover:border-primary/30 active:scale-[0.99]",
+                                  action.completed && "opacity-60"
+                                )}
                               >
+                                {/* Checkbox */}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleToggleComplete(action); }}
+                                  className="shrink-0 p-0.5 rounded-full hover:bg-muted/50 transition-colors"
+                                  aria-label={action.completed ? 'Mark incomplete' : 'Mark complete'}
+                                >
+                                  {action.completed ? (
+                                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                                  ) : (
+                                    <Circle className="h-4 w-4 text-muted-foreground/50 hover:text-primary" />
+                                  )}
+                                </button>
+
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1.5 mb-0.5">
                                     <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/40 text-muted-foreground">
@@ -353,7 +374,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                                       {isHe ? (domain?.labelHe || action.pillarId) : (domain?.labelEn || action.pillarId)}
                                     </span>
                                   </div>
-                                  <p className="text-xs font-semibold text-foreground line-clamp-1">
+                                  <p className={cn(
+                                    "text-xs font-semibold text-foreground line-clamp-1",
+                                    action.completed && "line-through text-muted-foreground"
+                                  )}>
                                     {isHe ? action.title : action.titleEn}
                                   </p>
                                 </div>
