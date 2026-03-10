@@ -507,11 +507,16 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
         // Practice add
         const addMatch = change.rawTag.match(/\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\]/);
         if (addMatch) {
-          const { error } = await supabase.from('user_practices').insert({
-            user_id: user.id, practice_id: addMatch[1],
-            duration_minutes: parseInt(addMatch[2]), frequency: addMatch[3],
-            is_core: addMatch[4] === 'true',
-          });
+          const { error } = await supabase.from('user_practices').upsert({
+            user_id: user.id,
+            practice_id: addMatch[1],
+            preferred_duration: parseInt(addMatch[2]),
+            frequency_per_week: addMatch[3] === 'daily' ? 7 : addMatch[3] === 'weekly' ? 1 : parseInt(addMatch[3]) || 3,
+            is_core_practice: addMatch[4] === 'true',
+            is_active: true,
+            energy_phase: 'day',
+            skill_level: 1,
+          }, { onConflict: 'user_id,practice_id' });
           if (!error) successCount++;
           continue;
         }
