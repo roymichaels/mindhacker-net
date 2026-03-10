@@ -40,6 +40,7 @@ export function OnboardingTierSelection({ onTierSelected, onBack }: OnboardingTi
     }
 
     // For paid tiers, open checkout
+    if (blockIfTestMode(isHe)) return;
     setIsLoading(true);
     try {
       const result = await supabase.functions.invoke('create-checkout-session', {

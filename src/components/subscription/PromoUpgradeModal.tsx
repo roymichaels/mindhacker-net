@@ -18,6 +18,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
   const [loading, setLoading] = useState(false);
 
   const handleClaim = async () => {
+    if (blockIfTestMode(isHe)) return;
     setLoading(true);
     try {
       const result = await supabase.functions.invoke("create-checkout-session", {

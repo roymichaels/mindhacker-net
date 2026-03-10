@@ -64,6 +64,7 @@ const SubscriptionsModal = () => {
   const { openAuthModal } = useAuthModal();
 
   const handleCheckout = async (tier: SubscriptionTier) => {
+    if (blockIfTestMode(isRTL)) return;
     if (!requireAuthOrOpenModal(user, openAuthModal, {
       reason: 'subscription_checkout',
       nextActionName: 'subscriptions_modal_checkout',
