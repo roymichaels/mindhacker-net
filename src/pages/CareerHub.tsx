@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ChevronLeft, Briefcase, GraduationCap, Heart, Palette, Code } from 'lucide-react';
+import { ChevronLeft, Briefcase, GraduationCap, Heart, Palette, Code, Loader2, XCircle } from 'lucide-react';
 import {
   LayoutDashboard, Users, Star, DollarSign, FileText, Megaphone,
   Settings, ExternalLink, Search, FolderKanban, Image, BarChart3,
