@@ -51,6 +51,9 @@ export interface NowQueueItem {
   energyPhase?: 'morning' | 'day' | 'evening';
   // Practice reference (if from practice library)
   practiceId?: string;
+  // Completion state (synced from tactical plan)
+  completed?: boolean;
+  calendarDate?: string;
 }
 
 // ── Energy Phases ──
