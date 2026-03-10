@@ -312,13 +312,32 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
       }
 
       case 'swapByTitle': {
-        // 1. Delete old action_item if it exists
-        const { data: oldItem } = await supabase.from('action_items')
+        // 1. Delete old action_item if it exists — try exact match first, then fuzzy
+        let oldItemId: string | null = null;
+        const { data: exactMatch } = await supabase.from('action_items')
           .select('id').eq('user_id', user.id)
           .eq('scheduled_date', command.date)
           .ilike('title', `%${command.oldTitle}%`).limit(1).maybeSingle();
-        if (oldItem) {
-          await supabase.from('action_items').delete().eq('id', oldItem.id);
+        
+        if (exactMatch) {
+          oldItemId = exactMatch.id;
+        } else {
+          // Fuzzy: fetch all tasks for the date and find closest match
+          const { data: allForDate } = await supabase.from('action_items')
+            .select('id, title').eq('user_id', user.id)
+            .eq('scheduled_date', command.date).in('status', ['todo', 'doing']);
+          if (allForDate?.length) {
+            const oldLower = command.oldTitle.toLowerCase();
+            const match = allForDate.find(a => {
+              const tLower = a.title.toLowerCase();
+              return tLower.includes(oldLower) || oldLower.includes(tLower) 
+                || tLower.split(' ').some(w => w.length > 2 && oldLower.includes(w));
+            });
+            if (match) oldItemId = match.id;
+          }
+        }
+        if (oldItemId) {
+          await supabase.from('action_items').delete().eq('id', oldItemId);
         }
 
         // 2. Update tactical_schedules JSON to swap the title in-place
