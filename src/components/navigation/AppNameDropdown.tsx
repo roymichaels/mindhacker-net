@@ -219,7 +219,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                   </div>
                   <Progress value={dashboard.xpProgress.percentage} className="h-1.5 bg-amber-500/10 [&>div]:bg-gradient-to-r [&>div]:from-amber-500 [&>div]:to-amber-400" />
                   <div className="flex items-center gap-2 pt-0.5">
-                    <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20 text-[10px]">
+                    <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 text-[10px]">
                       <Star className="h-2.5 w-2.5" />
                       <span className="font-bold">Lv.{dashboard.level}</span>
                     </div>
