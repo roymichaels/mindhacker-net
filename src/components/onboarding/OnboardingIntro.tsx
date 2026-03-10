@@ -101,6 +101,24 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
     }
   }, [user, phase]);
 
+  // Pre-fill from profile + launchpad when user is authenticated
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchExisting = async () => {
+      const [profileRes, launchpadRes] = await Promise.all([
+        supabase.from('profiles').select('full_name').eq('id', user.id).single(),
+        supabase.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user.id).single(),
+      ]);
+      if (profileRes.data?.full_name && !name) setName(profileRes.data.full_name);
+      const profileData = launchpadRes.data?.step_2_profile_data as any;
+      if (profileData) {
+        if (profileData.gender && !gender) setGender(profileData.gender);
+        if (profileData.ageBracket && !ageBracket) setAgeBracket(profileData.ageBracket);
+      }
+    };
+    fetchExisting();
+  }, [user?.id]);
+
   const GENDER_OPTIONS = [
     { value: 'male', label: t('onboarding.intro.male'), icon: '👤' },
     { value: 'female', label: t('onboarding.intro.female'), icon: '👤' },
