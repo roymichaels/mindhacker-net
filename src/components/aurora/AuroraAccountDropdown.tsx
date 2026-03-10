@@ -112,7 +112,7 @@ const AuroraAccountDropdown = ({
             )}
           >
             {/* Glow overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 dark:from-primary/20 via-transparent to-accent/10 dark:to-accent/20 pointer-events-none rounded-xl" />
+            <div className="absolute inset-0 bg-primary/5 pointer-events-none rounded-xl" />
             
             {/* Avatar */}
             <div className={cn(
