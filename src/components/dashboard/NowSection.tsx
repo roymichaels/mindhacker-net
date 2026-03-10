@@ -5,7 +5,7 @@
  */
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Clock, CheckCircle2, Sparkles, Loader2, ChevronDown, ChevronUp, Play, Lock } from 'lucide-react';
+import { Flame, Clock, CheckCircle2, Circle, Sparkles, Loader2, ChevronDown, ChevronUp, Play, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
