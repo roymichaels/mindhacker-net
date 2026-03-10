@@ -101,22 +101,22 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
     }
   }, [user, phase]);
 
-  // Pre-fill from profile when user is authenticated
+  // Pre-fill from profile + launchpad when user is authenticated
   useEffect(() => {
     if (!user?.id) return;
-    const fetchProfile = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name, gender, age_bracket')
-        .eq('id', user.id)
-        .single();
-      if (data) {
-        if (data.full_name && !name) setName(data.full_name);
-        if (data.gender && !gender) setGender(data.gender);
-        if (data.age_bracket && !ageBracket) setAgeBracket(data.age_bracket);
+    const fetchExisting = async () => {
+      const [profileRes, launchpadRes] = await Promise.all([
+        supabase.from('profiles').select('full_name').eq('id', user.id).single(),
+        supabase.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user.id).single(),
+      ]);
+      if (profileRes.data?.full_name && !name) setName(profileRes.data.full_name);
+      const profileData = launchpadRes.data?.step_2_profile_data as any;
+      if (profileData) {
+        if (profileData.gender && !gender) setGender(profileData.gender);
+        if (profileData.ageBracket && !ageBracket) setAgeBracket(profileData.ageBracket);
       }
     };
-    fetchProfile();
+    fetchExisting();
   }, [user?.id]);
 
   const GENDER_OPTIONS = [
