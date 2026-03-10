@@ -515,6 +515,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatW
             messages: newMessages.map(m => ({ role: m.role, content: m.content })),
             language,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+            ...(focusDayNumber ? { focus_day: focusDayNumber } : {}),
           }),
         }
       );
