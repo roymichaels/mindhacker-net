@@ -33,7 +33,7 @@ export function useAutoSave<T extends Record<string, unknown>>(
   options: UseAutoSaveOptions = {}
 ): void {
   const { debounceMs = 500, enabled = true } = options;
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>('');
   const isFirstRender = useRef(true);
 
