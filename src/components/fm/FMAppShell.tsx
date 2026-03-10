@@ -16,7 +16,6 @@ import { cn } from '@/lib/utils';
 const FM_TABS = [
   { id: 'earn',   path: '/fm/earn',   icon: Target,      labelEn: 'Earn',   labelHe: 'הרוויח' },
   { id: 'work',   path: '/fm/work',   icon: Briefcase,   labelEn: 'Career', labelHe: 'קריירה' },
-  { id: 'wallet', path: '/fm/wallet', icon: Wallet,      labelEn: 'Wallet', labelHe: 'ארנק' },
 ] as const;
 
 export default function FMAppShell() {
@@ -43,7 +42,6 @@ export default function FMAppShell() {
   const isActive = (tabId: string) => {
     if (tabId === 'earn') return location.pathname.startsWith('/fm/earn') || location.pathname === '/fm' || location.pathname.startsWith('/fm/market');
     if (tabId === 'work') return location.pathname.startsWith('/fm/work') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
-    if (tabId === 'wallet') return location.pathname.startsWith('/fm/wallet') || location.pathname.startsWith('/fm/cashout') || location.pathname.startsWith('/fm/bridge');
     return false;
   };
 
