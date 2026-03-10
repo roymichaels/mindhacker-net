@@ -173,7 +173,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
         >
           {/* Compact gamified profile card */}
           <div
-            className="relative overflow-hidden rounded-lg mx-1.5 mt-1.5 cursor-pointer group"
+            className="relative overflow-hidden rounded-lg mx-1.5 mt-1.5 cursor-pointer group border border-amber-500/15"
             onClick={() => {
               setDropdownOpen(false);
               navigate('/profile');
