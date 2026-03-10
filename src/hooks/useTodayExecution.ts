@@ -88,6 +88,8 @@ function tacticalToNowItem(action: TacticalAction, blockCategory: string): NowQu
     milestoneId: action.sourceMilestoneId || undefined,
     milestoneTitle: action.title,
     executionTemplate: (action.executionTemplate as ExecutionTemplate) || 'step_by_step',
+    completed: !!action.completed,
+    calendarDate: action.calendarDate,
   };
 }
 // ── Map block category → TimeBlock ──
