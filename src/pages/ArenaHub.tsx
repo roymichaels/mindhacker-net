@@ -157,7 +157,7 @@ export default function ArenaHub() {
                     className={cn(
                       "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[38px] relative",
                       isActive
-                        ? "bg-destructive/15 border border-destructive/30"
+                        ? "bg-amber-500/15 border border-amber-500/30"
                         : hasActions
                           ? "bg-muted/20 border border-border/20 hover:bg-muted/40"
                           : "bg-transparent border border-transparent opacity-40"
