@@ -32,7 +32,7 @@ const AuroraCTAButton = ({ type, onClick }: AuroraCTAButtonProps) => {
       className={cn(
         "gap-2 rounded-full border-2",
         "hover:border-transparent hover:text-white",
-        `hover:bg-${config.colorClass.split(' ')[0].replace('from-', '')}`
+        config.hoverBg
       )}
     >
       <Icon className="h-4 w-4" />
