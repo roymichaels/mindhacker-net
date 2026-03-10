@@ -1,5 +1,6 @@
 /**
- * PlanHub — Unified Play page with 4 tabs: Strategy, Now, Tactics & Work.
+ * PlanHub — Unified Play page with 3 tabs: Now, Tactics & Work.
+ * Strategy is accessed via a modal button below the tabs.
  */
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
@@ -10,25 +11,26 @@ import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
 const UserDashboard = lazy(() => import('./UserDashboard'));
 const WorkHub = lazy(() => import('./WorkHub'));
 
-type PlanTab = 'strategy' | 'now' | 'tactics' | 'work';
+type PlanTab = 'now' | 'tactics' | 'work';
 
 export default function PlanHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [activeTab, setActiveTab] = useState<PlanTab>('now');
   const [chatOpen, setChatOpen] = useState(false);
+  const [strategyOpen, setStrategyOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const auroraChat = useAuroraChatContextSafe();
 
   const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
-    { id: 'strategy', labelHe: 'אסטרטגיה', labelEn: 'Strategy', icon: Flame },
     { id: 'now', labelHe: 'עכשיו', labelEn: 'Now', icon: Zap },
     { id: 'tactics', labelHe: 'טקטיקה', labelEn: 'Tactics', icon: Swords },
     { id: 'work', labelHe: 'עבודה', labelEn: 'Work', icon: Briefcase },
@@ -83,38 +85,65 @@ export default function PlanHub() {
         </div>
       </div>
 
-      {/* Talk to your plan button — hidden on Work tab */}
-      {activeTab !== 'work' && activeTab !== 'tactics' && activeTab !== 'now' && (
-        <div className="w-full max-w-xl px-4 pb-2 space-y-2">
-          <button
-            onClick={() => setChatOpen(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
-          >
-            <MessageSquare className="w-4 h-4" />
-            {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
-          </button>
+      {/* Strategy modal button + contextual actions */}
+      <div className="w-full max-w-xl px-4 pb-2 space-y-2">
+        <button
+          onClick={() => setStrategyOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/50 transition-all text-sm font-medium text-amber-400"
+        >
+          <Flame className="w-4 h-4" />
+          {isHe ? '🔥 אסטרטגיה — תוכנית 100 יום' : '🔥 Strategy — 100-Day Plan'}
+        </button>
 
-          {activeTab === 'strategy' && (
+        {activeTab === 'now' && (
+          <>
+            <button
+              onClick={() => setChatOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
+            >
+              <MessageSquare className="w-4 h-4" />
+              {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
+            </button>
             <motion.button
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               onClick={openFindCoachWizard}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/50 transition-all text-sm font-medium text-amber-400"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
             >
               <Search className="w-4 h-4" />
-              {isHe ? '🎯 מצא מאמן שיעזור לך להגשים את האסטרטגיה' : '🎯 Find a Coach to Help Execute Your Strategy'}
+              {isHe ? '🎯 מצא מאמן' : '🎯 Find a Coach'}
             </motion.button>
-          )}
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
       {/* Tab content */}
       <Suspense fallback={null}>
-        {activeTab === 'strategy' && <LifeHub />}
         {activeTab === 'now' && <UserDashboard />}
         {activeTab === 'tactics' && <ArenaHub />}
         {activeTab === 'work' && <WorkHub />}
       </Suspense>
+
+      {/* Strategy Modal — full LifeHub inside */}
+      <Dialog open={strategyOpen} onOpenChange={setStrategyOpen}>
+        <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 gap-0" preventClose>
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm">
+            <h2 className="text-base font-bold flex items-center gap-2">
+              <Flame className="w-4 h-4 text-amber-400" />
+              {isHe ? 'אסטרטגיה' : 'Strategy'}
+            </h2>
+            <button
+              onClick={() => setStrategyOpen(false)}
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
+            >
+              {isHe ? 'סגור' : 'Close'}
+            </button>
+          </div>
+          <Suspense fallback={null}>
+            {strategyOpen && <LifeHub />}
+          </Suspense>
+        </DialogContent>
+      </Dialog>
 
       <PlanChatWizard open={chatOpen} onOpenChange={setChatOpen} />
     </div>
