@@ -546,11 +546,12 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
     const lines = ctx.memory_graph.map(n => {
       const label = nodeTypeLabels[n.node_type] || { en: n.node_type, he: n.node_type, emoji: "📌" };
       const strengthBar = "█".repeat(Math.min(n.strength, 10)) + "░".repeat(Math.max(0, 10 - n.strength));
-      return `- ${label.emoji} [${isHe ? label.he : label.en}] "${n.content}" | ${isHe ? 'עוצמה' : 'strength'}: ${strengthBar} (${n.strength}/10) | ${isHe ? 'נצפה' : 'seen'}: ${n.reference_count}x${n.pillar ? ` | [${n.pillar}]` : ''}`;
+      const recencyTag = n.days_since_referenced <= 1 ? '🔴' : n.days_since_referenced <= 7 ? '🟡' : '⚪';
+      return `- ${label.emoji} [${isHe ? label.he : label.en}] "${n.content}" | ${isHe ? 'עוצמה' : 'strength'}: ${strengthBar} (${n.strength}/10) | ${isHe ? 'נצפה' : 'seen'}: ${n.reference_count}x | ${recencyTag} ${isHe ? 'עדכון אחרון' : 'last ref'}: ${n.last_referenced} (${n.days_since_referenced}d)${n.pillar ? ` | [${n.pillar}]` : ''}`;
     });
     parts.push(isHe
-      ? `## 🕸️ גרף ידע עמוק (אמונות, פחדים, פריצות דרך)\nאלה הדברים העמוקים ביותר שאני יודעת עליך — לא רק מה אמרת, אלא מה אני מבינה על הדפוסים הפנימיים שלך. השתמשי בידע הזה בעדינות אבל בבהירות.\n${lines.join("\n")}`
-      : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you — not just what you said, but the inner patterns I've identified. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
+      ? `## 🕸️ גרף ידע עמוק (אמונות, פחדים, פריצות דרך)\nאלה הדברים העמוקים ביותר שאני יודעת עליך. 🔴=עדכני, 🟡=שבוע אחרון, ⚪=ישן. השתמשי בידע הזה בעדינות אבל בבהירות.\n${lines.join("\n")}`
+      : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you. 🔴=recent, 🟡=this week, ⚪=older. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
   }
 
   return parts.join("\n\n");
