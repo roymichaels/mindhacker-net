@@ -111,7 +111,7 @@ export function DesktopSideNav() {
         <span className="text-pink-600 dark:text-pink-400 opacity-90 truncate">Aurora</span>
       </button>
 
-      {/* Path — highlighted */}
+      {/* Play — highlighted */}
       {planTab && (() => {
         const active = isTabActive(planTab.path);
         const colors = TAB_COLORS.plan;
