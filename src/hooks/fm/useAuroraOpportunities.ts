@@ -78,7 +78,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'השלם את הבאונטי הראשון שלך' : 'Complete your first bounty',
         subtext: isHe ? 'משימות מהירות עם תגמול מיידי' : 'Quick tasks with instant rewards',
         reward: 50,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '🎯',
         priority: 1,
       });
