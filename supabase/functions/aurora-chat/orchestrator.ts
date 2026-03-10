@@ -44,7 +44,7 @@ const MAX_MESSAGES = 200;
 const MAX_CONTENT_LENGTH = 8000;
 
 export function validateRequest(raw: any): ValidatedRequest | { error: string; status: number } {
-  const { messages, userId, language = "he", mode = "full", pillar = null, hasImages = false } = raw;
+  const { messages, userId, language = "he", mode = "full", pillar = null, hasImages = false, timezone = null } = raw;
 
   if (!messages || !Array.isArray(messages)) {
     return { error: "Messages array is required", status: 400 };
