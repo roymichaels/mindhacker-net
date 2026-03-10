@@ -42,6 +42,7 @@ serve(async (req) => {
     const { messages, customSystemPrompt, language, pillar, hasImages, timezone } = parsed;
     userId = parsed.userId;
     mode = parsed.mode;
+    console.log(`[aurora-chat] timezone received: "${timezone}", language: "${language}"`);
 
     // 2. Create Supabase client
     const supabase = createClient(
