@@ -34,6 +34,7 @@ export const useAuroraChat = (conversationId: string | null) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [failedMessageIds, setFailedMessageIds] = useState<Set<string>>(new Set());
   
   const messageCountRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
