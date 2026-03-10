@@ -74,8 +74,13 @@ serve(async (req) => {
   }
 
   try {
+    // Require authentication
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
+
     const body = await req.json();
-    const { userId, messages, type, data } = body;
+    const { messages, type, data } = body;
+    const userId = auth.userId;
 
     // Handle growth_deep_dive type - just return success (analysis done elsewhere)
     if (type === 'growth_deep_dive') {
