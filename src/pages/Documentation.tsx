@@ -182,15 +182,29 @@ export default function Documentation() {
       ],
       subsections: [
         {
-          title: he ? '5.1 זיכרון שיחות וזיכרון ארוך טווח' : '5.1 Conversation Memory & Long-Term Memory',
+          title: he ? '5.1 מודעות הקשרית מלאה (Context Pipeline)' : '5.1 Full Contextual Awareness (Context Pipeline)',
           paragraphs: he ? [
-            `Aurora שומרת זיכרון שיחות מלא — כולל סיכומי שיחה, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה כקונטקסט, מה שמאפשר המשכיות אמיתית לאורך זמן. הזיכרון מודע לציר הזמן — אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
+            `Aurora בנויה על Context Pipeline מתקדם שאוסף אוטומטית את כל המידע הרלוונטי לפני כל שיחה. ה-Pipeline מזריק לכל תגובה: (1) פרופיל מלא — שם, שפה, אזור זמן, רמת מנוי, ארכיטיפ, (2) תוכניות אסטרטגיות פעילות — כל הפילרים, התקדמות באחוזים, שלב נוכחי, (3) משימות (Missions) — כותרות, עמודים, סטטוס השלמה, (4) לוח זמנים טקטי ליום הנוכחי — כל בלוקי הפעולה מחולקים לרבעוני יום, (5) ציוני הערכה מ-14 עמודי החיים — ציון כולל לכל דומיין, (6) רמת מנוי — Free/Plus/Apex.`,
+            `Aurora מודעת לזמן: היא יודעת את השעה, היום, ואת לוח הזמנים הספציפי של המשתמש להיום. זה מאפשר לה לתת המלצות מדויקות ("יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום").`,
+            `כל ה-Context Pipeline רץ בצד השרת (Edge Function) ומאחד נתונים מ-7+ טבלאות בו-זמנית באמצעות Promise.all. התוצאה: Aurora שמכירה את המשתמש לעומק — לא רק מה שהוא אומר, אלא מה שהוא עושה, מתכנן, ומרגיש.`,
           ] : [
-            `Aurora maintains full conversation memory — including conversation summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation as context, enabling true continuity over time. Memory is timeline-aware — recent events and identity shifts are prioritized.`,
+            `Aurora is built on an advanced Context Pipeline that automatically gathers all relevant information before every conversation. The pipeline injects into each response: (1) Full profile — name, language, timezone, subscription tier, archetype, (2) Active strategic plans — all pillars, percentage progress, current phase, (3) Missions — titles, pillars, completion status, (4) Today's tactical schedule — all action blocks divided into day quarters, (5) Assessment scores from all 14 life pillars — overall score per domain, (6) Subscription tier — Free/Plus/Apex.`,
+            `Aurora is time-aware: it knows the current time, day, and the user's specific schedule for today. This enables precise recommendations ("you have a training block in an hour", "you've completed 60% of today's tasks").`,
+            `The entire Context Pipeline runs server-side (Edge Function) and unifies data from 7+ tables simultaneously using Promise.all. The result: Aurora that deeply knows the user — not just what they say, but what they do, plan, and feel.`,
           ],
         },
         {
-          title: he ? '5.2 מערכת פרואקטיבית' : '5.2 Proactive System',
+          title: he ? '5.2 זיכרון שיחות וגרף זיכרון' : '5.2 Conversation Memory & Memory Graph',
+          paragraphs: he ? [
+            `Aurora שומרת זיכרון שיחות מלא — כולל סיכומי שיחה, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה כקונטקסט, מה שמאפשר המשכיות אמיתית לאורך זמן. הזיכרון מודע לציר הזמן — אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
+            `Memory Graph: מערכת זיכרון גרף שמקשרת בין צמתי מידע (nodes) — עובדות, דפוסים, זהויות, העדפות — עם חוזק חיבור (strength), ספירת הפניות (reference_count), ומודעות עמודים (pillar). זה מאפשר ל-Aurora "לזכור" תובנות חוצות-שיחות ולחבר נקודות בין נושאים שונים.`,
+          ] : [
+            `Aurora maintains full conversation memory — including conversation summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation as context, enabling true continuity over time. Memory is timeline-aware — recent events and identity shifts are prioritized.`,
+            `Memory Graph: A graph memory system connecting information nodes — facts, patterns, identities, preferences — with connection strength, reference counts, and pillar awareness. This enables Aurora to "remember" cross-conversation insights and connect dots between different topics.`,
+          ],
+        },
+        {
+          title: he ? '5.3 מערכת פרואקטיבית' : '5.3 Proactive System',
           paragraphs: he ? [
             `Aurora לא מחכה שתדבר אליה — היא פועלת פרואקטיבית. מערכת ה-Proactive Queue מזהה טריגרים (streak שנשבר, ירידה באנרגיה, משימה שנדחתה) ומייצרת דחיפות חכמות עם עדיפויות. כולל push notifications, תזכורות מתוזמנות, ומנגנון idempotency למניעת כפילויות.`,
           ] : [
@@ -198,7 +212,7 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '5.3 דפוסים התנהגותיים ואנרגטיים' : '5.3 Behavioral & Energy Patterns',
+          title: he ? '5.4 דפוסים התנהגותיים ואנרגטיים' : '5.4 Behavioral & Energy Patterns',
           paragraphs: he ? [
             `Aurora מנתחת דפוסי התנהגות ואנרגיה לאורך זמן — מזהה מתי המשתמש הכי פרודוקטיבי, מתי צריך מנוחה, ואילו פעילויות משפיעות על מצב הרוח. המידע משפיע על תזמון משימות, המלצות, ותוכן מותאם.`,
           ] : [
@@ -206,11 +220,19 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '5.4 Aurora Dock — ממשק פעולות מהירות' : '5.4 Aurora Dock — Quick Action Interface',
+          title: he ? '5.5 Aurora Dock — ממשק פעולות מהירות' : '5.5 Aurora Dock — Quick Action Interface',
           paragraphs: he ? [
             `ה-Aurora Dock הוא ממשק צף שנגיש מכל מקום במערכת — כפתור FAB (Floating Action Button) שפותח מגש פעולות מהירות. דרכו המשתמש יכול: לפתוח שיחה עם Aurora, להתחיל סשן היפנוזה, לבנות קוריקולום, לסרוק עמוד חיים, ולהציץ במשימות היום. ה-Dock מזהה קונטקסט ומציע פעולות רלוונטיות לפי הדף הנוכחי.`,
           ] : [
             `The Aurora Dock is a floating interface accessible from anywhere in the system — a FAB (Floating Action Button) that opens a quick-action tray. Through it users can: start an Aurora conversation, begin a hypnosis session, build a curriculum, scan a life pillar, and peek at today's tasks. The Dock is context-aware and suggests relevant actions based on the current page.`,
+          ],
+        },
+        {
+          title: he ? '5.6 Command Bus — פעולות בתוך השיחה' : '5.6 Command Bus — In-Chat Actions',
+          paragraphs: he ? [
+            `Aurora תומכת ב-Command Bus — מנגנון שמאפשר לה לבצע פעולות ישירות מתוך השיחה: ניווט לדפים, יצירת משימות, עדכון סטטוס פעולות, פתיחת הערכות, והוספת פריטים ללו"ז. הפקודות מוטמעות בתגובות ה-AI ומופעלות אוטומטית בצד הלקוח.`,
+          ] : [
+            `Aurora supports a Command Bus — a mechanism enabling direct actions from within conversations: navigating to pages, creating tasks, updating action statuses, opening assessments, and adding items to the schedule. Commands are embedded in AI responses and executed automatically client-side.`,
           ],
         },
       ],
