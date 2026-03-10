@@ -287,7 +287,7 @@ export default function ArenaHub() {
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
                   <motion.div
-                    className="h-full rounded-full bg-destructive"
+                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
                     initial={{ width: 0 }}
                     animate={{ width: `${completionPct}%` }}
                     transition={{ duration: 0.5 }}
