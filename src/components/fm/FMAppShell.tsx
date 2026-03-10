@@ -48,10 +48,7 @@ export default function FMAppShell() {
   };
 
   return (
-    <div className="relative flex flex-col h-full min-h-0 -mx-2 lg:-mx-3 -mb-64 md:-mb-24 pb-0">
-      {/* Subtle warm ambient glow for the whole FM area */}
-      {/* Ambient area removed */}
-
+    <div className="relative flex flex-col -mx-2 lg:-mx-3 -mb-64 md:-mb-24 pb-20">
       {/* Persistent Earn Launchpad banner — above tabs */}
       <div className="relative z-10 px-4 pt-2 pb-0">
         <EarnLaunchpadBanner />
@@ -81,7 +78,7 @@ export default function FMAppShell() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-20 relative z-10">
+      <div className="px-4 relative z-10">
         <Outlet />
       </div>
     </div>
