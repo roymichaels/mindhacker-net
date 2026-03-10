@@ -21,13 +21,6 @@ import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { exportTacticsPDF } from '@/utils/exportTacticsPDF';
 
 
-const DIFFICULTY_LABELS: Record<number, { he: string; en: string }> = {
-  1: { he: '⭐', en: '⭐' },
-  2: { he: '⭐⭐', en: '⭐⭐' },
-  3: { he: '⭐⭐⭐', en: '⭐⭐⭐' },
-  4: { he: '⭐⭐⭐⭐', en: '⭐⭐⭐⭐' },
-  5: { he: '⭐⭐⭐⭐⭐', en: '⭐⭐⭐⭐⭐' },
-};
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
   return {
