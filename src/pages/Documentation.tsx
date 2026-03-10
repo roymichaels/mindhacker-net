@@ -626,7 +626,7 @@ export default function Documentation() {
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>{he ? `מאת ${founderName}` : `By ${founderName}`}</p>
                 <p>{theme.company_legal_name} · {theme.company_country}</p>
-                <p>{he ? 'גרסה 4.0 · מרץ 2026' : 'Version 4.0 · March 2026'}</p>
+                <p>{he ? 'גרסה 5.0 · מרץ 2026' : 'Version 5.0 · March 2026'}</p>
               </div>
             </motion.div>
 
