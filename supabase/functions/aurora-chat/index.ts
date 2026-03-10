@@ -13,6 +13,7 @@ import { validateRequest, getWidgetSettings, getKnowledgeBase, prepare } from ".
 import { fetchWithTimeout } from "../_shared/fetchWithRetry.ts";
 import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
