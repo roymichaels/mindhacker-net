@@ -28,7 +28,7 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
-import { LanguagePrompt } from "@/components/LanguagePrompt";
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
