@@ -177,7 +177,7 @@ export default function ArenaHub() {
                     </span>
                     <span className={cn(
                       "text-[7px]",
-                      isActive ? "text-destructive/60" : "text-muted-foreground/60"
+                      isActive ? "text-amber-400/60" : "text-muted-foreground/60"
                     )}>
                       {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
                     </span>
