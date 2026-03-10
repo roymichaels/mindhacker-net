@@ -269,15 +269,33 @@ const Users = () => {
           </div>
         </div>
         
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-2.5 h-4 w-4 text-muted-foreground`} />
-          <Input
-            placeholder={t('adminUsers.searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={cn("h-9", isRTL ? 'pr-9' : 'pl-9')}
-          />
+        {/* Actions */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefreshUsers}
+            disabled={refreshing}
+            className="gap-1.5"
+          >
+            {refreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            {language === 'he' ? 'רענון אורבים + תוכניות' : 'Refresh Orbs + Plans'}
+          </Button>
+          
+          {/* Search */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-2.5 h-4 w-4 text-muted-foreground`} />
+            <Input
+              placeholder={t('adminUsers.searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={cn("h-9", isRTL ? 'pr-9' : 'pl-9')}
+            />
+          </div>
         </div>
       </div>
 
