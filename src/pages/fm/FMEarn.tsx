@@ -9,6 +9,7 @@ import {
   BarChart3, Pickaxe, Link2, UserPlus, Shield,
   Rocket, Star, Trophy, Zap, Target, TrendingUp,
   ChevronLeft, ChevronRight,
+  Briefcase, GraduationCap, Heart, Palette, Code, Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
