@@ -65,7 +65,7 @@ serve(async (req) => {
       knowledgeBase = await getKnowledgeBase(supabase);
     }
 
-    const context = userId ? await buildContext(supabase, userId, language) : await buildContext(supabase, "", language);
+    const context = userId ? await buildContext(supabase, userId, language, timezone) : await buildContext(supabase, "", language);
 
     // 3b. Resolve user tier for model selection
     let userTier: "free" | "plus" | "apex" = "free";
