@@ -92,7 +92,8 @@ const AuroraChatMessage = ({
             "rounded-2xl px-4 py-3",
             isOwn 
               ? "bg-primary/15 border border-primary/30 text-foreground rounded-br-sm" 
-              : "bg-muted text-foreground rounded-bl-sm"
+              : "bg-muted text-foreground rounded-bl-sm",
+            isFailed && "border-destructive/50 bg-destructive/5"
           )}>
             <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
               {cleanContent}
@@ -100,6 +101,15 @@ const AuroraChatMessage = ({
                 <span className="inline-block w-1.5 h-4 bg-current animate-pulse ms-1" />
               )}
             </p>
+            {isFailed && onRetry && (
+              <button
+                onClick={onRetry}
+                className="flex items-center gap-1.5 mt-2 text-xs text-destructive hover:underline cursor-pointer"
+              >
+                <AlertCircle className="h-3 w-3" />
+                {t('aurora.sendFailed') || 'Failed to send. Tap to retry'} 🔄
+              </button>
+            )}
           </div>
 
           {/* Action Buttons - Below message for Aurora */}
