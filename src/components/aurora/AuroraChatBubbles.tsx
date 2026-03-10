@@ -226,7 +226,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                     "rounded-xl px-4 py-2 text-sm",
                     message.is_ai_message
                       ? "bg-muted/50 text-foreground"
-                      : "bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/40 text-foreground"
+                      : "bg-primary/15 border border-primary/30 text-foreground"
                   )}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
