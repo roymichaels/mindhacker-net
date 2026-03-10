@@ -206,7 +206,7 @@ export function ArenaActivitySidebar() {
               ))}
             </div>
 
-            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-3" />
+            <div className="w-full h-0.5 bg-border/30 mb-3" />
 
             {/* Header — matching Dashboard style */}
             <div className="flex items-center gap-2 mb-2">
