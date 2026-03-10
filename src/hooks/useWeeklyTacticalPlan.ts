@@ -282,6 +282,26 @@ function parseAiSchedule(
         return action;
       });
 
+      // Patch completion status from action_items
+      if (completedItems && date) {
+        const dayCompleted = completedItems.get(date) || [];
+        for (const action of actions) {
+          const match = dayCompleted.find(ci => {
+            const ciTitle = ci.title.toLowerCase().trim();
+            const actionTitle = action.title.toLowerCase().trim();
+            const actionTitleEn = (action.titleEn || '').toLowerCase().trim();
+            return ciTitle === actionTitle || ciTitle === actionTitleEn
+              || actionTitle.includes(ciTitle) || ciTitle.includes(actionTitle)
+              || (actionTitleEn && (actionTitleEn.includes(ciTitle) || ciTitle.includes(actionTitleEn)));
+          });
+          if (match) {
+            action.completed = true;
+            action.completedAt = match.completedAt;
+            completedActions++;
+          }
+        }
+      }
+
       return {
         id: `tblock-${d}-${bIdx}`,
         title: block.block_title_he || BLOCK_LABELS[category]?.he || 'בלוק',
