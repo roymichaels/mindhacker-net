@@ -576,7 +576,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         </DialogHeader>
 
         {/* Messages — uses Aurora's chat message components */}
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 140px)' }}>
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 gap-4">
