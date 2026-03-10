@@ -181,7 +181,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
 
-            <div className="relative z-10 px-3 py-2 space-y-1.5">
+            <div className="relative z-10 px-3 pt-3 pb-2 space-y-1.5">
               {/* Row 1: 2-col grid — name left, orb right */}
               <div className="grid grid-cols-[1fr_auto] items-center gap-2">
                 <div className="min-w-0">
@@ -237,19 +237,14 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             </div>
           </div>
 
-          {/* Profile Button */}
-          <div className="mx-1.5 mb-1">
+          {/* Profile Button — FM tab style */}
+          <div className="mx-1.5 mt-1.5 mb-1">
             <button
               onClick={() => {
                 setDropdownOpen(false);
                 navigate('/profile');
               }}
-              className={cn(
-                "w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-sm font-semibold",
-                "bg-primary/10 text-primary border border-primary/20",
-                "hover:bg-primary/20 hover:border-primary/30",
-                "active:scale-[0.98] transition-all duration-150"
-              )}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all bg-primary/10 text-primary border border-primary/25 hover:bg-primary/15 hover:border-primary/35 active:scale-[0.98]"
             >
               <User className="h-4 w-4" />
               {language === 'he' ? 'פרופיל' : 'Profile'}
