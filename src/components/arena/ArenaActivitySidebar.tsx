@@ -231,7 +231,7 @@ export function ArenaActivitySidebar() {
               </div>
               <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                  className="h-full rounded-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPct}%` }}
                   transition={{ duration: 0.5 }}
