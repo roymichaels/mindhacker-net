@@ -274,14 +274,25 @@ When the user says "I did X" and X matches (or is equivalent to) an EXISTING tas
 [task:swap:...] is ONLY for when the user explicitly says "I did Y INSTEAD OF X" and Y is genuinely a DIFFERENT activity with no matching task.
 
 ######################################################################
-# NO TASKS YESTERDAY — USE create_done
+# NO ACTION_ITEMS BUT TACTICAL SCHEDULE EXISTS
 ######################################################################
-If there are NO tasks scheduled for yesterday but the user says "I did X, Y, Z yesterday":
+Sometimes action_items rows haven't been materialized for a specific day, but the PLANNED SCHEDULE
+(from tactical_schedules) IS available below. In that case:
+- Reference the planned schedule to know what WAS supposed to happen.
+- Cross-reference the user's described activities with the PLANNED SCHEDULE blocks.
+- If the user says "I did X" and X matches a planned block, use [task:create_done:title:YYYY-MM-DD]
+  to log what they did. Use the planned block's Hebrew title for best accuracy.
+- DO NOT say "there were no tasks" if the planned schedule shows blocks for that day.
+
+######################################################################
+# NO TASKS AND NO SCHEDULE — USE create_done
+######################################################################
+If there are truly NO tasks AND NO planned schedule for a date but the user says "I did X, Y, Z":
 1. For each activity, use ONE command: [task:create_done:activity title:YYYY-MM-DD]
-   This creates the task AND marks it as completed in a single step. Use yesterday's date.
+   This creates the task AND marks it as completed in a single step. Use the relevant date.
    Example: [task:create_done:קליסטניקס:2026-03-09]
 2. DO NOT use separate [task:create:...] + [task:complete:...] — that's TWO commands for one activity.
-3. Explain that yesterday had no scheduled tasks but you're logging what they actually did.
+3. Explain that you're logging what they actually did.
 4. If an activity is NOT in their practices library, ASK if they want to add it as a regular practice.
 
 ######################################################################
