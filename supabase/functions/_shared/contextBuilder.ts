@@ -17,6 +17,8 @@ export interface MemoryGraphNode {
   pillar: string | null;
   reference_count: number;
   first_seen: string;
+  last_referenced: string;
+  days_since_referenced: number;
 }
 
 export interface AuroraContext {
