@@ -8,11 +8,11 @@ interface AuroraCTAButtonProps {
   onClick?: () => void;
 }
 
-const ctaConfig: Record<string, { icon: React.ElementType; colorClass: string }> = {
-  life_direction: { icon: Compass, colorClass: 'from-blue-500 to-cyan-500' },
-  explore_values: { icon: Heart, colorClass: 'from-rose-500 to-pink-500' },
-  map_energy: { icon: Zap, colorClass: 'from-amber-500 to-orange-500' },
-  anchor_identity: { icon: User, colorClass: 'from-violet-500 to-purple-500' },
+const ctaConfig: Record<string, { icon: React.ElementType; hoverBg: string }> = {
+  life_direction: { icon: Compass, hoverBg: 'hover:bg-blue-500' },
+  explore_values: { icon: Heart, hoverBg: 'hover:bg-rose-500' },
+  map_energy: { icon: Zap, hoverBg: 'hover:bg-amber-500' },
+  anchor_identity: { icon: User, hoverBg: 'hover:bg-violet-500' },
 };
 
 const AuroraCTAButton = ({ type, onClick }: AuroraCTAButtonProps) => {
@@ -32,7 +32,7 @@ const AuroraCTAButton = ({ type, onClick }: AuroraCTAButtonProps) => {
       className={cn(
         "gap-2 rounded-full border-2",
         "hover:border-transparent hover:text-white",
-        `hover:bg-gradient-to-r ${config.colorClass}`
+        config.hoverBg
       )}
     >
       <Icon className="h-4 w-4" />

@@ -179,7 +179,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               navigate('/profile');
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.08] via-muted to-amber-400/[0.05] dark:from-amber-500/[0.12] dark:via-card dark:to-amber-400/[0.08]" />
+            <div className="absolute inset-0 bg-muted/80 dark:bg-card/80" />
 
             <div className="relative z-10 px-3 pt-3 pb-2 flex flex-col items-center text-center space-y-1">
               {/* Orb */}
@@ -191,7 +191,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                   setOrbViewerOpen(true);
                 }}
               >
-                <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-amber-500/20 via-amber-400/10 to-transparent blur-lg pointer-events-none" />
+                <div className="absolute inset-[-30%] rounded-full bg-amber-500/10 blur-lg pointer-events-none" />
                 <div className="relative z-10">
                   <PersonalizedOrb size={80} state="idle" />
                 </div>
@@ -204,7 +204,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               {dashboard.identityTitle && (
                 <div className="flex items-center gap-1">
                   <span className="text-xs">{dashboard.identityTitle.icon}</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent truncate">
+                  <span className="text-xs font-bold text-amber-400 truncate">
                     {dashboard.identityTitle.title}
                   </span>
                 </div>
@@ -217,7 +217,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                     <span>XP</span>
                     <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
                   </div>
-                  <Progress value={dashboard.xpProgress.percentage} className="h-1.5 bg-amber-500/10 [&>div]:bg-gradient-to-r [&>div]:from-amber-500 [&>div]:to-amber-400" />
+                  <Progress value={dashboard.xpProgress.percentage} className="h-1.5 bg-amber-500/10 [&>div]:bg-amber-500" />
                   <div className="flex items-center gap-2 pt-0.5">
                     <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 text-[10px]">
                       <Star className="h-2.5 w-2.5" />

@@ -174,7 +174,7 @@ const AuroraAccountDropdown = ({
               {dashboard.identityTitle && (
                 <div className="flex items-center gap-1">
                   <span className="text-[10px]">{dashboard.identityTitle.icon}</span>
-                  <span className="text-[10px] font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+                  <span className="text-[10px] font-medium text-primary truncate">
                     {dashboard.identityTitle.title}
                   </span>
                 </div>
