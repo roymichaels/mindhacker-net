@@ -28,6 +28,25 @@ export function requireAuthOrOpenModal(
 }
 
 /**
+ * Stripe is currently in test mode — block real checkouts.
+ * Set to false once live keys are configured.
+ */
+export const STRIPE_TEST_MODE = true;
+
+/**
+ * Blocks checkout if Stripe is in test mode. Returns true if blocked.
+ */
+export function blockIfTestMode(isHe: boolean): boolean {
+  if (!STRIPE_TEST_MODE) return false;
+  toast.info(
+    isHe
+      ? 'שדרוג מנויים עדיין לא זמין — בקרוב!'
+      : 'Subscription upgrades are not available yet — coming soon!'
+  );
+  return true;
+}
+
+/**
  * Validates a checkout/portal response.
  * Returns the URL string on success, or null (with toast + flowAudit error) on failure.
  */
