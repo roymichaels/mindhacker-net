@@ -84,19 +84,25 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
 
+      // Get user session token for auth
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-transcribe`,
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: formData,
         }
       );
 
       if (!response.ok) {
-        throw new Error('Transcription failed');
+        const errData = await response.json().catch(() => ({}));
+        console.error('Transcription failed:', response.status, errData);
+        throw new Error(errData.error || 'Transcription failed');
       }
 
       const data = await response.json();
@@ -104,10 +110,12 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
 
       if (text && options?.onTranscription) {
         options.onTranscription(text);
+      } else if (!text) {
+        setRecordingError('No speech detected. Try again.');
       }
     } catch (err) {
       console.error('Transcription error:', err);
-      setRecordingError('Failed to transcribe audio');
+      setRecordingError('Failed to transcribe audio. Tap to retry.');
     }
   }, [options]);
 
