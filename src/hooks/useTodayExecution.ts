@@ -207,7 +207,7 @@ export function useTodayExecution() {
   const { user } = useAuth();
   const { language } = useTranslation();
   const tacticalPlan = useWeeklyTacticalPlan();
-  const { days, isLoading: tacticsLoading, hasAiSchedule, wakeTime, sleepTime, generateSchedule } = tacticalPlan;
+  const { days, isLoading: tacticsLoading, hasAiSchedule, wakeTime, sleepTime, generateSchedule, toggleActionComplete } = tacticalPlan as any;
 
   // Find today's plan from the tactical schedule
   const todayPlan = useMemo(() => {
