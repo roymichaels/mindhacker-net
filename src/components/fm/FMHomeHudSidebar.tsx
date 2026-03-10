@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
+import { useWalletModal } from '@/contexts/WalletModalContext';
 import {
   PanelRightClose, PanelRightOpen, Coins, Target,
   Briefcase, Wallet, TrendingUp, Activity, Zap,
