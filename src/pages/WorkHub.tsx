@@ -355,7 +355,6 @@ export default function WorkHub() {
     { id: 'timer', labelHe: 'טיימר', labelEn: 'Timer', icon: Timer },
     { id: 'log', labelHe: 'יומן', labelEn: 'Log', icon: Clock },
     { id: 'stats', labelHe: 'סטטיסטיקה', labelEn: 'Stats', icon: BarChart3 },
-    { id: 'analytics', labelHe: 'אנליטיקס', labelEn: 'Analytics', icon: TrendingUp },
   ];
 
   return (
@@ -424,11 +423,8 @@ export default function WorkHub() {
               <SessionLog />
             </TabsContent>
 
-            <TabsContent value="stats">
+            <TabsContent value="stats" className="space-y-6">
               <WorkStats />
-            </TabsContent>
-
-            <TabsContent value="analytics">
               <WorkAnalytics />
             </TabsContent>
           </div>
