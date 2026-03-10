@@ -15,7 +15,11 @@ import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 
-const AuroraChatBubbles = () => {
+interface AuroraChatBubblesProps {
+  showOrbAboveMessages?: boolean;
+}
+
+const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesProps) => {
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
@@ -183,8 +187,14 @@ const AuroraChatBubbles = () => {
   return (
     <ScrollArea className="h-full overflow-y-auto" ref={scrollRef as any}>
       <div className="w-full px-4 space-y-4">
+        {/* Persistent orb */}
+        {showOrbAboveMessages && (
+          <div className="flex justify-center pt-6 pb-2">
+            <StandaloneMorphOrb size={56} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
+          </div>
+        )}
         {messages.length === 0 && !streamingContent && (
-          <div className="text-center text-muted-foreground text-sm py-8">
+          <div className="text-center text-muted-foreground text-sm pb-4">
             {language === 'he' 
               ? 'שלום! אני אורורה, המלווה שלך. איך אוכל לעזור?' 
               : 'Hello! I\'m Aurora, your companion. How can I help?'}

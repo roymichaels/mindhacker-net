@@ -1,11 +1,10 @@
 /**
  * AuroraPage — Full-page Aurora with tabs: Chat, Dream Journal, Daily Reflection, Gratitude.
  */
-import { Bug, MessageCircle, Moon, Sun, Heart } from 'lucide-react';
+import { MessageCircle, Moon, Sun, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import SocraticModeToggle from '@/components/aurora/SocraticModeToggle';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
@@ -13,10 +12,6 @@ import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
-import { BugReportDialog } from '@/components/aurora/BugReportDialog';
-import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';
-import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { JournalTab } from '@/components/aurora/JournalTab';
 
 type AuroraTab = 'chat' | 'dream' | 'reflection' | 'gratitude';
@@ -36,7 +31,6 @@ export default function AuroraPage() {
     assessmentDomainId,
     endAssessment,
   } = useAuroraChatContext();
-  const [bugReportOpen, setBugReportOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AuroraTab>('chat');
 
   const isAssessing = !!assessmentDomainId;
@@ -48,18 +42,9 @@ export default function AuroraPage() {
 
   return (
     <div className="flex flex-col h-[calc(100dvh-8rem)]">
-      <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
-
-      {/* Aurora sub-header */}
-      <div className="relative flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
-        <div className="flex items-center gap-2">
-          <StandaloneMorphOrb size={28} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
-          <span className="text-base font-semibold text-foreground">
-            {isHe ? 'אורורה' : 'Aurora'}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5">
+      {/* Context badges */}
+      {(pillarLabel || (isAssessing && assessLabel)) && (
+        <div className="flex items-center justify-center gap-1.5 px-4 py-1.5 shrink-0">
           {pillarLabel && !isAssessing && (
             <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
               {pillarLabel}
@@ -70,16 +55,8 @@ export default function AuroraPage() {
               {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
             </span>
           )}
-          <AuroraSearchBar />
-          <button
-            onClick={() => setBugReportOpen(true)}
-            className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-            title={isHe ? 'דווח על באג' : 'Report Bug'}
-          >
-            <Bug className="w-4 h-4" />
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Tab switcher */}
       <div className="px-3 pt-2 pb-1 shrink-0">
@@ -127,7 +104,7 @@ export default function AuroraPage() {
                 onClose={() => endAssessment()}
               />
             ) : (
-              <AuroraChatBubbles />
+              <AuroraChatBubbles showOrbAboveMessages />
             )}
           </div>
           <div className="shrink-0 px-4 pb-2 pt-2 border-t border-border">

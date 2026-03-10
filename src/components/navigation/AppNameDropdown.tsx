@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen, User, HelpCircle } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen, User, HelpCircle, Bug } from 'lucide-react';
 import { Flame, Gem, Star } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -30,6 +30,7 @@ import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { useUserJob } from '@/hooks/useUserJob';
+import { BugReportDialog } from '@/components/aurora/BugReportDialog';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
@@ -51,6 +52,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
+  const [bugReportOpen, setBugReportOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
   const { currentJob } = useUserJob();
   const { profile: userOrbProfile } = useOrbProfile();
@@ -298,6 +300,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {language === 'he' ? 'ספר לבן' : 'White Paper'}
           </DropdownMenuItem>
 
+          {/* Report Bug */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); setBugReportOpen(true); }}>
+            <Bug className="h-4 w-4 me-2" />
+            {language === 'he' ? 'דווח על באג' : 'Report Bug'}
+          </DropdownMenuItem>
+
           {/* Subscription */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); openSubscriptions(); }}>
             <CreditCard className="h-4 w-4 me-2" />
@@ -339,6 +347,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
         </DropdownMenuContent>
       </DropdownMenu>
       <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
+      <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
     </>
   );
 }
