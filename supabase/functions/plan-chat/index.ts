@@ -26,13 +26,18 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Gather plan context
-    const { data: plan } = await supabase
+    // Gather plan context — user may have multiple active plans (e.g. core + arena)
+    const { data: activePlans } = await supabase
       .from("life_plans")
       .select("id, start_date, duration_months, status, plan_data, summary_id")
       .eq("user_id", user_id)
       .eq("status", "active")
-      .maybeSingle();
+      .order("created_at", { ascending: false });
+
+    // Use all active plans for context
+    const plans = activePlans || [];
+    // Pick the first plan as "primary" for backward-compat references
+    const plan = plans.length > 0 ? plans[0] : null;
 
     let milestoneContext = "";
     let practiceContext = "";
@@ -55,16 +60,22 @@ serve(async (req) => {
     twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
     const twoDaysAgoStr = dateFormatter.format(twoDaysAgoDate);
 
-    if (plan?.id) {
+    // Collect context from ALL active plans
+    const allPlanIds: string[] = [];
+    for (const p of plans) {
+      allPlanIds.push(p.id);
+
+      const planLabel = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || p.plan_data?.title || 'Plan';
+
       // Milestones
       const { data: milestones } = await supabase
         .from("life_plan_milestones")
         .select("id, title, title_en, week_number, focus_area, is_completed, tasks, description")
-        .eq("plan_id", plan.id)
+        .eq("plan_id", p.id)
         .order("week_number");
 
       if (milestones?.length) {
-        milestoneContext = `\n\nCurrent plan milestones (${milestones.length} total):\n${milestones.map(m =>
+        milestoneContext += `\n\n📌 Milestones for "${planLabel}" (${milestones.length}):\n${milestones.map(m =>
           `- Week ${m.week_number}: "${m.title_en || m.title}" [${m.focus_area || 'general'}] ${m.is_completed ? '✅' : '⬜'} (id: ${m.id})`
         ).join("\n")}`;
       }
@@ -73,57 +84,58 @@ serve(async (req) => {
       const { data: missions } = await supabase
         .from("plan_missions")
         .select("id, title, title_en, pillar, is_completed, skill_id")
-        .eq("plan_id", plan.id)
+        .eq("plan_id", p.id)
         .order("created_at");
 
       if (missions?.length) {
-        missionsContext = `\n\nPlan missions (${missions.length}):\n${missions.map(m =>
+        missionsContext += `\n\n🎯 Missions for "${planLabel}" (${missions.length}):\n${missions.map(m =>
           `- "${m.title_en || m.title}" [${m.pillar || 'general'}] ${m.is_completed ? '✅' : '⬜'} (id: ${m.id})`
         ).join("\n")}`;
       }
     }
 
-    // Fetch tactical schedule to supplement action_items (schedule may have blocks not yet materialized)
+    // Fetch tactical schedules from ALL active plans
     let tacticalContext = "";
-    if (plan?.id && plan.start_date) {
+    for (const p of plans) {
+      if (!p.start_date) continue;
+
       const { data: tacticalSchedule } = await supabase
         .from("tactical_schedules")
         .select("phase_number, schedule_data")
-        .eq("plan_id", plan.id)
+        .eq("plan_id", p.id)
         .order("phase_number")
         .limit(2);
 
-      if (tacticalSchedule?.length) {
-        const planStartDate = new Date(plan.start_date + "T00:00:00");
-        const todayDate = new Date(todayStr + "T00:00:00");
-        const yesterdayDateObj = new Date(yesterdayStr + "T00:00:00");
+      if (!tacticalSchedule?.length) continue;
+
+      const planLabel = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || 'Plan';
+      const planStartDate = new Date(p.start_date + "T00:00:00");
+      const todayDate = new Date(todayStr + "T00:00:00");
+      const yesterdayDateObj = new Date(yesterdayStr + "T00:00:00");
+      
+      const todayDayIndex = Math.floor((todayDate.getTime() - planStartDate.getTime()) / 86400000);
+      const yesterdayDayIndex = Math.floor((yesterdayDateObj.getTime() - planStartDate.getTime()) / 86400000);
+      
+      for (const ts of tacticalSchedule) {
+        const days = ts.schedule_data as any[];
+        if (!Array.isArray(days)) continue;
         
-        // Calculate day indices (0-based)
-        const todayDayIndex = Math.floor((todayDate.getTime() - planStartDate.getTime()) / 86400000);
-        const yesterdayDayIndex = Math.floor((yesterdayDateObj.getTime() - planStartDate.getTime()) / 86400000);
+        const phaseStartDay = (ts.phase_number - 1) * 10;
         
-        for (const ts of tacticalSchedule) {
-          const days = ts.schedule_data as any[];
-          if (!Array.isArray(days)) continue;
-          
-          const phaseStartDay = (ts.phase_number - 1) * 10;
-          
-          // Check if yesterday or today falls within this phase
-          for (const targetDay of [
-            { dayIndex: yesterdayDayIndex, label: `YESTERDAY's PLANNED SCHEDULE (${yesterdayStr}, Day ${yesterdayDayIndex + 1})` },
-            { dayIndex: todayDayIndex, label: `TODAY's PLANNED SCHEDULE (${todayStr}, Day ${todayDayIndex + 1})` },
-          ]) {
-            const arrayIndex = targetDay.dayIndex - phaseStartDay;
-            if (arrayIndex >= 0 && arrayIndex < days.length) {
-              const dayData = days[arrayIndex];
-              if (dayData?.blocks?.length) {
-                tacticalContext += `\n\n📋 ${targetDay.label}:\n`;
-                for (const block of dayData.blocks) {
-                  tacticalContext += `  [${block.block_emoji || '📦'} ${block.block_title_he || block.block_title_en || 'Block'} ${block.start_time}-${block.end_time}]\n`;
-                  if (block.milestones?.length) {
-                    for (const m of block.milestones) {
-                      tacticalContext += `    - "${m.title_he || m.title_en}" [${m.pillar || 'general'}] ${m.duration_minutes}min\n`;
-                    }
+        for (const targetDay of [
+          { dayIndex: yesterdayDayIndex, label: `YESTERDAY (${yesterdayStr}, Day ${yesterdayDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: todayDayIndex, label: `TODAY (${todayStr}, Day ${todayDayIndex + 1}) — ${planLabel}` },
+        ]) {
+          const arrayIndex = targetDay.dayIndex - phaseStartDay;
+          if (arrayIndex >= 0 && arrayIndex < days.length) {
+            const dayData = days[arrayIndex];
+            if (dayData?.blocks?.length) {
+              tacticalContext += `\n\n📋 ${targetDay.label}:\n`;
+              for (const block of dayData.blocks) {
+                tacticalContext += `  [${block.block_emoji || '📦'} ${block.block_title_he || block.block_title_en || 'Block'} ${block.start_time}-${block.end_time}]\n`;
+                if (block.milestones?.length) {
+                  for (const m of block.milestones) {
+                    tacticalContext += `    - "${m.title_he || m.title_en}" [${m.pillar || 'general'}] ${m.duration_minutes}min\n`;
                   }
                 }
               }
