@@ -205,7 +205,7 @@ export default function FMMarket() {
       </div>
 
       {/* In-page tabs */}
-      <div className="flex items-center gap-1 rounded-xl bg-amber-500/5 border border-amber-500/15 p-1">
+      <div className="flex items-center gap-1 rounded-xl border border-amber-500/15 p-1">
         {marketTabs.map((tab) => {
           const active = view === tab.id;
           return (
@@ -214,8 +214,8 @@ export default function FMMarket() {
               onClick={() => setView(tab.id)}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                 active
-                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25'
-                  : 'text-amber-600/60 dark:text-amber-400/50 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-500/5'
+                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25'
+                  : 'text-amber-400/50 hover:text-amber-400/80 hover:bg-amber-500/5'
               }`}
             >
               <tab.icon className="w-4 h-4" />
