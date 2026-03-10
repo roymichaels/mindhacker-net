@@ -3,7 +3,7 @@
  * AI-generated 10-day phase schedule with themed blocks containing milestones.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play, Wand2, Star, Download } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, CheckCircle2, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, Wand2, Play, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
