@@ -185,51 +185,54 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
       );
       clearTimeout(timeout);
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      console.warn('[TTS] Chunk fetch failed:', response.status, errData);
-      if (errData.fallback) return false;
-      throw new Error(`TTS failed: ${response.status}`);
-    }
-
-    const blob = await response.blob();
-    console.log('[TTS] Chunk audio received:', { size: blob.size });
-    const url = URL.createObjectURL(blob);
-    
-    return new Promise<boolean>((resolve, reject) => {
-      if (!playingRef.current) {
-        URL.revokeObjectURL(url);
-        resolve(true);
-        return;
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        console.warn('[TTS] Chunk fetch failed:', response.status, errData);
+        if (errData.fallback) return false;
+        throw new Error(`TTS failed: ${response.status}`);
       }
 
-      const audio = new Audio(url);
-      audioRef.current = audio;
+      const blob = await response.blob();
+      console.log('[TTS] Chunk audio received:', { size: blob.size });
+      const url = URL.createObjectURL(blob);
+      
+      return new Promise<boolean>((resolve, reject) => {
+        if (!playingRef.current) {
+          URL.revokeObjectURL(url);
+          resolve(true);
+          return;
+        }
 
-      audio.onplay = () => { 
-        console.log('[TTS] Audio playing');
-        setIsPlaying(true); 
-        setIsLoading(false); 
-      };
-      audio.onended = () => {
-        console.log('[TTS] Audio chunk ended naturally');
-        URL.revokeObjectURL(url);
-        audioRef.current = null;
-        resolve(true);
-      };
-      audio.onerror = (e) => {
-        console.warn('[TTS] Audio element error:', e);
-        URL.revokeObjectURL(url);
-        audioRef.current = null;
-        resolve(false);
-      };
+        const audio = new Audio(url);
+        audioRef.current = audio;
 
-      audio.play().catch((err) => {
-        console.warn('[TTS] play() rejected:', err);
-        URL.revokeObjectURL(url);
-        reject(err);
+        audio.onplay = () => { 
+          console.log('[TTS] Audio playing');
+          setIsPlaying(true); 
+          setIsLoading(false); 
+        };
+        audio.onended = () => {
+          console.log('[TTS] Audio chunk ended naturally');
+          URL.revokeObjectURL(url);
+          audioRef.current = null;
+          resolve(true);
+        };
+        audio.onerror = (e) => {
+          console.warn('[TTS] Audio element error:', e);
+          URL.revokeObjectURL(url);
+          audioRef.current = null;
+          resolve(false);
+        };
+
+        audio.play().catch((err) => {
+          console.warn('[TTS] play() rejected:', err);
+          URL.revokeObjectURL(url);
+          reject(err);
+        });
       });
-    });
+    } finally {
+      clearTimeout(timeout);
+    }
   }, [voice, speed]);
 
   const play = useCallback(async (lesson: { lesson_type: string; title: string; content: any }) => {
