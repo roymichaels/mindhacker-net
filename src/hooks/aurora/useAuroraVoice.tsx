@@ -5,6 +5,7 @@ import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { speakWithBrowser } from '@/services/voice';
 import { playTTS } from '@/lib/ttsPlayer';
 import { useVoicePersona } from '@/hooks/useVoicePersona';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UseAuroraVoiceOptions {
   onTranscription?: (text: string) => void;
