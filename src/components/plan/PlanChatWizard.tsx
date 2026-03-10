@@ -412,7 +412,12 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
 
       if (assistantText) {
-        await processCommands(assistantText);
+        try {
+          await processCommands(assistantText);
+        } catch (cmdErr) {
+          console.error('Command processing error:', cmdErr);
+          toast.error(isHe ? 'חלק מהשינויים נכשלו' : 'Some changes failed to apply');
+        }
       }
     } catch (err) {
       console.error('Plan chat error:', err);

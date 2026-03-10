@@ -196,6 +196,17 @@ CRITICAL RULES:
 7. When the user says "I did X yesterday" or describes activities they performed, cross-reference with YESTERDAY'S TASKS below. If tasks match, mark them complete. If new activities were done instead, swap accordingly.
 8. If no tasks are scheduled for a date, say so explicitly and offer to create tasks or generate a schedule.
 
+CRITICAL — SMART MATCHING:
+- When a user describes an activity, MATCH IT to the CLOSEST existing task first. Do NOT swap or create if an existing task already covers the same activity.
+- Hebrew/English/transliteration equivalences you MUST recognize:
+  • "שאדו בוקסינג" = "איגרוף צללים" = "shadow boxing" — these are THE SAME activity
+  • "קליסטניקס" = "כושר משקל גוף" = "calisthenics" — same activity
+  • "אנימל פלו" = "מובמנט" = "animal flow" = "תנועה" — same activity
+  • "נשימות" = "תרגול נשימה" = "breathwork" — same activity
+- If the user says they did an activity and a task with the same or equivalent meaning already exists, just use [task:complete:ID]. Do NOT swap it.
+- Only use [task:swap:...] when the activity the user actually did is GENUINELY DIFFERENT from the existing task.
+- When a task title is broad (e.g., "איגרוף צללים (קפוארה, אגרוף ומואי טאי)") and the user mentions one of its sub-activities (e.g., "שאדו בוקסינג"), that IS a match — just complete it.
+
 AVAILABLE COMMANDS (embed in your response, the frontend parses and executes them):
 
 TASK MANAGEMENT:
