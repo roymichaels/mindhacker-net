@@ -34,6 +34,9 @@ serve(async (req) => {
   }
 
   try {
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
+
     const body: ElevenLabsTTSRequest = await req.json();
     const { 
       text, 

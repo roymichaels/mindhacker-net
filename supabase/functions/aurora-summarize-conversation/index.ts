@@ -18,9 +18,13 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, conversationId, messages } = await req.json();
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
 
-    if (!userId || !conversationId || !messages || messages.length < 3) {
+    const { conversationId, messages } = await req.json();
+    const userId = auth.userId;
+
+    if (!conversationId || !messages || messages.length < 3) {
       return new Response(
         JSON.stringify({ error: "Insufficient data for summarization" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
