@@ -21,7 +21,6 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { ProfileModal } from '@/components/dashboard/ProfileModal';
 
 interface AuroraAccountDropdownProps {
   isCollapsed?: boolean;
@@ -43,7 +42,6 @@ const AuroraAccountDropdown = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isAdmin = hasRole('admin');
