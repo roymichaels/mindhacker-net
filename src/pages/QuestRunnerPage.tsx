@@ -22,7 +22,7 @@ export default function QuestRunnerPage() {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pillarMeta = PILLAR_QUESTS.find(p => p.id === pillar);
   const spec = pillar ? getFlowSpec(`quest-${pillar}`) : undefined;

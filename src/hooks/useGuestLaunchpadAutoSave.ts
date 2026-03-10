@@ -9,7 +9,7 @@ interface AutoSaveConfig {
 }
 
 export function useGuestLaunchpadAutoSave({ stepKey, debounceMs = 500 }: AutoSaveConfig) {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>('');
 
   // Cleanup on unmount

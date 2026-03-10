@@ -28,7 +28,7 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load existing quest answers from DB
   const { data: existingAnswers } = useQuery({

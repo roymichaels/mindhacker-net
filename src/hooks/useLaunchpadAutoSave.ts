@@ -22,7 +22,7 @@ export function useLaunchpadAutoSave() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: launchpadData, isLoading } = useLaunchpadData();
-  const debounceTimers = useRef<Record<number, NodeJS.Timeout>>({});
+  const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
   // Cleanup timers on unmount
   useEffect(() => {
