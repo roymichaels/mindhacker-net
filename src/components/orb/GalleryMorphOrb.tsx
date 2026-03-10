@@ -627,22 +627,41 @@ interface StandaloneMorphOrbProps {
 }
 
 export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 }: StandaloneMorphOrbProps) {
-  const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Delay canvas mount by one frame to ensure parent dimensions are settled
-    const raf = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(raf);
+    // Wait for container to have actual dimensions before mounting Canvas
+    const el = containerRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+        setReady(true);
+      }
+    });
+    ro.observe(el);
+
+    // Also check immediately in case already laid out
+    if (el.offsetWidth > 0 && el.offsetHeight > 0) {
+      setReady(true);
+    }
+
+    return () => ro.disconnect();
   }, []);
 
   return (
-    <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
-      {mounted && (
+    <div
+      ref={containerRef}
+      style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}
+    >
+      {ready && (
         <Canvas
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           camera={{ position: [0, 0, 2.2], fov: 45 }}
           style={{ width: size, height: size }}
-          resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
+          resize={{ scroll: true, debounce: { scroll: 50, resize: 0 } }}
           dpr={[1, 2]}
         >
           <OrbLighting />
