@@ -70,8 +70,8 @@ export function BottomTabBar() {
   };
 
   // Separate Path (center) from regular tabs
-  const planTab = allTabs.find(t => t.id === 'plan');
-  const regularTabs = allTabs.filter(t => t.id !== 'plan');
+  const planTab = allTabs.find(t => t.isCenter);
+  const regularTabs = allTabs.filter(t => !t.isCenter);
 
   // Layout order (LTR): FM | Aurora | Path(center) | Community | Study
   const leftTabs = regularTabs.slice(0, 1); // FM
