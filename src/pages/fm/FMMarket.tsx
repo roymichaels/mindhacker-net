@@ -234,7 +234,10 @@ export default function FMMarket() {
         </div>
       </div>
 
-      {/* In-page tabs */}
+      {/* Market title + tabs */}
+      <h2 className="text-lg font-black text-foreground text-center tracking-tight">
+        {isHe ? 'שוק חופשי' : 'Free Market'}
+      </h2>
       <div className="flex items-center gap-1 rounded-xl border border-amber-500/15 p-1">
         {marketTabs.map((tab) => {
           const active = view === tab.id;
