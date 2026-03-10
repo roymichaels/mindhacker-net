@@ -27,7 +27,7 @@ export function OrbFullscreenViewer({ open, onClose, profile: profileProp, geome
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(Math.floor(min * 0.5), 550));
+      setOrbSize(Math.min(Math.floor(min * 0.7), 650));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
