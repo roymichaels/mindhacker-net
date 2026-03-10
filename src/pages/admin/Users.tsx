@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Search, Loader2, Gift, Eye, UserCog, Shield, Link2, 
-  Check, X, MoreHorizontal, Users as UsersIcon 
+  Check, X, MoreHorizontal, Users as UsersIcon, RefreshCw, Sparkles
 } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
 import AdminGrantPurchaseDialog from "@/components/admin/AdminGrantPurchaseDialog";
