@@ -103,6 +103,11 @@ const Users = () => {
         .from("launchpad_progress")
         .select("user_id, launchpad_complete");
 
+      const { data: activePlanData } = await supabase
+        .from("life_plans")
+        .select("user_id")
+        .eq("status", "active");
+
       const getUserEmail = async (userId: string) => {
         try {
           const { data, error } = await supabase.functions.invoke('get-user-data', {
@@ -123,6 +128,7 @@ const Users = () => {
           const userPurchases = purchasesData?.filter(p => p.user_id === profile.id) || [];
           const userRoles = rolesData?.filter(r => r.user_id === profile.id) || [];
           const launchpad = launchpadData?.find(l => l.user_id === profile.id);
+          const hasActivePlan = activePlanData?.some(p => p.user_id === profile.id) || false;
 
           return {
             id: profile.id,
@@ -133,7 +139,7 @@ const Users = () => {
             },
             purchases: userPurchases,
             user_roles: userRoles as { role: AppRole }[],
-            is_onboarded: launchpad?.launchpad_complete === true,
+            is_onboarded: launchpad?.launchpad_complete === true || hasActivePlan,
           };
         })
       );
