@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { TIER_CONFIGS, TIER_FEATURES, type SubscriptionTier, tierIncludes } from "@/lib/subscriptionTiers";
 import { useAuthModal } from "@/contexts/AuthModalContext";
-import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from "@/lib/guards";
+import { requireAuthOrOpenModal, requireCheckoutUrlOrToast, blockIfTestMode } from "@/lib/guards";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "apex"];

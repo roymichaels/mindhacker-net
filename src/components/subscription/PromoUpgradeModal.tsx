@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Sparkles, Zap, Crown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import { requireCheckoutUrlOrToast } from "@/lib/guards";
+import { requireCheckoutUrlOrToast, blockIfTestMode } from "@/lib/guards";
 
 interface PromoUpgradeModalProps {
   open: boolean;
