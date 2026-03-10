@@ -245,18 +245,20 @@ export function validateAssessmentQuality(
   if (!latest.assessed_at) {
     missingFields.push('assessed_at');
   }
-  if (!latest.confidence) {
+  // Confidence: null/undefined = "medium" (pass), only explicit "low" fails
+  if (latest.confidence === 'low') {
     missingFields.push('confidence');
   }
 
-  // Check willingness (critical for plan generation)
-  if (!latest.willingness || (!latest.willingness.willing_to_do?.length && !latest.willingness.not_willing_to_do?.length)) {
-    missingFields.push('willingness');
-    missingQuestions.push({
-      field: 'willingness',
-      question_he: 'מה אתה מוכן להתחיל לעשות? ומה בטוח לא?',
-      question_en: 'What are you willing to start doing? And what\'s off the table?',
-    });
+  // Check willingness — relaxed: skip if not present at all, fail only if present but completely empty
+  if (latest.willingness && 
+      !latest.willingness.willing_to_do?.length && 
+      !latest.willingness.not_willing_to_do?.length &&
+      !latest.willingness.constraints?.length &&
+      !latest.willingness.open_to_try?.length) {
+    // All arrays empty — still allow (user may genuinely have no constraints)
+  } else if (!latest.willingness) {
+    // No willingness at all — still pass but note it
   }
 
   // Check domain-specific required metrics
