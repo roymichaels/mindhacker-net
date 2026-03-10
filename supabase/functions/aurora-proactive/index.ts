@@ -10,6 +10,7 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { buildContext, AuroraContext } from "../_shared/contextBuilder.ts";
 import { fetchWithRetry } from "../_shared/fetchWithRetry.ts";
 import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
+import { requireAuth, requireAdmin } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
