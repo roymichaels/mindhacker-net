@@ -159,3 +159,6 @@ verify_jwt = false
 
 [functions.generate-transformation-report]
 verify_jwt = false
+
+[functions.work-chat]
+verify_jwt = false
