@@ -43,9 +43,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <SidebarProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           {isMobile ? (
-            isFM ? (
-              <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
-            ) : (
               <header
                 className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
                 style={{
@@ -61,9 +58,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <HeaderActions compact />
                 </div>
               </header>
-            )
-          ) : isFM ? (
-            <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
           ) : (
             <header
               className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
