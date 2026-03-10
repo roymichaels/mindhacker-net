@@ -49,7 +49,7 @@ export function EarnLaunchpadBanner() {
         animate={{ opacity: 1, y: 0 }}
         onClick={() => setModalOpen(true)}
         className={cn(
-          'w-full flex items-center gap-3 p-3 rounded-xl border transition-all',
+          'w-full flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all',
           'bg-gradient-to-r from-amber-500/5 to-primary/5',
           'border-amber-500/20 hover:border-amber-500/40',
           'hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]',
@@ -57,22 +57,19 @@ export function EarnLaunchpadBanner() {
         )}
       >
         {/* Icon */}
-        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-          <Rocket className="w-5 h-5 text-amber-500" />
+        <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+          <Rocket className="w-4 h-4 text-amber-500" />
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0 text-start">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-foreground">
-              {isHe ? 'לאנצ׳פד הרווחה' : 'Earn Launchpad'}
-            </span>
-            <span className="text-[10px] font-bold text-primary px-1.5 py-0.5 bg-primary/10 rounded">
-              {completedCount}/{TOTAL_MILESTONES}
-            </span>
-          </div>
-          {/* Progress bar */}
-          <div className="mt-1.5 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+        {/* Content — single compact row */}
+        <div className="flex-1 min-w-0 flex items-center gap-3">
+          <span className="text-xs font-bold text-foreground whitespace-nowrap">
+            {isHe ? 'לאנצ׳פד הרווחה' : 'Earn Launchpad'}
+          </span>
+          <span className="text-[10px] font-bold text-primary px-1.5 py-0.5 bg-primary/10 rounded shrink-0">
+            {completedCount}/{TOTAL_MILESTONES}
+          </span>
+          <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden min-w-[60px]">
             <motion.div
               className="h-full bg-gradient-to-r from-amber-400 to-primary rounded-full"
               initial={{ width: 0 }}
@@ -80,15 +77,15 @@ export function EarnLaunchpadBanner() {
               transition={{ duration: 0.5, ease: 'easeOut' }}
             />
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">
+          <span className="text-[10px] text-muted-foreground whitespace-nowrap hidden sm:inline">
             {isHe
               ? `${progressPercent}% הושלם — המשך להרוויח`
               : `${progressPercent}% complete — keep earning`}
-          </p>
+          </span>
         </div>
 
         {/* Arrow */}
-        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
       </motion.button>
 
       <EarnLaunchpadModal open={modalOpen} onOpenChange={setModalOpen} />
