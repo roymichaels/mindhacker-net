@@ -254,6 +254,7 @@ export function NowSection() {
             onToggle={() => toggleBlock(slot.id)}
             isOpen={isSlotOpen(slot.id)}
             onExecute={handleExecute}
+            onToggleComplete={handleToggleComplete}
             isHe={isHe}
           />
         ))}
