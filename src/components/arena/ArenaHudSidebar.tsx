@@ -162,7 +162,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
           <SidebarOrbWidget collapsed />
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
+          <div className="w-8 h-px bg-border/30 my-1" />
           <button
             onClick={onNewProject}
             className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 transition-colors"
