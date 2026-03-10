@@ -83,6 +83,56 @@ serve(async (req) => {
       }
     }
 
+    // Fetch tactical schedule to supplement action_items (schedule may have blocks not yet materialized)
+    let tacticalContext = "";
+    if (plan?.id && plan.start_date) {
+      const { data: tacticalSchedule } = await supabase
+        .from("tactical_schedules")
+        .select("phase_number, schedule_data")
+        .eq("plan_id", plan.id)
+        .order("phase_number")
+        .limit(2);
+
+      if (tacticalSchedule?.length) {
+        const planStartDate = new Date(plan.start_date + "T00:00:00");
+        const todayDate = new Date(todayStr + "T00:00:00");
+        const yesterdayDateObj = new Date(yesterdayStr + "T00:00:00");
+        
+        // Calculate day indices (0-based)
+        const todayDayIndex = Math.floor((todayDate.getTime() - planStartDate.getTime()) / 86400000);
+        const yesterdayDayIndex = Math.floor((yesterdayDateObj.getTime() - planStartDate.getTime()) / 86400000);
+        
+        for (const ts of tacticalSchedule) {
+          const days = ts.schedule_data as any[];
+          if (!Array.isArray(days)) continue;
+          
+          const phaseStartDay = (ts.phase_number - 1) * 10;
+          
+          // Check if yesterday or today falls within this phase
+          for (const targetDay of [
+            { dayIndex: yesterdayDayIndex, label: `YESTERDAY's PLANNED SCHEDULE (${yesterdayStr}, Day ${yesterdayDayIndex + 1})` },
+            { dayIndex: todayDayIndex, label: `TODAY's PLANNED SCHEDULE (${todayStr}, Day ${todayDayIndex + 1})` },
+          ]) {
+            const arrayIndex = targetDay.dayIndex - phaseStartDay;
+            if (arrayIndex >= 0 && arrayIndex < days.length) {
+              const dayData = days[arrayIndex];
+              if (dayData?.blocks?.length) {
+                tacticalContext += `\n\n📋 ${targetDay.label}:\n`;
+                for (const block of dayData.blocks) {
+                  tacticalContext += `  [${block.block_emoji || '📦'} ${block.block_title_he || block.block_title_en || 'Block'} ${block.start_time}-${block.end_time}]\n`;
+                  if (block.milestones?.length) {
+                    for (const m of block.milestones) {
+                      tacticalContext += `    - "${m.title_he || m.title_en}" [${m.pillar || 'general'}] ${m.duration_minutes}min\n`;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     // ALWAYS fetch tasks regardless of plan (tasks exist even without active plan)
     const { data: recentAndUpcoming } = await supabase
       .from("action_items")
@@ -224,14 +274,25 @@ When the user says "I did X" and X matches (or is equivalent to) an EXISTING tas
 [task:swap:...] is ONLY for when the user explicitly says "I did Y INSTEAD OF X" and Y is genuinely a DIFFERENT activity with no matching task.
 
 ######################################################################
-# NO TASKS YESTERDAY — USE create_done
+# NO ACTION_ITEMS BUT TACTICAL SCHEDULE EXISTS
 ######################################################################
-If there are NO tasks scheduled for yesterday but the user says "I did X, Y, Z yesterday":
+Sometimes action_items rows haven't been materialized for a specific day, but the PLANNED SCHEDULE
+(from tactical_schedules) IS available below. In that case:
+- Reference the planned schedule to know what WAS supposed to happen.
+- Cross-reference the user's described activities with the PLANNED SCHEDULE blocks.
+- If the user says "I did X" and X matches a planned block, use [task:create_done:title:YYYY-MM-DD]
+  to log what they did. Use the planned block's Hebrew title for best accuracy.
+- DO NOT say "there were no tasks" if the planned schedule shows blocks for that day.
+
+######################################################################
+# NO TASKS AND NO SCHEDULE — USE create_done
+######################################################################
+If there are truly NO tasks AND NO planned schedule for a date but the user says "I did X, Y, Z":
 1. For each activity, use ONE command: [task:create_done:activity title:YYYY-MM-DD]
-   This creates the task AND marks it as completed in a single step. Use yesterday's date.
+   This creates the task AND marks it as completed in a single step. Use the relevant date.
    Example: [task:create_done:קליסטניקס:2026-03-09]
 2. DO NOT use separate [task:create:...] + [task:complete:...] — that's TWO commands for one activity.
-3. Explain that yesterday had no scheduled tasks but you're logging what they actually did.
+3. Explain that you're logging what they actually did.
 4. If an activity is NOT in their practices library, ASK if they want to add it as a regular practice.
 
 ######################################################################
@@ -285,7 +346,7 @@ PRACTICE MANAGEMENT:
 
 PLAN CONTEXT:
 Plan: ${plan ? `"${planTitle}" started ${plan.start_date}, ${planDuration}, status: ${plan.status}` : 'No active plan found'}
-${missionsContext}${milestoneContext}${actionContext}${practiceContext}${libraryContext}
+${missionsContext}${milestoneContext}${tacticalContext}${actionContext}${practiceContext}${libraryContext}
 
 Be warm, strategic, and specific. Reference actual items by name. Keep responses concise.`;
 
