@@ -524,24 +524,6 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     enabled: !!planId && !!currentPhase && !!user?.id,
     staleTime: 5 * 60_000,
   });
-
-// ── Helpers for fuzzy title matching ──
-function normalize(s: string): string {
-  return s.toLowerCase().trim().replace(/[\u0591-\u05C7]/g, ''); // strip Hebrew diacritics
-}
-
-function fuzzyMatch(a: string, b: string): boolean {
-  // Simple edit distance check — allow up to 2 char differences for strings of similar length
-  if (Math.abs(a.length - b.length) > 2) return false;
-  let diffs = 0;
-  const maxLen = Math.max(a.length, b.length);
-  for (let i = 0; i < maxLen; i++) {
-    if (a[i] !== b[i]) diffs++;
-    if (diffs > 2) return false;
-  }
-  return true;
-}
-
   // ── Fetch completed action_items for the phase date range ──
   const { data: completedItemsRaw } = useQuery({
     queryKey: ['action-items-completed', user?.id, phaseStart, phaseEnd],
