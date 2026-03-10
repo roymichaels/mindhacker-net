@@ -249,15 +249,17 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
       }
 
       case 'createActionItem': {
+        const todayLocal = new Intl.DateTimeFormat('en-CA', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }).format(new Date());
         const { error } = await supabase.from('action_items').insert({
           user_id: user.id, type: 'task', source: 'aurora', status: 'todo',
-          title: command.title, scheduled_date: new Date().toISOString().slice(0, 10),
+          title: command.title, scheduled_date: todayLocal,
         });
         return !error;
       }
 
       case 'createDoneActionItem': {
-        const scheduledDate = command.scheduledDate || new Date().toISOString().slice(0, 10);
+        const todayLocal = new Intl.DateTimeFormat('en-CA', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }).format(new Date());
+        const scheduledDate = command.scheduledDate || todayLocal;
         const { error } = await supabase.from('action_items').insert({
           user_id: user.id, type: 'task', source: 'aurora', status: 'done',
           title: command.title, scheduled_date: scheduledDate,
