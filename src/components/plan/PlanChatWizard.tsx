@@ -54,7 +54,7 @@ const QUICK_ACTIONS_EN = [
   'Mark tasks as completed',
 ];
 
-export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatWizardProps) {
+export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTitle }: PlanChatWizardProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
