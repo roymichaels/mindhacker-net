@@ -21,6 +21,7 @@ const BYPASS_ROUTES = [
   '/success',
   '/personal-hypnosis/success',
   '/personal-hypnosis/pending',
+  '/ceremony',
 ];
 
 export function OnboardingGate({ children }: OnboardingGateProps) {
