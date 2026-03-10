@@ -4,6 +4,7 @@
  * No graying, no exact times — just themed quests to tackle.
  */
 import { useState, useMemo } from 'react';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
