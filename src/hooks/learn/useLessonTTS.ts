@@ -90,7 +90,7 @@ function extractText(lesson: { lesson_type: string; title: string; content: any 
 }
 
 /** Split text into chunks of ~maxLen characters at sentence boundaries */
-function splitTextIntoChunks(text: string, maxLen = 2000): string[] {
+function splitTextIntoChunks(text: string, maxLen = 800): string[] {
   if (text.length <= maxLen) return [text];
 
   const chunks: string[] = [];
@@ -158,65 +158,81 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     signal: AbortSignal,
   ): Promise<boolean> => {
     console.log('[TTS] Playing chunk:', { length: text.length });
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ text, voiceId: voice, speed }),
-        signal,
+
+    // Create a timeout that aborts after 35 seconds
+    const timeoutController = new AbortController();
+    const timeout = setTimeout(() => timeoutController.abort(), 35000);
+    const combinedSignal = signal.aborted ? signal : (() => {
+      const c = new AbortController();
+      signal.addEventListener('abort', () => c.abort());
+      timeoutController.signal.addEventListener('abort', () => c.abort());
+      return c.signal;
+    })();
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text, voiceId: voice, speed }),
+          signal: combinedSignal,
+        }
+      );
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        console.warn('[TTS] Chunk fetch failed:', response.status, errData);
+        if (errData.fallback) return false;
+        throw new Error(`TTS failed: ${response.status}`);
       }
-    );
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      console.warn('[TTS] Chunk fetch failed:', response.status, errData);
-      if (errData.fallback) return false;
-      throw new Error(`TTS failed: ${response.status}`);
-    }
+      const blob = await response.blob();
+      console.log('[TTS] Chunk audio received:', { size: blob.size });
+      const url = URL.createObjectURL(blob);
+      
+      return new Promise<boolean>((resolve, reject) => {
+        if (!playingRef.current) {
+          URL.revokeObjectURL(url);
+          resolve(true);
+          return;
+        }
 
-    const blob = await response.blob();
-    console.log('[TTS] Chunk audio received:', { size: blob.size });
-    const url = URL.createObjectURL(blob);
-    
-    return new Promise<boolean>((resolve, reject) => {
-      if (!playingRef.current) {
-        URL.revokeObjectURL(url);
-        resolve(true);
-        return;
-      }
+        const audio = new Audio(url);
+        audioRef.current = audio;
 
-      const audio = new Audio(url);
-      audioRef.current = audio;
+        audio.onplay = () => { 
+          console.log('[TTS] Audio playing');
+          setIsPlaying(true); 
+          setIsLoading(false); 
+        };
+        audio.onended = () => {
+          console.log('[TTS] Audio chunk ended naturally');
+          URL.revokeObjectURL(url);
+          audioRef.current = null;
+          resolve(true);
+        };
+        audio.onerror = (e) => {
+          console.warn('[TTS] Audio element error:', e);
+          URL.revokeObjectURL(url);
+          audioRef.current = null;
+          resolve(false);
+        };
 
-      audio.onplay = () => { 
-        console.log('[TTS] Audio playing');
-        setIsPlaying(true); 
-        setIsLoading(false); 
-      };
-      audio.onended = () => {
-        console.log('[TTS] Audio chunk ended naturally');
-        URL.revokeObjectURL(url);
-        audioRef.current = null;
-        resolve(true);
-      };
-      audio.onerror = (e) => {
-        console.warn('[TTS] Audio element error:', e);
-        URL.revokeObjectURL(url);
-        audioRef.current = null;
-        resolve(false);
-      };
-
-      audio.play().catch((err) => {
-        console.warn('[TTS] play() rejected:', err);
-        URL.revokeObjectURL(url);
-        reject(err);
+        audio.play().catch((err) => {
+          console.warn('[TTS] play() rejected:', err);
+          URL.revokeObjectURL(url);
+          reject(err);
+        });
       });
-    });
+    } finally {
+      clearTimeout(timeout);
+    }
   }, [voice, speed]);
 
   const play = useCallback(async (lesson: { lesson_type: string; title: string; content: any }) => {

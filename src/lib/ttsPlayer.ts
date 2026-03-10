@@ -22,7 +22,7 @@ function stripMarkdown(text: string): string {
 }
 
 /** Split text into chunks at sentence boundaries */
-function splitTextIntoChunks(text: string, maxLen = 2000): string[] {
+function splitTextIntoChunks(text: string, maxLen = 800): string[] {
   if (text.length <= maxLen) return [text];
 
   const chunks: string[] = [];
@@ -64,7 +64,7 @@ export interface TTSPlayOptions {
   onError?: (err: Error) => void;
 }
 
-/** Fetch and play a single chunk via ElevenLabs. Returns true on success. */
+/** Fetch and play a single chunk via ElevenLabs. Returns audio element or null on failure. */
 async function playChunk(
   text: string,
   voiceId: string,
@@ -79,37 +79,53 @@ async function playChunk(
   if (similarityBoost !== undefined) payload.similarityBoost = similarityBoost;
   if (style !== undefined) payload.style = style;
 
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify(payload),
-      signal,
+  // 35-second timeout for the fetch
+  const timeoutController = new AbortController();
+  const timeout = setTimeout(() => timeoutController.abort(), 35000);
+
+  const combinedSignal = (() => {
+    const c = new AbortController();
+    if (signal) signal.addEventListener('abort', () => c.abort());
+    timeoutController.signal.addEventListener('abort', () => c.abort());
+    if (signal?.aborted) c.abort();
+    return c.signal;
+  })();
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(payload),
+        signal: combinedSignal,
+      }
+    );
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      console.warn('[TTS] Chunk fetch failed:', response.status, errData);
+      if (errData.fallback) return null;
+      throw new Error(`TTS failed: ${response.status}`);
     }
-  );
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    console.warn('[TTS] Chunk fetch failed:', response.status, errData);
-    if (errData.fallback) return null;
-    throw new Error(`TTS failed: ${response.status}`);
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('audio')) {
+      console.warn('[TTS] Response was not audio:', contentType);
+      return null;
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    return { audio, url };
+  } finally {
+    clearTimeout(timeout);
   }
-
-  const contentType = response.headers.get('content-type');
-  if (!contentType?.includes('audio')) {
-    console.warn('[TTS] Response was not audio:', contentType);
-    return null;
-  }
-
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  return { audio, url };
 }
 
 /** Wait for an Audio element to finish playing */
