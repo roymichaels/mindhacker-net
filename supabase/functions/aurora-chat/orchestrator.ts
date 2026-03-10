@@ -35,6 +35,7 @@ export interface ValidatedRequest {
   mode: AuroraMode;
   pillar: string | null;
   hasImages: boolean;
+  timezone: string | null;
 }
 
 // ─── Request Validation ────────────────────────────────────
