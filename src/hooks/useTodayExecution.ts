@@ -104,11 +104,30 @@ function categoryToTimeBlock(category: string): TimeBlock {
   }
 }
 
+// ── Hypnosis items injected into morning & evening ──
+function makeHypnosisItem(phase: 'morning' | 'evening'): NowQueueItem {
+  return {
+    pillarId: 'consciousness',
+    hub: 'core',
+    actionType: 'hypnosis',
+    title: phase === 'morning' ? 'היפנוזה יומית — בוקר' : 'היפנוזה יומית — ערב',
+    titleEn: phase === 'morning' ? 'Daily Hypnosis — Morning' : 'Daily Hypnosis — Evening',
+    durationMin: 14,
+    isTimeBased: true,
+    urgencyScore: 90,
+    reason: 'Daily personalized hypnosis session',
+    sourceType: 'practice',
+    executionTemplate: 'tts_guided',
+    energyPhase: phase,
+    practiceId: 'hypnosis',
+  };
+}
+
 // ── Build schedule slots from today's tactical blocks (no times, quarter-based) ──
 function buildScheduleFromTactics(todayPlan: DayPlan | null): ScheduleSlot[] {
   if (!todayPlan || todayPlan.blocks.length === 0) return [];
 
-  return todayPlan.blocks.map((block, idx) => {
+  const slots = todayPlan.blocks.map((block, idx) => {
     const timeBlock = categoryToTimeBlock(block.category);
 
     const actions: NowQueueItem[] = block.actions.map(action =>
@@ -125,6 +144,40 @@ function buildScheduleFromTactics(todayPlan: DayPlan | null): ScheduleSlot[] {
       status: 'upcoming' as const,
     };
   });
+
+  // Inject hypnosis into morning block (first) and evening block (last or create one)
+  const morningSlot = slots.find(s => s.timeBlock === 'morning');
+  if (morningSlot) {
+    morningSlot.actions.unshift(makeHypnosisItem('morning'));
+  } else if (slots.length > 0) {
+    // Prepend a morning slot with hypnosis
+    slots.unshift({
+      id: 'hypnosis-morning',
+      timeBlock: 'morning',
+      startTime: '',
+      endTime: '',
+      labelKey: 'today.morning',
+      actions: [makeHypnosisItem('morning')],
+      status: 'upcoming',
+    });
+  }
+
+  const eveningSlot = slots.find(s => s.timeBlock === 'evening');
+  if (eveningSlot) {
+    eveningSlot.actions.push(makeHypnosisItem('evening'));
+  } else {
+    slots.push({
+      id: 'hypnosis-evening',
+      timeBlock: 'evening',
+      startTime: '',
+      endTime: '',
+      labelKey: 'today.evening',
+      actions: [makeHypnosisItem('evening')],
+      status: 'upcoming',
+    });
+  }
+
+  return slots;
 }
 
 // ── Movement score ──
