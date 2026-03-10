@@ -77,7 +77,7 @@ const KNOWN_ROUTES = [
   '/launchpad', '/settings',
   '/community', '/content',
   '/success', '/auth',
-  '/strategy', '/tactics', '/plan',
+  '/strategy', '/tactics', '/play',
   '/fm',
 ];
 

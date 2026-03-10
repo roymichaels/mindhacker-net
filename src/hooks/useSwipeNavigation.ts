@@ -5,14 +5,14 @@ import { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 
-const TAB_ORDER = ['/fm/earn', '/plan', '/community', '/study'];
+const TAB_ORDER = ['/fm/earn', '/play', '/community', '/study'];
 
 export function useSwipeNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const currentIndex = TAB_ORDER.findIndex(path => {
-    if (path === '/plan') return location.pathname === '/plan' || location.pathname === '/now' || location.pathname === '/dashboard';
+    if (path === '/play') return location.pathname === '/play' || location.pathname === '/plan' || location.pathname === '/now' || location.pathname === '/dashboard';
     if (path === '/fm/earn') return location.pathname.startsWith('/fm');
     return location.pathname.startsWith(path);
   });

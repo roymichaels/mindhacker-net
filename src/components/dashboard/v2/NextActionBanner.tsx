@@ -134,7 +134,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: language === 'he'
           ? 'עדכן את ההתקדמות שלך כדי להישאר על המסלול'
           : 'Update your progress to stay on track',
-        action: () => navigate('/plan'),
+        action: () => navigate('/play'),
         actionLabel: language === 'he' ? 'עדכן פרויקטים' : 'Update Projects',
       };
     }

@@ -136,7 +136,7 @@ export const useCommandBus = () => {
     switch (command.type) {
       // ── Navigation ──
       case 'openTab': {
-        const routes: Record<string, string> = { today: '/today', plan: '/plan', aurora: '/aurora', me: '/me' };
+        const routes: Record<string, string> = { today: '/play', plan: '/play', aurora: '/aurora', me: '/me' };
         navigate(routes[command.tabId] || '/today');
         return null; // no receipt for nav
       }

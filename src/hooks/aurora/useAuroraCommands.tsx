@@ -61,7 +61,7 @@ export const useAuroraCommands = () => {
     hypnosis: (goal?: string) => navigate(goal ? `/hypnosis?goal=${goal}` : '/hypnosis'),
     health: () => navigate('/health'),
     business: () => navigate('/business'),
-    life_plan: () => navigate('/plan'),
+    life_plan: () => navigate('/play'),
     launchpad: () => smartNavigate(),
     community: () => navigate('/community'),
     settings: () => navigate('/settings'),

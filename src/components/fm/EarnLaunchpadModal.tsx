@@ -41,12 +41,12 @@ const MILESTONES: Milestone[] = [
   { id: 'welcome', titleEn: 'Welcome to Earn', titleHe: 'ברוכים הבאים להרוויח', hintEn: 'Done automatically', hintHe: 'הושלם אוטומטית', action: 'auto', rewardMos: 5 },
   { id: 'enable_data', titleEn: 'Enable Data Sharing', titleHe: 'הפעל שיתוף נתונים', hintEn: 'Toggle on to earn passively', hintHe: 'הפעל כדי להרוויח פסיבית', action: 'toggle_data', rewardMos: 50 },
   { id: 'enable_mining', titleEn: 'Activate Mining', titleHe: 'הפעל כרייה', hintEn: 'Toggle on to mine MOS daily', hintHe: 'הפעל כדי לכרות MOS יומי', action: 'toggle_mining', rewardMos: 25 },
-  { id: 'first_mine', titleEn: 'Mine Your First MOS', titleHe: 'כרה MOS ראשון', hintEn: 'Complete any daily task', hintHe: 'השלם משימה יומית כלשהי', action: 'navigate', navTarget: '/plan', rewardMos: 10 },
+  { id: 'first_mine', titleEn: 'Mine Your First MOS', titleHe: 'כרה MOS ראשון', hintEn: 'Complete any daily task', hintHe: 'השלם משימה יומית כלשהי', action: 'navigate', navTarget: '/play', rewardMos: 10 },
   { id: 'enable_partners', titleEn: 'Join Partners', titleHe: 'הצטרף לשותפים', hintEn: 'Toggle on to get your referral link', hintHe: 'הפעל כדי לקבל קישור הפניה', action: 'toggle_partners', rewardMos: 25 },
   { id: 'share_link', titleEn: 'Share Your Link', titleHe: 'שתף את הקישור', hintEn: 'Tap to copy your referral link', hintHe: 'לחץ להעתקת קישור ההפניה', action: 'copy_link', rewardMos: 10 },
   { id: 'first_referral', titleEn: 'First Referral', titleHe: 'הפניה ראשונה', hintEn: 'Someone signs up via your link', hintHe: 'מישהו נרשם דרך הקישור שלך', action: 'auto', rewardMos: 50 },
   { id: 'earn_100', titleEn: 'Earn 100 MOS', titleHe: 'הרוויח 100 MOS', hintEn: 'Keep earning to reach 100', hintHe: 'המשך להרוויח עד 100', action: 'navigate', navTarget: '/fm/earn', rewardMos: 25 },
-  { id: 'week_streak', titleEn: '7-Day Streak', titleHe: 'רצף 7 ימים', hintEn: 'Mine 7 days in a row', hintHe: 'כרה 7 ימים ברציפות', action: 'navigate', navTarget: '/plan', rewardMos: 50 },
+  { id: 'week_streak', titleEn: '7-Day Streak', titleHe: 'רצף 7 ימים', hintEn: 'Mine 7 days in a row', hintHe: 'כרה 7 ימים ברציפות', action: 'navigate', navTarget: '/play', rewardMos: 50 },
   { id: 'launchpad_complete', titleEn: 'Earn Master', titleHe: 'מאסטר הרווחה', hintEn: 'Complete all milestones above', hintHe: 'השלם את כל אבני הדרך', action: 'auto', rewardMos: 100 },
 ];
 

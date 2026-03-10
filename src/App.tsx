@@ -50,21 +50,14 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Install = lazy(() => import("./pages/Install"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
-const FormView = lazy(() => import("./pages/FormView"));
 const AudioPlayer = lazy(() => import("./pages/AudioPlayer"));
 const VideoPlayer = lazy(() => import("./pages/VideoPlayer"));
-const PersonalHypnosisLanding = lazy(() => import("./pages/PersonalHypnosisLanding"));
-const PersonalHypnosisSuccess = lazy(() => import("./pages/PersonalHypnosisSuccess"));
-const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPending"));
-const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
-const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const OrbGalleryPage = lazy(() => import("./pages/OrbGallery"));
-const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const CommunityLayoutWrapper = lazy(() => import("./components/community/CommunityLayoutWrapper"));
 const CommunityThread = lazy(() => import("./pages/CommunityThread"));
 const Go = lazy(() => import("./pages/Go"));
@@ -94,7 +87,7 @@ import TherapistLayoutWrapper from "./components/therapist/TherapistLayoutWrappe
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
-const PlanLayoutWrapper = lazy(() => import("./components/plan/PlanLayoutWrapper"));
+const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 
 const PresenceHome = lazy(() => import("./pages/presence/PresenceHome"));
@@ -186,7 +179,7 @@ const queryClient = new QueryClient({
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
-// Redirect old /arena/:domainId/* → /plan (via /strategy/:domainId/*)
+// Redirect old /arena/:domainId/* → /play (via /strategy/:domainId/*)
 function ArenaToStrategyRedirect() {
   const loc = window.location.pathname;
   const newPath = loc.replace(/^\/arena/, '/strategy');
@@ -259,10 +252,11 @@ const App = () => (
                         <Route path="/install" element={<Install />} />
                         <Route path="/audio/:token" element={<AudioPlayer />} />
                         <Route path="/video/:token" element={<VideoPlayer />} />
-                        <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
-                        <Route path="/consciousness-leap" element={<ConsciousnessLeapLanding />} />
-                        <Route path="/consciousness-leap/apply/:token" element={<ConsciousnessLeapApply />} />
-                        <Route path="/form/:token" element={<FormView />} />
+                        {/* Legacy product pages redirect to home */}
+                        <Route path="/personal-hypnosis" element={<Navigate to="/" replace />} />
+                        <Route path="/consciousness-leap" element={<Navigate to="/" replace />} />
+                        <Route path="/consciousness-leap/apply/:token" element={<Navigate to="/" replace />} />
+                        <Route path="/form/:token" element={<Navigate to="/" replace />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
@@ -309,14 +303,15 @@ const App = () => (
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
                           {/* Aurora Chat */}
                           <Route path="/aurora" element={<AuroraPage />} />
-                          {/* Now redirects to Plan (merged) */}
-                          <Route path="/now" element={<Navigate to="/plan" replace />} />
-                          {/* Plan (merged Strategy + Tactics) */}
-                          <Route path="/plan" element={<PlanLayoutWrapper />} />
+                          {/* Legacy redirects to Play */}
+                          <Route path="/now" element={<Navigate to="/play" replace />} />
+                          <Route path="/plan" element={<Navigate to="/play" replace />} />
+                          {/* Play (merged Strategy + Tactics) */}
+                          <Route path="/play" element={<PlayLayoutWrapper />} />
                           {/* Profile page */}
                           <Route path="/profile" element={<ProfilePage />} />
                           {/* Strategy sub-routes for pillar assessments */}
-                          <Route path="/strategy" element={<Navigate to="/plan" replace />} />
+                          <Route path="/strategy" element={<Navigate to="/play" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
                           <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                           <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
@@ -376,8 +371,8 @@ const App = () => (
                           {/* Strategy domain catch-all */}
                           <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
                           {/* Legacy redirects */}
-                          <Route path="/tactics" element={<Navigate to="/plan" replace />} />
-                          <Route path="/arena" element={<Navigate to="/plan" replace />} />
+                          <Route path="/tactics" element={<Navigate to="/play" replace />} />
+                          <Route path="/arena" element={<Navigate to="/play" replace />} />
                           <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
@@ -423,44 +418,35 @@ const App = () => (
                           <Route path="/creator" element={<CreatorLayoutWrapper />} />
                           {/* Therapist */}
                           <Route path="/therapist" element={<TherapistLayoutWrapper />} />
-                          {/* Personal Hypnosis */}
-                          <Route path="/personal-hypnosis/success" element={<PersonalHypnosisSuccess />} />
-                          <Route path="/personal-hypnosis/pending" element={<PersonalHypnosisPending />} />
+                          {/* Legacy hypnosis redirects */}
+                          <Route path="/personal-hypnosis/success" element={<Navigate to="/play" replace />} />
+                          <Route path="/personal-hypnosis/pending" element={<Navigate to="/play" replace />} />
                           {/* Success */}
                           <Route path="/success" element={<Success />} />
                         </Route>
 
-                        {/* Legacy redirects (no shell needed) */}
+                        {/* Legacy redirects (no shell needed) → /play */}
                         <Route path="/combat-community" element={<Navigate to="/community" replace />} />
-                        <Route path="/dashboard" element={<Navigate to="/plan" replace />} />
-                        <Route path="/today" element={<Navigate to="/plan" replace />} />
-                        <Route path="/me" element={<Navigate to="/plan" replace />} />
+                        <Route path="/dashboard" element={<Navigate to="/play" replace />} />
+                        <Route path="/today" element={<Navigate to="/play" replace />} />
+                        <Route path="/me" element={<Navigate to="/play" replace />} />
                         <Route path="/messages/ai" element={<Navigate to="/aurora" replace />} />
-                        <Route path="/projects" element={<Navigate to="/plan" replace />} />
-                        {/* Legacy /life redirects → /plan */}
-                        <Route path="/life" element={<Navigate to="/plan" replace />} />
-                        <Route path="/life/*" element={<Navigate to="/plan" replace />} />
-                        {/* Old pillar routes */}
-                        <Route path="/consciousness" element={<Navigate to="/plan" replace />} />
-                        <Route path="/health" element={<Navigate to="/plan" replace />} />
-                        <Route path="/health/journey" element={<Navigate to="/plan" replace />} />
-                        <Route path="/health/journey/:id" element={<Navigate to="/plan" replace />} />
-                        <Route path="/health/plan" element={<Navigate to="/plan" replace />} />
-                        <Route path="/relationships" element={<Navigate to="/plan" replace />} />
-                        <Route path="/relationships/journey" element={<Navigate to="/plan" replace />} />
-                        <Route path="/relationships/journey/:id" element={<Navigate to="/plan" replace />} />
-                        <Route path="/finances" element={<Navigate to="/plan" replace />} />
-                        <Route path="/finances/journey" element={<Navigate to="/plan" replace />} />
-                        <Route path="/finances/journey/:id" element={<Navigate to="/plan" replace />} />
-                        <Route path="/learning" element={<Navigate to="/plan" replace />} />
-                        <Route path="/learning/journey" element={<Navigate to="/plan" replace />} />
-                        <Route path="/learning/journey/:id" element={<Navigate to="/plan" replace />} />
-                        <Route path="/purpose" element={<Navigate to="/plan" replace />} />
-                        <Route path="/purpose/journey" element={<Navigate to="/plan" replace />} />
-                        <Route path="/purpose/journey/:id" element={<Navigate to="/plan" replace />} />
-                        <Route path="/hobbies" element={<Navigate to="/plan" replace />} />
-                        <Route path="/hobbies/journey" element={<Navigate to="/plan" replace />} />
-                        <Route path="/hobbies/journey/:id" element={<Navigate to="/plan" replace />} />
+                        <Route path="/projects" element={<Navigate to="/play" replace />} />
+                        <Route path="/life" element={<Navigate to="/play" replace />} />
+                        <Route path="/life/*" element={<Navigate to="/play" replace />} />
+                        <Route path="/consciousness" element={<Navigate to="/play" replace />} />
+                        <Route path="/health" element={<Navigate to="/play" replace />} />
+                        <Route path="/health/*" element={<Navigate to="/play" replace />} />
+                        <Route path="/relationships" element={<Navigate to="/play" replace />} />
+                        <Route path="/relationships/*" element={<Navigate to="/play" replace />} />
+                        <Route path="/finances" element={<Navigate to="/play" replace />} />
+                        <Route path="/finances/*" element={<Navigate to="/play" replace />} />
+                        <Route path="/learning" element={<Navigate to="/play" replace />} />
+                        <Route path="/learning/*" element={<Navigate to="/play" replace />} />
+                        <Route path="/purpose" element={<Navigate to="/play" replace />} />
+                        <Route path="/purpose/*" element={<Navigate to="/play" replace />} />
+                        <Route path="/hobbies" element={<Navigate to="/play" replace />} />
+                        <Route path="/hobbies/*" element={<Navigate to="/play" replace />} />
                         {/* Admin redirects */}
                         <Route path="/admin" element={<Navigate to="/admin-hub" replace />} />
                         <Route path="/admin/*" element={<Navigate to="/admin-hub" replace />} />
