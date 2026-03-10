@@ -116,6 +116,9 @@ serve(async (req) => {
       const todayDayIndex = Math.floor((todayDate.getTime() - planStartDate.getTime()) / 86400000);
       const yesterdayDayIndex = Math.floor((yesterdayDateObj.getTime() - planStartDate.getTime()) / 86400000);
       
+      const twoDaysAgoDateObj = new Date(twoDaysAgoStr + "T00:00:00");
+      const twoDaysAgoDayIndex = Math.floor((twoDaysAgoDateObj.getTime() - planStartDate.getTime()) / 86400000);
+
       for (const ts of tacticalSchedule) {
         const days = ts.schedule_data as any[];
         if (!Array.isArray(days)) continue;
@@ -123,8 +126,9 @@ serve(async (req) => {
         const phaseStartDay = (ts.phase_number - 1) * 10;
         
         for (const targetDay of [
-          { dayIndex: yesterdayDayIndex, label: `YESTERDAY (${yesterdayStr}, Day ${yesterdayDayIndex + 1}) — ${planLabel}` },
-          { dayIndex: todayDayIndex, label: `TODAY (${todayStr}, Day ${todayDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: twoDaysAgoDayIndex, label: `TWO DAYS AGO / שלשום (${twoDaysAgoStr}, Day ${twoDaysAgoDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: yesterdayDayIndex, label: `YESTERDAY / אתמול (${yesterdayStr}, Day ${yesterdayDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: todayDayIndex, label: `TODAY / היום (${todayStr}, Day ${todayDayIndex + 1}) — ${planLabel}` },
         ]) {
           const arrayIndex = targetDay.dayIndex - phaseStartDay;
           if (arrayIndex >= 0 && arrayIndex < days.length) {
