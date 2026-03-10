@@ -35,6 +35,8 @@ interface PendingChange {
 interface PlanChatWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When set, focuses context on a specific day number (1-based) */
+  focusDayNumber?: number | null;
 }
 
 const QUICK_ACTIONS_HE = [
