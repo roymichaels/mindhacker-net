@@ -147,11 +147,23 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
         }),
       ]);
       
-      // Log strategy result for debugging but don't block
+      // Log strategy result and chain tactical schedule generation
       if (strategyResult.status === 'rejected') {
         console.warn('Strategy generation failed:', strategyResult.reason);
       } else if (strategyResult.value?.error) {
         console.warn('Strategy generation error:', strategyResult.value.error);
+      } else if (strategyResult.status === 'fulfilled' && strategyResult.value?.data?.plans) {
+        // Auto-trigger tactical schedule for Phase 1 of each created plan
+        const plans = strategyResult.value.data.plans;
+        if (Array.isArray(plans)) {
+          for (const plan of plans) {
+            if (plan.plan_id && plan.milestones > 0) {
+              supabase.functions.invoke('generate-tactical-schedule', {
+                body: { user_id: user.id, plan_id: plan.plan_id, phase_number: 1 },
+              }).catch(err => console.warn('Auto tactical schedule (onboarding):', err));
+            }
+          }
+        }
       }
 
       // Generate personalized orb avatar from onboarding answers
