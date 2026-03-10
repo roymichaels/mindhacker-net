@@ -237,19 +237,14 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             </div>
           </div>
 
-          {/* Profile Button */}
-          <div className="mx-1.5 mb-1">
+          {/* Profile Button — FM tab style */}
+          <div className="mx-1.5 mt-1.5 mb-1">
             <button
               onClick={() => {
                 setDropdownOpen(false);
                 navigate('/profile');
               }}
-              className={cn(
-                "w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-sm font-semibold",
-                "bg-primary/10 text-primary border border-primary/20",
-                "hover:bg-primary/20 hover:border-primary/30",
-                "active:scale-[0.98] transition-all duration-150"
-              )}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all bg-primary/10 text-primary border border-primary/25 hover:bg-primary/15 hover:border-primary/35 active:scale-[0.98]"
             >
               <User className="h-4 w-4" />
               {language === 'he' ? 'פרופיל' : 'Profile'}
