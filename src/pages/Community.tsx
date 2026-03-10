@@ -168,7 +168,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                 {/* Events Card */}
                 <button
                   onClick={() => setEventsOpen(true)}
-                  className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.08] to-sky-600/[0.03] p-4 text-start transition-all hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 active:scale-[0.99]"
+                  className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-sky-500/[0.06] p-4 text-start transition-all hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 active:scale-[0.99]"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center flex-shrink-0">
