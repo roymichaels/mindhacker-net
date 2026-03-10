@@ -812,6 +812,7 @@ function buildExtractTool(domainId: string) {
 - wealth: monthly_income_range, income_streams, savings_rate, debt_status, financial_goal
 - influence: people_managed, public_speaking_frequency, content_creation, network_size, negotiation_comfort
 - relationships: close_friends_count, relationship_status, conflict_frequency, support_network_quality, vulnerability_comfort
+- romantics: relationship_status, dating_frequency, conflict_frequency, vulnerability_comfort, romantic_satisfaction
 - business: has_business, monthly_revenue, team_size, years_in_operation, biggest_bottleneck
 - projects: active_projects_count, completion_rate, avg_project_duration, biggest_blocker, project_management_tool
 - play: weekly_play_hours, play_activities, last_vacation, rest_guilt_level, flow_state_frequency
