@@ -338,8 +338,8 @@ export const useAuroraChat = (conversationId: string | null) => {
         triggerBackgroundAnalysis();
       }
 
-      // Summarize conversation every 8 messages
-      if (messageCountRef.current > 0 && messageCountRef.current % 8 === 0) {
+      // Summarize conversation every 6 messages (more frequent memory saves)
+      if (messageCountRef.current > 0 && messageCountRef.current % 6 === 0) {
         summarizeConversation();
       }
     } catch (err) {
