@@ -213,6 +213,7 @@ RULES:
 STYLE: Like a sharp friend who asks the questions nobody dares to ask about love and dating. Not a therapist — a mirror.`,
   },
 
+  business: {
     startQuestion: {
       he: "יש לך עסק? ספר לי במשפט אחד — מה הוא עושה ולמי.",
       en: "Do you have a business? Tell me in one sentence — what does it do and for whom.",
