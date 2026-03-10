@@ -202,8 +202,8 @@ export default function ArenaHub() {
                   {getCampaignName(`phase-${phase}`, isHe ? 'he' : 'en')}
                 </p>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center">
-                    <span className="text-sm font-bold text-destructive">{phase}</span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
+                    <span className="text-sm font-bold text-amber-400">{phase}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-foreground">
