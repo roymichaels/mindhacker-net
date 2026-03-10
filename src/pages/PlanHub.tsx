@@ -1,11 +1,10 @@
 /**
- * PlanHub — Unified Play page with 2 tabs: Tactics & Work.
- * Strategy is accessed via a modal button below the tabs.
+ * PlanHub — Unified Play page: Tactics view with Strategy & Work as modals.
  */
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords, Briefcase, MessageSquare, Search } from 'lucide-react';
+import { Flame, Swords, Briefcase, MessageSquare, Search, Sparkles, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,22 +16,15 @@ const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
 const WorkHub = lazy(() => import('./WorkHub'));
 
-type PlanTab = 'tactics' | 'work';
-
 export default function PlanHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const [activeTab, setActiveTab] = useState<PlanTab>('tactics');
   const [chatOpen, setChatOpen] = useState(false);
   const [strategyOpen, setStrategyOpen] = useState(false);
+  const [workOpen, setWorkOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const auroraChat = useAuroraChatContextSafe();
-
-  const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
-    { id: 'tactics', labelHe: 'טקטיקה', labelEn: 'Tactics', icon: Swords },
-    { id: 'work', labelHe: 'עבודה', labelEn: 'Work', icon: Briefcase },
-  ];
 
   const openFindCoachWizard = () => {
     if (!user) { navigate('/auth'); return; }
@@ -49,79 +41,105 @@ export default function PlanHub() {
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Tab switcher */}
+      {/* Strategy & Work modal cards — community style */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="flex gap-1 p-1 rounded-2xl bg-muted/60 border border-border/50">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all",
-                  isActive
-                    ? "text-primary-foreground"
-                    : "text-foreground/90 hover:text-foreground hover:bg-muted/50"
-                )}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="plan-tab-bg"
-                    className="absolute inset-0 rounded-xl bg-primary shadow-lg shadow-primary/50 ring-2 ring-primary/70"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-2">
-                  <Icon className="w-4 h-4" />
-                  {isHe ? tab.labelHe : tab.labelEn}
-                </span>
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Strategy Card */}
+          <button
+            onClick={() => setStrategyOpen(true)}
+            className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] to-orange-500/[0.03] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
+          >
+            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-amber-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                <Flame className="w-5 h-5 text-amber-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-foreground">
+                  {isHe ? 'אסטרטגיה' : 'Strategy'}
+                </h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                  {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
+                </p>
+              </div>
+            </div>
+          </button>
+
+          {/* Work Hub Card */}
+          <button
+            onClick={() => setWorkOpen(true)}
+            className="group relative overflow-hidden rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.08] to-indigo-500/[0.03] p-4 text-start transition-all hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10 active:scale-[0.99]"
+          >
+            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-violet-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center flex-shrink-0">
+                <Briefcase className="w-5 h-5 text-violet-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-foreground">
+                  {isHe ? 'מרכז עבודה' : 'Work Hub'}
+                </h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                  {isHe ? 'טיימר ופרודוקטיביות' : 'Timer & Productivity'}
+                </p>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* Strategy modal button + contextual actions */}
-      <div className="w-full max-w-xl px-4 pb-2 space-y-2">
-        <button
-          onClick={() => setStrategyOpen(true)}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/50 transition-all text-sm font-medium text-amber-400"
-        >
-          <Flame className="w-4 h-4" />
-          {isHe ? '🔥 אסטרטגיה — תוכנית 100 יום' : '🔥 Strategy — 100-Day Plan'}
-        </button>
+      {/* Talk to Plan & Find Coach — community style 2-col grid */}
+      <div className="w-full max-w-xl px-4 pb-2">
+        <div className="grid grid-cols-2 gap-3">
+          {/* Talk to Plan */}
+          <button
+            onClick={() => setChatOpen(true)}
+            className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] to-primary/[0.03] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
+          >
+            <div className="relative flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <MessageSquare className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-foreground">
+                  {isHe ? 'דבר עם התוכנית' : 'Talk to Plan'}
+                </h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                  {isHe ? 'שאל את Aurora' : 'Ask Aurora'}
+                </p>
+              </div>
+            </div>
+          </button>
 
-        {activeTab === 'tactics' && (
-          <>
-            <button
-              onClick={() => setChatOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
-            >
-              <MessageSquare className="w-4 h-4" />
-              {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
-            </button>
-            <motion.button
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              onClick={openFindCoachWizard}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
-            >
-              <Search className="w-4 h-4" />
-              {isHe ? '🎯 מצא מאמן' : '🎯 Find a Coach'}
-            </motion.button>
-          </>
-        )}
+          {/* Find Coach */}
+          <button
+            onClick={openFindCoachWizard}
+            className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.08] to-teal-500/[0.03] p-4 text-start transition-all hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.99]"
+          >
+            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-emerald-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                <Search className="w-5 h-5 text-emerald-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-foreground">
+                  {isHe ? 'מצא מאמן' : 'Find a Coach'}
+                </h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                  {isHe ? 'התאמה חכמה' : 'AI Matching'}
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
       </div>
 
-      {/* Tab content */}
+      {/* Tactics content — always visible */}
       <Suspense fallback={null}>
-        {activeTab === 'tactics' && <ArenaHub />}
-        {activeTab === 'work' && <WorkHub />}
+        <ArenaHub />
       </Suspense>
 
-      {/* Strategy Modal — full LifeHub inside */}
+      {/* Strategy Modal */}
       <Dialog open={strategyOpen} onOpenChange={setStrategyOpen}>
         <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 gap-0" preventClose>
           <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm">
@@ -131,13 +149,34 @@ export default function PlanHub() {
             </h2>
             <button
               onClick={() => setStrategyOpen(false)}
-              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             >
-              {isHe ? 'סגור' : 'Close'}
+              <X className="w-5 h-5" />
             </button>
           </div>
           <Suspense fallback={null}>
             {strategyOpen && <LifeHub />}
+          </Suspense>
+        </DialogContent>
+      </Dialog>
+
+      {/* Work Hub Modal */}
+      <Dialog open={workOpen} onOpenChange={setWorkOpen}>
+        <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 gap-0" preventClose>
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm">
+            <h2 className="text-base font-bold flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-violet-500" />
+              {isHe ? 'מרכז העבודה' : 'Work Hub'}
+            </h2>
+            <button
+              onClick={() => setWorkOpen(false)}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <Suspense fallback={null}>
+            {workOpen && <WorkHub />}
           </Suspense>
         </DialogContent>
       </Dialog>
