@@ -181,7 +181,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
 
-            <div className="relative z-10 px-3 py-2 space-y-1.5">
+            <div className="relative z-10 px-3 pt-3 pb-2 space-y-1.5">
               {/* Row 1: 2-col grid — name left, orb right */}
               <div className="grid grid-cols-[1fr_auto] items-center gap-2">
                 <div className="min-w-0">
