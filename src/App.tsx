@@ -397,7 +397,7 @@ const App = () => (
                             <Route path="work" element={<Navigate to="/fm" replace />} />
                             <Route path="share" element={<Navigate to="/fm" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm" replace />} />
-                            <Route path="wallet" element={<FMWalletLayoutWrapper />} />
+                            <Route path="wallet" element={<Navigate to="/fm" replace />} />
                             <Route path="cashout" element={<FMCashout />} />
                             <Route path="bridge" element={<FMBridge />} />
                             <Route path="coaches" element={<Navigate to="/coaches" replace />} />
