@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, Play, CheckCircle, Lock,
   FileText, Brain, Target, Flame, Clock, Zap, ChevronDown, ChevronUp, Plus,
-  ChevronLeft, RefreshCw, Loader2,
+  ChevronLeft, RefreshCw, Loader2, Lightbulb, TrendingUp, AlertTriangle,
 } from 'lucide-react';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { Button } from '@/components/ui/button';
