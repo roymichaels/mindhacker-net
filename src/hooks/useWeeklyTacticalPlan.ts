@@ -216,6 +216,7 @@ function parseAiSchedule(
   todayStr: string,
   phaseNumber: number,
   milestoneFocusMap: Record<string, string>,
+  completedItems?: Map<string, { title: string; completedAt: string }[]>,
 ): DayPlan[] {
   const days: DayPlan[] = [];
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
