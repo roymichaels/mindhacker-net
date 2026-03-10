@@ -165,7 +165,7 @@ serve(async (req) => {
 
       // Circuit breaker: 5xx = return fallback
       if (response.status >= 500) {
-        logEdgeFunctionError({ functionName: "aurora-chat", error: new Error(`AI Gateway ${response.status}`), userId, requestContext: { mode, trigger: "5xx" } });
+        logEdgeFunctionError({ functionName: "aurora-chat", error: new Error("AI Gateway " + response.status), userId, requestContext: { mode, trigger: "5xx" } });
         const fallbackStream = buildFallbackStream(context, language);
         return new Response(fallbackStream, {
           headers: {
