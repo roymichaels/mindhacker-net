@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { debug } from '@/lib/debug';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { speakWithBrowser } from '@/services/voice';
+import { playTTS } from '@/lib/ttsPlayer';
+import { useVoicePersona } from '@/hooks/useVoicePersona';
 
 interface UseAuroraVoiceOptions {
   onTranscription?: (text: string) => void;
@@ -11,6 +13,7 @@ interface UseAuroraVoiceOptions {
 export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
   const { user } = useAuth();
   const { isPlus } = useSubscriptionGate();
+  const { persona } = useVoicePersona();
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
@@ -18,7 +21,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const cancelRef = useRef<(() => void) | null>(null);
 
   // Start voice recording
   const startRecording = useCallback(async () => {
@@ -107,113 +110,69 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
     }
   }, [options]);
 
-  // Play Aurora's voice for a message
+  // Play Aurora's voice for a message — uses shared TTS engine with chunking & fallback
   const playMessage = useCallback(async (messageId: string, content: string) => {
     if (isPlaying) {
       // Stop current playback
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      window.speechSynthesis?.cancel();
+      cancelRef.current?.();
+      cancelRef.current = null;
       setIsPlaying(false);
       setActiveMessageId(null);
       return;
     }
 
-    try {
+    // Free users: browser TTS only (no ElevenLabs cost)
+    if (!isPlus) {
       setIsPlaying(true);
       setActiveMessageId(messageId);
-
-      // Free users: browser TTS only (no ElevenLabs cost)
-      if (!isPlus) {
-        const handle = speakWithBrowser(content, {
-          onEnd: () => {
-            setIsPlaying(false);
-            setActiveMessageId(null);
-          },
-          onError: () => {
-            setIsPlaying(false);
-            setActiveMessageId(null);
-          },
-        });
-        if (!handle) {
+      const handle = speakWithBrowser(content, {
+        onEnd: () => {
           setIsPlaying(false);
           setActiveMessageId(null);
-        }
-        return;
+        },
+        onError: () => {
+          setIsPlaying(false);
+          setActiveMessageId(null);
+        },
+      });
+      if (!handle) {
+        setIsPlaying(false);
+        setActiveMessageId(null);
+      } else {
+        cancelRef.current = handle.cancel;
       }
-
-      // Paid users: ElevenLabs premium TTS
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            text: content,
-            voice: 'cgSgspJ2msm6clMCkdW9', // Jessica voice for Aurora
-          }),
-        }
-      );
-
-      // Handle error responses gracefully (including 402 quota exceeded)
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.warn('TTS request failed:', response.status, errorData);
-        if (errorData.fallback) {
-          debug.log('ElevenLabs quota exceeded, TTS unavailable');
-        }
-        setIsPlaying(false);
-        setActiveMessageId(null);
-        return;
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType?.includes('audio')) {
-        console.warn('TTS response was not audio:', contentType);
-        setIsPlaying(false);
-        setActiveMessageId(null);
-        return;
-      }
-
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
-        setIsPlaying(false);
-        setActiveMessageId(null);
-        audioRef.current = null;
-      };
-
-      audio.onerror = () => {
-        URL.revokeObjectURL(audioUrl);
-        setIsPlaying(false);
-        setActiveMessageId(null);
-        audioRef.current = null;
-      };
-
-      await audio.play();
-    } catch (err) {
-      console.error('TTS error:', err);
-      setIsPlaying(false);
-      setActiveMessageId(null);
+      return;
     }
-  }, [isPlaying, isPlus]);
+
+    // Paid users: ElevenLabs via shared TTS engine (chunking, nikud stripping, fallback)
+    setIsPlaying(true);
+    setActiveMessageId(messageId);
+
+    const handle = playTTS(content, {
+      voiceId: persona.voiceId,
+      speed: persona.speed,
+      stability: persona.stability,
+      similarityBoost: persona.similarityBoost,
+      style: persona.style,
+      onEnd: () => {
+        setIsPlaying(false);
+        setActiveMessageId(null);
+        cancelRef.current = null;
+      },
+      onError: () => {
+        setIsPlaying(false);
+        setActiveMessageId(null);
+        cancelRef.current = null;
+      },
+    });
+
+    cancelRef.current = handle.cancel;
+  }, [isPlaying, isPlus, persona]);
 
   // Stop playback
   const stopPlayback = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    cancelRef.current?.();
+    cancelRef.current = null;
     setIsPlaying(false);
     setActiveMessageId(null);
   }, []);
