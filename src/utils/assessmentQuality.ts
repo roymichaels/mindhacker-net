@@ -36,17 +36,19 @@ export function isAssessmentReady(
   // No latest_assessment → not ready (even if `completed` is true)
   if (!latest) return false;
 
-  // Global required: subscores, assessed_at, confidence
+  // Global required: subscores, assessed_at
   if (!latest.subscores || Object.keys(latest.subscores).length < 3) return false;
   if (!latest.assessed_at) return false;
-  if (!latest.confidence) return false;
 
-  // Willingness check
+  // Confidence: null/undefined treated as "medium" (pass), only explicit "low" fails
+  if (latest.confidence === 'low') return false;
+
+  // Willingness check — skip if not present (some assessments don't collect it)
   if (
-    !latest.willingness ||
-    (!latest.willingness.willing_to_do?.length && !latest.willingness.not_willing_to_do?.length)
+    latest.willingness &&
+    (!latest.willingness.willing_to_do?.length && !latest.willingness.not_willing_to_do?.length && !latest.willingness.constraints?.length && !latest.willingness.open_to_try?.length)
   ) {
-    return false;
+    // Has willingness object but ALL arrays empty — still pass (user may have no constraints)
   }
 
   // Domain-specific metrics
