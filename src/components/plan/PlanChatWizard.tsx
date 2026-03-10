@@ -2,14 +2,17 @@
  * PlanChatWizard — "Talk to your plan" free-form chat for surgical plan edits.
  * Uses Aurora + command bus to make targeted changes without regenerating.
  * Reuses the same Aurora chat UI components (messages, input, TTS, voice mode).
+ * 
+ * CONFIRMATION FLOW: Aurora proposes changes → user approves/rejects → changes execute.
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Sparkles, Wrench } from 'lucide-react';
-import { parseAllTags, stripAllTags, type AppCommand } from '@/lib/commandBus';
+import { Sparkles, Wrench, Check, X, Loader2 } from 'lucide-react';
+import { parseAllTags, stripAllTags, describeCommand, type AppCommand } from '@/lib/commandBus';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -20,6 +23,13 @@ import AuroraChatInput from '@/components/aurora/AuroraChatInput';
 interface ChatMsg {
   role: 'user' | 'assistant';
   content: string;
+}
+
+interface PendingChange {
+  label: string;
+  description: string;
+  command: AppCommand | null; // null for practice commands
+  rawTag: string;
 }
 
 interface PlanChatWizardProps {
@@ -49,16 +59,21 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [appliedCount, setAppliedCount] = useState(0);
+  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
+  const [pendingRawText, setPendingRawText] = useState('');
+  const [isExecuting, setIsExecuting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, pendingChanges]);
 
   const handleClose = (val: boolean) => {
     if (!val) {
       setMessages([]);
       setAppliedCount(0);
+      setPendingChanges([]);
+      setPendingRawText('');
     }
     onOpenChange(val);
   };
@@ -218,7 +233,6 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
 
       case 'createActionItem': {
-        // If the title hints at a past activity (from swap), still schedule for today
         const { error } = await supabase.from('action_items').insert({
           user_id: user.id, type: 'task', source: 'aurora', status: 'todo',
           title: command.title, scheduled_date: new Date().toISOString().slice(0, 10),
@@ -274,69 +288,144 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
     }
   }, [user?.id]);
 
-  const processCommands = useCallback(async (fullText: string) => {
-    const commands = parseAllTags(fullText);
+  /** Extract all pending changes from Aurora's response without executing them */
+  const extractPendingChanges = useCallback((fullText: string): PendingChange[] => {
+    const changes: PendingChange[] = [];
 
+    // Parse standard commands
+    const commands = parseAllTags(fullText);
+    for (const cmd of commands) {
+      const desc = describeCommand(cmd, isHe);
+      changes.push({
+        label: desc.label,
+        description: desc.description,
+        command: cmd,
+        rawTag: '',
+      });
+    }
+
+    // Parse practice commands
     const practiceAddRegex = /\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\]/g;
     const practiceRemoveRegex = /\[practice:remove:([a-f0-9-]+)\]/g;
     const practiceUpdateRegex = /\[practice:update:([a-f0-9-]+):(.+?)\]/g;
 
-    let changesMade = false;
     let match;
-
     while ((match = practiceAddRegex.exec(fullText)) !== null) {
-      const [, practiceId, duration, frequency, isCore] = match;
-      if (user?.id) {
-        const { error } = await supabase.from('user_practices').insert({
-          user_id: user.id, practice_id: practiceId,
-          duration_minutes: parseInt(duration), frequency,
-          is_core: isCore === 'true',
-        });
-        if (!error) changesMade = true;
-      }
-    }
-
-    while ((match = practiceRemoveRegex.exec(fullText)) !== null) {
-      const [, userPracticeId] = match;
-      const { error } = await supabase.from('user_practices').delete().eq('id', userPracticeId);
-      if (!error) changesMade = true;
-    }
-
-    while ((match = practiceUpdateRegex.exec(fullText)) !== null) {
-      const [, userPracticeId, fieldsStr] = match;
-      const updates: Record<string, any> = {};
-      fieldsStr.split('|').forEach(pair => {
-        const [k, ...v] = pair.split('=');
-        if (k && v.length) {
-          const val = v.join('=').trim();
-          updates[k.trim()] = val === 'true' ? true : val === 'false' ? false : isNaN(Number(val)) ? val : Number(val);
-        }
+      changes.push({
+        label: isHe ? 'הוספת תרגול' : 'Add Practice',
+        description: `ID: ${match[1].slice(0, 8)}… (${match[2]}min, ${match[3]})`,
+        command: null,
+        rawTag: match[0],
       });
-      if (Object.keys(updates).length > 0) {
-        const { error } = await supabase.from('user_practices').update(updates).eq('id', userPracticeId);
-        if (!error) changesMade = true;
+    }
+    while ((match = practiceRemoveRegex.exec(fullText)) !== null) {
+      changes.push({
+        label: isHe ? 'הסרת תרגול' : 'Remove Practice',
+        description: `ID: ${match[1].slice(0, 8)}…`,
+        command: null,
+        rawTag: match[0],
+      });
+    }
+    while ((match = practiceUpdateRegex.exec(fullText)) !== null) {
+      changes.push({
+        label: isHe ? 'עדכון תרגול' : 'Update Practice',
+        description: match[2],
+        command: null,
+        rawTag: match[0],
+      });
+    }
+
+    return changes;
+  }, [isHe]);
+
+  /** Execute all approved changes */
+  const executeAllChanges = useCallback(async () => {
+    if (!user?.id || pendingChanges.length === 0) return;
+    setIsExecuting(true);
+
+    let successCount = 0;
+
+    // Execute practice raw tags
+    for (const change of pendingChanges) {
+      if (change.rawTag && !change.command) {
+        // Practice add
+        const addMatch = change.rawTag.match(/\[practice:add:([a-f0-9-]+):(\d+):(\w+):(true|false)\]/);
+        if (addMatch) {
+          const { error } = await supabase.from('user_practices').insert({
+            user_id: user.id, practice_id: addMatch[1],
+            duration_minutes: parseInt(addMatch[2]), frequency: addMatch[3],
+            is_core: addMatch[4] === 'true',
+          });
+          if (!error) successCount++;
+          continue;
+        }
+        // Practice remove
+        const removeMatch = change.rawTag.match(/\[practice:remove:([a-f0-9-]+)\]/);
+        if (removeMatch) {
+          const { error } = await supabase.from('user_practices').delete().eq('id', removeMatch[1]);
+          if (!error) successCount++;
+          continue;
+        }
+        // Practice update
+        const updateMatch = change.rawTag.match(/\[practice:update:([a-f0-9-]+):(.+?)\]/);
+        if (updateMatch) {
+          const updates: Record<string, any> = {};
+          updateMatch[2].split('|').forEach(pair => {
+            const [k, ...v] = pair.split('=');
+            if (k && v.length) {
+              const val = v.join('=').trim();
+              updates[k.trim()] = val === 'true' ? true : val === 'false' ? false : isNaN(Number(val)) ? val : Number(val);
+            }
+          });
+          if (Object.keys(updates).length > 0) {
+            const { error } = await supabase.from('user_practices').update(updates).eq('id', updateMatch[1]);
+            if (!error) successCount++;
+          }
+          continue;
+        }
+      }
+
+      // Execute standard commands
+      if (change.command) {
+        try {
+          const success = await executeCommand(change.command);
+          if (success) successCount++;
+        } catch (err) {
+          console.error('Command execution error:', err);
+        }
       }
     }
 
-    let executedCount = 0;
-    for (const cmd of commands) {
-      const success = await executeCommand(cmd);
-      if (success) executedCount++;
-    }
-
-    if (changesMade || executedCount > 0) {
+    if (successCount > 0) {
       invalidatePlanQueries();
-      setAppliedCount(prev => prev + executedCount + (changesMade ? 1 : 0));
+      setAppliedCount(prev => prev + successCount);
       toast.success(
         isHe
-          ? `✅ ${executedCount + (changesMade ? 1 : 0)} שינויים הוחלו`
-          : `✅ ${executedCount + (changesMade ? 1 : 0)} changes applied`
+          ? `✅ ${successCount} שינויים הוחלו בהצלחה`
+          : `✅ ${successCount} changes applied successfully`
       );
+    } else {
+      toast.error(isHe ? 'לא הצלחתי להחיל שינויים' : 'Failed to apply changes');
     }
-  }, [user?.id, executeCommand, invalidatePlanQueries, isHe]);
+
+    setPendingChanges([]);
+    setPendingRawText('');
+    setIsExecuting(false);
+  }, [user?.id, pendingChanges, executeCommand, invalidatePlanQueries, isHe]);
+
+  const rejectChanges = useCallback(() => {
+    setPendingChanges([]);
+    setPendingRawText('');
+    // Add a message indicating the user rejected
+    setMessages(prev => [
+      ...prev,
+      { role: 'user', content: isHe ? 'ביטלתי את השינויים' : 'I rejected the changes' },
+    ]);
+    toast.info(isHe ? 'השינויים בוטלו' : 'Changes cancelled');
+  }, [isHe]);
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || !user?.id || isStreaming) return;
+    if (!text.trim() || !user?.id || isStreaming || pendingChanges.length > 0) return;
 
     const userMsg: ChatMsg = { role: 'user', content: text.trim() };
     const newMessages = [...messages, userMsg];
@@ -412,12 +501,12 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         }
       }
 
+      // After streaming complete, extract commands and show confirmation
       if (assistantText) {
-        try {
-          await processCommands(assistantText);
-        } catch (cmdErr) {
-          console.error('Command processing error:', cmdErr);
-          toast.error(isHe ? 'חלק מהשינויים נכשלו' : 'Some changes failed to apply');
+        const changes = extractPendingChanges(assistantText);
+        if (changes.length > 0) {
+          setPendingChanges(changes);
+          setPendingRawText(assistantText);
         }
       }
     } catch (err) {
@@ -506,6 +595,53 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
                   <AuroraTypingIndicator />
                 )}
 
+                {/* Confirmation card for pending changes */}
+                {pendingChanges.length > 0 && !isStreaming && (
+                  <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+                    <p className="text-sm font-semibold text-foreground">
+                      {isHe ? `🔧 ${pendingChanges.length} שינויים מוצעים:` : `🔧 ${pendingChanges.length} proposed changes:`}
+                    </p>
+                    <ul className="space-y-1.5 text-sm">
+                      {pendingChanges.map((change, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold mt-0.5">
+                            {i + 1}
+                          </span>
+                          <span className="text-muted-foreground">
+                            <span className="font-medium text-foreground">{change.label}</span>
+                            {change.description && ` — ${change.description}`}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        onClick={executeAllChanges}
+                        disabled={isExecuting}
+                        className="gap-1.5"
+                      >
+                        {isExecuting ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5" />
+                        )}
+                        {isHe ? 'אשר והחל' : 'Approve & Apply'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={rejectChanges}
+                        disabled={isExecuting}
+                        className="gap-1.5"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        {isHe ? 'בטל' : 'Reject'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <div ref={scrollRef} />
               </div>
             )}
@@ -513,7 +649,11 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         </ScrollArea>
 
         {/* Input — full Aurora input with TTS, voice recording, voice mode */}
-        <AuroraChatInput onSend={sendMessage} disabled={isStreaming} bypassLimits />
+        <AuroraChatInput
+          onSend={sendMessage}
+          disabled={isStreaming || pendingChanges.length > 0}
+          bypassLimits
+        />
       </DialogContent>
     </Dialog>
   );
