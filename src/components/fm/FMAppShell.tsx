@@ -42,7 +42,6 @@ export default function FMAppShell() {
   const isActive = (tabId: string) => {
     if (tabId === 'earn') return location.pathname.startsWith('/fm/earn') || location.pathname === '/fm' || location.pathname.startsWith('/fm/market');
     if (tabId === 'work') return location.pathname.startsWith('/fm/work') || location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business');
-    if (tabId === 'wallet') return location.pathname.startsWith('/fm/wallet') || location.pathname.startsWith('/fm/cashout') || location.pathname.startsWith('/fm/bridge');
     return false;
   };
 
