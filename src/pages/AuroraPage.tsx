@@ -95,7 +95,7 @@ export default function AuroraPage() {
       {/* Tab content */}
       {activeTab === 'chat' ? (
         <>
-          <div className="flex-1 min-h-0 overflow-auto pb-16">
+          <div className="flex-1 min-h-0 overflow-auto">
             {isAssessing && assessmentDomainId ? (
               <DomainAssessChat
                 domainId={assessmentDomainId}
