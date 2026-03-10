@@ -245,11 +245,51 @@ function parseAiSchedule(
     let totalActions = 0;
     let completedActions = 0;
 
-    const blocks: TacticalBlock[] = resolvedBlocks.map((block: any, bIdx: number) => {
+    // ── Deduplicate blocks: merge blocks with same title+category ──
+    const deduped: any[] = [];
+    const seen = new Map<string, number>();
+    for (const block of resolvedBlocks) {
+      const cat = block.category || 'action';
+      const title = (block.block_title_he || block.block_title_en || cat).toLowerCase().trim();
+      const key = `${title}::${cat}`;
+      if (seen.has(key)) {
+        // Merge milestones into existing block
+        const existingIdx = seen.get(key)!;
+        const existing = deduped[existingIdx];
+        const newMilestones = block.milestones || block.blocks || [];
+        const existingMilestones = existing.milestones || existing.blocks || [];
+        // Deduplicate milestones by title
+        const existingTitles = new Set(existingMilestones.map((m: any) => (m.title_he || m.title_en || '').toLowerCase().trim()));
+        for (const m of newMilestones) {
+          const mTitle = (m.title_he || m.title_en || '').toLowerCase().trim();
+          if (!existingTitles.has(mTitle)) {
+            existingMilestones.push(m);
+            existingTitles.add(mTitle);
+          }
+        }
+        existing.milestones = existingMilestones;
+        existing.milestone_count = existingMilestones.length;
+        existing.total_minutes = existingMilestones.reduce((s: number, m: any) => s + (m.duration_minutes || 15), 0);
+      } else {
+        seen.set(key, deduped.length);
+        deduped.push({ ...block });
+      }
+    }
+
+    const blocks: TacticalBlock[] = deduped.map((block: any, bIdx: number) => {
       const category = validCategory(block.category);
       const blockMilestones = block.milestones || block.blocks || [];
       
-      const actions: TacticalAction[] = blockMilestones.map((m: any, mIdx: number) => {
+      // Deduplicate milestones within each block by title
+      const seenMilestones = new Set<string>();
+      const uniqueMilestones = blockMilestones.filter((m: any) => {
+        const mTitle = (m.title_he || m.title_en || '').toLowerCase().trim();
+        if (seenMilestones.has(mTitle)) return false;
+        seenMilestones.add(mTitle);
+        return true;
+      });
+
+      const actions: TacticalAction[] = uniqueMilestones.map((m: any, mIdx: number) => {
         const difficulty = validDifficulty(m.difficulty);
         totalActions++;
         const action: TacticalAction = {
@@ -263,7 +303,7 @@ function parseAiSchedule(
           actionType: block.category || null,
           estimatedMinutes: m.duration_minutes || 15,
           cadence: 'daily' as Cadence,
-          completed: false, // will be patched below
+          completed: false,
           completedAt: null,
           xpReward: m.xp_reward || DIFFICULTY_XP[difficulty] || 10,
           blockCategory: category,
@@ -276,7 +316,6 @@ function parseAiSchedule(
           endTime: null,
           orderIndex: m.order_index ?? mIdx,
         };
-        // Attach tactical block reference for traceability
         (action as any).blockId = block.block_id || null;
         (action as any).missionTitle = m.mission_title || null;
         return action;
