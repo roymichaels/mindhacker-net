@@ -1,141 +1,159 @@
 # PRODUCT_SPEC.md — Frozen Source of Truth
 
 > **Purpose**: This document is the contract that all future prompts reference before making changes.  
-> **Last updated**: 2026-02-17  
+> **Last updated**: 2026-03-10  
 > **Rule**: No UI or architecture change may contradict this spec without updating it first.
 
 ---
 
-## Section 1: The 4 Tabs
+## Section 1: The 5 Bottom Tabs
 
-### Tab 1: TODAY (`/today`)
+### Tab 1: FM (`/fm/earn`)
 
 | Field | Value |
 |-------|-------|
-| Label | Today / היום |
-| Icon | `LayoutDashboard` |
-| Purpose | "What matters in the next 3 hours" |
+| Label | FM |
+| Icon | `Store` |
+| Purpose | Free Market — earn, trade, and manage MOS tokens |
 
 **MVP Behaviors:**
-- `DashboardBannerSlider` — auto-sliding in-game banners
-- `NextActionBanner` — priority-based single action: Launchpad > Nudges > Overdue > Habits > Hypnosis > Milestone > Chat
-- `TodaysHabitsCard` — daily habit checklist with completion toggles
-- `ChecklistsCard` — task items from 90-day plan milestones
-- `HypnosisModal` — triggered from banner, gated by launchpad completion
+- Earn MOS via data sharing, mining, bounties, referrals
+- 10-milestone Earn Launchpad onboarding
+- Marketplace (courses, NFTs, services)
+- Wallet & cashout
+- AI-powered content publishing via Aurora wizard
 
-**Data sources:** `action_items`, `aurora_proactive_queue`, `user_notifications`, `xp_events`, `profiles`
-
-**Existing files:**
-- `src/pages/TodayTab.tsx`
-- `src/components/dashboard/v2/NextActionBanner.tsx`
-- `src/components/dashboard/v2/TodaysHabitsCard.tsx`
-- `src/components/dashboard/unified/ChecklistsCard.tsx`
-- `src/components/dashboard/DashboardBannerSlider.tsx`
+**Sub-routes:** `/fm/earn`, `/fm/work`, `/fm/wallet`, `/fm/cashout`, `/fm/bridge`
 
 ---
 
-### Tab 2: PLAN (`/plan`)
+### Tab 2: PLAY (`/play`) — Center Tab
 
 | Field | Value |
 |-------|-------|
-| Label | Plan / תוכנית |
-| Icon | `Target` |
-| Purpose | "Your 90-day transformation roadmap" |
+| Label | Play |
+| Icon | `Flame` (oversized, w-16 h-16, no text label) |
+| Purpose | Unified execution hub — tactics, strategy, and work |
 
 **MVP Behaviors:**
-- `PlanProgressHero` — overall plan % and current week
-- `GoalsCard` — milestones grouped by month 1/2/3
-- `PlanProgressCard` — week-by-week progress
-- `LifeAnalysisChart` — 8-pillar radar/pie
-- Pro-gated: free users see `ProGateOverlay`
+- `PlayHub` — merged Tactics + Strategy + Work views
+- Tactics: daily/weekly task execution with movement score
+- Strategy: 100-day life plan, pillar assessments (via modals)
+- Work: projects and milestones management
+- `PlanChatWizard` — Aurora-powered plan negotiation
+- Domain assessment launching via strategy modal
 
-**Data sources:** `life_plans`, `life_plan_milestones`, `action_items`, `aurora_life_model`
+**Data sources:** `life_plans`, `life_plan_milestones`, `action_items`, `tactical_schedules`, `mini_milestones`
 
-**Existing files:**
-- `src/pages/PlanTab.tsx`
-- `src/components/dashboard/v2/PlanProgressHero.tsx`
-- `src/components/dashboard/v2/GoalsCard.tsx`
-- `src/components/dashboard/v2/PlanProgressCard.tsx`
-- `src/components/dashboard/v2/LifeAnalysisChart.tsx`
+**Key files:**
+- `src/pages/PlayHub.tsx`
+- `src/components/plan/PlayLayoutWrapper.tsx`
+- `src/components/plan/PlanChatWizard.tsx`
+- `src/components/plan/PlanNegotiateModal.tsx`
 
 ---
 
-### Tab 3: COACH (`/aurora`)
+### Tab 3: AURORA (injected between tabs, `/aurora`)
 
 | Field | Value |
 |-------|-------|
-| Label | Aurora / אורורה |
-| Icon | `Sparkles` |
-| Purpose | "Your AI coaching conversation" |
+| Label | Aurora |
+| Icon | Custom `AuroraOrbIcon` |
+| Purpose | AI coaching chat + journaling |
 
 **MVP Behaviors:**
-- Full-screen `AuroraChatArea` (message history + streaming responses)
-- Launchpad flow (if not complete, show `LaunchpadIntro` then `LaunchpadFlow`)
-- `AuroraChatInput` with voice recording, image attach
-- `AuroraActionsProvider` for in-chat action buttons
+- Multi-tab interface: Chat, Dreams, Reflection, Gratitude
+- `AuroraChatBubbles` — full conversation with streaming
+- `StandaloneMorphOrb` above chat messages
+- Domain assessment chat (DomainAssessChat) for pillar scanning
+- Voice mode (full-screen bidirectional voice via ElevenLabs STT/TTS)
+- Voice recording + transcription
+- Image attachment
 - Message count gating for free users (5/day)
+- Journal entries persisted to `journal_entries` table
 
-**Data sources:** `aurora_conversations`, `aurora_messages`, `daily_message_counts`
+**Data sources:** `conversations`, `aurora_messages`, `daily_message_counts`, `journal_entries`
 
-**Existing files:**
-- `src/pages/Aurora.tsx`
-- `src/components/aurora/AuroraLayout.tsx`
-- `src/components/aurora/AuroraChatArea.tsx`
-- `src/components/aurora/AuroraChatInput.tsx`
+**Key files:**
+- `src/pages/AuroraPage.tsx`
+- `src/components/aurora/AuroraChatBubbles.tsx`
+- `src/components/aurora/AuroraVoiceMode.tsx`
+- `src/components/aurora/JournalTab.tsx`
 
 ---
 
-### Tab 4: ME (`/me`)
+### Tab 4: COMMUNITY (`/community`)
 
 | Field | Value |
 |-------|-------|
-| Label | Me / אני |
-| Icon | `User` |
-| Purpose | "Your identity, stats, and settings" |
+| Label | Community / קהילה |
+| Icon | `Users` |
+| Purpose | Social feed, events, and member interaction |
 
 **MVP Behaviors:**
-- `StatsGrid` (Level, Streak, Weekly XP, Tokens)
-- Profile button → `ProfileDrawer` (identity card, orb, achievements)
-- Settings button → `SettingsModal` (profile, aurora prefs, appearance, account)
-
-**Data sources:** `profiles`, `xp_events`, `user_subscriptions`
-
-**Existing files:**
-- `src/pages/MeTab.tsx`
-- `src/components/dashboard/v2/StatsGrid.tsx`
-- `src/components/dashboard/ProfileDrawer.tsx`
-- `src/components/settings/SettingsModal.tsx`
+- Community posts feed with likes and comments
+- Events with RSVP
+- Member profiles and leaderboard
+- Category filtering
 
 ---
 
-## Section 2: Aurora Dock Capabilities
+### Tab 5: STUDY (`/learn`)
 
-**Component:** `GlobalChatInput` — floats above tabs 1, 2, 4; hidden on tab 3 (`/aurora`)
-
-### Current Capabilities (TODAY)
-- Text message send to Aurora AI
-- Voice recording + transcription (Whisper)
-- Image attach (UI ready, backend TODO)
-- Subscription gate: 5 msgs/day free, unlimited Pro
-- Messages remaining counter (free users)
-- `UpgradePromptModal` on limit hit
-- `AuroraChatBubbles`: shows last 2–3 responses inline above input
-
-### Planned Capabilities (NEXT — not yet built)
-- Deep-link actions from Aurora responses (navigate to specific tabs/modals)
-- One-tap habit creation from chat
-- One-tap task completion from chat
-- Image analysis (backend support)
-- Proactive push-to-chat (nudge appears as chat bubble)
-
-**Existing files:**
-- `src/components/dashboard/GlobalChatInput.tsx`
-- `src/components/aurora/AuroraChatBubbles.tsx`
-- `src/components/aurora/VoiceRecordingButton.tsx`
+| Field | Value |
+|-------|-------|
+| Label | Study / למידה |
+| Icon | `GraduationCap` |
+| Purpose | Courses and educational content |
 
 ---
 
-## Section 3: Gating Rules
+## Section 2: Global UI Elements
+
+### Header (ProtectedAppShell)
+- `AppNameDropdown` — HUD with personalized orb (80px), user name, archetype, XP progress bar, level badge (amber/gold FM theme)
+- Aurora search icon (on `/aurora` route)
+- Notification bell
+
+### Bottom Tab Bar
+- 5-item layout: FM | Aurora | Play (center) | Community | Study
+- Play tab: oversized filled icon, no label
+- Color-coded highlights: Cyan for Play, Violet for Aurora
+- Aurora injected as special button between FM and Play
+
+### Floating Chat Input
+- `GlobalChatInput` — transparent background, fixed bottom, doesn't obscure messages
+- Available on all pages except `/aurora` (where it's integrated inline)
+- Voice recording, image attach, voice mode trigger
+
+---
+
+## Section 3: Aurora Capabilities
+
+### Chat Features
+- Streaming AI responses via `aurora-chat` edge function
+- Context-aware (identity, life direction, assessments, behavioral patterns, energy patterns)
+- Pillar-specific conversations
+- Proactive messages and nudges
+- Command bus for in-chat actions (navigate, create tasks, etc.)
+- Memory graph for long-term context retention
+
+### Voice Mode
+- Full-screen overlay with animated orb
+- States: idle → listening → processing → speaking → listening (auto-loop)
+- ElevenLabs STT (transcribe) + TTS (speak)
+- Works in both main chat and domain assessments
+
+### Journal System (on `/aurora`)
+- **Chat**: AI conversation with Aurora
+- **Dreams**: Dream journaling with interpretation
+- **Reflection**: Daily reflection prompts
+- **Gratitude**: Gratitude practice entries
+- Tabs are sticky with blurred backdrop
+
+---
+
+## Section 4: Gating Rules
 
 ### Source of Truth
 
@@ -152,38 +170,16 @@
 |---------|-------|
 | Aurora messages | 5/day (tracked in `daily_message_counts`) |
 | Habits | max 3 |
-| Plan tab | LOCKED (`ProGateOverlay`) |
-| Hypnosis | LOCKED (`ProGateOverlay`) |
 | Proactive nudges | LOCKED |
-| Today tab | FULL ACCESS |
-| Me tab | FULL ACCESS |
-| Coach tab | ACCESS with message limit |
+| Play hub | FULL ACCESS |
+| FM | FULL ACCESS |
+| Community | FULL ACCESS |
+| Study | FULL ACCESS |
 
 ### Pro Tier
-
 Everything unlimited.
 
-### UI Components
-
-| Component | Purpose | Used in |
-|-----------|---------|---------|
-| `ProGateOverlay` | Full-page lock with upgrade CTA | PlanTab, LifePlan, HypnosisModal |
-| `UpgradePromptModal` | Dialog on limit hit | GlobalChatInput, AuroraChatInput |
-
-### Enforcement Status
-
-| Surface | Status |
-|---------|--------|
-| `GlobalChatInput` | ✅ ENFORCED |
-| `AuroraChatInput` | ✅ ENFORCED |
-| `PlanTab` | ✅ ENFORCED |
-| `LifePlan` page | ✅ ENFORCED |
-| `HypnosisModal` | ✅ ENFORCED |
-| Habit creation | ⚠️ NOT YET ENFORCED |
-| Proactive nudge click-through | ⚠️ NOT YET ENFORCED |
-
 ### Stripe Flow
-
 1. `create-checkout-session` → Stripe Checkout (with `client_reference_id = user.id`)
 2. `stripe-webhook` → upserts `user_subscriptions` + updates `profiles.subscription_tier`
 3. `check-subscription` → reads from DB (no Stripe API call)
@@ -191,56 +187,63 @@ Everything unlimited.
 
 ---
 
-## Section 4: Tab-to-Component Mapping
+## Section 5: Strategy Routes (Pillar Assessments)
 
-### TODAY tab composes
-- ✅ `DashboardBannerSlider`
-- ✅ `NextActionBanner` (v2)
-- ✅ `TodaysHabitsCard` (v2)
-- ✅ `ChecklistsCard` (unified)
-- ✅ `HypnosisModal`
-- 🔇 `StatsGrid` — lives in MeTab instead
-- 🔇 `PlanProgressHero` — lives in PlanTab
+All under `/strategy/*` within ProtectedAppShell:
 
-### PLAN tab composes
-- ✅ `PlanProgressHero` (v2)
-- ✅ `GoalsCard` (v2)
-- ✅ `PlanProgressCard` (v2)
-- ✅ `LifeAnalysisChart` (v2)
-- 🔇 Life Plan expanded view (`/life-plan`)
-- 🔇 Pillar hub pages (8× at `/health`, `/business`, etc.)
-- 🔇 Journey flows (8× at `/health/journey`, etc.)
+| Domain | Routes |
+|--------|--------|
+| Presence | `/strategy/presence`, `/strategy/presence/scan`, `/strategy/presence/assess`, etc. |
+| Power | `/strategy/power`, `/strategy/power/assess`, etc. |
+| Vitality | `/strategy/vitality`, `/strategy/vitality/assess`, etc. |
+| Focus | `/strategy/focus`, `/strategy/focus/assess`, etc. |
+| Combat | `/strategy/combat`, `/strategy/combat/assess`, etc. |
+| Expansion | `/strategy/expansion`, `/strategy/expansion/assess`, etc. |
+| Consciousness | `/strategy/consciousness`, `/strategy/consciousness/assess`, etc. |
+| Arena domains | `/strategy/wealth/*`, `/strategy/influence/*`, `/strategy/relationships/*`, `/strategy/business/*`, `/strategy/projects/*`, `/strategy/play/*` |
 
-### COACH tab composes
-- ✅ `AuroraLayout` (handles launchpad gating)
-- ✅ `AuroraChatArea`
-- ✅ `AuroraChatInput`
-- ✅ `AuroraActionsProvider`
+---
 
-### ME tab composes
-- ✅ `StatsGrid` (v2)
-- ✅ `ProfileDrawer`
-- ✅ `SettingsModal`
-- 🔇 Purchases / subscription management
-- 🔇 PDF report exports
-- 🔇 Achievement badges
+## Section 6: Other Protected Routes
 
-### Floating (all tabs)
-- ✅ `GlobalChatInput` (hidden on `/aurora`)
-- ✅ `AuroraChatBubbles` (hidden on `/aurora`)
-- ✅ `BottomTabBar` (mobile)
-- ✅ `TopNavBar` (desktop)
+| Route | Purpose |
+|-------|---------|
+| `/coaches` | Coach marketplace (find/become) |
+| `/admin-hub` | Admin panel (role-gated) |
+| `/business` | Business journey & dashboard |
+| `/freelancer` | Freelancer tools |
+| `/creator` | Creator tools |
+| `/therapist` | Therapist tools |
+| `/work` | Work hub |
+| `/profile` | User profile page |
+| `/quests/:pillar` | Quest runner |
 
-### Shadow Routes (not in any tab)
+---
 
-| Route | Status |
-|-------|--------|
-| `/dashboard` | Redirects to `/today` (legacy) |
-| `/life-plan` | Standalone plan view |
-| `/projects` | Premium projects hub |
-| `/launchpad` | Standalone launchpad (also embedded in Aurora) |
-| `/health`, `/business`, etc. | Pillar hubs |
-| `/*/journey` | Pillar journey flows |
-| `/hypnosis` | Standalone hypnosis library |
-| `/community/*` | DEAD |
-| `/messages/*` | DEAD |
+## Section 7: Legacy Redirects
+
+All legacy routes redirect to `/play`:
+- `/plan`, `/now`, `/today`, `/dashboard`, `/me`, `/tactics`, `/arena`
+- `/projects`, `/life`, `/life/*`
+- `/consciousness`, `/health/*`, `/relationships/*`, `/finances/*`, `/learning/*`, `/purpose/*`, `/hobbies/*`
+- `/personal-hypnosis/*` → `/play`
+
+Other redirects:
+- `/messages/ai` → `/aurora`
+- `/combat-community` → `/community`
+- `/admin`, `/admin/*`, `/panel/*` → `/admin-hub`
+- `/coach`, `/coach/*`, `/practitioners`, `/marketplace` → `/coaches`
+
+---
+
+## Section 8: Deleted Pages (Cleanup 2026-03-10)
+
+| Page | Reason |
+|------|--------|
+| `FormView` | No longer used, route redirects to `/` |
+| `PersonalHypnosisLanding` | Legacy product page, redirects to `/` |
+| `PersonalHypnosisSuccess` | Legacy, redirects to `/play` |
+| `PersonalHypnosisPending` | Legacy, redirects to `/play` |
+| `ConsciousnessLeapLanding` | Legacy product page, redirects to `/` |
+| `ConsciousnessLeapApply` | Legacy product page, redirects to `/` |
+| `DynamicLandingPage` | Unused dynamic landing system |
