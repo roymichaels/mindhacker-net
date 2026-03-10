@@ -91,6 +91,10 @@ const DOMAIN_INTROS: Record<string, { he: string; en: string }> = {
     he: '✨ **ברוכים הבאים לסריקת סדר וניקיון**\n\nכאן אנחנו מודדים את רמת הסדר בחיים שלך — ניקיון הסביבה, ארגון מערכות, סדר דיגיטלי, עקביות שגרה ומינימליזם.\n\n**למה?** סביבה מסודרת = מוח מסודר. סדר חיצוני משפיע ישירות על בהירות פנימית, פרודוקטיביות ושליטה.\n\n**מה נשאל?** שאלות על ניקיון הבית, ארגון חפצים, סדר דיגיטלי, שגרות ניקיון, מינימליזם ושליטה בסביבה.\n\n🔒 *כל המידע שלך מאובטח ושמור רק עבורך. שום דבר לא דולף החוצה.*',
     en: '✨ **Welcome to the Order & Cleanliness Scan**\n\nHere we measure your environmental mastery — space cleanliness, system organization, digital order, routine consistency, and minimalism clarity.\n\n**Why?** An ordered environment = an ordered mind. External order directly impacts internal clarity, productivity, and control.\n\n**What will we ask?** Questions about home cleanliness, item organization, digital order, cleaning routines, minimalism, and environmental mastery.\n\n🔒 *All your data is encrypted and stored securely — only you can access it.*',
   },
+  romantics: {
+    he: '💋 **ברוכים הבאים לסריקת רומנטיקה**\n\nכאן אנחנו מודדים את עולם הרומנטיקה שלך — דייטינג, משיכה, קוטביות, אינטימיות ושליטה רומנטית.\n\n**למה?** הרומנטיקה היא ביטוי ישיר לאנרגיה, ביטחון ואותנטיות. היא מגדירה את איכות החיבור האינטימי שלך.\n\n**מה נשאל?** שאלות על דייטינג, משיכה, נוכחות רומנטית, פגיעות ויכולת חיבור עמוק.\n\n🔒 *כל המידע שלך מאובטח ושמור רק עבורך. שום דבר לא דולף החוצה.*',
+    en: '💋 **Welcome to the Romantics Scan**\n\nHere we assess your romantic world — dating, attraction, polarity, intimacy, and romantic mastery.\n\n**Why?** Romance is a direct expression of energy, confidence, and authenticity. It defines the quality of your intimate connections.\n\n**What will we ask?** Questions about dating, attraction, romantic presence, vulnerability, and deep connection capacity.\n\n🔒 *All your data is encrypted and stored securely — only you can access it.*',
+  },
 };
 
 function isCoreDomain(domainId: string): boolean {

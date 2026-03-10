@@ -19,6 +19,7 @@ const DOMAIN_REQUIRED_METRICS: Record<string, string[]> = {
   projects: ['projects_metrics'],
   play: ['play_metrics'],
   order: ['order_metrics'],
+  romantics: ['romantics_metrics'],
 };
 
 /**
