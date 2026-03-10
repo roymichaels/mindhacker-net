@@ -518,6 +518,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
             language,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
             ...(focusDayNumber ? { focus_day: focusDayNumber } : {}),
+            ...(focusTaskTitle ? { focus_task: focusTaskTitle } : {}),
           }),
         }
       );
