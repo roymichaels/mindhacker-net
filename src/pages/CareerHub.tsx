@@ -296,6 +296,43 @@ export default function CareerHub({ careerPath }: CareerHubProps) {
   const { data: profile } = useProfile();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [profileOpen, setProfileOpen] = useState(false);
+  const { data: application, isLoading: appLoading } = useCareerApplication(careerPath);
+
+  // Gate: if no approved application, show wizard
+  if (!appLoading && (!application || application.status !== 'approved')) {
+    if (application?.status === 'pending') {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
+          </div>
+          <h2 className="text-xl font-black text-foreground">{isHe ? 'הבקשה שלך בבדיקה' : 'Application Under Review'}</h2>
+          <p className="text-muted-foreground max-w-sm">
+            {isHe ? 'נעדכן אותך ברגע שהבקשה תאושר. תודה על הסבלנות!' : 'We\'ll notify you once approved. Thank you for your patience!'}
+          </p>
+          <Button variant="outline" onClick={() => navigate('/fm/work')}>{isHe ? 'חזור' : 'Go Back'}</Button>
+        </div>
+      );
+    }
+    if (application?.status === 'rejected') {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
+            <XCircle className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="text-xl font-black text-foreground">{isHe ? 'הבקשה נדחתה' : 'Application Rejected'}</h2>
+          <p className="text-muted-foreground max-w-sm">{application.admin_notes || (isHe ? 'ניתן לפנות לתמיכה.' : 'Please contact support.')}</p>
+          <Button variant="outline" onClick={() => navigate('/fm/work')}>{isHe ? 'חזור' : 'Go Back'}</Button>
+        </div>
+      );
+    }
+    // No application or revision_requested → show wizard
+    return <CareerWizard careerPath={careerPath} />;
+  }
+
+  if (appLoading) {
+    return <div className="flex justify-center items-center min-h-[60vh]"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
+  }
 
   // Coach-specific hooks (only used for coach/therapist paths)
   const isCoachType = careerPath === 'coach' || careerPath === 'therapist';
