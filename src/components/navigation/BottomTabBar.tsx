@@ -16,7 +16,7 @@ import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useUnreadBadge } from '@/hooks/useUnreadBadge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame } from 'lucide-react';
+import { Play } from 'lucide-react';
 
 
 /** Per-tab color schemes — light/dark adaptive */
