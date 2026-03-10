@@ -99,7 +99,7 @@ export default function PlanHub() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               onClick={openFindCoachWizard}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-accent/30 bg-accent/5 hover:bg-accent/10 hover:border-accent/50 transition-all text-sm font-medium text-accent-foreground"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/50 transition-all text-sm font-medium text-amber-400"
             >
               <Search className="w-4 h-4" />
               {isHe ? '🎯 מצא מאמן שיעזור לך להגשים את האסטרטגיה' : '🎯 Find a Coach to Help Execute Your Strategy'}
