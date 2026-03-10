@@ -58,8 +58,8 @@ export default function AuroraPage() {
         </div>
       )}
 
-      {/* Tab switcher */}
-      <div className="px-3 pt-2 pb-1 shrink-0">
+      {/* Tab switcher — sticky */}
+      <div className="sticky top-0 z-20 px-3 pt-2 pb-1 shrink-0 bg-background/80 backdrop-blur-md">
         <div className="flex gap-1 p-1 rounded-2xl bg-muted/60 border border-border/50">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -95,7 +95,7 @@ export default function AuroraPage() {
       {/* Tab content */}
       {activeTab === 'chat' ? (
         <>
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-auto pb-20">
             {isAssessing && assessmentDomainId ? (
               <DomainAssessChat
                 domainId={assessmentDomainId}
@@ -107,8 +107,10 @@ export default function AuroraPage() {
               <AuroraChatBubbles showOrbAboveMessages />
             )}
           </div>
-          <div className="shrink-0 px-4 pb-2 pt-2">
-            <GlobalChatInput />
+          <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-2 pt-2 pointer-events-none">
+            <div className="pointer-events-auto">
+              <GlobalChatInput />
+            </div>
           </div>
         </>
       ) : (
