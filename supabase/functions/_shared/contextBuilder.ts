@@ -703,14 +703,20 @@ export async function buildContext(
     },
 
     // ─── Memory Graph (Knowledge Graph) ───────────────
-    memory_graph: memoryGraphData.map((n: any) => ({
-      node_type: n.node_type,
-      content: n.content,
-      strength: n.strength || 1,
-      pillar: n.pillar || null,
-      reference_count: n.reference_count || 1,
-      first_seen: n.first_seen_at ? new Date(n.first_seen_at).toISOString().split("T")[0] : "",
-    })),
+    memory_graph: memoryGraphData.map((n: any) => {
+      const lastRef = n.last_referenced_at ? new Date(n.last_referenced_at) : new Date(n.first_seen_at || now);
+      const daysSinceRef = Math.floor((now.getTime() - lastRef.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        node_type: n.node_type,
+        content: n.content,
+        strength: n.strength || 1,
+        pillar: n.pillar || null,
+        reference_count: n.reference_count || 1,
+        first_seen: n.first_seen_at ? new Date(n.first_seen_at).toISOString().split("T")[0] : "",
+        last_referenced: lastRef.toISOString().split("T")[0],
+        days_since_referenced: daysSinceRef,
+      };
+    }),
   };
 
   // Compute hash for tracing
