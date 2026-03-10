@@ -171,7 +171,7 @@ export function BottomTabBar() {
             <button
               onClick={() => navigate(planTab.path)}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 border ring-2",
+                "w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 border ring-2",
                 isActive(planTab.path)
                   ? "bg-gradient-to-br from-cyan-500/30 to-teal-500/20 border-cyan-500/40 ring-cyan-400/30"
                   : "bg-gradient-to-br from-cyan-600/15 to-teal-500/10 border-cyan-500/20 ring-cyan-500/10"
