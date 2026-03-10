@@ -59,8 +59,8 @@ export default function AuroraPage() {
       )}
 
       {/* Tab switcher — sticky */}
-      <div className="sticky top-0 z-20 px-3 pt-2 pb-1 shrink-0 bg-background/80 backdrop-blur-md">
-        <div className="flex gap-1 p-1 rounded-2xl bg-muted/60 border border-border/50">
+      <div className="sticky top-0 z-20 px-3 pt-2 pb-1 shrink-0">
+        <div className="flex gap-1 p-1 rounded-2xl">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
