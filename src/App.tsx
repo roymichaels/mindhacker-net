@@ -228,6 +228,7 @@ const App = () => (
                 <GameStateProvider>
                 <SubscriptionsModalProvider>
                  <CoachesModalProvider>
+                 <WalletModalProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
