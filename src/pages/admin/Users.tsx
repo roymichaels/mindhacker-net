@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Search, Loader2, Gift, Eye, UserCog, Shield, Link2, 
-  Check, X, MoreHorizontal, Users as UsersIcon 
+  Check, X, MoreHorizontal, Users as UsersIcon, RefreshCw, Sparkles
 } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
 import AdminGrantPurchaseDialog from "@/components/admin/AdminGrantPurchaseDialog";
@@ -70,6 +70,7 @@ const Users = () => {
     full_name: string | null;
   } | null>(null);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
 
@@ -216,6 +217,27 @@ const Users = () => {
     setGrantDialogOpen(true);
   };
 
+  const handleRefreshUsers = async () => {
+    setRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-refresh-users', {
+        body: { inactivity_days: 1, dry_run: false },
+      });
+      if (error) throw error;
+      toast({
+        title: language === 'he' ? 'רענון הושלם' : 'Refresh Complete',
+        description: language === 'he'
+          ? `אורבים: ${data.summary.orbs_created}, תוכניות: ${data.summary.plans_regenerated}, שגיאות: ${data.summary.errors}`
+          : `Orbs: ${data.summary.orbs_created}, Plans: ${data.summary.plans_regenerated}, Errors: ${data.summary.errors}`,
+      });
+      fetchUsers();
+    } catch (error) {
+      handleError(error, language === 'he' ? 'שגיאה ברענון' : 'Refresh failed', 'handleRefreshUsers');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const getInitials = (name: string | null | undefined, email: string) => {
     if (name) {
       return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -247,15 +269,33 @@ const Users = () => {
           </div>
         </div>
         
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-2.5 h-4 w-4 text-muted-foreground`} />
-          <Input
-            placeholder={t('adminUsers.searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={cn("h-9", isRTL ? 'pr-9' : 'pl-9')}
-          />
+        {/* Actions */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefreshUsers}
+            disabled={refreshing}
+            className="gap-1.5"
+          >
+            {refreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            {language === 'he' ? 'רענון אורבים + תוכניות' : 'Refresh Orbs + Plans'}
+          </Button>
+          
+          {/* Search */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-2.5 h-4 w-4 text-muted-foreground`} />
+            <Input
+              placeholder={t('adminUsers.searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={cn("h-9", isRTL ? 'pr-9' : 'pl-9')}
+            />
+          </div>
         </div>
       </div>
 
