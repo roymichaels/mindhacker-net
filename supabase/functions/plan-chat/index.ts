@@ -83,6 +83,56 @@ serve(async (req) => {
       }
     }
 
+    // Fetch tactical schedule to supplement action_items (schedule may have blocks not yet materialized)
+    let tacticalContext = "";
+    if (plan?.id && plan.start_date) {
+      const { data: tacticalSchedule } = await supabase
+        .from("tactical_schedules")
+        .select("phase_number, schedule_data")
+        .eq("plan_id", plan.id)
+        .order("phase_number")
+        .limit(2);
+
+      if (tacticalSchedule?.length) {
+        const planStartDate = new Date(plan.start_date + "T00:00:00");
+        const todayDate = new Date(todayStr + "T00:00:00");
+        const yesterdayDateObj = new Date(yesterdayStr + "T00:00:00");
+        
+        // Calculate day indices (0-based)
+        const todayDayIndex = Math.floor((todayDate.getTime() - planStartDate.getTime()) / 86400000);
+        const yesterdayDayIndex = Math.floor((yesterdayDateObj.getTime() - planStartDate.getTime()) / 86400000);
+        
+        for (const ts of tacticalSchedule) {
+          const days = ts.schedule_data as any[];
+          if (!Array.isArray(days)) continue;
+          
+          const phaseStartDay = (ts.phase_number - 1) * 10;
+          
+          // Check if yesterday or today falls within this phase
+          for (const targetDay of [
+            { dayIndex: yesterdayDayIndex, label: `YESTERDAY's PLANNED SCHEDULE (${yesterdayStr}, Day ${yesterdayDayIndex + 1})` },
+            { dayIndex: todayDayIndex, label: `TODAY's PLANNED SCHEDULE (${todayStr}, Day ${todayDayIndex + 1})` },
+          ]) {
+            const arrayIndex = targetDay.dayIndex - phaseStartDay;
+            if (arrayIndex >= 0 && arrayIndex < days.length) {
+              const dayData = days[arrayIndex];
+              if (dayData?.blocks?.length) {
+                tacticalContext += `\n\n📋 ${targetDay.label}:\n`;
+                for (const block of dayData.blocks) {
+                  tacticalContext += `  [${block.block_emoji || '📦'} ${block.block_title_he || block.block_title_en || 'Block'} ${block.start_time}-${block.end_time}]\n`;
+                  if (block.milestones?.length) {
+                    for (const m of block.milestones) {
+                      tacticalContext += `    - "${m.title_he || m.title_en}" [${m.pillar || 'general'}] ${m.duration_minutes}min\n`;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     // ALWAYS fetch tasks regardless of plan (tasks exist even without active plan)
     const { data: recentAndUpcoming } = await supabase
       .from("action_items")
