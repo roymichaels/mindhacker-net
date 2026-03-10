@@ -50,6 +50,7 @@ const TemplateCoverage  = lazy(() => import('@/components/admin/TemplateCoverage
 const AdminFMBounties   = lazy(() => import('@/pages/admin/FMBounties'));
 const AdminBlog         = lazy(() => import('@/pages/admin/Blog'));
 const WorkMonitor       = lazy(() => import('@/pages/admin/WorkMonitor'));
+const CareerApplications = lazy(() => import('@/pages/admin/CareerApplications'));
 
 // ─── Tab Configuration ──────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
       { id: 'aurora-insights', labelHe: 'תובנות', labelEn: 'Insights', component: AuroraInsights },
       { id: 'fm-bounties', labelHe: 'באונטי FM', labelEn: 'FM Bounties', component: AdminFMBounties },
       { id: 'work-monitor', labelHe: 'מוניטור עבודה', labelEn: 'Work Monitor', component: WorkMonitor },
+      { id: 'career-apps', labelHe: 'בקשות קריירה', labelEn: 'Career Apps', component: CareerApplications },
     ],
   },
   {

@@ -1659,6 +1659,51 @@ export type Database = {
           },
         ]
       }
+      career_applications: {
+        Row: {
+          admin_notes: string | null
+          ai_conversation: Json
+          ai_summary: string | null
+          career_path: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          structured_answers: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          ai_conversation?: Json
+          ai_summary?: string | null
+          career_path: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          structured_answers?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          ai_conversation?: Json
+          ai_summary?: string | null
+          career_path?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          structured_answers?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_assistant_settings: {
         Row: {
           created_at: string | null

@@ -5,6 +5,8 @@
  */
 import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCareerApplication } from '@/hooks/useCareerApplication';
+import CareerWizard from '@/components/career/CareerWizard';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,7 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ChevronLeft, Briefcase, GraduationCap, Heart, Palette, Code } from 'lucide-react';
+import { ChevronLeft, Briefcase, GraduationCap, Heart, Palette, Code, Loader2, XCircle } from 'lucide-react';
 import {
   LayoutDashboard, Users, Star, DollarSign, FileText, Megaphone,
   Settings, ExternalLink, Search, FolderKanban, Image, BarChart3,
@@ -294,8 +296,9 @@ export default function CareerHub({ careerPath }: CareerHubProps) {
   const { data: profile } = useProfile();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [profileOpen, setProfileOpen] = useState(false);
+  const { data: application, isLoading: appLoading } = useCareerApplication(careerPath);
 
-  // Coach-specific hooks (only used for coach/therapist paths)
+  // Coach-specific hooks (must be called before any early returns)
   const isCoachType = careerPath === 'coach' || careerPath === 'therapist';
   const { data: myProfile } = useMyCoachProfile();
   const { stats } = useCoachClientStats();
@@ -303,6 +306,41 @@ export default function CareerHub({ careerPath }: CareerHubProps) {
   const { data: fallbackSlug } = useFirstCoachSlug(!myProfile?.slug);
   const storeSlug = myProfile?.slug || fallbackSlug;
   const { data: profilePractitioner } = useCoach(profileOpen ? storeSlug : undefined);
+
+  // Gate: if no approved application, show wizard
+  if (appLoading) {
+    return <div className="flex justify-center items-center min-h-[60vh]"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
+  }
+
+  if (!application || application.status !== 'approved') {
+    if (application?.status === 'pending') {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+          </div>
+          <h2 className="text-xl font-black text-foreground">{isHe ? 'הבקשה שלך בבדיקה' : 'Application Under Review'}</h2>
+          <p className="text-muted-foreground max-w-sm">
+            {isHe ? 'נעדכן אותך ברגע שהבקשה תאושר. תודה על הסבלנות!' : 'We\'ll notify you once approved. Thank you for your patience!'}
+          </p>
+          <Button variant="outline" onClick={() => navigate('/fm/work')}>{isHe ? 'חזור' : 'Go Back'}</Button>
+        </div>
+      );
+    }
+    if (application?.status === 'rejected') {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
+            <XCircle className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="text-xl font-black text-foreground">{isHe ? 'הבקשה נדחתה' : 'Application Rejected'}</h2>
+          <p className="text-muted-foreground max-w-sm">{application.admin_notes || (isHe ? 'ניתן לפנות לתמיכה.' : 'Please contact support.')}</p>
+          <Button variant="outline" onClick={() => navigate('/fm/work')}>{isHe ? 'חזור' : 'Go Back'}</Button>
+        </div>
+      );
+    }
+    return <CareerWizard careerPath={careerPath} />;
+  }
 
   const theme = THEME[careerPath];
   const tabs = TABS_BY_PATH[careerPath];
