@@ -263,7 +263,7 @@ function parseAiSchedule(
           actionType: block.category || null,
           estimatedMinutes: m.duration_minutes || 15,
           cadence: 'daily' as Cadence,
-          completed: false,
+          completed: false, // will be patched below
           completedAt: null,
           xpReward: m.xp_reward || DIFFICULTY_XP[difficulty] || 10,
           blockCategory: category,
