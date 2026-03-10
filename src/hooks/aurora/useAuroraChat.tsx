@@ -34,6 +34,7 @@ export const useAuroraChat = (conversationId: string | null) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [failedMessageIds, setFailedMessageIds] = useState<Set<string>>(new Set());
   
   const messageCountRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -382,6 +383,11 @@ export const useAuroraChat = (conversationId: string | null) => {
       } else {
         console.error('Aurora chat error:', err);
         setError('Failed to get response from Aurora');
+        // Mark the last user message as failed for retry
+        const lastUserMsg = messages[messages.length - 1] || null;
+        if (lastUserMsg && !lastUserMsg.is_ai_message) {
+          setFailedMessageIds(prev => new Set(prev).add(lastUserMsg.id));
+        }
       }
     } finally {
       setIsStreaming(false);
@@ -421,14 +427,28 @@ export const useAuroraChat = (conversationId: string | null) => {
     await sendMessage(lastUserMessage.content);
   }, [conversationId, messages, sendMessage]);
 
+  // Retry a failed message
+  const retryMessage = useCallback(async (messageId: string) => {
+    const msg = messages.find(m => m.id === messageId);
+    if (!msg) return;
+    setFailedMessageIds(prev => {
+      const next = new Set(prev);
+      next.delete(messageId);
+      return next;
+    });
+    await sendMessage(msg.content);
+  }, [messages, sendMessage]);
+
   return {
     messages,
     isStreaming,
     streamingContent,
     error,
+    failedMessageIds,
     sendMessage,
     cancelStreaming,
     regenerateLastResponse,
+    retryMessage,
     pendingCommands,
   };
 };

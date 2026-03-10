@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { playTTS } from '@/lib/ttsPlayer';
 import { useVoicePersona } from '@/hooks/useVoicePersona';
+import { supabase } from '@/integrations/supabase/client';
 
 export type VoiceModeState = 'idle' | 'listening' | 'processing' | 'speaking';
 
@@ -111,11 +112,15 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
 
+      // Get user session token for auth
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-transcribe`,
         {
           method: 'POST',
-          headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+          headers: { Authorization: `Bearer ${accessToken || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
           body: formData,
         }
       );
