@@ -285,13 +285,14 @@ serve(async (req) => {
     // User practices
     const { data: userPractices } = await supabase
       .from("user_practices")
-      .select("id, practice_id, duration_minutes, frequency, is_core, practices(name, name_he, category, pillar)")
-      .eq("user_id", user_id);
+      .select("id, practice_id, preferred_duration, frequency_per_week, is_core_practice, is_active, energy_phase, practices(name, name_he, category, pillar)")
+      .eq("user_id", user_id)
+      .eq("is_active", true);
 
     if (userPractices?.length) {
       practiceContext = `\n\nUser's active practices:\n${userPractices.map((up: any) => {
         const p = up.practices;
-        return `- "${p?.name || 'Unknown'}" (${p?.name_he || ''}) [${p?.pillar || p?.category || 'general'}] ${up.duration_minutes}min, ${up.frequency}, core:${up.is_core} (user_practice_id: ${up.id}, practice_id: ${up.practice_id})`;
+        return `- "${p?.name || 'Unknown'}" (${p?.name_he || ''}) [${p?.pillar || p?.category || 'general'}] ${up.preferred_duration}min, ${up.frequency_per_week}x/week, core:${up.is_core_practice}, phase:${up.energy_phase} (user_practice_id: ${up.id}, practice_id: ${up.practice_id})`;
       }).join("\n")}`;
     }
 
