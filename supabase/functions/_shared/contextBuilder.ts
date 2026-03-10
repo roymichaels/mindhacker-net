@@ -577,11 +577,18 @@ export async function buildContext(
       energy_patterns_status: onboarding?.energy_patterns_status || "unknown",
     },
 
-    conversation_memories: conversationMemories.map((m: any) => ({
-      date: new Date(m.created_at).toISOString().split("T")[0],
-      summary: m.summary,
-      action_items: m.action_items || [],
-    })),
+    conversation_memories: conversationMemories.map((m: any) => {
+      const memDate = new Date(m.created_at);
+      const daysAgo = Math.floor((now.getTime() - memDate.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        date: memDate.toISOString().split("T")[0],
+        time: memDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        summary: m.summary,
+        emotional_state: m.emotional_state || null,
+        action_items: m.action_items || [],
+        days_ago: daysAgo,
+      };
+    }),
     pending_reminders: pendingReminders.map((r: any) => ({
       message: r.message,
       created_at: r.created_at,
