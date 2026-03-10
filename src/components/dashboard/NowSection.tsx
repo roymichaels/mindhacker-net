@@ -52,6 +52,7 @@ function QuarterBlockRow({
   onToggle,
   isOpen,
   onExecute,
+  onToggleComplete,
   isHe,
 }: {
   slot: ScheduleSlot;
@@ -59,6 +60,7 @@ function QuarterBlockRow({
   onToggle: () => void;
   isOpen: boolean;
   onExecute: (item: NowQueueItem) => void;
+  onToggleComplete: (item: NowQueueItem) => void;
   isHe: boolean;
 }) {
   const blockInfo = QUARTER_LABELS[slot.timeBlock] || QUARTER_LABELS.midday;
