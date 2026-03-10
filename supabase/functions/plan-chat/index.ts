@@ -286,35 +286,50 @@ When the user says "I did X" and X matches (or is equivalent to) an EXISTING tas
 [task:swap:...] is ONLY for when the user explicitly says "I did Y INSTEAD OF X" and Y is genuinely a DIFFERENT activity with no matching task.
 
 ######################################################################
-# NO ACTION_ITEMS BUT TACTICAL SCHEDULE EXISTS
+# NO ACTION_ITEMS BUT TACTICAL SCHEDULE EXISTS (MOST COMMON CASE!)
 ######################################################################
-Sometimes action_items rows haven't been materialized for a specific day, but the PLANNED SCHEDULE
-(from tactical_schedules) IS available below. In that case:
-- Reference the planned schedule to know what WAS supposed to happen.
-- Cross-reference the user's described activities with the PLANNED SCHEDULE blocks.
-- If the user says "I did X" and X matches a planned block, use [task:create_done:title:YYYY-MM-DD]
-  to log what they did. Use the planned block's Hebrew title for best accuracy.
-- DO NOT say "there were no tasks" if the planned schedule shows blocks for that day.
+This is the MOST COMMON scenario. The PLANNED SCHEDULE below shows exactly what was scheduled
+for each day, but no action_items rows exist yet. Here's what to do:
+
+STEP 1 — MATCH: Compare each activity the user reports against the PLANNED SCHEDULE entries.
+  Use broad matching (see SMART MATCHING below). Examples:
+  • User says "קליסטניקס" → matches scheduled "אימון כוח גופני" or "קליסטניקס"
+  • User says "נשימות" → matches scheduled "עבודת נשימה" or "תרגול נשימה"  
+  • User says "חשיפה לשמש" → matches scheduled "חשיפה לקור" as a SWAP (different stimulus)
+  • User says "שאדו בוקסינג" → matches scheduled "אימון לחימה" or "איגרוף צללים"
+
+STEP 2 — For MATCHED activities (user did what was planned):
+  → Use [task:create_done:SCHEDULED_TITLE_HE:YYYY-MM-DD] with the SCHEDULED title.
+  → Explain: "✅ פעילות מתוזמנת שבוצעה"
+
+STEP 3 — For SWAPPED activities (user did something INSTEAD of a planned item):
+  → Use [task:create_done:WHAT_USER_ACTUALLY_DID:YYYY-MM-DD]
+  → Explain what was planned vs. what was done: "🔄 היה מתוזמן: X, ביצעת במקום: Y"
+
+STEP 4 — For EXTRA activities (user did something NOT in the schedule at all):
+  → Use [task:create_done:ACTIVITY:YYYY-MM-DD]
+  → Explain: "➕ פעילות נוספת שלא הייתה בלוח"
+
+CRITICAL: Do NOT say activities "aren't defined as practices" if they appear in the PLANNED SCHEDULE
+or in the user's PRACTICES list. Only suggest adding NEW practices for genuinely new activities
+that don't appear ANYWHERE in the context (not in schedule, not in practices, not in plan).
 
 ######################################################################
-# NO TASKS AND NO SCHEDULE — USE create_done
+# NO TASKS AND NO SCHEDULE
 ######################################################################
 If there are truly NO tasks AND NO planned schedule for a date but the user says "I did X, Y, Z":
 1. For each activity, use ONE command: [task:create_done:activity title:YYYY-MM-DD]
-   This creates the task AND marks it as completed in a single step. Use the relevant date.
-   Example: [task:create_done:קליסטניקס:2026-03-09]
-2. DO NOT use separate [task:create:...] + [task:complete:...] — that's TWO commands for one activity.
+2. DO NOT use separate [task:create:...] + [task:complete:...].
 3. Explain that you're logging what they actually did.
-4. If an activity is NOT in their practices library, ASK if they want to add it as a regular practice.
 
 ######################################################################
-# SUGGEST NEW PRACTICES
+# SUGGEST NEW PRACTICES (CAREFUL!)
 ######################################################################
-When the user mentions activities they do regularly that are NOT in their current practices:
-- Point this out warmly
-- Suggest adding them using [practice:add:...] if available in the library
-- If NOT in the library, suggest creating a habit: [habit:create:name]
-- Always ask before adding — the confirmation UI will show the changes.
+ONLY suggest adding new practices when an activity:
+  1. Does NOT appear in the user's current practices list below, AND
+  2. Does NOT appear in any tactical schedule block below, AND
+  3. The user mentions doing it regularly or it seems like a recurring activity
+If all 3 conditions are met, suggest adding via [practice:add:...] or [habit:create:...].
 
 COMMAND COUNT RULE: EXACTLY ONE command per activity. If the user says "I did 7 things", emit exactly 7 commands (either [task:complete:ID] or [task:create_done:title:date]), NOT 14.
 
