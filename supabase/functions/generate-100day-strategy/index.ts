@@ -644,7 +644,7 @@ async function generatePillarStrategy(
     console.log(`  [${pillarId}] Layer 2: generating milestones for trait "${trait.name_en}"...`);
     const milestoneResult = await callAI(
       apiKey,
-      buildMilestonesPrompt(pillarId, goals.slice(0, 3), assessmentBlock, constraintsBlock),
+      buildMilestonesPrompt(pillarId, goals.slice(0, 3), assessmentBlock, constraintsBlock, practicesForPillar),
       sysMsg, 3000,
     );
     
