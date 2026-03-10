@@ -40,11 +40,11 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    // Only summarize if last memory is older than 30 minutes or doesn't exist
+    // Only summarize if last memory is older than 15 minutes or doesn't exist
     if (existingMemory) {
       const lastMemoryTime = new Date(existingMemory.created_at).getTime();
-      const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
-      if (lastMemoryTime > thirtyMinutesAgo) {
+      const fifteenMinutesAgo = Date.now() - 15 * 60 * 1000;
+      if (lastMemoryTime > fifteenMinutesAgo) {
         return new Response(
           JSON.stringify({ message: "Recent memory exists, skipping" }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
