@@ -36,11 +36,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const swipeHandlers = useSwipeNavigation();
   useLearnPillarAction();
 
+  const isProfileRoute = location.pathname === '/profile';
+  const hideChrome = isProfileRoute;
+
   return (
     <AuroraActionsProvider>
       <SidebarProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-          {isMobile ? (
+          {hideChrome ? null : isMobile ? (
             isFM ? (
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
