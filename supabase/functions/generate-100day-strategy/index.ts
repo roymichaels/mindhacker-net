@@ -965,6 +965,8 @@ serve(async (req) => {
       const p = up.practices || {};
       return {
         practice_name: p.name || 'Unknown',
+        practice_name_he: p.name_he || p.name || 'Unknown',
+        category: p.category || 'health',
         energy_phase: up.energy_phase || p.energy_type || 'day',
         preferred_duration: up.preferred_duration || p.default_duration || 15,
         frequency_per_week: up.frequency_per_week || 3,
