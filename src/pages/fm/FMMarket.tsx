@@ -200,10 +200,6 @@ export default function FMMarket() {
 
       {/* Career Paths — 5-col grid */}
       <div className="space-y-2">
-        <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          {isHe ? 'מסלולי קריירה' : 'Career Paths'}
-        </h2>
         <div className="grid grid-cols-5 gap-2">
           {([
             { id: 'business', icon: Briefcase, titleEn: 'Business', titleHe: 'בעל עסק', path: '/business', color: 'from-amber-500 to-orange-600', border: 'border-amber-500/40' },
