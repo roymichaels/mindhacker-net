@@ -207,7 +207,7 @@ export function useSmartSuggestions() {
       const task = userState.todayTasks[0];
       result.push({
         id: 'today-task',
-        text: t('smartSuggestions.nextTask').replace('{task}', task.content.substring(0, 30)),
+        text: t('smartSuggestions.nextTask').replace('{task}', task.title.substring(0, 30)),
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 4,
         icon: 'task',
