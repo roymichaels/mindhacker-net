@@ -43,8 +43,8 @@ const Index = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      flowAudit.redirect('/', '/plan', 'Authenticated user on Index — redirecting to plan');
-      navigate('/plan', { replace: true });
+      flowAudit.redirect('/', '/play', 'Authenticated user on Index — redirecting to play');
+      navigate('/play', { replace: true });
     }
   }, [user, loading, navigate]);
 
