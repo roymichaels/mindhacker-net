@@ -531,7 +531,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
 
       // After streaming complete, extract commands and show confirmation
       if (assistantText) {
-        const changes = extractPendingChanges(assistantText);
+        const changes = await extractPendingChanges(assistantText);
         if (changes.length > 0) {
           setPendingChanges(changes);
           setPendingRawText(assistantText);
