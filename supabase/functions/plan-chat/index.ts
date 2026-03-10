@@ -236,7 +236,7 @@ When the user mentions activities they do regularly that are NOT in their curren
 - If NOT in the library, suggest creating a habit: [habit:create:name]
 - Always ask before adding — the confirmation UI will show the changes.
 
-COMMAND COUNT RULE: The number of commands you emit must be ≤ the number of distinct activities the user mentions. If the user says "I did 7 things", emit at most 7 commands.
+COMMAND COUNT RULE: EXACTLY ONE command per activity. If the user says "I did 7 things", emit exactly 7 commands (either [task:complete:ID] or [task:create_done:title:date]), NOT 14.
 
 SMART MATCHING:
 - Match user-described activities to existing tasks BROADLY.
