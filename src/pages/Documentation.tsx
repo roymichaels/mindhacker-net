@@ -33,8 +33,8 @@ export default function Documentation() {
   const founderName = he ? theme.founder_name : theme.founder_name_en;
 
   const abstractText = he
-    ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI (כולל סשנים אישיים מותאמים), מערכת למידה אדפטיבית, שוק פנימי (FreeMarket) עם 5 מסלולי קריירה מאוחדים (בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר), התאמת מאמנים מבוססת AI, פלטפורמת מאמנים עם דפי נחיתה דינמיים, הערכות עמודים מבוססות שיחת AI, מנגנון Plan Chat Wizard, תוכנית Consciousness Leap, ובלוג Aurora Codex — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
-    : `${brandName} is an AI-powered Personal Operating System that integrates Play-to-Earn (P2E) mechanics, unique digital assets (NFTs), deep gamification, AI-guided hypnosis and meditation (including custom personal sessions), an adaptive learning system, an internal marketplace (FreeMarket) with 5 unified career paths (Business Owner, Coach, Therapist, Content Creator, Freelancer), AI-powered coach matching, a coach platform with dynamic landing pages, chat-based pillar assessments, Plan Chat Wizard, Consciousness Leap program, and Aurora Codex blog — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine (Aurora), subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a data mining model that rewards genuine human activity.`;
+    ? `${brandName} הוא מערכת הפעלה אישית מבוססת בינה מלאכותית, המשלבת מנגנוני Play-to-Earn (P2E), נכסים דיגיטליים ייחודיים (NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI (כולל סשנים אישיים מותאמים), מערכת למידה אדפטיבית, שוק פנימי (FreeMarket) עם 5 מסלולי קריירה מאוחדים (בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר), התאמת מאמנים מבוססת AI, פלטפורמת מאמנים עם דפי נחיתה דינמיים וחנויות אישיות (/p/:slug), הערכות עמודים מבוססות שיחת AI, מנגנון Plan Chat Wizard, תוכנית Consciousness Leap, בלוג Aurora Codex, מערכת אונבורדינג עם טקס כניסה (Ceremony), מערכת PWA מלאה עם התקנה למסך הבית, מערכת Admin Hub לניהול הפלטפורמה, מנגנון דיווח באגים, תוכנית שותפים (Affiliates), ו-Aurora עם מודעות הקשרית מלאה (אסטרטגיות, טקטיקות, לוח זמנים, ציוני עמודים, זמן נוכחי) — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מערכת ה-AI התודעתית (Aurora), מודל המנויים, ומפת הדרכים של הפרויקט. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל כריית נתונים שמתגמל פעילות אנושית אמיתית.`
+    : `${brandName} is an AI-powered Personal Operating System that integrates Play-to-Earn (P2E) mechanics, unique digital assets (NFTs), deep gamification, AI-guided hypnosis and meditation (including custom personal sessions), an adaptive learning system, an internal marketplace (FreeMarket) with 5 unified career paths (Business Owner, Coach, Therapist, Content Creator, Freelancer), AI-powered coach matching, a coach platform with dynamic landing pages and personal storefronts (/p/:slug), chat-based pillar assessments, Plan Chat Wizard, Consciousness Leap program, Aurora Codex blog, an onboarding system with initiation Ceremony, full PWA support with home screen installation, Admin Hub for platform management, bug reporting system, Affiliate program, and Aurora with full contextual awareness (strategies, tactics, schedules, pillar scores, current time) — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine (Aurora), subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a data mining model that rewards genuine human activity.`;
 
   const sections: Section[] = [
     {
@@ -182,15 +182,29 @@ export default function Documentation() {
       ],
       subsections: [
         {
-          title: he ? '5.1 זיכרון שיחות וזיכרון ארוך טווח' : '5.1 Conversation Memory & Long-Term Memory',
+          title: he ? '5.1 מודעות הקשרית מלאה (Context Pipeline)' : '5.1 Full Contextual Awareness (Context Pipeline)',
           paragraphs: he ? [
-            `Aurora שומרת זיכרון שיחות מלא — כולל סיכומי שיחה, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה כקונטקסט, מה שמאפשר המשכיות אמיתית לאורך זמן. הזיכרון מודע לציר הזמן — אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
+            `Aurora בנויה על Context Pipeline מתקדם שאוסף אוטומטית את כל המידע הרלוונטי לפני כל שיחה. ה-Pipeline מזריק לכל תגובה: (1) פרופיל מלא — שם, שפה, אזור זמן, רמת מנוי, ארכיטיפ, (2) תוכניות אסטרטגיות פעילות — כל הפילרים, התקדמות באחוזים, שלב נוכחי, (3) משימות (Missions) — כותרות, עמודים, סטטוס השלמה, (4) לוח זמנים טקטי ליום הנוכחי — כל בלוקי הפעולה מחולקים לרבעוני יום, (5) ציוני הערכה מ-14 עמודי החיים — ציון כולל לכל דומיין, (6) רמת מנוי — Free/Plus/Apex.`,
+            `Aurora מודעת לזמן: היא יודעת את השעה, היום, ואת לוח הזמנים הספציפי של המשתמש להיום. זה מאפשר לה לתת המלצות מדויקות ("יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום").`,
+            `כל ה-Context Pipeline רץ בצד השרת (Edge Function) ומאחד נתונים מ-7+ טבלאות בו-זמנית באמצעות Promise.all. התוצאה: Aurora שמכירה את המשתמש לעומק — לא רק מה שהוא אומר, אלא מה שהוא עושה, מתכנן, ומרגיש.`,
           ] : [
-            `Aurora maintains full conversation memory — including conversation summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation as context, enabling true continuity over time. Memory is timeline-aware — recent events and identity shifts are prioritized.`,
+            `Aurora is built on an advanced Context Pipeline that automatically gathers all relevant information before every conversation. The pipeline injects into each response: (1) Full profile — name, language, timezone, subscription tier, archetype, (2) Active strategic plans — all pillars, percentage progress, current phase, (3) Missions — titles, pillars, completion status, (4) Today's tactical schedule — all action blocks divided into day quarters, (5) Assessment scores from all 14 life pillars — overall score per domain, (6) Subscription tier — Free/Plus/Apex.`,
+            `Aurora is time-aware: it knows the current time, day, and the user's specific schedule for today. This enables precise recommendations ("you have a training block in an hour", "you've completed 60% of today's tasks").`,
+            `The entire Context Pipeline runs server-side (Edge Function) and unifies data from 7+ tables simultaneously using Promise.all. The result: Aurora that deeply knows the user — not just what they say, but what they do, plan, and feel.`,
           ],
         },
         {
-          title: he ? '5.2 מערכת פרואקטיבית' : '5.2 Proactive System',
+          title: he ? '5.2 זיכרון שיחות וגרף זיכרון' : '5.2 Conversation Memory & Memory Graph',
+          paragraphs: he ? [
+            `Aurora שומרת זיכרון שיחות מלא — כולל סיכומי שיחה, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה כקונטקסט, מה שמאפשר המשכיות אמיתית לאורך זמן. הזיכרון מודע לציר הזמן — אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
+            `Memory Graph: מערכת זיכרון גרף שמקשרת בין צמתי מידע (nodes) — עובדות, דפוסים, זהויות, העדפות — עם חוזק חיבור (strength), ספירת הפניות (reference_count), ומודעות עמודים (pillar). זה מאפשר ל-Aurora "לזכור" תובנות חוצות-שיחות ולחבר נקודות בין נושאים שונים.`,
+          ] : [
+            `Aurora maintains full conversation memory — including conversation summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation as context, enabling true continuity over time. Memory is timeline-aware — recent events and identity shifts are prioritized.`,
+            `Memory Graph: A graph memory system connecting information nodes — facts, patterns, identities, preferences — with connection strength, reference counts, and pillar awareness. This enables Aurora to "remember" cross-conversation insights and connect dots between different topics.`,
+          ],
+        },
+        {
+          title: he ? '5.3 מערכת פרואקטיבית' : '5.3 Proactive System',
           paragraphs: he ? [
             `Aurora לא מחכה שתדבר אליה — היא פועלת פרואקטיבית. מערכת ה-Proactive Queue מזהה טריגרים (streak שנשבר, ירידה באנרגיה, משימה שנדחתה) ומייצרת דחיפות חכמות עם עדיפויות. כולל push notifications, תזכורות מתוזמנות, ומנגנון idempotency למניעת כפילויות.`,
           ] : [
@@ -198,7 +212,7 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '5.3 דפוסים התנהגותיים ואנרגטיים' : '5.3 Behavioral & Energy Patterns',
+          title: he ? '5.4 דפוסים התנהגותיים ואנרגטיים' : '5.4 Behavioral & Energy Patterns',
           paragraphs: he ? [
             `Aurora מנתחת דפוסי התנהגות ואנרגיה לאורך זמן — מזהה מתי המשתמש הכי פרודוקטיבי, מתי צריך מנוחה, ואילו פעילויות משפיעות על מצב הרוח. המידע משפיע על תזמון משימות, המלצות, ותוכן מותאם.`,
           ] : [
@@ -206,11 +220,19 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '5.4 Aurora Dock — ממשק פעולות מהירות' : '5.4 Aurora Dock — Quick Action Interface',
+          title: he ? '5.5 Aurora Dock — ממשק פעולות מהירות' : '5.5 Aurora Dock — Quick Action Interface',
           paragraphs: he ? [
             `ה-Aurora Dock הוא ממשק צף שנגיש מכל מקום במערכת — כפתור FAB (Floating Action Button) שפותח מגש פעולות מהירות. דרכו המשתמש יכול: לפתוח שיחה עם Aurora, להתחיל סשן היפנוזה, לבנות קוריקולום, לסרוק עמוד חיים, ולהציץ במשימות היום. ה-Dock מזהה קונטקסט ומציע פעולות רלוונטיות לפי הדף הנוכחי.`,
           ] : [
             `The Aurora Dock is a floating interface accessible from anywhere in the system — a FAB (Floating Action Button) that opens a quick-action tray. Through it users can: start an Aurora conversation, begin a hypnosis session, build a curriculum, scan a life pillar, and peek at today's tasks. The Dock is context-aware and suggests relevant actions based on the current page.`,
+          ],
+        },
+        {
+          title: he ? '5.6 Command Bus — פעולות בתוך השיחה' : '5.6 Command Bus — In-Chat Actions',
+          paragraphs: he ? [
+            `Aurora תומכת ב-Command Bus — מנגנון שמאפשר לה לבצע פעולות ישירות מתוך השיחה: ניווט לדפים, יצירת משימות, עדכון סטטוס פעולות, פתיחת הערכות, והוספת פריטים ללו"ז. הפקודות מוטמעות בתגובות ה-AI ומופעלות אוטומטית בצד הלקוח.`,
+          ] : [
+            `Aurora supports a Command Bus — a mechanism enabling direct actions from within conversations: navigating to pages, creating tasks, updating action statuses, opening assessments, and adding items to the schedule. Commands are embedded in AI responses and executed automatically client-side.`,
           ],
         },
       ],
@@ -404,6 +426,84 @@ export default function Documentation() {
       ],
     },
     {
+      id: 'onboarding',
+      number: '13.1',
+      title: he ? 'אונבורדינג וטקס כניסה' : 'Onboarding & Initiation Ceremony',
+      paragraphs: he ? [
+        `${brandName} כולל מערכת אונבורדינג רב-שלבית שמלווה משתמשים חדשים מרגע ההרשמה ועד לביצוע הפעולה הראשונה. התהליך כולל: (1) הרשמה עם אימייל ואימות, (2) שיחת היכרות עם Aurora לזיהוי מצב, מטרות, ואתגרים, (3) בחירת עמודי חיים ראשוניים, (4) יצירת תוכנית 100 ימים ראשונה.`,
+        `טקס הכניסה (Ceremony): חוויה ויזואלית אימרסיבית שמסמנת את תחילת המסע. כוללת אנימציות, מוזיקת רקע, ויצירת ה-Orb האישי הראשון. הטקס בונה מחויבות רגשית ומבדל את ${brandName} מכל אפליקציה אחרת — זו לא רק הרשמה, זו התחלה.`,
+        `דף Go (/go): דף נחיתה ייעודי להפניית משתמשים חדשים שמתחיל את תהליך האונבורדינג עם חוויה מותאמת.`,
+      ] : [
+        `${brandName} includes a multi-step onboarding system that guides new users from registration to first action. The process includes: (1) email signup with verification, (2) introductory conversation with Aurora for state, goals, and challenge identification, (3) initial life pillar selection, (4) first 100-day plan creation.`,
+        `Initiation Ceremony: An immersive visual experience marking the start of the journey. Features animations, background music, and creation of the first personal Orb. The ceremony builds emotional commitment and differentiates ${brandName} from any other app — it's not just signup, it's a beginning.`,
+        `Go Page (/go): A dedicated landing page for directing new users that initiates the onboarding process with a tailored experience.`,
+      ],
+    },
+    {
+      id: 'admin-hub',
+      number: '13.2',
+      title: he ? 'Admin Hub — מרכז ניהול הפלטפורמה' : 'Admin Hub — Platform Management Center',
+      paragraphs: he ? [
+        `Admin Hub (/admin-hub) הוא מרכז הניהול של ${brandName} — נגיש רק למשתמשים עם תפקיד admin (מנוהל דרך טבלת user_roles עם RLS). כולל: דשבורד סטטיסטיקות עם כמויות משתמשים, מנויים, הכנסות, ופעילות יומית.`,
+        `מודולי ניהול: (1) ניהול משתמשים — חיפוש, צפייה, ועדכון פרופילים, (2) ניהול תוכן — מוצרים, קורסים, ומדיה, (3) ניהול קהילה — פוסטים, קטגוריות, אירועים, (4) ניהול בלוג — כתיבת ועריכת מאמרים, (5) ניהול שותפים (Affiliates) — קודים, עמלות, תשלומים, (6) ניהול באגים — צפייה ועדכון דיווחי באגים, (7) התראות מערכת — ניהול הודעות אדמין עם סדר עדיפויות.`,
+        `מסע אדמין (Admin Journey): ויזארד 8 שלבים שמנחה אדמינים חדשים דרך הגדרת החזון, צוות, מיתוג, מוצרים, תוכן, דפי נחיתה, שיווק, ותפעול — עם סיכום AI בסוף.`,
+      ] : [
+        `Admin Hub (/admin-hub) is the management center of ${brandName} — accessible only to users with an admin role (managed via user_roles table with RLS). Includes: statistics dashboard with user counts, subscriptions, revenue, and daily activity.`,
+        `Management modules: (1) User management — search, view, and update profiles, (2) Content management — products, courses, and media, (3) Community management — posts, categories, events, (4) Blog management — writing and editing articles, (5) Affiliate management — codes, commissions, payouts, (6) Bug management — viewing and updating bug reports, (7) System notifications — managing admin notifications with priorities.`,
+        `Admin Journey: An 8-step wizard guiding new admins through vision, team, branding, products, content, landing pages, marketing, and operations setup — with an AI summary at completion.`,
+      ],
+    },
+    {
+      id: 'affiliate',
+      number: '13.3',
+      title: he ? 'תוכנית שותפים (Affiliates)' : 'Affiliate Program',
+      paragraphs: he ? [
+        `${brandName} כולל תוכנית שותפים מלאה שמאפשרת למשתמשים להרוויח עמלות על הפניית לקוחות חדשים. כל שותף מקבל קוד הפניה ייחודי (affiliate_code) עם שיעור עמלה מותאם (ברירת מחדל commission_rate).`,
+        `מערכת השותפים כוללת: (1) דשבורד שותפים (/affiliate) עם סטטיסטיקות רווחים, (2) ניהול לינקים (My Links), (3) מעקב הפניות (My Referrals) עם סטטוס אישור, (4) היסטוריית תשלומים (My Payouts). תשלומים מאושרים ומעובדים דרך Admin Hub עם תיעוד מלא.`,
+        `דף הרשמת שותפים (/affiliate-signup) פתוח לכולם ומאפשר הצטרפות מהירה לתוכנית.`,
+      ] : [
+        `${brandName} includes a full affiliate program enabling users to earn commissions for referring new customers. Each affiliate receives a unique referral code (affiliate_code) with a customizable commission rate.`,
+        `The affiliate system includes: (1) Affiliate dashboard (/affiliate) with earnings statistics, (2) Link management (My Links), (3) Referral tracking (My Referrals) with approval status, (4) Payout history (My Payouts). Payouts are approved and processed through Admin Hub with full documentation.`,
+        `An affiliate signup page (/affiliate-signup) is open to everyone for quick program enrollment.`,
+      ],
+    },
+    {
+      id: 'bug-reporting',
+      number: '13.4',
+      title: he ? 'מערכת דיווח באגים' : 'Bug Reporting System',
+      paragraphs: he ? [
+        `${brandName} כולל מערכת דיווח באגים מובנית שמאפשרת למשתמשים לדווח על בעיות ישירות מתוך האפליקציה. כל דיווח שומר: כותרת, תיאור, קטגוריה, עדיפות, URL ונתיב הדף, צילום מסך, סוג דפדפן, מערכת הפעלה, וגודל מסך.`,
+        `הדיווחים נגישים לאדמינים דרך Admin Hub עם סינון לפי סטטוס (open, in_progress, resolved) ועדיפות. כל דיווח כולל שדות admin_notes ו-resolved_by למעקב טיפול.`,
+      ] : [
+        `${brandName} includes a built-in bug reporting system allowing users to report issues directly from the application. Each report captures: title, description, category, priority, page URL and path, screenshot, browser type, OS, and screen size.`,
+        `Reports are accessible to admins through Admin Hub with filtering by status (open, in_progress, resolved) and priority. Each report includes admin_notes and resolved_by fields for resolution tracking.`,
+      ],
+    },
+    {
+      id: 'pwa',
+      number: '13.5',
+      title: he ? 'PWA — אפליקציית ווב מתקדמת' : 'PWA — Progressive Web App',
+      paragraphs: he ? [
+        `${brandName} בנוי כ-Progressive Web App (PWA) מלא עם דף התקנה ייעודי (/install). תכונות: (1) התקנה למסך הבית בכל מכשיר (iOS, Android, Desktop), (2) Service Worker לניהול cache ועבודה אופליין, (3) Push Notifications (במנוי Pro), (4) חוויה native-like ללא צורך ב-App Store.`,
+        `דף ההתקנה מנחה את המשתמש שלב-אחר-שלב לפי סוג המכשיר (Safari iOS, Chrome Android, Desktop) עם הנחיות ויזואליות מותאמות.`,
+      ] : [
+        `${brandName} is built as a full Progressive Web App (PWA) with a dedicated install page (/install). Features: (1) Home screen installation on any device (iOS, Android, Desktop), (2) Service Worker for cache management and offline support, (3) Push Notifications (on Pro tier), (4) Native-like experience without App Store dependency.`,
+        `The install page guides users step-by-step based on device type (Safari iOS, Chrome Android, Desktop) with tailored visual instructions.`,
+      ],
+    },
+    {
+      id: 'coach-storefront',
+      number: '13.6',
+      title: he ? 'חנויות מאמנים אישיות' : 'Coach Personal Storefronts',
+      paragraphs: he ? [
+        `כל מאמן ב-${brandName} מקבל חנות אישית עם URL ייחודי (/p/:slug). דפי הנחיתה נוצרים אוטומטית על ידי Aurora ומותאמים לפרופיל המאמן — כולל Hero section, יתרונות, אודות, עדויות, הצעת ערך, FAQ, ו-CTA.`,
+        `המאמנים יכולים לערוך את התוכן, לשנות תבניות (templates), ולפרסם/לבטל פרסום. כל דף נחיתה כולל תמיכת SEO (meta title, description), תמונת כיסוי, וטופס לידים שמזרים ישירות ל-CRM של המאמן.`,
+      ] : [
+        `Every coach on ${brandName} receives a personal storefront with a unique URL (/p/:slug). Landing pages are auto-generated by Aurora and customized to the coach's profile — including Hero section, benefits, about, testimonials, value proposition, FAQ, and CTA.`,
+        `Coaches can edit content, switch templates, and publish/unpublish. Each landing page includes SEO support (meta title, description), cover image, and a lead capture form that feeds directly into the coach's CRM.`,
+      ],
+    },
+    {
       id: 'tech-stack',
       number: '14',
       title: he ? 'סטאק טכנולוגי וארכיטקטורה' : 'Technology Stack & Architecture',
@@ -422,11 +522,11 @@ export default function Documentation() {
       number: '15',
       title: he ? 'מפת דרכים' : 'Roadmap',
       paragraphs: he ? [
-        `Q1 2026: השקת Beta ציבורי, 6 Hubs פעילים (Now, Tactics, Strategy, Community, Learn, FreeMarket), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, Quest Runner, הערכות עמודים מבוססות שיחה, Plan Chat Wizard, התאמת מאמן AI, היפנוזה אישית, תוכנית Consciousness Leap, בלוג Aurora Codex. Q2 2026: פלטפורמת מאמנים מלאה, FreeMarket עם שוק נתונים, תוכנית שותפים, API פתוח. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
-        `2027: Blockchain integration, DAO governance, מטבע MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט.`,
+        `Q1 2026: השקת Beta ציבורי, 6 Hubs פעילים (Now, Tactics, Strategy, Community, Learn, FreeMarket), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, Quest Runner, הערכות עמודים מבוססות שיחה, Plan Chat Wizard, התאמת מאמן AI, היפנוזה אישית, תוכנית Consciousness Leap, בלוג Aurora Codex, תוכנית שותפים, אונבורדינג עם Ceremony, Admin Hub, דיווח באגים, PWA מלא, חנויות מאמנים אישיות, Aurora Context Pipeline מלא. Q2 2026: פלטפורמת מאמנים מתקדמת, FreeMarket עם שוק נתונים, API פתוח, אנליטיקס מתקדם. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
+        `2027: Blockchain integration, DAO governance, מטבע MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט, Aurora Voice Agent עצמאי.`,
       ] : [
-        `Q1 2026: Public Beta launch, 6 active Hubs (Now, Tactics, Strategy, Community, Learn, FreeMarket), MOS Mining Engine, AI Hypnosis, 100-Day Plan, Quest Runner, chat-based pillar assessments, Plan Chat Wizard, AI coach matching, personal hypnosis, Consciousness Leap program, Aurora Codex blog. Q2 2026: Full coach platform, FreeMarket with Data Marketplace, affiliate program, open API. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
-        `2027: Blockchain integration, DAO governance, MOS token on Solana network, external NFT marketplace, Stripe fiat settlement.`,
+        `Q1 2026: Public Beta launch, 6 active Hubs (Now, Tactics, Strategy, Community, Learn, FreeMarket), MOS Mining Engine, AI Hypnosis, 100-Day Plan, Quest Runner, chat-based pillar assessments, Plan Chat Wizard, AI coach matching, personal hypnosis, Consciousness Leap program, Aurora Codex blog, Affiliate program, Onboarding with Ceremony, Admin Hub, Bug Reporting, full PWA, Coach personal storefronts, full Aurora Context Pipeline. Q2 2026: Advanced coach platform, FreeMarket with Data Marketplace, open API, advanced analytics. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
+        `2027: Blockchain integration, DAO governance, MOS token on Solana network, external NFT marketplace, Stripe fiat settlement, standalone Aurora Voice Agent.`,
       ],
     },
     {
@@ -448,12 +548,12 @@ export default function Documentation() {
       number: '17',
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
-        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי, כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים, וזהות NFT דינמית לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
-        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, Quest Runner לכל עמוד חיים, הערכות מבוססות שיחת AI, Plan Chat Wizard למשא ומתן עם התוכנית, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת (כולל סשנים אישיים), מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת עם דפי נחיתה דינמיים, קהילה פעילה עם Aurora AI, תוכנית Consciousness Leap, בלוג Aurora Codex, ותוכנית שותפים. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
+        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי עם מודעות הקשרית מלאה, כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים, זהות NFT דינמית, ומערכת אונבורדינג אימרסיבית — לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
+        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק (עם Context Pipeline שכולל אסטרטגיות, טקטיקות, לו"ז יומי, ציוני עמודים, וזמן נוכחי), תוכנית 100 ימים עם מתודולוגיית Why-How-Now, Quest Runner לכל עמוד חיים, הערכות מבוססות שיחת AI, Plan Chat Wizard למשא ומתן עם התוכנית, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית עם TTS בזמן אמת (כולל סשנים אישיים), מערכת למידה אדפטיבית עם Lazy Generation, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת עם דפי נחיתה דינמיים וחנויות אישיות, קהילה פעילה עם Aurora AI, תוכנית Consciousness Leap, בלוג Aurora Codex, תוכנית שותפים, Admin Hub, מערכת PWA, ודיווח באגים מובנה. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
-        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI, a Proof of Growth digital economy, a unified career platform with 5 professional paths, and dynamic NFT identity into a single experience that wraps around the user's life.`,
-        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, Quest Runner for each life pillar, chat-based AI assessments, Plan Chat Wizard for plan negotiation, AI-powered coach matching, guided hypnosis with real-time TTS (including custom personal sessions), an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a unified career platform with dynamic landing pages, an active community with Aurora AI, Consciousness Leap program, Aurora Codex blog, and an affiliate program. Everything connected, everything gamified, everything in service of personal growth.`,
+        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI with full contextual awareness, a Proof of Growth digital economy, a unified career platform with 5 professional paths, dynamic NFT identity, and an immersive onboarding system — into a single experience that wraps around the user's life.`,
+        `The platform offers: an AI engine that deeply knows you (with a Context Pipeline including strategies, tactics, daily schedule, pillar scores, and current time), a 100-day plan with the Why-How-Now methodology, Quest Runner for each life pillar, chat-based AI assessments, Plan Chat Wizard for plan negotiation, AI-powered coach matching, guided hypnosis with real-time TTS (including custom personal sessions), an adaptive learning system with Lazy Generation, an internal marketplace with real mining economy, a unified career platform with dynamic landing pages and personal storefronts, an active community with Aurora AI, Consciousness Leap program, Aurora Codex blog, affiliate program, Admin Hub, PWA system, and built-in bug reporting. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
@@ -526,7 +626,7 @@ export default function Documentation() {
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>{he ? `מאת ${founderName}` : `By ${founderName}`}</p>
                 <p>{theme.company_legal_name} · {theme.company_country}</p>
-                <p>{he ? 'גרסה 4.0 · מרץ 2026' : 'Version 4.0 · March 2026'}</p>
+                <p>{he ? 'גרסה 5.0 · מרץ 2026' : 'Version 5.0 · March 2026'}</p>
               </div>
             </motion.div>
 
