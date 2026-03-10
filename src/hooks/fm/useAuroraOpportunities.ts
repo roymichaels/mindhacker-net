@@ -117,7 +117,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'בוקר טוב! תרום תובנה מהבוקר שלך' : 'Good morning! Share a morning insight',
         subtext: isHe ? 'תובנות בוקר שוות יותר MOS' : 'Morning insights are worth more MOS',
         reward: 40,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '💡',
         priority: 4,
       });
