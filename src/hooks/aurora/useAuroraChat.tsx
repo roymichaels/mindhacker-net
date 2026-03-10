@@ -427,14 +427,28 @@ export const useAuroraChat = (conversationId: string | null) => {
     await sendMessage(lastUserMessage.content);
   }, [conversationId, messages, sendMessage]);
 
+  // Retry a failed message
+  const retryMessage = useCallback(async (messageId: string) => {
+    const msg = messages.find(m => m.id === messageId);
+    if (!msg) return;
+    setFailedMessageIds(prev => {
+      const next = new Set(prev);
+      next.delete(messageId);
+      return next;
+    });
+    await sendMessage(msg.content);
+  }, [messages, sendMessage]);
+
   return {
     messages,
     isStreaming,
     streamingContent,
     error,
+    failedMessageIds,
     sendMessage,
     cancelStreaming,
     regenerateLastResponse,
+    retryMessage,
     pendingCommands,
   };
 };
