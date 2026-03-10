@@ -426,6 +426,83 @@ export default function Documentation() {
       ],
     },
     {
+      id: 'onboarding',
+      number: '13.1',
+      title: he ? 'אונבורדינג וטקס כניסה' : 'Onboarding & Initiation Ceremony',
+      paragraphs: he ? [
+        `${brandName} כולל מערכת אונבורדינג רב-שלבית שמלווה משתמשים חדשים מרגע ההרשמה ועד לביצוע הפעולה הראשונה. התהליך כולל: (1) הרשמה עם אימייל ואימות, (2) שיחת היכרות עם Aurora לזיהוי מצב, מטרות, ואתגרים, (3) בחירת עמודי חיים ראשוניים, (4) יצירת תוכנית 100 ימים ראשונה.`,
+        `טקס הכניסה (Ceremony): חוויה ויזואלית אימרסיבית שמסמנת את תחילת המסע. כוללת אנימציות, מוזיקת רקע, ויצירת ה-Orb האישי הראשון. הטקס בונה מחויבות רגשית ומבדל את ${brandName} מכל אפליקציה אחרת — זו לא רק הרשמה, זו התחלה.`,
+        `דף Go (/go): דף נחיתה ייעודי להפניית משתמשים חדשים שמתחיל את תהליך האונבורדינג עם חוויה מותאמת.`,
+      ] : [
+        `${brandName} includes a multi-step onboarding system that guides new users from registration to first action. The process includes: (1) email signup with verification, (2) introductory conversation with Aurora for state, goals, and challenge identification, (3) initial life pillar selection, (4) first 100-day plan creation.`,
+        `Initiation Ceremony: An immersive visual experience marking the start of the journey. Features animations, background music, and creation of the first personal Orb. The ceremony builds emotional commitment and differentiates ${brandName} from any other app — it's not just signup, it's a beginning.`,
+        `Go Page (/go): A dedicated landing page for directing new users that initiates the onboarding process with a tailored experience.`,
+      ],
+    },
+    {
+      id: 'admin-hub',
+      number: '13.2',
+      title: he ? 'Admin Hub — מרכז ניהול הפלטפורמה' : 'Admin Hub — Platform Management Center',
+      paragraphs: he ? [
+        `Admin Hub (/admin-hub) הוא מרכז הניהול של ${brandName} — נגיש רק למשתמשים עם תפקיד admin (מנוהל דרך טבלת user_roles עם RLS). כולל: דשבורד סטטיסטיקות עם כמויות משתמשים, מנויים, הכנסות, ופעילות יומית.`,
+        `מודולי ניהול: (1) ניהול משתמשים — חיפוש, צפייה, ועדכון פרופילים, (2) ניהול תוכן — מוצרים, קורסים, ומדיה, (3) ניהול קהילה — פוסטים, קטגוריות, אירועים, (4) ניהול בלוג — כתיבת ועריכת מאמרים, (5) ניהול שותפים (Affiliates) — קודים, עמלות, תשלומים, (6) ניהול באגים — צפייה ועדכון דיווחי באגים, (7) התראות מערכת — ניהול הודעות אדמין עם סדר עדיפויות.`,
+        `מסע אדמין (Admin Journey): ויזארד 8 שלבים שמנחה אדמינים חדשים דרך הגדרת החזון, צוות, מיתוג, מוצרים, תוכן, דפי נחיתה, שיווק, ותפעול — עם סיכום AI בסוף.`,
+      ] : [
+        `Admin Hub (/admin-hub) is the management center of ${brandName} — accessible only to users with an admin role (managed via user_roles table with RLS). Includes: statistics dashboard with user counts, subscriptions, revenue, and daily activity.`,
+        `Management modules: (1) User management — search, view, and update profiles, (2) Content management — products, courses, and media, (3) Community management — posts, categories, events, (4) Blog management — writing and editing articles, (5) Affiliate management — codes, commissions, payouts, (6) Bug management — viewing and updating bug reports, (7) System notifications — managing admin notifications with priorities.`,
+        `Admin Journey: An 8-step wizard guiding new admins through vision, team, branding, products, content, landing pages, marketing, and operations setup — with an AI summary at completion.`,
+      ],
+    },
+    {
+      id: 'affiliate',
+      number: '13.3',
+      title: he ? 'תוכנית שותפים (Affiliates)' : 'Affiliate Program',
+      paragraphs: he ? [
+        `${brandName} כולל תוכנית שותפים מלאה שמאפשרת למשתמשים להרוויח עמלות על הפניית לקוחות חדשים. כל שותף מקבל קוד הפניה ייחודי (affiliate_code) עם שיעור עמלה מותאם (ברירת מחדל commission_rate).`,
+        `מערכת השותפים כוללת: (1) דשבורד שותפים (/affiliate) עם סטטיסטיקות רווחים, (2) ניהול לינקים (My Links), (3) מעקב הפניות (My Referrals) עם סטטוס אישור, (4) היסטוריית תשלומים (My Payouts). תשלומים מאושרים ומעובדים דרך Admin Hub עם תיעוד מלא.`,
+        `דף הרשמת שותפים (/affiliate-signup) פתוח לכולם ומאפשר הצטרפות מהירה לתוכנית.`,
+      ] : [
+        `${brandName} includes a full affiliate program enabling users to earn commissions for referring new customers. Each affiliate receives a unique referral code (affiliate_code) with a customizable commission rate.`,
+        `The affiliate system includes: (1) Affiliate dashboard (/affiliate) with earnings statistics, (2) Link management (My Links), (3) Referral tracking (My Referrals) with approval status, (4) Payout history (My Payouts). Payouts are approved and processed through Admin Hub with full documentation.`,
+        `An affiliate signup page (/affiliate-signup) is open to everyone for quick program enrollment.`,
+      ],
+    },
+    {
+      id: 'bug-reporting',
+      number: '13.4',
+      title: he ? 'מערכת דיווח באגים' : 'Bug Reporting System',
+      paragraphs: he ? [
+        `${brandName} כולל מערכת דיווח באגים מובנית שמאפשרת למשתמשים לדווח על בעיות ישירות מתוך האפליקציה. כל דיווח שומר: כותרת, תיאור, קטגוריה, עדיפות, URL ונתיב הדף, צילום מסך, סוג דפדפן, מערכת הפעלה, וגודל מסך.`,
+        `הדיווחים נגישים לאדמינים דרך Admin Hub עם סינון לפי סטטוס (open, in_progress, resolved) ועדיפות. כל דיווח כולל שדות admin_notes ו-resolved_by למעקב טיפול.`,
+      ] : [
+        `${brandName} includes a built-in bug reporting system allowing users to report issues directly from the application. Each report captures: title, description, category, priority, page URL and path, screenshot, browser type, OS, and screen size.`,
+        `Reports are accessible to admins through Admin Hub with filtering by status (open, in_progress, resolved) and priority. Each report includes admin_notes and resolved_by fields for resolution tracking.`,
+      ],
+    },
+    {
+      id: 'pwa',
+      number: '13.5',
+      title: he ? 'PWA — אפליקציית ווב מתקדמת' : 'PWA — Progressive Web App',
+      paragraphs: he ? [
+        `${brandName} בנוי כ-Progressive Web App (PWA) מלא עם דף התקנה ייעודי (/install). תכונות: (1) התקנה למסך הבית בכל מכשיר (iOS, Android, Desktop), (2) Service Worker לניהול cache ועבודה אופליין, (3) Push Notifications (במנוי Pro), (4) חוויה native-like ללא צורך ב-App Store.`,
+        `דף ההתקנה מנחה את המשתמש שלב-אחר-שלב לפי סוג המכשיר (Safari iOS, Chrome Android, Desktop) עם הנחיות ויזואליות מותאמות.`,
+      ] : [
+        `${brandName} is built as a full Progressive Web App (PWA) with a dedicated install page (/install). Features: (1) Home screen installation on any device (iOS, Android, Desktop), (2) Service Worker for cache management and offline support, (3) Push Notifications (on Pro tier), (4) Native-like experience without App Store dependency.`,
+        `The install page guides users step-by-step based on device type (Safari iOS, Chrome Android, Desktop) with tailored visual instructions.`,
+      ],
+    },
+    {
+      id: 'coach-storefront',
+      number: '13.6',
+      title: he ? 'חנויות מאמנים אישיות' : 'Coach Personal Storefronts',
+      paragraphs: he ? [
+        `כל מאמן ב-${brandName} מקבל חנות אישית עם URL ייחודי (/p/:slug). דפי הנחיתה נוצרים אוטומטית על ידי Aurora ומותאמים לפרופיל המאמן — כולל Hero section, יתרונות, אודות, עדויות, הצעת ערך, FAQ, ו-CTA.`,
+        `המאמנים יכולים לערוך את התוכן, לשנות תבניות (templates), ולפרסם/לבטל פרסום. כל דף נחיתה כולל תמיכת SEO (meta title, description), תמונת כיסוי, וטופס לידים שמזרים ישירות ל-CRM של המאמן.`,
+      ] : [
+        `Every coach on ${brandName} receives a personal storefront with a unique URL (/p/:slug). Landing pages are auto-generated by Aurora and customized to the coach's profile — including Hero section, benefits, about, testimonials, value proposition, FAQ, and CTA.`,
+        `Coaches can edit content, switch templates, and publish/unpublish. Each landing page includes SEO support (meta title, description), cover image, and a lead capture form that feeds directly into the coach's CRM.`,
+      ],
+    {
       id: 'tech-stack',
       number: '14',
       title: he ? 'סטאק טכנולוגי וארכיטקטורה' : 'Technology Stack & Architecture',
