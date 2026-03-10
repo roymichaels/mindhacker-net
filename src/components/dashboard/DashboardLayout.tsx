@@ -36,14 +36,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const swipeHandlers = useSwipeNavigation();
   useLearnPillarAction();
 
-  const isProfileRoute = location.pathname === '/profile';
-  const hideChrome = isProfileRoute;
+  // hideChrome removed — ProfilePage uses createPortal to bypass layout
 
   return (
     <AuroraActionsProvider>
       <SidebarProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-          {hideChrome ? null : isMobile ? (
+          {isMobile ? (
             isFM ? (
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
@@ -94,8 +93,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
           </div>
 
-          {!hideChrome && <AuroraDock />}
-          {!hideChrome && <BottomTabBar />}
+          <AuroraDock />
+          <BottomTabBar />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
       </SidebarProvider>

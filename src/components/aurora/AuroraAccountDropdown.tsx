@@ -21,7 +21,6 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { ProfileModal } from '@/components/dashboard/ProfileModal';
 
 interface AuroraAccountDropdownProps {
   isCollapsed?: boolean;
@@ -43,7 +42,6 @@ const AuroraAccountDropdown = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isAdmin = hasRole('admin');
@@ -101,8 +99,6 @@ const AuroraAccountDropdown = ({
 
   return (
     <>
-      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
-      
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -154,7 +150,7 @@ const AuroraAccountDropdown = ({
             className="relative overflow-hidden rounded-lg m-2 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
-              setProfileModalOpen(true);
+              navigate('/profile');
             }}
           >
             {/* Gamified background */}

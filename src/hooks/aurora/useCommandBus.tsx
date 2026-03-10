@@ -82,7 +82,7 @@ export const useCommandBus = () => {
   const navigate = useNavigate();
   const { setTheme, theme } = useTheme();
   const queryClient = useQueryClient();
-  const { openHypnosis, openSettings, openProfile, openUpgrade } = useAuroraActions();
+  const { openHypnosis, openSettings, openUpgrade } = useAuroraActions();
 
   const {
     createChecklist,
@@ -144,7 +144,7 @@ export const useCommandBus = () => {
         const openers: Record<string, () => void> = {
           hypnosis: openHypnosis,
           settings: openSettings,
-          profile: openProfile,
+          profile: () => navigate('/profile'),
           upgrade: openUpgrade,
         };
         openers[command.modalId]?.();
@@ -544,7 +544,7 @@ export const useCommandBus = () => {
     }
   }, [
     user, navigate, setTheme, theme, queryClient, isHebrew,
-    openHypnosis, openSettings, openProfile, openUpgrade,
+    openHypnosis, openSettings, openUpgrade,
     createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem,
     archiveChecklist, deleteItem, updateChecklistTitle,
     findMatchingItems, findMatchingChecklists, checklists,

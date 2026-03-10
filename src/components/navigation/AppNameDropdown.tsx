@@ -24,7 +24,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
-import { CharacterProfileModal } from '@/components/modals/CharacterProfileModal';
+// Profile now uses /profile route instead of modal
 import { UserDocsModal } from '@/components/modals/UserDocsModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
@@ -47,7 +47,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
   const { openSubscriptions } = useSubscriptionsModal();
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  // profileModalOpen state removed — now navigates to /profile
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
@@ -111,7 +111,6 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
 
   return (
     <>
-      <CharacterProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
       <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
 
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -175,7 +174,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             className="relative overflow-hidden rounded-lg m-2 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
-              setProfileModalOpen(true);
+              navigate('/profile');
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
