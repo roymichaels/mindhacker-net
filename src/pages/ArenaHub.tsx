@@ -134,7 +134,7 @@ export default function ArenaHub() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setWizardOpen(true)}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
+              className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
               <Sparkles className="w-4 h-4" />
               {isHe ? 'צור תוכנית 100 יום' : 'Create 100-Day Plan'}
@@ -142,6 +142,128 @@ export default function ArenaHub() {
           </div>
         ) : hasPlan ? (
           <>
+
+            {/* ── 10-DAY SELECTOR (floating above) ── */}
+            <div className="flex gap-1 px-1 py-2 overflow-x-auto no-scrollbar">
+              {days.map((day) => {
+                const isActive = day.dayIndex === activeDay;
+                const hasActions = day.totalActions > 0;
+                const dayPct = day.totalActions > 0 ? Math.round((day.completedActions / day.totalActions) * 100) : 0;
+
+                return (
+                  <button
+                    key={day.dayIndex}
+                    onClick={() => setSelectedDay(day.dayIndex)}
+                    className={cn(
+                      "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[38px] relative",
+                      isActive
+                        ? "bg-destructive/15 border border-destructive/30"
+                        : hasActions
+                          ? "bg-muted/20 border border-border/20 hover:bg-muted/40"
+                          : "bg-transparent border border-transparent opacity-40"
+                    )}
+                  >
+                    <span className={cn(
+                      "text-[10px] font-bold",
+                      isActive ? "text-destructive" : "text-foreground/60"
+                    )}>
+                      {day.dayNumber}
+                    </span>
+                    <span className={cn(
+                      "text-[8px]",
+                      isActive ? "text-destructive/70" : "text-muted-foreground"
+                    )}>
+                      {day.completedActions}/{day.totalActions}
+                    </span>
+                    <span className={cn(
+                      "text-[7px]",
+                      isActive ? "text-destructive/60" : "text-muted-foreground/60"
+                    )}>
+                      {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
+                    </span>
+                    {day.isToday && (
+                      <div className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
+                    )}
+                    {dayPct === 100 && day.totalActions > 0 && (
+                      <div className="absolute -top-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center">
+                        <CheckCircle2 className="w-2 h-2 text-white" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* ── Floating action buttons ── */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  const BLOCK_LABELS: Record<string, { he: string; en: string }> = {
+                    health: { he: 'בריאות', en: 'Health' },
+                    training: { he: 'אימון', en: 'Training' },
+                    focus: { he: 'מיקוד', en: 'Focus' },
+                    action: { he: 'ביצוע', en: 'Action' },
+                    creation: { he: 'יצירה', en: 'Creation' },
+                    review: { he: 'סקירה', en: 'Review' },
+                    social: { he: 'חברתי', en: 'Social' },
+                  };
+                  const BLOCK_EMOJIS: Record<string, string> = {
+                    health: '💚', training: '⚔️', focus: '🎯', action: '✅', creation: '✨', review: '📊', social: '🏆',
+                  };
+                  exportTacticsPDF({
+                    isRTL: isHe,
+                    title: isHe ? 'תוכנית טקטית — 10 ימים' : 'Tactical Plan — 10 Days',
+                    phaseLabel: isHe ? `שלב ${phase}` : `Phase ${phase}`,
+                    progress: `${completedActions}/${totalActions} ${isHe ? 'משימות' : 'actions'} · ${completionPct}%`,
+                    days: days.map(d => ({
+                      dayNumber: d.dayNumber,
+                      label: d.label,
+                      labelEn: d.labelEn,
+                      isToday: d.isToday,
+                      totalActions: d.totalActions,
+                      completedActions: d.completedActions,
+                      totalMinutes: d.totalMinutes,
+                      blocks: d.blocks.map(b => ({
+                        category: b.category,
+                        emoji: b.emoji || BLOCK_EMOJIS[b.category] || '📋',
+                        label: BLOCK_LABELS[b.category]?.he || b.title,
+                        labelEn: BLOCK_LABELS[b.category]?.en || b.titleEn,
+                        estimatedMinutes: b.estimatedMinutes,
+                        completedCount: b.completedCount,
+                        actions: b.actions.map(a => ({
+                          title: a.title,
+                          titleEn: a.titleEn || a.title,
+                          focusArea: a.focusArea || a.blockCategory,
+                          estimatedMinutes: a.estimatedMinutes,
+                          isCompleted: a.completed,
+                        })),
+                      })),
+                    })),
+                  });
+                  toast({ title: isHe ? 'PDF הורד' : 'PDF downloaded' });
+                }}
+                className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                title={isHe ? 'ייצוא PDF' : 'Export PDF'}
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={handleGenerateSchedule}
+                disabled={scheduleGenerating}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/25 hover:bg-primary/20 transition-all text-primary text-[11px] font-semibold disabled:opacity-50"
+              >
+                {scheduleGenerating ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Wand2 className="w-3.5 h-3.5" />
+                )}
+                {scheduleGenerating
+                  ? (isHe ? 'יוצר לו"ז...' : 'Generating...')
+                  : hasAiSchedule
+                    ? (isHe ? 'כיול מחדש' : 'Recalibrate')
+                    : (isHe ? 'צור לו"ז AI' : 'Generate AI Schedule')}
+              </button>
+            </div>
 
             {/* ── PHASE + PROGRESS ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
@@ -163,135 +285,15 @@ export default function ArenaHub() {
                       {hasAiSchedule && <span className="ms-1.5 text-primary">⚡ AI</span>}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => {
-                        const BLOCK_LABELS: Record<string, { he: string; en: string }> = {
-                          health: { he: 'בריאות', en: 'Health' },
-                          training: { he: 'אימון', en: 'Training' },
-                          focus: { he: 'מיקוד', en: 'Focus' },
-                          action: { he: 'ביצוע', en: 'Action' },
-                          creation: { he: 'יצירה', en: 'Creation' },
-                          review: { he: 'סקירה', en: 'Review' },
-                          social: { he: 'חברתי', en: 'Social' },
-                        };
-                        const BLOCK_EMOJIS: Record<string, string> = {
-                          health: '💚', training: '⚔️', focus: '🎯', action: '✅', creation: '✨', review: '📊', social: '🏆',
-                        };
-                        exportTacticsPDF({
-                          isRTL: isHe,
-                          title: isHe ? 'תוכנית טקטית — 10 ימים' : 'Tactical Plan — 10 Days',
-                          phaseLabel: isHe ? `שלב ${phase}` : `Phase ${phase}`,
-                          progress: `${completedActions}/${totalActions} ${isHe ? 'משימות' : 'actions'} · ${completionPct}%`,
-                          days: days.map(d => ({
-                            dayNumber: d.dayNumber,
-                            label: d.label,
-                            labelEn: d.labelEn,
-                            isToday: d.isToday,
-                            totalActions: d.totalActions,
-                            completedActions: d.completedActions,
-                            totalMinutes: d.totalMinutes,
-                            blocks: d.blocks.map(b => ({
-                              category: b.category,
-                              emoji: b.emoji || BLOCK_EMOJIS[b.category] || '📋',
-                              label: BLOCK_LABELS[b.category]?.he || b.title,
-                              labelEn: BLOCK_LABELS[b.category]?.en || b.titleEn,
-                              estimatedMinutes: b.estimatedMinutes,
-                              completedCount: b.completedCount,
-                              actions: b.actions.map(a => ({
-                                title: a.title,
-                                titleEn: a.titleEn || a.title,
-                                focusArea: a.focusArea || a.blockCategory,
-                                estimatedMinutes: a.estimatedMinutes,
-                                isCompleted: a.completed,
-                              })),
-                            })),
-                          })),
-                        });
-                        toast({ title: isHe ? 'PDF הורד' : 'PDF downloaded' });
-                      }}
-                      className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-                      title={isHe ? 'ייצוא PDF' : 'Export PDF'}
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={handleGenerateSchedule}
-                      disabled={scheduleGenerating}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[hsl(204,88%,53%)]/10 border border-[hsl(204,88%,53%)]/25 hover:bg-[hsl(204,88%,53%)]/20 transition-all text-[hsl(204,88%,53%)] text-[11px] font-semibold disabled:opacity-50"
-                    >
-                      {scheduleGenerating ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Wand2 className="w-3.5 h-3.5" />
-                      )}
-                      {scheduleGenerating
-                        ? (isHe ? 'יוצר לו"ז...' : 'Generating...')
-                        : hasAiSchedule
-                          ? (isHe ? 'כיול מחדש' : 'Recalibrate')
-                          : (isHe ? 'צור לו"ז AI' : 'Generate AI Schedule')}
-                    </button>
-                  </div>
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
                   <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-destructive to-destructive/70"
+                    className="h-full rounded-full bg-destructive"
                     initial={{ width: 0 }}
                     animate={{ width: `${completionPct}%` }}
                     transition={{ duration: 0.5 }}
                   />
                 </div>
-              </div>
-
-              {/* ── 10-DAY SELECTOR ── */}
-              <div className="flex gap-1 px-3 py-2.5 overflow-x-auto no-scrollbar border-b border-border/20">
-                {days.map((day) => {
-                  const isActive = day.dayIndex === activeDay;
-                  const hasActions = day.totalActions > 0;
-                  const dayPct = day.totalActions > 0 ? Math.round((day.completedActions / day.totalActions) * 100) : 0;
-
-                  return (
-                    <button
-                      key={day.dayIndex}
-                      onClick={() => setSelectedDay(day.dayIndex)}
-                      className={cn(
-                        "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[38px] relative",
-                        isActive
-                          ? "bg-destructive/15 border border-destructive/30"
-                          : hasActions
-                            ? "bg-muted/20 border border-border/20 hover:bg-muted/40"
-                            : "bg-transparent border border-transparent opacity-40"
-                      )}
-                    >
-                      <span className={cn(
-                        "text-[10px] font-bold",
-                        isActive ? "text-destructive" : "text-foreground/60"
-                      )}>
-                        {day.dayNumber}
-                      </span>
-                      <span className={cn(
-                        "text-[8px]",
-                        isActive ? "text-destructive/70" : "text-muted-foreground"
-                      )}>
-                        {day.completedActions}/{day.totalActions}
-                      </span>
-                      <span className={cn(
-                        "text-[7px]",
-                        isActive ? "text-destructive/60" : "text-muted-foreground/60"
-                      )}>
-                        {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
-                      </span>
-                      {day.isToday && (
-                        <div className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
-                      )}
-                      {dayPct === 100 && day.totalActions > 0 && (
-                        <div className="absolute -top-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <CheckCircle2 className="w-2 h-2 text-white" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
               </div>
 
               {/* ── DAY CONTENT ── */}
