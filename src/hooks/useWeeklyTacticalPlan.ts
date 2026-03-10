@@ -561,14 +561,24 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
       // Parse first schedule
       days = parseAiSchedule(validSchedules[0].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
 
-      // Merge additional schedules' blocks into existing days
+      // Merge additional schedules' blocks into existing days (deduplicated)
       for (let si = 1; si < validSchedules.length; si++) {
         const extraDays = parseAiSchedule(validSchedules[si].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
         for (let di = 0; di < days.length && di < extraDays.length; di++) {
-          days[di].blocks.push(...extraDays[di].blocks);
-          days[di].totalActions += extraDays[di].totalActions;
-          days[di].completedActions += extraDays[di].completedActions;
-          days[di].totalMinutes += extraDays[di].totalMinutes;
+          // Build a set of existing block signatures to avoid duplicates
+          const existingKeys = new Set(
+            days[di].blocks.map(b => `${b.title}::${b.category}::${b.actions.length}`)
+          );
+          for (const block of extraDays[di].blocks) {
+            const key = `${block.title}::${block.category}::${block.actions.length}`;
+            if (!existingKeys.has(key)) {
+              days[di].blocks.push(block);
+              days[di].totalActions += block.actions.length;
+              days[di].completedActions += block.completedCount;
+              days[di].totalMinutes += block.estimatedMinutes;
+              existingKeys.add(key);
+            }
+          }
         }
       }
     } else {
