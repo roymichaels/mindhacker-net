@@ -99,6 +99,10 @@ const Users = () => {
         .from("user_roles")
         .select("user_id, role");
 
+      const { data: launchpadData } = await supabase
+        .from("launchpad_progress")
+        .select("user_id, launchpad_complete");
+
       const getUserEmail = async (userId: string) => {
         try {
           const { data, error } = await supabase.functions.invoke('get-user-data', {
