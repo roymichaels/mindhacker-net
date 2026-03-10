@@ -23,6 +23,8 @@ export function FMHomeHudSidebar({ balance = 0, lifetimeEarned = 0, activeBounti
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
+  const { openWallet } = useWalletModal();
+  const handleNav = (path: string) => path === '__wallet__' ? openWallet() : navigate(path);
 
   const navItems = [
     { id: 'earn', icon: Target, label: isHe ? 'הרוויח' : 'Earn', color: 'text-amber-400', path: '/fm' },
