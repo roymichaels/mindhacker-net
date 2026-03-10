@@ -125,7 +125,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
         <div className="flex flex-col gap-2 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
           {user && <CommunityPlayerCard userId={user.id} />}
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+          <div className="h-px w-full bg-border/30" />
 
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
             {isHe ? 'עמודים' : 'Pillars'}
