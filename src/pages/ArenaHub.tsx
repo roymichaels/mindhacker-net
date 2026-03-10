@@ -3,7 +3,7 @@
  * AI-generated 10-day phase schedule with themed blocks containing milestones.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, Trophy, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, RefreshCw, Flame, Play, Wand2, Star, Download } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, CheckCircle2, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, Wand2, Play, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -20,43 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { exportTacticsPDF } from '@/utils/exportTacticsPDF';
 
-const BLOCK_ICONS: Record<BlockCategory, typeof Swords> = {
-  health: Zap,
-  training: Swords,
-  focus: Target,
-  action: CheckCircle2,
-  creation: Sparkles,
-  review: BarChart3,
-  social: Trophy,
-};
 
-const BLOCK_GRADIENTS: Record<BlockCategory, string> = {
-  health: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20',
-  training: 'from-red-500/15 to-red-500/5 border-red-500/20',
-  focus: 'from-amber-500/15 to-amber-500/5 border-amber-500/20',
-  action: 'from-blue-500/15 to-blue-500/5 border-blue-500/20',
-  creation: 'from-purple-500/15 to-purple-500/5 border-purple-500/20',
-  review: 'from-teal-500/15 to-teal-500/5 border-teal-500/20',
-  social: 'from-pink-500/15 to-pink-500/5 border-pink-500/20',
-};
-
-const BLOCK_ICON_COLORS: Record<BlockCategory, string> = {
-  health: 'text-emerald-400',
-  training: 'text-red-400',
-  focus: 'text-amber-400',
-  action: 'text-blue-400',
-  creation: 'text-purple-400',
-  review: 'text-teal-400',
-  social: 'text-pink-400',
-};
-
-const DIFFICULTY_LABELS: Record<number, { he: string; en: string }> = {
-  1: { he: '⭐', en: '⭐' },
-  2: { he: '⭐⭐', en: '⭐⭐' },
-  3: { he: '⭐⭐⭐', en: '⭐⭐⭐' },
-  4: { he: '⭐⭐⭐⭐', en: '⭐⭐⭐⭐' },
-  5: { he: '⭐⭐⭐⭐⭐', en: '⭐⭐⭐⭐⭐' },
-};
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
   return {
@@ -399,28 +363,7 @@ export default function ArenaHub() {
   );
 }
 
-// ── Quarter mapping for day blocks ──
-
-const QUARTER_CATEGORY_MAP: Record<BlockCategory, 'q1_morning' | 'q2_midday' | 'q3_afternoon' | 'q4_evening'> = {
-  health: 'q1_morning',
-  training: 'q1_morning',
-  focus: 'q2_midday',
-  action: 'q2_midday',
-  creation: 'q3_afternoon',
-  social: 'q3_afternoon',
-  review: 'q4_evening',
-};
-
-const QUARTER_META: Record<string, { he: string; en: string; emoji: string; accent: string }> = {
-  q1_morning:   { he: 'רבעון בוקר',   en: 'Morning Quarter',   emoji: '🌅', accent: 'border-amber-500/20 bg-amber-500/5' },
-  q2_midday:    { he: 'רבעון צהריים',  en: 'Midday Quarter',    emoji: '☀️', accent: 'border-blue-500/20 bg-blue-500/5' },
-  q3_afternoon: { he: 'רבעון אחה״צ',  en: 'Afternoon Quarter',  emoji: '⚡', accent: 'border-purple-500/20 bg-purple-500/5' },
-  q4_evening:   { he: 'רבעון ערב',    en: 'Evening Quarter',    emoji: '🌙', accent: 'border-indigo-500/20 bg-indigo-500/5' },
-};
-
-const QUARTER_ORDER = ['q1_morning', 'q2_midday', 'q3_afternoon', 'q4_evening'] as const;
-
-// ── Day View with Collapsible Themed Blocks grouped by 4 Day Quarters ──
+// ── Day View — flat block list matching Now tab style ──
 
 function DayView({
   day,
@@ -433,30 +376,11 @@ function DayView({
   onExecuteAction: (action: TacticalAction) => void;
   hasAiSchedule: boolean;
 }) {
-  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(() => {
-    // Auto-expand first block
-    return new Set(day?.blocks?.[0] ? [day.blocks[0].id] : []);
-  });
+  const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
   const toggleBlock = (blockId: string) => {
-    setExpandedBlocks(prev => {
-      const next = new Set(prev);
-      if (next.has(blockId)) next.delete(blockId);
-      else next.add(blockId);
-      return next;
-    });
+    setOpenBlocks(prev => ({ ...prev, [blockId]: !prev[blockId] }));
   };
-
-  // Group blocks into 4 quarters
-  const quarterGroups = useMemo(() => {
-    const grouped = new Map<string, TacticalBlock[]>();
-    for (const q of QUARTER_ORDER) grouped.set(q, []);
-    for (const block of (day?.blocks || [])) {
-      const q = QUARTER_CATEGORY_MAP[block.category] || 'q2_midday';
-      grouped.get(q)!.push(block);
-    }
-    return grouped;
-  }, [day?.blocks]);
 
   if (!day || day.totalActions === 0) {
     return (
@@ -469,229 +393,107 @@ function DayView({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Day header with Quest name */}
+    <div className="space-y-2">
+      {/* Day header */}
       <div className="flex items-center justify-between mb-1">
-        <div className="min-w-0">
-          <span className="text-xs font-bold text-foreground/70">
-            {isHe ? day.label : day.labelEn}
-            {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
-          </span>
-          {day.date && (
-            <span className="text-[10px] text-primary/70 font-semibold ms-2">
-              ⚔️ {getQuestName(day.date, isHe ? 'he' : 'en')}
-            </span>
-          )}
-        </div>
+        <span className="text-xs font-bold text-foreground/70">
+          {isHe ? day.label : day.labelEn}
+          {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
+        </span>
         <span className="text-[10px] text-muted-foreground">
-          {day.blocks.length} {isHe ? 'בלוקים' : 'blocks'} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
+          {day.completedActions}/{day.totalActions} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
         </span>
       </div>
 
-      {/* Blocks grouped by 4 Day Quarters */}
-      {QUARTER_ORDER.map(qKey => {
-        const blocks = quarterGroups.get(qKey)!;
-        if (blocks.length === 0) return null;
-        const meta = QUARTER_META[qKey];
-        const quarterActions = blocks.reduce((s, b) => s + b.actions.length, 0);
-        const quarterCompleted = blocks.reduce((s, b) => s + b.completedCount, 0);
-        const quarterMinutes = blocks.reduce((s, b) => s + b.estimatedMinutes, 0);
-        const quarterDone = quarterActions > 0 && quarterCompleted === quarterActions;
-
-        return (
-          <div key={qKey} className="space-y-2">
-            {/* Quarter header */}
-            <div className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg border",
-              quarterDone ? "border-emerald-500/25 bg-emerald-500/5" : meta.accent
-            )}>
-              <span className="text-base">{meta.emoji}</span>
-              <span className={cn(
-                "text-[11px] font-bold flex-1",
-                quarterDone ? "text-emerald-500" : "text-foreground/70"
-              )}>
-                {isHe ? meta.he : meta.en}
-              </span>
-              <span className="text-[9px] text-muted-foreground">
-                {quarterCompleted}/{quarterActions} · {quarterMinutes}{isHe ? ' דק׳' : '′'}
-              </span>
-              {quarterDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
-            </div>
-
-            {/* Blocks inside this quarter */}
-            {blocks.map((block) => {
-        const isExpanded = expandedBlocks.has(block.id);
-        const Icon = BLOCK_ICONS[block.category] || Swords;
-        const gradient = BLOCK_GRADIENTS[block.category] || BLOCK_GRADIENTS.action;
-        const iconColor = BLOCK_ICON_COLORS[block.category] || 'text-foreground/60';
+      {/* Flat block list */}
+      {day.blocks.map((block) => {
+        const isOpen = !!openBlocks[block.id];
         const blockComplete = block.completedCount === block.actions.length && block.actions.length > 0;
 
         return (
-          <motion.div
+          <div
             key={block.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
             className={cn(
-              "rounded-xl border overflow-hidden transition-all",
-              blockComplete ? "border-emerald-500/30 bg-emerald-500/5" : `bg-gradient-to-b ${gradient}`
+              "rounded-2xl border overflow-hidden transition-all duration-300",
+              blockComplete ? "border-emerald-500/25 bg-emerald-500/5" : "border-border/30 bg-card/50",
             )}
           >
-            {/* Block Header - clickable to expand/collapse */}
+            {/* Block Header */}
             <button
               onClick={() => toggleBlock(block.id)}
-              className="flex items-center gap-3 w-full text-start px-3.5 py-3 group"
+              className="w-full flex items-center gap-3 px-4 py-3 text-start hover:bg-muted/30 transition-colors"
             >
-
-              {/* Emoji + Icon */}
-              <div className={cn(
-                "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-lg",
-                blockComplete ? "bg-emerald-500/15" : "bg-background/50"
-              )}>
-                {blockComplete ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                ) : (
-                  <span>{block.emoji}</span>
-                )}
+              <div className="flex flex-col items-center min-w-[40px]">
+                <span className="text-lg">{blockComplete ? '✅' : block.emoji}</span>
               </div>
-
-              {/* Block info */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <Icon className={cn("w-3 h-3 shrink-0", blockComplete ? "text-emerald-500" : iconColor)} />
-                  <p className={cn(
-                    "text-xs font-bold leading-snug",
-                    blockComplete ? "text-emerald-500" : "text-foreground/80"
-                  )}>
-                    {isHe ? block.title : block.titleEn}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[9px] text-muted-foreground">
-                    {block.actions.length} {isHe ? 'משימות' : 'tasks'}
-                  </span>
-                  <span className="text-[9px] text-muted-foreground">·</span>
-                  <span className="text-[9px] text-muted-foreground">
-                    {block.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
-                  </span>
+                <h3 className={cn(
+                  "text-sm font-semibold",
+                  blockComplete ? "text-emerald-500" : "text-foreground"
+                )}>
+                  {isHe ? block.title : block.titleEn}
+                </h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {block.actions.length} {isHe ? 'משימות' : 'tasks'} · {block.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
                   {block.completedCount > 0 && (
-                    <>
-                      <span className="text-[9px] text-muted-foreground">·</span>
-                      <span className="text-[9px] text-emerald-500 font-medium">
-                        {block.completedCount}/{block.actions.length} ✓
-                      </span>
-                    </>
+                    <span className="text-emerald-500 ms-1.5">
+                      ✓ {block.completedCount}/{block.actions.length}
+                    </span>
                   )}
-                </div>
+                </p>
               </div>
-
-              {/* Expand indicator */}
-              <motion.div
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-                className="shrink-0"
-              >
-                <ChevronDown className="w-4 h-4 text-muted-foreground/40" />
-              </motion.div>
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+              )}
             </button>
 
-            {/* Block Progress Bar */}
-            {block.actions.length > 1 && (
-              <div className="px-3.5 pb-1">
-                <div className="h-1 rounded-full bg-muted/30 overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-emerald-500/50"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${block.actions.length > 0 ? (block.completedCount / block.actions.length) * 100 : 0}%` }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Expanded: Milestones inside the block */}
-            <AnimatePresence>
-              {isExpanded && (
+            {/* Expanded actions */}
+            <AnimatePresence initial={false}>
+              {isOpen && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
+                  transition={{ duration: 0.25, ease: 'easeInOut' }}
                   className="overflow-hidden"
                 >
-                  <div className="px-3 pb-3 pt-1 space-y-1">
-                    {block.actions.map((action, actionIdx) => {
-                      const stars = typeof action.difficulty === 'number' ? action.difficulty : (actionIdx % 5) + 1;
-                      return (
-                        <button
-                          key={action.id}
-                          onClick={() => onExecuteAction(action)}
-                          className={cn(
-                            "flex items-center gap-2.5 w-full text-start py-2 px-2.5 rounded-lg transition-all group/item",
-                            action.completed
-                              ? "opacity-50 bg-emerald-500/5"
-                              : "hover:bg-background/60"
-                          )}
-                        >
-                          {/* Step number / completion */}
-                          <div className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold border",
-                            action.completed
-                              ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-500"
-                              : "bg-background/50 border-border/30 text-foreground/50 group-hover/item:border-primary/30 group-hover/item:text-primary"
+                  <div className="px-4 pb-3 space-y-1.5 border-t border-border/20 pt-2">
+                    {block.actions.map((action) => (
+                      <button
+                        key={action.id}
+                        onClick={() => onExecuteAction(action)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border",
+                          action.completed
+                            ? "border-emerald-500/20 bg-emerald-500/5 opacity-60"
+                            : "border-border/30 hover:border-primary/30 bg-card/80 hover:bg-accent/10 active:scale-[0.99]"
+                        )}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className={cn(
+                            "text-xs font-semibold line-clamp-1",
+                            action.completed ? "line-through text-muted-foreground" : "text-foreground"
                           )}>
-                            {action.completed ? (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                            ) : (
-                              <Play className="w-2.5 h-2.5 ms-0.5" />
-                            )}
-                          </div>
-
-                          {/* Milestone content */}
-                          <div className="flex-1 min-w-0">
-                            <p className={cn(
-                              "text-[11px] leading-snug font-medium",
-                              action.completed ? "line-through text-muted-foreground" : "text-foreground/75"
-                            )}>
-                              {isHe ? action.title : (action.titleEn || action.title)}
-                            </p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="flex items-center gap-px">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={cn(
-                                      "w-2 h-2",
-                                      i < stars ? "text-amber-400 fill-amber-400" : "text-muted-foreground/15"
-                                    )}
-                                  />
-                                ))}
-                              </span>
-                              <span className="text-[7px] text-muted-foreground/50 flex items-center gap-0.5">
-                                <Flame className="w-2 h-2" />
-                                {action.xpReward}
-                              </span>
-                              <span className="text-[7px] text-muted-foreground/50">
-                                {action.estimatedMinutes}′
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Play hint */}
-                          {!action.completed && (
-                            <div className="shrink-0 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                              <Play className="w-3.5 h-3.5 text-primary/60" />
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
+                            {isHe ? action.title : (action.titleEn || action.title)}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {action.estimatedMinutes}{isHe ? ' דק׳' : 'm'}
+                            {action.focusArea && <span className="ms-1.5 opacity-60">· {action.focusArea}</span>}
+                          </p>
+                        </div>
+                        {action.completed ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <Play className="h-3.5 w-3.5 text-primary shrink-0" />
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
-        );
-      })}
           </div>
         );
       })}
