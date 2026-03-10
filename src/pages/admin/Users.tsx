@@ -50,6 +50,7 @@ interface UserData {
   user_roles?: {
     role: AppRole;
   }[];
+  is_onboarded?: boolean;
 }
 
 const AVAILABLE_ROLES: { role: AppRole; label: string; labelHe: string; icon: React.ElementType; color: string }[] = [
