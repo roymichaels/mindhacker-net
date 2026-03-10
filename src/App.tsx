@@ -303,14 +303,15 @@ const App = () => (
                           <Route path="/messages/:conversationId" element={<MessageThread />} />
                           {/* Aurora Chat */}
                           <Route path="/aurora" element={<AuroraPage />} />
-                          {/* Now redirects to Plan (merged) */}
-                          <Route path="/now" element={<Navigate to="/plan" replace />} />
-                          {/* Plan (merged Strategy + Tactics) */}
-                          <Route path="/plan" element={<PlanLayoutWrapper />} />
+                          {/* Legacy redirects to Play */}
+                          <Route path="/now" element={<Navigate to="/play" replace />} />
+                          <Route path="/plan" element={<Navigate to="/play" replace />} />
+                          {/* Play (merged Strategy + Tactics) */}
+                          <Route path="/play" element={<PlayLayoutWrapper />} />
                           {/* Profile page */}
                           <Route path="/profile" element={<ProfilePage />} />
                           {/* Strategy sub-routes for pillar assessments */}
-                          <Route path="/strategy" element={<Navigate to="/plan" replace />} />
+                          <Route path="/strategy" element={<Navigate to="/play" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
                           <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                           <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
