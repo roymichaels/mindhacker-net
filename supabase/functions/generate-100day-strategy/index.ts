@@ -382,6 +382,7 @@ function buildMilestonesPrompt(
   goals: { goal_en: string; goal_he: string }[],
   assessmentBlock: string,
   constraintsBlock: string,
+  practicesForPillar?: { name: string; name_he: string; duration: number; frequency: number; energy_type: string; is_core: boolean; category: string }[],
 ): string {
   const goalsStr = goals.map((g, i) => `  ${i+1}. "${g.goal_en}" / "${g.goal_he}"`).join('\n');
   const scope = PILLAR_SCOPES[pillarId];
