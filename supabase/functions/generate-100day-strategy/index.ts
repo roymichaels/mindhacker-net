@@ -1114,9 +1114,22 @@ serve(async (req) => {
         
         const aiPromises = allPillarJobs.map(async ({ pillarId, traitCount }) => {
           const assessment = hubAssessments.find(a => a.domain_id === pillarId);
+          // Filter practices relevant to this pillar
+          const pillarPractices = practicesContext
+            .filter((p: any) => p.pillar === pillarId || !p.pillar)
+            .map((p: any) => ({
+              name: p.practice_name,
+              name_he: p.practice_name_he || p.practice_name,
+              duration: p.preferred_duration || 15,
+              frequency: p.frequency_per_week || 3,
+              energy_type: p.energy_phase || 'day',
+              is_core: p.is_core_practice || false,
+              category: p.category || 'health',
+            }));
           const result = await generatePillarStrategy(
             LOVABLE_API_KEY, supabaseClient, user_id, plan.id,
             pillarId, h, assessment, userContext, constraintsBlock, traitCount,
+            pillarPractices.length > 0 ? pillarPractices : undefined,
           );
           return { pillarId, traitCount, data: result };
         });
