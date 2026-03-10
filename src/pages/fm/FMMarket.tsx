@@ -40,6 +40,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function FMMarket() {
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const { hasAnyRole } = useUserRoles();
   const queryClient = useQueryClient();
