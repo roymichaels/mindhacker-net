@@ -156,7 +156,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'באונטיז חדשים זמינים' : 'New bounties available',
         subtext: isHe ? 'יש משימות חדשות שמתאימות לך' : 'Fresh tasks matching your skills',
         reward: 75,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '🎯',
         priority: 7,
       });
