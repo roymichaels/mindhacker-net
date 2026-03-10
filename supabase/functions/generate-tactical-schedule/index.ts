@@ -297,7 +297,20 @@ IMPORTANT: Use the EXACT milestone IDs and practice IDs from the lists above. Fo
       throw new Error(`AI call failed: ${aiResp.status}`);
     }
 
-    const aiData = await aiResp.json();
+    const aiText = await aiResp.text();
+    if (!aiText || aiText.trim().length === 0) {
+      console.error("AI returned empty response body");
+      throw new Error("AI returned empty response");
+    }
+
+    let aiData;
+    try {
+      aiData = JSON.parse(aiText);
+    } catch (parseErr) {
+      console.error("AI response JSON parse error:", aiText.substring(0, 500));
+      throw new Error("AI response was not valid JSON");
+    }
+
     let raw = aiData?.choices?.[0]?.message?.content || "";
     raw = raw.replace(/```json\s*/g, "").replace(/```/g, "").trim();
 
