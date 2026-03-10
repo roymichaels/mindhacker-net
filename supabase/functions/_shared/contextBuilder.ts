@@ -451,6 +451,10 @@ export async function buildContext(
   const userPracticesData = userPracticesRes.data || [];
   const activeSkillsData = (activeSkillsRes as any)?.data || [];
   const memoryGraphData = memoryGraphRes.data || [];
+  const allPlansData = allPlansRes.data || [];
+  const planMissionsData = (planMissionsRes as any)?.data || [];
+  const tacticalScheduleData = (tacticalScheduleRes as any)?.data || [];
+  const subscriptionData = subscriptionRes.data;
 
   // Pulse data
   const pulseToday = pulseTodayRes.data;
