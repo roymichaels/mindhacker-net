@@ -52,6 +52,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
+  const [bugReportOpen, setBugReportOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
   const { currentJob } = useUserJob();
   const { profile: userOrbProfile } = useOrbProfile();
