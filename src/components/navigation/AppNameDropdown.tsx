@@ -179,7 +179,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               navigate('/profile');
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.08] via-muted to-amber-400/[0.05] dark:from-amber-500/[0.12] dark:via-card dark:to-amber-400/[0.08]" />
 
             <div className="relative z-10 px-3 pt-3 pb-2 space-y-1.5">
               {/* Row 1: 2-col grid — name left, orb right */}
