@@ -77,6 +77,10 @@ serve(async (req) => {
     });
 
     // IMPORTANT: output_format must be in query params, NOT body
+    // Add 30-second timeout to prevent hanging on slow models
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 30000);
+
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${resolvedVoiceId}?output_format=mp3_44100_128`,
       {
@@ -96,8 +100,11 @@ serve(async (req) => {
             speed,
           },
         }),
+        signal: abortController.signal,
       }
     );
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorText = await response.text();
