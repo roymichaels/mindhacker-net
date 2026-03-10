@@ -16,6 +16,21 @@ import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// ── Helpers for fuzzy title matching ──
+function normalize(s: string): string {
+  return s.toLowerCase().trim().replace(/[\u0591-\u05C7]/g, '');
+}
+function fuzzyMatch(a: string, b: string): boolean {
+  if (Math.abs(a.length - b.length) > 2) return false;
+  let diffs = 0;
+  const maxLen = Math.max(a.length, b.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (a[i] !== b[i]) diffs++;
+    if (diffs > 2) return false;
+  }
+  return true;
+}
+
 // ── Types ──
 
 export type Cadence = 'daily' | '3x_per_week' | '2x_per_week' | 'weekly' | 'one_time';
