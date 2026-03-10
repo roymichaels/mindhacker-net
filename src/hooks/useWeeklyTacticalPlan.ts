@@ -552,7 +552,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
       for (const m of currentPhaseMilestones) {
         if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
       }
-      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap);
+      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
