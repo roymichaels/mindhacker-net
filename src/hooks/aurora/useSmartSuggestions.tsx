@@ -44,20 +44,24 @@ export function useSmartSuggestions() {
         { data: launchpadComplete },
         { data: existingCurricula }
       ] = await Promise.all([
+        // SSOT: use action_items for overdue tasks
         supabase
-          .from('aurora_checklist_items')
-          .select('id, content, aurora_checklists!inner(user_id)')
-          .lt('due_date', today)
-          .eq('is_completed', false)
-          .eq('aurora_checklists.user_id', user.id)
+          .from('action_items')
+          .select('id, title')
+          .eq('user_id', user.id)
+          .eq('type', 'task')
+          .in('status', ['todo', 'doing'])
+          .lt('due_at', `${today}T00:00:00`)
           .limit(5),
         
+        // SSOT: use action_items for today's tasks
         supabase
-          .from('aurora_checklist_items')
-          .select('id, content, aurora_checklists!inner(user_id)')
-          .eq('due_date', today)
-          .eq('is_completed', false)
-          .eq('aurora_checklists.user_id', user.id)
+          .from('action_items')
+          .select('id, title')
+          .eq('user_id', user.id)
+          .eq('type', 'task')
+          .in('status', ['todo', 'doing'])
+          .eq('scheduled_date', today)
           .limit(5),
         
         supabase
@@ -70,11 +74,13 @@ export function useSmartSuggestions() {
           .limit(1)
           .maybeSingle(),
         
+        // SSOT: use action_items for habits
         supabase
-          .from('aurora_daily_minimums')
+          .from('action_items')
           .select('id, title')
           .eq('user_id', user.id)
-          .eq('is_active', true),
+          .eq('type', 'habit')
+          .in('status', ['todo', 'doing']),
         
         supabase
           .from('daily_habit_logs')
@@ -201,7 +207,7 @@ export function useSmartSuggestions() {
       const task = userState.todayTasks[0];
       result.push({
         id: 'today-task',
-        text: t('smartSuggestions.nextTask').replace('{task}', task.content.substring(0, 30)),
+        text: t('smartSuggestions.nextTask').replace('{task}', task.title.substring(0, 30)),
         action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 4,
         icon: 'task',
