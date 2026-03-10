@@ -17,6 +17,8 @@ export interface MemoryGraphNode {
   pillar: string | null;
   reference_count: number;
   first_seen: string;
+  last_referenced: string;
+  days_since_referenced: number;
 }
 
 export interface AuroraContext {
@@ -92,11 +94,11 @@ export interface AuroraContext {
   };
 
   // Memory & reminders
-  conversation_memories: { date: string; summary: string; action_items: string[] }[];
+  conversation_memories: { date: string; time: string; summary: string; emotional_state: string | null; action_items: string[]; days_ago: number }[];
   pending_reminders: { message: string; created_at: string }[];
 
   // Cross-conversation memory (one brain)
-  cross_conversation_history: { pillar: string | null; role: string; content: string; date: string }[];
+  cross_conversation_history: { pillar: string | null; role: string; content: string; date: string; time: string; days_ago: number }[];
 
   // Launchpad
   launchpad_summary: {
@@ -213,13 +215,19 @@ async function computeHash(data: string): Promise<string> {
 export async function buildContext(
   supabase: SupabaseClient,
   userId: string,
-  language: string
+  language: string,
+  clientTimezone?: string | null
 ): Promise<AuroraContext> {
   const now = new Date();
   const today = now.toISOString().split("T")[0];
-  // Timezone-aware: infer from language, fallback to UTC
-  const userTimezone = language === 'he' ? 'Asia/Jerusalem' : 'UTC';
-  const localTime = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }));
+  // Use client-provided timezone > language-based fallback > UTC
+  const userTimezone = clientTimezone || (language === 'he' ? 'Asia/Jerusalem' : 'UTC');
+  let localTime: Date;
+  try {
+    localTime = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }));
+  } catch {
+    localTime = new Date(now.toLocaleString("en-US", { timeZone: language === 'he' ? 'Asia/Jerusalem' : 'UTC' }));
+  }
   const localTimeStr = localTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
@@ -283,7 +291,7 @@ export async function buildContext(
     supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
     supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
     supabase.from("life_plans").select("*, life_plan_milestones(*)").eq("user_id", userId).eq("status", "active").single(),
-    supabase.from("aurora_conversation_memory").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(5),
+    supabase.from("aurora_conversation_memory").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
     supabase.from("aurora_reminders").select("*").eq("user_id", userId).eq("is_delivered", false).lte("reminder_date", today).order("reminder_date", { ascending: true }),
     supabase.from("aurora_identity_elements").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
     supabase.from("user_projects").select("*").eq("user_id", userId).in("status", ["active", "paused"]).order("updated_at", { ascending: false }),
@@ -336,8 +344,8 @@ export async function buildContext(
       const progressMap = new Map((progress || []).map((p: any) => [p.skill_id, p]));
       return { data: skills.map((s: any) => ({ ...s, ...progressMap.get(s.id) })), error: null };
     })(),
-    // NEW: Memory Graph — top active nodes by strength
-    supabase.from("aurora_memory_graph").select("node_type, content, strength, pillar, reference_count, first_seen_at").eq("user_id", userId).eq("is_active", true).order("strength", { ascending: false }).limit(20),
+    // NEW: Memory Graph — top active nodes by strength, include last_referenced_at for recency
+    supabase.from("aurora_memory_graph").select("node_type, content, strength, pillar, reference_count, first_seen_at, last_referenced_at").eq("user_id", userId).eq("is_active", true).order("strength", { ascending: false }).limit(20),
   ]);
 
   const profile = profileRes.data;
@@ -569,25 +577,36 @@ export async function buildContext(
       energy_patterns_status: onboarding?.energy_patterns_status || "unknown",
     },
 
-    conversation_memories: conversationMemories.map((m: any) => ({
-      date: new Date(m.created_at).toISOString().split("T")[0],
-      summary: m.summary,
-      action_items: m.action_items || [],
-    })),
+    conversation_memories: conversationMemories.map((m: any) => {
+      const memDate = new Date(m.created_at);
+      const daysAgo = Math.floor((now.getTime() - memDate.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        date: memDate.toISOString().split("T")[0],
+        time: memDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        summary: m.summary,
+        emotional_state: m.emotional_state || null,
+        action_items: m.action_items || [],
+        days_ago: daysAgo,
+      };
+    }),
     pending_reminders: pendingReminders.map((r: any) => ({
       message: r.message,
       created_at: r.created_at,
     })),
 
-    // Cross-conversation memory: recent exchanges from all pillar/general chats
+    // Cross-conversation memory: recent exchanges from all pillar/general chats (time-enriched)
     cross_conversation_history: crossConvData.slice(0, 40).reverse().map((m: any) => {
       const pillarCtx = m.pillar_context;
       const pillar = pillarCtx ? pillarCtx.replace('pillar:', '') : null;
+      const msgDate = new Date(m.created_at);
+      const daysAgo = Math.floor((now.getTime() - msgDate.getTime()) / (1000 * 60 * 60 * 24));
       return {
         pillar,
         role: m.is_ai_message ? 'aurora' : 'user',
         content: m.content.length > 300 ? m.content.slice(0, 300) + '...' : m.content,
-        date: new Date(m.created_at).toISOString().split("T")[0],
+        date: msgDate.toISOString().split("T")[0],
+        time: msgDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        days_ago: daysAgo,
       };
     }),
 
@@ -688,14 +707,20 @@ export async function buildContext(
     },
 
     // ─── Memory Graph (Knowledge Graph) ───────────────
-    memory_graph: memoryGraphData.map((n: any) => ({
-      node_type: n.node_type,
-      content: n.content,
-      strength: n.strength || 1,
-      pillar: n.pillar || null,
-      reference_count: n.reference_count || 1,
-      first_seen: n.first_seen_at ? new Date(n.first_seen_at).toISOString().split("T")[0] : "",
-    })),
+    memory_graph: memoryGraphData.map((n: any) => {
+      const lastRef = n.last_referenced_at ? new Date(n.last_referenced_at) : new Date(n.first_seen_at || now);
+      const daysSinceRef = Math.floor((now.getTime() - lastRef.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        node_type: n.node_type,
+        content: n.content,
+        strength: n.strength || 1,
+        pillar: n.pillar || null,
+        reference_count: n.reference_count || 1,
+        first_seen: n.first_seen_at ? new Date(n.first_seen_at).toISOString().split("T")[0] : "",
+        last_referenced: lastRef.toISOString().split("T")[0],
+        days_since_referenced: daysSinceRef,
+      };
+    }),
   };
 
   // Compute hash for tracing

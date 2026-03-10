@@ -35,6 +35,7 @@ export interface ValidatedRequest {
   mode: AuroraMode;
   pillar: string | null;
   hasImages: boolean;
+  timezone: string | null;
 }
 
 // ─── Request Validation ────────────────────────────────────
@@ -43,7 +44,7 @@ const MAX_MESSAGES = 200;
 const MAX_CONTENT_LENGTH = 8000;
 
 export function validateRequest(raw: any): ValidatedRequest | { error: string; status: number } {
-  const { messages, userId, language = "he", mode = "full", pillar = null, hasImages = false } = raw;
+  const { messages, userId, language = "he", mode = "full", pillar = null, hasImages = false, timezone = null } = raw;
 
   if (!messages || !Array.isArray(messages)) {
     return { error: "Messages array is required", status: 400 };
@@ -87,7 +88,7 @@ export function validateRequest(raw: any): ValidatedRequest | { error: string; s
     }
   }
 
-  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode, pillar, hasImages };
+  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode, pillar, hasImages, timezone };
 }
 
 // ─── Widget Settings ───────────────────────────────────────
@@ -347,10 +348,14 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
 
   // Memory
   if (ctx.conversation_memories.length > 0) {
-    const lines = ctx.conversation_memories.map(m => `- ${m.date}: ${m.summary}${m.action_items.length > 0 ? ` | ${m.action_items.join(", ")}` : ""}`);
+    const lines = ctx.conversation_memories.map(m => {
+      const recency = m.days_ago === 0 ? (isHe ? '(היום)' : '(today)') : m.days_ago === 1 ? (isHe ? '(אתמול)' : '(yesterday)') : `(${m.days_ago} ${isHe ? 'ימים' : 'days'})`;
+      const emoState = m.emotional_state ? ` | ${isHe ? 'מצב רוח' : 'mood'}: ${m.emotional_state}` : '';
+      return `- ${m.date} ${m.time} ${recency}: ${m.summary}${emoState}${m.action_items.length > 0 ? ` | ${isHe ? 'פעולות' : 'actions'}: ${m.action_items.join(", ")}` : ""}`;
+    });
     parts.push(isHe
-      ? `## 🧠 זיכרון שיחות אחרונות\n${lines.join("\n")}`
-      : `## 🧠 Recent Conversation Memory\n${lines.join("\n")}`);
+      ? `## 🧠 זיכרון שיחות אחרונות (מודע לזמן)\n${lines.join("\n")}`
+      : `## 🧠 Recent Conversation Memory (time-aware)\n${lines.join("\n")}`);
   }
 
   // Launchpad
@@ -519,11 +524,12 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
     const lines = ctx.cross_conversation_history.map(m => {
       const pillarTag = m.pillar ? ` [${m.pillar}]` : '';
       const roleLabel = m.role === 'aurora' ? 'Aurora' : (isHe ? 'משתמש' : 'User');
-      return `- ${m.date}${pillarTag} ${roleLabel}: ${m.content}`;
+      const recency = m.days_ago === 0 ? (isHe ? 'היום' : 'today') : m.days_ago === 1 ? (isHe ? 'אתמול' : 'yesterday') : `${m.days_ago}d`;
+      return `- ${m.date} ${m.time} (${recency})${pillarTag} ${roleLabel}: ${m.content}`;
     });
     parts.push(isHe
-      ? `## 🧠 זיכרון צולב-שיחות (כל השיחות שלי עם המשתמש)\nאלה קטעים אחרונים מכל השיחות שלנו - כולל שיחות מהאונבורדינג, פילרים שונים, ושיחות כלליות. אני זוכרת הכל.\n${lines.join("\n")}`
-      : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — including onboarding, different pillars, and general chats. I remember everything.\n${lines.join("\n")}`);
+      ? `## 🧠 זיכרון צולב-שיחות (כל השיחות שלי עם המשתמש)\nאלה קטעים אחרונים מכל השיחות שלנו — כולל זמנים מדויקים. אני זוכרת הכל.\n${lines.join("\n")}`
+      : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — with exact timestamps. I remember everything.\n${lines.join("\n")}`);
   }
 
   // Memory Graph (Knowledge Graph of beliefs, fears, breakthroughs, patterns)
@@ -541,11 +547,12 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
     const lines = ctx.memory_graph.map(n => {
       const label = nodeTypeLabels[n.node_type] || { en: n.node_type, he: n.node_type, emoji: "📌" };
       const strengthBar = "█".repeat(Math.min(n.strength, 10)) + "░".repeat(Math.max(0, 10 - n.strength));
-      return `- ${label.emoji} [${isHe ? label.he : label.en}] "${n.content}" | ${isHe ? 'עוצמה' : 'strength'}: ${strengthBar} (${n.strength}/10) | ${isHe ? 'נצפה' : 'seen'}: ${n.reference_count}x${n.pillar ? ` | [${n.pillar}]` : ''}`;
+      const recencyTag = n.days_since_referenced <= 1 ? '🔴' : n.days_since_referenced <= 7 ? '🟡' : '⚪';
+      return `- ${label.emoji} [${isHe ? label.he : label.en}] "${n.content}" | ${isHe ? 'עוצמה' : 'strength'}: ${strengthBar} (${n.strength}/10) | ${isHe ? 'נצפה' : 'seen'}: ${n.reference_count}x | ${recencyTag} ${isHe ? 'עדכון אחרון' : 'last ref'}: ${n.last_referenced} (${n.days_since_referenced}d)${n.pillar ? ` | [${n.pillar}]` : ''}`;
     });
     parts.push(isHe
-      ? `## 🕸️ גרף ידע עמוק (אמונות, פחדים, פריצות דרך)\nאלה הדברים העמוקים ביותר שאני יודעת עליך — לא רק מה אמרת, אלא מה אני מבינה על הדפוסים הפנימיים שלך. השתמשי בידע הזה בעדינות אבל בבהירות.\n${lines.join("\n")}`
-      : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you — not just what you said, but the inner patterns I've identified. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
+      ? `## 🕸️ גרף ידע עמוק (אמונות, פחדים, פריצות דרך)\nאלה הדברים העמוקים ביותר שאני יודעת עליך. 🔴=עדכני, 🟡=שבוע אחרון, ⚪=ישן. השתמשי בידע הזה בעדינות אבל בבהירות.\n${lines.join("\n")}`
+      : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you. 🔴=recent, 🟡=this week, ⚪=older. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
   }
 
   return parts.join("\n\n");

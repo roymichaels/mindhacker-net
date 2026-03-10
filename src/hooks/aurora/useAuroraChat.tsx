@@ -38,6 +38,39 @@ export const useAuroraChat = (conversationId: string | null) => {
   const messageCountRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Track previous conversation for cleanup summarization
+  const prevConversationRef = useRef<string | null>(null);
+  const prevMessagesRef = useRef<Message[]>([]);
+
+  // Summarize when switching away from a conversation
+  useEffect(() => {
+    const prevId = prevConversationRef.current;
+    const prevMsgs = prevMessagesRef.current;
+
+    if (prevId && prevId !== conversationId && prevMsgs.length >= 4 && user?.id) {
+      // Fire-and-forget summarization of the conversation we're leaving
+      const chatMsgs: ChatMessage[] = prevMsgs.slice(-10).map((m) => ({
+        role: (m.is_ai_message ? 'assistant' : 'user') as 'user' | 'assistant',
+        content: m.content,
+      }));
+      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-summarize-conversation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ userId: user.id, conversationId: prevId, messages: chatMsgs }),
+      }).catch(() => {});
+    }
+
+    prevConversationRef.current = conversationId;
+  }, [conversationId, user?.id]);
+
+  // Keep prevMessagesRef in sync
+  useEffect(() => {
+    prevMessagesRef.current = messages;
+  }, [messages]);
+
   // Fetch messages when conversation changes
   useEffect(() => {
     if (!conversationId) {
@@ -229,6 +262,9 @@ export const useAuroraChat = (conversationId: string | null) => {
     try {
       abortControllerRef.current = new AbortController();
 
+      // Detect client timezone for time-aware context
+      const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
         {
@@ -243,7 +279,8 @@ export const useAuroraChat = (conversationId: string | null) => {
             language,
             pillar: chatContext?.activePillar || null,
             hasImages: !!imageBase64,
-            tier: 'from_db', // tier is resolved server-side from user_subscriptions
+            tier: 'from_db',
+            timezone: clientTimezone,
           }),
           signal: abortControllerRef.current.signal,
         }
@@ -334,8 +371,8 @@ export const useAuroraChat = (conversationId: string | null) => {
         triggerBackgroundAnalysis();
       }
 
-      // Summarize conversation every 8 messages
-      if (messageCountRef.current > 0 && messageCountRef.current % 8 === 0) {
+      // Summarize conversation every 6 messages (more frequent memory saves)
+      if (messageCountRef.current > 0 && messageCountRef.current % 6 === 0) {
         summarizeConversation();
       }
     } catch (err) {
