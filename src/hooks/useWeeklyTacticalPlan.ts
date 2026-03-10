@@ -561,29 +561,8 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
         if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
       }
 
-      // Parse first schedule
+      // Parse the single primary schedule
       days = parseAiSchedule(validSchedules[0].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
-
-      // Merge additional schedules' blocks into existing days (deduplicated)
-      for (let si = 1; si < validSchedules.length; si++) {
-        const extraDays = parseAiSchedule(validSchedules[si].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
-        for (let di = 0; di < days.length && di < extraDays.length; di++) {
-          // Build a set of existing block signatures to avoid duplicates
-          const existingKeys = new Set(
-            days[di].blocks.map(b => `${b.title}::${b.category}::${b.actions.length}`)
-          );
-          for (const block of extraDays[di].blocks) {
-            const key = `${block.title}::${block.category}::${block.actions.length}`;
-            if (!existingKeys.has(key)) {
-              days[di].blocks.push(block);
-              days[di].totalActions += block.actions.length;
-              days[di].completedActions += block.completedCount;
-              days[di].totalMinutes += block.estimatedMinutes;
-              existingKeys.add(key);
-            }
-          }
-        }
-      }
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
