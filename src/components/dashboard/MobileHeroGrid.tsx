@@ -131,12 +131,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     }
   };
 
-  const toggleBlock = (slotId: string) => {
-    setOpenBlocks(prev => ({ ...prev, [slotId]: !prev[slotId] }));
-  };
-
-  // All blocks start collapsed — user opens what they want
-  const isBlockOpen = (slotId: string) => !!openBlocks[slotId];
+  // Block toggle removed — tasks are always visible now
 
   return (
     <div className="flex flex-col w-full items-center pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
