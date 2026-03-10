@@ -56,7 +56,7 @@ serve(async (req) => {
 
     // Use authenticated userId instead of client-supplied one
     userId = auth?.userId || (mode === "widget" ? parsed.userId : null);
-    console.log(`[aurora-chat] timezone received: "${timezone}", language: "${language}"``);
+    console.log("[aurora-chat] timezone received: " + timezone + ", language: " + language);
 
     // 2. Create Supabase client
     const supabase = createClient(
