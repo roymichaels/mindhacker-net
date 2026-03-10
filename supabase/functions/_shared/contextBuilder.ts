@@ -330,6 +330,14 @@ export async function buildContext(
     activeSkillsRes,
     // NEW: Memory Graph (knowledge graph)
     memoryGraphRes,
+    // NEW: All active plans
+    allPlansRes,
+    // NEW: Plan missions
+    planMissionsRes,
+    // NEW: Tactical schedules (current phase)
+    tacticalScheduleRes,
+    // NEW: User subscription
+    subscriptionRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -341,7 +349,7 @@ export async function buildContext(
     supabase.from("aurora_focus_plans").select("*").eq("user_id", userId).eq("status", "active").limit(1),
     supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
     supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
-    supabase.from("life_plans").select("*, life_plan_milestones(*)").eq("user_id", userId).eq("status", "active").single(),
+    supabase.from("life_plans").select("*, life_plan_milestones(*)").eq("user_id", userId).eq("status", "active").order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("aurora_conversation_memory").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
     supabase.from("aurora_reminders").select("*").eq("user_id", userId).eq("is_delivered", false).lte("reminder_date", today).order("reminder_date", { ascending: true }),
     supabase.from("aurora_identity_elements").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
@@ -371,12 +379,10 @@ export async function buildContext(
     supabase.from("recalibration_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
     // Cross-conversation history: recent messages from THIS USER's Aurora conversations only
     (async () => {
-      // Step 1: Get this user's AI conversation IDs
       const { data: aiConvs } = await supabase.from("conversations").select("id, context").eq("participant_1", userId).eq("type", "ai").order("updated_at", { ascending: false }).limit(10);
       if (!aiConvs || aiConvs.length === 0) return { data: [], error: null };
       const convIds = aiConvs.map((c: any) => c.id);
       const convContextMap = new Map(aiConvs.map((c: any) => [c.id, c.context]));
-      // Step 2: Fetch messages ONLY from this user's conversations
       const { data: recentMsgs } = await supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").in("conversation_id", convIds).order("created_at", { ascending: false }).limit(60);
       return { data: (recentMsgs || []).map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
     })(),
@@ -384,9 +390,9 @@ export async function buildContext(
     supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
     // Launchpad profile (biological baseline from onboarding)
     supabase.from("launchpad_progress").select("step_2_profile_data, step_3_lifestyle_data").eq("user_id", userId).maybeSingle(),
-    // NEW: User practices with practice library join
+    // User practices with practice library join
     supabase.from("user_practices").select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions, instructions_he)").eq("user_id", userId).eq("is_active", true),
-    // NEW: Active skills with progress
+    // Active skills with progress
     (async () => {
       const { data: skills } = await supabase.from("skills").select("id, name, name_he, pillar, category, is_active").eq("user_id", userId).eq("is_active", true);
       if (!skills || skills.length === 0) return { data: [], error: null };
@@ -395,8 +401,25 @@ export async function buildContext(
       const progressMap = new Map((progress || []).map((p: any) => [p.skill_id, p]));
       return { data: skills.map((s: any) => ({ ...s, ...progressMap.get(s.id) })), error: null };
     })(),
-    // NEW: Memory Graph — top active nodes by strength, include last_referenced_at for recency
+    // Memory Graph — top active nodes by strength
     supabase.from("aurora_memory_graph").select("node_type, content, strength, pillar, reference_count, first_seen_at, last_referenced_at").eq("user_id", userId).eq("is_active", true).order("strength", { ascending: false }).limit(20),
+    // All active plans (strategies)
+    supabase.from("life_plans").select("id, start_date, end_date, progress_percentage, plan_data, status").eq("user_id", userId).eq("status", "active"),
+    // Plan missions for all active plans
+    (async () => {
+      const { data: plans } = await supabase.from("life_plans").select("id").eq("user_id", userId).eq("status", "active");
+      if (!plans || plans.length === 0) return { data: [], error: null };
+      const planIds = plans.map((p: any) => p.id);
+      const { data } = await supabase.from("plan_missions").select("id, mission_number, pillar, title, title_en, description, is_completed, plan_id").in("plan_id", planIds).order("mission_number");
+      return { data: data || [], error: null };
+    })(),
+    // Tactical schedule for current phase
+    (async () => {
+      const { data: schedules } = await supabase.from("tactical_schedules").select("schedule_data, phase_number, wake_time, sleep_time").eq("user_id", userId).order("phase_number", { ascending: false }).limit(1);
+      return { data: schedules || [], error: null };
+    })(),
+    // User subscription tier
+    supabase.from("user_subscriptions").select("tier_id, status, subscription_tiers(name)").eq("user_id", userId).eq("status", "active").limit(1).maybeSingle(),
   ]);
 
   const profile = profileRes.data;
