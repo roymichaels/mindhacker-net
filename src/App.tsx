@@ -387,13 +387,13 @@ const App = () => (
                           {/* Work Hub */}
                           <Route path="/work" element={<WorkLayoutWrapper />} />
                           <Route path="/fm" element={<FMAppShell />}>
-                            <Route index element={<Navigate to="/fm/earn" replace />} />
-                            <Route path="home" element={<Navigate to="/fm/earn" replace />} />
-                            <Route path="earn" element={<FMMarketLayoutWrapper />} />
-                            <Route path="market" element={<Navigate to="/fm/earn" replace />} />
-                            <Route path="work" element={<FMWorkLayoutWrapper />} />
-                            <Route path="share" element={<Navigate to="/fm/earn?tab=data" replace />} />
-                            <Route path="contribute" element={<Navigate to="/fm/earn?tab=data" replace />} />
+                            <Route index element={<FMMarketLayoutWrapper />} />
+                            <Route path="home" element={<Navigate to="/fm" replace />} />
+                            <Route path="earn" element={<Navigate to="/fm" replace />} />
+                            <Route path="market" element={<Navigate to="/fm" replace />} />
+                            <Route path="work" element={<Navigate to="/fm" replace />} />
+                            <Route path="share" element={<Navigate to="/fm" replace />} />
+                            <Route path="contribute" element={<Navigate to="/fm" replace />} />
                             <Route path="wallet" element={<FMWalletLayoutWrapper />} />
                             <Route path="cashout" element={<FMCashout />} />
                             <Route path="bridge" element={<FMBridge />} />
