@@ -581,6 +581,25 @@ serve(async (req) => {
     // Each phase gets ~450-500 words
     const wordsPerPhase = 500;
 
+    // Build language instruction
+    const languageInstruction = language === 'he'
+      ? `LANGUAGE: Write ENTIRELY in Hebrew (עברית). Use natural, flowing Hebrew. Address the user in masculine form unless context says otherwise. Do NOT mix English words.`
+      : `LANGUAGE: Write ENTIRELY in English. Use natural, flowing English.`;
+
+    // Build experience context
+    const experienceContext = previousSessions > 10
+      ? `EXPERIENCED USER (${previousSessions}+ sessions). Use advanced techniques, deeper metaphors, less hand-holding.`
+      : previousSessions > 3
+        ? `INTERMEDIATE USER (${previousSessions} sessions). They understand the process. Balance guidance with depth.`
+        : `NEW/EARLY USER (${previousSessions} sessions). Be more guiding, explain the process gently within the script.`;
+
+    // Build streak context
+    const streakContext = sessionStreak > 7
+      ? `STRONG STREAK: ${sessionStreak} days! Celebrate consistency. They are building a powerful habit.`
+      : sessionStreak > 2
+        ? `BUILDING STREAK: ${sessionStreak} days. Encourage the momentum.`
+        : `STARTING FRESH. Welcome them warmly.`;
+
     const baseSystemContext = `You are a master hypnotherapist writing ONE PHASE of a 4-phase hypnosis session.
 This session is deeply personalized. You have the user's complete psychological profile below.
 
