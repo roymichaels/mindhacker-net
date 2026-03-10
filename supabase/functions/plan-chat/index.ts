@@ -330,6 +330,12 @@ serve(async (req) => {
       }
     }
 
+    // Focus task context
+    let focusTaskContext = "";
+    if (focus_task && typeof focus_task === "string") {
+      focusTaskContext = `\n\n🎯 USER WANTS TO DISCUSS TASK: "${focus_task}". Focus your response on this specific task — help them swap it, complete it, modify it, or discuss alternatives.`;
+    }
+
     const systemPrompt = `You are Aurora, a plan editor AI. You output COMMAND TAGS that the frontend executes.
 
 FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tags. Nothing else.
@@ -337,7 +343,7 @@ FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tag
 DATE AWARENESS:
 - Today / היום = ${todayStr}
 - Yesterday / אתמול = ${yesterdayStr}
-- Two days ago / שלשום = ${twoDaysAgoStr}${focusDayContext}
+- Two days ago / שלשום = ${twoDaysAgoStr}${focusDayContext}${focusTaskContext}
 When user says "שלשום" or "two days ago", use date ${twoDaysAgoStr}.
 When user says "אתמול" or "yesterday", use date ${yesterdayStr}.
 
