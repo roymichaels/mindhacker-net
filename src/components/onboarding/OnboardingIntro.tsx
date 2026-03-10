@@ -101,6 +101,24 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
     }
   }, [user, phase]);
 
+  // Pre-fill from profile when user is authenticated
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, gender, age_bracket')
+        .eq('id', user.id)
+        .single();
+      if (data) {
+        if (data.full_name && !name) setName(data.full_name);
+        if (data.gender && !gender) setGender(data.gender);
+        if (data.age_bracket && !ageBracket) setAgeBracket(data.age_bracket);
+      }
+    };
+    fetchProfile();
+  }, [user?.id]);
+
   const GENDER_OPTIONS = [
     { value: 'male', label: t('onboarding.intro.male'), icon: '👤' },
     { value: 'female', label: t('onboarding.intro.female'), icon: '👤' },
