@@ -216,6 +216,7 @@ function parseAiSchedule(
   todayStr: string,
   phaseNumber: number,
   milestoneFocusMap: Record<string, string>,
+  completedItems?: Map<string, { title: string; completedAt: string }[]>,
 ): DayPlan[] {
   const days: DayPlan[] = [];
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
@@ -262,7 +263,7 @@ function parseAiSchedule(
           actionType: block.category || null,
           estimatedMinutes: m.duration_minutes || 15,
           cadence: 'daily' as Cadence,
-          completed: false,
+          completed: false, // will be patched below
           completedAt: null,
           xpReward: m.xp_reward || DIFFICULTY_XP[difficulty] || 10,
           blockCategory: category,
@@ -280,6 +281,26 @@ function parseAiSchedule(
         (action as any).missionTitle = m.mission_title || null;
         return action;
       });
+
+      // Patch completion status from action_items
+      if (completedItems && date) {
+        const dayCompleted = completedItems.get(date) || [];
+        for (const action of actions) {
+          const match = dayCompleted.find(ci => {
+            const ciTitle = ci.title.toLowerCase().trim();
+            const actionTitle = action.title.toLowerCase().trim();
+            const actionTitleEn = (action.titleEn || '').toLowerCase().trim();
+            return ciTitle === actionTitle || ciTitle === actionTitleEn
+              || actionTitle.includes(ciTitle) || ciTitle.includes(actionTitle)
+              || (actionTitleEn && (actionTitleEn.includes(ciTitle) || ciTitle.includes(actionTitleEn)));
+          });
+          if (match) {
+            action.completed = true;
+            action.completedAt = match.completedAt;
+            completedActions++;
+          }
+        }
+      }
 
       return {
         id: `tblock-${d}-${bIdx}`,
@@ -455,6 +476,37 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     staleTime: 5 * 60_000,
   });
 
+
+  // ── Fetch completed action_items for the phase date range ──
+  const { data: completedItemsRaw } = useQuery({
+    queryKey: ['action-items-completed', user?.id, phaseStart, phaseEnd],
+    queryFn: async () => {
+      if (!user?.id || !phaseStart || !phaseEnd) return [];
+      const { data, error } = await supabase
+        .from('action_items')
+        .select('title, scheduled_date, completed_at, status')
+        .eq('user_id', user.id)
+        .eq('status', 'done')
+        .gte('scheduled_date', phaseStart)
+        .lte('scheduled_date', phaseEnd);
+      if (error) { console.error('Failed to fetch completed items:', error); return []; }
+      return data || [];
+    },
+    enabled: !!user?.id && !!phaseStart && !!phaseEnd,
+    staleTime: 30_000,
+  });
+
+  const completedItemsMap = useMemo(() => {
+    const map = new Map<string, { title: string; completedAt: string }[]>();
+    if (!completedItemsRaw) return map;
+    for (const item of completedItemsRaw) {
+      const date = item.scheduled_date || '';
+      if (!map.has(date)) map.set(date, []);
+      map.get(date)!.push({ title: item.title, completedAt: item.completed_at || '' });
+    }
+    return map;
+  }, [completedItemsRaw]);
+
   const generateSchedule = useCallback(async () => {
     if (!user?.id || !planId || !currentPhase) return;
     try {
@@ -500,7 +552,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
       for (const m of currentPhaseMilestones) {
         if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
       }
-      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap);
+      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
@@ -515,7 +567,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
       generating: false, phaseStart, phaseEnd,
       hasAiSchedule: !!aiSchedule?.schedule_data, wakeTime, sleepTime,
     };
-  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule]);
+  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule, completedItemsMap]);
 
   return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating };
 }
