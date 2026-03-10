@@ -227,7 +227,7 @@ const App = () => (
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
-                <LanguagePrompt />
+                
                 <BrowserRouter>
                    <FlowAuditProvider>
                    <AffiliateTracker />
