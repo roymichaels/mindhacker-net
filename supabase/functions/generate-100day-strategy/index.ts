@@ -561,6 +561,7 @@ async function generatePillarStrategy(
   userContext: string,
   constraintsBlock: string,
   traitCount: number, // 3 for selected, 1 for non-selected
+  practicesForPillar?: { name: string; name_he: string; duration: number; frequency: number; energy_type: string; is_core: boolean; category: string }[],
 ): Promise<{ allMissions: any[]; traitIds: string[] } | null> {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const sysMsg = "Output ONLY valid JSON. No markdown. No explanation.";
