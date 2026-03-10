@@ -253,7 +253,8 @@ AVAILABLE COMMANDS (embed in your response, the frontend parses and executes the
 
 TASK MANAGEMENT:
 - [task:complete:TASK_ID] — Mark a task/habit as done (use the actual UUID from context). Works for ANY date.
-- [task:create:title] — Create a new action item
+- [task:create:title] — Create a new action item (status: todo)
+- [task:create_done:title:YYYY-MM-DD] — Create a task AND mark it done in one step (for retroactive logging). Date is optional, defaults to today.
 - [task:delete:TASK_ID] — Remove an action item (use UUID)
 - [task:swap:OLD_TASK_ID:new task title] — ONLY when the user explicitly did something GENUINELY DIFFERENT.
 
