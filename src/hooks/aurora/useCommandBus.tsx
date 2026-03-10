@@ -144,7 +144,7 @@ export const useCommandBus = () => {
         const openers: Record<string, () => void> = {
           hypnosis: openHypnosis,
           settings: openSettings,
-          profile: openProfile,
+          profile: () => navigate('/profile'),
           upgrade: openUpgrade,
         };
         openers[command.modalId]?.();
