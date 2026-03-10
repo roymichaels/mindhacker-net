@@ -88,7 +88,7 @@ import TherapistLayoutWrapper from "./components/therapist/TherapistLayoutWrappe
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
-const PlanLayoutWrapper = lazy(() => import("./components/plan/PlanLayoutWrapper"));
+const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 
 const PresenceHome = lazy(() => import("./pages/presence/PresenceHome"));

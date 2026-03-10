@@ -23,7 +23,7 @@ const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
 const WorkHub = lazy(() => import('./WorkHub'));
 
-export default function PlanHub() {
+export default function PlayHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [chatOpen, setChatOpen] = useState(false);
