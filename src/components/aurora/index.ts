@@ -6,8 +6,6 @@ export { default as AuroraCTAButton } from './AuroraCTAButton';
 export { default as AuroraWelcome } from './AuroraWelcome';
 export { default as AuroraDashboardView } from './AuroraDashboardView';
 export { default as AuroraProfileSettings } from './AuroraProfileSettings';
-export { default as AuroraChecklistCard } from './AuroraChecklistCard';
-export { default as AuroraChecklistItem } from './AuroraChecklistItem';
 export { default as AuroraLayout } from './AuroraLayout';
 export { default as AuroraChatArea } from './AuroraChatArea';
 export { default as AuroraAccountDropdown } from './AuroraAccountDropdown';
