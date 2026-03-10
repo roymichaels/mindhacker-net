@@ -17,6 +17,8 @@ import { motion } from 'framer-motion';
 import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
 import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
 import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
+import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
