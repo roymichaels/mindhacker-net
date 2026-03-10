@@ -19,7 +19,7 @@ serve(async (req) => {
   try {
     const { userId, conversationId, messages } = await req.json();
 
-    if (!userId || !conversationId || !messages || messages.length < 4) {
+    if (!userId || !conversationId || !messages || messages.length < 3) {
       return new Response(
         JSON.stringify({ error: "Insufficient data for summarization" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -291,7 +291,7 @@ export async function buildContext(
     supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
     supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
     supabase.from("life_plans").select("*, life_plan_milestones(*)").eq("user_id", userId).eq("status", "active").single(),
-    supabase.from("aurora_conversation_memory").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(5),
+    supabase.from("aurora_conversation_memory").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
     supabase.from("aurora_reminders").select("*").eq("user_id", userId).eq("is_delivered", false).lte("reminder_date", today).order("reminder_date", { ascending: true }),
     supabase.from("aurora_identity_elements").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
     supabase.from("user_projects").select("*").eq("user_id", userId).in("status", ["active", "paused"]).order("updated_at", { ascending: false }),
