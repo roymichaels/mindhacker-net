@@ -60,6 +60,7 @@ export default function ArenaHub() {
   const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
   const [dayChatOpen, setDayChatOpen] = useState(false);
   const [dayChatDayNumber, setDayChatDayNumber] = useState<number | null>(null);
+  const [dayChatTaskTitle, setDayChatTaskTitle] = useState<string | null>(null);
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime, toggleActionComplete } = phasePlan as any;
 
