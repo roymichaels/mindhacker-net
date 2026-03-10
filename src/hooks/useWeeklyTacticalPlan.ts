@@ -344,14 +344,8 @@ function parseAiSchedule(
             const ciTitle = normalize(ci.title);
             const actionTitle = normalize(action.title);
             const actionTitleEn = normalize(action.titleEn || '');
-            // Exact match
+            // Exact match only (no fuzzy/substring to prevent false positives)
             if (ciTitle === actionTitle || ciTitle === actionTitleEn) return true;
-            // Substring match
-            if (actionTitle.includes(ciTitle) || ciTitle.includes(actionTitle)) return true;
-            if (actionTitleEn && (actionTitleEn.includes(ciTitle) || ciTitle.includes(actionTitleEn))) return true;
-            // Fuzzy: Levenshtein-like — if titles are close (1-2 char diff), match
-            if (ciTitle.length > 3 && actionTitle.length > 3 && fuzzyMatch(ciTitle, actionTitle)) return true;
-            if (actionTitleEn && ciTitle.length > 3 && fuzzyMatch(ciTitle, actionTitleEn)) return true;
             return false;
           });
           if (match) {
