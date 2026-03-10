@@ -42,7 +42,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <AuroraActionsProvider>
       <SidebarProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-          {hideChrome ? null : isMobile ? (
+          {isMobile ? (
             isFM ? (
               <FMTopNav onOpenSettings={() => setSettingsOpen(true)} />
             ) : (
