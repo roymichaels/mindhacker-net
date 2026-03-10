@@ -344,8 +344,8 @@ export async function buildContext(
       const progressMap = new Map((progress || []).map((p: any) => [p.skill_id, p]));
       return { data: skills.map((s: any) => ({ ...s, ...progressMap.get(s.id) })), error: null };
     })(),
-    // NEW: Memory Graph — top active nodes by strength
-    supabase.from("aurora_memory_graph").select("node_type, content, strength, pillar, reference_count, first_seen_at").eq("user_id", userId).eq("is_active", true).order("strength", { ascending: false }).limit(20),
+    // NEW: Memory Graph — top active nodes by strength, include last_referenced_at for recency
+    supabase.from("aurora_memory_graph").select("node_type, content, strength, pillar, reference_count, first_seen_at, last_referenced_at").eq("user_id", userId).eq("is_active", true).order("strength", { ascending: false }).limit(20),
   ]);
 
   const profile = profileRes.data;
