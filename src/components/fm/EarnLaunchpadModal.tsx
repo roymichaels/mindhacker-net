@@ -46,7 +46,7 @@ const MILESTONES: Milestone[] = [
   { id: 'share_link', titleEn: 'Share Your Link', titleHe: 'שתף את הקישור', hintEn: 'Tap to copy your referral link', hintHe: 'לחץ להעתקת קישור ההפניה', action: 'copy_link', rewardMos: 10 },
   { id: 'first_referral', titleEn: 'First Referral', titleHe: 'הפניה ראשונה', hintEn: 'Someone signs up via your link', hintHe: 'מישהו נרשם דרך הקישור שלך', action: 'auto', rewardMos: 50 },
   { id: 'earn_100', titleEn: 'Earn 100 MOS', titleHe: 'הרוויח 100 MOS', hintEn: 'Keep earning to reach 100', hintHe: 'המשך להרוויח עד 100', action: 'navigate', navTarget: '/fm/earn', rewardMos: 25 },
-  { id: 'week_streak', titleEn: '7-Day Streak', titleHe: 'רצף 7 ימים', hintEn: 'Mine 7 days in a row', hintHe: 'כרה 7 ימים ברציפות', action: 'navigate', navTarget: '/plan', rewardMos: 50 },
+  { id: 'week_streak', titleEn: '7-Day Streak', titleHe: 'רצף 7 ימים', hintEn: 'Mine 7 days in a row', hintHe: 'כרה 7 ימים ברציפות', action: 'navigate', navTarget: '/play', rewardMos: 50 },
   { id: 'launchpad_complete', titleEn: 'Earn Master', titleHe: 'מאסטר הרווחה', hintEn: 'Complete all milestones above', hintHe: 'השלם את כל אבני הדרך', action: 'auto', rewardMos: 100 },
 ];
 
