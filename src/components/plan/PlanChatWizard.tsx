@@ -83,6 +83,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       'life-plan', 'milestones', 'strategy-plans', 'strategy-missions',
       'strategy-milestones', 'strategy-traits', 'strategy-skill-progress',
       'daily-queue', 'trait-gallery', 'user-practices', 'action-items',
+      'action-items-completed', 'tactical-schedule',
       'daily-habits', 'current-week-milestone',
     ];
     keys.forEach(k => queryClient.invalidateQueries({ queryKey: [k] }));
