@@ -56,7 +56,7 @@ serve(async (req) => {
 
     // Use authenticated userId instead of client-supplied one
     userId = auth?.userId || (mode === "widget" ? parsed.userId : null);
-    console.log(`[aurora-chat] timezone received: "${timezone}", language: "${language}"``);
+    console.log("[aurora-chat] timezone received: " + timezone + ", language: " + language);
 
     // 2. Create Supabase client
     const supabase = createClient(
@@ -116,7 +116,7 @@ serve(async (req) => {
     const tierModel = TIER_MODELS[userTier] || "google/gemini-2.5-flash-lite";
     const model = hasImages ? "google/gemini-2.5-flash" : (mode === "widget" ? widgetModel : tierModel);
 
-    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || "guest"}, Tier: ${userTier}, Model: ${model}, Version: ${orchestrated.promptVersion}, ContextHash: ${context.context_hash.slice(0, 8)}`);
+    console.log("Aurora chat - Mode: " + mode + ", User: " + (userId || "guest") + ", Tier: " + userTier + ", Model: " + model + ", Version: " + orchestrated.promptVersion + ", ContextHash: " + context.context_hash.slice(0, 8));
 
     // 5. Call LLM with timeout (Layer 3 - model call)
     let response: Response;
@@ -127,7 +127,7 @@ serve(async (req) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+            "Authorization": "Bearer " + Deno.env.get("LOVABLE_API_KEY"),
           },
           body: JSON.stringify({
             model,
@@ -165,7 +165,7 @@ serve(async (req) => {
 
       // Circuit breaker: 5xx = return fallback
       if (response.status >= 500) {
-        logEdgeFunctionError({ functionName: "aurora-chat", error: new Error(`AI Gateway ${response.status}`), userId, requestContext: { mode, trigger: "5xx" } });
+        logEdgeFunctionError({ functionName: "aurora-chat", error: new Error("AI Gateway " + response.status), userId, requestContext: { mode, trigger: "5xx" } });
         const fallbackStream = buildFallbackStream(context, language);
         return new Response(fallbackStream, {
           headers: {
@@ -188,7 +188,7 @@ serve(async (req) => {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error("AI Gateway error: " + response.status);
     }
 
     // 6. Log tracing metadata (fire-and-forget)
