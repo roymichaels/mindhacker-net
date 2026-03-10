@@ -152,11 +152,13 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
 
             {/* Voice buttons inside input */}
             <div className="absolute end-2 bottom-1.5 flex items-center gap-0.5">
-              <VoiceModeButton
-                onClick={voiceMode.open}
-                disabled={disabled || isRecording}
-                className="h-8 w-8"
-              />
+              {!bypassLimits && (
+                <VoiceModeButton
+                  onClick={voiceMode.open}
+                  disabled={disabled || isRecording}
+                  className="h-8 w-8"
+                />
+              )}
               <VoiceRecordingButton
                 isRecording={isRecording}
                 isTranscribing={isTranscribing}
