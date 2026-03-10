@@ -88,7 +88,7 @@ export function validateRequest(raw: any): ValidatedRequest | { error: string; s
     }
   }
 
-  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode, pillar, hasImages };
+  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode, pillar, hasImages, timezone };
 }
 
 // ─── Widget Settings ───────────────────────────────────────
