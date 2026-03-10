@@ -158,19 +158,32 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     signal: AbortSignal,
   ): Promise<boolean> => {
     console.log('[TTS] Playing chunk:', { length: text.length });
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ text, voiceId: voice, speed }),
-        signal,
-      }
-    );
+
+    // Create a timeout that aborts after 35 seconds
+    const timeoutController = new AbortController();
+    const timeout = setTimeout(() => timeoutController.abort(), 35000);
+    const combinedSignal = signal.aborted ? signal : (() => {
+      const c = new AbortController();
+      signal.addEventListener('abort', () => c.abort());
+      timeoutController.signal.addEventListener('abort', () => c.abort());
+      return c.signal;
+    })();
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text, voiceId: voice, speed }),
+          signal: combinedSignal,
+        }
+      );
+      clearTimeout(timeout);
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
