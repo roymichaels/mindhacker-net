@@ -555,6 +555,58 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
       : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you. 🔴=recent, 🟡=this week, ⚪=older. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
   }
 
+  // ── Strategic Plans ─────────────────────────────────
+  if (ctx.active_plans && ctx.active_plans.length > 0) {
+    const lines = ctx.active_plans.map(p => {
+      const pillars = p.pillars.length > 0 ? p.pillars.join(', ') : (isHe ? 'לא צוינו' : 'none');
+      return `- Plan ${p.id.slice(0, 8)} | ${p.start_date} → ${p.end_date} | ${isHe ? 'התקדמות' : 'progress'}: ${p.progress_percentage}% | ${isHe ? 'פילרים' : 'pillars'}: ${pillars}${p.plan_summary ? ` | ${p.plan_summary.slice(0, 100)}` : ''}`;
+    });
+    parts.push(isHe
+      ? `## 🗺️ תוכניות אסטרטגיות פעילות\n${lines.join("\n")}`
+      : `## 🗺️ Active Strategic Plans\n${lines.join("\n")}`);
+  }
+
+  // ── Plan Missions ───────────────────────────────────
+  if (ctx.plan_missions && ctx.plan_missions.length > 0) {
+    const lines = ctx.plan_missions.map(m => {
+      const status = m.is_completed ? '✅' : '⬜';
+      return `- ${status} M${m.mission_number} [${m.pillar}]: "${m.title}"${m.description ? ` — ${m.description.slice(0, 80)}` : ''}`;
+    });
+    const completed = ctx.plan_missions.filter(m => m.is_completed).length;
+    parts.push(isHe
+      ? `## 🎯 משימות אסטרטגיות (${completed}/${ctx.plan_missions.length} הושלמו)\n${lines.join("\n")}`
+      : `## 🎯 Strategic Missions (${completed}/${ctx.plan_missions.length} completed)\n${lines.join("\n")}`);
+  }
+
+  // ── Tactical Schedule (today's blocks) ──────────────
+  if (ctx.tactical_schedule_today && ctx.tactical_schedule_today.length > 0) {
+    const lines = ctx.tactical_schedule_today.map(b => {
+      const actionLines = b.actions.map(a => `    - ${a.title} (${a.duration}${isHe ? ' דק׳' : 'min'})`).join("\n");
+      return `- **${b.block_title}** [${b.block_category}]\n${actionLines}`;
+    });
+    parts.push(isHe
+      ? `## 📋 לו"ז טקטי להיום\nזה הלו"ז המפורט שנבנה עבורך להיום. השתמש בזה כדי לעקוב ולייעץ.\n${lines.join("\n")}`
+      : `## 📋 Today's Tactical Schedule\nThis is the detailed schedule built for today. Use it to track and advise.\n${lines.join("\n")}`);
+  }
+
+  // ── Domain Assessment Scores ────────────────────────
+  if (ctx.domain_scores && ctx.domain_scores.length > 0) {
+    const scored = ctx.domain_scores.filter(d => d.score !== null);
+    if (scored.length > 0) {
+      const lines = scored.map(d => `- ${d.domain_id}: ${d.score}/100 (${d.status})`);
+      parts.push(isHe
+        ? `## 📊 ציוני אבחון תחומים\n${lines.join("\n")}`
+        : `## 📊 Domain Assessment Scores\n${lines.join("\n")}`);
+    }
+  }
+
+  // ── Subscription Tier ───────────────────────────────
+  if (ctx.subscription_tier) {
+    parts.push(isHe
+      ? `## 💎 רמת מנוי: ${ctx.subscription_tier}`
+      : `## 💎 Subscription Tier: ${ctx.subscription_tier}`);
+  }
+
   return parts.join("\n\n");
 }
 
