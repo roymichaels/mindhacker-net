@@ -1,4 +1,5 @@
-import { Copy, Volume2, Square, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { Copy, Volume2, Square, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -16,6 +17,8 @@ interface AuroraChatMessageProps {
   isStreaming?: boolean;
   timestamp?: string;
   onRegenerate?: () => void;
+  onRetry?: () => void;
+  isFailed?: boolean;
 }
 
 // Extract CTA buttons from content
