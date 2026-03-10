@@ -414,6 +414,15 @@ function DayView({
         </span>
       </div>
 
+      {/* Talk to plan for this day */}
+      <button
+        onClick={() => onTalkToPlan(day.dayNumber)}
+        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-xs font-medium text-primary"
+      >
+        <MessageSquare className="w-3.5 h-3.5" />
+        {isHe ? `דבר עם התוכנית — יום ${day.dayNumber}` : `Talk to Plan — Day ${day.dayNumber}`}
+      </button>
+
       {/* Flat block list */}
       {day.blocks.map((block) => {
         const isOpen = !!openBlocks[block.id];
