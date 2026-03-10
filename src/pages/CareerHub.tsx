@@ -5,6 +5,8 @@
  */
 import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCareerApplication } from '@/hooks/useCareerApplication';
+import CareerWizard from '@/components/career/CareerWizard';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
