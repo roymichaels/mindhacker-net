@@ -138,6 +138,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     }
   };
 
+  const handleToggleComplete = useCallback(async (item: NowQueueItem) => {
+    await toggleActionComplete(item);
+    refetch();
+  }, [toggleActionComplete, refetch]);
+
   // Block toggle removed — tasks are always visible now
 
   return (
