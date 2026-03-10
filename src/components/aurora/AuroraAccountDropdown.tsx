@@ -105,7 +105,7 @@ const AuroraAccountDropdown = ({
             variant="ghost"
             className={cn(
               "w-full justify-start gap-3 h-auto py-3 px-3 relative overflow-hidden",
-              "backdrop-blur-xl bg-gradient-to-br from-muted via-background to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+              "backdrop-blur-xl bg-muted/80 dark:bg-card",
               "border border-border dark:border-primary/30 rounded-xl shadow-lg dark:shadow-xl",
               "hover:border-primary/40 dark:hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300",
               isCollapsed && "justify-center px-2"
