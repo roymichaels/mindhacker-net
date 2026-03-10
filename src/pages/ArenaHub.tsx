@@ -119,8 +119,8 @@ export default function ArenaHub() {
 
         {!hasPlan && !planLoading ? (
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
-              <Swords className="w-8 h-8 text-destructive" />
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Swords className="w-8 h-8 text-amber-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">
