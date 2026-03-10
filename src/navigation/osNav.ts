@@ -30,7 +30,7 @@ export interface OsTab {
  */
 export const OS_TABS: OsTab[] = [
   { id: 'fm',        path: '/fm/earn',   icon: Store,          labelEn: 'FM',        labelHe: 'FM' },
-  { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Path',      labelHe: 'מסלול', isCenter: true },
+  { id: 'plan',      path: '/plan',      icon: Flame,          labelEn: 'Play',      labelHe: 'Play', isCenter: true },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
 ];

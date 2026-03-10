@@ -1,5 +1,5 @@
 /**
- * PlanHub — Unified Plan page (מסלול) with 3 tabs: Strategy, Now & Tactics.
+ * PlanHub — Unified Plan page (Play) with 4 tabs: Strategy, Now, Tactics & Work.
  */
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
