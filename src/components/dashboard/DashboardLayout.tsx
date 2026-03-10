@@ -93,8 +93,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
           </div>
 
-          {!hideChrome && <AuroraDock />}
-          {!hideChrome && <BottomTabBar />}
+          <AuroraDock />
+          <BottomTabBar />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
       </SidebarProvider>
