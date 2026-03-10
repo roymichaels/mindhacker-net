@@ -922,5 +922,10 @@ function createEmptyContext(today: string): AuroraContext {
     active_skills: [],
     schedule_prefs: { wake_time: null, sleep_time: null, focus_peak_start: null, focus_peak_end: null },
     memory_graph: [],
+    active_plans: [],
+    plan_missions: [],
+    tactical_schedule_today: [],
+    domain_scores: [],
+    subscription_tier: null,
   };
 }
