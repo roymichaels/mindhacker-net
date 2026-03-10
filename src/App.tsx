@@ -75,6 +75,7 @@ const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
 import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
@@ -267,6 +268,7 @@ const App = () => (
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
                         {/* Onboarding — new entry point */}
                         <Route path="/onboarding" element={<Onboarding />} />
+                        <Route path="/ceremony" element={<OnboardingCeremony />} />
                         {/* Ad landing page */}
                         <Route path="/go" element={<Go />} />
                         {/* Feature detail pages */}

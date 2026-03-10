@@ -49,7 +49,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
             user_id: user.id,
             launchpad_complete: true,
           }, { onConflict: 'user_id' }).then(() => {
-            navigate('/now', { replace: true });
+            navigate('/ceremony', { replace: true });
           });
         }
       });
@@ -80,7 +80,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
       if (existingPlan) {
         sessionStorage.setItem('just_completed_onboarding', '1');
-        navigate('/now', { replace: true });
+        navigate('/ceremony', { replace: true });
         return;
       }
 
@@ -265,7 +265,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       }, { onConflict: 'user_id' });
 
       sessionStorage.setItem('just_completed_onboarding', '1');
-      navigate('/now', { replace: true });
+      navigate('/ceremony', { replace: true });
     } catch (err) {
       console.error('Error completing onboarding:', err);
       setError(true);
