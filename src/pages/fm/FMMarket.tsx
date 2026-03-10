@@ -3,11 +3,13 @@
  * Route: /fm/earn — all publishing flows use Aurora AI wizard.
  */
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Briefcase, ShoppingBag, BookOpen, Image, Gem,
   Coins, Package, Sparkles, Search, Plus,
-  Send, Loader2, Users, Clock, PlayCircle, CheckCircle2, XCircle
+  Send, Loader2, Users, Clock, PlayCircle, CheckCircle2, XCircle,
+  GraduationCap, Heart, Palette, Code,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMBounties, useFMClaims } from '@/hooks/useFMWallet';
