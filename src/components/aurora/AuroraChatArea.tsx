@@ -90,6 +90,8 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
                   isAI={message.is_ai_message}
                   timestamp={message.created_at}
                   onRegenerate={message.is_ai_message && isPlus ? regenerateLastResponse : undefined}
+                  isFailed={failedMessageIds.has(message.id)}
+                  onRetry={failedMessageIds.has(message.id) ? () => retryMessage(message.id) : undefined}
                 />
               ))}
               
