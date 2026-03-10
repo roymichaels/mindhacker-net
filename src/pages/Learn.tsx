@@ -391,42 +391,6 @@ export default function Learn() {
           </div>
         ) : (
           <>
-            {/* ── Header ── */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                {selectedCurriculum && (
-                  <button
-                    onClick={() => selectCurriculum(null)}
-                    className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
-                  >
-                    <ChevronLeft className={cn("h-5 w-5", isHe && "rotate-180")} />
-                  </button>
-                )}
-                <h1 className="text-lg font-bold text-foreground truncate">
-                  {selectedCurriculum && activeCurriculum
-                    ? activeCurriculum.title
-                    : (isHe ? 'הקורסים שלי' : 'My Courses')}
-                </h1>
-              </div>
-              <Button
-                onClick={() => canAccessCourseCreation ? openWizardInDock() : showUpgradePrompt(isHe ? 'יצירת קורס' : 'Course Creation')}
-                variant="outline"
-                size="sm"
-                className="gap-1.5 rounded-full border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0"
-              >
-                {canAccessCourseCreation ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                {isHe ? 'קורס חדש' : 'New Course'}
-              </Button>
-            </div>
-
-            {/* ── Motivational quote ── */}
-            {!selectedCurriculum && (
-              <div className="text-center py-2">
-                <Sparkles className="h-4 w-4 text-primary mx-auto opacity-50 mb-1" />
-                <p className="text-xs italic text-muted-foreground">"{dailyQuote}"</p>
-              </div>
-            )}
-
             {/* ── Suggested Courses ── */}
             {!selectedCurriculum && suggestedCourses.length > 0 && (
               <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4 space-y-3">
@@ -517,6 +481,42 @@ export default function Learn() {
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* ── Header ── */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {selectedCurriculum && (
+                  <button
+                    onClick={() => selectCurriculum(null)}
+                    className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+                  >
+                    <ChevronLeft className={cn("h-5 w-5", isHe && "rotate-180")} />
+                  </button>
+                )}
+                <h1 className="text-lg font-bold text-foreground truncate">
+                  {selectedCurriculum && activeCurriculum
+                    ? activeCurriculum.title
+                    : (isHe ? 'הקורסים שלי' : 'My Courses')}
+                </h1>
+              </div>
+              <Button
+                onClick={() => canAccessCourseCreation ? openWizardInDock() : showUpgradePrompt(isHe ? 'יצירת קורס' : 'Course Creation')}
+                variant="outline"
+                size="sm"
+                className="gap-1.5 rounded-full border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0"
+              >
+                {canAccessCourseCreation ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                {isHe ? 'קורס חדש' : 'New Course'}
+              </Button>
+            </div>
+
+            {/* ── Motivational quote ── */}
+            {!selectedCurriculum && (
+              <div className="text-center py-2">
+                <Sparkles className="h-4 w-4 text-primary mx-auto opacity-50 mb-1" />
+                <p className="text-xs italic text-muted-foreground">"{dailyQuote}"</p>
               </div>
             )}
 
