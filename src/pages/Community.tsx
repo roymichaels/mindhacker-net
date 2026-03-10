@@ -198,10 +198,10 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                 {/* AI Match Card */}
                 <button
                   onClick={() => setMatchOpen(true)}
-                  className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] via-rose-500/[0.04] to-violet-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
+                  className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
                 >
                   {/* Glow accent */}
-                  <div className="absolute top-0 end-0 w-24 h-24 rounded-full bg-amber-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="absolute top-0 end-0 w-24 h-24 rounded-full bg-amber-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative flex items-start gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-rose-500/15 flex items-center justify-center flex-shrink-0">
                       <Sparkles className="w-5 h-5 text-amber-500" />
