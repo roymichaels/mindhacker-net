@@ -147,7 +147,7 @@ const AuroraAccountDropdown = ({
         >
           {/* Compact Orb + HUD */}
           <div 
-            className="relative overflow-hidden rounded-lg m-1.5 cursor-pointer group"
+            className="relative overflow-hidden rounded-lg m-1 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
               navigate('/profile');
@@ -155,56 +155,43 @@ const AuroraAccountDropdown = ({
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/15 dark:via-card dark:to-accent/15" />
             
-            <div className="relative z-10 px-3 py-2.5 flex items-center gap-3">
+            <div className="relative z-10 px-2.5 py-1.5 flex items-center gap-2.5">
               {/* Orb — same size */}
               <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
-                <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/15 to-transparent blur-lg pointer-events-none" />
+                <div className="absolute inset-[-25%] rounded-full bg-gradient-radial from-primary/25 via-primary/10 to-transparent blur-md pointer-events-none" />
                 <div className="relative z-10">
                   <PersonalizedOrb size={80} state="idle" />
                 </div>
               </div>
 
-              {/* Right side: name + stats */}
-              <div className="flex-1 min-w-0 space-y-1.5">
-                {/* Name + Identity */}
-                <div>
-                  <p className="text-sm font-semibold truncate text-foreground">{displayName}</p>
-                  {dashboard.identityTitle && (
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs">{dashboard.identityTitle.icon}</span>
-                      <span className="text-[11px] font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
-                        {dashboard.identityTitle.title}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* XP Bar */}
-                {!dashboard.isLoading && (
-                  <div className="space-y-0.5">
-                    <div className="flex justify-between text-[9px] text-muted-foreground">
-                      <span>XP</span>
-                      <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
-                    </div>
-                    <Progress value={dashboard.xpProgress.percentage} className="h-1.5 bg-muted/50" />
+              {/* Right side: name + stats inline */}
+              <div className="flex-1 min-w-0 space-y-0.5">
+                <p className="text-sm font-semibold truncate text-foreground leading-tight">{displayName}</p>
+                {dashboard.identityTitle && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px]">{dashboard.identityTitle.icon}</span>
+                    <span className="text-[10px] font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+                      {dashboard.identityTitle.title}
+                    </span>
                   </div>
                 )}
 
-                {/* Stats Row */}
+                {/* Stats Row — merged with XP */}
                 {!dashboard.isLoading && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-[10px]">
-                      <Star className="h-2.5 w-2.5" />
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-0.5 px-1.5 py-px rounded-full bg-primary/15 text-primary border border-primary/20 text-[9px]">
+                      <Star className="h-2 w-2" />
                       <span className="font-bold">Lv.{dashboard.level}</span>
                     </div>
-                    <div className="flex items-center gap-0.5 text-yellow-500 text-[10px]">
-                      <Gem className="h-2.5 w-2.5" />
+                    <div className="flex items-center gap-0.5 text-yellow-500 text-[9px]">
+                      <Gem className="h-2 w-2" />
                       <span className="font-semibold">{dashboard.tokens}</span>
                     </div>
-                    <div className="flex items-center gap-0.5 text-orange-500 text-[10px]">
-                      <Flame className="h-2.5 w-2.5" />
+                    <div className="flex items-center gap-0.5 text-orange-500 text-[9px]">
+                      <Flame className="h-2 w-2" />
                       <span className="font-semibold">{dashboard.streak}</span>
                     </div>
+                    <span className="text-[8px] text-muted-foreground ms-auto">{dashboard.xpProgress.current}xp</span>
                   </div>
                 )}
               </div>
