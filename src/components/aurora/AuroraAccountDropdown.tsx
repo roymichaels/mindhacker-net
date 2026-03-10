@@ -147,7 +147,7 @@ const AuroraAccountDropdown = ({
         >
           {/* Compact Orb + HUD */}
           <div 
-            className="relative overflow-hidden rounded-lg m-1 cursor-pointer group"
+            className="relative overflow-hidden rounded-lg mx-1 mt-1 mb-0 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
               navigate('/profile');
@@ -155,7 +155,7 @@ const AuroraAccountDropdown = ({
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/15 dark:via-card dark:to-accent/15" />
             
-            <div className="relative z-10 px-2.5 py-1.5 flex items-center gap-2.5">
+            <div className="relative z-10 px-2 py-1.5 flex items-center gap-2">
               {/* Orb — same size */}
               <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
                 <div className="absolute inset-[-25%] rounded-full bg-gradient-radial from-primary/25 via-primary/10 to-transparent blur-md pointer-events-none" />
@@ -164,34 +164,42 @@ const AuroraAccountDropdown = ({
                 </div>
               </div>
 
-              {/* Right side: name + stats inline */}
-              <div className="flex-1 min-w-0 space-y-0.5">
-                <p className="text-sm font-semibold truncate text-foreground leading-tight">{displayName}</p>
+              {/* Right side: name + identity + stats */}
+              <div className="flex-1 min-w-0 space-y-0">
+                <p className="text-sm font-bold truncate text-foreground leading-none">{displayName}</p>
+                <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">{user?.email}</p>
+                
                 {dashboard.identityTitle && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px]">{dashboard.identityTitle.icon}</span>
-                    <span className="text-[10px] font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+                  <div className="flex items-center gap-0.5 mt-0.5">
+                    <span className="text-[9px]">{dashboard.identityTitle.icon}</span>
+                    <span className="text-[9px] font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
                       {dashboard.identityTitle.title}
                     </span>
                   </div>
                 )}
 
-                {/* Stats Row — merged with XP */}
+                {/* XP bar */}
                 {!dashboard.isLoading && (
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <div className="flex items-center gap-0.5 px-1.5 py-px rounded-full bg-primary/15 text-primary border border-primary/20 text-[9px]">
-                      <Star className="h-2 w-2" />
-                      <span className="font-bold">Lv.{dashboard.level}</span>
+                  <div className="mt-1 space-y-0.5">
+                    <div className="flex items-center justify-between text-[8px] text-muted-foreground leading-none">
+                      <span>XP</span>
+                      <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
                     </div>
-                    <div className="flex items-center gap-0.5 text-yellow-500 text-[9px]">
-                      <Gem className="h-2 w-2" />
-                      <span className="font-semibold">{dashboard.tokens}</span>
+                    <Progress value={dashboard.xpProgress.percentage} className="h-1.5" />
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className="flex items-center gap-0.5 px-1 py-px rounded-full bg-primary/15 text-primary border border-primary/20 text-[8px]">
+                        <Star className="h-2 w-2" />
+                        <span className="font-bold">Lv.{dashboard.level}</span>
+                      </div>
+                      <div className="flex items-center gap-0.5 text-yellow-500 text-[8px]">
+                        <Gem className="h-2 w-2" />
+                        <span className="font-semibold">{dashboard.tokens}</span>
+                      </div>
+                      <div className="flex items-center gap-0.5 text-orange-500 text-[8px]">
+                        <Flame className="h-2 w-2" />
+                        <span className="font-semibold">{dashboard.streak}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-0.5 text-orange-500 text-[9px]">
-                      <Flame className="h-2 w-2" />
-                      <span className="font-semibold">{dashboard.streak}</span>
-                    </div>
-                    <span className="text-[8px] text-muted-foreground ms-auto">{dashboard.xpProgress.current}xp</span>
                   </div>
                 )}
               </div>
