@@ -1,15 +1,18 @@
 /**
  * OnboardingGate — Redirects users to /onboarding if they haven't completed the launchpad
  * AND don't have an active plan. After onboarding, requires username setup before granting app access.
+ * Admins see a dismissible banner instead of being blocked.
  */
-import { Navigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useCommunityUsername } from '@/hooks/useCommunityUsername';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Rocket, X } from 'lucide-react';
 import { UsernameSetupScreen } from '@/components/onboarding/UsernameSetupScreen';
+import { Button } from '@/components/ui/button';
 
 interface OnboardingGateProps {
   children: React.ReactNode;
@@ -22,20 +25,22 @@ const BYPASS_ROUTES = [
   '/personal-hypnosis/success',
   '/personal-hypnosis/pending',
   '/ceremony',
+  '/onboarding',
 ];
+
+const ADMIN_BANNER_DISMISSED_KEY = 'admin-onboarding-banner-dismissed';
 
 export function OnboardingGate({ children }: OnboardingGateProps) {
   const { isLaunchpadComplete, isLoading } = useLaunchpadProgress();
   const { username, isLoading: usernameLoading } = useCommunityUsername();
   const { user, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => sessionStorage.getItem(ADMIN_BANNER_DISMISSED_KEY) === 'true'
+  );
 
-  // Admins bypass onboarding entirely
-  if (isAdmin) {
-    return <>{children}</>;
-  }
-
-  // Always check if user has an active plan (prevents re-onboarding even if launchpad_complete is stale)
+  // Always check if user has an active plan
   const { data: hasActivePlan, isLoading: checkingPlan } = useQuery({
     queryKey: ['onboarding-gate-plan-check', user?.id],
     queryFn: async () => {
@@ -51,6 +56,48 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
     enabled: !!user?.id,
     staleTime: 5 * 60_000,
   });
+
+  // Admins: never block, but show optional banner if onboarding incomplete
+  if (isAdmin) {
+    const showBanner = !bannerDismissed && !isLoading && !checkingPlan && !isLaunchpadComplete && !hasActivePlan
+      && !BYPASS_ROUTES.some(r => location.pathname.startsWith(r));
+
+    const handleDismiss = () => {
+      setBannerDismissed(true);
+      sessionStorage.setItem(ADMIN_BANNER_DISMISSED_KEY, 'true');
+    };
+
+    return (
+      <>
+        {showBanner && (
+          <div className="sticky top-0 z-[60] flex items-center justify-between gap-3 bg-primary/10 border-b border-primary/20 px-4 py-2">
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Rocket className="h-4 w-4 text-primary shrink-0" />
+              <span>You haven't completed onboarding yet.</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="default"
+                className="h-7 text-xs"
+                onClick={() => navigate('/onboarding')}
+              >
+                Start Onboarding
+              </Button>
+              <button
+                onClick={handleDismiss}
+                className="p-1 rounded-md hover:bg-muted transition-colors"
+                aria-label="Dismiss"
+              >
+                <X className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
+        )}
+        {children}
+      </>
+    );
+  }
 
   // Don't gate while loading
   if (isLoading || usernameLoading || checkingPlan) {
