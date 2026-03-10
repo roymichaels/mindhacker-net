@@ -383,6 +383,11 @@ export const useAuroraChat = (conversationId: string | null) => {
       } else {
         console.error('Aurora chat error:', err);
         setError('Failed to get response from Aurora');
+        // Mark the last user message as failed for retry
+        const lastUserMsg = messages[messages.length - 1] || null;
+        if (lastUserMsg && !lastUserMsg.is_ai_message) {
+          setFailedMessageIds(prev => new Set(prev).add(lastUserMsg.id));
+        }
       }
     } finally {
       setIsStreaming(false);
