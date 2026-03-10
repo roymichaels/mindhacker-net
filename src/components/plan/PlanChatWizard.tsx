@@ -444,13 +444,34 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
     const practiceRemoveRegex = /\[practice:remove:([a-f0-9-]+)\]/g;
     const practiceUpdateRegex = /\[practice:update:([a-f0-9-]+):(.+?)\]/g;
 
+    // Collect practice IDs for name resolution
+    const practiceIdsToResolve = new Set<string>();
+    const addMatches: RegExpExecArray[] = [];
     let match;
     while ((match = practiceAddRegex.exec(fullText)) !== null) {
+      practiceIdsToResolve.add(match[1]);
+      addMatches.push(match);
+    }
+
+    // Batch-fetch practice names
+    const practiceNameMap = new Map<string, string>();
+    if (practiceIdsToResolve.size > 0) {
+      const { data: practices } = await supabase
+        .from('practices')
+        .select('id, name, name_he')
+        .in('id', Array.from(practiceIdsToResolve));
+      if (practices) {
+        for (const p of practices) practiceNameMap.set(p.id, p.name_he || p.name);
+      }
+    }
+
+    for (const m of addMatches) {
+      const practiceName = practiceNameMap.get(m[1]) || m[1].slice(0, 8) + '…';
       changes.push({
         label: isHe ? 'הוספת תרגול' : 'Add Practice',
-        description: `${match[2]}min, ${match[3]}`,
+        description: `${practiceName} — ${m[2]}${isHe ? ' דק׳' : 'min'}, ${m[3]}`,
         command: null,
-        rawTag: match[0],
+        rawTag: m[0],
       });
     }
     while ((match = practiceRemoveRegex.exec(fullText)) !== null) {
