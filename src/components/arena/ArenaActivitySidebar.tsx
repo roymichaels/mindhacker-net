@@ -242,7 +242,7 @@ export function ArenaActivitySidebar() {
               </p>
             </div>
 
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-2" />
+            <div className="h-px bg-border/30 mb-2" />
 
             {/* Phase timeline — matching Dashboard style */}
             <div className="flex-1 overflow-y-auto scrollbar-hide">

@@ -190,7 +190,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
             </div>
           </div>
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+          <div className="h-px w-full bg-border/30" />
 
         </div>
       )}
