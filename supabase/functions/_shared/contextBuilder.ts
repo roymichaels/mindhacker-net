@@ -799,6 +799,68 @@ export async function buildContext(
         days_since_referenced: daysSinceRef,
       };
     }),
+
+    // ─── Strategic Plans (all active) ─────────────────
+    active_plans: allPlansData.map((p: any) => {
+      const planData = p.plan_data || {};
+      const pillars = Array.isArray(planData.pillars) ? planData.pillars.map((pl: any) => typeof pl === 'string' ? pl : pl.id || pl.name || '') : [];
+      return {
+        id: p.id,
+        start_date: p.start_date,
+        end_date: p.end_date,
+        progress_percentage: p.progress_percentage || 0,
+        pillars,
+        plan_summary: planData.summary || planData.vision || null,
+      };
+    }),
+
+    // ─── Plan Missions ───────────────────────────────
+    plan_missions: planMissionsData.map((m: any) => ({
+      id: m.id,
+      mission_number: m.mission_number,
+      pillar: m.pillar,
+      title: m.title,
+      title_en: m.title_en || null,
+      description: m.description || null,
+      is_completed: !!m.is_completed,
+      plan_id: m.plan_id,
+    })),
+
+    // ─── Tactical Schedule (today's blocks) ───────────
+    tactical_schedule_today: (() => {
+      if (!tacticalScheduleData || tacticalScheduleData.length === 0) return [];
+      const schedule = tacticalScheduleData[0];
+      const scheduleArr = Array.isArray(schedule.schedule_data) ? schedule.schedule_data : [];
+      // Find today's schedule from the array
+      const todaySchedule = scheduleArr.find((d: any) => {
+        const dayDate = d.date || d.day_date;
+        return dayDate === today;
+      });
+      if (!todaySchedule) return [];
+      const blocks = todaySchedule.blocks || [];
+      return blocks.map((b: any) => ({
+        block_title: b.block_title_he || b.block_title_en || b.block_title || '',
+        block_category: b.category || '',
+        actions: (b.missions || b.actions || []).map((a: any) => ({
+          title: a.title_he || a.title || '',
+          duration: a.duration_minutes || a.duration || 0,
+          completed: false,
+        })),
+      }));
+    })(),
+
+    // ─── Domain Assessment Scores ─────────────────────
+    domain_scores: lifeDomains.map((d: any) => {
+      const la = d.domain_config?.latest_assessment;
+      return {
+        domain_id: d.domain_id,
+        score: la?.overallScore ?? la?.score ?? null,
+        status: d.status || 'pending',
+      };
+    }),
+
+    // ─── Subscription Tier ───────────────────────────
+    subscription_tier: subscriptionData?.subscription_tiers?.name || null,
   };
 
   // Compute hash for tracing
