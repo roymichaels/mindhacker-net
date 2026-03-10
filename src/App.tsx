@@ -28,7 +28,7 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
-import { LanguagePrompt } from "@/components/LanguagePrompt";
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
@@ -73,12 +73,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
 import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
-import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
-import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
-import FMWorkLayoutWrapper from "./components/fm/FMWorkLayoutWrapper";
-
 import FMMarketLayoutWrapper from "./components/fm/FMMarketLayoutWrapper";
-const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
 const FMBridge = lazy(() => import("./pages/fm/FMBridge"));
 const Freelancer = lazy(() => import("./pages/Freelancer"));
@@ -232,7 +227,7 @@ const App = () => (
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
-                <LanguagePrompt />
+                
                 <BrowserRouter>
                    <FlowAuditProvider>
                    <AffiliateTracker />
