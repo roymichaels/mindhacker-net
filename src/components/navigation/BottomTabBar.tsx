@@ -183,7 +183,7 @@ export function BottomTabBar() {
               "text-[10px] font-bold",
               isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600 dark:text-cyan-400 opacity-80"
             )}>
-              {isHe ? 'מסלול' : 'Path'}
+              {isHe ? planTab.labelHe : planTab.labelEn}
             </span>
           </div>
         )}
