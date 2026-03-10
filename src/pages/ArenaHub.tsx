@@ -326,6 +326,12 @@ export default function ArenaHub() {
                     hasAiSchedule={hasAiSchedule}
                     onTalkToPlan={(dayNumber) => {
                       setDayChatDayNumber(dayNumber);
+                      setDayChatTaskTitle(null);
+                      setDayChatOpen(true);
+                    }}
+                    onTalkToTask={(dayNumber, taskTitle) => {
+                      setDayChatDayNumber(dayNumber);
+                      setDayChatTaskTitle(taskTitle);
                       setDayChatOpen(true);
                     }}
                     onToggleComplete={toggleActionComplete}
