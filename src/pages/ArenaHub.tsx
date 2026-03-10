@@ -373,7 +373,7 @@ export default function ArenaHub() {
           queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
         }}
       />
-      <PlanChatWizard open={dayChatOpen} onOpenChange={setDayChatOpen} focusDayNumber={dayChatDayNumber} />
+      <PlanChatWizard open={dayChatOpen} onOpenChange={setDayChatOpen} focusDayNumber={dayChatDayNumber} focusTaskTitle={dayChatTaskTitle} />
     </div>
   );
 }
