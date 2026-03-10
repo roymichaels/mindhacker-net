@@ -41,7 +41,7 @@ serve(async (req) => {
     const { 
       text, 
       voiceId = 'sarah',
-      modelId = 'eleven_v3',
+      modelId = 'eleven_turbo_v2_5',
       stability = 0.5,
       similarityBoost = 0.75,
       style = 0.5,
