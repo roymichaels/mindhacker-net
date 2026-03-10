@@ -170,16 +170,50 @@ serve(async (req) => {
     }
 
     // ALWAYS fetch tasks regardless of plan (tasks exist even without active plan)
-    const { data: recentAndUpcoming } = await supabase
+    // Query by BOTH scheduled_date and due_at to catch all tasks
+    const { data: byScheduledDate } = await supabase
       .from("action_items")
-      .select("id, title, type, pillar, status, scheduled_date, source, completed_at, start_time, end_time, time_block")
+      .select("id, title, type, pillar, status, scheduled_date, due_at, source, completed_at, start_time, end_time, time_block")
       .eq("user_id", user_id)
       .in("status", ["todo", "doing", "done"])
       .gte("scheduled_date", twoDaysAgoStr)
       .order("scheduled_date")
       .limit(150);
 
-    if (recentAndUpcoming?.length) {
+    const { data: byDueAt } = await supabase
+      .from("action_items")
+      .select("id, title, type, pillar, status, scheduled_date, due_at, source, completed_at, start_time, end_time, time_block")
+      .eq("user_id", user_id)
+      .in("status", ["todo", "doing", "done"])
+      .is("scheduled_date", null)
+      .gte("due_at", `${twoDaysAgoStr}T00:00:00`)
+      .order("due_at")
+      .limit(100);
+
+    // Also fetch habits (recurring, no date filter)
+    const { data: habits } = await supabase
+      .from("action_items")
+      .select("id, title, type, pillar, status, scheduled_date, due_at, source, completed_at, recurrence_rule")
+      .eq("user_id", user_id)
+      .eq("type", "habit")
+      .in("status", ["todo", "doing", "done"])
+      .limit(50);
+
+    // Merge and deduplicate
+    const seenIds = new Set<string>();
+    const recentAndUpcoming: any[] = [];
+    for (const item of [...(byScheduledDate || []), ...(byDueAt || [])]) {
+      if (!seenIds.has(item.id)) {
+        seenIds.add(item.id);
+        // Normalize: use scheduled_date, fallback to due_at date part
+        if (!item.scheduled_date && item.due_at) {
+          item.scheduled_date = item.due_at.slice(0, 10);
+        }
+        recentAndUpcoming.push(item);
+      }
+    }
+
+    if (recentAndUpcoming.length) {
       const yesterdayTasks = recentAndUpcoming.filter(a => a.scheduled_date === yesterdayStr);
       const todayTasks = recentAndUpcoming.filter(a => a.scheduled_date === todayStr);
       const futureTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date > todayStr);
@@ -239,6 +273,13 @@ serve(async (req) => {
       }
     } else {
       actionContext = `\n\nToday's date: ${todayStr}\nYesterday's date: ${yesterdayStr}\n⚠️ No tasks found for the last 2 days. The user may need a tactical schedule generated.`;
+    }
+
+    // Add habits context
+    if (habits?.length) {
+      actionContext += `\n\n🔄 HABITS (recurring):\n${habits.map(h =>
+        `- "${h.title}" [${h.pillar || 'general'}] status:${h.status} recurrence:${h.recurrence_rule || 'daily'} (id: ${h.id})`
+      ).join("\n")}`;
     }
 
     // User practices
