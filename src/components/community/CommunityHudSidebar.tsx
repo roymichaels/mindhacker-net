@@ -170,7 +170,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
             ))}
           </div>
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+          <div className="h-px w-full bg-border/30" />
         </div>
       )}
     </aside>

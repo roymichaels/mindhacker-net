@@ -84,7 +84,7 @@ export function PlaySummaryCard() {
   if (playProjects.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-b from-violet-500/10 to-purple-500/5 p-4">
+    <div className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.06] p-4">
       <div className="flex items-center gap-2 mb-3">
         <Gamepad2 className="w-5 h-5 text-violet-400" />
         <h3 className="text-sm font-semibold text-foreground">

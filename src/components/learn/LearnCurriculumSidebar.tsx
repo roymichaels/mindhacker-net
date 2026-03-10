@@ -193,7 +193,7 @@ export function LearnCurriculumSidebar({ selectedCurriculumId, onSelectLesson, o
                 </div>
               </div>
 
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent mb-2" />
+              <div className="w-full h-px bg-border/30 mb-2" />
 
               <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
                 {isHe ? 'תוכנית הלימודים' : 'Curriculum'}
