@@ -25,6 +25,19 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Auto-reload on stale dynamic import errors (Vite HMR cache issue)
+    if (error.message?.includes('Failed to fetch dynamically imported module')) {
+      const reloadKey = 'error_boundary_reload';
+      const lastReload = sessionStorage.getItem(reloadKey);
+      const now = Date.now();
+      // Only auto-reload once per 10 seconds to avoid infinite loops
+      if (!lastReload || now - parseInt(lastReload) > 10000) {
+        sessionStorage.setItem(reloadKey, String(now));
+        window.location.reload();
+        return;
+      }
+    }
+
     const errorId = debug.error(
       'React Error Boundary caught error:',
       error.message,
