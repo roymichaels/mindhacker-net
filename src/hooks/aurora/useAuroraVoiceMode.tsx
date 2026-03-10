@@ -15,6 +15,7 @@ interface UseAuroraVoiceModeOptions {
 
 export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEvent = false }: UseAuroraVoiceModeOptions) {
   const { user } = useAuth();
+  const { persona } = useVoicePersona();
   const [isActive, setIsActive] = useState(false);
   const [state, setState] = useState<VoiceModeState>('idle');
   const [userTranscript, setUserTranscript] = useState('');
@@ -23,7 +24,7 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ttsCancelRef = useRef<(() => void) | null>(null);
   const activeRef = useRef(false);
   const pendingResponseRef = useRef(false);
 
