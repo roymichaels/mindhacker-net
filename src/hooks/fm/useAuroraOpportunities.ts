@@ -130,7 +130,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'תעד את החוויה שלך' : 'Document your experience',
         subtext: isHe ? 'שתף תובנות מהסשן לתגמול' : 'Share session insights for rewards',
         reward: 35,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '🧠',
         priority: 5,
       });
