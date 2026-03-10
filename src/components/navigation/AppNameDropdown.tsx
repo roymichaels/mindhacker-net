@@ -47,7 +47,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
   const { openSubscriptions } = useSubscriptionsModal();
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  // profileModalOpen state removed — now navigates to /profile
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
