@@ -106,23 +106,26 @@ async function playChunk(
       }
     );
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    console.warn('[TTS] Chunk fetch failed:', response.status, errData);
-    if (errData.fallback) return null;
-    throw new Error(`TTS failed: ${response.status}`);
-  }
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      console.warn('[TTS] Chunk fetch failed:', response.status, errData);
+      if (errData.fallback) return null;
+      throw new Error(`TTS failed: ${response.status}`);
+    }
 
-  const contentType = response.headers.get('content-type');
-  if (!contentType?.includes('audio')) {
-    console.warn('[TTS] Response was not audio:', contentType);
-    return null;
-  }
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('audio')) {
+      console.warn('[TTS] Response was not audio:', contentType);
+      return null;
+    }
 
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  return { audio, url };
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    return { audio, url };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 /** Wait for an Audio element to finish playing */
