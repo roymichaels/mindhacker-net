@@ -215,13 +215,19 @@ async function computeHash(data: string): Promise<string> {
 export async function buildContext(
   supabase: SupabaseClient,
   userId: string,
-  language: string
+  language: string,
+  clientTimezone?: string | null
 ): Promise<AuroraContext> {
   const now = new Date();
   const today = now.toISOString().split("T")[0];
-  // Timezone-aware: infer from language, fallback to UTC
-  const userTimezone = language === 'he' ? 'Asia/Jerusalem' : 'UTC';
-  const localTime = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }));
+  // Use client-provided timezone > language-based fallback > UTC
+  const userTimezone = clientTimezone || (language === 'he' ? 'Asia/Jerusalem' : 'UTC');
+  let localTime: Date;
+  try {
+    localTime = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }));
+  } catch {
+    localTime = new Date(now.toLocaleString("en-US", { timeZone: language === 'he' ? 'Asia/Jerusalem' : 'UTC' }));
+  }
   const localTimeStr = localTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
