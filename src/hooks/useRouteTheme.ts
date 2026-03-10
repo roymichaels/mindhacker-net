@@ -38,7 +38,7 @@ const THEMES: Record<RouteThemeId, RouteTheme> = {
   },
   fm: {
     id: 'fm',
-    borderColor: 'hsla(var(--border), 0.5)',
+    borderColor: 'hsl(var(--border))',
     headerBg: 'hsl(var(--background) / 0.95)',
     headerBgDark: 'hsl(var(--background) / 0.95)',
     ambientGlow: 'none',
