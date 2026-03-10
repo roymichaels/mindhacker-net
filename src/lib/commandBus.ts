@@ -13,6 +13,7 @@ export type AppCommand =
   | { type: 'completeActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'deleteActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'rescheduleActionItem'; identifier: string; checklistTitle?: string; newDate: string }
+  | { type: 'swapByTitle'; oldTitle: string; newTitle: string; date: string }
   | { type: 'createHabit'; name: string }
   | { type: 'completeHabit'; name: string }
   | { type: 'removeHabit'; name: string }
@@ -137,10 +138,15 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'deleteActionItem', checklistTitle: m[1].trim(), identifier: m[2].trim() });
   }
 
-  // Task swap: [task:swap:OLD_ID:new title]
+  // Task swap by UUID: [task:swap:OLD_ID:new title]
   for (const m of content.matchAll(/\[task:swap:([a-f0-9-]{36}):(.+?)\]/g)) {
     commands.push({ type: 'deleteActionItem', identifier: m[1] });
     commands.push({ type: 'createActionItem', title: m[2].trim() });
+  }
+
+  // Task swap by title (no UUID): [task:swap_by_title:old_title:new_title:YYYY-MM-DD]
+  for (const m of content.matchAll(/\[task:swap_by_title:([^:\]]+):([^:\]]+):(\d{4}-\d{2}-\d{2})\]/g)) {
+    commands.push({ type: 'swapByTitle', oldTitle: m[1].trim(), newTitle: m[2].trim(), date: m[3] });
   }
 
   // Task create (simple): [task:create:title]
@@ -289,6 +295,8 @@ export function describeCommand(command: AppCommand, isHebrew: boolean): { label
       return { actionType: 'task_complete', label: isHebrew ? 'השלמת משימה' : 'Complete Task', description: `${command.identifier}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
     case 'deleteActionItem':
       return { actionType: 'task_delete', label: isHebrew ? 'מחיקת משימה' : 'Delete Task', description: `${command.identifier}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
+    case 'swapByTitle':
+      return { actionType: 'task_create', label: isHebrew ? 'החלפת משימה' : 'Swap Task', description: `${command.oldTitle} → ${command.newTitle} (${command.date})` };
     case 'rescheduleActionItem':
       return { actionType: 'task_reschedule', label: isHebrew ? 'דחיית משימה' : 'Reschedule Task', description: `${command.identifier} → ${command.newDate}` };
     case 'createHabit':

@@ -116,6 +116,9 @@ serve(async (req) => {
       const todayDayIndex = Math.floor((todayDate.getTime() - planStartDate.getTime()) / 86400000);
       const yesterdayDayIndex = Math.floor((yesterdayDateObj.getTime() - planStartDate.getTime()) / 86400000);
       
+      const twoDaysAgoDateObj = new Date(twoDaysAgoStr + "T00:00:00");
+      const twoDaysAgoDayIndex = Math.floor((twoDaysAgoDateObj.getTime() - planStartDate.getTime()) / 86400000);
+
       for (const ts of tacticalSchedule) {
         const days = ts.schedule_data as any[];
         if (!Array.isArray(days)) continue;
@@ -123,8 +126,9 @@ serve(async (req) => {
         const phaseStartDay = (ts.phase_number - 1) * 10;
         
         for (const targetDay of [
-          { dayIndex: yesterdayDayIndex, label: `YESTERDAY (${yesterdayStr}, Day ${yesterdayDayIndex + 1}) — ${planLabel}` },
-          { dayIndex: todayDayIndex, label: `TODAY (${todayStr}, Day ${todayDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: twoDaysAgoDayIndex, label: `TWO DAYS AGO / שלשום (${twoDaysAgoStr}, Day ${twoDaysAgoDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: yesterdayDayIndex, label: `YESTERDAY / אתמול (${yesterdayStr}, Day ${yesterdayDayIndex + 1}) — ${planLabel}` },
+          { dayIndex: todayDayIndex, label: `TODAY / היום (${todayStr}, Day ${todayDayIndex + 1}) — ${planLabel}` },
         ]) {
           const arrayIndex = targetDay.dayIndex - phaseStartDay;
           if (arrayIndex >= 0 && arrayIndex < days.length) {
@@ -257,11 +261,16 @@ serve(async (req) => {
 
 FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tags. Nothing else.
 
+DATE AWARENESS:
+- Today / היום = ${todayStr}
+- Yesterday / אתמול = ${yesterdayStr}
+- Two days ago / שלשום = ${twoDaysAgoStr}
+When user says "שלשום" or "two days ago", use date ${twoDaysAgoStr}.
+When user says "אתמול" or "yesterday", use date ${yesterdayStr}.
+
 CRITICAL DEDUPLICATION RULE:
 - Each UNIQUE activity the user did = EXACTLY ONE tag. NEVER emit the same title twice.
 - If user says "I did calisthenics" → ONE tag: [task:create_done:קליסתניקס:DATE]
-- If user says "I ran" → ONE tag: [task:create_done:ריצה:DATE]
-- WRONG: creating both [task:create_done:ריצה] AND [task:create_done:10 דקות ריצה] for the same run
 
 MATCHING RULES:
 - Use [task:complete:UUID] when the EXACT task exists in the action_items list below
@@ -269,14 +278,22 @@ MATCHING RULES:
 - The title in create_done MUST match a title from the TACTICAL SCHEDULE below. Use the EXACT Hebrew title shown there.
 - If no schedule item matches, use the activity name the user reported.
 
+SWAP / REPLACE RULES:
+- When user says "replace X with Y" or "תחליפי X ב-Y":
+  1. If X exists in action_items → use [task:delete:UUID] + [task:create:Y] or [task:swap:UUID:Y]
+  2. If X only exists in the TACTICAL SCHEDULE (no UUID) → use [task:swap_by_title:X:Y:YYYY-MM-DD]
+  3. CRITICAL: Match the EXACT title. "טאי צ'י" ≠ "שאדו בוקסינג". Read the titles carefully.
+- For retroactive swaps (e.g., "שלשום תחליפי X ב-Y"), use the correct date.
+
 FORBIDDEN: Bullet points, asterisks (**), explanations, headers. Only tags.
 
 COMMANDS:
 [task:complete:UUID] — mark existing action_item done
 [task:create_done:title:YYYY-MM-DD] — log + complete (title must match tactical schedule)
 [task:create:title] — new task
-[task:delete:UUID] — remove
-[task:swap:UUID:new_title] — replace
+[task:delete:UUID] — remove by ID
+[task:swap:UUID:new_title] — replace by ID
+[task:swap_by_title:old_title:new_title:YYYY-MM-DD] — replace by title (when no UUID)
 [habit:create:name] [habit:complete:name] [habit:remove:name]
 [milestone:complete:WEEK] [plan:edit:ID:field=val]
 [practice:add:ID:dur:freq:is_core] [practice:remove:ID]

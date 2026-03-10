@@ -294,6 +294,24 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         return !error;
       }
 
+      case 'swapByTitle': {
+        // Delete old task by title match, create new one with done status
+        const { data: oldItem } = await supabase.from('action_items')
+          .select('id').eq('user_id', user.id)
+          .eq('scheduled_date', command.date)
+          .ilike('title', `%${command.oldTitle}%`).limit(1).maybeSingle();
+        if (oldItem) {
+          await supabase.from('action_items').delete().eq('id', oldItem.id);
+        }
+        // Create new replacement task as done
+        const { error } = await supabase.from('action_items').insert({
+          user_id: user.id, type: 'task', source: 'aurora', status: 'done',
+          title: command.newTitle, scheduled_date: command.date,
+          completed_at: new Date().toISOString(),
+        });
+        return !error;
+      }
+
       default:
         return false;
     }
