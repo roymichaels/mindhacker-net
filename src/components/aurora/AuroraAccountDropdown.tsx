@@ -119,7 +119,7 @@ const AuroraAccountDropdown = ({
               "shrink-0 relative flex items-center justify-center z-10",
               isCollapsed ? "h-10 w-10" : "h-11 w-11"
             )}>
-              <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
+              <div className="absolute inset-[-30%] rounded-full bg-primary/20 blur-md pointer-events-none" />
               <div className="relative z-10">
                 <PersonalizedOrb 
                   size={isCollapsed ? 38 : 44}
