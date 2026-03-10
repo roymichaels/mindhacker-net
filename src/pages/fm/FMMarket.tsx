@@ -197,15 +197,6 @@ export default function FMMarket() {
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full py-4">
-      <div className="text-center">
-        <h1 className="text-xl font-black text-foreground flex items-center justify-center gap-2 tracking-tight">
-          <Coins className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
-          {isHe ? 'הרוויח MOS' : 'Earn MOS'}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {isHe ? 'שירותים, באונטיז ומסחר P2P' : 'Services, bounties & P2P trading'}
-        </p>
-      </div>
 
       {/* Career Paths — 5-col grid */}
       <div className="space-y-2">
