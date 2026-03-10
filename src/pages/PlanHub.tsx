@@ -1,11 +1,11 @@
 /**
- * PlanHub — Unified Play page with 3 tabs: Now, Tactics & Work.
+ * PlanHub — Unified Play page with 2 tabs: Tactics & Work.
  * Strategy is accessed via a modal button below the tabs.
  */
 import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords, Zap, Briefcase, MessageSquare, Search } from 'lucide-react';
+import { Flame, Swords, Briefcase, MessageSquare, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,15 +15,14 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
-const UserDashboard = lazy(() => import('./UserDashboard'));
 const WorkHub = lazy(() => import('./WorkHub'));
 
-type PlanTab = 'now' | 'tactics' | 'work';
+type PlanTab = 'tactics' | 'work';
 
 export default function PlanHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const [activeTab, setActiveTab] = useState<PlanTab>('now');
+  const [activeTab, setActiveTab] = useState<PlanTab>('tactics');
   const [chatOpen, setChatOpen] = useState(false);
   const [strategyOpen, setStrategyOpen] = useState(false);
   const { user } = useAuth();
@@ -31,7 +30,6 @@ export default function PlanHub() {
   const auroraChat = useAuroraChatContextSafe();
 
   const tabs: { id: PlanTab; labelHe: string; labelEn: string; icon: typeof Flame }[] = [
-    { id: 'now', labelHe: 'עכשיו', labelEn: 'Now', icon: Zap },
     { id: 'tactics', labelHe: 'טקטיקה', labelEn: 'Tactics', icon: Swords },
     { id: 'work', labelHe: 'עבודה', labelEn: 'Work', icon: Briefcase },
   ];
@@ -95,7 +93,7 @@ export default function PlanHub() {
           {isHe ? '🔥 אסטרטגיה — תוכנית 100 יום' : '🔥 Strategy — 100-Day Plan'}
         </button>
 
-        {activeTab === 'now' && (
+        {activeTab === 'tactics' && (
           <>
             <button
               onClick={() => setChatOpen(true)}
@@ -119,7 +117,6 @@ export default function PlanHub() {
 
       {/* Tab content */}
       <Suspense fallback={null}>
-        {activeTab === 'now' && <UserDashboard />}
         {activeTab === 'tactics' && <ArenaHub />}
         {activeTab === 'work' && <WorkHub />}
       </Suspense>
