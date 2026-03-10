@@ -335,7 +335,7 @@ PRACTICE MANAGEMENT:
 
 PLAN CONTEXT:
 Plan: ${plan ? `"${planTitle}" started ${plan.start_date}, ${planDuration}, status: ${plan.status}` : 'No active plan found'}
-${missionsContext}${milestoneContext}${actionContext}${practiceContext}${libraryContext}
+${missionsContext}${milestoneContext}${tacticalContext}${actionContext}${practiceContext}${libraryContext}
 
 Be warm, strategic, and specific. Reference actual items by name. Keep responses concise.`;
 
