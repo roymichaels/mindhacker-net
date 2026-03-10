@@ -122,6 +122,7 @@ const Users = () => {
           const email = await getUserEmail(profile.id);
           const userPurchases = purchasesData?.filter(p => p.user_id === profile.id) || [];
           const userRoles = rolesData?.filter(r => r.user_id === profile.id) || [];
+          const launchpad = launchpadData?.find(l => l.user_id === profile.id);
 
           return {
             id: profile.id,
@@ -132,6 +133,7 @@ const Users = () => {
             },
             purchases: userPurchases,
             user_roles: userRoles as { role: AppRole }[],
+            is_onboarded: launchpad?.launchpad_complete === true,
           };
         })
       );
