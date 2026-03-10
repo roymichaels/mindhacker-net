@@ -150,7 +150,7 @@ const AuroraAccountDropdown = ({
             className="relative overflow-hidden rounded-lg m-2 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
-              setProfileModalOpen(true);
+              navigate('/profile');
             }}
           >
             {/* Gamified background */}

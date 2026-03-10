@@ -174,7 +174,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             className="relative overflow-hidden rounded-lg m-2 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
-              setProfileModalOpen(true);
+              navigate('/profile');
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
