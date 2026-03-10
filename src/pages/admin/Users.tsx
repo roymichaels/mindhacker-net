@@ -103,6 +103,11 @@ const Users = () => {
         .from("launchpad_progress")
         .select("user_id, launchpad_complete");
 
+      const { data: activePlanData } = await supabase
+        .from("life_plans")
+        .select("user_id")
+        .eq("status", "active");
+
       const getUserEmail = async (userId: string) => {
         try {
           const { data, error } = await supabase.functions.invoke('get-user-data', {
