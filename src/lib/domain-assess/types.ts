@@ -287,4 +287,11 @@ export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
     introSubtitleKey: 'expansionAssess.assessSubtitle',
     subsystems: EXPANSION_SUBSYSTEMS,
   },
+  romantics: {
+    domainId: 'romantics',
+    color: 'rose',
+    introTitleKey: 'romanticsAssess.assessTitle',
+    introSubtitleKey: 'romanticsAssess.assessSubtitle',
+    subsystems: RELATIONSHIPS_SUBSYSTEMS,
+  },
 };
