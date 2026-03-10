@@ -127,7 +127,7 @@ serve(async (req) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+            "Authorization": "Bearer " + Deno.env.get("LOVABLE_API_KEY"),
           },
           body: JSON.stringify({
             model,
