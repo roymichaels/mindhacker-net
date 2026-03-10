@@ -148,6 +148,11 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'createActionItem', title: m[1].trim() });
   }
 
+  // Task create already done: [task:create_done:title] or [task:create_done:title:YYYY-MM-DD]
+  for (const m of content.matchAll(/\[task:create_done:([^:\]]+?)(?::(\d{4}-\d{2}-\d{2}))?\]/g)) {
+    commands.push({ type: 'createDoneActionItem', title: m[1].trim(), scheduledDate: m[2] || undefined });
+  }
+
   // Task reschedule: [task:reschedule:List:Item:YYYY-MM-DD]
   for (const m of content.matchAll(/\[task:reschedule:(.+?):(.+?):(\d{4}-\d{2}-\d{2})\]/g)) {
     commands.push({ type: 'rescheduleActionItem', checklistTitle: m[1].trim(), identifier: m[2].trim(), newDate: m[3] });
