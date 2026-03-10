@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { playTTS } from '@/lib/ttsPlayer';
 import { useVoicePersona } from '@/hooks/useVoicePersona';
+import { supabase } from '@/integrations/supabase/client';
 
 export type VoiceModeState = 'idle' | 'listening' | 'processing' | 'speaking';
 
