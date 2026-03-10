@@ -88,6 +88,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
       setAppliedCount(0);
       setPendingChanges([]);
       setPendingRawText('');
+      setAutoSendQueued(false);
     }
     onOpenChange(val);
   };
