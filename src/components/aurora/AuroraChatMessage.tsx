@@ -59,6 +59,7 @@ const AuroraChatMessage = ({
   };
 
   const handleVoice = () => {
+    setTtsError(false);
     if (isPlayingThis) {
       stopPlayback();
     } else {

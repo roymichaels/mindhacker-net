@@ -187,9 +187,16 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
         </div>
 
         {recordingError && (
-          <p className="text-xs text-destructive mt-2 text-center">
-            {recordingError}
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsTranscribing(false);
+              handleStartRecording();
+            }}
+            className="text-xs text-destructive mt-2 text-center w-full hover:underline cursor-pointer"
+          >
+            {recordingError} 🔄
+          </button>
         )}
 
         {/* Footer Note + Message Counter — hidden during onboarding */}
