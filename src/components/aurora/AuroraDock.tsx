@@ -194,7 +194,7 @@ export function AuroraDock() {
         </div>
 
         {/* Input bar at bottom */}
-        <div className="shrink-0 px-4 pb-safe pt-2 border-t border-border">
+        <div className="shrink-0 px-4 pb-6 pt-2 border-t border-border">
           <GlobalChatInput />
         </div>
       </motion.div>
