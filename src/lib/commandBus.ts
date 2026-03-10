@@ -9,6 +9,7 @@ export type AppCommand =
   | { type: 'openTab'; tabId: 'today' | 'plan' | 'aurora' | 'me' }
   | { type: 'openModal'; modalId: 'hypnosis' | 'settings' | 'profile' | 'upgrade'; payload?: Record<string, unknown> }
   | { type: 'createActionItem'; title: string; checklistTitle?: string }
+  | { type: 'createDoneActionItem'; title: string; scheduledDate?: string }
   | { type: 'completeActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'deleteActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'rescheduleActionItem'; identifier: string; checklistTitle?: string; newDate: string }
@@ -147,6 +148,11 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'createActionItem', title: m[1].trim() });
   }
 
+  // Task create already done: [task:create_done:title] or [task:create_done:title:YYYY-MM-DD]
+  for (const m of content.matchAll(/\[task:create_done:([^:\]]+?)(?::(\d{4}-\d{2}-\d{2}))?\]/g)) {
+    commands.push({ type: 'createDoneActionItem', title: m[1].trim(), scheduledDate: m[2] || undefined });
+  }
+
   // Task reschedule: [task:reschedule:List:Item:YYYY-MM-DD]
   for (const m of content.matchAll(/\[task:reschedule:(.+?):(.+?):(\d{4}-\d{2}-\d{2})\]/g)) {
     commands.push({ type: 'rescheduleActionItem', checklistTitle: m[1].trim(), identifier: m[2].trim(), newDate: m[3] });
@@ -277,6 +283,8 @@ export function describeCommand(command: AppCommand, isHebrew: boolean): { label
   switch (command.type) {
     case 'createActionItem':
       return { actionType: 'task_create', label: isHebrew ? 'יצירת משימה' : 'Create Task', description: `${command.title}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
+    case 'createDoneActionItem':
+      return { actionType: 'task_create', label: isHebrew ? 'רישום פעילות שהושלמה' : 'Log Completed Activity', description: command.title };
     case 'completeActionItem':
       return { actionType: 'task_complete', label: isHebrew ? 'השלמת משימה' : 'Complete Task', description: `${command.identifier}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
     case 'deleteActionItem':
