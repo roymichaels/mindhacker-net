@@ -191,7 +191,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                   setOrbViewerOpen(true);
                 }}
               >
-                <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-amber-500/20 via-amber-400/10 to-transparent blur-lg pointer-events-none" />
+                <div className="absolute inset-[-30%] rounded-full bg-amber-500/10 blur-lg pointer-events-none" />
                 <div className="relative z-10">
                   <PersonalizedOrb size={80} state="idle" />
                 </div>
