@@ -36,8 +36,8 @@ const ADJ_EN = [
   'Ripple','Rising','Rogue','Rune','Rust','Sacred','Sage','Sand','Satin','Savage',
   'Scarlet','Shadow','Shattered','Shell','Shifting','Silent','Silver','Slate','Smoke','Solar',
   'Sonic','Soul','Spark','Spectral','Spiral','Spirit','Stardust','Static','Steam','Steel',
-  'Stone','Storm','Stray','Sublime','Sun','Surge','Swift','Tempest','Thorn','Thunder',
-  'Tidal','Titan','Topaz','Toxic','Twilight','Umbra','Vapor','Veil','Velvet','Venom',
+  'Stone','Storm','Stray','Sublime','Sun','Surge','Swift','Tempest','Noble','Thunder',
+  'Tidal','Titan','Topaz','Primal','Twilight','Umbra','Vapor','Veil','Velvet','Verdant',
   'Verdant','Violet','Vivid','Void','Volcanic','Warp','Whisper','Wild','Winding','Winter',
   'Wisp','Wraith','Woven','Zenith','Zero','Zephyr','Zodiac','Arcane','Ashen','Binary',
 ];
