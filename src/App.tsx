@@ -252,10 +252,11 @@ const App = () => (
                         <Route path="/install" element={<Install />} />
                         <Route path="/audio/:token" element={<AudioPlayer />} />
                         <Route path="/video/:token" element={<VideoPlayer />} />
-                        <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
-                        <Route path="/consciousness-leap" element={<ConsciousnessLeapLanding />} />
-                        <Route path="/consciousness-leap/apply/:token" element={<ConsciousnessLeapApply />} />
-                        <Route path="/form/:token" element={<FormView />} />
+                        {/* Legacy product pages redirect to home */}
+                        <Route path="/personal-hypnosis" element={<Navigate to="/" replace />} />
+                        <Route path="/consciousness-leap" element={<Navigate to="/" replace />} />
+                        <Route path="/consciousness-leap/apply/:token" element={<Navigate to="/" replace />} />
+                        <Route path="/form/:token" element={<Navigate to="/" replace />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
