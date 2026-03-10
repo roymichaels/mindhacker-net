@@ -17,11 +17,14 @@ import { motion } from 'framer-motion';
 import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
 import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
 import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
+import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const dashboard = useUnifiedDashboard();
+  const navigate = useNavigate();
   const [traitsOpen, setTraitsOpen] = useState(false);
   const [practicesOpen, setPracticesOpen] = useState(false);
   const [achievementsOpen, setAchievementsOpen] = useState(false);
@@ -38,12 +41,22 @@ export default function ProfilePage() {
       <OrbFullscreenViewer open={orbFullscreenOpen} onClose={() => setOrbFullscreenOpen(false)} />
 
       <div
-        className="flex-1 flex flex-col overflow-y-auto scrollbar-hide pb-32"
+        className="flex-1 flex flex-col overflow-y-auto scrollbar-hide pb-16"
         dir={isRTL ? 'rtl' : 'ltr'}
         style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end)) 40%, hsl(var(--background)) 100%)' }}
       >
+        {/* ═══════ CLOSE BUTTON ═══════ */}
+        <div className="sticky top-0 z-50 flex justify-end p-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 rounded-full bg-muted/60 backdrop-blur-md flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+
         {/* ═══════ HERO: NFT Orb Card ═══════ */}
-        <div className="px-4 pt-6 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
           <OrbNFTCard onTapOrb={() => setOrbFullscreenOpen(true)} />
         </div>
 
