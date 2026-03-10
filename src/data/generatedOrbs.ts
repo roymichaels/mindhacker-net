@@ -23,7 +23,7 @@ function mulberry32(seed: number) {
 // ─── Name pools ───
 const ADJ_EN = [
   'Ancient','Astral','Blazing','Bright','Burning','Calm','Celestial','Chaotic','Chromatic','Clouded',
-  'Cold','Coral','Cosmic','Crimson','Crystal','Cursed','Dark','Dawn','Deep','Dire',
+  'Cold','Coral','Cosmic','Crimson','Crystal','Crowned','Dark','Dawn','Deep','Dire',
   'Divine','Dream','Dusk','Dusty','Echo','Elder','Electric','Ember','Enchanted','Eternal',
   'Ethereal','Fallen','Feral','Fierce','Fire','Flickering','Floating','Fog','Forged','Fractal',
   'Frozen','Fused','Galactic','Ghost','Gilded','Glacial','Glitch','Glow','Golden','Granite',
