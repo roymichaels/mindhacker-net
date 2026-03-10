@@ -62,8 +62,7 @@ export function isAssessmentReady(
     }
   }
 
-  // Low confidence = soft fail
-  if (latest.confidence === 'low') return false;
+  // (confidence check already handled above)
 
   return true;
 }
