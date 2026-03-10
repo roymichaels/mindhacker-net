@@ -4,6 +4,7 @@
  * No graying, no exact times — just themed quests to tackle.
  */
 import { useState, useMemo } from 'react';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -80,6 +81,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [_openBlocks, _setOpenBlocks] = useState<Record<string, boolean>>({});
   const [negotiateOpen, setNegotiateOpen] = useState(false);
   const [negotiateTask, setNegotiateTask] = useState<NowQueueItem | null>(null);
+  const [planChatOpen, setPlanChatOpen] = useState(false);
 
   const currentDay = useMemo(() => {
     return getCurrentDayInIsrael(plan?.start_date);
@@ -292,6 +294,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 </div>
 
+                {/* Talk to your plan */}
+                <button
+                  onClick={() => setPlanChatOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
+                </button>
+
                 {/* Journey blocks grouped by 4 Day Quarters */}
                 {(() => {
                   // Group schedule slots by quarter
@@ -428,6 +439,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         task={negotiateTask}
         onApplied={() => refetch()}
       />
+      <PlanChatWizard open={planChatOpen} onOpenChange={setPlanChatOpen} />
     </div>
   );
 }
