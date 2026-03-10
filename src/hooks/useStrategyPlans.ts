@@ -254,6 +254,21 @@ export function useStrategyPlans() {
     onSuccess: (data: any) => {
       // Guard: if the response is actually a MISSING_ASSESSMENT_DATA payload, don't celebrate
       if (data?.error === 'MISSING_ASSESSMENT_DATA') return;
+
+      // Auto-trigger tactical schedule generation for each created plan (Phase 1)
+      if (data?.plans && Array.isArray(data.plans)) {
+        for (const plan of data.plans) {
+          if (plan.plan_id && plan.milestones > 0) {
+            supabase.functions.invoke('generate-tactical-schedule', {
+              body: { user_id: user!.id, plan_id: plan.plan_id, phase_number: 1 },
+            }).then(() => {
+              queryClient.invalidateQueries({ queryKey: ['weekly-tactical-plan'] });
+              queryClient.invalidateQueries({ queryKey: ['unified-dashboard'] });
+            }).catch(err => console.warn('Auto tactical schedule generation:', err));
+          }
+        }
+      }
+
       queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
       queryClient.invalidateQueries({ queryKey: ['now-engine'] });
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
