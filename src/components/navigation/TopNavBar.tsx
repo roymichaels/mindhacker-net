@@ -19,7 +19,6 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
     <header
       className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg"
       dir={isRTL ? 'rtl' : 'ltr'}
-      dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
         <AppNameDropdown onOpenSettings={onOpenSettings} />
