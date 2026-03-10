@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { exportTacticsPDF } from '@/utils/exportTacticsPDF';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 
 
 
