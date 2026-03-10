@@ -11,11 +11,31 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/** Extract authenticated user from JWT, fallback to body user_id */
+async function resolveUserId(req: Request, bodyUserId: string | null): Promise<string | null> {
+  try {
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace("Bearer ", "");
+    if (!token || token === Deno.env.get("SUPABASE_ANON_KEY")) return bodyUserId;
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: `Bearer ${token}` } } }
+    );
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return bodyUserId;
+    return user.id;
+  } catch {
+    return bodyUserId;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { user_id, messages, language, timezone, focus_day } = await req.json();
+    const { user_id: bodyUserId, messages, language, timezone, focus_day } = await req.json();
+    const user_id = await resolveUserId(req, bodyUserId);
     if (!user_id) throw new Error("user_id required");
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -325,6 +345,7 @@ ${plans.length > 0 ? plans.map(p => {
   const t = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || p.plan_data?.title || 'Plan';
   return `Plan: "${t}" started ${p.start_date}, status: ${p.status}`;
 }).join("\n") : 'No active plan'}
+${milestoneContext}${missionsContext}
 ${practiceContext}${libraryContext}
 ${tacticalContext}${actionContext}`;
 
