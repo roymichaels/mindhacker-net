@@ -13,6 +13,7 @@ export type AppCommand =
   | { type: 'completeActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'deleteActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'rescheduleActionItem'; identifier: string; checklistTitle?: string; newDate: string }
+  | { type: 'swapByTitle'; oldTitle: string; newTitle: string; date: string }
   | { type: 'createHabit'; name: string }
   | { type: 'completeHabit'; name: string }
   | { type: 'removeHabit'; name: string }
