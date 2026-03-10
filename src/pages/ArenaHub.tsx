@@ -60,6 +60,7 @@ export default function ArenaHub() {
   const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
   const [dayChatOpen, setDayChatOpen] = useState(false);
   const [dayChatDayNumber, setDayChatDayNumber] = useState<number | null>(null);
+  const [dayChatTaskTitle, setDayChatTaskTitle] = useState<string | null>(null);
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime, toggleActionComplete } = phasePlan as any;
 
@@ -325,6 +326,12 @@ export default function ArenaHub() {
                     hasAiSchedule={hasAiSchedule}
                     onTalkToPlan={(dayNumber) => {
                       setDayChatDayNumber(dayNumber);
+                      setDayChatTaskTitle(null);
+                      setDayChatOpen(true);
+                    }}
+                    onTalkToTask={(dayNumber, taskTitle) => {
+                      setDayChatDayNumber(dayNumber);
+                      setDayChatTaskTitle(taskTitle);
                       setDayChatOpen(true);
                     }}
                     onToggleComplete={toggleActionComplete}
@@ -366,7 +373,7 @@ export default function ArenaHub() {
           queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
         }}
       />
-      <PlanChatWizard open={dayChatOpen} onOpenChange={setDayChatOpen} focusDayNumber={dayChatDayNumber} />
+      <PlanChatWizard open={dayChatOpen} onOpenChange={setDayChatOpen} focusDayNumber={dayChatDayNumber} focusTaskTitle={dayChatTaskTitle} />
     </div>
   );
 }
@@ -379,6 +386,7 @@ function DayView({
   onExecuteAction,
   hasAiSchedule,
   onTalkToPlan,
+  onTalkToTask,
   onToggleComplete,
 }: {
   day: DayPlan;
@@ -386,6 +394,7 @@ function DayView({
   onExecuteAction: (action: TacticalAction) => void;
   hasAiSchedule: boolean;
   onTalkToPlan: (dayNumber: number) => void;
+  onTalkToTask: (dayNumber: number, taskTitle: string) => void;
   onToggleComplete: (action: TacticalAction) => void;
 }) {
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
@@ -521,6 +530,13 @@ function DayView({
                           </p>
                         </button>
 
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onTalkToTask(day.dayNumber, action.title); }}
+                          className="shrink-0 p-1 rounded-full hover:bg-primary/10 transition-colors"
+                          aria-label={isHe ? 'דבר על המשימה' : 'Talk about task'}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5 text-primary opacity-40 hover:opacity-100" />
+                        </button>
                         <Play className="h-3.5 w-3.5 text-primary shrink-0 opacity-40" />
                       </div>
                     ))}

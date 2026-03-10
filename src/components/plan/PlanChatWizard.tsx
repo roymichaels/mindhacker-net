@@ -37,6 +37,8 @@ interface PlanChatWizardProps {
   onOpenChange: (open: boolean) => void;
   /** When set, focuses context on a specific day number (1-based) */
   focusDayNumber?: number | null;
+  /** When set, focuses context on a specific task */
+  focusTaskTitle?: string | null;
 }
 
 const QUICK_ACTIONS_HE = [
@@ -52,7 +54,7 @@ const QUICK_ACTIONS_EN = [
   'Mark tasks as completed',
 ];
 
-export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatWizardProps) {
+export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTitle }: PlanChatWizardProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -516,6 +518,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatW
             language,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
             ...(focusDayNumber ? { focus_day: focusDayNumber } : {}),
+            ...(focusTaskTitle ? { focus_task: focusTaskTitle } : {}),
           }),
         }
       );
@@ -604,9 +607,11 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatW
             </div>
             <div>
               <span className="block">
-                {focusDayNumber
-                  ? (isHe ? `דבר עם התוכנית — יום ${focusDayNumber}` : `Talk to Your Plan — Day ${focusDayNumber}`)
-                  : (isHe ? 'דבר עם התוכנית' : 'Talk to Your Plan')}
+                {focusTaskTitle
+                  ? (isHe ? `דבר על המשימה` : `Talk About This Task`)
+                  : focusDayNumber
+                    ? (isHe ? `דבר עם התוכנית — יום ${focusDayNumber}` : `Talk to Your Plan — Day ${focusDayNumber}`)
+                    : (isHe ? 'דבר עם התוכנית' : 'Talk to Your Plan')}
               </span>
               <span className="block text-[10px] font-normal text-muted-foreground">
                 {isHe ? 'שינויים כירורגיים בלבד — בלי ליצור מחדש' : 'Surgical changes only — no regeneration'}
