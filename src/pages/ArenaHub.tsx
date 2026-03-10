@@ -421,19 +421,20 @@ function DayView({
           {isHe ? day.label : day.labelEn}
           {day.isToday && <span className="text-primary ms-1.5 text-[9px]">({isHe ? 'היום' : 'Today'})</span>}
         </span>
-        <span className="text-[10px] text-muted-foreground">
-          {day.completedActions}/{day.totalActions} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-muted-foreground">
+            {day.completedActions}/{day.totalActions} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
+          </span>
+          <button
+            onClick={() => onTalkToPlan(day.dayNumber)}
+            className="p-1 rounded-lg hover:bg-primary/10 transition-colors"
+            aria-label={isHe ? `דבר עם התוכנית — יום ${day.dayNumber}` : `Talk to Plan — Day ${day.dayNumber}`}
+            title={isHe ? `דבר עם התוכנית — יום ${day.dayNumber}` : `Talk to Plan — Day ${day.dayNumber}`}
+          >
+            <Wand2 className="w-3.5 h-3.5 text-primary" />
+          </button>
+        </div>
       </div>
-
-      {/* Talk to plan for this day */}
-      <button
-        onClick={() => onTalkToPlan(day.dayNumber)}
-        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-xs font-medium text-primary"
-      >
-        <MessageSquare className="w-3.5 h-3.5" />
-        {isHe ? `דבר עם התוכנית — יום ${day.dayNumber}` : `Talk to Plan — Day ${day.dayNumber}`}
-      </button>
 
       {/* Flat block list — no expand/collapse, always visible */}
       {day.blocks.map((block) => {
