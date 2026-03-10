@@ -21,19 +21,18 @@ export async function optionalAuth(req: Request): Promise<AuthResult | null> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) return null;
 
-  const token = authHeader.replace("Bearer ", "");
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
     { global: { headers: { Authorization: authHeader } } }
   );
 
-  const { data, error } = await supabase.auth.getClaims(token);
-  if (error || !data?.claims) return null;
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return null;
 
   return {
-    userId: data.claims.sub as string,
-    claims: data.claims as Record<string, unknown>,
+    userId: user.id,
+    claims: { sub: user.id, email: user.email } as Record<string, unknown>,
   };
 }
 
