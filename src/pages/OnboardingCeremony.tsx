@@ -60,11 +60,23 @@ export default function OnboardingCeremony() {
     queryKey: ['ceremony-strategy', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      const [planRes, milestonesRes] = await Promise.all([
-        supabase.from('life_plans').select('id, title, description, progress_percentage').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).maybeSingle(),
-        supabase.from('life_plan_milestones').select('title, week_number, focus_area, is_completed').eq('plan_id', (await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).maybeSingle()).data?.id || '').order('week_number', { ascending: true }).limit(5),
-      ]);
-      return { plan: planRes.data, milestones: milestonesRes.data || [] };
+      const planRes = await supabase.from('life_plans').select('id, plan_data, progress_percentage').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).maybeSingle();
+      
+      let milestones: any[] = [];
+      if (planRes.data?.id) {
+        const { data: mData } = await supabase.from('life_plan_milestones').select('title, week_number, focus_area, is_completed').eq('plan_id', planRes.data.id).order('week_number', { ascending: true }).limit(5);
+        milestones = mData || [];
+      }
+      
+      const planData = planRes.data?.plan_data as Record<string, any> | null;
+      return { 
+        plan: planRes.data ? {
+          title: planData?.title || planData?.plan_title || (isHe ? 'תוכנית טרנספורמציה' : 'Transformation Plan'),
+          description: planData?.description || planData?.summary || null,
+          progress: planRes.data.progress_percentage,
+        } : null, 
+        milestones,
+      };
     },
     enabled: !!user?.id,
   });
