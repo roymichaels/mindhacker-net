@@ -485,6 +485,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
             user_id: user.id,
             messages: newMessages.map(m => ({ role: m.role, content: m.content })),
             language,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
           }),
         }
       );
