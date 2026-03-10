@@ -240,6 +240,16 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
         return !error;
       }
 
+      case 'createDoneActionItem': {
+        const scheduledDate = command.scheduledDate || new Date().toISOString().slice(0, 10);
+        const { error } = await supabase.from('action_items').insert({
+          user_id: user.id, type: 'task', source: 'aurora', status: 'done',
+          title: command.title, scheduled_date: scheduledDate,
+          completed_at: new Date().toISOString(),
+        });
+        return !error;
+      }
+
       case 'completeActionItem': {
         const isUuid = /^[a-f0-9-]{36}$/.test(command.identifier);
         if (isUuid) {

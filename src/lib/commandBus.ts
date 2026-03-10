@@ -283,6 +283,8 @@ export function describeCommand(command: AppCommand, isHebrew: boolean): { label
   switch (command.type) {
     case 'createActionItem':
       return { actionType: 'task_create', label: isHebrew ? 'יצירת משימה' : 'Create Task', description: `${command.title}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
+    case 'createDoneActionItem':
+      return { actionType: 'task_create', label: isHebrew ? 'רישום פעילות שהושלמה' : 'Log Completed Activity', description: command.title };
     case 'completeActionItem':
       return { actionType: 'task_complete', label: isHebrew ? 'השלמת משימה' : 'Complete Task', description: `${command.identifier}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
     case 'deleteActionItem':
