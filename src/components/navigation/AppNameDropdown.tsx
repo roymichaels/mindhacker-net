@@ -111,7 +111,6 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
 
   return (
     <>
-      <CharacterProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
       <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
 
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
