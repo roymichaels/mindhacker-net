@@ -39,20 +39,21 @@ serve(async (req) => {
     let actionContext = "";
     let missionsContext = "";
 
-    // Use Israel timezone for date calculations (user is in Israel)
-    const israelFormatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Jerusalem',
+    // Use user's timezone for date calculations
+    const userTz = timezone || 'UTC';
+    const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: userTz,
       year: 'numeric', month: '2-digit', day: '2-digit',
     });
-    const todayStr = israelFormatter.format(new Date());
+    const todayStr = dateFormatter.format(new Date());
     
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    const yesterdayStr = israelFormatter.format(yesterdayDate);
+    const yesterdayStr = dateFormatter.format(yesterdayDate);
     
     const twoDaysAgoDate = new Date();
     twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
-    const twoDaysAgoStr = israelFormatter.format(twoDaysAgoDate);
+    const twoDaysAgoStr = dateFormatter.format(twoDaysAgoDate);
 
     if (plan?.id) {
       // Milestones
