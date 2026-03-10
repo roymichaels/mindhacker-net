@@ -594,15 +594,19 @@ export async function buildContext(
       created_at: r.created_at,
     })),
 
-    // Cross-conversation memory: recent exchanges from all pillar/general chats
+    // Cross-conversation memory: recent exchanges from all pillar/general chats (time-enriched)
     cross_conversation_history: crossConvData.slice(0, 40).reverse().map((m: any) => {
       const pillarCtx = m.pillar_context;
       const pillar = pillarCtx ? pillarCtx.replace('pillar:', '') : null;
+      const msgDate = new Date(m.created_at);
+      const daysAgo = Math.floor((now.getTime() - msgDate.getTime()) / (1000 * 60 * 60 * 24));
       return {
         pillar,
         role: m.is_ai_message ? 'aurora' : 'user',
         content: m.content.length > 300 ? m.content.slice(0, 300) + '...' : m.content,
-        date: new Date(m.created_at).toISOString().split("T")[0],
+        date: msgDate.toISOString().split("T")[0],
+        time: msgDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        days_ago: daysAgo,
       };
     }),
 
