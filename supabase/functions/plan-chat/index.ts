@@ -34,7 +34,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { user_id: bodyUserId, messages, language, timezone, focus_day } = await req.json();
+    const { user_id: bodyUserId, messages, language, timezone, focus_day, focus_task } = await req.json();
     const user_id = await resolveUserId(req, bodyUserId);
     if (!user_id) throw new Error("user_id required");
 
@@ -170,16 +170,50 @@ serve(async (req) => {
     }
 
     // ALWAYS fetch tasks regardless of plan (tasks exist even without active plan)
-    const { data: recentAndUpcoming } = await supabase
+    // Query by BOTH scheduled_date and due_at to catch all tasks
+    const { data: byScheduledDate } = await supabase
       .from("action_items")
-      .select("id, title, type, pillar, status, scheduled_date, source, completed_at, start_time, end_time, time_block")
+      .select("id, title, type, pillar, status, scheduled_date, due_at, source, completed_at, start_time, end_time, time_block")
       .eq("user_id", user_id)
       .in("status", ["todo", "doing", "done"])
       .gte("scheduled_date", twoDaysAgoStr)
       .order("scheduled_date")
       .limit(150);
 
-    if (recentAndUpcoming?.length) {
+    const { data: byDueAt } = await supabase
+      .from("action_items")
+      .select("id, title, type, pillar, status, scheduled_date, due_at, source, completed_at, start_time, end_time, time_block")
+      .eq("user_id", user_id)
+      .in("status", ["todo", "doing", "done"])
+      .is("scheduled_date", null)
+      .gte("due_at", `${twoDaysAgoStr}T00:00:00`)
+      .order("due_at")
+      .limit(100);
+
+    // Also fetch habits (recurring, no date filter)
+    const { data: habits } = await supabase
+      .from("action_items")
+      .select("id, title, type, pillar, status, scheduled_date, due_at, source, completed_at, recurrence_rule")
+      .eq("user_id", user_id)
+      .eq("type", "habit")
+      .in("status", ["todo", "doing", "done"])
+      .limit(50);
+
+    // Merge and deduplicate
+    const seenIds = new Set<string>();
+    const recentAndUpcoming: any[] = [];
+    for (const item of [...(byScheduledDate || []), ...(byDueAt || [])]) {
+      if (!seenIds.has(item.id)) {
+        seenIds.add(item.id);
+        // Normalize: use scheduled_date, fallback to due_at date part
+        if (!item.scheduled_date && item.due_at) {
+          item.scheduled_date = item.due_at.slice(0, 10);
+        }
+        recentAndUpcoming.push(item);
+      }
+    }
+
+    if (recentAndUpcoming.length) {
       const yesterdayTasks = recentAndUpcoming.filter(a => a.scheduled_date === yesterdayStr);
       const todayTasks = recentAndUpcoming.filter(a => a.scheduled_date === todayStr);
       const futureTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date > todayStr);
@@ -241,6 +275,13 @@ serve(async (req) => {
       actionContext = `\n\nToday's date: ${todayStr}\nYesterday's date: ${yesterdayStr}\n⚠️ No tasks found for the last 2 days. The user may need a tactical schedule generated.`;
     }
 
+    // Add habits context
+    if (habits?.length) {
+      actionContext += `\n\n🔄 HABITS (recurring):\n${habits.map(h =>
+        `- "${h.title}" [${h.pillar || 'general'}] status:${h.status} recurrence:${h.recurrence_rule || 'daily'} (id: ${h.id})`
+      ).join("\n")}`;
+    }
+
     // User practices
     const { data: userPractices } = await supabase
       .from("user_practices")
@@ -289,6 +330,12 @@ serve(async (req) => {
       }
     }
 
+    // Focus task context
+    let focusTaskContext = "";
+    if (focus_task && typeof focus_task === "string") {
+      focusTaskContext = `\n\n🎯 USER WANTS TO DISCUSS TASK: "${focus_task}". Focus your response on this specific task — help them swap it, complete it, modify it, or discuss alternatives.`;
+    }
+
     const systemPrompt = `You are Aurora, a plan editor AI. You output COMMAND TAGS that the frontend executes.
 
 FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tags. Nothing else.
@@ -296,7 +343,7 @@ FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tag
 DATE AWARENESS:
 - Today / היום = ${todayStr}
 - Yesterday / אתמול = ${yesterdayStr}
-- Two days ago / שלשום = ${twoDaysAgoStr}${focusDayContext}
+- Two days ago / שלשום = ${twoDaysAgoStr}${focusDayContext}${focusTaskContext}
 When user says "שלשום" or "two days ago", use date ${twoDaysAgoStr}.
 When user says "אתמול" or "yesterday", use date ${yesterdayStr}.
 
