@@ -94,7 +94,7 @@ export interface AuroraContext {
   };
 
   // Memory & reminders
-  conversation_memories: { date: string; summary: string; action_items: string[] }[];
+  conversation_memories: { date: string; time: string; summary: string; emotional_state: string | null; action_items: string[]; days_ago: number }[];
   pending_reminders: { message: string; created_at: string }[];
 
   // Cross-conversation memory (one brain)
