@@ -43,9 +43,12 @@ const AuroraChatMessage = ({
   isStreaming = false,
   timestamp,
   onRegenerate,
+  onRetry,
+  isFailed = false,
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
+  const [ttsError, setTtsError] = useState(false);
   
   const { cleanContent, ctas } = extractCTAs(content);
   const isPlayingThis = isPlaying && activeMessageId === id;
