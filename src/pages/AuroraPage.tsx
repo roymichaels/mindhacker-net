@@ -107,7 +107,7 @@ export default function AuroraPage() {
               <AuroraChatBubbles showOrbAboveMessages />
             )}
           </div>
-          <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-2 pt-2 pointer-events-none">
+          <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-4 pt-2 pointer-events-none">
             <div className="pointer-events-auto">
               <GlobalChatInput />
             </div>
