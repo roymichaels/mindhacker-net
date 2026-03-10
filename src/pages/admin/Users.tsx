@@ -291,11 +291,22 @@ const Users = () => {
                         className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => navigate(`/panel/users/${user.id}`)}
                       >
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                            {getInitials(user.profiles?.full_name, user.email)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="relative">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                              {getInitials(user.profiles?.full_name, user.email)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span
+                            className={cn(
+                              "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card",
+                              user.is_onboarded ? "bg-emerald-500" : "bg-amber-500"
+                            )}
+                            title={user.is_onboarded 
+                              ? (language === 'he' ? 'השלים אונבורדינג' : 'Onboarded') 
+                              : (language === 'he' ? 'טרם השלים אונבורדינג' : 'Not onboarded')}
+                          />
+                        </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate hover:text-primary transition-colors">
                             {user.profiles?.full_name || t('adminUsers.notDefined')}
