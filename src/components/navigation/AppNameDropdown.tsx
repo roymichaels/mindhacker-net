@@ -184,7 +184,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             <div className="relative z-10 px-3 py-2 space-y-1.5">
               {/* Row 1: 2-col grid — name left, orb right */}
               <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-              <div className="min-w-0">
+                <div className="min-w-0">
                   <p className="text-sm font-bold truncate text-foreground leading-tight">{displayName}</p>
                   <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">{user?.email}</p>
                   {dashboard.identityTitle && (
@@ -196,6 +196,20 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                     </div>
                   )}
                 </div>
+                <div
+                  className="relative shrink-0 group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(false);
+                    setOrbViewerOpen(true);
+                  }}
+                >
+                  <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/15 to-transparent blur-lg pointer-events-none" />
+                  <div className="relative z-10">
+                    <PersonalizedOrb size={80} state="idle" />
+                  </div>
+                </div>
+              </div>
 
               {/* Row 3: XP + Stats */}
               {!dashboard.isLoading && (
