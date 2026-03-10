@@ -78,7 +78,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'השלם את הבאונטי הראשון שלך' : 'Complete your first bounty',
         subtext: isHe ? 'משימות מהירות עם תגמול מיידי' : 'Quick tasks with instant rewards',
         reward: 50,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '🎯',
         priority: 1,
       });
@@ -104,7 +104,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'כתוב טיפ בריאות לקהילה' : 'Write a health tip for the community',
         subtext: isHe ? 'שתף מה עובד בשבילך והרוויח' : 'Share what works for you & earn',
         reward: 50,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '✍️',
         priority: 3,
       });
@@ -117,7 +117,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'בוקר טוב! תרום תובנה מהבוקר שלך' : 'Good morning! Share a morning insight',
         subtext: isHe ? 'תובנות בוקר שוות יותר MOS' : 'Morning insights are worth more MOS',
         reward: 40,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '💡',
         priority: 4,
       });
@@ -130,7 +130,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'תעד את החוויה שלך' : 'Document your experience',
         subtext: isHe ? 'שתף תובנות מהסשן לתגמול' : 'Share session insights for rewards',
         reward: 35,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '🧠',
         priority: 5,
       });
@@ -156,7 +156,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'באונטיז חדשים זמינים' : 'New bounties available',
         subtext: isHe ? 'יש משימות חדשות שמתאימות לך' : 'Fresh tasks matching your skills',
         reward: 75,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '🎯',
         priority: 7,
       });

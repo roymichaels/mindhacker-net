@@ -54,7 +54,7 @@ export function BottomTabBar() {
 
   const isActive = (path: string) => {
     if (path === '/play') return location.pathname === '/play' || location.pathname === '/plan' || location.pathname === '/now' || location.pathname === '/dashboard';
-    if (path === '/fm/earn') return location.pathname.startsWith('/fm');
+    if (path === '/fm') return location.pathname.startsWith('/fm');
     return location.pathname.startsWith(path);
   };
 
