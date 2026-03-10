@@ -34,7 +34,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { user_id: bodyUserId, messages, language, timezone, focus_day } = await req.json();
+    const { user_id: bodyUserId, messages, language, timezone, focus_day, focus_task } = await req.json();
     const user_id = await resolveUserId(req, bodyUserId);
     if (!user_id) throw new Error("user_id required");
 
