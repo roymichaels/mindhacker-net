@@ -357,7 +357,11 @@ PRACTICE MANAGEMENT:
 - [practice:update:USER_PRACTICE_ID:field=value] — Update practice settings
 
 PLAN CONTEXT:
-Plan: ${plan ? `"${planTitle}" started ${plan.start_date}, ${planDuration}, status: ${plan.status}` : 'No active plan found'}
+${plans.length > 0 ? plans.map(p => {
+  const t = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || p.plan_data?.title || 'Plan';
+  const d = p.duration_months ? `${p.duration_months} months` : '100 days';
+  return `Plan: "${t}" started ${p.start_date}, ${d}, status: ${p.status}`;
+}).join("\n") : 'No active plan found'}
 ${missionsContext}${milestoneContext}${tacticalContext}${actionContext}${practiceContext}${libraryContext}
 
 Be warm, strategic, and specific. Reference actual items by name. Keep responses concise.`;
