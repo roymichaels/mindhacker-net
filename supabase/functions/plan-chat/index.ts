@@ -39,14 +39,20 @@ serve(async (req) => {
     let actionContext = "";
     let missionsContext = "";
 
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().slice(0, 10);
-    const twoDaysAgo = new Date(today);
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    const twoDaysAgoStr = twoDaysAgo.toISOString().slice(0, 10);
+    // Use Israel timezone for date calculations (user is in Israel)
+    const israelFormatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Jerusalem',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    const todayStr = israelFormatter.format(new Date());
+    
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = israelFormatter.format(yesterdayDate);
+    
+    const twoDaysAgoDate = new Date();
+    twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
+    const twoDaysAgoStr = israelFormatter.format(twoDaysAgoDate);
 
     if (plan?.id) {
       // Milestones
