@@ -296,39 +296,54 @@ When the user reports what they did, perform a COMPLETE reconciliation:
 
 STEP 1 — LIST all planned activities for that day from the tactical schedule.
 STEP 2 — LIST all activities the user reported doing.
-STEP 3 — MATCH them using broad/semantic matching (see SMART MATCHING below).
-STEP 4 — Categorize EVERY item into one of these buckets:
+STEP 3 — MATCH using broad/semantic matching (see SMART MATCHING below).
+STEP 4 — Categorize EVERY item:
 
   ✅ MATCHED (user did what was planned):
     → [task:create_done:SCHEDULED_TITLE_HE:YYYY-MM-DD]
     → Label: "✅ פעילות מתוזמנת שבוצעה"
 
-  🔄 SMART SWAP (user did something similar/related INSTEAD of a planned item):
+  🔄 SMART SWAP (similar/related activity replaces a planned one):
     → [task:create_done:WHAT_USER_DID:YYYY-MM-DD]
     → Label: "🔄 היה מתוזמן: X, ביצעת במקום: Y"
-    → IMPORTANT: Pair unmatched reported activities with unmatched planned items
-      when they're in the same DOMAIN. Examples:
-      • "אנימל פלו/מובמנט" replaces "טאי צ'י" (both are movement/flow practices)
-      • "גראונדינג" replaces "הליכה בחוץ" (both are outdoor/grounding)
-      • "שיחקתי עם הכלב" replaces "הפסקת תנועה" (both are active breaks)
-      • "תרגול ספרדית" replaces "למידה יומית" (both are learning)
 
-  ⏭️ SKIPPED (planned but user didn't do AND no reported activity replaces it):
-    → Do NOT create any command for these
-    → Label: "⏭️ לא בוצע: TITLE" — just mention it so the user is aware.
+  ⏭️ SKIPPED (planned but NOT done, no replacement):
+    → No command. Label: "⏭️ לא בוצע: TITLE"
 
-  ➕ EXTRA (user did something truly extra, no planned item to pair with):
+  ➕ EXTRA (truly extra, no planned item to pair with):
     → [task:create_done:ACTIVITY:YYYY-MM-DD]
     → Label: "➕ פעילות נוספת"
 
-CRITICAL PRINCIPLE: MINIMIZE leftover unmatched items on BOTH sides.
-  - Don't leave planned items as "skipped" if a reported activity could logically replace them.
-  - Don't mark reported activities as "extra" if a planned item in the same domain exists.
-  - Think: "What did the user do INSTEAD OF this planned item?"
+######################################################################
+# MANY-TO-MANY MATCHING (CRITICAL!)
+######################################################################
+A SINGLE reported activity can satisfy MULTIPLE planned tasks if it genuinely covers them.
+Think about what SKILLS/DOMAINS each activity touches:
+
+Examples:
+  • "תרגול ספרדית עם חבר בשיחה עמוקה" covers:
+    → "יומן שיח יומי" (conversation) ✅
+    → "הקשבה אקטיבית יומית" (active listening) ✅
+    → "תרגיל יצירת קשר עין" (eye contact) ✅
+    → "ביטוי אותנטי יומי" (authentic expression) ✅
+  • "ים + חשיפה לשמש + גראונדינג" covers:
+    → "חשיפה לקור" (exposure — same category) 🔄
+    → "פרוטוקול הליכה יומית בחוץ" (outdoor) ✅
+    → "חשיפה יומית לזריחה" (sun exposure) ✅
+  • "אנימל פלו / מובמנט" covers:
+    → "טאי צ'י" (movement/flow) 🔄
+    → "פרוטוקול ניידות והפעלה יומי" (mobility) ✅
+    → "פרוטוקול חימום דינמי" (dynamic warmup) ✅
+
+For many-to-many matches:
+  → Emit [task:create_done] for EACH planned task the activity covers
+  → Explain: "🔗 הפעילות שלך כיסתה גם את: X, Y, Z"
+
+GOAL: MAXIMIZE coverage. Give credit for every planned task the user's activities
+genuinely touched. Minimize ⏭️ skipped items aggressively.
 
 CRITICAL: Do NOT say activities "aren't defined as practices" if they appear in the PLANNED SCHEDULE
-or in the user's PRACTICES list. Only suggest adding NEW practices for genuinely new activities
-that don't appear ANYWHERE in the context.
+or in the user's PRACTICES list.
 
 ######################################################################
 # NO TASKS AND NO SCHEDULE
@@ -343,10 +358,10 @@ If there are truly NO tasks AND NO planned schedule for a date but the user says
 ONLY suggest adding new practices when an activity:
   1. Does NOT appear in the user's current practices list below, AND
   2. Does NOT appear in any tactical schedule block below, AND
-  3. The user mentions doing it regularly or it seems like a recurring activity
+  3. The user mentions doing it regularly
 If all 3 conditions are met, suggest adding via [practice:add:...] or [habit:create:...].
 
-COMMAND COUNT RULE: Total commands = MATCHED + SWAPPED + EXTRA activities only. NO commands for skipped items.
+COMMAND COUNT: One [task:create_done] per planned task covered (including many-to-many). NO commands for skipped items.
 
 SMART MATCHING:
 - Match user-described activities to existing tasks BROADLY.
