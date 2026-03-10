@@ -1,182 +1,142 @@
 # App Map — Single Source of Truth
 
-> Generated: 2026-02-19 | Cleanup Pass v1
+> Updated: 2026-03-10 | Full cleanup pass
 
-## Tab Structure
+## Tab Structure (Bottom Nav)
 
-| Tab | Route | Component | Key Data |
+| Tab | Route | Component | Position |
 |-----|-------|-----------|----------|
-| **Dashboard** | `/dashboard` | `DashboardLayout > UserDashboard` | gameState, aurora, actionItems, lifePlans |
-| **Projects** | `/projects` | `DashboardLayout > Projects` | user_projects, action_items |
-| **Coaches** | `/coaches` | `CoachesLayoutWrapper` | practitioners, coaching_journeys, coach_client_plans |
-| **Business** | `/business` | `Business` | business_journeys |
-| **Admin** | `/admin-hub` | `DashboardLayout > AdminHub` | all admin tables |
+| **FM** | `/fm/earn` | `FMAppShell > EarnLayoutWrapper` | Left |
+| **Aurora** | `/aurora` | `AuroraPage` | Injected (special button) |
+| **Play** | `/play` | `PlayLayoutWrapper > PlayHub` | Center (oversized icon) |
+| **Community** | `/community` | `CommunityLayoutWrapper` | Right of center |
+| **Study** | `/learn` | `LearnLayoutWrapper` | Right |
 
 ## Active Routes
 
 ### Public
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/` | `Index` | — |
-| `/courses` | `Courses` | — |
-| `/courses/:slug` | `CourseDetail` | — |
-| `/courses/:slug/watch` | `CourseWatch` | — |
-| `/subscriptions` | `Subscriptions` | — |
-| `/install` | `Install` | — |
-| `/audio/:token` | `AudioPlayer` | — |
-| `/video/:token` | `VideoPlayer` | — |
-| `/personal-hypnosis` | `PersonalHypnosisLanding` | — |
-| `/consciousness-leap` | `ConsciousnessLeapLanding` | — |
-| `/consciousness-leap/apply/:token` | `ConsciousnessLeapApply` | — |
-| `/form/:token` | `FormView` | — |
-| `/privacy-policy` | `PrivacyPolicy` | — |
-| `/terms-of-service` | `TermsOfService` | — |
-| `/affiliate-signup` | `AffiliateSignup` | — |
-| `/onboarding` | `Onboarding` | — |
-| `/go` | `Go` | — |
-| `/practitioner/:slug` | `PractitionerProfile` | Coaches |
-| `/practitioners/:slug` | `PractitionerProfile` | Coaches |
-| `/lp/:slug` | `DynamicLandingPage` | — |
-| `/unsubscribe` | `Unsubscribe` | — |
+| Route | Component |
+|-------|-----------|
+| `/` | `Index` |
+| `/courses` | `Courses` |
+| `/courses/:slug` | `CourseDetail` |
+| `/courses/:slug/watch` | `CourseWatch` |
+| `/subscriptions` | `Subscriptions` |
+| `/install` | `Install` |
+| `/audio/:token` | `AudioPlayer` |
+| `/video/:token` | `VideoPlayer` |
+| `/blog` | `Blog` |
+| `/blog/:slug` | `BlogPost` |
+| `/privacy-policy` | `PrivacyPolicy` |
+| `/terms-of-service` | `TermsOfService` |
+| `/affiliate-signup` | `AffiliateSignup` |
+| `/onboarding` | `Onboarding` |
+| `/ceremony` | `OnboardingCeremony` |
+| `/go` | `Go` |
+| `/features/:slug` | `FeatureDetailPage` |
+| `/docs` | `Documentation` |
+| `/unsubscribe` | `Unsubscribe` |
+| `/p/:slug` | Coach storefront |
 
-### Coach Storefront (`/p/:slug/*`)
+### Protected — App Shell
 | Route | Component | Tab |
 |-------|-----------|-----|
-| `/p/:slug` | `StorefrontLayout > StorefrontHome` | Coaches |
-| `/p/:slug/login` | `StorefrontLogin` | Coaches |
-| `/p/:slug/signup` | `StorefrontSignup` | Coaches |
-| `/p/:slug/courses` | `StorefrontCourses` | Coaches |
-| `/p/:slug/dashboard` | `StorefrontClientDashboard` | Coaches |
+| `/play` | `PlayLayoutWrapper > PlayHub` | Play |
+| `/aurora` | `AuroraPage` | Aurora |
+| `/community` | `CommunityLayoutWrapper` | Community |
+| `/community/post/:postId` | `CommunityThread` | Community |
+| `/learn` | `LearnLayoutWrapper` | Study |
+| `/profile` | `ProfilePage` | — |
+| `/messages` | `Messages` | — |
+| `/messages/:conversationId` | `MessageThread` | — |
+| `/fm/*` | FM sub-routes (earn, work, wallet, cashout, bridge) | FM |
+| `/coaches` | `CoachesLayoutWrapper` | — |
+| `/admin-hub` | `AdminLayoutWrapper` | — (admin-only) |
+| `/work` | `WorkLayoutWrapper` | — |
+| `/business` | `BusinessIndexWrapper` | — |
+| `/business/journey` | `BusinessJourneyWrapper` | — |
+| `/business/:businessId` | `BusinessDashboardWrapper` | — |
+| `/freelancer` | `FreelancerLayoutWrapper` | — |
+| `/creator` | `CreatorLayoutWrapper` | — |
+| `/therapist` | `TherapistLayoutWrapper` | — |
+| `/quests/:pillar` | `QuestRunnerPage` | — |
+| `/launchpad/complete` | `LaunchpadComplete` | — |
+| `/success` | `Success` | — |
 
-### Protected — Dashboard
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/dashboard` | `DashboardLayout > UserDashboard` | Dashboard |
-| `/launchpad/complete` | `LaunchpadComplete` | Dashboard |
-| `/quests/:pillar` | `QuestRunnerPage` | Dashboard |
-| `/personal-hypnosis/success` | `PersonalHypnosisSuccess` | Dashboard |
-| `/personal-hypnosis/pending` | `PersonalHypnosisPending` | Dashboard |
-| `/success` | `Success` | Dashboard |
+### Protected — Strategy (Pillar Assessments)
+| Route Pattern | Domains |
+|---------------|---------|
+| `/strategy/:domain` | presence, power, vitality, focus, combat, expansion, consciousness |
+| `/strategy/:domain/assess` | Chat-based assessment |
+| `/strategy/:domain/results` | Assessment results |
+| `/strategy/:domain/history` | Assessment history |
+| `/strategy/:domain/scan` | Presence scan only |
+| `/strategy/:arenaId/assess` | wealth, influence, relationships, business, projects, play |
 
-### Protected — Projects
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/projects` | `DashboardLayout > Projects` | Projects |
+### Protected — Journeys
+| Route | Component |
+|-------|-----------|
+| `/coaching/journey` | `CoachingJourney` |
+| `/admin/journey` | `AdminJourney` |
+| `/projects/journey` | `ProjectsJourney` |
 
-### Protected — Coaches
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/coaches` | `CoachesLayoutWrapper` | Coaches |
-| `/coaching/journey` | `CoachingJourney` | Coaches |
-| `/coaching/journey/:journeyId` | `CoachingJourney` | Coaches |
-
-### Protected — Business
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/business` | `Business` | Business |
-| `/business/journey` | `BusinessJourney` | Business |
-| `/business/journey/:journeyId` | `BusinessJourney` | Business |
-| `/business/:businessId` | `BusinessDashboard` | Business |
-
-### Protected — Pillar Hubs
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/consciousness` | `Consciousness` | Dashboard |
-| `/health` | `Health` | Dashboard |
-| `/health/journey` | `HealthJourney` | Dashboard |
-| `/health/plan` | `HealthPlan` | Dashboard |
-| `/relationships` | `Relationships` | Dashboard |
-| `/relationships/journey` | `RelationshipsJourney` | Dashboard |
-| `/finances` | `Finances` | Dashboard |
-| `/finances/journey` | `FinancesJourney` | Dashboard |
-| `/learning` | `Learning` | Dashboard |
-| `/learning/journey` | `LearningJourney` | Dashboard |
-| `/purpose` | `Purpose` | Dashboard |
-| `/purpose/journey` | `PurposeJourney` | Dashboard |
-| `/hobbies` | `Hobbies` | Dashboard |
-| `/hobbies/journey` | `HobbiesJourney` | Dashboard |
-
-### Protected — Community
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/community` | `Community` | Dashboard |
-| `/community/post/:id` | `CommunityPost` | Dashboard |
-| `/community/events` | `CommunityEvents` | Dashboard |
-| `/community/members` | `CommunityMembers` | Dashboard |
-| `/community/leaderboard` | `CommunityLeaderboard` | Dashboard |
-| `/community/profile/:userId` | `CommunityProfile` | Dashboard |
-
-### Protected — Messages
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/messages` | `Messages` | Dashboard |
-| `/messages/ai` | `MessageThread` | Dashboard |
-| `/messages/:conversationId` | `MessageThread` | Dashboard |
-
-### Protected — Admin
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/admin-hub` | `DashboardLayout > AdminHub` | Admin |
-
-### Protected — Affiliate
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/affiliate` | `AffiliatePanel > AffiliateDashboard` | — |
-| `/affiliate/links` | `MyLinks` | — |
-| `/affiliate/referrals` | `MyReferrals` | — |
-| `/affiliate/payouts` | `MyPayouts` | — |
+### Protected — Affiliate (role-gated)
+| Route | Component |
+|-------|-----------|
+| `/affiliate` | `AffiliatePanel > AffiliateDashboard` |
+| `/affiliate/links` | `MyLinks` |
+| `/affiliate/referrals` | `MyReferrals` |
+| `/affiliate/payouts` | `MyPayouts` |
 
 ### Dev
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/dev/orb-gallery` | `OrbGallery` | — |
+| Route | Component |
+|-------|-----------|
+| `/orbs` | `OrbGalleryPage` |
+| `/dev/orb-gallery` | `OrbGallery` |
 
-## Redirect Routes (Legacy Safety Nets)
-- `/signup`, `/login` → `/`
-- `/today`, `/plan`, `/me` → `/dashboard`
-- `/practitioners`, `/marketplace` → `/coaches`
-- `/affiliate-dashboard` → `/affiliate`
-- `/start`, `/free-journey`, `/free-journey/start` → `/onboarding`
-- `/launchpad` → `/onboarding`
-- `/quests` → `/onboarding`
-- `/hypnosis` → `/dashboard`
-- `/admin`, `/admin/*` → `/admin-hub`
-- `/panel/*` → `/admin-hub` (with tab params)
-- `/coach`, `/coach/*` → `/coaches`
+## Redirect Routes
 
-## Key DB Tables by Domain
+| From | To |
+|------|----|
+| `/plan`, `/now`, `/today`, `/dashboard`, `/me`, `/tactics`, `/arena`, `/projects` | `/play` |
+| `/life`, `/life/*` | `/play` |
+| `/consciousness`, `/health/*`, `/relationships/*`, `/finances/*`, `/learning/*`, `/purpose/*`, `/hobbies/*` | `/play` |
+| `/personal-hypnosis`, `/consciousness-leap`, `/consciousness-leap/apply/*`, `/form/*` | `/` |
+| `/personal-hypnosis/success`, `/personal-hypnosis/pending` | `/play` |
+| `/strategy` | `/play` |
+| `/messages/ai` | `/aurora` |
+| `/combat-community` | `/community` |
+| `/signup`, `/login` | `/` |
+| `/admin`, `/admin/*`, `/panel/*` | `/admin-hub` |
+| `/coach`, `/coach/*`, `/practitioners`, `/marketplace` | `/coaches` |
+| `/start`, `/free-journey/*` | `/onboarding` |
+| `/affiliate-dashboard` | `/affiliate` |
 
-### Dashboard
-- `profiles`, `action_items`, `life_plans`, `life_plan_milestones`
-- `conversations`, `aurora_*` (memory, patterns, checklists, etc.)
-- `hypnosis_sessions`, `user_projects`
+## Deleted Pages (2026-03-10)
 
-### Coaches
-- `practitioners`, `practitioner_services`, `practitioner_reviews`, `practitioner_specialties`
-- `practitioner_settings`, `practitioner_availability`, `practitioner_client_profiles`
-- `coaching_journeys`, `coach_client_plans`, `bookings`
+| File | Reason |
+|------|--------|
+| `FormView.tsx` | Unused, route → redirect |
+| `PersonalHypnosisLanding.tsx` | Legacy product |
+| `PersonalHypnosisSuccess.tsx` | Legacy product |
+| `PersonalHypnosisPending.tsx` | Legacy product |
+| `ConsciousnessLeapLanding.tsx` | Legacy product |
+| `ConsciousnessLeapApply.tsx` | Legacy product |
+| `DynamicLandingPage.tsx` | Unused landing system |
 
-### Business
-- `business_journeys`, `business_plans`, `business_plan_milestones`
-- `business_branding`, `business_orb_profiles`
+## Key Renames (2026-03-10)
 
-### Admin
-- `admin_notifications`, `analytics_reports`, `bug_reports`
-- `offers`, `content_products`, `content_series`, `content_episodes`
-- `community_*`, `testimonials`
+| Old | New |
+|-----|-----|
+| `PlanHub.tsx` | `PlayHub.tsx` |
+| `PlanLayoutWrapper.tsx` | `PlayLayoutWrapper.tsx` |
+| Route `/plan` | Route `/play` |
+| Nav id `plan` | Nav id `play` |
 
-### Affiliate
-- `affiliates`, `affiliate_referrals`, `affiliate_payouts`
+## Navigation Config
 
-## Dead Code Removed (This Pass)
-- ~40 dead lazy imports removed from App.tsx (admin pages handled by AdminHub's own lazy loading)
-- Legacy panel pages moved to `src/legacy/` (see README there)
-- Old `src/components/practitioners/` folder superseded by `src/components/coaches/`
-- Old `PractitionersModalContext` superseded by `CoachesModalContext`
-
-## Architecture Created (This Pass)
-- `src/domain/coaches/` — Coach types + hook wrappers over practitioner DB
-- `src/domain/admin/` — Admin types, hooks, and tab config extracted from AdminHub
-- `src/navigation/navConfig.ts` — Single source of truth for tab definitions
-- `src/components/coaches/` — Renamed component folder with backward-compat aliases
-- `src/contexts/CoachesModalContext.tsx` — Renamed context with backward-compat aliases
+Single source of truth: `src/navigation/osNav.ts`
+- `OS_TABS` — 4 visible tabs (FM, Play, Community, Study)
+- Aurora injected by `BottomTabBar` between FM and Play
+- `COACH_TAB` — nested under FM, not top-level
+- `ADMIN_TAB` — app dropdown only, not bottom nav
