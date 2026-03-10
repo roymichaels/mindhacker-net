@@ -382,6 +382,7 @@ function buildMilestonesPrompt(
   goals: { goal_en: string; goal_he: string }[],
   assessmentBlock: string,
   constraintsBlock: string,
+  practicesForPillar?: { name: string; name_he: string; duration: number; frequency: number; energy_type: string; is_core: boolean; category: string }[],
 ): string {
   const goalsStr = goals.map((g, i) => `  ${i+1}. "${g.goal_en}" / "${g.goal_he}"`).join('\n');
   const scope = PILLAR_SCOPES[pillarId];
@@ -389,11 +390,29 @@ function buildMilestonesPrompt(
     ? `\n## PILLAR SCOPE (STRICT):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
   
+  // Build practices block for this pillar
+  let practicesBlock = '';
+  if (practicesForPillar && practicesForPillar.length > 0) {
+    const lines = practicesForPillar.map((p, i) => 
+      `  ${i+1}. "${p.name}" (HE: "${p.name_he}") — ${p.duration}min, ${p.frequency}x/week, energy: ${p.energy_type}, ${p.is_core ? 'CORE' : 'optional'}, category: ${p.category}`
+    ).join('\n');
+    practicesBlock = `\n## USER'S COMMITTED PRACTICES FOR THIS PILLAR (MUST be referenced in milestones):
+${lines}
+
+CRITICAL PRACTICE RULES:
+- Milestones MUST reference these specific practices by name — do NOT invent generic alternatives.
+- If the user has "Tai Chi" as a practice, generate milestones like "Daily 20-min Tai Chi flow" — NOT "Morning movement routine".
+- If the user has "Cold Exposure" as a practice, use "Cold Exposure protocol" — NOT "Try cold showers".
+- CORE practices must appear as foundational milestones (difficulty 1-2).
+- Non-core practices can appear at higher difficulty levels.
+- You may combine practices with progressive overload (e.g., "Tai Chi 15min → 30min daily progression").\n`;
+  }
+
   return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 STRATEGIC PROTOCOLS.
 This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 high-level strategic commitments.
 
 ## PILLAR: ${pillarId.toUpperCase()}
-${scopeBlock}${constraintsBlock}
+${scopeBlock}${constraintsBlock}${practicesBlock}
 ## MISSIONS:
 ${goalsStr}
 
@@ -542,6 +561,7 @@ async function generatePillarStrategy(
   userContext: string,
   constraintsBlock: string,
   traitCount: number, // 3 for selected, 1 for non-selected
+  practicesForPillar?: { name: string; name_he: string; duration: number; frequency: number; energy_type: string; is_core: boolean; category: string }[],
 ): Promise<{ allMissions: any[]; traitIds: string[] } | null> {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const sysMsg = "Output ONLY valid JSON. No markdown. No explanation.";
@@ -624,7 +644,7 @@ async function generatePillarStrategy(
     console.log(`  [${pillarId}] Layer 2: generating milestones for trait "${trait.name_en}"...`);
     const milestoneResult = await callAI(
       apiKey,
-      buildMilestonesPrompt(pillarId, goals.slice(0, 3), assessmentBlock, constraintsBlock),
+      buildMilestonesPrompt(pillarId, goals.slice(0, 3), assessmentBlock, constraintsBlock, practicesForPillar),
       sysMsg, 3000,
     );
     
@@ -945,6 +965,8 @@ serve(async (req) => {
       const p = up.practices || {};
       return {
         practice_name: p.name || 'Unknown',
+        practice_name_he: p.name_he || p.name || 'Unknown',
+        category: p.category || 'health',
         energy_phase: up.energy_phase || p.energy_type || 'day',
         preferred_duration: up.preferred_duration || p.default_duration || 15,
         frequency_per_week: up.frequency_per_week || 3,
@@ -1094,9 +1116,22 @@ serve(async (req) => {
         
         const aiPromises = allPillarJobs.map(async ({ pillarId, traitCount }) => {
           const assessment = hubAssessments.find(a => a.domain_id === pillarId);
+          // Filter practices relevant to this pillar
+          const pillarPractices = practicesContext
+            .filter((p: any) => p.pillar === pillarId || !p.pillar)
+            .map((p: any) => ({
+              name: p.practice_name,
+              name_he: p.practice_name_he || p.practice_name,
+              duration: p.preferred_duration || 15,
+              frequency: p.frequency_per_week || 3,
+              energy_type: p.energy_phase || 'day',
+              is_core: p.is_core_practice || false,
+              category: p.category || 'health',
+            }));
           const result = await generatePillarStrategy(
             LOVABLE_API_KEY, supabaseClient, user_id, plan.id,
             pillarId, h, assessment, userContext, constraintsBlock, traitCount,
+            pillarPractices.length > 0 ? pillarPractices : undefined,
           );
           return { pillarId, traitCount, data: result };
         });
