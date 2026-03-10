@@ -304,7 +304,7 @@ ${tacticalContext}${actionContext}${practiceContext}${missionsContext}${mileston
           { role: "system", content: systemPrompt },
           ...messages,
         ],
-        temperature: 0.5,
+        temperature: 0.3,
         stream: true,
       }),
     });
