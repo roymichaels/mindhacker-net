@@ -29,7 +29,7 @@ serve(async (req) => {
     // Gather plan context
     const { data: plan } = await supabase
       .from("life_plans")
-      .select("id, title, start_date, duration_days, status")
+      .select("id, start_date, duration_months, status, plan_data, summary_id")
       .eq("user_id", user_id)
       .eq("status", "active")
       .maybeSingle();
@@ -37,6 +37,7 @@ serve(async (req) => {
     let milestoneContext = "";
     let practiceContext = "";
     let actionContext = "";
+    let missionsContext = "";
 
     const today = new Date();
     const todayStr = today.toISOString().slice(0, 10);
@@ -61,76 +62,90 @@ serve(async (req) => {
         ).join("\n")}`;
       }
 
-      // Fetch tasks from last 2 days + today + upcoming
-      const { data: recentAndUpcoming } = await supabase
-        .from("action_items")
-        .select("id, title, type, pillar, status, scheduled_date, source, completed_at")
-        .eq("user_id", user_id)
-        .in("status", ["todo", "doing", "done"])
-        .gte("scheduled_date", twoDaysAgoStr)
-        .order("scheduled_date")
-        .limit(100);
+      // Missions
+      const { data: missions } = await supabase
+        .from("plan_missions")
+        .select("id, title, title_en, pillar, is_completed, skill_id")
+        .eq("plan_id", plan.id)
+        .order("created_at");
 
-      if (recentAndUpcoming?.length) {
-        // Group by date
-        const yesterdayTasks = recentAndUpcoming.filter(a => a.scheduled_date === yesterdayStr);
-        const todayTasks = recentAndUpcoming.filter(a => a.scheduled_date === todayStr);
-        const futureTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date > todayStr);
-        const olderTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date < yesterdayStr);
+      if (missions?.length) {
+        missionsContext = `\n\nPlan missions (${missions.length}):\n${missions.map(m =>
+          `- "${m.title_en || m.title}" [${m.pillar || 'general'}] ${m.is_completed ? '✅' : '⬜'} (id: ${m.id})`
+        ).join("\n")}`;
+      }
+    }
 
-        actionContext = `\n\nToday's date: ${todayStr}\nYesterday's date: ${yesterdayStr}`;
+    // ALWAYS fetch tasks regardless of plan (tasks exist even without active plan)
+    const { data: recentAndUpcoming } = await supabase
+      .from("action_items")
+      .select("id, title, type, pillar, status, scheduled_date, source, completed_at, start_time, end_time, time_block")
+      .eq("user_id", user_id)
+      .in("status", ["todo", "doing", "done"])
+      .gte("scheduled_date", twoDaysAgoStr)
+      .order("scheduled_date")
+      .limit(150);
 
-        // Yesterday's tasks (critical for retroactive management)
-        if (yesterdayTasks.length) {
-          const yPending = yesterdayTasks.filter(a => a.status !== 'done');
-          const yDone = yesterdayTasks.filter(a => a.status === 'done');
-          actionContext += `\n\n📅 YESTERDAY'S TASKS (${yesterdayStr}):`;
-          if (yPending.length) {
-            actionContext += `\nIncomplete (${yPending.length}):\n${yPending.map(a =>
-              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} (id: ${a.id})`
-            ).join("\n")}`;
-          }
-          if (yDone.length) {
-            actionContext += `\nCompleted (${yDone.length}):\n${yDone.map(a =>
-              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅ (id: ${a.id})`
-            ).join("\n")}`;
-          }
+    if (recentAndUpcoming?.length) {
+      const yesterdayTasks = recentAndUpcoming.filter(a => a.scheduled_date === yesterdayStr);
+      const todayTasks = recentAndUpcoming.filter(a => a.scheduled_date === todayStr);
+      const futureTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date > todayStr);
+      const olderTasks = recentAndUpcoming.filter(a => a.scheduled_date && a.scheduled_date < yesterdayStr);
+
+      actionContext = `\n\nToday's date: ${todayStr}\nYesterday's date: ${yesterdayStr}`;
+
+      if (yesterdayTasks.length) {
+        const yPending = yesterdayTasks.filter(a => a.status !== 'done');
+        const yDone = yesterdayTasks.filter(a => a.status === 'done');
+        actionContext += `\n\n📅 YESTERDAY'S TASKS (${yesterdayStr}) — ${yesterdayTasks.length} total:`;
+        if (yPending.length) {
+          actionContext += `\nIncomplete (${yPending.length}):\n${yPending.map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} time:${a.start_time || '?'}-${a.end_time || '?'} block:${a.time_block || '?'} (id: ${a.id})`
+          ).join("\n")}`;
         }
-
-        // Older incomplete
-        if (olderTasks.length) {
-          const olderPending = olderTasks.filter(a => a.status !== 'done');
-          if (olderPending.length) {
-            actionContext += `\n\n📅 OLDER INCOMPLETE:\n${olderPending.map(a =>
-              `- "${a.title}" [${a.pillar || 'general'}] date:${a.scheduled_date} status:${a.status} (id: ${a.id})`
-            ).join("\n")}`;
-          }
+        if (yDone.length) {
+          actionContext += `\nCompleted (${yDone.length}):\n${yDone.map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅ (id: ${a.id})`
+          ).join("\n")}`;
         }
+      } else {
+        actionContext += `\n\n📅 YESTERDAY (${yesterdayStr}): No tasks were scheduled.`;
+      }
 
-        // Today's tasks
-        if (todayTasks.length) {
-          const tPending = todayTasks.filter(a => a.status !== 'done');
-          const tDone = todayTasks.filter(a => a.status === 'done');
-          actionContext += `\n\n📅 TODAY'S TASKS (${todayStr}):`;
-          if (tPending.length) {
-            actionContext += `\nPending (${tPending.length}):\n${tPending.map(a =>
-              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} (id: ${a.id})`
-            ).join("\n")}`;
-          }
-          if (tDone.length) {
-            actionContext += `\nCompleted (${tDone.length}):\n${tDone.map(a =>
-              `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅ (id: ${a.id})`
-            ).join("\n")}`;
-          }
-        }
-
-        // Upcoming
-        if (futureTasks.length) {
-          actionContext += `\n\nUpcoming (${futureTasks.length}):\n${futureTasks.slice(0, 15).map(a =>
+      if (olderTasks.length) {
+        const olderPending = olderTasks.filter(a => a.status !== 'done');
+        if (olderPending.length) {
+          actionContext += `\n\n📅 OLDER INCOMPLETE:\n${olderPending.map(a =>
             `- "${a.title}" [${a.pillar || 'general'}] date:${a.scheduled_date} status:${a.status} (id: ${a.id})`
           ).join("\n")}`;
         }
       }
+
+      if (todayTasks.length) {
+        const tPending = todayTasks.filter(a => a.status !== 'done');
+        const tDone = todayTasks.filter(a => a.status === 'done');
+        actionContext += `\n\n📅 TODAY'S TASKS (${todayStr}) — ${todayTasks.length} total:`;
+        if (tPending.length) {
+          actionContext += `\nPending (${tPending.length}):\n${tPending.map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} status:${a.status} source:${a.source} time:${a.start_time || '?'}-${a.end_time || '?'} block:${a.time_block || '?'} (id: ${a.id})`
+          ).join("\n")}`;
+        }
+        if (tDone.length) {
+          actionContext += `\nCompleted (${tDone.length}):\n${tDone.map(a =>
+            `- "${a.title}" [${a.pillar || 'general'}] type:${a.type} ✅ (id: ${a.id})`
+          ).join("\n")}`;
+        }
+      } else {
+        actionContext += `\n\n📅 TODAY (${todayStr}): No tasks scheduled yet.`;
+      }
+
+      if (futureTasks.length) {
+        actionContext += `\n\nUpcoming (${futureTasks.length}):\n${futureTasks.slice(0, 15).map(a =>
+          `- "${a.title}" [${a.pillar || 'general'}] date:${a.scheduled_date} status:${a.status} (id: ${a.id})`
+        ).join("\n")}`;
+      }
+    } else {
+      actionContext = `\n\nToday's date: ${todayStr}\nYesterday's date: ${yesterdayStr}\n⚠️ No tasks found for the last 2 days. The user may need a tactical schedule generated.`;
     }
 
     // User practices
@@ -166,6 +181,9 @@ serve(async (req) => {
 
     const isHe = language === "he";
 
+    const planTitle = plan?.plan_data?.title || plan?.plan_data?.plan_title || 'Untitled Plan';
+    const planDuration = plan?.duration_months ? `${plan.duration_months} months` : '100 days';
+
     const systemPrompt = `You are Aurora, an AI life coach embedded in a plan editor. The user wants to make surgical changes to their 100-day life plan.
 
 CRITICAL RULES:
@@ -174,6 +192,9 @@ CRITICAL RULES:
 3. When the user requests a change, respond with BOTH a conversational explanation AND structured commands using tags.
 4. Always confirm what you understood before making changes.
 5. Respond in ${isHe ? 'Hebrew' : 'English'}.
+6. You HAVE FULL ACCESS to the user's plan, tasks, milestones, and practices — they are listed below. NEVER ask the user what their tasks are. You already know.
+7. When the user says "I did X yesterday" or describes activities they performed, cross-reference with YESTERDAY'S TASKS below. If tasks match, mark them complete. If new activities were done instead, swap accordingly.
+8. If no tasks are scheduled for a date, say so explicitly and offer to create tasks or generate a schedule.
 
 AVAILABLE COMMANDS (embed in your response, the frontend parses and executes them):
 
@@ -215,8 +236,8 @@ CRITICAL BEHAVIORS FOR RETROACTIVE TASK MANAGEMENT:
 - Always use the actual task UUIDs from the context. Never guess IDs.
 
 PLAN CONTEXT:
-Plan: ${plan ? `"${plan.title}" started ${plan.start_date}, ${plan.duration_days} days, status: ${plan.status}` : 'No active plan'}
-${milestoneContext}${actionContext}${practiceContext}${libraryContext}
+Plan: ${plan ? `"${planTitle}" started ${plan.start_date}, ${planDuration}, status: ${plan.status}` : 'No active plan found'}
+${missionsContext}${milestoneContext}${actionContext}${practiceContext}${libraryContext}
 
 Be warm, strategic, and specific. Reference actual items by name. Keep responses concise.`;
 
