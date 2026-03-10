@@ -348,10 +348,14 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
 
   // Memory
   if (ctx.conversation_memories.length > 0) {
-    const lines = ctx.conversation_memories.map(m => `- ${m.date}: ${m.summary}${m.action_items.length > 0 ? ` | ${m.action_items.join(", ")}` : ""}`);
+    const lines = ctx.conversation_memories.map(m => {
+      const recency = m.days_ago === 0 ? (isHe ? '(היום)' : '(today)') : m.days_ago === 1 ? (isHe ? '(אתמול)' : '(yesterday)') : `(${m.days_ago} ${isHe ? 'ימים' : 'days'})`;
+      const emoState = m.emotional_state ? ` | ${isHe ? 'מצב רוח' : 'mood'}: ${m.emotional_state}` : '';
+      return `- ${m.date} ${m.time} ${recency}: ${m.summary}${emoState}${m.action_items.length > 0 ? ` | ${isHe ? 'פעולות' : 'actions'}: ${m.action_items.join(", ")}` : ""}`;
+    });
     parts.push(isHe
-      ? `## 🧠 זיכרון שיחות אחרונות\n${lines.join("\n")}`
-      : `## 🧠 Recent Conversation Memory\n${lines.join("\n")}`);
+      ? `## 🧠 זיכרון שיחות אחרונות (מודע לזמן)\n${lines.join("\n")}`
+      : `## 🧠 Recent Conversation Memory (time-aware)\n${lines.join("\n")}`);
   }
 
   // Launchpad
