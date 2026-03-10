@@ -427,6 +427,99 @@ export default function Learn() {
               </div>
             )}
 
+            {/* ── Suggested Courses ── */}
+            {!selectedCurriculum && suggestedCourses.length > 0 && (
+              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-amber-400" />
+                    {isHe ? 'קורסים מומלצים לך' : 'Suggested For You'}
+                  </h2>
+                  <span className="text-[10px] text-muted-foreground">
+                    {isHe ? 'לפי המסלול שלך' : 'Based on your pillars'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {suggestedCourses.map((sc, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        if (auroraChat) {
+                          auroraChat.setActivePillar('learn');
+                          auroraChat.setIsDockVisible(true);
+                          auroraChat.setIsChatExpanded(true);
+                          auroraChat.setPendingAssistantGreeting(
+                            isHe
+                              ? `🔥 בוא ניצור קורס Boot Camp ב**${sc.he}**! מוכן?`
+                              : `🔥 Let's build a Boot Camp on **${sc.en}**! Ready?`
+                          );
+                        }
+                      }}
+                      className="flex items-center gap-2.5 p-3 rounded-xl border border-border/40 bg-card/60 hover:border-primary/30 hover:shadow-md transition-all text-start"
+                    >
+                      <span className="text-lg">{sc.icon}</span>
+                      <span className="text-xs font-semibold text-foreground line-clamp-1">
+                        {isHe ? sc.he : sc.en}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Skill Gap Analysis ── */}
+            {!selectedCurriculum && skillGaps.length > 0 && (
+              <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-amber-400" />
+                    {isHe ? 'פערי מיומנויות' : 'Skill Gaps'}
+                  </h2>
+                  <span className="text-[10px] text-muted-foreground">
+                    {isHe ? 'מיומנויות שכדאי לחזק' : 'Skills to strengthen'}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {skillGaps.map((skill: any, i: number) => {
+                    const gap = skill.target_level - skill.current_level;
+                    const pct = Math.round((skill.current_level / skill.target_level) * 100);
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (auroraChat) {
+                            const name = isHe ? (skill.name_he || skill.name) : skill.name;
+                            auroraChat.setActivePillar('learn');
+                            auroraChat.setIsDockVisible(true);
+                            auroraChat.setIsChatExpanded(true);
+                            auroraChat.setPendingAssistantGreeting(
+                              isHe
+                                ? `🎯 זיהיתי שאתה צריך לחזק את **${name}**. בוא ניצור קורס ממוקד!`
+                                : `🎯 I noticed you need to strengthen **${name}**. Let's create a focused course!`
+                            );
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl border border-border/30 bg-card/40 hover:border-amber-500/30 hover:shadow-md transition-all text-start"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground truncate">
+                              {isHe ? (skill.name_he || skill.name) : skill.name}
+                            </span>
+                            <span className="text-[10px] text-amber-400 font-bold shrink-0">
+                              Lv.{skill.current_level}→{skill.target_level}
+                            </span>
+                          </div>
+                          <Progress value={pct} className="h-1 mt-1" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* ── Course Cards Grid (when no course selected) ── */}
             {!selectedCurriculum && (
               <div className="grid grid-cols-1 gap-3">
