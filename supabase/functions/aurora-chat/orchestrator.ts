@@ -387,7 +387,7 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
   // Today's completed tasks
   if (ctx.action_items.today_completed.length > 0) {
     const lines = ctx.action_items.today_completed.map(t => {
-      const time = new Date(t.completed_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' });
+      const time = new Date(t.completed_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', timeZone: ctx.user_timezone || 'UTC' });
       return `- ✅ "${t.title}" (${isHe ? 'הושלם ב-' : 'completed at '}${time})${t.pillar ? ` [${t.pillar}]` : ''}`;
     });
     parts.push(isHe
