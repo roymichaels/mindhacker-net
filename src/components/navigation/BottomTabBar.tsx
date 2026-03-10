@@ -16,7 +16,7 @@ import { useXpProgress } from '@/hooks/useGameState';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useUnreadBadge } from '@/hooks/useUnreadBadge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame } from 'lucide-react';
+import { Play } from 'lucide-react';
 
 
 /** Per-tab color schemes — light/dark adaptive */
@@ -177,14 +177,8 @@ export function BottomTabBar() {
                   : "bg-gradient-to-br from-cyan-600/15 to-teal-500/10 border-cyan-500/20 ring-cyan-500/10"
               )}
             >
-              <Flame className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/80 dark:text-cyan-400/80")} />
+              <Play className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/80 dark:text-cyan-400/80")} fill="currentColor" />
             </button>
-            <span className={cn(
-              "text-[10px] font-bold",
-              isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600 dark:text-cyan-400 opacity-80"
-            )}>
-              {isHe ? planTab.labelHe : planTab.labelEn}
-            </span>
           </div>
         )}
 
