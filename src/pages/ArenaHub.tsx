@@ -119,8 +119,8 @@ export default function ArenaHub() {
 
         {!hasPlan && !planLoading ? (
           <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
-              <Swords className="w-8 h-8 text-destructive" />
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Swords className="w-8 h-8 text-amber-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">
@@ -157,7 +157,7 @@ export default function ArenaHub() {
                     className={cn(
                       "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[38px] relative",
                       isActive
-                        ? "bg-destructive/15 border border-destructive/30"
+                        ? "bg-amber-500/15 border border-amber-500/30"
                         : hasActions
                           ? "bg-muted/20 border border-border/20 hover:bg-muted/40"
                           : "bg-transparent border border-transparent opacity-40"
@@ -165,19 +165,19 @@ export default function ArenaHub() {
                   >
                     <span className={cn(
                       "text-[10px] font-bold",
-                      isActive ? "text-destructive" : "text-foreground/60"
+                      isActive ? "text-amber-400" : "text-foreground/60"
                     )}>
                       {day.dayNumber}
                     </span>
                     <span className={cn(
                       "text-[8px]",
-                      isActive ? "text-destructive/70" : "text-muted-foreground"
+                      isActive ? "text-amber-400/70" : "text-muted-foreground"
                     )}>
                       {day.completedActions}/{day.totalActions}
                     </span>
                     <span className={cn(
                       "text-[7px]",
-                      isActive ? "text-destructive/60" : "text-muted-foreground/60"
+                      isActive ? "text-amber-400/60" : "text-muted-foreground/60"
                     )}>
                       {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
                     </span>
@@ -202,8 +202,8 @@ export default function ArenaHub() {
                   {getCampaignName(`phase-${phase}`, isHe ? 'he' : 'en')}
                 </p>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-destructive/15 border border-destructive/25 flex items-center justify-center">
-                    <span className="text-sm font-bold text-destructive">{phase}</span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
+                    <span className="text-sm font-bold text-amber-400">{phase}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-foreground">
@@ -287,7 +287,7 @@ export default function ArenaHub() {
                 </div>
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mt-2.5">
                   <motion.div
-                    className="h-full rounded-full bg-destructive"
+                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
                     initial={{ width: 0 }}
                     animate={{ width: `${completionPct}%` }}
                     transition={{ duration: 0.5 }}
