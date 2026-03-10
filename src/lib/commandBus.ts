@@ -295,6 +295,8 @@ export function describeCommand(command: AppCommand, isHebrew: boolean): { label
       return { actionType: 'task_complete', label: isHebrew ? 'השלמת משימה' : 'Complete Task', description: `${command.identifier}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
     case 'deleteActionItem':
       return { actionType: 'task_delete', label: isHebrew ? 'מחיקת משימה' : 'Delete Task', description: `${command.identifier}${command.checklistTitle ? ` (${command.checklistTitle})` : ''}` };
+    case 'swapByTitle':
+      return { actionType: 'task_create', label: isHebrew ? 'החלפת משימה' : 'Swap Task', description: `${command.oldTitle} → ${command.newTitle} (${command.date})` };
     case 'rescheduleActionItem':
       return { actionType: 'task_reschedule', label: isHebrew ? 'דחיית משימה' : 'Reschedule Task', description: `${command.identifier} → ${command.newDate}` };
     case 'createHabit':
