@@ -51,13 +51,16 @@ serve(async (req) => {
 
   let event: Stripe.Event;
   try {
-    if (webhookSecret && sig) {
-      event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-      log("Signature verified", { type: event.type });
-    } else {
-      event = JSON.parse(body) as Stripe.Event;
-      log("WARNING: No webhook secret, parsing raw body", { type: event.type });
+    if (!webhookSecret) {
+      log("FATAL: STRIPE_WEBHOOK_SECRET not configured");
+      return new Response("Webhook not configured", { status: 500 });
     }
+    if (!sig) {
+      log("Missing stripe-signature header");
+      return new Response("Missing stripe-signature header", { status: 400 });
+    }
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
+    log("Signature verified", { type: event.type });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     log("Signature verification failed", { error: msg });

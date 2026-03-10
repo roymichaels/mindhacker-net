@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireAuth } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -73,8 +74,13 @@ serve(async (req) => {
   }
 
   try {
+    // Require authentication
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
+
     const body = await req.json();
-    const { userId, messages, type, data } = body;
+    const { messages, type, data } = body;
+    const userId = auth.userId;
 
     // Handle growth_deep_dive type - just return success (analysis done elsewhere)
     if (type === 'growth_deep_dive') {
