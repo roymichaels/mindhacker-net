@@ -124,6 +124,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   ];
 
   const handleExecute = (item: NowQueueItem) => {
+    // Hypnosis items open the dedicated hypnosis modal
+    if (item.practiceId === 'hypnosis' || item.actionType === 'hypnosis') {
+      openHypnosis();
+      return;
+    }
     if (item.milestoneId) {
       setJourneyAction(item);
       setJourneyOpen(true);
