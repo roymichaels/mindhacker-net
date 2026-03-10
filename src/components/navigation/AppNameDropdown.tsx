@@ -187,6 +187,14 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                 <div className="min-w-0">
                   <p className="text-sm font-bold truncate text-foreground leading-tight">{displayName}</p>
                   <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">{user?.email}</p>
+                  {dashboard.identityTitle && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-xs">{dashboard.identityTitle.icon}</span>
+                      <span className="text-xs font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+                        {dashboard.identityTitle.title}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div
                   className="relative shrink-0 group-hover:scale-105 transition-transform duration-300 cursor-pointer"
@@ -202,16 +210,6 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                   </div>
                 </div>
               </div>
-
-              {/* Row 2: Archetype */}
-              {dashboard.identityTitle && (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">{dashboard.identityTitle.icon}</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
-                    {dashboard.identityTitle.title}
-                  </span>
-                </div>
-              )}
 
               {/* Row 3: XP + Stats */}
               {!dashboard.isLoading && (
