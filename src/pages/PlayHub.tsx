@@ -1,5 +1,5 @@
 /**
- * PlanHub — Unified Play page: Tactics view with Strategy & Work as modals.
+ * PlayHub — Unified Play page: Tactics view with Strategy & Work as modals.
  * Merged stats from Strategy, Now, and Tactics at the top.
  */
 import { useState, useMemo, lazy, Suspense } from 'react';
