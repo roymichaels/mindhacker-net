@@ -439,6 +439,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         task={negotiateTask}
         onApplied={() => refetch()}
       />
+      <PlanChatWizard open={planChatOpen} onOpenChange={setPlanChatOpen} />
     </div>
   );
 }
