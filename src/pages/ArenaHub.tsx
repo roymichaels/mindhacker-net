@@ -165,7 +165,7 @@ export default function ArenaHub() {
                   >
                     <span className={cn(
                       "text-[10px] font-bold",
-                      isActive ? "text-destructive" : "text-foreground/60"
+                      isActive ? "text-amber-400" : "text-foreground/60"
                     )}>
                       {day.dayNumber}
                     </span>
