@@ -694,24 +694,46 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
           }
         }
       } else {
-        // Mark as todo — try both Hebrew and English titles
-        let query = supabase
+        // Mark as todo — try exact title match first, then English title, then fuzzy
+        const { data: updated } = await supabase
           .from('action_items')
           .update({ status: 'todo', completed_at: null })
           .eq('user_id', user.id)
-          .eq('scheduled_date', date);
-
-        // Use exact title match first
-        const { data: updated, error } = await query.ilike('title', action.title).select('id');
+          .eq('scheduled_date', date)
+          .eq('title', action.title)
+          .select('id');
         
-        // If no rows matched and we have an English title, try that too
-        if ((!updated || updated.length === 0) && action.titleEn && action.titleEn !== action.title) {
-          await supabase
-            .from('action_items')
-            .update({ status: 'todo', completed_at: null })
-            .eq('user_id', user.id)
-            .eq('scheduled_date', date)
-            .ilike('title', action.titleEn);
+        if (!updated || updated.length === 0) {
+          // Try English title
+          if (action.titleEn && action.titleEn !== action.title) {
+            const { data: updated2 } = await supabase
+              .from('action_items')
+              .update({ status: 'todo', completed_at: null })
+              .eq('user_id', user.id)
+              .eq('scheduled_date', date)
+              .eq('title', action.titleEn)
+              .select('id');
+            
+            if (!updated2 || updated2.length === 0) {
+              // Last resort: match any done item with similar title using ilike
+              await supabase
+                .from('action_items')
+                .update({ status: 'todo', completed_at: null })
+                .eq('user_id', user.id)
+                .eq('scheduled_date', date)
+                .eq('status', 'done')
+                .ilike('title', `%${action.title.slice(0, 15)}%`);
+            }
+          } else {
+            // No English title, try partial match
+            await supabase
+              .from('action_items')
+              .update({ status: 'todo', completed_at: null })
+              .eq('user_id', user.id)
+              .eq('scheduled_date', date)
+              .eq('status', 'done')
+              .ilike('title', `%${action.title.slice(0, 15)}%`);
+          }
         }
       }
     } catch (err) {
