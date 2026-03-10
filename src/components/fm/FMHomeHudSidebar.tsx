@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
+import { useWalletModal } from '@/contexts/WalletModalContext';
 import {
   PanelRightClose, PanelRightOpen, Coins, Target,
   Briefcase, Wallet, TrendingUp, Activity, Zap,
@@ -22,10 +23,12 @@ export function FMHomeHudSidebar({ balance = 0, lifetimeEarned = 0, activeBounti
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
+  const { openWallet } = useWalletModal();
+  const handleNav = (path: string) => path === '__wallet__' ? openWallet() : navigate(path);
 
   const navItems = [
     { id: 'earn', icon: Target, label: isHe ? 'הרוויח' : 'Earn', color: 'text-amber-400', path: '/fm' },
-    { id: 'wallet', icon: Wallet, label: isHe ? 'ארנק' : 'Wallet', color: 'text-emerald-400', path: '/fm/wallet' },
+    { id: 'wallet', icon: Wallet, label: isHe ? 'ארנק' : 'Wallet', color: 'text-emerald-400', path: '__wallet__' },
   ];
 
   const statItems = [
@@ -73,7 +76,7 @@ export function FMHomeHudSidebar({ balance = 0, lifetimeEarned = 0, activeBounti
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNav(item.path)}
                 className="p-2 rounded-lg border bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10 transition-colors"
                 title={item.label}
               >
@@ -100,7 +103,7 @@ export function FMHomeHudSidebar({ balance = 0, lifetimeEarned = 0, activeBounti
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNav(item.path)}
                 className="w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
               >
                 <item.icon className={cn("w-4 h-4 shrink-0", item.color)} />

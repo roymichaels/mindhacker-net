@@ -59,7 +59,7 @@ export default function FMHome() {
         <FMActivityFeed transactions={recentTx} isLoading={txLoading} />
         {transactions.length > 4 && (
           <button
-            onClick={() => navigate('/fm/wallet')}
+            onClick={() => navigate('/fm')}
             className="text-xs text-amber-400/70 hover:text-amber-300 font-semibold w-full text-center py-1.5 transition-colors"
           >
             {isHe ? 'הצג הכל →' : 'View all →'}

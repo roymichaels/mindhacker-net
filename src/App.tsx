@@ -9,6 +9,7 @@ import { CoachesModalProvider } from "@/contexts/CoachesModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
+import { WalletModalProvider } from "@/contexts/WalletModalContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
@@ -26,6 +27,7 @@ import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
+import { WalletModal } from "@/components/fm/WalletModal";
 import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -74,7 +76,7 @@ const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 import EarnLayoutWrapper from "./components/fm/EarnLayoutWrapper";
 import FMHomeLayoutWrapper from "./components/fm/FMHomeLayoutWrapper";
 import FMWorkLayoutWrapper from "./components/fm/FMWorkLayoutWrapper";
-import FMWalletLayoutWrapper from "./components/fm/FMWalletLayoutWrapper";
+
 import FMMarketLayoutWrapper from "./components/fm/FMMarketLayoutWrapper";
 const FMContribute = lazy(() => import("./pages/fm/FMContribute"));
 const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
@@ -226,6 +228,7 @@ const App = () => (
                 <GameStateProvider>
                 <SubscriptionsModalProvider>
                  <CoachesModalProvider>
+                 <WalletModalProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
@@ -394,7 +397,7 @@ const App = () => (
                             <Route path="work" element={<Navigate to="/fm" replace />} />
                             <Route path="share" element={<Navigate to="/fm" replace />} />
                             <Route path="contribute" element={<Navigate to="/fm" replace />} />
-                            <Route path="wallet" element={<FMWalletLayoutWrapper />} />
+                            <Route path="wallet" element={<Navigate to="/fm" replace />} />
                             <Route path="cashout" element={<FMCashout />} />
                             <Route path="bridge" element={<FMBridge />} />
                             <Route path="coaches" element={<Navigate to="/coaches" replace />} />
@@ -505,6 +508,7 @@ const App = () => (
                       <NotificationPermissionPrompt />
                       <CookieConsent />
                       <SubscriptionsModal />
+                      <WalletModal />
                       
                     </Suspense>
                     </SmartOnboardingProvider>
@@ -512,6 +516,7 @@ const App = () => (
                    </FlowAuditProvider>
                 </BrowserRouter>
                 </TooltipProvider>
+                </WalletModalProvider>
                 </CoachesModalProvider>
                 </SubscriptionsModalProvider>
               </GameStateProvider>

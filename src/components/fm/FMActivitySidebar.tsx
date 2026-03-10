@@ -130,7 +130,7 @@ export function FMActivitySidebar() {
                 {isHe ? 'פעילות אחרונה' : 'Recent Activity'}
               </span>
               <button
-                onClick={() => navigate('/fm/wallet')}
+                onClick={() => navigate('/fm')}
                 className="text-[10px] text-amber-400 hover:underline"
               >
                 {isHe ? 'הכל' : 'View all'}
