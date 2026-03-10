@@ -298,6 +298,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {language === 'he' ? 'ספר לבן' : 'White Paper'}
           </DropdownMenuItem>
 
+          {/* Report Bug */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/aurora'); /* bug report accessible from aurora */ }}>
+            <Bug className="h-4 w-4 me-2" />
+            {language === 'he' ? 'דווח על באג' : 'Report Bug'}
+          </DropdownMenuItem>
+
           {/* Subscription */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); openSubscriptions(); }}>
             <CreditCard className="h-4 w-4 me-2" />
