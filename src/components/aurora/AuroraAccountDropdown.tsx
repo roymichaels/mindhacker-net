@@ -99,8 +99,6 @@ const AuroraAccountDropdown = ({
 
   return (
     <>
-      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
-      
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button
