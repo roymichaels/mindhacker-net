@@ -544,7 +544,7 @@ export const useCommandBus = () => {
     }
   }, [
     user, navigate, setTheme, theme, queryClient, isHebrew,
-    openHypnosis, openSettings, openProfile, openUpgrade,
+    openHypnosis, openSettings, openUpgrade,
     createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem,
     archiveChecklist, deleteItem, updateChecklistTitle,
     findMatchingItems, findMatchingChecklists, checklists,
