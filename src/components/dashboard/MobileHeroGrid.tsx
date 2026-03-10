@@ -18,7 +18,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { PlanNegotiateModal } from '@/components/plan/PlanNegotiateModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield, Download, MessageSquare } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, Compass, Swords, Shield, Download, MessageSquare } from 'lucide-react';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exportNowPDF, type NowExportData, type NowPDFSlot } from '@/utils/exportNowPDF';
