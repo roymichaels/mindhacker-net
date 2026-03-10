@@ -459,21 +459,24 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
   // Recompute on every render — toDateStr is trivial and must reflect current local date
   const todayStr = toDateStr(new Date());
 
+  // Only fetch tactical schedule for the PRIMARY plan (not all plans)
+  // to avoid duplicate/overlapping blocks from Arena and Core plans
   const { data: aiSchedules, isLoading: scheduleLoading } = useQuery({
-    queryKey: ['tactical-schedule', allPlanIds?.join(',') || planId, currentPhase],
+    queryKey: ['tactical-schedule', planId, currentPhase],
     queryFn: async () => {
-      const ids = allPlanIds || (planId ? [planId] : []);
-      if (ids.length === 0 || !currentPhase || !user?.id) return [];
+      if (!planId || !currentPhase || !user?.id) return [];
       const { data, error } = await supabase
         .from('tactical_schedules')
         .select('schedule_data, wake_time, sleep_time, version, generated_at, plan_id')
         .eq('user_id', user.id)
-        .in('plan_id', ids)
-        .eq('phase_number', currentPhase);
+        .eq('plan_id', planId)
+        .eq('phase_number', currentPhase)
+        .order('generated_at', { ascending: false })
+        .limit(1);
       if (error) throw error;
       return data || [];
     },
-    enabled: !!(allPlanIds?.length || planId) && !!currentPhase && !!user?.id,
+    enabled: !!planId && !!currentPhase && !!user?.id,
     staleTime: 5 * 60_000,
   });
 
@@ -558,29 +561,8 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
         if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
       }
 
-      // Parse first schedule
+      // Parse the single primary schedule
       days = parseAiSchedule(validSchedules[0].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
-
-      // Merge additional schedules' blocks into existing days (deduplicated)
-      for (let si = 1; si < validSchedules.length; si++) {
-        const extraDays = parseAiSchedule(validSchedules[si].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
-        for (let di = 0; di < days.length && di < extraDays.length; di++) {
-          // Build a set of existing block signatures to avoid duplicates
-          const existingKeys = new Set(
-            days[di].blocks.map(b => `${b.title}::${b.category}::${b.actions.length}`)
-          );
-          for (const block of extraDays[di].blocks) {
-            const key = `${block.title}::${block.category}::${block.actions.length}`;
-            if (!existingKeys.has(key)) {
-              days[di].blocks.push(block);
-              days[di].totalActions += block.actions.length;
-              days[di].completedActions += block.completedCount;
-              days[di].totalMinutes += block.estimatedMinutes;
-              existingKeys.add(key);
-            }
-          }
-        }
-      }
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
