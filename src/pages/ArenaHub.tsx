@@ -380,18 +380,16 @@ export default function ArenaHub() {
 /** Determine which block index matches the current time of day */
 function getCurrentBlockIndex(blocks: TacticalBlock[]): number {
   const hour = new Date().getHours();
-  // Map time ranges to block categories
-  const timeMap: Record<string, number> = { morning: 0, midday: 1, afternoon: 2, evening: 3 };
   const categoryByHour = hour < 12 ? 'morning' : hour < 14 ? 'midday' : hour < 18 ? 'afternoon' : 'evening';
 
-  // Try to find exact category match
-  const idx = blocks.findIndex(b =>
-    b.category === categoryByHour ||
-    b.title?.includes('בוקר') && categoryByHour === 'morning' ||
-    b.title?.includes('צהריים') && categoryByHour === 'midday' ||
-    b.title?.includes('אחה"צ') && categoryByHour === 'afternoon' ||
-    b.title?.includes('ערב') && categoryByHour === 'evening'
-  );
+  const idx = blocks.findIndex(b => {
+    const cat = b.category as string;
+    return cat === categoryByHour ||
+      (b.title?.includes('בוקר') && categoryByHour === 'morning') ||
+      (b.title?.includes('צהריים') && categoryByHour === 'midday') ||
+      (b.title?.includes('אחה"צ') && categoryByHour === 'afternoon') ||
+      (b.title?.includes('ערב') && categoryByHour === 'evening');
+  });
   return idx >= 0 ? idx : 0;
 }
 
