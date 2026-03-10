@@ -140,7 +140,7 @@ export default function PlayHub() {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => setChatOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] to-primary/[0.03] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
+            className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.06] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
           >
             <div className="relative flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
