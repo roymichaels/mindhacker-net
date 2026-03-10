@@ -84,7 +84,7 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
                 key={suggestion.id}
                 className={cn(
                   "group relative overflow-hidden rounded-xl p-3",
-                  "bg-gradient-to-br border backdrop-blur-sm",
+                  "border backdrop-blur-sm",
                   "transition-all duration-300 ease-out",
                   "flex flex-col items-start gap-2",
                   colors.bg,
