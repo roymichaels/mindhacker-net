@@ -76,7 +76,7 @@ export function FMHomeHudSidebar({ balance = 0, lifetimeEarned = 0, activeBounti
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNav(item.path)}
                 className="p-2 rounded-lg border bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10 transition-colors"
                 title={item.label}
               >
