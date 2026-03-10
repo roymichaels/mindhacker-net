@@ -9,6 +9,7 @@ export type AppCommand =
   | { type: 'openTab'; tabId: 'today' | 'plan' | 'aurora' | 'me' }
   | { type: 'openModal'; modalId: 'hypnosis' | 'settings' | 'profile' | 'upgrade'; payload?: Record<string, unknown> }
   | { type: 'createActionItem'; title: string; checklistTitle?: string }
+  | { type: 'createDoneActionItem'; title: string; scheduledDate?: string }
   | { type: 'completeActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'deleteActionItem'; identifier: string; checklistTitle?: string }
   | { type: 'rescheduleActionItem'; identifier: string; checklistTitle?: string; newDate: string }
