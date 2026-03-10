@@ -386,6 +386,7 @@ function DayView({
   onExecuteAction,
   hasAiSchedule,
   onTalkToPlan,
+  onTalkToTask,
   onToggleComplete,
 }: {
   day: DayPlan;
@@ -393,6 +394,7 @@ function DayView({
   onExecuteAction: (action: TacticalAction) => void;
   hasAiSchedule: boolean;
   onTalkToPlan: (dayNumber: number) => void;
+  onTalkToTask: (dayNumber: number, taskTitle: string) => void;
   onToggleComplete: (action: TacticalAction) => void;
 }) {
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
