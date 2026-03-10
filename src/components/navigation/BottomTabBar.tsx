@@ -53,7 +53,7 @@ export function BottomTabBar() {
   const allTabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isActive = (path: string) => {
-    if (path === '/plan') return location.pathname === '/plan' || location.pathname === '/now' || location.pathname === '/dashboard';
+    if (path === '/play') return location.pathname === '/play' || location.pathname === '/plan' || location.pathname === '/now' || location.pathname === '/dashboard';
     if (path === '/fm/earn') return location.pathname.startsWith('/fm');
     return location.pathname.startsWith(path);
   };

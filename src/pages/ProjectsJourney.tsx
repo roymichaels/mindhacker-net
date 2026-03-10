@@ -8,8 +8,8 @@ const ProjectsJourney = () => {
   return (
     <ProjectsJourneyFlow 
       journeyId={journeyId}
-      onComplete={() => navigate('/plan')}
-      onClose={() => navigate('/plan')}
+      onComplete={() => navigate('/play')}
+      onClose={() => navigate('/play')}
     />
   );
 };
