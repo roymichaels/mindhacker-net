@@ -36,8 +36,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const swipeHandlers = useSwipeNavigation();
   useLearnPillarAction();
 
-  const isProfileRoute = location.pathname === '/profile';
-  const hideChrome = isProfileRoute;
+  // hideChrome removed — ProfilePage uses createPortal to bypass layout
 
   return (
     <AuroraActionsProvider>
