@@ -294,6 +294,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 </div>
 
+                {/* Talk to your plan */}
+                <button
+                  onClick={() => setPlanChatOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-sm font-medium text-primary"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {isHe ? 'דבר עם התוכנית שלך' : 'Talk to Your Plan'}
+                </button>
+
                 {/* Journey blocks grouped by 4 Day Quarters */}
                 {(() => {
                   // Group schedule slots by quarter
