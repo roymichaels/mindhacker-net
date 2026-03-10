@@ -23,7 +23,7 @@ function mulberry32(seed: number) {
 // ─── Name pools ───
 const ADJ_EN = [
   'Ancient','Astral','Blazing','Bright','Burning','Calm','Celestial','Chaotic','Chromatic','Clouded',
-  'Cold','Coral','Cosmic','Crimson','Crystal','Cursed','Dark','Dawn','Deep','Dire',
+  'Cold','Coral','Cosmic','Crimson','Crystal','Crowned','Dark','Dawn','Deep','Dire',
   'Divine','Dream','Dusk','Dusty','Echo','Elder','Electric','Ember','Enchanted','Eternal',
   'Ethereal','Fallen','Feral','Fierce','Fire','Flickering','Floating','Fog','Forged','Fractal',
   'Frozen','Fused','Galactic','Ghost','Gilded','Glacial','Glitch','Glow','Golden','Granite',
@@ -36,8 +36,8 @@ const ADJ_EN = [
   'Ripple','Rising','Rogue','Rune','Rust','Sacred','Sage','Sand','Satin','Savage',
   'Scarlet','Shadow','Shattered','Shell','Shifting','Silent','Silver','Slate','Smoke','Solar',
   'Sonic','Soul','Spark','Spectral','Spiral','Spirit','Stardust','Static','Steam','Steel',
-  'Stone','Storm','Stray','Sublime','Sun','Surge','Swift','Tempest','Thorn','Thunder',
-  'Tidal','Titan','Topaz','Toxic','Twilight','Umbra','Vapor','Veil','Velvet','Venom',
+  'Stone','Storm','Stray','Sublime','Sun','Surge','Swift','Tempest','Noble','Thunder',
+  'Tidal','Titan','Topaz','Primal','Twilight','Umbra','Vapor','Veil','Velvet','Verdant',
   'Verdant','Violet','Vivid','Void','Volcanic','Warp','Whisper','Wild','Winding','Winter',
   'Wisp','Wraith','Woven','Zenith','Zero','Zephyr','Zodiac','Arcane','Ashen','Binary',
 ];
@@ -60,9 +60,9 @@ const NOUN_EN = [
   'Plasma','Plume','Point','Portal','Prism','Prophecy','Pulse','Pyre','Quasar','Radiance',
   'Realm','Relic','Remnant','Resonance','Ridge','Ring','Ripple','Root','Rune','Sage',
   'Sanctum','Scepter','Seed','Sentinel','Shade','Shard','Shell','Shield','Sigil','Signal',
-  'Silk','Skull','Sliver','Smoke','Solace','Spark','Spear','Spectre','Sphere','Spike',
+  'Silk','Summit','Sliver','Smoke','Solace','Spark','Spear','Spectre','Sphere','Spike',
   'Spine','Spiral','Splinter','Spore','Star','Stem','Stone','Storm','Strand','Surge',
-  'Talisman','Tear','Temple','Tendril','Terrace','Thread','Throne','Tide','Token','Tomb',
+  'Talisman','Tear','Temple','Tendril','Terrace','Thread','Throne','Tide','Token','Totem',
   'Totem','Tower','Trace','Trident','Trinket','Tusk','Umbra','Urn','Vale','Vault',
   'Vein','Verse','Vertex','Vestige','Vial','Vine','Vortex','Wake','Ward','Warden',
   'Wave','Web','Whisper','Wisp','Wraith','Wyrm','Zenith','Zone',
