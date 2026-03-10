@@ -132,9 +132,8 @@ export function ArenaActivitySidebar() {
       <aside
         className={cn(
           "flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
-          "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-          "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-          "ltr:border-e rtl:border-s border-border/50 dark:border-amber-500/15",
+          "backdrop-blur-xl bg-card/90",
+          "ltr:border-e rtl:border-s border-border/50",
           collapsed ? "w-[54px] min-w-[54px]" : "w-[280px] min-w-[220px] xl:w-[300px]"
         )}
       >
