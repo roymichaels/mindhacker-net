@@ -229,6 +229,9 @@ export const useAuroraChat = (conversationId: string | null) => {
     try {
       abortControllerRef.current = new AbortController();
 
+      // Detect client timezone for time-aware context
+      const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
         {
@@ -243,7 +246,8 @@ export const useAuroraChat = (conversationId: string | null) => {
             language,
             pillar: chatContext?.activePillar || null,
             hasImages: !!imageBase64,
-            tier: 'from_db', // tier is resolved server-side from user_subscriptions
+            tier: 'from_db',
+            timezone: clientTimezone,
           }),
           signal: abortControllerRef.current.signal,
         }
