@@ -199,6 +199,45 @@ export interface AuroraContext {
 
   // ─── Memory Graph (Knowledge Graph) ─────────────
   memory_graph: MemoryGraphNode[];
+
+  // ─── Strategic Plans (all active) ───────────────
+  active_plans: {
+    id: string;
+    start_date: string;
+    end_date: string;
+    progress_percentage: number;
+    pillars: string[];
+    plan_summary: string | null;
+  }[];
+
+  // ─── Plan Missions ─────────────────────────────
+  plan_missions: {
+    id: string;
+    mission_number: number;
+    pillar: string;
+    title: string;
+    title_en: string | null;
+    description: string | null;
+    is_completed: boolean;
+    plan_id: string;
+  }[];
+
+  // ─── Tactical Schedule (today's blocks) ─────────
+  tactical_schedule_today: {
+    block_title: string;
+    block_category: string;
+    actions: { title: string; duration: number; completed: boolean }[];
+  }[];
+
+  // ─── Domain Assessment Scores ───────────────────
+  domain_scores: {
+    domain_id: string;
+    score: number | null;
+    status: string;
+  }[];
+
+  // ─── Subscription Tier ─────────────────────────
+  subscription_tier: string | null;
 }
 
 // ─── Hash ──────────────────────────────────────────────────
