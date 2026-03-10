@@ -508,6 +508,7 @@ const App = () => (
                       <NotificationPermissionPrompt />
                       <CookieConsent />
                       <SubscriptionsModal />
+                      <WalletModal />
                       
                     </Suspense>
                     </SmartOnboardingProvider>
