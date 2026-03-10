@@ -77,7 +77,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [executionOpen, setExecutionOpen] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
-  const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
+  const [_openBlocks, _setOpenBlocks] = useState<Record<string, boolean>>({});
   const [negotiateOpen, setNegotiateOpen] = useState(false);
   const [negotiateTask, setNegotiateTask] = useState<NowQueueItem | null>(null);
 
