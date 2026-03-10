@@ -204,7 +204,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               {dashboard.identityTitle && (
                 <div className="flex items-center gap-1">
                   <span className="text-xs">{dashboard.identityTitle.icon}</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent truncate">
+                  <span className="text-xs font-bold text-amber-400 truncate">
                     {dashboard.identityTitle.title}
                   </span>
                 </div>
