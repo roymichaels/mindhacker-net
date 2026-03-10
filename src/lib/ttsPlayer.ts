@@ -64,7 +64,7 @@ export interface TTSPlayOptions {
   onError?: (err: Error) => void;
 }
 
-/** Fetch and play a single chunk via ElevenLabs. Returns true on success. */
+/** Fetch and play a single chunk via ElevenLabs. Returns audio element or null on failure. */
 async function playChunk(
   text: string,
   voiceId: string,
@@ -79,19 +79,32 @@ async function playChunk(
   if (similarityBoost !== undefined) payload.similarityBoost = similarityBoost;
   if (style !== undefined) payload.style = style;
 
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify(payload),
-      signal,
-    }
-  );
+  // 35-second timeout for the fetch
+  const timeoutController = new AbortController();
+  const timeout = setTimeout(() => timeoutController.abort(), 35000);
+
+  const combinedSignal = (() => {
+    const c = new AbortController();
+    if (signal) signal.addEventListener('abort', () => c.abort());
+    timeoutController.signal.addEventListener('abort', () => c.abort());
+    if (signal?.aborted) c.abort();
+    return c.signal;
+  })();
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(payload),
+        signal: combinedSignal,
+      }
+    );
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
