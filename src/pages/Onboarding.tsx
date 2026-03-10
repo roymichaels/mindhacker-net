@@ -21,7 +21,7 @@ const Onboarding = () => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   // Guard: redirect if user already has an active plan
   const { data: hasActivePlan, isLoading: checkingPlan } = useQuery({
