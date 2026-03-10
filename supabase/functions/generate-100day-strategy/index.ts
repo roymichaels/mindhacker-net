@@ -390,11 +390,29 @@ function buildMilestonesPrompt(
     ? `\n## PILLAR SCOPE (STRICT):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
   
+  // Build practices block for this pillar
+  let practicesBlock = '';
+  if (practicesForPillar && practicesForPillar.length > 0) {
+    const lines = practicesForPillar.map((p, i) => 
+      `  ${i+1}. "${p.name}" (HE: "${p.name_he}") — ${p.duration}min, ${p.frequency}x/week, energy: ${p.energy_type}, ${p.is_core ? 'CORE' : 'optional'}, category: ${p.category}`
+    ).join('\n');
+    practicesBlock = `\n## USER'S COMMITTED PRACTICES FOR THIS PILLAR (MUST be referenced in milestones):
+${lines}
+
+CRITICAL PRACTICE RULES:
+- Milestones MUST reference these specific practices by name — do NOT invent generic alternatives.
+- If the user has "Tai Chi" as a practice, generate milestones like "Daily 20-min Tai Chi flow" — NOT "Morning movement routine".
+- If the user has "Cold Exposure" as a practice, use "Cold Exposure protocol" — NOT "Try cold showers".
+- CORE practices must appear as foundational milestones (difficulty 1-2).
+- Non-core practices can appear at higher difficulty levels.
+- You may combine practices with progressive overload (e.g., "Tai Chi 15min → 30min daily progression").\n`;
+  }
+
   return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 STRATEGIC PROTOCOLS.
 This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 high-level strategic commitments.
 
 ## PILLAR: ${pillarId.toUpperCase()}
-${scopeBlock}${constraintsBlock}
+${scopeBlock}${constraintsBlock}${practicesBlock}
 ## MISSIONS:
 ${goalsStr}
 
