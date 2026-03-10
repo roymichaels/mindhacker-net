@@ -107,7 +107,7 @@ export default function AuroraPage() {
               <AuroraChatBubbles showOrbAboveMessages />
             )}
           </div>
-          <div className="shrink-0 px-4 pb-2 pt-2 border-t border-border">
+          <div className="shrink-0 px-4 pb-2 pt-2">
             <GlobalChatInput />
           </div>
         </>
