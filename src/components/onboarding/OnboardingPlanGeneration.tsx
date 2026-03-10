@@ -49,7 +49,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
             user_id: user.id,
             launchpad_complete: true,
           }, { onConflict: 'user_id' }).then(() => {
-            navigate('/now', { replace: true });
+            navigate('/ceremony', { replace: true });
           });
         }
       });
