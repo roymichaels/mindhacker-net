@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, BookOpen, GraduationCap, Trophy, Play, CheckCircle, Lock,
   FileText, Brain, Target, Flame, Clock, Zap, ChevronDown, ChevronUp, Plus,
-  ChevronLeft, RefreshCw, Loader2,
+  ChevronLeft, RefreshCw, Loader2, Lightbulb, TrendingUp, AlertTriangle,
 } from 'lucide-react';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { Button } from '@/components/ui/button';
@@ -204,6 +204,107 @@ export default function Learn() {
     return () => window.removeEventListener('learn:recalibrate', handler);
   }, [handleRecalibrate]);
 
+  // Fetch user's selected pillars for suggested courses
+  const { data: profilePillars } = useQuery({
+    queryKey: ['profile-pillars', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('selected_pillars')
+        .eq('id', user!.id)
+        .single();
+      return (data?.selected_pillars as any) || { core: [], arena: [] };
+    },
+    enabled: !!user?.id,
+    staleTime: 60_000,
+  });
+
+  // Fetch user skills for gap analysis
+  const { data: userSkills } = useQuery({
+    queryKey: ['user-skills-learn', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('skills')
+        .select('name, name_he, pillar, current_level, target_level')
+        .limit(50);
+      return data || [];
+    },
+    enabled: !!user?.id,
+    staleTime: 60_000,
+  });
+
+  const PILLAR_COURSE_SUGGESTIONS: Record<string, { en: string; he: string; icon: string }[]> = {
+    consciousness: [
+      { en: 'Mindfulness & Meditation', he: 'מיינדפולנס ומדיטציה', icon: '🧘' },
+      { en: 'Cognitive Psychology', he: 'פסיכולוגיה קוגניטיבית', icon: '🧠' },
+    ],
+    presence: [
+      { en: 'Public Speaking Mastery', he: 'מיומנויות דיבור ציבורי', icon: '🎤' },
+      { en: 'Emotional Intelligence', he: 'אינטליגנציה רגשית', icon: '💡' },
+    ],
+    power: [
+      { en: 'Leadership Fundamentals', he: 'יסודות מנהיגות', icon: '👑' },
+      { en: 'Negotiation Skills', he: 'מיומנויות משא ומתן', icon: '🤝' },
+    ],
+    vitality: [
+      { en: 'Nutrition Science', he: 'מדע התזונה', icon: '🥗' },
+      { en: 'Sleep Optimization', he: 'אופטימיזציית שינה', icon: '😴' },
+    ],
+    focus: [
+      { en: 'Deep Work Strategies', he: 'אסטרטגיות עבודה עמוקה', icon: '🎯' },
+      { en: 'Time Management Systems', he: 'מערכות ניהול זמן', icon: '⏱️' },
+    ],
+    combat: [
+      { en: 'Martial Arts Principles', he: 'עקרונות אומנויות לחימה', icon: '🥊' },
+      { en: 'Stress Resilience', he: 'חוסן תחת לחץ', icon: '🛡️' },
+    ],
+    expansion: [
+      { en: 'Creative Thinking', he: 'חשיבה יצירתית', icon: '🎨' },
+      { en: 'Growth Mindset', he: 'חשיבת צמיחה', icon: '🌱' },
+    ],
+    wealth: [
+      { en: 'Personal Finance', he: 'כספים אישיים', icon: '💰' },
+      { en: 'Investing Basics', he: 'יסודות השקעות', icon: '📈' },
+    ],
+    relationships: [
+      { en: 'Communication Skills', he: 'מיומנויות תקשורת', icon: '💬' },
+      { en: 'Conflict Resolution', he: 'פתרון קונפליקטים', icon: '🕊️' },
+    ],
+    projects: [
+      { en: 'Project Management', he: 'ניהול פרויקטים', icon: '📋' },
+      { en: 'Agile Methodologies', he: 'מתודולוגיות אג׳ייל', icon: '🔄' },
+    ],
+    play: [
+      { en: 'Creative Hobbies', he: 'תחביבים יצירתיים', icon: '🎭' },
+      { en: 'Adventure Planning', he: 'תכנון הרפתקאות', icon: '🏔️' },
+    ],
+    order: [
+      { en: 'Systems Thinking', he: 'חשיבה מערכתית', icon: '🔧' },
+      { en: 'Habit Architecture', he: 'ארכיטקטורת הרגלים', icon: '🏗️' },
+    ],
+  };
+
+  const suggestedCourses = useMemo(() => {
+    if (!profilePillars) return [];
+    const allPillars = [...(profilePillars.core || []), ...(profilePillars.arena || [])];
+    const suggestions: { en: string; he: string; icon: string; pillar: string }[] = [];
+    allPillars.forEach((p: string) => {
+      const courses = PILLAR_COURSE_SUGGESTIONS[p];
+      if (courses) courses.forEach(c => suggestions.push({ ...c, pillar: p }));
+    });
+    // Filter out courses user already has
+    const existingTopics = new Set((curricula || []).map(c => c.topic?.toLowerCase()));
+    return suggestions.filter(s => !existingTopics.has(s.en.toLowerCase())).slice(0, 4);
+  }, [profilePillars, curricula]);
+
+  const skillGaps = useMemo(() => {
+    if (!userSkills) return [];
+    return userSkills
+      .filter((s: any) => s.target_level && s.current_level < s.target_level)
+      .sort((a: any, b: any) => (b.target_level - b.current_level) - (a.target_level - a.current_level))
+      .slice(0, 4);
+  }, [userSkills]);
+
   const nextLesson = useMemo(() => {
     if (!lessons) return null;
     return lessons.find(l => l.status === 'unlocked' || l.status === 'in_progress') ||
@@ -323,6 +424,99 @@ export default function Learn() {
               <div className="text-center py-2">
                 <Sparkles className="h-4 w-4 text-primary mx-auto opacity-50 mb-1" />
                 <p className="text-xs italic text-muted-foreground">"{dailyQuote}"</p>
+              </div>
+            )}
+
+            {/* ── Suggested Courses ── */}
+            {!selectedCurriculum && suggestedCourses.length > 0 && (
+              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-amber-400" />
+                    {isHe ? 'קורסים מומלצים לך' : 'Suggested For You'}
+                  </h2>
+                  <span className="text-[10px] text-muted-foreground">
+                    {isHe ? 'לפי המסלול שלך' : 'Based on your pillars'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {suggestedCourses.map((sc, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        if (auroraChat) {
+                          auroraChat.setActivePillar('learn');
+                          auroraChat.setIsDockVisible(true);
+                          auroraChat.setIsChatExpanded(true);
+                          auroraChat.setPendingAssistantGreeting(
+                            isHe
+                              ? `🔥 בוא ניצור קורס Boot Camp ב**${sc.he}**! מוכן?`
+                              : `🔥 Let's build a Boot Camp on **${sc.en}**! Ready?`
+                          );
+                        }
+                      }}
+                      className="flex items-center gap-2.5 p-3 rounded-xl border border-border/40 bg-card/60 hover:border-primary/30 hover:shadow-md transition-all text-start"
+                    >
+                      <span className="text-lg">{sc.icon}</span>
+                      <span className="text-xs font-semibold text-foreground line-clamp-1">
+                        {isHe ? sc.he : sc.en}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Skill Gap Analysis ── */}
+            {!selectedCurriculum && skillGaps.length > 0 && (
+              <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-amber-400" />
+                    {isHe ? 'פערי מיומנויות' : 'Skill Gaps'}
+                  </h2>
+                  <span className="text-[10px] text-muted-foreground">
+                    {isHe ? 'מיומנויות שכדאי לחזק' : 'Skills to strengthen'}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {skillGaps.map((skill: any, i: number) => {
+                    const gap = skill.target_level - skill.current_level;
+                    const pct = Math.round((skill.current_level / skill.target_level) * 100);
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (auroraChat) {
+                            const name = isHe ? (skill.name_he || skill.name) : skill.name;
+                            auroraChat.setActivePillar('learn');
+                            auroraChat.setIsDockVisible(true);
+                            auroraChat.setIsChatExpanded(true);
+                            auroraChat.setPendingAssistantGreeting(
+                              isHe
+                                ? `🎯 זיהיתי שאתה צריך לחזק את **${name}**. בוא ניצור קורס ממוקד!`
+                                : `🎯 I noticed you need to strengthen **${name}**. Let's create a focused course!`
+                            );
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl border border-border/30 bg-card/40 hover:border-amber-500/30 hover:shadow-md transition-all text-start"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground truncate">
+                              {isHe ? (skill.name_he || skill.name) : skill.name}
+                            </span>
+                            <span className="text-[10px] text-amber-400 font-bold shrink-0">
+                              Lv.{skill.current_level}→{skill.target_level}
+                            </span>
+                          </div>
+                          <Progress value={pct} className="h-1 mt-1" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
