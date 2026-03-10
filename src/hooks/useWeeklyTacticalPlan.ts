@@ -459,21 +459,21 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
   // Recompute on every render — toDateStr is trivial and must reflect current local date
   const todayStr = toDateStr(new Date());
 
-  const { data: aiSchedule, isLoading: scheduleLoading } = useQuery({
-    queryKey: ['tactical-schedule', planId, currentPhase],
+  const { data: aiSchedules, isLoading: scheduleLoading } = useQuery({
+    queryKey: ['tactical-schedule', allPlanIds?.join(',') || planId, currentPhase],
     queryFn: async () => {
-      if (!planId || !currentPhase || !user?.id) return null;
+      const ids = allPlanIds || (planId ? [planId] : []);
+      if (ids.length === 0 || !currentPhase || !user?.id) return [];
       const { data, error } = await supabase
         .from('tactical_schedules')
-        .select('schedule_data, wake_time, sleep_time, version, generated_at')
+        .select('schedule_data, wake_time, sleep_time, version, generated_at, plan_id')
         .eq('user_id', user.id)
-        .eq('plan_id', planId)
-        .eq('phase_number', currentPhase)
-        .single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
+        .in('plan_id', ids)
+        .eq('phase_number', currentPhase);
+      if (error) throw error;
+      return data || [];
     },
-    enabled: !!planId && !!currentPhase && !!user?.id,
+    enabled: !!(allPlanIds?.length || planId) && !!currentPhase && !!user?.id,
     staleTime: 5 * 60_000,
   });
 
