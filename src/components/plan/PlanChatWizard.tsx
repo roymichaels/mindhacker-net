@@ -68,6 +68,16 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
   const [isExecuting, setIsExecuting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const [autoSendQueued, setAutoSendQueued] = useState(false);
+
+  // Queue auto-send when opening with a focused task
+  useEffect(() => {
+    if (open && focusTaskTitle && messages.length === 0) {
+      setAutoSendQueued(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, focusTaskTitle]);
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, pendingChanges]);
@@ -78,6 +88,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
       setAppliedCount(0);
       setPendingChanges([]);
       setPendingRawText('');
+      setAutoSendQueued(false);
     }
     onOpenChange(val);
   };
@@ -593,6 +604,18 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
       setIsStreaming(false);
     }
   };
+
+  // Auto-send task context message after sendMessage is available
+  useEffect(() => {
+    if (autoSendQueued && focusTaskTitle && !isStreaming) {
+      setAutoSendQueued(false);
+      const contextMsg = isHe
+        ? `אני רוצה לדבר על המשימה: "${focusTaskTitle}"${focusDayNumber ? ` (יום ${focusDayNumber})` : ''}`
+        : `I want to talk about the task: "${focusTaskTitle}"${focusDayNumber ? ` (Day ${focusDayNumber})` : ''}`;
+      sendMessage(contextMsg);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSendQueued]);
 
   const quickActions = isHe ? QUICK_ACTIONS_HE : QUICK_ACTIONS_EN;
 
