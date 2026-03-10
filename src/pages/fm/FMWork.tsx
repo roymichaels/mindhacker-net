@@ -87,7 +87,7 @@ export default function FMWork() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-5 gap-3">
           {PROFESSIONAL_PATHS.map((path, i) => {
             const Icon = path.icon;
             const style = RARITY_STYLES[path.rarity];
@@ -98,18 +98,12 @@ export default function FMWork() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
                 onClick={() => navigate(path.path)}
-                className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 bg-gradient-to-br transition-all hover:scale-[1.03] active:scale-[0.97] hover:shadow-xl ${style.border} ${style.bg} ${style.glow}`}
+                className="flex flex-col items-center gap-2 transition-all hover:scale-[1.05] active:scale-[0.95]"
               >
-                <span className={`absolute top-1.5 end-2 text-[7px] font-black uppercase tracking-[0.15em] ${style.label.color}`}>
-                  {isHe ? style.label.he : style.label.en}
-                </span>
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${style.iconBg} flex items-center justify-center shadow-lg`}>
-                  <Icon className="w-6 h-6 text-white/90" />
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${style.iconBg} flex items-center justify-center shadow-lg`}>
+                  <Icon className="w-7 h-7 text-white/90" />
                 </div>
-                <h3 className="font-bold text-sm text-foreground">{isHe ? path.titleHe : path.titleEn}</h3>
-                <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed text-center">
-                  {isHe ? path.descHe : path.descEn}
-                </p>
+                <h3 className="font-bold text-xs text-foreground text-center">{isHe ? path.titleHe : path.titleEn}</h3>
               </motion.button>
             );
           })}
