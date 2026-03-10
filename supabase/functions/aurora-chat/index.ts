@@ -39,7 +39,7 @@ serve(async (req) => {
       });
     }
 
-    const { messages, customSystemPrompt, language, pillar, hasImages } = parsed;
+    const { messages, customSystemPrompt, language, pillar, hasImages, timezone } = parsed;
     userId = parsed.userId;
     mode = parsed.mode;
 
