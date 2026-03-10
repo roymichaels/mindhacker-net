@@ -29,6 +29,9 @@ serve(async (req) => {
   let mode = "full";
 
   try {
+    // 0. Validate auth (optional for widget mode)
+    const auth = await optionalAuth(req);
+
     // 1. Parse & validate request
     const raw = await req.json();
     const parsed = validateRequest(raw);
@@ -41,9 +44,19 @@ serve(async (req) => {
     }
 
     const { messages, customSystemPrompt, language, pillar, hasImages, timezone } = parsed;
-    userId = parsed.userId;
     mode = parsed.mode;
-    console.log(`[aurora-chat] timezone received: "${timezone}", language: "${language}"`);
+
+    // For non-widget mode, require authentication
+    if (mode !== "widget" && !auth) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Use authenticated userId instead of client-supplied one
+    userId = auth?.userId || (mode === "widget" ? parsed.userId : null);
+    console.log(`[aurora-chat] timezone received: "${timezone}", language: "${language}"``);
 
     // 2. Create Supabase client
     const supabase = createClient(
