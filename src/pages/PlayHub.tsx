@@ -94,9 +94,9 @@ export default function PlayHub() {
           {/* Strategy Card */}
           <button
             onClick={() => setStrategyOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] to-orange-500/[0.03] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
+            className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
           >
-            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-amber-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-amber-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
                 <Flame className="w-5 h-5 text-amber-500" />
@@ -115,9 +115,9 @@ export default function PlayHub() {
           {/* Work Hub Card */}
           <button
             onClick={() => setWorkOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.08] to-indigo-500/[0.03] p-4 text-start transition-all hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10 active:scale-[0.99]"
+            className="group relative overflow-hidden rounded-2xl border border-violet-500/20 bg-violet-500/[0.06] p-4 text-start transition-all hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10 active:scale-[0.99]"
           >
-            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-violet-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-violet-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center flex-shrink-0">
                 <Briefcase className="w-5 h-5 text-violet-500" />
@@ -140,7 +140,7 @@ export default function PlayHub() {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => setChatOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] to-primary/[0.03] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
+            className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.06] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
           >
             <div className="relative flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
@@ -159,9 +159,9 @@ export default function PlayHub() {
 
           <button
             onClick={openFindCoachWizard}
-            className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.08] to-teal-500/[0.03] p-4 text-start transition-all hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.99]"
+            className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 text-start transition-all hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.99]"
           >
-            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-emerald-400/10 blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-emerald-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
                 <Search className="w-5 h-5 text-emerald-500" />

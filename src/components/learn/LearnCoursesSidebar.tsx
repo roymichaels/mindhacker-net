@@ -48,9 +48,8 @@ export function LearnCoursesSidebar({ selectedCurriculumId, onSelectCurriculum, 
     <aside
       className={cn(
         "flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
-        "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-        "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-        "ltr:border-e rtl:border-s border-border/50 dark:border-cyan-500/15",
+        "backdrop-blur-xl bg-card/90",
+        "ltr:border-e rtl:border-s border-border/50",
         collapsed ? "w-[54px] min-w-[54px]" : "w-full md:w-[260px] md:min-w-[200px] xl:w-[280px] fixed md:relative left-0 md:left-auto top-14 bottom-0 z-[55] md:z-auto md:top-auto bg-background md:bg-transparent"
       )}
     >

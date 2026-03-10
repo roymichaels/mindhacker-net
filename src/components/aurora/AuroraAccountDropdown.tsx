@@ -105,21 +105,21 @@ const AuroraAccountDropdown = ({
             variant="ghost"
             className={cn(
               "w-full justify-start gap-3 h-auto py-3 px-3 relative overflow-hidden",
-              "backdrop-blur-xl bg-gradient-to-br from-muted via-background to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+              "backdrop-blur-xl bg-muted/80 dark:bg-card",
               "border border-border dark:border-primary/30 rounded-xl shadow-lg dark:shadow-xl",
               "hover:border-primary/40 dark:hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300",
               isCollapsed && "justify-center px-2"
             )}
           >
             {/* Glow overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 dark:from-primary/20 via-transparent to-accent/10 dark:to-accent/20 pointer-events-none rounded-xl" />
+            <div className="absolute inset-0 bg-primary/5 pointer-events-none rounded-xl" />
             
             {/* Avatar */}
             <div className={cn(
               "shrink-0 relative flex items-center justify-center z-10",
               isCollapsed ? "h-10 w-10" : "h-11 w-11"
             )}>
-              <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
+              <div className="absolute inset-[-30%] rounded-full bg-primary/20 blur-md pointer-events-none" />
               <div className="relative z-10">
                 <PersonalizedOrb 
                   size={isCollapsed ? 38 : 44}
@@ -153,7 +153,7 @@ const AuroraAccountDropdown = ({
               navigate('/profile');
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/15 dark:via-card dark:to-accent/15" />
+            <div className="absolute inset-0 bg-muted dark:bg-card" />
             
             <div className="relative z-10 px-2 py-2 space-y-1">
               {/* Row 1: Grid — orb right, name left */}
@@ -163,7 +163,7 @@ const AuroraAccountDropdown = ({
                   <p className="text-[10px] text-muted-foreground truncate leading-tight">{user?.email}</p>
                 </div>
                 <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
-                  <div className="absolute inset-[-25%] rounded-full bg-gradient-radial from-primary/25 via-primary/10 to-transparent blur-md pointer-events-none" />
+                  <div className="absolute inset-[-25%] rounded-full bg-primary/15 blur-md pointer-events-none" />
                   <div className="relative z-10">
                     <PersonalizedOrb size={80} state="idle" />
                   </div>

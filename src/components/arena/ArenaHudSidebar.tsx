@@ -138,9 +138,8 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   return (
     <aside className={cn(
       "flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
-      "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-      "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-      "ltr:border-s rtl:border-e border-border/50 dark:border-amber-500/15",
+      "backdrop-blur-xl bg-card/90",
+      "ltr:border-s rtl:border-e border-border/50",
       collapsed ? "w-16 min-w-[64px]" : "w-full md:w-[280px] md:min-w-[220px] xl:w-[300px] fixed md:relative right-0 md:right-auto top-14 bottom-0 z-[55] md:z-auto md:top-auto bg-background md:bg-transparent"
     )}>
       <button
@@ -163,7 +162,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
           <SidebarOrbWidget collapsed />
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
+          <div className="w-8 h-px bg-border/30 my-1" />
           <button
             onClick={onNewProject}
             className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 transition-colors"
@@ -178,11 +177,11 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {!collapsed && (
         <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
           <SidebarOrbWidget />
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+          <div className="h-px w-full bg-border/30" />
           {/* Header badge */}
-          <div className="w-full rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/20 p-3 flex items-center justify-between">
+          <div className="w-full rounded-xl bg-muted/40 border border-border/30 p-3 flex items-center justify-between">
             <div className="text-center flex-1">
-              <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+              <span className="text-sm font-bold text-foreground">
                 {isHe ? 'זירה — ביצוע חי' : 'Arena — Live Execution'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -191,7 +190,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
             </div>
           </div>
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+          <div className="h-px w-full bg-border/30" />
 
         </div>
       )}

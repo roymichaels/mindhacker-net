@@ -15,7 +15,7 @@ const JourneyChatDockInner = () => {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 bg-gradient-to-t from-background via-background to-transparent pb-safe">
+    <div className="fixed bottom-0 inset-x-0 z-50 bg-background pb-safe">
       <div className="px-4">
         <AuroraChatBubbles />
         <GlobalChatInput />

@@ -132,9 +132,8 @@ export function ArenaActivitySidebar() {
       <aside
         className={cn(
           "flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
-          "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-          "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-          "ltr:border-e rtl:border-s border-border/50 dark:border-amber-500/15",
+          "backdrop-blur-xl bg-card/90",
+          "ltr:border-e rtl:border-s border-border/50",
           collapsed ? "w-[54px] min-w-[54px]" : "w-[280px] min-w-[220px] xl:w-[300px]"
         )}
       >
@@ -207,7 +206,7 @@ export function ArenaActivitySidebar() {
               ))}
             </div>
 
-            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-3" />
+            <div className="w-full h-0.5 bg-border/30 mb-3" />
 
             {/* Header — matching Dashboard style */}
             <div className="flex items-center gap-2 mb-2">
@@ -232,7 +231,7 @@ export function ArenaActivitySidebar() {
               </div>
               <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                  className="h-full rounded-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPct}%` }}
                   transition={{ duration: 0.5 }}
@@ -243,7 +242,7 @@ export function ArenaActivitySidebar() {
               </p>
             </div>
 
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-2" />
+            <div className="h-px bg-border/30 mb-2" />
 
             {/* Phase timeline — matching Dashboard style */}
             <div className="flex-1 overflow-y-auto scrollbar-hide">
@@ -404,7 +403,7 @@ export function ArenaActivitySidebar() {
               )}
             </div>
 
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mt-2 mb-2" />
+            <div className="h-px bg-border/30 mt-2 mb-2" />
 
             {/* Recalibrate */}
             <button
