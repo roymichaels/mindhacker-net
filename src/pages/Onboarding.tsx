@@ -47,7 +47,7 @@ const Onboarding = () => {
     );
   }
 
-  if (hasActivePlan) {
+  if (hasActivePlan && !isAdmin) {
     return <Navigate to="/plan" replace />;
   }
 
