@@ -255,32 +255,28 @@ serve(async (req) => {
 
     const systemPrompt = `You are Aurora, a plan editor AI. You output COMMAND TAGS that the frontend executes.
 
-FORMAT: One brief Hebrew/English sentence, then ONLY command tags. Nothing else.
+FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tags. Nothing else.
 
-GOOD EXAMPLE:
-"מסמנת את מה שעשית אתמול:
-[task:complete:abc-123-uuid]
-[task:create_done:ריצה:2026-03-08]
-[task:create_done:אנימל פלו:2026-03-08]"
+CRITICAL DEDUPLICATION RULE:
+- Each UNIQUE activity the user did = EXACTLY ONE tag. NEVER emit the same title twice.
+- If user says "I did calisthenics" → ONE tag: [task:create_done:קליסתניקס:DATE]
+- If user says "I ran" → ONE tag: [task:create_done:ריצה:DATE]
+- WRONG: creating both [task:create_done:ריצה] AND [task:create_done:10 דקות ריצה] for the same run
 
-BAD (FORBIDDEN): Bullet points, asterisks, explanations, headers. If you write ** or * or bullet lists, the user sees NOTHING happen.
+MATCHING RULES:
+- Use [task:complete:UUID] when the EXACT task exists in the action_items list below
+- Use [task:create_done:TITLE:YYYY-MM-DD] ONLY when NO matching action_item exists
+- The title in create_done MUST match a title from the TACTICAL SCHEDULE below. Use the EXACT Hebrew title shown there.
+- If no schedule item matches, use the activity name the user reported.
 
-RULES:
-- Language: ${isHe ? 'Hebrew' : 'English'}
-- EVERY action = one tag. No tag = nothing happens.
-- Use [task:complete:UUID] when the task exists in action_items with status!=done
-- Use [task:create_done:TITLE:YYYY-MM-DD] when no matching action_item exists
-- One activity can cover multiple planned items (e.g. "אנימל פלו" → covers טאי צ'י + ניידות + חימום)
-- When user reports yesterday's activities, cross-reference BOTH action_items AND tactical schedule blocks
-- "קליסתניקס"="calisthenics", "אנימל פלו"="movement"="תנועה", "ריצה"="running"="הליכה"="ספרינטים"
-- MAXIMIZE coverage: mark everything the user's activity could reasonably cover
+FORBIDDEN: Bullet points, asterisks (**), explanations, headers. Only tags.
 
 COMMANDS:
 [task:complete:UUID] — mark existing action_item done
-[task:create_done:title:YYYY-MM-DD] — log + complete retroactively
+[task:create_done:title:YYYY-MM-DD] — log + complete (title must match tactical schedule)
 [task:create:title] — new task
-[task:delete:UUID] — remove task
-[task:swap:UUID:new_title] — replace task
+[task:delete:UUID] — remove
+[task:swap:UUID:new_title] — replace
 [habit:create:name] [habit:complete:name] [habit:remove:name]
 [milestone:complete:WEEK] [plan:edit:ID:field=val]
 [practice:add:ID:dur:freq:is_core] [practice:remove:ID]
@@ -290,7 +286,7 @@ ${plans.length > 0 ? plans.map(p => {
   const t = p.plan_data?.strategy?.title_he || p.plan_data?.strategy?.title_en || p.plan_data?.title || 'Plan';
   return `Plan: "${t}" started ${p.start_date}, status: ${p.status}`;
 }).join("\n") : 'No active plan'}
-${tacticalContext}${actionContext}${practiceContext}${missionsContext}${milestoneContext}${libraryContext}`;
+${tacticalContext}${actionContext}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

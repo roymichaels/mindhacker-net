@@ -326,14 +326,22 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
       }
     }
 
+    // Deduplicate commands by type+title/identifier
+    const seen = new Set<string>();
     for (const cmd of commands) {
+      // Build dedup key
+      let dedupKey = cmd.type;
+      if ('title' in cmd && typeof cmd.title === 'string') dedupKey += ':' + cmd.title.toLowerCase().trim();
+      if ('identifier' in cmd && typeof cmd.identifier === 'string') dedupKey += ':' + cmd.identifier.toLowerCase().trim();
+      if ('name' in cmd && typeof cmd.name === 'string') dedupKey += ':' + cmd.name.toLowerCase().trim();
+      
+      if (seen.has(dedupKey)) continue;
+      seen.add(dedupKey);
+
       const desc = describeCommand(cmd, isHe);
-      // Replace raw UUID with resolved title
       if ('identifier' in cmd && typeof cmd.identifier === 'string') {
         const resolvedTitle = titleMap.get(cmd.identifier);
-        if (resolvedTitle) {
-          desc.description = resolvedTitle;
-        }
+        if (resolvedTitle) desc.description = resolvedTitle;
       }
       changes.push({
         label: desc.label,
