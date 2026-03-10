@@ -1,16 +1,23 @@
 /**
  * PlanHub — Unified Play page: Tactics view with Strategy & Work as modals.
+ * Merged stats from Strategy, Now, and Tactics at the top.
  */
-import { useState, lazy, Suspense } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Swords, Briefcase, MessageSquare, Search, Sparkles, X } from 'lucide-react';
+import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
+import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { useWeeklyTacticalPlan } from '@/hooks/useWeeklyTacticalPlan';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { getCurrentDayInIsrael } from '@/utils/currentDay';
+import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const ArenaHub = lazy(() => import('./ArenaHub'));
@@ -25,6 +32,31 @@ export default function PlanHub() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const auroraChat = useAuroraChatContextSafe();
+
+  // ── Data for unified stats ──
+  const { plan, milestones } = useLifePlanWithMilestones();
+  const { statusMap } = useLifeDomains();
+  const { queue } = useTodayExecution();
+  const phasePlan = useWeeklyTacticalPlan();
+  const { totalActions: tacticTotal, completedActions: tacticCompleted, totalMinutes, days } = phasePlan as any;
+
+  const currentDay = useMemo(() => getCurrentDayInIsrael(plan?.start_date), [plan?.start_date]);
+  const totalDomains = CORE_DOMAINS.length;
+  const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
+  const totalMilestones = milestones?.length || 0;
+  const completedMilestones = milestones?.filter((m: any) => m.is_completed).length || 0;
+  const overallPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
+  const activeDays = days?.filter((d: any) => d.totalActions > 0).length || 0;
+  const avgMinPerDay = totalMinutes > 0 ? Math.round(totalMinutes / Math.max(1, activeDays)) : 0;
+
+  const statItems = [
+    { icon: MapPin, value: `${isHe ? 'יום' : 'Day'} ${currentDay}`, label: isHe ? 'מתוך 100' : 'of 100', color: 'text-orange-400' },
+    { icon: Trophy, value: `${overallPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-emerald-400' },
+    { icon: Zap, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
+    { icon: Target, value: queue?.length || 0, label: isHe ? 'פעולות היום' : "Today's Tasks", color: 'text-teal-400' },
+    { icon: Star, value: `${tacticCompleted || 0}/${tacticTotal || 0}`, label: isHe ? 'שלב' : 'Phase', color: 'text-violet-400' },
+    { icon: Clock, value: `${avgMinPerDay}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-sky-400' },
+  ];
 
   const openFindCoachWizard = () => {
     if (!user) { navigate('/auth'); return; }
@@ -41,8 +73,23 @@ export default function PlanHub() {
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Strategy & Work modal cards — community style */}
-      <div className="w-full max-w-xl px-4 pt-3 pb-1">
+      {/* ── Unified Stats Strip ── */}
+      {plan && (
+        <div className="w-full max-w-xl px-4 pt-3 pb-1">
+          <div className="grid grid-cols-6 gap-1.5">
+            {statItems.map((s) => (
+              <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2 flex flex-col items-center gap-0.5">
+                <s.icon className={cn("w-3.5 h-3.5", s.color)} />
+                <span className="text-xs font-bold text-foreground leading-none">{s.value}</span>
+                <span className="text-[8px] text-muted-foreground text-center leading-tight">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Strategy & Work modal cards */}
+      <div className="w-full max-w-xl px-4 pt-2 pb-1">
         <div className="grid grid-cols-2 gap-3">
           {/* Strategy Card */}
           <button
@@ -88,10 +135,9 @@ export default function PlanHub() {
         </div>
       </div>
 
-      {/* Talk to Plan & Find Coach — community style 2-col grid */}
+      {/* Talk to Plan & Find Coach */}
       <div className="w-full max-w-xl px-4 pb-2">
         <div className="grid grid-cols-2 gap-3">
-          {/* Talk to Plan */}
           <button
             onClick={() => setChatOpen(true)}
             className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] to-primary/[0.03] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
@@ -111,7 +157,6 @@ export default function PlanHub() {
             </div>
           </button>
 
-          {/* Find Coach */}
           <button
             onClick={openFindCoachWizard}
             className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.08] to-teal-500/[0.03] p-4 text-start transition-all hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.99]"
@@ -134,7 +179,7 @@ export default function PlanHub() {
         </div>
       </div>
 
-      {/* Tactics content — always visible */}
+      {/* Tactics content */}
       <Suspense fallback={null}>
         <ArenaHub />
       </Suspense>
