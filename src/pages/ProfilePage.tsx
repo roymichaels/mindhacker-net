@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const dashboard = useUnifiedDashboard();
+  const navigate = useNavigate();
   const [traitsOpen, setTraitsOpen] = useState(false);
   const [practicesOpen, setPracticesOpen] = useState(false);
   const [achievementsOpen, setAchievementsOpen] = useState(false);
