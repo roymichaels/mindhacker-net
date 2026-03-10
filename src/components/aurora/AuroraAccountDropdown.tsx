@@ -153,7 +153,7 @@ const AuroraAccountDropdown = ({
               navigate('/profile');
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/15 dark:via-card dark:to-accent/15" />
+            <div className="absolute inset-0 bg-muted dark:bg-card" />
             
             <div className="relative z-10 px-2 py-2 space-y-1">
               {/* Row 1: Grid — orb right, name left */}
