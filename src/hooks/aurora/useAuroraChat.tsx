@@ -264,6 +264,7 @@ export const useAuroraChat = (conversationId: string | null) => {
 
       // Detect client timezone for time-aware context
       const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      console.log('[aurora-chat] client timezone:', clientTimezone, 'local time:', new Date().toLocaleTimeString());
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
