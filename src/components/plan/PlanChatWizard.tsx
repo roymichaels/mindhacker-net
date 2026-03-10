@@ -310,7 +310,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
       }
 
       case 'swapByTitle': {
-        // Delete old task by title match, create new one with done status
+        // 1. Delete old action_item if it exists
         const { data: oldItem } = await supabase.from('action_items')
           .select('id').eq('user_id', user.id)
           .eq('scheduled_date', command.date)
@@ -318,13 +318,68 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
         if (oldItem) {
           await supabase.from('action_items').delete().eq('id', oldItem.id);
         }
-        // Create new replacement task as done
+
+        // 2. Update tactical_schedules JSON to swap the title in-place
+        const { data: plans } = await supabase.from('life_plans')
+          .select('id, start_date').eq('user_id', user.id).eq('status', 'active');
+        
+        let scheduleUpdated = false;
+        for (const plan of (plans || [])) {
+          if (!plan.start_date) continue;
+          const planStart = new Date(plan.start_date + 'T00:00:00');
+          const targetDate = new Date(command.date + 'T00:00:00');
+          const dayIndex = Math.floor((targetDate.getTime() - planStart.getTime()) / 86400000);
+          const phaseNumber = Math.floor(dayIndex / 10) + 1;
+          const dayInPhase = dayIndex % 10;
+
+          const { data: schedules } = await supabase.from('tactical_schedules')
+            .select('id, schedule_data')
+            .eq('plan_id', plan.id)
+            .eq('phase_number', phaseNumber)
+            .order('generated_at', { ascending: false })
+            .limit(1);
+
+          if (!schedules?.length) continue;
+          const sched = schedules[0];
+          const days = sched.schedule_data as any[];
+          if (!Array.isArray(days) || dayInPhase >= days.length) continue;
+
+          const dayData = days[dayInPhase];
+          if (!dayData?.blocks) continue;
+
+          // Find and replace the title in the blocks
+          let found = false;
+          for (const block of dayData.blocks) {
+            if (!block.milestones) continue;
+            for (const m of block.milestones) {
+              const titleHe = (m.title_he || '').toLowerCase();
+              const titleEn = (m.title_en || '').toLowerCase();
+              const oldLower = command.oldTitle.toLowerCase();
+              if (titleHe.includes(oldLower) || titleEn.includes(oldLower) || oldLower.includes(titleHe) || oldLower.includes(titleEn)) {
+                m.title_he = command.newTitle;
+                m.title_en = command.newTitle;
+                found = true;
+                break;
+              }
+            }
+            if (found) break;
+          }
+
+          if (found) {
+            await supabase.from('tactical_schedules')
+              .update({ schedule_data: days })
+              .eq('id', sched.id);
+            scheduleUpdated = true;
+            break;
+          }
+        }
+
+        // 3. Create replacement action_item as todo
         const { error } = await supabase.from('action_items').insert({
-          user_id: user.id, type: 'task', source: 'aurora', status: 'done',
+          user_id: user.id, type: 'task', source: 'aurora', status: 'todo',
           title: command.newTitle, scheduled_date: command.date,
-          completed_at: new Date().toISOString(),
         });
-        return !error;
+        return !error || scheduleUpdated;
       }
 
       default:
