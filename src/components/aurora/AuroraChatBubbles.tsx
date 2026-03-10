@@ -15,7 +15,11 @@ import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 
-const AuroraChatBubbles = () => {
+interface AuroraChatBubblesProps {
+  showOrbAboveMessages?: boolean;
+}
+
+const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesProps) => {
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
