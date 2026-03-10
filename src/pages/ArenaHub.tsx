@@ -530,6 +530,13 @@ function DayView({
                           </p>
                         </button>
 
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onTalkToTask(day.dayNumber, action.title); }}
+                          className="shrink-0 p-1 rounded-full hover:bg-primary/10 transition-colors"
+                          aria-label={isHe ? 'דבר על המשימה' : 'Talk about task'}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5 text-primary opacity-40 hover:opacity-100" />
+                        </button>
                         <Play className="h-3.5 w-3.5 text-primary shrink-0 opacity-40" />
                       </div>
                     ))}
