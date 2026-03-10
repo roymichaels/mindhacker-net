@@ -298,13 +298,26 @@ export default function CareerHub({ careerPath }: CareerHubProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const { data: application, isLoading: appLoading } = useCareerApplication(careerPath);
 
+  // Coach-specific hooks (must be called before any early returns)
+  const isCoachType = careerPath === 'coach' || careerPath === 'therapist';
+  const { data: myProfile } = useMyCoachProfile();
+  const { stats } = useCoachClientStats();
+  const { data: reviewStats } = useCoachReviewStats(myProfile?.id);
+  const { data: fallbackSlug } = useFirstCoachSlug(!myProfile?.slug);
+  const storeSlug = myProfile?.slug || fallbackSlug;
+  const { data: profilePractitioner } = useCoach(profileOpen ? storeSlug : undefined);
+
   // Gate: if no approved application, show wizard
-  if (!appLoading && (!application || application.status !== 'approved')) {
+  if (appLoading) {
+    return <div className="flex justify-center items-center min-h-[60vh]"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
+  }
+
+  if (!application || application.status !== 'approved') {
     if (application?.status === 'pending') {
       return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
+          <div className="w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
           </div>
           <h2 className="text-xl font-black text-foreground">{isHe ? 'הבקשה שלך בבדיקה' : 'Application Under Review'}</h2>
           <p className="text-muted-foreground max-w-sm">
@@ -326,22 +339,8 @@ export default function CareerHub({ careerPath }: CareerHubProps) {
         </div>
       );
     }
-    // No application or revision_requested → show wizard
     return <CareerWizard careerPath={careerPath} />;
   }
-
-  if (appLoading) {
-    return <div className="flex justify-center items-center min-h-[60vh]"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
-  }
-
-  // Coach-specific hooks (only used for coach/therapist paths)
-  const isCoachType = careerPath === 'coach' || careerPath === 'therapist';
-  const { data: myProfile } = useMyCoachProfile();
-  const { stats } = useCoachClientStats();
-  const { data: reviewStats } = useCoachReviewStats(myProfile?.id);
-  const { data: fallbackSlug } = useFirstCoachSlug(!myProfile?.slug);
-  const storeSlug = myProfile?.slug || fallbackSlug;
-  const { data: profilePractitioner } = useCoach(profileOpen ? storeSlug : undefined);
 
   const theme = THEME[careerPath];
   const tabs = TABS_BY_PATH[careerPath];
