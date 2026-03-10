@@ -20,35 +20,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { exportTacticsPDF } from '@/utils/exportTacticsPDF';
 
-const BLOCK_ICONS: Record<BlockCategory, typeof Swords> = {
-  health: Zap,
-  training: Swords,
-  focus: Target,
-  action: CheckCircle2,
-  creation: Sparkles,
-  review: BarChart3,
-  social: Trophy,
-};
-
-const BLOCK_GRADIENTS: Record<BlockCategory, string> = {
-  health: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20',
-  training: 'from-red-500/15 to-red-500/5 border-red-500/20',
-  focus: 'from-amber-500/15 to-amber-500/5 border-amber-500/20',
-  action: 'from-blue-500/15 to-blue-500/5 border-blue-500/20',
-  creation: 'from-purple-500/15 to-purple-500/5 border-purple-500/20',
-  review: 'from-teal-500/15 to-teal-500/5 border-teal-500/20',
-  social: 'from-pink-500/15 to-pink-500/5 border-pink-500/20',
-};
-
-const BLOCK_ICON_COLORS: Record<BlockCategory, string> = {
-  health: 'text-emerald-400',
-  training: 'text-red-400',
-  focus: 'text-amber-400',
-  action: 'text-blue-400',
-  creation: 'text-purple-400',
-  review: 'text-teal-400',
-  social: 'text-pink-400',
-};
 
 const DIFFICULTY_LABELS: Record<number, { he: string; en: string }> = {
   1: { he: '⭐', en: '⭐' },
