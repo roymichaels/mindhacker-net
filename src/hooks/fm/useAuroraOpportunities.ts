@@ -104,7 +104,7 @@ export function useAuroraOpportunities() {
         text: isHe ? 'כתוב טיפ בריאות לקהילה' : 'Write a health tip for the community',
         subtext: isHe ? 'שתף מה עובד בשבילך והרוויח' : 'Share what works for you & earn',
         reward: 50,
-        action: { type: 'navigate', path: '/fm/earn' },
+        action: { type: 'navigate', path: '/fm' },
         icon: '✍️',
         priority: 3,
       });
