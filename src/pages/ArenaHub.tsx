@@ -327,6 +327,7 @@ export default function ArenaHub() {
                       setDayChatDayNumber(dayNumber);
                       setDayChatOpen(true);
                     }}
+                    onToggleComplete={(action) => phasePlan.toggleActionComplete(action)}
                   />
                 )}
               </div>

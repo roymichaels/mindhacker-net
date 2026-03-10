@@ -684,7 +684,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     queryClient.invalidateQueries({ queryKey: ['action-items-completed'] });
   }, [user?.id, todayStr, queryClient]);
 
-  return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating, toggleActionComplete };
+  return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating, toggleActionComplete } as PhasePlan & { isLoading: boolean; generateSchedule: () => Promise<void>; isGenerating: boolean; toggleActionComplete: (action: TacticalAction) => Promise<void> };
 }
 
 // Classification exports
