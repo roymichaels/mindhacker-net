@@ -29,7 +29,7 @@ serve(async (req) => {
     // Gather plan context
     const { data: plan } = await supabase
       .from("life_plans")
-      .select("id, title, start_date, duration_days, status")
+      .select("id, start_date, duration_months, status, plan_data, summary_id")
       .eq("user_id", user_id)
       .eq("status", "active")
       .maybeSingle();
