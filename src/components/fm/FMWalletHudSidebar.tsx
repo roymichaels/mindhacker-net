@@ -31,7 +31,7 @@ export function FMWalletHudSidebar({ balance = 0, lifetimeEarned = 0, lifetimeSp
   ];
 
   const actions = [
-    { id: 'earn', icon: Coins, label: isHe ? 'הרוויח' : 'Earn More', color: 'text-amber-400', path: '/fm/earn' },
+    { id: 'earn', icon: Coins, label: isHe ? 'הרוויח' : 'Earn More', color: 'text-amber-400', path: '/fm' },
     { id: 'withdraw', icon: ArrowUpRight, label: isHe ? 'משיכה' : 'Withdraw', color: 'text-blue-400', path: '' },
     { id: 'deposit', icon: ArrowDownLeft, label: isHe ? 'הפקדה' : 'Deposit', color: 'text-emerald-400', path: '' },
   ];

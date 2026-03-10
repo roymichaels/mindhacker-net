@@ -24,8 +24,7 @@ export function FMHomeHudSidebar({ balance = 0, lifetimeEarned = 0, activeBounti
   const navigate = useNavigate();
 
   const navItems = [
-    { id: 'earn', icon: Target, label: isHe ? 'הרוויח' : 'Earn', color: 'text-amber-400', path: '/fm/earn' },
-    { id: 'work', icon: Briefcase, label: isHe ? 'עבודה' : 'Work', color: 'text-blue-400', path: '/fm/work' },
+    { id: 'earn', icon: Target, label: isHe ? 'הרוויח' : 'Earn', color: 'text-amber-400', path: '/fm' },
     { id: 'wallet', icon: Wallet, label: isHe ? 'ארנק' : 'Wallet', color: 'text-emerald-400', path: '/fm/wallet' },
   ];
 

@@ -3,7 +3,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 
 const ACTIONS = [
-  { id: 'earn',   icon: Target,  labelEn: 'Earn',    labelHe: 'הרוויח', descEn: 'Bounties, gigs & data', descHe: 'באונטיז, עבודות ונתונים', path: '/fm/earn',   rarity: 'epic' },
+  { id: 'earn',   icon: Target,  labelEn: 'Earn',    labelHe: 'הרוויח', descEn: 'Bounties, gigs & data', descHe: 'באונטיז, עבודות ונתונים', path: '/fm',   rarity: 'epic' },
   { id: 'wallet', icon: Wallet,  labelEn: 'Wallet',  labelHe: 'ארנק',   descEn: 'Balance & withdraw',    descHe: 'יתרה ומשיכה',            path: '/fm/wallet', rarity: 'rare' },
 ];
 

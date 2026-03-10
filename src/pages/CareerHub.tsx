@@ -390,7 +390,7 @@ export default function CareerHub({ careerPath }: CareerHubProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/fm/work')}
+              onClick={() => navigate('/fm')}
               className="shrink-0 -ms-2"
             >
               <ChevronLeft className="h-5 w-5" />

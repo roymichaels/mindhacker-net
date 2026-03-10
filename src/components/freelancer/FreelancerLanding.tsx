@@ -58,7 +58,7 @@ export default function FreelancerLanding() {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => navigate('/fm/earn')}
+          onClick={() => navigate('/fm')}
           className="group relative rounded-2xl border-2 border-amber-500/20 bg-card p-8 text-start space-y-4 transition-all hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/5 cursor-pointer"
         >
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center">

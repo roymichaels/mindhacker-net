@@ -82,7 +82,7 @@ export default function Business() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/fm/work')}
+            onClick={() => navigate('/fm')}
             className="shrink-0"
           >
             <ChevronLeft className="h-5 w-5" />
