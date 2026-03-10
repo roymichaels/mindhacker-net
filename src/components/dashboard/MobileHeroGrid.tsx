@@ -68,7 +68,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { openHypnosis } = useAuroraActions();
   const isHe = language === 'he';
 
-  const { queue, schedule, isLoading, refetch, hasPlan } = useTodayExecution();
+  const { queue, schedule, isLoading, refetch, hasPlan, toggleActionComplete } = useTodayExecution();
 
   const { plan } = useLifePlanWithMilestones();
   const { statusMap } = useLifeDomains();
