@@ -567,7 +567,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
       generating: false, phaseStart, phaseEnd,
       hasAiSchedule: !!aiSchedule?.schedule_data, wakeTime, sleepTime,
     };
-  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule]);
+  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule, completedItemsMap]);
 
   return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating };
 }
