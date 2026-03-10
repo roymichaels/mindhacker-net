@@ -283,7 +283,13 @@ export default function ArenaHub() {
                         "text-[8px]",
                         isActive ? "text-destructive/70" : "text-muted-foreground"
                       )}>
-                        {day.totalActions > 0 ? `${day.completedActions}/${day.totalActions}` : '—'}
+                        {day.completedActions}/{day.totalActions}
+                      </span>
+                      <span className={cn(
+                        "text-[7px]",
+                        isActive ? "text-destructive/60" : "text-muted-foreground/60"
+                      )}>
+                        {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
                       </span>
                       {day.isToday && (
                         <div className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
