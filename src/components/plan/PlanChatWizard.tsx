@@ -37,6 +37,8 @@ interface PlanChatWizardProps {
   onOpenChange: (open: boolean) => void;
   /** When set, focuses context on a specific day number (1-based) */
   focusDayNumber?: number | null;
+  /** When set, focuses context on a specific task */
+  focusTaskTitle?: string | null;
 }
 
 const QUICK_ACTIONS_HE = [
