@@ -66,16 +66,22 @@ serve(async (req) => {
       if (allUserPillars.size > 0) {
         const { data: allPractices } = await supabase.from("practices").select("id, name, pillar, energy_type, default_duration, category");
         if (allPractices && allPractices.length > 0) {
-          const rows = allPractices
-            .filter(p => allUserPillars.has(p.pillar))
-            .map(p => ({
+          // Only auto-populate a reasonable subset — max 2 per pillar, not everything
+          const perPillarCount: Record<string, number> = {};
+          const filtered = allPractices.filter(p => {
+            if (!allUserPillars.has(p.pillar)) return false;
+            perPillarCount[p.pillar] = (perPillarCount[p.pillar] || 0) + 1;
+            return perPillarCount[p.pillar] <= 2; // max 2 practices per pillar
+          });
+
+          const rows = filtered.map((p, idx) => ({
               user_id,
               practice_id: p.id,
               is_active: true,
-              is_core_practice: true,
+              is_core_practice: idx === 0 && p.category === 'health', // Only first health practice is core
               energy_phase: p.energy_type || 'day',
               preferred_duration: p.default_duration || 15,
-              frequency_per_week: p.category === 'training' ? 5 : 7,
+              frequency_per_week: p.category === 'training' ? 3 : 5, // training 3x, health 5x
               skill_level: 1,
             }));
 
@@ -86,7 +92,7 @@ serve(async (req) => {
               .select("*, practices(name, name_he, category, pillar, difficulty_level, default_duration, energy_type, instructions)")
               .eq("user_id", user_id).eq("is_active", true);
             userPractices = refreshed || [];
-            console.log(`[practices-bridge] Auto-populated ${rows.length} practices for tactical schedule`);
+            console.log(`[practices-bridge] Auto-populated ${rows.length} practices (filtered from ${allPractices.length})`);
           }
         }
       }
@@ -291,7 +297,20 @@ IMPORTANT: Use the EXACT milestone IDs and practice IDs from the lists above. Fo
       throw new Error(`AI call failed: ${aiResp.status}`);
     }
 
-    const aiData = await aiResp.json();
+    const aiText = await aiResp.text();
+    if (!aiText || aiText.trim().length === 0) {
+      console.error("AI returned empty response body");
+      throw new Error("AI returned empty response");
+    }
+
+    let aiData;
+    try {
+      aiData = JSON.parse(aiText);
+    } catch (parseErr) {
+      console.error("AI response JSON parse error:", aiText.substring(0, 500));
+      throw new Error("AI response was not valid JSON");
+    }
+
     let raw = aiData?.choices?.[0]?.message?.content || "";
     raw = raw.replace(/```json\s*/g, "").replace(/```/g, "").trim();
 
