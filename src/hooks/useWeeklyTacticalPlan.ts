@@ -530,8 +530,8 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
 
   const phasePlan = useMemo((): PhasePlan => {
     const phaseLabel = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'][(currentPhase || 1) - 1] || '?';
-    const wakeTime = aiSchedule?.wake_time || '06:30';
-    const sleepTime = aiSchedule?.sleep_time || '23:00';
+    const wakeTime = aiSchedules?.[0]?.wake_time || '06:30';
+    const sleepTime = aiSchedules?.[0]?.sleep_time || '23:00';
     
     const emptyPlan: PhasePlan = {
       phase: phaseLabel, phaseNumber: currentPhase || 1,
@@ -546,14 +546,31 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
 
     if (phaseDates.length === 0 || currentPhaseMilestones.length === 0) return emptyPlan;
 
+    // Merge schedule_data from all plans
+    const validSchedules = (aiSchedules || []).filter(s => s.schedule_data && Array.isArray(s.schedule_data));
+    const hasAnyAiSchedule = validSchedules.length > 0;
+
     let days: DayPlan[];
 
-    if (aiSchedule?.schedule_data && Array.isArray(aiSchedule.schedule_data)) {
+    if (hasAnyAiSchedule) {
       const focusMap: Record<string, string> = {};
       for (const m of currentPhaseMilestones) {
         if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
       }
-      days = parseAiSchedule(aiSchedule.schedule_data, phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
+
+      // Parse first schedule
+      days = parseAiSchedule(validSchedules[0].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
+
+      // Merge additional schedules' blocks into existing days
+      for (let si = 1; si < validSchedules.length; si++) {
+        const extraDays = parseAiSchedule(validSchedules[si].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
+        for (let di = 0; di < days.length && di < extraDays.length; di++) {
+          days[di].blocks.push(...extraDays[di].blocks);
+          days[di].totalActions += extraDays[di].totalActions;
+          days[di].completedActions += extraDays[di].completedActions;
+          days[di].totalMinutes += extraDays[di].totalMinutes;
+        }
+      }
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }
@@ -566,9 +583,9 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
       totalActions, completedActions,
       totalMinutes: days.reduce((s, d) => s + d.totalMinutes, 0),
       generating: false, phaseStart, phaseEnd,
-      hasAiSchedule: !!aiSchedule?.schedule_data, wakeTime, sleepTime,
+      hasAiSchedule: hasAnyAiSchedule, wakeTime, sleepTime,
     };
-  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedule, completedItemsMap]);
+  }, [currentPhaseMilestones, currentPhase, phaseDates, phaseStart, phaseEnd, todayStr, aiSchedules, completedItemsMap]);
 
   return { ...phasePlan, isLoading: planLoading || scheduleLoading, generateSchedule, isGenerating };
 }
