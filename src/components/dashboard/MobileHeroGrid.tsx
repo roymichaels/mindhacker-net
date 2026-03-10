@@ -18,7 +18,7 @@ import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModa
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { PlanNegotiateModal } from '@/components/plan/PlanNegotiateModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, ChevronDown, ChevronUp, Compass, Swords, Shield, Download, MessageSquare } from 'lucide-react';
+import { Zap, Play, Plus, Loader2, Flame, Target, Trophy, MapPin, Sparkles, Clock, Calendar, Brain, Compass, Swords, Shield, Download, MessageSquare } from 'lucide-react';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exportNowPDF, type NowExportData, type NowPDFSlot } from '@/utils/exportNowPDF';
@@ -77,7 +77,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [executionOpen, setExecutionOpen] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [journeyAction, setJourneyAction] = useState<NowQueueItem | null>(null);
-  const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
+  const [_openBlocks, _setOpenBlocks] = useState<Record<string, boolean>>({});
   const [negotiateOpen, setNegotiateOpen] = useState(false);
   const [negotiateTask, setNegotiateTask] = useState<NowQueueItem | null>(null);
 
@@ -131,12 +131,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     }
   };
 
-  const toggleBlock = (slotId: string) => {
-    setOpenBlocks(prev => ({ ...prev, [slotId]: !prev[slotId] }));
-  };
-
-  // All blocks start collapsed — user opens what they want
-  const isBlockOpen = (slotId: string) => !!openBlocks[slotId];
+  // Block toggle removed — tasks are always visible now
 
   return (
     <div className="flex flex-col w-full items-center pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -331,98 +326,69 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                         </div>
                         {slots.map((slot) => {
                   const blockTheme = JOURNEY_THEMES[slot.timeBlock] || JOURNEY_THEMES.midday;
-                  const blockOpen = isBlockOpen(slot.id);
                   const blockLabel = isHe ? blockTheme.he : blockTheme.en;
                   const idx = globalIdx++;
-                   return (
-                    <motion.div
-                      key={slot.id}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05, duration: 0.3 }}
-                      className={cn(
-                        "rounded-2xl border overflow-hidden transition-all duration-300",
-                        `bg-gradient-to-br ${blockTheme.accent}`,
-                      )}
-                    >
-                      {/* Journey Header */}
-                      <button
-                        onClick={() => toggleBlock(slot.id)}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 text-start hover:bg-foreground/[0.02] active:scale-[0.995] transition-all"
-                      >
-                        <span className="text-xl shrink-0">{blockTheme.emoji}</span>
 
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-foreground">{blockLabel}</h3>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">
-                            {slot.actions.length} {isHe ? 'משימות' : 'quests'}
-                          </p>
-                        </div>
+                  return (
+                    <div key={slot.id} className="space-y-1.5">
+                      {/* Block sub-header */}
+                      <div className="flex items-center gap-2 px-1 pt-1">
+                        <span className="text-sm">{blockTheme.emoji}</span>
+                        <span className="text-[10px] font-semibold text-foreground/60">{blockLabel}</span>
+                        <span className="text-[9px] text-muted-foreground">{slot.actions.length} {isHe ? 'משימות' : 'quests'}</span>
+                      </div>
 
-                        {blockOpen ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                        )}
-                      </button>
-
-                      {/* Quest list — collapsible */}
-                      <AnimatePresence initial={false}>
-                        {blockOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.25, ease: 'easeInOut' }}
-                            className="overflow-hidden"
-                          >
-                            <div className="px-4 pb-3 space-y-1.5 border-t border-border/15 pt-2">
-                              {slot.actions.map((action, i) => {
-                                const domain = getDomainById(action.pillarId);
-                                const DomainIcon = domain?.icon;
-                                return (
-                                  <button
-                                    key={`${action.actionType}-${i}`}
-                                    onClick={() => handleExecute(action)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/20 bg-card/60 hover:bg-card hover:border-primary/30 active:scale-[0.99]"
-                                  >
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-1.5 mb-0.5">
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/40 text-muted-foreground">
-                                          {DomainIcon && <DomainIcon className="h-2.5 w-2.5" />}
-                                          {isHe ? (domain?.labelHe || action.pillarId) : (domain?.labelEn || action.pillarId)}
-                                        </span>
-                                      </div>
-                                      <p className="text-xs font-semibold text-foreground line-clamp-1">
-                                        {isHe ? action.title : action.titleEn}
-                                      </p>
-                                    </div>
-                                    {action.isTimeBased && (
-                                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
-                                        <Clock className="h-2.5 w-2.5" />
-                                        {action.durationMin}{isHe ? '′' : 'm'}
-                                      </span>
-                                    )}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setNegotiateTask(action);
-                                        setNegotiateOpen(true);
-                                      }}
-                                      className="p-1.5 rounded-lg border border-border/30 bg-card/60 hover:bg-primary/10 hover:border-primary/30 transition-colors shrink-0"
-                                      title={isHe ? 'דבר עם התוכנית' : 'Talk to plan'}
-                                    >
-                                      <MessageSquare className="h-3 w-3 text-muted-foreground" />
-                                    </button>
-                                    <Play className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
+                      {/* Quest list — always visible */}
+                      <div className="space-y-1.5">
+                        {slot.actions.map((action, i) => {
+                          const domain = getDomainById(action.pillarId);
+                          const DomainIcon = domain?.icon;
+                          return (
+                            <motion.div
+                              key={`${action.actionType}-${i}`}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: (idx * slot.actions.length + i) * 0.03, duration: 0.25 }}
+                            >
+                              <button
+                                onClick={() => handleExecute(action)}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-start transition-all border border-border/20 bg-card/60 hover:bg-card hover:border-primary/30 active:scale-[0.99]"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/40 text-muted-foreground">
+                                      {DomainIcon && <DomainIcon className="h-2.5 w-2.5" />}
+                                      {isHe ? (domain?.labelHe || action.pillarId) : (domain?.labelEn || action.pillarId)}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs font-semibold text-foreground line-clamp-1">
+                                    {isHe ? action.title : action.titleEn}
+                                  </p>
+                                </div>
+                                {action.isTimeBased && (
+                                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
+                                    <Clock className="h-2.5 w-2.5" />
+                                    {action.durationMin}{isHe ? '′' : 'm'}
+                                  </span>
+                                )}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setNegotiateTask(action);
+                                    setNegotiateOpen(true);
+                                  }}
+                                  className="p-1.5 rounded-lg border border-border/30 bg-card/60 hover:bg-primary/10 hover:border-primary/30 transition-colors shrink-0"
+                                  title={isHe ? 'דבר עם התוכנית' : 'Talk to plan'}
+                                >
+                                  <MessageSquare className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                                <Play className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
+                              </button>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
                       </div>
