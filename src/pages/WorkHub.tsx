@@ -382,7 +382,7 @@ export default function WorkHub() {
         </button>
         <button
           onClick={() => setChatMode('wizard')}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-accent/30 bg-accent/5 hover:bg-accent/10 hover:border-accent/50 transition-all text-sm font-medium text-accent-foreground"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all text-sm font-medium text-emerald-400"
         >
           <Sparkles className="w-4 h-4" />
           {isHe ? '✨ אשף עבודה AI' : '✨ AI Work Wizard'}
