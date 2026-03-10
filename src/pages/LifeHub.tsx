@@ -351,16 +351,6 @@ export default function LifeHub() {
           </div>
         ) : hasPlan ? (
           <>
-            {/* ── STATS GRID ── */}
-            <div className="grid grid-cols-4 gap-2">
-              {statItems.map((s) => (
-                <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2.5 flex flex-col items-center gap-1">
-                  <s.icon className={cn("w-4 h-4", s.color)} />
-                  <span className="text-sm font-bold text-foreground">{s.value}</span>
-                  <span className="text-[9px] text-muted-foreground">{s.label}</span>
-                </div>
-              ))}
-            </div>
 
             {/* ── PLAN HEADER ── */}
             <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
