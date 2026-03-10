@@ -323,6 +323,10 @@ export default function ArenaHub() {
                     isHe={isHe}
                     onExecuteAction={handleOpenExecution}
                     hasAiSchedule={hasAiSchedule}
+                    onTalkToPlan={(dayNumber) => {
+                      setDayChatDayNumber(dayNumber);
+                      setDayChatOpen(true);
+                    }}
                   />
                 )}
               </div>
