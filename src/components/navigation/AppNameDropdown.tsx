@@ -186,7 +186,6 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               <div className="grid grid-cols-[1fr_auto] items-center gap-2">
                 <div className="min-w-0">
                   <p className="text-sm font-bold truncate text-foreground leading-tight">{displayName}</p>
-                  <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">{user?.email}</p>
                   {dashboard.identityTitle && (
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="text-xs">{dashboard.identityTitle.icon}</span>
