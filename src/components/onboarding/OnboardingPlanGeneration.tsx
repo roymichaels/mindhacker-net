@@ -80,7 +80,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
 
       if (existingPlan) {
         sessionStorage.setItem('just_completed_onboarding', '1');
-        navigate('/now', { replace: true });
+        navigate('/ceremony', { replace: true });
         return;
       }
 

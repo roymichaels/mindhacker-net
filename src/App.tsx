@@ -268,6 +268,7 @@ const App = () => (
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
                         {/* Onboarding — new entry point */}
                         <Route path="/onboarding" element={<Onboarding />} />
+                        <Route path="/ceremony" element={<OnboardingCeremony />} />
                         {/* Ad landing page */}
                         <Route path="/go" element={<Go />} />
                         {/* Feature detail pages */}
