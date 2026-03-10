@@ -231,13 +231,13 @@ export async function buildContext(
   const dayNamesHe = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
   try {
     localTimeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: userTimezone });
-    const localDayIndex = parseInt(new Intl.DateTimeFormat('en-US', { weekday: 'narrow', timeZone: userTimezone }).formatToParts(now).find(p => p.type === 'weekday')?.value || '0', 10);
-    // weekday 'short' gives name, use numeric approach instead
     const localWeekday = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: userTimezone }).format(now);
     const dayIdx = dayNames.indexOf(localWeekday);
     dayOfWeek = dayIdx >= 0 ? dayNames[dayIdx] : dayNames[now.getUTCDay()];
     dayOfWeekHe = dayIdx >= 0 ? dayNamesHe[dayIdx] : dayNamesHe[now.getUTCDay()];
-  } catch {
+    console.log(`[contextBuilder] tz="${userTimezone}" clientTz="${clientTimezone}" utc="${now.toISOString()}" local="${localTimeStr}" day="${dayOfWeek}"`);
+  } catch (e) {
+    console.warn(`[contextBuilder] timezone error for "${userTimezone}":`, e);
     const fallbackTz = language === 'he' ? 'Asia/Jerusalem' : 'UTC';
     localTimeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: fallbackTz });
     const localWeekday = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: fallbackTz }).format(now);
