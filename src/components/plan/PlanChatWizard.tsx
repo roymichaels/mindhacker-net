@@ -603,7 +603,11 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatW
               <Wrench className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <span className="block">{isHe ? 'דבר עם התוכנית' : 'Talk to Your Plan'}</span>
+              <span className="block">
+                {focusDayNumber
+                  ? (isHe ? `דבר עם התוכנית — יום ${focusDayNumber}` : `Talk to Your Plan — Day ${focusDayNumber}`)
+                  : (isHe ? 'דבר עם התוכנית' : 'Talk to Your Plan')}
+              </span>
               <span className="block text-[10px] font-normal text-muted-foreground">
                 {isHe ? 'שינויים כירורגיים בלבד — בלי ליצור מחדש' : 'Surgical changes only — no regeneration'}
               </span>
