@@ -256,15 +256,8 @@ export const useCommandBus = () => {
           queryClient.invalidateQueries({ queryKey: ['daily-habits'] });
           return makeReceipt('habit', 'remove', !error, actionHabit.title);
         }
-        // Legacy fallback
-        const matching = habits.find(h =>
-          h.content.toLowerCase().includes(command.name.toLowerCase()) ||
-          command.name.toLowerCase().includes(h.content.toLowerCase())
-        );
-        if (!matching) return null;
-        const { error } = await supabase.from('aurora_checklist_items').delete().eq('id', matching.id);
-        queryClient.invalidateQueries({ queryKey: ['daily-habits'] });
-        return makeReceipt('habit', 'remove', !error, matching.content);
+        // No legacy fallback — action_items is SSOT
+        return null;
       }
 
       // ── Milestone ──
