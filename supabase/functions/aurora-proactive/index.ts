@@ -391,57 +391,13 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { action, user_id, item_id } = body;
+    const { action, item_id } = body;
 
-    if (action === 'analyze') {
-      if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      const [ctx, pulse] = await Promise.all([
-        buildContext(supabase, user_id, 'he'),
-        fetchPulseData(supabase, user_id),
-      ]);
-      const nextTask = ctx.action_items.today_tasks.find(t => t.status !== 'done')?.title || null;
-      const snapshot = toProactiveSnapshot(ctx, pulse, nextTask);
-      await analyzeAndQueue(supabase, user_id, snapshot);
-      return new Response(JSON.stringify({ success: true, context: snapshot }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    if (action === 'get_pending') {
-      if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-
-      const { data: items } = await supabase
-        .from('aurora_proactive_queue')
-        .select('*')
-        .eq('user_id', user_id)
-        .is('dismissed_at', null)
-        .lte('scheduled_for', new Date().toISOString())
-        .order('priority', { ascending: false })
-        .limit(5);
-
-      const messages = (items || []).map((item: any) => ({
-        id: item.id,
-        title: item.title || '💡 הודעה מאורורה',
-        body: item.body || 'יש לי משהו לשתף איתך',
-        action: item.trigger_type,
-        priority: item.priority,
-        scheduled_for: item.scheduled_for,
-      }));
-
-      return new Response(JSON.stringify({ items: messages }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    if (action === 'dismiss') {
-      if (!item_id) return new Response(JSON.stringify({ error: 'item_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      await supabase.from('aurora_proactive_queue').update({ dismissed_at: new Date().toISOString() }).eq('id', item_id);
-      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    if (action === 'mark_sent') {
-      if (!item_id) return new Response(JSON.stringify({ error: 'item_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      await supabase.from('aurora_proactive_queue').update({ sent_at: new Date().toISOString() }).eq('id', item_id);
-      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
+    // batch_analyze requires admin role
     if (action === 'batch_analyze') {
+      const adminAuth = await requireAdmin(req);
+      if (adminAuth instanceof Response) return adminAuth;
+
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const { data: activeUsers } = await supabase
         .from('aurora_onboarding_progress')
@@ -468,10 +424,62 @@ serve(async (req) => {
       return new Response(JSON.stringify({ success: true, processed, total: (activeUsers || []).length }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    // All other actions require authenticated user
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
+    const userId = auth.userId;
+
+    if (action === 'analyze') {
+      const [ctx, pulse] = await Promise.all([
+        buildContext(supabase, userId, 'he'),
+        fetchPulseData(supabase, userId),
+      ]);
+      const nextTask = ctx.action_items.today_tasks.find(t => t.status !== 'done')?.title || null;
+      const snapshot = toProactiveSnapshot(ctx, pulse, nextTask);
+      await analyzeAndQueue(supabase, userId, snapshot);
+      return new Response(JSON.stringify({ success: true, context: snapshot }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (action === 'get_pending') {
+      const { data: items } = await supabase
+        .from('aurora_proactive_queue')
+        .select('*')
+        .eq('user_id', userId)
+        .is('dismissed_at', null)
+        .lte('scheduled_for', new Date().toISOString())
+        .order('priority', { ascending: false })
+        .limit(5);
+
+      const messages = (items || []).map((item: any) => ({
+        id: item.id,
+        title: item.title || '💡 הודעה מאורורה',
+        body: item.body || 'יש לי משהו לשתף איתך',
+        action: item.trigger_type,
+        priority: item.priority,
+        scheduled_for: item.scheduled_for,
+      }));
+
+      return new Response(JSON.stringify({ items: messages }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (action === 'dismiss') {
+      if (!item_id) return new Response(JSON.stringify({ error: 'item_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      // Only dismiss items owned by the authenticated user
+      await supabase.from('aurora_proactive_queue').update({ dismissed_at: new Date().toISOString() }).eq('id', item_id).eq('user_id', userId);
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (action === 'mark_sent') {
+      if (!item_id) return new Response(JSON.stringify({ error: 'item_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      // Only mark items owned by the authenticated user
+      await supabase.from('aurora_proactive_queue').update({ sent_at: new Date().toISOString() }).eq('id', item_id).eq('user_id', userId);
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error: any) {
     console.error('Aurora proactive error:', error);
     logEdgeFunctionError({ functionName: "aurora-proactive", error, requestContext: { action: "unknown" } });
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Internal error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });
