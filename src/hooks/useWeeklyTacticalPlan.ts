@@ -442,6 +442,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
   const { toast } = useToast();
 
   const planId = plan?.id || null;
+  const allPlanIds = (plan as any)?.all_plan_ids as string[] | undefined;
   const planStartDate = plan?.start_date || null;
 
   const currentPhaseMilestones = useMemo(
