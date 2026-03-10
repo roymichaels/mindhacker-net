@@ -30,6 +30,7 @@ import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { useUserJob } from '@/hooks/useUserJob';
+import { BugReportDialog } from '@/components/aurora/BugReportDialog';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
