@@ -217,6 +217,27 @@ const Users = () => {
     setGrantDialogOpen(true);
   };
 
+  const handleRefreshUsers = async () => {
+    setRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-refresh-users', {
+        body: { inactivity_days: 1, dry_run: false },
+      });
+      if (error) throw error;
+      toast({
+        title: language === 'he' ? 'רענון הושלם' : 'Refresh Complete',
+        description: language === 'he'
+          ? `אורבים: ${data.summary.orbs_created}, תוכניות: ${data.summary.plans_regenerated}, שגיאות: ${data.summary.errors}`
+          : `Orbs: ${data.summary.orbs_created}, Plans: ${data.summary.plans_regenerated}, Errors: ${data.summary.errors}`,
+      });
+      fetchUsers();
+    } catch (error) {
+      handleError(error, language === 'he' ? 'שגיאה ברענון' : 'Refresh failed', 'handleRefreshUsers');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const getInitials = (name: string | null | undefined, email: string) => {
     if (name) {
       return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
