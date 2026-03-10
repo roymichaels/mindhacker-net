@@ -636,30 +636,31 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     const newDone = !action.completed;
     const date = action.calendarDate || todayStr;
 
+    console.log('[toggle]', { title: action.title, currentlyCompleted: action.completed, newDone, date });
+
     // Optimistic update: immediately update cached completion data
     const prevKey = ['action-items-completed', user.id, phaseStart, phaseEnd];
     const prevData = queryClient.getQueryData<any[]>(prevKey);
     
     if (newDone) {
-      // Optimistically add to completed list
       queryClient.setQueryData(prevKey, [
         ...(prevData || []),
         { title: action.title, scheduled_date: date, completed_at: new Date().toISOString(), status: 'done' },
       ]);
     } else {
-      // Optimistically remove from completed list
       if (prevData) {
         const normalizedTitle = normalize(action.title);
+        const normalizedTitleEn = normalize(action.titleEn || '');
         queryClient.setQueryData(prevKey, prevData.filter(item => {
           const itemTitle = normalize(item.title || '');
-          return !(itemTitle === normalizedTitle && item.scheduled_date === date);
+          const isMatch = (itemTitle === normalizedTitle || (normalizedTitleEn && itemTitle === normalizedTitleEn)) && item.scheduled_date === date;
+          return !isMatch;
         }));
       }
     }
 
     try {
       if (newDone) {
-        // Upsert an action_item as done
         const { error } = await supabase.from('action_items').upsert({
           user_id: user.id,
           title: action.title,
@@ -672,7 +673,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
           order_index: action.orderIndex || 0,
         }, { onConflict: 'user_id,title,scheduled_date', ignoreDuplicates: false });
         if (error) {
-          // If upsert fails due to missing unique constraint, try insert
+          console.warn('[toggle] upsert error, trying insert:', error.message);
           if (error.code === '42P10' || error.message?.includes('unique')) {
             await supabase.from('action_items').insert({
               user_id: user.id,
@@ -688,55 +689,39 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
           }
         }
       } else {
-        // Mark as todo — try exact title match first, then English title, then fuzzy
-        const { data: updated } = await supabase
+        // Uncheck: update ALL matching done items for this user+date
+        // Try Hebrew title
+        const { data: updated, error: err1 } = await supabase
           .from('action_items')
           .update({ status: 'todo', completed_at: null })
           .eq('user_id', user.id)
           .eq('scheduled_date', date)
+          .eq('status', 'done')
           .eq('title', action.title)
           .select('id');
         
-        if (!updated || updated.length === 0) {
-          // Try English title
-          if (action.titleEn && action.titleEn !== action.title) {
-            const { data: updated2 } = await supabase
-              .from('action_items')
-              .update({ status: 'todo', completed_at: null })
-              .eq('user_id', user.id)
-              .eq('scheduled_date', date)
-              .eq('title', action.titleEn)
-              .select('id');
-            
-            if (!updated2 || updated2.length === 0) {
-              // Last resort: match any done item with similar title using ilike
-              await supabase
-                .from('action_items')
-                .update({ status: 'todo', completed_at: null })
-                .eq('user_id', user.id)
-                .eq('scheduled_date', date)
-                .eq('status', 'done')
-                .ilike('title', `%${action.title.slice(0, 15)}%`);
-            }
-          } else {
-            // No English title, try partial match
-            await supabase
-              .from('action_items')
-              .update({ status: 'todo', completed_at: null })
-              .eq('user_id', user.id)
-              .eq('scheduled_date', date)
-              .eq('status', 'done')
-              .ilike('title', `%${action.title.slice(0, 15)}%`);
-          }
+        console.log('[toggle:uncheck] Hebrew title match:', { title: action.title, updated: updated?.length, error: err1?.message });
+        
+        // If no match, try English title
+        if ((!updated || updated.length === 0) && action.titleEn && action.titleEn !== action.title) {
+          const { data: updated2, error: err2 } = await supabase
+            .from('action_items')
+            .update({ status: 'todo', completed_at: null })
+            .eq('user_id', user.id)
+            .eq('scheduled_date', date)
+            .eq('status', 'done')
+            .eq('title', action.titleEn)
+            .select('id');
+          
+          console.log('[toggle:uncheck] English title match:', { titleEn: action.titleEn, updated: updated2?.length, error: err2?.message });
         }
       }
     } catch (err) {
-      // Rollback optimistic update on error
       queryClient.setQueryData(prevKey, prevData);
       console.error('Toggle action complete failed:', err);
     }
 
-    // Also refresh to ensure consistency
+    // Refresh to ensure consistency
     queryClient.invalidateQueries({ queryKey: ['action-items-completed'] });
   }, [user?.id, todayStr, phaseStart, phaseEnd, queryClient]);
 
