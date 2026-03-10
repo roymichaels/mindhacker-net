@@ -244,7 +244,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                 setDropdownOpen(false);
                 navigate('/profile');
               }}
-              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all bg-primary/10 text-primary border border-primary/25 hover:bg-primary/15 hover:border-primary/35 active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500/10 text-amber-400 border border-amber-500/25 hover:bg-amber-500/15 hover:border-amber-500/35 active:scale-[0.98]"
             >
               <User className="h-4 w-4" />
               {language === 'he' ? 'פרופיל' : 'Profile'}
