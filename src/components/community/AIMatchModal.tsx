@@ -203,7 +203,7 @@ export default function AIMatchModal({ open, onOpenChange }: AIMatchModalProps) 
                   exit={{ opacity: 0, y: -10 }}
                   className="text-center py-6"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-rose-500/15 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/15 flex items-center justify-center mx-auto mb-4">
                     <Sparkles className="w-8 h-8 text-amber-500" />
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-2">
