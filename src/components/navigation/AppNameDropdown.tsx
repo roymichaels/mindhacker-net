@@ -347,6 +347,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
         </DropdownMenuContent>
       </DropdownMenu>
       <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
+      <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
     </>
   );
 }
