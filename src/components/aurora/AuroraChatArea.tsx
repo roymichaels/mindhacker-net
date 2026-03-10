@@ -30,6 +30,8 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
     streamingContent,
     sendMessage,
     regenerateLastResponse,
+    failedMessageIds,
+    retryMessage,
   } = useAuroraChat(conversationId);
 
   const { pendingCommands, confirmCommand, rejectCommand } = useCommandBus();
