@@ -171,7 +171,7 @@ export default function ArenaHub() {
                     </span>
                     <span className={cn(
                       "text-[8px]",
-                      isActive ? "text-destructive/70" : "text-muted-foreground"
+                      isActive ? "text-amber-400/70" : "text-muted-foreground"
                     )}>
                       {day.completedActions}/{day.totalActions}
                     </span>
