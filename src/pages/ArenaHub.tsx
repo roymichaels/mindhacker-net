@@ -3,7 +3,7 @@
  * AI-generated 10-day phase schedule with themed blocks containing milestones.
  */
 import { useState, useMemo, useCallback } from 'react';
-import { Swords, Sparkles, Loader2, Target, CheckCircle2, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, Wand2, Play, Download } from 'lucide-react';
+import { Swords, Sparkles, Loader2, Target, CheckCircle2, Clock, ChevronDown, ChevronUp, Zap, Calendar, BarChart3, Wand2, Play, Download, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestName, getCampaignName } from '@/lib/questNames';
 import { exportTacticsPDF } from '@/utils/exportTacticsPDF';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 
 
 
@@ -57,7 +58,8 @@ export default function ArenaHub() {
   const [scheduleGenerating, setScheduleGenerating] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
-
+  const [dayChatOpen, setDayChatOpen] = useState(false);
+  const [dayChatDayNumber, setDayChatDayNumber] = useState<number | null>(null);
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, totalActions, completedActions, totalMinutes, isLoading, hasAiSchedule, generateSchedule, wakeTime, sleepTime } = phasePlan;
 
@@ -321,6 +323,10 @@ export default function ArenaHub() {
                     isHe={isHe}
                     onExecuteAction={handleOpenExecution}
                     hasAiSchedule={hasAiSchedule}
+                    onTalkToPlan={(dayNumber) => {
+                      setDayChatDayNumber(dayNumber);
+                      setDayChatOpen(true);
+                    }}
                   />
                 )}
               </div>
@@ -359,6 +365,7 @@ export default function ArenaHub() {
           queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
         }}
       />
+      <PlanChatWizard open={dayChatOpen} onOpenChange={setDayChatOpen} focusDayNumber={dayChatDayNumber} />
     </div>
   );
 }
@@ -370,11 +377,13 @@ function DayView({
   isHe,
   onExecuteAction,
   hasAiSchedule,
+  onTalkToPlan,
 }: {
   day: DayPlan;
   isHe: boolean;
   onExecuteAction: (action: TacticalAction) => void;
   hasAiSchedule: boolean;
+  onTalkToPlan: (dayNumber: number) => void;
 }) {
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
@@ -404,6 +413,15 @@ function DayView({
           {day.completedActions}/{day.totalActions} · {day.totalMinutes}{isHe ? ' דק׳' : ' min'}
         </span>
       </div>
+
+      {/* Talk to plan for this day */}
+      <button
+        onClick={() => onTalkToPlan(day.dayNumber)}
+        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all text-xs font-medium text-primary"
+      >
+        <MessageSquare className="w-3.5 h-3.5" />
+        {isHe ? `דבר עם התוכנית — יום ${day.dayNumber}` : `Talk to Plan — Day ${day.dayNumber}`}
+      </button>
 
       {/* Flat block list */}
       {day.blocks.map((block) => {

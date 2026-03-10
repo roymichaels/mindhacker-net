@@ -35,6 +35,8 @@ interface PendingChange {
 interface PlanChatWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When set, focuses context on a specific day number (1-based) */
+  focusDayNumber?: number | null;
 }
 
 const QUICK_ACTIONS_HE = [
@@ -50,7 +52,7 @@ const QUICK_ACTIONS_EN = [
   'Mark tasks as completed',
 ];
 
-export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
+export function PlanChatWizard({ open, onOpenChange, focusDayNumber }: PlanChatWizardProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -513,6 +515,7 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
             messages: newMessages.map(m => ({ role: m.role, content: m.content })),
             language,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+            ...(focusDayNumber ? { focus_day: focusDayNumber } : {}),
           }),
         }
       );
@@ -600,7 +603,11 @@ export function PlanChatWizard({ open, onOpenChange }: PlanChatWizardProps) {
               <Wrench className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <span className="block">{isHe ? 'דבר עם התוכנית' : 'Talk to Your Plan'}</span>
+              <span className="block">
+                {focusDayNumber
+                  ? (isHe ? `דבר עם התוכנית — יום ${focusDayNumber}` : `Talk to Your Plan — Day ${focusDayNumber}`)
+                  : (isHe ? 'דבר עם התוכנית' : 'Talk to Your Plan')}
+              </span>
               <span className="block text-[10px] font-normal text-muted-foreground">
                 {isHe ? 'שינויים כירורגיים בלבד — בלי ליצור מחדש' : 'Surgical changes only — no regeneration'}
               </span>
