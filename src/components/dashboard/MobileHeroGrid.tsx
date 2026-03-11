@@ -4,6 +4,7 @@
  * No graying, no exact times — just themed quests to tackle.
  */
 import { useState, useMemo, useCallback } from 'react';
+import { NextStepGuide } from '@/components/dashboard/NextStepGuide';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { useNavigate } from 'react-router-dom';
@@ -178,6 +179,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           </div>
         ) : (
           <>
+            {/* ── NEXT STEP GUIDE ── */}
+            <NextStepGuide onExecuteTask={handleExecute} />
+
             {/* ── STATS GRID ── */}
             <div className="grid grid-cols-4 gap-2">
               {statItems.map((s) => (
