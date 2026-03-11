@@ -179,6 +179,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           </div>
         ) : (
           <>
+            {/* ── NEXT STEP GUIDE ── */}
+            <NextStepGuide onExecuteTask={handleExecute} />
+
             {/* ── STATS GRID ── */}
             <div className="grid grid-cols-4 gap-2">
               {statItems.map((s) => (

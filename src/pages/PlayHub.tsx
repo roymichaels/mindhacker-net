@@ -89,6 +89,11 @@ export default function PlayHub() {
         </div>
       )}
 
+      {/* ── Next Step Guide ── */}
+      <div className="w-full max-w-xl px-4 pt-2">
+        <NextStepGuide />
+      </div>
+
       {/* Strategy & Work modal cards */}
       <div className="w-full max-w-xl px-4 pt-2 pb-1">
         <div className="grid grid-cols-2 gap-3">
