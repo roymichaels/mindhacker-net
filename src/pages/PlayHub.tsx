@@ -8,6 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
+import { NextStepGuide } from '@/components/dashboard/NextStepGuide';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
