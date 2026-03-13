@@ -1,8 +1,9 @@
 /**
  * AuroraPage — Full-page Aurora with tabs: Chat, Dream Journal, Daily Reflection, Gratitude.
+ * Rebuilt with mobile-first best practices for reliable chat UX.
  */
 import { MessageCircle, Moon, Sun, Heart } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
@@ -33,6 +34,21 @@ export default function AuroraPage() {
   } = useAuroraChatContext();
   const [activeTab, setActiveTab] = useState<AuroraTab>('chat');
 
+  // Measure input height dynamically to set proper scroll padding
+  const inputRef = useRef<HTMLDivElement>(null);
+  const [inputHeight, setInputHeight] = useState(80);
+
+  useEffect(() => {
+    if (!inputRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setInputHeight(entry.contentRect.height + 16); // + padding
+      }
+    });
+    ro.observe(inputRef.current);
+    return () => ro.disconnect();
+  }, [activeTab]);
+
   const isAssessing = !!assessmentDomainId;
 
   const pillarDomain = activePillar ? LIFE_DOMAINS.find(d => d.id === activePillar) : null;
@@ -41,7 +57,7 @@ export default function AuroraPage() {
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-8rem)]">
+    <div className="relative flex flex-col h-[calc(100dvh-4rem)] overflow-hidden">
       {/* Context badges */}
       {(pillarLabel || (isAssessing && assessLabel)) && (
         <div className="flex items-center justify-center gap-1.5 px-4 py-1.5 shrink-0">
@@ -58,8 +74,8 @@ export default function AuroraPage() {
         </div>
       )}
 
-      {/* Tab switcher — sticky */}
-      <div className="sticky top-0 z-20 px-3 pt-2 pb-1 shrink-0">
+      {/* Tab switcher */}
+      <div className="px-3 pt-2 pb-1 shrink-0 z-20">
         <div className="flex gap-1 p-1 rounded-2xl">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -95,7 +111,11 @@ export default function AuroraPage() {
       {/* Tab content */}
       {activeTab === 'chat' ? (
         <>
-          <div className="flex-1 min-h-0 overflow-auto">
+          {/* Scrollable messages — with bottom padding matching input height + bottom bar */}
+          <div
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
+            style={{ paddingBottom: `${inputHeight + 56}px` }}
+          >
             {isAssessing && assessmentDomainId ? (
               <DomainAssessChat
                 domainId={assessmentDomainId}
@@ -107,10 +127,13 @@ export default function AuroraPage() {
               <AuroraChatBubbles showOrbAboveMessages />
             )}
           </div>
-          <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-4 pt-2 pointer-events-none">
-            <div className="pointer-events-auto">
-              <GlobalChatInput />
-            </div>
+
+          {/* Input — pinned above bottom nav */}
+          <div
+            ref={inputRef}
+            className="absolute bottom-0 inset-x-0 z-30 px-3 pb-[calc(3.5rem+env(safe-area-inset-bottom))] pt-2 bg-gradient-to-t from-background via-background/95 to-transparent"
+          >
+            <GlobalChatInput />
           </div>
         </>
       ) : (
