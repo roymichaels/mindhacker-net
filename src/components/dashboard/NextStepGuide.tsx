@@ -123,7 +123,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
       );
     }
 
-    // P0.5: Aurora proactive nudge
+    // P0.5: Aurora proactive nudge — dismiss inline, don't navigate away
     if (hasPendingItems && currentItem) {
       return (
         <GuideBar
@@ -133,10 +133,15 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
           accentClass="border-primary/30 from-primary/15 to-accent/10"
           iconColor="text-primary"
           actionLabel={isHe ? 'פתח' : 'Open'}
+          actionIcon={<MessageCircle className="w-3.5 h-3.5" />}
           onAction={() => {
             markItemClicked(currentItem.id);
-            auroraChat?.setPendingProactiveMessage(`${currentItem.title}\n\n${currentItem.body}`);
-            navigate('/aurora');
+            // Open Aurora dock inline instead of navigating away
+            if (auroraChat) {
+              auroraChat.setPendingProactiveMessage(`${currentItem.title}\n\n${currentItem.body}`);
+              auroraChat.setIsDockVisible(true);
+              auroraChat.setIsChatExpanded(true);
+            }
           }}
           onDismiss={() => dismissItem(currentItem.id)}
           isRTL={isRTL}
