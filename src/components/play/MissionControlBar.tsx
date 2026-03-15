@@ -1,51 +1,129 @@
 /**
  * MissionControlBar — Media-player style control bar for the Play page.
- * Large glowing Play button in the center, with prev/next/skip controls.
+ * Uses tactical plan data (useTodayExecution) as SSOT.
+ * Large glowing Play button, prev/next/skip controls.
  */
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useFocusQueue } from '@/hooks/useFocusQueue';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { FocusQueueModal } from './FocusQueueModal';
+import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
+import { useWeeklyTacticalPlan, type TacticalAction } from '@/hooks/useWeeklyTacticalPlan';
+import { useQueryClient } from '@tanstack/react-query';
+import type { NowQueueItem } from '@/types/planning';
 import {
-  Play, SkipBack, SkipForward, FastForward, ListMusic, Pause,
+  Play, SkipBack, SkipForward, FastForward, ListMusic, MessageSquare,
 } from 'lucide-react';
+
+function tacticalToNowItem(action: TacticalAction): NowQueueItem {
+  return {
+    pillarId: action.focusArea || action.blockCategory || 'general',
+    hub: 'arena',
+    actionType: action.actionType || action.blockCategory || 'milestone',
+    title: action.title,
+    titleEn: action.titleEn || action.title,
+    durationMin: action.estimatedMinutes,
+    isTimeBased: action.executionTemplate === 'timer_focus' || action.executionTemplate === 'sets_reps_timer',
+    urgencyScore: 80,
+    reason: '',
+    sourceType: 'milestone',
+    sourceId: action.sourceMilestoneId || undefined,
+    milestoneId: action.sourceMilestoneId || undefined,
+    milestoneTitle: action.title,
+    missionId: action.missionId || undefined,
+    executionTemplate: (action.executionTemplate as NowQueueItem['executionTemplate']) || undefined,
+    completed: !!action.completed,
+    calendarDate: action.calendarDate,
+  };
+}
 
 export function MissionControlBar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const [queueOpen, setQueueOpen] = useState(false);
-  const { items, nextItem, nextIndex, completedCount, totalCount, complete, skip } = useFocusQueue();
+  const queryClient = useQueryClient();
 
+  const [queueOpen, setQueueOpen] = useState(false);
+  const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
+  const [executionOpen, setExecutionOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [journeyAction, setJourneyAction] = useState<TacticalAction | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatTaskTitle, setChatTaskTitle] = useState<string | null>(null);
+
+  const { queue, actionsCompleted, actionsTotal, hasPlan } = useTodayExecution();
+  const phasePlan = useWeeklyTacticalPlan();
+  const { days, toggleActionComplete } = phasePlan as any;
+
+  // Get today's actions flattened from tactical plan
+  const todayPlan = days?.find((d: any) => d.isToday) || null;
+  const todayActions: TacticalAction[] = todayPlan
+    ? todayPlan.blocks.flatMap((b: any) => b.actions)
+    : [];
+
+  const incompleteActions = todayActions.filter(a => !a.completed);
+  const nextAction = incompleteActions[0] || null;
+  const nextIndex = nextAction ? todayActions.indexOf(nextAction) : -1;
+  const prevAction = nextIndex > 0 ? todayActions[nextIndex - 1] : null;
+
+  const completedCount = todayActions.filter(a => a.completed).length;
+  const totalCount = todayActions.length;
   const progressPct = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  const currentTitle = nextItem
-    ? nextItem.title
+
+  const currentTitle = nextAction
+    ? (isHe ? nextAction.title : (nextAction.titleEn || nextAction.title))
     : (isHe ? 'כל המשימות הושלמו!' : 'All missions complete!');
 
-  const pillarLabel = nextItem?.pillar
-    ? nextItem.pillar.charAt(0).toUpperCase() + nextItem.pillar.slice(1)
+  const pillarLabel = nextAction?.focusArea
+    ? nextAction.focusArea.charAt(0).toUpperCase() + nextAction.focusArea.slice(1)
     : '';
 
-  // Navigate to previous incomplete
-  const prevItem = nextIndex > 0 ? items[nextIndex - 1] : null;
-  const nextNextItem = nextIndex < items.length - 1 ? items[nextIndex + 1] : null;
+  const handleExecute = useCallback((action: TacticalAction) => {
+    if (action.sourceMilestoneId) {
+      setJourneyAction(action);
+      setJourneyOpen(true);
+    } else {
+      const nowItem = tacticalToNowItem(action);
+      setExecutionAction(nowItem);
+      setExecutionOpen(true);
+    }
+  }, []);
+
+  const handleSkip = useCallback((action: TacticalAction) => {
+    if (toggleActionComplete) {
+      toggleActionComplete({ ...action, completed: false } as any);
+    }
+  }, [toggleActionComplete]);
+
+  const handleTalkToTask = useCallback((taskTitle: string) => {
+    setChatTaskTitle(taskTitle);
+    setChatOpen(true);
+  }, []);
+
+  const invalidateAll = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+    queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+    queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
+  }, [queryClient]);
 
   return (
     <>
-      <div className="w-full max-w-xl mx-auto px-4" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="w-full max-w-xl mx-auto" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Now Playing display */}
         <div className="text-center mb-3">
           <AnimatePresence mode="wait">
             <motion.div
-              key={nextItem?.id || 'done'}
+              key={nextAction?.id || 'done'}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
               <p className="text-xs text-muted-foreground font-medium tracking-wider uppercase mb-1">
-                {nextItem
+                {nextAction
                   ? `${isHe ? 'משימה' : 'Mission'} ${nextIndex + 1}/${totalCount}`
                   : (isHe ? 'סיום' : 'Complete')
                 }
@@ -55,6 +133,11 @@ export function MissionControlBar() {
               </h2>
               {pillarLabel && (
                 <p className="text-[10px] text-primary/80 font-semibold mt-0.5">{pillarLabel}</p>
+              )}
+              {nextAction && (
+                <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                  {nextAction.estimatedMinutes}{isHe ? ' דק׳' : 'min'}
+                </p>
               )}
             </motion.div>
           </AnimatePresence>
@@ -82,8 +165,8 @@ export function MissionControlBar() {
 
           {/* Previous */}
           <button
-            onClick={() => {/* scroll to prev — handled by queue modal */}}
-            disabled={!prevItem}
+            onClick={() => prevAction && handleExecute(prevAction)}
+            disabled={!prevAction}
             className="w-10 h-10 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <SkipBack className="w-4.5 h-4.5" />
@@ -92,8 +175,8 @@ export function MissionControlBar() {
           {/* PLAY — the hero button */}
           <motion.button
             onClick={() => {
-              if (nextItem) {
-                setQueueOpen(true);
+              if (nextAction) {
+                handleExecute(nextAction);
               }
             }}
             whileTap={{ scale: 0.92 }}
@@ -103,53 +186,86 @@ export function MissionControlBar() {
               "shadow-[0_0_30px_hsl(var(--primary)/0.4),0_0_60px_hsl(var(--primary)/0.2)]",
               "hover:shadow-[0_0_40px_hsl(var(--primary)/0.6),0_0_80px_hsl(var(--primary)/0.3)]",
               "transition-shadow duration-300",
-              !nextItem && "opacity-60 from-emerald-500 via-emerald-400 to-teal-500 shadow-[0_0_30px_hsl(160_60%_45%/0.4)]"
+              !nextAction && "opacity-60 from-emerald-500 via-emerald-400 to-teal-500 shadow-[0_0_30px_hsl(160_60%_45%/0.4)]"
             )}
           >
-            {/* Glow ring */}
             <div className="absolute inset-0 rounded-full animate-pulse-glow opacity-50" />
-            {nextItem ? (
+            {nextAction ? (
               <Play className="w-7 h-7 text-primary-foreground ms-0.5" fill="currentColor" />
             ) : (
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                className="text-lg"
-              >
+              <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-lg">
                 🏆
               </motion.div>
             )}
           </motion.button>
 
-          {/* Next / Skip */}
+          {/* Next */}
           <button
-            onClick={() => nextNextItem && skip(nextItem?.id || '')}
-            disabled={!nextItem}
+            onClick={() => {
+              if (nextAction && incompleteActions.length > 1) {
+                handleExecute(incompleteActions[1]);
+              }
+            }}
+            disabled={incompleteActions.length <= 1}
             className="w-10 h-10 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <SkipForward className="w-4.5 h-4.5" />
           </button>
 
-          {/* Quick Skip */}
+          {/* Talk to task */}
           <button
-            onClick={() => nextItem && skip(nextItem.id)}
-            disabled={!nextItem}
+            onClick={() => nextAction && handleTalkToTask(nextAction.title)}
+            disabled={!nextAction}
             className="w-10 h-10 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
-            title={isHe ? 'דלג' : 'Skip'}
+            title={isHe ? 'דבר על המשימה' : 'Talk to task'}
           >
-            <FastForward className="w-4.5 h-4.5" />
+            <MessageSquare className="w-4.5 h-4.5" />
           </button>
         </div>
 
         {/* Tap to start label */}
-        {nextItem && (
+        {nextAction && (
           <p className="text-center text-[10px] text-muted-foreground/60 mt-2 font-medium">
             {isHe ? 'לחץ Play להתחלת סשן' : 'Press Play to start session'}
           </p>
         )}
       </div>
 
-      <FocusQueueModal open={queueOpen} onOpenChange={setQueueOpen} />
+      {/* Focus Queue Modal — with 10-day plan */}
+      <FocusQueueModal
+        open={queueOpen}
+        onOpenChange={setQueueOpen}
+        onExecuteAction={handleExecute}
+        onTalkToTask={handleTalkToTask}
+      />
+
+      {/* Execution Modal */}
+      <ExecutionModal
+        open={executionOpen}
+        onOpenChange={setExecutionOpen}
+        action={executionAction}
+        onComplete={invalidateAll}
+      />
+
+      {/* Milestone Journey Modal */}
+      <MilestoneJourneyModal
+        open={journeyOpen}
+        onOpenChange={setJourneyOpen}
+        milestoneId={journeyAction?.sourceMilestoneId || null}
+        milestoneTitle={journeyAction?.title || ''}
+        milestoneDescription={journeyAction?.description || undefined}
+        focusArea={journeyAction?.focusArea || undefined}
+        durationMinutes={journeyAction?.estimatedMinutes || 30}
+        onComplete={invalidateAll}
+      />
+
+      {/* Talk to Task Chat */}
+      <PlanChatWizard
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+        focusDayNumber={todayPlan?.dayNumber || null}
+        focusTaskTitle={chatTaskTitle}
+      />
     </>
   );
 }
