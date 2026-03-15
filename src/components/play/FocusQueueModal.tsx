@@ -1,8 +1,9 @@
 /**
- * FocusQueueModal — Today's Focus Queue.
- * Draggable cards sorted by priority. Reordering persists to DB.
+ * FocusQueueModal — Today's Focus Queue with 10-day tactical plan integration.
+ * Shows prioritized tasks from the tactical plan with drag-and-drop reordering.
+ * Includes 10-day selector, talk-to-task, and execution launch.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -22,17 +23,20 @@ import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useFocusQueue, type FocusQueueItem } from '@/hooks/useFocusQueue';
+import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
-  GripVertical, Play, CheckCircle2, SkipForward, Clock,
+  GripVertical, Play, CheckCircle2, SkipForward, Circle,
   Zap, Target, Dumbbell, Brain, Briefcase, Heart, X,
+  MessageSquare, Calendar, Wand2,
 } from 'lucide-react';
 
 interface FocusQueueModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onExecuteAction: (action: TacticalAction) => void;
+  onTalkToTask: (taskTitle: string) => void;
 }
 
 const PILLAR_ICONS: Record<string, typeof Target> = {
@@ -58,77 +62,161 @@ const PILLAR_COLORS: Record<string, string> = {
   play: 'text-fuchsia-400 bg-fuchsia-500/15',
 };
 
-export function FocusQueueModal({ open, onOpenChange }: FocusQueueModalProps) {
+export function FocusQueueModal({ open, onOpenChange, onExecuteAction, onTalkToTask }: FocusQueueModalProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { items, isLoading, reorder, complete, skip, completedCount, totalCount } = useFocusQueue();
-  const [localItems, setLocalItems] = useState<FocusQueueItem[]>([]);
 
-  // Sync local items when modal opens or items change
-  const displayItems = localItems.length > 0 ? localItems : items;
+  const phasePlan = useWeeklyTacticalPlan();
+  const { days, phase, isLoading, toggleActionComplete } = phasePlan as any;
+
+  // 10-day selector state
+  const todayIndex = useMemo(() => {
+    const idx = (days || []).findIndex((d: DayPlan) => d.isToday);
+    return idx >= 0 ? idx : 0;
+  }, [days]);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  // Reset to today when modal opens
+  useEffect(() => {
+    if (open) setSelectedDay(null);
+  }, [open]);
+
+  const activeDay = selectedDay ?? todayIndex;
+  const activeDayPlan: DayPlan | null = days?.[activeDay] || null;
+
+  // Flatten actions for the active day, sorted by priority (incomplete first)
+  const dayActions: TacticalAction[] = useMemo(() => {
+    if (!activeDayPlan) return [];
+    const all = activeDayPlan.blocks.flatMap((b: any) => b.actions);
+    // Sort: incomplete first, then by order
+    return [...all].sort((a, b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return (a.orderIndex || 0) - (b.orderIndex || 0);
+    });
+  }, [activeDayPlan]);
+
+  const [localOrder, setLocalOrder] = useState<string[]>([]);
+
+  // Reset local order when day changes
+  useEffect(() => {
+    setLocalOrder([]);
+  }, [activeDay]);
+
+  const displayActions = useMemo(() => {
+    if (localOrder.length === 0) return dayActions;
+    const map = new Map(dayActions.map(a => [a.id, a]));
+    return localOrder.map(id => map.get(id)).filter(Boolean) as TacticalAction[];
+  }, [dayActions, localOrder]);
+
+  const completedCount = dayActions.filter(a => a.completed).length;
+  const totalCount = dayActions.length;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
   );
 
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = displayItems.findIndex(i => i.id === active.id);
-    const newIndex = displayItems.findIndex(i => i.id === over.id);
+    const currentList = localOrder.length > 0 ? localOrder : dayActions.map(a => a.id);
+    const oldIndex = currentList.indexOf(active.id as string);
+    const newIndex = currentList.indexOf(over.id as string);
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const reordered = arrayMove(displayItems, oldIndex, newIndex);
-    setLocalItems(reordered);
+    setLocalOrder(arrayMove(currentList, oldIndex, newIndex));
+  }, [localOrder, dayActions]);
 
-    try {
-      await reorder(reordered.map(i => i.id));
-    } catch (e) {
-      console.error('Reorder failed:', e);
-      setLocalItems([]);
+  const handleToggle = useCallback((action: TacticalAction) => {
+    if (toggleActionComplete) {
+      toggleActionComplete(action);
     }
-  }, [displayItems, reorder]);
+  }, [toggleActionComplete]);
 
-  const handleComplete = async (id: string) => {
-    await complete(id);
-    setLocalItems([]);
-  };
-
-  const handleSkip = async (id: string) => {
-    await skip(id);
-    setLocalItems([]);
-  };
+  const isToday = activeDayPlan?.isToday ?? false;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[95vw] max-h-[85vh] overflow-hidden p-0 gap-0 rounded-2xl" preventClose>
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm" dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-primary" />
+        <div className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm" dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-foreground">
+                  {isHe ? 'תור המשימות' : 'Focus Queue'}
+                </h2>
+                <p className="text-[10px] text-muted-foreground">
+                  {isHe ? `שלב ${phase}` : `Phase ${phase}`} · {completedCount}/{totalCount} {isHe ? 'הושלמו' : 'done'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-foreground">
-                {isHe ? 'תור המשימות' : "Today's Focus Queue"}
-              </h2>
-              <p className="text-[10px] text-muted-foreground">
-                {completedCount}/{totalCount} {isHe ? 'הושלמו' : 'completed'}
-              </p>
-            </div>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={() => onOpenChange(false)}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          {/* 10-Day Selector */}
+          <div className="flex gap-1 px-3 pb-2 overflow-x-auto no-scrollbar">
+            {(days || []).map((day: DayPlan) => {
+              const isActive = day.dayIndex === activeDay;
+              const hasActions = day.totalActions > 0;
+              const dayPct = day.totalActions > 0 ? Math.round((day.completedActions / day.totalActions) * 100) : 0;
+
+              return (
+                <button
+                  key={day.dayIndex}
+                  onClick={() => setSelectedDay(day.dayIndex)}
+                  className={cn(
+                    "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[36px] relative",
+                    isActive
+                      ? "bg-primary/15 border border-primary/30"
+                      : hasActions
+                        ? "bg-muted/20 border border-border/20 hover:bg-muted/40"
+                        : "bg-transparent border border-transparent opacity-40"
+                  )}
+                >
+                  <span className={cn(
+                    "text-[10px] font-bold",
+                    isActive ? "text-primary" : "text-foreground/60"
+                  )}>
+                    {day.dayNumber}
+                  </span>
+                  <span className={cn(
+                    "text-[8px]",
+                    isActive ? "text-primary/70" : "text-muted-foreground"
+                  )}>
+                    {day.completedActions}/{day.totalActions}
+                  </span>
+                  <span className={cn(
+                    "text-[7px]",
+                    isActive ? "text-primary/60" : "text-muted-foreground/60"
+                  )}>
+                    {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
+                  </span>
+                  {day.isToday && (
+                    <div className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
+                  )}
+                  {dayPct === 100 && day.totalActions > 0 && (
+                    <div className="absolute -top-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center">
+                      <CheckCircle2 className="w-2 h-2 text-white" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Queue progress */}
-        <div className="px-4 pt-3 pb-2" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Progress bar */}
+        <div className="px-4 pt-2 pb-1" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
@@ -136,22 +224,33 @@ export function FocusQueueModal({ open, onOpenChange }: FocusQueueModalProps) {
               transition={{ duration: 0.4 }}
             />
           </div>
+          {activeDayPlan && (
+            <div className="flex items-center justify-between mt-1.5">
+              <span className="text-[10px] text-muted-foreground font-medium">
+                {isHe ? activeDayPlan.label : activeDayPlan.labelEn}
+                {isToday && <span className="text-primary ms-1">({isHe ? 'היום' : 'Today'})</span>}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {activeDayPlan.totalMinutes}{isHe ? ' דק׳' : ' min'}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Sortable list */}
+        {/* Sortable task list */}
         <div className="flex-1 overflow-y-auto px-3 pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : displayItems.length === 0 ? (
+          ) : displayActions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="text-4xl mb-3">🏆</div>
+              <div className="text-4xl mb-3">🌙</div>
               <h3 className="text-sm font-bold text-foreground">
-                {isHe ? 'אין משימות להיום' : 'No tasks for today'}
+                {isHe ? 'יום מנוחה' : 'Rest day'}
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                {isHe ? 'צור משימות חדשות או חכה לאיזון יומי' : 'Create tasks or wait for daily rebalance'}
+                {isHe ? 'אין משימות מתוכננות ליום זה' : 'No missions scheduled for this day'}
               </p>
             </div>
           ) : (
@@ -160,18 +259,25 @@ export function FocusQueueModal({ open, onOpenChange }: FocusQueueModalProps) {
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <SortableContext items={displayItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={displayActions.map(a => a.id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-2 pt-1">
-                  {displayItems.map((item, idx) => (
-                    <SortableTaskCard
-                      key={item.id}
-                      item={item}
+                  {displayActions.map((action, idx) => (
+                    <SortableActionCard
+                      key={action.id}
+                      action={action}
                       index={idx}
-                      isNext={idx === 0}
+                      isFirst={idx === 0 && !action.completed}
                       isHe={isHe}
                       isRTL={isRTL}
-                      onComplete={() => handleComplete(item.id)}
-                      onSkip={() => handleSkip(item.id)}
+                      onToggle={() => handleToggle(action)}
+                      onExecute={() => {
+                        onOpenChange(false);
+                        setTimeout(() => onExecuteAction(action), 150);
+                      }}
+                      onTalkToTask={() => {
+                        onOpenChange(false);
+                        setTimeout(() => onTalkToTask(action.title), 150);
+                      }}
                     />
                   ))}
                 </div>
@@ -184,18 +290,19 @@ export function FocusQueueModal({ open, onOpenChange }: FocusQueueModalProps) {
   );
 }
 
-// ── Sortable Task Card ──
-interface SortableTaskCardProps {
-  item: FocusQueueItem;
+// ── Sortable Action Card ──
+interface SortableActionCardProps {
+  action: TacticalAction;
   index: number;
-  isNext: boolean;
+  isFirst: boolean;
   isHe: boolean;
   isRTL: boolean;
-  onComplete: () => void;
-  onSkip: () => void;
+  onToggle: () => void;
+  onExecute: () => void;
+  onTalkToTask: () => void;
 }
 
-function SortableTaskCard({ item, index, isNext, isHe, isRTL, onComplete, onSkip }: SortableTaskCardProps) {
+function SortableActionCard({ action, index, isFirst, isHe, isRTL, onToggle, onExecute, onTalkToTask }: SortableActionCardProps) {
   const {
     attributes,
     listeners,
@@ -203,7 +310,7 @@ function SortableTaskCard({ item, index, isNext, isHe, isRTL, onComplete, onSkip
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ id: action.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -211,7 +318,7 @@ function SortableTaskCard({ item, index, isNext, isHe, isRTL, onComplete, onSkip
     zIndex: isDragging ? 50 : undefined,
   };
 
-  const pillar = item.pillar || 'default';
+  const pillar = action.focusArea || 'default';
   const colorClass = PILLAR_COLORS[pillar] || 'text-muted-foreground bg-muted/30';
   const PillarIcon = PILLAR_ICONS[pillar] || PILLAR_ICONS.default;
 
@@ -222,8 +329,9 @@ function SortableTaskCard({ item, index, isNext, isHe, isRTL, onComplete, onSkip
       className={cn(
         "relative rounded-xl border bg-card transition-all",
         isDragging && "shadow-xl shadow-primary/20 scale-[1.02] border-primary/40",
-        isNext && !isDragging && "border-primary/30 ring-1 ring-primary/20",
-        !isNext && !isDragging && "border-border/40",
+        action.completed && "opacity-50",
+        isFirst && !isDragging && !action.completed && "border-primary/30 ring-1 ring-primary/20",
+        !isFirst && !isDragging && !action.completed && "border-border/40",
       )}
     >
       <div className="flex items-center gap-2 p-3">
@@ -236,59 +344,71 @@ function SortableTaskCard({ item, index, isNext, isHe, isRTL, onComplete, onSkip
           <GripVertical className="w-4 h-4" />
         </button>
 
-        {/* Priority badge */}
-        <div className={cn(
-          "flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold",
-          isNext ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground"
-        )}>
-          {index + 1}
-        </div>
+        {/* Checkbox */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          className="flex-shrink-0 p-0.5 rounded-full hover:bg-muted/50 transition-colors"
+        >
+          {action.completed ? (
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+          ) : (
+            <Circle className="h-4 w-4 text-muted-foreground/50 hover:text-primary" />
+          )}
+        </button>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-foreground line-clamp-1">
-            {item.title}
+        {/* Content — tap to execute */}
+        <button
+          onClick={onExecute}
+          className="flex-1 min-w-0 text-start hover:opacity-80 transition-opacity"
+        >
+          <h4 className={cn(
+            "text-xs font-semibold line-clamp-1",
+            action.completed ? "line-through text-muted-foreground" : "text-foreground"
+          )}>
+            {isHe ? action.title : (action.titleEn || action.title)}
           </h4>
           <div className="flex items-center gap-2 mt-0.5">
-            {item.pillar && (
-              <span className={cn("inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md", colorClass)}>
+            {pillar !== 'default' && (
+              <span className={cn("inline-flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded-md", colorClass)}>
                 <PillarIcon className="w-2.5 h-2.5" />
-                {item.pillar}
+                {pillar}
               </span>
             )}
-            {item.xp_reward > 0 && (
-              <span className="text-[10px] text-amber-400 font-medium">+{item.xp_reward} XP</span>
+            <span className="text-[9px] text-muted-foreground">
+              {action.estimatedMinutes}{isHe ? ' דק׳' : 'm'}
+            </span>
+            {action.xpReward > 0 && (
+              <span className="text-[9px] text-amber-400 font-medium">+{action.xpReward} XP</span>
             )}
           </div>
-        </div>
+        </button>
 
-        {/* Actions */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {isNext ? (
+        {/* Action buttons */}
+        <div className="flex items-center gap-0.5 flex-shrink-0">
+          <button
+            onClick={onTalkToTask}
+            className="p-1.5 rounded-lg text-primary/40 hover:text-primary hover:bg-primary/10 transition-colors"
+            title={isHe ? 'דבר על המשימה' : 'Talk about task'}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+          </button>
+          {isFirst && !action.completed ? (
             <Button
               size="sm"
-              onClick={onComplete}
-              className="h-7 px-2.5 text-xs rounded-lg gap-1"
+              onClick={onExecute}
+              className="h-7 px-2 text-[10px] rounded-lg gap-1"
             >
               <Play className="w-3 h-3" fill="currentColor" />
               {isHe ? 'התחל' : 'Start'}
             </Button>
-          ) : (
+          ) : !action.completed ? (
             <button
-              onClick={onComplete}
-              className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/15 transition-colors"
-              title={isHe ? 'השלם' : 'Complete'}
+              onClick={onExecute}
+              className="p-1.5 rounded-lg text-primary/40 hover:text-primary hover:bg-primary/10 transition-colors"
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <Play className="w-3.5 h-3.5" />
             </button>
-          )}
-          <button
-            onClick={onSkip}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            title={isHe ? 'דלג' : 'Skip'}
-          >
-            <SkipForward className="w-3.5 h-3.5" />
-          </button>
+          ) : null}
         </div>
       </div>
     </div>
