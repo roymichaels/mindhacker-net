@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
-import { NextStepGuide } from '@/components/dashboard/NextStepGuide';
+import { MissionControlBar } from '@/components/play/MissionControlBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -89,9 +89,9 @@ export default function PlayHub() {
         </div>
       )}
 
-      {/* ── Next Step Guide ── */}
-      <div className="w-full max-w-xl px-4 pt-2">
-        <NextStepGuide />
+      {/* ── Mission Control Bar ── */}
+      <div className="w-full max-w-xl px-4 pt-3 pb-2">
+        <MissionControlBar />
       </div>
 
       {/* Strategy & Work modal cards */}
