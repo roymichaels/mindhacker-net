@@ -20,8 +20,9 @@ import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 
+import { TaskCardsGrid } from '@/components/play/TaskCardsGrid';
+
 const LifeHub = lazy(() => import('./LifeHub'));
-const ArenaHub = lazy(() => import('./ArenaHub'));
 const WorkHub = lazy(() => import('./WorkHub'));
 
 export default function PlayHub() {
