@@ -123,7 +123,7 @@ export function TaskCardsGrid() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.04, duration: 0.25 }}
                 className={cn(
-                  "group relative rounded-2xl border p-3.5 transition-all duration-200",
+                  "group relative rounded-xl border px-3 py-2 transition-all duration-200",
                   "bg-card hover:shadow-lg",
                   style.border,
                   style.glow && `hover:${style.glow}`,
@@ -134,51 +134,36 @@ export function TaskCardsGrid() {
                 <div className={cn("absolute top-0 inset-x-4 h-[2px] rounded-full", style.bg.replace('/10', '/40'))} />
 
                 {/* Header: pillar + duration */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className={cn("text-[10px] font-bold uppercase tracking-wider", style.icon)}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={cn("text-[9px] font-bold uppercase tracking-wider", style.icon)}>
                     {pillarLabel}
                   </span>
-                  <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                    <Clock className="w-3 h-3" />
+                  <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                    <Clock className="w-2.5 h-2.5" />
                     {action.estimatedMinutes}{isHe ? '׳' : 'm'}
                   </span>
                 </div>
 
                 {/* Title */}
                 <h3 className={cn(
-                  "text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3 min-h-[2.5rem]",
+                  "text-xs font-bold text-foreground leading-tight line-clamp-1 mb-1.5",
                   action.completed && "line-through text-muted-foreground"
                 )}>
                   {title}
                 </h3>
 
-                {/* Difficulty dots */}
-                {action.difficulty && (
-                  <div className="flex items-center gap-0.5 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          i < action.difficulty ? style.bg.replace('/10', '/60') : 'bg-muted/30'
-                        )}
-                      />
-                    ))}
-                  </div>
-                )}
-
                 {/* Action buttons */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   {!action.completed ? (
                     <>
                       <button
                         onClick={() => handleExecute(action)}
                         className={cn(
-                          "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all",
+                          "flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold transition-all",
                           "bg-primary/15 text-primary hover:bg-primary/25 active:scale-[0.97]"
                         )}
                       >
-                        <Play className="w-3.5 h-3.5" fill="currentColor" />
+                        <Play className="w-3 h-3" fill="currentColor" />
                         {isHe ? 'התחל' : 'Start'}
                       </button>
                       <button
@@ -186,15 +171,15 @@ export function TaskCardsGrid() {
                           setChatTaskTitle(action.title);
                           setChatOpen(true);
                         }}
-                        className="p-2 rounded-xl bg-muted/40 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all"
+                        className="p-1.5 rounded-lg bg-muted/40 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all"
                         title={isHe ? 'דבר על המשימה' : 'Talk about task'}
                       >
-                        <MessageSquare className="w-3.5 h-3.5" />
+                        <MessageSquare className="w-3 h-3" />
                       </button>
                     </>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold">
-                      <CheckCircle2 className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       {isHe ? 'הושלם' : 'Done'}
                     </div>
                   )}
