@@ -146,7 +146,7 @@ export function TaskCardsGrid() {
 
                 {/* Title */}
                 <h3 className={cn(
-                  "text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3 min-h-[2.5rem]",
+                  "text-xs font-bold text-foreground leading-tight line-clamp-1 mb-1.5",
                   action.completed && "line-through text-muted-foreground"
                 )}>
                   {title}
