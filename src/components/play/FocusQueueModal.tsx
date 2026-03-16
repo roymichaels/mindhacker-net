@@ -138,7 +138,7 @@ export function FocusQueueModal({ open, onOpenChange, onExecuteAction, onTalkToT
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-[95vw] max-h-[85vh] overflow-hidden p-0 gap-0 rounded-2xl" preventClose>
+      <DialogContent className="max-w-md w-[95vw] max-h-[85vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
         {/* Header */}
         <div className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="flex items-center justify-between px-4 py-3">
