@@ -123,7 +123,7 @@ export function TaskCardsGrid() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.04, duration: 0.25 }}
                 className={cn(
-                  "group relative rounded-2xl border p-3.5 transition-all duration-200",
+                  "group relative rounded-xl border px-3 py-2 transition-all duration-200",
                   "bg-card hover:shadow-lg",
                   style.border,
                   style.glow && `hover:${style.glow}`,
