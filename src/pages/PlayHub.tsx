@@ -75,28 +75,8 @@ export default function PlayHub() {
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* ── Unified Stats Strip ── */}
-      {plan && (
-        <div className="w-full max-w-xl px-4 pt-3 pb-1">
-          <div className="grid grid-cols-6 gap-1.5">
-            {statItems.map((s) => (
-              <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2 flex flex-col items-center gap-0.5">
-                <s.icon className={cn("w-3.5 h-3.5", s.color)} />
-                <span className="text-xs font-bold text-foreground leading-none">{s.value}</span>
-                <span className="text-[8px] text-muted-foreground text-center leading-tight">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Mission Control Bar ── */}
-      <div className="w-full max-w-xl px-4 pt-3 pb-2">
-        <MissionControlBar />
-      </div>
-
       {/* Strategy & Work modal cards */}
-      <div className="w-full max-w-xl px-4 pt-2 pb-1">
+      <div className="w-full max-w-xl px-4 pt-3 pb-1">
         <div className="grid grid-cols-2 gap-3">
           {/* Strategy Card */}
           <button
@@ -184,6 +164,26 @@ export default function PlayHub() {
             </div>
           </button>
         </div>
+      </div>
+
+      {/* ── Unified Stats Strip ── */}
+      {plan && (
+        <div className="w-full max-w-xl px-4 pt-1 pb-1">
+          <div className="grid grid-cols-6 gap-1.5">
+            {statItems.map((s) => (
+              <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2 flex flex-col items-center gap-0.5">
+                <s.icon className={cn("w-3.5 h-3.5", s.color)} />
+                <span className="text-xs font-bold text-foreground leading-none">{s.value}</span>
+                <span className="text-[8px] text-muted-foreground text-center leading-tight">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Mission Control Bar ── */}
+      <div className="w-full max-w-xl px-4 pt-3 pb-2">
+        <MissionControlBar />
       </div>
 
       {/* Today's Task Cards */}
