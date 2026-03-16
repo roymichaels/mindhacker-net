@@ -134,12 +134,12 @@ export function TaskCardsGrid() {
                 <div className={cn("absolute top-0 inset-x-4 h-[2px] rounded-full", style.bg.replace('/10', '/40'))} />
 
                 {/* Header: pillar + duration */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className={cn("text-[10px] font-bold uppercase tracking-wider", style.icon)}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={cn("text-[9px] font-bold uppercase tracking-wider", style.icon)}>
                     {pillarLabel}
                   </span>
-                  <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                    <Clock className="w-3 h-3" />
+                  <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                    <Clock className="w-2.5 h-2.5" />
                     {action.estimatedMinutes}{isHe ? '׳' : 'm'}
                   </span>
                 </div>
