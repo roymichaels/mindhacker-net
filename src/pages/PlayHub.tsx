@@ -186,10 +186,8 @@ export default function PlayHub() {
         </div>
       </div>
 
-      {/* Tactics content */}
-      <Suspense fallback={null}>
-        <ArenaHub />
-      </Suspense>
+      {/* Today's Task Cards */}
+      <TaskCardsGrid />
 
       {/* Strategy Modal */}
       <Dialog open={strategyOpen} onOpenChange={setStrategyOpen}>
