@@ -599,11 +599,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         colors.push(colors.length > 0 ? colors[colors.length - 1].clone() : new THREE.Vector3(...FALLBACK_RGB));
       }
     }
-    // Log once for debugging
-    const totalBrightness = colors.reduce((s, c) => s + c.x + c.y + c.z, 0);
-    if (totalBrightness < 0.5) {
-      console.warn('[WebGLOrb] All gradient colors are near-zero! Stops:', gradientStops, 'Vecs:', colors.map(c => `(${c.x.toFixed(2)},${c.y.toFixed(2)},${c.z.toFixed(2)})`));
-    }
+    
     return colors;
   }, [gradientStops]);
 
