@@ -247,10 +247,8 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
 
     // Strip nikud to reduce character count — TTS handles Hebrew fine without them
     const text = stripNikud(rawText);
-    console.log('[TTS] Text prepared:', { rawLen: rawText.length, cleanLen: text.length });
 
-    const chunks = splitTextIntoChunks(text);
-    console.log('[TTS] Split into', chunks.length, 'chunks:', chunks.map(c => c.length));
+
 
     setIsLoading(true);
     busyRef.current = true;
