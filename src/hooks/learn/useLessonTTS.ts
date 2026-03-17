@@ -286,7 +286,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
 
         if (!success) {
           // Fallback: play remaining text with browser TTS
-          console.log('[TTS] Falling back to browser for remaining', chunks.length - i, 'chunks');
+          
           const remainingText = chunks.slice(i).join('\n\n');
           speakWithBrowserFallback(remainingText, speed);
           return;
