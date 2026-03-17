@@ -157,7 +157,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     text: string, 
     signal: AbortSignal,
   ): Promise<boolean> => {
-    console.log('[TTS] Playing chunk:', { length: text.length });
+    
 
     // Create a timeout that aborts after 35 seconds
     const timeoutController = new AbortController();
@@ -193,7 +193,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
       }
 
       const blob = await response.blob();
-      console.log('[TTS] Chunk audio received:', { size: blob.size });
+      
       const url = URL.createObjectURL(blob);
       
       return new Promise<boolean>((resolve, reject) => {
@@ -207,12 +207,12 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
         audioRef.current = audio;
 
         audio.onplay = () => { 
-          console.log('[TTS] Audio playing');
+          
           setIsPlaying(true); 
           setIsLoading(false); 
         };
         audio.onended = () => {
-          console.log('[TTS] Audio chunk ended naturally');
+          
           URL.revokeObjectURL(url);
           audioRef.current = null;
           resolve(true);
@@ -247,10 +247,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
 
     // Strip nikud to reduce character count — TTS handles Hebrew fine without them
     const text = stripNikud(rawText);
-    console.log('[TTS] Text prepared:', { rawLen: rawText.length, cleanLen: text.length });
-
     const chunks = splitTextIntoChunks(text);
-    console.log('[TTS] Split into', chunks.length, 'chunks:', chunks.map(c => c.length));
 
     setIsLoading(true);
     busyRef.current = true;
@@ -261,18 +258,18 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     try {
       for (let i = 0; i < chunks.length; i++) {
         if (!playingRef.current) {
-          console.log('[TTS] Playback stopped by user at chunk', i);
+          
           break;
         }
 
-        console.log('[TTS] Starting chunk', i + 1, 'of', chunks.length);
+        
 
         let success: boolean;
         try {
           success = await playChunk(chunks[i], controller.signal);
         } catch (chunkErr: any) {
           if (chunkErr.name === 'AbortError') {
-            console.log('[TTS] Chunk aborted');
+            
             return;
           }
           console.warn('[TTS] Chunk', i + 1, 'error, retrying once:', chunkErr);
@@ -288,13 +285,13 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
 
         if (!success) {
           // Fallback: play remaining text with browser TTS
-          console.log('[TTS] Falling back to browser for remaining', chunks.length - i, 'chunks');
+          
           const remainingText = chunks.slice(i).join('\n\n');
           speakWithBrowserFallback(remainingText, speed);
           return;
         }
 
-        console.log('[TTS] Chunk', i + 1, 'of', chunks.length, 'complete');
+        
       }
 
       // All chunks done

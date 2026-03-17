@@ -277,7 +277,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     const timeoutId = setTimeout(() => {
       cancelled = true;
       setIsEnhancing(false);
-      console.log('AI enhancement timed out — keeping static fallback');
+      
     }, 20_000);
 
     (async () => {
@@ -314,7 +314,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
           setIsEnhanced(true);
         }
       } catch (e) {
-        console.log('AI enhancement skipped:', e instanceof Error ? e.message : 'unknown');
+        
       } finally {
         if (!cancelled) {
           setIsEnhancing(false);

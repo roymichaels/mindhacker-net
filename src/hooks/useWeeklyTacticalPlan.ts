@@ -636,7 +636,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     const newDone = !action.completed;
     const date = action.calendarDate || todayStr;
 
-    console.log('[toggle]', { title: action.title, currentlyCompleted: action.completed, newDone, date });
+    
 
     // Optimistic update: immediately update cached completion data
     const prevKey = ['action-items-completed', user.id, phaseStart, phaseEnd];
@@ -700,7 +700,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
           .eq('title', action.title)
           .select('id');
         
-        console.log('[toggle:uncheck] Hebrew title match:', { title: action.title, updated: updated?.length, error: err1?.message });
+        
         
         // If no match, try English title
         if ((!updated || updated.length === 0) && action.titleEn && action.titleEn !== action.title) {
@@ -713,7 +713,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
             .eq('title', action.titleEn)
             .select('id');
           
-          console.log('[toggle:uncheck] English title match:', { titleEn: action.titleEn, updated: updated2?.length, error: err2?.message });
+          
         }
       }
     } catch (err) {
