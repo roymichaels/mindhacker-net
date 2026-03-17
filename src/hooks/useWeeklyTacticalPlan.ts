@@ -700,7 +700,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
           .eq('title', action.title)
           .select('id');
         
-        console.log('[toggle:uncheck] Hebrew title match:', { title: action.title, updated: updated?.length, error: err1?.message });
+        
         
         // If no match, try English title
         if ((!updated || updated.length === 0) && action.titleEn && action.titleEn !== action.title) {
