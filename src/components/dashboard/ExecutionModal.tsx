@@ -277,7 +277,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     const timeoutId = setTimeout(() => {
       cancelled = true;
       setIsEnhancing(false);
-      console.log('AI enhancement timed out — keeping static fallback');
+      
     }, 20_000);
 
     (async () => {
