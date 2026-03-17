@@ -713,7 +713,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
             .eq('title', action.titleEn)
             .select('id');
           
-          console.log('[toggle:uncheck] English title match:', { titleEn: action.titleEn, updated: updated2?.length, error: err2?.message });
+          
         }
       }
     } catch (err) {

@@ -292,7 +292,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           return;
         }
 
-        console.log('[TTS] Chunk', i + 1, 'of', chunks.length, 'complete');
+        
       }
 
       // All chunks done
