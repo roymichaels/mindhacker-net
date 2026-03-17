@@ -212,7 +212,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           setIsLoading(false); 
         };
         audio.onended = () => {
-          console.log('[TTS] Audio chunk ended naturally');
+          
           URL.revokeObjectURL(url);
           audioRef.current = null;
           resolve(true);
