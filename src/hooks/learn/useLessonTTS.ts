@@ -259,7 +259,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     try {
       for (let i = 0; i < chunks.length; i++) {
         if (!playingRef.current) {
-          console.log('[TTS] Playback stopped by user at chunk', i);
+          
           break;
         }
 
