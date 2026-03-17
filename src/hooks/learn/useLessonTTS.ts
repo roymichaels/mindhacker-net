@@ -270,7 +270,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           success = await playChunk(chunks[i], controller.signal);
         } catch (chunkErr: any) {
           if (chunkErr.name === 'AbortError') {
-            console.log('[TTS] Chunk aborted');
+            
             return;
           }
           console.warn('[TTS] Chunk', i + 1, 'error, retrying once:', chunkErr);
