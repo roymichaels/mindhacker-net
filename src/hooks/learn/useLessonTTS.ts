@@ -193,7 +193,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
       }
 
       const blob = await response.blob();
-      console.log('[TTS] Chunk audio received:', { size: blob.size });
+      
       const url = URL.createObjectURL(blob);
       
       return new Promise<boolean>((resolve, reject) => {
