@@ -263,7 +263,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           break;
         }
 
-        console.log('[TTS] Starting chunk', i + 1, 'of', chunks.length);
+        
 
         let success: boolean;
         try {
