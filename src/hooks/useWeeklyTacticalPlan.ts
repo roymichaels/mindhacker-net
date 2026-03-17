@@ -636,7 +636,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
     const newDone = !action.completed;
     const date = action.calendarDate || todayStr;
 
-    console.log('[toggle]', { title: action.title, currentlyCompleted: action.completed, newDone, date });
+    
 
     // Optimistic update: immediately update cached completion data
     const prevKey = ['action-items-completed', user.id, phaseStart, phaseEnd];
