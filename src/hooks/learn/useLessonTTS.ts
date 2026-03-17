@@ -207,7 +207,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
         audioRef.current = audio;
 
         audio.onplay = () => { 
-          console.log('[TTS] Audio playing');
+          
           setIsPlaying(true); 
           setIsLoading(false); 
         };
