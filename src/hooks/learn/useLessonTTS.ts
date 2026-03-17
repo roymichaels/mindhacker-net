@@ -157,7 +157,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     text: string, 
     signal: AbortSignal,
   ): Promise<boolean> => {
-    console.log('[TTS] Playing chunk:', { length: text.length });
+    
 
     // Create a timeout that aborts after 35 seconds
     const timeoutController = new AbortController();
