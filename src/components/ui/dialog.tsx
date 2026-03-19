@@ -4,6 +4,7 @@ import { X, ArrowLeft, ArrowRight } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 
 import { cn } from "@/lib/utils";
+import { useChromeVisibility } from "@/contexts/ChromeVisibilityContext";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -33,8 +34,17 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     hideCloseButton?: boolean;
     preventClose?: boolean;
+    hideChrome?: boolean;
   }
->(({ className, children, hideCloseButton = false, preventClose = false, ...props }, ref) => {
+>(({ className, children, hideCloseButton = false, preventClose = false, hideChrome = false, ...props }, ref) => {
+  const chrome = useChromeVisibility();
+
+  React.useEffect(() => {
+    if (hideChrome) {
+      chrome.hideHeader();
+      return () => chrome.showHeader();
+    }
+  }, [hideChrome]);
   const swipeHandlers = useSwipeable({
     onSwipedDown: (eventData) => {
       if (preventClose) return;

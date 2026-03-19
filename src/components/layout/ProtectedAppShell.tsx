@@ -10,6 +10,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { SidebarProvider } from '@/contexts/SidebarContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { OnboardingGate } from '@/components/layout/OnboardingGate';
+import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
 
 const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
 
@@ -17,13 +18,15 @@ export default function ProtectedAppShell() {
   return (
     <ProtectedRoute>
       <OnboardingGate>
-        <SidebarProvider>
-          <Suspense fallback={<PageSkeleton />}>
-            <DashboardLayout>
-              <Outlet />
-            </DashboardLayout>
-          </Suspense>
-        </SidebarProvider>
+        <ChromeVisibilityProvider>
+          <SidebarProvider>
+            <Suspense fallback={<PageSkeleton />}>
+              <DashboardLayout>
+                <Outlet />
+              </DashboardLayout>
+            </Suspense>
+          </SidebarProvider>
+        </ChromeVisibilityProvider>
       </OnboardingGate>
     </ProtectedRoute>
   );

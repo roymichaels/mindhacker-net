@@ -6,6 +6,7 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useChromeVisibility } from '@/contexts/ChromeVisibilityContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -43,6 +44,12 @@ export default function CareerWizard({ careerPath, onComplete }: CareerWizardPro
   const { user } = useAuth();
   const navigate = useNavigate();
   const submitMutation = useSubmitCareerApplication();
+  const { hideHeader, showHeader } = useChromeVisibility();
+
+  useEffect(() => {
+    hideHeader();
+    return () => showHeader();
+  }, [hideHeader, showHeader]);
 
   const questions = CAREER_QUESTIONS[careerPath] || [];
   const meta = PATH_META[careerPath];
