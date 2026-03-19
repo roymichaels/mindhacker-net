@@ -3,24 +3,17 @@
  * Tab 1 (default): Text overview — motivating, non-demanding, shows strategy & all tasks
  * Tab 2: Mission Control — interactive with 10-day roadmap, media player, task execution
  */
-import { useState, useMemo, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Briefcase, MessageSquare, Search, MapPin, Trophy, Target, Clock, Zap, Star, BookOpen, Gamepad2, Brain, X } from 'lucide-react';
+import { Flame, Briefcase, MessageSquare, Search, BookOpen, Gamepad2, Brain, X } from 'lucide-react';
 import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
-import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
-import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { useWeeklyTacticalPlan } from '@/hooks/useWeeklyTacticalPlan';
-import { useTodayExecution } from '@/hooks/useTodayExecution';
-import { getCurrentDayInIsrael } from '@/utils/currentDay';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 
 import { TodayOverviewTab } from '@/components/play/TodayOverviewTab';
 import { MissionControlTab } from '@/components/play/MissionControlTab';
@@ -39,31 +32,6 @@ export default function PlayHub() {
   const navigate = useNavigate();
   const auroraChat = useAuroraChatContextSafe();
   const { openHypnosis } = useAuroraActions();
-
-  // ── Data for unified stats ──
-  const { plan, milestones } = useLifePlanWithMilestones();
-  const { statusMap } = useLifeDomains();
-  const { queue } = useTodayExecution();
-  const phasePlan = useWeeklyTacticalPlan();
-  const { totalActions: tacticTotal, completedActions: tacticCompleted, totalMinutes, days } = phasePlan as any;
-
-  const currentDay = useMemo(() => getCurrentDayInIsrael(plan?.start_date), [plan?.start_date]);
-  const totalDomains = CORE_DOMAINS.length;
-  const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
-  const totalMilestones = milestones?.length || 0;
-  const completedMilestones = milestones?.filter((m: any) => m.is_completed).length || 0;
-  const overallPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
-  const activeDays = days?.filter((d: any) => d.totalActions > 0).length || 0;
-  const avgMinPerDay = totalMinutes > 0 ? Math.round(totalMinutes / Math.max(1, activeDays)) : 0;
-
-  const statItems = [
-    { icon: MapPin, value: `${isHe ? 'יום' : 'Day'} ${currentDay}`, label: isHe ? 'מתוך 100' : 'of 100', color: 'text-orange-400' },
-    { icon: Trophy, value: `${overallPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-emerald-400' },
-    { icon: Zap, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
-    { icon: Target, value: queue?.length || 0, label: isHe ? 'פעולות היום' : "Today's Tasks", color: 'text-teal-400' },
-    { icon: Star, value: `${tacticCompleted || 0}/${tacticTotal || 0}`, label: isHe ? 'שלב' : 'Phase', color: 'text-violet-400' },
-    { icon: Clock, value: `${avgMinPerDay}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-sky-400' },
-  ];
 
   const openFindCoachWizard = () => {
     if (!user) { navigate('/auth'); return; }
@@ -95,21 +63,6 @@ export default function PlayHub() {
           <IPhoneWidget icon={Brain} label={isHe ? 'היפנוזה' : 'Hypnosis'} gradient="from-purple-500 to-fuchsia-600" onClick={openHypnosis} />
         </div>
       </div>
-
-      {/* ── Unified Stats Strip ── */}
-      {plan && (
-        <div className="w-full max-w-xl px-4 pt-1 pb-1">
-          <div className="grid grid-cols-6 gap-1.5">
-            {statItems.map((s) => (
-              <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2 flex flex-col items-center gap-0.5">
-                <s.icon className={cn("w-3.5 h-3.5", s.color)} />
-                <span className="text-xs font-bold text-foreground leading-none">{s.value}</span>
-                <span className="text-[8px] text-muted-foreground text-center leading-tight">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── Tab Switcher ── */}
       <div className="w-full max-w-xl px-4 pt-3 pb-2">

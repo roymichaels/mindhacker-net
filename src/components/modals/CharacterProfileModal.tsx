@@ -4,6 +4,7 @@
  * with a single inspect panel: Header → Stat Wheel → 4 internal tabs.
  */
 import { useState, useEffect } from 'react';
+import { PlayStatsStrip } from '@/components/play/PlayStatsStrip';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { createPortal } from 'react-dom';
@@ -412,6 +413,9 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
   return (
     <div className="space-y-3">
+      {/* Stats Strip */}
+      <PlayStatsStrip />
+
       {/* Stat Wheel */}
       <StatWheel isHe={isHe} />
 
