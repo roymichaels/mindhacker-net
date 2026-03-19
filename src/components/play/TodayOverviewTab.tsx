@@ -211,10 +211,11 @@ export function TodayOverviewTab() {
   const activePillarKey = activeTask?.focusArea || '';
   const activePillar = PILLAR_VIS[activePillarKey] || DEFAULT_PILLAR;
 
-  // Dynamic content based on the ACTIVE task's pillar
+  // Dynamic content based on the ACTIVE task's pillar — use task index as extra seed for variety
+  const taskSeed = seed + (activeIdx >= 0 ? activeIdx : 0);
   const { assessment, doctrine, intel } = useMemo(
-    () => getPillarContent(activePillarKey, seed, isHe),
-    [activePillarKey, seed, isHe],
+    () => getPillarContent(activePillarKey, taskSeed, isHe),
+    [activePillarKey, taskSeed, isHe],
   );
 
   const classification = totalCount === 0
