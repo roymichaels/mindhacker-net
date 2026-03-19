@@ -3,6 +3,7 @@
  * AI-generated stories appear first with branded bubbles; user stories follow.
  */
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
