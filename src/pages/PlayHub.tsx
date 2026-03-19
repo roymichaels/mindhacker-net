@@ -82,76 +82,29 @@ export default function PlayHub() {
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Strategy & Work modal cards */}
+      {/* Quick Action Cards — compact 4-col */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setStrategyOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
-          >
-            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-amber-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <div className="relative flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-                <Flame className="w-5 h-5 text-amber-500" />
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { onClick: () => setStrategyOpen(true), icon: Flame, label: isHe ? 'אסטרטגיה' : 'Strategy', border: 'border-amber-500/20', bg: 'bg-amber-500/[0.06]', iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/40' },
+            { onClick: () => setWorkOpen(true), icon: Briefcase, label: isHe ? 'עבודה' : 'Work', border: 'border-violet-500/20', bg: 'bg-violet-500/[0.06]', iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/40' },
+            { onClick: () => setChatOpen(true), icon: MessageSquare, label: isHe ? 'שיחה' : 'Chat', border: 'border-primary/20', bg: 'bg-primary/[0.06]', iconBg: 'bg-primary/15', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/40' },
+            { onClick: openFindCoachWizard, icon: Search, label: isHe ? 'מאמן' : 'Coach', border: 'border-emerald-500/20', bg: 'bg-emerald-500/[0.06]', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500', hoverBorder: 'hover:border-emerald-500/40' },
+          ].map((card) => (
+            <button
+              key={card.label}
+              onClick={card.onClick}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all active:scale-[0.97]",
+                card.border, card.bg, card.hoverBorder
+              )}
+            >
+              <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", card.iconBg)}>
+                <card.icon className={cn("w-4 h-4", card.iconColor)} />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">{isHe ? 'אסטרטגיה' : 'Strategy'}</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'תוכנית 100 יום' : '100-Day Plan'}</p>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setWorkOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-violet-500/20 bg-violet-500/[0.06] p-4 text-start transition-all hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10 active:scale-[0.99]"
-          >
-            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-violet-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <div className="relative flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center flex-shrink-0">
-                <Briefcase className="w-5 h-5 text-violet-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">{isHe ? 'מרכז עבודה' : 'Work Hub'}</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'טיימר ופרודוקטיביות' : 'Timer & Productivity'}</p>
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Talk to Plan & Find Coach */}
-      <div className="w-full max-w-xl px-4 pb-2">
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setChatOpen(true)}
-            className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.06] p-4 text-start transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.99]"
-          >
-            <div className="relative flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-                <MessageSquare className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">{isHe ? 'דבר עם התוכנית' : 'Talk to Plan'}</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'שאל את Aurora' : 'Ask Aurora'}</p>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={openFindCoachWizard}
-            className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 text-start transition-all hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.99]"
-          >
-            <div className="absolute top-0 end-0 w-20 h-20 rounded-full bg-emerald-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <div className="relative flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                <Search className="w-5 h-5 text-emerald-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">{isHe ? 'מצא מאמן' : 'Find a Coach'}</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'התאמה חכמה' : 'AI Matching'}</p>
-              </div>
-            </div>
-          </button>
+              <span className="text-[10px] font-semibold text-foreground leading-tight text-center">{card.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
