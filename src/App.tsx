@@ -516,6 +516,7 @@ const App = () => (
                 </BrowserRouter>
                 </TooltipProvider>
                 <Suspense fallback={null}><ProfilePage /></Suspense>
+                <SoulAvatarMintWizardGlobal />
                 </ProfileModalProvider>
                 </SoulAvatarProvider>
                 </WalletModalProvider>
