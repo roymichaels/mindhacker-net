@@ -28,6 +28,7 @@ export function BottomHudBar() {
   const ctx = useAuroraChatContextSafe();
   const { movementScore } = useTodayExecution();
   const { profile: userOrbProfile } = useOrbProfile();
+  const { openProfile } = useProfileModal();
 
   const [showBalloon, setShowBalloon] = useState(false);
 
