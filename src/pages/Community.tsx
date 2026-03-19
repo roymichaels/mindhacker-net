@@ -153,7 +153,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               <div className="min-w-0">
                 <h1 className="text-lg font-bold text-foreground truncate">
                   {isAll
-                    ? (isHe ? 'קהילה' : 'Community')
+                    ? (isHe ? 'פיד' : 'Feed')
                     : selectedTopic
                       ? (() => { const sub = subcategories.find(s => s.id === selectedTopic); return sub ? `${sub.icon} ${isHe ? sub.he : sub.en}` : pillarLabel; })()
                       : `${PILLAR_ICONS[selectedPillar] || '⚡'} ${pillarLabel}`
