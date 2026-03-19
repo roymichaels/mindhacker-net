@@ -295,13 +295,15 @@ export function speakWithBrowser(
       utterance.rate = options.rate || 0.85;
       utterance.pitch = 1;
 
-      // Try to find a suitable voice
-      const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
-      const englishFemaleVoice = voices.find(v => 
-        v.lang.startsWith('en') && v.name.toLowerCase().includes('female')
-      );
+      // Detect Hebrew content and set language accordingly
+      const hasHebrew = /[\u0590-\u05FF]/.test(currentChunkText);
+      utterance.lang = hasHebrew ? 'he-IL' : 'en-US';
+
+      // Try to find a suitable voice matching the detected language
+      const matchingVoice = voices.find(v => v.lang.startsWith(hasHebrew ? 'he' : 'en'));
+      const fallbackVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
       
-      utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
+      utterance.voice = matchingVoice || fallbackVoice || voices[0] || null;
       
       utterance.onstart = () => {
         if (cancelled) {
