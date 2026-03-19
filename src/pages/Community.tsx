@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import { MessageSquarePlus, ChevronLeft, Clock, Flame, MessageSquare, CalendarDays, MapPin, Sparkles, Users, ArrowRight } from 'lucide-react';
+import { MessageSquarePlus, ChevronLeft, Clock, Flame, CalendarDays, MapPin, Sparkles, Users, ArrowRight } from 'lucide-react';
 import UsernameGate from '@/components/community/UsernameGate';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
@@ -12,6 +12,7 @@ import ThreadList from '@/components/community/ThreadList';
 import AddToPlanModal from '@/components/community/AddToPlanModal';
 import EventsModal from '@/components/community/EventsModal';
 import AIMatchModal from '@/components/community/AIMatchModal';
+import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LIFE_DOMAINS, getDomainById } from '@/navigation/lifeDomains';
@@ -36,24 +37,35 @@ const PILLAR_ICONS: Record<string, string> = {
   influence: '👑', relationships: '🤝', business: '💼', projects: '📋', play: '🎮',
 };
 
-/** HSL color values per pillar for inline styling */
-const PILLAR_HSL: Record<string, string> = {
-  consciousness: '263 70% 58%',  // violet
-  presence: '292 84% 61%',       // fuchsia
-  power: '0 84% 60%',            // red
-  vitality: '38 92% 50%',        // amber
-  focus: '187 96% 42%',          // cyan
-  combat: '215 16% 47%',         // slate
-  expansion: '239 84% 67%',      // indigo
-  wealth: '160 84% 39%',         // emerald
-  influence: '271 81% 56%',      // purple
-  relationships: '199 89% 48%',  // sky
-  business: '25 95% 53%',        // orange
-  projects: '217 91% 60%',       // blue
-  play: '84 81% 44%',            // lime
-  order: '173 80% 40%',          // teal
-  romantics: '347 77% 50%',      // rose
+const GRADIENT_MAP: Record<string, string> = {
+  violet: 'from-violet-500 to-violet-700',
+  fuchsia: 'from-fuchsia-500 to-pink-600',
+  red: 'from-red-500 to-red-700',
+  amber: 'from-amber-500 to-orange-600',
+  cyan: 'from-cyan-500 to-cyan-700',
+  slate: 'from-slate-500 to-slate-700',
+  indigo: 'from-indigo-500 to-indigo-700',
+  emerald: 'from-emerald-500 to-emerald-700',
+  purple: 'from-purple-500 to-purple-700',
+  sky: 'from-sky-500 to-sky-700',
+  orange: 'from-orange-500 to-orange-700',
+  blue: 'from-blue-500 to-blue-700',
+  lime: 'from-lime-500 to-lime-700',
+  teal: 'from-teal-500 to-teal-700',
+  rose: 'from-rose-500 to-rose-700',
+  pink: 'from-pink-500 to-pink-700',
 };
+
+const TOPIC_GRADIENTS = [
+  'from-sky-500 to-sky-700',
+  'from-violet-500 to-violet-700',
+  'from-emerald-500 to-emerald-700',
+  'from-amber-500 to-orange-600',
+  'from-fuchsia-500 to-pink-600',
+  'from-indigo-500 to-indigo-700',
+  'from-cyan-500 to-cyan-700',
+  'from-blue-500 to-blue-700',
+];
 
 const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
