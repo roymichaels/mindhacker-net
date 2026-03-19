@@ -107,6 +107,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   , document.body) : null;
 
   return (<>
+    {traitsModal}
     <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
     <PracticesModal open={practicesOpen} onOpenChange={setPracticesOpen} />
     <OrbFullscreenViewer open={orbFullscreenOpen} onClose={() => setOrbFullscreenOpen(false)} />
