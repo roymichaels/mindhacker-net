@@ -22,12 +22,16 @@ const phases: RoadmapPhase[] = [
     titleHe: 'השקה ציבורית',
     titleEn: 'Public Launch',
     items: [
-      { he: '5 Hubs פעילים', en: '5 Active Hubs' },
+      { he: '6 Hubs פעילים', en: '6 Active Hubs' },
       { he: 'מנוע כרייה MOS', en: 'MOS Mining Engine' },
       { he: 'היפנוזה AI', en: 'AI Hypnosis' },
       { he: 'תוכנית 100 ימים', en: '100-Day Plan' },
       { he: 'Beta ציבורי', en: 'Public Beta' },
       { he: '🎮 מנגנון Play2Earn', en: '🎮 Play2Earn Mechanism' },
+      { he: 'סטוריז + פיד חברתי', en: 'Stories + Social Feed' },
+      { he: 'חנויות מאמנים אישיות', en: 'Coach Storefronts' },
+      { he: 'תוכנית שותפים', en: 'Affiliate Program' },
+      { he: 'Admin Hub', en: 'Admin Hub' },
     ],
   },
   {
@@ -37,10 +41,10 @@ const phases: RoadmapPhase[] = [
     titleHe: 'פלטפורמת מאמנים',
     titleEn: 'Coach Platform',
     items: [
-      { he: 'פלטפורמת מאמנים', en: 'Coach Platform' },
+      { he: 'פלטפורמת מאמנים מתקדמת', en: 'Advanced Coach Platform' },
       { he: 'FreeMarket — שוק נתונים', en: 'FreeMarket — Data Marketplace' },
-      { he: 'תוכנית שותפים', en: 'Affiliate Program' },
       { he: 'API פתוח', en: 'Open API' },
+      { he: 'אנליטיקס מתקדם', en: 'Advanced Analytics' },
     ],
   },
   {

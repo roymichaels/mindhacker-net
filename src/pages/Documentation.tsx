@@ -130,12 +130,14 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.4 Community Hub — קהילה' : '4.4 Community Hub — Community',
+          title: he ? '4.4 Feed Hub — פיד' : '4.4 Feed Hub — Social Feed',
           paragraphs: he ? [
-            `פיד קהילתי עם פוסטים, תגובות, לייקים, אירועים, ודירוגים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI. ניווט לפי 14 עמודי חיים ונושאים (Topics) דרך הסיידבר.`,
+            `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ודירוגים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI. ניווט לפי 14 עמודי חיים ונושאים (Topics) דרך הסיידבר.`,
+            `סטוריז בסגנון אינסטגרם: משתמשים יכולים להעלות סטוריז (תמונות/סרטונים) המקושרים לעמוד חיים ונושא ספציפי. תהליך ההעלאה: (1) בחירת עמוד חיים, (2) בחירת נושא משנה, (3) העלאת מדיה + כיתוב. סטוריז מוצגים בסטריפ אופקי בראש הפיד — נראים בנושא הספציפי ובפיד הכללי, אך לא בנושאים אחרים. צפייה במסך מלא עם ניווט.`,
             `תמיכה דו-לשונית מלאה בתוכן (title_he, content_he) עם זיהוי שפה אוטומטי. אירועים קהילתיים עם RSVP, מפגשים וירטואליים, ולוח מובילים.`,
           ] : [
-            `Community feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. Aurora participates in conversations as an AI community member. Navigation by 14 life pillars and Topics via the sidebar.`,
+            `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. Aurora participates in conversations as an AI community member. Navigation by 14 life pillars and Topics via the sidebar.`,
+            `Instagram-style Stories: Users can upload stories (photos/videos) tied to a specific life pillar and subtopic. The upload flow: (1) choose a pillar, (2) choose a subtopic, (3) upload media + caption. Stories appear in a horizontal strip at the top of the feed — visible in the specific topic and the "All" feed, but not in other topics. Full-screen viewer with tap navigation.`,
             `Full bilingual content support (title_he, content_he) with automatic language detection. Community events with RSVP, virtual meetups, and leaderboards.`,
           ],
         },
@@ -522,10 +524,10 @@ export default function Documentation() {
       number: '15',
       title: he ? 'מפת דרכים' : 'Roadmap',
       paragraphs: he ? [
-        `Q1 2026: השקת Beta ציבורי, 6 Hubs פעילים (Now, Tactics, Strategy, Community, Learn, FreeMarket), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, Quest Runner, הערכות עמודים מבוססות שיחה, Plan Chat Wizard, התאמת מאמן AI, היפנוזה אישית, תוכנית Consciousness Leap, בלוג Aurora Codex, תוכנית שותפים, אונבורדינג עם Ceremony, Admin Hub, דיווח באגים, PWA מלא, חנויות מאמנים אישיות, Aurora Context Pipeline מלא. Q2 2026: פלטפורמת מאמנים מתקדמת, FreeMarket עם שוק נתונים, API פתוח, אנליטיקס מתקדם. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
+        `Q1 2026: השקת Beta ציבורי, 6 Hubs פעילים (Now, Tactics, Strategy, Feed, Learn, FreeMarket), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, Quest Runner, הערכות עמודים מבוססות שיחה, Plan Chat Wizard, התאמת מאמן AI, היפנוזה אישית, תוכנית Consciousness Leap, בלוג Aurora Codex, תוכנית שותפים, אונבורדינג עם Ceremony, Admin Hub, דיווח באגים, PWA מלא, חנויות מאמנים אישיות, Aurora Context Pipeline מלא, סטוריז בסגנון אינסטגרם עם קישור לעמודי חיים. Q2 2026: פלטפורמת מאמנים מתקדמת, FreeMarket עם שוק נתונים, API פתוח, אנליטיקס מתקדם. Q3 2026: NFT Orb export ל-blockchain, אפליקציית מובייל native, integrations עם כלים חיצוניים. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
         `2027: Blockchain integration, DAO governance, מטבע MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט, Aurora Voice Agent עצמאי.`,
       ] : [
-        `Q1 2026: Public Beta launch, 6 active Hubs (Now, Tactics, Strategy, Community, Learn, FreeMarket), MOS Mining Engine, AI Hypnosis, 100-Day Plan, Quest Runner, chat-based pillar assessments, Plan Chat Wizard, AI coach matching, personal hypnosis, Consciousness Leap program, Aurora Codex blog, Affiliate program, Onboarding with Ceremony, Admin Hub, Bug Reporting, full PWA, Coach personal storefronts, full Aurora Context Pipeline. Q2 2026: Advanced coach platform, FreeMarket with Data Marketplace, open API, advanced analytics. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
+        `Q1 2026: Public Beta launch, 6 active Hubs (Now, Tactics, Strategy, Feed, Learn, FreeMarket), MOS Mining Engine, AI Hypnosis, 100-Day Plan, Quest Runner, chat-based pillar assessments, Plan Chat Wizard, AI coach matching, personal hypnosis, Consciousness Leap program, Aurora Codex blog, Affiliate program, Onboarding with Ceremony, Admin Hub, Bug Reporting, full PWA, Coach personal storefronts, full Aurora Context Pipeline, Instagram-style Stories tied to life pillars. Q2 2026: Advanced coach platform, FreeMarket with Data Marketplace, open API, advanced analytics. Q3 2026: NFT Orb export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
         `2027: Blockchain integration, DAO governance, MOS token on Solana network, external NFT marketplace, Stripe fiat settlement, standalone Aurora Voice Agent.`,
       ],
     },

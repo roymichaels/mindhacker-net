@@ -82,19 +82,20 @@
 
 ---
 
-### Tab 4: COMMUNITY (`/community`)
+### Tab 4: FEED (`/community`)
 
 | Field | Value |
 |-------|-------|
-| Label | Community / קהילה |
+| Label | Feed / פיד |
 | Icon | `Users` |
-| Purpose | Social feed, events, and member interaction |
+| Purpose | Social feed, stories, events, and member interaction |
 
 **MVP Behaviors:**
-- Community posts feed with likes and comments
+- Social feed with posts, likes, and comments
+- Instagram-style Stories tied to pillars and subtopics
 - Events with RSVP
 - Member profiles and leaderboard
-- Category filtering
+- Category and pillar filtering
 
 ---
 
@@ -116,7 +117,7 @@
 - Notification bell
 
 ### Bottom Tab Bar
-- 5-item layout: FM | Aurora | Play (center) | Community | Study
+- 5-item layout: FM | Aurora | Play (center) | Study | Feed
 - Play tab: oversized filled icon, no label
 - Color-coded highlights: Cyan for Play, Violet for Aurora
 - Aurora injected as special button between FM and Play
