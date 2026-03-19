@@ -161,15 +161,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={() => setSuggestOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-              >
-                <MessageSquarePlus className="h-3 w-3" />
-                <span className="hidden sm:inline">{isHe ? 'בקש נושא' : 'Suggest'}</span>
-              </button>
-            </div>
+            <div className="flex items-center gap-2 flex-shrink-0" />
           </div>
 
           {/* ── ALL VIEW: Events + AI Match + Pillar Cards ── */}
