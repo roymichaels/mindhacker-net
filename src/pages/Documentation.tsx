@@ -446,13 +446,13 @@ export default function Documentation() {
       number: '13.2',
       title: he ? 'Admin Hub — מרכז ניהול הפלטפורמה' : 'Admin Hub — Platform Management Center',
       paragraphs: he ? [
-        `Admin Hub (/admin-hub) הוא מרכז הניהול של ${brandName} — נגיש רק למשתמשים עם תפקיד admin (מנוהל דרך טבלת user_roles עם RLS). כולל: דשבורד סטטיסטיקות עם כמויות משתמשים, מנויים, הכנסות, ופעילות יומית.`,
-        `מודולי ניהול: (1) ניהול משתמשים — חיפוש, צפייה, ועדכון פרופילים, (2) ניהול תוכן — מוצרים, קורסים, ומדיה, (3) ניהול קהילה — פוסטים, קטגוריות, אירועים, (4) ניהול בלוג — כתיבת ועריכת מאמרים, (5) ניהול שותפים (Affiliates) — קודים, עמלות, תשלומים, (6) ניהול באגים — צפייה ועדכון דיווחי באגים, (7) התראות מערכת — ניהול הודעות אדמין עם סדר עדיפויות.`,
-        `מסע אדמין (Admin Journey): ויזארד 8 שלבים שמנחה אדמינים חדשים דרך הגדרת החזון, צוות, מיתוג, מוצרים, תוכן, דפי נחיתה, שיווק, ותפעול — עם סיכום AI בסוף.`,
+        `Admin Hub הוא מרכז הניהול של ${brandName} — נגיש רק למשתמשים מורשים עם תפקיד ניהולי (מאומת דרך מערכת הרשאות עם אבטחה מלאה). כולל: דשבורד סטטיסטיקות עם מדדי מפתח.`,
+        `מודולי ניהול: ניהול משתמשים, ניהול תוכן, ניהול קהילה, ניהול בלוג, ניהול שותפים, מעקב משוב, והתראות מערכת.`,
+        `מסע אדמין: ויזארד מנחה אדמינים חדשים דרך הגדרות הפלטפורמה — עם סיכום AI בסוף.`,
       ] : [
-        `Admin Hub (/admin-hub) is the management center of ${brandName} — accessible only to users with an admin role (managed via user_roles table with RLS). Includes: statistics dashboard with user counts, subscriptions, revenue, and daily activity.`,
-        `Management modules: (1) User management — search, view, and update profiles, (2) Content management — products, courses, and media, (3) Community management — posts, categories, events, (4) Blog management — writing and editing articles, (5) Affiliate management — codes, commissions, payouts, (6) Bug management — viewing and updating bug reports, (7) System notifications — managing admin notifications with priorities.`,
-        `Admin Journey: An 8-step wizard guiding new admins through vision, team, branding, products, content, landing pages, marketing, and operations setup — with an AI summary at completion.`,
+        `Admin Hub is the management center of ${brandName} — accessible only to authorized users with verified administrative roles (secured via role-based access control). Includes: statistics dashboard with key metrics.`,
+        `Management modules: User management, Content management, Community management, Blog management, Affiliate management, Feedback tracking, and System notifications.`,
+        `Admin Journey: A guided wizard for new administrators through platform setup — with an AI summary at completion.`,
       ],
     },
     {
