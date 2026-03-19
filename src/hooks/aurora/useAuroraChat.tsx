@@ -267,13 +267,18 @@ export const useAuroraChat = (conversationId: string | null) => {
       const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
       console.log('[aurora-chat] client timezone:', clientTimezone, 'local time:', new Date().toLocaleTimeString());
 
+      // Get user session token for authenticated edge function calls
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             messages: chatMessages,

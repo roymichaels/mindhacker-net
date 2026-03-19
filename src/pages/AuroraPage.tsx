@@ -57,7 +57,7 @@ export default function AuroraPage() {
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
 
   return (
-    <div className="relative flex flex-col h-[calc(100dvh-4rem)] overflow-hidden">
+    <div className="relative flex flex-col fixed inset-0 top-14 z-40 bg-background overflow-hidden">
       {/* Context badges */}
       {(pillarLabel || (isAssessing && assessLabel)) && (
         <div className="flex items-center justify-center gap-1.5 px-4 py-1.5 shrink-0">
@@ -131,7 +131,7 @@ export default function AuroraPage() {
           {/* Input — pinned above bottom nav */}
           <div
             ref={inputRef}
-            className="absolute bottom-0 inset-x-0 z-30 px-3 pb-[calc(3.5rem+env(safe-area-inset-bottom))] pt-2 bg-gradient-to-t from-background via-background/95 to-transparent"
+            className="absolute bottom-0 inset-x-0 z-30 px-3 pb-[calc(4.5rem+env(safe-area-inset-bottom))] pt-2 bg-gradient-to-t from-background via-background/95 to-transparent"
           >
             <GlobalChatInput />
           </div>
