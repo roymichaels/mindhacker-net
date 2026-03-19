@@ -559,7 +559,7 @@ export default function Learn() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-foreground line-clamp-2">{curr.title}</p>
                           {curr.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{curr.description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{curr.description}</p>
                           )}
                           <div className="flex items-center gap-2 mt-2">
                             <Progress value={curr.progress_percentage} className="h-1.5 flex-1" />
