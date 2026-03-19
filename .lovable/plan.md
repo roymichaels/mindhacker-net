@@ -1,32 +1,53 @@
 
 
-## Move Roadmap Above Active Operation & Improve Title
+## Community Leaderboard Section
 
-### Current State
-In `TodayOverviewTab.tsx`, the layout order inside the unified card is:
-1. Header (pillar + classification)
-2. Directive quote
-3. Current Mission / Active Operation
-4. **Embedded Roadmap** (lines 240-343)
-5. Narrative Briefing
-6. Commander's Directive
+### Overview
+Add a compact leaderboard strip at the top of the Community page (above Events/AI Match cards) showing the top community members ranked by points. No new database tables needed — `community_members` already has `total_points`, `posts_count`, `comments_count`, `likes_received`.
 
-The roadmap title currently says "שלב A" / "Phase A" which is too minimal.
+### Architecture
 
-### Changes
+**Data source**: Query `community_members` joined with `profiles` (for `community_username`, `full_name`, `level`) ordered by `total_points DESC`, limit 10.
 
-**File: `src/components/play/TodayOverviewTab.tsx`**
+**Component**: `src/components/community/CommunityLeaderboard.tsx`
+- Horizontal scrollable strip showing top 10 users
+- Each entry: rank medal (🥇🥈🥉 for top 3, then number), avatar (via `PlayerAvatar`), username, points, level
+- Current user highlighted if they appear in top 10
+- If current user is NOT in top 10, show their rank at the end with a separator
+- Tapping a user opens `CommunityMiniProfile`
+- Compact card style with `backdrop-blur` background matching app aesthetic
 
-1. **Move the roadmap block** (lines 240-343) to render **before** the directive (line 209), so it appears right after the header and above everything else.
+**Layout options**:
+1. **Horizontal scroll** (podium-style) — top 3 prominent, rest in a scrollable row
+2. **Vertical mini-list** — numbered list, 3-5 visible with "See all" expand
 
-2. **Replace the roadmap title** from `שלב A` to a more descriptive title:
-   - Hebrew: `מסלול 100 הימים — שלב A` (100-Day Route — Phase A)
-   - English: `100-Day Route — Phase A`
-   - This gives context about the overall journey while still indicating the current phase.
+**Integration**: Insert into `Community.tsx` inside the `isAll` block, above the Events/AI Match grid.
 
-3. The roadmap sub-info (day count, progress bar, phase pills) stays the same — only the position and title text change.
+### Steps
 
-### Technical Detail
-- Cut the JSX block from lines 240-343 and paste it between the header block (line 207) and the directive (line 209)
-- Update the title span (line 248) from `שלב ${letter}` to `מסלול 100 הימים — שלב ${letter}` / `100-Day Route — Phase ${letter}`
+1. **Create `CommunityLeaderboard.tsx`**
+   - Query: `community_members` joined with `profiles` via `user_id`, ordered by `total_points DESC`, limit 10
+   - Also fetch current user's rank with a separate count query (`total_points > currentUserPoints`)
+   - Display as horizontal scroll strip with podium emphasis on top 3
+   - Each item: rank indicator, PlayerAvatar, truncated username, points badge, level
+   - Current user row highlighted with primary border
+   - Click handler calls `onProfileClick(userId)`
+
+2. **Integrate into `Community.tsx`**
+   - Import and render `<CommunityLeaderboard onProfileClick={setProfileUserId} />` at the top of the `isAll` block
+   - Section header: "🏆 Leaderboard" / "🏆 לוח מובילים"
+
+### Technical Details
+
+```
+Query pseudocode:
+  SELECT cm.user_id, cm.total_points, cm.posts_count, cm.likes_received,
+         p.community_username, p.full_name, p.level
+  FROM community_members cm
+  JOIN profiles p ON p.id = cm.user_id
+  ORDER BY cm.total_points DESC
+  LIMIT 10
+```
+
+No migrations needed. Existing RLS on `community_members` and `profiles` allows authenticated reads.
 
