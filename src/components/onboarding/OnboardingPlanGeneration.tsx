@@ -265,6 +265,7 @@ export function OnboardingPlanGeneration({ answers, selectedPillars }: Onboardin
       }, { onConflict: 'user_id' });
 
       sessionStorage.setItem('just_completed_onboarding', '1');
+      sessionStorage.setItem('trigger_soul_avatar_wizard', '1');
       navigate('/ceremony', { replace: true });
     } catch (err) {
       console.error('Error completing onboarding:', err);
