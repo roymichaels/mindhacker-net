@@ -65,10 +65,10 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
       }
 
       const { data: posts } = await query;
-      if (!posts || posts.length === 0) return [];
+      if (!posts || (posts as any[]).length === 0) return [];
 
       // Get author info
-      const userIds = [...new Set(posts.map(p => p.user_id))];
+      const userIds = [...new Set((posts as any[]).map((p: any) => p.user_id))] as string[];
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, full_name, community_username')
