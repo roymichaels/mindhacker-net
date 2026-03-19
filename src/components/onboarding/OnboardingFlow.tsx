@@ -667,16 +667,18 @@ export function OnboardingFlow() {
   const canGoBack = currentStepIdx > 0 || currentMiniIdx > 0;
   const isSingleSelect = currentMini.inputType === 'single_select';
   // Show continue for all non-auto-advance types
-  const showContinueBtn = isMultiSelect || isSlider || isTextarea || isTimePicker || isPriorityRank;
-  const canContinue = isSlider
-    ? answers[currentMini.id] !== undefined
-    : isTextarea
-      ? !currentMini.validation.required || textareaValue.length >= (currentMini.validation.minChars || 1)
-      : isTimePicker
-        ? !!answers[currentMini.id]
-        : isPriorityRank
-          ? rankedItems.length > 0
-          : currentMultiSelections.length > 0;
+  const showContinueBtn = isMultiSelect || isSlider || isTextarea || isTimePicker || isPriorityRank || showCustomInput;
+  const canContinue = showCustomInput
+    ? customInputValue.trim().length > 0
+    : isSlider
+      ? answers[currentMini.id] !== undefined
+      : isTextarea
+        ? !currentMini.validation.required || textareaValue.length >= (currentMini.validation.minChars || 1)
+        : isTimePicker
+          ? !!answers[currentMini.id]
+          : isPriorityRank
+            ? rankedItems.length > 0
+            : currentMultiSelections.length > 0;
 
   // Phase labels
   const phaseLabels: Record<number, { he: string; en: string }> = {
