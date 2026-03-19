@@ -597,4 +597,220 @@ function AddPracticeWizard({ isHe, onDone }: { isHe: boolean; onDone: () => void
   );
 }
 
+// ═══════════════════════════════════════════════════
+// AI SUGGEST PANEL — Aurora-powered practice suggestions
+// ═══════════════════════════════════════════════════
+interface AISuggestion {
+  practice_id: string;
+  practice_name: string;
+  practice_name_he: string | null;
+  pillar: string;
+  category: string;
+  energy_type: string;
+  is_core: boolean;
+  frequency_per_week: number;
+  preferred_duration: number;
+  reason_en: string;
+  reason_he: string;
+}
+
+function AISuggestPanel({ isHe, onDone }: { isHe: boolean; onDone: () => void }) {
+  const { user } = useAuth();
+  const addPractice = useAddPractice();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [addingId, setAddingId] = useState<string | null>(null);
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+
+  // Fetch suggestions on mount
+  const fetchSuggestions = useCallback(async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const resp = await supabase.functions.invoke('suggest-practices', {});
+      if (resp.error) throw new Error(resp.error.message);
+      const data = resp.data as { suggestions: AISuggestion[]; error?: string };
+      if (data.error) throw new Error(data.error);
+      setSuggestions(data.suggestions || []);
+    } catch (e: any) {
+      console.error('suggest-practices error:', e);
+      setError(e.message || 'Failed to get suggestions');
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  useState(() => { fetchSuggestions(); });
+
+  const handleAdd = async (s: AISuggestion) => {
+    setAddingId(s.practice_id);
+    try {
+      await addPractice.mutateAsync({
+        practice_id: s.practice_id,
+        energy_phase: s.energy_type || 'day',
+        preferred_duration: s.preferred_duration,
+        frequency_per_week: s.frequency_per_week,
+        is_core_practice: s.is_core,
+      });
+      setAddedIds(prev => new Set(prev).add(s.practice_id));
+      toast({ title: isHe ? `✅ ${s.practice_name_he || s.practice_name} נוסף` : `✅ ${s.practice_name} added` });
+    } catch {
+      toast({ title: isHe ? 'שגיאה' : 'Error', variant: 'destructive' });
+    } finally {
+      setAddingId(null);
+    }
+  };
+
+  const handleAddAll = async () => {
+    const toAdd = suggestions.filter(s => !addedIds.has(s.practice_id));
+    for (const s of toAdd) {
+      await handleAdd(s);
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
+      {/* Header */}
+      <div className="flex flex-col items-center text-center pt-2 pb-4">
+        <div className="w-12 h-12 rounded-full bg-violet-500/15 border border-violet-500/25 flex items-center justify-center mb-3">
+          <Brain className="w-6 h-6 text-violet-400" />
+        </div>
+        <h3 className="text-sm font-bold text-white/90 mb-1">
+          {isHe ? 'המלצות Aurora' : 'Aurora Suggestions'}
+        </h3>
+        <p className="text-xs text-white/40 max-w-xs">
+          {isHe
+            ? 'Aurora ניתחה את הפרופיל, הזיכרון והיעדים שלך וממליצה על תרגולים חסרים'
+            : 'Aurora analyzed your profile, memory and goals to suggest missing practices'}
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <div className="relative">
+            <Loader2 className="w-6 h-6 animate-spin text-violet-400" />
+            <div className="absolute inset-0 animate-ping">
+              <Brain className="w-6 h-6 text-violet-400/30" />
+            </div>
+          </div>
+          <p className="text-xs text-white/30">
+            {isHe ? 'Aurora חושבת...' : 'Aurora is thinking...'}
+          </p>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12 space-y-3">
+          <p className="text-sm text-red-400/70">{error}</p>
+          <button
+            onClick={fetchSuggestions}
+            className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/50 text-xs hover:bg-white/10"
+          >
+            <RefreshCw className="w-3.5 h-3.5 inline mr-1.5" />
+            {isHe ? 'נסה שוב' : 'Try again'}
+          </button>
+        </div>
+      ) : suggestions.length === 0 ? (
+        <div className="text-center py-12 space-y-2">
+          <CheckCircle2 className="w-8 h-8 text-emerald-500/50 mx-auto" />
+          <p className="text-sm text-white/50">
+            {isHe ? 'כל התרגולים הרלוונטיים כבר נמצאים ברשימה שלך!' : 'All relevant practices are already in your list!'}
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Add All button */}
+          {suggestions.some(s => !addedIds.has(s.practice_id)) && (
+            <button
+              onClick={handleAddAll}
+              className="w-full mb-4 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-bold hover:bg-violet-500/15 transition-all flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              {isHe ? 'הוסף הכל' : 'Add All'}
+            </button>
+          )}
+
+          <div className="space-y-2.5">
+            {suggestions.map((s) => {
+              const isAdded = addedIds.has(s.practice_id);
+              const isAdding = addingId === s.practice_id;
+              const pillarColor = PILLAR_COLORS[s.pillar] || '200 70% 50%';
+              const catMeta = PRACTICE_CATEGORIES[s.category] || { he: s.category, en: s.category, emoji: '📌' };
+
+              return (
+                <motion.div
+                  key={s.practice_id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={cn(
+                    "rounded-xl border p-3.5 transition-all",
+                    isAdded
+                      ? "border-emerald-500/20 bg-emerald-500/5"
+                      : "border-white/[0.06] bg-white/[0.02]"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl mt-0.5">{catMeta.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white/80">
+                        {isHe ? (s.practice_name_he || s.practice_name) : s.practice_name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span
+                          className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full"
+                          style={{ backgroundColor: `hsla(${pillarColor}, 0.12)`, color: `hsl(${pillarColor})` }}
+                        >
+                          {isHe ? PILLAR_LABELS_HE[s.pillar] : PILLAR_LABELS_EN[s.pillar]}
+                        </span>
+                        <span className="text-[9px] text-white/30">
+                          {s.preferred_duration}′ · {s.frequency_per_week}x/{isHe ? 'שבוע' : 'wk'}
+                        </span>
+                        {s.is_core && (
+                          <span className="text-[8px] text-amber-400 font-semibold flex items-center gap-0.5">
+                            <Sparkles className="w-2.5 h-2.5" /> {isHe ? 'ליבה' : 'Core'}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-violet-300/60 mt-1.5 leading-relaxed">
+                        💡 {isHe ? s.reason_he : s.reason_en}
+                      </p>
+                    </div>
+                    {isAdded ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-1" />
+                    ) : (
+                      <button
+                        onClick={() => handleAdd(s)}
+                        disabled={isAdding}
+                        className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-all disabled:opacity-50 shrink-0"
+                      >
+                        {isAdding ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-violet-400" />
+                        ) : (
+                          <Plus className="w-4 h-4 text-violet-400" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Done button */}
+      <div className="sticky bottom-0 pt-4 pb-2 bg-gradient-to-t from-[hsl(220,25%,6%)] via-[hsl(220,25%,6%)] to-transparent">
+        <button
+          onClick={onDone}
+          className="w-full py-3 rounded-xl bg-violet-500/15 border border-violet-500/25 text-violet-300 text-sm font-bold hover:bg-violet-500/20 transition-all"
+        >
+          {isHe ? '✓ סיימתי' : '✓ Done'}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 export default PracticesModal;
