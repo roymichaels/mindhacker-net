@@ -41,8 +41,8 @@ serve(async (req) => {
     const body: ElevenLabsTTSRequest = await req.json();
     const { 
       text, 
-      voiceId = 'sarah',
-      modelId = 'eleven_turbo_v2_5',
+      voiceId = 'jessica',
+      modelId = 'eleven_multilingual_v2',
       stability = 0.5,
       similarityBoost = 0.75,
       style = 0.5,
