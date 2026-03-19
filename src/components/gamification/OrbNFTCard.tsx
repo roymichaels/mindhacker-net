@@ -1,6 +1,7 @@
 /**
- * OrbNFTCard — NFT-style collectible card showcasing the user's orb.
+ * OrbNFTCard — Soul Avatar NFT collectible card showcasing the user's avatar.
  * Fantasy RPG aesthetic with rarity borders, stats, and shimmer effects.
+ * Shows "Mint Soul Avatar" CTA if not yet minted.
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -8,10 +9,13 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSoulWallet } from '@/hooks/useSoulWallet';
+import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
 import { getOrbRarity, levelsToNextRarity } from '@/lib/orbRarity';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Star, Flame, Zap, Shield, Sparkles } from 'lucide-react';
+import { Star, Flame, Zap, Shield, Sparkles, Gem } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface OrbNFTCardProps {
