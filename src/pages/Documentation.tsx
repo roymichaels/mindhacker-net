@@ -584,8 +584,8 @@ export default function Documentation() {
         {/* Sidebar */}
         <aside
           className={cn(
-            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-64 bg-background shrink-0 transition-transform duration-200 overflow-hidden",
-            isRTL ? "border-l border-border order-2" : "border-r border-border order-1",
+            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-64 bg-background shrink-0 transition-transform duration-200 overflow-hidden order-1",
+            isRTL ? "border-l border-border" : "border-r border-border",
             !isRTL && (sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"),
             isRTL && (sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"),
           )}
