@@ -40,6 +40,9 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
     () => sessionStorage.getItem(ADMIN_BANNER_DISMISSED_KEY) === 'true'
   );
 
+  // If user just finished onboarding ceremony, never redirect back
+  const justCompleted = sessionStorage.getItem('just_completed_onboarding') === '1';
+
   // Always check if user has an active plan
   const { data: hasActivePlan, isLoading: checkingPlan } = useQuery({
     queryKey: ['onboarding-gate-plan-check', user?.id],
@@ -54,7 +57,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
       return !!data;
     },
     enabled: !!user?.id,
-    staleTime: 5 * 60_000,
+    staleTime: justCompleted ? 0 : 5 * 60_000, // bust cache if just completed
   });
 
   // Admins: never block, but show optional banner if onboarding incomplete
