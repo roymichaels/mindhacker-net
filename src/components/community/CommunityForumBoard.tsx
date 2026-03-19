@@ -35,7 +35,7 @@ export default function CommunityForumBoard({ onNavigate }: CommunityForumBoardP
   const isHe = language === 'he';
 
   return (
-    <div className="grid grid-cols-5 gap-3 py-2">
+    <div className="grid grid-cols-5 gap-y-4 gap-x-2 py-2 justify-items-center">
       {LIFE_DOMAINS.map((domain: LifeDomain) => (
         <IPhoneWidget
           key={domain.id}

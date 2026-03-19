@@ -404,7 +404,7 @@ export default function Learn() {
                     {isHe ? 'לפי המסלול שלך' : 'Based on your pillars'}
                   </span>
                 </div>
-                <div className="flex items-start justify-start gap-4 flex-wrap">
+                <div className="flex items-start justify-center gap-4 flex-wrap">
                   {suggestedCourses.map((sc, i) => {
                     const gradients = [
                       'from-purple-500 to-purple-700',
