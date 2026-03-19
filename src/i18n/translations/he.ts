@@ -3366,6 +3366,7 @@ export const he = {
     skip: "דלג",
     creatingSession: "יוצר את הסשן שלך...",
     sessionComplete: "סשן הושלם!",
+    congratulations: "עבודה מדהימה! הנה הזמן שלך לספוג את החוויה.",
     earnedXp: "הרווחת {xp} XP",
     finish: "סיום",
     lockedTitle: "השלם את ה-Launchpad",

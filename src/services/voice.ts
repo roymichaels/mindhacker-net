@@ -80,6 +80,11 @@ async function tryElevenLabsTTS(
     if (similarityBoost !== undefined) payload.similarityBoost = similarityBoost;
     if (style !== undefined) payload.style = style;
 
+    // Get real user session token for auth (same as ttsPlayer)
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
       {
@@ -87,7 +92,7 @@ async function tryElevenLabsTTS(
         headers: {
           'Content-Type': 'application/json',
           'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       }

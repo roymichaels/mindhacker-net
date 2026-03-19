@@ -3312,6 +3312,7 @@ export const en: TranslationKeys = {
     skip: "Skip",
     creatingSession: "Creating your session...",
     sessionComplete: "Session Complete!",
+    congratulations: "Amazing work! Take a moment to absorb the experience.",
     earnedXp: "You earned {xp} XP",
     finish: "Finish",
     lockedTitle: "Complete Launchpad First",
