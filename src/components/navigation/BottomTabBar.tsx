@@ -95,7 +95,7 @@ export function BottomTabBar() {
         <div className={cn(
           "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
           active
-            ? `${colors.solid} shadow-lg`
+            ? `${colors.solid} shadow-lg ring-2 ring-white/80`
             : "bg-muted/40"
         )}>
           <Icon className={cn("h-6 w-6", active ? colors.text : colors.inactive)} />
@@ -152,7 +152,7 @@ export function BottomTabBar() {
           <div className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
             location.pathname === '/aurora'
-              ? "bg-white shadow-lg"
+              ? "bg-white shadow-lg ring-2 ring-white/80"
               : "bg-muted/40"
           )}>
             <StandaloneMorphOrb
@@ -179,7 +179,7 @@ export function BottomTabBar() {
             <div className={cn(
               "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
               isActive(planTab.path)
-                ? "bg-cyan-500 shadow-lg"
+                ? "bg-cyan-500 shadow-lg ring-2 ring-white/80"
                 : "bg-muted/40"
             )}>
               <Play className={cn("h-6 w-6 ms-0.5", isActive(planTab.path) ? "text-white" : "text-cyan-400/60")} fill="currentColor" />
