@@ -9,7 +9,7 @@ import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hook
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import {
-  Crosshair, Sparkles, Lock, CheckCircle2,
+  Crosshair, Lock, CheckCircle2,
   Zap, Target, X, Shield, Eye,
 } from 'lucide-react';
 
@@ -29,6 +29,7 @@ const PILLAR_VIS: Record<string, { emoji: string; color: string; bg: string; lab
 };
 const DEFAULT_PILLAR = { emoji: '🎯', color: 'text-primary', bg: 'bg-primary/15', labelHe: 'כללי', labelEn: 'General' };
 
+/* ── Directives ── */
 const DIRECTIVES_EN = [
   'Agent — this is not a to-do list. This is your identity test for today.',
   'No drama. No excuses. Precision execution wins this day.',
@@ -38,6 +39,140 @@ const DIRECTIVES_HE = [
   'סוכן — זו לא רשימת משימות. זה מבחן הזהות שלך להיום.',
   'בלי דרמה, בלי תירוצים — ביצוע מדויק מנצח את היום.',
   'המשימה שלך: לפעול לפני שהספק מקבל זכות דיבור.',
+];
+
+/* ── Field Assessment — pillar-keyed narrative prose ── */
+const FIELD_ASSESSMENT: Record<string, { en: string[]; he: string[] }> = {
+  vitality: {
+    en: [
+      "Today's theater centers on Vitality. Your body is the vehicle for every mission that follows. Neglect it and all other operations degrade.",
+      "The field report is clear: physical readiness determines operational capacity. Today you sharpen the blade that cuts through everything else.",
+    ],
+    he: [
+      "זירת היום: חיוניות. הגוף הוא הכלי לכל משימה שתבוא. הזנח אותו — וכל מערך הפעולה מתדרדר.",
+      "דוח השטח ברור: מוכנות פיזית קובעת קיבולת מבצעית. היום משחיזים את הלהב שחותך דרך הכל.",
+    ],
+  },
+  focus: {
+    en: [
+      "Cognitive operations are the priority. Your mind is the command center — every distraction is an enemy infiltration. Seal the perimeter.",
+      "Today's briefing: deep work is the weapon. The battlefield is your attention span. Defend it with lethal precision.",
+    ],
+    he: [
+      "מבצעים קוגניטיביים בעדיפות עליונה. המוח הוא מרכז הפיקוד — כל הסחה היא חדירת אויב. אטום את המתחם.",
+      "תדריך היום: עבודה עמוקה היא הנשק. שדה הקרב הוא טווח הקשב שלך. הגן עליו בדיוק קטלני.",
+    ],
+  },
+  wealth: {
+    en: [
+      "Economic theater is active. Today's objective: create asymmetric value. One well-placed move outweighs a hundred busy hours.",
+      "Financial intelligence report: resources flow toward clarity and decisive action. Today you operate with both.",
+    ],
+    he: [
+      "הזירה הכלכלית פעילה. יעד היום: ליצור ערך אסימטרי. מהלך אחד ממוקם שווה יותר ממאה שעות עסוקות.",
+      "דוח מודיעין פיננסי: משאבים זורמים לכיוון בהירות ופעולה החלטית. היום אתה פועל עם שניהם.",
+    ],
+  },
+  power: {
+    en: [
+      "Power operations are live. Raw capacity building is today's mission — strength isn't optional, it's infrastructure.",
+    ],
+    he: [
+      "מבצעי כוח פעילים. בניית קיבולת גולמית היא משימת היום — כוח הוא לא אופציה, הוא תשתית.",
+    ],
+  },
+  consciousness: {
+    en: [
+      "Inner reconnaissance is the mission. Today's terrain is internal — map the blind spots before they map you.",
+    ],
+    he: [
+      "סיור פנימי הוא המשימה. שטח היום הוא פנימי — מפה את הנקודות העיוורות לפני שהן ממפות אותך.",
+    ],
+  },
+};
+const DEFAULT_ASSESSMENT_EN = [
+  "Operations are live. The mission parameters are set. All that remains is execution — clean, decisive, without negotiation.",
+  "Today's terrain is mapped. Your objectives are locked. The only variable left is your willingness to move.",
+];
+const DEFAULT_ASSESSMENT_HE = [
+  "המבצעים חיים. פרמטרי המשימה נקבעו. כל מה שנותר הוא ביצוע — נקי, החלטי, ללא משא ומתן.",
+  "שטח היום ממופה. היעדים נעולים. המשתנה היחיד שנותר הוא הנכונות שלך לזוז.",
+];
+
+/* ── Operational Doctrine ── */
+const DOCTRINE: Record<string, { en: string[]; he: string[] }> = {
+  vitality: {
+    en: ["No negotiation with comfort. Execute before the mind builds its case."],
+    he: ["אין משא ומתן עם הנוחות. בצע לפני שהמוח בונה את הטיעון שלו."],
+  },
+  focus: {
+    en: ["One thread at a time. Multitasking is a myth sold to the undisciplined."],
+    he: ["חוט אחד בכל פעם. ריבוי משימות הוא מיתוס שנמכר לחסרי משמעת."],
+  },
+  wealth: {
+    en: ["Value first, revenue follows. Never chase — position and let it come."],
+    he: ["ערך קודם, הכנסה עוקבת. לעולם אל תרדוף — מקם ותן לזה להגיע."],
+  },
+  power: {
+    en: ["Discomfort is the price of admission. Pay it daily or forfeit the seat."],
+    he: ["אי נוחות היא דמי הכניסה. שלם יומי או ותר על המקום."],
+  },
+  consciousness: {
+    en: ["Silence is not empty — it's where the signal lives. Listen before you lead."],
+    he: ["שקט הוא לא ריק — שם חי האות. הקשב לפני שאתה מוביל."],
+  },
+};
+const DEFAULT_DOCTRINE_EN = ["Hesitation is a decision — and it's always the wrong one."];
+const DEFAULT_DOCTRINE_HE = ["היסוס הוא החלטה — והיא תמיד הלא נכונה."];
+
+/* ── Intelligence Notes ── */
+const INTEL_NOTES: Record<string, { en: string[]; he: string[] }> = {
+  vitality: {
+    en: [
+      "Field data confirms: 20 minutes of high-output movement rewires threat assessment for the next 8 hours. The ROI is non-negotiable.",
+    ],
+    he: [
+      "נתוני שטח מאשרים: 20 דקות של תנועה בעצימות גבוהה משנות הערכת איום ל-8 השעות הבאות. התשואה לא ניתנת למשא ומתן.",
+    ],
+  },
+  focus: {
+    en: [
+      "A single 90-minute deep work block produces more signal than 8 hours of reactive task-switching. Protect the block at all costs.",
+    ],
+    he: [
+      "בלוק עבודה עמוקה אחד של 90 דקות מייצר יותר אות מ-8 שעות של מיתוג משימות תגובתי. הגן על הבלוק בכל מחיר.",
+    ],
+  },
+  wealth: {
+    en: [
+      "Compound returns apply to skills, relationships, and reputation — not just capital. Every interaction is an investment.",
+    ],
+    he: [
+      "תשואה מצטברת חלה על מיומנויות, מערכות יחסים ומוניטין — לא רק על הון. כל אינטראקציה היא השקעה.",
+    ],
+  },
+};
+const DEFAULT_INTEL_EN = [
+  "Pattern recognition: your best days share one trait — you started before you felt ready. File that under 'operational doctrine'.",
+  "Historical analysis: every breakthrough in your record came after sustained discomfort. The data doesn't lie.",
+];
+const DEFAULT_INTEL_HE = [
+  "זיהוי דפוסים: לימים הטובים ביותר שלך יש תכונה אחת משותפת — התחלת לפני שהרגשת מוכן. תייק את זה תחת 'דוקטרינה מבצעית'.",
+  "ניתוח היסטורי: כל פריצת דרך ברשומות שלך הגיעה אחרי אי נוחות מתמשכת. הנתונים לא משקרים.",
+];
+
+/* ── Commander's Directive ── */
+const COMMANDER_EN = [
+  "End of briefing. Execute with precision. Dismissed.",
+  "Field is live. No further instructions required. Move.",
+  "This briefing is classified. Your actions today are your only response.",
+  "The mission doesn't wait for motivation. Neither do you.",
+];
+const COMMANDER_HE = [
+  "סוף תדריך. בצע בדייקנות. שוחרר.",
+  "השטח חי. אין צורך בהוראות נוספות. זוז.",
+  "תדריך זה מסווג. הפעולות שלך היום הן התגובה היחידה.",
+  "המשימה לא מחכה למוטיבציה. גם אתה לא.",
 ];
 
 function pick<T>(arr: T[], seed: number) {
@@ -62,38 +197,39 @@ export function TodayOverviewTab() {
     () => (todayPlan ? todayPlan.blocks.flatMap((b) => b.actions) : []), [todayPlan],
   );
 
-  const completedCount = todayActions.filter((a) => a.completed).length;
+  const remainingCount = todayActions.filter((a) => !a.completed).length;
   const totalCount = todayActions.length;
-  const remainingCount = Math.max(0, totalCount - completedCount);
-  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const currentAction = todayActions.find((a) => !a.completed) || null;
-  const totalMinutes = todayActions.reduce((s, a) => s + (a.estimatedMinutes || 0), 0);
-  const remainingMinutes = todayActions.filter(a => !a.completed).reduce((s, a) => s + (a.estimatedMinutes || 0), 0);
-
-  // Group actions by focus area for domain summary
-  const domainSummary = useMemo(() => {
-    const map: Record<string, { total: number; done: number; mins: number }> = {};
-    for (const a of todayActions) {
-      const k = a.focusArea || 'general';
-      if (!map[k]) map[k] = { total: 0, done: 0, mins: 0 };
-      map[k].total++;
-      if (a.completed) map[k].done++;
-      map[k].mins += a.estimatedMinutes || 0;
-    }
-    return Object.entries(map).sort((a, b) => b[1].total - a[1].total);
-  }, [todayActions]);
 
   const now = new Date();
   const seed = now.getDate() + remainingCount;
-  const hour = now.getHours();
   const directive = isHe ? pick(DIRECTIVES_HE, seed) : pick(DIRECTIVES_EN, seed);
   const currentPillar = PILLAR_VIS[currentAction?.focusArea || ''] || DEFAULT_PILLAR;
+  const pillarKey = currentAction?.focusArea || '';
 
   const classification = totalCount === 0
     ? 'RECOVERY PROTOCOL'
     : remainingCount === 0 ? 'MISSION ACCOMPLISHED'
     : remainingCount <= 2 ? 'FINAL WINDOW'
     : 'ACTIVE OPERATION';
+
+  // Pillar-aware narrative content
+  const assessmentPool = FIELD_ASSESSMENT[pillarKey];
+  const assessment = isHe
+    ? pick(assessmentPool?.he || DEFAULT_ASSESSMENT_HE, seed)
+    : pick(assessmentPool?.en || DEFAULT_ASSESSMENT_EN, seed);
+
+  const doctrinePool = DOCTRINE[pillarKey];
+  const doctrine = isHe
+    ? pick(doctrinePool?.he || DEFAULT_DOCTRINE_HE, seed)
+    : pick(doctrinePool?.en || DEFAULT_DOCTRINE_EN, seed);
+
+  const intelPool = INTEL_NOTES[pillarKey];
+  const intel = isHe
+    ? pick(intelPool?.he || DEFAULT_INTEL_HE, seed + 1)
+    : pick(intelPool?.en || DEFAULT_INTEL_EN, seed + 1);
+
+  const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
   const selectedMs = milestones.find((m: any) => m.id === selectedMilestone);
 
@@ -119,7 +255,6 @@ export function TodayOverviewTab() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsla(var(--primary)/0.06),transparent_70%)] pointer-events-none" />
 
           <div className="relative z-10 px-3 pt-3 pb-2">
-            {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-primary" />
@@ -132,18 +267,16 @@ export function TodayOverviewTab() {
               </span>
             </div>
 
-            {/* ── Connected nodes ── */}
+            {/* Connected nodes */}
             <div className="relative">
-              {/* Background connector line */}
               <div className="absolute top-4 inset-x-4 h-[2px] bg-border/20 z-0" />
-              {/* Filled progress line */}
               <div
                 className="absolute top-4 start-4 h-[2px] bg-gradient-to-r from-primary to-primary/60 z-[1] transition-all duration-500"
                 style={{ width: `${Math.max(0, ((currentWeek - 1) / Math.max(1, milestones.length - 1)) * 100)}%` }}
               />
 
               <div className="relative z-[2] flex justify-between">
-                {milestones.map((ms: any, i: number) => {
+                {milestones.map((ms: any) => {
                   const isActive = ms.week_number === currentWeek;
                   const isDone = ms.is_completed;
                   const isPast = ms.week_number < currentWeek;
@@ -155,7 +288,6 @@ export function TodayOverviewTab() {
                       onClick={() => setSelectedMilestone(isSelected ? null : ms.id)}
                       className="flex flex-col items-center gap-1 group relative"
                     >
-                      {/* Circle node */}
                       <div className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all border-2",
                         isDone
@@ -169,16 +301,12 @@ export function TodayOverviewTab() {
                       )}>
                         {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : ms.week_number}
                       </div>
-
-                      {/* Label */}
                       <span className={cn(
                         "text-[8px] font-bold",
                         isActive ? "text-primary" : isDone || isPast ? "text-muted-foreground/60" : "text-foreground/20"
                       )}>
                         {String.fromCharCode(64 + ms.week_number)}
                       </span>
-
-                      {/* Active indicator dot */}
                       {isActive && !isDone && (
                         <motion.div
                           className="absolute -top-1 w-2 h-2 rounded-full bg-primary"
@@ -193,7 +321,7 @@ export function TodayOverviewTab() {
             </div>
           </div>
 
-          {/* ── Selected Milestone Detail ── */}
+          {/* Selected Milestone Detail */}
           <AnimatePresence>
             {selectedMs && (
               <motion.div
@@ -255,8 +383,8 @@ export function TodayOverviewTab() {
       <div className="relative rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsla(var(--primary)/0.1),transparent_60%)]" />
 
-        <div className="relative z-10 p-3.5 space-y-3">
-          {/* Classification + Codename */}
+        <div className="relative z-10 p-3.5 space-y-4">
+          {/* Classification + Pillar */}
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/30 px-2 py-1">
               <Shield className="h-3 w-3 text-primary" />
@@ -273,43 +401,21 @@ export function TodayOverviewTab() {
             "{directive}"
           </p>
 
-          {/* ═══ CURRENT MISSION — hero card ═══ */}
+          {/* ═══ CURRENT MISSION — title + pillar only ═══ */}
           <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Crosshair className="w-4 h-4 text-primary" />
-                </div>
-                <span className="text-[9px] font-black uppercase tracking-[0.14em] text-primary">
-                  {isHe ? 'משימה נוכחית' : 'Current Mission'}
-                </span>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Crosshair className="w-4 h-4 text-primary" />
               </div>
-              {currentAction && (
-                <span className="text-[9px] font-bold text-muted-foreground">
-                  #{todayActions.indexOf(currentAction) + 1}/{totalCount}
-                </span>
-              )}
+              <span className="text-[9px] font-black uppercase tracking-[0.14em] text-primary">
+                {isHe ? 'משימה נוכחית' : 'Current Mission'}
+              </span>
             </div>
 
             {currentAction ? (
-              <>
-                <h3 className="text-base font-black text-foreground leading-tight">
-                  {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
-                </h3>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={cn("text-[9px] font-bold px-2 py-0.5 rounded-md", currentPillar.color, currentPillar.bg)}>
-                    {isHe ? currentPillar.labelHe : currentPillar.labelEn}
-                  </span>
-                  <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
-                    <Clock className="w-2.5 h-2.5" /> {currentAction.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
-                  </span>
-                  {currentAction.description && (
-                    <span className="text-[9px] text-muted-foreground/60 line-clamp-1">
-                      {currentAction.description.slice(0, 60)}{currentAction.description.length > 60 ? '…' : ''}
-                    </span>
-                  )}
-                </div>
-              </>
+              <h3 className="text-base font-black text-foreground leading-tight">
+                {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
+              </h3>
             ) : totalCount === 0 ? (
               <div className="text-center py-2">
                 <span className="text-2xl">🌙</span>
@@ -324,137 +430,50 @@ export function TodayOverviewTab() {
             )}
           </div>
 
-          {/* ═══ TODAY'S AGENDA — full task list ═══ */}
-          {totalCount > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Flag className="w-3 h-3 text-primary" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground">
-                    {isHe ? 'אג׳נדה יומית' : "Today's Agenda"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-[9px] text-muted-foreground">
-                  <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" /> {remainingMinutes}{isHe ? ' דק׳' : 'm'}</span>
-                  <span className="font-bold text-foreground">{completedCount}/{totalCount}</span>
-                </div>
-              </div>
-
-              {/* Task list */}
-              <div className="space-y-1">
-                {todayActions.map((action, i) => {
-                  const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
-                  const isCurrent = currentAction?.id === action.id;
-
-                  return (
-                    <div
-                      key={action.id}
-                      className={cn(
-                        "flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all",
-                        action.completed
-                          ? "opacity-40"
-                          : isCurrent
-                            ? "bg-primary/[0.08] border border-primary/20"
-                            : "bg-background/20 border border-border/10"
-                      )}
-                    >
-                      {/* Index / check */}
-                      <div className={cn(
-                        "w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black flex-shrink-0",
-                        action.completed ? "bg-primary/15 text-primary" : isCurrent ? "bg-primary text-primary-foreground" : "bg-muted/20 text-foreground/40"
-                      )}>
-                        {action.completed ? '✓' : i + 1}
-                      </div>
-
-                      {/* Pillar emoji */}
-                      <span className="text-xs flex-shrink-0">{pv.emoji}</span>
-
-                      {/* Title */}
-                      <span className={cn(
-                        "text-[11px] font-semibold flex-1 min-w-0 truncate",
-                        action.completed ? "line-through text-muted-foreground" : "text-foreground"
-                      )}>
-                        {isHe ? action.title : (action.titleEn || action.title)}
-                      </span>
-
-                      {/* Duration */}
-                      <span className="text-[9px] text-muted-foreground/50 flex-shrink-0 font-medium">
-                        {action.estimatedMinutes}′
-                      </span>
-
-                      {isCurrent && <ChevronRight className="w-3 h-3 text-primary flex-shrink-0" />}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ═══ DOMAIN BREAKDOWN ═══ */}
-          {domainSummary.length > 1 && (
-            <div className="flex flex-wrap gap-1.5">
-              {domainSummary.map(([domain, stats]) => {
-                const pv = PILLAR_VIS[domain] || DEFAULT_PILLAR;
-                return (
-                  <div key={domain} className={cn(
-                    "inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border/15",
-                    pv.bg
-                  )}>
-                    <span className="text-[10px]">{pv.emoji}</span>
-                    <span className={cn("text-[9px] font-bold", pv.color)}>
-                      {stats.done}/{stats.total}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ═══ PROGRESS BAR ═══ */}
-          {totalCount > 0 && (
+          {/* ═══ FIELD ASSESSMENT ═══ */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-border/20 bg-background/20 p-3">
+            <Eye className="w-4 h-4 text-primary/70 mt-0.5 flex-shrink-0" />
             <div>
-              <div className="flex items-center justify-between text-[9px] mb-1">
-                <span className="text-muted-foreground font-medium">{isHe ? 'התקדמות היום' : "Today's Progress"}</span>
-                <span className="font-black text-foreground">{progressPct}%</span>
-              </div>
-              <div className="h-2 bg-muted/20 rounded-full overflow-hidden">
-                <motion.div
-                  className={cn(
-                    "h-full rounded-full",
-                    progressPct === 100
-                      ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
-                      : "bg-gradient-to-r from-primary via-primary to-primary/50"
-                  )}
-                  animate={{ width: `${progressPct}%` }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
-                />
-              </div>
-              {remainingCount > 0 && (
-                <p className="text-[9px] text-muted-foreground/60 mt-1">
-                  {isHe
-                    ? `${remainingCount} משימות נותרו · ~${remainingMinutes} דקות`
-                    : `${remainingCount} remaining · ~${remainingMinutes} min`}
-                </p>
-              )}
+              <span className="text-[8px] font-black uppercase tracking-[0.14em] text-primary/60 block mb-1">
+                {isHe ? 'הערכת שטח' : 'Field Assessment'}
+              </span>
+              <p className="text-[11px] text-foreground/80 leading-relaxed">
+                {assessment}
+              </p>
             </div>
-          )}
-
-          {/* ═══ EXECUTION RULE ═══ */}
-          <div className="flex items-start gap-2 rounded-xl border border-border/15 bg-background/15 p-2.5">
-            <Lock className="w-3.5 h-3.5 text-primary/60 mt-0.5 flex-shrink-0" />
-            <p className="text-[10px] text-muted-foreground/80 leading-snug">
-              {isHe
-                ? 'כלל ביצוע: לא מחכים למוטיבציה — פעולה מייצרת מוטיבציה.'
-                : 'Rule of execution: don\'t seek motivation first — action creates motivation.'}
-            </p>
           </div>
 
-          {/* ═══ CTA ═══ */}
-          <div className="flex items-center justify-center gap-1.5 pt-0.5">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[10px] font-bold text-primary">
-              {isHe ? 'עבור לבקרת משימות ובצע ←' : '→ Switch to Mission Control and execute'}
-            </span>
+          {/* ═══ OPERATIONAL DOCTRINE ═══ */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-border/20 bg-background/20 p-3">
+            <Shield className="w-4 h-4 text-primary/70 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="text-[8px] font-black uppercase tracking-[0.14em] text-primary/60 block mb-1">
+                {isHe ? 'דוקטרינה מבצעית' : 'Operational Doctrine'}
+              </span>
+              <p className="text-[11px] font-bold text-foreground leading-relaxed">
+                {doctrine}
+              </p>
+            </div>
+          </div>
+
+          {/* ═══ INTELLIGENCE NOTE ═══ */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-border/20 bg-background/20 p-3">
+            <Lock className="w-4 h-4 text-primary/70 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="text-[8px] font-black uppercase tracking-[0.14em] text-primary/60 block mb-1">
+                {isHe ? 'סיכום מודיעיני' : 'Intelligence Note'}
+              </span>
+              <p className="text-[11px] text-foreground/70 leading-relaxed italic">
+                {intel}
+              </p>
+            </div>
+          </div>
+
+          {/* ═══ COMMANDER'S DIRECTIVE ═══ */}
+          <div className="border-t border-border/20 pt-3 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground/60">
+              {commander}
+            </p>
           </div>
         </div>
       </div>
