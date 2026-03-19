@@ -338,17 +338,9 @@ export function OnboardingFlow() {
   const isPriorityRank = currentMini?.inputType === 'priority_rank';
   const currentMultiSelections = isMultiSelect ? (answers[currentMini?.id || ''] as string[] || []) : [];
 
-  // For exercise_types_wanted, filter out options already selected in exercise_types
   const filteredOptions = useMemo(() => {
-    if (!currentMini?.options) return currentMini?.options;
-    if (currentMini.id === 'exercise_types_wanted') {
-      const alreadySelected = (answers['exercise_types'] as string[]) || [];
-      return currentMini.options.filter(
-        opt => opt.value === 'nothing_new' || !alreadySelected.includes(opt.value)
-      );
-    }
-    return currentMini.options;
-  }, [currentMini?.id, currentMini?.options, answers]);
+    return currentMini?.options;
+  }, [currentMini?.options]);
 
   // DnD sensors for priority_rank
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
