@@ -400,11 +400,12 @@ export function OnboardingFlow() {
     if (!currentMini) return;
     const updated = { ...answers, [currentMini.id]: value[0] };
     setAnswers(updated);
-  }, [currentMini, answers]);
+    autoSave(updated);
+  }, [currentMini, answers, autoSave]);
 
   const handleSliderCommit = useCallback(() => {
-    autoSave(answers);
-  }, [answers, autoSave]);
+    // Already saved in handleSliderChange
+  }, []);
 
   const handleTextareaSubmit = useCallback(() => {
     if (!currentMini) return;
