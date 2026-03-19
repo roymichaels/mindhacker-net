@@ -22,11 +22,19 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-function Sub({ num, title, children }: { num: string; title: string; children: React.ReactNode }) {
+function Sub({ num, title, children, isHe }: { num: string; title: string; children: React.ReactNode; isHe: boolean }) {
   return (
     <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
-      <h3 className="text-xl font-bold text-foreground">
-        <span className="text-primary/70 text-base me-2">{num}</span>{title}
+      <h3
+        dir={isHe ? 'rtl' : 'ltr'}
+        className={`text-xl font-bold text-foreground flex items-baseline gap-2 ${isHe ? 'text-right' : 'text-left'}`}
+      >
+        {num ? (
+          <span dir="ltr" className="text-primary/70 text-base shrink-0">
+            {num}
+          </span>
+        ) : null}
+        <span style={{ unicodeBidi: 'plaintext' }}>{title}</span>
       </h3>
       {children}
     </motion.div>
@@ -40,7 +48,7 @@ export function TokenomicsSection({ isHe }: Props) {
   return (
     <div className="space-y-10">
       {/* 19.1 What is MOS */}
-      <Sub num="19.1" title={t('What is MOS?', 'מהו MOS?')}>
+      <Sub num="19.1" title={t('What is MOS?', 'מהו MOS?')} isHe={isHe}>
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-[hsl(270,70%,60%)] flex items-center justify-center text-sm font-bold text-white">
@@ -62,60 +70,60 @@ export function TokenomicsSection({ isHe }: Props) {
       </Sub>
 
       {/* 19.2 Supply & Distribution */}
-      <Sub num="19.2" title={t('Supply & Distribution', 'היצע וחלוקה')}>
+      <Sub num="19.2" title={t('Supply & Distribution', 'היצע וחלוקה')} isHe={isHe}>
         <p className="text-xs text-muted-foreground">{t('Allocation at genesis. Not all tokens are immediately circulating.', 'הקצאה בג׳נסיס. לא כל הטוקנים במחזור מיידי.')}</p>
         <TokenDistributionChart distribution={cfg.distribution} isHe={isHe} />
       </Sub>
 
       {/* 19.3 Token Utility */}
-      <Sub num="19.3" title={t('Token Utility', 'שימושי הטוקן')}>
+      <Sub num="19.3" title={t('Token Utility', 'שימושי הטוקן')} isHe={isHe}>
         <TokenUtilityGrid items={cfg.utility} isHe={isHe} />
       </Sub>
 
       {/* 19.4 Earning MOS */}
-      <Sub num="19.4" title={t('Earning MOS', 'איך מרוויחים MOS')}>
+      <Sub num="19.4" title={t('Earning MOS', 'איך מרוויחים MOS')} isHe={isHe}>
         <EarningSourcesVisual items={cfg.earningSources} isHe={isHe} />
         <DataContributionCard config={cfg.dataContribution} isHe={isHe} />
       </Sub>
 
       {/* 19.5 Spending MOS */}
-      <Sub num="19.5" title={t('Spending MOS', 'הוצאת MOS')}>
+      <Sub num="19.5" title={t('Spending MOS', 'הוצאת MOS')} isHe={isHe}>
         <SpendingSection items={cfg.spending} isHe={isHe} />
       </Sub>
 
       {/* 19.6 Marketplace & Fee System */}
-      <Sub num="19.6" title={t('Marketplace & Fee System', 'שוק ומערכת עמלות')}>
+      <Sub num="19.6" title={t('Marketplace & Fee System', 'שוק ומערכת עמלות')} isHe={isHe}>
         <FeeSystemCard fee={cfg.platformFee} isHe={isHe} />
       </Sub>
 
       {/* 19.7 Economic Loop */}
-      <Sub num="19.7" title={t('Economic Loop', 'מחזור כלכלי')}>
+      <Sub num="19.7" title={t('Economic Loop', 'מחזור כלכלי')} isHe={isHe}>
         <EconomicFlowVisual isHe={isHe} />
       </Sub>
 
       {/* 19.8 Token Sink Mechanisms */}
-      <Sub num="19.8" title={t('Token Sink Mechanisms', 'מנגנוני ספיגת טוקנים')}>
+      <Sub num="19.8" title={t('Token Sink Mechanisms', 'מנגנוני ספיגת טוקנים')} isHe={isHe}>
         <p className="text-sm text-muted-foreground">{t('Mechanisms that permanently remove tokens from circulation, maintaining long-term balance.', 'מנגנונים שמסירים טוקנים לצמיתות ממחזור, ושומרים על איזון ארוך טווח.')}</p>
         <SinkMechanisms items={cfg.sinkMechanisms} futureNote={cfg.sinkFuture} isHe={isHe} />
       </Sub>
 
       {/* 19.9 Reward Control System */}
-      <Sub num="19.9" title={t('Reward Control System', 'מערכת בקרת תגמולים')}>
+      <Sub num="19.9" title={t('Reward Control System', 'מערכת בקרת תגמולים')} isHe={isHe}>
         <RewardControlSection config={cfg.rewardControl} isHe={isHe} />
       </Sub>
 
       {/* 19.10 Reputation Layer */}
-      <Sub num="19.10" title={t('Reputation Layer', 'שכבת מוניטין')}>
+      <Sub num="19.10" title={t('Reputation Layer', 'שכבת מוניטין')} isHe={isHe}>
         <ReputationLayer config={cfg.reputation} isHe={isHe} />
       </Sub>
 
       {/* Wallet Preview */}
-      <Sub num="" title={t('Wallet Preview', 'תצוגת ארנק')}>
+      <Sub num="" title={t('Wallet Preview', 'תצוגת ארנק')} isHe={isHe}>
         <WalletPreview data={cfg.walletPreview} isHe={isHe} />
       </Sub>
 
       {/* 19.11 Sustainability */}
-      <Sub num="19.11" title={t('Sustainability & Trust', 'קיימות ואמון')}>
+      <Sub num="19.11" title={t('Sustainability & Trust', 'קיימות ואמון')} isHe={isHe}>
         <SustainabilitySection items={cfg.sustainability} isHe={isHe} />
       </Sub>
     </div>
