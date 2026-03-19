@@ -170,6 +170,11 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     })();
 
     try {
+      // Get real user session token for auth
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
         {
@@ -177,7 +182,7 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
           headers: {
             'Content-Type': 'application/json',
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ text, voiceId: voice, speed }),
           signal: combinedSignal,
