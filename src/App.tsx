@@ -11,6 +11,7 @@ import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import { ProfileModalProvider } from "@/contexts/ProfileModalContext";
 import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
 import { WalletModalProvider } from "@/contexts/WalletModalContext";
+import { SoulAvatarProvider } from "@/contexts/SoulAvatarContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
