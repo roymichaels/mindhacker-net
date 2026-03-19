@@ -44,6 +44,7 @@ const AuroraAccountDropdown = ({
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { openProfile } = useProfileModal();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
