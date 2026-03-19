@@ -38,6 +38,7 @@ export default function PlayHub() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const auroraChat = useAuroraChatContextSafe();
+  const { openHypnosis } = useAuroraActions();
 
   // ── Data for unified stats ──
   const { plan, milestones } = useLifePlanWithMilestones();
