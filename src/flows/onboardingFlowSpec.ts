@@ -362,8 +362,6 @@ const onboardingFlowSpec: FlowSpec = {
           title_he: 'באיזו שעה אתה קם בדרך כלל?',
           title_en: 'What time do you usually wake up?',
           inputType: 'time_picker',
-          minHour: 3,
-          maxHour: 12,
           validation: { required: true },
           dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'wake_time' },
         },
