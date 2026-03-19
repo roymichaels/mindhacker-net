@@ -27,14 +27,14 @@ export default function FMAppShell() {
   }
 
   return (
-    <div className="relative flex flex-col -mx-2 lg:-mx-3 -mb-64 md:-mb-24 pb-20">
-      {/* Persistent Earn Launchpad banner — above content */}
-      <div className="relative z-10 px-4 pt-2 pb-0">
-        <EarnLaunchpadBanner />
-      </div>
-
+    <div className="relative flex flex-col -mx-2 lg:-mx-3 -mb-64 md:-mb-24 pb-28">
       <div className="px-4 relative z-10">
         <Outlet />
+      </div>
+
+      {/* Floating Earn Launchpad dock — bottom of FM */}
+      <div className="fixed bottom-16 inset-x-0 z-40 px-3 pb-2">
+        <EarnLaunchpadBanner />
       </div>
     </div>
   );
