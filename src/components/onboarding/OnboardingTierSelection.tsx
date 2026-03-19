@@ -20,7 +20,7 @@ interface OnboardingTierSelectionProps {
 
 export function OnboardingTierSelection({ onTierSelected, onBack }: OnboardingTierSelectionProps) {
   const { t, language } = useTranslation();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { openAuthModal } = useAuthModal();
   const isHe = language === 'he';
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null);
@@ -34,7 +34,8 @@ export function OnboardingTierSelection({ onTierSelected, onBack }: OnboardingTi
 
     setSelectedTier(tier);
 
-    if (tier === 'free') {
+    // Admins bypass payment gate — proceed directly with any tier
+    if (tier === 'free' || isAdmin) {
       onTierSelected(tier);
       return;
     }
