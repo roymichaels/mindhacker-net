@@ -413,7 +413,13 @@ export function TodayOverviewTab() {
           )}
 
           {/* ── Field Briefing — dynamic per active task's pillar ── */}
-          <div className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2">
+          <motion.div
+            key={`briefing-${activeIdx}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2"
+          >
             <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
               ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
             </span>
@@ -426,7 +432,7 @@ export function TodayOverviewTab() {
             <p className="text-xs italic text-cyan-100/40 leading-relaxed flex gap-1.5">
               <span className="flex-shrink-0">🔍</span> {intel}
             </p>
-          </div>
+          </motion.div>
 
           {/* ── Commander sign-off ── */}
           <div className="border-t border-white/[0.06] pt-2 text-center">
