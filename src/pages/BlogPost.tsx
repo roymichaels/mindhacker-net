@@ -196,29 +196,35 @@ export default function BlogPost() {
       )}
 
       {/* ═══ ARTICLE CONTENT ═══ */}
-      <article className="container mx-auto max-w-4xl px-4 py-10 md:py-14">
+      <article className="container mx-auto max-w-3xl px-6 sm:px-8 py-12 md:py-20">
         <div
           className={cn(
             "blog-article-content",
             "prose prose-lg dark:prose-invert max-w-none",
-            // Headings
+            // Headings — generous whitespace
             "prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight",
-            "prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-border/50",
-            "prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mt-8 prose-h3:mb-3",
-            // Body text
-            "prose-p:text-foreground/80 prose-p:leading-[1.85] prose-p:text-[16px] prose-p:md:text-[17px]",
-            // Links — styled as inline CTAs
+            "prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:pb-4 prose-h2:border-b prose-h2:border-border/30",
+            "prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mt-12 prose-h3:mb-4",
+            "prose-h4:text-lg prose-h4:mt-10 prose-h4:mb-3",
+            // Body text — comfortable reading measure & line height
+            "prose-p:text-foreground/85 prose-p:leading-[1.9] prose-p:text-[17px] prose-p:md:text-[18px] prose-p:mb-6",
+            // Links
             "prose-a:text-primary prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-a:transition-colors",
             // Bold & emphasis
             "prose-strong:text-foreground prose-strong:font-bold",
             "prose-em:text-foreground/70",
-            // Lists
-            "prose-li:text-foreground/80 prose-li:leading-relaxed prose-li:marker:text-primary",
-            "prose-ul:my-4 prose-ol:my-4",
-            // Blockquotes — premium callout style
-            "prose-blockquote:border-s-4 prose-blockquote:border-primary/60 prose-blockquote:bg-primary/5 prose-blockquote:rounded-e-xl prose-blockquote:px-5 prose-blockquote:py-4 prose-blockquote:not-italic prose-blockquote:text-foreground/85 prose-blockquote:font-medium",
+            // Lists — breathing room between items
+            "prose-li:text-foreground/85 prose-li:leading-[1.8] prose-li:marker:text-primary prose-li:mb-2",
+            "prose-ul:my-6 prose-ol:my-6 prose-ul:ps-5 prose-ol:ps-5",
+            // Blockquotes — elegant callout
+            "prose-blockquote:border-s-4 prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-e-xl prose-blockquote:px-6 prose-blockquote:py-5 prose-blockquote:my-8 prose-blockquote:not-italic prose-blockquote:text-foreground/85 prose-blockquote:font-medium prose-blockquote:text-[17px]",
             // Images
-            "prose-img:rounded-2xl prose-img:shadow-lg",
+            "prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8",
+            // Code
+            "prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono",
+            "prose-pre:bg-muted prose-pre:rounded-xl prose-pre:p-5 prose-pre:my-8",
+            // Horizontal rules
+            "prose-hr:border-border/30 prose-hr:my-12",
           )}
           dangerouslySetInnerHTML={{ __html: content }}
         />
