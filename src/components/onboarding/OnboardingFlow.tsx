@@ -913,6 +913,48 @@ export function OnboardingFlow() {
                 </div>
               ) : null}
 
+              {/* Custom answer toggle — for single_select and multi_select */}
+              {(isSingleSelect || isMultiSelect) && !showCustomInput && (
+                <button
+                  onClick={() => {
+                    setShowCustomInput(true);
+                    setSelectedValue(null);
+                  }}
+                  className="w-full py-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all flex items-center justify-center gap-2"
+                >
+                  ✏️ {isHe ? 'התשובה שלי לא מופיעה — אכתוב בעצמי' : 'My answer isn\'t listed — I\'ll type it'}
+                </button>
+              )}
+
+              {/* Custom text input */}
+              {showCustomInput && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {isHe ? 'כתוב את התשובה שלך:' : 'Type your answer:'}
+                    </span>
+                    <button
+                      onClick={() => { setShowCustomInput(false); setCustomInputValue(''); }}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      {isHe ? 'חזרה לאפשרויות' : 'Back to options'}
+                    </button>
+                  </div>
+                  <Textarea
+                    value={customInputValue}
+                    onChange={(e) => setCustomInputValue(e.target.value)}
+                    placeholder={isHe ? 'כתוב כאן...' : 'Write here...'}
+                    className="min-h-[80px] text-base"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                    autoFocus
+                  />
+                </motion.div>
+              )}
+
               {/* Continue button */}
               {showContinueBtn && (
                 <AnimatePresence>
