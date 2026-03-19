@@ -18,6 +18,7 @@ import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
 import { Progress } from '@/components/ui/progress';
 import LessonFocusSession from '@/components/learn/LessonFocusSession';
 import { cn } from '@/lib/utils';
