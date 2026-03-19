@@ -1,41 +1,60 @@
 
 
-## Problem
+## Aurora Chat Page Overhaul
 
-The phase roadmap looks clunky with oversized circles and the briefing card below feels heavy/cluttered. Both need a visual overhaul to feel premium and clean.
+### What's Wrong Now
+1. **Background issue**: The chat area has nested containers with visible borders/backgrounds creating a "container in container" look
+2. **Tab switcher is inline**: Dreams, Reflect, Gratitude tabs sit inside the chat page as tab switcher bar — should be iPhone widgets that open as modals
+3. **Chat input is not truly fixed/floating**: It scrolls with content instead of staying pinned
+4. **Only 3 journal modals exist** — user wants 4 total iPhone widget buttons (Dreams, Reflect, Gratitude + Plan + Beliefs = 5... but user said "2 other modals so it will be 4" — meaning 4 widgets: Dreams, Gratitude, Plan, Beliefs)
 
-## Roadmap Redesign
+### Plan
 
-**Current**: Big 32px circles with thick borders, letter labels underneath, busy gradient background.
+#### 1. Clean up AuroraPage layout — remove nested containers
+- Remove the tab switcher bar entirely
+- Make the chat the main/only content of the page
+- Remove any visible background containers — chat messages float directly on `bg-background`
+- Ensure `AuroraChatArea` and `AuroraChatBubbles` have no wrapping card/container styling
 
-**New**: Minimal horizontal progress strip:
-- Smaller nodes (20px), connected by a thin line
-- Current phase: subtle glow dot, no heavy shadow
-- Completed: filled primary dot, no checkmark icon clutter
-- Future: hollow dots with border only
-- Remove the letter labels underneath each node — they add noise
-- Phase label + day counter in a single compact header row
-- Remove the radial gradient background, use flat `bg-card` with subtle border
-- Clicking a node still expands the milestone detail
+#### 2. Make chat input dock truly floating & fixed
+- Change the input dock from `absolute bottom-0` to `fixed bottom-[84px]` (above bottom nav)
+- Add floating styling: `mx-3 rounded-2xl backdrop-blur-xl bg-background/80 border border-border/30`
+- Remove the gradient fade background, replace with clean floating pill
 
-## Briefing Card Redesign
+#### 3. Replace tab switcher with 4 floating iPhone widgets
+- Add a floating horizontal row of 4 `IPhoneWidget` buttons above the chat input dock
+- Position: fixed, above the input dock
+- Widgets:
+  - **Dreams** (Moon icon, indigo gradient) → opens Dreams journal modal
+  - **Gratitude** (Heart icon, rose gradient) → opens Gratitude journal modal  
+  - **Plan** (Target icon, cyan gradient) → opens Plan summary modal (today's tasks from `action_items`)
+  - **Beliefs** (Brain icon, violet gradient) → opens Beliefs modal (from `aurora_memory_graph` where `node_type = 'belief'`)
 
-**Current**: Heavy card with classification badge, pillar badge, directive quote, current mission sub-card, then 3 separate bordered sections (Field Assessment, Doctrine, Intel), and Commander's Directive footer. Lots of borders and padding = visual weight.
+#### 4. Create modal wrappers for each widget
+Each opens as a full-screen or sheet-style modal (`Dialog` or `Drawer`):
+- **Dreams Modal**: Wraps existing `JournalTab` with `type="dream"`
+- **Gratitude Modal**: Wraps existing `JournalTab` with `type="gratitude"`  
+- **Plan Modal**: New component — fetches today's `action_items` (tasks, habits) and displays them as a checklist. Read-only summary view.
+- **Beliefs Modal**: New component — fetches `aurora_memory_graph` entries where `node_type = 'belief'`, displays them as cards with strength indicators
 
-**New**: Single flowing narrative card, no inner sub-cards:
-- Classification + pillar in one compact line (keep)
-- Remove inner bordered sections for Assessment/Doctrine/Intel — instead flow them as continuous prose paragraphs with just a small colored dot or dash separator
-- Current Mission: just the title in bold, inline — no sub-card with icon/border
-- Commander's Directive: stays as closing line
-- Reduce overall padding from `p-3.5` to `p-3`
-- Remove the radial gradient overlay — clean flat card
+#### 5. Auto-update from Aurora conversations
+This already works! The existing infrastructure handles it:
+- **Beliefs**: `useCommandBus` already processes `memoryGraphUpsert` commands from Aurora's responses, writing to `aurora_memory_graph`
+- **Plan**: Aurora already uses `[task:create]`, `[task:swap]` commands via the command bus to update `action_items`
+- **Dreams/Gratitude**: These are manually entered journal entries (user writes them)
+- No new backend changes needed — the existing `aurora-analyze` function and command bus already extract beliefs/patterns from chat and update the memory graph automatically
 
-Result: both elements become lighter, more typographic, less "dashboard widget" and more "document briefing."
+#### 6. Remove Reflection tab
+User only mentioned Dreams, Gratitude, Plan, Beliefs — Reflection is dropped.
 
-## Technical Details
+### Files to modify
+- `src/pages/AuroraPage.tsx` — Major rewrite: remove tabs, add floating widgets row, floating input, modals
+- `src/components/aurora/AuroraPlanModal.tsx` — New: today's plan summary from `action_items`
+- `src/components/aurora/AuroraBeliefsModal.tsx` — New: beliefs from `aurora_memory_graph`
+- `src/components/aurora/AuroraJournalModal.tsx` — New: wrapper modal for `JournalTab`
+- `src/components/aurora/AuroraChatBubbles.tsx` — Remove any container backgrounds
+- `src/components/aurora/AuroraChatArea.tsx` — Remove `max-w-3xl` container wrapper, clean bg
 
-- **File**: `src/components/play/TodayOverviewTab.tsx`
-- Roadmap: reduce node size, remove letter labels, flatten bg
-- Briefing: remove inner bordered divs, flow as paragraphs with dot separators
-- No structural/data changes — same content, better visual hierarchy
+### No database changes needed
+All data sources already exist: `journal_entries`, `action_items`, `aurora_memory_graph`.
 
