@@ -251,73 +251,61 @@ export function TodayOverviewTab() {
     >
       {/* ═══ PHASE ROADMAP ═══ */}
       {milestones.length > 0 && (
-        <div className="relative rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsla(var(--primary)/0.06),transparent_70%)] pointer-events-none" />
-
-          <div className="relative z-10 px-3 pt-3 pb-2">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-primary" />
-                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-foreground">
-                  {isHe ? `שלב ${String.fromCharCode(64 + currentWeek)}` : `Phase ${String.fromCharCode(64 + currentWeek)}`}
-                </span>
-              </div>
-              <span className="text-[9px] font-bold text-muted-foreground">
-                {isHe ? `יום ${currentDay} מתוך 100` : `Day ${currentDay} of 100`}
+        <div className="rounded-2xl border border-border/30 bg-card p-3">
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5">
+              <Zap className="w-3 h-3 text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-foreground">
+                {isHe ? `שלב ${String.fromCharCode(64 + currentWeek)}` : `Phase ${String.fromCharCode(64 + currentWeek)}`}
               </span>
             </div>
+            <span className="text-[9px] font-bold text-muted-foreground">
+              {isHe ? `יום ${currentDay}/100` : `Day ${currentDay}/100`}
+            </span>
+          </div>
 
-            {/* Connected nodes */}
-            <div className="relative">
-              <div className="absolute top-4 inset-x-4 h-[2px] bg-border/20 z-0" />
-              <div
-                className="absolute top-4 start-4 h-[2px] bg-gradient-to-r from-primary to-primary/60 z-[1] transition-all duration-500"
-                style={{ width: `${Math.max(0, ((currentWeek - 1) / Math.max(1, milestones.length - 1)) * 100)}%` }}
-              />
+          {/* Minimal dot strip */}
+          <div className="relative px-1">
+            <div className="absolute top-[9px] inset-x-1 h-[1.5px] bg-border/30" />
+            <div
+              className="absolute top-[9px] start-1 h-[1.5px] bg-primary/60 transition-all duration-500"
+              style={{ width: `${Math.max(0, ((currentWeek - 1) / Math.max(1, milestones.length - 1)) * 100)}%` }}
+            />
+            <div className="relative flex justify-between">
+              {milestones.map((ms: any) => {
+                const isActive = ms.week_number === currentWeek;
+                const isDone = ms.is_completed;
+                const isPast = ms.week_number < currentWeek;
+                const isSelected = selectedMilestone === ms.id;
 
-              <div className="relative z-[2] flex justify-between">
-                {milestones.map((ms: any) => {
-                  const isActive = ms.week_number === currentWeek;
-                  const isDone = ms.is_completed;
-                  const isPast = ms.week_number < currentWeek;
-                  const isSelected = selectedMilestone === ms.id;
-
-                  return (
-                    <button
-                      key={ms.id}
-                      onClick={() => setSelectedMilestone(isSelected ? null : ms.id)}
-                      className="flex flex-col items-center gap-1 group relative"
-                    >
-                      <div className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all border-2",
-                        isDone
-                          ? "bg-primary/20 border-primary text-primary"
-                          : isActive
-                            ? "bg-primary border-primary text-primary-foreground shadow-[0_0_16px_hsla(var(--primary)/0.5)]"
-                            : isPast
-                              ? "bg-muted/40 border-primary/40 text-primary/60"
-                              : "bg-card border-border/40 text-foreground/30",
-                        isSelected && "ring-2 ring-primary/50 ring-offset-2 ring-offset-card"
-                      )}>
-                        {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : ms.week_number}
-                      </div>
-                      <span className={cn(
-                        "text-[8px] font-bold",
-                        isActive ? "text-primary" : isDone || isPast ? "text-muted-foreground/60" : "text-foreground/20"
-                      )}>
-                        {String.fromCharCode(64 + ms.week_number)}
-                      </span>
-                      {isActive && !isDone && (
-                        <motion.div
-                          className="absolute -top-1 w-2 h-2 rounded-full bg-primary"
-                          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+                return (
+                  <button
+                    key={ms.id}
+                    onClick={() => setSelectedMilestone(isSelected ? null : ms.id)}
+                    className="flex flex-col items-center group relative"
+                  >
+                    <div className={cn(
+                      "w-[18px] h-[18px] rounded-full transition-all border",
+                      isDone
+                        ? "bg-primary border-primary"
+                        : isActive
+                          ? "bg-primary border-primary shadow-[0_0_8px_hsla(var(--primary)/0.4)]"
+                          : isPast
+                            ? "bg-primary/40 border-primary/40"
+                            : "bg-card border-border/50",
+                      isSelected && "ring-1 ring-primary/40 ring-offset-1 ring-offset-card"
+                    )} />
+                    {isActive && !isDone && (
+                      <motion.div
+                        className="absolute top-0 w-[18px] h-[18px] rounded-full bg-primary/30"
+                        animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -331,10 +319,10 @@ export function TodayOverviewTab() {
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 className="overflow-hidden"
               >
-                <div className="mx-3 mb-3 p-3 rounded-xl border border-border/30 bg-background/30">
+                <div className="mt-3 pt-2.5 border-t border-border/20">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="flex items-center gap-1.5 mb-1">
                         <span className={cn(
                           "text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md",
                           selectedMs.is_completed ? "bg-primary/15 text-primary"
@@ -344,7 +332,7 @@ export function TodayOverviewTab() {
                           {selectedMs.is_completed
                             ? (isHe ? '✓ הושלם' : '✓ DONE')
                             : selectedMs.week_number === currentWeek
-                              ? (isHe ? '● פעיל עכשיו' : '● ACTIVE')
+                              ? (isHe ? '● פעיל' : '● ACTIVE')
                               : `${isHe ? 'שלב' : 'Phase'} ${selectedMs.week_number}`}
                         </span>
                         {selectedMs.focus_area && (
@@ -380,101 +368,71 @@ export function TodayOverviewTab() {
       )}
 
       {/* ═══ MAIN BRIEFING CARD ═══ */}
-      <div className="relative rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsla(var(--primary)/0.1),transparent_60%)]" />
-
-        <div className="relative z-10 p-3.5 space-y-4">
-          {/* Classification + Pillar */}
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/30 px-2 py-1">
-              <Shield className="h-3 w-3 text-primary" />
-              <span className="text-[9px] font-black tracking-[0.14em] text-muted-foreground">{classification}</span>
-            </div>
-            <div className="flex items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2 py-1">
-              <span className="text-xs">{currentPillar.emoji}</span>
-              <span className="text-[9px] font-black text-primary">{isHe ? currentPillar.labelHe : currentPillar.labelEn}</span>
-            </div>
+      <div className="rounded-2xl border border-border/30 bg-card p-3 space-y-3">
+        {/* Classification + Pillar — compact single line */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Shield className="h-3 w-3 text-primary/60" />
+            <span className="text-[9px] font-black tracking-[0.12em] text-muted-foreground">{classification}</span>
           </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs">{currentPillar.emoji}</span>
+            <span className="text-[9px] font-bold text-primary">{isHe ? currentPillar.labelHe : currentPillar.labelEn}</span>
+          </div>
+        </div>
 
-          {/* Directive */}
-          <p className="text-[11px] font-semibold text-foreground/80 leading-snug italic">
-            "{directive}"
-          </p>
+        {/* Directive */}
+        <p className="text-[11px] font-semibold text-foreground/70 leading-snug italic">
+          "{directive}"
+        </p>
 
-          {/* ═══ CURRENT MISSION — title + pillar only ═══ */}
-          <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-3 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Crosshair className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.14em] text-primary">
+        {/* Current Mission — inline bold title, no sub-card */}
+        {currentAction ? (
+          <div className="flex items-baseline gap-2">
+            <Crosshair className="w-3.5 h-3.5 text-primary flex-shrink-0 relative top-[2px]" />
+            <div>
+              <span className="text-[8px] font-black uppercase tracking-[0.12em] text-primary/50 block mb-0.5">
                 {isHe ? 'משימה נוכחית' : 'Current Mission'}
               </span>
-            </div>
-
-            {currentAction ? (
-              <h3 className="text-base font-black text-foreground leading-tight">
+              <span className="text-sm font-black text-foreground leading-tight">
                 {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
-              </h3>
-            ) : totalCount === 0 ? (
-              <div className="text-center py-2">
-                <span className="text-2xl">🌙</span>
-                <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
-                <p className="text-[10px] text-muted-foreground">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
-              </div>
-            ) : (
-              <div className="text-center py-1">
-                <span className="text-2xl">🏆</span>
-                <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
-              </div>
-            )}
-          </div>
-
-          {/* ═══ FIELD ASSESSMENT ═══ */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-border/20 bg-background/20 p-3">
-            <Eye className="w-4 h-4 text-primary/70 mt-0.5 flex-shrink-0" />
-            <div>
-              <span className="text-[8px] font-black uppercase tracking-[0.14em] text-primary/60 block mb-1">
-                {isHe ? 'הערכת שטח' : 'Field Assessment'}
               </span>
-              <p className="text-[11px] text-foreground/80 leading-relaxed">
-                {assessment}
-              </p>
             </div>
           </div>
-
-          {/* ═══ OPERATIONAL DOCTRINE ═══ */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-border/20 bg-background/20 p-3">
-            <Shield className="w-4 h-4 text-primary/70 mt-0.5 flex-shrink-0" />
-            <div>
-              <span className="text-[8px] font-black uppercase tracking-[0.14em] text-primary/60 block mb-1">
-                {isHe ? 'דוקטרינה מבצעית' : 'Operational Doctrine'}
-              </span>
-              <p className="text-[11px] font-bold text-foreground leading-relaxed">
-                {doctrine}
-              </p>
-            </div>
+        ) : totalCount === 0 ? (
+          <div className="text-center py-2">
+            <span className="text-xl">🌙</span>
+            <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
+            <p className="text-[10px] text-muted-foreground">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
           </div>
-
-          {/* ═══ INTELLIGENCE NOTE ═══ */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-border/20 bg-background/20 p-3">
-            <Lock className="w-4 h-4 text-primary/70 mt-0.5 flex-shrink-0" />
-            <div>
-              <span className="text-[8px] font-black uppercase tracking-[0.14em] text-primary/60 block mb-1">
-                {isHe ? 'סיכום מודיעיני' : 'Intelligence Note'}
-              </span>
-              <p className="text-[11px] text-foreground/70 leading-relaxed italic">
-                {intel}
-              </p>
-            </div>
+        ) : (
+          <div className="text-center py-1">
+            <span className="text-xl">🏆</span>
+            <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
           </div>
+        )}
 
-          {/* ═══ COMMANDER'S DIRECTIVE ═══ */}
-          <div className="border-t border-border/20 pt-3 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground/60">
-              {commander}
-            </p>
-          </div>
+        {/* Flowing narrative — no inner cards, dot separators */}
+        <div className="space-y-2.5 text-[11px] leading-relaxed text-foreground/75">
+          <p>
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
+            {assessment}
+          </p>
+          <p className="font-bold text-foreground/85">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
+            {doctrine}
+          </p>
+          <p className="italic text-foreground/60">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
+            {intel}
+          </p>
+        </div>
+
+        {/* Commander's Directive */}
+        <div className="border-t border-border/20 pt-2.5 text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/50">
+            {commander}
+          </p>
         </div>
       </div>
     </motion.div>
