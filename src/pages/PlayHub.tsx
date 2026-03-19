@@ -1,14 +1,14 @@
 /**
- * PlayHub — Unified Play page: Tactics view with Strategy & Work as modals.
- * Merged stats from Strategy, Now, and Tactics at the top.
+ * PlayHub — Unified Play page with 2-tab layout:
+ * Tab 1 (default): Text overview — motivating, non-demanding, shows strategy & all tasks
+ * Tab 2: Mission Control — interactive with 10-day roadmap, media player, task execution
  */
 import { useState, useMemo, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star } from 'lucide-react';
+import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star, BookOpen, Gamepad2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
-import { MissionControlBar } from '@/components/play/MissionControlBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -20,7 +20,8 @@ import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 
-import { TodayHeroCard } from '@/components/play/TodayHeroCard';
+import { TodayOverviewTab } from '@/components/play/TodayOverviewTab';
+import { MissionControlTab } from '@/components/play/MissionControlTab';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const WorkHub = lazy(() => import('./WorkHub'));
@@ -28,6 +29,7 @@ const WorkHub = lazy(() => import('./WorkHub'));
 export default function PlayHub() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const [activeTab, setActiveTab] = useState<'overview' | 'control'>('overview');
   const [chatOpen, setChatOpen] = useState(false);
   const [strategyOpen, setStrategyOpen] = useState(false);
   const [workOpen, setWorkOpen] = useState(false);
@@ -68,17 +70,21 @@ export default function PlayHub() {
     auroraChat.setIsChatExpanded(true);
     auroraChat.setPendingAssistantGreeting(
       isHe
-        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**\n\nזה יכול להיות:\n- 🧠 בריאות נפשית ומיינדסט\n- 💪 כושר ותזונה\n- 💼 קריירה ועסקים\n- ❤️ זוגיות ומערכות יחסים\n- 🎯 מטרות ומוטיבציה\n\nככל שתהיה ספציפי יותר, כך אמצא לך התאמה טובה יותר.'
-        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**\n\nIt could be:\n- 🧠 Mental health & mindset\n- 💪 Fitness & nutrition\n- 💼 Career & business\n- ❤️ Relationships\n- 🎯 Goals & motivation\n\nThe more specific you are, the better match I'll find for you."
+        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**'
+        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**"
     );
   };
+
+  const tabs = [
+    { key: 'overview' as const, icon: BookOpen, label: isHe ? 'סקירה' : 'Overview' },
+    { key: 'control' as const, icon: Gamepad2, label: isHe ? 'בקרת משימות' : 'Mission Control' },
+  ];
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Strategy & Work modal cards */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
         <div className="grid grid-cols-2 gap-3">
-          {/* Strategy Card */}
           <button
             onClick={() => setStrategyOpen(true)}
             className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
@@ -89,17 +95,12 @@ export default function PlayHub() {
                 <Flame className="w-5 h-5 text-amber-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">
-                  {isHe ? 'אסטרטגיה' : 'Strategy'}
-                </h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
-                  {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
-                </p>
+                <h3 className="text-sm font-bold text-foreground">{isHe ? 'אסטרטגיה' : 'Strategy'}</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'תוכנית 100 יום' : '100-Day Plan'}</p>
               </div>
             </div>
           </button>
 
-          {/* Work Hub Card */}
           <button
             onClick={() => setWorkOpen(true)}
             className="group relative overflow-hidden rounded-2xl border border-violet-500/20 bg-violet-500/[0.06] p-4 text-start transition-all hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10 active:scale-[0.99]"
@@ -110,12 +111,8 @@ export default function PlayHub() {
                 <Briefcase className="w-5 h-5 text-violet-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">
-                  {isHe ? 'מרכז עבודה' : 'Work Hub'}
-                </h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
-                  {isHe ? 'טיימר ופרודוקטיביות' : 'Timer & Productivity'}
-                </p>
+                <h3 className="text-sm font-bold text-foreground">{isHe ? 'מרכז עבודה' : 'Work Hub'}</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'טיימר ופרודוקטיביות' : 'Timer & Productivity'}</p>
               </div>
             </div>
           </button>
@@ -134,12 +131,8 @@ export default function PlayHub() {
                 <MessageSquare className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">
-                  {isHe ? 'דבר עם התוכנית' : 'Talk to Plan'}
-                </h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
-                  {isHe ? 'שאל את Aurora' : 'Ask Aurora'}
-                </p>
+                <h3 className="text-sm font-bold text-foreground">{isHe ? 'דבר עם התוכנית' : 'Talk to Plan'}</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'שאל את Aurora' : 'Ask Aurora'}</p>
               </div>
             </div>
           </button>
@@ -154,12 +147,8 @@ export default function PlayHub() {
                 <Search className="w-5 h-5 text-emerald-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">
-                  {isHe ? 'מצא מאמן' : 'Find a Coach'}
-                </h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
-                  {isHe ? 'התאמה חכמה' : 'AI Matching'}
-                </p>
+                <h3 className="text-sm font-bold text-foreground">{isHe ? 'מצא מאמן' : 'Find a Coach'}</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? 'התאמה חכמה' : 'AI Matching'}</p>
               </div>
             </div>
           </button>
@@ -181,32 +170,44 @@ export default function PlayHub() {
         </div>
       )}
 
-      {/* ── Mission Control Bar ── */}
+      {/* ── Tab Switcher ── */}
       <div className="w-full max-w-xl px-4 pt-3 pb-2">
-        <MissionControlBar />
+        <div className="flex rounded-xl bg-muted/30 border border-border/30 p-1 gap-1">
+          {tabs.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all",
+                activeTab === tab.key
+                  ? "bg-card text-foreground shadow-sm border border-border/40"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <tab.icon className="w-3.5 h-3.5" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Today's Hero Card */}
-      <TodayHeroCard />
+      {/* ── Tab Content ── */}
+      <div className="w-full max-w-xl px-4 pb-6">
+        {activeTab === 'overview' ? <TodayOverviewTab /> : <MissionControlTab />}
+      </div>
 
       {/* Strategy Modal */}
       <Dialog open={strategyOpen} onOpenChange={setStrategyOpen}>
         <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 gap-0" preventClose>
           <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm">
             <h2 className="text-base font-bold flex items-center gap-2">
-              <Flame className="w-4 h-4 text-amber-400" />
-              {isHe ? 'אסטרטגיה' : 'Strategy'}
+              <Flame className="w-4 h-4 text-amber-400" />{isHe ? 'אסטרטגיה' : 'Strategy'}
             </h2>
-            <button
-              onClick={() => setStrategyOpen(false)}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            >
+            <button onClick={() => setStrategyOpen(false)} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
-          <Suspense fallback={null}>
-            {strategyOpen && <LifeHub />}
-          </Suspense>
+          <Suspense fallback={null}>{strategyOpen && <LifeHub />}</Suspense>
         </DialogContent>
       </Dialog>
 
@@ -215,19 +216,13 @@ export default function PlayHub() {
         <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 gap-0" preventClose>
           <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm">
             <h2 className="text-base font-bold flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-violet-500" />
-              {isHe ? 'מרכז העבודה' : 'Work Hub'}
+              <Briefcase className="w-4 h-4 text-violet-500" />{isHe ? 'מרכז העבודה' : 'Work Hub'}
             </h2>
-            <button
-              onClick={() => setWorkOpen(false)}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            >
+            <button onClick={() => setWorkOpen(false)} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
-          <Suspense fallback={null}>
-            {workOpen && <WorkHub />}
-          </Suspense>
+          <Suspense fallback={null}>{workOpen && <WorkHub />}</Suspense>
         </DialogContent>
       </Dialog>
 
