@@ -157,9 +157,6 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     const handle = playTTS(text, {
       voiceId: persona.voiceId,
       speed: persona.speed,
-      stability: persona.stability,
-      similarityBoost: persona.similarityBoost,
-      style: persona.style,
       onEnd: () => {
         ttsCancelRef.current = null;
         if (activeRef.current) startListening();

@@ -160,9 +160,6 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
     const handle = playTTS(content, {
       voiceId: persona.voiceId,
       speed: persona.speed,
-      stability: persona.stability,
-      similarityBoost: persona.similarityBoost,
-      style: persona.style,
       onEnd: () => {
         setIsPlaying(false);
         setActiveMessageId(null);
