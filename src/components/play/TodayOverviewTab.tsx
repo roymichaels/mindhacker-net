@@ -206,37 +206,6 @@ export function TodayOverviewTab() {
             </div>
           </div>
 
-          {/* ── Directive ── */}
-          <p className="text-[11px] font-semibold text-cyan-100/60 leading-snug italic">
-            "{directive}"
-          </p>
-
-          {/* ── Current Mission ── */}
-          {currentAction ? (
-            <div className="flex items-baseline gap-2.5 py-2 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-              <Crosshair className="w-4 h-4 text-cyan-400 flex-shrink-0 relative top-[2px]" />
-              <div>
-                <span className="text-[8px] font-black uppercase tracking-[0.14em] text-cyan-500/50 block mb-0.5">
-                  {isHe ? 'משימה נוכחית' : 'Current Mission'}
-                </span>
-                <span className="text-sm font-black text-white leading-tight">
-                  {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
-                </span>
-              </div>
-            </div>
-          ) : totalCount === 0 ? (
-            <div className="text-center py-3">
-              <span className="text-xl">🌙</span>
-              <h3 className="text-sm font-black text-white mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
-              <p className="text-[10px] text-cyan-200/50">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
-            </div>
-          ) : (
-            <div className="text-center py-2">
-              <span className="text-xl">🏆</span>
-              <h3 className="text-sm font-black text-white mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
-            </div>
-          )}
-
           {/* ── Embedded Roadmap ── */}
           {milestones.length > 0 && (
             <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-2.5">
@@ -245,7 +214,7 @@ export function TodayOverviewTab() {
                 <div className="flex items-center gap-1.5">
                   <Zap className="w-3 h-3 text-amber-400" />
                   <span className="text-[10px] font-black uppercase tracking-[0.14em] text-amber-300/90">
-                    {isHe ? `שלב ${String.fromCharCode(64 + currentWeek)}` : `Phase ${String.fromCharCode(64 + currentWeek)}`}
+                    {isHe ? `מסלול 100 הימים — שלב ${String.fromCharCode(64 + currentWeek)}` : `100-Day Route — Phase ${String.fromCharCode(64 + currentWeek)}`}
                   </span>
                   <span className="text-[9px] text-cyan-200/40 font-semibold">
                     {completedCount}/{milestones.length}
@@ -339,6 +308,37 @@ export function TodayOverviewTab() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+          )}
+
+          {/* ── Directive ── */}
+          <p className="text-[11px] font-semibold text-cyan-100/60 leading-snug italic">
+            "{directive}"
+          </p>
+
+          {/* ── Current Mission ── */}
+          {currentAction ? (
+            <div className="flex items-baseline gap-2.5 py-2 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+              <Crosshair className="w-4 h-4 text-cyan-400 flex-shrink-0 relative top-[2px]" />
+              <div>
+                <span className="text-[8px] font-black uppercase tracking-[0.14em] text-cyan-500/50 block mb-0.5">
+                  {isHe ? 'משימה נוכחית' : 'Current Mission'}
+                </span>
+                <span className="text-sm font-black text-white leading-tight">
+                  {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
+                </span>
+              </div>
+            </div>
+          ) : totalCount === 0 ? (
+            <div className="text-center py-3">
+              <span className="text-xl">🌙</span>
+              <h3 className="text-sm font-black text-white mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
+              <p className="text-[10px] text-cyan-200/50">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
+            </div>
+          ) : (
+            <div className="text-center py-2">
+              <span className="text-xl">🏆</span>
+              <h3 className="text-sm font-black text-white mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
             </div>
           )}
 
