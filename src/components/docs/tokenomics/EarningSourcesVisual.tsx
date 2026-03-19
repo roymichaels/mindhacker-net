@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, Hammer, Target, FileText, Users } from 'lucide-react';
+import { TrendingUp, Hammer, Target, FileText, Users, Database } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { tokenomicsConfig } from '@/config/tokenomics';
 
 const iconMap: Record<string, LucideIcon> = {
-  TrendingUp, Hammer, Target, FileText, Users,
+  TrendingUp, Hammer, Target, FileText, Users, Database,
 };
 
 type Item = typeof tokenomicsConfig.earningSources[number];
