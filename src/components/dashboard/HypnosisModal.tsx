@@ -25,6 +25,7 @@ import {
   cacheScriptAudio,
 } from '@/services/hypnosis';
 import { synthesizeSpeech, stopBrowserSpeech, playAudioUrl, stopCurrentAudio } from '@/services/voice';
+import { playTTS } from '@/lib/ttsPlayer';
 import { saveSession } from '@/services/userMemory';
 import { awardXp } from '@/services/unifiedContext';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -615,64 +616,52 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     };
     
     try {
-      const result = await synthesizeSpeech(sanitizedText, {
-        provider: voiceProvider,
-        voice: 'sarah',
+      // Use playTTS from ttsPlayer which handles chunking, auth, and Hebrew properly
+      setState('playing');
+      isSynthesizingRef.current = false;
+
+      const wordCount = sanitizedText.split(/\s+/).length;
+      const totalDurationSec = (wordCount / 85) * 60; // 85 WPM hypnosis pace
+
+      const ttsHandle = playTTS(sanitizedText, {
+        voiceId: 'jessica',
         speed: 0.9,
-      });
-
-      if (sessionIdRef.current !== currentSessionId) {
-        isSynthesizingRef.current = false;
-        return;
-      }
-
-      if (result) {
-        setVoiceProvider(result.provider);
-        // Synthesis done, switch to playing state
-        setState('playing');
-        isSynthesizingRef.current = false;
-        
-        // For browser TTS, the progress is handled inside playAudioUrl via speakWithBrowser
-        // which now has smooth word-level interpolation
-        await playAudioUrl(result.audioUrl, {
-          minDuration: 10,
-          onTimeUpdate,
-          onStart,
-          onEnd,
-          onError: (err) => {
-            if (sessionIdRef.current !== currentSessionId || !playingRef.current) return;
-
-            // Most common reason voice "doesn't start": autoplay is blocked until user gesture.
-            const name = err instanceof Error ? (err as any).name : undefined;
-            if (name === 'NotAllowedError') {
-              setState('paused');
-              toast({
-                title: language === 'he' ? 'לחץ על הפעלה כדי להתחיל' : 'Tap Play to start',
-                description: language === 'he'
-                  ? 'הדפדפן חסם הפעלה אוטומטית של קול עד אינטראקציה.'
-                  : 'Your browser blocked autoplay until you interact.',
-              });
+        onStart: () => {
+          onStart();
+          // Start a progress interval based on estimated duration
+          const startTime = Date.now();
+          const progressInterval = setInterval(() => {
+            if (sessionIdRef.current !== currentSessionId || !playingRef.current) {
+              clearInterval(progressInterval);
               return;
             }
+            const elapsed = (Date.now() - startTime) / 1000;
+            const progress = Math.min(elapsed / totalDurationSec, 0.99);
+            onTimeUpdate(elapsed, totalDurationSec);
+            hadMeaningfulAudioRef.current = true;
+            if (progress >= 0.99) clearInterval(progressInterval);
+          }, 200);
+          // Store interval for cleanup
+          const id = progressInterval as unknown as ReturnType<typeof setTimeout>;
+          timeoutRefs.current.add(id);
+        },
+        onEnd: () => {
+          if (sessionIdRef.current !== currentSessionId) return;
+          onEnd();
+        },
+        onError: (err) => {
+          if (sessionIdRef.current !== currentSessionId || !playingRef.current) return;
+          console.warn('TTS playback failed, switching to muted fallback:', err);
+          startMutedFallback();
+        },
+      });
 
-            // Voice failed - instead of closing, switch to muted fallback mode
-            console.warn('Voice playback failed, switching to muted fallback:', err);
-            startMutedFallback();
-          },
-        });
-      } else {
-        // ALL TTS providers failed - show error instead of simulating progress
-        console.error('All TTS providers failed');
-        isSynthesizingRef.current = false;
-        toast({
-          title: language === 'he' ? 'שגיאה בסינתזת הקול' : 'Voice synthesis failed',
-          description: language === 'he' 
-            ? 'לא הצלחנו ליצור קול. נסה שוב מאוחר יותר.' 
-            : 'Could not generate voice. Please try again later.',
-          variant: 'destructive',
-        });
-        handleClose();
-      }
+      // Store cancel handle so fullCleanup can stop it
+      abortControllerRef.current = {
+        abort: () => ttsHandle.cancel(),
+        signal: new AbortController().signal,
+      } as AbortController;
+
     } catch (error) {
       console.error('TTS failed:', error);
       isSynthesizingRef.current = false;
