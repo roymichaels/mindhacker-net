@@ -536,17 +536,10 @@ export default function Documentation() {
                 className="space-y-4 scroll-mt-20"
               >
                 <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2" style={{ unicodeBidi: 'plaintext' }}>
-                  {isRTL ? (
-                    <>
-                      {section.title}
-                      <span className="text-primary/60 font-mono ms-2">.{section.number}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-primary/60 font-mono me-2">{section.number}.</span>
-                      {section.title}
-                    </>
-                  )}
+                  <span dir="ltr" className="text-primary/60 font-mono me-2">{section.number}.</span>
+                  <span dir={isRTL ? 'rtl' : 'ltr'} style={{ unicodeBidi: 'plaintext' }}>
+                    {section.title}
+                  </span>
                 </h2>
 
                 {/* Visual roadmap for roadmap section */}
