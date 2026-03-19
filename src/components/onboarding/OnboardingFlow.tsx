@@ -274,6 +274,16 @@ export function OnboardingFlow() {
           const phaseData = data.step_3_lifestyle_data && typeof data.step_3_lifestyle_data === 'object'
             ? data.step_3_lifestyle_data as Record<string, unknown>
             : null;
+
+          // Also restore any answer keys from step_3_lifestyle_data (catch-all keys end up here)
+          if (phaseData) {
+            Object.entries(phaseData).forEach(([key, val]) => {
+              if (!key.startsWith('__') && val !== undefined) {
+                restored[key] = val as string | string[] | number;
+              }
+            });
+          }
+
           const savedPhase = phaseData?.__onboarding_phase as string | undefined;
 
           applyPhaseState(savedPhase, phaseData, restored, data.current_step ?? undefined);
