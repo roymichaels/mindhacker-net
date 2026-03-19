@@ -124,7 +124,7 @@ export function BottomTabBar() {
         {/* Aurora — same solid style */}
         <button
           onClick={openAurora}
-          className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[56px]"
+          className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]"
         >
           <AnimatePresence>
             {showBalloon && (
