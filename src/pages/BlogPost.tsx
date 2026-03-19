@@ -227,7 +227,7 @@ export default function BlogPost() {
             // Horizontal rules
             "prose-hr:border-border/30 prose-hr:my-12",
           )}
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content, { USE_PROFILES: { html: true } }) }}
         />
 
         {/* ═══ BOTTOM CTA CARD ═══ */}
