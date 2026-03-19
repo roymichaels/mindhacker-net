@@ -21,10 +21,10 @@ import { Play } from 'lucide-react';
 
 /** Per-tab color schemes */
 const TAB_COLORS: Record<string, { active: string; activeBg: string; inactive: string }> = {
-  plan:      { active: 'text-cyan-400',    activeBg: 'bg-cyan-500/20',    inactive: 'text-cyan-400/50' },
-  fm:        { active: 'text-amber-400',   activeBg: 'bg-amber-500/20',   inactive: 'text-amber-400/50' },
-  community: { active: 'text-emerald-400', activeBg: 'bg-emerald-500/20', inactive: 'text-emerald-400/50' },
-  study:     { active: 'text-violet-400',  activeBg: 'bg-violet-500/20',  inactive: 'text-violet-400/50' },
+  plan:      { active: 'text-cyan-400',    activeBg: 'bg-cyan-500/20',    inactive: 'text-cyan-400' },
+  fm:        { active: 'text-amber-400',   activeBg: 'bg-amber-500/20',   inactive: 'text-amber-400' },
+  community: { active: 'text-emerald-400', activeBg: 'bg-emerald-500/20', inactive: 'text-emerald-400' },
+  study:     { active: 'text-violet-400',  activeBg: 'bg-violet-500/20',  inactive: 'text-violet-400' },
 };
 
 export function BottomTabBar() {
