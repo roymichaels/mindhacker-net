@@ -12,7 +12,7 @@ import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { toast } from 'sonner';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
