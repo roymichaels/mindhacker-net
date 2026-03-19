@@ -317,13 +317,11 @@ export function TodayOverviewTab() {
                           {isHe ? selectedTask.description : (selectedTask.descriptionEn || selectedTask.description)}
                         </p>
                       )}
-                      {selectedTask.timeBlock && (
+                      {(selectedTask as any).timeBlock && (
                         <span className="text-[9px] text-cyan-300/40 font-semibold mt-1 inline-block">
-                          ⏱ {selectedTask.timeBlock}
+                          ⏱ {(selectedTask as any).timeBlock}
                         </span>
                       )}
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
