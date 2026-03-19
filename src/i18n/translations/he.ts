@@ -989,8 +989,8 @@ export const he = {
   },
   personalInvitation: {
     title: "הזמנה אישית",
-    defaultMessage: "אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אנחנו מחכים לשיחה הראשונה.",
-    signature: "צוות Mind OS",
+    defaultMessage: "אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה.",
+    signature: "Mind OS",
     ctaButton: "קבע שיחת ייעוץ חינם",
     ctaSubtext: "30 דקות — לבדוק אם מתאים לנו לעבוד יחד",
   },
