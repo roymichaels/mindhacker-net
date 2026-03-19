@@ -24,7 +24,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
-// Profile now uses /profile route instead of modal
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { UserDocsModal } from '@/components/modals/UserDocsModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
