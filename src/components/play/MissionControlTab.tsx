@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { NowQueueItem } from '@/types/planning';
 import {
   Play, SkipBack, SkipForward,
-  ListMusic, MessageSquare, Clock, Flame,
+  ListMusic, MessageSquare, Clock, Flame, Sparkles, Target,
 } from 'lucide-react';
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
@@ -247,34 +247,92 @@ export function MissionControlTab() {
               </p>
             )}
 
-            {/* Motivation — merged into the card */}
+            {/* ── Full Motivation Section (merged from old card) ── */}
             {nextAction ? (
-              <div className="mt-4 pt-3 border-t border-border/20">
-                <div className="flex gap-2 mb-2">
+              <div className="mt-4 pt-3 border-t border-border/20 space-y-3">
+                {/* Header */}
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <h4 className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                    {isHe ? 'למה זה חשוב' : 'Why This Matters'}
+                  </h4>
+                </div>
+
+                {/* Current Mission Details */}
+                <div className="pb-3 border-b border-border/20">
+                  <div className="flex items-start gap-2">
+                    <Target className={cn("w-4 h-4 mt-0.5 flex-shrink-0", pillarMeta.color)} />
+                    <div className="flex-1 min-w-0">
+                      <h5 className="text-sm font-bold text-foreground line-clamp-2 mb-1">{currentTitle}</h5>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={cn(
+                          "text-[9px] font-semibold px-2 py-0.5 rounded-md",
+                          pillarMeta.color
+                        )} style={{ backgroundColor: 'hsl(var(--muted) / 0.3)' }}>
+                          {isHe ? pillarMeta.label : pillarMeta.labelEn}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+                          <Clock className="w-2.5 h-2.5" />
+                          {nextAction.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
+                        </span>
+                        {nextAction.description && (
+                          <span className="text-[9px] text-muted-foreground/70">
+                            • {nextAction.description.length > 50 ? nextAction.description.slice(0, 50) + '…' : nextAction.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Motivation Text */}
+                <div className="flex gap-2">
                   <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {isHe ? pillarMeta.motivation : pillarMeta.motivationEn}
                   </p>
                 </div>
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground/70">
-                  <span>{completedCount}/{totalCount} {isHe ? 'הושלמו' : 'done'}</span>
-                  {incompleteActions.length > 1 && (
-                    <span>
-                      {isHe
-                        ? `עוד ${incompleteActions.length - 1} אחרי זו`
-                        : `${incompleteActions.length - 1} more after this`}
+
+                {/* Progress context */}
+                <div className="pt-3 border-t border-border/20">
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="text-muted-foreground">
+                      {isHe ? 'התקדמות היום' : "Today's Progress"}
                     </span>
+                    <span className="font-bold text-foreground">
+                      {completedCount}/{totalCount} {isHe ? 'הושלמו' : 'done'}
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-muted/30 rounded-full overflow-hidden mt-1.5">
+                    <motion.div
+                      className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-emerald-500/70"
+                      animate={{ width: `${progressPct}%` }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                    />
+                  </div>
+                  {incompleteActions.length > 1 && (
+                    <p className="text-[9px] text-muted-foreground/60 mt-1.5">
+                      {isHe
+                        ? `עוד ${incompleteActions.length - 1} משימות אחרי זו — אתה במסלול!`
+                        : `${incompleteActions.length - 1} more missions after this — you're on track!`
+                      }
+                    </p>
                   )}
                 </div>
               </div>
             ) : (
               <div className="mt-4 pt-3 border-t border-border/20 text-center">
-                <div className="text-2xl mb-1">🏆</div>
-                <h4 className="text-sm font-bold text-foreground mb-0.5">
+                <div className="text-3xl mb-2">🏆</div>
+                <h4 className="text-sm font-bold text-foreground mb-1">
                   {isHe ? 'כל המשימות הושלמו!' : 'All Missions Complete!'}
                 </h4>
-                <p className="text-[11px] text-muted-foreground">
-                  {isHe ? 'מחר מגיע עם אתגרים חדשים.' : 'Tomorrow brings new challenges.'}
+                <p className="text-xs text-muted-foreground">
+                  {isHe
+                    ? 'עבודה מדהימה — סיימת את כל המשימות להיום. מחר מגיע עם אתגרים חדשים.'
+                    : 'Amazing work — you completed all missions for today. Tomorrow brings new challenges.'
+                  }
                 </p>
               </div>
             )}
