@@ -219,7 +219,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                 {/* Name label */}
                 <span className={cn(
                   "text-[10px] font-semibold block px-1",
-                  isAI ? "text-violet-400/70" : "text-primary/50 text-end"
+                  isAI ? "text-fuchsia-400/70" : "text-primary/50 text-end"
                 )}>
                   {isAI ? 'Aurora' : (language === 'he' ? 'את/ה' : 'You')}
                 </span>
