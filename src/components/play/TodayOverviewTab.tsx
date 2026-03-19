@@ -322,6 +322,8 @@ export function TodayOverviewTab() {
                           ⏱ {(selectedTask as any).timeBlock}
                         </span>
                       )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
