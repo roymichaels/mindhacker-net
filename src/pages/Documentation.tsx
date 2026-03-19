@@ -29,9 +29,7 @@ export default function Documentation() {
   const navigate = useNavigate();
   const he = language === 'he';
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { contentRef, capture: downloadPDF, capturing } = useWhitepaperPDF(
-    he ? `${brandName}-whitepaper.pdf` : `${brandName}-whitepaper.pdf`
-  );
+  const { contentRef, capture: downloadPDF, capturing } = useWhitepaperPDF('whitepaper.pdf');
 
   const brandName = he ? theme.brand_name : theme.brand_name_en;
   const founderName = he ? theme.founder_name : theme.founder_name_en;
