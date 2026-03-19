@@ -180,15 +180,15 @@ export function TodayOverviewTab() {
         <div className="absolute bottom-0 start-0 w-32 h-32 rounded-full bg-violet-500/[0.06] blur-[50px]" />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-        <div className="relative z-10 p-4 space-y-4">
+        <div className="relative z-10 p-4 space-y-3">
           {/* ── Header: Pillar + Classification ── */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-base">{currentPillar.emoji}</span>
-              <span className="text-xs font-extrabold text-cyan-300 tracking-wide">
+              <span className="text-lg">{currentPillar.emoji}</span>
+              <span className="text-sm font-extrabold text-cyan-300 tracking-wide">
                 {isHe ? currentPillar.labelHe : currentPillar.labelEn}
               </span>
-              <Zap className="w-3 h-3 text-amber-400" />
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
             </div>
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/[0.08]">
               <div className={cn(
@@ -199,17 +199,22 @@ export function TodayOverviewTab() {
             </div>
           </div>
 
+          {/* ── Directive quote ── */}
+          <p className="text-xs font-semibold text-cyan-100/50 italic leading-snug">
+            "{directive}"
+          </p>
+
           {/* ── Today's Task Roadmap ── */}
           {todayActions.length > 0 && (
-            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-3">
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-2.5">
               {/* Header row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Target className="w-3 h-3 text-cyan-400" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-300/90">
+                  <Target className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.12em] text-cyan-300/90">
                     {isHe ? 'משימות היום' : "Today's Missions"}
                   </span>
-                  <span className="text-[9px] text-cyan-200/40 font-semibold">
+                  <span className="text-[10px] text-cyan-200/40 font-bold">
                     {completedCount}/{totalCount}
                   </span>
                 </div>
@@ -219,7 +224,7 @@ export function TodayOverviewTab() {
               </div>
 
               {/* Progress bar */}
-              <div className="relative h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+              <div className="relative h-1 rounded-full bg-white/[0.06] overflow-hidden">
                 <motion.div
                   className="absolute inset-y-0 start-0 rounded-full bg-gradient-to-r from-cyan-500 via-violet-500 to-amber-400"
                   initial={{ width: 0 }}
@@ -230,7 +235,7 @@ export function TodayOverviewTab() {
 
               {/* Horizontal task nodes */}
               <ScrollArea className="w-full">
-                <div className="flex gap-1.5 pb-1">
+                <div className="flex gap-1 pb-0.5">
                   {todayActions.map((action, idx) => {
                     const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
                     const isSelected = selectedTaskIdx === idx;
@@ -242,27 +247,21 @@ export function TodayOverviewTab() {
                         key={action.id || idx}
                         onClick={() => setSelectedTaskIdx(isSelected ? null : idx)}
                         className={cn(
-                          "flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 transition-all flex-shrink-0 min-w-[48px]",
+                          "flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 transition-all flex-shrink-0 min-w-[44px]",
                           isDone
                             ? "bg-emerald-500/10 border border-emerald-500/20"
                             : isCurrent
-                              ? "bg-cyan-500/15 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                              ? "bg-cyan-500/15 border border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.15)]"
                               : "border border-white/[0.06] hover:border-white/15",
                           isSelected && "ring-1 ring-cyan-400/60"
                         )}
                       >
-                        {/* Status icon */}
                         <div className={cn(
                           "w-5 h-5 rounded-full flex items-center justify-center text-[10px]",
                           isDone ? "bg-emerald-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
                         )}>
-                          {isDone ? (
-                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                          ) : (
-                            <span>{pv.emoji}</span>
-                          )}
+                          {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <span>{pv.emoji}</span>}
                         </div>
-                        {/* Index */}
                         <span className={cn(
                           "text-[8px] font-black",
                           isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
@@ -276,7 +275,7 @@ export function TodayOverviewTab() {
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
 
-              {/* Selected task detail — rendered inline below roadmap */}
+              {/* Selected task detail */}
               {selectedTask && selectedPillar && (
                 <div className="pt-2 border-t border-white/[0.06]">
                   <div className="flex items-start gap-2.5">
@@ -284,43 +283,27 @@ export function TodayOverviewTab() {
                       "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
                       selectedTask.completed ? "bg-emerald-500/20" : "bg-cyan-500/15"
                     )}>
-                      {selectedTask.completed ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : (
-                        <span className="text-sm">{selectedPillar.emoji}</span>
-                      )}
+                      {selectedTask.completed ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <span className="text-sm">{selectedPillar.emoji}</span>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
                         <span className={cn(
                           "text-[8px] font-black uppercase tracking-[0.12em] px-1.5 py-0.5 rounded",
-                          selectedTask.completed
-                            ? "text-emerald-400/70 bg-emerald-500/10"
-                            : `${selectedPillar.color} ${selectedPillar.bg}`
+                          selectedTask.completed ? "text-emerald-400/70 bg-emerald-500/10" : `${selectedPillar.color} ${selectedPillar.bg}`
                         )}>
                           {isHe ? selectedPillar.labelHe : selectedPillar.labelEn}
                         </span>
                         {selectedTask.completed && (
-                          <span className="text-[8px] font-bold text-emerald-400/60 uppercase tracking-wider">
-                            {isHe ? 'הושלם' : 'Done'}
-                          </span>
+                          <span className="text-[8px] font-bold text-emerald-400/60 uppercase">✓ {isHe ? 'הושלם' : 'Done'}</span>
                         )}
                       </div>
-                      <p className={cn(
-                        "text-xs font-bold leading-snug",
-                        selectedTask.completed ? "text-white/30 line-through" : "text-white/90"
-                      )}>
+                      <p className={cn("text-sm font-bold leading-snug", selectedTask.completed ? "text-white/30 line-through" : "text-white/90")}>
                         {isHe ? selectedTask.title : (selectedTask.titleEn || selectedTask.title)}
                       </p>
                       {selectedTask.description && (
-                        <p className="text-[10px] text-white/30 leading-snug mt-1">
+                        <p className="text-[11px] text-white/35 leading-snug mt-0.5">
                           {isHe ? selectedTask.description : (selectedTask.descriptionEn || selectedTask.description)}
                         </p>
-                      )}
-                      {(selectedTask as any).timeBlock && (
-                        <span className="text-[9px] text-cyan-300/40 font-semibold mt-1 inline-block">
-                          ⏱ {(selectedTask as any).timeBlock}
-                        </span>
                       )}
                     </div>
                   </div>
@@ -329,20 +312,17 @@ export function TodayOverviewTab() {
             </div>
           )}
 
-          {/* ── Directive ── */}
-          <p className="text-[11px] font-semibold text-cyan-100/60 leading-snug italic">
-            "{directive}"
-          </p>
-
           {/* ── Current Mission ── */}
           {currentAction ? (
-            <div className="flex items-baseline gap-2.5 py-2 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-              <Crosshair className="w-4 h-4 text-cyan-400 flex-shrink-0 relative top-[2px]" />
-              <div>
-                <span className="text-[8px] font-black uppercase tracking-[0.14em] text-cyan-500/50 block mb-0.5">
+            <div className="flex items-center gap-3 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/15 flex items-center justify-center flex-shrink-0">
+                <Crosshair className="w-4 h-4 text-cyan-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[8px] font-black uppercase tracking-[0.14em] text-cyan-500/50 block">
                   {isHe ? 'משימה נוכחית' : 'Current Mission'}
                 </span>
-                <span className="text-sm font-black text-white leading-tight">
+                <span className="text-sm font-black text-white leading-tight truncate block">
                   {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
                 </span>
               </div>
@@ -351,7 +331,7 @@ export function TodayOverviewTab() {
             <div className="text-center py-3">
               <span className="text-xl">🌙</span>
               <h3 className="text-sm font-black text-white mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
-              <p className="text-[10px] text-cyan-200/50">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
+              <p className="text-[11px] text-cyan-200/50">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
             </div>
           ) : (
             <div className="text-center py-2">
@@ -360,25 +340,25 @@ export function TodayOverviewTab() {
             </div>
           )}
 
-          {/* ── Narrative Briefing ── */}
-          <div className="space-y-2.5 text-[11px] leading-relaxed text-cyan-100/60">
-            <p>
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-500/50 me-2 relative top-[-1px]" />
+          {/* ── Field Briefing (compact) ── */}
+          <div className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-2.5 space-y-1.5">
+            <span className="text-[8px] font-black uppercase tracking-[0.14em] text-cyan-400/50 block">
+              {isHe ? '📡 תדריך שטח' : '📡 Field Briefing'}
+            </span>
+            <p className="text-xs text-cyan-100/60 leading-relaxed">
               {assessment}
             </p>
-            <p className="font-bold text-cyan-100/75">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-violet-500/50 me-2 relative top-[-1px]" />
-              {doctrine}
+            <p className="text-xs font-semibold text-cyan-100/70 leading-relaxed">
+              ⚔️ {doctrine}
             </p>
-            <p className="italic text-cyan-100/40">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500/50 me-2 relative top-[-1px]" />
-              {intel}
+            <p className="text-[11px] italic text-cyan-100/35 leading-relaxed">
+              🔍 {intel}
             </p>
           </div>
 
-          {/* ── Commander's Directive ── */}
-          <div className="border-t border-white/[0.06] pt-2.5 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.1em] text-white/20">
+          {/* ── Commander sign-off ── */}
+          <div className="border-t border-white/[0.06] pt-2 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.1em] text-white/15">
               {commander}
             </p>
           </div>
