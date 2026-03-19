@@ -4,7 +4,7 @@
  * add wizard, and remove capability.
  * Matches the Royal Empire aesthetic of CharacterProfileModal.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useAutoPopulatePractices } from '@/hooks/useAutoPopulatePractices';
 import { motion, AnimatePresence } from 'framer-motion';
