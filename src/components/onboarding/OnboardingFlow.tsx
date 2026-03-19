@@ -288,6 +288,17 @@ export function OnboardingFlow() {
     }
   }, [currentMini?.id, isTextarea]);
 
+  // Auto-save textarea value after typing stops (debounced)
+  useEffect(() => {
+    if (!currentMini || !isTextarea || !textareaValue) return;
+    const timer = setTimeout(() => {
+      const updated = { ...answers, [currentMini.id]: textareaValue };
+      setAnswers(updated);
+      autoSave(updated);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [textareaValue, currentMini?.id, isTextarea]);
+
   // Auto-set default for time_picker so Continue is immediately enabled
   useEffect(() => {
     if (currentMini && isTimePicker && !answers[currentMini.id]) {
