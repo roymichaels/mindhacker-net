@@ -1,7 +1,6 @@
 /**
- * TodayOverviewTab — Premium single-container "Daily Mission Card" in Web3/NFT style.
- * Inspired by the Profile page's OrbNFTCard aesthetic — rarity borders, shimmer,
- * gradient backgrounds, gamified stats. Everything visible without scrolling.
+ * TodayOverviewTab — "Mission Briefing" card.
+ * Secret-agent / RPG gamified aesthetic. Emotional, strategic, zero fluff.
  */
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
@@ -14,22 +13,40 @@ import { getOrbRarity } from '@/lib/orbRarity';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import {
   Heart, Dumbbell, Brain, Briefcase, Target, Sparkles,
-  Sun, Sunset, Moon, Zap, Flame, TrendingUp, Clock,
+  Sun, Sunset, Moon, Zap, Flame, TrendingUp, Clock, Shield,
 } from 'lucide-react';
 
-const PILLAR_META: Record<string, { icon: typeof Target; labelHe: string; labelEn: string; color: string; bg: string }> = {
-  vitality:      { icon: Heart,     labelHe: 'חיוניות',   labelEn: 'Vitality',      color: 'text-rose-400',    bg: 'bg-rose-500/15' },
-  power:         { icon: Dumbbell,  labelHe: 'כוח',       labelEn: 'Power',          color: 'text-orange-400',  bg: 'bg-orange-500/15' },
-  combat:        { icon: Target,    labelHe: 'לחימה',     labelEn: 'Combat',         color: 'text-red-400',     bg: 'bg-red-500/15' },
-  focus:         { icon: Brain,     labelHe: 'פוקוס',     labelEn: 'Focus',          color: 'text-sky-400',     bg: 'bg-sky-500/15' },
-  consciousness: { icon: Sparkles, labelHe: 'תודעה',     labelEn: 'Consciousness',  color: 'text-violet-400',  bg: 'bg-violet-500/15' },
-  expansion:     { icon: Sparkles, labelHe: 'הרחבה',     labelEn: 'Expansion',      color: 'text-indigo-400',  bg: 'bg-indigo-500/15' },
-  wealth:        { icon: Briefcase, labelHe: 'עושר',      labelEn: 'Wealth',         color: 'text-emerald-400', bg: 'bg-emerald-500/15' },
-  influence:     { icon: Target,    labelHe: 'השפעה',     labelEn: 'Influence',      color: 'text-amber-400',   bg: 'bg-amber-500/15' },
-  relationships: { icon: Heart,     labelHe: 'מערכות יחסים', labelEn: 'Relationships', color: 'text-pink-400', bg: 'bg-pink-500/15' },
-  business:      { icon: Briefcase, labelHe: 'עסקים',     labelEn: 'Business',       color: 'text-cyan-400',    bg: 'bg-cyan-500/15' },
-  projects:      { icon: Target,    labelHe: 'פרויקטים',  labelEn: 'Projects',       color: 'text-teal-400',    bg: 'bg-teal-500/15' },
+const PILLAR_META: Record<string, { icon: typeof Target; he: string; en: string; color: string; bg: string }> = {
+  vitality:      { icon: Heart,     he: 'חיוניות',   en: 'Vitality',      color: 'text-rose-400',    bg: 'bg-rose-500/15' },
+  power:         { icon: Dumbbell,  he: 'כוח',       en: 'Power',          color: 'text-orange-400',  bg: 'bg-orange-500/15' },
+  combat:        { icon: Shield,    he: 'לחימה',     en: 'Combat',         color: 'text-red-400',     bg: 'bg-red-500/15' },
+  focus:         { icon: Brain,     he: 'פוקוס',     en: 'Focus',          color: 'text-sky-400',     bg: 'bg-sky-500/15' },
+  consciousness: { icon: Sparkles, he: 'תודעה',     en: 'Consciousness',  color: 'text-violet-400',  bg: 'bg-violet-500/15' },
+  expansion:     { icon: Sparkles, he: 'הרחבה',     en: 'Expansion',      color: 'text-indigo-400',  bg: 'bg-indigo-500/15' },
+  wealth:        { icon: Briefcase, he: 'עושר',      en: 'Wealth',         color: 'text-emerald-400', bg: 'bg-emerald-500/15' },
+  influence:     { icon: Target,    he: 'השפעה',     en: 'Influence',      color: 'text-amber-400',   bg: 'bg-amber-500/15' },
+  relationships: { icon: Heart,     he: 'מערכות יחסים', en: 'Relationships', color: 'text-pink-400', bg: 'bg-pink-500/15' },
+  business:      { icon: Briefcase, he: 'עסקים',     en: 'Business',       color: 'text-cyan-400',    bg: 'bg-cyan-500/15' },
+  projects:      { icon: Target,    he: 'פרויקטים',  en: 'Projects',       color: 'text-teal-400',    bg: 'bg-teal-500/15' },
 };
+
+// Emotional greetings based on time + progress
+function getGreeting(isHe: boolean, hour: number, pct: number) {
+  if (pct === 100) return isHe ? 'מלך. סיימת הכל.' : 'King. All done.';
+  if (hour < 6) return isHe ? 'הלוחם שלא ישן' : 'The warrior who doesn\'t sleep';
+  if (hour < 12) return isHe ? 'בוקר טוב' : 'Good Morning';
+  if (hour < 17) return isHe ? 'צהריים טובים' : 'Good Afternoon';
+  if (hour < 21) return isHe ? 'ערב טוב' : 'Good Evening';
+  return isHe ? 'עוד לא נגמר' : 'Not done yet';
+}
+
+function getSubGreeting(isHe: boolean, hour: number, total: number, totalMin: number, pct: number) {
+  if (total === 0) return isHe ? 'יום חופשי. נצל אותו בחוכמה.' : 'Day off. Use it wisely.';
+  if (pct === 100) return isHe ? 'כל המשימות הושלמו. מחר — שלב חדש.' : 'All missions complete. Tomorrow — new level.';
+  const hours = Math.round(totalMin / 60) || 1;
+  if (isHe) return `${total} משימות ב${hours} שעות. המשימה שלך — להוכיח שאתה שווה את זה.`;
+  return `${total} missions in ~${hours}h. Your mission — prove you're worth it.`;
+}
 
 export function TodayOverviewTab() {
   const { language } = useTranslation();
@@ -37,7 +54,7 @@ export function TodayOverviewTab() {
 
   const phasePlan = useWeeklyTacticalPlan();
   const { days, phase, isLoading } = phasePlan as any;
-  const { plan, milestones } = useLifePlanWithMilestones();
+  const { plan } = useLifePlanWithMilestones();
   const xp = useXpProgress();
   const streak = useStreak();
   const energy = useEnergy();
@@ -45,54 +62,32 @@ export function TodayOverviewTab() {
 
   const currentDay = useMemo(() => getCurrentDayInIsrael(plan?.start_date), [plan?.start_date]);
 
-  const todayPlan: DayPlan | null = useMemo(() => {
-    return (days || []).find((d: DayPlan) => d.isToday) || null;
-  }, [days]);
+  const todayPlan: DayPlan | null = useMemo(() =>
+    (days || []).find((d: DayPlan) => d.isToday) || null, [days]);
 
-  const todayActions: TacticalAction[] = useMemo(() => {
-    if (!todayPlan) return [];
-    return todayPlan.blocks.flatMap(b => b.actions);
-  }, [todayPlan]);
+  const todayActions: TacticalAction[] = useMemo(() =>
+    todayPlan ? todayPlan.blocks.flatMap(b => b.actions) : [], [todayPlan]);
 
   const completedCount = todayActions.filter(a => a.completed).length;
   const totalCount = todayActions.length;
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const totalMinutes = todayActions.reduce((s, a) => s + (a.estimatedMinutes || 0), 0);
 
-  // Group actions by pillar
-  const groupedByPillar = useMemo(() => {
-    const groups: Record<string, TacticalAction[]> = {};
+  const grouped = useMemo(() => {
+    const g: Record<string, { total: number; done: number }> = {};
     for (const a of todayActions) {
-      const key = a.focusArea || 'general';
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(a);
+      const k = a.focusArea || 'general';
+      if (!g[k]) g[k] = { total: 0, done: 0 };
+      g[k].total++;
+      if (a.completed) g[k].done++;
     }
-    return groups;
+    return Object.entries(g);
   }, [todayActions]);
 
-  const pillarEntries = Object.entries(groupedByPillar);
-
-  // Total estimated minutes
-  const totalMinutes = todayActions.reduce((sum, a) => sum + (a.estimatedMinutes || 0), 0);
-
-  // Time of day
   const now = new Date();
   const hour = now.getHours();
-  const greeting = isHe
-    ? hour < 12 ? 'בוקר טוב' : hour < 17 ? 'צהריים טובים' : 'ערב טוב'
-    : hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
   const TimeIcon = hour < 12 ? Sun : hour < 17 ? Sunset : Moon;
-
   const dayName = now.toLocaleDateString(isHe ? 'he-IL' : 'en-US', { weekday: 'long' });
-
-  // Pillar names for strategy sentence
-  const pillarNames = pillarEntries
-    .filter(([k]) => k !== 'general')
-    .map(([k]) => {
-      const meta = PILLAR_META[k];
-      return meta ? (isHe ? meta.labelHe : meta.labelEn) : k;
-    });
-
-  // XP reward estimate (rough: 10xp per action)
   const xpReward = totalCount * 10;
 
   if (isLoading) {
@@ -111,139 +106,95 @@ export function TodayOverviewTab() {
       dir={isHe ? 'rtl' : 'ltr'}
       className={cn(
         'relative rounded-2xl border-2 overflow-hidden',
-        'bg-gradient-to-br',
-        rarity.bgClass,
+        'bg-gradient-to-br from-card via-card to-background',
         rarity.borderClass,
         rarity.shimmer && 'shadow-xl',
         rarity.glowClass,
       )}
     >
-      {/* Shimmer overlay for epic/legendary */}
+      {/* Shimmer */}
       {rarity.shimmer && (
         <div className="absolute inset-0 pointer-events-none z-10">
-          <div
-            className="absolute inset-0 opacity-[0.07]"
-            style={{
-              background: `linear-gradient(105deg, transparent 40%, ${rarity.color} 50%, transparent 60%)`,
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3s ease-in-out infinite',
-            }}
-          />
+          <div className="absolute inset-0 opacity-[0.06]" style={{
+            background: `linear-gradient(105deg, transparent 40%, ${rarity.color} 50%, transparent 60%)`,
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 3s ease-in-out infinite',
+          }} />
         </div>
       )}
 
-      {/* Subtle top glow line */}
-      <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      {/* Top accent line */}
+      <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
 
-      <div className="relative z-20 p-4 sm:p-5 space-y-4">
+      <div className="relative z-20 p-4 space-y-4">
 
-        {/* ── Header: Day Badge + Greeting ── */}
+        {/* ── HEADER: Greeting + Day/Rarity ── */}
         <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <TimeIcon className="w-3.5 h-3.5 text-primary/70" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">{dayName}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <TimeIcon className="w-3 h-3 text-primary/60" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary/80">{dayName}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground leading-none">
-              {greeting}
+            <h2 className="text-xl font-black tracking-tight text-foreground leading-none mb-1">
+              {getGreeting(isHe, hour, progressPct)}
             </h2>
+            <p className="text-[11px] leading-snug text-muted-foreground/80 font-medium">
+              {getSubGreeting(isHe, hour, totalCount, totalMinutes, progressPct)}
+            </p>
           </div>
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-0.5 flex-shrink-0 ms-3">
             <div className={cn(
-              'px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider',
+              'px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider',
               rarity.rarity === 'legendary' ? 'bg-amber-500/20 text-amber-400' :
               rarity.rarity === 'epic' ? 'bg-purple-500/20 text-purple-400' :
               rarity.rarity === 'rare' ? 'bg-blue-500/20 text-blue-400' :
               rarity.rarity === 'uncommon' ? 'bg-emerald-500/20 text-emerald-400' :
-              'bg-zinc-500/20 text-zinc-400'
+              'bg-muted/30 text-muted-foreground'
             )}>
               {isHe ? rarity.label.he : rarity.label.en}
             </div>
-            <span className="text-[9px] text-muted-foreground font-medium">
+            <span className="text-[9px] text-muted-foreground/60 font-medium">
               {isHe ? `יום ${currentDay}/100` : `Day ${currentDay}/100`}
             </span>
           </div>
         </div>
 
-        {/* ── Strategy Context ── */}
-        <p className="text-xs leading-relaxed text-muted-foreground font-medium">
-          {totalCount > 0
-            ? isHe
-              ? `היום מתמקד ב${pillarNames.length > 0 ? pillarNames.join(', ') : 'התקדמות כללית'} — ${totalCount} משימות ב${Math.round(totalMinutes / 60) || 1} שעות.`
-              : `Today focuses on ${pillarNames.length > 0 ? pillarNames.join(', ') : 'general progress'} — ${totalCount} missions in ~${Math.round(totalMinutes / 60) || 1}h.`
-            : isHe ? 'יום מנוחה — נצל את הזמן להתבוננות.' : 'Rest day — use this time for reflection.'
-          }
-        </p>
-
-        {/* ── Main Progress Ring + Stats ── */}
-        <div className="flex items-center gap-4">
-          {/* Circular progress */}
-          <div className="relative w-16 h-16 flex-shrink-0">
-            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <circle cx="18" cy="18" r="15" fill="none" stroke="hsl(var(--muted) / 0.2)" strokeWidth="3" />
-              <motion.circle
-                cx="18" cy="18" r="15" fill="none"
-                stroke="hsl(var(--primary))"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeDasharray={`${2 * Math.PI * 15}`}
-                animate={{ strokeDashoffset: 2 * Math.PI * 15 * (1 - progressPct / 100) }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-sm font-black text-foreground leading-none">{progressPct}%</span>
+        {/* ── STATS ROW: 4 compact stat cells ── */}
+        <div className="grid grid-cols-4 gap-1.5">
+          {[
+            { icon: TrendingUp, value: `+${xpReward}`, label: 'XP', color: 'text-emerald-400' },
+            { icon: Zap, value: energy.balance, label: isHe ? 'אנרגיה' : 'Energy', color: 'text-amber-400' },
+            { icon: Flame, value: streak.streak, label: isHe ? 'סטריק' : 'Streak', color: 'text-orange-400' },
+            { icon: Clock, value: `${totalMinutes}'`, label: isHe ? 'זמן' : 'Time', color: 'text-sky-400' },
+          ].map(s => (
+            <div key={s.label} className="flex flex-col items-center rounded-xl bg-background/30 border border-border/15 py-2 gap-0.5">
+              <s.icon className={cn("w-3 h-3", s.color)} />
+              <span className="text-xs font-black text-foreground leading-none">{s.value}</span>
+              <span className="text-[7px] text-muted-foreground/70 font-medium">{s.label}</span>
             </div>
-          </div>
-
-          {/* Stat pills */}
-          <div className="flex-1 grid grid-cols-3 gap-2">
-            <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
-              <Zap className="w-3.5 h-3.5 text-amber-400 mb-0.5" />
-              <span className="text-xs font-bold text-foreground">{energy.balance}</span>
-              <span className="text-[8px] text-muted-foreground">{isHe ? 'אנרגיה' : 'Energy'}</span>
-            </div>
-            <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
-              <Flame className="w-3.5 h-3.5 text-orange-400 mb-0.5" />
-              <span className="text-xs font-bold text-foreground">{streak.streak}</span>
-              <span className="text-[8px] text-muted-foreground">{isHe ? 'סטריק' : 'Streak'}</span>
-            </div>
-            <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400 mb-0.5" />
-              <span className="text-xs font-bold text-foreground">+{xpReward}</span>
-              <span className="text-[8px] text-muted-foreground">XP</span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* ── Divider ── */}
-        <div className="h-px bg-border/20" />
-
-        {/* ── Pillar Breakdown — compact horizontal pills ── */}
-        {totalCount > 0 && (
+        {/* ── ACTIVE DOMAINS — pillar pills with progress ── */}
+        {grouped.length > 0 && (
           <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+            <h3 className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-2">
               {isHe ? 'תחומים פעילים' : 'Active Domains'}
             </h3>
             <div className="flex flex-wrap gap-1.5">
-              {pillarEntries.map(([pillar, actions]) => {
+              {grouped.map(([pillar, { total, done }]) => {
                 const meta = PILLAR_META[pillar];
-                const PillarIcon = meta?.icon || Target;
-                const pillarLabel = meta ? (isHe ? meta.labelHe : meta.labelEn) : (isHe ? 'כללי' : 'General');
-                const done = actions.filter(a => a.completed).length;
-
+                const PIcon = meta?.icon || Target;
                 return (
                   <div key={pillar} className={cn(
-                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border/20',
-                    meta?.bg || 'bg-muted/20',
+                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border/15',
+                    meta?.bg || 'bg-muted/15',
                   )}>
-                    <PillarIcon className={cn('w-3 h-3', meta?.color || 'text-muted-foreground')} />
+                    <PIcon className={cn('w-3 h-3', meta?.color || 'text-muted-foreground')} />
                     <span className={cn('text-[10px] font-bold', meta?.color || 'text-muted-foreground')}>
-                      {pillarLabel}
+                      {isHe ? meta?.he : meta?.en || pillar}
                     </span>
-                    <span className="text-[9px] text-muted-foreground font-medium">
-                      {done}/{actions.length}
-                    </span>
+                    <span className="text-[9px] text-muted-foreground/60 font-semibold">{done}/{total}</span>
                   </div>
                 );
               })}
@@ -251,65 +202,61 @@ export function TodayOverviewTab() {
           </div>
         )}
 
-        {/* ── Mission List — compact, no checkboxes, just info ── */}
+        {/* ── MISSION LIST — numbered, tight, emotional ── */}
         {totalCount > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60">
                 {isHe ? 'משימות היום' : "Today's Missions"}
               </h3>
-              <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
-                <Clock className="w-2.5 h-2.5" />
-                <span>~{totalMinutes}{isHe ? ' דק׳' : 'm'}</span>
-              </div>
+              <span className="text-[9px] text-muted-foreground/50 flex items-center gap-0.5">
+                <Clock className="w-2.5 h-2.5" /> ~{totalMinutes}{isHe ? ' דק׳' : 'm'}
+              </span>
             </div>
             <div className="space-y-1">
-              {todayActions.slice(0, 8).map((action, i) => {
-                const meta = PILLAR_META[action.focusArea || ''];
-                return (
-                  <div key={action.id} className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
-                    action.completed
-                      ? 'bg-primary/5 opacity-50'
-                      : 'bg-background/30 border border-border/10',
+              {todayActions.map((action, i) => (
+                <div key={action.id} className={cn(
+                  'flex items-center gap-2.5 px-3 py-2 rounded-lg',
+                  action.completed
+                    ? 'bg-primary/[0.04] opacity-40'
+                    : 'bg-background/20 border border-border/10',
+                )}>
+                  <span className={cn(
+                    'w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black flex-shrink-0',
+                    action.completed ? 'bg-primary/15 text-primary' : 'bg-muted/20 text-foreground/50'
                   )}>
-                    <span className={cn(
-                      'w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-bold flex-shrink-0',
-                      action.completed ? 'bg-primary/20 text-primary' : 'bg-muted/30 text-muted-foreground'
-                    )}>
-                      {action.completed ? '✓' : i + 1}
-                    </span>
-                    <span className={cn(
-                      'text-xs font-medium flex-1 min-w-0 truncate',
-                      action.completed ? 'line-through text-muted-foreground' : 'text-foreground'
-                    )}>
-                      {isHe ? action.title : (action.titleEn || action.title)}
-                    </span>
-                    <span className="text-[9px] text-muted-foreground flex-shrink-0">
-                      {action.estimatedMinutes}{isHe ? '′' : 'm'}
-                    </span>
-                  </div>
-                );
-              })}
-              {todayActions.length > 8 && (
-                <p className="text-[10px] text-muted-foreground text-center pt-1">
-                  +{todayActions.length - 8} {isHe ? 'נוספות' : 'more'}
-                </p>
-              )}
+                    {action.completed ? '✓' : i + 1}
+                  </span>
+                  <span className={cn(
+                    'text-xs font-semibold flex-1 min-w-0 truncate',
+                    action.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+                  )}>
+                    {isHe ? action.title : (action.titleEn || action.title)}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground/50 flex-shrink-0 font-medium">
+                    {action.estimatedMinutes}′
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* ── Phase & XP Bar (footer) ── */}
+        {/* ── PROGRESS BAR FOOTER ── */}
         <div className="pt-1">
-          <div className="flex items-center justify-between text-[9px] text-muted-foreground mb-1">
+          <div className="flex items-center justify-between text-[9px] text-muted-foreground/60 mb-1 font-medium">
             <span>{isHe ? `שלב ${phase || 'A'}` : `Phase ${phase || 'A'}`}</span>
-            <span>{xp.current}/{xp.required} XP</span>
+            <span className="font-bold text-foreground/70">{progressPct}%</span>
           </div>
-          <div className="h-1.5 bg-muted/20 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-muted/15 rounded-full overflow-hidden">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60"
-              animate={{ width: `${xp.percentage}%` }}
+              className={cn(
+                "h-full rounded-full",
+                progressPct === 100
+                  ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                  : "bg-gradient-to-r from-primary to-primary/60"
+              )}
+              animate={{ width: `${progressPct}%` }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
             />
           </div>
@@ -317,13 +264,11 @@ export function TodayOverviewTab() {
 
         {/* ── Empty state ── */}
         {totalCount === 0 && !isLoading && (
-          <div className="text-center py-4">
+          <div className="text-center py-6">
             <div className="text-3xl mb-2">🌙</div>
-            <h3 className="text-sm font-bold text-foreground">
-              {isHe ? 'יום מנוחה' : 'Rest Day'}
-            </h3>
+            <h3 className="text-sm font-bold text-foreground">{isHe ? 'יום מנוחה' : 'Rest Day'}</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              {isHe ? 'אין משימות. תהנה או תכנן את המחר.' : 'No missions. Recharge or plan ahead.'}
+              {isHe ? 'הגוף שלך מתאושש. המוח שלך מתחדש. מחר חוזרים.' : 'Your body recovers. Your mind resets. Tomorrow we go again.'}
             </p>
           </div>
         )}
