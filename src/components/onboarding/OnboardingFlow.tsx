@@ -263,17 +263,30 @@ export function OnboardingFlow() {
           .single();
         
         if (data) {
-          const restored: FlowAnswers = {};
-          if (data.step_1_intention && typeof data.step_1_intention === 'object') {
-            Object.assign(restored, data.step_1_intention as Record<string, unknown>);
-          }
-          if (data.step_2_profile_data && typeof data.step_2_profile_data === 'object') {
-            Object.assign(restored, data.step_2_profile_data as Record<string, unknown>);
-          }
+          const toRecord = (value: unknown): Record<string, unknown> | null => {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+              return value as Record<string, unknown>;
+            }
+            if (typeof value === 'string') {
+              try {
+                const parsed = JSON.parse(value);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                  return parsed as Record<string, unknown>;
+                }
+              } catch {
+                return null;
+              }
+            }
+            return null;
+          };
 
-          const phaseData = data.step_3_lifestyle_data && typeof data.step_3_lifestyle_data === 'object'
-            ? data.step_3_lifestyle_data as Record<string, unknown>
-            : null;
+          const restored: FlowAnswers = {};
+          const step1Data = toRecord(data.step_1_intention);
+          const step2Data = toRecord(data.step_2_profile_data);
+          const phaseData = toRecord(data.step_3_lifestyle_data);
+
+          if (step1Data) Object.assign(restored, step1Data);
+          if (step2Data) Object.assign(restored, step2Data);
 
           // Also restore any answer keys from step_3_lifestyle_data (catch-all keys end up here)
           if (phaseData) {
