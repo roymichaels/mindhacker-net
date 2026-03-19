@@ -314,63 +314,64 @@ export function TodayOverviewTab() {
         );
       })()}
 
-          {/* Selected Milestone Detail */}
-          <AnimatePresence>
-            {selectedMs && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="mt-3 pt-2.5 border-t border-border/20">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className={cn(
-                          "text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md",
-                          selectedMs.is_completed ? "bg-primary/15 text-primary"
-                            : selectedMs.week_number === currentWeek ? "bg-amber-500/15 text-amber-400"
-                            : "bg-muted/30 text-muted-foreground"
-                        )}>
-                          {selectedMs.is_completed
-                            ? (isHe ? '✓ הושלם' : '✓ DONE')
-                            : selectedMs.week_number === currentWeek
-                              ? (isHe ? '● פעיל' : '● ACTIVE')
-                              : `${isHe ? 'שלב' : 'Phase'} ${selectedMs.week_number}`}
-                        </span>
-                        {selectedMs.focus_area && (
-                          <span className={cn("text-[9px] font-semibold", PILLAR_VIS[selectedMs.focus_area]?.color || 'text-muted-foreground')}>
-                            {PILLAR_VIS[selectedMs.focus_area]?.emoji} {isHe ? PILLAR_VIS[selectedMs.focus_area]?.labelHe : PILLAR_VIS[selectedMs.focus_area]?.labelEn}
+            {/* Selected Milestone Detail */}
+            <AnimatePresence>
+              {selectedMs && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3 pt-2.5 border-t border-border/20">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className={cn(
+                            "text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md",
+                            selectedMs.is_completed ? "bg-primary/15 text-primary"
+                              : selectedMs.week_number === currentWeek ? "bg-amber-500/15 text-amber-400"
+                              : "bg-muted/30 text-muted-foreground"
+                          )}>
+                            {selectedMs.is_completed
+                              ? (isHe ? '✓ הושלם' : '✓ DONE')
+                              : selectedMs.week_number === currentWeek
+                                ? (isHe ? '● פעיל' : '● ACTIVE')
+                                : `${isHe ? 'שלב' : 'Phase'} ${selectedMs.week_number}`}
                           </span>
+                          {selectedMs.focus_area && (
+                            <span className={cn("text-[9px] font-semibold", PILLAR_VIS[selectedMs.focus_area]?.color || 'text-muted-foreground')}>
+                              {PILLAR_VIS[selectedMs.focus_area]?.emoji} {isHe ? PILLAR_VIS[selectedMs.focus_area]?.labelHe : PILLAR_VIS[selectedMs.focus_area]?.labelEn}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-xs font-bold text-foreground mb-0.5">
+                          {isHe ? selectedMs.title : (selectedMs.title_en || selectedMs.title)}
+                        </h4>
+                        {selectedMs.description && (
+                          <p className="text-[10px] text-muted-foreground/80 leading-snug line-clamp-2">
+                            {isHe ? selectedMs.description : (selectedMs.description_en || selectedMs.description)}
+                          </p>
+                        )}
+                        {selectedMs.goal && (
+                          <div className="flex items-center gap-1 mt-1.5 text-[10px] text-foreground/70">
+                            <Target className="w-3 h-3 text-primary/60 flex-shrink-0" />
+                            <span className="line-clamp-1">{isHe ? selectedMs.goal : (selectedMs.goal_en || selectedMs.goal)}</span>
+                          </div>
                         )}
                       </div>
-                      <h4 className="text-xs font-bold text-foreground mb-0.5">
-                        {isHe ? selectedMs.title : (selectedMs.title_en || selectedMs.title)}
-                      </h4>
-                      {selectedMs.description && (
-                        <p className="text-[10px] text-muted-foreground/80 leading-snug line-clamp-2">
-                          {isHe ? selectedMs.description : (selectedMs.description_en || selectedMs.description)}
-                        </p>
-                      )}
-                      {selectedMs.goal && (
-                        <div className="flex items-center gap-1 mt-1.5 text-[10px] text-foreground/70">
-                          <Target className="w-3 h-3 text-primary/60 flex-shrink-0" />
-                          <span className="line-clamp-1">{isHe ? selectedMs.goal : (selectedMs.goal_en || selectedMs.goal)}</span>
-                        </div>
-                      )}
+                      <button onClick={() => setSelectedMilestone(null)} className="p-1 rounded-md hover:bg-muted/30 text-muted-foreground">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button onClick={() => setSelectedMilestone(null)} className="p-1 rounded-md hover:bg-muted/30 text-muted-foreground">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })()}
 
       {/* ═══ MAIN BRIEFING CARD ═══ */}
       <div className="rounded-2xl border border-border/30 bg-card p-3 space-y-3">
