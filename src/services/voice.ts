@@ -3,7 +3,7 @@ import { debug } from '@/lib/debug';
 
 export type VoiceProvider = 'openai' | 'elevenlabs' | 'browser';
 export type OpenAIVoice = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
-export type ElevenLabsVoice = 'sarah' | 'roger' | 'laura' | 'charlie' | 'matilda' | 'lily' | 'brian' | 'daniel';
+export type ElevenLabsVoice = 'jessica' | 'sarah' | 'roger' | 'laura' | 'charlie' | 'matilda' | 'lily' | 'brian' | 'daniel';
 
 export interface VoiceConfig {
   provider: VoiceProvider;
@@ -23,6 +23,7 @@ export const OPENAI_VOICES: VoiceConfig[] = [
 ];
 
 export const ELEVENLABS_VOICES: VoiceConfig[] = [
+  { provider: 'elevenlabs', voice: 'jessica', speed: 1.0, name: 'Jessica', description: 'Clear, multilingual female voice' },
   { provider: 'elevenlabs', voice: 'sarah', speed: 1.0, name: 'Sarah', description: 'Warm, professional female voice' },
   { provider: 'elevenlabs', voice: 'laura', speed: 1.0, name: 'Laura', description: 'Calm, soothing female voice' },
   { provider: 'elevenlabs', voice: 'matilda', speed: 1.0, name: 'Matilda', description: 'Gentle, nurturing female voice' },
@@ -34,7 +35,7 @@ export const ELEVENLABS_VOICES: VoiceConfig[] = [
 
 export const ALL_VOICES: VoiceConfig[] = [...ELEVENLABS_VOICES, ...OPENAI_VOICES];
 
-export const DEFAULT_VOICE: VoiceConfig = ELEVENLABS_VOICES[0]; // Sarah (ElevenLabs)
+export const DEFAULT_VOICE: VoiceConfig = ELEVENLABS_VOICES[0]; // Jessica (ElevenLabs)
 
 /**
  * Synthesize speech using the appropriate TTS provider

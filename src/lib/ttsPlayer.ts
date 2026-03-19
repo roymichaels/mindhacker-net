@@ -170,7 +170,7 @@ function speakWithBrowserFallback(text: string, speed: number): Promise<void> {
  */
 export function playTTS(rawText: string, options: TTSPlayOptions = {}): { cancel: () => void } {
   const {
-    voiceId = 'sarah',
+    voiceId = 'jessica',
     speed = 1.0,
     stability,
     similarityBoost,

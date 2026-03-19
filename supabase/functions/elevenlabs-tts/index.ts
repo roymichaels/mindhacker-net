@@ -18,6 +18,7 @@ interface ElevenLabsTTSRequest {
 
 // Top ElevenLabs voice IDs
 const VOICE_MAP: Record<string, string> = {
+  'jessica': 'cgSgspJ2msm6clMCkdW9',    // Jessica — default, multilingual
   'sarah': 'EXAVITQu4vr4xnSDxMaL',      // Warm female
   'roger': 'CwhRBWXzGAHq8TQ4Fs17',      // Professional male
   'laura': 'FGY2WhTYpPnrIDTdsKH5',      // Calm female  
@@ -40,8 +41,8 @@ serve(async (req) => {
     const body: ElevenLabsTTSRequest = await req.json();
     const { 
       text, 
-      voiceId = 'sarah',
-      modelId = 'eleven_turbo_v2_5',
+      voiceId = 'jessica',
+      modelId = 'eleven_multilingual_v2',
       stability = 0.5,
       similarityBoost = 0.75,
       style = 0.5,
