@@ -226,6 +226,7 @@ const App = () => (
                 <SubscriptionsModalProvider>
                  <CoachesModalProvider>
                  <WalletModalProvider>
+                 <SoulAvatarProvider>
                  <ProfileModalProvider>
                 <TooltipProvider>
                   <Toaster />
