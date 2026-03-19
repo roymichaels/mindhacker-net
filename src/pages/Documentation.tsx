@@ -534,14 +534,14 @@ export default function Documentation() {
     {
       id: 'team',
       number: '16',
-      title: he ? 'צוות' : 'Team',
+      title: he ? 'מייסד' : 'Founder',
       paragraphs: he ? [
         `מייסד ומנכ"ל: ${founderName} — ${he ? theme.founder_title : theme.founder_title_en}`,
-        `פיתוח AI: ${brandName} נבנה בשיתוף עם Lovable AI — פלטפורמת פיתוח מבוססת בינה מלאכותית שמאפשרת יצירת מוצרים מורכבים במהירות חסרת תקדים.`,
+        `${brandName} נבנה מאפס על ידי מייסד יחיד מאז ספטמבר 2024 — ללא שותפים, ללא פשרות על החזון. כל שורת קוד, כל החלטת עיצוב, כל מנגנון AI — נוצרו מתוך תשוקה עמוקה לבניית מערכת ההפעלה האנושית הטובה ביותר שאפשר. הבחירה לבנות סולו מבטיחה שהחזון לעולם לא יושחת.`,
         `ישות משפטית: ${theme.company_legal_name}, ${theme.company_country}.`,
       ] : [
         `Founder & CEO: ${founderName} — ${theme.founder_title_en}`,
-        `AI & Development: ${brandName} is built in collaboration with Lovable AI — an AI-powered development platform enabling creation of complex products at unprecedented speed.`,
+        `${brandName} has been built from the ground up by a solo founder since September 2024 — no partners, no compromises on the vision. Every line of code, every design decision, every AI mechanism — crafted with deep passion for building the best Human Operating System possible. The choice to build solo ensures the vision can never be corrupted.`,
         `Legal entity: ${theme.company_legal_name}, ${theme.company_country}.`,
       ],
     },
