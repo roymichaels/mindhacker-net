@@ -913,8 +913,8 @@ export function OnboardingFlow() {
                 </div>
               ) : null}
 
-              {/* Custom answer toggle — for single_select and multi_select */}
-              {(isSingleSelect || isMultiSelect) && !showCustomInput && (
+              {/* Custom answer toggle — for all step types (except textarea which is already free-text) */}
+              {!isTextarea && !showCustomInput && (
                 <button
                   onClick={() => {
                     setShowCustomInput(true);
