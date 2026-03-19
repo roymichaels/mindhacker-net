@@ -3,24 +3,17 @@
  * Tab 1 (default): Text overview — motivating, non-demanding, shows strategy & all tasks
  * Tab 2: Mission Control — interactive with 10-day roadmap, media player, task execution
  */
-import { useState, useMemo, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Briefcase, MessageSquare, Search, MapPin, Trophy, Target, Clock, Zap, Star, BookOpen, Gamepad2, Brain, X } from 'lucide-react';
+import { Flame, Briefcase, MessageSquare, Search, BookOpen, Gamepad2, Brain, X } from 'lucide-react';
 import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
-import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
-import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { useWeeklyTacticalPlan } from '@/hooks/useWeeklyTacticalPlan';
-import { useTodayExecution } from '@/hooks/useTodayExecution';
-import { getCurrentDayInIsrael } from '@/utils/currentDay';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 
 import { TodayOverviewTab } from '@/components/play/TodayOverviewTab';
 import { MissionControlTab } from '@/components/play/MissionControlTab';
@@ -40,9 +33,38 @@ export default function PlayHub() {
   const auroraChat = useAuroraChatContextSafe();
   const { openHypnosis } = useAuroraActions();
 
-  const { plan } = useLifePlanWithMilestones();
-
   const openFindCoachWizard = () => {
+    if (!user) { navigate('/auth'); return; }
+    if (!auroraChat) return;
+    auroraChat.setActivePillar('coach-find');
+    auroraChat.setIsDockVisible(true);
+    auroraChat.setIsChatExpanded(true);
+    auroraChat.setPendingAssistantGreeting(
+      isHe
+        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**'
+        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**"
+    );
+  };
+
+  const tabs = [
+    { key: 'overview' as const, icon: BookOpen, label: isHe ? 'סקירה' : 'Overview' },
+    { key: 'control' as const, icon: Gamepad2, label: isHe ? 'בקרת משימות' : 'Mission Control' },
+  ];
+
+  return (
+    <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Quick Action Widgets — iPhone style */}
+      <div className="w-full max-w-xl px-4 pt-3 pb-1">
+        <div className="grid grid-cols-5 gap-3 justify-items-center">
+          <IPhoneWidget icon={Flame} label={isHe ? 'אסטרטגיה' : 'Strategy'} gradient="from-amber-500 to-orange-600" onClick={() => setStrategyOpen(true)} />
+          <IPhoneWidget icon={Briefcase} label={isHe ? 'עבודה' : 'Work'} gradient="from-violet-500 to-purple-700" onClick={() => setWorkOpen(true)} />
+          <IPhoneWidget icon={MessageSquare} label={isHe ? 'שיחה' : 'Chat'} gradient="from-sky-500 to-blue-600" onClick={() => setChatOpen(true)} />
+          <IPhoneWidget icon={Search} label={isHe ? 'מאמן' : 'Coach'} gradient="from-emerald-500 to-emerald-700" onClick={openFindCoachWizard} />
+          <IPhoneWidget icon={Brain} label={isHe ? 'היפנוזה' : 'Hypnosis'} gradient="from-purple-500 to-fuchsia-600" onClick={openHypnosis} />
+        </div>
+      </div>
+
+      {/* ── Tab Switcher ── */}
       <div className="w-full max-w-xl px-4 pt-3 pb-2">
         <div className="flex rounded-xl bg-muted/30 border border-border/30 p-1 gap-1">
           {tabs.map(tab => (
