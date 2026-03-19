@@ -250,64 +250,69 @@ export function TodayOverviewTab() {
       className="space-y-3"
     >
       {/* ═══ PHASE ROADMAP ═══ */}
-      {milestones.length > 0 && (
-        <div className="rounded-2xl border border-border/30 bg-card p-3">
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-foreground">
-                {isHe ? `שלב ${String.fromCharCode(64 + currentWeek)}` : `Phase ${String.fromCharCode(64 + currentWeek)}`}
+      {milestones.length > 0 && (() => {
+        const totalPhases = milestones.length;
+        const completedCount = milestones.filter((m: any) => m.is_completed).length;
+        const progressPct = Math.round(((currentWeek - 1) / Math.max(1, totalPhases)) * 100);
+
+        return (
+          <div className="rounded-2xl border border-border/30 bg-card p-3">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3 h-3 text-primary" />
+                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-foreground">
+                  {isHe ? `שלב ${String.fromCharCode(64 + currentWeek)}` : `Phase ${String.fromCharCode(64 + currentWeek)}`}
+                </span>
+                <span className="text-[9px] text-muted-foreground font-semibold">
+                  {completedCount}/{totalPhases}
+                </span>
+              </div>
+              <span className="text-[9px] font-bold text-muted-foreground">
+                {isHe ? `יום ${currentDay}/100` : `Day ${currentDay}/100`}
               </span>
             </div>
-            <span className="text-[9px] font-bold text-muted-foreground">
-              {isHe ? `יום ${currentDay}/100` : `Day ${currentDay}/100`}
-            </span>
-          </div>
 
-          {/* Minimal dot strip */}
-          <div className="relative px-1">
-            <div className="absolute top-[9px] inset-x-1 h-[1.5px] bg-border/30" />
-            <div
-              className="absolute top-[9px] start-1 h-[1.5px] bg-primary/60 transition-all duration-500"
-              style={{ width: `${Math.max(0, ((currentWeek - 1) / Math.max(1, milestones.length - 1)) * 100)}%` }}
-            />
-            <div className="relative flex justify-between">
-              {milestones.map((ms: any) => {
+            {/* Progress bar with phase ticks */}
+            <div className="relative h-2 rounded-full bg-border/20 overflow-hidden mb-2">
+              <motion.div
+                className="absolute inset-y-0 start-0 rounded-full bg-primary"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPct}%` }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </div>
+
+            {/* Phase labels row — only show A through J (10 phases max) */}
+            <div className="flex justify-between px-0.5">
+              {milestones.slice(0, 10).map((ms: any) => {
                 const isActive = ms.week_number === currentWeek;
                 const isDone = ms.is_completed;
-                const isPast = ms.week_number < currentWeek;
                 const isSelected = selectedMilestone === ms.id;
+                const letter = String.fromCharCode(64 + ms.week_number);
 
                 return (
                   <button
                     key={ms.id}
                     onClick={() => setSelectedMilestone(isSelected ? null : ms.id)}
-                    className="flex flex-col items-center group relative"
-                  >
-                    <div className={cn(
-                      "w-[18px] h-[18px] rounded-full transition-all border",
+                    className={cn(
+                      "w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black transition-all",
                       isDone
-                        ? "bg-primary border-primary"
+                        ? "bg-primary/15 text-primary"
                         : isActive
-                          ? "bg-primary border-primary shadow-[0_0_8px_hsla(var(--primary)/0.4)]"
-                          : isPast
-                            ? "bg-primary/40 border-primary/40"
-                            : "bg-card border-border/50",
-                      isSelected && "ring-1 ring-primary/40 ring-offset-1 ring-offset-card"
-                    )} />
-                    {isActive && !isDone && (
-                      <motion.div
-                        className="absolute top-0 w-[18px] h-[18px] rounded-full bg-primary/30"
-                        animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground/40 hover:text-muted-foreground/70",
+                      isSelected && "ring-1 ring-primary/50"
                     )}
+                  >
+                    {letter}
                   </button>
                 );
               })}
             </div>
           </div>
+        );
+      })()}
 
           {/* Selected Milestone Detail */}
           <AnimatePresence>
