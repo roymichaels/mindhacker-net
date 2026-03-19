@@ -2,42 +2,40 @@
 
 ## Problem
 
-The Overview tab keeps getting rebuilt with task lists, progress bars, numbered task items, domain breakdowns, and statistics — the exact opposite of what you've asked for. You want a **pure CIA-style motivational field briefing**: narrative text, no data grids, no task lists, no progress bars.
+The phase roadmap looks clunky with oversized circles and the briefing card below feels heavy/cluttered. Both need a visual overhaul to feel premium and clean.
 
-## What Gets Removed (lines 328-460)
+## Roadmap Redesign
 
-- **Today's Agenda task list** (numbered items with emojis, durations, checkmarks)
-- **Domain breakdown pills** (vitality 2/3, focus 1/2, etc.)
-- **Progress bar** with percentage
-- **"Remaining tasks" stats line**
-- **CTA "Switch to Mission Control"**
+**Current**: Big 32px circles with thick borders, letter labels underneath, busy gradient background.
 
-## What Stays
+**New**: Minimal horizontal progress strip:
+- Smaller nodes (20px), connected by a thin line
+- Current phase: subtle glow dot, no heavy shadow
+- Completed: filled primary dot, no checkmark icon clutter
+- Future: hollow dots with border only
+- Remove the letter labels underneath each node — they add noise
+- Phase label + day counter in a single compact header row
+- Remove the radial gradient background, use flat `bg-card` with subtle border
+- Clicking a node still expands the milestone detail
 
-- Phase roadmap (top — interactive milestones, already approved)
-- Classification badge (ACTIVE OPERATION / FINAL WINDOW)
-- Directive quote (rotating motivational line)
-- Current Mission hero card (title + pillar only, no stats)
+## Briefing Card Redesign
 
-## What Gets Added (replacing removed sections)
+**Current**: Heavy card with classification badge, pillar badge, directive quote, current mission sub-card, then 3 separate bordered sections (Field Assessment, Doctrine, Intel), and Commander's Directive footer. Lots of borders and padding = visual weight.
 
-All narrative, zero data:
+**New**: Single flowing narrative card, no inner sub-cards:
+- Classification + pillar in one compact line (keep)
+- Remove inner bordered sections for Assessment/Doctrine/Intel — instead flow them as continuous prose paragraphs with just a small colored dot or dash separator
+- Current Mission: just the title in bold, inline — no sub-card with icon/border
+- Commander's Directive: stays as closing line
+- Reduce overall padding from `p-3.5` to `p-3`
+- Remove the radial gradient overlay — clean flat card
 
-1. **"Field Assessment"** — 2-3 sentences of tactical prose about today's strategic context. Dynamic based on current pillar/focus area. Written like a CIA morning brief, not a to-do list. E.g.: *"Today's theater centers on Vitality. Your body is the vehicle for every mission that follows. Neglect it and all other operations degrade."*
-
-2. **"Operational Doctrine"** — A short, punchy rule of engagement tied to the current focus. E.g.: *"No negotiation with comfort. Execute before the mind builds its case."*
-
-3. **"Intelligence Note"** — A rotating deep insight/quote relevant to the pillar. Not generic motivational poster quotes — sharp, strategic, agent-style.
-
-4. **"Commander's Directive"** — A closing 1-liner. Authoritative, final. Like a handler signing off.
-
-All content will be pillar-aware (using the `FOCUS_INTEL` / `PILLAR_VIS` mapping) so the briefing feels personalized to whatever domain the current task belongs to.
+Result: both elements become lighter, more typographic, less "dashboard widget" and more "document briefing."
 
 ## Technical Details
 
 - **File**: `src/components/play/TodayOverviewTab.tsx`
-- Strip out `todayActions.map(...)`, `domainSummary`, progress bar, CTA sections
-- Add new content blocks as styled `<div>` elements with icons (`Shield`, `Eye`, `Lock`, `Crosshair`)
-- All text arrays (field assessments, doctrines, intelligence notes) keyed by pillar with HE/EN variants
-- No numbered lists, no `x/y` counters, no percentage displays
+- Roadmap: reduce node size, remove letter labels, flatten bg
+- Briefing: remove inner bordered divs, flow as paragraphs with dot separators
+- No structural/data changes — same content, better visual hierarchy
 
