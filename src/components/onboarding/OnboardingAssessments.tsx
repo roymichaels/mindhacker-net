@@ -121,6 +121,7 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
             key={currentPillarId}
             domainId={currentPillarId}
             asModal
+            hideHeader
             onClose={handlePillarComplete}
           />
         )}
