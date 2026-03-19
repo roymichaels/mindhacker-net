@@ -150,19 +150,19 @@ export function BottomTabBar() {
           </AnimatePresence>
 
           <div className={cn(
-            "w-10 h-10 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
+            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
             location.pathname === '/aurora'
               ? "bg-pink-500 shadow-lg"
               : "bg-muted/40"
           )}>
             <StandaloneMorphOrb
-              size={24}
+              size={28}
               profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               level={100}
             />
           </div>
-          <span className={cn("text-[9px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>Aurora</span>
+          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>Aurora</span>
           {unreadCount > 0 && (
             <span className="absolute top-0 end-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">
               {unreadCount > 9 ? '9+' : unreadCount}
