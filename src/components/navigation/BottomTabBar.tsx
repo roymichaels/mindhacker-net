@@ -88,20 +88,20 @@ export function BottomTabBar() {
         key={tab.id}
         onClick={() => !isComingSoon && navigate(tab.path)}
         className={cn(
-          "relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[56px]",
+          "relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]",
           isComingSoon && "opacity-40 grayscale cursor-default",
         )}
       >
         <div className={cn(
-          "w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
+          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
           active
             ? `${colors.solid} shadow-lg`
             : "bg-muted/40"
         )}>
-          <Icon className={cn("h-5 w-5", active ? colors.text : colors.inactive)} />
+          <Icon className={cn("h-6 w-6", active ? colors.text : colors.inactive)} />
         </div>
         <span className={cn(
-          "text-[9px] font-bold",
+          "text-[10px] font-bold",
           active ? "text-foreground" : "text-muted-foreground"
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
@@ -117,14 +117,14 @@ export function BottomTabBar() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-background/100 border-t border-border">
-      <div className="flex items-center justify-around h-[72px] px-2">
+      <div className="flex items-center justify-around h-[84px] px-2">
         {/* Left: FM */}
         {leftTabs.map(renderTab)}
 
         {/* Aurora — same solid style */}
         <button
           onClick={openAurora}
-          className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[56px]"
+          className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]"
         >
           <AnimatePresence>
             {showBalloon && (
@@ -150,19 +150,19 @@ export function BottomTabBar() {
           </AnimatePresence>
 
           <div className={cn(
-            "w-10 h-10 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
+            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
             location.pathname === '/aurora'
               ? "bg-pink-500 shadow-lg"
               : "bg-muted/40"
           )}>
             <StandaloneMorphOrb
-              size={24}
+              size={28}
               profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               level={100}
             />
           </div>
-          <span className={cn("text-[9px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>Aurora</span>
+          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>Aurora</span>
           {unreadCount > 0 && (
             <span className="absolute top-0 end-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -174,17 +174,17 @@ export function BottomTabBar() {
         {planTab && (
           <button
             onClick={() => navigate(planTab.path)}
-            className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[56px]"
+            className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]"
           >
             <div className={cn(
-              "w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
+              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
               isActive(planTab.path)
                 ? "bg-cyan-500 shadow-lg"
                 : "bg-muted/40"
             )}>
-              <Play className={cn("h-5 w-5 ms-0.5", isActive(planTab.path) ? "text-white" : "text-cyan-400/60")} fill="currentColor" />
+              <Play className={cn("h-6 w-6 ms-0.5", isActive(planTab.path) ? "text-white" : "text-cyan-400/60")} fill="currentColor" />
             </div>
-            <span className={cn("text-[9px] font-bold", isActive(planTab.path) ? "text-foreground" : "text-muted-foreground")}>
+            <span className={cn("text-[10px] font-bold", isActive(planTab.path) ? "text-foreground" : "text-muted-foreground")}>
               Play
             </span>
           </button>
