@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
