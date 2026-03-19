@@ -3,6 +3,7 @@
  * Step 1: Pick pillar → Step 2: Pick subcategory → Step 3: Upload media + caption
  */
 import { useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, Camera, Image as ImageIcon, Upload, Loader2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
