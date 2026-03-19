@@ -200,7 +200,7 @@ export function TodayOverviewTab() {
           <div className="flex-1 grid grid-cols-3 gap-2">
             <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
               <Zap className="w-3.5 h-3.5 text-amber-400 mb-0.5" />
-              <span className="text-xs font-bold text-foreground">{energy}</span>
+              <span className="text-xs font-bold text-foreground">{energy.balance}</span>
               <span className="text-[8px] text-muted-foreground">{isHe ? 'אנרגיה' : 'Energy'}</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
