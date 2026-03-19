@@ -107,6 +107,7 @@ export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
             <PracticesGallery
               key="gallery"
               isHe={isHe}
+              isPopulating={isPopulating}
               onSelect={(p) => { setSelectedPractice(p); setView('detail'); }}
             />
           )}
