@@ -176,7 +176,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
           {isAll && (
             <>
               {/* ── Top Banners: Events & AI Match ── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Events Card */}
                 <button
                   onClick={() => setEventsOpen(true)}
