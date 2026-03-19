@@ -293,7 +293,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
           {/* ── PILLAR VIEW: Topic Cards (no topic selected yet) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2">
               {/* "All threads" card */}
               <button
                 onClick={() => onSelectTopic?.(null)}
