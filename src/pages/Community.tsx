@@ -241,7 +241,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
 
               {/* ── Pillar Cards Grid ── */}
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2">
                 {LIFE_DOMAINS.map((d) => {
                   const Icon = d.icon;
                   const count = pillarCounts?.[d.id] || 0;
@@ -251,8 +251,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                       key={d.id}
                       onClick={() => onPillarSelect?.(d.id)}
                       className={cn(
-                        "group flex flex-col items-center gap-2 p-4 rounded-2xl border",
-                        "active:scale-[0.98] transition-all duration-200"
+                        "group flex flex-col items-center gap-1.5 p-2.5 rounded-xl border",
+                        "active:scale-[0.97] transition-all duration-200"
                       )}
                       style={{
                         backgroundColor: `hsl(${hsl} / 0.06)`,
@@ -261,7 +261,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.15)`;
                         e.currentTarget.style.borderColor = `hsl(${hsl} / 0.4)`;
-                        e.currentTarget.style.boxShadow = `0 8px 25px -5px hsl(${hsl} / 0.15)`;
+                        e.currentTarget.style.boxShadow = `0 4px 15px -3px hsl(${hsl} / 0.15)`;
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.06)`;
@@ -270,17 +270,17 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                       }}
                     >
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
                         style={{ backgroundColor: `hsl(${hsl} / 0.15)` }}
                       >
-                        <Icon className="h-6 w-6" style={{ color: `hsl(${hsl})` }} />
+                        <Icon className="h-4.5 w-4.5" style={{ color: `hsl(${hsl})` }} />
                       </div>
-                      <span className="text-sm font-semibold text-center leading-tight" style={{ color: `hsl(${hsl})` }}>
+                      <span className="text-[11px] font-semibold text-center leading-tight truncate w-full" style={{ color: `hsl(${hsl})` }}>
                         {isHe ? d.labelHe : d.labelEn}
                       </span>
                       {count > 0 && (
-                        <div className="flex items-center gap-1 text-[11px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
-                          <MessageSquare className="h-3 w-3" />
+                        <div className="flex items-center gap-0.5 text-[10px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
+                          <MessageSquare className="h-2.5 w-2.5" />
                           <span>{count}</span>
                         </div>
                       )}
@@ -293,7 +293,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
           {/* ── PILLAR VIEW: Topic Cards (no topic selected yet) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2">
               {/* "All threads" card */}
               <button
                 onClick={() => onSelectTopic?.(null)}
