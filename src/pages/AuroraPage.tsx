@@ -52,10 +52,44 @@ export default function AuroraPage() {
         </div>
       )}
 
-      {/* Chat messages — full height, padded at bottom for floating elements */}
+      {/* Floating widgets row — fixed at top below header */}
+      <div className="fixed top-14 inset-x-0 z-30 flex justify-center px-3 pt-2">
+        <div className="rounded-2xl backdrop-blur-xl bg-background/80 border border-border/30 shadow-lg px-4 py-2 flex gap-4">
+          <IPhoneWidget
+            icon={Moon}
+            label={isHe ? 'חלומות' : 'Dreams'}
+            gradient="from-indigo-500 to-indigo-700"
+            size="sm"
+            onClick={() => setActiveModal('dream')}
+          />
+          <IPhoneWidget
+            icon={Heart}
+            label={isHe ? 'תודה' : 'Gratitude'}
+            gradient="from-rose-500 to-pink-600"
+            size="sm"
+            onClick={() => setActiveModal('gratitude')}
+          />
+          <IPhoneWidget
+            icon={Target}
+            label={isHe ? 'תוכנית' : 'Plan'}
+            gradient="from-cyan-500 to-teal-600"
+            size="sm"
+            onClick={() => setActiveModal('plan')}
+          />
+          <IPhoneWidget
+            icon={Brain}
+            label={isHe ? 'אמונות' : 'Beliefs'}
+            gradient="from-violet-500 to-purple-600"
+            size="sm"
+            onClick={() => setActiveModal('beliefs')}
+          />
+        </div>
+      </div>
+
+      {/* Chat messages — full height, padded for floating elements */}
       <div
         className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
-        style={{ paddingBottom: '200px' }}
+        style={{ paddingTop: '80px', paddingBottom: '140px' }}
       >
         {isAssessing && assessmentDomainId ? (
           <DomainAssessChat
@@ -67,38 +101,6 @@ export default function AuroraPage() {
         ) : (
           <AuroraChatBubbles showOrbAboveMessages />
         )}
-      </div>
-
-      {/* Floating widgets row — fixed above input */}
-      <div className="fixed bottom-[calc(84px+env(safe-area-inset-bottom)+68px)] inset-x-0 z-30 flex justify-center gap-4 px-4">
-        <IPhoneWidget
-          icon={Moon}
-          label={isHe ? 'חלומות' : 'Dreams'}
-          gradient="from-indigo-500 to-indigo-700"
-          size="sm"
-          onClick={() => setActiveModal('dream')}
-        />
-        <IPhoneWidget
-          icon={Heart}
-          label={isHe ? 'תודה' : 'Gratitude'}
-          gradient="from-rose-500 to-pink-600"
-          size="sm"
-          onClick={() => setActiveModal('gratitude')}
-        />
-        <IPhoneWidget
-          icon={Target}
-          label={isHe ? 'תוכנית' : 'Plan'}
-          gradient="from-cyan-500 to-teal-600"
-          size="sm"
-          onClick={() => setActiveModal('plan')}
-        />
-        <IPhoneWidget
-          icon={Brain}
-          label={isHe ? 'אמונות' : 'Beliefs'}
-          gradient="from-violet-500 to-purple-600"
-          size="sm"
-          onClick={() => setActiveModal('beliefs')}
-        />
       </div>
 
       {/* Floating input dock — fixed above bottom nav */}
