@@ -859,8 +859,9 @@ export function OnboardingFlow() {
                     step={currentMini.sliderStep ?? 1}
                     onValueChange={handleSliderChange}
                     onValueCommit={handleSliderCommit}
+                    dir="ltr"
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground" dir="ltr">
                     <span>{currentMini.sliderMin ?? 1}</span>
                     <span>{currentMini.sliderMax ?? 10}</span>
                   </div>
