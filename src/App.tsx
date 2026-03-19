@@ -8,6 +8,7 @@ import { SmartOnboardingProvider } from "@/contexts/SmartOnboardingContext";
 import { CoachesModalProvider } from "@/contexts/CoachesModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
+import { ProfileModalProvider } from "@/contexts/ProfileModalContext";
 import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
 import { WalletModalProvider } from "@/contexts/WalletModalContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
