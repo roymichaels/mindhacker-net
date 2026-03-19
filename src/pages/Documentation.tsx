@@ -426,6 +426,12 @@ export default function Documentation() {
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
+    {
+      id: 'tokenomics',
+      number: '19',
+      title: he ? 'טוקנומיקס — כלכלת MOS' : 'Tokenomics — MOS Economy',
+      paragraphs: [],
+    },
   ];
 
   const tocItems = sections.map(s => ({ id: s.id, number: s.number, title: s.title }));
