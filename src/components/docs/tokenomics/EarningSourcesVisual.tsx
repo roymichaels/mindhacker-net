@@ -26,7 +26,7 @@ export function EarningSourcesVisual({ items, isHe }: Props) {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.06 }}
             viewport={{ once: true }}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card/50 p-3 flex-1 min-w-[160px] hover:border-primary/30 transition-colors"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card/50 p-3 flex-1 min-w-[180px] hover:border-primary/30 transition-colors"
           >
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[hsl(160,70%,45%)]/20 to-transparent flex items-center justify-center shrink-0">
               <Icon className="w-4 h-4 text-[hsl(160,70%,45%)]" />
