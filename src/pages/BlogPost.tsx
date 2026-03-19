@@ -11,6 +11,7 @@ import { ArrowLeft, ArrowRight, Calendar, Clock, Sparkles, Share2 } from 'lucide
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
