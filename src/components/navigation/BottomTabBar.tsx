@@ -19,12 +19,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play } from 'lucide-react';
 
 
-/** Per-tab color schemes */
-const TAB_COLORS: Record<string, { active: string; activeBg: string; inactive: string }> = {
-  plan:      { active: 'text-cyan-400',    activeBg: 'bg-cyan-500/20',    inactive: 'text-cyan-400' },
-  fm:        { active: 'text-amber-400',   activeBg: 'bg-amber-500/20',   inactive: 'text-amber-400' },
-  community: { active: 'text-emerald-400', activeBg: 'bg-emerald-500/20', inactive: 'text-emerald-400' },
-  study:     { active: 'text-violet-400',  activeBg: 'bg-violet-500/20',  inactive: 'text-violet-400' },
+/** Per-tab solid color schemes */
+const TAB_COLORS: Record<string, { solid: string; text: string; inactive: string }> = {
+  plan:      { solid: 'bg-cyan-500',    text: 'text-white', inactive: 'text-cyan-400/60' },
+  fm:        { solid: 'bg-amber-500',   text: 'text-white', inactive: 'text-amber-400/60' },
+  community: { solid: 'bg-emerald-500', text: 'text-white', inactive: 'text-emerald-400/60' },
+  study:     { solid: 'bg-violet-500',  text: 'text-white', inactive: 'text-violet-400/60' },
 };
 
 export function BottomTabBar() {
