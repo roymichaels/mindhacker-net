@@ -231,7 +231,11 @@ export function TodayOverviewTab() {
 
   const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
-  const selectedMs = milestones.find((m: any) => m.id === selectedMilestone);
+  // Selected phase milestones (letter "A" = week 1, "B" = week 2, etc.)
+  const selectedPhaseWeek = selectedMilestone ? selectedMilestone.charCodeAt(0) - 64 : null;
+  const selectedPhaseMilestones = selectedPhaseWeek
+    ? milestones.filter((m: any) => m.week_number === selectedPhaseWeek)
+    : [];
 
   if (isLoading) {
     return (
