@@ -8118,6 +8118,50 @@ export type Database = {
           },
         ]
       }
+      soul_wallets: {
+        Row: {
+          created_at: string
+          id: string
+          is_minted: boolean
+          minted_at: string | null
+          nft_metadata: Json | null
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+          wallet_provider: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_minted?: boolean
+          minted_at?: string | null
+          nft_metadata?: Json | null
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+          wallet_provider?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_minted?: boolean
+          minted_at?: string | null
+          nft_metadata?: Json | null
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+          wallet_provider?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "soul_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_tiers: {
         Row: {
           access_level: Database["public"]["Enums"]["content_access_level"]
