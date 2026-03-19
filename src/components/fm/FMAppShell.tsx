@@ -1,21 +1,40 @@
 /**
  * FMAppShell — Self-contained app shell for the Free Market module.
- * No tabs — single page at /fm with wallet icon in header.
+ * Gates access behind Soul Avatar minting wizard.
  */
 import { Outlet } from 'react-router-dom';
 import { useFMWallet } from '@/hooks/useFMWallet';
+import { useSoulWallet } from '@/hooks/useSoulWallet';
+import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
 import { EarnLaunchpadBanner } from '@/components/fm/EarnLaunchpadBanner';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
+import { useEffect } from 'react';
 
 export default function FMAppShell() {
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
+  const { isMinted, isLoading: soulLoading } = useSoulWallet();
+  const { openWizard } = useSoulAvatarWizard();
 
   // Hide global sidebars for all FM pages
   useSidebars(null, null, []);
 
-  if (isLoading) return <PageSkeleton />;
+  // Gate: If user hasn't minted Soul Avatar, open wizard
+  useEffect(() => {
+    if (soulLoading) return;
+    if (!isMinted) {
+      openWizard();
+    }
+    // Also pick up post-onboarding trigger
+    const trigger = sessionStorage.getItem('trigger_soul_avatar_wizard');
+    if (trigger && !isMinted) {
+      sessionStorage.removeItem('trigger_soul_avatar_wizard');
+      openWizard();
+    }
+  }, [soulLoading, isMinted, openWizard]);
+
+  if (isLoading || soulLoading) return <PageSkeleton />;
 
   const needsOnboarding = !wallet || !wallet.onboarding_complete;
   if (needsOnboarding) {

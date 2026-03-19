@@ -1,6 +1,7 @@
 /**
- * OrbNFTCard — NFT-style collectible card showcasing the user's orb.
+ * OrbNFTCard — Soul Avatar NFT collectible card showcasing the user's avatar.
  * Fantasy RPG aesthetic with rarity borders, stats, and shimmer effects.
+ * Shows "Mint Soul Avatar" CTA if not yet minted.
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -8,10 +9,13 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSoulWallet } from '@/hooks/useSoulWallet';
+import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
 import { getOrbRarity, levelsToNextRarity } from '@/lib/orbRarity';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Star, Flame, Zap, Shield, Sparkles } from 'lucide-react';
+import { Star, Flame, Zap, Shield, Sparkles, Gem } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface OrbNFTCardProps {
@@ -28,13 +32,17 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
   const energy = useEnergy();
   const dashboard = useUnifiedDashboard();
   const { user } = useAuth();
+  const { isMinted, walletAddress } = useSoulWallet();
+  const { openWizard } = useSoulAvatarWizard();
 
   const rarity = getOrbRarity(xp.level);
   const nextRarityIn = levelsToNextRarity(xp.level);
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
   const archetypeName = getArchetypeName(dominantArchetype, isHe);
   const archetypeIcon = getArchetypeIcon(dominantArchetype);
-  const mintDate = user?.created_at ? new Date(user.created_at).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { month: 'short', year: 'numeric' }) : '—';
+  const mintDate = isMinted && walletAddress
+    ? new Date().toLocaleDateString(isHe ? 'he-IL' : 'en-US', { month: 'short', year: 'numeric' })
+    : null;
   const geometry = profile.geometryFamily || 'sphere';
   const material = profile.materialType || 'glass';
 
@@ -149,10 +157,26 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
           <TraitChip icon={<Sparkles className="w-3 h-3" />} label={material} color={rarity.color} />
         </div>
 
-        {/* Footer — mint info */}
+        {/* Footer — mint info or CTA */}
         <div className="w-full pt-2 border-t border-border/30 flex justify-between items-center">
-          <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{isHe ? 'נוצר' : 'Minted'} {mintDate}</span>
-          <span className="text-[9px] font-mono text-muted-foreground/60">#{String(xp.experience).padStart(5, '0')}</span>
+          {isMinted ? (
+            <>
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                {isHe ? 'Soul Avatar — Minted' : 'Soul Avatar — Minted'} {mintDate}
+              </span>
+              <span className="text-[9px] font-mono text-muted-foreground/60">#{String(xp.experience).padStart(5, '0')}</span>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); openWizard(); }}
+              className="w-full gap-2 text-xs font-bold text-primary hover:text-primary"
+            >
+              <Gem className="w-3.5 h-3.5" />
+              {isHe ? 'Mint Soul Avatar NFT' : 'Mint Soul Avatar NFT'}
+            </Button>
+          )}
         </div>
       </div>
 

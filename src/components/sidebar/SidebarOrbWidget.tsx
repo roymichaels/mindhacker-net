@@ -1,5 +1,5 @@
 /**
- * SidebarOrbWidget - Full identity card for sidebar with orb, title, stats, XP bar.
+ * SidebarOrbWidget - Full identity card for sidebar with Soul Avatar, title, stats, XP bar.
  * Matches the gamified profile card design.
  * Pulses with a work-glow ring when an active work session is running.
  */
@@ -68,14 +68,15 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
     <>
     <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
     <div className="flex flex-col items-center gap-3 w-full px-2">
-      {/* Orb */}
-      <div
-        className={cn(
-          "relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform",
-          isWorking && "animate-pulse"
-        )}
-        onClick={() => setOrbViewerOpen(true)}
-      >
+        {/* Soul Avatar — the centerpiece */}
+        <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold mb-1">Soul Avatar</div>
+        <div
+          className={cn(
+            "relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform",
+            isWorking && "animate-pulse"
+          )}
+          onClick={() => setOrbViewerOpen(true)}
+        >
         <div className={cn(
           "absolute inset-[-30%] rounded-full blur-xl pointer-events-none transition-colors duration-700",
           isWorking && isDeepWork

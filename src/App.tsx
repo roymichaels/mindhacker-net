@@ -11,6 +11,7 @@ import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import { ProfileModalProvider } from "@/contexts/ProfileModalContext";
 import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
 import { WalletModalProvider } from "@/contexts/WalletModalContext";
+import { SoulAvatarProvider } from "@/contexts/SoulAvatarContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
@@ -84,6 +85,7 @@ import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
 import TherapistLayoutWrapper from "./components/therapist/TherapistLayoutWrapper";
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
 const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
@@ -225,6 +227,7 @@ const App = () => (
                 <SubscriptionsModalProvider>
                  <CoachesModalProvider>
                  <WalletModalProvider>
+                 <SoulAvatarProvider>
                  <ProfileModalProvider>
                 <TooltipProvider>
                   <Toaster />
@@ -514,7 +517,9 @@ const App = () => (
                 </BrowserRouter>
                 </TooltipProvider>
                 <Suspense fallback={null}><ProfilePage /></Suspense>
+                <SoulAvatarMintWizardGlobal />
                 </ProfileModalProvider>
+                </SoulAvatarProvider>
                 </WalletModalProvider>
                 </CoachesModalProvider>
                 </SubscriptionsModalProvider>
