@@ -217,39 +217,52 @@ export function OnboardingFlow() {
       setShowIntro(false);
       setShowReveal(true);
     } else if (Object.keys(restored).length > 0) {
-      // Find the first unanswered mini-step across all steps
+      // Find the first unanswered mini-step and the furthest answered step
       const allSteps = onboardingFlowSpec.steps;
       let foundStep = -1;
       let foundMini = 0;
-      
+      let lastAnsweredStep = -1;
+
       for (let sIdx = 0; sIdx < allSteps.length; sIdx++) {
         const visible = getVisibleMiniSteps(allSteps[sIdx], restored);
+        let hasAnswerInStep = false;
+
         for (let mIdx = 0; mIdx < visible.length; mIdx++) {
-          if (restored[visible[mIdx].id] === undefined) {
+          const hasAnswer = restored[visible[mIdx].id] !== undefined;
+          if (hasAnswer) {
+            hasAnswerInStep = true;
+          } else if (foundStep < 0) {
             foundStep = sIdx;
             foundMini = mIdx;
-            break;
           }
         }
-        if (foundStep >= 0) break;
+
+        if (hasAnswerInStep) {
+          lastAnsweredStep = sIdx;
+        }
       }
-      
+
       if (foundStep < 0) {
         // All answered — go to reveal
         setShowIntro(false);
         setShowReveal(true);
       } else {
-        // Fallback: if scanner resolves to first question but DB says user was further, trust savedStep
-        const fallbackStepIdx = savedStep && savedStep > 1
+        const fallbackFromSavedStep = savedStep && savedStep > 1
           ? Math.min(savedStep - 1, allSteps.length - 1)
           : 0;
+
+        // If first step appears unanswered but we clearly have deep progress, resume from deeper step
+        const fallbackFromAnswers = foundStep === 0 && lastAnsweredStep > 0
+          ? lastAnsweredStep
+          : 0;
+
+        const fallbackStepIdx = Math.max(fallbackFromSavedStep, fallbackFromAnswers);
         const shouldUseFallback = foundStep === 0 && foundMini === 0 && fallbackStepIdx > 0;
 
         setCurrentStepIdx(shouldUseFallback ? fallbackStepIdx : foundStep);
         setCurrentMiniIdx(shouldUseFallback ? 0 : foundMini);
         setShowIntro(false);
       }
-      // If foundStep === 0 && foundMini === 0, stay at start (default state)
     }
   }, []);
 
