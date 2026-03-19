@@ -323,6 +323,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
         <SuggestTopicModal open={suggestOpen} onOpenChange={setSuggestOpen} pillar={selectedPillar} />
         <EventsModal open={eventsOpen} onOpenChange={setEventsOpen} />
         <AIMatchModal open={matchOpen} onOpenChange={setMatchOpen} />
+        <CreateStoryModal open={storyOpen} onOpenChange={setStoryOpen} />
       </PageShell>
     </UsernameGate>
   );
