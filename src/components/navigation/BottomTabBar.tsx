@@ -19,12 +19,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play } from 'lucide-react';
 
 
-/** Per-tab color schemes — light/dark adaptive */
-const TAB_COLORS: Record<string, { active: string; bg: string; bgInactive: string; ring: string }> = {
-  plan:      { active: 'text-cyan-600 dark:text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30',       bgInactive: 'bg-cyan-500/5 border-cyan-500/15',     ring: 'ring-cyan-400/40' },
-  fm:        { active: 'text-amber-600 dark:text-amber-400',   bg: 'bg-amber-500/15 border-amber-500/30',     bgInactive: 'bg-amber-500/5 border-amber-500/15',   ring: 'ring-amber-400/40' },
-  community: { active: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30', bgInactive: 'bg-emerald-500/5 border-emerald-500/15', ring: 'ring-emerald-400/40' },
-  study:     { active: 'text-violet-600 dark:text-violet-400',  bg: 'bg-violet-500/15 border-violet-500/30',   bgInactive: 'bg-violet-500/5 border-violet-500/15', ring: 'ring-violet-400/40' },
+/** Per-tab color schemes */
+const TAB_COLORS: Record<string, { active: string; activeBg: string; inactive: string }> = {
+  plan:      { active: 'text-cyan-400',    activeBg: 'bg-cyan-500/20',    inactive: 'text-cyan-400/50' },
+  fm:        { active: 'text-amber-400',   activeBg: 'bg-amber-500/20',   inactive: 'text-amber-400/50' },
+  community: { active: 'text-emerald-400', activeBg: 'bg-emerald-500/20', inactive: 'text-emerald-400/50' },
+  study:     { active: 'text-violet-400',  activeBg: 'bg-violet-500/20',  inactive: 'text-violet-400/50' },
 };
 
 export function BottomTabBar() {
@@ -88,15 +88,15 @@ export function BottomTabBar() {
         key={tab.id}
         onClick={() => !isComingSoon && navigate(tab.path)}
         className={cn(
-          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
+          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px]",
           isComingSoon && "opacity-40 grayscale cursor-default",
-          active ? colors.bg : colors.bgInactive
+          active ? colors.activeBg : "bg-transparent"
         )}
       >
-        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-80`)} />
+        <Icon className={cn("h-5 w-5", active ? colors.active : colors.inactive)} />
         <span className={cn(
           "text-[10px] font-bold",
-          active ? colors.active : `${colors.active} opacity-80`
+          active ? colors.active : colors.inactive
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
         </span>
@@ -110,19 +110,19 @@ export function BottomTabBar() {
   };
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t bg-background/95 backdrop-blur-lg">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border/40">
       <div className="flex items-center justify-around h-16 px-2">
         {/* Left: FM */}
         {leftTabs.map(renderTab)}
 
-        {/* Aurora — styled like other tabs */}
+        {/* Aurora — flat tab style */}
         <button
           onClick={openAurora}
           className={cn(
-            "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
+            "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px]",
             location.pathname === '/aurora'
-              ? "bg-pink-500/15 border-pink-500/30"
-              : "bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15"
+              ? "bg-pink-500/20"
+              : "bg-transparent"
           )}
         >
           <AnimatePresence>
@@ -156,8 +156,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className="text-[10px] font-bold text-pink-600 dark:text-pink-400 opacity-90">Aurora</span>
-          {/* Unread badge */}
+          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-pink-400" : "text-pink-400/50")}>Aurora</span>
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -171,13 +170,13 @@ export function BottomTabBar() {
             <button
               onClick={() => navigate(planTab.path)}
               className={cn(
-                "w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 border ring-2",
+                "w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30",
                 isActive(planTab.path)
-                  ? "bg-cyan-500/20 border-cyan-500/40 ring-cyan-400/30"
-                  : "bg-cyan-500/10 border-cyan-500/20 ring-cyan-500/10"
+                  ? "bg-cyan-500/25 ring-2 ring-cyan-400/30"
+                  : "bg-cyan-500/10 ring-1 ring-cyan-500/10"
               )}
             >
-              <Play className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/80 dark:text-cyan-400/80")} fill="currentColor" />
+              <Play className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400/60")} fill="currentColor" />
             </button>
           </div>
         )}
