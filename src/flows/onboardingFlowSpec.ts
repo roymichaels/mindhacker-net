@@ -443,8 +443,6 @@ const onboardingFlowSpec: FlowSpec = {
           title_he: 'באיזו שעה היית רוצה לקום אם היית יכול לבחור?',
           title_en: 'What time would you like to wake up if you could choose?',
           inputType: 'time_picker',
-          minHour: 3,
-          maxHour: 12,
           validation: { required: true },
           dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'desired_wake_time' },
         },
