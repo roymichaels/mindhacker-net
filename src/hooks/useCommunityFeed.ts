@@ -16,6 +16,7 @@ export interface CommunityThread {
   comments_count: number;
   is_pinned: boolean;
   is_system: boolean;
+  media_urls?: string[] | null;
   category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
   author?: { full_name: string | null; level: number | null; community_username: string | null } | null;
   trendingScore?: number;
@@ -34,7 +35,7 @@ export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'la
     queryFn: async (): Promise<CommunityThread[]> => {
       let query = supabase
         .from('community_posts')
-        .select('id, user_id, title, title_he, content, content_he, category_id, created_at, likes_count, comments_count, is_pinned, is_system, pillar, status')
+        .select('id, user_id, title, title_he, content, content_he, category_id, created_at, likes_count, comments_count, is_pinned, is_system, pillar, status, media_urls')
         .eq('status', 'approved')
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
