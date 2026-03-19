@@ -88,15 +88,15 @@ export function BottomTabBar() {
         key={tab.id}
         onClick={() => !isComingSoon && navigate(tab.path)}
         className={cn(
-          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
+          "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px]",
           isComingSoon && "opacity-40 grayscale cursor-default",
-          active ? colors.bg : colors.bgInactive
+          active ? colors.activeBg : "bg-transparent"
         )}
       >
-        <Icon className={cn("h-5 w-5", active ? colors.active : `${colors.active} opacity-80`)} />
+        <Icon className={cn("h-5 w-5", active ? colors.active : colors.inactive)} />
         <span className={cn(
           "text-[10px] font-bold",
-          active ? colors.active : `${colors.active} opacity-80`
+          active ? colors.active : colors.inactive
         )}>
           {language === 'he' ? tab.labelHe : tab.labelEn}
         </span>
