@@ -313,7 +313,7 @@ export function TodayOverviewTab() {
                     return (
                       <button
                         key={action.id || idx}
-                        onClick={() => setSelectedTaskIdx(selectedTaskIdx === idx ? null : idx)}
+                        onClick={() => setSelectedTaskIdx(idx)}
                         className={cn(
                           "flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 transition-all flex-shrink-0 min-w-[44px]",
                           isDone
