@@ -209,8 +209,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               {/* Aurora avatar */}
               {isAI && (
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
-                    <AuroraOrbIcon className="w-4 h-4 text-violet-400" />
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
+                    <AuroraOrbIcon className="w-4 h-4" size={16} gradient />
                   </div>
                 </div>
               )}
@@ -219,7 +219,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                 {/* Name label */}
                 <span className={cn(
                   "text-[10px] font-semibold block px-1",
-                  isAI ? "text-violet-400/70" : "text-primary/50 text-end"
+                  isAI ? "text-fuchsia-400/70" : "text-primary/50 text-end"
                 )}>
                   {isAI ? 'Aurora' : (language === 'he' ? 'את/ה' : 'You')}
                 </span>
@@ -282,12 +282,12 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             className="flex gap-2.5 justify-start"
           >
             <div className="flex-shrink-0 mt-1">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
-                <AuroraOrbIcon className="w-4 h-4 text-violet-400" />
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
+                <AuroraOrbIcon className="w-4 h-4" size={16} gradient />
               </div>
             </div>
             <div className="max-w-[80%] space-y-1">
-              <span className="text-[10px] font-semibold text-violet-400/70 block px-1">Aurora</span>
+              <span className="text-[10px] font-semibold text-fuchsia-400/70 block px-1">Aurora</span>
               <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm bg-muted/30 text-foreground border border-border/30">
                 <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
                   <ReactMarkdown>{streamingContent}</ReactMarkdown>
@@ -305,15 +305,15 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             className="flex gap-2.5 justify-start"
           >
             <div className="flex-shrink-0 mt-1">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
-                <AuroraOrbIcon className="w-4 h-4 text-violet-400 animate-pulse" />
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
+                <AuroraOrbIcon className="w-4 h-4 animate-pulse" size={16} gradient />
               </div>
             </div>
             <div className="bg-muted/30 border border-border/30 rounded-2xl rounded-ss-md px-4 py-3">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-violet-400/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-violet-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-violet-400/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-2 h-2 bg-fuchsia-400/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 bg-cyan-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 bg-amber-400/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </motion.div>
