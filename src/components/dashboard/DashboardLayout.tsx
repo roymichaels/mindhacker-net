@@ -36,8 +36,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const headerBg = isDark ? theme.headerBgDark : theme.headerBg;
   const swipeHandlers = useSwipeNavigation();
   useLearnPillarAction();
-
-  // hideChrome removed — ProfilePage uses createPortal to bypass layout
+  const { headerHidden } = useChromeVisibility();
 
   return (
     <AuroraActionsProvider>
