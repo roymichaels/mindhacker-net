@@ -18,6 +18,7 @@ interface ElevenLabsTTSRequest {
 
 // Top ElevenLabs voice IDs
 const VOICE_MAP: Record<string, string> = {
+  'jessica': 'cgSgspJ2msm6clMCkdW9',    // Jessica — default, multilingual
   'sarah': 'EXAVITQu4vr4xnSDxMaL',      // Warm female
   'roger': 'CwhRBWXzGAHq8TQ4Fs17',      // Professional male
   'laura': 'FGY2WhTYpPnrIDTdsKH5',      // Calm female  
