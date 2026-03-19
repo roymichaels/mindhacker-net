@@ -85,6 +85,7 @@ import CreatorLayoutWrapper from "./components/creator/CreatorLayoutWrapper";
 import TherapistLayoutWrapper from "./components/therapist/TherapistLayoutWrapper";
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
 const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));

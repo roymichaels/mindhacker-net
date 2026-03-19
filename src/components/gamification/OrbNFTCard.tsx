@@ -157,10 +157,26 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
           <TraitChip icon={<Sparkles className="w-3 h-3" />} label={material} color={rarity.color} />
         </div>
 
-        {/* Footer — mint info */}
+        {/* Footer — mint info or CTA */}
         <div className="w-full pt-2 border-t border-border/30 flex justify-between items-center">
-          <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{isHe ? 'נוצר' : 'Minted'} {mintDate}</span>
-          <span className="text-[9px] font-mono text-muted-foreground/60">#{String(xp.experience).padStart(5, '0')}</span>
+          {isMinted ? (
+            <>
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                {isHe ? 'Soul Avatar — Minted' : 'Soul Avatar — Minted'} {mintDate}
+              </span>
+              <span className="text-[9px] font-mono text-muted-foreground/60">#{String(xp.experience).padStart(5, '0')}</span>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); openWizard(); }}
+              className="w-full gap-2 text-xs font-bold text-primary hover:text-primary"
+            >
+              <Gem className="w-3.5 h-3.5" />
+              {isHe ? 'Mint Soul Avatar NFT' : 'Mint Soul Avatar NFT'}
+            </Button>
+          )}
         </div>
       </div>
 
