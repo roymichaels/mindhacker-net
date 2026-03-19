@@ -920,7 +920,7 @@ export function OnboardingFlow() {
               {/* Options — tags layout for multi_select, list for single_select */}
               {isMultiSelect ? (
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {currentMini.options?.map((option: FlowOption) => {
+                  {filteredOptions?.map((option: FlowOption) => {
                     const isSelected = currentMultiSelections.includes(option.value);
                     return (
                       <motion.button
