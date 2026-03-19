@@ -603,22 +603,16 @@ export default function Documentation() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={cn(
-                    "flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors",
-                    isRTL && "flex-row-reverse"
-                  )}
+                  className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
                 >
-                  {isRTL ? (
-                    <>
-                      <span className="min-w-0 text-wrap leading-snug text-right">{item.title}</span>
-                      <span className="font-mono text-xs text-primary/60 shrink-0">.{item.number}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
-                      <span className="min-w-0 text-wrap leading-snug">{item.title}</span>
-                    </>
-                  )}
+                  <span dir="ltr" className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
+                  <span
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                    style={{ unicodeBidi: 'plaintext' }}
+                    className={cn("min-w-0 text-wrap leading-snug", isRTL && "text-right")}
+                  >
+                    {item.title}
+                  </span>
                 </button>
               ))}
             </div>
