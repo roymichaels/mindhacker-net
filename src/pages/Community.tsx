@@ -202,17 +202,22 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
 
               {/* ── Pillar Widgets Grid (iPhone style) ── */}
-              <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
-                {LIFE_DOMAINS.map((d) => (
-                  <IPhoneWidget
-                    key={d.id}
-                    icon={d.icon}
-                    label={isHe ? d.labelHe : d.labelEn}
-                    gradient={GRADIENT_MAP[d.color] || 'from-primary to-primary/80'}
-                    onClick={() => onPillarSelect?.(d.id)}
-                    size="sm"
-                  />
-                ))}
+              <div>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                  {isHe ? '📋 קטגוריות נושאים' : '📋 Topic Categories'}
+                </h3>
+                <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
+                  {LIFE_DOMAINS.map((d) => (
+                    <IPhoneWidget
+                      key={d.id}
+                      icon={d.icon}
+                      label={isHe ? d.labelHe : d.labelEn}
+                      gradient={GRADIENT_MAP[d.color] || 'from-primary to-primary/80'}
+                      onClick={() => onPillarSelect?.(d.id)}
+                      size="sm"
+                    />
+                  ))}
+                </div>
               </div>
             </>
           )}
