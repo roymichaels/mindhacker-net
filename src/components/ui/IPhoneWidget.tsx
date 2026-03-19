@@ -48,7 +48,7 @@ export function IPhoneWidget({
           <span className={size === 'sm' ? 'text-lg' : 'text-xl'}>{emoji}</span>
         ) : null}
       </div>
-      <span className="text-[10px] font-semibold text-foreground/80 leading-tight text-center line-clamp-1 max-w-[60px]">
+      <span className="text-[10px] font-semibold text-foreground/80 leading-tight text-center line-clamp-2 max-w-[64px]">
         {label}
       </span>
     </button>
