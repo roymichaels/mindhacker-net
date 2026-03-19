@@ -289,7 +289,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                 />
               ))}
             </div>
-          )
+          )}
 
           {/* ── TOPIC SELECTED: back chip + feed ── */}
           {!isAll && selectedTopic && (
