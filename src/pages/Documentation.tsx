@@ -536,17 +536,10 @@ export default function Documentation() {
                 className="space-y-4 scroll-mt-20"
               >
                 <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2" style={{ unicodeBidi: 'plaintext' }}>
-                  {isRTL ? (
-                    <>
-                      {section.title}
-                      <span className="text-primary/60 font-mono ms-2">.{section.number}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-primary/60 font-mono me-2">{section.number}.</span>
-                      {section.title}
-                    </>
-                  )}
+                  <span dir="ltr" className="text-primary/60 font-mono me-2">{section.number}.</span>
+                  <span dir={isRTL ? 'rtl' : 'ltr'} style={{ unicodeBidi: 'plaintext' }}>
+                    {section.title}
+                  </span>
                 </h2>
 
                 {/* Visual roadmap for roadmap section */}
@@ -610,22 +603,16 @@ export default function Documentation() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={cn(
-                    "flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors",
-                    isRTL && "flex-row-reverse"
-                  )}
+                  className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
                 >
-                  {isRTL ? (
-                    <>
-                      <span className="min-w-0 text-wrap leading-snug text-right">{item.title}</span>
-                      <span className="font-mono text-xs text-primary/60 shrink-0">.{item.number}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
-                      <span className="min-w-0 text-wrap leading-snug">{item.title}</span>
-                    </>
-                  )}
+                  <span dir="ltr" className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
+                  <span
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                    style={{ unicodeBidi: 'plaintext' }}
+                    className={cn("min-w-0 text-wrap leading-snug", isRTL && "text-right")}
+                  >
+                    {item.title}
+                  </span>
                 </button>
               ))}
             </div>
