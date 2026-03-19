@@ -370,8 +370,6 @@ const onboardingFlowSpec: FlowSpec = {
           title_he: 'באיזו שעה אתה הולך לישון?',
           title_en: 'What time do you go to sleep?',
           inputType: 'time_picker',
-          minHour: 18,
-          maxHour: 3,
           validation: { required: true },
           dbPath: { table: 'launchpad_progress', column: 'step_2_profile_data', jsonPath: 'sleep_time' },
         },
