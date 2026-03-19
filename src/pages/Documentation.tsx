@@ -625,7 +625,7 @@ export default function Documentation() {
                       <span className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
                       <span className="min-w-0 text-wrap leading-snug">{item.title}</span>
                     </>
-                  )
+                  )}
                 </button>
               ))}
             </div>
