@@ -1,12 +1,14 @@
 /**
  * TransformationReportCard — AI-generated transformation report with export to PDF/share.
+ * Persists to ai_generations table and loads saved report on mount.
  */
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Download, Share2, Loader2, Sparkles, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
+import { FileText, Download, Share2, Loader2, Sparkles, ChevronDown, ChevronUp, TrendingUp, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
@@ -31,12 +33,35 @@ interface ReportStats {
 
 export function TransformationReportCard() {
   const { language, isRTL } = useTranslation();
+  const { user } = useAuth();
   const isHe = language === 'he';
   const [report, setReport] = useState<string | null>(null);
   const [stats, setStats] = useState<ReportStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [lastGenerated, setLastGenerated] = useState<string | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+
+  // Load saved report on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    const loadSaved = async () => {
+      const { data } = await supabase
+        .from('ai_generations')
+        .select('content, metadata, updated_at')
+        .eq('user_id', user.id)
+        .eq('generation_type', 'transformation_report')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data?.content) {
+        setReport(data.content);
+        setStats(data.metadata as unknown as ReportStats);
+        setLastGenerated(data.updated_at);
+      }
+    };
+    loadSaved();
+  }, [user?.id]);
 
   const generateReport = async () => {
     setIsLoading(true);
@@ -47,6 +72,7 @@ export function TransformationReportCard() {
       if (error) throw error;
       setReport(data.report);
       setStats(data.stats);
+      setLastGenerated(new Date().toISOString());
       setIsExpanded(true);
     } catch (err) {
       console.error('Failed to generate report:', err);
@@ -94,6 +120,11 @@ export function TransformationReportCard() {
     }
   };
 
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(isHe ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' });
+  };
+
   const PILLAR_LABELS: Record<string, { he: string; en: string }> = {
     consciousness: { he: 'תודעה', en: 'Consciousness' },
     presence: { he: 'נוכחות', en: 'Presence' },
@@ -131,7 +162,9 @@ export function TransformationReportCard() {
               {isHe ? 'דו"ח טרנספורמציה' : 'Transformation Report'}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {isHe ? 'לפני/אחרי עם ניתוח AI' : 'Before/after with AI analysis'}
+              {report && lastGenerated
+                ? (isHe ? `עודכן ${formatDate(lastGenerated)}` : `Updated ${formatDate(lastGenerated)}`)
+                : (isHe ? 'לפני/אחרי עם ניתוח AI' : 'Before/after with AI analysis')}
             </p>
           </div>
         </div>
@@ -220,7 +253,7 @@ export function TransformationReportCard() {
                   {isHe ? 'שתף' : 'Share'}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={generateReport} disabled={isLoading} className="text-xs gap-1.5 ms-auto text-emerald-400 hover:text-emerald-300">
-                  <Sparkles className="h-3 w-3" />
+                  <RefreshCw className="h-3 w-3" />
                   {isHe ? 'עדכן' : 'Refresh'}
                 </Button>
               </div>
