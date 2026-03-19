@@ -162,8 +162,8 @@ export default function OnboardingCeremony() {
         profile: profileRes.data,
         domains: domainsRes.data || [],
         launchpad: {
-          step1: launchpadRes.data?.step_1_intention as Record<string, any> | null,
-          step2: launchpadRes.data?.step_2_profile_data as Record<string, any> | null,
+          step1: launchpadRes.data?.step_1_intention as unknown as Record<string, any> | null,
+          step2: launchpadRes.data?.step_2_profile_data as unknown as Record<string, any> | null,
         },
       };
     },
