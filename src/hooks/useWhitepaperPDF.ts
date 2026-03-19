@@ -12,11 +12,22 @@ export function useWhitepaperPDF(fileName = 'whitepaper.pdf') {
 
     setCapturing(true);
     try {
-      // Force all content visible: remove any overflow clipping on ancestors,
-      // and make all motion elements visible (they use whileInView which may hide them).
-      const savedStyles: { el: HTMLElement; overflow: string; height: string; maxHeight: string }[] = [];
+      // Inject a global style that forces ALL descendants visible
+      // This overrides framer-motion's whileInView hidden states
+      const style = document.createElement('style');
+      style.id = 'pdf-capture-override';
+      style.textContent = `
+        .pdf-capturing * {
+          opacity: 1 !important;
+          transform: none !important;
+          visibility: visible !important;
+        }
+      `;
+      document.head.appendChild(style);
+      el.classList.add('pdf-capturing');
 
-      // Walk up ancestors and remove overflow hidden/auto/scroll
+      // Remove overflow clipping on ancestors
+      const savedStyles: { el: HTMLElement; overflow: string; height: string; maxHeight: string }[] = [];
       let ancestor: HTMLElement | null = el;
       while (ancestor) {
         const cs = getComputedStyle(ancestor);
@@ -34,17 +45,8 @@ export function useWhitepaperPDF(fileName = 'whitepaper.pdf') {
         ancestor = ancestor.parentElement;
       }
 
-      // Make all motion/animated elements inside fully visible
-      const motionEls = el.querySelectorAll<HTMLElement>('[style*="opacity"]');
-      const savedMotion: { el: HTMLElement; opacity: string; transform: string }[] = [];
-      motionEls.forEach(m => {
-        savedMotion.push({ el: m, opacity: m.style.opacity, transform: m.style.transform });
-        m.style.opacity = '1';
-        m.style.transform = 'none';
-      });
-
-      // Wait a frame for layout
-      await new Promise(r => requestAnimationFrame(r));
+      // Wait for layout recalc
+      await new Promise(r => setTimeout(r, 100));
 
       const fullHeight = el.scrollHeight;
 
@@ -56,28 +58,25 @@ export function useWhitepaperPDF(fileName = 'whitepaper.pdf') {
         logging: false,
         height: fullHeight,
         windowHeight: fullHeight,
-        scrollY: 0,
+        scrollY: -window.scrollY,
         y: 0,
       });
 
-      // Restore styles
+      // Restore everything
+      el.classList.remove('pdf-capturing');
+      style.remove();
       savedStyles.forEach(s => {
         s.el.style.overflow = s.overflow;
         s.el.style.height = s.height;
         s.el.style.maxHeight = s.maxHeight;
       });
-      savedMotion.forEach(s => {
-        s.el.style.opacity = s.opacity;
-        s.el.style.transform = s.transform;
-      });
 
+      // Build PDF
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pdfW = 210;
       const pdfH = 297;
-
       const imgW = canvas.width;
       const imgH = canvas.height;
-
       const ratio = pdfW / imgW;
       const scaledH = imgH * ratio;
       const totalPages = Math.ceil(scaledH / pdfH);
