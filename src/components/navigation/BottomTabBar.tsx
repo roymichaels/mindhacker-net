@@ -162,7 +162,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>Aurora</span>
+          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>{isHe ? 'אורורה' : 'Aurora'}</span>
           {unreadCount > 0 && (
             <span className="absolute top-0 end-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">
               {unreadCount > 9 ? '9+' : unreadCount}

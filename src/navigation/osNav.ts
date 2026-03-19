@@ -29,7 +29,7 @@ export interface OsTab {
  *  Order (LTR): Path | FM(center) | Aurora(injected) | Community | Study
  */
 export const OS_TABS: OsTab[] = [
-  { id: 'fm',        path: '/fm',        icon: Store,          labelEn: 'FM',        labelHe: 'FM' },
+  { id: 'fm',        path: '/fm',        icon: Store,          labelEn: 'Market',    labelHe: 'מרקט' },
   { id: 'play',      path: '/play',      icon: Flame,          labelEn: 'Play',      labelHe: 'Play', isCenter: true },
   { id: 'community', path: '/community', icon: Users,          labelEn: 'Community', labelHe: 'קהילה' },
   { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
