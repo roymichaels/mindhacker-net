@@ -141,6 +141,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
     <UsernameGate>
       <PageShell>
         <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-24">
+          {/* ── Stories Strip ── */}
+          <StoriesStrip pillarFilter={selectedPillar} topicFilter={selectedTopic} onCreateStory={() => setStoryOpen(true)} />
 
           {/* ── Header with breadcrumb ── */}
           <div className="flex items-center justify-between gap-3">
