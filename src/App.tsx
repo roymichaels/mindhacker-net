@@ -306,8 +306,8 @@ const App = () => (
                           <Route path="/plan" element={<Navigate to="/play" replace />} />
                           {/* Play (merged Strategy + Tactics) */}
                           <Route path="/play" element={<PlayLayoutWrapper />} />
-                          {/* Profile page */}
-                          <Route path="/profile" element={<ProfilePage />} />
+                          {/* Profile removed — now modal-based via ProfileModalContext */}
+                          <Route path="/profile" element={<Navigate to="/play" replace />} />
                           {/* Strategy sub-routes for pillar assessments */}
                           <Route path="/strategy" element={<Navigate to="/play" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
