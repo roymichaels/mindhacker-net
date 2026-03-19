@@ -303,7 +303,7 @@ export function TodayOverviewTab() {
 
               {/* Horizontal task nodes */}
               <ScrollArea className="w-full">
-                <div className="flex gap-1 pb-0.5">
+                <div className="flex gap-1 p-0.5">
                   {todayActions.map((action, idx) => {
                     const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
                     const isSelected = activeIdx === idx;
