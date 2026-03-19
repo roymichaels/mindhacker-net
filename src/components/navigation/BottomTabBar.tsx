@@ -191,7 +191,7 @@ export function BottomTabBar() {
           </button>
         )}
 
-        {/* Right: Community, Study */}
+        {/* Right: Study, Feed */}
         {rightTabs.map(renderTab)}
       </div>
     </nav>
