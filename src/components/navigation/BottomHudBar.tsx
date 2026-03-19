@@ -17,6 +17,7 @@ import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 
 export function BottomHudBar() {
   const { language, isRTL } = useTranslation();
