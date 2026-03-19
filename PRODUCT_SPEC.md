@@ -82,19 +82,20 @@
 
 ---
 
-### Tab 4: COMMUNITY (`/community`)
+### Tab 4: FEED (`/community`)
 
 | Field | Value |
 |-------|-------|
-| Label | Community / קהילה |
+| Label | Feed / פיד |
 | Icon | `Users` |
-| Purpose | Social feed, events, and member interaction |
+| Purpose | Social feed, stories, events, and member interaction |
 
 **MVP Behaviors:**
-- Community posts feed with likes and comments
+- Social feed with posts, likes, and comments
+- Instagram-style Stories tied to pillars and subtopics
 - Events with RSVP
 - Member profiles and leaderboard
-- Category filtering
+- Category and pillar filtering
 
 ---
 
