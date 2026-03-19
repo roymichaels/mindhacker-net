@@ -413,6 +413,9 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
   return (
     <div className="space-y-3">
+      {/* Stats Strip */}
+      <PlayStatsStrip />
+
       {/* Stat Wheel */}
       <StatWheel isHe={isHe} />
 
