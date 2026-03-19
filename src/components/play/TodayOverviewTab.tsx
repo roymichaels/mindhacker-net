@@ -310,9 +310,6 @@ export function TodayOverviewTab() {
                 );
               })}
             </div>
-          </div>
-        );
-      })()}
 
             {/* Selected Milestone Detail */}
             <AnimatePresence>
