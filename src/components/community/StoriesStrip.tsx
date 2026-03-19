@@ -48,10 +48,15 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
 
       let query = baseQuery;
 
+      // Filter by pillar
+      if (pillarFilter !== 'all') {
+        query = query.eq('pillar', pillarFilter);
+      }
+
       // Filter by topic if specified
       if (topicFilter) {
         const helpers = await import('@/lib/communityHelpers');
-        const sub = helpers.PILLAR_SUBCATEGORIES[pillarFilter]?.find(s => s.id === topicFilter);
+        const sub = helpers.PILLAR_SUBCATEGORIES[pillarFilter]?.find((s: any) => s.id === topicFilter);
         if (sub) {
           const { data: cat } = await supabase
             .from('community_categories')
