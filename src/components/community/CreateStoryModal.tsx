@@ -157,7 +157,7 @@ export default function CreateStoryModal({ open, onOpenChange }: CreateStoryModa
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[99999] flex flex-col" style={{ backgroundColor: 'hsl(var(--background))' }} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
