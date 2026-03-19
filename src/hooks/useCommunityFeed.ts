@@ -16,6 +16,7 @@ export interface CommunityThread {
   comments_count: number;
   is_pinned: boolean;
   is_system: boolean;
+  media_urls?: string[] | null;
   category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
   author?: { full_name: string | null; level: number | null; community_username: string | null } | null;
   trendingScore?: number;
