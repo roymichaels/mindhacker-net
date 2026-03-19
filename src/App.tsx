@@ -517,6 +517,7 @@ const App = () => (
                 </TooltipProvider>
                 <Suspense fallback={null}><ProfilePage /></Suspense>
                 </ProfileModalProvider>
+                </SoulAvatarProvider>
                 </WalletModalProvider>
                 </CoachesModalProvider>
                 </SubscriptionsModalProvider>
