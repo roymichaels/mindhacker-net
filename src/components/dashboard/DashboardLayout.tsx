@@ -7,6 +7,7 @@ import { useRouteTheme } from '@/hooks/useRouteTheme';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useTheme } from 'next-themes';
 import { FMTopNav } from '@/components/fm/FMTopNav';
+import { useChromeVisibility } from '@/contexts/ChromeVisibilityContext';
 
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
