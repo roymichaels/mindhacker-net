@@ -41,10 +41,10 @@ const phases: RoadmapPhase[] = [
     titleHe: 'פלטפורמת מאמנים',
     titleEn: 'Coach Platform',
     items: [
-      { he: 'פלטפורמת מאמנים', en: 'Coach Platform' },
+      { he: 'פלטפורמת מאמנים מתקדמת', en: 'Advanced Coach Platform' },
       { he: 'FreeMarket — שוק נתונים', en: 'FreeMarket — Data Marketplace' },
-      { he: 'תוכנית שותפים', en: 'Affiliate Program' },
       { he: 'API פתוח', en: 'Open API' },
+      { he: 'אנליטיקס מתקדם', en: 'Advanced Analytics' },
     ],
   },
   {

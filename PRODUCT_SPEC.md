@@ -117,7 +117,7 @@
 - Notification bell
 
 ### Bottom Tab Bar
-- 5-item layout: FM | Aurora | Play (center) | Community | Study
+- 5-item layout: FM | Aurora | Play (center) | Study | Feed
 - Play tab: oversized filled icon, no label
 - Color-coded highlights: Cyan for Play, Violet for Aurora
 - Aurora injected as special button between FM and Play

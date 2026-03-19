@@ -130,12 +130,14 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.4 Community Hub — קהילה' : '4.4 Community Hub — Community',
+          title: he ? '4.4 Feed Hub — פיד' : '4.4 Feed Hub — Social Feed',
           paragraphs: he ? [
-            `פיד קהילתי עם פוסטים, תגובות, לייקים, אירועים, ודירוגים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI. ניווט לפי 14 עמודי חיים ונושאים (Topics) דרך הסיידבר.`,
+            `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ודירוגים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI. ניווט לפי 14 עמודי חיים ונושאים (Topics) דרך הסיידבר.`,
+            `סטוריז בסגנון אינסטגרם: משתמשים יכולים להעלות סטוריז (תמונות/סרטונים) המקושרים לעמוד חיים ונושא ספציפי. תהליך ההעלאה: (1) בחירת עמוד חיים, (2) בחירת נושא משנה, (3) העלאת מדיה + כיתוב. סטוריז מוצגים בסטריפ אופקי בראש הפיד — נראים בנושא הספציפי ובפיד הכללי, אך לא בנושאים אחרים. צפייה במסך מלא עם ניווט.`,
             `תמיכה דו-לשונית מלאה בתוכן (title_he, content_he) עם זיהוי שפה אוטומטי. אירועים קהילתיים עם RSVP, מפגשים וירטואליים, ולוח מובילים.`,
           ] : [
-            `Community feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. Aurora participates in conversations as an AI community member. Navigation by 14 life pillars and Topics via the sidebar.`,
+            `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. Aurora participates in conversations as an AI community member. Navigation by 14 life pillars and Topics via the sidebar.`,
+            `Instagram-style Stories: Users can upload stories (photos/videos) tied to a specific life pillar and subtopic. The upload flow: (1) choose a pillar, (2) choose a subtopic, (3) upload media + caption. Stories appear in a horizontal strip at the top of the feed — visible in the specific topic and the "All" feed, but not in other topics. Full-screen viewer with tap navigation.`,
             `Full bilingual content support (title_he, content_he) with automatic language detection. Community events with RSVP, virtual meetups, and leaderboards.`,
           ],
         },
