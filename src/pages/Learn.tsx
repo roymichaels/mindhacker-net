@@ -432,7 +432,7 @@ export default function Learn() {
                       )}
                     >
                       <span className="text-lg">{sc.icon}</span>
-                      <span className="text-xs font-semibold text-foreground line-clamp-1">
+                      <span className="text-xs font-semibold text-foreground line-clamp-2">
                         {isHe ? sc.he : sc.en}
                       </span>
                     </button>
@@ -479,7 +479,7 @@ export default function Learn() {
                         <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-foreground truncate">
+                            <span className="text-xs font-semibold text-foreground line-clamp-2">
                               {isHe ? (skill.name_he || skill.name) : skill.name}
                             </span>
                             <span className="text-[10px] text-amber-400 font-bold shrink-0">
@@ -557,9 +557,9 @@ export default function Learn() {
                           }
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-foreground truncate">{curr.title}</p>
+                          <p className="text-sm font-bold text-foreground line-clamp-2">{curr.title}</p>
                           {curr.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{curr.description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{curr.description}</p>
                           )}
                           <div className="flex items-center gap-2 mt-2">
                             <Progress value={curr.progress_percentage} className="h-1.5 flex-1" />
