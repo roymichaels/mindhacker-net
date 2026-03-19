@@ -224,24 +224,38 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
 
           {/* ── PILLAR VIEW: Topic Widgets (iPhone style) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
-              <IPhoneWidget
-                emoji="🌐"
-                label={isHe ? 'כל השרשורים' : 'All Threads'}
-                gradient="from-primary to-primary/80"
-                onClick={() => onSelectTopic?.(null)}
-                size="sm"
-              />
-              {subcategories.map((sub, index) => (
+            <div>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  {isHe ? '📋 נושאים' : '📋 Topics'}
+                </h3>
+                <button
+                  onClick={() => setSuggestOpen(true)}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <MessageSquarePlus className="h-3 w-3" />
+                  {isHe ? 'בקש נושא' : 'Suggest'}
+                </button>
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
                 <IPhoneWidget
-                  key={sub.id}
-                  emoji={sub.icon}
-                  label={isHe ? sub.he : sub.en}
-                  gradient={TOPIC_GRADIENTS[index % TOPIC_GRADIENTS.length]}
-                  onClick={() => onSelectTopic?.(sub.id)}
+                  emoji="🌐"
+                  label={isHe ? 'כל השרשורים' : 'All Threads'}
+                  gradient="from-primary to-primary/80"
+                  onClick={() => onSelectTopic?.(null)}
                   size="sm"
                 />
-              ))}
+                {subcategories.map((sub, index) => (
+                  <IPhoneWidget
+                    key={sub.id}
+                    emoji={sub.icon}
+                    label={isHe ? sub.he : sub.en}
+                    gradient={TOPIC_GRADIENTS[index % TOPIC_GRADIENTS.length]}
+                    onClick={() => onSelectTopic?.(sub.id)}
+                    size="sm"
+                  />
+                ))}
+              </div>
             </div>
           )}
 
