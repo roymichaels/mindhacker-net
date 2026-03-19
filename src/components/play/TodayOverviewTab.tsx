@@ -1,17 +1,18 @@
 /**
- * TodayOverviewTab — Web3-styled unified mission card with embedded roadmap.
+ * TodayOverviewTab — Web3-styled unified mission card with today's task roadmap.
  */
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import {
-  Crosshair, Lock, CheckCircle2,
-  Zap, Target, X, Shield, Eye, ChevronDown,
+  Crosshair, CheckCircle2,
+  Zap, Target,
 } from 'lucide-react';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 /* ── Pillar visuals ── */
 const PILLAR_VIS: Record<string, { emoji: string; color: string; bg: string; labelHe: string; labelEn: string }> = {
@@ -44,28 +45,28 @@ const DIRECTIVES_HE = [
 /* ── Field Assessment ── */
 const FIELD_ASSESSMENT: Record<string, { en: string[]; he: string[] }> = {
   vitality: {
-    en: ["Today's theater centers on Vitality. Your body is the vehicle for every mission that follows. Neglect it and all other operations degrade.","The field report is clear: physical readiness determines operational capacity. Today you sharpen the blade that cuts through everything else."],
-    he: ["זירת היום: חיוניות. הגוף הוא הכלי לכל משימה שתבוא. הזנח אותו — וכל מערך הפעולה מתדרדר.","דוח השטח ברור: מוכנות פיזית קובעת קיבולת מבצעית. היום משחיזים את הלהב שחותך דרך הכל."],
+    en: ["Today's theater centers on Vitality. Your body is the vehicle for every mission that follows.","The field report is clear: physical readiness determines operational capacity."],
+    he: ["זירת היום: חיוניות. הגוף הוא הכלי לכל משימה שתבוא.","דוח השטח ברור: מוכנות פיזית קובעת קיבולת מבצעית."],
   },
   focus: {
-    en: ["Cognitive operations are the priority. Your mind is the command center — every distraction is an enemy infiltration. Seal the perimeter.","Today's briefing: deep work is the weapon. The battlefield is your attention span. Defend it with lethal precision."],
-    he: ["מבצעים קוגניטיביים בעדיפות עליונה. המוח הוא מרכז הפיקוד — כל הסחה היא חדירת אויב. אטום את המתחם.","תדריך היום: עבודה עמוקה היא הנשק. שדה הקרב הוא טווח הקשב שלך. הגן עליו בדיוק קטלני."],
+    en: ["Cognitive operations are the priority. Your mind is the command center.","Today's briefing: deep work is the weapon. The battlefield is your attention span."],
+    he: ["מבצעים קוגניטיביים בעדיפות עליונה. המוח הוא מרכז הפיקוד.","תדריך היום: עבודה עמוקה היא הנשק. שדה הקרב הוא טווח הקשב שלך."],
   },
   wealth: {
-    en: ["Economic theater is active. Today's objective: create asymmetric value. One well-placed move outweighs a hundred busy hours.","Financial intelligence report: resources flow toward clarity and decisive action. Today you operate with both."],
-    he: ["הזירה הכלכלית פעילה. יעד היום: ליצור ערך אסימטרי. מהלך אחד ממוקם שווה יותר ממאה שעות עסוקות.","דוח מודיעין פיננסי: משאבים זורמים לכיוון בהירות ופעולה החלטית. היום אתה פועל עם שניהם."],
+    en: ["Economic theater is active. Today's objective: create asymmetric value.","Financial intelligence report: resources flow toward clarity and decisive action."],
+    he: ["הזירה הכלכלית פעילה. יעד היום: ליצור ערך אסימטרי.","דוח מודיעין פיננסי: משאבים זורמים לכיוון בהירות ופעולה החלטית."],
   },
   power: {
-    en: ["Power operations are live. Raw capacity building is today's mission — strength isn't optional, it's infrastructure."],
-    he: ["מבצעי כוח פעילים. בניית קיבולת גולמית היא משימת היום — כוח הוא לא אופציה, הוא תשתית."],
+    en: ["Power operations are live. Raw capacity building is today's mission."],
+    he: ["מבצעי כוח פעילים. בניית קיבולת גולמית היא משימת היום."],
   },
   consciousness: {
-    en: ["Inner reconnaissance is the mission. Today's terrain is internal — map the blind spots before they map you."],
-    he: ["סיור פנימי הוא המשימה. שטח היום הוא פנימי — מפה את הנקודות העיוורות לפני שהן ממפות אותך."],
+    en: ["Inner reconnaissance is the mission. Today's terrain is internal."],
+    he: ["סיור פנימי הוא המשימה. שטח היום הוא פנימי."],
   },
 };
-const DEFAULT_ASSESSMENT_EN = ["Operations are live. The mission parameters are set. All that remains is execution — clean, decisive, without negotiation.","Today's terrain is mapped. Your objectives are locked. The only variable left is your willingness to move."];
-const DEFAULT_ASSESSMENT_HE = ["המבצעים חיים. פרמטרי המשימה נקבעו. כל מה שנותר הוא ביצוע — נקי, החלטי, ללא משא ומתן.","שטח היום ממופה. היעדים נעולים. המשתנה היחיד שנותר הוא הנכונות שלך לזוז."];
+const DEFAULT_ASSESSMENT_EN = ["Operations are live. The mission parameters are set. All that remains is execution."];
+const DEFAULT_ASSESSMENT_HE = ["המבצעים חיים. פרמטרי המשימה נקבעו. כל מה שנותר הוא ביצוע."];
 
 /* ── Operational Doctrine ── */
 const DOCTRINE: Record<string, { en: string[]; he: string[] }> = {
@@ -73,23 +74,23 @@ const DOCTRINE: Record<string, { en: string[]; he: string[] }> = {
   focus: { en: ["One thread at a time. Multitasking is a myth sold to the undisciplined."], he: ["חוט אחד בכל פעם. ריבוי משימות הוא מיתוס שנמכר לחסרי משמעת."] },
   wealth: { en: ["Value first, revenue follows. Never chase — position and let it come."], he: ["ערך קודם, הכנסה עוקבת. לעולם אל תרדוף — מקם ותן לזה להגיע."] },
   power: { en: ["Discomfort is the price of admission. Pay it daily or forfeit the seat."], he: ["אי נוחות היא דמי הכניסה. שלם יומי או ותר על המקום."] },
-  consciousness: { en: ["Silence is not empty — it's where the signal lives. Listen before you lead."], he: ["שקט הוא לא ריק — שם חי האות. הקשב לפני שאתה מוביל."] },
+  consciousness: { en: ["Silence is not empty — it's where the signal lives."], he: ["שקט הוא לא ריק — שם חי האות."] },
 };
 const DEFAULT_DOCTRINE_EN = ["Hesitation is a decision — and it's always the wrong one."];
 const DEFAULT_DOCTRINE_HE = ["היסוס הוא החלטה — והיא תמיד הלא נכונה."];
 
 /* ── Intelligence Notes ── */
 const INTEL_NOTES: Record<string, { en: string[]; he: string[] }> = {
-  vitality: { en: ["Field data confirms: 20 minutes of high-output movement rewires threat assessment for the next 8 hours. The ROI is non-negotiable."], he: ["נתוני שטח מאשרים: 20 דקות של תנועה בעצימות גבוהה משנות הערכת איום ל-8 השעות הבאות. התשואה לא ניתנת למשא ומתן."] },
-  focus: { en: ["A single 90-minute deep work block produces more signal than 8 hours of reactive task-switching. Protect the block at all costs."], he: ["בלוק עבודה עמוקה אחד של 90 דקות מייצר יותר אות מ-8 שעות של מיתוג משימות תגובתי. הגן על הבלוק בכל מחיר."] },
-  wealth: { en: ["Compound returns apply to skills, relationships, and reputation — not just capital. Every interaction is an investment."], he: ["תשואה מצטברת חלה על מיומנויות, מערכות יחסים ומוניטין — לא רק על הון. כל אינטראקציה היא השקעה."] },
+  vitality: { en: ["20 minutes of high-output movement rewires threat assessment for the next 8 hours."], he: ["20 דקות של תנועה בעצימות גבוהה משנות הערכת איום ל-8 השעות הבאות."] },
+  focus: { en: ["A single 90-minute deep work block produces more signal than 8 hours of reactive task-switching."], he: ["בלוק עבודה עמוקה אחד של 90 דקות מייצר יותר אות מ-8 שעות של מיתוג משימות תגובתי."] },
+  wealth: { en: ["Compound returns apply to skills, relationships, and reputation — not just capital."], he: ["תשואה מצטברת חלה על מיומנויות, מערכות יחסים ומוניטין — לא רק על הון."] },
 };
-const DEFAULT_INTEL_EN = ["Pattern recognition: your best days share one trait — you started before you felt ready. File that under 'operational doctrine'.","Historical analysis: every breakthrough in your record came after sustained discomfort. The data doesn't lie."];
-const DEFAULT_INTEL_HE = ["זיהוי דפוסים: לימים הטובים ביותר שלך יש תכונה אחת משותפת — התחלת לפני שהרגשת מוכן. תייק את זה תחת 'דוקטרינה מבצעית'.","ניתוח היסטורי: כל פריצת דרך ברשומות שלך הגיעה אחרי אי נוחות מתמשכת. הנתונים לא משקרים."];
+const DEFAULT_INTEL_EN = ["Your best days share one trait — you started before you felt ready."];
+const DEFAULT_INTEL_HE = ["לימים הטובים ביותר שלך יש תכונה אחת משותפת — התחלת לפני שהרגשת מוכן."];
 
 /* ── Commander's Directive ── */
-const COMMANDER_EN = ["End of briefing. Execute with precision. Dismissed.","Field is live. No further instructions required. Move.","This briefing is classified. Your actions today are your only response.","The mission doesn't wait for motivation. Neither do you."];
-const COMMANDER_HE = ["סוף תדריך. בצע בדייקנות. שוחרר.","השטח חי. אין צורך בהוראות נוספות. זוז.","תדריך זה מסווג. הפעולות שלך היום הן התגובה היחידה.","המשימה לא מחכה למוטיבציה. גם אתה לא."];
+const COMMANDER_EN = ["End of briefing. Execute with precision. Dismissed.","Field is live. No further instructions required. Move.","The mission doesn't wait for motivation. Neither do you."];
+const COMMANDER_HE = ["סוף תדריך. בצע בדייקנות. שוחרר.","השטח חי. אין צורך בהוראות נוספות. זוז.","המשימה לא מחכה למוטיבציה. גם אתה לא."];
 
 function pick<T>(arr: T[], seed: number) {
   return arr[Math.abs(seed) % arr.length];
@@ -101,10 +102,11 @@ export function TodayOverviewTab() {
 
   const phasePlan = useWeeklyTacticalPlan();
   const { days, isLoading } = phasePlan as any;
-  const { milestones, currentWeek, plan } = useLifePlanWithMilestones();
+  const { plan } = useLifePlanWithMilestones();
   const currentDay = useMemo(() => getCurrentDayInIsrael(plan?.start_date), [plan?.start_date]);
 
-  const [selectedMilestone, setSelectedMilestone] = useState<string | null>(null);
+  // Selected task index for the task roadmap
+  const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
 
   const todayPlan: DayPlan | null = useMemo(
     () => (days || []).find((d: DayPlan) => d.isToday) || null, [days],
@@ -115,6 +117,7 @@ export function TodayOverviewTab() {
 
   const remainingCount = todayActions.filter((a) => !a.completed).length;
   const totalCount = todayActions.length;
+  const completedCount = totalCount - remainingCount;
   const currentAction = todayActions.find((a) => !a.completed) || null;
 
   const now = new Date();
@@ -146,21 +149,12 @@ export function TodayOverviewTab() {
 
   const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
-  // Phase data
-  const phaseCount = milestones.length > 0 ? Math.min(10, milestones.length) : 0;
-  const completedCount = milestones.filter((m: any) => m.is_completed).length;
-  const progressPct = milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
-  const phases = Array.from({ length: phaseCount }, (_, i) => {
-    const phaseMs = milestones.filter((m: any) => m.week_number === i + 1);
-    const allDone = phaseMs.length > 0 && phaseMs.every((m: any) => m.is_completed);
-    const isActive = i + 1 === currentWeek;
-    return { index: i, letter: String.fromCharCode(65 + i), milestones: phaseMs, allDone, isActive };
-  });
+  // Progress
+  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  const selectedPhaseWeek = selectedMilestone ? selectedMilestone.charCodeAt(0) - 64 : null;
-  const selectedPhaseMilestones = selectedPhaseWeek
-    ? milestones.filter((m: any) => m.week_number === selectedPhaseWeek)
-    : [];
+  // Selected task detail
+  const selectedTask = selectedTaskIdx !== null ? todayActions[selectedTaskIdx] : null;
+  const selectedPillar = selectedTask ? (PILLAR_VIS[selectedTask.focusArea || ''] || DEFAULT_PILLAR) : null;
 
   if (isLoading) {
     return (
@@ -184,7 +178,6 @@ export function TodayOverviewTab() {
         <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/[0.04] via-transparent to-violet-500/[0.06]" />
         <div className="absolute top-0 end-0 w-40 h-40 rounded-full bg-cyan-500/[0.08] blur-[60px]" />
         <div className="absolute bottom-0 start-0 w-32 h-32 rounded-full bg-violet-500/[0.06] blur-[50px]" />
-        {/* Subtle grid overlay */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
         <div className="relative z-10 p-4 space-y-4">
@@ -206,18 +199,18 @@ export function TodayOverviewTab() {
             </div>
           </div>
 
-          {/* ── Embedded Roadmap ── */}
-          {milestones.length > 0 && (
-            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-2.5">
-              {/* Roadmap header row */}
+          {/* ── Today's Task Roadmap ── */}
+          {todayActions.length > 0 && (
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-3">
+              {/* Header row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-3 h-3 text-amber-400" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-amber-300/90">
-                    {isHe ? `מסלול 100 הימים — שלב ${String.fromCharCode(64 + currentWeek)}` : `100-Day Route — Phase ${String.fromCharCode(64 + currentWeek)}`}
+                  <Target className="w-3 h-3 text-cyan-400" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-300/90">
+                    {isHe ? 'משימות היום' : "Today's Missions"}
                   </span>
                   <span className="text-[9px] text-cyan-200/40 font-semibold">
-                    {completedCount}/{milestones.length}
+                    {completedCount}/{totalCount}
                   </span>
                 </div>
                 <span className="text-[9px] font-bold text-cyan-200/40">
@@ -235,79 +228,104 @@ export function TodayOverviewTab() {
                 />
               </div>
 
-              {/* Phase pills A-J */}
-              <div className="flex justify-between px-0.5">
-                {phases.map((phase) => {
-                  const isSelected = selectedMilestone === phase.letter;
-                  return (
-                    <button
-                      key={phase.letter}
-                      onClick={() => setSelectedMilestone(isSelected ? null : phase.letter)}
-                      className={cn(
-                        "w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black transition-all",
-                        phase.allDone
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                          : phase.isActive
-                            ? "bg-cyan-500 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                            : "text-white/20 hover:text-white/40 border border-transparent hover:border-white/10",
-                        isSelected && !phase.isActive && "ring-1 ring-cyan-400/50"
-                      )}
-                    >
-                      {phase.letter}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Horizontal task nodes */}
+              <ScrollArea className="w-full">
+                <div className="flex gap-1.5 pb-1">
+                  {todayActions.map((action, idx) => {
+                    const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
+                    const isSelected = selectedTaskIdx === idx;
+                    const isDone = action.completed;
+                    const isCurrent = !isDone && todayActions.findIndex(a => !a.completed) === idx;
 
-              {/* Expanded Phase Milestones */}
-              <AnimatePresence>
-                {selectedPhaseMilestones.length > 0 && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="pt-2 border-t border-white/[0.06] space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-black text-cyan-300/70 uppercase tracking-wider">
-                          {isHe ? `אבני דרך — שלב ${selectedMilestone}` : `Milestones — Phase ${selectedMilestone}`}
+                    return (
+                      <button
+                        key={action.id || idx}
+                        onClick={() => setSelectedTaskIdx(isSelected ? null : idx)}
+                        className={cn(
+                          "flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 transition-all flex-shrink-0 min-w-[48px]",
+                          isDone
+                            ? "bg-emerald-500/10 border border-emerald-500/20"
+                            : isCurrent
+                              ? "bg-cyan-500/15 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                              : "border border-white/[0.06] hover:border-white/15",
+                          isSelected && "ring-1 ring-cyan-400/60"
+                        )}
+                      >
+                        {/* Status icon */}
+                        <div className={cn(
+                          "w-5 h-5 rounded-full flex items-center justify-center text-[10px]",
+                          isDone ? "bg-emerald-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
+                        )}>
+                          {isDone ? (
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <span>{pv.emoji}</span>
+                          )}
+                        </div>
+                        {/* Index */}
+                        <span className={cn(
+                          "text-[8px] font-black",
+                          isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
+                        )}>
+                          {idx + 1}
                         </span>
-                        <button onClick={() => setSelectedMilestone(null)} className="p-0.5 rounded text-white/30 hover:text-white/60">
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                      {selectedPhaseMilestones.map((ms: any) => {
-                        const pv = PILLAR_VIS[ms.focus_area] || DEFAULT_PILLAR;
-                        return (
-                          <div key={ms.id} className="flex items-start gap-2">
-                            <div className={cn(
-                              "w-4 h-4 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center",
-                              ms.is_completed ? "bg-emerald-500" : "border border-white/20"
-                            )}>
-                              {ms.is_completed && <CheckCircle2 className="w-3 h-3 text-white" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5 mb-0.5">
-                                {ms.focus_area && <span className="text-[9px]">{pv.emoji}</span>}
-                                <span className={cn("text-xs font-bold", ms.is_completed ? "text-white/30 line-through" : "text-white/90")}>
-                                  {isHe ? ms.title : (ms.title_en || ms.title)}
-                                </span>
-                              </div>
-                              {ms.description && (
-                                <p className="text-[10px] text-white/30 leading-snug line-clamp-2">
-                                  {isHe ? ms.description : (ms.description_en || ms.description)}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                      </button>
+                    );
+                  })}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+
+              {/* Selected task detail — rendered inline below roadmap */}
+              {selectedTask && selectedPillar && (
+                <div className="pt-2 border-t border-white/[0.06]">
+                  <div className="flex items-start gap-2.5">
+                    <div className={cn(
+                      "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
+                      selectedTask.completed ? "bg-emerald-500/20" : "bg-cyan-500/15"
+                    )}>
+                      {selectedTask.completed ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <span className="text-sm">{selectedPillar.emoji}</span>
+                      )}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className={cn(
+                          "text-[8px] font-black uppercase tracking-[0.12em] px-1.5 py-0.5 rounded",
+                          selectedTask.completed
+                            ? "text-emerald-400/70 bg-emerald-500/10"
+                            : `${selectedPillar.color} ${selectedPillar.bg}`
+                        )}>
+                          {isHe ? selectedPillar.labelHe : selectedPillar.labelEn}
+                        </span>
+                        {selectedTask.completed && (
+                          <span className="text-[8px] font-bold text-emerald-400/60 uppercase tracking-wider">
+                            {isHe ? 'הושלם' : 'Done'}
+                          </span>
+                        )}
+                      </div>
+                      <p className={cn(
+                        "text-xs font-bold leading-snug",
+                        selectedTask.completed ? "text-white/30 line-through" : "text-white/90"
+                      )}>
+                        {isHe ? selectedTask.title : (selectedTask.titleEn || selectedTask.title)}
+                      </p>
+                      {selectedTask.description && (
+                        <p className="text-[10px] text-white/30 leading-snug mt-1">
+                          {isHe ? selectedTask.description : (selectedTask.descriptionEn || selectedTask.description)}
+                        </p>
+                      )}
+                      {(selectedTask as any).timeBlock && (
+                        <span className="text-[9px] text-cyan-300/40 font-semibold mt-1 inline-block">
+                          ⏱ {(selectedTask as any).timeBlock}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
