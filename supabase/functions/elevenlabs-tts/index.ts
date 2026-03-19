@@ -23,6 +23,8 @@ const VOICE_MAP: Record<string, string> = {
   'daniel': 'onwK4e9ZLuTAKqWW03F9',
 };
 
+const ELEVENLABS_MODEL_ID = 'eleven_v3';
+
 serve(async (req) => {
   if (isCorsPreFlight(req)) {
     return handleCorsPreFlight();
@@ -33,8 +35,8 @@ serve(async (req) => {
     if (auth instanceof Response) return auth;
 
     const body: ElevenLabsTTSRequest = await req.json();
-    const { 
-      text, 
+    const {
+      text,
       voiceId = 'jessica',
       speed = 1.0,
     } = body;
@@ -46,7 +48,7 @@ serve(async (req) => {
     const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
     if (!ELEVENLABS_API_KEY) {
       console.error('[ElevenLabs] API key not configured');
-      return jsonResponse({ 
+      return jsonResponse({
         error: 'ElevenLabs not configured',
         fallback: true,
       }, 500);
@@ -62,12 +64,23 @@ serve(async (req) => {
     // Detect if text contains Hebrew
     const hasHebrew = /[\u0590-\u05FF]/.test(truncatedText);
 
-    console.log('[ElevenLabs] TTS request:', { 
-      textLength: truncatedText.length, 
+    console.log('[ElevenLabs] TTS request:', {
+      textLength: truncatedText.length,
       voice: resolvedVoiceId,
-      model: 'eleven_multilingual_v2',
+      model: ELEVENLABS_MODEL_ID,
       language: hasHebrew ? 'he' : 'en',
     });
+
+    // Keep payload clean: model + language + optional speed only
+    const ttsPayload: Record<string, unknown> = {
+      text: truncatedText,
+      model_id: ELEVENLABS_MODEL_ID,
+      language_code: hasHebrew ? 'he' : 'en',
+    };
+
+    if (speed !== 1.0) {
+      ttsPayload.voice_settings = { speed };
+    }
 
     // IMPORTANT: output_format must be in query params, NOT body
     const abortController = new AbortController();
@@ -81,17 +94,7 @@ serve(async (req) => {
           'xi-api-key': ELEVENLABS_API_KEY,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          text: truncatedText,
-          model_id: 'eleven_multilingual_v2',
-          language_code: hasHebrew ? 'he' : 'en',
-          voice_settings: {
-            stability: 0.6,
-            similarity_boost: 0.8,
-            use_speaker_boost: true,
-            speed,
-          },
-        }),
+        body: JSON.stringify(ttsPayload),
         signal: abortController.signal,
       }
     );
@@ -143,7 +146,7 @@ serve(async (req) => {
     }
 
     const audioBuffer = await response.arrayBuffer();
-    
+
     console.log('[ElevenLabs] TTS success:', { audioSize: audioBuffer.byteLength });
 
     return audioResponse(audioBuffer);
