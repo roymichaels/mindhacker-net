@@ -71,11 +71,12 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
         {/* Soul Avatar — the centerpiece */}
         <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold mb-1">Soul Avatar</div>
         <div
-          "relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform",
-          isWorking && "animate-pulse"
-        )}
-        onClick={() => setOrbViewerOpen(true)}
-      >
+          className={cn(
+            "relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform",
+            isWorking && "animate-pulse"
+          )}
+          onClick={() => setOrbViewerOpen(true)}
+        >
         <div className={cn(
           "absolute inset-[-30%] rounded-full blur-xl pointer-events-none transition-colors duration-700",
           isWorking && isDeepWork
