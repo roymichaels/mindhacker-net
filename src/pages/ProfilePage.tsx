@@ -116,26 +116,44 @@ export default function ProfilePage() {
         <TransformationReportCard />
       </div>
 
-      {/* ═══════ PROFILE CONTENT ═══════ */}
-      <div className="px-4 mt-4 pb-16 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        {traitsOpen ? (
-          <div className="relative">
+      {/* ═══════ TRAITS MODAL (separate portal like practices) ═══════ */}
+      {traitsOpen && (
+        <div
+          className="fixed inset-0 z-[10000] bg-background flex flex-col overflow-hidden"
+          dir={isRTL ? 'rtl' : 'ltr'}
+        >
+          <div className="flex items-center justify-between px-4 pt-4">
             <button
               onClick={() => setTraitsOpen(false)}
-              className="mb-4 text-sm text-muted-foreground hover:text-foreground"
+              className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
             >
-              ← {isHe ? 'חזרה' : 'Back'}
+              <X className="w-5 h-5 text-foreground" />
             </button>
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-cyan-400" />
+              {isHe ? 'תכונות' : 'Traits'}
+            </h2>
+            <button
+              onClick={() => setTraitsOpen(false)}
+              className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-3 pb-24 pt-4">
             <TraitsTab isHe={isHe} />
           </div>
-        ) : (
-          <ProfileTab
-            isHe={isHe}
-            language={language}
-            dashboard={dashboard}
-            isOwner={true}
-          />
-        )}
+        </div>
+      )}
+
+      {/* ═══════ PROFILE CONTENT ═══════ */}
+      <div className="px-4 mt-4 pb-16 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        <ProfileTab
+          isHe={isHe}
+          language={language}
+          dashboard={dashboard}
+          isOwner={true}
+        />
       </div>
     </div>
   );
