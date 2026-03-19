@@ -471,6 +471,8 @@ export function OnboardingFlow() {
   const goBack = useCallback(() => {
     setSelectedValue(null);
     setTextareaValue('');
+    setShowCustomInput(false);
+    setCustomInputValue('');
     if (currentMiniIdx > 0) {
       setCurrentMiniIdx(currentMiniIdx - 1);
     } else if (currentStepIdx > 0) {
