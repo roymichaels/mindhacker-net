@@ -206,7 +206,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                     </span>
                   </div>
                   <ArrowRight className={cn("w-3.5 h-3.5 text-amber-500/50 flex-shrink-0", isHe && "rotate-180")} />
-                  </div>
                 </button>
               </div>
 
