@@ -119,7 +119,8 @@ export default function ProfilePage() {
       {/* ═══════ TRAITS MODAL (separate portal like practices) ═══════ */}
       {traitsOpen && (
         <div
-          className="fixed inset-0 z-[10000] bg-background flex flex-col overflow-hidden"
+          className="fixed inset-0 z-[10000] flex flex-col overflow-hidden"
+          style={{ backgroundColor: 'hsl(var(--background))' }}
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           <div className="flex items-center justify-between px-4 pt-4">
