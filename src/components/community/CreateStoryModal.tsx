@@ -3,6 +3,7 @@
  * Step 1: Pick pillar → Step 2: Pick subcategory → Step 3: Upload media + caption
  */
 import { useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, Camera, Image as ImageIcon, Upload, Loader2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -156,7 +157,7 @@ export default function CreateStoryModal({ open, onOpenChange }: CreateStoryModa
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[99999] flex flex-col" style={{ backgroundColor: 'hsl(var(--background))' }} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
@@ -356,6 +357,7 @@ export default function CreateStoryModal({ open, onOpenChange }: CreateStoryModa
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
