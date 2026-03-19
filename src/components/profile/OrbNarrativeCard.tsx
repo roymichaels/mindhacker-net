@@ -1,21 +1,45 @@
 /**
  * OrbNarrativeCard — AI-generated lore story for the user's orb evolution.
+ * Persists to ai_generations table and loads saved narrative on mount.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sparkles, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { BookOpen, Sparkles, Loader2, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 
 export function OrbNarrativeCard() {
   const { language, isRTL } = useTranslation();
+  const { user } = useAuth();
   const isHe = language === 'he';
   const [narrative, setNarrative] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [lastGenerated, setLastGenerated] = useState<string | null>(null);
+
+  // Load saved narrative on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    const loadSaved = async () => {
+      const { data } = await supabase
+        .from('ai_generations')
+        .select('content, updated_at')
+        .eq('user_id', user.id)
+        .eq('generation_type', 'orb_narrative')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data?.content) {
+        setNarrative(data.content);
+        setLastGenerated(data.updated_at);
+      }
+    };
+    loadSaved();
+  }, [user?.id]);
 
   const generateNarrative = async () => {
     setIsLoading(true);
@@ -25,6 +49,7 @@ export function OrbNarrativeCard() {
       });
       if (error) throw error;
       setNarrative(data.narrative);
+      setLastGenerated(new Date().toISOString());
       setIsExpanded(true);
     } catch (err) {
       console.error('Failed to generate narrative:', err);
@@ -32,6 +57,11 @@ export function OrbNarrativeCard() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(isHe ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' });
   };
 
   return (
@@ -54,7 +84,9 @@ export function OrbNarrativeCard() {
               {isHe ? 'סיפור האורב שלך' : 'Your Orb Lore'}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {isHe ? 'סיפור התפתחות מותאם אישית מבוסס AI' : 'AI-generated evolution narrative'}
+              {narrative && lastGenerated
+                ? (isHe ? `עודכן ${formatDate(lastGenerated)}` : `Updated ${formatDate(lastGenerated)}`)
+                : (isHe ? 'סיפור התפתחות מותאם אישית מבוסס AI' : 'AI-generated evolution narrative')}
             </p>
           </div>
         </div>
@@ -88,9 +120,9 @@ export function OrbNarrativeCard() {
                 size="sm"
                 onClick={(e) => { e.stopPropagation(); generateNarrative(); }}
                 disabled={isLoading}
-                className="mt-3 text-xs text-violet-400 hover:text-violet-300"
+                className="mt-3 text-xs text-violet-400 hover:text-violet-300 gap-1.5"
               >
-                <Sparkles className="h-3 w-3 me-1" />
+                <RefreshCw className="h-3 w-3" />
                 {isHe ? 'צור סיפור חדש' : 'Generate new story'}
               </Button>
             </div>

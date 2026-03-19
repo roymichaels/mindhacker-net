@@ -49,7 +49,6 @@ serve(async (req) => {
       const assessment = cfg.latest_assessment || cfg.latest;
       if (!assessment) continue;
       const score = typeof assessment === "object" ? (assessment.overallScore ?? assessment.overall_score ?? assessment.score ?? 0) : 0;
-      // Use initial_score if stored, otherwise estimate 30% lower
       const initialScore = cfg.initial_score ?? Math.max(0, Math.round(score * 0.7));
       pillarScores[domain.domain_id] = { current: Math.round(score), initial: initialScore };
     }
@@ -116,20 +115,28 @@ Inspiring style with real data.`;
     const aiData = await aiResponse.json();
     const report = aiData.choices?.[0]?.message?.content || "";
 
-    return new Response(JSON.stringify({
-      report,
-      stats: {
-        level: gameRes.data?.level || 1,
-        xp: gameRes.data?.experience || 0,
-        streak: gameRes.data?.streak_count || 0,
-        completedTasks,
-        totalTasks,
-        completionRate,
-        pillarScores,
-        userName: profile?.full_name || "",
-        joinDate: profile?.created_at || "",
-      },
-    }), {
+    const stats = {
+      level: gameRes.data?.level || 1,
+      xp: gameRes.data?.experience || 0,
+      streak: gameRes.data?.streak_count || 0,
+      completedTasks,
+      totalTasks,
+      completionRate,
+      pillarScores,
+      userName: profile?.full_name || "",
+      joinDate: profile?.created_at || "",
+    };
+
+    // Save to ai_generations table
+    await supabase.from("ai_generations").insert({
+      user_id: user.id,
+      generation_type: "transformation_report",
+      language,
+      content: report,
+      metadata: stats,
+    });
+
+    return new Response(JSON.stringify({ report, stats }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

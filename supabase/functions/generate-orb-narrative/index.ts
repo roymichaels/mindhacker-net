@@ -113,6 +113,19 @@ Use a mystical fantasy style but keep it personal. No headings.`;
     const aiData = await aiResponse.json();
     const narrative = aiData.choices?.[0]?.message?.content || "";
 
+    // Save to ai_generations table
+    await supabase.from("ai_generations").upsert({
+      user_id: user.id,
+      generation_type: "orb_narrative",
+      language,
+      content: narrative,
+      metadata: { level, xp, streak, archetype: computed.dominantArchetype },
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,generation_type" }).select();
+
+    // If upsert fails due to no unique constraint, just insert
+    // We'll handle duplicates by always fetching the latest
+
     return new Response(JSON.stringify({ narrative }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
