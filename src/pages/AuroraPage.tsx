@@ -131,7 +131,7 @@ export default function AuroraPage() {
           {/* Input — pinned above bottom nav */}
           <div
             ref={inputRef}
-            className="absolute bottom-0 inset-x-0 z-30 px-3 pb-[calc(3.5rem+env(safe-area-inset-bottom))] pt-2 bg-gradient-to-t from-background via-background/95 to-transparent"
+            className="absolute bottom-0 inset-x-0 z-30 px-3 pb-[calc(4.5rem+env(safe-area-inset-bottom))] pt-2 bg-gradient-to-t from-background via-background/95 to-transparent"
           >
             <GlobalChatInput />
           </div>
