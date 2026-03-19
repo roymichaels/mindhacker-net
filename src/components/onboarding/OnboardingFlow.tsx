@@ -3,7 +3,7 @@
  * 
  * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal → Tier Selection → Pillar Selection → Assessments → Plan Generation
  */
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -295,6 +295,18 @@ export function OnboardingFlow() {
   const isTimePicker = currentMini?.inputType === 'time_picker';
   const isPriorityRank = currentMini?.inputType === 'priority_rank';
   const currentMultiSelections = isMultiSelect ? (answers[currentMini?.id || ''] as string[] || []) : [];
+
+  // For exercise_types_wanted, filter out options already selected in exercise_types
+  const filteredOptions = useMemo(() => {
+    if (!currentMini?.options) return currentMini?.options;
+    if (currentMini.id === 'exercise_types_wanted') {
+      const alreadySelected = (answers['exercise_types'] as string[]) || [];
+      return currentMini.options.filter(
+        opt => opt.value === 'nothing_new' || !alreadySelected.includes(opt.value)
+      );
+    }
+    return currentMini.options;
+  }, [currentMini?.id, currentMini?.options, answers]);
 
   // DnD sensors for priority_rank
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
@@ -908,7 +920,7 @@ export function OnboardingFlow() {
               {/* Options — tags layout for multi_select, list for single_select */}
               {isMultiSelect ? (
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {currentMini.options?.map((option: FlowOption) => {
+                  {filteredOptions?.map((option: FlowOption) => {
                     const isSelected = currentMultiSelections.includes(option.value);
                     return (
                       <motion.button
