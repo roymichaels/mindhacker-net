@@ -265,7 +265,6 @@ export const useAuroraChat = (conversationId: string | null) => {
 
       // Detect client timezone for time-aware context
       const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-      console.log('[aurora-chat] client timezone:', clientTimezone, 'local time:', new Date().toLocaleTimeString());
 
       // Get user session token for authenticated edge function calls
       const { data: { session } } = await supabase.auth.getSession();

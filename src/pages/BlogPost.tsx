@@ -11,6 +11,7 @@ import { ArrowLeft, ArrowRight, Calendar, Clock, Sparkles, Share2 } from 'lucide
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -226,7 +227,7 @@ export default function BlogPost() {
             // Horizontal rules
             "prose-hr:border-border/30 prose-hr:my-12",
           )}
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content, { USE_PROFILES: { html: true } }) }}
         />
 
         {/* ═══ BOTTOM CTA CARD ═══ */}
