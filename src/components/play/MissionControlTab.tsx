@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { NowQueueItem } from '@/types/planning';
 import {
   Play, SkipBack, SkipForward,
-  ListMusic, MessageSquare, Clock, Flame,
+  ListMusic, MessageSquare, Clock, Flame, Sparkles, Target,
 } from 'lucide-react';
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
