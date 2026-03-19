@@ -251,9 +251,18 @@ export function TodayOverviewTab() {
     >
       {/* ═══ PHASE ROADMAP ═══ */}
       {milestones.length > 0 && (() => {
-        const totalPhases = milestones.length;
+        // Group milestones into 10 phases (A-J)
+        const phaseCount = Math.min(10, milestones.length);
         const completedCount = milestones.filter((m: any) => m.is_completed).length;
-        const progressPct = Math.round(((currentWeek - 1) / Math.max(1, totalPhases)) * 100);
+        const progressPct = Math.round((completedCount / Math.max(1, milestones.length)) * 100);
+
+        // Create 10 phase buckets
+        const phases = Array.from({ length: phaseCount }, (_, i) => {
+          const phaseMs = milestones.filter((m: any) => m.week_number === i + 1);
+          const allDone = phaseMs.length > 0 && phaseMs.every((m: any) => m.is_completed);
+          const isActive = i + 1 === currentWeek;
+          return { index: i, letter: String.fromCharCode(65 + i), milestones: phaseMs, allDone, isActive };
+        });
 
         return (
           <div className="rounded-2xl border border-border/30 bg-card p-3">
@@ -265,7 +274,7 @@ export function TodayOverviewTab() {
                   {isHe ? `שלב ${String.fromCharCode(64 + currentWeek)}` : `Phase ${String.fromCharCode(64 + currentWeek)}`}
                 </span>
                 <span className="text-[9px] text-muted-foreground font-semibold">
-                  {completedCount}/{totalPhases}
+                  {completedCount}/{milestones.length}
                 </span>
               </div>
               <span className="text-[9px] font-bold text-muted-foreground">
@@ -273,7 +282,7 @@ export function TodayOverviewTab() {
               </span>
             </div>
 
-            {/* Progress bar with phase ticks */}
+            {/* Progress bar */}
             <div className="relative h-2 rounded-full bg-border/20 overflow-hidden mb-2">
               <motion.div
                 className="absolute inset-y-0 start-0 rounded-full bg-primary"
@@ -283,89 +292,29 @@ export function TodayOverviewTab() {
               />
             </div>
 
-            {/* Phase labels row — only show A through J (10 phases max) */}
+            {/* Phase labels A-J */}
             <div className="flex justify-between px-0.5">
-              {milestones.slice(0, 10).map((ms: any) => {
-                const isActive = ms.week_number === currentWeek;
-                const isDone = ms.is_completed;
-                const isSelected = selectedMilestone === ms.id;
-                const letter = String.fromCharCode(64 + ms.week_number);
-
+              {phases.map((phase) => {
+                const isSelected = selectedMilestone === phase.letter;
                 return (
                   <button
-                    key={ms.id}
-                    onClick={() => setSelectedMilestone(isSelected ? null : ms.id)}
+                    key={phase.letter}
+                    onClick={() => setSelectedMilestone(isSelected ? null : phase.letter)}
                     className={cn(
                       "w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black transition-all",
-                      isDone
+                      phase.allDone
                         ? "bg-primary/15 text-primary"
-                        : isActive
+                        : phase.isActive
                           ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground/40 hover:text-muted-foreground/70",
                       isSelected && "ring-1 ring-primary/50"
                     )}
                   >
-                    {letter}
+                    {phase.letter}
                   </button>
                 );
               })}
             </div>
-
-            {/* Selected Milestone Detail */}
-            <AnimatePresence>
-              {selectedMs && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-3 pt-2.5 border-t border-border/20">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className={cn(
-                            "text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md",
-                            selectedMs.is_completed ? "bg-primary/15 text-primary"
-                              : selectedMs.week_number === currentWeek ? "bg-amber-500/15 text-amber-400"
-                              : "bg-muted/30 text-muted-foreground"
-                          )}>
-                            {selectedMs.is_completed
-                              ? (isHe ? '✓ הושלם' : '✓ DONE')
-                              : selectedMs.week_number === currentWeek
-                                ? (isHe ? '● פעיל' : '● ACTIVE')
-                                : `${isHe ? 'שלב' : 'Phase'} ${selectedMs.week_number}`}
-                          </span>
-                          {selectedMs.focus_area && (
-                            <span className={cn("text-[9px] font-semibold", PILLAR_VIS[selectedMs.focus_area]?.color || 'text-muted-foreground')}>
-                              {PILLAR_VIS[selectedMs.focus_area]?.emoji} {isHe ? PILLAR_VIS[selectedMs.focus_area]?.labelHe : PILLAR_VIS[selectedMs.focus_area]?.labelEn}
-                            </span>
-                          )}
-                        </div>
-                        <h4 className="text-xs font-bold text-foreground mb-0.5">
-                          {isHe ? selectedMs.title : (selectedMs.title_en || selectedMs.title)}
-                        </h4>
-                        {selectedMs.description && (
-                          <p className="text-[10px] text-muted-foreground/80 leading-snug line-clamp-2">
-                            {isHe ? selectedMs.description : (selectedMs.description_en || selectedMs.description)}
-                          </p>
-                        )}
-                        {selectedMs.goal && (
-                          <div className="flex items-center gap-1 mt-1.5 text-[10px] text-foreground/70">
-                            <Target className="w-3 h-3 text-primary/60 flex-shrink-0" />
-                            <span className="line-clamp-1">{isHe ? selectedMs.goal : (selectedMs.goal_en || selectedMs.goal)}</span>
-                          </div>
-                        )}
-                      </div>
-                      <button onClick={() => setSelectedMilestone(null)} className="p-1 rounded-md hover:bg-muted/30 text-muted-foreground">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         );
       })()}
