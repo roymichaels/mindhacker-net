@@ -79,14 +79,14 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
         .select('id, full_name, community_username')
         .in('id', userIds);
 
-      return posts
-        .filter(p => (p as any).media_urls?.length > 0)
-        .map(p => {
+      return (posts as any[])
+        .filter((p: any) => p.media_urls?.length > 0)
+        .map((p: any) => {
           const prof = profiles?.find(pr => pr.id === p.user_id);
           return {
             id: p.id,
             user_id: p.user_id,
-            media_url: ((p as any).media_urls as string[])[0],
+            media_url: (p.media_urls as string[])[0],
             content: p.content || '',
             created_at: p.created_at || '',
             author_name: prof?.full_name || 'User',
