@@ -6,6 +6,7 @@
  */
 import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { useAutoPopulatePractices } from '@/hooks/useAutoPopulatePractices';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
