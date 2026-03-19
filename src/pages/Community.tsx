@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import { MessageSquarePlus, ChevronLeft, Clock, Flame, CalendarDays, MapPin, Sparkles, Users, ArrowRight } from 'lucide-react';
+import { MessageSquarePlus, ChevronLeft, Clock, Flame, CalendarDays, MapPin, Sparkles, Users, ArrowRight, Wand2, Loader2 } from 'lucide-react';
+import { supabase as supabaseClient } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { useQueryClient as useQC } from '@tanstack/react-query';
 import UsernameGate from '@/components/community/UsernameGate';
 import CommunityLeaderboard from '@/components/community/CommunityLeaderboard';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
@@ -71,7 +75,7 @@ const TOPIC_GRADIENTS = [
 ];
 
 const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { setActivePillar } = useAuroraChatContext();
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -81,8 +85,25 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const [eventsOpen, setEventsOpen] = useState(false);
   const [matchOpen, setMatchOpen] = useState(false);
   const [storyOpen, setStoryOpen] = useState(false);
+  const [generatingStories, setGeneratingStories] = useState(false);
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const qc = useQC();
+
+  const handleGenerateStories = async () => {
+    setGeneratingStories(true);
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('generate-ai-stories');
+      if (error) throw error;
+      toast.success(isHe ? `נוצרו ${data?.stories?.length || 0} סטוריז חדשים! ✨` : `Generated ${data?.stories?.length || 0} new stories! ✨`);
+      qc.invalidateQueries({ queryKey: ['community-stories'] });
+    } catch (err: any) {
+      console.error('Story generation failed:', err);
+      toast.error(isHe ? 'שגיאה ביצירת סטוריז' : 'Failed to generate stories');
+    } finally {
+      setGeneratingStories(false);
+    }
+  };
 
   useSEO({ title: 'MindOS Feed', description: '14 pillars. One civilization.' });
 
@@ -167,7 +188,20 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {isAdmin && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 h-8 text-xs"
+                  onClick={handleGenerateStories}
+                  disabled={generatingStories}
+                >
+                  {generatingStories ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+                  {isHe ? 'צור סטוריז' : 'Generate Stories'}
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* ── ALL VIEW: Events + AI Match + Pillar Cards ── */}
