@@ -131,7 +131,7 @@ export function DesktopSideNav() {
         );
       })()}
 
-      {/* Community, Study */}
+      {/* Study, Feed */}
       {otherTabs.map(renderTab)}
     </nav>
   );

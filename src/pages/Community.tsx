@@ -7,6 +7,8 @@ import { MessageSquarePlus, ChevronLeft, Clock, Flame, CalendarDays, MapPin, Spa
 import UsernameGate from '@/components/community/UsernameGate';
 import CommunityLeaderboard from '@/components/community/CommunityLeaderboard';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
+import CreateStoryModal from '@/components/community/CreateStoryModal';
+import StoriesStrip from '@/components/community/StoriesStrip';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
@@ -78,10 +80,11 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const [eventsOpen, setEventsOpen] = useState(false);
   const [matchOpen, setMatchOpen] = useState(false);
+  const [storyOpen, setStoryOpen] = useState(false);
   const { language } = useTranslation();
   const isHe = language === 'he';
 
-  useSEO({ title: 'MindOS Community', description: '14 pillars. One civilization.' });
+  useSEO({ title: 'MindOS Feed', description: '14 pillars. One civilization.' });
 
   useEffect(() => { if (!loading && !user) navigate('/login?redirect=/community'); }, [user, loading, navigate]);
   useEffect(() => { setActivePillar(selectedPillar); return () => { setActivePillar(null); }; }, [selectedPillar, setActivePillar]);
@@ -138,6 +141,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
     <UsernameGate>
       <PageShell>
         <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-24">
+          {/* ── Stories Strip ── */}
+          <StoriesStrip pillarFilter={selectedPillar} topicFilter={selectedTopic} onCreateStory={() => setStoryOpen(true)} />
 
           {/* ── Header with breadcrumb ── */}
           <div className="flex items-center justify-between gap-3">
@@ -153,7 +158,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               <div className="min-w-0">
                 <h1 className="text-lg font-bold text-foreground truncate">
                   {isAll
-                    ? (isHe ? 'קהילה' : 'Community')
+                    ? (isHe ? 'פיד' : 'Feed')
                     : selectedTopic
                       ? (() => { const sub = subcategories.find(s => s.id === selectedTopic); return sub ? `${sub.icon} ${isHe ? sub.he : sub.en}` : pillarLabel; })()
                       : `${PILLAR_ICONS[selectedPillar] || '⚡'} ${pillarLabel}`
@@ -318,6 +323,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
         <SuggestTopicModal open={suggestOpen} onOpenChange={setSuggestOpen} pillar={selectedPillar} />
         <EventsModal open={eventsOpen} onOpenChange={setEventsOpen} />
         <AIMatchModal open={matchOpen} onOpenChange={setMatchOpen} />
+        <CreateStoryModal open={storyOpen} onOpenChange={setStoryOpen} />
       </PageShell>
     </UsernameGate>
   );
