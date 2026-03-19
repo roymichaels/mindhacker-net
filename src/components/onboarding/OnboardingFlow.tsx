@@ -374,6 +374,8 @@ export function OnboardingFlow() {
   const advanceToNext = useCallback(() => {
     setSelectedValue(null);
     setTextareaValue('');
+    setShowCustomInput(false);
+    setCustomInputValue('');
     
     if (currentMiniIdx < visibleMiniSteps.length - 1) {
       setCurrentMiniIdx(currentMiniIdx + 1);
