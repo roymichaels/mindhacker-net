@@ -54,6 +54,7 @@ export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
   const isHe = language === 'he';
   const [view, setView] = useState<'gallery' | 'detail' | 'add'>('gallery');
   const [selectedPractice, setSelectedPractice] = useState<UserPractice | null>(null);
+  const { isPopulating } = useAutoPopulatePractices(open);
 
   if (!open) return null;
 
