@@ -454,6 +454,15 @@ export default function Documentation() {
           <div className="flex-1" />
 
           <button
+            onClick={downloadPDF}
+            disabled={capturing}
+            className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
+          >
+            {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            <span className="text-xs hidden sm:inline">{he ? 'הורד PDF' : 'Download PDF'}</span>
+          </button>
+
+          <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
