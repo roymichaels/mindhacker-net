@@ -479,7 +479,7 @@ export default function Learn() {
                         <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-foreground truncate">
+                            <span className="text-xs font-semibold text-foreground line-clamp-2">
                               {isHe ? (skill.name_he || skill.name) : skill.name}
                             </span>
                             <span className="text-[10px] text-amber-400 font-bold shrink-0">
