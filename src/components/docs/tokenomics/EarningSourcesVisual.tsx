@@ -33,7 +33,7 @@ export function EarningSourcesVisual({ items, isHe }: Props) {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">{isHe ? item.he : item.en}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{isHe ? item.descHe : item.descEn}</p>
+              <p className="text-[10px] text-muted-foreground leading-snug">{isHe ? item.descHe : item.descEn}</p>
             </div>
           </motion.div>
         );

@@ -86,10 +86,10 @@ export function TokenDistributionChart({ distribution, isHe }: Props) {
             <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: d.color }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground truncate">{isHe ? d.he : d.en}</span>
+                <span className="text-sm font-medium text-foreground">{isHe ? d.he : d.en}</span>
                 <span className="text-sm font-bold text-foreground ms-2">{d.pct}%</span>
               </div>
-              <p className="text-[10px] text-muted-foreground truncate">{isHe ? d.descHe : d.descEn}</p>
+              <p className="text-[10px] text-muted-foreground leading-snug">{isHe ? d.descHe : d.descEn}</p>
             </div>
           </motion.div>
         ))}
