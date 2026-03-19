@@ -24,7 +24,7 @@ import {
 import { PILLAR_COLORS } from '@/hooks/useTraitGallery';
 import {
   X, ChevronLeft, Plus, Trash2, Clock, Repeat, Zap,
-  Loader2, CheckCircle2, Dumbbell, Sparkles, Settings2,
+  Loader2, CheckCircle2, Dumbbell, Sparkles, Settings2, RefreshCw, Brain,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
