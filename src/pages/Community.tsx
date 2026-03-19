@@ -5,6 +5,7 @@ import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { MessageSquarePlus, ChevronLeft, Clock, Flame, CalendarDays, MapPin, Sparkles, Users, ArrowRight } from 'lucide-react';
 import UsernameGate from '@/components/community/UsernameGate';
+import CommunityLeaderboard from '@/components/community/CommunityLeaderboard';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
