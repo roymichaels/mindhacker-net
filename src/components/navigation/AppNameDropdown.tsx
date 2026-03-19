@@ -242,7 +242,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             <button
               onClick={() => {
                 setDropdownOpen(false);
-                navigate('/profile');
+                openProfile();
               }}
               className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500/10 text-amber-400 border border-amber-500/25 hover:bg-amber-500/15 hover:border-amber-500/35 active:scale-[0.98]"
             >

@@ -151,7 +151,7 @@ const AuroraAccountDropdown = ({
             className="relative overflow-hidden rounded-lg mx-1 mt-1 mb-0 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
-              navigate('/profile');
+              openProfile();
             }}
           >
             <div className="absolute inset-0 bg-muted dark:bg-card" />
