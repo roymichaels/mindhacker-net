@@ -346,11 +346,17 @@ export function TodayOverviewTab() {
             </div>
           )}
 
-          {/* ── Active Mission Detail ── */}
+          {/* ── Selected Mission Detail ── */}
           {activeTask ? (
-            <div className="flex items-center gap-3 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <motion.div
+              key={activeIdx}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="flex items-start gap-3 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+            >
               <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
                 activeTask.completed ? "bg-emerald-500/20" : "bg-cyan-500/15"
               )}>
                 {activeTask.completed
@@ -359,7 +365,7 @@ export function TodayOverviewTab() {
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <span className={cn(
                     "text-[9px] font-black uppercase tracking-[0.12em] px-1.5 py-0.5 rounded",
                     activeTask.completed ? "text-emerald-400/70 bg-emerald-500/10" : `${activePillar.color} ${activePillar.bg}`
@@ -369,7 +375,9 @@ export function TodayOverviewTab() {
                   <span className="text-[9px] font-black uppercase tracking-[0.12em] text-cyan-500/50">
                     {activeTask.completed
                       ? (isHe ? 'הושלם ✓' : 'Completed ✓')
-                      : (isHe ? 'משימה נוכחית' : 'Current Mission')
+                      : selectedTaskIdx !== null
+                        ? (isHe ? `משימה ${activeIdx + 1}` : `Mission ${activeIdx + 1}`)
+                        : (isHe ? 'משימה נוכחית' : 'Current Mission')
                     }
                   </span>
                 </div>
@@ -384,8 +392,13 @@ export function TodayOverviewTab() {
                     {isHe ? activeTask.description : (activeTask.descriptionEn || activeTask.description)}
                   </p>
                 )}
+                {activeTask.timeBlock && (
+                  <span className="text-[10px] text-cyan-300/40 mt-1 block">
+                    🕐 {activeTask.timeBlock}
+                  </span>
+                )}
               </div>
-            </div>
+            </motion.div>
           ) : totalCount === 0 ? (
             <div className="text-center py-3">
               <span className="text-xl">🌙</span>
