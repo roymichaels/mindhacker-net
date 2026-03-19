@@ -168,6 +168,8 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
           {/* ── ALL VIEW: Events + AI Match + Pillar Cards ── */}
           {isAll && (
             <>
+              {/* ── Leaderboard ── */}
+              <CommunityLeaderboard onProfileClick={setProfileUserId} />
               {/* ── Top Banners: Events & AI Match ── */}
               <div className="grid grid-cols-2 gap-3">
                 {/* Events Card */}
