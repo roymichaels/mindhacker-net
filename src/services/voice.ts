@@ -3,7 +3,7 @@ import { debug } from '@/lib/debug';
 
 export type VoiceProvider = 'openai' | 'elevenlabs' | 'browser';
 export type OpenAIVoice = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
-export type ElevenLabsVoice = 'sarah' | 'roger' | 'laura' | 'charlie' | 'matilda' | 'lily' | 'brian' | 'daniel';
+export type ElevenLabsVoice = 'jessica' | 'sarah' | 'roger' | 'laura' | 'charlie' | 'matilda' | 'lily' | 'brian' | 'daniel';
 
 export interface VoiceConfig {
   provider: VoiceProvider;
