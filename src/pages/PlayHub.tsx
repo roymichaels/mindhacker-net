@@ -40,78 +40,9 @@ export default function PlayHub() {
   const auroraChat = useAuroraChatContextSafe();
   const { openHypnosis } = useAuroraActions();
 
-  // ── Data for unified stats ──
-  const { plan, milestones } = useLifePlanWithMilestones();
-  const { statusMap } = useLifeDomains();
-  const { queue } = useTodayExecution();
-  const phasePlan = useWeeklyTacticalPlan();
-  const { totalActions: tacticTotal, completedActions: tacticCompleted, totalMinutes, days } = phasePlan as any;
-
-  const currentDay = useMemo(() => getCurrentDayInIsrael(plan?.start_date), [plan?.start_date]);
-  const totalDomains = CORE_DOMAINS.length;
-  const activeDomains = Object.entries(statusMap).filter(([, s]) => s === 'active' || s === 'configured').length;
-  const totalMilestones = milestones?.length || 0;
-  const completedMilestones = milestones?.filter((m: any) => m.is_completed).length || 0;
-  const overallPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
-  const activeDays = days?.filter((d: any) => d.totalActions > 0).length || 0;
-  const avgMinPerDay = totalMinutes > 0 ? Math.round(totalMinutes / Math.max(1, activeDays)) : 0;
-
-  const statItems = [
-    { icon: MapPin, value: `${isHe ? 'יום' : 'Day'} ${currentDay}`, label: isHe ? 'מתוך 100' : 'of 100', color: 'text-orange-400' },
-    { icon: Trophy, value: `${overallPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-emerald-400' },
-    { icon: Zap, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים' : 'Pillars', color: 'text-amber-400' },
-    { icon: Target, value: queue?.length || 0, label: isHe ? 'פעולות היום' : "Today's Tasks", color: 'text-teal-400' },
-    { icon: Star, value: `${tacticCompleted || 0}/${tacticTotal || 0}`, label: isHe ? 'שלב' : 'Phase', color: 'text-violet-400' },
-    { icon: Clock, value: `${avgMinPerDay}′`, label: isHe ? 'דק׳/יום' : 'Min/Day', color: 'text-sky-400' },
-  ];
+  const { plan } = useLifePlanWithMilestones();
 
   const openFindCoachWizard = () => {
-    if (!user) { navigate('/auth'); return; }
-    if (!auroraChat) return;
-    auroraChat.setActivePillar('coach-find');
-    auroraChat.setIsDockVisible(true);
-    auroraChat.setIsChatExpanded(true);
-    auroraChat.setPendingAssistantGreeting(
-      isHe
-        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**'
-        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**"
-    );
-  };
-
-  const tabs = [
-    { key: 'overview' as const, icon: BookOpen, label: isHe ? 'סקירה' : 'Overview' },
-    { key: 'control' as const, icon: Gamepad2, label: isHe ? 'בקרת משימות' : 'Mission Control' },
-  ];
-
-  return (
-    <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Quick Action Widgets — iPhone style */}
-      <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="grid grid-cols-5 gap-3 justify-items-center">
-          <IPhoneWidget icon={Flame} label={isHe ? 'אסטרטגיה' : 'Strategy'} gradient="from-amber-500 to-orange-600" onClick={() => setStrategyOpen(true)} />
-          <IPhoneWidget icon={Briefcase} label={isHe ? 'עבודה' : 'Work'} gradient="from-violet-500 to-purple-700" onClick={() => setWorkOpen(true)} />
-          <IPhoneWidget icon={MessageSquare} label={isHe ? 'שיחה' : 'Chat'} gradient="from-sky-500 to-blue-600" onClick={() => setChatOpen(true)} />
-          <IPhoneWidget icon={Search} label={isHe ? 'מאמן' : 'Coach'} gradient="from-emerald-500 to-emerald-700" onClick={openFindCoachWizard} />
-          <IPhoneWidget icon={Brain} label={isHe ? 'היפנוזה' : 'Hypnosis'} gradient="from-purple-500 to-fuchsia-600" onClick={openHypnosis} />
-        </div>
-      </div>
-
-      {/* ── Unified Stats Strip ── */}
-      {plan && (
-        <div className="w-full max-w-xl px-4 pt-1 pb-1">
-          <div className="grid grid-cols-6 gap-1.5">
-            {statItems.map((s) => (
-              <div key={s.label} className="rounded-xl bg-card border border-border/30 p-2 flex flex-col items-center gap-0.5">
-                <s.icon className={cn("w-3.5 h-3.5", s.color)} />
-                <span className="text-xs font-bold text-foreground leading-none">{s.value}</span>
-                <span className="text-[8px] text-muted-foreground text-center leading-tight">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Tab Switcher ── */}
       <div className="w-full max-w-xl px-4 pt-3 pb-2">
         <div className="flex rounded-xl bg-muted/30 border border-border/30 p-1 gap-1">
           {tabs.map(tab => (
