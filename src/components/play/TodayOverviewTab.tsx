@@ -211,10 +211,11 @@ export function TodayOverviewTab() {
   const activePillarKey = activeTask?.focusArea || '';
   const activePillar = PILLAR_VIS[activePillarKey] || DEFAULT_PILLAR;
 
-  // Dynamic content based on the ACTIVE task's pillar
+  // Dynamic content based on the ACTIVE task's pillar — use task index as extra seed for variety
+  const taskSeed = seed + (activeIdx >= 0 ? activeIdx : 0);
   const { assessment, doctrine, intel } = useMemo(
-    () => getPillarContent(activePillarKey, seed, isHe),
-    [activePillarKey, seed, isHe],
+    () => getPillarContent(activePillarKey, taskSeed, isHe),
+    [activePillarKey, taskSeed, isHe],
   );
 
   const classification = totalCount === 0
@@ -305,14 +306,14 @@ export function TodayOverviewTab() {
                 <div className="flex gap-1 pb-0.5">
                   {todayActions.map((action, idx) => {
                     const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
-                    const isActive = activeIdx === idx;
+                    const isSelected = activeIdx === idx;
                     const isDone = action.completed;
                     const isCurrent = !isDone && currentActionIdx === idx;
 
                     return (
                       <button
                         key={action.id || idx}
-                        onClick={() => setSelectedTaskIdx(selectedTaskIdx === idx ? null : idx)}
+                        onClick={() => setSelectedTaskIdx(idx)}
                         className={cn(
                           "flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 transition-all flex-shrink-0 min-w-[44px]",
                           isDone
@@ -320,18 +321,19 @@ export function TodayOverviewTab() {
                             : isCurrent
                               ? "bg-cyan-500/15 border border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.15)]"
                               : "border border-white/[0.06] hover:border-white/15",
-                          isActive && "ring-1 ring-cyan-400/60"
+                          isSelected && !isDone && "ring-2 ring-cyan-400 bg-cyan-500/20 border-cyan-400/50 shadow-[0_0_12px_rgba(6,182,212,0.3)]",
+                          isSelected && isDone && "ring-2 ring-emerald-400 bg-emerald-500/20"
                         )}
                       >
                         <div className={cn(
                           "w-5 h-5 rounded-full flex items-center justify-center text-[10px]",
-                          isDone ? "bg-emerald-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
+                          isDone ? "bg-emerald-500/30" : isSelected ? "bg-cyan-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
                         )}>
                           {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <span>{pv.emoji}</span>}
                         </div>
                         <span className={cn(
                           "text-[8px] font-black",
-                          isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
+                          isSelected ? "text-cyan-200" : isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
                         )}>
                           {idx + 1}
                         </span>
@@ -344,11 +346,17 @@ export function TodayOverviewTab() {
             </div>
           )}
 
-          {/* ── Active Mission Detail ── */}
+          {/* ── Selected Mission Detail ── */}
           {activeTask ? (
-            <div className="flex items-center gap-3 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <motion.div
+              key={activeIdx}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="flex items-start gap-3 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+            >
               <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
                 activeTask.completed ? "bg-emerald-500/20" : "bg-cyan-500/15"
               )}>
                 {activeTask.completed
@@ -357,7 +365,7 @@ export function TodayOverviewTab() {
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <span className={cn(
                     "text-[9px] font-black uppercase tracking-[0.12em] px-1.5 py-0.5 rounded",
                     activeTask.completed ? "text-emerald-400/70 bg-emerald-500/10" : `${activePillar.color} ${activePillar.bg}`
@@ -367,7 +375,9 @@ export function TodayOverviewTab() {
                   <span className="text-[9px] font-black uppercase tracking-[0.12em] text-cyan-500/50">
                     {activeTask.completed
                       ? (isHe ? 'הושלם ✓' : 'Completed ✓')
-                      : (isHe ? 'משימה נוכחית' : 'Current Mission')
+                      : selectedTaskIdx !== null
+                        ? (isHe ? `משימה ${activeIdx + 1}` : `Mission ${activeIdx + 1}`)
+                        : (isHe ? 'משימה נוכחית' : 'Current Mission')
                     }
                   </span>
                 </div>
@@ -382,8 +392,13 @@ export function TodayOverviewTab() {
                     {isHe ? activeTask.description : (activeTask.descriptionEn || activeTask.description)}
                   </p>
                 )}
+                {(activeTask as any).timeBlock && (
+                  <span className="text-[10px] text-cyan-300/40 mt-1 block">
+                    🕐 {(activeTask as any).timeBlock}
+                  </span>
+                )}
               </div>
-            </div>
+            </motion.div>
           ) : totalCount === 0 ? (
             <div className="text-center py-3">
               <span className="text-xl">🌙</span>
@@ -398,7 +413,13 @@ export function TodayOverviewTab() {
           )}
 
           {/* ── Field Briefing — dynamic per active task's pillar ── */}
-          <div className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2">
+          <motion.div
+            key={`briefing-${activeIdx}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2"
+          >
             <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
               ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
             </span>
@@ -411,7 +432,7 @@ export function TodayOverviewTab() {
             <p className="text-xs italic text-cyan-100/40 leading-relaxed flex gap-1.5">
               <span className="flex-shrink-0">🔍</span> {intel}
             </p>
-          </div>
+          </motion.div>
 
           {/* ── Commander sign-off ── */}
           <div className="border-t border-white/[0.06] pt-2 text-center">
