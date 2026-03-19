@@ -629,6 +629,7 @@ interface StandaloneMorphOrbProps {
 export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 }: StandaloneMorphOrbProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  const [key, setKey] = useState(0);
 
   useEffect(() => {
     // Wait for container to have actual dimensions before mounting Canvas
@@ -651,6 +652,15 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
     return () => ro.disconnect();
   }, []);
 
+  // Force Canvas re-mount after a frame to ensure correct sizing
+  useEffect(() => {
+    if (!ready) return;
+    const raf = requestAnimationFrame(() => {
+      setKey(k => k + 1);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [ready]);
+
   return (
     <div
       ref={containerRef}
@@ -658,9 +668,10 @@ export function StandaloneMorphOrb({ profile, geometryFamily, size, level = 100 
     >
       {ready && (
         <Canvas
+          key={key}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           camera={{ position: [0, 0, 2.2], fov: 45 }}
-          style={{ width: size, height: size }}
+          style={{ width: '100%', height: '100%' }}
           resize={{ scroll: true, debounce: { scroll: 50, resize: 0 } }}
           dpr={[1, 2]}
         >
