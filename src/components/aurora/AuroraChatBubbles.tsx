@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Volume2, Square, Loader2, GraduationCap } from 'lucide-react';
+import { Copy, Volume2, Square, Loader2, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
@@ -100,7 +101,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
       greetingHandled.current = true;
       const greeting = pendingAssistantGreeting;
       setPendingAssistantGreeting(null);
-      // Only inject if conversation is empty (no existing messages)
       if (messages.length === 0) {
         supabase.from('messages').insert({
           conversation_id: activeConversationId,
@@ -119,7 +119,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
     if (!pendingAssistantGreeting) greetingHandled.current = false;
   }, [pendingAssistantGreeting]);
 
-  // Auto-scroll to bottom when new messages arrive (only if not searching)
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollRef.current && !scrollToMessageId) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -129,12 +129,10 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   // Scroll to specific message when searching
   useEffect(() => {
     if (scrollToMessageId && isChatExpanded && messages.length > 0) {
-      // Small delay to ensure DOM is ready
       setTimeout(() => {
         const messageEl = messageRefs.current.get(scrollToMessageId);
         if (messageEl) {
           messageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Highlight the message briefly
           messageEl.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
           setTimeout(() => {
             messageEl.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
@@ -150,25 +148,16 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   // Handle click outside to close
   const handleClickOutside = useCallback((e: MouseEvent) => {
     if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-      // Check if clicking on the input area
       const inputArea = document.querySelector('[data-global-chat-input]');
-      if (inputArea && inputArea.contains(e.target as Node)) {
-        return; // Don't close if clicking on input
-      }
-      // Check if clicking on the dock drag handle or dock controls
+      if (inputArea && inputArea.contains(e.target as Node)) return;
       const dockContainer = document.querySelector('[data-aurora-dock]');
-      if (dockContainer && dockContainer.contains(e.target as Node)) {
-        return; // Don't close if clicking on dock controls (drag handle, bug report, etc.)
-      }
+      if (dockContainer && dockContainer.contains(e.target as Node)) return;
       setIsChatExpanded(false);
     }
   }, [setIsChatExpanded]);
 
-  // Handle ESC key to close
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      setIsChatExpanded(false);
-    }
+    if (e.key === 'Escape') setIsChatExpanded(false);
   }, [setIsChatExpanded]);
 
   useEffect(() => {
@@ -186,7 +175,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
 
   return (
     <ScrollArea className="h-full overflow-y-auto" ref={scrollRef as any}>
-      <div className="w-full px-4 space-y-4">
+      <div className="w-full px-4 space-y-3 pb-4">
         {/* Persistent orb */}
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-6 pb-2">
@@ -202,6 +191,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
         )}
 
         {messages.map((message) => {
+          const isAI = message.is_ai_message;
           const isPlayingThis = isPlaying && activeMessageId === message.id;
           
           return (
@@ -213,25 +203,39 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
-                "group flex gap-3 transition-all duration-300 rounded-lg",
-                message.is_ai_message ? "justify-start" : "justify-end"
+                "group flex gap-2.5 transition-all duration-300",
+                isAI ? "justify-start" : "justify-end"
               )}
             >
-              {message.is_ai_message && (
-                <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
+              {/* Aurora avatar */}
+              {isAI && (
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
+                    <AuroraOrbIcon className="w-4 h-4 text-violet-400" />
+                  </div>
+                </div>
               )}
-              <div className="space-y-1.5 max-w-[80%]">
+
+              <div className="space-y-1 max-w-[80%]">
+                {/* Name label */}
+                <span className={cn(
+                  "text-[10px] font-semibold block px-1",
+                  isAI ? "text-violet-400/70" : "text-primary/50 text-end"
+                )}>
+                  {isAI ? 'Aurora' : (language === 'he' ? 'את/ה' : 'You')}
+                </span>
+
                 <div
                   className={cn(
-                    "rounded-xl px-4 py-2 text-sm",
-                    message.is_ai_message
-                      ? "bg-muted/50 text-foreground"
-                      : "bg-primary/15 border border-primary/30 text-foreground"
+                    "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+                    isAI
+                      ? "bg-muted/30 text-foreground border border-border/30 rounded-ss-md"
+                      : "bg-primary text-primary-foreground rounded-ee-md"
                   )}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
-                  {message.is_ai_message ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                  {isAI ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
                       <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
                   ) : (
@@ -240,28 +244,28 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                 </div>
                 
                 {/* Action buttons for AI messages */}
-                {message.is_ai_message && (
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {isAI && (
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity ps-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7"
+                      className="h-6 w-6"
                       onClick={() => handleCopy(message.content)}
                       title={t('messages.copy')}
                     >
-                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                      <Copy className="h-3 w-3 text-muted-foreground" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7"
+                      className="h-6 w-6"
                       onClick={() => handleVoice(message.id, message.content)}
                       title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
                     >
                       {isPlayingThis ? (
-                        <Square className="h-3 w-3 text-muted-foreground fill-current" />
+                        <Square className="h-2.5 w-2.5 text-muted-foreground fill-current" />
                       ) : (
-                        <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Volume2 className="h-3 w-3 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -276,12 +280,19 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-3 justify-start"
+            className="flex gap-2.5 justify-start"
           >
-            <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
-            <div className="max-w-[80%] rounded-xl px-4 py-2 text-sm bg-muted/50 text-foreground">
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown>{streamingContent}</ReactMarkdown>
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
+                <AuroraOrbIcon className="w-4 h-4 text-violet-400" />
+              </div>
+            </div>
+            <div className="max-w-[80%] space-y-1">
+              <span className="text-[10px] font-semibold text-violet-400/70 block px-1">Aurora</span>
+              <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm bg-muted/30 text-foreground border border-border/30">
+                <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
+                  <ReactMarkdown>{streamingContent}</ReactMarkdown>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -292,14 +303,18 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex gap-3 justify-start"
+            className="flex gap-2.5 justify-start"
           >
-            <StandaloneMorphOrb size={24} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
-            <div className="bg-muted/50 rounded-xl px-4 py-3">
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
+                <AuroraOrbIcon className="w-4 h-4 text-violet-400 animate-pulse" />
+              </div>
+            </div>
+            <div className="bg-muted/30 border border-border/30 rounded-2xl rounded-ss-md px-4 py-3">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-2 h-2 bg-violet-400/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 bg-violet-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 bg-violet-400/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </motion.div>

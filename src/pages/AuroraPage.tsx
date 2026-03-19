@@ -57,7 +57,7 @@ export default function AuroraPage() {
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
 
   return (
-    <div className="relative flex flex-col h-[calc(100dvh-4rem)] overflow-hidden">
+    <div className="relative flex flex-col h-[100dvh] overflow-hidden -mx-4 -mt-4" style={{ marginBottom: '-1rem' }}>
       {/* Context badges */}
       {(pillarLabel || (isAssessing && assessLabel)) && (
         <div className="flex items-center justify-center gap-1.5 px-4 py-1.5 shrink-0">
