@@ -176,7 +176,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             className="relative overflow-hidden rounded-lg mx-1.5 mt-1.5 cursor-pointer group border border-amber-500/15"
             onClick={() => {
               setDropdownOpen(false);
-              navigate('/profile');
+              openProfile();
             }}
           >
             <div className="absolute inset-0 bg-muted/80 dark:bg-card/80" />
