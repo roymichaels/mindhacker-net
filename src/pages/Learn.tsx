@@ -432,7 +432,7 @@ export default function Learn() {
                       )}
                     >
                       <span className="text-lg">{sc.icon}</span>
-                      <span className="text-xs font-semibold text-foreground line-clamp-1">
+                      <span className="text-xs font-semibold text-foreground line-clamp-2">
                         {isHe ? sc.he : sc.en}
                       </span>
                     </button>
