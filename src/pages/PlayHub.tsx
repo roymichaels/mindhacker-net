@@ -83,29 +83,13 @@ export default function PlayHub() {
 
   return (
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Quick Action Cards — compact 4-col */}
+      {/* Quick Action Widgets — iPhone style */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { onClick: () => setStrategyOpen(true), icon: Flame, label: isHe ? 'אסטרטגיה' : 'Strategy', border: 'border-amber-500/20', bg: 'bg-amber-500/[0.06]', iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/40' },
-            { onClick: () => setWorkOpen(true), icon: Briefcase, label: isHe ? 'עבודה' : 'Work', border: 'border-violet-500/20', bg: 'bg-violet-500/[0.06]', iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/40' },
-            { onClick: () => setChatOpen(true), icon: MessageSquare, label: isHe ? 'שיחה' : 'Chat', border: 'border-primary/20', bg: 'bg-primary/[0.06]', iconBg: 'bg-primary/15', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/40' },
-            { onClick: openFindCoachWizard, icon: Search, label: isHe ? 'מאמן' : 'Coach', border: 'border-emerald-500/20', bg: 'bg-emerald-500/[0.06]', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500', hoverBorder: 'hover:border-emerald-500/40' },
-          ].map((card) => (
-            <button
-              key={card.label}
-              onClick={card.onClick}
-              className={cn(
-                "flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all active:scale-[0.97]",
-                card.border, card.bg, card.hoverBorder
-              )}
-            >
-              <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", card.iconBg)}>
-                <card.icon className={cn("w-4 h-4", card.iconColor)} />
-              </div>
-              <span className="text-[10px] font-semibold text-foreground leading-tight text-center">{card.label}</span>
-            </button>
-          ))}
+        <div className="flex items-start justify-center gap-5">
+          <IPhoneWidget icon={Flame} label={isHe ? 'אסטרטגיה' : 'Strategy'} gradient="from-amber-500 to-orange-600" onClick={() => setStrategyOpen(true)} />
+          <IPhoneWidget icon={Briefcase} label={isHe ? 'עבודה' : 'Work'} gradient="from-violet-500 to-purple-700" onClick={() => setWorkOpen(true)} />
+          <IPhoneWidget icon={MessageSquare} label={isHe ? 'שיחה' : 'Chat'} gradient="from-sky-500 to-blue-600" onClick={() => setChatOpen(true)} />
+          <IPhoneWidget icon={Search} label={isHe ? 'מאמן' : 'Coach'} gradient="from-emerald-500 to-emerald-700" onClick={openFindCoachWizard} />
         </div>
       </div>
 

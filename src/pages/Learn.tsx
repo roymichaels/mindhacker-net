@@ -391,51 +391,48 @@ export default function Learn() {
           </div>
         ) : (
           <>
-            {/* ── Suggested Courses ── */}
+            {/* ── Suggested Courses — iPhone widget style ── */}
             {!selectedCurriculum && suggestedCourses.length > 0 && (
-              <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-900/30 via-purple-800/10 to-amber-900/10 p-4 space-y-3">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <Lightbulb className="w-4 h-4 text-amber-400" />
                     {isHe ? 'קורסים מומלצים לך' : 'Suggested For You'}
                   </h2>
-                  <span className="text-[10px] text-purple-300/70">
+                  <span className="text-[10px] text-muted-foreground">
                     {isHe ? 'לפי המסלול שלך' : 'Based on your pillars'}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-start justify-start gap-4 flex-wrap">
                   {suggestedCourses.map((sc, i) => {
-                    const colors = [
-                      'border-purple-500/30 bg-purple-900/25 hover:border-purple-400/50 hover:shadow-purple-500/10',
-                      'border-amber-500/25 bg-amber-900/20 hover:border-amber-400/40 hover:shadow-amber-500/10',
-                      'border-purple-400/25 bg-purple-800/20 hover:border-purple-300/40 hover:shadow-purple-400/10',
-                      'border-amber-400/20 bg-amber-800/15 hover:border-amber-300/35 hover:shadow-amber-400/10',
+                    const gradients = [
+                      'from-purple-500 to-purple-700',
+                      'from-amber-500 to-orange-600',
+                      'from-sky-500 to-blue-600',
+                      'from-emerald-500 to-emerald-700',
+                      'from-rose-500 to-rose-700',
+                      'from-indigo-500 to-indigo-700',
                     ];
                     return (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        if (auroraChat) {
-                          auroraChat.setActivePillar('learn');
-                          auroraChat.setIsDockVisible(true);
-                          auroraChat.setIsChatExpanded(true);
-                          auroraChat.setPendingAssistantGreeting(
-                            isHe
-                              ? `🔥 בוא ניצור קורס Boot Camp ב**${sc.he}**! מוכן?`
-                              : `🔥 Let's build a Boot Camp on **${sc.en}**! Ready?`
-                          );
-                        }
-                      }}
-                      className={cn(
-                        "flex items-center gap-2.5 p-3 rounded-xl border hover:shadow-md transition-all text-start active:scale-[0.98]",
-                        colors[i % colors.length]
-                      )}
-                    >
-                      <span className="text-lg">{sc.icon}</span>
-                      <span className="text-xs font-semibold text-foreground line-clamp-2">
-                        {isHe ? sc.he : sc.en}
-                      </span>
-                    </button>
+                      <IPhoneWidget
+                        key={i}
+                        emoji={sc.icon}
+                        label={isHe ? sc.he : sc.en}
+                        gradient={gradients[i % gradients.length]}
+                        size="sm"
+                        onClick={() => {
+                          if (auroraChat) {
+                            auroraChat.setActivePillar('learn');
+                            auroraChat.setIsDockVisible(true);
+                            auroraChat.setIsChatExpanded(true);
+                            auroraChat.setPendingAssistantGreeting(
+                              isHe
+                                ? `🔥 בוא ניצור קורס Boot Camp ב**${sc.he}**! מוכן?`
+                                : `🔥 Let's build a Boot Camp on **${sc.en}**! Ready?`
+                            );
+                          }
+                        }}
+                      />
                     );
                   })}
                 </div>
