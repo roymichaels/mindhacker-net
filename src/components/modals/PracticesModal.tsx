@@ -52,7 +52,7 @@ interface PracticesModalProps {
 export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const [view, setView] = useState<'gallery' | 'detail' | 'add'>('gallery');
+  const [view, setView] = useState<'gallery' | 'detail' | 'add' | 'suggest'>('gallery');
   const [selectedPractice, setSelectedPractice] = useState<UserPractice | null>(null);
   const { isPopulating } = useAutoPopulatePractices(open);
 
@@ -89,12 +89,21 @@ export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
           {isHe ? 'תרגולים' : 'Practices'}
         </h2>
         {view === 'gallery' ? (
-          <button
-            onClick={() => setView('add')}
-            className="p-2 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
-          >
-            <Plus className="w-5 h-5 text-amber-400" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setView('suggest')}
+              className="p-2 rounded-full bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
+              title={isHe ? 'רענן עם Aurora' : 'Refresh with Aurora'}
+            >
+              <Brain className="w-5 h-5 text-violet-400" />
+            </button>
+            <button
+              onClick={() => setView('add')}
+              className="p-2 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
+            >
+              <Plus className="w-5 h-5 text-amber-400" />
+            </button>
+          </div>
         ) : (
           <div className="w-9" /> // spacer
         )}
@@ -123,6 +132,13 @@ export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
           {view === 'add' && (
             <AddPracticeWizard
               key="add"
+              isHe={isHe}
+              onDone={() => setView('gallery')}
+            />
+          )}
+          {view === 'suggest' && (
+            <AISuggestPanel
+              key="suggest"
               isHe={isHe}
               onDone={() => setView('gallery')}
             />
