@@ -325,71 +325,143 @@ export function TodayOverviewTab() {
 
       {/* ═══ MAIN BRIEFING CARD ═══ */}
       <div className="rounded-2xl border border-border/30 bg-card p-3 space-y-3">
-        {/* Classification + Pillar — compact single line */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Shield className="h-3 w-3 text-primary/60" />
-            <span className="text-[9px] font-black tracking-[0.12em] text-muted-foreground">{classification}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-xs">{currentPillar.emoji}</span>
-            <span className="text-[9px] font-bold text-primary">{isHe ? currentPillar.labelHe : currentPillar.labelEn}</span>
-          </div>
-        </div>
+        <AnimatePresence mode="wait">
+          {selectedPhaseMilestones.length > 0 ? (
+            <motion.div
+              key="phase-detail"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-3"
+            >
+              {/* Phase header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="h-3 w-3 text-primary" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.12em] text-foreground">
+                    {isHe ? `שלב ${selectedMilestone}` : `Phase ${selectedMilestone}`}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground">
+                    {selectedPhaseMilestones.filter((m: any) => m.is_completed).length}/{selectedPhaseMilestones.length}
+                  </span>
+                </div>
+                <button onClick={() => setSelectedMilestone(null)} className="p-1 rounded-md hover:bg-muted/30 text-muted-foreground">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
-        {/* Directive */}
-        <p className="text-[11px] font-semibold text-foreground/70 leading-snug italic">
-          "{directive}"
-        </p>
+              {/* Milestone list */}
+              <div className="space-y-2">
+                {selectedPhaseMilestones.map((ms: any) => {
+                  const pv = PILLAR_VIS[ms.focus_area] || DEFAULT_PILLAR;
+                  return (
+                    <div key={ms.id} className="flex items-start gap-2">
+                      <div className={cn(
+                        "w-4 h-4 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center",
+                        ms.is_completed ? "bg-primary" : "border border-border/50"
+                      )}>
+                        {ms.is_completed && <CheckCircle2 className="w-3 h-3 text-primary-foreground" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          {ms.focus_area && (
+                            <span className={cn("text-[9px] font-semibold", pv.color)}>
+                              {pv.emoji}
+                            </span>
+                          )}
+                          <span className={cn("text-xs font-bold", ms.is_completed ? "text-muted-foreground line-through" : "text-foreground")}>
+                            {isHe ? ms.title : (ms.title_en || ms.title)}
+                          </span>
+                        </div>
+                        {ms.description && (
+                          <p className="text-[10px] text-muted-foreground/70 leading-snug line-clamp-2">
+                            {isHe ? ms.description : (ms.description_en || ms.description)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="briefing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-3"
+            >
+              {/* Classification + Pillar */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="h-3 w-3 text-primary/60" />
+                  <span className="text-[9px] font-black tracking-[0.12em] text-muted-foreground">{classification}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">{currentPillar.emoji}</span>
+                  <span className="text-[9px] font-bold text-primary">{isHe ? currentPillar.labelHe : currentPillar.labelEn}</span>
+                </div>
+              </div>
 
-        {/* Current Mission — inline bold title, no sub-card */}
-        {currentAction ? (
-          <div className="flex items-baseline gap-2">
-            <Crosshair className="w-3.5 h-3.5 text-primary flex-shrink-0 relative top-[2px]" />
-            <div>
-              <span className="text-[8px] font-black uppercase tracking-[0.12em] text-primary/50 block mb-0.5">
-                {isHe ? 'משימה נוכחית' : 'Current Mission'}
-              </span>
-              <span className="text-sm font-black text-foreground leading-tight">
-                {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
-              </span>
-            </div>
-          </div>
-        ) : totalCount === 0 ? (
-          <div className="text-center py-2">
-            <span className="text-xl">🌙</span>
-            <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
-            <p className="text-[10px] text-muted-foreground">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
-          </div>
-        ) : (
-          <div className="text-center py-1">
-            <span className="text-xl">🏆</span>
-            <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
-          </div>
-        )}
+              {/* Directive */}
+              <p className="text-[11px] font-semibold text-foreground/70 leading-snug italic">
+                "{directive}"
+              </p>
 
-        {/* Flowing narrative — no inner cards, dot separators */}
-        <div className="space-y-2.5 text-[11px] leading-relaxed text-foreground/75">
-          <p>
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
-            {assessment}
-          </p>
-          <p className="font-bold text-foreground/85">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
-            {doctrine}
-          </p>
-          <p className="italic text-foreground/60">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
-            {intel}
-          </p>
-        </div>
+              {/* Current Mission */}
+              {currentAction ? (
+                <div className="flex items-baseline gap-2">
+                  <Crosshair className="w-3.5 h-3.5 text-primary flex-shrink-0 relative top-[2px]" />
+                  <div>
+                    <span className="text-[8px] font-black uppercase tracking-[0.12em] text-primary/50 block mb-0.5">
+                      {isHe ? 'משימה נוכחית' : 'Current Mission'}
+                    </span>
+                    <span className="text-sm font-black text-foreground leading-tight">
+                      {isHe ? currentAction.title : (currentAction.titleEn || currentAction.title)}
+                    </span>
+                  </div>
+                </div>
+              ) : totalCount === 0 ? (
+                <div className="text-center py-2">
+                  <span className="text-xl">🌙</span>
+                  <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
+                  <p className="text-[10px] text-muted-foreground">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
+                </div>
+              ) : (
+                <div className="text-center py-1">
+                  <span className="text-xl">🏆</span>
+                  <h3 className="text-sm font-black text-foreground mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
+                </div>
+              )}
 
-        {/* Commander's Directive */}
-        <div className="border-t border-border/20 pt-2.5 text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/50">
-            {commander}
-          </p>
-        </div>
+              {/* Flowing narrative */}
+              <div className="space-y-2.5 text-[11px] leading-relaxed text-foreground/75">
+                <p>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
+                  {assessment}
+                </p>
+                <p className="font-bold text-foreground/85">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
+                  {doctrine}
+                </p>
+                <p className="italic text-foreground/60">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/50 mr-2 relative top-[-1px]" />
+                  {intel}
+                </p>
+              </div>
+
+              {/* Commander's Directive */}
+              <div className="border-t border-border/20 pt-2.5 text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/50">
+                  {commander}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
