@@ -116,8 +116,8 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
     return <>{children}</>;
   }
 
-  // Redirect to onboarding only if launchpad not complete AND no active plan
-  if (!isLaunchpadComplete && !hasActivePlan) {
+  // Redirect to onboarding only if launchpad not complete AND no active plan AND not just finished ceremony
+  if (!isLaunchpadComplete && !hasActivePlan && !justCompleted) {
     return <Navigate to="/onboarding" replace />;
   }
 
