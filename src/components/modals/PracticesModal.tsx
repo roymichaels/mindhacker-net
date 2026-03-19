@@ -137,7 +137,7 @@ export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
 // ═══════════════════════════════════════════════════
 // PRACTICES GALLERY — Grid of active practices
 // ═══════════════════════════════════════════════════
-function PracticesGallery({ isHe, onSelect }: { isHe: boolean; onSelect: (p: UserPractice) => void }) {
+function PracticesGallery({ isHe, isPopulating, onSelect }: { isHe: boolean; isPopulating?: boolean; onSelect: (p: UserPractice) => void }) {
   const { data: practices, isLoading } = useUserPractices();
 
   // Group by category
@@ -154,9 +154,14 @@ function PracticesGallery({ isHe, onSelect }: { isHe: boolean; onSelect: (p: Use
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      {isLoading ? (
-        <div className="flex items-center justify-center py-16">
+      {isLoading || isPopulating ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          {isPopulating && (
+            <p className="text-xs text-white/30">
+              {isHe ? 'מייבא תרגולים מהאונבורדינג...' : 'Importing practices from onboarding...'}
+            </p>
+          )}
         </div>
       ) : !practices || practices.length === 0 ? (
         <div className="text-center py-16 space-y-3">
