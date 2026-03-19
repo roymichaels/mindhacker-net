@@ -1450,7 +1450,7 @@ export const he = {
     spotsAvailableOnly: "🔥 {count} מקומות פנויים השבוע בלבד",
   },
   personalQuote: {
-    signature: "— צוות Mind OS",
+    signature: "— Mind OS",
   },
   adminFaqs: {
     pageTitle: "שאלות נפוצות",

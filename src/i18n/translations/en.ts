@@ -1452,7 +1452,7 @@ export const en: TranslationKeys = {
     spotsAvailableOnly: "🔥 Only {count} spots available this week",
   },
   personalQuote: {
-    signature: "— Mind OS Team",
+    signature: "— Mind OS",
   },
   adminFaqs: {
     pageTitle: "FAQs",
