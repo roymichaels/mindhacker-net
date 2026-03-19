@@ -13,6 +13,7 @@ import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
