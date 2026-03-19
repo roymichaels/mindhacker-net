@@ -110,10 +110,11 @@ interface Props {
   asModal?: boolean;
   asDock?: boolean;
   dockHeightVh?: number;
+  hideHeader?: boolean;
   onClose?: () => void;
 }
 
-export default function DomainAssessChat({ domainId, asModal, asDock, dockHeightVh, onClose }: Props) {
+export default function DomainAssessChat({ domainId, asModal, asDock, dockHeightVh, hideHeader, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { setLanguage } = useLanguage();
