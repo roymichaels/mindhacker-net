@@ -7,6 +7,7 @@ import { useState, useMemo, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star, BookOpen, Gamepad2 } from 'lucide-react';
+import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
