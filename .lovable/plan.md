@@ -1,102 +1,43 @@
 
-# MindOS Planning Engine — Layered Architecture (v2)
 
-> Updated: 2026-03-10
+## Problem
 
-## Pipeline (Identity-Driven, 100-Day Life OS)
+The Overview tab keeps getting rebuilt with task lists, progress bars, numbered task items, domain breakdowns, and statistics — the exact opposite of what you've asked for. You want a **pure CIA-style motivational field briefing**: narrative text, no data grids, no task lists, no progress bars.
 
-```
-Layer 1: Identity Context Builder (_shared/contextBuilder.ts)
-  └─ Reads: identity_elements, life_direction, visions, skills, preferences, assessments
-  └─ Output: Full user context for all AI generation
+## What Gets Removed (lines 328-460)
 
-Layer 2: 100-Day Strategy Engine (generate-100day-strategy)
-  └─ Input: Identity context + pillar assessments
-  └─ Output: life_plans, plan_missions, life_plan_milestones
-  └─ 10 phases × 10 days = 100 day transformation
+- **Today's Agenda task list** (numbered items with emojis, durations, checkmarks)
+- **Domain breakdown pills** (vitality 2/3, focus 1/2, etc.)
+- **Progress bar** with percentage
+- **"Remaining tasks" stats line**
+- **CTA "Switch to Mission Control"**
 
-Layer 3: Weekly Tactical Planner (useWeeklyTacticalPlan)
-  └─ Input: Current phase milestones + tactical_schedules
-  └─ Output: DayPlan[] with themed TacticalBlock[] per day
-  └─ AI-generated schedule or fallback distribution
+## What Stays
 
-Layer 4: Daily Queue (useTodayExecution)
-  └─ Input: Today's DayPlan from Layer 3
-  └─ Output: NowQueueItem[] — the SSOT for "what to do today"
-  └─ Movement Score, completion tracking, min-day mode
+- Phase roadmap (top — interactive milestones, already approved)
+- Classification badge (ACTIVE OPERATION / FINAL WINDOW)
+- Directive quote (rotating motivational line)
+- Current Mission hero card (title + pillar only, no stats)
 
-Layer 5: Now Execution Engine (useNowEngine)
-  └─ Input: Single NowQueueItem from Layer 4
-  └─ Output: Step-by-step focus mode guidance
-  └─ Manages: timer, pause, step navigation, completion
-```
+## What Gets Added (replacing removed sections)
 
-## Key Rules
+All narrative, zero data:
 
-1. **One source of truth**: Daily Queue (Layer 4) is the SSOT for today's actions
-2. **Planning ≠ Execution**: Layers 2-4 decide WHAT. Layer 5 decides HOW.
-3. **No duplicate generation**: Only one path from strategy to daily actions
-4. **Types live in `src/types/planning.ts`**: Shared across all layers
-5. **Practices library**: `practices` table = structured catalog, `user_practices` = user preferences
-6. **Energy phases**: `morning`, `day`, `evening` on action_items
+1. **"Field Assessment"** — 2-3 sentences of tactical prose about today's strategic context. Dynamic based on current pillar/focus area. Written like a CIA morning brief, not a to-do list. E.g.: *"Today's theater centers on Vitality. Your body is the vehicle for every mission that follows. Neglect it and all other operations degrade."*
 
-## Navigation Architecture
+2. **"Operational Doctrine"** — A short, punchy rule of engagement tied to the current focus. E.g.: *"No negotiation with comfort. Execute before the mind builds its case."*
 
-### Bottom Tab Bar (5 items)
-| Position | Tab | Route | Icon |
-|----------|-----|-------|------|
-| 1 | FM | `/fm/earn` | Store |
-| 2 | Aurora | `/aurora` | Custom Orb (injected) |
-| 3 | **Play** | `/play` | Flame (oversized, center) |
-| 4 | Community | `/community` | Users |
-| 5 | Study | `/learn` | GraduationCap |
+3. **"Intelligence Note"** — A rotating deep insight/quote relevant to the pillar. Not generic motivational poster quotes — sharp, strategic, agent-style.
 
-### Key Route Changes (2026-03-10)
-- `/plan` → `/play` (renamed across entire codebase)
-- `PlanHub` → `PlayHub`, `PlanLayoutWrapper` → `PlayLayoutWrapper`
-- All legacy routes (`/today`, `/dashboard`, `/me`, `/now`, `/tactics`, `/arena`, `/projects`) → `/play`
+4. **"Commander's Directive"** — A closing 1-liner. Authoritative, final. Like a handler signing off.
 
-### Header HUD
-- `AppNameDropdown`: Centered vertical layout with PersonalizedOrb (80px), user name, archetype
-- Amber/gold FM theme: amber borders, gradient backgrounds, golden XP progress bar
-- Level badge in amber tones
+All content will be pillar-aware (using the `FOCUS_INTEL` / `PILLAR_VIS` mapping) so the briefing feels personalized to whatever domain the current task belongs to.
 
-## Aurora Interface (`/aurora`)
+## Technical Details
 
-### Tab System (sticky, blurred backdrop)
-1. **Chat** — AI conversation with `AuroraChatBubbles` + `StandaloneMorphOrb`
-2. **Dreams** — Dream journal entries
-3. **Reflection** — Daily reflection prompts
-4. **Gratitude** — Gratitude practice
+- **File**: `src/components/play/TodayOverviewTab.tsx`
+- Strip out `todayActions.map(...)`, `domainSummary`, progress bar, CTA sections
+- Add new content blocks as styled `<div>` elements with icons (`Shield`, `Eye`, `Lock`, `Crosshair`)
+- All text arrays (field assessments, doctrines, intelligence notes) keyed by pillar with HE/EN variants
+- No numbered lists, no `x/y` counters, no percentage displays
 
-### Chat Input
-- Fixed at bottom with transparent background (no message occlusion)
-- Voice recording, image attach, voice mode trigger
-- `pb-20` padding on chat content for scroll clearance
-
-### Voice Mode
-- Full-screen overlay with animated orb
-- Auto-loop: listening → processing → speaking → listening
-- ElevenLabs STT + TTS integration
-
-## Database Tables
-
-| Table | Purpose |
-|-------|---------|
-| `practices` | Global practice catalog (Tai Chi, Meditation, etc.) |
-| `user_practices` | User's chosen practices + preferences |
-| `mission_templates` | Reusable structured mission templates |
-| `action_items.energy_phase` | Morning/day/evening awareness |
-| `tactical_schedules` | AI-generated weekly plans |
-| `life_plans` | 100-day strategy plans |
-| `life_plan_milestones` | Phase milestones (quests) |
-| `mini_milestones` | Weekly tactical objectives |
-| `journal_entries` | Dream, reflection, gratitude entries |
-| `conversations` | Aurora chat conversations |
-| `aurora_messages` | Chat message history |
-| `aurora_memory_graph` | Long-term context memory nodes |
-
-## Deleted Pages (2026-03-10)
-- `FormView`, `PersonalHypnosisLanding/Success/Pending`
-- `ConsciousnessLeapLanding/Apply`, `DynamicLandingPage`
-- Routes replaced with redirects to `/` or `/play`
