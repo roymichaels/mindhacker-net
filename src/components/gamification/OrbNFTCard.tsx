@@ -32,13 +32,17 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
   const energy = useEnergy();
   const dashboard = useUnifiedDashboard();
   const { user } = useAuth();
+  const { isMinted, walletAddress } = useSoulWallet();
+  const { openWizard } = useSoulAvatarWizard();
 
   const rarity = getOrbRarity(xp.level);
   const nextRarityIn = levelsToNextRarity(xp.level);
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
   const archetypeName = getArchetypeName(dominantArchetype, isHe);
   const archetypeIcon = getArchetypeIcon(dominantArchetype);
-  const mintDate = user?.created_at ? new Date(user.created_at).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { month: 'short', year: 'numeric' }) : '—';
+  const mintDate = isMinted && walletAddress
+    ? new Date().toLocaleDateString(isHe ? 'he-IL' : 'en-US', { month: 'short', year: 'numeric' })
+    : null;
   const geometry = profile.geometryFamily || 'sphere';
   const material = profile.materialType || 'glass';
 
