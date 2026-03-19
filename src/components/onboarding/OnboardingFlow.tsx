@@ -3,7 +3,7 @@
  * 
  * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal → Tier Selection → Pillar Selection → Assessments → Plan Generation
  */
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
