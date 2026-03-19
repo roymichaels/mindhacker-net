@@ -252,98 +252,44 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                 </button>
               </div>
 
-              {/* ── Pillar Cards Grid ── */}
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2">
-                {LIFE_DOMAINS.map((d) => {
-                  const Icon = d.icon;
-                  const count = pillarCounts?.[d.id] || 0;
-                  const hsl = PILLAR_HSL[d.id] || '217 91% 60%';
-                  return (
-                    <button
-                      key={d.id}
-                      onClick={() => onPillarSelect?.(d.id)}
-                      className={cn(
-                        "group flex flex-col items-center gap-1.5 p-2.5 rounded-xl border",
-                        "active:scale-[0.97] transition-all duration-200"
-                      )}
-                      style={{
-                        backgroundColor: `hsl(${hsl} / 0.06)`,
-                        borderColor: `hsl(${hsl} / 0.2)`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.15)`;
-                        e.currentTarget.style.borderColor = `hsl(${hsl} / 0.4)`;
-                        e.currentTarget.style.boxShadow = `0 4px 15px -3px hsl(${hsl} / 0.15)`;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = `hsl(${hsl} / 0.06)`;
-                        e.currentTarget.style.borderColor = `hsl(${hsl} / 0.2)`;
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
-                        style={{ backgroundColor: `hsl(${hsl} / 0.15)` }}
-                      >
-                        <Icon className="h-4.5 w-4.5" style={{ color: `hsl(${hsl})` }} />
-                      </div>
-                      <span className="text-[11px] font-semibold text-center leading-tight truncate w-full" style={{ color: `hsl(${hsl})` }}>
-                        {isHe ? d.labelHe : d.labelEn}
-                      </span>
-                      {count > 0 && (
-                        <div className="flex items-center gap-0.5 text-[10px]" style={{ color: `hsl(${hsl} / 0.7)` }}>
-                          <MessageSquare className="h-2.5 w-2.5" />
-                          <span>{count}</span>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+              {/* ── Pillar Widgets Grid (iPhone style) ── */}
+              <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
+                {LIFE_DOMAINS.map((d) => (
+                  <IPhoneWidget
+                    key={d.id}
+                    icon={d.icon}
+                    label={isHe ? d.labelHe : d.labelEn}
+                    gradient={GRADIENT_MAP[d.color] || 'from-primary to-primary/80'}
+                    onClick={() => onPillarSelect?.(d.id)}
+                    size="sm"
+                  />
+                ))}
               </div>
             </>
           )}
 
-          {/* ── PILLAR VIEW: Topic Cards (no topic selected yet) ── */}
+          {/* ── PILLAR VIEW: Topic Widgets (iPhone style) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2">
-              {/* "All threads" card */}
-              <button
+            <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
+              <IPhoneWidget
+                emoji="🌐"
+                label={isHe ? 'כל השרשורים' : 'All Threads'}
+                gradient="from-primary to-primary/80"
                 onClick={() => onSelectTopic?.(null)}
-                className={cn(
-                  "flex items-center gap-2.5 p-3 rounded-xl border border-primary/20 bg-primary/5",
-                  "hover:bg-primary/10 active:scale-[0.98] transition-all text-start col-span-full"
-                )}
-              >
-                <span className="text-lg">🌐</span>
-                <span className="text-sm font-semibold text-primary">{isHe ? 'כל השרשורים' : 'All Threads'}</span>
-              </button>
-              {subcategories.map((sub) => {
-                const count = topicCounts?.[sub.id] || 0;
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => onSelectTopic?.(sub.id)}
-                    className={cn(
-                      "group flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border/40",
-                      "bg-card/60 hover:bg-accent/30 hover:border-primary/30",
-                      "active:scale-[0.98] transition-all duration-200"
-                    )}
-                  >
-                    <span className="text-2xl">{sub.icon}</span>
-                    <span className="text-xs font-medium text-foreground text-center leading-tight">
-                      {isHe ? sub.he : sub.en}
-                    </span>
-                    {count > 0 && (
-                      <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                        <MessageSquare className="h-2.5 w-2.5" />
-                        <span>{count}</span>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+                size="sm"
+              />
+              {subcategories.map((sub, index) => (
+                <IPhoneWidget
+                  key={sub.id}
+                  emoji={sub.icon}
+                  label={isHe ? sub.he : sub.en}
+                  gradient={TOPIC_GRADIENTS[index % TOPIC_GRADIENTS.length]}
+                  onClick={() => onSelectTopic?.(sub.id)}
+                  size="sm"
+                />
+              ))}
             </div>
-          )}
+          )
 
           {/* ── TOPIC SELECTED: back chip + feed ── */}
           {!isAll && selectedTopic && (
