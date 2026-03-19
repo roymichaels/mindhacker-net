@@ -170,13 +170,13 @@ export function BottomTabBar() {
             <button
               onClick={() => navigate(planTab.path)}
               className={cn(
-                "w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30",
+                "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
                 isActive(planTab.path)
-                  ? "bg-cyan-500/25 ring-2 ring-cyan-400/30"
-                  : "bg-cyan-500/10 ring-1 ring-cyan-500/10"
+                  ? "bg-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                  : "bg-cyan-600 shadow-lg"
               )}
             >
-              <Play className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400/60")} fill="currentColor" />
+              <Play className="h-5 w-5 text-white ms-0.5" fill="currentColor" />
             </button>
           </div>
         )}
