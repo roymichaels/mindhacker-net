@@ -357,6 +357,7 @@ export default function CreateStoryModal({ open, onOpenChange }: CreateStoryModa
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
