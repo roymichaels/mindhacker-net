@@ -15,7 +15,7 @@ import { FocusQueueModal } from './FocusQueueModal';
 import { useQueryClient } from '@tanstack/react-query';
 import type { NowQueueItem } from '@/types/planning';
 import {
-  Play, SkipBack, SkipForward,
+  Play, SkipBack, SkipForward, Check,
   ListMusic, MessageSquare, Clock, Flame, Sparkles, Target,
 } from 'lucide-react';
 
