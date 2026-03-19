@@ -832,8 +832,6 @@ const onboardingFlowSpec: FlowSpec = {
           title_he: 'באיזו שעה אתה בדרך כלל מסיים לעבוד?',
           title_en: 'What time do you usually finish work?',
           inputType: 'time_picker',
-          minHour: 12,
-          maxHour: 23,
           options: [
             { value: 'varies', label_he: 'משתנה', label_en: 'Varies', icon: '🔄' },
             { value: 'not_working', label_he: 'לא עובד', label_en: 'Not working', icon: '🏖️' },
