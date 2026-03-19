@@ -12,7 +12,7 @@ import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { toast } from 'sonner';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
@@ -174,8 +174,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   if (!user) return null;
 
   return (
-    <ScrollArea className="h-full overflow-y-auto" ref={scrollRef as any}>
-      <div className="w-full px-4 space-y-3 pb-4">
+    <div className="w-full px-4 space-y-3 pb-4" ref={scrollRef}>
         {/* Persistent orb */}
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-6 pb-2">
@@ -342,8 +341,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             </Button>
           </motion.div>
         )}
-      </div>
-    </ScrollArea>
+    </div>
   );
 };
 
