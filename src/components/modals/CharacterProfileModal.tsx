@@ -75,32 +75,36 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
 
   if (!open) return null;
 
-  // If traits gallery is open, render it full-screen
-  if (traitsOpen) {
-    return createPortal(
-      <div
-        role="dialog"
-        className="fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden"
-        dir={isRTL ? 'rtl' : 'ltr'}
-      >
+  // Traits modal — rendered as a separate full-screen portal (like PracticesModal)
+  const traitsModal = traitsOpen ? createPortal(
+    <div
+      role="dialog"
+      className="fixed inset-0 z-[10000] bg-background flex flex-col overflow-hidden"
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
+      <div className="flex items-center justify-between px-4 pt-4">
         <button
           onClick={() => setTraitsOpen(false)}
-          className="absolute top-4 start-4 z-10 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+          className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-primary" />
+          {isHe ? 'תכונות' : 'Traits'}
+        </h2>
         <button
-          onClick={() => { setTraitsOpen(false); onOpenChange(false); }}
-          className="absolute top-4 end-4 z-10 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+          onClick={() => setTraitsOpen(false)}
+          className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
         >
           <X className="w-5 h-5 text-foreground" />
         </button>
-        <div className="flex-1 overflow-y-auto pt-14 px-3 pb-24">
-          <TraitsTab isHe={isHe} />
-        </div>
       </div>
-    , document.body);
-  }
+      <div className="flex-1 overflow-y-auto px-3 pb-24 pt-4">
+        <TraitsTab isHe={isHe} />
+      </div>
+    </div>
+  , document.body) : null;
 
   return (<>
     <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
