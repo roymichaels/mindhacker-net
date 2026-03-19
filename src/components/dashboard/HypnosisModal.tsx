@@ -25,6 +25,7 @@ import {
   cacheScriptAudio,
 } from '@/services/hypnosis';
 import { synthesizeSpeech, stopBrowserSpeech, playAudioUrl, stopCurrentAudio } from '@/services/voice';
+import { playTTS } from '@/lib/ttsPlayer';
 import { saveSession } from '@/services/userMemory';
 import { awardXp } from '@/services/unifiedContext';
 import { useHaptics } from '@/hooks/useHaptics';
