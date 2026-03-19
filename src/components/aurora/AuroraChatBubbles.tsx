@@ -341,8 +341,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             </Button>
           </motion.div>
         )}
-      </div>
-    </ScrollArea>
+    </div>
   );
 };
 
