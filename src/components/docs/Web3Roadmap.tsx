@@ -22,12 +22,16 @@ const phases: RoadmapPhase[] = [
     titleHe: 'השקה ציבורית',
     titleEn: 'Public Launch',
     items: [
-      { he: '5 Hubs פעילים', en: '5 Active Hubs' },
+      { he: '6 Hubs פעילים', en: '6 Active Hubs' },
       { he: 'מנוע כרייה MOS', en: 'MOS Mining Engine' },
       { he: 'היפנוזה AI', en: 'AI Hypnosis' },
       { he: 'תוכנית 100 ימים', en: '100-Day Plan' },
       { he: 'Beta ציבורי', en: 'Public Beta' },
       { he: '🎮 מנגנון Play2Earn', en: '🎮 Play2Earn Mechanism' },
+      { he: 'סטוריז + פיד חברתי', en: 'Stories + Social Feed' },
+      { he: 'חנויות מאמנים אישיות', en: 'Coach Storefronts' },
+      { he: 'תוכנית שותפים', en: 'Affiliate Program' },
+      { he: 'Admin Hub', en: 'Admin Hub' },
     ],
   },
   {
