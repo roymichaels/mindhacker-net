@@ -991,8 +991,8 @@ export const en: TranslationKeys = {
   },
   personalInvitation: {
     title: "A Personal Invitation",
-    defaultMessage: "If you've made it this far, something inside you is calling for change. We're waiting for our first conversation.",
-    signature: "Mind OS Team",
+    defaultMessage: "If you've made it this far, something inside you is calling for change. I'm waiting for our first conversation.",
+    signature: "Mind OS",
     ctaButton: "Schedule a Free Consultation",
     ctaSubtext: "30 minutes — to see if we're a good fit to work together",
   },
