@@ -1,6 +1,6 @@
 /**
  * ProfilePage — Fullscreen modal overlay for the Character Profile.
- * Renders via createPortal to escape DashboardLayout's background.
+ * Renders via createPortal. Now opened via ProfileModalContext (no route).
  */
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -17,13 +17,13 @@ import { motion } from 'framer-motion';
 import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
 import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
 import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
-import { useNavigate } from 'react-router-dom';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const dashboard = useUnifiedDashboard();
-  const navigate = useNavigate();
+  const { isOpen, closeProfile } = useProfileModal();
   const [traitsOpen, setTraitsOpen] = useState(false);
   const [practicesOpen, setPracticesOpen] = useState(false);
   const [achievementsOpen, setAchievementsOpen] = useState(false);
@@ -33,9 +33,13 @@ export default function ProfilePage() {
 
   // Lock body scroll while profile is mounted
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
 
   const content = (
     <div
@@ -52,7 +56,7 @@ export default function ProfilePage() {
       {/* ═══════ CLOSE BUTTON ═══════ */}
       <div className="sticky top-0 z-50 flex justify-end p-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={closeProfile}
           className="w-9 h-9 rounded-full bg-muted/60 backdrop-blur-md flex items-center justify-center hover:bg-muted transition-colors"
         >
           <X className="w-5 h-5 text-foreground" />
