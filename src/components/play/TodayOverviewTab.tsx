@@ -306,7 +306,7 @@ export function TodayOverviewTab() {
                 <div className="flex gap-1 pb-0.5">
                   {todayActions.map((action, idx) => {
                     const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
-                    const isActive = activeIdx === idx;
+                    const isSelected = activeIdx === idx;
                     const isDone = action.completed;
                     const isCurrent = !isDone && currentActionIdx === idx;
 
@@ -321,18 +321,19 @@ export function TodayOverviewTab() {
                             : isCurrent
                               ? "bg-cyan-500/15 border border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.15)]"
                               : "border border-white/[0.06] hover:border-white/15",
-                          isActive && "ring-1 ring-cyan-400/60"
+                          isSelected && !isDone && "ring-2 ring-cyan-400 bg-cyan-500/20 border-cyan-400/50 shadow-[0_0_12px_rgba(6,182,212,0.3)]",
+                          isSelected && isDone && "ring-2 ring-emerald-400 bg-emerald-500/20"
                         )}
                       >
                         <div className={cn(
                           "w-5 h-5 rounded-full flex items-center justify-center text-[10px]",
-                          isDone ? "bg-emerald-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
+                          isDone ? "bg-emerald-500/30" : isSelected ? "bg-cyan-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
                         )}>
                           {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <span>{pv.emoji}</span>}
                         </div>
                         <span className={cn(
                           "text-[8px] font-black",
-                          isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
+                          isSelected ? "text-cyan-200" : isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
                         )}>
                           {idx + 1}
                         </span>
