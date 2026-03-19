@@ -3,6 +3,7 @@
  * Features AI image background, cinematic typography overlay, and branded identity.
  */
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -80,7 +81,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
   const body = isHe ? story.body_he : story.body_en;
   const subtitle = isHe ? story.subtitle_he : story.subtitle_en;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -217,6 +218,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
           aria-label="Next"
         />
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

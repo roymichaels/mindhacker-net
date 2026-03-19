@@ -3,6 +3,7 @@
  * AI-generated stories appear first with branded bubbles; user stories follow.
  */
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -218,43 +219,46 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
       />
 
       {/* User Story Viewer (simple full-screen) */}
-      <AnimatePresence>
-        {viewingUserStory && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[10000] bg-black flex flex-col"
-          >
-            <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 px-2 pt-2">
-              {userStories.map((_, i) => (
-                <div key={i} className="h-0.5 flex-1 rounded-full bg-white/30 overflow-hidden">
-                  <div className={cn("h-full bg-white rounded-full transition-all", i <= userStoryIndex ? "w-full" : "w-0")} />
-                </div>
-              ))}
-            </div>
-            <div className="absolute top-4 left-0 right-0 z-10 flex items-center justify-between px-4 pt-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-white/30">
-                  <img src={viewingUserStory.media_url} alt="" className="w-full h-full object-cover" />
-                </div>
-                <p className="text-white text-xs font-bold">{viewingUserStory.author_name}</p>
+      {createPortal(
+        <AnimatePresence>
+          {viewingUserStory && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[10000] bg-black flex flex-col"
+            >
+              <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 px-2 pt-2">
+                {userStories.map((_, i) => (
+                  <div key={i} className="h-0.5 flex-1 rounded-full bg-white/30 overflow-hidden">
+                    <div className={cn("h-full bg-white rounded-full transition-all", i <= userStoryIndex ? "w-full" : "w-0")} />
+                  </div>
+                ))}
               </div>
-              <button onClick={() => setViewingUserStory(null)} className="p-2 text-white"><X className="w-5 h-5" /></button>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
-              <img src={viewingUserStory.media_url} alt="Story" className="max-w-full max-h-full object-contain" />
-            </div>
-            {viewingUserStory.content && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-6 pt-12">
-                <p className="text-white text-sm">{viewingUserStory.content}</p>
+              <div className="absolute top-4 left-0 right-0 z-10 flex items-center justify-between px-4 pt-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-white/30">
+                    <img src={viewingUserStory.media_url} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <p className="text-white text-xs font-bold">{viewingUserStory.author_name}</p>
+                </div>
+                <button onClick={() => setViewingUserStory(null)} className="p-2 text-white"><X className="w-5 h-5" /></button>
               </div>
-            )}
-            <button onClick={() => navigateUserStory(-1)} className="absolute left-0 top-20 bottom-20 w-1/3" aria-label="Previous" />
-            <button onClick={() => navigateUserStory(1)} className="absolute right-0 top-20 bottom-20 w-1/3" aria-label="Next" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="flex-1 flex items-center justify-center">
+                <img src={viewingUserStory.media_url} alt="Story" className="max-w-full max-h-full object-contain" />
+              </div>
+              {viewingUserStory.content && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-6 pt-12">
+                  <p className="text-white text-sm">{viewingUserStory.content}</p>
+                </div>
+              )}
+              <button onClick={() => navigateUserStory(-1)} className="absolute left-0 top-20 bottom-20 w-1/3" aria-label="Previous" />
+              <button onClick={() => navigateUserStory(1)} className="absolute right-0 top-20 bottom-20 w-1/3" aria-label="Next" />
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
