@@ -820,8 +820,6 @@ const onboardingFlowSpec: FlowSpec = {
           title_he: 'באיזו שעה אתה חייב להתחיל לעבוד / להיות זמין?',
           title_en: 'What time must you start work / be available?',
           inputType: 'time_picker',
-          minHour: 5,
-          maxHour: 14,
           options: [
             { value: 'flexible', label_he: 'גמיש', label_en: 'Flexible', icon: '🔄' },
             { value: 'not_working', label_he: 'לא עובד', label_en: 'Not working', icon: '🏖️' },
