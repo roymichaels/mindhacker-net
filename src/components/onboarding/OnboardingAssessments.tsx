@@ -6,12 +6,11 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAuth } from '@/contexts/AuthContext';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import OnboardingPresenceScan from '@/components/onboarding/OnboardingPresenceScan';
-import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
-import { CheckCircle2, ArrowRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { getDomainById } from '@/navigation/lifeDomains';
+import { CheckCircle2, ChevronLeft, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OnboardingAssessmentsProps {
@@ -58,15 +57,15 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentPillarId = selectedPillars[currentIndex];
-  const currentDomain = getDomainById(currentPillarId);
   const allDone = currentIndex >= selectedPillars.length;
 
   const handlePillarComplete = useCallback(() => {
-    setCompletedPillars(prev => [...prev, currentPillarId]);
+    const newCompleted = [...completedPillars, currentPillarId];
+    setCompletedPillars(newCompleted);
 
     // Find next non-completed pillar
     let nextIndex = currentIndex + 1;
-    while (nextIndex < selectedPillars.length && completedPillars.includes(selectedPillars[nextIndex])) {
+    while (nextIndex < selectedPillars.length && newCompleted.includes(selectedPillars[nextIndex])) {
       nextIndex++;
     }
 
@@ -111,7 +110,6 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
               if (currentIndex === 0 && onBack) {
                 onBack();
               } else if (currentIndex > 0) {
-                // Go back to the previous non-completed pillar
                 let prevIndex = currentIndex - 1;
                 while (prevIndex >= 0 && completedPillars.includes(selectedPillars[prevIndex])) {
                   prevIndex--;
@@ -129,83 +127,7 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
             {isHe ? 'חזרה' : 'Back'}
           </button>
           <span className="text-xs text-muted-foreground font-medium">
-            {completedPillars.length + 1}/{selectedPillars.length}
-          </span>
-        </div>
-        
-        {/* Pillar pills */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {selectedPillars.map((pillarId, i) => {
-            const domain = getDomainById(pillarId);
-            const isCompleted = completedPillars.includes(pillarId);
-            const isCurrent = i === currentIndex;
-            const Icon = domain?.icon;
-
-            return (
-              <div
-                key={pillarId}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold shrink-0 border transition-all',
-                  isCompleted
-                    ? 'bg-primary/15 border-primary/30 text-primary'
-                    : isCurrent
-                      ? 'bg-accent/15 border-accent/30 text-foreground ring-1 ring-primary/50'
-                      : 'bg-muted/30 border-border/20 text-muted-foreground/50'
-                )}
-              >
-                {isCompleted ? (
-                  <CheckCircle2 className="w-3 h-3" />
-                ) : Icon ? (
-                  <Icon className="w-3 h-3" />
-                ) : null}
-                {isHe ? domain?.labelHe : domain?.labelEn}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Assessment — bio-scan for presence, chat for everything else */}
-      <div className="flex-1 min-h-0">
-        {currentPillarId === 'presence' ? (
-          <OnboardingPresenceScan
-            key={currentPillarId}
-            onComplete={handlePillarComplete}
-            onCancel={handlePillarComplete}
-          />
-        ) : (
-          <DomainAssessChat
-            key={currentPillarId}
-            domainId={currentPillarId}
-            asModal
-            hideHeader
-            onClose={handlePillarComplete}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-  return (
-    <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Progress Header */}
-      <div className="px-4 pt-4 pb-2 space-y-3 shrink-0 border-b border-border/30">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => {
-              if (currentIndex === 0 && onBack) {
-                onBack();
-              } else if (currentIndex > 0) {
-                setCurrentIndex(currentIndex - 1);
-              }
-            }}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            {isHe ? 'חזרה' : 'Back'}
-          </button>
-          <span className="text-xs text-muted-foreground font-medium">
-            {currentIndex + 1}/{selectedPillars.length}
+            {Math.min(completedPillars.length + 1, selectedPillars.length)}/{selectedPillars.length}
           </span>
         </div>
         
