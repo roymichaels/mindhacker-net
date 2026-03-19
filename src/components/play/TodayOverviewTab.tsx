@@ -205,7 +205,7 @@ export function TodayOverviewTab() {
             </div>
             <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
               <Flame className="w-3.5 h-3.5 text-orange-400 mb-0.5" />
-              <span className="text-xs font-bold text-foreground">{streak}</span>
+              <span className="text-xs font-bold text-foreground">{streak.streak}</span>
               <span className="text-[8px] text-muted-foreground">{isHe ? 'סטריק' : 'Streak'}</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-background/40 border border-border/20 py-2 px-1">
