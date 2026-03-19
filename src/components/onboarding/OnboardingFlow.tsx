@@ -216,17 +216,34 @@ export function OnboardingFlow() {
     } else if (savedPhase === 'analyzing' || savedPhase === 'calibration_done') {
       setShowIntro(false);
       setShowReveal(true);
-    } else if (Object.keys(restored).length > 0 && typeof savedStep === 'number' && savedStep > 0) {
-      const totalSteps = onboardingFlowSpec.steps.length;
-      const step = Math.max(0, savedStep - 1);
-      if (step >= totalSteps) {
+    } else if (Object.keys(restored).length > 0) {
+      // Find the first unanswered mini-step across all steps
+      const allSteps = onboardingFlowSpec.steps;
+      let foundStep = -1;
+      let foundMini = 0;
+      
+      for (let sIdx = 0; sIdx < allSteps.length; sIdx++) {
+        const visible = getVisibleMiniSteps(allSteps[sIdx], restored);
+        for (let mIdx = 0; mIdx < visible.length; mIdx++) {
+          if (restored[visible[mIdx].id] === undefined) {
+            foundStep = sIdx;
+            foundMini = mIdx;
+            break;
+          }
+        }
+        if (foundStep >= 0) break;
+      }
+      
+      if (foundStep < 0) {
+        // All answered — go to reveal
         setShowIntro(false);
         setShowReveal(true);
-      } else if (step > 0) {
-        setCurrentStepIdx(step);
-        setCurrentMiniIdx(0);
+      } else if (foundStep > 0 || foundMini > 0) {
+        setCurrentStepIdx(foundStep);
+        setCurrentMiniIdx(foundMini);
         setShowIntro(false);
       }
+      // If foundStep === 0 && foundMini === 0, stay at start (default state)
     }
   }, []);
 
