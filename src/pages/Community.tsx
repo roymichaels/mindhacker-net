@@ -161,15 +161,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={() => setSuggestOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-              >
-                <MessageSquarePlus className="h-3 w-3" />
-                <span className="hidden sm:inline">{isHe ? 'בקש נושא' : 'Suggest'}</span>
-              </button>
-            </div>
+            <div className="flex items-center gap-2 flex-shrink-0" />
           </div>
 
           {/* ── ALL VIEW: Events + AI Match + Pillar Cards ── */}
@@ -210,41 +202,60 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
 
               {/* ── Pillar Widgets Grid (iPhone style) ── */}
-              <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
-                {LIFE_DOMAINS.map((d) => (
-                  <IPhoneWidget
-                    key={d.id}
-                    icon={d.icon}
-                    label={isHe ? d.labelHe : d.labelEn}
-                    gradient={GRADIENT_MAP[d.color] || 'from-primary to-primary/80'}
-                    onClick={() => onPillarSelect?.(d.id)}
-                    size="sm"
-                  />
-                ))}
+              <div>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                  {isHe ? '📋 קטגוריות נושאים' : '📋 Topic Categories'}
+                </h3>
+                <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
+                  {LIFE_DOMAINS.map((d) => (
+                    <IPhoneWidget
+                      key={d.id}
+                      icon={d.icon}
+                      label={isHe ? d.labelHe : d.labelEn}
+                      gradient={GRADIENT_MAP[d.color] || 'from-primary to-primary/80'}
+                      onClick={() => onPillarSelect?.(d.id)}
+                      size="sm"
+                    />
+                  ))}
+                </div>
               </div>
             </>
           )}
 
           {/* ── PILLAR VIEW: Topic Widgets (iPhone style) ── */}
           {!isAll && !selectedTopic && subcategories.length > 0 && (
-            <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
-              <IPhoneWidget
-                emoji="🌐"
-                label={isHe ? 'כל השרשורים' : 'All Threads'}
-                gradient="from-primary to-primary/80"
-                onClick={() => onSelectTopic?.(null)}
-                size="sm"
-              />
-              {subcategories.map((sub, index) => (
+            <div>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  {isHe ? '📋 נושאים' : '📋 Topics'}
+                </h3>
+                <button
+                  onClick={() => setSuggestOpen(true)}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <MessageSquarePlus className="h-3 w-3" />
+                  {isHe ? 'בקש נושא' : 'Suggest'}
+                </button>
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-y-4 gap-x-2 py-1 justify-items-center">
                 <IPhoneWidget
-                  key={sub.id}
-                  emoji={sub.icon}
-                  label={isHe ? sub.he : sub.en}
-                  gradient={TOPIC_GRADIENTS[index % TOPIC_GRADIENTS.length]}
-                  onClick={() => onSelectTopic?.(sub.id)}
+                  emoji="🌐"
+                  label={isHe ? 'כל השרשורים' : 'All Threads'}
+                  gradient="from-primary to-primary/80"
+                  onClick={() => onSelectTopic?.(null)}
                   size="sm"
                 />
-              ))}
+                {subcategories.map((sub, index) => (
+                  <IPhoneWidget
+                    key={sub.id}
+                    emoji={sub.icon}
+                    label={isHe ? sub.he : sub.en}
+                    gradient={TOPIC_GRADIENTS[index % TOPIC_GRADIENTS.length]}
+                    onClick={() => onSelectTopic?.(sub.id)}
+                    size="sm"
+                  />
+                ))}
+              </div>
             </div>
           )}
 
