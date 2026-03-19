@@ -481,7 +481,7 @@ export default function Documentation() {
 
       <div className="flex">
         {/* Main content */}
-        <main ref={contentRef} dir={isRTL ? 'rtl' : 'ltr'} className={cn("flex-1 min-w-0", isRTL ? "order-1" : "order-2")}>
+        <main ref={contentRef} dir={isRTL ? 'rtl' : 'ltr'} className="flex-1 min-w-0 order-2">
           <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 space-y-8">
             {/* Title Page */}
             <motion.div
@@ -536,8 +536,17 @@ export default function Documentation() {
                 className="space-y-4 scroll-mt-20"
               >
                 <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2" style={{ unicodeBidi: 'plaintext' }}>
-                  <span className="text-primary/60 font-mono me-2">{section.number}.</span>
-                  {section.title}
+                  {isRTL ? (
+                    <>
+                      {section.title}
+                      <span className="text-primary/60 font-mono ms-2">.{section.number}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-primary/60 font-mono me-2">{section.number}.</span>
+                      {section.title}
+                    </>
+                  )}
                 </h2>
 
                 {/* Visual roadmap for roadmap section */}
@@ -584,8 +593,8 @@ export default function Documentation() {
         {/* Sidebar */}
         <aside
           className={cn(
-            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-64 bg-background shrink-0 transition-transform duration-200 overflow-hidden",
-            isRTL ? "border-l border-border order-2" : "border-r border-border order-1",
+            "fixed lg:sticky top-14 z-40 h-[calc(100vh-3.5rem)] w-64 bg-background shrink-0 transition-transform duration-200 overflow-hidden order-1",
+            isRTL ? "border-l border-border" : "border-r border-border",
             !isRTL && (sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"),
             isRTL && (sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"),
           )}
@@ -601,10 +610,22 @@ export default function Documentation() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
+                  className={cn(
+                    "flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors",
+                    isRTL && "flex-row-reverse"
+                  )}
                 >
-                  <span className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
-                  <span className="min-w-0 text-wrap leading-snug">{item.title}</span>
+                  {isRTL ? (
+                    <>
+                      <span className="min-w-0 text-wrap leading-snug text-right">{item.title}</span>
+                      <span className="font-mono text-xs text-primary/60 shrink-0">.{item.number}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
+                      <span className="min-w-0 text-wrap leading-snug">{item.title}</span>
+                    </>
+                  )}
                 </button>
               ))}
             </div>
