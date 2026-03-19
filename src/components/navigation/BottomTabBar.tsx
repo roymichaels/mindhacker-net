@@ -110,7 +110,7 @@ export function BottomTabBar() {
   };
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border/40">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-background/100 border-t border-border">
       <div className="flex items-center justify-around h-16 px-2">
         {/* Left: FM */}
         {leftTabs.map(renderTab)}
