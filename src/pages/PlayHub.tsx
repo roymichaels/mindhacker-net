@@ -186,8 +186,8 @@ export default function PlayHub() {
         <MissionControlBar />
       </div>
 
-      {/* Today's Task Cards */}
-      <TaskCardsGrid />
+      {/* Today's Hero Card */}
+      <TodayHeroCard />
 
       {/* Strategy Modal */}
       <Dialog open={strategyOpen} onOpenChange={setStrategyOpen}>
