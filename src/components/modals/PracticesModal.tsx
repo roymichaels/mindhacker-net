@@ -644,7 +644,7 @@ function AISuggestPanel({ isHe, onDone }: { isHe: boolean; onDone: () => void })
     }
   }, [user?.id]);
 
-  useState(() => { fetchSuggestions(); });
+  useEffect(() => { fetchSuggestions(); }, [fetchSuggestions]);
 
   const handleAdd = async (s: AISuggestion) => {
     setAddingId(s.practice_id);
