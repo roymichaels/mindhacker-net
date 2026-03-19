@@ -75,7 +75,7 @@ const TOPIC_GRADIENTS = [
 ];
 
 const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = null, onSelectTopic, createOpen = false, onCreateOpenChange }: CommunityProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { setActivePillar } = useAuroraChatContext();
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -85,8 +85,25 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const [eventsOpen, setEventsOpen] = useState(false);
   const [matchOpen, setMatchOpen] = useState(false);
   const [storyOpen, setStoryOpen] = useState(false);
+  const [generatingStories, setGeneratingStories] = useState(false);
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const qc = useQC();
+
+  const handleGenerateStories = async () => {
+    setGeneratingStories(true);
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('generate-ai-stories');
+      if (error) throw error;
+      toast.success(isHe ? `נוצרו ${data?.stories?.length || 0} סטוריז חדשים! ✨` : `Generated ${data?.stories?.length || 0} new stories! ✨`);
+      qc.invalidateQueries({ queryKey: ['community-stories'] });
+    } catch (err: any) {
+      console.error('Story generation failed:', err);
+      toast.error(isHe ? 'שגיאה ביצירת סטוריז' : 'Failed to generate stories');
+    } finally {
+      setGeneratingStories(false);
+    }
+  };
 
   useSEO({ title: 'MindOS Feed', description: '14 pillars. One civilization.' });
 
