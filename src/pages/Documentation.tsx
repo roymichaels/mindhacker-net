@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { useWhitepaperPDF } from '@/hooks/useWhitepaperPDF';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Menu, X } from 'lucide-react';
+import { ArrowLeft, Download, Loader2, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
