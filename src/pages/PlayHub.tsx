@@ -87,11 +87,12 @@ export default function PlayHub() {
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Quick Action Widgets — iPhone style */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="flex items-start justify-center gap-5">
+        <div className="grid grid-cols-5 gap-3 justify-items-center">
           <IPhoneWidget icon={Flame} label={isHe ? 'אסטרטגיה' : 'Strategy'} gradient="from-amber-500 to-orange-600" onClick={() => setStrategyOpen(true)} />
           <IPhoneWidget icon={Briefcase} label={isHe ? 'עבודה' : 'Work'} gradient="from-violet-500 to-purple-700" onClick={() => setWorkOpen(true)} />
           <IPhoneWidget icon={MessageSquare} label={isHe ? 'שיחה' : 'Chat'} gradient="from-sky-500 to-blue-600" onClick={() => setChatOpen(true)} />
           <IPhoneWidget icon={Search} label={isHe ? 'מאמן' : 'Coach'} gradient="from-emerald-500 to-emerald-700" onClick={openFindCoachWizard} />
+          <IPhoneWidget icon={Brain} label={isHe ? 'היפנוזה' : 'Hypnosis'} gradient="from-purple-500 to-fuchsia-600" onClick={openHypnosis} />
         </div>
       </div>
 
