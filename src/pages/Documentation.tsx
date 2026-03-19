@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { useWhitepaperPDF } from '@/hooks/useWhitepaperPDF';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Menu, X } from 'lucide-react';
+import { ArrowLeft, Download, Loader2, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ export default function Documentation() {
   const navigate = useNavigate();
   const he = language === 'he';
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { contentRef, capture: downloadPDF, capturing } = useWhitepaperPDF('whitepaper.pdf');
 
   const brandName = he ? theme.brand_name : theme.brand_name_en;
   const founderName = he ? theme.founder_name : theme.founder_name_en;
@@ -452,6 +454,15 @@ export default function Documentation() {
           <div className="flex-1" />
 
           <button
+            onClick={downloadPDF}
+            disabled={capturing}
+            className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
+          >
+            {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            <span className="text-xs hidden sm:inline">{he ? 'הורד PDF' : 'Download PDF'}</span>
+          </button>
+
+          <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
@@ -463,7 +474,7 @@ export default function Documentation() {
 
       <div className="flex">
         {/* Main content */}
-        <main className={cn("flex-1 min-w-0", isRTL ? "order-1" : "order-2")}>
+        <main ref={contentRef} className={cn("flex-1 min-w-0", isRTL ? "order-1" : "order-2")}>
           <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 space-y-8">
             {/* Title Page */}
             <motion.div
