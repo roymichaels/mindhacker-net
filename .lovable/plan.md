@@ -1,60 +1,32 @@
 
 
-## Aurora Chat Page Overhaul
+## Move Roadmap Above Active Operation & Improve Title
 
-### What's Wrong Now
-1. **Background issue**: The chat area has nested containers with visible borders/backgrounds creating a "container in container" look
-2. **Tab switcher is inline**: Dreams, Reflect, Gratitude tabs sit inside the chat page as tab switcher bar — should be iPhone widgets that open as modals
-3. **Chat input is not truly fixed/floating**: It scrolls with content instead of staying pinned
-4. **Only 3 journal modals exist** — user wants 4 total iPhone widget buttons (Dreams, Reflect, Gratitude + Plan + Beliefs = 5... but user said "2 other modals so it will be 4" — meaning 4 widgets: Dreams, Gratitude, Plan, Beliefs)
+### Current State
+In `TodayOverviewTab.tsx`, the layout order inside the unified card is:
+1. Header (pillar + classification)
+2. Directive quote
+3. Current Mission / Active Operation
+4. **Embedded Roadmap** (lines 240-343)
+5. Narrative Briefing
+6. Commander's Directive
 
-### Plan
+The roadmap title currently says "שלב A" / "Phase A" which is too minimal.
 
-#### 1. Clean up AuroraPage layout — remove nested containers
-- Remove the tab switcher bar entirely
-- Make the chat the main/only content of the page
-- Remove any visible background containers — chat messages float directly on `bg-background`
-- Ensure `AuroraChatArea` and `AuroraChatBubbles` have no wrapping card/container styling
+### Changes
 
-#### 2. Make chat input dock truly floating & fixed
-- Change the input dock from `absolute bottom-0` to `fixed bottom-[84px]` (above bottom nav)
-- Add floating styling: `mx-3 rounded-2xl backdrop-blur-xl bg-background/80 border border-border/30`
-- Remove the gradient fade background, replace with clean floating pill
+**File: `src/components/play/TodayOverviewTab.tsx`**
 
-#### 3. Replace tab switcher with 4 floating iPhone widgets
-- Add a floating horizontal row of 4 `IPhoneWidget` buttons above the chat input dock
-- Position: fixed, above the input dock
-- Widgets:
-  - **Dreams** (Moon icon, indigo gradient) → opens Dreams journal modal
-  - **Gratitude** (Heart icon, rose gradient) → opens Gratitude journal modal  
-  - **Plan** (Target icon, cyan gradient) → opens Plan summary modal (today's tasks from `action_items`)
-  - **Beliefs** (Brain icon, violet gradient) → opens Beliefs modal (from `aurora_memory_graph` where `node_type = 'belief'`)
+1. **Move the roadmap block** (lines 240-343) to render **before** the directive (line 209), so it appears right after the header and above everything else.
 
-#### 4. Create modal wrappers for each widget
-Each opens as a full-screen or sheet-style modal (`Dialog` or `Drawer`):
-- **Dreams Modal**: Wraps existing `JournalTab` with `type="dream"`
-- **Gratitude Modal**: Wraps existing `JournalTab` with `type="gratitude"`  
-- **Plan Modal**: New component — fetches today's `action_items` (tasks, habits) and displays them as a checklist. Read-only summary view.
-- **Beliefs Modal**: New component — fetches `aurora_memory_graph` entries where `node_type = 'belief'`, displays them as cards with strength indicators
+2. **Replace the roadmap title** from `שלב A` to a more descriptive title:
+   - Hebrew: `מסלול 100 הימים — שלב A` (100-Day Route — Phase A)
+   - English: `100-Day Route — Phase A`
+   - This gives context about the overall journey while still indicating the current phase.
 
-#### 5. Auto-update from Aurora conversations
-This already works! The existing infrastructure handles it:
-- **Beliefs**: `useCommandBus` already processes `memoryGraphUpsert` commands from Aurora's responses, writing to `aurora_memory_graph`
-- **Plan**: Aurora already uses `[task:create]`, `[task:swap]` commands via the command bus to update `action_items`
-- **Dreams/Gratitude**: These are manually entered journal entries (user writes them)
-- No new backend changes needed — the existing `aurora-analyze` function and command bus already extract beliefs/patterns from chat and update the memory graph automatically
+3. The roadmap sub-info (day count, progress bar, phase pills) stays the same — only the position and title text change.
 
-#### 6. Remove Reflection tab
-User only mentioned Dreams, Gratitude, Plan, Beliefs — Reflection is dropped.
-
-### Files to modify
-- `src/pages/AuroraPage.tsx` — Major rewrite: remove tabs, add floating widgets row, floating input, modals
-- `src/components/aurora/AuroraPlanModal.tsx` — New: today's plan summary from `action_items`
-- `src/components/aurora/AuroraBeliefsModal.tsx` — New: beliefs from `aurora_memory_graph`
-- `src/components/aurora/AuroraJournalModal.tsx` — New: wrapper modal for `JournalTab`
-- `src/components/aurora/AuroraChatBubbles.tsx` — Remove any container backgrounds
-- `src/components/aurora/AuroraChatArea.tsx` — Remove `max-w-3xl` container wrapper, clean bg
-
-### No database changes needed
-All data sources already exist: `journal_entries`, `action_items`, `aurora_memory_graph`.
+### Technical Detail
+- Cut the JSX block from lines 240-343 and paste it between the header block (line 207) and the directive (line 209)
+- Update the title span (line 248) from `שלב ${letter}` to `מסלול 100 הימים — שלב ${letter}` / `100-Day Route — Phase ${letter}`
 
