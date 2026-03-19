@@ -481,7 +481,7 @@ export default function Documentation() {
 
       <div className="flex">
         {/* Main content */}
-        <main ref={contentRef} className={cn("flex-1 min-w-0", isRTL ? "order-1" : "order-2")}>
+        <main ref={contentRef} dir={isRTL ? 'rtl' : 'ltr'} className={cn("flex-1 min-w-0", isRTL ? "order-1" : "order-2")}>
           <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 space-y-8">
             {/* Title Page */}
             <motion.div
