@@ -110,19 +110,19 @@ export function BottomTabBar() {
   };
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t bg-background/95 backdrop-blur-lg">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border/40">
       <div className="flex items-center justify-around h-16 px-2">
         {/* Left: FM */}
         {leftTabs.map(renderTab)}
 
-        {/* Aurora — styled like other tabs */}
+        {/* Aurora — flat tab style */}
         <button
           onClick={openAurora}
           className={cn(
-            "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px] border",
+            "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[56px]",
             location.pathname === '/aurora'
-              ? "bg-pink-500/15 border-pink-500/30"
-              : "bg-pink-500/5 border-pink-500/15 hover:bg-pink-500/15"
+              ? "bg-pink-500/20"
+              : "bg-transparent"
           )}
         >
           <AnimatePresence>
@@ -156,8 +156,7 @@ export function BottomTabBar() {
               level={100}
             />
           </div>
-          <span className="text-[10px] font-bold text-pink-600 dark:text-pink-400 opacity-90">Aurora</span>
-          {/* Unread badge */}
+          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-pink-400" : "text-pink-400/50")}>Aurora</span>
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -171,13 +170,13 @@ export function BottomTabBar() {
             <button
               onClick={() => navigate(planTab.path)}
               className={cn(
-                "w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 border ring-2",
+                "w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30",
                 isActive(planTab.path)
-                  ? "bg-cyan-500/20 border-cyan-500/40 ring-cyan-400/30"
-                  : "bg-cyan-500/10 border-cyan-500/20 ring-cyan-500/10"
+                  ? "bg-cyan-500/25 ring-2 ring-cyan-400/30"
+                  : "bg-cyan-500/10 ring-1 ring-cyan-500/10"
               )}
             >
-              <Play className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-600 dark:text-cyan-400" : "text-cyan-600/80 dark:text-cyan-400/80")} fill="currentColor" />
+              <Play className={cn("h-5 w-5", isActive(planTab.path) ? "text-cyan-400" : "text-cyan-400/60")} fill="currentColor" />
             </button>
           </div>
         )}
