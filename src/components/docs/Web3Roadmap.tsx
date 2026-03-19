@@ -22,16 +22,18 @@ const phases: RoadmapPhase[] = [
     titleHe: 'השקה ציבורית',
     titleEn: 'Public Launch',
     items: [
-      { he: '6 Hubs פעילים', en: '6 Active Hubs' },
+      { he: '5 חוויות ליבה פעילות', en: '5 Active Core Experiences' },
       { he: 'מנוע כרייה MOS', en: 'MOS Mining Engine' },
       { he: 'היפנוזה AI', en: 'AI Hypnosis' },
       { he: 'תוכנית 100 ימים', en: '100-Day Plan' },
       { he: 'Beta ציבורי', en: 'Public Beta' },
       { he: '🎮 מנגנון Play2Earn', en: '🎮 Play2Earn Mechanism' },
+      { he: '🪙 מנטינג Soul Avatar NFT', en: '🪙 Soul Avatar NFT Minting' },
       { he: 'סטוריז + פיד חברתי', en: 'Stories + Social Feed' },
       { he: 'חנויות מאמנים אישיות', en: 'Coach Storefronts' },
       { he: 'תוכנית שותפים', en: 'Affiliate Program' },
-      { he: 'Admin Hub', en: 'Admin Hub' },
+      { he: 'יומן Aurora', en: 'Aurora Journal' },
+      { he: 'מצב קולי', en: 'Voice Mode' },
     ],
   },
   {
@@ -42,7 +44,7 @@ const phases: RoadmapPhase[] = [
     titleEn: 'Coach Platform',
     items: [
       { he: 'פלטפורמת מאמנים מתקדמת', en: 'Advanced Coach Platform' },
-      { he: 'FreeMarket — שוק נתונים', en: 'FreeMarket — Data Marketplace' },
+      { he: 'שוק נתונים', en: 'Data Marketplace' },
       { he: 'API פתוח', en: 'Open API' },
       { he: 'אנליטיקס מתקדם', en: 'Advanced Analytics' },
     ],
@@ -54,9 +56,9 @@ const phases: RoadmapPhase[] = [
     titleHe: 'NFT & מובייל',
     titleEn: 'NFT & Mobile',
     items: [
-      { he: 'NFT Orb export ל-Blockchain', en: 'NFT Orb Export to Blockchain' },
+      { he: 'ייצוא Soul Avatar ל-Blockchain', en: 'Soul Avatar Export to Blockchain' },
       { he: 'אפליקציית מובייל Native', en: 'Native Mobile App' },
-      { he: 'Integrations חיצוניים', en: 'External Integrations' },
+      { he: 'אינטגרציות חיצוניות', en: 'External Integrations' },
     ],
   },
   {
@@ -78,7 +80,7 @@ const phases: RoadmapPhase[] = [
     titleHe: 'Web3 & DAO',
     titleEn: 'Web3 & DAO',
     items: [
-      { he: 'Blockchain Integration', en: 'Blockchain Integration' },
+      { he: 'Blockchain Integration מלא', en: 'Full Blockchain Integration' },
       { he: 'DAO Governance', en: 'DAO Governance' },
       { he: 'MOS על רשת Solana', en: 'MOS on Solana Network' },
       { he: 'שוק NFT חיצוני', en: 'External NFT Marketplace' },
@@ -114,12 +116,10 @@ const statusColors = {
 export function Web3Roadmap({ isHe }: { isHe: boolean }) {
   return (
     <div className="relative py-6">
-      {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 start-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/[0.03] blur-[100px]" />
       </div>
 
-      {/* Timeline */}
       <div className="relative space-y-0">
         {phases.map((phase, idx) => {
           const colors = statusColors[phase.status];
@@ -134,9 +134,7 @@ export function Web3Roadmap({ isHe }: { isHe: boolean }) {
               transition={{ delay: idx * 0.12, duration: 0.5 }}
               className="relative flex gap-4 md:gap-6"
             >
-              {/* Timeline spine */}
               <div className="flex flex-col items-center shrink-0 w-10 md:w-14">
-                {/* Glowing dot */}
                 <div
                   className={cn(
                     "relative z-10 w-4 h-4 md:w-5 md:h-5 rounded-full mt-6 transition-all",
@@ -149,7 +147,6 @@ export function Web3Roadmap({ isHe }: { isHe: boolean }) {
                   )}
                 </div>
 
-                {/* Connecting line */}
                 {!isLast && (
                   <div className={cn(
                     "flex-1 w-0.5 min-h-[20px]",
@@ -158,7 +155,6 @@ export function Web3Roadmap({ isHe }: { isHe: boolean }) {
                 )}
               </div>
 
-              {/* Card */}
               <div
                 className={cn(
                   "flex-1 rounded-2xl border backdrop-blur-sm p-4 md:p-5 mb-4 transition-all hover:scale-[1.01]",
@@ -166,7 +162,6 @@ export function Web3Roadmap({ isHe }: { isHe: boolean }) {
                 )}
                 style={{ boxShadow: phase.status !== 'upcoming' ? colors.glow : undefined }}
               >
-                {/* Header */}
                 <div className="flex items-center gap-3 mb-3">
                   <span
                     className={cn(
@@ -197,7 +192,6 @@ export function Web3Roadmap({ isHe }: { isHe: boolean }) {
                   </div>
                 </div>
 
-                {/* Items */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   {phase.items.map((item, j) => (
                     <motion.div
@@ -231,7 +225,6 @@ export function Web3Roadmap({ isHe }: { isHe: boolean }) {
         })}
       </div>
 
-      {/* Bottom decoration */}
       <div className="flex justify-center mt-6">
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground/50 uppercase tracking-widest">
           <span className="w-8 h-px bg-border/40" />
