@@ -2441,6 +2441,7 @@ export type Database = {
           likes_count: number | null
           media_urls: string[] | null
           pillar: string | null
+          post_type: string
           status: string
           title: string | null
           title_he: string | null
@@ -2461,6 +2462,7 @@ export type Database = {
           likes_count?: number | null
           media_urls?: string[] | null
           pillar?: string | null
+          post_type?: string
           status?: string
           title?: string | null
           title_he?: string | null
@@ -2481,6 +2483,7 @@ export type Database = {
           likes_count?: number | null
           media_urls?: string[] | null
           pillar?: string | null
+          post_type?: string
           status?: string
           title?: string | null
           title_he?: string | null
