@@ -152,7 +152,7 @@ export function BottomTabBar() {
           <div className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
             location.pathname === '/aurora'
-              ? "bg-pink-500 shadow-lg"
+              ? "bg-white shadow-lg"
               : "bg-muted/40"
           )}>
             <StandaloneMorphOrb
