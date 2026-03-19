@@ -9,6 +9,7 @@ import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Web3Roadmap } from '@/components/docs/Web3Roadmap';
+import { TokenomicsSection } from '@/components/docs/TokenomicsSection';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -425,6 +426,12 @@ export default function Documentation() {
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },
+    {
+      id: 'tokenomics',
+      number: '19',
+      title: he ? 'טוקנומיקס — כלכלת MOS' : 'Tokenomics — MOS Economy',
+      paragraphs: [],
+    },
   ];
 
   const tocItems = sections.map(s => ({ id: s.id, number: s.number, title: s.title }));
@@ -536,6 +543,8 @@ export default function Documentation() {
                 {/* Visual roadmap for roadmap section */}
                 {section.id === 'roadmap' ? (
                   <Web3Roadmap isHe={he} />
+                ) : section.id === 'tokenomics' ? (
+                  <TokenomicsSection isHe={he} />
                 ) : (
                   <>
                     {section.paragraphs.map((p, j) => (
