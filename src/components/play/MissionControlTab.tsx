@@ -386,19 +386,40 @@ export function MissionControlTab() {
               </p>
             )}
 
-            {/* ── Compressed Motivation + Progress (no scroll needed) ── */}
+            {/* ── Tactical Briefing ── */}
             {nextAction ? (
               <div className="mt-3 pt-2.5 border-t border-border/20 space-y-2">
-                {/* Motivation — single compact line */}
+                {/* Motivation */}
                 <div className="flex items-start gap-1.5">
                   <Flame className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">
+                  <p className="text-[10px] text-foreground/70 leading-snug">
                     {isHe ? pillarMeta.motivation : pillarMeta.motivationEn}
                   </p>
                 </div>
+                {/* Strategy */}
+                <div className="flex items-start gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-primary/60 flex-shrink-0 mt-0.5" />
+                  <p className="text-[10px] text-muted-foreground leading-snug">
+                    {isHe ? pillarMeta.strategy : pillarMeta.strategyEn}
+                  </p>
+                </div>
+                {/* Aim */}
+                <div className="flex items-start gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-emerald-400/70 flex-shrink-0 mt-0.5" />
+                  <p className="text-[10px] font-semibold text-foreground/75 leading-snug">
+                    {isHe ? pillarMeta.aim : pillarMeta.aimEn}
+                  </p>
+                </div>
+                {/* Tactic */}
+                <div className="flex items-start gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-rose-400/60 flex-shrink-0 mt-0.5" />
+                  <p className="text-[10px] italic text-muted-foreground/80 leading-snug">
+                    {isHe ? pillarMeta.tactic : pillarMeta.tacticEn}
+                  </p>
+                </div>
 
-                {/* Progress context — compact row */}
-                <div className="flex items-center justify-between text-[9px]">
+                {/* Progress context */}
+                <div className="flex items-center justify-between text-[9px] pt-1">
                   <span className="text-muted-foreground/60">
                     {completedCount}/{totalCount} {isHe ? 'הושלמו' : 'done'}
                     {incompleteActions.length > 1 && (
