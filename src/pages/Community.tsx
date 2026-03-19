@@ -180,74 +180,32 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                 {/* Events Card */}
                 <button
                   onClick={() => setEventsOpen(true)}
-                  className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-sky-500/[0.06] p-4 text-start transition-all hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 active:scale-[0.99]"
+                  className="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-sky-500/[0.06] px-3 py-2.5 text-start transition-all hover:border-sky-500/40 active:scale-[0.99] flex items-center gap-2.5"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center flex-shrink-0">
-                      <CalendarDays className="w-5 h-5 text-sky-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-foreground">
-                        {isHe ? 'אירועים קרובים' : 'Upcoming Events'}
-                      </h3>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                        {isHe ? 'מפגשים חיים, סדנאות ואתגרים קהילתיים' : 'Live meetups, workshops & community challenges'}
-                      </p>
-                    </div>
-                    <ArrowRight className={cn("w-4 h-4 text-sky-500/60 group-hover:text-sky-500 transition-colors mt-1 flex-shrink-0", isHe && "rotate-180")} />
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/15 flex items-center justify-center flex-shrink-0">
+                    <CalendarDays className="w-4 h-4 text-sky-500" />
                   </div>
-                  {/* Event preview pills */}
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/15">
-                      {isHe ? '🎯 אתגר שבועי' : '🎯 Weekly Challenge'}
-                    </span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/15">
-                      {isHe ? '🎙️ שיחה פתוחה' : '🎙️ Open Talk'}
-                    </span>
-                  </div>
+                  <h3 className="text-xs font-bold text-foreground flex-1 min-w-0">
+                    {isHe ? 'אירועים קרובים' : 'Upcoming Events'}
+                  </h3>
+                  <ArrowRight className={cn("w-3.5 h-3.5 text-sky-500/50 flex-shrink-0", isHe && "rotate-180")} />
                 </button>
 
                 {/* AI Match Card */}
                 <button
                   onClick={() => setMatchOpen(true)}
-                  className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-start transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 active:scale-[0.99]"
+                  className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2.5 text-start transition-all hover:border-amber-500/40 active:scale-[0.99] flex items-center gap-2.5"
                 >
-                  {/* Glow accent */}
-                  <div className="absolute top-0 end-0 w-24 h-24 rounded-full bg-amber-400/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
-                  <div className="relative flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-5 h-5 text-amber-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="text-sm font-bold text-foreground">
-                          {isHe ? 'AI Match' : 'AI Match'}
-                        </h3>
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-                          {isHe ? 'חדש' : 'New'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                        {isHe
-                          ? 'Aurora תחבר אותך לשחקנים קרובים אליך שישחיזו אותך — אימונים, פגישות ושיתופי פעולה בחיים האמיתיים'
-                          : 'Aurora connects you with nearby players who sharpen you — train together, meet up & build real-life bonds'}
-                      </p>
-                    </div>
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
                   </div>
-                  {/* Feature highlights */}
-                  <div className="relative flex flex-wrap gap-1.5 mt-3">
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/15 flex items-center gap-1">
-                      <MapPin className="w-2.5 h-2.5" />
-                      {isHe ? 'לפי מיקום' : 'Location-based'}
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    <h3 className="text-xs font-bold text-foreground">AI Match</h3>
+                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 uppercase tracking-wider">
+                      {isHe ? 'חדש' : 'New'}
                     </span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/15 flex items-center gap-1">
-                      <Users className="w-2.5 h-2.5" />
-                      {isHe ? 'שיתופי פעולה' : 'Collaborations'}
-                    </span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/15 flex items-center gap-1">
-                      <Sparkles className="w-2.5 h-2.5" />
-                      {isHe ? 'התאמה חכמה' : 'Smart matching'}
-                    </span>
+                  </div>
+                  <ArrowRight className={cn("w-3.5 h-3.5 text-amber-500/50 flex-shrink-0", isHe && "rotate-180")} />
                   </div>
                 </button>
               </div>
