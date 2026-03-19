@@ -520,7 +520,13 @@ export default function Documentation() {
               className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-3"
             >
               <h2 className="text-lg font-bold text-foreground">{he ? 'תקציר מנהלים' : 'Executive Summary'}</h2>
-              <p dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm">{abstractText}</p>
+              <p
+                dir={isRTL ? 'rtl' : 'ltr'}
+                style={{ unicodeBidi: 'plaintext' }}
+                className="text-muted-foreground leading-relaxed text-sm"
+              >
+                {abstractText}
+              </p>
             </motion.div>
 
             {/* Sections */}
@@ -535,8 +541,14 @@ export default function Documentation() {
                 variants={fadeUp}
                 className="space-y-4 scroll-mt-20"
               >
-                <h2 className="text-2xl font-bold text-foreground border-b border-border pb-2" style={{ unicodeBidi: 'plaintext' }}>
-                  <span dir="ltr" className="text-primary/60 font-mono me-2">{section.number}.</span>
+                <h2
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                  className={cn(
+                    "text-2xl font-bold text-foreground border-b border-border pb-2 flex items-baseline gap-2",
+                    isRTL ? "text-right" : "text-left"
+                  )}
+                >
+                  <span dir="ltr" className="text-primary/60 font-mono shrink-0">{section.number}.</span>
                   <span dir={isRTL ? 'rtl' : 'ltr'} style={{ unicodeBidi: 'plaintext' }}>
                     {section.title}
                   </span>
@@ -550,7 +562,12 @@ export default function Documentation() {
                 ) : (
                   <>
                     {section.paragraphs.map((p, j) => (
-                      <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm">
+                      <p
+                        key={j}
+                        dir={isRTL ? 'rtl' : 'ltr'}
+                        style={{ unicodeBidi: 'plaintext' }}
+                        className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm"
+                      >
                         {p}
                       </p>
                     ))}
@@ -561,7 +578,14 @@ export default function Documentation() {
                   <div key={k} className="ms-4 border-s-2 border-primary/20 ps-4 space-y-2 pt-2">
                     <h3 className="text-base font-semibold text-foreground" style={{ unicodeBidi: 'plaintext' }}>{sub.title}</h3>
                     {sub.paragraphs.map((p, j) => (
-                      <p key={j} dir={isRTL ? 'rtl' : 'ltr'} className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{p}</p>
+                      <p
+                        key={j}
+                        dir={isRTL ? 'rtl' : 'ltr'}
+                        style={{ unicodeBidi: 'plaintext' }}
+                        className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line"
+                      >
+                        {p}
+                      </p>
                     ))}
                   </div>
                 ))}
@@ -570,7 +594,11 @@ export default function Documentation() {
 
             {/* Disclaimer */}
             <div className="text-center pt-10 pb-24 border-t border-border space-y-3">
-              <p dir={isRTL ? 'rtl' : 'ltr'} className="text-xs text-muted-foreground/80 max-w-xl mx-auto">
+              <p
+                dir={isRTL ? 'rtl' : 'ltr'}
+                style={{ unicodeBidi: 'plaintext' }}
+                className="text-xs text-muted-foreground/80 max-w-xl mx-auto"
+              >
                 {he
                   ? `מסמך זה מוגש למטרות מידע בלבד ואינו מהווה הצעה למכירת ניירות ערך או הזמנה לרכישה. MOS tokens אינם מייצגים בעלות, דיבידנדים, או זכויות הצבעה. ביצועי העבר אינם מעידים על ביצועים עתידיים.`
                   : `This document is provided for informational purposes only and does not constitute an offer to sell securities or a solicitation to purchase. MOS tokens do not represent ownership, dividends, or voting rights. Past performance does not indicate future results.`
@@ -603,13 +631,17 @@ export default function Documentation() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="flex items-center gap-2 w-full text-start text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors"
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                  className={cn(
+                    "flex items-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md px-2.5 py-1.5 transition-colors",
+                    isRTL ? "text-right" : "text-left"
+                  )}
                 >
                   <span dir="ltr" className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
                   <span
                     dir={isRTL ? 'rtl' : 'ltr'}
                     style={{ unicodeBidi: 'plaintext' }}
-                    className={cn("min-w-0 text-wrap leading-snug", isRTL && "text-right")}
+                    className="min-w-0 text-wrap leading-snug"
                   >
                     {item.title}
                   </span>
