@@ -519,7 +519,8 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         style={asDock && dockHeightVh ? { height: `${dockHeightVh}vh` } : undefined}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Header — Aurora style */}
+        {/* Header — Aurora style (hidden when parent provides its own) */}
+        {!hideHeader && (
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
           {!asModal && !asDock && (
             <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))} className="shrink-0">
@@ -544,6 +545,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
             {language === 'he' ? 'EN' : 'עב'}
           </button>
         </div>
+        )}
         {/* Chat messages — Aurora style */}
         <ScrollArea className="flex-1 min-h-0">
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
