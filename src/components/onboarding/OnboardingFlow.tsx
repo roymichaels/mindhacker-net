@@ -217,33 +217,52 @@ export function OnboardingFlow() {
       setShowIntro(false);
       setShowReveal(true);
     } else if (Object.keys(restored).length > 0) {
-      // Find the first unanswered mini-step across all steps
+      // Find the first unanswered mini-step and the furthest answered step
       const allSteps = onboardingFlowSpec.steps;
       let foundStep = -1;
       let foundMini = 0;
-      
+      let lastAnsweredStep = -1;
+
       for (let sIdx = 0; sIdx < allSteps.length; sIdx++) {
         const visible = getVisibleMiniSteps(allSteps[sIdx], restored);
+        let hasAnswerInStep = false;
+
         for (let mIdx = 0; mIdx < visible.length; mIdx++) {
-          if (restored[visible[mIdx].id] === undefined) {
+          const hasAnswer = restored[visible[mIdx].id] !== undefined;
+          if (hasAnswer) {
+            hasAnswerInStep = true;
+          } else if (foundStep < 0) {
             foundStep = sIdx;
             foundMini = mIdx;
-            break;
           }
         }
-        if (foundStep >= 0) break;
+
+        if (hasAnswerInStep) {
+          lastAnsweredStep = sIdx;
+        }
       }
-      
+
       if (foundStep < 0) {
         // All answered — go to reveal
         setShowIntro(false);
         setShowReveal(true);
-      } else if (foundStep > 0 || foundMini > 0) {
-        setCurrentStepIdx(foundStep);
-        setCurrentMiniIdx(foundMini);
+      } else {
+        const fallbackFromSavedStep = savedStep && savedStep > 1
+          ? Math.min(savedStep - 1, allSteps.length - 1)
+          : 0;
+
+        // If first step appears unanswered but we clearly have deep progress, resume from deeper step
+        const fallbackFromAnswers = foundStep === 0 && lastAnsweredStep > 0
+          ? lastAnsweredStep
+          : 0;
+
+        const fallbackStepIdx = Math.max(fallbackFromSavedStep, fallbackFromAnswers);
+        const shouldUseFallback = foundStep === 0 && foundMini === 0 && fallbackStepIdx > 0;
+
+        setCurrentStepIdx(shouldUseFallback ? fallbackStepIdx : foundStep);
+        setCurrentMiniIdx(shouldUseFallback ? 0 : foundMini);
         setShowIntro(false);
       }
-      // If foundStep === 0 && foundMini === 0, stay at start (default state)
     }
   }, []);
 
@@ -263,17 +282,30 @@ export function OnboardingFlow() {
           .single();
         
         if (data) {
-          const restored: FlowAnswers = {};
-          if (data.step_1_intention && typeof data.step_1_intention === 'object') {
-            Object.assign(restored, data.step_1_intention as Record<string, unknown>);
-          }
-          if (data.step_2_profile_data && typeof data.step_2_profile_data === 'object') {
-            Object.assign(restored, data.step_2_profile_data as Record<string, unknown>);
-          }
+          const toRecord = (value: unknown): Record<string, unknown> | null => {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+              return value as Record<string, unknown>;
+            }
+            if (typeof value === 'string') {
+              try {
+                const parsed = JSON.parse(value);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                  return parsed as Record<string, unknown>;
+                }
+              } catch {
+                return null;
+              }
+            }
+            return null;
+          };
 
-          const phaseData = data.step_3_lifestyle_data && typeof data.step_3_lifestyle_data === 'object'
-            ? data.step_3_lifestyle_data as Record<string, unknown>
-            : null;
+          const restored: FlowAnswers = {};
+          const step1Data = toRecord(data.step_1_intention);
+          const step2Data = toRecord(data.step_2_profile_data);
+          const phaseData = toRecord(data.step_3_lifestyle_data);
+
+          if (step1Data) Object.assign(restored, step1Data);
+          if (step2Data) Object.assign(restored, step2Data);
 
           // Also restore any answer keys from step_3_lifestyle_data (catch-all keys end up here)
           if (phaseData) {
@@ -394,15 +426,10 @@ export function OnboardingFlow() {
         step1Data.selected_pillar = FRICTION_PILLAR_MAP[updatedAnswers.pressure_zone as string] || 'mind';
       }
 
-      // All known step2 keys
-      STEP2_KEYS.forEach(key => {
-        if (updatedAnswers[key] !== undefined) step2Data[key] = updatedAnswers[key];
-      });
-
-      // Catch-all: save any answer key not in STEP1 or STEP2 lists into step2 as well
-      const allKnown = new Set([...STEP1_KEYS, ...STEP2_KEYS]);
+      // Keep a full mirrored snapshot in step_2_profile_data for resilience
+      // (step_1_intention is legacy text column, so we keep answers recoverable here as well)
       Object.keys(updatedAnswers).forEach(key => {
-        if (!allKnown.has(key) && updatedAnswers[key] !== undefined) {
+        if (updatedAnswers[key] !== undefined) {
           step2Data[key] = updatedAnswers[key];
         }
       });
