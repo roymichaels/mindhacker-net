@@ -426,15 +426,10 @@ export function OnboardingFlow() {
         step1Data.selected_pillar = FRICTION_PILLAR_MAP[updatedAnswers.pressure_zone as string] || 'mind';
       }
 
-      // All known step2 keys
-      STEP2_KEYS.forEach(key => {
-        if (updatedAnswers[key] !== undefined) step2Data[key] = updatedAnswers[key];
-      });
-
-      // Catch-all: save any answer key not in STEP1 or STEP2 lists into step2 as well
-      const allKnown = new Set([...STEP1_KEYS, ...STEP2_KEYS]);
+      // Keep a full mirrored snapshot in step_2_profile_data for resilience
+      // (step_1_intention is legacy text column, so we keep answers recoverable here as well)
       Object.keys(updatedAnswers).forEach(key => {
-        if (!allKnown.has(key) && updatedAnswers[key] !== undefined) {
+        if (updatedAnswers[key] !== undefined) {
           step2Data[key] = updatedAnswers[key];
         }
       });
