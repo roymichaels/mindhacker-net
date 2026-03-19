@@ -445,12 +445,43 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
     }
   }, [isStreaming, handleToolCall, addAssistantMessage, conversationId, saveMessageToDB]);
 
-  // Auto-start only after history is loaded and no existing messages
+  // Auto-start or auto-continue after history is loaded
   useEffect(() => {
-    if (!loadingHistory && !startedRef.current && conversationId) {
+    if (loadingHistory || !conversationId) return;
+    
+    // No messages at all — start fresh conversation
+    if (!startedRef.current) {
       startConversation();
+      return;
     }
-  }, [loadingHistory, conversationId, startConversation]);
+    
+    // Has existing messages — check if the last message is from the user (AI never replied)
+    const currentMessages = messagesRef.current;
+    if (currentMessages.length > 0 && currentMessages[currentMessages.length - 1].role === 'user' && !isStreaming) {
+      // Re-send the full history to get Aurora's response
+      setIsStreaming(true);
+      setStreamingContent('');
+      let assistantSoFar = '';
+      const updateAssistant = (chunk: string) => {
+        assistantSoFar += chunk;
+        setStreamingContent(assistantSoFar);
+      };
+      streamChat(
+        currentMessages.map(m => ({ role: m.role, content: m.content })),
+        updateAssistant,
+        () => {
+          setIsStreaming(false);
+          if (assistantSoFar) addAssistantMessage(assistantSoFar);
+          setStreamingContent('');
+        },
+        handleToolCall
+      ).catch(e => {
+        console.error('Auto-continue error:', e);
+        setIsStreaming(false);
+        setStreamingContent('');
+      });
+    }
+  }, [loadingHistory, conversationId, startConversation, isStreaming, handleToolCall, addAssistantMessage]);
 
   const Icon = domain?.icon;
 
