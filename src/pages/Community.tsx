@@ -7,6 +7,8 @@ import { MessageSquarePlus, ChevronLeft, Clock, Flame, CalendarDays, MapPin, Spa
 import UsernameGate from '@/components/community/UsernameGate';
 import CommunityLeaderboard from '@/components/community/CommunityLeaderboard';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
+import CreateStoryModal from '@/components/community/CreateStoryModal';
+import StoriesStrip from '@/components/community/StoriesStrip';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
