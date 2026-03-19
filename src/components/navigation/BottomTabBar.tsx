@@ -95,7 +95,7 @@ export function BottomTabBar() {
         <div className={cn(
           "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
           active
-            ? `${colors.solid} shadow-lg`
+            ? `${colors.solid} shadow-lg ring-2 ring-white/80`
             : "bg-muted/40"
         )}>
           <Icon className={cn("h-6 w-6", active ? colors.text : colors.inactive)} />
