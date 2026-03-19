@@ -543,6 +543,8 @@ export default function Documentation() {
                 {/* Visual roadmap for roadmap section */}
                 {section.id === 'roadmap' ? (
                   <Web3Roadmap isHe={he} />
+                ) : section.id === 'tokenomics' ? (
+                  <TokenomicsSection isHe={he} />
                 ) : (
                   <>
                     {section.paragraphs.map((p, j) => (
