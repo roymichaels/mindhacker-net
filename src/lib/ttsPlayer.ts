@@ -152,6 +152,12 @@ function speakWithBrowserFallback(text: string, speed: number): Promise<void> {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speed;
+    // Detect Hebrew content and set language accordingly
+    const hasHebrew = /[\u0590-\u05FF]/.test(text);
+    utterance.lang = hasHebrew ? 'he-IL' : 'en-US';
+    const voices = window.speechSynthesis.getVoices();
+    const matchingVoice = voices.find(v => v.lang.startsWith(hasHebrew ? 'he' : 'en'));
+    if (matchingVoice) utterance.voice = matchingVoice;
     utterance.onend = () => resolve();
     utterance.onerror = () => reject(new Error('Browser TTS error'));
     window.speechSynthesis.speak(utterance);

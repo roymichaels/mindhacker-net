@@ -380,9 +380,16 @@ export function useLessonTTS(options: UseLessonTTSOptions = {}) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = rate;
+    // Detect Hebrew content and set language accordingly
+    const hasHebrew = /[\u0590-\u05FF]/.test(text);
+    utterance.lang = hasHebrew ? 'he-IL' : 'en-US';
+    // Try to find a matching voice
+    const voices = window.speechSynthesis.getVoices();
+    const matchingVoice = voices.find(v => v.lang.startsWith(hasHebrew ? 'he' : 'en'));
+    if (matchingVoice) utterance.voice = matchingVoice;
     utterance.onstart = () => { setIsPlaying(true); setIsLoading(false); };
-    utterance.onend = () => { setIsPlaying(false); playingRef.current = false; };
-    utterance.onerror = () => { setIsPlaying(false); playingRef.current = false; };
+    utterance.onend = () => { setIsPlaying(false); playingRef.current = false; busyRef.current = false; };
+    utterance.onerror = () => { setIsPlaying(false); playingRef.current = false; busyRef.current = false; };
     window.speechSynthesis.speak(utterance);
   }, []);
 
