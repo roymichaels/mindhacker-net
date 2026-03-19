@@ -1,14 +1,16 @@
 /**
  * OnboardingAssessments — Sequentially runs DomainAssessChat for each selected pillar.
  * Shows progress and auto-advances to the next pillar when assessment completes.
+ * Skips pillars that already have assessment data to avoid re-asking.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLifeDomains } from '@/hooks/useLifeDomains';
 import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
 import OnboardingPresenceScan from '@/components/onboarding/OnboardingPresenceScan';
-import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
-import { CheckCircle2, ArrowRight, ChevronLeft } from 'lucide-react';
+import { getDomainById } from '@/navigation/lifeDomains';
+import { CheckCircle2, ChevronLeft, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OnboardingAssessmentsProps {
@@ -20,22 +22,67 @@ interface OnboardingAssessmentsProps {
 export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: OnboardingAssessmentsProps) {
   const { t, language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const { getDomain } = useLifeDomains();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedPillars, setCompletedPillars] = useState<string[]>([]);
+  const [checking, setChecking] = useState(true);
+  const skipChecked = useRef(false);
+
+  // On mount: detect which pillars already have completed assessments and skip them
+  useEffect(() => {
+    if (skipChecked.current) return;
+    skipChecked.current = true;
+
+    const alreadyDone: string[] = [];
+    for (const pillarId of selectedPillars) {
+      const row = getDomain(pillarId);
+      const config = row?.domain_config as Record<string, any> | null;
+      if (config?.completed) {
+        alreadyDone.push(pillarId);
+      }
+    }
+
+    if (alreadyDone.length > 0) {
+      setCompletedPillars(alreadyDone);
+      // Find first non-completed pillar
+      const firstPending = selectedPillars.findIndex(p => !alreadyDone.includes(p));
+      if (firstPending === -1) {
+        // All pillars already assessed — skip straight to plan generation
+        setTimeout(() => onComplete(), 300);
+      } else {
+        setCurrentIndex(firstPending);
+      }
+    }
+    setChecking(false);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentPillarId = selectedPillars[currentIndex];
-  const currentDomain = getDomainById(currentPillarId);
   const allDone = currentIndex >= selectedPillars.length;
 
   const handlePillarComplete = useCallback(() => {
-    setCompletedPillars(prev => [...prev, currentPillarId]);
-    
-    if (currentIndex + 1 >= selectedPillars.length) {
+    const newCompleted = [...completedPillars, currentPillarId];
+    setCompletedPillars(newCompleted);
+
+    // Find next non-completed pillar
+    let nextIndex = currentIndex + 1;
+    while (nextIndex < selectedPillars.length && newCompleted.includes(selectedPillars[nextIndex])) {
+      nextIndex++;
+    }
+
+    if (nextIndex >= selectedPillars.length) {
       setTimeout(() => onComplete(), 500);
     } else {
-      setCurrentIndex(currentIndex + 1);
+      setCurrentIndex(nextIndex);
     }
-  }, [currentIndex, selectedPillars, currentPillarId, onComplete]);
+  }, [currentIndex, selectedPillars, currentPillarId, onComplete, completedPillars]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (allDone) {
     return (
@@ -63,7 +110,15 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
               if (currentIndex === 0 && onBack) {
                 onBack();
               } else if (currentIndex > 0) {
-                setCurrentIndex(currentIndex - 1);
+                let prevIndex = currentIndex - 1;
+                while (prevIndex >= 0 && completedPillars.includes(selectedPillars[prevIndex])) {
+                  prevIndex--;
+                }
+                if (prevIndex >= 0) {
+                  setCurrentIndex(prevIndex);
+                } else if (onBack) {
+                  onBack();
+                }
               }
             }}
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -72,7 +127,7 @@ export function OnboardingAssessments({ selectedPillars, onComplete, onBack }: O
             {isHe ? 'חזרה' : 'Back'}
           </button>
           <span className="text-xs text-muted-foreground font-medium">
-            {currentIndex + 1}/{selectedPillars.length}
+            {Math.min(completedPillars.length + 1, selectedPillars.length)}/{selectedPillars.length}
           </span>
         </div>
         
