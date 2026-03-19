@@ -174,8 +174,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   if (!user) return null;
 
   return (
-    <ScrollArea className="h-full overflow-y-auto" ref={scrollRef as any}>
-      <div className="w-full px-4 space-y-3 pb-4">
+    <div className="w-full px-4 space-y-3 pb-4" ref={scrollRef}>
         {/* Persistent orb */}
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-6 pb-2">
