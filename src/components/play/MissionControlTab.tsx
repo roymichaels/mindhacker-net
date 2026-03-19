@@ -1,10 +1,7 @@
 /**
- * MissionControlTab — Interactive tab with 10-day roadmap + media player controls.
- * Task queue content is in the modal only. This tab shows:
- * - 10-day phase roadmap
- * - Media player bar with controls
- * - Queue & Talk buttons
- * - Motivation card for the current task
+ * MissionControlTab — Single unified media player card.
+ * No roadmap here (only in queue modal). Queue & Talk buttons flanking controls.
+ * Motivation merged into the player card.
  */
 import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,8 +15,8 @@ import { FocusQueueModal } from './FocusQueueModal';
 import { useQueryClient } from '@tanstack/react-query';
 import type { NowQueueItem } from '@/types/planning';
 import {
-  Play, SkipBack, SkipForward, CheckCircle2,
-  ListMusic, MessageSquare, Zap, Sparkles, Target, Clock, Flame,
+  Play, SkipBack, SkipForward,
+  ListMusic, MessageSquare, Clock, Flame,
 } from 'lucide-react';
 
 function tacticalToNowItem(action: TacticalAction): NowQueueItem {
@@ -65,7 +62,7 @@ export function MissionControlTab() {
   const queryClient = useQueryClient();
 
   const phasePlan = useWeeklyTacticalPlan();
-  const { days, phase, isLoading, toggleActionComplete } = phasePlan as any;
+  const { days, isLoading, toggleActionComplete } = phasePlan as any;
 
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
@@ -120,12 +117,19 @@ export function MissionControlTab() {
     queryClient.invalidateQueries({ queryKey: ['tactical-schedule'] });
   }, [queryClient]);
 
-  // Motivation data for current task
   const currentPillar = nextAction?.focusArea || 'focus';
   const pillarMeta = PILLAR_META[currentPillar] || PILLAR_META.focus;
   const currentTitle = nextAction
     ? (isHe ? nextAction.title : (nextAction.titleEn || nextAction.title))
     : (isHe ? 'כל המשימות הושלמו!' : 'All missions complete!');
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -133,291 +137,149 @@ export function MissionControlTab() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="space-y-3"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* ── 10-Day Roadmap ── */}
-        <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/20">
-            <Zap className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-bold text-foreground">
-              {isHe ? `שלב ${phase}` : `Phase ${phase}`}
-            </span>
-            <span className="text-[10px] text-muted-foreground ms-auto">
-              {completedCount}/{totalCount}
-            </span>
-          </div>
+        {/* ── Single Unified Media Player Card ── */}
+        <div className="rounded-2xl border border-border/40 bg-card p-4 relative overflow-hidden">
+          <div className="absolute top-0 end-0 w-28 h-28 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-          <div className="flex gap-1 px-3 py-2 overflow-x-auto no-scrollbar">
-            {(days || []).map((day: DayPlan) => {
-              const isActive = day.dayIndex === activeDay;
-              const hasActions = day.totalActions > 0;
-              const dayPct = day.totalActions > 0 ? Math.round((day.completedActions / day.totalActions) * 100) : 0;
-
-              return (
-                <button
-                  key={day.dayIndex}
-                  onClick={() => setSelectedDay(day.dayIndex)}
-                  className={cn(
-                    "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all min-w-[36px] relative",
-                    isActive ? "bg-primary/15 border border-primary/30"
-                      : hasActions ? "bg-muted/20 border border-border/20 hover:bg-muted/40"
-                      : "bg-transparent border border-transparent opacity-40"
-                  )}
+          <div className="relative z-10">
+            {/* Now playing info */}
+            <div className="text-center mb-3">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={nextAction?.id || 'done'}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <span className={cn("text-[10px] font-bold", isActive ? "text-primary" : "text-foreground/60")}>
-                    {day.dayNumber}
-                  </span>
-                  <span className={cn("text-[8px]", isActive ? "text-primary/70" : "text-muted-foreground")}>
-                    {day.completedActions}/{day.totalActions}
-                  </span>
-                  <span className={cn("text-[7px]", isActive ? "text-primary/60" : "text-muted-foreground/60")}>
-                    {day.date ? `${day.date.slice(8, 10)}/${day.date.slice(5, 7)}` : ''}
-                  </span>
-                  {day.isToday && <div className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-primary" />}
-                  {dayPct === 100 && day.totalActions > 0 && (
-                    <div className="absolute -top-0.5 -end-0.5 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center">
-                      <CheckCircle2 className="w-2 h-2 text-white" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── Media Player Card ── */}
-        <div className="rounded-2xl border border-border/40 bg-card p-4">
-          {/* Now playing */}
-          <div className="text-center mb-3">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={nextAction?.id || 'done'}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <p className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase mb-0.5">
-                  {nextAction ? `${isHe ? 'משימה' : 'Mission'} ${nextIndex + 1}/${totalCount}` : (isHe ? 'סיום' : 'Complete')}
-                </p>
-                <h3 className="text-sm font-bold text-foreground line-clamp-1 px-6">
-                  {currentTitle}
-                </h3>
-                {nextAction && (
-                  <div className="flex items-center justify-center gap-2 mt-1">
-                    <span className={cn("text-[10px] font-semibold", pillarMeta.color)}>
-                      {isHe ? pillarMeta.label : pillarMeta.labelEn}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                      <Clock className="w-2.5 h-2.5" />
-                      {nextAction.estimatedMinutes}{isHe ? ' דק׳' : 'min'}
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Progress */}
-          <div className="h-1 bg-muted/40 rounded-full overflow-hidden mb-4 mx-4">
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70"
-              animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            />
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center justify-center gap-4">
-            {/* Previous */}
-            <button
-              onClick={() => { if (nextIndex > 0) handleExecute(dayActions[nextIndex - 1]); }}
-              disabled={nextIndex <= 0}
-              className="w-9 h-9 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30"
-            >
-              <SkipBack className="w-4 h-4" />
-            </button>
-
-            {/* PLAY */}
-            <motion.button
-              onClick={() => { if (nextAction) handleExecute(nextAction); }}
-              whileTap={{ scale: 0.92 }}
-              className={cn(
-                "relative w-14 h-14 rounded-full flex items-center justify-center",
-                "bg-gradient-to-br from-primary via-primary to-secondary",
-                "shadow-[0_0_24px_hsl(var(--primary)/0.4)]",
-                "hover:shadow-[0_0_36px_hsl(var(--primary)/0.6)]",
-                "transition-shadow duration-300",
-                !nextAction && "opacity-60 from-emerald-500 via-emerald-400 to-teal-500"
-              )}
-            >
-              {nextAction ? (
-                <Play className="w-6 h-6 text-primary-foreground ms-0.5" fill="currentColor" />
-              ) : (
-                <span className="text-lg">🏆</span>
-              )}
-            </motion.button>
-
-            {/* Next */}
-            <button
-              onClick={() => {
-                if (nextAction && incompleteActions.length > 1) handleExecute(incompleteActions[1]);
-              }}
-              disabled={incompleteActions.length <= 1}
-              className="w-9 h-9 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30"
-            >
-              <SkipForward className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Tap to start label */}
-          {nextAction && (
-            <p className="text-center text-[10px] text-muted-foreground/60 mt-2 font-medium">
-              {isHe ? 'לחץ Play להתחלת סשן' : 'Press Play to start session'}
-            </p>
-          )}
-        </div>
-
-        {/* ── Action Buttons: Queue + Talk ── */}
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => setQueueOpen(true)}
-            className={cn(
-              "flex items-center justify-center gap-2 py-3 rounded-2xl border transition-all",
-              "border-primary/20 bg-primary/[0.06] hover:border-primary/40 hover:bg-primary/[0.1]",
-              "active:scale-[0.97]"
-            )}
-          >
-            <ListMusic className="w-4 h-4 text-primary" />
-            <span className="text-xs font-bold text-foreground">
-              {isHe ? 'תור משימות' : 'Task Queue'}
-            </span>
-          </button>
-
-          <button
-            onClick={() => nextAction && handleTalkToTask(nextAction.title)}
-            disabled={!nextAction}
-            className={cn(
-              "flex items-center justify-center gap-2 py-3 rounded-2xl border transition-all",
-              "border-violet-500/20 bg-violet-500/[0.06] hover:border-violet-500/40 hover:bg-violet-500/[0.1]",
-              "active:scale-[0.97]",
-              "disabled:opacity-40 disabled:cursor-not-allowed"
-            )}
-          >
-            <MessageSquare className="w-4 h-4 text-violet-400" />
-            <span className="text-xs font-bold text-foreground">
-              {isHe ? 'דבר על המשימה' : 'Talk to Task'}
-            </span>
-          </button>
-        </div>
-
-        {/* ── Motivation Card ── */}
-        {nextAction ? (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="rounded-2xl border border-border/30 bg-gradient-to-br from-card via-card to-muted/20 p-4 relative overflow-hidden"
-          >
-            {/* Decorative glow */}
-            <div className="absolute top-0 end-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-
-            <div className="relative z-10">
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <div>
-                  <h4 className="text-[10px] font-bold text-primary uppercase tracking-wider">
-                    {isHe ? 'למה זה חשוב' : 'Why This Matters'}
-                  </h4>
-                </div>
-              </div>
-
-              {/* Current Mission */}
-              <div className="mb-3 pb-3 border-b border-border/20">
-                <div className="flex items-start gap-2">
-                  <Target className={cn("w-4 h-4 mt-0.5 flex-shrink-0", pillarMeta.color)} />
-                  <div className="flex-1 min-w-0">
-                    <h5 className="text-sm font-bold text-foreground line-clamp-2 mb-1">{currentTitle}</h5>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={cn(
-                        "text-[9px] font-semibold px-2 py-0.5 rounded-md",
-                        `${pillarMeta.color} bg-current/10`
-                      )} style={{ backgroundColor: 'hsl(var(--muted) / 0.3)' }}>
+                  <p className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase mb-0.5">
+                    {nextAction ? `${isHe ? 'משימה' : 'Mission'} ${nextIndex + 1}/${totalCount}` : (isHe ? 'סיום' : 'Complete')}
+                  </p>
+                  <h3 className="text-sm font-bold text-foreground line-clamp-1 px-6">
+                    {currentTitle}
+                  </h3>
+                  {nextAction && (
+                    <div className="flex items-center justify-center gap-2 mt-1">
+                      <span className={cn("text-[10px] font-semibold", pillarMeta.color)}>
                         {isHe ? pillarMeta.label : pillarMeta.labelEn}
                       </span>
-                      <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" />
-                        {nextAction.estimatedMinutes}{isHe ? ' דק׳' : ' min'}
+                        {nextAction.estimatedMinutes}{isHe ? ' דק׳' : 'min'}
                       </span>
-                      {nextAction.description && (
-                        <span className="text-[9px] text-muted-foreground/70">
-                          •  {nextAction.description.length > 50 ? nextAction.description.slice(0, 50) + '…' : nextAction.description}
-                        </span>
-                      )}
                     </div>
-                  </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-1 bg-muted/40 rounded-full overflow-hidden mb-4 mx-4">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70"
+                animate={{ width: `${progressPct}%` }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+              />
+            </div>
+
+            {/* Controls: Queue | Prev | PLAY | Next | Talk */}
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setQueueOpen(true)}
+                className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-all text-primary"
+                title={isHe ? 'תור משימות' : 'Task Queue'}
+              >
+                <ListMusic className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => { if (nextIndex > 0) handleExecute(dayActions[nextIndex - 1]); }}
+                disabled={nextIndex <= 0}
+                className="w-9 h-9 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30"
+              >
+                <SkipBack className="w-4 h-4" />
+              </button>
+
+              <motion.button
+                onClick={() => { if (nextAction) handleExecute(nextAction); }}
+                whileTap={{ scale: 0.92 }}
+                className={cn(
+                  "relative w-14 h-14 rounded-full flex items-center justify-center",
+                  "bg-gradient-to-br from-primary via-primary to-secondary",
+                  "shadow-[0_0_24px_hsl(var(--primary)/0.4)]",
+                  "hover:shadow-[0_0_36px_hsl(var(--primary)/0.6)]",
+                  "transition-shadow duration-300",
+                  !nextAction && "opacity-60 from-emerald-500 via-emerald-400 to-teal-500"
+                )}
+              >
+                {nextAction ? (
+                  <Play className="w-6 h-6 text-primary-foreground ms-0.5" fill="currentColor" />
+                ) : (
+                  <span className="text-lg">🏆</span>
+                )}
+              </motion.button>
+
+              <button
+                onClick={() => {
+                  if (nextAction && incompleteActions.length > 1) handleExecute(incompleteActions[1]);
+                }}
+                disabled={incompleteActions.length <= 1}
+                className="w-9 h-9 rounded-xl bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground disabled:opacity-30"
+              >
+                <SkipForward className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => nextAction && handleTalkToTask(nextAction.title)}
+                disabled={!nextAction}
+                className="w-9 h-9 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 flex items-center justify-center transition-all text-violet-400 disabled:opacity-30"
+                title={isHe ? 'דבר על המשימה' : 'Talk to Task'}
+              >
+                <MessageSquare className="w-4 h-4" />
+              </button>
+            </div>
+
+            {nextAction && (
+              <p className="text-center text-[10px] text-muted-foreground/60 mt-2 font-medium">
+                {isHe ? 'לחץ Play להתחלת סשן' : 'Press Play to start session'}
+              </p>
+            )}
+
+            {/* Motivation — merged into the card */}
+            {nextAction ? (
+              <div className="mt-4 pt-3 border-t border-border/20">
+                <div className="flex gap-2 mb-2">
+                  <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {isHe ? pillarMeta.motivation : pillarMeta.motivationEn}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground/70">
+                  <span>{completedCount}/{totalCount} {isHe ? 'הושלמו' : 'done'}</span>
+                  {incompleteActions.length > 1 && (
+                    <span>
+                      {isHe
+                        ? `עוד ${incompleteActions.length - 1} אחרי זו`
+                        : `${incompleteActions.length - 1} more after this`}
+                    </span>
+                  )}
                 </div>
               </div>
-
-              {/* Motivation Text */}
-              <div className="flex gap-2">
-                <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {isHe ? pillarMeta.motivation : pillarMeta.motivationEn}
+            ) : (
+              <div className="mt-4 pt-3 border-t border-border/20 text-center">
+                <div className="text-2xl mb-1">🏆</div>
+                <h4 className="text-sm font-bold text-foreground mb-0.5">
+                  {isHe ? 'כל המשימות הושלמו!' : 'All Missions Complete!'}
+                </h4>
+                <p className="text-[11px] text-muted-foreground">
+                  {isHe ? 'מחר מגיע עם אתגרים חדשים.' : 'Tomorrow brings new challenges.'}
                 </p>
               </div>
-
-              {/* Progress context */}
-              <div className="mt-3 pt-3 border-t border-border/20">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-muted-foreground">
-                    {isHe ? 'התקדמות היום' : "Today's Progress"}
-                  </span>
-                  <span className="font-bold text-foreground">
-                    {completedCount}/{totalCount} {isHe ? 'הושלמו' : 'done'}
-                  </span>
-                </div>
-                <div className="h-1.5 bg-muted/30 rounded-full overflow-hidden mt-1.5">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-emerald-500/70"
-                    animate={{ width: `${progressPct}%` }}
-                    transition={{ duration: 0.6, ease: 'easeOut' }}
-                  />
-                </div>
-                {incompleteActions.length > 1 && (
-                  <p className="text-[9px] text-muted-foreground/60 mt-1.5">
-                    {isHe
-                      ? `עוד ${incompleteActions.length - 1} משימות אחרי זו — אתה במסלול!`
-                      : `${incompleteActions.length - 1} more missions after this — you're on track!`
-                    }
-                  </p>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          /* All complete card */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-5 text-center"
-          >
-            <div className="text-3xl mb-2">🏆</div>
-            <h4 className="text-sm font-bold text-foreground mb-1">
-              {isHe ? 'כל המשימות הושלמו!' : 'All Missions Complete!'}
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {isHe
-                ? 'עבודה מדהימה — סיימת את כל המשימות להיום. מחר מגיע עם אתגרים חדשים.'
-                : 'Amazing work — you completed all missions for today. Tomorrow brings new challenges.'
-              }
-            </p>
-          </motion.div>
-        )}
+            )}
+          </div>
+        </div>
       </motion.div>
 
       {/* Focus Queue Modal */}
