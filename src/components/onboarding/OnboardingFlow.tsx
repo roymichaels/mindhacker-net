@@ -905,19 +905,41 @@ export function OnboardingFlow() {
                 </DndContext>
               )}
 
-              {/* Options (single_select / multi_select) */}
-              {isSingleSelect || isMultiSelect ? (
+              {/* Options — tags layout for multi_select, list for single_select */}
+              {isMultiSelect ? (
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {currentMini.options?.map((option: FlowOption) => {
+                    const isSelected = currentMultiSelections.includes(option.value);
+                    return (
+                      <motion.button
+                        key={option.value}
+                        onClick={() => handleSelect(option.value)}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 border',
+                          isSelected
+                            ? 'bg-primary/20 border-primary/60 text-foreground shadow-sm shadow-primary/10'
+                            : 'bg-muted/40 border-border/60 text-foreground/70 hover:bg-muted hover:border-border hover:text-foreground'
+                        )}
+                      >
+                        {option.icon && <span className="text-base">{option.icon}</span>}
+                        <span>{isHe ? option.label_he : option.label_en}</span>
+                        {isSelected && <span className="text-primary text-xs">✓</span>}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              ) : isSingleSelect ? (
                 <div className="grid grid-cols-1 gap-3">
                   {currentMini.options?.map((option: FlowOption) => {
-                    const isSelected = isMultiSelect
-                      ? currentMultiSelections.includes(option.value)
-                      : (selectedValue === option.value || answers[currentMini.id] === option.value);
+                    const isSelected = selectedValue === option.value || answers[currentMini.id] === option.value;
                     return (
                       <motion.button
                         key={option.value}
                         onClick={() => handleSelect(option.value)}
                         whileTap={{ scale: 0.97 }}
-                        animate={isSelected && !isMultiSelect && selectedValue === option.value ? { scale: [1, 1.02, 1] } : {}}
+                        animate={isSelected && selectedValue === option.value ? { scale: [1, 1.02, 1] } : {}}
                         transition={{ duration: 0.2 }}
                         className={cn(
                           'w-full min-h-[56px] rounded-2xl px-5 py-4 text-start flex items-center gap-3 transition-all duration-200 border',
@@ -930,9 +952,6 @@ export function OnboardingFlow() {
                         <span className="font-medium text-sm sm:text-base">
                           {isHe ? option.label_he : option.label_en}
                         </span>
-                        {isMultiSelect && isSelected && (
-                          <span className="ms-auto text-primary">✓</span>
-                        )}
                       </motion.button>
                     );
                   })}
