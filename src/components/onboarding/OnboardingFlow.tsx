@@ -453,8 +453,22 @@ export function OnboardingFlow() {
     autoSave(updated);
   }, [rankedItems, currentMini, answers, autoSave]);
 
+  const handleCustomSubmit = useCallback(() => {
+    if (!currentMini || !customInputValue.trim()) return;
+    const customVal = `custom:${customInputValue.trim()}`;
+    const updated = { ...answers, [currentMini.id]: customVal };
+    setAnswers(updated);
+    autoSave(updated);
+    setShowCustomInput(false);
+    setCustomInputValue('');
+    if (advanceTimeout.current) clearTimeout(advanceTimeout.current);
+    advanceTimeout.current = setTimeout(() => advanceToNext(), 400);
+  }, [currentMini, customInputValue, answers, autoSave, advanceToNext]);
+
   const handleContinue = useCallback(() => {
-    if (isSlider) {
+    if (showCustomInput && customInputValue.trim()) {
+      handleCustomSubmit();
+    } else if (isSlider) {
       autoSave(answers);
       advanceToNext();
     } else if (isTextarea) {
@@ -466,7 +480,7 @@ export function OnboardingFlow() {
     } else if (currentMultiSelections.length > 0) {
       advanceToNext();
     }
-  }, [isSlider, isTextarea, isTimePicker, isPriorityRank, currentMultiSelections.length, advanceToNext, autoSave, answers, handleTextareaSubmit]);
+  }, [showCustomInput, customInputValue, isSlider, isTextarea, isTimePicker, isPriorityRank, currentMultiSelections.length, advanceToNext, autoSave, answers, handleTextareaSubmit, handleCustomSubmit]);
 
   const goBack = useCallback(() => {
     setSelectedValue(null);
