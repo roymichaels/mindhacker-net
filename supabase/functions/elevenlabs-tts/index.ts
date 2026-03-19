@@ -7,26 +7,20 @@ import { requireAuth } from "../_shared/auth.ts";
 interface ElevenLabsTTSRequest {
   text: string;
   voiceId?: string;
-  modelId?: string;
-  stability?: number;
-  similarityBoost?: number;
-  style?: number;
   speed?: number;
-  previousText?: string;
-  nextText?: string;
 }
 
 // Top ElevenLabs voice IDs
 const VOICE_MAP: Record<string, string> = {
   'jessica': 'cgSgspJ2msm6clMCkdW9',    // Jessica — default, multilingual
-  'sarah': 'EXAVITQu4vr4xnSDxMaL',      // Warm female
-  'roger': 'CwhRBWXzGAHq8TQ4Fs17',      // Professional male
-  'laura': 'FGY2WhTYpPnrIDTdsKH5',      // Calm female  
-  'charlie': 'IKne3meq5aSn9XLyUdCD',    // Friendly male
-  'matilda': 'XrExE9yKIg1WjnnlVkGX',    // Soothing female
-  'lily': 'pFZP5JQG7iQjIQuC4Bku',       // Gentle female
-  'brian': 'nPczCjzI2devNBz1zQrb',      // Deep male
-  'daniel': 'onwK4e9ZLuTAKqWW03F9',     // Clear male
+  'sarah': 'EXAVITQu4vr4xnSDxMaL',
+  'roger': 'CwhRBWXzGAHq8TQ4Fs17',
+  'laura': 'FGY2WhTYpPnrIDTdsKH5',
+  'charlie': 'IKne3meq5aSn9XLyUdCD',
+  'matilda': 'XrExE9yKIg1WjnnlVkGX',
+  'lily': 'pFZP5JQG7iQjIQuC4Bku',
+  'brian': 'nPczCjzI2devNBz1zQrb',
+  'daniel': 'onwK4e9ZLuTAKqWW03F9',
 };
 
 serve(async (req) => {
@@ -42,13 +36,7 @@ serve(async (req) => {
     const { 
       text, 
       voiceId = 'jessica',
-      modelId = 'eleven_multilingual_v2',
-      stability = 0.5,
-      similarityBoost = 0.75,
-      style = 0.5,
       speed = 1.0,
-      previousText,
-      nextText,
     } = body;
 
     if (!text || text.trim().length === 0) {
@@ -71,14 +59,17 @@ serve(async (req) => {
     const maxLength = 5000;
     const truncatedText = text.length > maxLength ? text.substring(0, maxLength) : text;
 
+    // Detect if text contains Hebrew
+    const hasHebrew = /[\u0590-\u05FF]/.test(truncatedText);
+
     console.log('[ElevenLabs] TTS request:', { 
       textLength: truncatedText.length, 
       voice: resolvedVoiceId,
-      model: modelId,
+      model: 'eleven_multilingual_v2',
+      language: hasHebrew ? 'he' : 'en',
     });
 
     // IMPORTANT: output_format must be in query params, NOT body
-    // Add 30-second timeout to prevent hanging on slow models
     const abortController = new AbortController();
     const timeout = setTimeout(() => abortController.abort(), 30000);
 
@@ -92,11 +83,11 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           text: truncatedText,
-          model_id: modelId,
+          model_id: 'eleven_multilingual_v2',
+          language_code: hasHebrew ? 'he' : 'en',
           voice_settings: {
-            stability,
-            similarity_boost: similarityBoost,
-            style,
+            stability: 0.6,
+            similarity_boost: 0.8,
             use_speaker_boost: true,
             speed,
           },
@@ -111,7 +102,6 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('[ElevenLabs] TTS error:', response.status, errorText);
 
-      // Try to parse ElevenLabs error payload (often JSON)
       let parsed: any = null;
       try {
         parsed = JSON.parse(errorText);
@@ -122,7 +112,6 @@ serve(async (req) => {
       const detailStatus = parsed?.detail?.status;
       const detailMessage = parsed?.detail?.message;
 
-      // ElevenLabs may return 401 for quota issues in some cases.
       if (detailStatus === 'quota_exceeded') {
         return jsonResponse({
           error: 'Quota exceeded',
@@ -153,7 +142,6 @@ serve(async (req) => {
       }, 500);
     }
 
-    // Return the audio directly
     const audioBuffer = await response.arrayBuffer();
     
     console.log('[ElevenLabs] TTS success:', { audioSize: audioBuffer.byteLength });

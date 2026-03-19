@@ -55,9 +55,6 @@ function splitTextIntoChunks(text: string, maxLen = 800): string[] {
 export interface TTSPlayOptions {
   voiceId?: string;
   speed?: number;
-  stability?: number;
-  similarityBoost?: number;
-  style?: number;
   signal?: AbortSignal;
   onStart?: () => void;
   onEnd?: () => void;
@@ -70,14 +67,8 @@ async function playChunk(
   voiceId: string,
   speed: number,
   signal?: AbortSignal,
-  stability?: number,
-  similarityBoost?: number,
-  style?: number,
 ): Promise<{ audio: HTMLAudioElement; url: string } | null> {
   const payload: Record<string, unknown> = { text, voiceId, speed };
-  if (stability !== undefined) payload.stability = stability;
-  if (similarityBoost !== undefined) payload.similarityBoost = similarityBoost;
-  if (style !== undefined) payload.style = style;
 
   // 35-second timeout for the fetch
   const timeoutController = new AbortController();
@@ -172,9 +163,6 @@ export function playTTS(rawText: string, options: TTSPlayOptions = {}): { cancel
   const {
     voiceId = 'jessica',
     speed = 1.0,
-    stability,
-    similarityBoost,
-    style,
     onStart,
     onEnd,
     onError,
@@ -206,12 +194,12 @@ export function playTTS(rawText: string, options: TTSPlayOptions = {}): { cancel
         let result: { audio: HTMLAudioElement; url: string } | null = null;
 
         try {
-          result = await playChunk(chunks[i], voiceId, speed, signal, stability, similarityBoost, style);
+          result = await playChunk(chunks[i], voiceId, speed, signal);
         } catch (err: any) {
           if (err.name === 'AbortError' || cancelled) return;
           // Retry once
           try {
-            result = await playChunk(chunks[i], voiceId, speed, signal, stability, similarityBoost, style);
+            result = await playChunk(chunks[i], voiceId, speed, signal);
           } catch (retryErr: any) {
             if (retryErr.name === 'AbortError' || cancelled) return;
             result = null;
