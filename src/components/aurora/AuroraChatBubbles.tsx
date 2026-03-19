@@ -209,8 +209,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               {/* Aurora avatar */}
               {isAI && (
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center">
-                    <AuroraOrbIcon className="w-4 h-4 text-violet-400" />
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
+                    <AuroraOrbIcon className="w-4 h-4" size={16} gradient />
                   </div>
                 </div>
               )}
