@@ -238,9 +238,15 @@ export function OnboardingFlow() {
         // All answered — go to reveal
         setShowIntro(false);
         setShowReveal(true);
-      } else if (foundStep > 0 || foundMini > 0) {
-        setCurrentStepIdx(foundStep);
-        setCurrentMiniIdx(foundMini);
+      } else {
+        // Fallback: if scanner resolves to first question but DB says user was further, trust savedStep
+        const fallbackStepIdx = savedStep && savedStep > 1
+          ? Math.min(savedStep - 1, allSteps.length - 1)
+          : 0;
+        const shouldUseFallback = foundStep === 0 && foundMini === 0 && fallbackStepIdx > 0;
+
+        setCurrentStepIdx(shouldUseFallback ? fallbackStepIdx : foundStep);
+        setCurrentMiniIdx(shouldUseFallback ? 0 : foundMini);
         setShowIntro(false);
       }
       // If foundStep === 0 && foundMini === 0, stay at start (default state)
