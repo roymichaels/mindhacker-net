@@ -512,6 +512,8 @@ const App = () => (
                    </FlowAuditProvider>
                 </BrowserRouter>
                 </TooltipProvider>
+                <Suspense fallback={null}><ProfilePage /></Suspense>
+                </ProfileModalProvider>
                 </WalletModalProvider>
                 </CoachesModalProvider>
                 </SubscriptionsModalProvider>

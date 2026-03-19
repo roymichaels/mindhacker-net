@@ -78,7 +78,7 @@ export function BottomHudBar() {
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2 max-w-screen-xl mx-auto">
         {/* ── LEFT: Orb + Job Title → Profile Page ── */}
         <button
-          onClick={() => navigate('/profile')}
+          onClick={() => { try { const { useProfileModal: u } = require('@/contexts/ProfileModalContext'); } catch {} openProfile(); }}
           className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
         >
           <div
