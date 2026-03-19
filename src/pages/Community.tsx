@@ -188,7 +188,20 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {isAdmin && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 h-8 text-xs"
+                  onClick={handleGenerateStories}
+                  disabled={generatingStories}
+                >
+                  {generatingStories ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+                  {isHe ? 'צור סטוריז' : 'Generate Stories'}
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* ── ALL VIEW: Events + AI Match + Pillar Cards ── */}
