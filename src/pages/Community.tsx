@@ -80,6 +80,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const [eventsOpen, setEventsOpen] = useState(false);
   const [matchOpen, setMatchOpen] = useState(false);
+  const [storyOpen, setStoryOpen] = useState(false);
   const { language } = useTranslation();
   const isHe = language === 'he';
 
