@@ -1,5 +1,5 @@
 /**
- * TodayOverviewTab — Immersive mission briefing with polished roadmap + full daily agenda.
+ * TodayOverviewTab — Pure CIA-style narrative field briefing. No lists, no stats, no progress bars.
  */
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,9 +9,8 @@ import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hook
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import {
-  Crosshair, Flag, Sparkles, Lock, CheckCircle2, Clock,
-  Zap, Target, X, ChevronRight, Flame, Shield, Brain,
-  Heart, Dumbbell, Briefcase,
+  Crosshair, Sparkles, Lock, CheckCircle2,
+  Zap, Target, X, Shield, Eye,
 } from 'lucide-react';
 
 /* ── Pillar visuals ── */
