@@ -528,10 +528,10 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           <AuroraHoloOrb size={32} glow="subtle" />
           <div className="flex-1">
             <h1 className="text-sm font-bold text-foreground">
-              {isHe ? 'אורורה' : 'Aurora'}
+              {isHe ? 'אורורה' : 'Aurora'} — {isHe ? 'סריקת' : 'Scanning'} {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
             </h1>
             <p className="text-[10px] text-muted-foreground">
-              {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
+              {isHe ? 'ענה על השאלות כדי שאורורה תבנה לך פרופיל מדויק' : 'Answer the questions so Aurora can build your accurate profile'}
             </p>
           </div>
           <button
