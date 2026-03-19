@@ -17,6 +17,7 @@ import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 
 export function BottomHudBar() {
   const { language, isRTL } = useTranslation();
@@ -27,6 +28,7 @@ export function BottomHudBar() {
   const ctx = useAuroraChatContextSafe();
   const { movementScore } = useTodayExecution();
   const { profile: userOrbProfile } = useOrbProfile();
+  const { openProfile } = useProfileModal();
 
   const [showBalloon, setShowBalloon] = useState(false);
 
@@ -78,7 +80,7 @@ export function BottomHudBar() {
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2 max-w-screen-xl mx-auto">
         {/* ── LEFT: Orb + Job Title → Profile Page ── */}
         <button
-          onClick={() => navigate('/profile')}
+          onClick={openProfile}
           className="flex items-center gap-2 p-1 rounded-xl hover:bg-muted/30 active:scale-[0.97] transition-all min-w-0"
         >
           <div

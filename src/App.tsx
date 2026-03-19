@@ -8,6 +8,7 @@ import { SmartOnboardingProvider } from "@/contexts/SmartOnboardingContext";
 import { CoachesModalProvider } from "@/contexts/CoachesModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
+import { ProfileModalProvider } from "@/contexts/ProfileModalContext";
 import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
 import { WalletModalProvider } from "@/contexts/WalletModalContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -224,6 +225,7 @@ const App = () => (
                 <SubscriptionsModalProvider>
                  <CoachesModalProvider>
                  <WalletModalProvider>
+                 <ProfileModalProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
@@ -306,8 +308,8 @@ const App = () => (
                           <Route path="/plan" element={<Navigate to="/play" replace />} />
                           {/* Play (merged Strategy + Tactics) */}
                           <Route path="/play" element={<PlayLayoutWrapper />} />
-                          {/* Profile page */}
-                          <Route path="/profile" element={<ProfilePage />} />
+                          {/* Profile removed — now modal-based via ProfileModalContext */}
+                          <Route path="/profile" element={<Navigate to="/play" replace />} />
                           {/* Strategy sub-routes for pillar assessments */}
                           <Route path="/strategy" element={<Navigate to="/play" replace />} />
                           <Route path="/strategy/presence" element={<PresenceHome />} />
@@ -511,6 +513,8 @@ const App = () => (
                    </FlowAuditProvider>
                 </BrowserRouter>
                 </TooltipProvider>
+                <Suspense fallback={null}><ProfilePage /></Suspense>
+                </ProfileModalProvider>
                 </WalletModalProvider>
                 </CoachesModalProvider>
                 </SubscriptionsModalProvider>

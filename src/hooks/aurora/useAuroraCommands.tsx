@@ -65,7 +65,7 @@ export const useAuroraCommands = () => {
     launchpad: () => smartNavigate(),
     community: () => navigate('/community'),
     settings: () => navigate('/settings'),
-    profile: () => navigate('/profile'),
+    profile: () => navigate('/play'),
     aurora: () => navigate('/now'),
     tasks: () => navigate('/now?tab=tasks'),
     habits: () => navigate('/now?tab=habits'),

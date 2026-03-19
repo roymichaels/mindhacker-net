@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
@@ -43,6 +44,7 @@ const AuroraAccountDropdown = ({
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { openProfile } = useProfileModal();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -150,7 +152,7 @@ const AuroraAccountDropdown = ({
             className="relative overflow-hidden rounded-lg mx-1 mt-1 mb-0 cursor-pointer group"
             onClick={() => {
               setDropdownOpen(false);
-              navigate('/profile');
+              openProfile();
             }}
           >
             <div className="absolute inset-0 bg-muted dark:bg-card" />

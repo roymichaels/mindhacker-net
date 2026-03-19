@@ -24,7 +24,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
-// Profile now uses /profile route instead of modal
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { UserDocsModal } from '@/components/modals/UserDocsModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
@@ -48,7 +48,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
   const { openSubscriptions } = useSubscriptionsModal();
-  // profileModalOpen state removed — now navigates to /profile
+  const { openProfile } = useProfileModal();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [orbViewerOpen, setOrbViewerOpen] = useState(false);
@@ -176,7 +176,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             className="relative overflow-hidden rounded-lg mx-1.5 mt-1.5 cursor-pointer group border border-amber-500/15"
             onClick={() => {
               setDropdownOpen(false);
-              navigate('/profile');
+              openProfile();
             }}
           >
             <div className="absolute inset-0 bg-muted/80 dark:bg-card/80" />
@@ -242,7 +242,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             <button
               onClick={() => {
                 setDropdownOpen(false);
-                navigate('/profile');
+                openProfile();
               }}
               className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500/10 text-amber-400 border border-amber-500/25 hover:bg-amber-500/15 hover:border-amber-500/35 active:scale-[0.98]"
             >
