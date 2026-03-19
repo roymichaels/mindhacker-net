@@ -53,17 +53,6 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      {isMobile ? (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
-          <div className="flex h-14 items-center justify-between px-3">
-            <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
-            <HeaderActions compact />
-          </div>
-        </header>
-      ) : (
-        <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
-      )}
-
       <div className="flex-1 min-h-0 overflow-y-auto">
         <OnboardingFlow />
       </div>
