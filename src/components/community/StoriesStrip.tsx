@@ -37,18 +37,16 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
   const { data: stories = [] } = useQuery({
     queryKey: ['community-stories', pillarFilter, topicFilter],
     queryFn: async (): Promise<StoryItem[]> => {
-      let query = supabase
+      // Use raw query to avoid deep type instantiation
+      const baseQuery: any = supabase
         .from('community_posts')
         .select('id, user_id, content, media_urls, created_at, pillar, category_id')
         .eq('status', 'approved')
-        .eq('post_type' as any, 'story')
+        .eq('post_type', 'story')
         .order('created_at', { ascending: false })
         .limit(30);
 
-      // Filter by pillar - show stories from specific pillar + 'all'
-      if (pillarFilter !== 'all') {
-        query = query.eq('pillar', pillarFilter);
-      }
+      let query = baseQuery;
 
       // Filter by topic if specified
       if (topicFilter) {
