@@ -4,6 +4,7 @@ import { X, ArrowLeft, ArrowRight } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 
 import { cn } from "@/lib/utils";
+import { useChromeVisibility } from "@/contexts/ChromeVisibilityContext";
 
 const Dialog = DialogPrimitive.Root;
 
