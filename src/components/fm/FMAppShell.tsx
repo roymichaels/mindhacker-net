@@ -22,7 +22,14 @@ export default function FMAppShell() {
 
   // Gate: If user hasn't minted Soul Avatar, open wizard
   useEffect(() => {
-    if (!soulLoading && !isMinted) {
+    if (soulLoading) return;
+    if (!isMinted) {
+      openWizard();
+    }
+    // Also pick up post-onboarding trigger
+    const trigger = sessionStorage.getItem('trigger_soul_avatar_wizard');
+    if (trigger && !isMinted) {
+      sessionStorage.removeItem('trigger_soul_avatar_wizard');
       openWizard();
     }
   }, [soulLoading, isMinted, openWizard]);
