@@ -181,9 +181,7 @@ export default function OnboardingCeremony() {
               className="relative"
             >
               <div className="absolute inset-0 rounded-full bg-primary/20 blur-3xl scale-150" />
-              <div className="relative w-48 h-48 sm:w-56 sm:h-56">
-                <PersonalizedOrb size={224} />
-              </div>
+              <PersonalizedOrb size={280} />
             </motion.div>
 
             {showContent && (
