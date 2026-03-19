@@ -174,19 +174,16 @@ export function BottomTabBar() {
         {planTab && (
           <button
             onClick={() => navigate(planTab.path)}
-            className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]"
+            className="relative flex flex-col items-center justify-center px-2 py-1.5 transition-all min-w-[60px]"
           >
             <div className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+              "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
               isActive(planTab.path)
                 ? "bg-cyan-500 shadow-lg ring-2 ring-white/80"
                 : "bg-muted/40"
             )}>
-              <Play className={cn("h-6 w-6 ms-0.5", isActive(planTab.path) ? "text-white" : "text-cyan-400/60")} fill="currentColor" />
+              <Play className={cn("h-7 w-7 ms-0.5", isActive(planTab.path) ? "text-white" : "text-cyan-400/60")} fill="currentColor" />
             </div>
-            <span className={cn("text-[10px] font-bold", isActive(planTab.path) ? "text-foreground" : "text-muted-foreground")}>
-              Play
-            </span>
           </button>
         )}
 
