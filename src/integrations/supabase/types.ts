@@ -4317,9 +4317,11 @@ export type Database = {
           balance_after: number
           created_at: string
           description: string | null
+          fee_amount: number | null
           id: string
           idempotency_key: string | null
           metadata: Json | null
+          net_amount: number | null
           reference_id: string | null
           reference_type: string | null
           status: Database["public"]["Enums"]["fm_tx_status"]
@@ -4332,9 +4334,11 @@ export type Database = {
           balance_after: number
           created_at?: string
           description?: string | null
+          fee_amount?: number | null
           id?: string
           idempotency_key?: string | null
           metadata?: Json | null
+          net_amount?: number | null
           reference_id?: string | null
           reference_type?: string | null
           status?: Database["public"]["Enums"]["fm_tx_status"]
@@ -4347,9 +4351,11 @@ export type Database = {
           balance_after?: number
           created_at?: string
           description?: string | null
+          fee_amount?: number | null
           id?: string
           idempotency_key?: string | null
           metadata?: Json | null
+          net_amount?: number | null
           reference_id?: string | null
           reference_type?: string | null
           status?: Database["public"]["Enums"]["fm_tx_status"]
@@ -4370,12 +4376,15 @@ export type Database = {
       fm_wallets: {
         Row: {
           created_at: string
+          data_contribution_enabled: boolean | null
           id: string
           lifetime_earned: number
+          lifetime_fees: number | null
           lifetime_spent: number
           mode: Database["public"]["Enums"]["fm_wallet_mode"]
           mos_balance: number
           onboarding_complete: boolean
+          pending_balance: number | null
           solana_address: string | null
           solana_pubkey_encrypted: string | null
           updated_at: string
@@ -4383,12 +4392,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          data_contribution_enabled?: boolean | null
           id?: string
           lifetime_earned?: number
+          lifetime_fees?: number | null
           lifetime_spent?: number
           mode?: Database["public"]["Enums"]["fm_wallet_mode"]
           mos_balance?: number
           onboarding_complete?: boolean
+          pending_balance?: number | null
           solana_address?: string | null
           solana_pubkey_encrypted?: string | null
           updated_at?: string
@@ -4396,12 +4408,15 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          data_contribution_enabled?: boolean | null
           id?: string
           lifetime_earned?: number
+          lifetime_fees?: number | null
           lifetime_spent?: number
           mode?: Database["public"]["Enums"]["fm_wallet_mode"]
           mos_balance?: number
           onboarding_complete?: boolean
+          pending_balance?: number | null
           solana_address?: string | null
           solana_pubkey_encrypted?: string | null
           updated_at?: string
@@ -10016,6 +10031,18 @@ export type Database = {
           p_reference_type?: string
           p_status?: Database["public"]["Enums"]["fm_tx_status"]
           p_type: Database["public"]["Enums"]["fm_tx_type"]
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      fm_spend_mos: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_idempotency_key?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_seller_id?: string
           p_user_id: string
         }
         Returns: Json
