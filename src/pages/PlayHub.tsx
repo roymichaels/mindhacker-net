@@ -6,13 +6,14 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Flame, Briefcase, MessageSquare, Search, X, MapPin, Trophy, Target, Clock, Zap, Star, BookOpen, Gamepad2 } from 'lucide-react';
+import { Flame, Briefcase, MessageSquare, Search, MapPin, Trophy, Target, Clock, Zap, Star, BookOpen, Gamepad2, Brain, X } from 'lucide-react';
 import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
 import { motion } from 'framer-motion';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
@@ -37,6 +38,7 @@ export default function PlayHub() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const auroraChat = useAuroraChatContextSafe();
+  const { openHypnosis } = useAuroraActions();
 
   // ── Data for unified stats ──
   const { plan, milestones } = useLifePlanWithMilestones();
@@ -85,11 +87,12 @@ export default function PlayHub() {
     <div className="flex flex-col w-full items-center" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Quick Action Widgets — iPhone style */}
       <div className="w-full max-w-xl px-4 pt-3 pb-1">
-        <div className="flex items-start justify-center gap-5">
+        <div className="grid grid-cols-5 gap-3 justify-items-center">
           <IPhoneWidget icon={Flame} label={isHe ? 'אסטרטגיה' : 'Strategy'} gradient="from-amber-500 to-orange-600" onClick={() => setStrategyOpen(true)} />
           <IPhoneWidget icon={Briefcase} label={isHe ? 'עבודה' : 'Work'} gradient="from-violet-500 to-purple-700" onClick={() => setWorkOpen(true)} />
           <IPhoneWidget icon={MessageSquare} label={isHe ? 'שיחה' : 'Chat'} gradient="from-sky-500 to-blue-600" onClick={() => setChatOpen(true)} />
           <IPhoneWidget icon={Search} label={isHe ? 'מאמן' : 'Coach'} gradient="from-emerald-500 to-emerald-700" onClick={openFindCoachWizard} />
+          <IPhoneWidget icon={Brain} label={isHe ? 'היפנוזה' : 'Hypnosis'} gradient="from-purple-500 to-fuchsia-600" onClick={openHypnosis} />
         </div>
       </div>
 
