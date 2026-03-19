@@ -993,8 +993,8 @@ const onboardingFlowSpec: FlowSpec = {
       miniSteps: [
         {
           id: 'hobbies_play',
-          title_he: 'מה אתה אוהב לעשות בזמן הפנוי? (בחר הכל)',
-          title_en: 'What do you enjoy doing in your free time? (select all)',
+          title_he: 'מה אתה אוהב לעשות או רוצה להתחיל? (בחר הכל)',
+          title_en: 'What do you enjoy or want to start doing? (select all)',
           inputType: 'multi_select',
           options: [
             { value: 'hiking', label_he: 'טיולים בטבע', label_en: 'Hiking', icon: '🥾' },
