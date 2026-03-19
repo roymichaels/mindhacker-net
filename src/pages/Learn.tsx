@@ -392,6 +392,88 @@ export default function Learn() {
           </div>
         ) : (
           <>
+            {/* ── Header ── */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {selectedCurriculum && (
+                  <button
+                    onClick={() => selectCurriculum(null)}
+                    className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+                  >
+                    <ChevronLeft className={cn("h-5 w-5", isHe && "rotate-180")} />
+                  </button>
+                )}
+                <h1 className="text-lg font-bold text-foreground truncate">
+                  {selectedCurriculum && activeCurriculum
+                    ? activeCurriculum.title
+                    : (isHe ? 'הקורסים שלי' : 'My Courses')}
+                </h1>
+              </div>
+              <Button
+                onClick={() => canAccessCourseCreation ? openWizardInDock() : showUpgradePrompt(isHe ? 'יצירת קורס' : 'Course Creation')}
+                variant="outline"
+                size="sm"
+                className="gap-1.5 rounded-full border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0"
+              >
+                {canAccessCourseCreation ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                {isHe ? 'קורס חדש' : 'New Course'}
+              </Button>
+            </div>
+
+            {/* ── Motivational quote ── */}
+            {!selectedCurriculum && (
+              <div className="text-center py-2">
+                <Sparkles className="h-4 w-4 text-primary mx-auto opacity-50 mb-1" />
+                <p className="text-xs italic text-muted-foreground">"{dailyQuote}"</p>
+              </div>
+            )}
+
+            {/* ── Course Cards Grid (when no course selected) ── */}
+            {!selectedCurriculum && (
+              <div className="grid grid-cols-1 gap-3">
+                {curricula.map((curr) => {
+                  const isDone = curr.status === 'completed';
+                  return (
+                    <button
+                      key={curr.id}
+                      onClick={() => selectCurriculum(curr.id)}
+                      className={cn(
+                        "w-full text-start rounded-2xl p-4 transition-all border",
+                        "bg-card/60 border-border/40 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
+                        "active:scale-[0.99]"
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                          isDone ? "bg-emerald-500/10" : "bg-primary/10"
+                        )}>
+                          {isDone
+                            ? <Trophy className="h-5 w-5 text-emerald-400" />
+                            : <Flame className="h-5 w-5 text-primary" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-foreground line-clamp-2">{curr.title}</p>
+                          {curr.description && (
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{curr.description}</p>
+                          )}
+                          <div className="flex items-center gap-2 mt-2">
+                            <Progress value={curr.progress_percentage} className="h-1.5 flex-1" />
+                            <span className="text-xs font-bold text-primary">{curr.progress_percentage}%</span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground">
+                            <span className="flex items-center gap-0.5"><FileText className="w-2.5 h-2.5" />{curr.completed_lessons}/{curr.total_lessons}</span>
+                            <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />~{curr.estimated_days}{isHe ? 'י' : 'd'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* ── Suggested Courses — iPhone widget style ── */}
             {!selectedCurriculum && suggestedCourses.length > 0 && (
               <div className="space-y-3">
@@ -490,88 +572,6 @@ export default function Learn() {
                     );
                   })}
                 </div>
-              </div>
-            )}
-
-            {/* ── Header ── */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                {selectedCurriculum && (
-                  <button
-                    onClick={() => selectCurriculum(null)}
-                    className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
-                  >
-                    <ChevronLeft className={cn("h-5 w-5", isHe && "rotate-180")} />
-                  </button>
-                )}
-                <h1 className="text-lg font-bold text-foreground truncate">
-                  {selectedCurriculum && activeCurriculum
-                    ? activeCurriculum.title
-                    : (isHe ? 'הקורסים שלי' : 'My Courses')}
-                </h1>
-              </div>
-              <Button
-                onClick={() => canAccessCourseCreation ? openWizardInDock() : showUpgradePrompt(isHe ? 'יצירת קורס' : 'Course Creation')}
-                variant="outline"
-                size="sm"
-                className="gap-1.5 rounded-full border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0"
-              >
-                {canAccessCourseCreation ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                {isHe ? 'קורס חדש' : 'New Course'}
-              </Button>
-            </div>
-
-            {/* ── Motivational quote ── */}
-            {!selectedCurriculum && (
-              <div className="text-center py-2">
-                <Sparkles className="h-4 w-4 text-primary mx-auto opacity-50 mb-1" />
-                <p className="text-xs italic text-muted-foreground">"{dailyQuote}"</p>
-              </div>
-            )}
-
-            {/* ── Course Cards Grid (when no course selected) ── */}
-            {!selectedCurriculum && (
-              <div className="grid grid-cols-1 gap-3">
-                {curricula.map((curr) => {
-                  const isDone = curr.status === 'completed';
-                  return (
-                    <button
-                      key={curr.id}
-                      onClick={() => selectCurriculum(curr.id)}
-                      className={cn(
-                        "w-full text-start rounded-2xl p-4 transition-all border",
-                        "bg-card/60 border-border/40 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
-                        "active:scale-[0.99]"
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-                          isDone ? "bg-emerald-500/10" : "bg-primary/10"
-                        )}>
-                          {isDone
-                            ? <Trophy className="h-5 w-5 text-emerald-400" />
-                            : <Flame className="h-5 w-5 text-primary" />
-                          }
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-foreground line-clamp-2">{curr.title}</p>
-                          {curr.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{curr.description}</p>
-                          )}
-                          <div className="flex items-center gap-2 mt-2">
-                            <Progress value={curr.progress_percentage} className="h-1.5 flex-1" />
-                            <span className="text-xs font-bold text-primary">{curr.progress_percentage}%</span>
-                          </div>
-                          <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground">
-                            <span className="flex items-center gap-0.5"><FileText className="w-2.5 h-2.5" />{curr.completed_lessons}/{curr.total_lessons}</span>
-                            <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />~{curr.estimated_days}{isHe ? 'י' : 'd'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
               </div>
             )}
 
