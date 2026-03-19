@@ -58,10 +58,20 @@ export function AuroraActionsProvider({ children }: AuroraActionsProviderProps) 
   );
 }
 
+const NOOP = () => {};
+const FALLBACK: AuroraActionsContextType = {
+  hypnosisModalOpen: false,
+  settingsModalOpen: false,
+  upgradeModalOpen: false,
+  openHypnosis: NOOP,
+  closeHypnosis: NOOP,
+  openSettings: NOOP,
+  closeSettings: NOOP,
+  openUpgrade: NOOP,
+  closeUpgrade: NOOP,
+};
+
 export function useAuroraActions() {
   const context = useContext(AuroraActionsContext);
-  if (context === undefined) {
-    throw new Error('useAuroraActions must be used within an AuroraActionsProvider');
-  }
-  return context;
+  return context ?? FALLBACK;
 }
