@@ -204,7 +204,7 @@ const CampaignDialog = ({ open, onOpenChange, campaignId, onSuccess }: CampaignD
               <h4 className="font-medium mb-2">{t('newsletter.actions.preview')}</h4>
               <div 
                 className="prose prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: isRTL ? formData.content_html_he : (formData.content_html_en || formData.content_html_he) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(isRTL ? formData.content_html_he : (formData.content_html_en || formData.content_html_he), { USE_PROFILES: { html: true } }) }}
               />
             </div>
           )}
