@@ -392,9 +392,9 @@ export function TodayOverviewTab() {
                     {isHe ? activeTask.description : (activeTask.descriptionEn || activeTask.description)}
                   </p>
                 )}
-                {activeTask.timeBlock && (
+                {(activeTask as any).timeBlock && (
                   <span className="text-[10px] text-cyan-300/40 mt-1 block">
-                    🕐 {activeTask.timeBlock}
+                    🕐 {(activeTask as any).timeBlock}
                   </span>
                 )}
               </div>
