@@ -20,7 +20,7 @@ import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 
-import { TaskCardsGrid } from '@/components/play/TaskCardsGrid';
+import { TodayHeroCard } from '@/components/play/TodayHeroCard';
 
 const LifeHub = lazy(() => import('./LifeHub'));
 const WorkHub = lazy(() => import('./WorkHub'));
@@ -186,8 +186,8 @@ export default function PlayHub() {
         <MissionControlBar />
       </div>
 
-      {/* Today's Task Cards */}
-      <TaskCardsGrid />
+      {/* Today's Hero Card */}
+      <TodayHeroCard />
 
       {/* Strategy Modal */}
       <Dialog open={strategyOpen} onOpenChange={setStrategyOpen}>
