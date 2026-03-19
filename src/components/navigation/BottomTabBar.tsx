@@ -73,9 +73,13 @@ export function BottomTabBar() {
   const planTab = allTabs.find(t => t.isCenter);
   const regularTabs = allTabs.filter(t => !t.isCenter);
 
-  // Layout order (LTR): FM | Aurora | Path(center) | Community | Study
+  // Layout order (LTR): FM | Aurora | Path(center) | Study | Feed
+  // In RTL: Feed appears on the far left
   const leftTabs = regularTabs.slice(0, 1); // FM
-  const rightTabs = regularTabs.slice(1);   // Community, Study
+  const rightTabs = [
+    regularTabs.find(t => t.id === 'study'),
+    regularTabs.find(t => t.id === 'community'),
+  ].filter(Boolean) as typeof regularTabs;
 
   const renderTab = (tab: typeof allTabs[0]) => {
     const active = isActive(tab.path);
