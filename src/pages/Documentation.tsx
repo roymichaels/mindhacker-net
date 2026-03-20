@@ -119,15 +119,15 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.3 FreeMarket — כלכלה, קריירה ומסחר' : '4.3 FreeMarket — Economy, Career & Commerce',
+          title: he ? '4.3 FreeMarket — שוק חופשי וכלכלת Earn' : '4.3 FreeMarket — Marketplace & Earn Economy',
           paragraphs: he ? [
-            `FreeMarket הוא מרכז הכלכלה והקריירה — בנוי משלושה טאבים: Earn (הרוויח), Career (קריירה), ו-Wallet (ארנק). כולל מנגנון אונבורדינג כלכלי מודרך.`,
-            `ב-Career, המשתמש בוחר מסלול קריירה מתוך 5 מסלולים מאוחדים: בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר. כל מסלול כולל ויזארד AI שמנחה את תהליך ההקמה, דשבורד ניהול מלא, וחנות אישית עם דף נחיתה דינמי.`,
-            `ה-Wallet מנהל יתרת MOS עם ספר חשבונות, היסטוריית עסקאות, cashout, וגשר בין מטבעות.`,
+            `FreeMarket הוא מרכז הכלכלה — עמוד יחיד מאוחד שמשלב שוק שירותים, באונטיז, מסחר P2P, ו-Earn Launchpad. ה-Earn אינו מערכת נפרדת — הוא ההתנהגות; FreeMarket הוא התשתית.`,
+            `הארנק (Wallet) הוא מודאל גלובלי נגיש מכל מקום באפליקציה — מציג יתרת MOS, היסטוריית עסקאות, ותרומת נתונים. אייקון הארנק מופיע ב-header בדפי FM עם הדגשת צבע כשפעיל.`,
+            `5 מסלולי קריירה מרוכזים תחת ארכיטקטורה אחת: בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר — כל אחד עם ויזארד AI, דשבורד ניהול, וחנות אישית. מסלולי הקריירה נגישים כדפים עצמאיים מתוך ה-FreeMarket.`,
           ] : [
-            `FreeMarket is the economy and career center — built with three tabs: Earn, Career, and Wallet. Includes a guided economic onboarding process.`,
-            `In Career, users choose from 5 unified career paths: Business Owner, Coach, Therapist, Content Creator, Freelancer. Each path includes an AI-guided setup wizard, a full management dashboard, and a personal storefront with a dynamic landing page.`,
-            `The Wallet manages MOS balance with a full ledger, transaction history, cashout, and a cross-currency bridge.`,
+            `FreeMarket is the economy center — a single unified page combining a services marketplace, bounties, P2P trading, and the Earn Launchpad. Earn is not a separate system — it is the behavior; FreeMarket is the infrastructure.`,
+            `The Wallet is a global modal accessible from anywhere in the app — displaying MOS balance, transaction history, and data contribution status. A Wallet icon appears in the header on FM pages with color highlighting when active.`,
+            `5 career paths unified under a single architecture: Business Owner, Coach, Therapist, Content Creator, Freelancer — each with an AI wizard, management dashboard, and personal storefront. Career paths are accessible as standalone pages from within FreeMarket.`,
           ],
         },
         {
