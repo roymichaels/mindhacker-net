@@ -424,13 +424,13 @@ export default function Documentation() {
       number: '16',
       title: he ? 'מפת דרכים' : 'Roadmap',
       paragraphs: he ? [
-        `Q1 2026: השקת Beta ציבורי, 5 חוויות ליבה פעילות (Play, Aurora, FreeMarket, Community, Study), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, הערכות עמודים מבוססות שיחה, משא ומתן על התוכנית, התאמת מאמן AI, היפנוזה אישית, בלוג, תוכנית שותפים, אונבורדינג עם טקס כניסה, מנטינג Soul Avatar NFT עם Web3 Wallet, PWA מלא, חנויות מאמנים, סטוריז, יומן Aurora (חלומות, רפלקציה, הכרת תודה), מצב קולי.`,
-        `Q2 2026: פלטפורמת מאמנים מתקדמת, שוק נתונים, API פתוח, אנליטיקס מתקדם. Q3 2026: ייצוא Soul Avatar NFT ל-blockchain, אפליקציית מובייל native, אינטגרציות חיצוניות. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
-        `2027: Blockchain integration מלא, DAO governance, MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט, Aurora Voice Agent עצמאי.`,
+        `Q1 2026: השקת Beta ציבורי, 5 חוויות ליבה פעילות (Play, AION, FreeMarket, Community, Study), מנוע כרייה MOS, היפנוזה AI, תוכנית 100 ימים, הערכות עמודים מבוססות שיחה, משא ומתן על התוכנית, התאמת מאמן AI, היפנוזה אישית, בלוג, תוכנית שותפים, אונבורדינג עם טקס כניסה, הפעלת AION עם Web3 Wallet, PWA מלא, חנויות מאמנים, סטוריז, יומן AION (חלומות, רפלקציה, הכרת תודה), מצב קולי.`,
+        `Q2 2026: פלטפורמת מאמנים מתקדמת, שוק נתונים, API פתוח, אנליטיקס מתקדם. Q3 2026: ייצוא AION NFT ל-blockchain, אפליקציית מובייל native, אינטגרציות חיצוניות. Q4 2026: שותפויות B2B, הרחבה גלובלית, שפות נוספות.`,
+        `2027: Blockchain integration מלא, DAO governance, MOS על רשת Solana, שוק NFT חיצוני, יישוב Stripe לפיאט, AION Voice Agent עצמאי.`,
       ] : [
-        `Q1 2026: Public Beta launch, 5 active core experiences (Play, Aurora, FreeMarket, Community, Study), MOS Mining Engine, AI Hypnosis, 100-Day Plan, chat-based pillar assessments, plan negotiation, AI coach matching, personal hypnosis, blog, affiliate program, onboarding with ceremony, Soul Avatar NFT minting with Web3 Wallet, full PWA, coach storefronts, Stories, Aurora Journal (dreams, reflection, gratitude), voice mode.`,
-        `Q2 2026: Advanced coach platform, Data Marketplace, open API, advanced analytics. Q3 2026: Soul Avatar NFT export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
-        `2027: Full blockchain integration, DAO governance, MOS on Solana network, external NFT marketplace, Stripe fiat settlement, standalone Aurora Voice Agent.`,
+        `Q1 2026: Public Beta launch, 5 active core experiences (Play, AION, FreeMarket, Community, Study), MOS Mining Engine, AI Hypnosis, 100-Day Plan, chat-based pillar assessments, plan negotiation, AI coach matching, personal hypnosis, blog, affiliate program, onboarding with ceremony, AION activation with Web3 Wallet, full PWA, coach storefronts, Stories, AION Journal (dreams, reflection, gratitude), voice mode.`,
+        `Q2 2026: Advanced coach platform, Data Marketplace, open API, advanced analytics. Q3 2026: AION NFT export to blockchain, native mobile app, external integrations. Q4 2026: B2B partnerships, global expansion, additional languages.`,
+        `2027: Full blockchain integration, DAO governance, MOS on Solana network, external NFT marketplace, Stripe fiat settlement, standalone AION Voice Agent.`,
       ],
     },
     {
