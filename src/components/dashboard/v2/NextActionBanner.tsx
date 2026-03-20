@@ -90,15 +90,15 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: currentItem.body,
         action: () => {
           markItemClicked(currentItem.id);
-          // Set proactive message so Aurora auto-sends it as a coaching prompt
-          const coachingPrompt = `${currentItem.title}\n\n${currentItem.body}`;
-          auroraContext?.setPendingProactiveMessage(coachingPrompt);
-          navigate('/aurora');
-        },
-        actionLabel: language === 'he' ? 'פתח את אורורה' : 'Open Aurora',
-        dismissable: true,
-        onDismiss: () => dismissItem(currentItem.id),
-      };
+           // Set proactive message so AION auto-sends it as a coaching prompt
+           const coachingPrompt = `${currentItem.title}\n\n${currentItem.body}`;
+           auroraContext?.setPendingProactiveMessage(coachingPrompt);
+           navigate('/aurora');
+         },
+         actionLabel: language === 'he' ? 'פתח את AION' : 'Open AION',
+         dismissable: true,
+         onDismiss: () => dismissItem(currentItem.id),
+       };
     }
 
     // Priority 2: Overdue tasks
