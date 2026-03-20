@@ -24,9 +24,10 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
   const [isBridging, setIsBridging] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const { isInitialized, isInitializing, web3Auth, isConnected } = useWeb3Auth();
+  const { isInitialized, isInitializing, isConnected } = useWeb3Auth();
   const { connect, loading: connectLoading } = useWeb3AuthConnect();
   const { userInfo } = useWeb3AuthUser();
+  const { getIdentityToken } = useIdentityToken();
 
   // When user becomes connected (after connect() resolves), bridge to Supabase
   useEffect(() => {
