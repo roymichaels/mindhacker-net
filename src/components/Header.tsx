@@ -197,10 +197,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           <LogOut className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4 rotate-180`} />
           {t('common.login')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => {
-          setAuthModalMode("signup");
-          setAuthModalOpen(true);
-        }}>
+        <DropdownMenuItem onClick={() => openAuthModal('signup')}>
           <User className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
           {t('common.signup')}
         </DropdownMenuItem>
