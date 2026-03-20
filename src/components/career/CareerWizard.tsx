@@ -222,23 +222,20 @@ export default function CareerWizard({ careerPath, onComplete }: CareerWizardPro
 
   return (
     <div className="flex flex-col min-h-[80vh] max-w-lg mx-auto w-full">
-      {/* Header */}
-      <div className={cn('rounded-xl border p-4 mb-4 bg-gradient-to-br', meta.gradient, meta.border)}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-background/30 flex items-center justify-center">
-            <Icon className="w-5 h-5 text-foreground" />
-          </div>
-          <div>
-            <h1 className="text-lg font-black text-foreground">{isHe ? meta.titleHe : meta.titleEn}</h1>
-            <p className="text-xs text-muted-foreground">
-              {phase === 'structured'
-                ? `${isHe ? 'שלב' : 'Step'} ${currentQ + 1}/${questions.length}`
-                : isHe ? 'שיחה עם Aurora' : 'Conversation with Aurora'}
-            </p>
-          </div>
-        </div>
-        <Progress value={progress} className="mt-3 h-1.5" />
-      </div>
+      {/* Header — shared wizard header */}
+      <WizardHeader
+        label={isHe ? meta.titleHe : meta.titleEn}
+        icon={<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><Icon className="w-4 h-4 text-primary" /></div>}
+        segments={[...questions.map((_, idx) => ({
+          fill: phase === 'ai_chat' || phase === 'submitted' ? 1
+            : idx < currentQ ? 1
+            : idx === currentQ ? 0.5
+            : 0,
+        })), {
+          fill: phase === 'submitted' ? 1 : phase === 'ai_chat' ? 0.5 : 0,
+        }]}
+        onExit={() => navigate(-1)}
+      />
 
       {/* Phase 1: Structured Questions */}
       {phase === 'structured' && q && (
