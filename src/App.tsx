@@ -150,7 +150,7 @@ const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const AdminJourney = lazy(() => import("./pages/AdminJourney"));
 const ProjectsJourney = lazy(() => import("./pages/ProjectsJourney"));
 const CoachProfile = lazy(() => import("./pages/PractitionerProfile"));
-const CoachSlugRedirect = lazy(() => import("./components/coach/CoachSlugRedirect"));
+const CoachSlugRedirect = lazy(() => import("./components/careers/coach/CoachSlugRedirect"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
 const ArenaLayoutWrapper = lazy(() => import("./components/arena/ArenaLayoutWrapper"));
@@ -178,7 +178,7 @@ const queryClient = new QueryClient({
 });
 
 // Wrapper that injects coach sidebars when user is a coach
-const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
+const CoachesLayoutWrapper = lazy(() => import('./components/careers/coach/CoachesLayoutWrapper'));
 
 // Redirect old /arena/:domainId/* → /play (via /strategy/:domainId/*)
 function ArenaToStrategyRedirect() {
