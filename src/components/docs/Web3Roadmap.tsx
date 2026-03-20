@@ -32,7 +32,7 @@ const phases: RoadmapPhase[] = [
       { he: 'סטוריז + פיד חברתי', en: 'Stories + Social Feed' },
       { he: 'חנויות מאמנים אישיות', en: 'Coach Storefronts' },
       { he: 'תוכנית שותפים', en: 'Affiliate Program' },
-      { he: 'יומן Aurora', en: 'Aurora Journal' },
+      { he: 'יומן AION', en: 'AION Journal' },
       { he: 'מצב קולי', en: 'Voice Mode' },
     ],
   },
