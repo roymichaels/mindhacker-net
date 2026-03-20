@@ -1,2 +1,2 @@
-// Compatibility wrapper - delegates to the canonical auth modal
-export { AuthModal } from '@/components/auth/AuthModal';
+// Legacy compatibility — auth flow now uses Web3Auth SDK modal directly
+export const AuthModal = () => null;
