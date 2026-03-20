@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Coins, TrendingUp, TrendingDown, ArrowUpRight, Shield, Eye, EyeOff, Wallet, Copy, ExternalLink, X } from 'lucide-react';
+import { Coins, TrendingUp, TrendingDown, ArrowUpRight, Shield, Eye, EyeOff, Wallet, Copy, ExternalLink, X, Database, ToggleRight, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFMWallet, useFMTransactions, useFMClaims } from '@/hooks/useFMWallet';
+import { useMOSEconomy, MOS_TO_USD } from '@/hooks/fm/useMOSEconomy';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useWalletModal } from '@/contexts/WalletModalContext';
 import { createPortal } from 'react-dom';
-
-const MOS_TO_USD = 0.01;
+import { cn } from '@/lib/utils';
 
 const TX_LABELS: Record<string, { en: string; he: string; icon: string }> = {
   earn_bounty: { en: 'Bounty Reward', he: 'תגמול באונטי', icon: '🎯' },
@@ -24,6 +25,7 @@ const TX_LABELS: Record<string, { en: string; he: string; icon: string }> = {
   withdraw_crypto: { en: 'Crypto Withdrawal', he: 'משיכת קריפטו', icon: '⛓️' },
   deposit: { en: 'Deposit', he: 'הפקדה', icon: '📥' },
   adjustment: { en: 'Adjustment', he: 'התאמה', icon: '⚙️' },
+  mining_reward: { en: 'Mining Reward', he: 'תגמול כרייה', icon: '⛏️' },
 };
 
 export function WalletModal() {
@@ -32,12 +34,15 @@ export function WalletModal() {
   const isHe = language === 'he';
   const { wallet, isLoading } = useFMWallet();
   const { data: transactions = [], isLoading: txLoading } = useFMTransactions();
+  const { isDataContributionEnabled, toggleDataContribution, isTogglingData } = useMOSEconomy();
   const [balanceHidden, setBalanceHidden] = useState(false);
   const navigate = useNavigate();
 
   const balance = wallet?.mos_balance ?? 0;
   const earned = wallet?.lifetime_earned ?? 0;
   const spent = wallet?.lifetime_spent ?? 0;
+  const fees = (wallet as any)?.lifetime_fees ?? 0;
+  const pending = (wallet as any)?.pending_balance ?? 0;
   const isAdvanced = wallet?.mode === 'advanced';
   const fiatValue = (balance * MOS_TO_USD).toFixed(2);
 
@@ -61,17 +66,30 @@ export function WalletModal() {
         {txList.map((tx: any) => {
           const label = TX_LABELS[tx.type] || { en: tx.type, he: tx.type, icon: '💰' };
           const isPositive = tx.amount >= 0;
+          const feeAmt = tx.fee_amount ?? 0;
           return (
-            <div key={tx.id} className="flex items-center gap-3 bg-card border border-border rounded-xl px-3.5 py-3">
-              <span className="text-lg">{label.icon}</span>
-              <div className="flex-1 min-w-0 space-y-0.5">
-                <p className="text-sm font-medium text-foreground truncate">{tx.description || (isHe ? label.he : label.en)}</p>
-                <p className="text-[10px] text-muted-foreground">{format(new Date(tx.created_at), 'MMM d, yyyy · HH:mm')}</p>
+            <div key={tx.id} className="bg-card border border-border rounded-xl px-3.5 py-3 space-y-1">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{label.icon}</span>
+                <div className="flex-1 min-w-0 space-y-0.5">
+                  <p className="text-sm font-medium text-foreground truncate">{tx.description || (isHe ? label.he : label.en)}</p>
+                  <p className="text-[10px] text-muted-foreground">{format(new Date(tx.created_at), 'MMM d, yyyy · HH:mm')}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`text-sm font-bold ${isPositive ? 'text-emerald-500' : 'text-destructive'}`}>{isPositive ? '+' : ''}{tx.amount.toLocaleString()}</p>
+                  <p className="text-[10px] text-muted-foreground">{isPositive ? '+' : '-'}${Math.abs(tx.amount * MOS_TO_USD).toFixed(2)}</p>
+                </div>
               </div>
-              <div className="text-right shrink-0">
-                <p className={`text-sm font-bold ${isPositive ? 'text-emerald-500' : 'text-destructive'}`}>{isPositive ? '+' : ''}{tx.amount.toLocaleString()}</p>
-                <p className="text-[10px] text-muted-foreground">{isPositive ? '+' : '-'}${Math.abs(tx.amount * MOS_TO_USD).toFixed(2)}</p>
-              </div>
+              {/* Fee line for spend transactions */}
+              {feeAmt > 0 && (
+                <div className="flex items-center justify-between text-[10px] text-amber-500/70 ps-8">
+                  <span className="flex items-center gap-1">
+                    <Receipt className="w-3 h-3" />
+                    {isHe ? 'עמלה 2%' : '2% fee'}
+                  </span>
+                  <span>-{feeAmt} MOS</span>
+                </div>
+              )}
             </div>
           );
         })}
@@ -88,7 +106,6 @@ export function WalletModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-background/80 backdrop-blur-sm"
             onClick={closeWallet}
@@ -97,7 +114,6 @@ export function WalletModal() {
             exit={{ opacity: 0 }}
           />
 
-          {/* Modal content */}
           <motion.div
             className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto mx-4 bg-background border border-border rounded-2xl shadow-2xl p-5 space-y-4"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -105,7 +121,6 @@ export function WalletModal() {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
-            {/* Close button */}
             <button
               onClick={closeWallet}
               className="absolute top-3 end-3 p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground z-10"
@@ -134,6 +149,11 @@ export function WalletModal() {
                     {!balanceHidden && <span className="text-lg font-medium text-muted-foreground ml-1.5">MOS</span>}
                   </p>
                   <p className="text-sm text-muted-foreground">{balanceHidden ? '••••' : `≈ $${fiatValue} USD`}</p>
+                  {pending > 0 && !balanceHidden && (
+                    <p className="text-xs text-amber-500">
+                      {isHe ? `${pending} MOS ממתינים` : `${pending} MOS pending`}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2 pt-1">
                   <Button className="flex-1 gap-1.5" size="sm" onClick={() => { closeWallet(); navigate('/fm/cashout'); }}>
@@ -148,23 +168,55 @@ export function WalletModal() {
               </div>
             </div>
 
-            {/* Lifetime Stats */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-card border border-border rounded-xl p-3.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-[11px] font-medium">{isHe ? 'סה״כ הרווחת' : 'Total Earned'}</span>
+            {/* Lifetime Stats — 3 columns now */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-card border border-border rounded-xl p-3 space-y-1">
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <TrendingUp className="w-3 h-3 text-emerald-500" />
+                  <span className="text-[10px] font-medium">{isHe ? 'הרווחת' : 'Earned'}</span>
                 </div>
-                <p className="text-lg font-bold text-emerald-500">+{earned.toLocaleString()}</p>
-                <p className="text-[10px] text-muted-foreground">≈ ${(earned * MOS_TO_USD).toFixed(2)}</p>
+                <p className="text-base font-bold text-emerald-500">+{earned.toLocaleString()}</p>
+                <p className="text-[9px] text-muted-foreground">≈ ${(earned * MOS_TO_USD).toFixed(2)}</p>
               </div>
-              <div className="bg-card border border-border rounded-xl p-3.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <TrendingDown className="w-3.5 h-3.5 text-destructive" />
-                  <span className="text-[11px] font-medium">{isHe ? 'סה״כ הוצאת' : 'Total Spent'}</span>
+              <div className="bg-card border border-border rounded-xl p-3 space-y-1">
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <TrendingDown className="w-3 h-3 text-destructive" />
+                  <span className="text-[10px] font-medium">{isHe ? 'הוצאת' : 'Spent'}</span>
                 </div>
-                <p className="text-lg font-bold text-destructive">-{spent.toLocaleString()}</p>
-                <p className="text-[10px] text-muted-foreground">≈ ${(spent * MOS_TO_USD).toFixed(2)}</p>
+                <p className="text-base font-bold text-destructive">-{spent.toLocaleString()}</p>
+                <p className="text-[9px] text-muted-foreground">≈ ${(spent * MOS_TO_USD).toFixed(2)}</p>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-3 space-y-1">
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Receipt className="w-3 h-3 text-amber-500" />
+                  <span className="text-[10px] font-medium">{isHe ? 'עמלות' : 'Fees'}</span>
+                </div>
+                <p className="text-base font-bold text-amber-500">{fees.toLocaleString()}</p>
+                <p className="text-[9px] text-muted-foreground">≈ ${(fees * MOS_TO_USD).toFixed(2)}</p>
+              </div>
+            </div>
+
+            {/* Data Contribution Toggle */}
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Database className="w-4 h-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {isHe ? 'תרומת נתונים' : 'Data Contribution'}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {isDataContributionEnabled
+                        ? (isHe ? 'מרוויח MOS מפעילות אנונימית' : 'Earning MOS from anonymous activity')
+                        : (isHe ? 'הפעל כדי להרוויח MOS פסיבית' : 'Enable to earn passive MOS')}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={isDataContributionEnabled}
+                  onCheckedChange={(val) => toggleDataContribution(val)}
+                  disabled={isTogglingData}
+                />
               </div>
             </div>
 
@@ -182,7 +234,7 @@ export function WalletModal() {
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => toast.info(isHe ? 'מעבר למצב מתקדם יהיה זמין בקרוב' : 'Advanced mode coming soon')}>
+                <Button variant="ghost" size="sm" className="text-xs" onClick={() => toast.info(isHe ? 'מצב מתקדם יהיה זמין בקרוב' : 'Advanced mode coming soon')}>
                   {isAdvanced ? (isHe ? 'פשוט' : 'Simple') : (isHe ? 'מתקדם' : 'Advanced')} →
                 </Button>
               </div>
@@ -218,6 +270,25 @@ export function WalletModal() {
                 {renderTransactionList(spendTx, isHe ? 'אין הוצאות עדיין' : 'No spending yet')}
               </TabsContent>
             </Tabs>
+
+            {/* Economy Loop Info */}
+            <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 space-y-2">
+              <p className="text-xs font-medium text-foreground">
+                🔄 {isHe ? 'מחזור כלכלי MOS' : 'MOS Economy Loop'}
+              </p>
+              <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                <span className="bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full font-medium">{isHe ? 'הרוויח' : 'Earn'}</span>
+                <span>→</span>
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{isHe ? 'הוצא' : 'Spend'}</span>
+                <span>→</span>
+                <span className="bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full font-medium">{isHe ? 'עמלה 2%' : '2% Fee'}</span>
+                <span>→</span>
+                <span className="bg-accent/10 text-accent px-2 py-0.5 rounded-full font-medium">{isHe ? 'חלוקה' : 'Redistribute'}</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground text-center">
+                {isHe ? 'Proof of Growth — צמיחה אמיתית = ערך אמיתי' : 'Proof of Growth — Real growth = real value'}
+              </p>
+            </div>
           </motion.div>
         </motion.div>
       )}
