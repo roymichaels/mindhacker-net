@@ -87,6 +87,9 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           console.warn('[Web3Auth] Disconnect after bridge (non-blocking):', e);
         }
 
+        // Force-close the Web3Auth modal DOM element
+        forceCloseW3AModal();
+
         toast({ title: 'Login successful', description: 'Welcome back!' });
         pendingCallbackRef.current?.();
         setPendingCallback(undefined);
