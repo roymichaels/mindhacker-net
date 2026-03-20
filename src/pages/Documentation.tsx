@@ -359,7 +359,7 @@ export default function Documentation() {
         `${brandName} מציע שלוש רמות מנוי בהיררכיית "עומק הכוח":`,
         `Awakening (חינמי): מבנה בסיסי, XP ורמות, 5 הודעות Aurora ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Play Hub לעידוד מומנטום יומי.`,
         `Optimization ($69/חודש): Aurora ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום, והיפנוזה AI.`,
-        `Command ($199/חודש): כל 14 עמודי החיים, מנוע פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות חדשות לתוכנית הפעילה.`,
+        `Command ($199/חודש): כל 15 עמודי החיים, מנוע פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות חדשות לתוכנית הפעילה.`,
       ] : [
         `${brandName} offers three subscription tiers in a "Depth of Power" hierarchy:`,
         `Awakening (Free): Basic structure, XP/leveling, 5 daily Aurora messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
