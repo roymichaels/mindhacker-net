@@ -14,12 +14,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useProfile } from '@/hooks/useProfile';
-import FreelancerDashboardTab from '@/components/freelancer/FreelancerDashboardTab';
-import FreelancerGigsTab from '@/components/freelancer/FreelancerGigsTab';
-import FreelancerProjectsTab from '@/components/freelancer/FreelancerProjectsTab';
-import FreelancerPortfolioTab from '@/components/freelancer/FreelancerPortfolioTab';
-import FreelancerEarningsTab from '@/components/freelancer/FreelancerEarningsTab';
-import FreelancerSettingsTab from '@/components/freelancer/FreelancerSettingsTab';
+import FreelancerDashboardTab from '@/components/careers/freelancer/FreelancerDashboardTab';
+import FreelancerGigsTab from '@/components/careers/freelancer/FreelancerGigsTab';
+import FreelancerProjectsTab from '@/components/careers/freelancer/FreelancerProjectsTab';
+import FreelancerPortfolioTab from '@/components/careers/freelancer/FreelancerPortfolioTab';
+import FreelancerEarningsTab from '@/components/careers/freelancer/FreelancerEarningsTab';
+import FreelancerSettingsTab from '@/components/careers/freelancer/FreelancerSettingsTab';
 
 export default function FreelancerHub() {
   const { language } = useTranslation();

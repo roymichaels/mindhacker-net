@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { FocusQueueModal } from './FocusQueueModal';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
+import { MilestoneJourneyModal } from '@/components/play/MilestoneJourneyModal';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { useWeeklyTacticalPlan, type TacticalAction } from '@/hooks/useWeeklyTacticalPlan';
 import { useQueryClient } from '@tanstack/react-query';

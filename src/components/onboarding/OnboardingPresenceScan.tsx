@@ -5,7 +5,7 @@
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import GuidedCapture from '@/components/presence/GuidedCapture';
-import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
+import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { usePresenceScans } from '@/hooks/usePresenceScans';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
 import { buildScanResult } from '@/lib/presence/scoring';

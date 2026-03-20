@@ -9,7 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useBusinessOrbProfile } from '@/hooks/useBusinessOrbProfile';
 import { useBusinessPlan } from '@/hooks/useBusinessPlan';
 import { useBusinessBranding } from '@/hooks/useBusinessBranding';
-import { BusinessHUD } from '@/components/business/BusinessHUD';
+import { BusinessHUD } from '@/components/careers/business/BusinessHUD';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, ArrowLeft, Brain, Calendar, Palette, Megaphone, Settings, Target, Users, TrendingUp, Sparkles, LayoutGrid } from 'lucide-react';
@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { detectIndustry } from '@/lib/businessOrbSystem';
 
 // Lazy load modals
-const BusinessDashboardModals = lazy(() => import('@/components/business/BusinessDashboardModals'));
+const BusinessDashboardModals = lazy(() => import('@/components/careers/business/BusinessDashboardModals'));
 
 type ModalType = 
   | 'ai-analysis' 

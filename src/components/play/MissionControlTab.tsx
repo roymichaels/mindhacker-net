@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
+import { MilestoneJourneyModal } from '@/components/play/MilestoneJourneyModal';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 import { FocusQueueModal } from './FocusQueueModal';
 import { useQueryClient } from '@tanstack/react-query';

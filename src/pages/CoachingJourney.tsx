@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { CoachingJourneyFlow } from '@/components/coaching-journey';
+import { CoachingJourneyFlow } from '@/components/journeys/coaching';
 
 const CoachingJourney = () => {
   const navigate = useNavigate();

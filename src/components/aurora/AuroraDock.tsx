@@ -9,7 +9,7 @@ import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
-import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
+import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { cn } from '@/lib/utils';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
 import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';

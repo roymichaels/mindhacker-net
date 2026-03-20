@@ -4,7 +4,7 @@
  * @data CoachesModal component
  */
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { CoachesModal } from '@/components/coaches/CoachesModal';
+import { CoachesModal } from '@/components/careers/coaches/CoachesModal';
 
 interface CoachesModalContextType {
   openCoaches: (coachId?: string) => void;

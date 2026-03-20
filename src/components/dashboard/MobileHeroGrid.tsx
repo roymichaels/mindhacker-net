@@ -16,7 +16,7 @@ import { type NowQueueItem } from '@/types/planning';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
+import { MilestoneJourneyModal } from '@/components/play/MilestoneJourneyModal';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 import { PlanNegotiateModal } from '@/components/plan/PlanNegotiateModal';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
