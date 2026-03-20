@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Briefcase, ArrowRight, ArrowLeft, Sparkles, Loader2, Building2, ChevronLeft, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import BusinessCreationWizard from '@/components/business/BusinessCreationWizard';
+import BusinessCreationWizard from '@/components/careers/business/BusinessCreationWizard';
 import { toast } from 'sonner';
 
 export default function Business() {

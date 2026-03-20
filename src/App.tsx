@@ -74,7 +74,7 @@ const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
-import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/business/BusinessLayoutWrapper';
+import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/careers/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
 import FMMarketLayoutWrapper from "./components/fm/FMMarketLayoutWrapper";
 const FMCashout = lazy(() => import("./pages/fm/FMCashout"));
