@@ -34,7 +34,7 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { AuroraOrbIcon } from "@/components/icons/AuroraOrbIcon";
 
-import { AuthModal } from "./AuthModal";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import AdminSidebar from "./panel/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
 
