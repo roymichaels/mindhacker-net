@@ -269,6 +269,7 @@ const App = () => (
                         <Route path="/ceremony" element={<OnboardingCeremony />} />
                         {/* Ad landing page */}
                         <Route path="/go" element={<Go />} />
+                        <Route path="/founding" element={<FoundingLanding />} />
                         {/* Feature detail pages */}
                         <Route path="/features/:slug" element={<FeatureDetailPage />} />
                         {/* Legacy redirects → onboarding */}

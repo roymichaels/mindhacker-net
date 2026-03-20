@@ -46,13 +46,7 @@ const FoundingHero = ({ onCTA }: Props) => {
           <Orb
             size={180}
             renderer="css"
-            primaryColor="hsl(265, 85%, 55%)"
-            secondaryColors={['hsl(190, 95%, 45%)', 'hsl(230, 80%, 60%)']}
-            accentColor="hsl(280, 90%, 65%)"
-            morphSpeed={0.3}
-            morphIntensity={0.6}
-            particleEnabled={true}
-            particleCount={20}
+            profile={heroOrbProfile}
           />
         </div>
       </motion.div>
