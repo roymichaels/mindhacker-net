@@ -3279,7 +3279,7 @@ export const en: TranslationKeys = {
   welcome: {
     yourJourneyBegins: "Your Journey Begins",
     startTransformationJourney: "Start Transformation Journey",
-    chatWithAurora: "Chat with Aurora",
+    chatWithAurora: "Chat with AION",
     level: "Level",
     streak: "Streak",
     tokens: "Tokens",
