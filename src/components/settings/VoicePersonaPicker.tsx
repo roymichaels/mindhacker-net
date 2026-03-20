@@ -23,7 +23,7 @@ export function VoicePersonaPicker() {
   return (
     <div className="space-y-3">
       <h3 className="text-lg font-semibold">
-        {isHe ? '🎙️ סגנון הקול של אורורה' : '🎙️ Aurora Voice Style'}
+        {isHe ? '🎙️ סגנון הקול של AION' : '🎙️ AION Voice Style'}
       </h3>
       <p className="text-sm text-muted-foreground">
         {isHe 

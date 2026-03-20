@@ -160,7 +160,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
             </TabsTrigger>
             <TabsTrigger value="aurora" className="flex flex-col items-center gap-1 py-2 px-1 text-xs">
               <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">{t('settings.tabs.aurora')}</span>
+              <span className="hidden sm:inline">AION</span>
             </TabsTrigger>
             <TabsTrigger value="energy" className="flex flex-col items-center gap-1 py-2 px-1 text-xs">
               <Zap className="h-4 w-4" />

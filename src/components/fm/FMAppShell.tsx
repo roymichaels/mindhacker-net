@@ -20,7 +20,7 @@ export default function FMAppShell() {
   // Hide global sidebars for all FM pages
   useSidebars(null, null, []);
 
-  // Gate: If user hasn't minted Soul Avatar, open wizard
+  // Gate: If user hasn't activated AION, open wizard
   useEffect(() => {
     if (soulLoading) return;
     if (!isMinted) {
