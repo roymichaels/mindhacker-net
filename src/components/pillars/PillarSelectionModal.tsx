@@ -2,7 +2,7 @@
  * PillarSelectionModal — Lets users choose which pillars to activate based on their tier.
  * Free: 2 pillars
  * Plus: 6 pillars
- * Apex: all 14
+ * Apex: all 15
  */
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';

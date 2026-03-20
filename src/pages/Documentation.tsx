@@ -91,12 +91,12 @@ export default function Documentation() {
       title: he ? 'מתודולוגיית Why-How-Now' : 'The Why-How-Now Methodology',
       paragraphs: he ? [
         `${brandName} בנוי סביב מתודולוגיית "Why-How-Now" — מסגרת שלושה אופקים שמתרגמת חזון מופשט לפעולות קונקרטיות יומיות.`,
-        `Strategy (Why): מגדיר את מטרות החיים, ערכים, משימות, ו-14 עמודי חיים. זהו הצפון של המשתמש — ה"למה" מאחורי כל פעולה.`,
+        `Strategy (Why): מגדיר את מטרות החיים, ערכים, משימות, ו-15 עמודי חיים. זהו הצפון של המשתמש — ה"למה" מאחורי כל פעולה.`,
         `Tactics (How): מפרק את האסטרטגיה לתוכנית 100 ימים עם שלבים, אבני דרך, ובלוקי פעולה יומיים. זהו הגשר בין חזון לביצוע.`,
         `Now (Execute): דשבורד הביצוע היומי — פעולות מחולקות ל-4 רבעוני יום עם שמות הרפתקניים ייחודיים, Movement Score שמודד מומנטום בזמן אמת, ומערכת Quest יומית.`,
       ] : [
         `${brandName} is built around the "Why-How-Now" methodology — a three-horizon framework that translates abstract vision into concrete daily actions.`,
-        `Strategy (Why): Defines life goals, values, missions, and 14 life pillars. This is the user's north star — the "why" behind every action.`,
+        `Strategy (Why): Defines life goals, values, missions, and 15 life pillars. This is the user's north star — the "why" behind every action.`,
         `Tactics (How): Breaks down strategy into a 100-day plan with phases, milestones, and daily action blocks. The bridge between vision and execution.`,
         `Now (Execute): The daily execution dashboard — actions divided into 4 adventure-themed day quarters with unique names, a Movement Score measuring real-time momentum, and a daily Quest system.`,
       ],
@@ -116,14 +116,14 @@ export default function Documentation() {
           paragraphs: he ? [
             `Play הוא לב הפלטפורמה — מרכז ביצוע אחוד שמאחד אסטרטגיה, טקטיקה, וביצוע יומי תחת חוויה אחת. שלושת אופקי ה-Why-How-Now חיים כאן.`,
             `הדשבורד מציג פעולות יומיות מחולקות ל-4 רבעוני יום הרפתקניים, כל אחד עם שם ייחודי שמתחדש כל יום. Movement Score מודד מומנטום בזמן אמת, וכל יום הוא Quest עם שם ייחודי — שבוע שלם מרכיב Campaign.`,
-            `כולל: תוכנית 100 ימים מחולקת ל-10 שלבים עם אבני דרך, סריקות AI עומק ל-14 עמודי חיים עם ציון 0-100, ניהול משימות ופרויקטים עם תעדוף AI, ומנגנון משא ומתן עם Aurora על התוכנית — שינוי סדרי עדיפויות, הזזת אבני דרך, או חידוש תוכנית בשיחה.`,
-            `14 עמודי החיים מחולקים ל-6 עמודי Life (נוכחות, כוח, חיוניות, פוקוס, לחימה, התרחבות) ו-6 עמודי Arena (עסקים, עושר, השפעה, מערכות יחסים, פרויקטים, משחק) + תודעה ואומנות. כל עמוד כולל הערכה מבוססת שיחת AI עם דף תוצאות מותאם אישית.`,
+            `כולל: תוכנית 100 ימים מחולקת ל-10 שלבים עם אבני דרך, סריקות AI עומק ל-15 עמודי חיים עם ציון 0-100, ניהול משימות ופרויקטים עם תעדוף AI, ומנגנון משא ומתן עם Aurora על התוכנית — שינוי סדרי עדיפויות, הזזת אבני דרך, או חידוש תוכנית בשיחה.`,
+            `15 עמודי החיים המאוחדים: תודעה, תדמית, עוצמה, חיוניות, מיקוד, לחימה, התרחבות, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, סדר, ורומנטיקה. כל עמוד כולל הערכה מבוססת שיחת AI עם דף תוצאות מותאם אישית.`,
             `התאמת מאמן מבוססת AI: המשתמש יכול לבקש מ-Aurora למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל — Aurora מנהלת שיחת זיהוי צרכים וממליצה על מאמנים מתאימים מתוך הפלטפורמה.`,
           ] : [
             `Play is the heart of the platform — a unified execution hub that merges strategy, tactics, and daily execution into a single experience. All three Why-How-Now horizons live here.`,
             `The dashboard displays daily actions divided into 4 adventure-themed day quarters, each with a unique name that refreshes daily. A Movement Score measures real-time momentum, and each day is a Quest with a unique name — an entire week forms a Campaign.`,
-            `Includes: a 100-day plan divided into 10 phases with milestones, AI deep scans for 14 life pillars scoring 0-100, task and project management with AI prioritization, and a negotiation mechanism with Aurora about the plan — reprioritize, shift milestones, or regenerate the plan through conversation.`,
-            `The 14 Life Pillars are split into 6 Life pillars (Presence, Power, Vitality, Focus, Combat, Expansion) and 6 Arena pillars (Business, Wealth, Influence, Relationships, Projects, Play) + Consciousness and Craft. Each pillar includes a chat-based AI assessment with a personalized results page.`,
+            `Includes: a 100-day plan divided into 10 phases with milestones, AI deep scans for 15 life pillars scoring 0-100, task and project management with AI prioritization, and a negotiation mechanism with Aurora about the plan — reprioritize, shift milestones, or regenerate the plan through conversation.`,
+            `The 15 unified Life Pillars: Consciousness, Image, Power, Vitality, Focus, Combat, Expansion, Wealth, Influence, Relationships, Business, Projects, Play, Order, and Romantics. Each pillar includes a chat-based AI assessment with a personalized results page.`,
             `AI Coach Matching: Users can ask Aurora to find a coach to help execute their strategy — Aurora conducts a needs-discovery conversation and recommends matching coaches from the platform.`,
           ],
         },
@@ -176,20 +176,20 @@ export default function Documentation() {
       number: '5',
       title: he ? 'Aurora — מנוע ה-AI התודעתי (עומק)' : 'Aurora — Consciousness AI Engine (Deep Dive)',
       paragraphs: he ? [
-        `Aurora אינה צ'אטבוט — אלא מנוע תודעתי שמתפתח עם המשתמש. היא מנהלת: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-14 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
+        `Aurora אינה צ'אטבוט — אלא מנוע תודעתי שמתפתח עם המשתמש. היא מנהלת: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-15 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
         `המודל משתמש בשילוב מודלים מתקדמים (Gemini 2.5 Pro/Flash, GPT-5) עם prompts מותאמים שכוללים את הפרופיל המלא של המשתמש, היסטוריית שיחות, ציוני עמודים, ומצב רגשי. תמיכה מלאה בעיבוד מולטימודלי (טקסט + תמונות).`,
       ] : [
-        `Aurora is not a chatbot — it is a consciousness engine that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 14 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
+        `Aurora is not a chatbot — it is a consciousness engine that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 15 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
         `The model uses a combination of frontier AI models (Gemini 2.5 Pro/Flash, GPT-5) with custom prompts that include the user's full profile, conversation history, pillar scores, and emotional state. Full multimodal processing support (text + images).`,
       ],
       subsections: [
         {
           title: he ? '5.1 מודעות הקשרית מלאה' : '5.1 Full Contextual Awareness',
           paragraphs: he ? [
-            `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-14 עמודי חיים, ורמת מנוי.`,
+            `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
             `Aurora מודעת לזמן — יודעת את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
           ] : [
-            `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 14 life pillars, and subscription tier.`,
+            `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 15 life pillars, and subscription tier.`,
             `Aurora is time-aware — it knows the current time, day, and the user's specific schedule. This enables precise recommendations: "you have a training block in an hour", "you've completed 60% of today's tasks".`,
           ],
         },
@@ -359,12 +359,12 @@ export default function Documentation() {
         `${brandName} מציע שלוש רמות מנוי בהיררכיית "עומק הכוח":`,
         `Awakening (חינמי): מבנה בסיסי, XP ורמות, 5 הודעות Aurora ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Play Hub לעידוד מומנטום יומי.`,
         `Optimization ($69/חודש): Aurora ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום, והיפנוזה AI.`,
-        `Command ($199/חודש): כל 14 עמודי החיים, מנוע פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות חדשות לתוכנית הפעילה.`,
+        `Command ($199/חודש): כל 15 עמודי החיים, מנוע פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות חדשות לתוכנית הפעילה.`,
       ] : [
         `${brandName} offers three subscription tiers in a "Depth of Power" hierarchy:`,
         `Awakening (Free): Basic structure, XP/leveling, 5 daily Aurora messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
         `Optimization ($69/mo): Unlimited Aurora memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
-        `Command ($199/mo): All 14 pillars, the proactive engine, and modular plan updates — completing assessments injects new strategies into the active plan.`,
+        `Command ($199/mo): All 15 pillars, the proactive engine, and modular plan updates — completing assessments injects new strategies into the active plan.`,
       ],
     },
     {
@@ -453,11 +453,11 @@ export default function Documentation() {
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
         `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AI תודעתי עם מודעות הקשרית מלאה, כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים, זהות Soul Avatar NFT דינמית, Web3 Wallet עם מנטינג אמיתי, ומערכת אונבורדינג אימרסיבית — לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
-        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, הערכות מבוססות שיחת AI ל-14 עמודי חיים, משא ומתן חכם עם התוכנית, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית, מערכת למידה אדפטיבית, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת עם חנויות אישיות, קהילה פעילה, יומן Aurora עם חלומות ורפלקציה, מצב קולי, Soul Avatar NFT עם Web3 Wallet, תוכנית שותפים, ו-PWA מלא. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
+        `הפלטפורמה מציעה: מנוע AI שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, הערכות מבוססות שיחת AI ל-15 עמודי חיים, משא ומתן חכם עם התוכנית, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית, מערכת למידה אדפטיבית, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת עם חנויות אישיות, קהילה פעילה, יומן Aurora עם חלומות ורפלקציה, מצב קולי, Soul Avatar NFT עם Web3 Wallet, תוכנית שותפים, ו-PWA מלא. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
         `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies consciousness AI with full contextual awareness, a Proof of Growth digital economy, a unified career platform with 5 professional paths, dynamic Soul Avatar NFT identity, Web3 Wallet with real minting, and an immersive onboarding system — into a single experience that wraps around the user's life.`,
-        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, chat-based AI assessments for 14 life pillars, smart plan negotiation, AI-powered coach matching, guided hypnosis and meditation, an adaptive learning system, an internal marketplace with real mining economy, a unified career platform with personal storefronts, an active community, Aurora Journal with dreams and reflection, voice mode, Soul Avatar NFT with Web3 Wallet, affiliate program, and full PWA. Everything connected, everything gamified, everything in service of personal growth.`,
+        `The platform offers: an AI engine that deeply knows you, a 100-day plan with the Why-How-Now methodology, chat-based AI assessments for 15 life pillars, smart plan negotiation, AI-powered coach matching, guided hypnosis and meditation, an adaptive learning system, an internal marketplace with real mining economy, a unified career platform with personal storefronts, an active community, Aurora Journal with dreams and reflection, voice mode, Soul Avatar NFT with Web3 Wallet, affiliate program, and full PWA. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
     },

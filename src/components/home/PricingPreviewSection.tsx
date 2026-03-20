@@ -34,8 +34,8 @@ const tiers = [
     nameHe: 'שליטה', nameEn: 'Command',
     priceHe: '$199/חודש', priceEn: '$199/mo',
     color: 'text-amber-500', border: 'border-amber-500/30', bg: 'bg-amber-500/5',
-    featuresHe: ['כל 14 הפילרים פתוחים', 'מנוע Jarvis פרואקטיבי', 'פרויקטים + עסקים מתקדם', 'Orb DNA מלא'],
-    featuresEn: ['All 14 pillars unlocked', 'Proactive Jarvis engine', 'Projects + Business Advanced', 'Full Orb DNA profile'],
+    featuresHe: ['כל 15 הפילרים פתוחים', 'מנוע Jarvis פרואקטיבי', 'פרויקטים + עסקים מתקדם', 'Orb DNA מלא'],
+    featuresEn: ['All 15 pillars unlocked', 'Proactive Jarvis engine', 'Projects + Business Advanced', 'Full Orb DNA profile'],
   },
 ];
 

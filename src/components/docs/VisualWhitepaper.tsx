@@ -87,7 +87,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <div className="flex flex-wrap justify-center gap-3 pt-6">
               <StatCard value={5} label={t('Core Experiences', 'חוויות ליבה')} delay={0} color="hsl(271 81% 55%)" />
               <StatCard value={100} suffix="%" label={t('AI-Powered', 'מבוסס AI')} delay={0.1} color="hsl(187 85% 50%)" />
-              <StatCard value={14} label={t('Life Pillars', 'עמודי חיים')} delay={0.2} color="hsl(45 90% 55%)" />
+              <StatCard value={15} label={t('Life Pillars', 'עמודי חיים')} delay={0.2} color="hsl(45 90% 55%)" />
             </div>
           </VisualSection>
         );
@@ -127,7 +127,7 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={3} isActive number="03" title={t('Why-How-Now Methodology', 'מתודולוגיית Why-How-Now')} subtitle={t('Three horizons from vision to daily action.', 'שלושה אופקים מחזון לפעולה יומית.')} isHe={he} layout="center" accent="hsl(45 90% 55%)">
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
-                { icon: '🎯', title: t('Strategy (Why)', 'אסטרטגיה (Why)'), desc: t('Life goals, values, missions, and 14 life pillars. Your north star.', 'מטרות חיים, ערכים, משימות, ו-14 עמודי חיים. הצפון שלך.'), color: 'hsl(271 81% 55%)' },
+                { icon: '🎯', title: t('Strategy (Why)', 'אסטרטגיה (Why)'), desc: t('Life goals, values, missions, and 15 life pillars. Your north star.', 'מטרות חיים, ערכים, משימות, ו-15 עמודי חיים. הצפון שלך.'), color: 'hsl(271 81% 55%)' },
                 { icon: '🗺️', title: t('Tactics (How)', 'טקטיקה (How)'), desc: t('100-day plan with phases, milestones, and daily action blocks.', 'תוכנית 100 ימים עם שלבים, אבני דרך, ובלוקי פעולה יומיים.'), color: 'hsl(187 85% 50%)' },
                 { icon: '⚡', title: t('Now (Execute)', 'עכשיו (Execute)'), desc: t('Daily dashboard with 4 adventure-themed quarters, Movement Score, and Quest system.', 'דשבורד יומי עם 4 רבעוני הרפתקה, Movement Score, ומערכת Quest.'), color: 'hsl(45 90% 55%)' },
               ].map((item, i) => (
@@ -262,7 +262,7 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={11} isActive number="11" title={t('Deep Gamification', 'גיימיפיקציה עמוקה')} isHe={he} layout="center" accent="hsl(25 90% 55%)">
             <div className="flex flex-wrap justify-center gap-3 pb-3">
               <StatCard value={100} suffix="+" label={t('Levels', 'רמות')} delay={0} color="hsl(25 90% 55%)" />
-              <StatCard value={14} label={t('Skill Trees', 'עצי מיומנויות')} delay={0.1} color="hsl(271 81% 55%)" />
+              <StatCard value={15} label={t('Skill Trees', 'עצי מיומנויות')} delay={0.1} color="hsl(271 81% 55%)" />
             </div>
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
@@ -284,7 +284,7 @@ export function VisualWhitepaper({ onExit }: Props) {
               {[
                 { icon: '🌅', title: t('Awakening — Free', 'Awakening — חינם'), desc: t('Basic structure, XP, 5 Aurora messages/day, 2 pillars, Play Hub.', 'מבנה בסיסי, XP, 5 הודעות Aurora ביום, 2 עמודים, Play Hub.'), color: 'hsl(168 70% 50%)' },
                 { icon: '🔥', title: t('Optimization — $69/mo', 'Optimization — $69/חודש'), desc: t('Unlimited Aurora memory, 6 pillars, 100-day plan, AI Hypnosis.', 'Aurora ללא הגבלת זיכרון, 6 עמודים, 100 ימים, היפנוזה AI.'), color: 'hsl(45 90% 55%)' },
-                { icon: '👑', title: t('Command — $199/mo', 'Command — $199/חודש'), desc: t('All 14 pillars, proactive engine, modular plan updates.', 'כל 14 עמודים, מנוע פרואקטיבי, עדכוני תוכנית מודולריים.'), color: 'hsl(271 81% 55%)' },
+                { icon: '👑', title: t('Command — $199/mo', 'Command — $199/חודש'), desc: t('All 15 pillars, proactive engine, modular plan updates.', 'כל 15 עמודים, מנוע פרואקטיבי, עדכוני תוכנית מודולריים.'), color: 'hsl(271 81% 55%)' },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color={item.color} />
               ))}

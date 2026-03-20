@@ -2,7 +2,7 @@
  * usePillarAccess — Manages pillar selection and access based on subscription tier.
  * Free: 2 pillars (user picks)
  * Plus: 6 pillars (user picks)
- * Apex: all 14 pillars
+ * Apex: all 15 pillars
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';

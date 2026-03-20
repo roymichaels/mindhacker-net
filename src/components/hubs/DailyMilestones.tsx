@@ -145,7 +145,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     staleTime: 5 * 60 * 1000,
   });
 
-  // Show ALL 14 pillars — tier limits control how many can be assessed
+  // Show ALL 15 pillars — tier limits control how many can be assessed
   const allDomains = CORE_DOMAINS;
 
   // Total pillars the user can select based on tier
@@ -379,7 +379,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           )}
         </Button>
 
-        {/* Pillar cards grid — all 14 shown, locked ones greyed out */}
+        {/* Pillar cards grid — all 15 shown, locked ones greyed out */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {pillarStatuses.map(({ domain: d, completed, selected, locked }) => {
             const Icon = d.icon;

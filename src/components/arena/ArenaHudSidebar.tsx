@@ -185,7 +185,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
                 {isHe ? 'זירה — ביצוע חי' : 'Arena — Live Execution'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? 'כל 14 התחומים בפעולה' : 'All 14 pillars in action'}
+                {isHe ? 'כל 15 התחומים בפעולה' : 'All 15 pillars in action'}
               </p>
             </div>
           </div>

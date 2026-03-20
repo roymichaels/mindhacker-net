@@ -2871,7 +2871,7 @@ export const en: TranslationKeys = {
       subtitle: 'Three quest phases that rebuild your life from the ground up.',
       phaseLabel: 'Quest',
       phase1Title: 'Deep Assessment',
-      phase1Desc: 'Aurora scans all 14 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
+      phase1Desc: 'Aurora scans all 15 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
       phase2Title: '100-Day Strategy',
       phase2Desc: 'AI generates a personalized battle plan with missions, milestones, and daily protocols across every domain you unlock.',
       phase3Title: 'Daily Execution',
@@ -2895,7 +2895,7 @@ export const en: TranslationKeys = {
     // AuroraCoachSection
     auroraCoach: {
       badge: 'Your Personal AI',
-      title: 'One Brain. All 14 Domains.',
+      title: 'One Brain. All 15 Domains.',
       subtitle: 'Aurora sees everything — body, mind, business, relationships, consciousness — and connects them all into one coherent strategy.',
       coaching247Title: '24/7 Coaching',
       coaching247Desc: 'Always there, always adapted to your state',
@@ -2906,7 +2906,7 @@ export const en: TranslationKeys = {
       hypnosisTitle: 'Generates Hypnosis',
       hypnosisDesc: 'Creates personalized sessions from your conversations',
       oneBrainTitle: 'One Brain',
-      oneBrainDesc: 'Connects all 14 domains into a single intelligence',
+      oneBrainDesc: 'Connects all 15 domains into a single intelligence',
       chatPreviewTitle: 'Aurora knows how to say:',
       chatExample1: "I noticed your energy dropped this week. Let's check what changed in your sleep...",
       chatExample2: 'Your combat consistency is up 40% this month! This is also boosting your confidence.',
@@ -2957,7 +2957,7 @@ export const en: TranslationKeys = {
       cta: '⚡ Start Building',
       personalCoach: 'Personal AI Coach 24/7',
       plan100: 'Tailored 100-Day Plan',
-      domains14: '14 Life Domains',
+      domains14: '15 Life Domains',
       hypnosis: 'Custom Hypnosis Sessions',
       gamification: 'Full Gamification',
       orbAvatar: 'Personalized Orb Avatar',
@@ -2970,7 +2970,7 @@ export const en: TranslationKeys = {
     orbShowcase: {
       badge: 'Living Avatar',
       title: 'Your Orb. Your DNA.',
-      subtitle: 'A living digital avatar that evolves as you grow — reflecting your identity, traits, and progress across all 14 life pillars.',
+      subtitle: 'A living digital avatar that evolves as you grow — reflecting your identity, traits, and progress across all 15 life pillars.',
       evolveTitle: 'Evolves With You',
       evolveDesc: 'Your orb changes shape, color and complexity as you complete actions and level up.',
       dnaTitle: 'Identity DNA',
@@ -3106,15 +3106,15 @@ export const en: TranslationKeys = {
     // TwoWorldsSection
     twoWorlds: {
       title: 'A Complete System for ',
-      titleHighlight: '14 Life Domains',
-      subtitle: 'One system. 14 pillars. Two modes — Map and Movement.',
+      titleHighlight: '15 Life Domains',
+      subtitle: 'One system. 15 pillars. Two modes — Map and Movement.',
       coreTitle: '🧠 Core — The Map',
       coreSubtitle: 'Assessment, strategy & 100-day planning',
-      coreDesc: 'Diagnose all 14 domains, build a personalized 100-day plan, and track results.',
+      coreDesc: 'Diagnose all 15 domains, build a personalized 100-day plan, and track results.',
       arenaTitle: '⚔️ Arena — The Movement',
       arenaSubtitle: 'Daily execution, live tasks & momentum',
       arenaDesc: 'Execute your tasks today — action queue, habits, and real-time feedback.',
-      pillarsTitle: 'The 14 Pillars',
+      pillarsTitle: 'The 15 Pillars',
       pillarsSubtitle: 'Choose your pillars by plan — Free: 2, Plus: 6, Apex: all',
     },
 
@@ -5106,7 +5106,7 @@ export const en: TranslationKeys = {
       },
       pillars: {
         chooseYourPillars: 'Choose Your Pillars',
-        allUnlocked: 'All 14 pillars are unlocked for you',
+        allUnlocked: 'All 15 pillars are unlocked for you',
         selectUpTo: 'Select up to',
         pillarsForAssessment: 'pillars for personalized assessment & planning',
         startAssessments: 'Start Pillar Assessments',

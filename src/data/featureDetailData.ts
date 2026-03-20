@@ -429,14 +429,14 @@ export const FEATURE_DETAILS: Record<string, FeatureDetail> = {
       { title: '10-Phase Structure', desc: 'Clear phases (A–J), each 10 days, with specific milestones — making large transformations manageable through incremental progress.' },
       { title: 'Auto-Recalibration', desc: 'Your plan evolves with you. Complete a domain assessment? New insights automatically update your roadmap.' },
       { title: 'Daily Actionability', desc: 'The plan breaks down into daily habits and tasks surfaced in your Today tab — no need to remember what\'s next.' },
-      { title: 'Cross-System Integration', desc: 'Your 100-day plan connects to every feature: Aurora coaching, 14 domain assessments, gamification, and hypnosis sessions.' },
+      { title: 'Cross-System Integration', desc: 'Your 100-day plan connects to every feature: Aurora coaching, 15 domain assessments, gamification, and hypnosis sessions.' },
     ],
     benefitsHe: [
       { title: 'מותאם אישית לחלוטין', desc: 'כל אלמנט מותאם למטרות, אנרגיה, לוח זמנים ופרופיל פסיכולוגי ספציפיים שלך — לא תבנית אחת לכולם.' },
       { title: 'מבנה 10 פאזות', desc: 'פאזות ברורות (A–J), כל אחת 10 ימים, עם אבני דרך ספציפיות — הופכות טרנספורמציות גדולות לניתנות לניהול.' },
       { title: 'כיול מחדש אוטומטי', desc: 'התוכנית שלך מתפתחת איתך. השלמת הערכת תחום? תובנות חדשות מעדכנות אוטומטית את מפת הדרכים.' },
       { title: 'יכולת פעולה יומית', desc: 'התוכנית מתפרקת להרגלים ומשימות יומיות שמופיעים בטאב היום שלך — אין צורך לזכור מה הבא.' },
-      { title: 'אינטגרציה חוצת-מערכת', desc: 'תוכנית 100 הימים שלך מתחברת לכל פיצ\'ר: אימון Aurora, הערכות 14 תחומים, גיימיפיקציה וסשני היפנוזה.' },
+      { title: 'אינטגרציה חוצת-מערכת', desc: 'תוכנית 100 הימים שלך מתחברת לכל פיצ\'ר: אימון Aurora, הערכות 15 תחומים, גיימיפיקציה וסשני היפנוזה.' },
     ],
     howItWorksEn: [
       { step: 'Identity Assessment', desc: 'Aurora maps your values, direction, energy, and current life state through the Launchpad onboarding.' },

@@ -1,6 +1,6 @@
 /**
  * OnboardingPillarSelection — Full-screen pillar picker during onboarding.
- * Shows all 14 pillars, user picks up to their tier limit.
+ * Shows all 15 pillars, user picks up to their tier limit.
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
