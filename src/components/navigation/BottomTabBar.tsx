@@ -92,24 +92,18 @@ export function BottomTabBar() {
         key={tab.id}
         onClick={() => !isComingSoon && navigate(tab.path)}
         className={cn(
-          "relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]",
+          "relative flex flex-col items-center justify-center px-2 py-1.5 transition-all min-w-[60px]",
           isComingSoon && "opacity-40 grayscale cursor-default",
         )}
       >
         <div className={cn(
-          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+          "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
           active
             ? `${colors.solid} shadow-lg ring-2 ring-white/80`
             : "bg-muted/40"
         )}>
-          <Icon className={cn("h-6 w-6", active ? colors.text : colors.inactive)} />
+          <Icon className={cn("h-7 w-7", active ? colors.text : colors.inactive)} />
         </div>
-        <span className={cn(
-          "text-[10px] font-bold",
-          active ? "text-foreground" : "text-muted-foreground"
-        )}>
-          {language === 'he' ? tab.labelHe : tab.labelEn}
-        </span>
         {isComingSoon && (
           <span className="absolute -top-1 -right-1 text-[7px] font-bold px-1 py-px rounded-full leading-tight bg-destructive text-destructive-foreground">
             Soon
@@ -128,7 +122,7 @@ export function BottomTabBar() {
         {/* Aurora — same solid style */}
         <button
           onClick={openAurora}
-          className="relative flex flex-col items-center gap-1 px-2 py-1.5 transition-all min-w-[60px]"
+          className="relative flex flex-col items-center justify-center px-2 py-1.5 transition-all min-w-[60px]"
         >
           <AnimatePresence>
             {showBalloon && (
@@ -154,19 +148,18 @@ export function BottomTabBar() {
           </AnimatePresence>
 
           <div className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
+            "w-14 h-14 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
             location.pathname === '/aurora'
               ? "bg-white shadow-lg ring-2 ring-white/80"
               : "bg-muted/40"
           )}>
             <StandaloneMorphOrb
-              size={28}
+              size={32}
               profile={AURORA_ORB_PROFILE}
               geometryFamily="octa"
               level={100}
             />
           </div>
-          <span className={cn("text-[10px] font-bold", location.pathname === '/aurora' ? "text-foreground" : "text-muted-foreground")}>{isHe ? 'אורורה' : 'Aurora'}</span>
           {unreadCount > 0 && (
             <span className="absolute top-0 end-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none">
               {unreadCount > 9 ? '9+' : unreadCount}
