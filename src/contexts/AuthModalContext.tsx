@@ -39,6 +39,27 @@ export const useAuthModal = () => useContext(AuthModalContext);
 
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  /** Force-close the Web3Auth modal DOM and backdrop */
+  const forceCloseW3AModal = useCallback(() => {
+    // Hide modal
+    const modal = document.getElementById('w3a-modal') || document.querySelector('[class*="w3a-modal"]');
+    if (modal) {
+      (modal as HTMLElement).style.display = 'none';
+      // Also try the parent container
+      const parent = modal.closest('[id^="w3a"]');
+      if (parent) (parent as HTMLElement).style.display = 'none';
+    }
+    // Also click the close button if present
+    const closeBtn = document.querySelector('[class*="w3a-header__button"]') as HTMLElement;
+    closeBtn?.click();
+    // Hide backdrop
+    const backdrop = document.getElementById('w3a-backdrop');
+    if (backdrop) {
+      backdrop.style.opacity = '0';
+      backdrop.style.pointerEvents = 'none';
+    }
+  }, []);
   const [pendingCallback, setPendingCallback] = useState<(() => void) | undefined>();
   const pendingCallbackRef = useRef<(() => void) | undefined>();
   pendingCallbackRef.current = pendingCallback;
@@ -86,6 +107,9 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         } catch (e) {
           console.warn('[Web3Auth] Disconnect after bridge (non-blocking):', e);
         }
+
+        // Force-close the Web3Auth modal DOM element
+        forceCloseW3AModal();
 
         toast({ title: 'Login successful', description: 'Welcome back!' });
         pendingCallbackRef.current?.();
