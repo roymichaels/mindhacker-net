@@ -1,6 +1,10 @@
 /**
- * PersonalizedOrb - Wrapper component that loads user's orb profile
- * and renders the appropriate orb with personalized settings.
+ * PersonalizedOrb — VISUAL RENDERER for AION identity.
+ *
+ * The Orb is the rendering engine that displays the user's AION.
+ * It is NOT the identity itself — AION (src/identity/) is the identity layer.
+ * The Orb renders the visual representation based on the OrbProfile data.
+ *
  * Uses level-based shape morphing: every 25 levels unlocks a new morph shape.
  * Small sizes (<80px) use CSS renderer for performance.
  * Larger sizes use WebGL morphing orb for full 3D effect.
