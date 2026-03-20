@@ -3106,8 +3106,8 @@ export const en: TranslationKeys = {
     // TwoWorldsSection
     twoWorlds: {
       title: 'A Complete System for ',
-      titleHighlight: '14 Life Domains',
-      subtitle: 'One system. 14 pillars. Two modes — Map and Movement.',
+      titleHighlight: '15 Life Domains',
+      subtitle: 'One system. 15 pillars. Two modes — Map and Movement.',
       coreTitle: '🧠 Core — The Map',
       coreSubtitle: 'Assessment, strategy & 100-day planning',
       coreDesc: 'Diagnose all 14 domains, build a personalized 100-day plan, and track results.',
