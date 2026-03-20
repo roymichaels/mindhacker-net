@@ -1,7 +1,8 @@
 /**
- * OrbNFTCard — Soul Avatar NFT collectible card showcasing the user's avatar.
+ * OrbNFTCard — AION identity collectible card showcasing the user's evolving identity.
  * Fantasy RPG aesthetic with rarity borders, stats, and shimmer effects.
- * Shows "Mint Soul Avatar" CTA if not yet minted.
+ * The Orb is the visual renderer for the AION identity.
+ * Shows "Mint AION" CTA if not yet minted.
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
