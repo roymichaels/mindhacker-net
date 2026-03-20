@@ -65,6 +65,7 @@ const OrbGalleryPage = lazy(() => import("./pages/OrbGallery"));
 const CommunityLayoutWrapper = lazy(() => import("./components/community/CommunityLayoutWrapper"));
 const CommunityThread = lazy(() => import("./pages/CommunityThread"));
 const Go = lazy(() => import("./pages/Go"));
+const FoundingLanding = lazy(() => import("./pages/FoundingLanding"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
