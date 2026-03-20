@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, Rocket } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthModal } from '@/contexts/AuthModalContext';
-import { useNavigate } from 'react-router-dom';
 import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { Orb } from '@/components/orb/Orb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
