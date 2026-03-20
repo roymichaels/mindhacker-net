@@ -30,6 +30,14 @@ type BasicWeb3AuthUser = {
   idToken?: string;
 };
 
+type WalletProviderLike = {
+  request?: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  selectedAddress?: unknown;
+  publicAddress?: unknown;
+  address?: unknown;
+  accounts?: unknown;
+};
+
 const asNonEmptyString = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
@@ -62,6 +70,12 @@ const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
   }
 };
 
+const extractFirstAddress = (value: unknown): string | undefined => {
+  if (!Array.isArray(value)) return undefined;
+  const first = value[0];
+  return asNonEmptyString(first);
+};
+
 const resolveIdentityFromAny = (value: unknown): BasicWeb3AuthUser => {
   if (!value || typeof value !== 'object') return {};
 
@@ -83,9 +97,12 @@ const resolveIdentityFromAny = (value: unknown): BasicWeb3AuthUser => {
     asNonEmptyString(source.email) ||
     asNonEmptyString(source.verifierId) ||
     asNonEmptyString(source.verifier_id) ||
+    asNonEmptyString(source.wallet_address) ||
+    asNonEmptyString(source.public_address) ||
     asNonEmptyString(source.publicAddress) ||
     asNonEmptyString(source.walletAddress) ||
     asNonEmptyString(source.address) ||
+    asNonEmptyString(source.sub) ||
     walletAddress;
 
   const email = normalizeIdentityEmail(rawIdentity);
@@ -104,6 +121,35 @@ const resolveIdentityFromIdToken = (idToken?: string): BasicWeb3AuthUser => {
   const payload = decodeJwtPayload(idToken);
   if (!payload) return {};
   return resolveIdentityFromAny(payload);
+};
+
+const resolveIdentityFromProvider = async (
+  provider: WalletProviderLike | null,
+): Promise<BasicWeb3AuthUser> => {
+  if (!provider) return {};
+
+  let walletAddress =
+    asNonEmptyString(provider.selectedAddress) ||
+    asNonEmptyString(provider.publicAddress) ||
+    asNonEmptyString(provider.address) ||
+    extractFirstAddress(provider.accounts);
+
+  if (!walletAddress && typeof provider.request === 'function') {
+    try {
+      const accounts = await provider.request({ method: 'eth_accounts' });
+      walletAddress = extractFirstAddress(accounts);
+    } catch {
+      // Non-blocking: some providers may not support this call here.
+    }
+  }
+
+  const email = normalizeIdentityEmail(walletAddress);
+  if (!email) return {};
+
+  return {
+    email,
+    name: 'Wallet User',
+  };
 };
 
 const AuthModalContext = createContext<AuthModalContextType>({
@@ -303,12 +349,20 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         }
 
         console.log('[Web3Auth] Opening SDK modal...');
-        await connect();
+        const provider = (await connect()) as WalletProviderLike | null;
 
         // Fetch identity — retry as data may take a moment after connect
         let resolvedEmail: string | undefined;
         let resolvedName: string | undefined;
         let resolvedIdToken: string | undefined;
+
+        // Wallet-first fallback (MetaMask/Brave may not expose email in userInfo)
+        const providerIdentity = await resolveIdentityFromProvider(provider);
+        if (providerIdentity.email) {
+          resolvedEmail = providerIdentity.email;
+          resolvedName = providerIdentity.name;
+          console.log('[Web3Auth] Resolved identity from wallet provider');
+        }
 
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
