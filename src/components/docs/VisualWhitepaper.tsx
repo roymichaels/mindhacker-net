@@ -262,7 +262,7 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={11} isActive number="11" title={t('Deep Gamification', 'גיימיפיקציה עמוקה')} isHe={he} layout="center" accent="hsl(25 90% 55%)">
             <div className="flex flex-wrap justify-center gap-3 pb-3">
               <StatCard value={100} suffix="+" label={t('Levels', 'רמות')} delay={0} color="hsl(25 90% 55%)" />
-              <StatCard value={14} label={t('Skill Trees', 'עצי מיומנויות')} delay={0.1} color="hsl(271 81% 55%)" />
+              <StatCard value={15} label={t('Skill Trees', 'עצי מיומנויות')} delay={0.1} color="hsl(271 81% 55%)" />
             </div>
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
