@@ -2871,7 +2871,7 @@ export const en: TranslationKeys = {
       subtitle: 'Three quest phases that rebuild your life from the ground up.',
       phaseLabel: 'Quest',
       phase1Title: 'Deep Assessment',
-      phase1Desc: 'Aurora scans all 14 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
+      phase1Desc: 'Aurora scans all 15 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
       phase2Title: '100-Day Strategy',
       phase2Desc: 'AI generates a personalized battle plan with missions, milestones, and daily protocols across every domain you unlock.',
       phase3Title: 'Daily Execution',
