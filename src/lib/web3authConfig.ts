@@ -16,6 +16,18 @@ const CLIENT_ID =
 export const web3AuthOptions: Web3AuthOptions = {
   clientId: CLIENT_ID,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+  chains: [
+    {
+      chainNamespace: 'eip155' as any,
+      chainId: '0x1',
+      rpcTarget: 'https://rpc.ankr.com/eth',
+      displayName: 'Ethereum Mainnet',
+      blockExplorerUrl: 'https://etherscan.io',
+      ticker: 'ETH',
+      tickerName: 'Ethereum',
+      logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+    },
+  ],
   modalConfig: {
     connectors: {
       [WALLET_CONNECTORS.AUTH]: {
