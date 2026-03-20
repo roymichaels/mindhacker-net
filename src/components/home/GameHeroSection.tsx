@@ -202,6 +202,16 @@ export default function GameHeroSection() {
             <p className="text-sm text-muted-foreground">
               {t('home.gameHero.ctaMeta')}
             </p>
+
+            {/* AION subtle reference */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 2 }}
+              className="text-xs text-muted-foreground/50 font-medium tracking-wide mt-2"
+            >
+              {isRTL ? 'הפעל את ה-AION שלך' : 'Activate your AION'}
+            </motion.p>
           </motion.div>
         </div>
       </div>

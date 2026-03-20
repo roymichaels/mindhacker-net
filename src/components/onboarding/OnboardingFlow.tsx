@@ -19,6 +19,7 @@ import { OnboardingTierSelection } from './OnboardingTierSelection';
 import { OnboardingPillarSelection } from './OnboardingPillarSelection';
 import { OnboardingAssessments } from './OnboardingAssessments';
 import { OnboardingPlanGeneration } from './OnboardingPlanGeneration';
+import { AIONActivation } from './AIONActivation';
 import { Slider } from '@/components/ui/slider';
 import type { SubscriptionTier } from '@/lib/subscriptionTiers';
 import { Textarea } from '@/components/ui/textarea';
@@ -121,6 +122,7 @@ export function OnboardingFlow() {
   const isHe = language === 'he';
 
   const [showIntro, setShowIntro] = useState(true);
+  const [showAIONActivation, setShowAIONActivation] = useState(false);
   const [answers, setAnswers] = useState<FlowAnswers>({});
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
@@ -591,8 +593,20 @@ export function OnboardingFlow() {
           };
           setAnswers(updated);
           setShowIntro(false);
+          setShowAIONActivation(true);
           // Persist basic info to DB immediately
           autoSave(updated);
+          savePhase('aion_activation');
+        }}
+      />
+    );
+  }
+
+  if (showAIONActivation) {
+    return (
+      <AIONActivation
+        onComplete={() => {
+          setShowAIONActivation(false);
           savePhase('calibration');
         }}
       />
