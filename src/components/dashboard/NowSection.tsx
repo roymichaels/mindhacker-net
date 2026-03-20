@@ -17,7 +17,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { type NowQueueItem } from '@/types/planning';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
+import { MilestoneJourneyModal } from '@/components/play/MilestoneJourneyModal';
 import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
 
 // ── Quarter labels ──
