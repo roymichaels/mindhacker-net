@@ -24,17 +24,10 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
   const navigate = useNavigate();
   const { smartNavigate } = useSmartOnboarding();
 
-  const handleFirstTime = () => {
-    onOpenChange(false);
-    openAuthModal('signup', () => {
-      smartNavigate();
-    });
-  };
-
-  const handleLogin = () => {
+  const handleEnter = () => {
     onOpenChange(false);
     openAuthModal('login', () => {
-      navigate('/now');
+      smartNavigate();
     });
   };
 
