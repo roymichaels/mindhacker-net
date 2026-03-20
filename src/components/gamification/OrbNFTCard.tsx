@@ -163,7 +163,7 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
           {isMinted ? (
             <>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                {isHe ? 'Soul Avatar — Minted' : 'Soul Avatar — Minted'} {mintDate}
+                {isHe ? 'AION — Minted' : 'AION — Minted'} {mintDate}
               </span>
               <span className="text-[9px] font-mono text-muted-foreground/60">#{String(xp.experience).padStart(5, '0')}</span>
             </>
@@ -175,7 +175,7 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
               className="w-full gap-2 text-xs font-bold text-primary hover:text-primary"
             >
               <Gem className="w-3.5 h-3.5" />
-              {isHe ? 'Mint Soul Avatar NFT' : 'Mint Soul Avatar NFT'}
+              {isHe ? 'Mint AION' : 'Mint AION'}
             </Button>
           )}
         </div>
