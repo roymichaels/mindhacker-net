@@ -1,14 +1,29 @@
 /**
  * Cache Buster — Forces clients to refresh stale app bundles safely.
- * - Backward-compatible across version mismatches (prevents old-bundle reload loops)
+ * - Prevents infinite reload loops (URL guard + version checks)
  * - Clears caches + unregisters service workers
  * - Triggers a one-time hard reload when needed
  */
 
-const CACHE_BUST_VERSION = '2026-03-20-v4';
+const CACHE_BUST_VERSION = '2026-03-20-v5';
 const CACHE_BUST_KEY = 'mindos-cache-bust-version';
-const CACHE_BUST_LAST_RUN_KEY = 'mindos-cache-bust-last-run';
-const CACHE_BUST_COOLDOWN_MS = 2 * 60 * 1000;
+const CACHE_BUST_PARAM = 'cbv';
+
+function safeGet(storage: Storage, key: string): string | null {
+  try {
+    return storage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(storage: Storage, key: string, value: string) {
+  try {
+    storage.setItem(key, value);
+  } catch {
+    // ignore storage access failures
+  }
+}
 
 function toComparableVersion(version: string | null): number {
   if (!version) return 0;
@@ -17,28 +32,33 @@ function toComparableVersion(version: string | null): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export async function bustOldCaches(): Promise<boolean> {
-  const now = Date.now();
-  const lastRun = Number(localStorage.getItem(CACHE_BUST_LAST_RUN_KEY) ?? '0');
+function getCurrentUrl(): URL {
+  return new URL(window.location.href);
+}
 
-  // Loop guard: if this ran moments ago, skip to prevent infinite reload cycles.
-  if (Number.isFinite(lastRun) && now - lastRun < CACHE_BUST_COOLDOWN_MS) {
+export async function bustOldCaches(): Promise<boolean> {
+  const url = getCurrentUrl();
+  const reloadedWithBust = url.searchParams.get(CACHE_BUST_PARAM) === CACHE_BUST_VERSION;
+
+  // URL guard: if we already reloaded with this version, stop and clean query param.
+  if (reloadedWithBust) {
+    url.searchParams.delete(CACHE_BUST_PARAM);
+    window.history.replaceState({}, '', url.toString());
+    safeSet(localStorage, CACHE_BUST_KEY, CACHE_BUST_VERSION);
     return false;
   }
 
-  const lastBustVersion = localStorage.getItem(CACHE_BUST_KEY);
+  const lastBustVersion = safeGet(localStorage, CACHE_BUST_KEY);
   const currentVersionNum = toComparableVersion(CACHE_BUST_VERSION);
   const lastVersionNum = toComparableVersion(lastBustVersion);
 
-  // Backward compatibility:
-  // if an older bundle is running but localStorage has newer version, do not bust again.
+  // If this browser has already busted this or a newer bundle, do nothing.
   if (lastVersionNum >= currentVersionNum) {
     return false;
   }
 
-  // Mark first to avoid loops if reload happens before async operations complete.
-  localStorage.setItem(CACHE_BUST_KEY, CACHE_BUST_VERSION);
-  localStorage.setItem(CACHE_BUST_LAST_RUN_KEY, String(now));
+  // Mark early to avoid loops if the process is interrupted.
+  safeSet(localStorage, CACHE_BUST_KEY, CACHE_BUST_VERSION);
 
   try {
     if ('caches' in window) {
@@ -50,11 +70,13 @@ export async function bustOldCaches(): Promise<boolean> {
       const registrations = await navigator.serviceWorker.getRegistrations();
       await Promise.all(registrations.map((reg) => reg.unregister()));
     }
-
-    window.location.reload();
-    return true;
   } catch (err) {
     console.error('[CacheBuster] Failed to clear cache safely:', err);
-    return false;
   }
+
+  // Force exactly one reload using URL guard.
+  const reloadUrl = getCurrentUrl();
+  reloadUrl.searchParams.set(CACHE_BUST_PARAM, CACHE_BUST_VERSION);
+  window.location.replace(reloadUrl.toString());
+  return true;
 }
