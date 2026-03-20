@@ -24,16 +24,16 @@ import { toast } from 'sonner';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { PractitionerProfileHeader, PractitionerFeedTabs } from '@/components/practitioner-landing';
 
-import CoachDashboardOverview from '@/components/coach/CoachDashboardOverview';
-import CoachMarketingTab from '@/components/coach/CoachMarketingTab';
-import CoachSettingsTab from '@/components/coach/CoachSettingsTab';
-import CoachLandingPagesTab from '@/components/coach/CoachLandingPagesTab';
-import CoachLeadsTab from '@/components/coach/CoachLeadsTab';
-import CoachAnalyticsTab from '@/components/coach/CoachAnalyticsTab';
-import CoachContentTab from '@/components/coach/CoachContentTab';
-import CoachProductsTab from '@/components/coach/CoachProductsTab';
-import CoachClientsTab from '@/components/coach/CoachClientsTab';
-import CoachPlansTab from '@/components/coach/CoachPlansTab';
+import CoachDashboardOverview from '@/components/careers/coach/CoachDashboardOverview';
+import CoachMarketingTab from '@/components/careers/coach/CoachMarketingTab';
+import CoachSettingsTab from '@/components/careers/coach/CoachSettingsTab';
+import CoachLandingPagesTab from '@/components/careers/coach/CoachLandingPagesTab';
+import CoachLeadsTab from '@/components/careers/coach/CoachLeadsTab';
+import CoachAnalyticsTab from '@/components/careers/coach/CoachAnalyticsTab';
+import CoachContentTab from '@/components/careers/coach/CoachContentTab';
+import CoachProductsTab from '@/components/careers/coach/CoachProductsTab';
+import CoachClientsTab from '@/components/careers/coach/CoachClientsTab';
+import CoachPlansTab from '@/components/careers/coach/CoachPlansTab';
 
 export default function CoachHub() {
   const { language } = useTranslation();

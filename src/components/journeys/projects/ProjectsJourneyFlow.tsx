@@ -4,9 +4,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useProjectsJourneyProgress, PROJECTS_JOURNEY_STEPS, PROJECTS_JOURNEY_PHASES } from '@/hooks/useProjectsJourneyProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journey-shared';
+import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journeys/shared';
 import { Button } from '@/components/ui/button';
-import { GenericJourneyStep } from '@/components/admin-journey/steps/GenericJourneyStep';
+import { GenericJourneyStep } from '@/components/journeys/admin/steps/GenericJourneyStep';
 import { PROJECTS_STEP_CONFIGS } from './stepConfigs';
 
 interface ProjectsJourneyFlowProps {

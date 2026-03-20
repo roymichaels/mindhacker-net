@@ -2,7 +2,7 @@
  * Shared Utility Functions for Journey Progress Hooks
  * Replaces duplicate logic across useLaunchpadProgress, useBusinessJourneyProgress, useHealthJourney
  */
-import type { Phase, Step } from '@/components/journey-shared/types';
+import type { Phase, Step } from '@/components/journeys/shared/types';
 
 /**
  * Get the phase that contains a given step number

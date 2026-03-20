@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useCoachingJourneyProgress, COACHING_STEPS, COACHING_PHASES } from '@/hooks/useCoachingJourneyProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journey-shared';
+import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journeys/shared';
 import { CoachVisionStep } from './steps/CoachVisionStep';
 import { CoachNicheStep } from './steps/CoachNicheStep';
 import { CoachMethodologyStep } from './steps/CoachMethodologyStep';

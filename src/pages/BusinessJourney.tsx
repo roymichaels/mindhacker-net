@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { BusinessJourneyFlow } from '@/components/business-journey';
+import { BusinessJourneyFlow } from '@/components/journeys/business';
 
 const BusinessJourney = () => {
   const navigate = useNavigate();

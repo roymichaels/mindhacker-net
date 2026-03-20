@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/useTranslation';
 import { motion } from 'framer-motion';
-import type { BaseStepProps } from '@/components/journey-shared/types';
+import type { BaseStepProps } from '@/components/journeys/shared/types';
 
 interface GenericJourneyStepProps extends BaseStepProps {
   icon: string;

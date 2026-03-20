@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ProjectsJourneyFlow } from '@/components/projects-journey';
+import { ProjectsJourneyFlow } from '@/components/journeys/projects';
 
 const ProjectsJourney = () => {
   const navigate = useNavigate();

@@ -28,32 +28,32 @@ import {
 import { PractitionerProfileHeader, PractitionerFeedTabs } from '@/components/practitioner-landing';
 
 // Coach tabs
-import CoachDashboardOverview from '@/components/coach/CoachDashboardOverview';
-import CoachMarketingTab from '@/components/coach/CoachMarketingTab';
-import CoachSettingsTab from '@/components/coach/CoachSettingsTab';
-import CoachLandingPagesTab from '@/components/coach/CoachLandingPagesTab';
-import CoachLeadsTab from '@/components/coach/CoachLeadsTab';
-import CoachAnalyticsTab from '@/components/coach/CoachAnalyticsTab';
-import CoachContentTab from '@/components/coach/CoachContentTab';
-import CoachProductsTab from '@/components/coach/CoachProductsTab';
-import CoachClientsTab from '@/components/coach/CoachClientsTab';
-import CoachPlansTab from '@/components/coach/CoachPlansTab';
+import CoachDashboardOverview from '@/components/careers/coach/CoachDashboardOverview';
+import CoachMarketingTab from '@/components/careers/coach/CoachMarketingTab';
+import CoachSettingsTab from '@/components/careers/coach/CoachSettingsTab';
+import CoachLandingPagesTab from '@/components/careers/coach/CoachLandingPagesTab';
+import CoachLeadsTab from '@/components/careers/coach/CoachLeadsTab';
+import CoachAnalyticsTab from '@/components/careers/coach/CoachAnalyticsTab';
+import CoachContentTab from '@/components/careers/coach/CoachContentTab';
+import CoachProductsTab from '@/components/careers/coach/CoachProductsTab';
+import CoachClientsTab from '@/components/careers/coach/CoachClientsTab';
+import CoachPlansTab from '@/components/careers/coach/CoachPlansTab';
 
 // Freelancer tabs
-import FreelancerDashboardTab from '@/components/freelancer/FreelancerDashboardTab';
-import FreelancerGigsTab from '@/components/freelancer/FreelancerGigsTab';
-import FreelancerProjectsTab from '@/components/freelancer/FreelancerProjectsTab';
-import FreelancerPortfolioTab from '@/components/freelancer/FreelancerPortfolioTab';
-import FreelancerEarningsTab from '@/components/freelancer/FreelancerEarningsTab';
-import FreelancerSettingsTab from '@/components/freelancer/FreelancerSettingsTab';
+import FreelancerDashboardTab from '@/components/careers/freelancer/FreelancerDashboardTab';
+import FreelancerGigsTab from '@/components/careers/freelancer/FreelancerGigsTab';
+import FreelancerProjectsTab from '@/components/careers/freelancer/FreelancerProjectsTab';
+import FreelancerPortfolioTab from '@/components/careers/freelancer/FreelancerPortfolioTab';
+import FreelancerEarningsTab from '@/components/careers/freelancer/FreelancerEarningsTab';
+import FreelancerSettingsTab from '@/components/careers/freelancer/FreelancerSettingsTab';
 
 // Creator tabs
-import CreatorDashboardTab from '@/components/creator/CreatorDashboardTab';
-import CreatorCoursesTab from '@/components/creator/CreatorCoursesTab';
-import CreatorProductsTab from '@/components/creator/CreatorProductsTab';
-import CreatorContentTab from '@/components/creator/CreatorContentTab';
-import CreatorAnalyticsTab from '@/components/creator/CreatorAnalyticsTab';
-import CreatorSettingsTab from '@/components/creator/CreatorSettingsTab';
+import CreatorDashboardTab from '@/components/careers/creator/CreatorDashboardTab';
+import CreatorCoursesTab from '@/components/careers/creator/CreatorCoursesTab';
+import CreatorProductsTab from '@/components/careers/creator/CreatorProductsTab';
+import CreatorContentTab from '@/components/careers/creator/CreatorContentTab';
+import CreatorAnalyticsTab from '@/components/careers/creator/CreatorAnalyticsTab';
+import CreatorSettingsTab from '@/components/careers/creator/CreatorSettingsTab';
 
 export type CareerPath = 'coach' | 'therapist' | 'freelancer' | 'creator' | 'business';
 

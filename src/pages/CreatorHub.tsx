@@ -14,12 +14,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useProfile } from '@/hooks/useProfile';
-import CreatorDashboardTab from '@/components/creator/CreatorDashboardTab';
-import CreatorCoursesTab from '@/components/creator/CreatorCoursesTab';
-import CreatorProductsTab from '@/components/creator/CreatorProductsTab';
-import CreatorContentTab from '@/components/creator/CreatorContentTab';
-import CreatorAnalyticsTab from '@/components/creator/CreatorAnalyticsTab';
-import CreatorSettingsTab from '@/components/creator/CreatorSettingsTab';
+import CreatorDashboardTab from '@/components/careers/creator/CreatorDashboardTab';
+import CreatorCoursesTab from '@/components/careers/creator/CreatorCoursesTab';
+import CreatorProductsTab from '@/components/careers/creator/CreatorProductsTab';
+import CreatorContentTab from '@/components/careers/creator/CreatorContentTab';
+import CreatorAnalyticsTab from '@/components/careers/creator/CreatorAnalyticsTab';
+import CreatorSettingsTab from '@/components/careers/creator/CreatorSettingsTab';
 
 export default function CreatorHub() {
   const { language } = useTranslation();

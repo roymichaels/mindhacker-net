@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { AdminJourneyFlow } from '@/components/admin-journey';
+import { AdminJourneyFlow } from '@/components/journeys/admin';
 
 const AdminJourney = () => {
   const navigate = useNavigate();

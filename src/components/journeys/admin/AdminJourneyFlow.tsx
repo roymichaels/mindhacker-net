@@ -4,7 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAdminJourneyProgress, ADMIN_JOURNEY_STEPS, ADMIN_JOURNEY_PHASES } from '@/hooks/useAdminJourneyProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journey-shared';
+import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journeys/shared';
 import { Button } from '@/components/ui/button';
 import { GenericJourneyStep } from './steps/GenericJourneyStep';
 import { ADMIN_STEP_CONFIGS } from './stepConfigs';

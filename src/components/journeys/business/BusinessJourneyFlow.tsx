@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useBusinessJourneyProgress, BUSINESS_STEPS, BUSINESS_PHASES } from '@/hooks/useBusinessJourneyProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journey-shared';
+import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journeys/shared';
 import { VisionStep } from './steps/VisionStep';
 import { BusinessModelStep } from './steps/BusinessModelStep';
 import { TargetAudienceStep } from './steps/TargetAudienceStep';
