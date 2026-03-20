@@ -1,0 +1,4 @@
+
+ALTER TABLE public.profiles 
+  ADD COLUMN IF NOT EXISTS aion_name TEXT DEFAULT 'AION',
+  ADD COLUMN IF NOT EXISTS aion_activated BOOLEAN DEFAULT false;

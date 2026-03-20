@@ -7572,6 +7572,8 @@ export type Database = {
       profiles: {
         Row: {
           active_ego_state: string | null
+          aion_activated: boolean | null
+          aion_name: string | null
           aurora_preferences: Json | null
           bio: string | null
           community_username: string | null
@@ -7600,6 +7602,8 @@ export type Database = {
         }
         Insert: {
           active_ego_state?: string | null
+          aion_activated?: boolean | null
+          aion_name?: string | null
           aurora_preferences?: Json | null
           bio?: string | null
           community_username?: string | null
@@ -7628,6 +7632,8 @@ export type Database = {
         }
         Update: {
           active_ego_state?: string | null
+          aion_activated?: boolean | null
+          aion_name?: string | null
           aurora_preferences?: Json | null
           bio?: string | null
           community_username?: string | null
