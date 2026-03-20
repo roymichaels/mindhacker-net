@@ -1,17 +1,13 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable/index';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Mail, ArrowRight } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import { z } from 'zod';
 import { useTranslation } from '@/hooks/useTranslation';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-
-type AuthStep = 'entry' | 'otp';
+import { loginWithProvider, exchangeForSupabaseSession, type Web3AuthProvider } from '@/lib/web3auth';
 
 interface AuthModalProps {
   open: boolean;
@@ -19,6 +15,8 @@ interface AuthModalProps {
   defaultView?: 'login' | 'signup';
   onSuccess?: () => void;
 }
+
+/* ---------- icons (unchanged) ---------- */
 
 const AppleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -35,84 +33,68 @@ const GoogleIcon = () => (
   </svg>
 );
 
+/* ---------- component ---------- */
+
 export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess }: AuthModalProps) {
   const { t, isRTL } = useTranslation();
-  const [step, setStep] = useState<AuthStep>('entry');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
 
   const emailSchema = z.string().trim().email(t('validation.invalidEmail')).max(255).toLowerCase();
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  /**
+   * Unified handler: authenticate via Web3Auth → exchange for Supabase session.
+   */
+  const handleLogin = async (provider: Web3AuthProvider, emailHint?: string) => {
+    setIsLoading(true);
+    setLoadingProvider(provider);
+
+    try {
+      // 1. Authenticate with Web3Auth (opens popup)
+      const userInfo = await loginWithProvider(provider, emailHint);
+
+      // 2. Exchange Web3Auth identity for Supabase session
+      await exchangeForSupabaseSession({
+        email: userInfo.email,
+        name: userInfo.name,
+        idToken: userInfo.idToken,
+      });
+
+      toast({ title: t('messages.loginSuccess'), description: t('messages.welcomeBack') });
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (err: any) {
+      // User closed popup → not a real error
+      if (err?.message?.includes('user closed') || err?.message?.includes('popup')) {
+        // silently ignore
+      } else {
+        toast({
+          title: t('auth.loginError'),
+          description: err?.message || 'Login failed',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsLoading(false);
+      setLoadingProvider(null);
+    }
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = emailSchema.safeParse(email);
     if (!result.success) {
       toast({ title: t('validation.validationError'), description: result.error.errors[0].message, variant: 'destructive' });
       return;
     }
-    setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: result.data,
-      options: { shouldCreateUser: true },
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({ title: t('auth.loginError'), description: error.message, variant: 'destructive' });
-      return;
-    }
-    toast({ title: t('auth.codeSent'), description: t('auth.checkEmail') });
-    setStep('otp');
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length < 6) return;
-    setIsLoading(true);
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token: otp,
-      type: 'email',
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({ title: t('common.error'), description: error.message, variant: 'destructive' });
-      return;
-    }
-    if (data.user) {
-      toast({ title: t('messages.loginSuccess'), description: t('messages.welcomeBack') });
-      onOpenChange(false);
-      onSuccess?.();
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: window.location.origin,
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({ title: t('auth.loginError'), description: error.message, variant: 'destructive' });
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    setIsLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth('apple', {
-      redirect_uri: window.location.origin,
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({ title: t('auth.loginError'), description: error.message, variant: 'destructive' });
-    }
+    await handleLogin('email_passwordless', result.data);
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
-      setStep('entry');
       setEmail('');
-      setOtp('');
+      setLoadingProvider(null);
     }
     onOpenChange(nextOpen);
   };
@@ -122,110 +104,98 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
       <DialogContent className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-primary text-center">
-            {step === 'otp' ? t('auth.enterCode') : t('auth.connectToMindOS')}
+            {t('auth.connectToMindOS')}
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            {step === 'otp'
-              ? `${t('auth.codeSentTo')} ${email}`
-              : t('auth.connectToContinue')}
+            {t('auth.connectToContinue')}
           </DialogDescription>
         </DialogHeader>
 
-        {step === 'otp' ? (
-          <div className="space-y-6">
-            <div className="flex flex-col items-center gap-3 py-2">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Mail className="h-6 w-6 text-primary" />
-              </div>
-              <p className="text-sm text-center text-muted-foreground">
-                {t('auth.magicLinkSent')}<br />
-                {t('auth.clickLinkToLogin')}
-              </p>
-            </div>
-
-            {/* Optional OTP fallback */}
-            <div className="border-t pt-4">
-              <p className="text-xs text-center text-muted-foreground mb-3">
-                {t('auth.orEnterCode')}
-              </p>
-              <form onSubmit={handleVerifyOtp} className="space-y-3">
-                <div className="flex justify-center" dir="ltr">
-                  <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={isLoading}>
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading || otp.length < 6} size="lg">
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <ArrowRight className="h-4 w-4 me-2" />}
-                  {t('auth.verifyAndLogin')}
-                </Button>
-              </form>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => { setStep('entry'); setOtp(''); }}
-              className="w-full text-sm text-muted-foreground hover:text-foreground text-center"
+        <div className="space-y-4">
+          {/* Social login buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full gap-2"
+              disabled={isLoading}
+              onClick={() => handleLogin('google')}
             >
-              {t('common.back')}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Social buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" size="lg" className="w-full gap-2" disabled={isLoading} onClick={handleGoogleSignIn}>
+              {loadingProvider === 'google' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
                 <GoogleIcon />
-                Google
-              </Button>
-              <Button variant="outline" size="lg" className="w-full gap-2" disabled={isLoading} onClick={handleAppleSignIn}>
+              )}
+              Google
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full gap-2"
+              disabled={isLoading}
+              onClick={() => handleLogin('apple')}
+            >
+              {loadingProvider === 'apple' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
                 <AppleIcon />
-                Apple
-              </Button>
-            </div>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">{t('auth.orWithEmail')}</span>
-              </div>
-            </div>
-
-            {/* Email OTP form */}
-            <form onSubmit={handleSendOtp} className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="auth-email">{t('auth.email')}</Label>
-                <Input
-                  id="auth-email"
-                  type="email"
-                  placeholder="example@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-              <Button type="submit" className="w-full gap-2" disabled={isLoading} size="lg">
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                {t('auth.sendCodeToEmail')}
-              </Button>
-            </form>
-
-            <p className="text-xs text-center text-muted-foreground pt-2">
-              {t('auth.termsAgreement')}
-              <a href="/terms-of-service" target="_blank" className="text-primary hover:underline mx-1">{t('auth.termsOfService')}</a>
-              {t('auth.andThe')}
-              <a href="/privacy-policy" target="_blank" className="text-primary hover:underline mx-1">{t('auth.privacyPolicy')}</a>
-            </p>
+              )}
+              Apple
+            </Button>
           </div>
-        )}
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                {t('auth.orWithEmail')}
+              </span>
+            </div>
+          </div>
+
+          {/* Email login */}
+          <form onSubmit={handleEmailLogin} className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="auth-email">{t('auth.email')}</Label>
+              <Input
+                id="auth-email"
+                type="email"
+                placeholder="example@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full gap-2"
+              disabled={isLoading}
+              size="lg"
+            >
+              {loadingProvider === 'email_passwordless' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mail className="h-4 w-4" />
+              )}
+              {t('auth.sendCodeToEmail')}
+            </Button>
+          </form>
+
+          <p className="text-xs text-center text-muted-foreground pt-2">
+            {t('auth.termsAgreement')}
+            <a href="/terms-of-service" target="_blank" className="text-primary hover:underline mx-1">
+              {t('auth.termsOfService')}
+            </a>
+            {t('auth.andThe')}
+            <a href="/privacy-policy" target="_blank" className="text-primary hover:underline mx-1">
+              {t('auth.privacyPolicy')}
+            </a>
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );
