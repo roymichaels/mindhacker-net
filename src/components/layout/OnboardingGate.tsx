@@ -64,7 +64,6 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
 
   // Admins: never block, but show optional banner if onboarding incomplete
   if (isAdmin) {
-    const { isRTL } = useTranslation();
     const showBanner = !bannerDismissed && !isLoading && !checkingPlan && !isLaunchpadComplete && !hasActivePlan
       && !BYPASS_ROUTES.some(r => location.pathname.startsWith(r));
 
