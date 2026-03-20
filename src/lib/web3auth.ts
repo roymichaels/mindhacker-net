@@ -9,11 +9,23 @@ import { supabase } from '@/integrations/supabase/client';
 let web3authInstance: any = null;
 let initPromise: Promise<any> | null = null;
 
+async function ensureWeb3AuthPolyfills() {
+  if (typeof globalThis.Buffer === 'undefined') {
+    const { Buffer } = await import('buffer');
+    (globalThis as any).Buffer = Buffer;
+  }
+
+  if (typeof (globalThis as any).global === 'undefined') {
+    (globalThis as any).global = globalThis;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Lazy SDK loader + init                                            */
 /* ------------------------------------------------------------------ */
 
 async function loadAndInit() {
+  await ensureWeb3AuthPolyfills();
   const { Web3Auth, WEB3AUTH_NETWORK } = await import('@web3auth/modal');
 
   // Fetch publishable client ID from edge function
