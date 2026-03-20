@@ -1,8 +1,8 @@
 /**
- * Web3Auth login button — uses official v10 React hooks.
- * Only rendered inside Web3AuthProvider (via AuthModal conditional rendering).
+ * Web3Auth login button — triggers the REAL SDK modal (not a custom UI).
+ * After successful Web3Auth login, bridges to a Supabase session.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -45,7 +45,7 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
         try {
           idToken = (await getIdentityToken()) || undefined;
         } catch {
-          console.warn('[AuthModal] Could not get idToken');
+          console.warn('[Web3Auth] Could not get idToken');
         }
 
         await exchangeForSupabaseSession({
@@ -60,7 +60,7 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
         onSuccess?.();
       } catch (err: any) {
         if (cancelled) return;
-        console.error('[AuthModal] Supabase bridge error:', err);
+        console.error('[Web3Auth] Supabase bridge error:', err);
         setAuthError(err?.message || 'Failed to complete authentication');
       } finally {
         if (!cancelled) setIsBridging(false);
@@ -68,25 +68,25 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
     };
 
     doBridge();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, userInfo?.email, open]);
 
-  const handleConnect = async () => {
+  const handleConnect = useCallback(async () => {
     setAuthError(null);
 
     if (!isInitialized) {
-      setAuthError('Authentication service is still loading.');
+      console.warn('[Web3Auth] SDK not initialized yet. isInitializing:', isInitializing);
+      setAuthError('Authentication service is still loading. Please try again in a moment.');
       return;
     }
 
     try {
-      // Opens the native Web3Auth / MetaMask Embedded Wallets modal
-      // showing all configured login methods from the dashboard
+      // This opens the REAL Web3Auth / MetaMask Embedded Wallets modal
+      // with all configured social logins & wallet options
       await connect();
     } catch (err: any) {
+      // User closed the modal — not an error
       if (
         err?.message?.includes('user closed') ||
         err?.message?.includes('popup') ||
@@ -94,10 +94,18 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
       ) {
         return;
       }
-      console.error('[AuthModal] Web3Auth connect error:', err);
+      console.error('[Web3Auth] Connect error:', err);
       setAuthError(err?.message || 'Connection failed');
     }
-  };
+  }, [isInitialized, isInitializing, connect]);
+
+  // Auto-open the SDK modal when AuthModal opens and SDK is ready
+  useEffect(() => {
+    if (open && isInitialized && !isConnected && !connectLoading && !isBridging) {
+      handleConnect();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isInitialized]);
 
   const isLoading = connectLoading || isBridging || isInitializing;
 
@@ -120,10 +128,10 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
         {isLoading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            {isBridging ? 'Setting up session…' : isInitializing ? 'Loading…' : 'Connecting…'}
+            {isBridging ? 'Setting up session…' : isInitializing ? 'Initializing…' : 'Opening login…'}
           </>
         ) : (
-          'Sign in'
+          'Sign in with Web3Auth'
         )}
       </Button>
 
