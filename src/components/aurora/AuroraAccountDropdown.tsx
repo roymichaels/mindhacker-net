@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
-import { Flame, Gem, Star } from 'lucide-react';
+import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, Star } from 'lucide-react';
+import { Flame, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -261,6 +261,12 @@ const AuroraAccountDropdown = ({
             </>
           )}
           
+          {/* Join Founding Members */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/founding'); }}>
+            <Star className="h-4 w-4 me-2" />
+            {language === 'he' ? 'הצטרף למייסדים' : 'Join Founding Members'}
+          </DropdownMenuItem>
+
           {/* Language Toggle */}
           <DropdownMenuItem onClick={handleLanguageToggle}>
             <Globe className="h-4 w-4 me-2" />

@@ -5,6 +5,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap } from 'lucide-react';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,7 @@ const AUTO_SLIDE_INTERVAL = 3000;
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const { openWelcomeGate } = useWelcomeGate();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -185,6 +187,16 @@ export default function GameHeroSection() {
                   animate={{ x: ['-100%', '200%'] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
                 />
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate('/founding')}
+                className="text-base px-8 py-6 rounded-2xl border-primary/40 hover:border-primary/60 hover:bg-primary/10 font-bold"
+              >
+                {isRTL ? 'הצטרף למייסדים ⭐' : '⭐ Join Founding Members'}
               </Button>
             </motion.div>
             <p className="text-sm text-muted-foreground">

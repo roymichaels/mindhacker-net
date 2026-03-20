@@ -217,6 +217,10 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           <FileText className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
           {language === 'he' ? 'ספר לבן' : 'White Paper'}
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/founding')}>
+          <User className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+          {language === 'he' ? 'הצטרף למייסדים' : 'Join Founding Members'}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
