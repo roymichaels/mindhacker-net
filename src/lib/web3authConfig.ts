@@ -3,9 +3,8 @@
  *
  * Notes:
  * - Client ID is a publishable key, safe for frontend usage.
- * - Defaults to SAPPHIRE_MAINNET unless explicitly overridden.
- * - Includes a minimal AA chain config so dashboard Smart Account toggles
- *   cannot deadlock SDK initialization.
+ * - Defaults to SAPPHIRE_DEVNET for the fallback client ID.
+ * - Includes AA chain config required by dashboard Smart Account settings.
  */
 import {
   CHAIN_NAMESPACES,
@@ -40,7 +39,6 @@ const MAINNET_CHAIN = {
   logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
 };
 
-
 const withConnectionId = (
   config: NonNullable<LoginMethodConfig[keyof LoginMethodConfig]>,
   authConnectionId?: string
@@ -71,7 +69,6 @@ const loginMethods: LoginMethodConfig = {
     { name: 'SMS', showOnModal: true },
     import.meta.env.VITE_WEB3AUTH_SMS_AUTH_CONNECTION_ID
   ),
-  // Hidden providers
   facebook: { name: 'Facebook', showOnModal: false },
   reddit: { name: 'Reddit', showOnModal: false },
   twitch: { name: 'Twitch', showOnModal: false },
@@ -82,15 +79,27 @@ const loginMethods: LoginMethodConfig = {
 
 if (!import.meta.env.VITE_WEB3AUTH_CLIENT_ID) {
   console.warn(
-    '[Web3Auth] VITE_WEB3AUTH_CLIENT_ID is not set; using fallback client id from code.'
+    '[Web3Auth] VITE_WEB3AUTH_CLIENT_ID is not set; using fallback client id.'
   );
 }
 
 export const web3AuthOptions: Web3AuthOptions = {
   clientId: CLIENT_ID,
   web3AuthNetwork: WEB3AUTH_NETWORK_VALUE,
-  enableLogging: true,
+  enableLogging: import.meta.env.DEV,
   chains: [MAINNET_CHAIN],
+  // Required: dashboard has Smart Accounts enabled — SDK refuses to init without this
+  accountAbstractionConfig: {
+    chains: [
+      {
+        chainId: MAINNET_CHAIN.chainId,
+        bundlerConfig: {
+          url: import.meta.env.VITE_WEB3AUTH_BUNDLER_URL || 'https://public.pimlico.io/v2/1/rpc',
+        },
+      },
+    ],
+  },
+  useAAWithExternalWallet: false,
   modalConfig: {
     connectors: {
       [WALLET_CONNECTORS.AUTH]: {
