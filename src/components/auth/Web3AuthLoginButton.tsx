@@ -26,10 +26,29 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
   const [isBridging, setIsBridging] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const { isInitialized, isInitializing, isConnected } = useWeb3Auth();
+  const { isInitialized, isInitializing, isConnected, initError } = useWeb3Auth();
   const { connect, loading: connectLoading } = useWeb3AuthConnect();
   const { userInfo } = useWeb3AuthUser();
   const { getIdentityToken } = useIdentityToken();
+
+  const getInitErrorMessage = useCallback(() => {
+    if (!initError) return null;
+    if (typeof initError === 'string') return initError;
+    if (typeof initError === 'object' && initError !== null) {
+      const maybeError = initError as { message?: string; cause?: { message?: string } };
+      return maybeError.message || maybeError.cause?.message || 'Authentication initialization failed.';
+    }
+    return 'Authentication initialization failed.';
+  }, [initError]);
+
+  useEffect(() => {
+    if (!open) return;
+    const initMessage = getInitErrorMessage();
+    if (initMessage) {
+      setAuthError(initMessage);
+      console.error('[Web3Auth] Initialization error:', initError);
+    }
+  }, [open, initError, getInitErrorMessage]);
 
   // Bridge to Supabase after successful Web3Auth connection
   useEffect(() => {
@@ -75,9 +94,15 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
   const handleConnect = useCallback(async () => {
     setAuthError(null);
 
-    if (!isInitialized) {
+    const initMessage = getInitErrorMessage();
+    if (initMessage) {
+      setAuthError(initMessage);
+      return;
+    }
+
+    if (!isInitialized || isInitializing) {
       console.warn('[Web3Auth] SDK not initialized yet. isInitializing:', isInitializing);
-      setAuthError('Authentication service is still loading. Please try again in a moment.');
+      setAuthError('Authentication service is still initializing. Please wait a moment and try again.');
       return;
     }
 
@@ -97,15 +122,15 @@ export default function Web3AuthLoginButton({ open, onOpenChange, onSuccess }: P
       console.error('[Web3Auth] Connect error:', err);
       setAuthError(err?.message || 'Connection failed');
     }
-  }, [isInitialized, isInitializing, connect]);
+  }, [isInitialized, isInitializing, connect, getInitErrorMessage]);
 
   // Auto-open the SDK modal when AuthModal opens and SDK is ready
   useEffect(() => {
-    if (open && isInitialized && !isConnected && !connectLoading && !isBridging) {
+    if (open && isInitialized && !initError && !isConnected && !connectLoading && !isBridging) {
       handleConnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, isInitialized]);
+  }, [open, isInitialized, initError]);
 
   const isLoading = connectLoading || isBridging || isInitializing;
 
