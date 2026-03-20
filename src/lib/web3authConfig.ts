@@ -28,20 +28,16 @@ export const web3AuthOptions: Web3AuthOptions = {
           twitter: { name: 'Twitter', showOnModal: true },
           email_passwordless: { name: 'Email', showOnModal: true },
           sms_passwordless: { name: 'SMS', showOnModal: true },
-          // Hide methods we don't want in the modal
+          // Hide methods we don't want
           facebook: { name: 'Facebook', showOnModal: false },
           reddit: { name: 'Reddit', showOnModal: false },
           twitch: { name: 'Twitch', showOnModal: false },
           github: { name: 'GitHub', showOnModal: false },
           linkedin: { name: 'LinkedIn', showOnModal: false },
-          weibo: { name: 'Weibo', showOnModal: false },
-          wechat: { name: 'WeChat', showOnModal: false },
-          line: { name: 'Line', showOnModal: false },
-          kakao: { name: 'Kakao', showOnModal: false },
           farcaster: { name: 'Farcaster', showOnModal: false },
         },
       },
-      [WALLET_CONNECTORS.WALLET_CONNECT]: {
+      [WALLET_CONNECTORS.WALLET_CONNECT_V2]: {
         label: 'wallet_connect',
         showOnModal: true,
       },
