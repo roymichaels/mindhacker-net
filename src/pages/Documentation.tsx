@@ -247,11 +247,13 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '8.2 שוק נתונים' : '8.2 Data Marketplace',
+          title: he ? '8.2 שוק נתונים (שכבה עתידית)' : '8.2 Data Marketplace (Future Layer)',
           paragraphs: he ? [
-            `מייצר הכנסה מתובנות התנהגותיות אנונימיות עם חלוקת הכנסה 80/20 (80% למשתמש). כולל pipeline אנונימיזציה עם סף מינימלי של 10 תורמים, והסכמה גרנולרית של המשתמש. הכנסות מחולקות אוטומטית לתורמים בעת רכישה.`,
+            `שוק נתונים מתוכנן שייצר הכנסה מתובנות התנהגותיות אנונימיות עם חלוקת הכנסה 80/20 (80% למשתמש). כולל pipeline אנונימיזציה עם סף מינימלי של 10 תורמים, והסכמה גרנולרית של המשתמש.`,
+            `במצב הנוכחי (שלב 1): המשתמש יכול להפעיל/לכבות "תרומת נתונים" מתוך הארנק. ההגדרה נשמרת אך לא מחוברת עדיין לשוק נתונים פעיל. לא נוצרות הכנסות מנתונים בשלב זה.`,
           ] : [
-            `Monetizes anonymized behavioral insights with an 80/20 revenue split (80% to user). Includes an anonymization pipeline requiring a minimum 10-contributor threshold, with granular user consent. Revenue is automatically distributed to contributors upon purchase.`,
+            `A planned data marketplace that will monetize anonymized behavioral insights with an 80/20 revenue split (80% to user). Includes an anonymization pipeline requiring a minimum 10-contributor threshold, with granular user consent.`,
+            `Current state (Phase 1): Users can toggle "Data Contribution" on/off from the Wallet. The preference is saved but not yet connected to an active data marketplace. No data revenue is generated at this stage.`,
           ],
         },
         {
@@ -259,13 +261,13 @@ export default function Documentation() {
           paragraphs: he ? [
             `כלכלת ${brandName} בנויה על מנגנון Play2Earn שמתגמל כל היבט של צמיחה אישית:`,
             `🌱 צמיחה — השלמת הרגלים, streaks, סיום שלבים בתוכנית 100 הימים. מכפילי streak (x1.5 ביום 7, x2 ביום 30) מעודדים עקביות.`,
-            `📊 נתונים — מכירת תובנות אנונימיות עם חלוקת 80/20 והסכמה גרנולרית.`,
+            `📊 נתונים — מכירת תובנות אנונימיות עם חלוקת 80/20 והסכמה גרנולרית (שכבה עתידית).`,
             `💼 עבודה — גיגים, באונטי קהילתיות, מכירת שירותים, וסשנים של מאמנים.`,
             `📚 למידה — כל שיעור ותרגול שהושלם מתגמל MOS. כל אינטראקציה היא פעולת כרייה מאומתת.`,
           ] : [
             `The ${brandName} economy is built on a Play2Earn mechanism that rewards every aspect of personal growth:`,
             `🌱 Growth — Habit completion, streaks, 100-day plan phase completion. Streak multipliers (x1.5 at day 7, x2 at day 30) incentivize consistency.`,
-            `📊 Data — Sell anonymized insights with 80/20 split and granular consent.`,
+            `📊 Data — Sell anonymized insights with 80/20 split and granular consent (future layer).`,
             `💼 Work — Gigs, community bounties, service sales, and coach sessions.`,
             `📚 Learning — Every completed lesson and exercise rewards MOS. Every interaction is a verified mining action.`,
           ],
@@ -273,9 +275,11 @@ export default function Documentation() {
         {
           title: he ? '8.4 ארנק ויישוב' : '8.4 Wallet & Settlement',
           paragraphs: he ? [
-            `ארנק פנימי עם ספר חשבונות מלא. יישוב אסינכרוני לערוצי תשלום חיצוניים (Stripe לפיאט או Solana לטוקנים MOS). חשיפה פרוגרסיבית: "מצב פשוט" (נקודות/בנק) ו"מצב מתקדם" (כתובות blockchain).`,
+            `ארנק פנימי מבוסס מודאל גלובלי — מציג יתרת vMOS (מטבע וירטואלי פנימי), MOS בהמתנה, סה"כ נצבר, סה"כ הוצא, ועמלות ששולמו. כל עסקה כוללת פירוט: סכום ברוטו, עמלה (2%), ונטו למוכר.`,
+            `שלב 1 (נוכחי): MOS הוא מטבע וירטואלי פנימי (vMOS) — כל הלוגיקה מבוססת מסד נתונים ללא חיבור ל-blockchain. שלב 2 (עתידי): יישוב אסינכרוני לערוצי תשלום חיצוניים (Stripe לפיאט או Solana לטוקנים). חשיפה פרוגרסיבית: "מצב פשוט" (נקודות/בנק) ו"מצב מתקדם" (כתובות blockchain).`,
           ] : [
-            `Internal wallet with a full ledger. Asynchronous settlement to external payment rails (Stripe for fiat or Solana for MOS tokens). Progressive disclosure: "Simple Mode" (points/bank terminology) and "Advanced Mode" (blockchain addresses).`,
+            `A global modal-based internal wallet — displaying vMOS balance (virtual internal currency), pending MOS, total earned, total spent, and fees paid. Every transaction includes a breakdown: gross amount, fee (2%), and net to seller.`,
+            `Phase 1 (Current): MOS is a virtual internal currency (vMOS) — all logic is database-based with no blockchain connection. Phase 2 (Future): Asynchronous settlement to external payment rails (Stripe for fiat or Solana for MOS tokens). Progressive disclosure: "Simple Mode" (points/bank terminology) and "Advanced Mode" (blockchain addresses).`,
           ],
         },
       ],
