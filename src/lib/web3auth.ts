@@ -25,7 +25,6 @@ async function loadAndInit() {
     throw new Error('Failed to load Web3Auth config');
   }
 
-  // Use `any` to avoid type mismatches across Web3Auth SDK versions
   const options: any = {
     clientId: cfg.clientId,
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
@@ -59,6 +58,16 @@ async function getWeb3Auth() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Provider mapping for v10 API                                      */
+/* ------------------------------------------------------------------ */
+
+const AUTH_CONNECTION_MAP: Record<string, string> = {
+  google: 'google',
+  apple: 'apple',
+  email_passwordless: 'email_passwordless',
+};
+
+/* ------------------------------------------------------------------ */
 /*  Public API                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -79,11 +88,15 @@ export async function loginWithProvider(
     try { await web3auth.logout(); } catch { /* ignore */ }
   }
 
-  const connectParams: Record<string, any> = { loginProvider: provider };
+  // v10 API: use WALLET_CONNECTORS.AUTH + authConnection
+  const connectParams: Record<string, any> = {
+    authConnection: AUTH_CONNECTION_MAP[provider],
+  };
   if (provider === 'email_passwordless' && emailHint) {
-    connectParams.extraLoginOptions = { login_hint: emailHint };
+    connectParams.authConnectionParams = { login_hint: emailHint };
   }
 
+  // In v10, the connector name is 'auth' (string constant)
   await web3auth.connectTo('auth', connectParams);
 
   const userInfo = await web3auth.getUserInfo();
