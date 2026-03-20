@@ -127,7 +127,7 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={3} isActive number="03" title={t('Why-How-Now Methodology', 'מתודולוגיית Why-How-Now')} subtitle={t('Three horizons from vision to daily action.', 'שלושה אופקים מחזון לפעולה יומית.')} isHe={he} layout="center" accent="hsl(45 90% 55%)">
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
-                { icon: '🎯', title: t('Strategy (Why)', 'אסטרטגיה (Why)'), desc: t('Life goals, values, missions, and 14 life pillars. Your north star.', 'מטרות חיים, ערכים, משימות, ו-14 עמודי חיים. הצפון שלך.'), color: 'hsl(271 81% 55%)' },
+                { icon: '🎯', title: t('Strategy (Why)', 'אסטרטגיה (Why)'), desc: t('Life goals, values, missions, and 15 life pillars. Your north star.', 'מטרות חיים, ערכים, משימות, ו-15 עמודי חיים. הצפון שלך.'), color: 'hsl(271 81% 55%)' },
                 { icon: '🗺️', title: t('Tactics (How)', 'טקטיקה (How)'), desc: t('100-day plan with phases, milestones, and daily action blocks.', 'תוכנית 100 ימים עם שלבים, אבני דרך, ובלוקי פעולה יומיים.'), color: 'hsl(187 85% 50%)' },
                 { icon: '⚡', title: t('Now (Execute)', 'עכשיו (Execute)'), desc: t('Daily dashboard with 4 adventure-themed quarters, Movement Score, and Quest system.', 'דשבורד יומי עם 4 רבעוני הרפתקה, Movement Score, ומערכת Quest.'), color: 'hsl(45 90% 55%)' },
               ].map((item, i) => (
