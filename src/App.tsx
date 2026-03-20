@@ -221,6 +221,7 @@ const App = () => (
       <ThemeProvider>
         <BackgroundEffect />
         <div className="relative z-10">
+          <Web3AuthProviderWrapper>
             <AuthProvider>
               <AuroraChatProvider>
                <LanguageProvider>
