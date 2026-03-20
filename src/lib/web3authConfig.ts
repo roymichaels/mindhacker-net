@@ -1,47 +1,50 @@
 /**
- * Web3Auth v10 configuration.
+ * Web3Auth v10 configuration — static, synchronous.
  *
- * The client ID is fetched from the backend (edge function) at boot time
- * because it lives as a secret. It is a publishable key — safe for frontend.
+ * The Client ID is a publishable key (like Stripe's pk_), safe for frontend.
+ * Network must match the dashboard environment (Devnet vs Mainnet).
  */
-import { type Web3AuthOptions, WEB3AUTH_NETWORK } from '@web3auth/modal';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  WALLET_CONNECTORS,
+  WEB3AUTH_NETWORK,
+  type Web3AuthOptions,
+} from '@web3auth/modal';
 
-let cachedClientId: string | null = null;
+const CLIENT_ID =
+  'BDUeePBUxdKKnluY6zAzDRsrDwOz1YQNKm1l-jKStb5SP5qGKlYRYrNspoXH3eGnTJJJUo9dGPkOht7cu1Kil18';
 
-/** Fetch the Web3Auth publishable client ID from the edge function. */
-export async function getWeb3AuthClientId(): Promise<string> {
-  if (cachedClientId) return cachedClientId;
-
-  const { data, error } = await supabase.functions.invoke('web3auth-exchange', {
-    body: { action: 'config' },
-  });
-
-  if (error || !data?.clientId) {
-    throw new Error('Failed to load Web3Auth client ID from backend');
-  }
-
-  cachedClientId = data.clientId;
-  return data.clientId;
-}
-
-/** Build the Web3AuthOptions for the provider. */
-export function buildWeb3AuthOptions(clientId: string): Web3AuthOptions {
-  return {
-    clientId,
-    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
-    // v10 uses `chains` array instead of `chainConfig`
-    chains: [
-      {
-        chainNamespace: 'eip155' as any,
-        chainId: '0x1',
-        rpcTarget: 'https://rpc.ankr.com/eth',
-        displayName: 'Ethereum Mainnet',
-        blockExplorerUrl: 'https://etherscan.io',
-        ticker: 'ETH',
-        tickerName: 'Ethereum',
-        logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+export const web3AuthOptions: Web3AuthOptions = {
+  clientId: CLIENT_ID,
+  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+  modalConfig: {
+    connectors: {
+      [WALLET_CONNECTORS.AUTH]: {
+        label: 'auth',
+        showOnModal: true,
+        loginMethods: {
+          google: { name: 'Google', showOnModal: true },
+          apple: { name: 'Apple', showOnModal: true },
+          discord: { name: 'Discord', showOnModal: true },
+          twitter: { name: 'Twitter', showOnModal: true },
+          email_passwordless: { name: 'Email', showOnModal: true },
+          sms_passwordless: { name: 'SMS', showOnModal: true },
+          // Hide methods we don't want
+          facebook: { name: 'Facebook', showOnModal: false },
+          reddit: { name: 'Reddit', showOnModal: false },
+          twitch: { name: 'Twitch', showOnModal: false },
+          github: { name: 'GitHub', showOnModal: false },
+          linkedin: { name: 'LinkedIn', showOnModal: false },
+          farcaster: { name: 'Farcaster', showOnModal: false },
+        },
       },
-    ],
-  };
-}
+      [WALLET_CONNECTORS.WALLET_CONNECT_V2]: {
+        label: 'wallet_connect',
+        showOnModal: true,
+      },
+      [WALLET_CONNECTORS.METAMASK]: {
+        label: 'metamask',
+        showOnModal: true,
+      },
+    },
+  },
+};
