@@ -221,7 +221,7 @@ export function MiniMilestoneModal({ open, onOpenChange, milestoneId, milestoneT
                 <MessageCircle className="w-4 h-4 text-primary shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground">
-                    {isHe ? 'דברי עם אורורה 💬' : 'Talk to Aurora 💬'}
+                    {isHe ? 'דבר עם AION 💬' : 'Talk to AION 💬'}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
                     {isHe

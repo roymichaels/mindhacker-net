@@ -144,10 +144,10 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         color: 'from-purple-500/20 to-fuchsia-500/20',
         steps: [
           { title: 'Voice Mode', titleHe: 'מצב קולי',
-            description: 'Tap the microphone icon to speak to Aurora. She responds with voice. Perfect for hands-free sessions during walks, driving, or meditation.',
-            descriptionHe: 'לחץ על אייקון המיקרופון כדי לדבר עם אורורה. היא מגיבה בקול. מושלם לסשנים ללא ידיים בהליכה, נהיגה או מדיטציה.' },
+            description: 'Tap the microphone icon to speak to AION. It responds with voice. Perfect for hands-free sessions during walks, driving, or meditation.',
+            descriptionHe: 'לחץ על אייקון המיקרופון כדי לדבר עם AION. הוא מגיב בקול. מושלם לסשנים ללא ידיים בהליכה, נהיגה או מדיטציה.' },
           { title: 'Hypnosis Mode', titleHe: 'מצב היפנוזה',
-            description: 'Activate deep-state sessions with guided visualizations, breathing exercises, and subconscious reprogramming. Aurora creates personalized hypnosis scripts based on your goals.',
+            description: 'Activate deep-state sessions with guided visualizations, breathing exercises, and subconscious reprogramming. AION creates personalized hypnosis scripts based on your goals.',
             descriptionHe: 'הפעל סשנים של מצב עמוק עם ויזואליזציות מודרכות, תרגילי נשימה ותכנות מחדש של התת-מודע. אורורה יוצרת תסריטי היפנוזה מותאמים אישית.',
             tip: 'Use headphones for the best hypnosis experience.', tipHe: 'השתמש באוזניות לחוויית היפנוזה מיטבית.' },
           { title: 'Pillar-Specific Chat', titleHe: 'צ\'אט ממוקד עמוד',
