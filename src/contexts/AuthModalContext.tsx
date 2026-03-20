@@ -19,6 +19,11 @@ interface AuthModalContextType {
   isAuthenticating: boolean;
 }
 
+type BasicWeb3AuthUser = {
+  email?: string;
+  name?: string;
+};
+
 const AuthModalContext = createContext<AuthModalContextType>({
   openAuthModal: () => {},
   closeAuthModal: () => {},
@@ -35,77 +40,70 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const bridgedRef = useRef(false);
 
   const { isInitialized, isConnected, initError } = useWeb3Auth();
-  const { connect, loading: connectLoading } = useWeb3AuthConnect();
-  const { userInfo } = useWeb3AuthUser();
+  const { connect } = useWeb3AuthConnect();
+  const { userInfo, getUserInfo } = useWeb3AuthUser();
   const { getIdentityToken } = useIdentityToken();
 
-  // Bridge to Supabase after Web3Auth connection
-  const doBridge = useCallback(async () => {
-    if (bridgedRef.current || isAuthenticating) return;
+  const doBridge = useCallback(
+    async (sourceUser?: BasicWeb3AuthUser | null) => {
+      if (bridgedRef.current || isAuthenticating) return;
 
-    const email = userInfo?.email;
-    if (!email) {
-      console.warn('[Web3Auth] No email from userInfo, cannot bridge to Supabase');
-      toast({
-        title: 'Authentication incomplete',
-        description: 'No email was provided. Please try a social login method.',
-        variant: 'destructive',
-      });
-      return;
-    }
+      const email = sourceUser?.email || userInfo?.email;
+      const name = sourceUser?.name || userInfo?.name;
 
-    bridgedRef.current = true;
-    setIsAuthenticating(true);
-
-    try {
-      let idToken: string | undefined;
-      try {
-        idToken = (await getIdentityToken()) || undefined;
-      } catch (e) {
-        console.warn('[Web3Auth] Could not get idToken:', e);
+      if (!email) {
+        console.warn('[Web3Auth] No email from user info, cannot bridge to backend session');
+        return;
       }
 
-      console.log('[Web3Auth] Bridging to Supabase for:', email, 'hasIdToken:', !!idToken);
+      bridgedRef.current = true;
+      setIsAuthenticating(true);
 
-      await exchangeForSupabaseSession({
-        email,
-        name: userInfo?.name,
-        idToken,
-      });
+      try {
+        let idToken: string | undefined;
+        try {
+          idToken = (await getIdentityToken()) || undefined;
+        } catch (e) {
+          console.warn('[Web3Auth] Could not get idToken:', e);
+        }
 
-      toast({ title: 'Login successful', description: 'Welcome back!' });
-      pendingCallbackRef.current?.();
-      setPendingCallback(undefined);
-    } catch (err: any) {
-      console.error('[Web3Auth] Supabase bridge error:', err);
-      bridgedRef.current = false; // allow retry
-      toast({
-        title: 'Authentication error',
-        description: err?.message || 'Failed to complete authentication',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsAuthenticating(false);
-    }
-  }, [userInfo?.email, userInfo?.name, getIdentityToken, isAuthenticating]);
+        console.log('[Web3Auth] Bridging session for:', email, 'hasIdToken:', !!idToken);
 
-  // Trigger bridge when Web3Auth connects
+        await exchangeForSupabaseSession({ email, name, idToken });
+
+        toast({ title: 'Login successful', description: 'Welcome back!' });
+        pendingCallbackRef.current?.();
+        setPendingCallback(undefined);
+      } catch (err: any) {
+        console.error('[Web3Auth] Backend session bridge failed:', err);
+        bridgedRef.current = false;
+        toast({
+          title: 'Authentication error',
+          description: err?.message || 'Failed to complete authentication',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsAuthenticating(false);
+      }
+    },
+    [userInfo?.email, userInfo?.name, getIdentityToken, isAuthenticating]
+  );
+
+  // Fallback bridge trigger when hooks update after connect
   useEffect(() => {
     if (isConnected && userInfo?.email && !bridgedRef.current) {
-      doBridge();
+      doBridge(userInfo as BasicWeb3AuthUser);
     }
   }, [isConnected, userInfo?.email, doBridge]);
 
-  // Reset bridge flag on disconnect
   useEffect(() => {
-    if (!isConnected) {
-      bridgedRef.current = false;
-    }
+    if (!isConnected) bridgedRef.current = false;
   }, [isConnected]);
 
-  // Auto-trigger callback on Supabase session
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
         pendingCallbackRef.current?.();
         setPendingCallback(undefined);
@@ -114,62 +112,76 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const openAuthModal = useCallback(async (
-    _view: 'login' | 'signup' = 'login',
-    onSuccess?: () => void
-  ) => {
-    if (onSuccess) {
-      setPendingCallback(() => onSuccess);
-    }
+  const openAuthModal = useCallback(
+    async (_view: 'login' | 'signup' = 'login', onSuccess?: () => void) => {
+      if (onSuccess) setPendingCallback(() => onSuccess);
 
-    // If already connected to Web3Auth but not yet bridged, bridge now
-    if (isConnected && userInfo?.email) {
-      doBridge();
-      return;
-    }
-
-    if (initError) {
-      const msg = typeof initError === 'object' && initError !== null
-        ? (initError as any).message || 'Authentication initialization failed'
-        : String(initError);
-      console.error('[Web3Auth] Init error:', initError);
-      toast({
-        title: 'Authentication unavailable',
-        description: msg,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!isInitialized) {
-      toast({
-        title: 'Please wait',
-        description: 'Authentication is still initializing…',
-      });
-      return;
-    }
-
-    try {
-      console.log('[Web3Auth] Opening SDK modal...');
-      await connect();
-      console.log('[Web3Auth] connect() resolved, waiting for userInfo...');
-      // Bridge will be triggered by the useEffect above when isConnected + userInfo update
-    } catch (err: any) {
-      if (
-        err?.message?.includes('user closed') ||
-        err?.message?.includes('popup') ||
-        err?.code === 5000
-      ) {
+      if (initError) {
+        const msg =
+          typeof initError === 'object' && initError !== null
+            ? (initError as { message?: string }).message || 'Authentication initialization failed'
+            : String(initError);
+        console.error('[Web3Auth] Init error:', initError);
+        toast({
+          title: 'Authentication unavailable',
+          description: msg,
+          variant: 'destructive',
+        });
         return;
       }
-      console.error('[Web3Auth] Connect error:', err);
-      toast({
-        title: 'Connection failed',
-        description: err?.message || 'Could not open login',
-        variant: 'destructive',
-      });
-    }
-  }, [isInitialized, isConnected, initError, connect, userInfo?.email, doBridge]);
+
+      if (!isInitialized) {
+        toast({
+          title: 'Please wait',
+          description: 'Authentication is still initializing…',
+        });
+        return;
+      }
+
+      try {
+        if (!isConnected) {
+          console.log('[Web3Auth] Opening SDK modal...');
+          await connect();
+        }
+
+        // Critical: fetch user info explicitly right after connect
+        const latestUser = (await getUserInfo()) as BasicWeb3AuthUser | null;
+        console.log('[Web3Auth] getUserInfo() after connect:', latestUser);
+
+        if (latestUser?.email) {
+          await doBridge(latestUser);
+          return;
+        }
+
+        // Fallback: if hook already has user info, bridge with it
+        if (userInfo?.email) {
+          await doBridge(userInfo as BasicWeb3AuthUser);
+          return;
+        }
+
+        toast({
+          title: 'Authentication incomplete',
+          description: 'Login succeeded but no email was returned. Please try another provider.',
+          variant: 'destructive',
+        });
+      } catch (err: any) {
+        if (
+          err?.message?.includes('user closed') ||
+          err?.message?.includes('popup') ||
+          err?.code === 5000
+        ) {
+          return;
+        }
+        console.error('[Web3Auth] Connect error:', err);
+        toast({
+          title: 'Connection failed',
+          description: err?.message || 'Could not open login',
+          variant: 'destructive',
+        });
+      }
+    },
+    [isInitialized, isConnected, initError, connect, getUserInfo, userInfo?.email, doBridge]
+  );
 
   const closeAuthModal = useCallback(() => {
     setPendingCallback(undefined);
