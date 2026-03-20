@@ -8,7 +8,10 @@ if (typeof globalThis.Buffer === 'undefined') {
 if (typeof (globalThis as any).global === 'undefined') {
   (globalThis as any).global = globalThis;
 }
-if (typeof (globalThis as any).process === 'undefined') {
+if (
+  typeof (globalThis as any).process === 'undefined' ||
+  typeof (globalThis as any).process?.nextTick !== 'function'
+) {
   (globalThis as any).process = process;
 }
 
