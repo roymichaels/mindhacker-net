@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { PlayStatsStrip } from '@/components/play/PlayStatsStrip';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
+import DNAViewer from '@/components/dna/DNAViewer';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
