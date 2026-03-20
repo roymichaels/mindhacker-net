@@ -297,12 +297,12 @@ function StepMint({
       <div className="space-y-1">
         <h2 className="text-xl font-black text-foreground">
           {isMinted
-            ? (isHe ? '🎉 Soul Avatar Minted!' : '🎉 Soul Avatar Minted!')
-            : (isHe ? 'Mint Soul Avatar' : 'Mint Your Soul Avatar')}
+            ? (isHe ? '🎉 AION Minted!' : '🎉 AION Minted!')
+            : (isHe ? 'Mint AION' : 'Mint Your AION')}
         </h2>
         <p className="text-xs text-muted-foreground">
           {isMinted
-            ? (isHe ? 'ה-Soul Avatar שלך חי עכשיו על הבלוקצ\'יין!' : 'Your Soul Avatar now lives on-chain!')
+            ? (isHe ? 'ה-AION שלך חי עכשיו על הבלוקצ\'יין!' : 'Your AION now lives on-chain!')
             : (isHe ? 'הפוך את ה-Orb שלך ל-NFT ייחודי שמייצג את המסע שלך' : 'Transform your Orb into a unique NFT representing your journey')}
         </p>
       </div>
