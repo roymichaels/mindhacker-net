@@ -162,12 +162,12 @@ function StepWelcome({ isHe, onNext }: { isHe: boolean; onNext: () => void }) {
 function StepExplainWeb3({ isHe, onNext, onBack }: { isHe: boolean; onNext: () => void; onBack: () => void }) {
   const features = isHe
     ? [
-      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'בעלות דיגיטלית', desc: 'ה-Soul Avatar שלך שייך רק לך, לנצח.' },
+      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'בעלות דיגיטלית', desc: 'ה-AION שלך שייך רק לך, לנצח.' },
       { icon: <Coins className="w-5 h-5 text-amber-400" />, title: 'הרווח אמיתי', desc: 'צבור MOS tokens עם ערך אמיתי דרך פעילות.' },
       { icon: <Globe className="w-5 h-5 text-emerald-400" />, title: 'זהות Web3', desc: 'ארנק קריפטו אישי — בלי סיסמאות מסובכות.' },
     ]
     : [
-      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'Digital Ownership', desc: 'Your Soul Avatar belongs to you, forever.' },
+      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'Digital Ownership', desc: 'Your AION belongs to you, forever.' },
       { icon: <Coins className="w-5 h-5 text-amber-400" />, title: 'Real Rewards', desc: 'Earn MOS tokens with real value through your activity.' },
       { icon: <Globe className="w-5 h-5 text-emerald-400" />, title: 'Web3 Identity', desc: 'A personal crypto wallet — no complicated passwords.' },
     ];
