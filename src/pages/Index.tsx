@@ -11,8 +11,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
+  ProblemSection,
   OrbCollectionSection,
-  
   CityShowcaseSection,
   TraitShowcaseSection,
   PlanCinematicSection,
@@ -90,30 +90,42 @@ const Index = () => {
         <Header />
         <WelcomeGateProvider>
           <main className="relative">
+            {/* 1. Hero — Introduction */}
             <GameHeroSection />
-            <OrbCollectionSection />
+            {/* 2. The Problem — Why this exists */}
+            <ProblemSection />
+            {/* 3. The System Overview — 15 pillars, AI, economy */}
+            <CityShowcaseSection />
             <InlineCTA variant="default" />
+            {/* 4. Soul Avatar — Evolving digital identity */}
+            <OrbCollectionSection />
+            {/* 5. Aurora — Consciousness AI */}
             <AuroraCoachSection />
             <InlineCTA variant="subtle" />
+            {/* 6. Hypnosis & Meditation */}
             <HypnosisSection />
-            <InlineCTA variant="bold" />
-            <CityShowcaseSection />
-            <InlineCTA variant="subtle" />
-            <TraitShowcaseSection />
-            <InlineCTA variant="default" />
+            {/* 7. Why-How-Now — 100-Day Plan */}
             <PlanCinematicSection />
-            <InlineCTA variant="subtle" />
-            <GamificationSection />
             <InlineCTA variant="bold" />
-            <Play2EarnSection />
-            <InlineCTA variant="default" />
-            <FreeMarketSection />
+            {/* 8. Identity — Traits & DNA */}
+            <TraitShowcaseSection />
+            {/* 9. Gamification — XP, Streaks, Skills */}
+            <GamificationSection />
             <InlineCTA variant="subtle" />
+            {/* 10. Economy — Proof of Growth */}
+            <Play2EarnSection />
+            {/* 11. Marketplace — FreeMarket */}
+            <FreeMarketSection />
+            {/* 12. Community + Learning */}
             <GuildSection />
             <InlineCTA variant="default" />
+            {/* 13. Career Platform — 5 paths */}
             <CoachOSSection />
-            <InlineCTA variant="bold" />
+            {/* 14. Pricing */}
+            <PricingPreviewSection />
+            {/* 15. Roadmap */}
             <RoadmapSection />
+            {/* 16. Final CTA */}
             <FinalCTASection />
           </main>
         </WelcomeGateProvider>
