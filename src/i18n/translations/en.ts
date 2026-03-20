@@ -204,7 +204,7 @@ export const en: TranslationKeys = {
       noSessions: "No scheduled events",
       remaining: "remaining",
       noFocus: "No active focus plan",
-      suggestion: "Chat with Aurora to set a focus",
+      suggestion: "Chat with AION to set a focus",
       tip: "Spend 5 minutes daily reflecting - it changes everything",
     },
     missions: {
