@@ -37,6 +37,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
   const { user, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isRTL } = useTranslation();
   const [bannerDismissed, setBannerDismissed] = useState(
     () => sessionStorage.getItem(ADMIN_BANNER_DISMISSED_KEY) === 'true'
   );
