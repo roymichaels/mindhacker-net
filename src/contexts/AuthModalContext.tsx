@@ -10,6 +10,7 @@ import {
   useWeb3AuthConnect,
   useWeb3AuthUser,
   useIdentityToken,
+  useWeb3AuthDisconnect,
 } from '@web3auth/modal/react';
 import { exchangeForSupabaseSession } from '@/lib/web3auth';
 
@@ -43,6 +44,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const { connect } = useWeb3AuthConnect();
   const { userInfo, getUserInfo } = useWeb3AuthUser();
   const { getIdentityToken } = useIdentityToken();
+  const { disconnect } = useWeb3AuthDisconnect();
 
   const doBridge = useCallback(
     async (sourceUser?: BasicWeb3AuthUser | null) => {
@@ -71,6 +73,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
         await exchangeForSupabaseSession({ email, name, idToken });
 
+        // Prevent stale SDK overlay/session from lingering after successful bridge.
+        try {
+          await disconnect({ cleanup: true });
+        } catch (e) {
+          console.warn('[Web3Auth] Disconnect after bridge failed (non-blocking):', e);
+        }
+
         toast({ title: 'Login successful', description: 'Welcome back!' });
         pendingCallbackRef.current?.();
         setPendingCallback(undefined);
@@ -86,7 +95,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticating(false);
       }
     },
-    [userInfo?.email, userInfo?.name, getIdentityToken, isAuthenticating]
+    [userInfo?.email, userInfo?.name, getIdentityToken, isAuthenticating, disconnect]
   );
 
   // Fallback bridge trigger when hooks update after connect
@@ -114,6 +123,8 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   const openAuthModal = useCallback(
     async (_view: 'login' | 'signup' = 'login', onSuccess?: () => void) => {
+      if (isAuthenticating) return;
+
       if (onSuccess) setPendingCallback(() => onSuccess);
 
       if (initError) {
@@ -205,12 +216,15 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         });
       }
     },
-    [isInitialized, isConnected, initError, connect, getUserInfo, userInfo?.email, doBridge]
+    [isInitialized, isConnected, initError, connect, getUserInfo, userInfo?.email, doBridge, isAuthenticating]
   );
 
   const closeAuthModal = useCallback(() => {
     setPendingCallback(undefined);
-  }, []);
+    void disconnect({ cleanup: true }).catch((e) => {
+      console.warn('[Web3Auth] Disconnect on close failed (non-blocking):', e);
+    });
+  }, [disconnect]);
 
   return (
     <AuthModalContext.Provider value={{ openAuthModal, closeAuthModal, isAuthenticating }}>
