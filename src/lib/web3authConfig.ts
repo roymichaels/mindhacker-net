@@ -20,7 +20,11 @@ const FALLBACK_CLIENT_ID =
 
 const CLIENT_ID = import.meta.env.VITE_WEB3AUTH_CLIENT_ID || FALLBACK_CLIENT_ID;
 
-const NETWORK_KEY = (import.meta.env.VITE_WEB3AUTH_NETWORK || 'SAPPHIRE_MAINNET').toUpperCase();
+const defaultNetworkForClient =
+  CLIENT_ID === FALLBACK_CLIENT_ID ? 'SAPPHIRE_DEVNET' : 'SAPPHIRE_MAINNET';
+const NETWORK_KEY = (
+  import.meta.env.VITE_WEB3AUTH_NETWORK || defaultNetworkForClient
+).toUpperCase();
 const WEB3AUTH_NETWORK_VALUE =
   WEB3AUTH_NETWORK[NETWORK_KEY as keyof typeof WEB3AUTH_NETWORK] ??
   WEB3AUTH_NETWORK.SAPPHIRE_MAINNET;
