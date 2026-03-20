@@ -72,8 +72,8 @@ const PHASES: EvolutionPhase[] = [
     level: 100, nameEn: 'Transcendence', nameHe: 'התעלות', icon: Crown, accentHsl: '320 80% 65%',
     subtitleEn: 'Ultimate form — 5 shapes in perpetual flux',
     subtitleHe: 'צורה סופית — 5 צורות בתנועה נצחית',
-    changesEn: ['5 shape morphs', 'Max bloom + chroma', 'Full aurora halo', 'Living digital soul'],
-    changesHe: ['5 צורות', 'זוהר + כרומה מקסימליים', 'הילת אורורה מלאה', 'נשמה דיגיטלית חיה'],
+    changesEn: ['5 shape morphs', 'Max bloom + chroma', 'Full energy halo', 'Living digital soul'],
+    changesHe: ['5 צורות', 'זוהר + כרומה מקסימליים', 'הילת אנרגיה מלאה', 'נשמה דיגיטלית חיה'],
     profile: { ...FINAL, particleEnabled: true, particleCount: 24, layerCount: 6, coreIntensity: 0.95 },
   },
 ];

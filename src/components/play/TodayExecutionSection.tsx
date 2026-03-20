@@ -116,8 +116,8 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
           </div>
           <p className="text-xs text-muted-foreground mb-3">
             {isRTL
-              ? 'בהתבסס על האבחונים שלך, אורורה תבנה תוכנית אסטרטגית ב-10 שלבים ל-100 הימים הקרובים.'
-              : 'Based on your assessments, Aurora will build a 10-phase strategic plan for the next 100 days.'}
+              ? 'בהתבסס על האבחונים שלך, AION יבנה תוכנית אסטרטגית ב-10 שלבים ל-100 הימים הקרובים.'
+              : 'Based on your assessments, AION will build a 10-phase strategic plan for the next 100 days.'}
           </p>
           <Button
             size="sm"

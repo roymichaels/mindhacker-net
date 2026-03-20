@@ -90,10 +90,10 @@ export function IdentityProfileCard({
               ? 'עדיין אין נתוני זהות' 
               : 'No identity data yet'}
           </p>
-          <p className="text-xs text-muted-foreground/70">
+           <p className="text-xs text-muted-foreground/70">
             {language === 'he' 
-              ? 'השלם את ה-Launchpad או דבר עם אורורה'
-              : 'Complete the Launchpad or chat with Aurora'}
+              ? 'השלם את ה-Launchpad או דבר עם AION'
+              : 'Complete the Launchpad or chat with AION'}
           </p>
         </CardContent>
       </Card>

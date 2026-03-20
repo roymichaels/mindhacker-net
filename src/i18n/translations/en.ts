@@ -185,7 +185,7 @@ export const en: TranslationKeys = {
       streakSubtitle: "Keep the momentum going!",
       continueStreak: "Continue Streak",
       idleTitle: "Time to get started",
-      idleSubtitle: "Start a session or chat with Aurora",
+      idleSubtitle: "Start a session or chat with AION",
       startSession: "Start Session",
     },
     progress: {
@@ -204,7 +204,7 @@ export const en: TranslationKeys = {
       noSessions: "No scheduled events",
       remaining: "remaining",
       noFocus: "No active focus plan",
-      suggestion: "Chat with Aurora to set a focus",
+      suggestion: "Chat with AION to set a focus",
       tip: "Spend 5 minutes daily reflecting - it changes everything",
     },
     missions: {
@@ -2684,7 +2684,7 @@ export const en: TranslationKeys = {
     featureTokensDesc: "Collect tokens for features",
     featureAchievements: "Achievements",
     featureAchievementsDesc: "Unlock 20+ achievements",
-    xpChat: "Chat with Aurora",
+    xpChat: "Chat with AION",
     xpTask: "Completed task",
     xpInsight: "Saved insight",
     xpDaily: "Daily streak",
@@ -3279,7 +3279,7 @@ export const en: TranslationKeys = {
   welcome: {
     yourJourneyBegins: "Your Journey Begins",
     startTransformationJourney: "Start Transformation Journey",
-    chatWithAurora: "Chat with Aurora",
+    chatWithAurora: "Chat with AION",
     level: "Level",
     streak: "Streak",
     tokens: "Tokens",

@@ -15,7 +15,7 @@ interface EnergySpendModalProps {
 
 const sourceLabels: Record<string, { he: string; en: string }> = {
   hypnosis: { he: 'סשן היפנוזה', en: 'Hypnosis Session' },
-  aurora_message: { he: 'הודעת אורורה', en: 'Aurora Message' },
+  aurora_message: { he: 'הודעת AION', en: 'AION Message' },
   onboarding_rerun: { he: 'הערכה מחדש', en: 'Re-evaluation' },
   pdf_90day: { he: 'תוכנית 90 יום', en: '90-Day Plan' },
 };

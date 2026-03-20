@@ -1,6 +1,6 @@
 /**
  * FMAppShell — Self-contained app shell for the Free Market module.
- * Gates access behind Soul Avatar minting wizard.
+ * Gates access behind AION activation wizard.
  */
 import { Outlet } from 'react-router-dom';
 import { useFMWallet } from '@/hooks/useFMWallet';
@@ -20,7 +20,7 @@ export default function FMAppShell() {
   // Hide global sidebars for all FM pages
   useSidebars(null, null, []);
 
-  // Gate: If user hasn't minted Soul Avatar, open wizard
+  // Gate: If user hasn't activated AION, open wizard
   useEffect(() => {
     if (soulLoading) return;
     if (!isMinted) {

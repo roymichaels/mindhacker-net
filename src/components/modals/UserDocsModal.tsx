@@ -96,9 +96,9 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         descEn: 'Quick wins to get started', descHe: 'ניצחונות מהירים להתחלה',
         color: 'from-emerald-500/20 to-teal-500/20',
         steps: [
-          { title: 'Talk to Aurora', titleHe: 'דבר עם אורורה',
-            description: 'Open the chat dock and introduce yourself. Tell Aurora about your goals, interests, and what you want to change in your life. She\'ll start building your personalized plan.',
-            descriptionHe: 'פתח את דוק הצ\'אט והצג את עצמך. ספר לאורורה על המטרות, התחומי עניין ומה אתה רוצה לשנות. היא תתחיל לבנות את התוכנית שלך.' },
+          { title: 'Talk to AION', titleHe: 'דבר עם AION',
+            description: 'Open the chat dock and introduce yourself. Tell AION about your goals, interests, and what you want to change in your life. It\'ll start building your personalized plan.',
+            descriptionHe: 'פתח את דוק הצ\'אט והצג את עצמך. ספר ל-AION על המטרות, התחומי עניין ומה אתה רוצה לשנות. הוא יתחיל לבנות את התוכנית שלך.' },
           { title: 'Complete Your First Action', titleHe: 'השלם את הפעולה הראשונה',
             description: 'Go to the "Now" page and complete your first action item. This earns you XP and starts your streak. Every small step counts!',
             descriptionHe: `עבור לעמוד "עכשיו" והשלם את פריט הפעולה הראשון. זה מרוויח ${ltr('XP')} ומתחיל את הרצף שלך. כל צעד קטן נחשב!`,
@@ -122,7 +122,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     color: 'from-violet-500/15 to-purple-500/15',
     cards: [
       {
-        id: 'aurora-basics', icon: MessageCircle, titleEn: 'Chat with Aurora', titleHe: 'שיחה עם אורורה',
+        id: 'aurora-basics', icon: MessageCircle, titleEn: 'Chat with AION', titleHe: 'שיחה עם AION',
         descEn: 'Conversations that transform', descHe: 'שיחות שמשנות',
         color: 'from-violet-500/20 to-purple-500/20',
         steps: [
@@ -144,10 +144,10 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         color: 'from-purple-500/20 to-fuchsia-500/20',
         steps: [
           { title: 'Voice Mode', titleHe: 'מצב קולי',
-            description: 'Tap the microphone icon to speak to Aurora. She responds with voice. Perfect for hands-free sessions during walks, driving, or meditation.',
-            descriptionHe: 'לחץ על אייקון המיקרופון כדי לדבר עם אורורה. היא מגיבה בקול. מושלם לסשנים ללא ידיים בהליכה, נהיגה או מדיטציה.' },
+            description: 'Tap the microphone icon to speak to AION. It responds with voice. Perfect for hands-free sessions during walks, driving, or meditation.',
+            descriptionHe: 'לחץ על אייקון המיקרופון כדי לדבר עם AION. הוא מגיב בקול. מושלם לסשנים ללא ידיים בהליכה, נהיגה או מדיטציה.' },
           { title: 'Hypnosis Mode', titleHe: 'מצב היפנוזה',
-            description: 'Activate deep-state sessions with guided visualizations, breathing exercises, and subconscious reprogramming. Aurora creates personalized hypnosis scripts based on your goals.',
+            description: 'Activate deep-state sessions with guided visualizations, breathing exercises, and subconscious reprogramming. AION creates personalized hypnosis scripts based on your goals.',
             descriptionHe: 'הפעל סשנים של מצב עמוק עם ויזואליזציות מודרכות, תרגילי נשימה ותכנות מחדש של התת-מודע. אורורה יוצרת תסריטי היפנוזה מותאמים אישית.',
             tip: 'Use headphones for the best hypnosis experience.', tipHe: 'השתמש באוזניות לחוויית היפנוזה מיטבית.' },
           { title: 'Pillar-Specific Chat', titleHe: 'צ\'אט ממוקד עמוד',

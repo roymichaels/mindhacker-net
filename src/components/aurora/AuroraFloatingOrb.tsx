@@ -122,7 +122,7 @@ export function AuroraFloatingOrb() {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      aria-label="Open Aurora"
+      aria-label="Open AION"
       role="button"
       tabIndex={0}
     >

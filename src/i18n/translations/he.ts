@@ -183,7 +183,7 @@ export const he = {
       streakSubtitle: "שמור על המומנטום!",
       continueStreak: "המשך את הרצף",
       idleTitle: "הגיע הזמן להתחיל",
-      idleSubtitle: "התחל סשן או שוחח עם אורורה",
+      idleSubtitle: "התחל סשן או שוחח עם AION",
       startSession: "התחל סשן",
     },
     progress: {
@@ -202,7 +202,7 @@ export const he = {
       noSessions: "אין אירועים מתוכננים",
       remaining: "נותרו",
       noFocus: "אין תוכנית מיקוד פעילה",
-      suggestion: "דבר עם אורורה כדי להגדיר מיקוד",
+      suggestion: "דבר עם AION כדי להגדיר מיקוד",
       tip: "הקדש 5 דקות ביום להרהור - זה משנה הכל",
     },
     missions: {
@@ -3333,7 +3333,7 @@ export const he = {
   welcome: {
     yourJourneyBegins: "המסע שלך מתחיל",
     startTransformationJourney: "התחל מסע טרנספורמציה",
-    chatWithAurora: "שוחח עם אורורה",
+    chatWithAurora: "שוחח עם AION",
     level: "רמה",
     streak: "סטריק",
     tokens: "טוקנים",

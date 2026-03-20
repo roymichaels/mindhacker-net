@@ -18,7 +18,7 @@ interface EnergyEvent {
 
 const SOURCE_LABELS: Record<string, { en: string; he: string }> = {
   hypnosis: { en: 'Hypnosis Session', he: 'סשן היפנוזה' },
-  aurora_message: { en: 'Aurora Message', he: 'הודעת אורורה' },
+  aurora_message: { en: 'AION Message', he: 'הודעת AION' },
   achievement: { en: 'Achievement', he: 'הישג' },
   level_up: { en: 'Level Up', he: 'עלייה ברמה' },
   action_item: { en: 'Task Completed', he: 'משימה הושלמה' },

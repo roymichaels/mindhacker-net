@@ -25,7 +25,7 @@ const HandsFreeSection = () => {
   const { openWelcomeGate } = useWelcomeGate();
 
   const chatExamples = [
-    { type: 'user', text: '🎤 "Aurora, remind me tomorrow morning to send the proposal"', isVoice: true },
+    { type: 'user', text: '🎤 "AION, remind me tomorrow morning to send the proposal"', isVoice: true },
     { type: 'aurora', text: '✅ Created a reminder for tomorrow at 8:00 AM. Also added a task to your 100-day plan.' },
     { type: 'user', text: '🎤 "What\'s my status today?"', isVoice: true },
     { type: 'aurora', text: '📊 Today you completed 3 of 5 tasks. Your streak: 21 days! 🔥 Next task: 30-minute workout.' },
@@ -35,7 +35,7 @@ const HandsFreeSection = () => {
 
   // For Hebrew, override texts
   const chatExamplesHe = [
-    { type: 'user', text: '🎤 "אורורה, תזכירי לי מחר בבוקר לשלוח את ההצעה"', isVoice: true },
+    { type: 'user', text: '🎤 "AION, תזכיר לי מחר בבוקר לשלוח את ההצעה"', isVoice: true },
     { type: 'aurora', text: '✅ נוצרה תזכורת למחר ב-8:00 בבוקר. גם הוספתי משימה לתוכנית ה-100 יום שלך.' },
     { type: 'user', text: '🎤 "מה המצב שלי היום?"', isVoice: true },
     { type: 'aurora', text: '📊 היום השלמת 3 מתוך 5 משימות. הסטריק שלך: 21 יום! 🔥 המשימה הבאה: אימון של 30 דקות.' },

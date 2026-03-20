@@ -90,15 +90,15 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: currentItem.body,
         action: () => {
           markItemClicked(currentItem.id);
-          // Set proactive message so Aurora auto-sends it as a coaching prompt
-          const coachingPrompt = `${currentItem.title}\n\n${currentItem.body}`;
-          auroraContext?.setPendingProactiveMessage(coachingPrompt);
-          navigate('/aurora');
-        },
-        actionLabel: language === 'he' ? 'פתח את אורורה' : 'Open Aurora',
-        dismissable: true,
-        onDismiss: () => dismissItem(currentItem.id),
-      };
+           // Set proactive message so AION auto-sends it as a coaching prompt
+           const coachingPrompt = `${currentItem.title}\n\n${currentItem.body}`;
+           auroraContext?.setPendingProactiveMessage(coachingPrompt);
+           navigate('/aurora');
+         },
+         actionLabel: language === 'he' ? 'פתח את AION' : 'Open AION',
+         dismissable: true,
+         onDismiss: () => dismissItem(currentItem.id),
+       };
     }
 
     // Priority 2: Overdue tasks
@@ -195,7 +195,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
       };
     }
 
-    // Fallback: Chat with Aurora
+    // Fallback: Chat with AION
     return {
       id: 'chat',
       icon: Sparkles,
@@ -206,10 +206,10 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         ? 'הכל מסודר! מה הלאה?'
         : "All set! What's next?",
       subtitle: language === 'he'
-        ? 'שוחח עם אורורה לתכנון הצעד הבא'
-        : 'Chat with Aurora to plan your next step',
+        ? 'שוחח עם AION לתכנון הצעד הבא'
+        : 'Chat with AION to plan your next step',
       action: onOpenChat || (() => navigate('/aurora')),
-      actionLabel: language === 'he' ? 'שוחח עם אורורה' : 'Chat with Aurora',
+      actionLabel: language === 'he' ? 'שוחח עם AION' : 'Chat with AION',
     };
   };
 

@@ -58,7 +58,7 @@ export function EnergyBalance({ className, showIcon = true, showTooltip = true, 
           {content}
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-[200px] text-center">
-          <p className="text-xs">Energy is used for Hypnosis sessions, Re-evaluations, and premium Aurora messages</p>
+          <p className="text-xs">Energy is used for Hypnosis sessions, Re-evaluations, and premium AION messages</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
