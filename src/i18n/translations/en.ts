@@ -185,7 +185,7 @@ export const en: TranslationKeys = {
       streakSubtitle: "Keep the momentum going!",
       continueStreak: "Continue Streak",
       idleTitle: "Time to get started",
-      idleSubtitle: "Start a session or chat with Aurora",
+      idleSubtitle: "Start a session or chat with AION",
       startSession: "Start Session",
     },
     progress: {
