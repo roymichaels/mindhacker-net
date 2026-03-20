@@ -119,15 +119,15 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.3 FreeMarket — כלכלה, קריירה ומסחר' : '4.3 FreeMarket — Economy, Career & Commerce',
+          title: he ? '4.3 FreeMarket — שוק חופשי וכלכלת Earn' : '4.3 FreeMarket — Marketplace & Earn Economy',
           paragraphs: he ? [
-            `FreeMarket הוא מרכז הכלכלה והקריירה — בנוי משלושה טאבים: Earn (הרוויח), Career (קריירה), ו-Wallet (ארנק). כולל מנגנון אונבורדינג כלכלי מודרך.`,
-            `ב-Career, המשתמש בוחר מסלול קריירה מתוך 5 מסלולים מאוחדים: בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר. כל מסלול כולל ויזארד AI שמנחה את תהליך ההקמה, דשבורד ניהול מלא, וחנות אישית עם דף נחיתה דינמי.`,
-            `ה-Wallet מנהל יתרת MOS עם ספר חשבונות, היסטוריית עסקאות, cashout, וגשר בין מטבעות.`,
+            `FreeMarket הוא מרכז הכלכלה — עמוד יחיד מאוחד שמשלב שוק שירותים, באונטיז, מסחר P2P, ו-Earn Launchpad. ה-Earn אינו מערכת נפרדת — הוא ההתנהגות; FreeMarket הוא התשתית.`,
+            `הארנק (Wallet) הוא מודאל גלובלי נגיש מכל מקום באפליקציה — מציג יתרת MOS, היסטוריית עסקאות, ותרומת נתונים. אייקון הארנק מופיע ב-header בדפי FM עם הדגשת צבע כשפעיל.`,
+            `5 מסלולי קריירה מרוכזים תחת ארכיטקטורה אחת: בעל עסק, מאמן, מטפל, יוצר תוכן, פרילנסר — כל אחד עם ויזארד AI, דשבורד ניהול, וחנות אישית. מסלולי הקריירה נגישים כדפים עצמאיים מתוך ה-FreeMarket.`,
           ] : [
-            `FreeMarket is the economy and career center — built with three tabs: Earn, Career, and Wallet. Includes a guided economic onboarding process.`,
-            `In Career, users choose from 5 unified career paths: Business Owner, Coach, Therapist, Content Creator, Freelancer. Each path includes an AI-guided setup wizard, a full management dashboard, and a personal storefront with a dynamic landing page.`,
-            `The Wallet manages MOS balance with a full ledger, transaction history, cashout, and a cross-currency bridge.`,
+            `FreeMarket is the economy center — a single unified page combining a services marketplace, bounties, P2P trading, and the Earn Launchpad. Earn is not a separate system — it is the behavior; FreeMarket is the infrastructure.`,
+            `The Wallet is a global modal accessible from anywhere in the app — displaying MOS balance, transaction history, and data contribution status. A Wallet icon appears in the header on FM pages with color highlighting when active.`,
+            `5 career paths unified under a single architecture: Business Owner, Coach, Therapist, Content Creator, Freelancer — each with an AI wizard, management dashboard, and personal storefront. Career paths are accessible as standalone pages from within FreeMarket.`,
           ],
         },
         {
@@ -141,7 +141,7 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.5 Study — למידה אדפטיבית' : '4.5 Study — Adaptive Learning',
+          title: he ? '4.5 Learn — למידה אדפטיבית' : '4.5 Learn — Adaptive Learning',
           paragraphs: he ? [
             `"Aurora מלמדת אותך" — מערכת למידה אדפטיבית עם מודל "Lazy Generation": שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית כשהמשתמש מגיע לשיעור ספציפי.`,
             `כל שיעור כולל תרגול מעשי שמסוכם אוטומטית ומסונכרן חזרה לתוכנית הפעולה. כולל מסעות הכוונה: מסע אונבורדינג, מסע עסקי, מסע אימון, ומסע פרויקטים.`,
@@ -218,12 +218,14 @@ export default function Documentation() {
         `כל משתמש ב-${brandName} מחזיק ב-Soul Avatar — נכס דיגיטלי תלת-ממדי ייחודי שמייצג את הזהות, ההתקדמות, והתודעה שלו. ה-Avatar נבנה באמצעות Three.js עם אפקטי Bloom, חלקיקים ומורפינג בזמן אמת — הוא מתפתח בהתאם לפעולות המשתמש.`,
         `מאפייני ה-Avatar: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — עוצמת עיוות הגיאומטריה גדלה עם הרמה, (3) חלקיקים — צפיפות לפי streak ואנרגיה, (4) הילה — אפקט Bloom שמשקף עומק התודעה, (5) צבעים משניים — שילובי עמודי חיים.`,
         `Web3 Onboarding: ויזארד מנטינג ב-5 שלבים — היכרות עם עולם ה-Web3, יצירת ארנק דיגיטלי (ללא seed phrases — כניסה דרך Google/Email), מנטינג סינמטי של ה-Soul Avatar, וכניסה לכלכלת Play2Earn. הארנק הדיגיטלי מאפשר בעלות אמיתית על הנכס.`,
-        `ה-Soul Avatar הוא האווטר של המשתמש בכל המערכת — בפרופיל, בקהילה, ובעתיד ייצוא כ-NFT אמיתי על blockchain.`,
+        `שלב 1 (נוכחי): Soul Avatar NFT הוא נכס וירטואלי פנימי — המנטינג, הבעלות, והמטאדאטה מנוהלים במסד הנתונים הפנימי. הארנק מוכן מבנית לחיבור עתידי ל-blockchain. שלב 2 (עתידי): ייצוא ל-Solana כ-NFT אמיתי עם מהדורה ראשונה של 10,000 יחידות.`,
+        `ה-Soul Avatar הוא האווטר של המשתמש בכל המערכת — בפרופיל, בקהילה, וב-FreeMarket.`,
       ] : [
         `Every ${brandName} user holds a Soul Avatar — a unique 3D digital asset representing their identity, progress, and consciousness. The Avatar is built with Three.js featuring real-time Bloom effects, particles, and morphing — it evolves based on user actions.`,
         `Avatar attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — geometry distortion intensity grows with level, (3) Particles — density based on streak and energy, (4) Aura — Bloom effect reflecting consciousness depth, (5) Secondary colors — pillar combinations.`,
         `Web3 Onboarding: A 5-step minting wizard — introduction to Web3, digital wallet creation (no seed phrases — sign in with Google/Email), cinematic Soul Avatar minting, and entry into the Play2Earn economy. The digital wallet enables true ownership of the asset.`,
-        `The Soul Avatar serves as the user's avatar across the entire system — in profiles, community, and in the future exportable as a real NFT on blockchain.`,
+        `Phase 1 (Current): The Soul Avatar NFT is an internal virtual asset — minting, ownership, and metadata are managed in the internal database. The wallet is architecturally ready for future blockchain connection. Phase 2 (Future): Export to Solana as a real NFT with an initial release of 10,000 units.`,
+        `The Soul Avatar serves as the user's avatar across the entire system — in profiles, community, and FreeMarket.`,
       ],
     },
     {
@@ -245,11 +247,13 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '8.2 שוק נתונים' : '8.2 Data Marketplace',
+          title: he ? '8.2 שוק נתונים (שכבה עתידית)' : '8.2 Data Marketplace (Future Layer)',
           paragraphs: he ? [
-            `מייצר הכנסה מתובנות התנהגותיות אנונימיות עם חלוקת הכנסה 80/20 (80% למשתמש). כולל pipeline אנונימיזציה עם סף מינימלי של 10 תורמים, והסכמה גרנולרית של המשתמש. הכנסות מחולקות אוטומטית לתורמים בעת רכישה.`,
+            `שוק נתונים מתוכנן שייצר הכנסה מתובנות התנהגותיות אנונימיות עם חלוקת הכנסה 80/20 (80% למשתמש). כולל pipeline אנונימיזציה עם סף מינימלי של 10 תורמים, והסכמה גרנולרית של המשתמש.`,
+            `במצב הנוכחי (שלב 1): המשתמש יכול להפעיל/לכבות "תרומת נתונים" מתוך הארנק. ההגדרה נשמרת אך לא מחוברת עדיין לשוק נתונים פעיל. לא נוצרות הכנסות מנתונים בשלב זה.`,
           ] : [
-            `Monetizes anonymized behavioral insights with an 80/20 revenue split (80% to user). Includes an anonymization pipeline requiring a minimum 10-contributor threshold, with granular user consent. Revenue is automatically distributed to contributors upon purchase.`,
+            `A planned data marketplace that will monetize anonymized behavioral insights with an 80/20 revenue split (80% to user). Includes an anonymization pipeline requiring a minimum 10-contributor threshold, with granular user consent.`,
+            `Current state (Phase 1): Users can toggle "Data Contribution" on/off from the Wallet. The preference is saved but not yet connected to an active data marketplace. No data revenue is generated at this stage.`,
           ],
         },
         {
@@ -257,13 +261,13 @@ export default function Documentation() {
           paragraphs: he ? [
             `כלכלת ${brandName} בנויה על מנגנון Play2Earn שמתגמל כל היבט של צמיחה אישית:`,
             `🌱 צמיחה — השלמת הרגלים, streaks, סיום שלבים בתוכנית 100 הימים. מכפילי streak (x1.5 ביום 7, x2 ביום 30) מעודדים עקביות.`,
-            `📊 נתונים — מכירת תובנות אנונימיות עם חלוקת 80/20 והסכמה גרנולרית.`,
+            `📊 נתונים — מכירת תובנות אנונימיות עם חלוקת 80/20 והסכמה גרנולרית (שכבה עתידית).`,
             `💼 עבודה — גיגים, באונטי קהילתיות, מכירת שירותים, וסשנים של מאמנים.`,
             `📚 למידה — כל שיעור ותרגול שהושלם מתגמל MOS. כל אינטראקציה היא פעולת כרייה מאומתת.`,
           ] : [
             `The ${brandName} economy is built on a Play2Earn mechanism that rewards every aspect of personal growth:`,
             `🌱 Growth — Habit completion, streaks, 100-day plan phase completion. Streak multipliers (x1.5 at day 7, x2 at day 30) incentivize consistency.`,
-            `📊 Data — Sell anonymized insights with 80/20 split and granular consent.`,
+            `📊 Data — Sell anonymized insights with 80/20 split and granular consent (future layer).`,
             `💼 Work — Gigs, community bounties, service sales, and coach sessions.`,
             `📚 Learning — Every completed lesson and exercise rewards MOS. Every interaction is a verified mining action.`,
           ],
@@ -271,9 +275,11 @@ export default function Documentation() {
         {
           title: he ? '8.4 ארנק ויישוב' : '8.4 Wallet & Settlement',
           paragraphs: he ? [
-            `ארנק פנימי עם ספר חשבונות מלא. יישוב אסינכרוני לערוצי תשלום חיצוניים (Stripe לפיאט או Solana לטוקנים MOS). חשיפה פרוגרסיבית: "מצב פשוט" (נקודות/בנק) ו"מצב מתקדם" (כתובות blockchain).`,
+            `ארנק פנימי מבוסס מודאל גלובלי — מציג יתרת vMOS (מטבע וירטואלי פנימי), MOS בהמתנה, סה"כ נצבר, סה"כ הוצא, ועמלות ששולמו. כל עסקה כוללת פירוט: סכום ברוטו, עמלה (2%), ונטו למוכר.`,
+            `שלב 1 (נוכחי): MOS הוא מטבע וירטואלי פנימי (vMOS) — כל הלוגיקה מבוססת מסד נתונים ללא חיבור ל-blockchain. שלב 2 (עתידי): יישוב אסינכרוני לערוצי תשלום חיצוניים (Stripe לפיאט או Solana לטוקנים). חשיפה פרוגרסיבית: "מצב פשוט" (נקודות/בנק) ו"מצב מתקדם" (כתובות blockchain).`,
           ] : [
-            `Internal wallet with a full ledger. Asynchronous settlement to external payment rails (Stripe for fiat or Solana for MOS tokens). Progressive disclosure: "Simple Mode" (points/bank terminology) and "Advanced Mode" (blockchain addresses).`,
+            `A global modal-based internal wallet — displaying vMOS balance (virtual internal currency), pending MOS, total earned, total spent, and fees paid. Every transaction includes a breakdown: gross amount, fee (2%), and net to seller.`,
+            `Phase 1 (Current): MOS is a virtual internal currency (vMOS) — all logic is database-based with no blockchain connection. Phase 2 (Future): Asynchronous settlement to external payment rails (Stripe for fiat or Solana for MOS tokens). Progressive disclosure: "Simple Mode" (points/bank terminology) and "Advanced Mode" (blockchain addresses).`,
           ],
         },
       ],
@@ -312,6 +318,16 @@ export default function Documentation() {
             `מערכת Skills מאפשרת למשתמשים לצבור ניסיון בתחומים ספציפיים. כל פעולה מחולקת למשקלים שמשפיעים על מיומנויות רלוונטיות לפי סוג, עמוד חיים, ותחום. מעקב גרנולרי אחרי התפתחות מיומנויות חוצות-תחומים.`,
           ] : [
             `The Skills system allows users to gain experience in specific domains. Each action is weighted to affect relevant skills based on type, life pillar, and domain. Enables granular tracking of cross-domain skill development.`,
+          ],
+        },
+        {
+          title: he ? '10.2 מערכת Quests ואנרגיה' : '10.2 Quest & Energy Systems',
+          paragraphs: he ? [
+            `כל יום הוא Quest ייחודי — שם ייחודי שנוצר דינמית, עם שבוע שלם שמרכיב Campaign. המשתמש רואה את ה-Quest הנוכחי בדשבורד היומי עם סטריפ ויזואלי של ההתקדמות.`,
+            `מערכת אנרגיה (Energy): פיצ'רים פרימיום צורכים אנרגיה — סשני היפנוזה (5-10), הודעות Aurora (2), סריקות עומק (10-15), ייצוא PDF (10), הגדרה מחדש של דומיין (15). מודל צריכה שקוף שמעודד שימוש מאוזן.`,
+          ] : [
+            `Every day is a unique Quest — a dynamically generated name, with a full week forming a Campaign. Users see their current Quest on the daily dashboard with a visual progress strip.`,
+            `Energy System: Premium features consume energy — Hypnosis sessions (5-10), Aurora messages (2), deep scans (10-15), PDF export (10), domain reconfiguration (15). A transparent consumption model that encourages balanced usage.`,
           ],
         },
       ],
