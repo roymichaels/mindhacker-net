@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Mail } from 'lucide-react';
-import { z } from 'zod';
+import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { loginWithProvider, exchangeForSupabaseSession, type Web3AuthProvider } from '@/lib/web3auth';
+import { exchangeForSupabaseSession, loginWithWeb3AuthModal } from '@/lib/web3auth';
 
 interface AuthModalProps {
   open: boolean;
@@ -17,12 +14,6 @@ interface AuthModalProps {
 }
 
 /* ---------- icons (unchanged) ---------- */
-
-const AppleIcon = () => (
-  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-  </svg>
-);
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -38,21 +29,16 @@ const GoogleIcon = () => (
 export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess }: AuthModalProps) {
   const { t, isRTL } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-
-  const emailSchema = z.string().trim().email(t('validation.invalidEmail')).max(255).toLowerCase();
 
   /**
-   * Unified handler: authenticate via Web3Auth → exchange for Supabase session.
+   * Unified handler: open native Web3Auth modal → exchange for backend session.
    */
-  const handleLogin = async (provider: Web3AuthProvider, emailHint?: string) => {
+  const handleLogin = async () => {
     setIsLoading(true);
-    setLoadingProvider(provider);
 
     try {
-      // 1. Authenticate with Web3Auth (opens popup)
-      const userInfo = await loginWithProvider(provider, emailHint);
+      // 1. Authenticate with Web3Auth (opens native modal)
+      const userInfo = await loginWithWeb3AuthModal();
 
       // 2. Exchange Web3Auth identity for Supabase session
       await exchangeForSupabaseSession({
@@ -77,25 +63,10 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
       }
     } finally {
       setIsLoading(false);
-      setLoadingProvider(null);
     }
-  };
-
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = emailSchema.safeParse(email);
-    if (!result.success) {
-      toast({ title: t('validation.validationError'), description: result.error.errors[0].message, variant: 'destructive' });
-      return;
-    }
-    await handleLogin('email_passwordless', result.data);
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      setEmail('');
-      setLoadingProvider(null);
-    }
     onOpenChange(nextOpen);
   };
 
@@ -112,78 +83,16 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Social login buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full gap-2"
-              disabled={isLoading}
-              onClick={() => handleLogin('google')}
-            >
-              {loadingProvider === 'google' ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <GoogleIcon />
-              )}
-              Google
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full gap-2"
-              disabled={isLoading}
-              onClick={() => handleLogin('apple')}
-            >
-              {loadingProvider === 'apple' ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <AppleIcon />
-              )}
-              Apple
-            </Button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                {t('auth.orWithEmail')}
-              </span>
-            </div>
-          </div>
-
-          {/* Email login */}
-          <form onSubmit={handleEmailLogin} className="space-y-3">
-            <div className="space-y-2">
-              <Label htmlFor="auth-email">{t('auth.email')}</Label>
-              <Input
-                id="auth-email"
-                type="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full gap-2"
-              disabled={isLoading}
-              size="lg"
-            >
-              {loadingProvider === 'email_passwordless' ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Mail className="h-4 w-4" />
-              )}
-              {t('auth.sendCodeToEmail')}
-            </Button>
-          </form>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full gap-2"
+            disabled={isLoading}
+            onClick={handleLogin}
+          >
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+            Continue with Web3Auth
+          </Button>
 
           <p className="text-xs text-center text-muted-foreground pt-2">
             {t('auth.termsAgreement')}
