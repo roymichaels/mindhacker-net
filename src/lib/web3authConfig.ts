@@ -30,16 +30,17 @@ export function buildWeb3AuthOptions(clientId: string): Web3AuthOptions {
   return {
     clientId,
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
-    // Chain config and branding are managed via the Web3Auth dashboard.
-    // Only set minimal chain config required by the SDK.
-    chainConfig: {
-      chainNamespace: 'eip155' as any,
-      chainId: '0x1',
-      rpcTarget: 'https://rpc.ankr.com/eth',
-      displayName: 'Ethereum Mainnet',
-      blockExplorerUrl: 'https://etherscan.io',
-      ticker: 'ETH',
-      tickerName: 'Ethereum',
-    },
+    // v10 uses `chains` array instead of `chainConfig`
+    chains: [
+      {
+        chainNamespace: 'eip155' as any,
+        chainId: '0x1',
+        rpcTarget: 'https://rpc.ankr.com/eth',
+        displayName: 'Ethereum Mainnet',
+        blockExplorerUrl: 'https://etherscan.io',
+        ticker: 'ETH',
+        tickerName: 'Ethereum',
+      },
+    ],
   };
 }
