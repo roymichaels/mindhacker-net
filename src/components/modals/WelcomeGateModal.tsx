@@ -4,10 +4,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, LogIn, Rocket, Crown } from 'lucide-react';
+import { Sparkles, Rocket } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthModal } from '@/contexts/AuthModalContext';
-import { useNavigate } from 'react-router-dom';
 import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { Orb } from '@/components/orb/Orb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
@@ -21,20 +20,13 @@ interface WelcomeGateModalProps {
 export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) {
   const { isRTL } = useTranslation();
   const { openAuthModal } = useAuthModal();
-  const navigate = useNavigate();
+  
   const { smartNavigate } = useSmartOnboarding();
 
-  const handleFirstTime = () => {
-    onOpenChange(false);
-    openAuthModal('signup', () => {
-      smartNavigate();
-    });
-  };
-
-  const handleLogin = () => {
+  const handleEnter = () => {
     onOpenChange(false);
     openAuthModal('login', () => {
-      navigate('/now');
+      smartNavigate();
     });
   };
 
@@ -77,67 +69,33 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
             </p>
           </motion.div>
 
-          {/* Two CTA cards */}
-          <div className="grid grid-cols-1 gap-3">
-            {/* First Time */}
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.35 }}
+          {/* Single CTA */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
+            <Button
+              onClick={handleEnter}
+              className="w-full h-auto p-5 flex items-center gap-4 rounded-2xl
+                bg-gradient-to-r from-primary to-accent hover:opacity-90
+                text-primary-foreground font-bold text-base
+                shadow-lg shadow-primary/25 transition-all duration-300 group"
             >
-              <Button
-                variant="outline"
-                onClick={handleFirstTime}
-                className="w-full h-auto p-5 flex items-center gap-4 rounded-2xl
-                  border-2 border-primary/20 hover:border-primary/50
-                  bg-gradient-to-r from-primary/5 to-accent/5
-                  hover:from-primary/10 hover:to-accent/10
-                  transition-all duration-300 group"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Rocket className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div className={cn('flex-1 text-start', isRTL && 'text-start')}>
-                  <span className="block font-bold text-base text-foreground">
-                    {isRTL ? 'פעם ראשונה כאן' : 'First Time Here'}
-                  </span>
-                  <span className="block text-xs text-muted-foreground mt-0.5">
-                    {isRTL ? 'צור את הזהות הדיגיטלית שלך' : 'Create your digital identity'}
-                  </span>
-                </div>
-                <Sparkles className="w-5 h-5 text-primary opacity-50 group-hover:opacity-100 transition-opacity" />
-              </Button>
-            </motion.div>
-
-            {/* Login */}
-            <motion.div
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.45 }}
-            >
-              <Button
-                variant="outline"
-                onClick={handleLogin}
-                className="w-full h-auto p-5 flex items-center gap-4 rounded-2xl
-                  border-2 border-muted-foreground/10 hover:border-primary/30
-                  bg-muted/30 hover:bg-muted/50
-                  transition-all duration-300 group"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-xl bg-muted flex items-center justify-center border border-border">
-                  <Crown className="w-6 h-6 text-primary" />
-                </div>
-                <div className={cn('flex-1 text-start', isRTL && 'text-start')}>
-                  <span className="block font-bold text-base text-foreground">
-                    {isRTL ? 'כבר יש לי חשבון' : 'I Have an Account'}
-                  </span>
-                  <span className="block text-xs text-muted-foreground mt-0.5">
-                    {isRTL ? 'חזור לאימפריה שלך' : 'Return to your empire'}
-                  </span>
-                </div>
-                <LogIn className="w-5 h-5 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
-              </Button>
-            </motion.div>
-          </div>
+              <div className="shrink-0 w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
+                <Rocket className="w-6 h-6" />
+              </div>
+              <div className={cn('flex-1 text-start', isRTL && 'text-start')}>
+                <span className="block font-bold text-base">
+                  {isRTL ? 'התחל את המסע' : 'Begin Your Journey'}
+                </span>
+                <span className="block text-xs opacity-80 mt-0.5">
+                  {isRTL ? 'הרשמה או התחברות' : 'Sign up or sign in'}
+                </span>
+              </div>
+              <Sparkles className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            </Button>
+          </motion.div>
         </div>
       </DialogContent>
     </Dialog>

@@ -145,16 +145,18 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      // Only fire callback when there's an active login intent
+      if (loginIntentRef.current && session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
         pendingCallbackRef.current?.();
         setPendingCallback(undefined);
+        loginIntentRef.current = false;
       }
     });
     return () => subscription.unsubscribe();
   }, []);
 
   // On mount: if SDK has a stale cached connection, disconnect it silently
-  // so it doesn't interfere with fresh logins.
+  // and block any auto-bridge from the cached state.
   const mountCleanupDone = useRef(false);
   useEffect(() => {
     if (mountCleanupDone.current) return;
@@ -163,7 +165,12 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
     if (isConnected) {
       console.log('[Web3Auth] Clearing stale SDK connection on mount');
-      disconnect({ cleanup: true }).catch(() => {});
+      // Mark bridged to prevent any race with the fallback bridge effect
+      bridgedRef.current = true;
+      disconnect({ cleanup: true }).catch(() => {}).finally(() => {
+        // After disconnect, reset bridgedRef so future intentional logins work
+        bridgedRef.current = false;
+      });
     }
   }, [isInitialized, isConnected, disconnect]);
 
@@ -277,6 +284,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   const closeAuthModal = useCallback(() => {
     loginIntentRef.current = false;
+    bridgedRef.current = false;
     setPendingCallback(undefined);
     disconnect({ cleanup: true }).catch(() => {});
   }, [disconnect]);
