@@ -18,7 +18,7 @@ import { TodayScheduleCard } from './TodayScheduleCard';
 import { MovementScoreCard } from './MovementScoreCard';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { MilestoneJourneyModal } from '@/components/tactics/MilestoneJourneyModal';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { DomainAssessModal } from '@/components/pillars/DomainAssessModal';
 import { Button } from '@/components/ui/button';
 import { getDomainById } from '@/navigation/lifeDomains';
 

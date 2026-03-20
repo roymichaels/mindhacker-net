@@ -7,7 +7,7 @@
  */
 import { useState, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { DomainAssessModal } from '@/components/pillars/DomainAssessModal';
 import { useTranslation } from '@/hooks/useTranslation';
 import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { useLifeDomains } from '@/hooks/useLifeDomains';

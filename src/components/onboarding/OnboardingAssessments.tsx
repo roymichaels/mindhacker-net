@@ -7,7 +7,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import DomainAssessChat from '@/components/domain-assess/DomainAssessChat';
+import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import OnboardingPresenceScan from '@/components/onboarding/OnboardingPresenceScan';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { CheckCircle2, ChevronLeft, Loader2 } from 'lucide-react';

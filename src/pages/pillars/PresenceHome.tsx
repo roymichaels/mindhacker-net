@@ -13,7 +13,7 @@ import { buildScanResult } from '@/lib/presence/scoring';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import GuidedCapture from '@/components/presence/GuidedCapture';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { DomainAssessModal } from '@/components/pillars/DomainAssessModal';
 
 type Phase = 'home' | 'capture' | 'analyzing';
 

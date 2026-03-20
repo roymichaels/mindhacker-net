@@ -21,7 +21,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from '@/components/dashboard/MilestoneDetailModal';
-import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
+import { DomainAssessModal } from '@/components/pillars/DomainAssessModal';
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const TOTAL_PHASES = 10;
 
