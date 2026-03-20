@@ -2970,7 +2970,7 @@ export const en: TranslationKeys = {
     orbShowcase: {
       badge: 'Living Avatar',
       title: 'Your Orb. Your DNA.',
-      subtitle: 'A living digital avatar that evolves as you grow — reflecting your identity, traits, and progress across all 14 life pillars.',
+      subtitle: 'A living digital avatar that evolves as you grow — reflecting your identity, traits, and progress across all 15 life pillars.',
       evolveTitle: 'Evolves With You',
       evolveDesc: 'Your orb changes shape, color and complexity as you complete actions and level up.',
       dnaTitle: 'Identity DNA',
