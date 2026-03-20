@@ -11,8 +11,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import {
   GameHeroSection,
+  ProblemSection,
   OrbCollectionSection,
-  
   CityShowcaseSection,
   TraitShowcaseSection,
   PlanCinematicSection,
