@@ -1,0 +1,255 @@
+/**
+ * CoachHudSidebar - Left sidebar for coach business stats, quick actions & nav.
+ * Now includes Marketing/Settings navigation (moved from main content tabs).
+ */
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
+import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, User, FileText } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useCoachClientStats } from '@/hooks/useCoachClients';
+import { useMyCoachProfile, useCoach, useCoachReviewStats, useFirstCoachSlug } from '@/domain/coaches';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
+import { PractitionerProfileHeader, PractitionerFeedTabs } from '@/components/practitioner-landing';
+
+
+interface CoachHudSidebarProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
+export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachHudSidebarProps) {
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { language, isRTL } = useTranslation();
+  const { stats } = useCoachClientStats();
+  const { data: myProfile } = useMyCoachProfile();
+  const isHe = language === 'he';
+
+  // Fallback: fetch first coach slug for admin users
+  const { data: fallbackSlug } = useFirstCoachSlug(!myProfile?.slug);
+
+  const storeSlug = myProfile?.slug || fallbackSlug;
+
+  // Fetch average rating via domain hook
+  const { data: reviewStats } = useCoachReviewStats(myProfile?.id);
+
+  const statItems = [
+    { icon: Users, value: stats.active, label: isHe ? 'פעילים' : 'Active', color: 'text-purple-400' },
+    { icon: Star, value: reviewStats?.avg || 0, label: isHe ? 'דירוג' : 'Rating', color: 'text-amber-400' },
+    { icon: DollarSign, value: '—', label: isHe ? 'הכנסות' : 'Revenue', color: 'text-emerald-400' },
+    { icon: MessageSquare, value: reviewStats?.count || 0, label: isHe ? 'ביקורות' : 'Reviews', color: 'text-indigo-400' },
+  ];
+
+  const navItems = [
+    { id: 'dashboard', icon: LayoutDashboard, label: isHe ? 'סקירה' : 'Overview', color: 'text-emerald-400' },
+    { id: 'clients', icon: Users, label: isHe ? 'מתאמנים' : 'Clients', color: 'text-blue-400' },
+    { id: 'leads', icon: Star, label: isHe ? 'לידים' : 'Leads', color: 'text-cyan-400' },
+    { id: 'products', icon: DollarSign, label: isHe ? 'מוצרים' : 'Products', color: 'text-amber-400' },
+    { id: 'content', icon: FileText, label: isHe ? 'תוכן' : 'Content', color: 'text-violet-400' },
+    { id: 'plans', icon: FileText, label: isHe ? 'תוכניות' : 'Plans', color: 'text-teal-400' },
+    { id: 'marketing', icon: Megaphone, label: isHe ? 'שיווק' : 'Marketing', color: 'text-purple-400' },
+    { id: 'analytics', icon: ExternalLink, label: isHe ? 'אנליטיקס' : 'Analytics', color: 'text-orange-400' },
+    { id: 'landing-pages', icon: FileText, label: isHe ? 'דפי נחיתה' : 'Landing Pages', color: 'text-pink-400' },
+    { id: 'settings', icon: Settings, label: isHe ? 'הגדרות' : 'Settings', color: 'text-indigo-400' },
+  ];
+
+  const handleProfileClick = () => {
+    if (storeSlug) {
+      setProfileOpen(true);
+    } else {
+      toast.error(isHe ? 'אין פרופיל זמין' : 'No profile available');
+    }
+  };
+
+  // Fetch practitioner data for modal via domain hook
+  const { data: profilePractitioner } = useCoach(profileOpen ? storeSlug : undefined);
+
+  const { data: profilePostsCount = 0 } = useQuery({
+    queryKey: ['practitioner-posts-count', profilePractitioner?.user_id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('community_posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', profilePractitioner!.user_id);
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!profilePractitioner?.user_id,
+  });
+
+  const handleNavClick = (tabId: string) => {
+    onTabChange?.(tabId);
+  };
+
+  return (
+    <aside className={cn(
+      "flex flex-col flex-shrink-0 h-full overflow-y-auto scrollbar-hide transition-all duration-300 relative",
+      "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
+      "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
+      "ltr:border-s rtl:border-e border-border/50 dark:border-purple-500/15",
+      collapsed ? "w-16 min-w-[64px]" : "w-full md:w-[280px] md:min-w-[220px] xl:w-[300px] fixed md:relative right-0 md:right-auto top-14 bottom-0 z-[55] md:z-auto md:top-auto bg-background md:bg-transparent"
+    )}>
+      {/* Collapse toggle */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className={cn(
+          "absolute top-2 z-10 p-1 rounded-md hover:bg-accent/20 transition-colors text-muted-foreground hover:text-foreground",
+          collapsed
+            ? "ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
+            : "ltr:left-2 rtl:right-2"
+        )}
+        title={collapsed ? "Expand" : "Collapse"}
+      >
+        {collapsed
+          ? (isRTL ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />)
+          : (isRTL ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />)
+        }
+      </button>
+
+      {/* ===== COLLAPSED MINI VIEW ===== */}
+      {collapsed && (
+        <div className="flex flex-col items-center gap-3 h-full pt-7 pb-4 px-0 overflow-hidden">
+          <div className="flex flex-col items-center gap-1">
+            <Avatar className="w-10 h-10 border-2 border-purple-500/30">
+              <AvatarImage src={myProfile?.avatar_url || ''} />
+              <AvatarFallback className="bg-purple-500/20 text-purple-400">
+                <Briefcase className="w-4 h-4" />
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+              Pro
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1 w-full px-0.5">
+            <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-1" />
+            {statItems.map((m, i) => (
+              <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
+                <m.icon className={cn("w-4 h-4", m.color)} />
+                <span className="text-[10px] font-bold leading-none">{m.value}</span>
+              </div>
+            ))}
+            <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-1" />
+          </div>
+
+          {/* Nav icons (Marketing/Settings) */}
+          <div className="flex flex-col items-center gap-1 -mt-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={cn(
+                  "p-2 rounded-lg border transition-colors",
+                  activeTab === item.id
+                    ? "bg-purple-500/20 border-purple-500/30"
+                    : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                )}
+                title={item.label}
+              >
+                <item.icon className={cn("w-4 h-4", activeTab === item.id ? 'text-purple-400' : item.color)} />
+              </button>
+            ))}
+          </div>
+
+          {/* Profile preview */}
+          <button
+            onClick={handleProfileClick}
+            className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors mt-auto"
+            title={isHe ? 'פרופיל' : 'Profile'}
+          >
+            <User className="w-4 h-4 text-violet-400" />
+          </button>
+        </div>
+      )}
+
+      {/* ===== EXPANDED FULL VIEW ===== */}
+      {!collapsed && (
+        <div className="flex flex-col items-center gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+
+          {myProfile?.display_name && (
+            <span className="text-sm font-bold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
+              {myProfile.display_name}
+            </span>
+          )}
+
+          <div className="flex items-center justify-center gap-1.5 w-full">
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
+              <Briefcase className="h-2.5 w-2.5" /> Coach Pro
+            </span>
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              <Users className="h-2.5 w-2.5" />{stats.active}
+            </span>
+          </div>
+
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+
+          {/* Stats Grid */}
+          <div className="flex flex-col gap-2 w-full">
+            <div className="grid grid-cols-2 gap-1.5">
+              {statItems.map((m) => (
+                <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
+                  <m.icon className={cn("w-3.5 h-3.5", m.color)} />
+                  <span className="text-sm font-bold leading-none">{m.value}</span>
+                  <span className="text-[9px] text-muted-foreground">{m.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+
+            {/* Navigation: Marketing & Settings */}
+            <div className="flex flex-col gap-1.5 w-full">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={cn(
+                    "w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start",
+                    activeTab === item.id
+                      ? "bg-purple-500/15 border-purple-500/30 shadow-sm"
+                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                  )}
+                >
+                  <item.icon className={cn("w-4 h-4 shrink-0", activeTab === item.id ? 'text-purple-400' : item.color)} />
+                  <span className={cn(
+                    "text-xs font-medium",
+                    activeTab === item.id ? 'text-purple-400' : 'text-foreground'
+                  )}>
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+
+          {/* View Profile CTA */}
+          <button
+            onClick={handleProfileClick}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-purple-400 text-sm font-semibold"
+          >
+            <User className="w-4 h-4" />
+            <span>{isHe ? 'צפה בפרופיל' : 'View Profile'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Profile Preview Modal */}
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          {profilePractitioner && (
+            <div dir={isRTL ? 'rtl' : 'ltr'}>
+              <PractitionerProfileHeader practitioner={profilePractitioner} postsCount={profilePostsCount} />
+              <PractitionerFeedTabs practitioner={profilePractitioner} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </aside>
+  );
+}
