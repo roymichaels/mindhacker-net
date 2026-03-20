@@ -2949,7 +2949,7 @@ export const he = {
     // AuroraCoachSection
     auroraCoach: {
       badge: 'ה-AI האישי שלך',
-      title: 'מוח אחד. כל 14 התחומים.',
+      title: 'מוח אחד. כל 15 התחומים.',
       subtitle: 'Aurora רואה את הכל — גוף, נפש, עסקים, יחסים, תודעה — ומחברת הכל לאסטרטגיה אחת.',
       coaching247Title: 'אימון 24/7',
       coaching247Desc: 'תמיד שם, תמיד מותאם למצב שלך',
