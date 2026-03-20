@@ -277,8 +277,9 @@ export default function BlogPost() {
         </div>
       </article>
 
-      {/* Global styles for CTA links inside article content */}
+      {/* Global styles for blog content edge cases */}
       <style>{`
+        /* CTA links */
         .blog-article-content a[href*="mindos.space"] {
           display: inline-flex;
           align-items: center;
@@ -301,6 +302,46 @@ export default function BlogPost() {
           content: "✦";
           font-size: 0.75rem;
           opacity: 0.7;
+        }
+
+        /* WordPress block-quote compat */
+        .blog-article-content .wp-block-quote {
+          border-inline-start: 4px solid hsl(var(--primary) / 0.4);
+          background: hsl(var(--primary) / 0.05);
+          border-start-end-radius: 0.75rem;
+          border-end-end-radius: 0.75rem;
+          padding: 1.25rem 1.5rem;
+          margin-block: 2.5rem;
+        }
+
+        /* Spacing between block-level siblings */
+        .blog-article-content > * + * {
+          margin-top: 1.25rem;
+        }
+        .blog-article-content > h2 + * {
+          margin-top: 0;
+        }
+        .blog-article-content > * + h2 {
+          margin-top: 3.5rem;
+        }
+        .blog-article-content > * + h3 {
+          margin-top: 2.5rem;
+        }
+
+        /* Nested list/paragraph spacing inside blockquotes */
+        .blog-article-content blockquote p,
+        .blog-article-content .wp-block-quote p {
+          margin-bottom: 0.5rem;
+        }
+        .blog-article-content blockquote ul,
+        .blog-article-content .wp-block-quote ul {
+          margin-top: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+        .blog-article-content blockquote li,
+        .blog-article-content .wp-block-quote li {
+          margin-bottom: 0.375rem;
+          line-height: 1.65;
         }
       `}</style>
     </div>
