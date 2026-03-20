@@ -4,6 +4,7 @@
  * Admins see a dismissible banner instead of being blocked.
  */
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useCommunityUsername } from '@/hooks/useCommunityUsername';
