@@ -2906,7 +2906,7 @@ export const en: TranslationKeys = {
       hypnosisTitle: 'Generates Hypnosis',
       hypnosisDesc: 'Creates personalized sessions from your conversations',
       oneBrainTitle: 'One Brain',
-      oneBrainDesc: 'Connects all 14 domains into a single intelligence',
+      oneBrainDesc: 'Connects all 15 domains into a single intelligence',
       chatPreviewTitle: 'Aurora knows how to say:',
       chatExample1: "I noticed your energy dropped this week. Let's check what changed in your sleep...",
       chatExample2: 'Your combat consistency is up 40% this month! This is also boosting your confidence.',
