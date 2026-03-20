@@ -127,13 +127,13 @@ export default function OrbCollectionSection() {
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
             <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              {isHe ? 'ה-Orb שלך נבנה, מתפתח, וחי' : 'Your Orb Is Built, Evolves & Lives'}
+              {isHe ? 'ה-AION שלך מתפתח איתך' : 'Your AION Evolves With You'}
             </span>
           </h2>
           <p className="text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
             {isHe
-              ? 'המערכת ממפה את האישיות שלך ליצירת Orb ייחודי — שמתפתח ככל שאתה מתקדם. כל 25 רמות נפתחת צורה חדשה.'
-              : 'The system maps your personality into a unique Orb — that evolves as you progress. Every 25 levels unlocks a new shape.'}
+              ? 'המערכת ממפה את האישיות שלך ליצירת Orb ייחודי — הייצוג הויזואלי של ה-AION שלך, שמתפתח ככל שאתה מתקדם.'
+              : 'The system maps your personality into a unique Orb — the visual representation of your AION, evolving as you progress.'}
           </p>
         </motion.div>
 

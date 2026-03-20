@@ -1,6 +1,7 @@
 /**
- * SoulAvatarMintWizard — 5-step cinematic wizard for Web3 onboarding + NFT minting.
- * Steps: Welcome → What is Web3 → Create Wallet → Mint Soul Avatar → Play2Earn
+ * SoulAvatarMintWizard — 5-step cinematic wizard for AION Web3 onboarding + NFT minting.
+ * Steps: Welcome → What is Web3 → Create Wallet → Mint AION → Play2Earn
+ * NOTE: File keeps legacy name for import compatibility. The UI already uses AION branding.
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
