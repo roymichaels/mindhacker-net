@@ -1,5 +1,5 @@
 /**
- * SidebarOrbWidget - Full identity card for sidebar with Soul Avatar, title, stats, XP bar.
+ * SidebarOrbWidget - Full identity card for sidebar with AION Orb, title, stats, XP bar.
  * Matches the gamified profile card design.
  * Pulses with a work-glow ring when an active work session is running.
  */
