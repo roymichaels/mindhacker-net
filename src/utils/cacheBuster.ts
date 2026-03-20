@@ -3,7 +3,7 @@
  * Clears all caches, unregisters stale service workers, and reloads once.
  */
 
-const CACHE_BUST_VERSION = '2026-03-20-v1'; // Bump this to force another bust
+const CACHE_BUST_VERSION = '2026-03-20-v2'; // Bump this to force another bust
 const CACHE_BUST_KEY = 'mindos-cache-bust-version';
 
 export async function bustOldCaches() {
