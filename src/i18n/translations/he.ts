@@ -3160,8 +3160,8 @@ export const he = {
     // TwoWorldsSection
     twoWorlds: {
       title: 'מערכת שלמה ל',
-      titleHighlight: '14 תחומי חיים',
-      subtitle: 'מערכת אחת. 14 פילרים. שני מצבים — מפה ותנועה.',
+      titleHighlight: '15 תחומי חיים',
+      subtitle: 'מערכת אחת. 15 פילרים. שני מצבים — מפה ותנועה.',
       coreTitle: '🧠 ליבה — המפה',
       coreSubtitle: 'אבחון, אסטרטגיה ותכנון 100 יום',
       coreDesc: 'אבחן את כל 14 התחומים, בנה תוכנית 100 יום מותאמת אישית, וצפה בתוצאות.',
