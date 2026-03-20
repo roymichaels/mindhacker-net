@@ -9,6 +9,7 @@ import {
   useWeb3Auth,
   useWeb3AuthConnect,
   useWeb3AuthUser,
+  useIdentityToken,
 } from '@web3auth/modal/react';
 
 interface AuthModalProps {
