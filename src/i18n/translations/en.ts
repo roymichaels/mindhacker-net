@@ -5106,7 +5106,7 @@ export const en: TranslationKeys = {
       },
       pillars: {
         chooseYourPillars: 'Choose Your Pillars',
-        allUnlocked: 'All 14 pillars are unlocked for you',
+        allUnlocked: 'All 15 pillars are unlocked for you',
         selectUpTo: 'Select up to',
         pillarsForAssessment: 'pillars for personalized assessment & planning',
         startAssessments: 'Start Pillar Assessments',

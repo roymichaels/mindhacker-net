@@ -5187,7 +5187,7 @@ export const he = {
       },
       pillars: {
         chooseYourPillars: 'בחר את הפילרים שלך',
-        allUnlocked: 'כל 14 הפילרים פתוחים עבורך',
+        allUnlocked: 'כל 15 הפילרים פתוחים עבורך',
         selectUpTo: 'בחר עד',
         pillarsForAssessment: 'פילרים לאבחון ותכנון מותאם אישית',
         startAssessments: 'התחל אבחון פילרים',
