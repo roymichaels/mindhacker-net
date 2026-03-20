@@ -3114,7 +3114,7 @@ export const en: TranslationKeys = {
       arenaTitle: '⚔️ Arena — The Movement',
       arenaSubtitle: 'Daily execution, live tasks & momentum',
       arenaDesc: 'Execute your tasks today — action queue, habits, and real-time feedback.',
-      pillarsTitle: 'The 14 Pillars',
+      pillarsTitle: 'The 15 Pillars',
       pillarsSubtitle: 'Choose your pillars by plan — Free: 2, Plus: 6, Apex: all',
     },
 
