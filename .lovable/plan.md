@@ -1,56 +1,81 @@
 
 
-# Founding Members Landing Wizard — Implementation Plan
+# Whitepaper Mode Selector + Visual 3D Mode
 
 ## Overview
-A new route `/founding` hosting a full-screen, multi-step wizard experience targeting Israeli audiences. 10 sections navigated via "Next" progression, ending with an application form that saves to the database. Dark neon Web3 aesthetic, Hebrew-first RTL, mobile-first.
+When users navigate to the whitepaper (`/docs`), show a fullscreen modal offering two modes:
+1. **Simple** — the current text-based whitepaper (as-is)
+2. **Visual** — a new immersive 3D presentation experience
+
+The Visual mode will be a fullscreen, section-by-section scrollable experience using Three.js (already installed), particle systems, animated transitions, and cinematic typography — presenting the same whitepaper content as a visual journey.
 
 ## Architecture
 
-**New files to create:**
+```text
+/docs route
+  └─ Documentation.tsx
+       ├─ WhitepaperModeModal (new) — fullscreen choice overlay
+       ├─ mode === 'simple' → current text whitepaper (unchanged)
+       └─ mode === 'visual' → VisualWhitepaper (new)
+                                ├─ 3D background canvas (particles, orb, nebula)
+                                ├─ Section slides (scroll-snapped)
+                                ├─ Cinematic text reveals
+                                └─ Navigation dots + progress bar
+```
 
-1. **`src/pages/FoundingLanding.tsx`** — Main wizard page with step state management (0–9), keyboard/swipe navigation, progress indicator, and smooth animated transitions between sections.
+## Changes
 
-2. **`src/components/founding/` directory** with one component per section:
-   - `FoundingHero.tsx` — Section 1: Glowing orb (reuse `PersonalizedOrb`), headline, CTA button
-   - `FoundingProblem.tsx` — Section 2: Pain points with staggered fade-in text blocks
-   - `FoundingSystem.tsx` — Section 3: Animated vertical step flow (enter → choose → tasks → progress → earn)
-   - `FoundingBenefits.tsx` — Section 4: Icon grid with neon-glow cards
-   - `FoundingMembers.tsx` — Section 5: "100 founding members" exclusive positioning
-   - `FoundingRole.tsx` — Section 6: Opportunity cards (create, share, invite, feedback)
-   - `FoundingEarning.tsx` — Section 7: Earning paths — simple, no percentages/tokenomics
-   - `FoundingWhyNow.tsx` — Section 8: Urgency/scarcity messaging
-   - `FoundingFinalCTA.tsx` — Section 9: Final call-to-action
-   - `FoundingApplyForm.tsx` — Section 10: Application form (name, social handle, occupation, why join, how contribute) → saves to DB → success state
-   - `FoundingBackground.tsx` — Shared animated background (particle dots, radial neon glows, subtle parallax)
-   - `WizardNav.tsx` — Bottom navigation bar with dot progress + Next/Back buttons
+### 1. Create `WhitepaperModeModal` component
+- Fullscreen dark overlay with two cards
+- **Simple**: document icon, "Classic reading experience"  
+- **Visual**: 3D cube/diamond icon, "Immersive 3D experience"
+- Animated entrance, glass-morphism cards, glow effects
+- Stores choice in state; can switch modes from within
 
-3. **Database migration** — New `founding_applications` table:
-   - `id`, `name`, `social_handle`, `occupation`, `why_join`, `how_contribute`, `referral_code`, `status` (pending/accepted/rejected), `created_at`
-   - RLS: insert for anon/authenticated, select own rows only
+### 2. Create `VisualWhitepaper` component
+The star of the show — a scroll-driven 3D cinematic presentation:
 
-4. **Route registration** in `src/App.tsx` — Add `/founding` as a public route
+- **3D Background**: React Three Fiber canvas with:
+  - Animated particle field (stars/nodes) that reacts to scroll
+  - Floating geometric shapes (icosahedrons, torus knots) with iridescent materials
+  - Dynamic lighting that shifts color per section
+  - Depth-of-field / bloom post-processing feel via drei helpers
 
-## Visual System
-- All sections use a shared dark background (`#050505`) with layered radial gradients (purple `#7c3aed`, cyan `#06b6d4`, blue `#3b82f6`)
-- Neon glow effects via `box-shadow` and `blur` filters
-- Framer Motion for all transitions: `AnimatePresence` with directional slide + fade
-- Reuse existing `PersonalizedOrb` component for the hero soul orb
-- Each section gets a unique accent glow color for "different world" feel
+- **Section System** (scroll-snap fullscreen slides):
+  - Each whitepaper section becomes a "slide"
+  - Text appears with staggered letter/word animations (framer-motion)
+  - Key stats/numbers animate with counting effects
+  - Section transitions trigger 3D scene changes (camera movement, particle color shifts)
 
-## RTL & Language
-- Hebrew as primary, English secondary via `useTranslation` / `isRTL`
-- All text hardcoded bilingual (like existing `Go.tsx` pattern)
-- `dir="rtl"` on root container, logical Tailwind properties throughout
+- **Sections adapted for visual mode**:
+  - Hero: Giant brand name + orb, particle explosion on enter
+  - "The Problem": Fragmented floating app icons → unifying into one
+  - "The Solution": 5 core experiences as orbiting 3D nodes
+  - Roadmap: 3D timeline with glowing milestones
+  - Tokenomics: Animated circular/flow diagrams
+  - Other sections: Cinematic text reveals with ambient 3D backgrounds
 
-## Mobile-First
-- Full viewport height sections (`min-h-[100svh]`)
-- Touch-friendly large buttons (`py-6 px-10`)
-- Swipe gesture support via Framer Motion drag
+- **Navigation**: Floating dot indicators, scroll progress bar, keyboard nav (↑↓)
+- **Exit button**: Return to mode selection or back
 
-## Key Interactions
-- Wizard progresses via prominent "המשך" (Continue) button
-- Section 10 form submits to `founding_applications` table
-- Success state shows confirmation message
-- UTM/referral params captured on entry via existing `AffiliateTracker`
+### 3. Modify `Documentation.tsx`
+- Add `mode` state: `null | 'simple' | 'visual'`
+- When `mode === null`: show `WhitepaperModeModal`
+- When `mode === 'simple'`: render current whitepaper (unchanged)
+- When `mode === 'visual'`: render `VisualWhitepaper`
+- Add a floating button to switch modes
+
+### 4. Supporting components
+- `VisualWhitepaperScene.tsx` — Three.js canvas with particles, geometries, lighting
+- `VisualSection.tsx` — Individual slide component with text animation
+- `ParticleField.tsx` — Reusable animated particle system
+
+## Technical Details
+- Uses existing `three`, `@react-three/fiber`, `@react-three/drei` packages
+- Uses existing `framer-motion` for text animations
+- Scroll-snap CSS for section navigation
+- 3D scene responds to scroll position via `useScroll` from framer-motion
+- Reuses existing theme colors and brand settings from `useThemeSettings`
+- Bilingual support (he/en) maintained in visual mode
+- Mobile responsive: simpler particle count, touch scroll support
 
