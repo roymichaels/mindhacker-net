@@ -1,111 +1,56 @@
 
 
-# Soul Avatar NFT — Web3 Onboarding & Minting System
+# Founding Members Landing Wizard — Implementation Plan
 
 ## Overview
-Transform the existing orb system into a "Soul Avatar NFT" with Web3Auth wallet creation, a minting wizard, and play-to-earn integration. The wizard triggers from multiple entry points: Market tab (first visit), a dedicated mint button on the profile card, and post-onboarding.
+A new route `/founding` hosting a full-screen, multi-step wizard experience targeting Israeli audiences. 10 sections navigated via "Next" progression, ending with an application form that saves to the database. Dark neon Web3 aesthetic, Hebrew-first RTL, mobile-first.
 
 ## Architecture
 
-```text
-┌─────────────────────────────────────────────┐
-│           Entry Points (3)                  │
-│  Market Tab │ Orb NFT Card │ Post-Onboard   │
-└──────────────────┬──────────────────────────┘
-                   ▼
-┌─────────────────────────────────────────────┐
-│        Web3 Onboarding Wizard (Modal)       │
-│  Step 1: Welcome — "Enter the Soul Realm"   │
-│  Step 2: Explain Web3 (what is it, why)     │
-│  Step 3: Create Wallet (Web3Auth)           │
-│  Step 4: Mint Soul Avatar NFT (animation)   │
-│  Step 5: Welcome to Play2Earn               │
-└──────────────────┬──────────────────────────┘
-                   ▼
-┌─────────────────────────────────────────────┐
-│        Database: soul_wallets table         │
-│  user_id, wallet_address, provider,         │
-│  is_minted, minted_at, nft_metadata         │
-└─────────────────────────────────────────────┘
-```
+**New files to create:**
 
-## Step-by-Step Plan
+1. **`src/pages/FoundingLanding.tsx`** — Main wizard page with step state management (0–9), keyboard/swipe navigation, progress indicator, and smooth animated transitions between sections.
 
-### 1. Database — `soul_wallets` table
-New table to track wallet + mint status:
-- `id`, `user_id` (FK profiles), `wallet_address`, `wallet_provider` (web3auth), `is_minted` (bool), `minted_at`, `nft_metadata` (jsonb — stores avatar traits, rarity, geometry, material), `created_at`
-- RLS: users can read/update only their own row
-- Add `is_web3_onboarded` boolean column to `profiles` table (or use soul_wallets existence as gate)
+2. **`src/components/founding/` directory** with one component per section:
+   - `FoundingHero.tsx` — Section 1: Glowing orb (reuse `PersonalizedOrb`), headline, CTA button
+   - `FoundingProblem.tsx` — Section 2: Pain points with staggered fade-in text blocks
+   - `FoundingSystem.tsx` — Section 3: Animated vertical step flow (enter → choose → tasks → progress → earn)
+   - `FoundingBenefits.tsx` — Section 4: Icon grid with neon-glow cards
+   - `FoundingMembers.tsx` — Section 5: "100 founding members" exclusive positioning
+   - `FoundingRole.tsx` — Section 6: Opportunity cards (create, share, invite, feedback)
+   - `FoundingEarning.tsx` — Section 7: Earning paths — simple, no percentages/tokenomics
+   - `FoundingWhyNow.tsx` — Section 8: Urgency/scarcity messaging
+   - `FoundingFinalCTA.tsx` — Section 9: Final call-to-action
+   - `FoundingApplyForm.tsx` — Section 10: Application form (name, social handle, occupation, why join, how contribute) → saves to DB → success state
+   - `FoundingBackground.tsx` — Shared animated background (particle dots, radial neon glows, subtle parallax)
+   - `WizardNav.tsx` — Bottom navigation bar with dot progress + Next/Back buttons
 
-### 2. Web3Auth Integration — Edge Function
-Create `supabase/functions/web3-wallet/index.ts`:
-- Initializes Web3Auth server-side verification
-- Stores wallet address after client-side Web3Auth login
-- Signs "mint" metadata (Soul Avatar traits from orb_profiles)
-- Returns wallet info + mint confirmation
+3. **Database migration** — New `founding_applications` table:
+   - `id`, `name`, `social_handle`, `occupation`, `why_join`, `how_contribute`, `referral_code`, `status` (pending/accepted/rejected), `created_at`
+   - RLS: insert for anon/authenticated, select own rows only
 
-On the frontend, use `@web3auth/modal` SDK (client-side):
-- Initialize Web3Auth with project client ID (needs secret: `WEB3AUTH_CLIENT_ID`)
-- On successful login → get wallet address → call edge function to persist
+4. **Route registration** in `src/App.tsx` — Add `/founding` as a public route
 
-### 3. Web3 Onboarding Wizard Component
-`src/components/web3/SoulAvatarMintWizard.tsx` — Full-screen modal (portal to body, z-[99999]):
+## Visual System
+- All sections use a shared dark background (`#050505`) with layered radial gradients (purple `#7c3aed`, cyan `#06b6d4`, blue `#3b82f6`)
+- Neon glow effects via `box-shadow` and `blur` filters
+- Framer Motion for all transitions: `AnimatePresence` with directional slide + fade
+- Reuse existing `PersonalizedOrb` component for the hero soul orb
+- Each section gets a unique accent glow color for "different world" feel
 
-**Step 1 — "The Soul Realm"**: Epic intro screen with the user's current orb animating, text explaining "Your growth is about to become permanent"
+## RTL & Language
+- Hebrew as primary, English secondary via `useTranslation` / `isRTL`
+- All text hardcoded bilingual (like existing `Go.tsx` pattern)
+- `dir="rtl"` on root container, logical Tailwind properties throughout
 
-**Step 2 — "What is Web3?"**: Simple visual explainer — digital ownership, your avatar lives on-chain, earn real rewards. Bilingual HE/EN.
+## Mobile-First
+- Full viewport height sections (`min-h-[100svh]`)
+- Touch-friendly large buttons (`py-6 px-10`)
+- Swipe gesture support via Framer Motion drag
 
-**Step 3 — "Create Your Wallet"**: Web3Auth login button (Google/email — no seed phrases). Shows wallet address after creation. Clean, non-scary UX.
-
-**Step 4 — "Mint Your Soul Avatar"**: Cinematic minting animation — orb transforms into NFT card with rarity border, traits, geometry. Writes to `soul_wallets` + marks `is_minted = true`.
-
-**Step 5 — "Welcome to Play2Earn"**: Celebration screen, shows MOS balance, links to FM marketplace, bounties.
-
-### 4. Entry Point Gating
-- **Market tab** (`BottomTabBar.tsx` / `FMAppShell`): Check if `soul_wallets` row exists for user. If not → open wizard instead of FM page.
-- **OrbNFTCard**: Add "Mint Soul Avatar" button if not yet minted. Change "Minted" footer to show real on-chain status.
-- **Post-onboarding** (`OnboardingPlanGeneration.tsx`): After plan generation, auto-trigger wizard.
-
-### 5. Terminology Updates
-Rename across the codebase:
-- "Orb" → "Soul Avatar" in user-facing text (keep code names as-is for stability)
-- "Minted" date on OrbNFTCard → real mint date from `soul_wallets`
-- OrbNFTCard title → "Soul Avatar NFT"
-- SidebarOrbWidget tooltip → "Soul Avatar"
-
-### 6. Play2Earn Gate
-After minting, the user's FM experience unlocks:
-- FM wallet becomes "Web3 Wallet" with real address displayed
-- Bounty rewards tagged as "on-chain claimable"
-- Achievement cards show "mintable" badge
-
-## Technical Requirements
-
-- **Secret needed**: `WEB3AUTH_CLIENT_ID` — user must create a Web3Auth project at https://dashboard.web3auth.io
-- **NPM package**: `@web3auth/modal`, `@web3auth/base` (client-side)
-- **Edge function**: `web3-wallet` for server-side wallet verification + mint recording
-- **Migration**: New `soul_wallets` table with RLS
-
-## Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `soul_wallets` table | Create (migration) |
-| `supabase/functions/web3-wallet/index.ts` | Create |
-| `src/components/web3/SoulAvatarMintWizard.tsx` | Create |
-| `src/hooks/useSoulWallet.ts` | Create |
-| `src/components/gamification/OrbNFTCard.tsx` | Update labels + mint button |
-| `src/components/sidebar/SidebarOrbWidget.tsx` | Update labels |
-| `src/components/navigation/BottomTabBar.tsx` | Add mint gate on Market tab |
-| `src/components/fm/FMAppShell.tsx` | Add mint gate wrapper |
-| `src/components/onboarding/OnboardingPlanGeneration.tsx` | Trigger wizard post-onboarding |
-
-## Sequence
-1. Add `WEB3AUTH_CLIENT_ID` secret
-2. Create `soul_wallets` table migration
-3. Create edge function for wallet persistence
-4. Build the 5-step wizard component
-5. Create `useSoulWallet` hook (check mint status, trigger wizard)
-6. Wire entry points (Market tab, NFT card, post-onboarding)
-7. Update terminology across UI
+## Key Interactions
+- Wizard progresses via prominent "המשך" (Continue) button
+- Section 10 form submits to `founding_applications` table
+- Success state shows confirmation message
+- UTM/referral params captured on entry via existing `AffiliateTracker`
 
