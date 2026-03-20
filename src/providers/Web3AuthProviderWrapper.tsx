@@ -2,7 +2,7 @@
  * Thin wrapper that renders Web3AuthProvider with static config.
  * Includes error boundary so Web3Auth SDK failures don't blank the app.
  */
-import { Component, type ReactNode, createContext, useContext, type ErrorInfo } from 'react';
+import { Component, type ReactNode, createContext, useContext, useEffect, type ErrorInfo } from 'react';
 import {
   Web3AuthProvider,
   type Web3AuthContextConfig,
@@ -48,6 +48,35 @@ class Web3AuthErrorBoundary extends Component<
 }
 
 export default function Web3AuthProviderWrapper({ children }: Props) {
+  // Force dir="ltr" on Web3Auth modal elements so RTL pages don't break them
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node instanceof HTMLElement) {
+            // Web3Auth modal root or its container
+            if (
+              node.id?.startsWith('w3a') ||
+              node.className?.includes?.('w3a-modal') ||
+              node.querySelector?.('#w3a-modal, [class*="w3a-modal"]')
+            ) {
+              node.dir = 'ltr';
+              node.style.direction = 'ltr';
+              node.style.textAlign = 'left';
+              // Also set on inner children
+              const inner = node.querySelectorAll('[class*="w3a-"]');
+              inner.forEach((el) => {
+                (el as HTMLElement).dir = 'ltr';
+              });
+            }
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <Web3AuthErrorBoundary>
       <Web3AuthProvider config={contextConfig}>

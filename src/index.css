@@ -903,3 +903,13 @@
     animation: breathe-glow 4s ease-in-out infinite;
   }
 }
+
+/* Force Web3Auth modal to LTR — it breaks under RTL page direction */
+#w3a-modal,
+[id^="w3a-"],
+.w3a-modal,
+.w3a-modal__inner,
+.w3ajs-modal {
+  direction: ltr !important;
+  text-align: left !important;
+}
