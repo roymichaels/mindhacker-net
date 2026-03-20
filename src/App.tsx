@@ -30,6 +30,7 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
+import Web3AuthProviderWrapper from "@/providers/Web3AuthProviderWrapper";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
