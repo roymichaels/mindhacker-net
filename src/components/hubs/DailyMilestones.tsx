@@ -145,7 +145,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     staleTime: 5 * 60 * 1000,
   });
 
-  // Show ALL 14 pillars — tier limits control how many can be assessed
+  // Show ALL 15 pillars — tier limits control how many can be assessed
   const allDomains = CORE_DOMAINS;
 
   // Total pillars the user can select based on tier
