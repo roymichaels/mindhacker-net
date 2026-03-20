@@ -93,7 +93,7 @@ export default function GuildSection() {
               <div className="flex items-center justify-around">
                 {[
                   { val: '2.4K', label: isRTL ? 'שחקנים' : 'Players' },
-                  { val: '14', label: isRTL ? 'רובעים' : 'Districts' },
+                  { val: '15', label: isRTL ? 'עמודים' : 'Pillars' },
                   { val: '24/7', label: isRTL ? 'פעיל' : 'Active' },
                 ].map((s, i) => (
                   <div key={i} className="text-center">

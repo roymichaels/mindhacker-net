@@ -25,8 +25,8 @@ const tiers = [
     priceHe: '$69/חודש', priceEn: '$69/mo',
     color: 'text-primary', border: 'border-primary/40', bg: 'bg-primary/5',
     featured: true,
-    featuresHe: ['6 פילרים מתוך 14 תחומים', 'Aurora ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
-    featuresEn: ['6 of 14 life pillars', 'Unlimited Aurora + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
+    featuresHe: ['6 פילרים מתוך 15 תחומים', 'Aurora ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
+    featuresEn: ['6 of 15 life pillars', 'Unlimited Aurora + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
   },
   {
     id: 'apex',

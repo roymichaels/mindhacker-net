@@ -136,7 +136,7 @@ export default function CityShowcaseSection() {
   const districts = [
     {
       icon: Globe,
-      title: isRTL ? '14 תחומי חיים' : '14 Life Domains',
+      title: isRTL ? '15 עמודי חיים' : '15 Life Pillars',
       line: isRTL ? 'כל מימד בחיים שלך — ממופה' : 'Every dimension of your life — mapped',
       preview: <DomainIconsPreview />,
     },
