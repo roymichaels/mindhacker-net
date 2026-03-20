@@ -429,7 +429,7 @@ export const FEATURE_DETAILS: Record<string, FeatureDetail> = {
       { title: '10-Phase Structure', desc: 'Clear phases (A–J), each 10 days, with specific milestones — making large transformations manageable through incremental progress.' },
       { title: 'Auto-Recalibration', desc: 'Your plan evolves with you. Complete a domain assessment? New insights automatically update your roadmap.' },
       { title: 'Daily Actionability', desc: 'The plan breaks down into daily habits and tasks surfaced in your Today tab — no need to remember what\'s next.' },
-      { title: 'Cross-System Integration', desc: 'Your 100-day plan connects to every feature: Aurora coaching, 14 domain assessments, gamification, and hypnosis sessions.' },
+      { title: 'Cross-System Integration', desc: 'Your 100-day plan connects to every feature: Aurora coaching, 15 domain assessments, gamification, and hypnosis sessions.' },
     ],
     benefitsHe: [
       { title: 'מותאם אישית לחלוטין', desc: 'כל אלמנט מותאם למטרות, אנרגיה, לוח זמנים ופרופיל פסיכולוגי ספציפיים שלך — לא תבנית אחת לכולם.' },
