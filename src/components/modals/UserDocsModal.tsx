@@ -122,7 +122,7 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     color: 'from-violet-500/15 to-purple-500/15',
     cards: [
       {
-        id: 'aurora-basics', icon: MessageCircle, titleEn: 'Chat with Aurora', titleHe: 'שיחה עם אורורה',
+        id: 'aurora-basics', icon: MessageCircle, titleEn: 'Chat with AION', titleHe: 'שיחה עם AION',
         descEn: 'Conversations that transform', descHe: 'שיחות שמשנות',
         color: 'from-violet-500/20 to-purple-500/20',
         steps: [
