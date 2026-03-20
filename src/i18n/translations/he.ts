@@ -3168,7 +3168,7 @@ export const he = {
       arenaTitle: '⚔️ זירה — התנועה',
       arenaSubtitle: 'ביצוע יומי, משימות חיות ומומנטום',
       arenaDesc: 'בצע את המשימות שלך היום — תור פעולות, הרגלים, ומשוב בזמן אמת.',
-      pillarsTitle: '14 הפילרים',
+      pillarsTitle: '15 הפילרים',
       pillarsSubtitle: 'בחר את הפילרים שלך לפי המנוי — חינם: 2, Plus: 6, Apex: הכל',
     },
 
