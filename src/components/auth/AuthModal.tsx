@@ -5,12 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { exchangeForSupabaseSession } from '@/lib/web3auth';
-import {
-  useWeb3Auth,
-  useWeb3AuthConnect,
-  useWeb3AuthUser,
-  useIdentityToken,
-} from '@web3auth/modal/react';
+import { useWeb3AuthReady } from '@/providers/Web3AuthProviderWrapper';
 
 interface AuthModalProps {
   open: boolean;
@@ -19,17 +14,27 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
-export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess }: AuthModalProps) {
-  const { t, isRTL } = useTranslation();
+/**
+ * Inner component that uses Web3Auth hooks.
+ * Only rendered when Web3AuthProvider is active.
+ */
+function AuthModalWithWeb3Auth({ open, onOpenChange, onSuccess }: Omit<AuthModalProps, 'defaultView'>) {
+  const { t } = useTranslation();
   const [isBridging, setIsBridging] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // These imports are safe here because this component is only rendered
+  // inside Web3AuthProvider
+  const { useWeb3Auth, useWeb3AuthConnect, useWeb3AuthUser, useIdentityToken } =
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('@web3auth/modal/react');
 
   const { isInitialized, isInitializing, isConnected } = useWeb3Auth();
   const { connect, loading: connectLoading } = useWeb3AuthConnect();
   const { userInfo } = useWeb3AuthUser();
   const { getIdentityToken } = useIdentityToken();
 
-  // When user becomes connected (after connect() resolves), bridge to Supabase
+  // Bridge to Supabase after successful Web3Auth connection
   useEffect(() => {
     if (!isConnected || !open || isBridging) return;
     if (!userInfo?.email) return;
@@ -39,7 +44,6 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
       setIsBridging(true);
       setAuthError(null);
       try {
-        // Get idToken for backend verification
         let idToken: string | undefined;
         try {
           idToken = await getIdentityToken() || undefined;
@@ -75,21 +79,14 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
     setAuthError(null);
 
     if (!isInitialized) {
-      setAuthError('Authentication service is still loading. Please try again in a moment.');
+      setAuthError('Authentication service is still loading.');
       return;
     }
 
     try {
-      // Opens the native Web3Auth / MetaMask Embedded Wallets modal
-      // with all configured login methods (social, email, wallet)
       await connect();
     } catch (err: any) {
-      // User closed popup → not a real error
-      if (
-        err?.message?.includes('user closed') ||
-        err?.message?.includes('popup') ||
-        err?.code === 5000
-      ) {
+      if (err?.message?.includes('user closed') || err?.message?.includes('popup') || err?.code === 5000) {
         return;
       }
       console.error('[AuthModal] Web3Auth connect error:', err);
@@ -98,6 +95,13 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
   };
 
   const isLoading = connectLoading || isBridging || isInitializing;
+
+  return { handleConnect, isLoading, isBridging, isInitializing, authError };
+}
+
+export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess }: AuthModalProps) {
+  const { t, isRTL } = useTranslation();
+  const web3AuthReady = useWeb3AuthReady();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -112,34 +116,13 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
         </DialogHeader>
 
         <div className="space-y-4">
-          {authError && (
-            <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-              <span>{authError}</span>
-            </div>
-          )}
-
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full gap-2"
-            disabled={isLoading}
-            onClick={handleConnect}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {isBridging ? 'Setting up session…' : isInitializing ? 'Loading…' : 'Connecting…'}
-              </>
-            ) : (
-              'Sign in'
-            )}
-          </Button>
-
-          {isInitializing && (
-            <p className="text-xs text-center text-muted-foreground animate-pulse">
-              Preparing authentication…
-            </p>
+          {web3AuthReady ? (
+            <Web3AuthLoginButton open={open} onOpenChange={onOpenChange} onSuccess={onSuccess} />
+          ) : (
+            <Button variant="outline" size="lg" className="w-full gap-2" disabled>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading authentication…
+            </Button>
           )}
 
           <p className="text-xs text-center text-muted-foreground pt-2">
