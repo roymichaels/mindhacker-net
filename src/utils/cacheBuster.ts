@@ -1,16 +1,20 @@
 /**
  * Cache Buster — Forces all users to get the latest version.
  * Clears all caches, unregisters stale service workers, and reloads once.
+ * Returns true if a reload was triggered (caller should abort rendering).
  */
 
-const CACHE_BUST_VERSION = '2026-03-20-v2'; // Bump this to force another bust
+const CACHE_BUST_VERSION = '2026-03-20-v3'; // Bump this to force another bust
 const CACHE_BUST_KEY = 'mindos-cache-bust-version';
 
-export async function bustOldCaches() {
+export async function bustOldCaches(): Promise<boolean> {
   const lastBust = localStorage.getItem(CACHE_BUST_KEY);
-  if (lastBust === CACHE_BUST_VERSION) return; // already busted this version
+  if (lastBust === CACHE_BUST_VERSION) return false; // already busted this version
 
   console.log('[CacheBuster] Clearing old caches...');
+
+  // Mark FIRST to prevent reload loops
+  localStorage.setItem(CACHE_BUST_KEY, CACHE_BUST_VERSION);
 
   try {
     // 1. Delete ALL caches
@@ -31,15 +35,12 @@ export async function bustOldCaches() {
       }));
     }
 
-    // 3. Mark as busted so we don't loop
-    localStorage.setItem(CACHE_BUST_KEY, CACHE_BUST_VERSION);
-
-    // 4. Hard reload to get fresh assets
+    // 3. Hard reload to get fresh assets
     console.log('[CacheBuster] Reloading...');
     window.location.reload();
+    return true; // signal that we're reloading
   } catch (err) {
     console.error('[CacheBuster] Error:', err);
-    // Still mark it so we don't loop on errors
-    localStorage.setItem(CACHE_BUST_KEY, CACHE_BUST_VERSION);
+    return false;
   }
 }
