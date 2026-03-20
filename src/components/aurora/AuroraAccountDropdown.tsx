@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, Star } from 'lucide-react';
-import { Flame, Gem, Star } from 'lucide-react';
+import { Flame, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
