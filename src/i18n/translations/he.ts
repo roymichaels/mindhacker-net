@@ -5144,7 +5144,7 @@ export const he = {
         energyOptimization: 'אופטימיזציית אנרגיה',
         hundredDayPlan: 'תוכנית 100 יום',
         personalAICoach: 'מאמן AI אישי',
-        fourteenDomains: '14 תחומי חיים',
+        fourteenDomains: '15 תחומי חיים',
         customHypnosis: 'היפנוזה מותאמת',
         joiningDaily: 'מצטרפים כל יום למסע',
         letsBegin: 'בוא נתחיל',
