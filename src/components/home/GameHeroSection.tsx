@@ -20,6 +20,7 @@ const AUTO_SLIDE_INTERVAL = 3000;
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const { openWelcomeGate } = useWelcomeGate();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const [activeIndex, setActiveIndex] = useState(0);
