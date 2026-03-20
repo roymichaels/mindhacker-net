@@ -34,7 +34,7 @@ export function useAION(): {
     const dna: DNAProfile | null = orbProfile.seed
       ? {
           ...DEFAULT_DNA_PROFILE,
-          dnaSeed: orbProfile.seed,
+          dnaSeed: String(orbProfile.seed ?? ''),
           dominantArchetype: orbProfile.profile.computedFrom?.egoState || 'guardian',
         }
       : null;
