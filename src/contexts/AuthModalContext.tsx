@@ -284,6 +284,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   const closeAuthModal = useCallback(() => {
     loginIntentRef.current = false;
+    bridgedRef.current = false;
     setPendingCallback(undefined);
     disconnect({ cleanup: true }).catch(() => {});
   }, [disconnect]);
