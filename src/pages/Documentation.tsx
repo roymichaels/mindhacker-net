@@ -179,7 +179,7 @@ export default function Documentation() {
         `Aurora אינה צ'אטבוט — אלא מנוע תודעתי שמתפתח עם המשתמש. היא מנהלת: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-15 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
         `המודל משתמש בשילוב מודלים מתקדמים (Gemini 2.5 Pro/Flash, GPT-5) עם prompts מותאמים שכוללים את הפרופיל המלא של המשתמש, היסטוריית שיחות, ציוני עמודים, ומצב רגשי. תמיכה מלאה בעיבוד מולטימודלי (טקסט + תמונות).`,
       ] : [
-        `Aurora is not a chatbot — it is a consciousness engine that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 14 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
+        `Aurora is not a chatbot — it is a consciousness engine that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 15 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
         `The model uses a combination of frontier AI models (Gemini 2.5 Pro/Flash, GPT-5) with custom prompts that include the user's full profile, conversation history, pillar scores, and emotional state. Full multimodal processing support (text + images).`,
       ],
       subsections: [
