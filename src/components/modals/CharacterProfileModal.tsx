@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { PlayStatsStrip } from '@/components/play/PlayStatsStrip';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
+import DNAViewer from '@/components/dna/DNAViewer';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
@@ -492,6 +493,16 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
           )}
         </EmpireCard>
       )}
+
+      {/* ── DNA VISUALIZATION ── */}
+      <EmpireCard className="text-center overflow-hidden">
+        <SectionTitle
+          icon={<Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+          title={isHe ? 'ה-DNA שלך' : 'Your DNA'}
+          accentColor="bg-indigo-500/10"
+        />
+        <DNAViewer height={320} />
+      </EmpireCard>
 
       {/* ── KINGDOM: Life Direction ── */}
       {lifeDirection && (
