@@ -4564,6 +4564,45 @@ export type Database = {
           },
         ]
       }
+      founding_applications: {
+        Row: {
+          created_at: string
+          how_contribute: string | null
+          id: string
+          name: string
+          occupation: string | null
+          referral_code: string | null
+          social_handle: string | null
+          status: string
+          user_id: string | null
+          why_join: string | null
+        }
+        Insert: {
+          created_at?: string
+          how_contribute?: string | null
+          id?: string
+          name: string
+          occupation?: string | null
+          referral_code?: string | null
+          social_handle?: string | null
+          status?: string
+          user_id?: string | null
+          why_join?: string | null
+        }
+        Update: {
+          created_at?: string
+          how_contribute?: string | null
+          id?: string
+          name?: string
+          occupation?: string | null
+          referral_code?: string | null
+          social_handle?: string | null
+          status?: string
+          user_id?: string | null
+          why_join?: string | null
+        }
+        Relationships: []
+      }
       freelancer_journeys: {
         Row: {
           ai_summary: string | null
