@@ -186,7 +186,7 @@ export default function Documentation() {
         {
           title: he ? '5.1 מודעות הקשרית מלאה' : '5.1 Full Contextual Awareness',
           paragraphs: he ? [
-            `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-14 עמודי חיים, ורמת מנוי.`,
+            `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
             `Aurora מודעת לזמן — יודעת את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
           ] : [
             `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 14 life pillars, and subscription tier.`,
