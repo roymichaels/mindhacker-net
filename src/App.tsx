@@ -532,6 +532,7 @@ const App = () => (
                </LanguageProvider>
             </AuroraChatProvider>
           </AuthProvider>
+          </Web3AuthProviderWrapper>
         </div>
       </ThemeProvider>
     </QueryClientProvider>
