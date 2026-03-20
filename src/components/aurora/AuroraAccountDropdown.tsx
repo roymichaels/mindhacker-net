@@ -261,6 +261,12 @@ const AuroraAccountDropdown = ({
             </>
           )}
           
+          {/* Join Founding Members */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/founding'); }}>
+            <Star className="h-4 w-4 me-2" />
+            {language === 'he' ? 'הצטרף למייסדים' : 'Join Founding Members'}
+          </DropdownMenuItem>
+
           {/* Language Toggle */}
           <DropdownMenuItem onClick={handleLanguageToggle}>
             <Globe className="h-4 w-4 me-2" />

@@ -283,6 +283,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {language === 'he' ? 'ספר לבן' : 'White Paper'}
           </DropdownMenuItem>
 
+          {/* Join Founding Members */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/founding'); }}>
+            <Star className="h-4 w-4 me-2" />
+            {language === 'he' ? 'הצטרף למייסדים' : 'Join Founding Members'}
+          </DropdownMenuItem>
+
           {/* Report Bug */}
           <DropdownMenuItem onClick={() => { setDropdownOpen(false); setBugReportOpen(true); }}>
             <Bug className="h-4 w-4 me-2" />

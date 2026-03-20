@@ -187,6 +187,16 @@ export default function GameHeroSection() {
                 />
               </Button>
             </motion.div>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate('/founding')}
+                className="text-base px-8 py-6 rounded-2xl border-primary/40 hover:border-primary/60 hover:bg-primary/10 font-bold"
+              >
+                {isRTL ? 'הצטרף למייסדים ⭐' : '⭐ Join Founding Members'}
+              </Button>
+            </motion.div>
             <p className="text-sm text-muted-foreground">
               {t('home.gameHero.ctaMeta')}
             </p>
