@@ -136,7 +136,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
           actionIcon={<MessageCircle className="w-3.5 h-3.5" />}
           onAction={() => {
             markItemClicked(currentItem.id);
-            // Open Aurora dock inline instead of navigating away
+            // Open AION dock inline instead of navigating away
             if (auroraChat) {
               auroraChat.setPendingProactiveMessage(`${currentItem.title}\n\n${currentItem.body}`);
               auroraChat.setIsDockVisible(true);
