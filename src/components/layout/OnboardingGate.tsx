@@ -4,6 +4,7 @@
  * Admins see a dismissible banner instead of being blocked.
  */
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useCommunityUsername } from '@/hooks/useCommunityUsername';
@@ -36,6 +37,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
   const { user, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isRTL } = useTranslation();
   const [bannerDismissed, setBannerDismissed] = useState(
     () => sessionStorage.getItem(ADMIN_BANNER_DISMISSED_KEY) === 'true'
   );
@@ -76,7 +78,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
           <div className="sticky top-0 z-[60] flex items-center justify-between gap-3 bg-primary/10 border-b border-primary/20 px-4 py-2">
             <div className="flex items-center gap-2 text-sm text-foreground">
               <Rocket className="h-4 w-4 text-primary shrink-0" />
-              <span>You haven't completed onboarding yet.</span>
+              <span>{isRTL ? 'עדיין לא השלמת את תהליך ההצטרפות.' : 'You haven\'t completed onboarding yet.'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -85,7 +87,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
                 className="h-7 text-xs"
                 onClick={() => navigate('/onboarding')}
               >
-                Start Onboarding
+                {isRTL ? 'התחל הצטרפות' : 'Start Onboarding'}
               </Button>
               <button
                 onClick={handleDismiss}
