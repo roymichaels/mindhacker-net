@@ -410,11 +410,11 @@ export default function Documentation() {
       number: '15',
       title: he ? 'טכנולוגיה וארכיטקטורה' : 'Technology & Architecture',
       paragraphs: he ? [
-        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion + Three.js (Soul Avatar rendering). Backend: PostgreSQL, אימות, פונקציות שרת, אחסון, ו-Realtime. AI: Gemini 2.5 Pro/Flash, GPT-5, מודלים מולטימודליים.`,
+        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion + Three.js (AION Orb rendering). Backend: PostgreSQL, אימות, פונקציות שרת, אחסון, ו-Realtime. AI: Gemini 2.5 Pro/Flash, GPT-5, מודלים מולטימודליים.`,
         `ארכיטקטורת Mobile-First: כל ה-UI מתוכנן קודם כל למובייל עם breakpoints אדפטיביים. כולל PWA מלא עם התקנה למסך הבית, תמיכת offline, ו-push notifications. חוויה native-like ללא צורך ב-App Store.`,
         `הפלטפורמה responsive לחלוטין עם תמיכה מלאה בעברית (RTL) ואנגלית. ארכיטקטורת אבטחה מדורגת עם הרשאות ברמת שורה מבטיחה שכל משתמש רואה רק את הנתונים שלו.`,
       ] : [
-        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion + Three.js (Soul Avatar rendering). Backend: PostgreSQL, Authentication, Server Functions, Storage, and Realtime subscriptions. AI: Gemini 2.5 Pro/Flash, GPT-5, multimodal models.`,
+        `Frontend: React + TypeScript + Tailwind CSS + Framer Motion + Three.js (AION Orb rendering). Backend: PostgreSQL, Authentication, Server Functions, Storage, and Realtime subscriptions. AI: Gemini 2.5 Pro/Flash, GPT-5, multimodal models.`,
         `Mobile-First Architecture: All UI is designed mobile-first with adaptive breakpoints. Includes full PWA with home screen installation, offline support, and push notifications. Native-like experience without App Store dependency.`,
         `The platform is fully responsive with complete Hebrew (RTL) and English support. Row-level security architecture ensures every user only sees their own data.`,
       ],
