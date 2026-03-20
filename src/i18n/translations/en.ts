@@ -2895,7 +2895,7 @@ export const en: TranslationKeys = {
     // AuroraCoachSection
     auroraCoach: {
       badge: 'Your Personal AI',
-      title: 'One Brain. All 14 Domains.',
+      title: 'One Brain. All 15 Domains.',
       subtitle: 'Aurora sees everything — body, mind, business, relationships, consciousness — and connects them all into one coherent strategy.',
       coaching247Title: '24/7 Coaching',
       coaching247Desc: 'Always there, always adapted to your state',
