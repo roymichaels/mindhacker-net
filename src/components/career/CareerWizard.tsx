@@ -16,7 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CAREER_QUESTIONS, type WizardQuestion } from './CareerWizardQuestions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
+import { WizardHeader } from '@/components/ui/WizardHeader';
 import { toast } from 'sonner';
 import {
   ChevronRight, ChevronLeft, Send, Sparkles, Loader2, CheckCircle2,
