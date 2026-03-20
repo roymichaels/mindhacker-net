@@ -142,13 +142,13 @@ function StepWelcome({ isHe, onNext }: { isHe: boolean; onNext: () => void }) {
         <PersonalizedOrb size={120} state="listening" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-violet-400 to-accent bg-clip-text text-transparent">
-          {isHe ? 'ברוכים הבאים לממלכת הנשמה' : 'Enter the Soul Realm'}
+         <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-violet-400 to-accent bg-clip-text text-transparent">
+          {isHe ? 'ברוכים הבאים ל-AION' : 'Enter AION'}
         </h2>
         <p className="text-sm text-muted-foreground max-w-sm">
           {isHe
-            ? 'הצמיחה שלך עומדת להפוך לנצחית. צור Soul Avatar NFT — הייצוג הדיגיטלי הייחודי שלך.'
-            : 'Your growth is about to become permanent. Create your Soul Avatar NFT — your unique digital identity.'}
+            ? 'הצמיחה שלך עומדת להפוך לנצחית. צור את ה-AION שלך — הזהות הדיגיטלית המתפתחת שלך.'
+            : 'Your growth is about to become permanent. Create your AION — your evolving digital identity.'}
         </p>
       </div>
       <Button onClick={onNext} size="lg" className="gap-2 px-8">
@@ -162,12 +162,12 @@ function StepWelcome({ isHe, onNext }: { isHe: boolean; onNext: () => void }) {
 function StepExplainWeb3({ isHe, onNext, onBack }: { isHe: boolean; onNext: () => void; onBack: () => void }) {
   const features = isHe
     ? [
-      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'בעלות דיגיטלית', desc: 'ה-Soul Avatar שלך שייך רק לך, לנצח.' },
+      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'בעלות דיגיטלית', desc: 'ה-AION שלך שייך רק לך, לנצח.' },
       { icon: <Coins className="w-5 h-5 text-amber-400" />, title: 'הרווח אמיתי', desc: 'צבור MOS tokens עם ערך אמיתי דרך פעילות.' },
       { icon: <Globe className="w-5 h-5 text-emerald-400" />, title: 'זהות Web3', desc: 'ארנק קריפטו אישי — בלי סיסמאות מסובכות.' },
     ]
     : [
-      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'Digital Ownership', desc: 'Your Soul Avatar belongs to you, forever.' },
+      { icon: <Shield className="w-5 h-5 text-primary" />, title: 'Digital Ownership', desc: 'Your AION belongs to you, forever.' },
       { icon: <Coins className="w-5 h-5 text-amber-400" />, title: 'Real Rewards', desc: 'Earn MOS tokens with real value through your activity.' },
       { icon: <Globe className="w-5 h-5 text-emerald-400" />, title: 'Web3 Identity', desc: 'A personal crypto wallet — no complicated passwords.' },
     ];
@@ -297,12 +297,12 @@ function StepMint({
       <div className="space-y-1">
         <h2 className="text-xl font-black text-foreground">
           {isMinted
-            ? (isHe ? '🎉 Soul Avatar Minted!' : '🎉 Soul Avatar Minted!')
-            : (isHe ? 'Mint Soul Avatar' : 'Mint Your Soul Avatar')}
+            ? (isHe ? '🎉 AION Minted!' : '🎉 AION Minted!')
+            : (isHe ? 'Mint AION' : 'Mint Your AION')}
         </h2>
         <p className="text-xs text-muted-foreground">
           {isMinted
-            ? (isHe ? 'ה-Soul Avatar שלך חי עכשיו על הבלוקצ\'יין!' : 'Your Soul Avatar now lives on-chain!')
+            ? (isHe ? 'ה-AION שלך חי עכשיו על הבלוקצ\'יין!' : 'Your AION now lives on-chain!')
             : (isHe ? 'הפוך את ה-Orb שלך ל-NFT ייחודי שמייצג את המסע שלך' : 'Transform your Orb into a unique NFT representing your journey')}
         </p>
       </div>

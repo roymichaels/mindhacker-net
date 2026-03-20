@@ -28,7 +28,7 @@ const phases: RoadmapPhase[] = [
       { he: 'תוכנית 100 ימים', en: '100-Day Plan' },
       { he: 'Beta ציבורי', en: 'Public Beta' },
       { he: '🎮 מנגנון Play2Earn', en: '🎮 Play2Earn Mechanism' },
-      { he: '🪙 מנטינג Soul Avatar NFT', en: '🪙 Soul Avatar NFT Minting' },
+      { he: '🪙 מנטינג AION NFT', en: '🪙 AION NFT Minting' },
       { he: 'סטוריז + פיד חברתי', en: 'Stories + Social Feed' },
       { he: 'חנויות מאמנים אישיות', en: 'Coach Storefronts' },
       { he: 'תוכנית שותפים', en: 'Affiliate Program' },
@@ -56,7 +56,7 @@ const phases: RoadmapPhase[] = [
     titleHe: 'NFT & מובייל',
     titleEn: 'NFT & Mobile',
     items: [
-      { he: 'ייצוא Soul Avatar ל-Blockchain', en: 'Soul Avatar Export to Blockchain' },
+      { he: 'ייצוא AION ל-Blockchain', en: 'AION Export to Blockchain' },
       { he: 'אפליקציית מובייל Native', en: 'Native Mobile App' },
       { he: 'אינטגרציות חיצוניות', en: 'External Integrations' },
     ],

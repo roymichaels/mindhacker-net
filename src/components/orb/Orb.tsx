@@ -1,3 +1,4 @@
+/** Orb — Visual rendering engine for AION identity. Selects CSS or WebGL renderer. */
 import React, { forwardRef, useState, useEffect } from 'react';
 import { WebGLOrb, supportsWebGL } from './WebGLOrb';
 import { CSSOrb } from './CSSOrb';

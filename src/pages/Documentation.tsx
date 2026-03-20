@@ -55,8 +55,8 @@ export default function Documentation() {
   const founderName = he ? theme.founder_name : theme.founder_name_en;
 
   const abstractText = he
-    ? `${brandName} הוא מערכת הפעלה אנושית מבוססת בינה מלאכותית — הראשונה מסוגה — המשלבת מנגנוני Play-to-Earn, נכסים דיגיטליים (Soul Avatar NFTs), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי עם 5 מסלולי קריירה מאוחדים, התאמת מאמנים מבוססת AI, ומנוע תודעתי עם מודעות הקשרית מלאה — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מנוע ה-AI התודעתי, מודל המנויים, ומפת הדרכים. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל שמתגמל פעילות אנושית אמיתית.`
-    : `${brandName} is the first AI-powered Human Operating System — integrating Play-to-Earn mechanics, Soul Avatar NFTs, deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace with 5 unified career paths, AI-powered coach matching, and a consciousness AI engine with full contextual awareness — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine, subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a model that rewards genuine human activity.`;
+    ? `${brandName} הוא מערכת הפעלה אנושית מבוססת בינה מלאכותית — הראשונה מסוגה — המשלבת מנגנוני Play-to-Earn, זהות דיגיטלית מתפתחת (AION), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי עם 5 מסלולי קריירה מאוחדים, התאמת מאמנים מבוססת AI, ומנוע תודעתי עם מודעות הקשרית מלאה — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מנוע ה-AI התודעתי, מודל המנויים, ומפת הדרכים. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל שמתגמל פעילות אנושית אמיתית.`
+    : `${brandName} is the first AI-powered Human Operating System — integrating Play-to-Earn mechanics, AION evolving digital identity, deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace with 5 unified career paths, AI-powered coach matching, and a consciousness AI engine with full contextual awareness — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine, subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a model that rewards genuine human activity.`;
 
   const sections: Section[] = [
     {
@@ -66,11 +66,11 @@ export default function Documentation() {
       paragraphs: he ? [
         `העולם מוצף באפליקציות — לבריאות, לפרודוקטיביות, למדיטציה, לכסף, ולמערכות יחסים. אבל אף אחת מהן לא מדברת עם השנייה. התוצאה: פיצול קוגניטיבי, עומס דיגיטלי, ותחושת חוסר שליטה.`,
         `${brandName} מציע פרדיגמה חדשה: שכבה אינטליגנטית אחת שיושבת מעל כל תחומי החיים — בריאות, קריירה, זוגיות, כסף, הרגלים, ותודעה — ומנהלת אותם כמערכת הפעלה מאוחדת. לא עוד אפליקציה, אלא מערכת ההפעלה של החיים שלך.`,
-        `בניגוד למתחרים, ${brandName} משלב שלושה מנועים: (1) AI תודעתי אדפטיבי, (2) כלכלה דיגיטלית מבוססת Proof of Growth, ו-(3) מערכת Soul Avatar NFT שמייצגת את הזהות המתפתחת של המשתמש.`,
+        `בניגוד למתחרים, ${brandName} משלב שלושה מנועים: (1) AI תודעתי אדפטיבי, (2) כלכלה דיגיטלית מבוססת Proof of Growth, ו-(3) מערכת AION — זהות דיגיטלית מתפתחת שמייצגת את המשתמש.`,
       ] : [
         `The world is flooded with apps — for health, productivity, meditation, finance, and relationships. But none of them talk to each other. The result: cognitive fragmentation, digital overload, and a loss of control.`,
         `${brandName} proposes a new paradigm: a single intelligent layer that sits above all life domains — health, career, relationships, finances, habits, and consciousness — and manages them as a unified operating system. Not another app, but the operating system of your life.`,
-        `Unlike competitors, ${brandName} combines three engines: (1) an adaptive consciousness AI, (2) a Proof of Growth digital economy, and (3) a Soul Avatar NFT system representing the user's evolving identity.`,
+        `Unlike competitors, ${brandName} combines three engines: (1) an adaptive consciousness AI, (2) a Proof of Growth digital economy, and (3) AION — an evolving digital identity representing the user.`,
       ],
     },
     {
@@ -232,19 +232,19 @@ export default function Documentation() {
     {
       id: 'nft',
       number: '7',
-      title: he ? 'Soul Avatar NFT — זהות דיגיטלית מתפתחת' : 'Soul Avatar NFT — Evolving Digital Identity',
+      title: he ? 'AION — זהות דיגיטלית מתפתחת' : 'AION — Evolving Digital Identity',
       paragraphs: he ? [
-        `כל משתמש ב-${brandName} מחזיק ב-Soul Avatar — נכס דיגיטלי תלת-ממדי ייחודי שמייצג את הזהות, ההתקדמות, והתודעה שלו. ה-Avatar נבנה באמצעות Three.js עם אפקטי Bloom, חלקיקים ומורפינג בזמן אמת — הוא מתפתח בהתאם לפעולות המשתמש.`,
-        `מאפייני ה-Avatar: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — עוצמת עיוות הגיאומטריה גדלה עם הרמה, (3) חלקיקים — צפיפות לפי streak ואנרגיה, (4) הילה — אפקט Bloom שמשקף עומק התודעה, (5) צבעים משניים — שילובי עמודי חיים.`,
-        `Web3 Onboarding: ויזארד מנטינג ב-5 שלבים — היכרות עם עולם ה-Web3, יצירת ארנק דיגיטלי (ללא seed phrases — כניסה דרך Google/Email), מנטינג סינמטי של ה-Soul Avatar, וכניסה לכלכלת Play2Earn. הארנק הדיגיטלי מאפשר בעלות אמיתית על הנכס.`,
-        `שלב 1 (נוכחי): Soul Avatar NFT הוא נכס וירטואלי פנימי — המנטינג, הבעלות, והמטאדאטה מנוהלים במסד הנתונים הפנימי. הארנק מוכן מבנית לחיבור עתידי ל-blockchain. שלב 2 (עתידי): ייצוא ל-Solana כ-NFT אמיתי עם מהדורה ראשונה של 10,000 יחידות.`,
-        `ה-Soul Avatar הוא האווטר של המשתמש בכל המערכת — בפרופיל, בקהילה, וב-FreeMarket.`,
+        `כל משתמש ב-${brandName} מחזיק ב-AION — ישות AI מלווה ייחודית שמייצגת את הזהות, ההתקדמות, והתודעה שלו. הייצוג הוויזואלי (Orb) נבנה באמצעות Three.js עם אפקטי Bloom, חלקיקים ומורפינג בזמן אמת — הוא מתפתח בהתאם לפעולות המשתמש.`,
+        `מאפייני ה-AION: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — עוצמת עיוות הגיאומטריה גדלה עם הרמה, (3) חלקיקים — צפיפות לפי streak ואנרגיה, (4) הילה — אפקט Bloom שמשקף עומק התודעה, (5) צבעים משניים — שילובי עמודי חיים.`,
+        `Web3 Onboarding: ויזארד מנטינג ב-5 שלבים — היכרות עם עולם ה-Web3, יצירת ארנק דיגיטלי (ללא seed phrases — כניסה דרך Google/Email), מנטינג סינמטי של ה-AION, וכניסה לכלכלת Play2Earn. הארנק הדיגיטלי מאפשר בעלות אמיתית על הנכס.`,
+        `שלב 1 (נוכחי): AION הוא נכס וירטואלי פנימי — המנטינג, הבעלות, והמטאדאטה מנוהלים במסד הנתונים הפנימי. הארנק מוכן מבנית לחיבור עתידי ל-blockchain. שלב 2 (עתידי): ייצוא ל-Solana כ-NFT אמיתי עם מהדורה ראשונה של 10,000 יחידות.`,
+        `ה-AION הוא הזהות של המשתמש בכל המערכת — בפרופיל, בקהילה, וב-FreeMarket.`,
       ] : [
-        `Every ${brandName} user holds a Soul Avatar — a unique 3D digital asset representing their identity, progress, and consciousness. The Avatar is built with Three.js featuring real-time Bloom effects, particles, and morphing — it evolves based on user actions.`,
-        `Avatar attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — geometry distortion intensity grows with level, (3) Particles — density based on streak and energy, (4) Aura — Bloom effect reflecting consciousness depth, (5) Secondary colors — pillar combinations.`,
-        `Web3 Onboarding: A 5-step minting wizard — introduction to Web3, digital wallet creation (no seed phrases — sign in with Google/Email), cinematic Soul Avatar minting, and entry into the Play2Earn economy. The digital wallet enables true ownership of the asset.`,
-        `Phase 1 (Current): The Soul Avatar NFT is an internal virtual asset — minting, ownership, and metadata are managed in the internal database. The wallet is architecturally ready for future blockchain connection. Phase 2 (Future): Export to Solana as a real NFT with an initial release of 10,000 units.`,
-        `The Soul Avatar serves as the user's avatar across the entire system — in profiles, community, and FreeMarket.`,
+        `Every ${brandName} user holds an AION — a unique evolving AI companion representing their identity, progress, and consciousness. The visual representation (Orb) is built with Three.js featuring real-time Bloom effects, particles, and morphing — it evolves based on user actions.`,
+        `AION attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — geometry distortion intensity grows with level, (3) Particles — density based on streak and energy, (4) Aura — Bloom effect reflecting consciousness depth, (5) Secondary colors — pillar combinations.`,
+        `Web3 Onboarding: A 5-step minting wizard — introduction to Web3, digital wallet creation (no seed phrases — sign in with Google/Email), cinematic AION minting, and entry into the Play2Earn economy. The digital wallet enables true ownership of the asset.`,
+        `Phase 1 (Current): AION is an internal virtual asset — minting, ownership, and metadata are managed in the internal database. The wallet is architecturally ready for future blockchain connection. Phase 2 (Future): Export to Solana as a real NFT with an initial release of 10,000 units.`,
+        `AION serves as the user's identity across the entire system — in profiles, community, and FreeMarket.`,
       ],
     },
     {

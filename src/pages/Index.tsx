@@ -97,7 +97,7 @@ const Index = () => {
             {/* 3. The System Overview — 15 pillars, AI, economy */}
             <CityShowcaseSection />
             <InlineCTA variant="default" />
-            {/* 4. Soul Avatar — Evolving digital identity */}
+            {/* 4. AION — Evolving digital identity */}
             <OrbCollectionSection />
             {/* 5. Aurora — Consciousness AI */}
             <AuroraCoachSection />

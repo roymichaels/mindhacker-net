@@ -186,9 +186,9 @@ export function VisualWhitepaper({ onExit }: Props) {
           </VisualSection>
         );
 
-      case 7: // Soul Avatar NFT
+      case 7: // AION Identity
         return (
-          <VisualSection index={7} isActive number="07" title={t('Soul Avatar NFT', 'Soul Avatar NFT')} subtitle={t('Your evolving digital identity.', 'הזהות הדיגיטלית המתפתחת שלך.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
+          <VisualSection index={7} isActive number="07" title={t('AION — Digital Identity', 'AION — זהות דיגיטלית')} subtitle={t('Your evolving digital identity.', 'הזהות הדיגיטלית המתפתחת שלך.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
             <div className="flex justify-center py-2">
               <WhitepaperOrb size={120} />
             </div>
@@ -331,7 +331,7 @@ export function VisualWhitepaper({ onExit }: Props) {
                 { icon: '🔐', title: t('Web3Auth', 'Web3Auth'), desc: t('Decentralized login with built-in smart wallet.', 'התחברות מבוזרת עם ארנק חכם מובנה.') },
                 { icon: '🛡️', title: t('Row-Level Security', 'RLS מלא'), desc: t('Each user sees only their own data. Tiered permissions.', 'כל משתמש רואה רק את הנתונים שלו. הרשאות מדורגות.') },
                 { icon: '🔒', title: t('Full Encryption', 'הצפנה מלאה'), desc: t('All data encrypted. Delete anytime. No third-party sales.', 'כל הנתונים מוצפנים. מחיקה בכל עת. ללא מכירה לצד ג\'.') },
-                { icon: '⛓️', title: t('Blockchain Ready', 'מוכן ל-Blockchain'), desc: t('Soul Avatar as NFT. Digital ownership and Web3 wallet.', 'Soul Avatar כ-NFT. בעלות דיגיטלית וארנק Web3.') },
+                { icon: '⛓️', title: t('Blockchain Ready', 'מוכן ל-Blockchain'), desc: t('AION as NFT. Digital ownership and Web3 wallet.', 'AION כ-NFT. בעלות דיגיטלית וארנק Web3.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.1} color="hsl(210 70% 50%)" />
               ))}
@@ -345,7 +345,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
                 { icon: '📝', title: t('Multi-Step Setup', 'הרשמה מדורגת'), desc: t('Email signup, Aurora intro conversation, pillar selection.', 'הרשמה באימייל, שיחת היכרות עם Aurora, בחירת עמודים.') },
-                { icon: '✨', title: t('Initiation Ceremony', 'טקס כניסה'), desc: t('Immersive visual experience — animations, music, first Soul Avatar.', 'חוויה ויזואלית אימרסיבית — אנימציות, מוזיקה, Soul Avatar ראשון.') },
+                { icon: '✨', title: t('Initiation Ceremony', 'טקס כניסה'), desc: t('Immersive visual experience — animations, music, first AION.', 'חוויה ויזואלית אימרסיבית — אנימציות, מוזיקה, AION ראשון.') },
                 { icon: '🎮', title: t('First 100-Day Plan', 'תוכנית 100 ימים ראשונה'), desc: t('Aurora creates your personalized plan after onboarding.', 'Aurora יוצרת תוכנית מותאמת אישית לאחר ההצטרפות.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color="hsl(45 90% 55%)" />
@@ -412,7 +412,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <RoadmapTimeline
               isHe={he}
               phases={[
-                { label: 'Q1-Q2 2026', items: [t('MVP — Aurora, Play, Soul Avatar', 'MVP — Aurora, Play, Soul Avatar'), t('MOS Wallet, Web3Auth, PWA', 'ארנק MOS, Web3Auth, PWA'), t('Community, Stories, Journal', 'קהילה, סטוריז, יומן')], color: 'hsl(271 81% 55%)', active: true },
+                { label: 'Q1-Q2 2026', items: [t('MVP — Aurora, Play, AION', 'MVP — Aurora, Play, AION'), t('MOS Wallet, Web3Auth, PWA', 'ארנק MOS, Web3Auth, PWA'), t('Community, Stories, Journal', 'קהילה, סטוריז, יומן')], color: 'hsl(271 81% 55%)', active: true },
                 { label: 'Q3-Q4 2026', items: [t('FreeMarket & marketplace', 'FreeMarket ושוק פנימי'), t('Learn — adaptive learning', 'Learn — למידה אדפטיבית'), t('Full career paths, Data Marketplace', 'מסלולי קריירה מלאים, שוק נתונים')], color: 'hsl(187 85% 50%)' },
                 { label: '2027', items: [t('Full Web3, DAO, Solana', 'Web3 מלא, DAO, Solana'), t('Native Mobile', 'מובייל נייטיב'), t('Open API & integrations', 'API פתוח ואינטגרציות')], color: 'hsl(45 90% 55%)' },
                 { label: '2028+', items: [t('Autonomous AI', 'AI אוטונומי'), t('Full decentralized economy', 'כלכלה מבוזרת מלאה'), t('Global platform', 'פלטפורמה גלובלית')], color: 'hsl(168 70% 50%)' },
