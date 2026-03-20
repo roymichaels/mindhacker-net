@@ -1,5 +1,11 @@
 /**
- * useSoulWallet — Hook for Soul Avatar wallet status, minting, and wizard trigger.
+ * useSoulWallet — Hook for AION wallet status, minting, and wizard trigger.
+ *
+ * LEGACY NAME: This file keeps the SoulWallet name for backward compatibility.
+ * New code should import from src/identity/:
+ *   import { useAIONWallet } from '@/identity';
+ *
+ * The underlying table is still `soul_wallets` — DO NOT rename DB tables yet.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';

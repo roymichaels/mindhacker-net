@@ -1,5 +1,9 @@
 /**
- * SoulAvatarContext — Global context for Soul Avatar mint wizard visibility.
+ * SoulAvatarContext — Global context for AION mint wizard visibility.
+ *
+ * LEGACY NAME: This file keeps the SoulAvatar name for backward compatibility.
+ * New code should import from src/identity/aliases.ts:
+ *   import { useAIONWizard, AIONWizardProvider } from '@/identity';
  */
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
