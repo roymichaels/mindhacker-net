@@ -1,5 +1,30 @@
 import { motion } from 'framer-motion';
 import { Orb } from '@/components/orb/Orb';
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
+import type { OrbProfile } from '@/components/orb/types';
+
+const heroOrbProfile: OrbProfile = {
+  primaryColor: 'hsl(265, 85%, 55%)',
+  secondaryColors: ['hsl(190, 95%, 45%)', 'hsl(230, 80%, 60%)'],
+  accentColor: 'hsl(280, 90%, 65%)',
+  morphSpeed: 0.3,
+  morphIntensity: 0.6,
+  fractalOctaves: 3,
+  coreIntensity: 0.7,
+  coreSize: 0.4,
+  layerCount: 3,
+  geometryDetail: 4,
+  particleEnabled: true,
+  particleCount: 20,
+  particleColor: 'hsl(265, 85%, 65%)',
+  motionSpeed: 0.5,
+  pulseRate: 0.5,
+  smoothness: 0.8,
+  textureType: 'plasma',
+  textureIntensity: 0.5,
+  ...VISUAL_DEFAULTS,
+  computedFrom: { level: 1, streak: 0, clarityScore: 50 },
+};
 
 interface Props {
   onCTA: () => void;
