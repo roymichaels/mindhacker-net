@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Settings, Map, Play, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { DomainIntakeFlow } from '@/components/life/DomainIntakeFlow';
+import { DomainIntakeFlow } from '@/components/pillars/DomainIntakeFlow';
 
 export default function LifeDomainPage() {
   const { domainId } = useParams<{ domainId: string }>();

@@ -87,7 +87,7 @@ import TherapistLayoutWrapper from "./components/careers/therapist/TherapistLayo
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
-const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
+const LifeLayoutWrapper = lazy(() => import("./components/pillars/LifeLayoutWrapper"));
 const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 
@@ -153,7 +153,7 @@ const CoachProfile = lazy(() => import("./pages/PractitionerProfile"));
 const CoachSlugRedirect = lazy(() => import("./components/careers/coach/CoachSlugRedirect"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
-const ArenaLayoutWrapper = lazy(() => import("./components/arena/ArenaLayoutWrapper"));
+const ArenaLayoutWrapper = lazy(() => import("./components/pillars/ArenaLayoutWrapper"));
 const ArenaDomainPage = lazy(() => import("./pages/ArenaDomainPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 const LearnLayoutWrapper = lazy(() => import("./components/learn/LearnLayoutWrapper"));
