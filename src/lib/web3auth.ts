@@ -1,12 +1,11 @@
 /**
- * Web3Auth Core Kit (no-modal) integration.
+ * Web3Auth integration (v10 — unified @web3auth/modal).
  * Lazy-loads the SDK to keep the main bundle small.
  * After Web3Auth authenticates, bridges to Supabase via the
  * web3auth-exchange edge function so all RLS/data access stays intact.
  */
 import { supabase } from '@/integrations/supabase/client';
 
-// Singleton — initialised once, reused across calls
 let web3authInstance: any = null;
 let initPromise: Promise<any> | null = null;
 
@@ -15,20 +14,9 @@ let initPromise: Promise<any> | null = null;
 /* ------------------------------------------------------------------ */
 
 async function loadAndInit() {
-  // Dynamic imports — Web3Auth SDK only downloaded when user tries to log in
-  const [
-    { Web3AuthNoModal },
-    { CHAIN_NAMESPACES, WEB3AUTH_NETWORK },
-    { AuthAdapter },
-    { EthereumPrivateKeyProvider },
-  ] = await Promise.all([
-    import('@web3auth/no-modal'),
-    import('@web3auth/base'),
-    import('@web3auth/auth-adapter'),
-    import('@web3auth/ethereum-provider'),
-  ]);
+  const { Web3Auth, WEB3AUTH_NETWORK } = await import('@web3auth/modal');
 
-  // Fetch publishable client ID from edge function (stored as secret)
+  // Fetch publishable client ID from edge function
   const { data: cfg, error: cfgErr } = await supabase.functions.invoke(
     'web3auth-exchange',
     { body: { action: 'config' } },
@@ -37,31 +25,23 @@ async function loadAndInit() {
     throw new Error('Failed to load Web3Auth config');
   }
 
-  // Minimal chain config — required by SDK, not used for transactions yet
-  const chainConfig = {
-    chainNamespace: CHAIN_NAMESPACES.EIP155,
-    chainId: '0x1',
-    rpcTarget: 'https://rpc.ankr.com/eth',
-    displayName: 'Ethereum Mainnet',
-    blockExplorerUrl: 'https://etherscan.io',
-    ticker: 'ETH',
-    tickerName: 'Ethereum',
-  };
-
-  const privateKeyProvider = new EthereumPrivateKeyProvider({
-    config: { chainConfig },
-  });
-
-  const instance = new Web3AuthNoModal({
+  const instance = new Web3Auth({
     clientId: cfg.clientId,
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
-    privateKeyProvider,
+    chainConfig: {
+      chainNamespace: 'eip155',
+      chainId: '0x1',
+      rpcTarget: 'https://rpc.ankr.com/eth',
+      displayName: 'Ethereum Mainnet',
+      blockExplorerUrl: 'https://etherscan.io',
+      ticker: 'ETH',
+      tickerName: 'Ethereum',
+    },
+    uiConfig: {
+      mode: 'dark',
+      loginMethodsOrder: ['google', 'apple', 'email_passwordless'],
+    },
   });
-
-  const authAdapter = new AuthAdapter({
-    adapterSettings: { uxMode: 'popup' },
-  });
-  instance.configureAdapter(authAdapter);
 
   await instance.init();
   web3authInstance = instance;
@@ -83,7 +63,7 @@ async function getWeb3Auth() {
 export type Web3AuthProvider = 'google' | 'apple' | 'email_passwordless';
 
 /**
- * Opens Web3Auth popup for the chosen provider.
+ * Connects via Web3Auth for the chosen provider.
  * Returns the authenticated user's info (email, name, idToken).
  */
 export async function loginWithProvider(
@@ -92,19 +72,17 @@ export async function loginWithProvider(
 ) {
   const web3auth = await getWeb3Auth();
 
-  // If already connected from a previous session, disconnect first
+  // Disconnect if already connected from a previous session
   if (web3auth.status === 'connected') {
-    await web3auth.logout();
+    try { await web3auth.logout(); } catch { /* ignore */ }
   }
 
-  const { WALLET_ADAPTERS } = await import('@web3auth/base');
-
-  const loginParams: Record<string, any> = { loginProvider: provider };
+  const connectParams: Record<string, any> = { loginProvider: provider };
   if (provider === 'email_passwordless' && emailHint) {
-    loginParams.extraLoginOptions = { login_hint: emailHint };
+    connectParams.extraLoginOptions = { login_hint: emailHint };
   }
 
-  await web3auth.connectTo(WALLET_ADAPTERS.AUTH, loginParams);
+  await web3auth.connectTo('auth', connectParams);
 
   const userInfo = await web3auth.getUserInfo();
   if (!userInfo?.email) {
@@ -122,9 +100,6 @@ export async function loginWithProvider(
 
 /**
  * Exchanges the Web3Auth identity for a Supabase session.
- * Calls our edge function which verifies the Web3Auth JWT,
- * creates/finds the Supabase user, and returns a one-time code
- * that the client verifies to establish a full session.
  */
 export async function exchangeForSupabaseSession(userInfo: {
   email: string;
@@ -143,7 +118,6 @@ export async function exchangeForSupabaseSession(userInfo: {
   if (error) throw new Error(error.message || 'Token exchange failed');
   if (!data?.otp) throw new Error(data?.error || 'No session token received');
 
-  // Verify the OTP to create a proper Supabase session
   const { data: authData, error: authError } = await supabase.auth.verifyOtp({
     email: userInfo.email,
     token: data.otp,
@@ -163,6 +137,6 @@ export async function web3authLogout() {
       await web3authInstance.logout();
     }
   } catch {
-    // Best-effort — Supabase session is already cleared
+    // Best-effort
   }
 }
