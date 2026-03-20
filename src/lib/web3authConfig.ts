@@ -93,17 +93,6 @@ export const web3AuthOptions: Web3AuthOptions = {
   web3AuthNetwork: WEB3AUTH_NETWORK_VALUE,
   enableLogging: true,
   chains: [MAINNET_CHAIN],
-  accountAbstractionConfig: {
-    chains: [
-      {
-        chainId: MAINNET_CHAIN.chainId,
-        bundlerConfig: {
-          url: BUNDLER_URL,
-        },
-      },
-    ],
-  },
-  useAAWithExternalWallet: false,
   modalConfig: {
     connectors: {
       [WALLET_CONNECTORS.AUTH]: {
