@@ -87,7 +87,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
                 className="h-7 text-xs"
                 onClick={() => navigate('/onboarding')}
               >
-                Start Onboarding
+                {isRTL ? 'התחל הצטרפות' : 'Start Onboarding'}
               </Button>
               <button
                 onClick={handleDismiss}
