@@ -42,8 +42,7 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
         // Get idToken for backend verification
         let idToken: string | undefined;
         try {
-          const tokenResult = await web3Auth?.authenticateUser();
-          idToken = tokenResult?.idToken;
+          idToken = await getIdentityToken() || undefined;
         } catch {
           console.warn('[AuthModal] Could not get idToken');
         }
