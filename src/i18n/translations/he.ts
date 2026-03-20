@@ -183,7 +183,7 @@ export const he = {
       streakSubtitle: "שמור על המומנטום!",
       continueStreak: "המשך את הרצף",
       idleTitle: "הגיע הזמן להתחיל",
-      idleSubtitle: "התחל סשן או שוחח עם אורורה",
+      idleSubtitle: "התחל סשן או שוחח עם AION",
       startSession: "התחל סשן",
     },
     progress: {
