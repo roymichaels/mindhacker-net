@@ -67,6 +67,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
       stream: "stream-browserify",
       buffer: "buffer",
+      process: "process/browser",
     },
   },
   build: {

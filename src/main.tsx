@@ -1,5 +1,7 @@
 // Browser polyfills required by Web3Auth SDK — must run before any imports
 import { Buffer } from 'buffer';
+import process from 'process';
+
 if (typeof globalThis.Buffer === 'undefined') {
   (globalThis as any).Buffer = Buffer;
 }
@@ -7,7 +9,7 @@ if (typeof (globalThis as any).global === 'undefined') {
   (globalThis as any).global = globalThis;
 }
 if (typeof (globalThis as any).process === 'undefined') {
-  (globalThis as any).process = { env: {} };
+  (globalThis as any).process = process;
 }
 
 import { bustOldCaches } from "./utils/cacheBuster";
