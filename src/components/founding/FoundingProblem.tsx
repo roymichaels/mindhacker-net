@@ -8,10 +8,11 @@ const problems = [
 
 const FoundingProblem = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100svh] px-6 text-center relative z-10" dir="rtl">
+    <div className="flex flex-col items-center justify-center min-h-[70svh] px-6 text-center relative z-10" dir="rtl">
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.6 }}
         className="text-2xl md:text-4xl font-bold text-white mb-12"
       >
@@ -23,8 +24,9 @@ const FoundingProblem = () => {
           <motion.div
             key={i}
             initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 + i * 0.25, duration: 0.6 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ delay: i * 0.15, duration: 0.6 }}
             className="flex items-center gap-4 p-5 rounded-2xl border border-white/10 backdrop-blur-sm"
             style={{ background: 'rgba(255,255,255,0.03)' }}
           >

@@ -1,9 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import FoundingBackground from '@/components/founding/FoundingBackground';
-import WizardNav from '@/components/founding/WizardNav';
 import FoundingHero from '@/components/founding/FoundingHero';
-import FoundingProblem from '@/components/founding/FoundingProblem';
+import FoundingNotAnotherApp from '@/components/founding/FoundingNotAnotherApp';
 import FoundingSystem from '@/components/founding/FoundingSystem';
 import FoundingBenefits from '@/components/founding/FoundingBenefits';
 import FoundingMembers from '@/components/founding/FoundingMembers';
@@ -12,77 +11,80 @@ import FoundingEarning from '@/components/founding/FoundingEarning';
 import FoundingWhyNow from '@/components/founding/FoundingWhyNow';
 import FoundingFinalCTA from '@/components/founding/FoundingFinalCTA';
 import FoundingApplyForm from '@/components/founding/FoundingApplyForm';
-
-const TOTAL_STEPS = 10;
+import { X } from 'lucide-react';
 
 const FoundingLanding = () => {
-  const [step, setStep] = useState(0);
-  const [direction, setDirection] = useState(1);
-
-  const goTo = useCallback((target: number) => {
-    if (target < 0 || target >= TOTAL_STEPS) return;
-    setDirection(target > step ? 1 : -1);
-    setStep(target);
-  }, [step]);
-
-  const next = useCallback(() => goTo(step + 1), [step, goTo]);
-  const back = useCallback(() => goTo(step - 1), [step, goTo]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') back();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [next, back]);
-
-  const variants = {
-    enter: (dir: number) => ({ y: dir > 0 ? 60 : -60, opacity: 0 }),
-    center: { y: 0, opacity: 1 },
-    exit: (dir: number) => ({ y: dir > 0 ? -60 : 60, opacity: 0 }),
-  };
-
-  const sections = [
-    <FoundingHero key="hero" onCTA={next} />,
-    <FoundingProblem key="problem" />,
-    <FoundingSystem key="system" />,
-    <FoundingBenefits key="benefits" />,
-    <FoundingMembers key="members" />,
-    <FoundingRole key="role" />,
-    <FoundingEarning key="earning" />,
-    <FoundingWhyNow key="whynow" />,
-    <FoundingFinalCTA key="cta" onApply={next} />,
-    <FoundingApplyForm key="apply" />,
-  ];
+  const [showApply, setShowApply] = useState(false);
+  const topRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="fixed inset-0 overflow-hidden">
+    <div className="relative">
       <FoundingBackground />
 
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={step}
-          custom={direction}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
-          className="absolute inset-0 overflow-y-auto"
-        >
-          {sections[step]}
-        </motion.div>
-      </AnimatePresence>
+      {/* ═══ Scrollable Landing ═══ */}
+      <div ref={topRef} className="relative z-10">
+        {/* 1. Hero */}
+        <FoundingHero />
 
-      <WizardNav
-        currentStep={step}
-        totalSteps={TOTAL_STEPS}
-        onNext={next}
-        onBack={back}
-        hideNext={step === 0 || step === 8 || step === 9}
-      />
+        {/* 2. "This is not another app" */}
+        <FoundingNotAnotherApp />
+
+        {/* Divider glow */}
+        <div className="h-px w-full max-w-md mx-auto" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)' }} />
+
+        {/* 3. How it works */}
+        <FoundingSystem />
+
+        {/* 4. What you get */}
+        <FoundingBenefits />
+
+        {/* Divider glow */}
+        <div className="h-px w-full max-w-md mx-auto" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent)' }} />
+
+        {/* 5. Founding Members — the big one */}
+        <FoundingMembers />
+
+        {/* 6. Your role */}
+        <FoundingRole />
+
+        {/* 7. Earning */}
+        <FoundingEarning />
+
+        {/* 8. Why now */}
+        <FoundingWhyNow />
+
+        {/* Divider glow */}
+        <div className="h-px w-full max-w-md mx-auto" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)' }} />
+
+        {/* 9. Final CTA */}
+        <FoundingFinalCTA onApply={() => setShowApply(true)} />
+
+        {/* Footer spacer */}
+        <div className="h-20" />
+      </div>
+
+      {/* ═══ Apply Form Overlay (Wizard Phase) ═══ */}
+      <AnimatePresence>
+        {showApply && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] overflow-y-auto"
+            style={{ background: 'rgba(5,5,5,0.97)' }}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowApply(false)}
+              className="fixed top-4 end-4 z-50 p-2 rounded-full border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <FoundingApplyForm />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

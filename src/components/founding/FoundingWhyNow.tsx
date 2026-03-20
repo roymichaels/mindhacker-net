@@ -9,10 +9,11 @@ const reasons = [
 
 const FoundingWhyNow = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100svh] px-6 text-center relative z-10" dir="rtl">
+    <div className="flex flex-col items-center justify-center min-h-[70svh] px-6 text-center relative z-10" dir="rtl">
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-100px' }}
         className="text-2xl md:text-4xl font-bold text-white mb-12"
       >
         למה דווקא עכשיו?
@@ -23,8 +24,9 @@ const FoundingWhyNow = () => {
           <motion.div
             key={i}
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 + i * 0.2, duration: 0.5 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-30px' }}
+            transition={{ delay: i * 0.15, duration: 0.5 }}
             className="flex items-center gap-4 p-5 rounded-2xl border border-white/10 backdrop-blur-sm"
             style={{ background: `radial-gradient(circle at right, ${r.color}10, transparent)` }}
           >
