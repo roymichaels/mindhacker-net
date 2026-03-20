@@ -189,7 +189,7 @@ export default function Documentation() {
             `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
             `Aurora מודעת לזמן — יודעת את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
           ] : [
-            `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 14 life pillars, and subscription tier.`,
+            `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 15 life pillars, and subscription tier.`,
             `Aurora is time-aware — it knows the current time, day, and the user's specific schedule. This enables precise recommendations: "you have a training block in an hour", "you've completed 60% of today's tasks".`,
           ],
         },
