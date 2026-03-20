@@ -787,45 +787,14 @@ export function OnboardingFlow() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Top bar: phase label + progress + exit */}
-      <div className="px-6 pt-6 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs uppercase tracking-wider text-primary font-semibold">
-            {isHe ? currentPhase?.he : currentPhase?.en}
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setLanguage(language === 'he' ? 'en' : 'he')}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium flex items-center gap-1"
-              aria-label="Switch language"
-            >
-              <Globe className="w-4 h-4" />
-              {language === 'he' ? 'EN' : 'עב'}
-            </button>
-            <button
-              onClick={() => navigate(user ? '/today' : '/')}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Exit"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-        <div className="flex gap-1">
-          {steps.map((_, idx) => (
-            <div key={idx} className="flex-1 h-1 rounded-full overflow-hidden bg-muted">
-              <motion.div
-                className="h-full bg-primary rounded-full"
-                initial={false}
-                animate={{
-                  width: idx < currentStepIdx ? '100%' : idx === currentStepIdx ? `${((currentMiniIdx + 1) / (visibleMiniSteps.length || 1)) * 100}%` : '0%',
-                }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      <WizardHeader
+        label={isHe ? currentPhase?.he : currentPhase?.en}
+        segments={steps.map((_, idx) => ({
+          fill: idx < currentStepIdx ? 1 : idx === currentStepIdx ? (currentMiniIdx + 1) / (visibleMiniSteps.length || 1) : 0,
+        }))}
+        onExit={() => navigate(user ? '/today' : '/')}
+        languageToggle={{ current: language, onToggle: () => setLanguage(language === 'he' ? 'en' : 'he') }}
+      />
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 max-w-lg mx-auto w-full">
