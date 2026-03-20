@@ -1,31 +1,33 @@
 /**
- * useAION — Canonical hook that composes the AION identity from existing systems.
+ * useAION — Canonical hook that composes the AION identity.
  *
- * This is the PRIMARY identity hook. New code should use this instead of
- * directly accessing useSoulWallet, useOrbProfile, etc.
+ * AION depends ONLY on DNA (single source of truth).
+ * DNA is computed by useDNA from all scattered signals.
  *
- * It bridges:
- * - useOrbProfile (visual rendering data)
- * - useXpProgress (level/xp)
- * - useSoulWallet (mint/wallet status)
- * - profiles.aion_name / aion_activated (AION identity)
+ * This hook adds:
+ *   - AION name (user-defined, from profiles)
+ *   - AION activation status
+ *   - Wallet/mint status
+ *   - Visual profile reference
  */
 
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
-import { useXpProgress } from '@/hooks/useGameState';
 import { useSoulWallet } from '@/hooks/useSoulWallet';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { AIONIdentity, DNAProfile } from './types';
-import { DEFAULT_AION_IDENTITY, DEFAULT_DNA_PROFILE } from './types';
+import { useDNA } from './useDNA';
+import type { AIONIdentity } from './types';
+import { DEFAULT_AION_IDENTITY } from './types';
+import { useXpProgress } from '@/hooks/useGameState';
 
 export function useAION() {
   const { user } = useAuth();
-  const orbProfile = useOrbProfile();
+  const { dna, isLoading: dnaLoading } = useDNA();
   const { level } = useXpProgress();
   const { isMinted, walletAddress, isLoading: walletLoading } = useSoulWallet();
+  const { profile: orbProfile, isLoading: orbLoading } = useOrbProfile();
 
   // Fetch AION-specific fields from profiles
   const { data: aionData, isLoading: aionLoading } = useQuery({
@@ -46,34 +48,28 @@ export function useAION() {
   const aion = useMemo<AIONIdentity>(() => {
     if (!user) return DEFAULT_AION_IDENTITY;
 
-    const dna: DNAProfile | null = orbProfile.seed
-      ? {
-          ...DEFAULT_DNA_PROFILE,
-          dnaSeed: String(orbProfile.seed ?? ''),
-          dominantArchetype: orbProfile.profile.computedFrom?.egoState || 'guardian',
-        }
-      : null;
-
     return {
       userId: user.id,
       name: aionData?.aion_name || 'AION',
       level,
-      egoState: orbProfile.profile.computedFrom?.egoState || 'guardian',
+      // AION's egoState comes from DNA — single source of truth
+      egoState: dna.dominantArchetype || 'guardian',
+      // DNA is the canonical identity layer
       dna,
       visualProfileId: user.id,
       isMinted,
       walletAddress,
     };
-  }, [user, orbProfile.profile, orbProfile.seed, level, isMinted, walletAddress, aionData?.aion_name]);
+  }, [user, aionData?.aion_name, level, dna, isMinted, walletAddress]);
 
   return {
-    /** The composed AION identity */
+    /** The composed AION identity — depends only on DNA */
     aion,
     /** Whether AION has been activated by the user */
     isActivated: aionData?.aion_activated ?? false,
     /** Whether identity data is still loading */
-    isLoading: orbProfile.isLoading || walletLoading || aionLoading,
+    isLoading: dnaLoading || walletLoading || aionLoading || orbLoading,
     /** The orb profile for visual rendering — pass to Orb/PersonalizedOrb */
-    visualProfile: orbProfile.profile,
+    visualProfile: orbProfile,
   };
 }
