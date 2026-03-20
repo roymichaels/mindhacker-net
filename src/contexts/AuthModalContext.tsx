@@ -144,26 +144,51 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           await connect();
         }
 
-        // Critical: fetch user info explicitly right after connect
-        const latestUser = (await getUserInfo()) as BasicWeb3AuthUser | null;
-        console.log('[Web3Auth] getUserInfo() after connect:', latestUser);
+        // Fetch user info — try multiple times as it may take a moment after connect
+        let resolvedEmail: string | undefined;
+        let resolvedName: string | undefined;
 
-        if (latestUser?.email) {
-          await doBridge(latestUser);
-          return;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const info = await getUserInfo();
+            console.log(`[Web3Auth] getUserInfo() attempt ${attempt + 1}:`, JSON.stringify(info));
+            
+            if (info) {
+              // Try all known field locations for email
+              resolvedEmail = (info as any).email 
+                || (info as any).verifierId 
+                || (info as any).verifier_id;
+              resolvedName = (info as any).name 
+                || (info as any).displayName;
+            }
+          } catch (e) {
+            console.warn(`[Web3Auth] getUserInfo attempt ${attempt + 1} failed:`, e);
+          }
+
+          if (resolvedEmail) break;
+
+          // Also check the hook-provided userInfo
+          if (userInfo?.email) {
+            resolvedEmail = userInfo.email;
+            resolvedName = userInfo.name;
+            console.log('[Web3Auth] Got email from hook userInfo:', resolvedEmail);
+            break;
+          }
+
+          // Wait briefly for state to propagate
+          await new Promise((r) => setTimeout(r, 800));
         }
 
-        // Fallback: if hook already has user info, bridge with it
-        if (userInfo?.email) {
-          await doBridge(userInfo as BasicWeb3AuthUser);
-          return;
+        if (resolvedEmail) {
+          await doBridge({ email: resolvedEmail, name: resolvedName });
+        } else {
+          console.error('[Web3Auth] No email found after all attempts. userInfo hook:', JSON.stringify(userInfo));
+          toast({
+            title: 'Authentication incomplete',
+            description: 'Could not retrieve your email. Please try again.',
+            variant: 'destructive',
+          });
         }
-
-        toast({
-          title: 'Authentication incomplete',
-          description: 'Login succeeded but no email was returned. Please try another provider.',
-          variant: 'destructive',
-        });
       } catch (err: any) {
         if (
           err?.message?.includes('user closed') ||
