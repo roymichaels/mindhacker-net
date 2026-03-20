@@ -218,12 +218,14 @@ export default function Documentation() {
         `כל משתמש ב-${brandName} מחזיק ב-Soul Avatar — נכס דיגיטלי תלת-ממדי ייחודי שמייצג את הזהות, ההתקדמות, והתודעה שלו. ה-Avatar נבנה באמצעות Three.js עם אפקטי Bloom, חלקיקים ומורפינג בזמן אמת — הוא מתפתח בהתאם לפעולות המשתמש.`,
         `מאפייני ה-Avatar: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — עוצמת עיוות הגיאומטריה גדלה עם הרמה, (3) חלקיקים — צפיפות לפי streak ואנרגיה, (4) הילה — אפקט Bloom שמשקף עומק התודעה, (5) צבעים משניים — שילובי עמודי חיים.`,
         `Web3 Onboarding: ויזארד מנטינג ב-5 שלבים — היכרות עם עולם ה-Web3, יצירת ארנק דיגיטלי (ללא seed phrases — כניסה דרך Google/Email), מנטינג סינמטי של ה-Soul Avatar, וכניסה לכלכלת Play2Earn. הארנק הדיגיטלי מאפשר בעלות אמיתית על הנכס.`,
-        `ה-Soul Avatar הוא האווטר של המשתמש בכל המערכת — בפרופיל, בקהילה, ובעתיד ייצוא כ-NFT אמיתי על blockchain.`,
+        `שלב 1 (נוכחי): Soul Avatar NFT הוא נכס וירטואלי פנימי — המנטינג, הבעלות, והמטאדאטה מנוהלים במסד הנתונים הפנימי. הארנק מוכן מבנית לחיבור עתידי ל-blockchain. שלב 2 (עתידי): ייצוא ל-Solana כ-NFT אמיתי עם מהדורה ראשונה של 10,000 יחידות.`,
+        `ה-Soul Avatar הוא האווטר של המשתמש בכל המערכת — בפרופיל, בקהילה, וב-FreeMarket.`,
       ] : [
         `Every ${brandName} user holds a Soul Avatar — a unique 3D digital asset representing their identity, progress, and consciousness. The Avatar is built with Three.js featuring real-time Bloom effects, particles, and morphing — it evolves based on user actions.`,
         `Avatar attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — geometry distortion intensity grows with level, (3) Particles — density based on streak and energy, (4) Aura — Bloom effect reflecting consciousness depth, (5) Secondary colors — pillar combinations.`,
         `Web3 Onboarding: A 5-step minting wizard — introduction to Web3, digital wallet creation (no seed phrases — sign in with Google/Email), cinematic Soul Avatar minting, and entry into the Play2Earn economy. The digital wallet enables true ownership of the asset.`,
-        `The Soul Avatar serves as the user's avatar across the entire system — in profiles, community, and in the future exportable as a real NFT on blockchain.`,
+        `Phase 1 (Current): The Soul Avatar NFT is an internal virtual asset — minting, ownership, and metadata are managed in the internal database. The wallet is architecturally ready for future blockchain connection. Phase 2 (Future): Export to Solana as a real NFT with an initial release of 10,000 units.`,
+        `The Soul Avatar serves as the user's avatar across the entire system — in profiles, community, and FreeMarket.`,
       ],
     },
     {
