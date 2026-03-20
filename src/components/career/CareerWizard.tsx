@@ -227,12 +227,12 @@ export default function CareerWizard({ careerPath, onComplete }: CareerWizardPro
         label={isHe ? meta.titleHe : meta.titleEn}
         icon={<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><Icon className="w-4 h-4 text-primary" /></div>}
         segments={[...questions.map((_, idx) => ({
-          fill: phase === 'ai_chat' || phase === 'submitted' ? 1
+          fill: phase === 'ai_chat' ? 1
             : idx < currentQ ? 1
             : idx === currentQ ? 0.5
             : 0,
         })), {
-          fill: phase === 'submitted' ? 1 : phase === 'ai_chat' ? 0.5 : 0,
+          fill: phase === 'ai_chat' ? 0.5 : 0,
         }]}
         onExit={() => navigate(-1)}
       />
