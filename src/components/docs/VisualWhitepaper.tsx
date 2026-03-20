@@ -87,7 +87,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <div className="flex flex-wrap justify-center gap-3 pt-6">
               <StatCard value={5} label={t('Core Experiences', 'חוויות ליבה')} delay={0} color="hsl(271 81% 55%)" />
               <StatCard value={100} suffix="%" label={t('AI-Powered', 'מבוסס AI')} delay={0.1} color="hsl(187 85% 50%)" />
-              <StatCard value={14} label={t('Life Pillars', 'עמודי חיים')} delay={0.2} color="hsl(45 90% 55%)" />
+              <StatCard value={15} label={t('Life Pillars', 'עמודי חיים')} delay={0.2} color="hsl(45 90% 55%)" />
             </div>
           </VisualSection>
         );
