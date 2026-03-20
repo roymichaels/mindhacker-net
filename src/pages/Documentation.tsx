@@ -96,7 +96,7 @@ export default function Documentation() {
         `Now (Execute): דשבורד הביצוע היומי — פעולות מחולקות ל-4 רבעוני יום עם שמות הרפתקניים ייחודיים, Movement Score שמודד מומנטום בזמן אמת, ומערכת Quest יומית.`,
       ] : [
         `${brandName} is built around the "Why-How-Now" methodology — a three-horizon framework that translates abstract vision into concrete daily actions.`,
-        `Strategy (Why): Defines life goals, values, missions, and 14 life pillars. This is the user's north star — the "why" behind every action.`,
+        `Strategy (Why): Defines life goals, values, missions, and 15 life pillars. This is the user's north star — the "why" behind every action.`,
         `Tactics (How): Breaks down strategy into a 100-day plan with phases, milestones, and daily action blocks. The bridge between vision and execution.`,
         `Now (Execute): The daily execution dashboard — actions divided into 4 adventure-themed day quarters with unique names, a Movement Score measuring real-time momentum, and a daily Quest system.`,
       ],
