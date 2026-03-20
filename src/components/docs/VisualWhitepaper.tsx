@@ -331,7 +331,7 @@ export function VisualWhitepaper({ onExit }: Props) {
                 { icon: '🔐', title: t('Web3Auth', 'Web3Auth'), desc: t('Decentralized login with built-in smart wallet.', 'התחברות מבוזרת עם ארנק חכם מובנה.') },
                 { icon: '🛡️', title: t('Row-Level Security', 'RLS מלא'), desc: t('Each user sees only their own data. Tiered permissions.', 'כל משתמש רואה רק את הנתונים שלו. הרשאות מדורגות.') },
                 { icon: '🔒', title: t('Full Encryption', 'הצפנה מלאה'), desc: t('All data encrypted. Delete anytime. No third-party sales.', 'כל הנתונים מוצפנים. מחיקה בכל עת. ללא מכירה לצד ג\'.') },
-                { icon: '⛓️', title: t('Blockchain Ready', 'מוכן ל-Blockchain'), desc: t('Soul Avatar as NFT. Digital ownership and Web3 wallet.', 'Soul Avatar כ-NFT. בעלות דיגיטלית וארנק Web3.') },
+                { icon: '⛓️', title: t('Blockchain Ready', 'מוכן ל-Blockchain'), desc: t('AION as NFT. Digital ownership and Web3 wallet.', 'AION כ-NFT. בעלות דיגיטלית וארנק Web3.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.1} color="hsl(210 70% 50%)" />
               ))}
