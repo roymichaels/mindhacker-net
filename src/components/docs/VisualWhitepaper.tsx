@@ -186,9 +186,9 @@ export function VisualWhitepaper({ onExit }: Props) {
           </VisualSection>
         );
 
-      case 7: // Soul Avatar NFT
+      case 7: // AION Identity
         return (
-          <VisualSection index={7} isActive number="07" title={t('Soul Avatar NFT', 'Soul Avatar NFT')} subtitle={t('Your evolving digital identity.', 'הזהות הדיגיטלית המתפתחת שלך.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
+          <VisualSection index={7} isActive number="07" title={t('AION — Digital Identity', 'AION — זהות דיגיטלית')} subtitle={t('Your evolving digital identity.', 'הזהות הדיגיטלית המתפתחת שלך.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
             <div className="flex justify-center py-2">
               <WhitepaperOrb size={120} />
             </div>
