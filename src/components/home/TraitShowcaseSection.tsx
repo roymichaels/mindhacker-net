@@ -45,11 +45,11 @@ export default function TraitShowcaseSection() {
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'חשל את הזהות שלך' : 'Forge Your Identity'}
+              {isRTL ? 'חשל את ה-AION שלך' : 'Forge Your AION'}
             </span>
           </h2>
           <p className="text-muted-foreground mt-3 text-lg">
-            {isRTL ? 'כל שליט צריך DNA — הנה שלך' : 'Every ruler needs DNA — here\'s yours'}
+            {isRTL ? 'כל AION מוגדר על ידי התכונות שלך' : 'Every AION is defined by your traits'}
           </p>
         </motion.div>
 
