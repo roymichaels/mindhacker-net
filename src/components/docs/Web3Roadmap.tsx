@@ -56,7 +56,7 @@ const phases: RoadmapPhase[] = [
     titleHe: 'NFT & מובייל',
     titleEn: 'NFT & Mobile',
     items: [
-      { he: 'ייצוא Soul Avatar ל-Blockchain', en: 'Soul Avatar Export to Blockchain' },
+      { he: 'ייצוא AION ל-Blockchain', en: 'AION Export to Blockchain' },
       { he: 'אפליקציית מובייל Native', en: 'Native Mobile App' },
       { he: 'אינטגרציות חיצוניות', en: 'External Integrations' },
     ],

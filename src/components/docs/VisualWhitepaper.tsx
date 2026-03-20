@@ -412,7 +412,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <RoadmapTimeline
               isHe={he}
               phases={[
-                { label: 'Q1-Q2 2026', items: [t('MVP — Aurora, Play, Soul Avatar', 'MVP — Aurora, Play, Soul Avatar'), t('MOS Wallet, Web3Auth, PWA', 'ארנק MOS, Web3Auth, PWA'), t('Community, Stories, Journal', 'קהילה, סטוריז, יומן')], color: 'hsl(271 81% 55%)', active: true },
+                { label: 'Q1-Q2 2026', items: [t('MVP — Aurora, Play, AION', 'MVP — Aurora, Play, AION'), t('MOS Wallet, Web3Auth, PWA', 'ארנק MOS, Web3Auth, PWA'), t('Community, Stories, Journal', 'קהילה, סטוריז, יומן')], color: 'hsl(271 81% 55%)', active: true },
                 { label: 'Q3-Q4 2026', items: [t('FreeMarket & marketplace', 'FreeMarket ושוק פנימי'), t('Learn — adaptive learning', 'Learn — למידה אדפטיבית'), t('Full career paths, Data Marketplace', 'מסלולי קריירה מלאים, שוק נתונים')], color: 'hsl(187 85% 50%)' },
                 { label: '2027', items: [t('Full Web3, DAO, Solana', 'Web3 מלא, DAO, Solana'), t('Native Mobile', 'מובייל נייטיב'), t('Open API & integrations', 'API פתוח ואינטגרציות')], color: 'hsl(45 90% 55%)' },
                 { label: '2028+', items: [t('Autonomous AI', 'AI אוטונומי'), t('Full decentralized economy', 'כלכלה מבוזרת מלאה'), t('Global platform', 'פלטפורמה גלובלית')], color: 'hsl(168 70% 50%)' },
