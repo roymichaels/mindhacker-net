@@ -320,6 +320,16 @@ export default function Documentation() {
             `The Skills system allows users to gain experience in specific domains. Each action is weighted to affect relevant skills based on type, life pillar, and domain. Enables granular tracking of cross-domain skill development.`,
           ],
         },
+        {
+          title: he ? '10.2 מערכת Quests ואנרגיה' : '10.2 Quest & Energy Systems',
+          paragraphs: he ? [
+            `כל יום הוא Quest ייחודי — שם ייחודי שנוצר דינמית, עם שבוע שלם שמרכיב Campaign. המשתמש רואה את ה-Quest הנוכחי בדשבורד היומי עם סטריפ ויזואלי של ההתקדמות.`,
+            `מערכת אנרגיה (Energy): פיצ'רים פרימיום צורכים אנרגיה — סשני היפנוזה (5-10), הודעות Aurora (2), סריקות עומק (10-15), ייצוא PDF (10), הגדרה מחדש של דומיין (15). מודל צריכה שקוף שמעודד שימוש מאוזן.`,
+          ] : [
+            `Every day is a unique Quest — a dynamically generated name, with a full week forming a Campaign. Users see their current Quest on the daily dashboard with a visual progress strip.`,
+            `Energy System: Premium features consume energy — Hypnosis sessions (5-10), Aurora messages (2), deep scans (10-15), PDF export (10), domain reconfiguration (15). A transparent consumption model that encourages balanced usage.`,
+          ],
+        },
       ],
     },
     {
