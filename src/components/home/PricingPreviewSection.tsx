@@ -15,8 +15,8 @@ const tiers = [
     nameHe: 'התעוררות', nameEn: 'Awakening',
     priceHe: 'חינם', priceEn: 'Free',
     color: 'text-blue-500', border: 'border-blue-500/30', bg: 'bg-blue-500/5',
-    featuresHe: ['2 פילרים מתוך 14 תחומים', '5 הודעות Aurora ליום', 'אבחון מלא', 'דאשבורד ומבנה יומי'],
-    featuresEn: ['2 of 14 life pillars', '5 Aurora messages/day', 'Full assessment', 'Dashboard & daily structure'],
+    featuresHe: ['2 פילרים מתוך 15 תחומים', '5 הודעות Aurora ליום', 'אבחון מלא', 'דאשבורד ומבנה יומי'],
+    featuresEn: ['2 of 15 life pillars', '5 Aurora messages/day', 'Full assessment', 'Dashboard & daily structure'],
   },
   {
     id: 'plus',
