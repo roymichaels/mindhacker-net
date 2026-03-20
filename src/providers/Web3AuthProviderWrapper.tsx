@@ -2,7 +2,7 @@
  * Thin wrapper that renders Web3AuthProvider with static config.
  * Includes error boundary so Web3Auth SDK failures don't blank the app.
  */
-import { Component, type ReactNode, createContext, useContext, type ErrorInfo } from 'react';
+import { Component, type ReactNode, createContext, useContext, useEffect, type ErrorInfo } from 'react';
 import {
   Web3AuthProvider,
   type Web3AuthContextConfig,
