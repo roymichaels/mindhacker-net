@@ -1,11 +1,13 @@
 /**
- * useAION — Hook that composes the AION identity from existing systems.
+ * useAION — Canonical hook that composes the AION identity from existing systems.
  *
- * This is a BRIDGE layer that pulls from:
+ * This is the PRIMARY identity hook. New code should use this instead of
+ * directly accessing useSoulWallet, useOrbProfile, etc.
+ *
+ * It bridges:
  * - useOrbProfile (visual rendering data)
  * - useXpProgress (level/xp)
- * - useSoulWallet (mint/wallet status)
- * - useProfile (user data)
+ * - useSoulWallet (mint/wallet status) — now properly integrated
  *
  * It does NOT replace those hooks — it wraps them into the AION abstraction.
  */
@@ -14,18 +16,15 @@ import { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
+import { useSoulWallet } from '@/hooks/useSoulWallet';
 import type { AIONIdentity, DNAProfile } from './types';
 import { DEFAULT_AION_IDENTITY, DEFAULT_DNA_PROFILE } from './types';
 
-export function useAION(): {
-  aion: AIONIdentity;
-  isLoading: boolean;
-  /** The orb profile for visual rendering — pass to Orb/PersonalizedOrb */
-  visualProfile: ReturnType<typeof useOrbProfile>['profile'];
-} {
+export function useAION() {
   const { user } = useAuth();
   const orbProfile = useOrbProfile();
   const { level } = useXpProgress();
+  const { isMinted, walletAddress, isLoading: walletLoading } = useSoulWallet();
 
   const aion = useMemo<AIONIdentity>(() => {
     if (!user) return DEFAULT_AION_IDENTITY;
@@ -45,15 +44,18 @@ export function useAION(): {
       level,
       egoState: orbProfile.profile.computedFrom?.egoState || 'guardian',
       dna,
-      visualProfileId: user.id, // links to orb_profiles table
-      isMinted: false, // will be connected to useSoulWallet
-      walletAddress: null,
+      visualProfileId: user.id,
+      isMinted,
+      walletAddress,
     };
-  }, [user, orbProfile.profile, orbProfile.seed, level]);
+  }, [user, orbProfile.profile, orbProfile.seed, level, isMinted, walletAddress]);
 
   return {
+    /** The composed AION identity */
     aion,
-    isLoading: orbProfile.isLoading,
+    /** Whether identity data is still loading */
+    isLoading: orbProfile.isLoading || walletLoading,
+    /** The orb profile for visual rendering — pass to Orb/PersonalizedOrb */
     visualProfile: orbProfile.profile,
   };
 }
