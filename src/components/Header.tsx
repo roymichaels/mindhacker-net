@@ -95,8 +95,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(isAdminMode);
   
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
+  const { openAuthModal } = useAuthModal();
   const { t, isRTL } = useTranslation();
   const { language, setLanguage } = useLanguage();
   const { theme: brandTheme } = useThemeSettings();
