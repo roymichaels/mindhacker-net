@@ -3011,7 +3011,7 @@ export const he = {
       cta: '⚡ התחל לבנות',
       personalCoach: 'מאמן AI אישי 24/7',
       plan100: 'תוכנית 100 יום מותאמת',
-      domains14: '14 תחומי חיים',
+      domains14: '15 תחומי חיים',
       hypnosis: 'היפנוזה מותאמת אישית',
       gamification: 'גיימיפיקציה מלאה',
       orbAvatar: 'אווטאר Orb אישי',
