@@ -2957,7 +2957,7 @@ export const en: TranslationKeys = {
       cta: '⚡ Start Building',
       personalCoach: 'Personal AI Coach 24/7',
       plan100: 'Tailored 100-Day Plan',
-      domains14: '14 Life Domains',
+      domains14: '15 Life Domains',
       hypnosis: 'Custom Hypnosis Sessions',
       gamification: 'Full Gamification',
       orbAvatar: 'Personalized Orb Avatar',
