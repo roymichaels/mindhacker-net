@@ -34,7 +34,7 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { AuroraOrbIcon } from "@/components/icons/AuroraOrbIcon";
 
-import { AuthModal } from "./AuthModal";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import AdminSidebar from "./panel/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
 
@@ -95,8 +95,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(isAdminMode);
   
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
+  const { openAuthModal } = useAuthModal();
   const { t, isRTL } = useTranslation();
   const { language, setLanguage } = useLanguage();
   const { theme: brandTheme } = useThemeSettings();
@@ -194,17 +193,11 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => {
-          setAuthModalMode("login");
-          setAuthModalOpen(true);
-        }}>
+        <DropdownMenuItem onClick={() => openAuthModal('login')}>
           <LogOut className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4 rotate-180`} />
           {t('common.login')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => {
-          setAuthModalMode("signup");
-          setAuthModalOpen(true);
-        }}>
+        <DropdownMenuItem onClick={() => openAuthModal('signup')}>
           <User className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
           {t('common.signup')}
         </DropdownMenuItem>
@@ -329,11 +322,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
         </div>
       </header>
 
-      <AuthModal 
-        open={authModalOpen} 
-        onOpenChange={setAuthModalOpen} 
-        defaultView={authModalMode}
-      />
     </>
   );
 };
