@@ -364,7 +364,7 @@ export default function Documentation() {
         `${brandName} offers three subscription tiers in a "Depth of Power" hierarchy:`,
         `Awakening (Free): Basic structure, XP/leveling, 5 daily Aurora messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
         `Optimization ($69/mo): Unlimited Aurora memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
-        `Command ($199/mo): All 14 pillars, the proactive engine, and modular plan updates — completing assessments injects new strategies into the active plan.`,
+        `Command ($199/mo): All 15 pillars, the proactive engine, and modular plan updates — completing assessments injects new strategies into the active plan.`,
       ],
     },
     {
