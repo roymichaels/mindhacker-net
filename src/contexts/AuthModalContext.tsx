@@ -1,6 +1,10 @@
 /**
  * AuthModalContext — triggers the real Web3Auth SDK modal directly.
  * After Web3Auth login, bridges to a Supabase session automatically.
+ *
+ * IMPORTANT: Bridging only happens after an explicit user-initiated login.
+ * The SDK may retain a cached connection between page loads; we must NOT
+ * auto-bridge from that cached state — otherwise logout is impossible.
  */
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +44,9 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   pendingCallbackRef.current = pendingCallback;
   const bridgedRef = useRef(false);
 
+  // Gate: only bridge when the user explicitly clicked "sign in"
+  const loginIntentRef = useRef(false);
+
   const { isInitialized, isConnected, initError } = useWeb3Auth();
   const { connect } = useWeb3AuthConnect();
   const { userInfo, getUserInfo } = useWeb3AuthUser();
@@ -73,11 +80,11 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
         await exchangeForSupabaseSession({ email, name, idToken });
 
-        // Prevent stale SDK overlay/session from lingering after successful bridge.
+        // Clean up SDK connection after successful bridge
         try {
           await disconnect({ cleanup: true });
         } catch (e) {
-          console.warn('[Web3Auth] Disconnect after bridge failed (non-blocking):', e);
+          console.warn('[Web3Auth] Disconnect after bridge (non-blocking):', e);
         }
 
         toast({ title: 'Login successful', description: 'Welcome back!' });
@@ -93,14 +100,15 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         });
       } finally {
         setIsAuthenticating(false);
+        loginIntentRef.current = false;
       }
     },
     [userInfo?.email, userInfo?.name, getIdentityToken, isAuthenticating, disconnect]
   );
 
-  // Fallback bridge trigger when hooks update after connect
+  // Fallback bridge: only when user explicitly initiated login
   useEffect(() => {
-    if (isConnected && userInfo?.email && !bridgedRef.current) {
+    if (loginIntentRef.current && isConnected && userInfo?.email && !bridgedRef.current) {
       doBridge(userInfo as BasicWeb3AuthUser);
     }
   }, [isConnected, userInfo?.email, doBridge]);
@@ -120,6 +128,20 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // On mount: if SDK has a stale cached connection, disconnect it silently
+  // so it doesn't interfere with fresh logins.
+  const mountCleanupDone = useRef(false);
+  useEffect(() => {
+    if (mountCleanupDone.current) return;
+    if (!isInitialized) return;
+    mountCleanupDone.current = true;
+
+    if (isConnected) {
+      console.log('[Web3Auth] Clearing stale SDK connection on mount');
+      disconnect({ cleanup: true }).catch(() => {});
+    }
+  }, [isInitialized, isConnected, disconnect]);
 
   const openAuthModal = useCallback(
     async (_view: 'login' | 'signup' = 'login', onSuccess?: () => void) => {
@@ -149,13 +171,25 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // Mark explicit user intent so the bridge is allowed
+      loginIntentRef.current = true;
+      bridgedRef.current = false;
+
       try {
-        if (!isConnected) {
-          console.log('[Web3Auth] Opening SDK modal...');
-          await connect();
+        // Always disconnect first to clear any cached SDK session,
+        // ensuring the modal shows fresh provider options.
+        if (isConnected) {
+          try {
+            await disconnect({ cleanup: true });
+          } catch {
+            // non-blocking
+          }
         }
 
-        // Fetch user info — try multiple times as it may take a moment after connect
+        console.log('[Web3Auth] Opening SDK modal...');
+        await connect();
+
+        // Fetch user info — retry as it may take a moment after connect
         let resolvedEmail: string | undefined;
         let resolvedName: string | undefined;
 
@@ -163,13 +197,12 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           try {
             const info = await getUserInfo();
             console.log(`[Web3Auth] getUserInfo() attempt ${attempt + 1}:`, JSON.stringify(info));
-            
+
             if (info) {
-              // Try all known field locations for email
-              resolvedEmail = (info as any).email 
-                || (info as any).verifierId 
+              resolvedEmail = (info as any).email
+                || (info as any).verifierId
                 || (info as any).verifier_id;
-              resolvedName = (info as any).name 
+              resolvedName = (info as any).name
                 || (info as any).displayName;
             }
           } catch (e) {
@@ -178,22 +211,20 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
           if (resolvedEmail) break;
 
-          // Also check the hook-provided userInfo
           if (userInfo?.email) {
             resolvedEmail = userInfo.email;
             resolvedName = userInfo.name;
-            console.log('[Web3Auth] Got email from hook userInfo:', resolvedEmail);
             break;
           }
 
-          // Wait briefly for state to propagate
           await new Promise((r) => setTimeout(r, 800));
         }
 
         if (resolvedEmail) {
           await doBridge({ email: resolvedEmail, name: resolvedName });
         } else {
-          console.error('[Web3Auth] No email found after all attempts. userInfo hook:', JSON.stringify(userInfo));
+          console.error('[Web3Auth] No email found after all attempts');
+          loginIntentRef.current = false;
           toast({
             title: 'Authentication incomplete',
             description: 'Could not retrieve your email. Please try again.',
@@ -201,6 +232,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } catch (err: any) {
+        loginIntentRef.current = false;
         if (
           err?.message?.includes('user closed') ||
           err?.message?.includes('popup') ||
@@ -216,14 +248,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         });
       }
     },
-    [isInitialized, isConnected, initError, connect, getUserInfo, userInfo?.email, doBridge, isAuthenticating]
+    [isInitialized, isConnected, initError, connect, disconnect, getUserInfo, userInfo?.email, doBridge, isAuthenticating]
   );
 
   const closeAuthModal = useCallback(() => {
+    loginIntentRef.current = false;
     setPendingCallback(undefined);
-    void disconnect({ cleanup: true }).catch((e) => {
-      console.warn('[Web3Auth] Disconnect on close failed (non-blocking):', e);
-    });
+    disconnect({ cleanup: true }).catch(() => {});
   }, [disconnect]);
 
   return (
