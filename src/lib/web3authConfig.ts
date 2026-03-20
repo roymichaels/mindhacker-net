@@ -40,8 +40,6 @@ const MAINNET_CHAIN = {
   logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
 };
 
-const BUNDLER_URL =
-  import.meta.env.VITE_WEB3AUTH_BUNDLER_URL || 'https://public.pimlico.io/v2/1/rpc';
 
 const withConnectionId = (
   config: NonNullable<LoginMethodConfig[keyof LoginMethodConfig]>,
@@ -93,17 +91,6 @@ export const web3AuthOptions: Web3AuthOptions = {
   web3AuthNetwork: WEB3AUTH_NETWORK_VALUE,
   enableLogging: true,
   chains: [MAINNET_CHAIN],
-  accountAbstractionConfig: {
-    chains: [
-      {
-        chainId: MAINNET_CHAIN.chainId,
-        bundlerConfig: {
-          url: BUNDLER_URL,
-        },
-      },
-    ],
-  },
-  useAAWithExternalWallet: false,
   modalConfig: {
     connectors: {
       [WALLET_CONNECTORS.AUTH]: {
