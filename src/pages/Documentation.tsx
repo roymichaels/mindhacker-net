@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { useWhitepaperPDF } from '@/hooks/useWhitepaperPDF';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Download, Loader2, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Web3Roadmap } from '@/components/docs/Web3Roadmap';
 import { TokenomicsSection } from '@/components/docs/TokenomicsSection';
+import { WhitepaperModeModal } from '@/components/docs/WhitepaperModeModal';
+import { VisualWhitepaper } from '@/components/docs/VisualWhitepaper';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
