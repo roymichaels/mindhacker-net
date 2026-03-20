@@ -1,6 +1,6 @@
 /**
  * FMAppShell — Self-contained app shell for the Free Market module.
- * Gates access behind Soul Avatar minting wizard.
+ * Gates access behind AION activation wizard.
  */
 import { Outlet } from 'react-router-dom';
 import { useFMWallet } from '@/hooks/useFMWallet';
