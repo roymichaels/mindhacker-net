@@ -20,16 +20,6 @@ export default function Web3AuthProviderWrapper({ children }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Polyfills required by Web3Auth SDK in Vite
-    if (typeof globalThis.Buffer === 'undefined') {
-      import('buffer').then(({ Buffer }) => {
-        (globalThis as any).Buffer = Buffer;
-      });
-    }
-    if (typeof (globalThis as any).global === 'undefined') {
-      (globalThis as any).global = globalThis;
-    }
-
     let cancelled = false;
 
     getWeb3AuthClientId()
