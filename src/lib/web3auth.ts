@@ -25,7 +25,8 @@ async function loadAndInit() {
     throw new Error('Failed to load Web3Auth config');
   }
 
-  const instance = new Web3Auth({
+  // Use `any` to avoid type mismatches across Web3Auth SDK versions
+  const options: any = {
     clientId: cfg.clientId,
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
     chainConfig: {
@@ -41,8 +42,9 @@ async function loadAndInit() {
       mode: 'dark',
       loginMethodsOrder: ['google', 'apple', 'email_passwordless'],
     },
-  });
+  };
 
+  const instance = new Web3Auth(options);
   await instance.init();
   web3authInstance = instance;
   return instance;
