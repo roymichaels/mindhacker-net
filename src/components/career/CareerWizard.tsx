@@ -30,12 +30,12 @@ interface CareerWizardProps {
   onComplete?: () => void;
 }
 
-const PATH_META: Record<CareerPath, { icon: typeof Briefcase; gradient: string; border: string; titleHe: string; titleEn: string }> = {
-  coach: { icon: GraduationCap, gradient: 'from-purple-500/20 to-indigo-500/10', border: 'border-purple-500/30', titleHe: 'הגשת מועמדות — מאמן', titleEn: 'Apply — Coach' },
-  therapist: { icon: Heart, gradient: 'from-rose-500/20 to-pink-500/10', border: 'border-rose-500/30', titleHe: 'הגשת מועמדות — מטפל', titleEn: 'Apply — Therapist' },
-  freelancer: { icon: Code, gradient: 'from-emerald-500/20 to-teal-500/10', border: 'border-emerald-500/30', titleHe: 'הגשת מועמדות — פרילנסר', titleEn: 'Apply — Freelancer' },
-  creator: { icon: Palette, gradient: 'from-sky-500/20 to-blue-500/10', border: 'border-sky-500/30', titleHe: 'הגשת מועמדות — יוצר תוכן', titleEn: 'Apply — Creator' },
-  business: { icon: Briefcase, gradient: 'from-amber-500/20 to-orange-500/10', border: 'border-amber-500/30', titleHe: 'הגשת מועמדות — בעל עסק', titleEn: 'Apply — Business' },
+const PATH_META: Record<CareerPath, { icon: typeof Briefcase; titleHe: string; titleEn: string }> = {
+  coach: { icon: GraduationCap, titleHe: 'הגשת מועמדות — מאמן', titleEn: 'Apply — Coach' },
+  therapist: { icon: Heart, titleHe: 'הגשת מועמדות — מטפל', titleEn: 'Apply — Therapist' },
+  freelancer: { icon: Code, titleHe: 'הגשת מועמדות — פרילנסר', titleEn: 'Apply — Freelancer' },
+  creator: { icon: Palette, titleHe: 'הגשת מועמדות — יוצר תוכן', titleEn: 'Apply — Creator' },
+  business: { icon: Briefcase, titleHe: 'הגשת מועמדות — בעל עסק', titleEn: 'Apply — Business' },
 };
 
 export default function CareerWizard({ careerPath, onComplete }: CareerWizardProps) {
