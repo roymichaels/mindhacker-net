@@ -142,13 +142,13 @@ function StepWelcome({ isHe, onNext }: { isHe: boolean; onNext: () => void }) {
         <PersonalizedOrb size={120} state="listening" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-violet-400 to-accent bg-clip-text text-transparent">
-          {isHe ? 'ברוכים הבאים לממלכת הנשמה' : 'Enter the Soul Realm'}
+         <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-violet-400 to-accent bg-clip-text text-transparent">
+          {isHe ? 'ברוכים הבאים ל-AION' : 'Enter AION'}
         </h2>
         <p className="text-sm text-muted-foreground max-w-sm">
           {isHe
-            ? 'הצמיחה שלך עומדת להפוך לנצחית. צור Soul Avatar NFT — הייצוג הדיגיטלי הייחודי שלך.'
-            : 'Your growth is about to become permanent. Create your Soul Avatar NFT — your unique digital identity.'}
+            ? 'הצמיחה שלך עומדת להפוך לנצחית. צור את ה-AION שלך — הזהות הדיגיטלית המתפתחת שלך.'
+            : 'Your growth is about to become permanent. Create your AION — your evolving digital identity.'}
         </p>
       </div>
       <Button onClick={onNext} size="lg" className="gap-2 px-8">
