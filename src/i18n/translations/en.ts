@@ -3110,7 +3110,7 @@ export const en: TranslationKeys = {
       subtitle: 'One system. 15 pillars. Two modes — Map and Movement.',
       coreTitle: '🧠 Core — The Map',
       coreSubtitle: 'Assessment, strategy & 100-day planning',
-      coreDesc: 'Diagnose all 14 domains, build a personalized 100-day plan, and track results.',
+      coreDesc: 'Diagnose all 15 domains, build a personalized 100-day plan, and track results.',
       arenaTitle: '⚔️ Arena — The Movement',
       arenaSubtitle: 'Daily execution, live tasks & momentum',
       arenaDesc: 'Execute your tasks today — action queue, habits, and real-time feedback.',
