@@ -85,6 +85,14 @@ const AUTH_CONNECTION_MAP: Record<string, string> = {
 
 export type Web3AuthProvider = 'google' | 'apple' | 'email_passwordless';
 
+export type Web3AuthUserInfo = {
+  email: string;
+  name?: string;
+  idToken?: string;
+  profileImage?: string;
+  typeOfLogin?: string;
+};
+
 /**
  * Connects via Web3Auth for the chosen provider.
  * Returns the authenticated user's info (email, name, idToken).
@@ -116,13 +124,27 @@ export async function loginWithProvider(
     throw new Error('Web3Auth did not return an email address');
   }
 
-  return userInfo as {
-    email: string;
-    name?: string;
-    idToken?: string;
-    profileImage?: string;
-    typeOfLogin?: string;
-  };
+  return userInfo as Web3AuthUserInfo;
+}
+
+/**
+ * Opens the native Web3Auth modal (provider chooser) and returns user info.
+ */
+export async function loginWithWeb3AuthModal() {
+  const web3auth = await getWeb3Auth();
+
+  if (web3auth.status === 'connected') {
+    try { await web3auth.logout(); } catch { /* ignore */ }
+  }
+
+  await web3auth.connect();
+
+  const userInfo = await web3auth.getUserInfo();
+  if (!userInfo?.email) {
+    throw new Error('Web3Auth did not return an email address');
+  }
+
+  return userInfo as Web3AuthUserInfo;
 }
 
 /**
