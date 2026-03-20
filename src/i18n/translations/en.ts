@@ -2684,7 +2684,7 @@ export const en: TranslationKeys = {
     featureTokensDesc: "Collect tokens for features",
     featureAchievements: "Achievements",
     featureAchievementsDesc: "Unlock 20+ achievements",
-    xpChat: "Chat with Aurora",
+    xpChat: "Chat with AION",
     xpTask: "Completed task",
     xpInsight: "Saved insight",
     xpDaily: "Daily streak",

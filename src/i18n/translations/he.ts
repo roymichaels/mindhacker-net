@@ -3333,7 +3333,7 @@ export const he = {
   welcome: {
     yourJourneyBegins: "המסע שלך מתחיל",
     startTransformationJourney: "התחל מסע טרנספורמציה",
-    chatWithAurora: "שוחח עם אורורה",
+    chatWithAurora: "שוחח עם AION",
     level: "רמה",
     streak: "סטריק",
     tokens: "טוקנים",
