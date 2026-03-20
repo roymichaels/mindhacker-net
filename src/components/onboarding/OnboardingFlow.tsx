@@ -9,6 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, ArrowRight, X, GripVertical, Globe } from 'lucide-react';
+import { WizardHeader } from '@/components/ui/WizardHeader';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
