@@ -96,9 +96,9 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
         descEn: 'Quick wins to get started', descHe: 'ניצחונות מהירים להתחלה',
         color: 'from-emerald-500/20 to-teal-500/20',
         steps: [
-          { title: 'Talk to Aurora', titleHe: 'דבר עם אורורה',
-            description: 'Open the chat dock and introduce yourself. Tell Aurora about your goals, interests, and what you want to change in your life. She\'ll start building your personalized plan.',
-            descriptionHe: 'פתח את דוק הצ\'אט והצג את עצמך. ספר לאורורה על המטרות, התחומי עניין ומה אתה רוצה לשנות. היא תתחיל לבנות את התוכנית שלך.' },
+          { title: 'Talk to AION', titleHe: 'דבר עם AION',
+            description: 'Open the chat dock and introduce yourself. Tell AION about your goals, interests, and what you want to change in your life. It\'ll start building your personalized plan.',
+            descriptionHe: 'פתח את דוק הצ\'אט והצג את עצמך. ספר ל-AION על המטרות, התחומי עניין ומה אתה רוצה לשנות. הוא יתחיל לבנות את התוכנית שלך.' },
           { title: 'Complete Your First Action', titleHe: 'השלם את הפעולה הראשונה',
             description: 'Go to the "Now" page and complete your first action item. This earns you XP and starts your streak. Every small step counts!',
             descriptionHe: `עבור לעמוד "עכשיו" והשלם את פריט הפעולה הראשון. זה מרוויח ${ltr('XP')} ומתחיל את הרצף שלך. כל צעד קטן נחשב!`,
