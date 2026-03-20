@@ -15,6 +15,7 @@ import ReactMarkdown from 'react-markdown';
 
 import { toast } from 'sonner';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { useAION } from '@/identity';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
@@ -23,6 +24,8 @@ interface AuroraChatBubblesProps {
 const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesProps) => {
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
+  const { aion, isActivated } = useAION();
+  const aiDisplayName = isActivated ? aion.name : 'Aurora';
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const { 
     activeConversationId, 
@@ -183,9 +186,13 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
         )}
         {messages.length === 0 && !streamingContent && (
           <div className="text-center text-muted-foreground text-sm pb-4">
-            {language === 'he' 
-              ? 'שלום! אני אורורה, המלווה שלך. איך אוכל לעזור?' 
-              : 'Hello! I\'m Aurora, your companion. How can I help?'}
+            {language === 'he'
+              ? isActivated
+                ? `אני ${aion.name}. הגרסה שלך — בלי הרעש.`
+                : 'שלום! אני אורורה, המלווה שלך. איך אוכל לעזור?'
+              : isActivated
+                ? `I'm ${aion.name}. Your version — without the noise.`
+                : "Hello! I'm Aurora, your companion. How can I help?"}
           </div>
         )}
 
@@ -221,7 +228,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                   "text-[10px] font-semibold block px-1",
                   isAI ? "text-fuchsia-400/70" : "text-primary/50 text-end"
                 )}>
-                  {isAI ? 'Aurora' : (language === 'he' ? 'את/ה' : 'You')}
+                  {isAI ? aiDisplayName : (language === 'he' ? 'את/ה' : 'You')}
                 </span>
 
                 <div

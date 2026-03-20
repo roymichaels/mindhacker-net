@@ -18,6 +18,7 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Star, Flame, Zap, Shield, Sparkles, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAION } from '@/identity';
 
 interface OrbNFTCardProps {
   onTapOrb?: () => void;
@@ -27,6 +28,7 @@ interface OrbNFTCardProps {
 export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const { aion, isActivated } = useAION();
   const { profile } = useOrbProfile();
   const xp = useXpProgress();
   const streak = useStreak();
@@ -110,8 +112,17 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
 
         {/* Identity */}
         <div className="text-center space-y-1">
+          {/* AION name — prominent display */}
+          {isActivated && (
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary/60 font-bold mb-0.5">
+              {isHe ? 'ה-AION שלך' : 'Your AION'}
+            </p>
+          )}
+          {isActivated && (
+            <h2 className="text-lg font-black text-foreground">{aion.name}</h2>
+          )}
           {dashboard.identityTitle && (
-            <h3 className="text-base font-bold text-foreground">
+            <h3 className={cn("text-base font-bold text-foreground", isActivated && "text-sm text-muted-foreground")}>
               {dashboard.identityTitle.icon} {isHe ? dashboard.identityTitle.title : dashboard.identityTitle.titleEn}
             </h3>
           )}
