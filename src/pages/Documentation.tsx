@@ -564,7 +564,7 @@ export default function Documentation() {
                     isRTL ? "text-right" : "text-left"
                   )}
                 >
-                  <span dir="ltr" className="text-primary/60 font-mono shrink-0">{section.number}.</span>
+                  <span dir="ltr" className="text-primary/60 font-mono shrink-0">{isRTL ? `.${section.number}` : `${section.number}.`}</span>
                   <span dir={isRTL ? 'rtl' : 'ltr'} style={{ unicodeBidi: 'plaintext' }}>
                     {section.title}
                   </span>
@@ -653,7 +653,7 @@ export default function Documentation() {
                     isRTL ? "text-right" : "text-left"
                   )}
                 >
-                  <span dir="ltr" className="font-mono text-xs text-primary/60 shrink-0">{item.number}.</span>
+                  <span dir="ltr" className="font-mono text-xs text-primary/60 shrink-0">{isRTL ? `.${item.number}` : `${item.number}.`}</span>
                   <span
                     dir={isRTL ? 'rtl' : 'ltr'}
                     style={{ unicodeBidi: 'plaintext' }}
