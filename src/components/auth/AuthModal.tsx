@@ -1,10 +1,27 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { exchangeForSupabaseSession, loginWithWeb3AuthModal } from '@/lib/web3auth';
+import { exchangeForSupabaseSession } from '@/lib/web3auth';
+
+// Conditionally import Web3Auth hooks — they're only available when
+// the Web3AuthProvider has been rendered (i.e. client ID was fetched).
+let useWeb3AuthConnect: any;
+let useWeb3AuthDisconnect: any;
+let useWeb3AuthUser: any;
+let useWeb3Auth: any;
+
+try {
+  const mod = require('@web3auth/modal/react');
+  useWeb3AuthConnect = mod.useWeb3AuthConnect;
+  useWeb3AuthDisconnect = mod.useWeb3AuthDisconnect;
+  useWeb3AuthUser = mod.useWeb3AuthUser;
+  useWeb3Auth = mod.useWeb3Auth;
+} catch {
+  // Will be undefined if provider not mounted
+}
 
 interface AuthModalProps {
   open: boolean;
@@ -13,65 +30,96 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
-/* ---------- icons (unchanged) ---------- */
-
-const GoogleIcon = () => (
-  <svg className="h-5 w-5" viewBox="0 0 24 24">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-  </svg>
-);
-
-/* ---------- component ---------- */
-
 export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess }: AuthModalProps) {
   const { t, isRTL } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isBridging, setIsBridging] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  /**
-   * Unified handler: open native Web3Auth modal → exchange for backend session.
-   */
-  const handleLogin = async () => {
-    setIsLoading(true);
+  // Attempt to use Web3Auth hooks (available when provider is mounted)
+  let w3aConnect: any = null;
+  let w3aUser: any = null;
+  let w3aState: any = null;
+
+  try {
+    if (useWeb3AuthConnect) w3aConnect = useWeb3AuthConnect();
+    if (useWeb3AuthUser) w3aUser = useWeb3AuthUser();
+    if (useWeb3Auth) w3aState = useWeb3Auth();
+  } catch {
+    // Hooks not available — provider not mounted
+  }
+
+  const sdkReady = !!w3aConnect && !!w3aState?.isInitialized;
+
+  const handleConnect = async () => {
+    setAuthError(null);
+
+    if (!sdkReady) {
+      setAuthError('Authentication service is still loading. Please try again in a moment.');
+      return;
+    }
 
     try {
-      // 1. Authenticate with Web3Auth (opens native modal)
-      const userInfo = await loginWithWeb3AuthModal();
+      // Opens the native Web3Auth / MetaMask Embedded Wallets modal
+      await w3aConnect.connect();
+    } catch (err: any) {
+      // User closed popup → not a real error
+      if (err?.message?.includes('user closed') || err?.message?.includes('popup') || err?.code === 5000) {
+        return;
+      }
+      console.error('[AuthModal] Web3Auth connect error:', err);
+      setAuthError(err?.message || 'Connection failed');
+      return;
+    }
 
-      // 2. Exchange Web3Auth identity for Supabase session
-      await exchangeForSupabaseSession({
-        email: userInfo.email,
-        name: userInfo.name,
-        idToken: userInfo.idToken,
-      });
+    // After connect, get user info and bridge to Supabase
+    setIsBridging(true);
+    try {
+      const userInfo = w3aUser?.userInfo;
+      if (!userInfo?.email) {
+        // Try getting from the web3auth instance directly
+        const info = await w3aState.web3Auth?.getUserInfo();
+        if (!info?.email) {
+          throw new Error('No email returned from authentication');
+        }
+        await bridgeToSupabase(info);
+      } else {
+        await bridgeToSupabase(userInfo);
+      }
 
       toast({ title: t('messages.loginSuccess'), description: t('messages.welcomeBack') });
       onOpenChange(false);
       onSuccess?.();
     } catch (err: any) {
-      // User closed popup → not a real error
-      if (err?.message?.includes('user closed') || err?.message?.includes('popup')) {
-        // silently ignore
-      } else {
-        toast({
-          title: t('auth.loginError'),
-          description: err?.message || 'Login failed',
-          variant: 'destructive',
-        });
-      }
+      console.error('[AuthModal] Supabase bridge error:', err);
+      setAuthError(err?.message || 'Failed to complete authentication');
     } finally {
-      setIsLoading(false);
+      setIsBridging(false);
     }
   };
 
-  const handleOpenChange = (nextOpen: boolean) => {
-    onOpenChange(nextOpen);
+  const bridgeToSupabase = async (info: { email: string; name?: string; idToken?: string }) => {
+    // Get the id token for verification
+    let idToken = info.idToken;
+    if (!idToken && w3aState?.web3Auth) {
+      try {
+        const tokenResult = await w3aState.web3Auth.authenticateUser();
+        idToken = tokenResult?.idToken;
+      } catch {
+        console.warn('[AuthModal] Could not get idToken, proceeding without verification');
+      }
+    }
+
+    await exchangeForSupabaseSession({
+      email: info.email,
+      name: info.name,
+      idToken: idToken,
+    });
   };
 
+  const isLoading = w3aConnect?.loading || isBridging || w3aState?.isInitializing;
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-primary text-center">
@@ -83,16 +131,48 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Error display */}
+          {authError && (
+            <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
           <Button
             variant="outline"
             size="lg"
             className="w-full gap-2"
             disabled={isLoading}
-            onClick={handleLogin}
+            onClick={handleConnect}
           >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-            Continue with Web3Auth
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {isBridging ? 'Setting up session…' : 'Connecting…'}
+              </>
+            ) : (
+              <>
+                <svg className="h-5 w-5" viewBox="0 0 784.37 1277.39" xmlns="http://www.w3.org/2000/svg">
+                  <g>
+                    <polygon fill="#343434" points="392.07,0 383.5,29.11 383.5,873.74 392.07,882.29 784.13,650.54" />
+                    <polygon fill="#8C8C8C" points="392.07,0 0,650.54 392.07,882.29 392.07,472.33" />
+                    <polygon fill="#3C3C3B" points="392.07,956.52 387.24,962.41 387.24,1263.28 392.07,1277.38 784.37,724.89" />
+                    <polygon fill="#8C8C8C" points="392.07,1277.38 392.07,956.52 0,724.89" />
+                    <polygon fill="#141414" points="392.07,882.29 784.13,650.54 392.07,472.33" />
+                    <polygon fill="#393939" points="0,650.54 392.07,882.29 392.07,472.33" />
+                  </g>
+                </svg>
+                Sign in with Web3Auth
+              </>
+            )}
           </Button>
+
+          {!sdkReady && !w3aState?.isInitializing && (
+            <p className="text-xs text-center text-muted-foreground">
+              Loading authentication service…
+            </p>
+          )}
 
           <p className="text-xs text-center text-muted-foreground pt-2">
             {t('auth.termsAgreement')}
