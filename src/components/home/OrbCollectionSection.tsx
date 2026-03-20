@@ -1,6 +1,7 @@
 /**
- * OrbCollectionSection — Merged "Visual DNA" + "Orb Evolution" into one
- * gamified section with tabbed phases and DNA explanation.
+ * OrbCollectionSection — AION visual identity evolution showcase.
+ * The Orb is the visual renderer for the AION identity.
+ * Shows how the Orb evolves as the user's AION grows.
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
