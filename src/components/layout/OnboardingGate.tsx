@@ -78,7 +78,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
           <div className="sticky top-0 z-[60] flex items-center justify-between gap-3 bg-primary/10 border-b border-primary/20 px-4 py-2">
             <div className="flex items-center gap-2 text-sm text-foreground">
               <Rocket className="h-4 w-4 text-primary shrink-0" />
-              <span>You haven't completed onboarding yet.</span>
+              <span>{isRTL ? 'עדיין לא השלמת את תהליך ההצטרפות.' : 'You haven\'t completed onboarding yet.'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Button
