@@ -44,7 +44,6 @@
     "@types/canvas-confetti": "^1.9.0",
     "@types/dompurify": "^3.2.0",
     "@types/three": "^0.160.0",
-    "@web3auth/auth-adapter": "^9.7.0",
     "@web3auth/base": "^9.7.0",
     "@web3auth/ethereum-provider": "^9.7.0",
     "canvas-confetti": "^1.9.4",
