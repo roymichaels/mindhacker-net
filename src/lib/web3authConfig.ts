@@ -40,6 +40,7 @@ export function buildWeb3AuthOptions(clientId: string): Web3AuthOptions {
         blockExplorerUrl: 'https://etherscan.io',
         ticker: 'ETH',
         tickerName: 'Ethereum',
+        logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
       },
     ],
   };
