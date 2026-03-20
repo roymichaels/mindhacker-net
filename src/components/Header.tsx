@@ -193,10 +193,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => {
-          setAuthModalMode("login");
-          setAuthModalOpen(true);
-        }}>
+        <DropdownMenuItem onClick={() => openAuthModal('login')}>
           <LogOut className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4 rotate-180`} />
           {t('common.login')}
         </DropdownMenuItem>
