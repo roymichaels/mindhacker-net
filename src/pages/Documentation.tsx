@@ -33,6 +33,23 @@ export default function Documentation() {
   const he = language === 'he';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { contentRef, capture: downloadPDF, capturing } = useWhitepaperPDF('whitepaper.pdf');
+  const [mode, setMode] = useState<'simple' | 'visual' | null>(null);
+
+  // Mode selection screen
+  if (mode === null) {
+    return (
+      <AnimatePresence>
+        <WhitepaperModeModal onSelect={setMode} isHe={he} />
+      </AnimatePresence>
+    );
+  }
+
+  // Visual mode
+  if (mode === 'visual') {
+    return <VisualWhitepaper onExit={() => setMode(null)} />;
+  }
+
+  // Simple mode continues below...
 
   const brandName = he ? theme.brand_name : theme.brand_name_en;
   const founderName = he ? theme.founder_name : theme.founder_name_en;
