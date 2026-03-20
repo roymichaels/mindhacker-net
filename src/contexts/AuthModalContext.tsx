@@ -27,6 +27,83 @@ interface AuthModalContextType {
 type BasicWeb3AuthUser = {
   email?: string;
   name?: string;
+  idToken?: string;
+};
+
+const asNonEmptyString = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+};
+
+const normalizeIdentityEmail = (candidate?: string): string | undefined => {
+  if (!candidate) return undefined;
+  const trimmed = candidate.trim().toLowerCase();
+  if (!trimmed) return undefined;
+
+  if (trimmed.includes('@')) return trimmed;
+
+  const normalized = trimmed.replace(/^0x/, '').replace(/[^a-z0-9]/g, '');
+  if (!normalized) return undefined;
+
+  return `${normalized.slice(0, 48)}@wallet.mindos.app`;
+};
+
+const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
+  try {
+    const [, payloadPart] = token.split('.');
+    if (!payloadPart) return null;
+
+    const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    return JSON.parse(atob(padded)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+};
+
+const resolveIdentityFromAny = (value: unknown): BasicWeb3AuthUser => {
+  if (!value || typeof value !== 'object') return {};
+
+  const source = value as Record<string, unknown>;
+
+  let walletAddress: string | undefined;
+  if (Array.isArray(source.wallets) && source.wallets.length > 0) {
+    const firstWallet = source.wallets[0];
+    if (firstWallet && typeof firstWallet === 'object') {
+      const walletObj = firstWallet as Record<string, unknown>;
+      walletAddress =
+        asNonEmptyString(walletObj.public_key) ||
+        asNonEmptyString(walletObj.publicKey) ||
+        asNonEmptyString(walletObj.address);
+    }
+  }
+
+  const rawIdentity =
+    asNonEmptyString(source.email) ||
+    asNonEmptyString(source.verifierId) ||
+    asNonEmptyString(source.verifier_id) ||
+    asNonEmptyString(source.publicAddress) ||
+    asNonEmptyString(source.walletAddress) ||
+    asNonEmptyString(source.address) ||
+    walletAddress;
+
+  const email = normalizeIdentityEmail(rawIdentity);
+
+  const name =
+    asNonEmptyString(source.name) ||
+    asNonEmptyString(source.displayName) ||
+    asNonEmptyString(source.verifier) ||
+    (email?.endsWith('@wallet.mindos.app') ? 'Wallet User' : undefined);
+
+  return { email, name };
+};
+
+const resolveIdentityFromIdToken = (idToken?: string): BasicWeb3AuthUser => {
+  if (!idToken) return {};
+  const payload = decodeJwtPayload(idToken);
+  if (!payload) return {};
+  return resolveIdentityFromAny(payload);
 };
 
 const AuthModalContext = createContext<AuthModalContextType>({
@@ -60,6 +137,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       backdrop.style.pointerEvents = 'none';
     }
   }, []);
+
   const [pendingCallback, setPendingCallback] = useState<(() => void) | undefined>();
   const pendingCallbackRef = useRef<(() => void) | undefined>();
   pendingCallbackRef.current = pendingCallback;
@@ -78,11 +156,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     async (sourceUser?: BasicWeb3AuthUser | null) => {
       if (bridgedRef.current || isAuthenticating) return;
 
-      const email = sourceUser?.email || userInfo?.email;
-      const name = sourceUser?.name || userInfo?.name;
+      const fallbackIdentity = resolveIdentityFromAny(userInfo);
+      const email = sourceUser?.email || fallbackIdentity.email;
+      const name = sourceUser?.name || fallbackIdentity.name;
 
       if (!email) {
-        console.warn('[Web3Auth] No email from user info, cannot bridge to backend session');
+        console.warn('[Web3Auth] No identity found, cannot bridge to backend session');
+        loginIntentRef.current = false;
         return;
       }
 
@@ -90,11 +170,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticating(true);
 
       try {
-        let idToken: string | undefined;
-        try {
-          idToken = (await getIdentityToken()) || undefined;
-        } catch (e) {
-          console.warn('[Web3Auth] Could not get idToken:', e);
+        let idToken: string | undefined = sourceUser?.idToken;
+        if (!idToken) {
+          try {
+            idToken = (await getIdentityToken()) || undefined;
+          } catch (e) {
+            console.warn('[Web3Auth] Could not get idToken:', e);
+          }
         }
 
         console.log('[Web3Auth] Bridging session for:', email, 'hasIdToken:', !!idToken);
@@ -127,15 +209,16 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         loginIntentRef.current = false;
       }
     },
-    [userInfo?.email, userInfo?.name, getIdentityToken, isAuthenticating, disconnect]
+    [disconnect, forceCloseW3AModal, getIdentityToken, isAuthenticating, userInfo]
   );
 
   // Fallback bridge: only when user explicitly initiated login
   useEffect(() => {
-    if (loginIntentRef.current && isConnected && userInfo?.email && !bridgedRef.current) {
-      doBridge(userInfo as BasicWeb3AuthUser);
+    const resolvedIdentity = resolveIdentityFromAny(userInfo);
+    if (loginIntentRef.current && isConnected && resolvedIdentity.email && !bridgedRef.current) {
+      doBridge(resolvedIdentity);
     }
-  }, [isConnected, userInfo?.email, doBridge]);
+  }, [isConnected, userInfo, doBridge]);
 
   useEffect(() => {
     if (!isConnected) bridgedRef.current = false;
@@ -167,10 +250,12 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       console.log('[Web3Auth] Clearing stale SDK connection on mount');
       // Mark bridged to prevent any race with the fallback bridge effect
       bridgedRef.current = true;
-      disconnect({ cleanup: true }).catch(() => {}).finally(() => {
-        // After disconnect, reset bridgedRef so future intentional logins work
-        bridgedRef.current = false;
-      });
+      disconnect({ cleanup: true })
+        .catch(() => {})
+        .finally(() => {
+          // After disconnect, reset bridgedRef so future intentional logins work
+          bridgedRef.current = false;
+        });
     }
   }, [isInitialized, isConnected, disconnect]);
 
@@ -220,21 +305,20 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         console.log('[Web3Auth] Opening SDK modal...');
         await connect();
 
-        // Fetch user info — retry as it may take a moment after connect
+        // Fetch identity — retry as data may take a moment after connect
         let resolvedEmail: string | undefined;
         let resolvedName: string | undefined;
+        let resolvedIdToken: string | undefined;
 
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             const info = await getUserInfo();
             console.log(`[Web3Auth] getUserInfo() attempt ${attempt + 1}:`, JSON.stringify(info));
 
-            if (info) {
-              resolvedEmail = (info as any).email
-                || (info as any).verifierId
-                || (info as any).verifier_id;
-              resolvedName = (info as any).name
-                || (info as any).displayName;
+            const identityFromInfo = resolveIdentityFromAny(info);
+            if (identityFromInfo.email) {
+              resolvedEmail = identityFromInfo.email;
+              resolvedName = identityFromInfo.name;
             }
           } catch (e) {
             console.warn(`[Web3Auth] getUserInfo attempt ${attempt + 1} failed:`, e);
@@ -242,19 +326,34 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
           if (resolvedEmail) break;
 
-          if (userInfo?.email) {
-            resolvedEmail = userInfo.email;
-            resolvedName = userInfo.name;
+          const liveIdentity = resolveIdentityFromAny(userInfo);
+          if (liveIdentity.email) {
+            resolvedEmail = liveIdentity.email;
+            resolvedName = liveIdentity.name;
             break;
           }
 
           await new Promise((r) => setTimeout(r, 800));
         }
 
+        if (!resolvedEmail) {
+          try {
+            resolvedIdToken = (await getIdentityToken()) || undefined;
+            const tokenIdentity = resolveIdentityFromIdToken(resolvedIdToken);
+            if (tokenIdentity.email) {
+              resolvedEmail = tokenIdentity.email;
+              resolvedName = resolvedName || tokenIdentity.name;
+              console.log('[Web3Auth] Resolved identity from idToken payload');
+            }
+          } catch (e) {
+            console.warn('[Web3Auth] idToken fallback failed:', e);
+          }
+        }
+
         if (resolvedEmail) {
-          await doBridge({ email: resolvedEmail, name: resolvedName });
+          await doBridge({ email: resolvedEmail, name: resolvedName, idToken: resolvedIdToken });
         } else {
-          console.error('[Web3Auth] No email found after all attempts');
+          console.error('[Web3Auth] No identity found after all attempts');
           loginIntentRef.current = false;
           toast({
             title: 'Authentication incomplete',
@@ -279,7 +378,18 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         });
       }
     },
-    [isInitialized, isConnected, initError, connect, disconnect, getUserInfo, userInfo?.email, doBridge, isAuthenticating]
+    [
+      connect,
+      disconnect,
+      doBridge,
+      getIdentityToken,
+      getUserInfo,
+      initError,
+      isAuthenticating,
+      isConnected,
+      isInitialized,
+      userInfo,
+    ]
   );
 
   const closeAuthModal = useCallback(() => {
