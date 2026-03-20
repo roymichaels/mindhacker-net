@@ -20,7 +20,7 @@ interface WelcomeGateModalProps {
 export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) {
   const { isRTL } = useTranslation();
   const { openAuthModal } = useAuthModal();
-  const navigate = useNavigate();
+  
   const { smartNavigate } = useSmartOnboarding();
 
   const handleEnter = () => {
