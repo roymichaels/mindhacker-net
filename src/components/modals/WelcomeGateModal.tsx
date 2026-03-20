@@ -4,7 +4,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, LogIn, Rocket, Crown } from 'lucide-react';
+import { Sparkles, Rocket } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { useNavigate } from 'react-router-dom';
