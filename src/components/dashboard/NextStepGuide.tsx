@@ -201,7 +201,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
         <GuideBar
           emoji="🏆"
           title={isHe ? 'כל המשימות הושלמו!' : 'All tasks complete!'}
-          subtitle={isHe ? 'יום מצוין. שוחח עם אורורה לתכנון מחר' : 'Great day. Chat with Aurora to plan tomorrow'}
+          subtitle={isHe ? 'יום מצוין. שוחח עם AION לתכנון מחר' : 'Great day. Chat with AION to plan tomorrow'}
           accentClass="border-emerald-500/30 from-emerald-500/15 to-teal-500/10"
           iconColor="text-emerald-400"
           actionLabel={isHe ? 'אורורה' : 'Aurora'}
