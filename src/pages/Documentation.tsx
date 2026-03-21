@@ -222,11 +222,11 @@ export default function Documentation() {
       paragraphs: he ? [
         `${brandName} כולל מערכת היפנוזה ומדיטציה מונחית AI — סשנים מותאמים אישית שנוצרים בזמן אמת על בסיס מצב המשתמש, מטרותיו, ודפוסי התודעה שלו.`,
         `כל סשן משלב: (1) תסריט היפנוזה מותאם על בסיס הפרופיל, (2) המרת טקסט-לדיבור בזמן אמת, (3) מוזיקת רקע ותדרים בינאורליים, (4) עבודה עם מצבי אגו ותת-מודע, (5) ויזואליזציה ואפירמציות.`,
-        `כל סשן מתגמל MOS ומשפיע על ציון עמוד התודעה. Aurora משתמשת בהיסטוריית סשנים קודמים כדי להתאים תוכן, ושוזרת תובנות מעמודי חיים אחרים לתוך החוויה.`,
+        `כל סשן מתגמל MOS ומשפיע על ציון עמוד התודעה. AION משתמש בהיסטוריית סשנים קודמים כדי להתאים תוכן, ושוזר תובנות מעמודי חיים אחרים לתוך החוויה.`,
       ] : [
         `${brandName} includes an AI-guided hypnosis and meditation system — personalized sessions generated in real-time based on the user's state, goals, and consciousness patterns.`,
         `Each session combines: (1) custom hypnosis scripts generated based on the user's profile, (2) real-time text-to-speech conversion, (3) background music and binaural frequency layers, (4) ego state and subconscious work, (5) visualization and affirmation practice.`,
-        `Every session rewards MOS and affects the Consciousness Pillar score. Aurora uses previous session history to tailor content, weaving insights from other life pillars into the experience.`,
+        `Every session rewards MOS and affects the Consciousness Pillar score. AION uses previous session history to tailor content, weaving insights from other life pillars into the experience.`,
       ],
     },
     {
