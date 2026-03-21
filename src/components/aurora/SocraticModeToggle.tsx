@@ -74,8 +74,8 @@ export default function SocraticModeToggle() {
           </p>
           <p className="text-xs text-muted-foreground">
             {isHe
-              ? 'אורורה שואלת שאלות במקום לתת תשובות'
-              : 'Aurora asks questions instead of giving answers'}
+              ? 'שואל שאלות במקום לתת תשובות'
+              : 'Asks questions instead of giving answers'}
           </p>
         </div>
       </div>
