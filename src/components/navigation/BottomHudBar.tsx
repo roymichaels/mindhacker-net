@@ -119,7 +119,7 @@ export function BottomHudBar() {
           </div>
         </div>
 
-        {/* ── RIGHT: Aurora Orb → Opens Dock ── */}
+        {/* ── RIGHT: AION Brain Orb → Opens Chat Dock ── */}
         <div className="relative">
           {/* Balloon tooltip */}
           <AnimatePresence>
