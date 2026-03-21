@@ -122,9 +122,9 @@ export default function Documentation() {
           ] : [
             `Play is the heart of the platform — a unified execution hub that merges strategy, tactics, and daily execution into a single experience. All three Why-How-Now horizons live here.`,
             `The dashboard displays daily actions divided into 4 adventure-themed day quarters, each with a unique name that refreshes daily. A Movement Score measures real-time momentum, and each day is a Quest with a unique name — an entire week forms a Campaign.`,
-            `Includes: a 100-day plan divided into 10 phases with milestones, AI deep scans for 15 life pillars scoring 0-100, task and project management with AI prioritization, and a negotiation mechanism with Aurora about the plan — reprioritize, shift milestones, or regenerate the plan through conversation.`,
+            `Includes: a 100-day plan divided into 10 phases with milestones, AI deep scans for 15 life pillars scoring 0-100, task and project management with AI prioritization, and a negotiation mechanism with AION about the plan — reprioritize, shift milestones, or regenerate the plan through conversation.`,
             `The 15 unified Life Pillars: Consciousness, Image, Power, Vitality, Focus, Combat, Expansion, Wealth, Influence, Relationships, Business, Projects, Play, Order, and Romantics. Each pillar includes a chat-based AI assessment with a personalized results page.`,
-            `AI Coach Matching: Users can ask Aurora to find a coach to help execute their strategy — Aurora conducts a needs-discovery conversation and recommends matching coaches from the platform.`,
+            `AI Coach Matching: Users can ask AION to find a coach to help execute their strategy — AION conducts a needs-discovery conversation and recommends matching coaches from the platform.`,
           ],
         },
         {
