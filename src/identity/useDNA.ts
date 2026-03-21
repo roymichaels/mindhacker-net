@@ -171,9 +171,8 @@ export function useDNA() {
     const step2 = launchpadProgress?.step_2_profile_data as Record<string, unknown> | null;
     const onboardingTraits = (step2?.traits as string[]) || (step2?.selectedTraits as string[]) || [];
 
-    // Build ego state from multiple sources (priority: summary > profile > game state)
+    // Build ego state from multiple sources (priority: summary > game state)
     const egoState = identityProfile?.suggested_ego_state
-      || (profileRow?.ego_state as string | undefined)
       || gameState?.activeEgoState;
 
     // Build skill distribution map
