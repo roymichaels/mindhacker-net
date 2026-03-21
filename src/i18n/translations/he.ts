@@ -2135,9 +2135,9 @@ export const he = {
     noLeaderboardData: "אין נתוני דירוג עדיין",
   },
   aurora: {
-    name: "אורורה",
-    subtitle: "מלווה אישית לעיצוב חיים",
-    welcomeTitle: "היי, אני אורורה 💜",
+    name: "AION",
+    subtitle: "העתיד שלך, מגולם",
+    welcomeTitle: "היי 💜",
     // Gendered welcome subtitles
     welcomeSubtitle: "בוא/י נתחיל לחקור מה באמת חשוב לך...",
     welcomeSubtitle_male: "בוא נתחיל לחקור מה באמת חשוב לך...",
