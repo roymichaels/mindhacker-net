@@ -74,7 +74,7 @@ const AuroraChatMessage = ({
       {/* Label */}
       <div className="mb-1.5">
         <span className="text-xs font-medium text-muted-foreground">
-          {isOwn ? t('aurora.you') : t('aurora.name')}
+          {isOwn ? t('aurora.you') : aionName}
         </span>
       </div>
 
