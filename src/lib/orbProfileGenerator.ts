@@ -12,8 +12,8 @@
 
 import { getArchetype, type ArchetypeId } from './archetypes';
 import { generateUserOrb, type UserOrbInput } from './userOrbGenerator';
-import { hashUserId, seedHueOffset, seedFloat, seedInt, pickGeometryFamily, seedMorphPhase } from './orbSeed';
-import { buildVisualDNA, type VisualDNAInput } from './visualDNA';
+import { hashUserId } from './orbSeed';
+import type { VisualDNAInput } from './visualDNA';
 import { dnaArchetypeToVisual } from './mapDNAtoVisual';
 import type { OrbProfile } from '@/components/orb/types';
 import { VISUAL_DEFAULTS } from '@/components/orb/types';
