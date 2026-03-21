@@ -36,8 +36,8 @@ export function DailyAnchorsDisplay({ anchors, className }: DailyAnchorsDisplayP
           </p>
           <p className="text-xs text-muted-foreground/70">
             {language === 'he' 
-              ? 'דבר עם AION כדי להגדיר הרגלי עוגן'
-              : 'Talk to AION to set anchor habits'}
+              ? 'דבר עם ה-AION שלך כדי להגדיר הרגלי עוגן'
+              : 'Talk to your AION to set anchor habits'}
           </p>
         </CardContent>
       </Card>

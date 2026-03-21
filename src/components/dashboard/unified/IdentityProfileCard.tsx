@@ -92,8 +92,8 @@ export function IdentityProfileCard({
           </p>
            <p className="text-xs text-muted-foreground/70">
             {language === 'he' 
-              ? 'השלם את ה-Launchpad או דבר עם AION'
-              : 'Complete the Launchpad or chat with AION'}
+              ? 'השלם את ה-Launchpad או דבר עם ה-AION שלך'
+              : 'Complete the Launchpad or chat with your AION'}
           </p>
         </CardContent>
       </Card>
