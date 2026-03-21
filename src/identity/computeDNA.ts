@@ -170,8 +170,11 @@ export function computeDNA(input: DNAInputSignals): DNAProfile {
     });
   }
 
-  // ── Derive dominant archetype ──
-  const dominantArchetype = input.orbData?.dominantArchetype
+  // ── Derive dominant archetype from traits (DNA computes this, NOT the Orb) ──
+  // Priority: strongest trait archetype mapping → identity profile → egoState
+  const archetypeFromTraits = deriveDominantArchetypeFromTraits(dnaTraits);
+  const dominantArchetype = archetypeFromTraits
+    || input.identityProfile?.suggested_ego_state
     || egoState;
 
   const secondaryArchetype = input.orbData?.secondaryArchetype || null;
