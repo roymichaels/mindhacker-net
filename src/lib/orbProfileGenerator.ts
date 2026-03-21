@@ -1,16 +1,20 @@
 /**
- * Orb Profile Generator - Dynamic Identity-Based Avatar System
- * 
- * Generates personalized orb profiles based on user's actual identity data.
- * Now delegates to the gallery-quality userOrbGenerator for visual output,
- * while preserving the DNA/archetype computation pipeline.
+ * Orb Profile Generator — PURE VISUAL generator for personalized orbs.
+ *
+ * ARCHITECTURE RULE:
+ *   This module must NOT compute identity (archetype, egoState, traits).
+ *   Identity comes ONLY from DNA via mapDNAtoVisual.
+ *   This module converts visual parameters → OrbProfile for rendering.
+ *
+ * Data flow:
+ *   DNA (computeDNA) → mapDNAtoVisual → generateOrbProfile (visual) → Orb (render)
  */
 
-import { computeAvatarDNA, type UserDataForDNA, type AvatarDNA } from './avatarDNA';
 import { getArchetype, type ArchetypeId } from './archetypes';
 import { generateUserOrb, type UserOrbInput } from './userOrbGenerator';
 import { hashUserId, seedHueOffset, seedFloat, seedInt, pickGeometryFamily, seedMorphPhase } from './orbSeed';
 import { buildVisualDNA, type VisualDNAInput } from './visualDNA';
+import { dnaArchetypeToVisual } from './mapDNAtoVisual';
 import type { OrbProfile } from '@/components/orb/types';
 import { VISUAL_DEFAULTS } from '@/components/orb/types';
 
@@ -81,27 +85,17 @@ function applyHueOffset(hslStr: string, offset: number): string {
 }
 
 /**
- * Generate a personalized orb profile from user data
+ * Generate a personalized orb profile from user data.
+ *
+ * IMPORTANT: Archetype is derived from egoState (which comes from DNA via the caller).
+ * This function does NOT independently compute identity.
  */
 export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   const seed = input.seed ?? (input.userId ? hashUserId(input.userId) : 0);
   
-  // Compute archetype DNA from user traits (kept for metadata)
-  const userData: UserDataForDNA = {
-    hobbies: input.hobbies || [],
-    decisionStyle: input.decisionStyle,
-    conflictStyle: input.conflictStyle,
-    problemSolvingStyle: input.problemSolvingStyle,
-    traits: input.selectedTraitIds || [],
-    priorities: input.priorities || [],
-    level: input.level || 1,
-    experience: input.experience || 0,
-    streak: input.streak || 0,
-    clarityScore: input.clarityScore,
-  };
-  
-  const dna = computeAvatarDNA(userData);
-  
+  // Archetype from DNA-provided egoState — NO independent identity computation
+  const dominantArchetype = dnaArchetypeToVisual(input.egoState || 'explorer');
+
   // ─── Delegate to gallery-quality generator ───
   const userOrbInput: UserOrbInput = {
     userId: input.userId || `seed-${seed}`,
@@ -117,9 +111,9 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
     streak: input.streak,
     clarityScore: input.clarityScore,
     consciousnessScore: input.consciousnessScore,
-    dominantArchetype: dna.archetypeBlend.dominantArchetype,
-    secondaryArchetype: dna.archetypeBlend.secondaryArchetype,
-    archetypeWeights: dna.archetypeBlend.archetypes,
+    dominantArchetype,
+    secondaryArchetype: null, // DNA provides this if available
+    archetypeWeights: [{ id: dominantArchetype, weight: 1 }],
   };
   
   const profile = generateUserOrb(userOrbInput);
