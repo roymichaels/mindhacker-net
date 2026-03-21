@@ -51,7 +51,7 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 space-y-5">
-      {/* Aurora Orb Avatar */}
+      {/* AION Visual Body */}
       <div className="relative">
         <PersonalizedOrb 
           size={80} 

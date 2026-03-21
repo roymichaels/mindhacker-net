@@ -1,8 +1,8 @@
 /**
  * BottomHudBar — 3-column grid HUD.
- * Left: Personalized orb + job title → navigates to /profile
+ * Left: Personalized AION orb + job title → navigates to /profile
  * Middle: XP progress bar
- * Right: Aurora orb → opens Aurora dock (with intro balloon)
+ * Right: AION Brain orb → opens chat dock
  */
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -119,7 +119,7 @@ export function BottomHudBar() {
           </div>
         </div>
 
-        {/* ── RIGHT: Aurora Orb → Opens Dock ── */}
+        {/* ── RIGHT: AION Brain Orb → Opens Chat Dock ── */}
         <div className="relative">
           {/* Balloon tooltip */}
           <AnimatePresence>
@@ -136,12 +136,12 @@ export function BottomHudBar() {
                 )}
               >
                 <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
-                  <p className="text-[11px] font-semibold leading-tight">
-                    {isHe ? '👋 היי, אני אורורה!' : '👋 Hey, I\'m Aurora!'}
-                  </p>
-                  <p className="text-[10px] opacity-90 mt-0.5">
-                    {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
-                  </p>
+                   <p className="text-[11px] font-semibold leading-tight">
+                     {isHe ? '👋 היי, אני AION!' : '👋 Hey, I\'m AION!'}
+                   </p>
+                   <p className="text-[10px] opacity-90 mt-0.5">
+                     {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
+                   </p>
                   {/* Tail arrow */}
                   <div className={cn(
                     "absolute -bottom-1.5 w-3 h-3 bg-primary rotate-45 rounded-sm",

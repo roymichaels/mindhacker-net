@@ -159,7 +159,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   };
 
 
-  // Logo Component - Uses AuroraOrbIcon consistently across the app
+  // Logo Component — AION brand icon (internal: AuroraOrbIcon kept for compat)
   // Hidden on mobile when logged in (logo is shown in mobile sidebar instead)
   const LogoBrand = ({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) => (
     <Link 
