@@ -480,6 +480,8 @@ export function useOrbProfileComputed() {
   const { user } = useAuth();
   const { gameState } = useGameState();
   const { progress } = useLaunchpadProgress();
+  const { dna } = useDNA();
+  const dnaVisual = useMemo(() => mapDNAtoVisual(dna), [dna]);
 
   const profileData = useMemo(() => {
     return extractProfileData(progress?.step_2_profile_data as Record<string, unknown> | null);
@@ -500,9 +502,10 @@ export function useOrbProfileComputed() {
       level: gameState?.level || 1,
       experience: gameState?.experience || 0,
       streak: gameState?.sessionStreak || 0,
-      egoState: gameState?.activeEgoState,
+      // IDENTITY FROM DNA — Orb is a pure renderer
+      egoState: dnaVisual.egoState,
       seed,
       userId: user.id,
     });
-  }, [user?.id, profileData, gameState?.activeEgoState, gameState?.level, gameState?.sessionStreak, gameState?.experience, seed]);
+  }, [user?.id, profileData, dnaVisual.egoState, gameState?.level, gameState?.sessionStreak, gameState?.experience, seed]);
 }
