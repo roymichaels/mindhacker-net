@@ -383,7 +383,7 @@ export function useOrbProfile() {
     }
 
     return profile;
-  }, [user?.id, profileData, summarySignals, summaryRow, gameState?.level, gameState?.sessionStreak, gameState?.experience, gameState?.activeEgoState, seed, diagnosticInfo]);
+  }, [user?.id, profileData, summarySignals, summaryRow, gameState?.level, gameState?.sessionStreak, gameState?.experience, dnaVisual.egoState, seed, diagnosticInfo]);
 
   // Mutation to save/update profile
   const saveProfileMutation = useMutation({
