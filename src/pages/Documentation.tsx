@@ -162,10 +162,10 @@ export default function Documentation() {
         {
           title: he ? '4.5 Learn — למידה אדפטיבית' : '4.5 Learn — Adaptive Learning',
           paragraphs: he ? [
-            `"Aurora מלמדת אותך" — מערכת למידה אדפטיבית עם מודל "Lazy Generation": שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית כשהמשתמש מגיע לשיעור ספציפי.`,
+            `"AION מלמד אותך" — מערכת למידה אדפטיבית עם מודל "Lazy Generation": שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית כשהמשתמש מגיע לשיעור ספציפי.`,
             `כל שיעור כולל תרגול מעשי שמסוכם אוטומטית ומסונכרן חזרה לתוכנית הפעולה. כולל מסעות הכוונה: מסע אונבורדינג, מסע עסקי, מסע אימון, ומסע פרויקטים.`,
           ] : [
-            `"Aurora Teaches You" — an adaptive learning system using a "Lazy Generation" model: the course skeleton is created instantly, and content is generated dynamically when the user reaches a specific lesson.`,
+            `"AION Teaches You" — an adaptive learning system using a "Lazy Generation" model: the course skeleton is created instantly, and content is generated dynamically when the user reaches a specific lesson.`,
             `Each lesson includes practical exercises auto-summarized and synced back to the action plan. Includes guided journeys: onboarding journey, business journey, coaching journey, and projects journey.`,
           ],
         },
