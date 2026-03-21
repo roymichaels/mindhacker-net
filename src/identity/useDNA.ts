@@ -48,14 +48,14 @@ export function useDNA() {
     staleTime: 10 * 60_000,
   });
 
-  // ── Signal: Profile ego state ──
+  // ── Signal: Profile streak ──
   const { data: profileRow, isLoading: profileLoading } = useQuery({
     queryKey: ['dna-profile', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
       const { data } = await supabase
         .from('profiles')
-        .select('ego_state, session_streak')
+        .select('session_streak')
         .eq('id', user.id)
         .single();
       return data;
