@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { useTheme } from 'next-themes';
