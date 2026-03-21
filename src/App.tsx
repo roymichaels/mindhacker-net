@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { renderRedirectRoutes, renderProtectedRedirectRoutes } from "@/routes/redirects";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -246,9 +247,6 @@ const App = () => (
                       <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<Index />} />
-                        {/* /login and /signup redirect to home (auth is now modal-based) */}
-                        <Route path="/signup" element={<Navigate to="/" replace />} />
-                        <Route path="/login" element={<Navigate to="/" replace />} />
                         <Route path="/blog" element={<Blog />} />
                         <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="/courses" element={<Courses />} />
@@ -258,45 +256,18 @@ const App = () => (
                         <Route path="/install" element={<Install />} />
                         <Route path="/audio/:token" element={<AudioPlayer />} />
                         <Route path="/video/:token" element={<VideoPlayer />} />
-                        {/* Legacy product pages redirect to home */}
-                        <Route path="/personal-hypnosis" element={<Navigate to="/" replace />} />
-                        <Route path="/consciousness-leap" element={<Navigate to="/" replace />} />
-                        <Route path="/consciousness-leap/apply/:token" element={<Navigate to="/" replace />} />
-                        <Route path="/form/:token" element={<Navigate to="/" replace />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                        {/* Onboarding — new entry point */}
                         <Route path="/onboarding" element={<Onboarding />} />
                         <Route path="/ceremony" element={<OnboardingCeremony />} />
-                        {/* Ad landing page */}
                         <Route path="/go" element={<Go />} />
                         <Route path="/founding" element={<FoundingLanding />} />
-                        {/* Feature detail pages */}
                         <Route path="/features/:slug" element={<FeatureDetailPage />} />
-                        {/* Legacy redirects → onboarding */}
-                        <Route path="/start" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/free-journey/start" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
-                        {/* ── Canonical Routes ──
-                         * /p/:slug          → Coach public storefront (CANONICAL)
-                         * /coach/:slug      → Alias, redirects to /p/:slug
-                         * /practitioners    → Alias, redirects to /coaches directory
-                         * /practitioner/*   → Legacy, redirects to /coaches
-                         * /panel/*          → Legacy, all redirect to /admin-hub
-                         */}
-                        <Route path="/practitioners" element={<Navigate to="/coaches" replace />} />
-                        <Route path="/marketplace" element={<Navigate to="/coaches" replace />} />
+                        {/* Coach slug redirects (dynamic, can't be in map) */}
                         <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
                         <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
-                        {/* Coach slug alias → storefront */}
                         <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
-                        {/* Redirect old affiliate dashboard to new panel */}
-                        <Route
-                          path="/affiliate-dashboard"
-                          element={<Navigate to="/affiliate" replace />}
-                        />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
                         <Route path="/docs" element={<Documentation />} />
 
@@ -377,9 +348,7 @@ const App = () => (
                           <Route path="/strategy/play/results" element={<PlayResults />} />
                           {/* Strategy domain catch-all */}
                           <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
-                          {/* Legacy redirects */}
-                          <Route path="/tactics" element={<Navigate to="/play" replace />} />
-                          <Route path="/arena" element={<Navigate to="/play" replace />} />
+                          {renderProtectedRedirectRoutes()}
                           <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
@@ -425,68 +394,12 @@ const App = () => (
                           <Route path="/creator" element={<CreatorLayoutWrapper />} />
                           {/* Therapist */}
                           <Route path="/therapist" element={<TherapistLayoutWrapper />} />
-                          {/* Legacy hypnosis redirects */}
-                          <Route path="/personal-hypnosis/success" element={<Navigate to="/play" replace />} />
-                          <Route path="/personal-hypnosis/pending" element={<Navigate to="/play" replace />} />
                           {/* Success */}
                           <Route path="/success" element={<Success />} />
                         </Route>
 
-                        {/* Legacy redirects (no shell needed) → /play */}
-                        <Route path="/combat-community" element={<Navigate to="/community" replace />} />
-                        <Route path="/dashboard" element={<Navigate to="/play" replace />} />
-                        <Route path="/today" element={<Navigate to="/play" replace />} />
-                        <Route path="/me" element={<Navigate to="/play" replace />} />
-                        <Route path="/messages/ai" element={<Navigate to="/aurora" replace />} />
-                        <Route path="/projects" element={<Navigate to="/play" replace />} />
-                        <Route path="/life" element={<Navigate to="/play" replace />} />
-                        <Route path="/life/*" element={<Navigate to="/play" replace />} />
-                        <Route path="/consciousness" element={<Navigate to="/play" replace />} />
-                        <Route path="/health" element={<Navigate to="/play" replace />} />
-                        <Route path="/health/*" element={<Navigate to="/play" replace />} />
-                        <Route path="/relationships" element={<Navigate to="/play" replace />} />
-                        <Route path="/relationships/*" element={<Navigate to="/play" replace />} />
-                        <Route path="/finances" element={<Navigate to="/play" replace />} />
-                        <Route path="/finances/*" element={<Navigate to="/play" replace />} />
-                        <Route path="/learning" element={<Navigate to="/play" replace />} />
-                        <Route path="/learning/*" element={<Navigate to="/play" replace />} />
-                        <Route path="/purpose" element={<Navigate to="/play" replace />} />
-                        <Route path="/purpose/*" element={<Navigate to="/play" replace />} />
-                        <Route path="/hobbies" element={<Navigate to="/play" replace />} />
-                        <Route path="/hobbies/*" element={<Navigate to="/play" replace />} />
-                        {/* Admin redirects */}
-                        <Route path="/admin" element={<Navigate to="/admin-hub" replace />} />
-                        <Route path="/admin/*" element={<Navigate to="/admin-hub" replace />} />
-                        {/* Legacy panel redirects */}
-                        <Route path="/panel" element={<Navigate to="/admin-hub" replace />} />
-                        <Route path="/panel/analytics" element={<Navigate to="/admin-hub?tab=overview&sub=analytics" replace />} />
-                        <Route path="/panel/notifications" element={<Navigate to="/admin-hub?tab=overview&sub=notifications" replace />} />
-                        <Route path="/panel/users" element={<Navigate to="/admin-hub?tab=admin&sub=users" replace />} />
-                        <Route path="/panel/roles" element={<Navigate to="/admin-hub?tab=admin&sub=roles" replace />} />
-                        <Route path="/panel/leads" element={<Navigate to="/admin-hub?tab=admin&sub=leads" replace />} />
-                        <Route path="/panel/businesses" element={<Navigate to="/admin-hub?tab=admin&sub=businesses" replace />} />
-                        <Route path="/panel/aurora-insights" element={<Navigate to="/admin-hub?tab=admin&sub=aurora-insights" replace />} />
-                        <Route path="/panel/affiliates" element={<Navigate to="/admin-hub?tab=campaigns&sub=affiliates" replace />} />
-                        <Route path="/panel/newsletter" element={<Navigate to="/admin-hub?tab=campaigns&sub=newsletter" replace />} />
-                        <Route path="/panel/offers" element={<Navigate to="/admin-hub?tab=campaigns&sub=offers" replace />} />
-                        <Route path="/panel/purchases" element={<Navigate to="/admin-hub?tab=campaigns&sub=purchases" replace />} />
-                        <Route path="/panel/products" element={<Navigate to="/admin-hub?tab=content&sub=products" replace />} />
-                        <Route path="/panel/content" element={<Navigate to="/admin-hub?tab=content&sub=content-mgmt" replace />} />
-                        <Route path="/panel/videos" element={<Navigate to="/admin-hub?tab=content&sub=videos" replace />} />
-                        <Route path="/panel/recordings" element={<Navigate to="/admin-hub?tab=content&sub=recordings" replace />} />
-                        <Route path="/panel/forms" element={<Navigate to="/admin-hub?tab=content&sub=forms" replace />} />
-                        <Route path="/panel/landing-pages" element={<Navigate to="/admin-hub?tab=site&sub=landing-pages" replace />} />
-                        <Route path="/panel/homepage" element={<Navigate to="/admin-hub?tab=site&sub=homepage" replace />} />
-                        <Route path="/panel/theme" element={<Navigate to="/admin-hub?tab=site&sub=theme" replace />} />
-                        <Route path="/panel/faqs" element={<Navigate to="/admin-hub?tab=site&sub=faqs" replace />} />
-                        <Route path="/panel/testimonials" element={<Navigate to="/admin-hub?tab=site&sub=testimonials" replace />} />
-                        <Route path="/panel/bug-reports" element={<Navigate to="/admin-hub?tab=system&sub=bug-reports" replace />} />
-                        <Route path="/panel/chat-assistant" element={<Navigate to="/admin-hub?tab=system&sub=chat-assistant" replace />} />
-                        <Route path="/panel/settings" element={<Navigate to="/admin-hub?tab=system&sub=settings" replace />} />
-                        <Route path="/panel/*" element={<Navigate to="/admin-hub" replace />} />
-                        {/* Coach panel redirects */}
-                        <Route path="/coach" element={<Navigate to="/coaches" replace />} />
-                        <Route path="/coach/*" element={<Navigate to="/coaches" replace />} />
+                        {/* All legacy/panel/admin redirects from config */}
+                        {renderRedirectRoutes()}
                         {/* Affiliate Panel */}
                         <Route
                           path="/affiliate"

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,26 +9,27 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
-import {
-  GameHeroSection,
-  ProblemSection,
-  OrbCollectionSection,
-  CityShowcaseSection,
-  TraitShowcaseSection,
-  PlanCinematicSection,
-  AuroraCoachSection,
-  HypnosisSection,
-  Play2EarnSection,
-  GamificationSection,
-  FreeMarketSection,
-  GuildSection,
-  CoachOSSection,
-  PricingPreviewSection,
-  RoadmapSection,
-  FinalCTASection,
-  InlineCTA,
-} from "@/components/home";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
+
+// Above-fold (eager)
+import { GameHeroSection, ProblemSection } from "@/components/home";
+
+// Below-fold (lazy)
+const CityShowcaseSection = lazy(() => import("@/components/home/CityShowcaseSection"));
+const OrbCollectionSection = lazy(() => import("@/components/home/OrbCollectionSection"));
+const AuroraCoachSection = lazy(() => import("@/components/home/AuroraCoachSection"));
+const HypnosisSection = lazy(() => import("@/components/home/HypnosisSection"));
+const PlanCinematicSection = lazy(() => import("@/components/home/PlanCinematicSection"));
+const TraitShowcaseSection = lazy(() => import("@/components/home/TraitShowcaseSection"));
+const GamificationSection = lazy(() => import("@/components/home/GamificationSection"));
+const Play2EarnSection = lazy(() => import("@/components/home/Play2EarnSection"));
+const FreeMarketSection = lazy(() => import("@/components/home/FreeMarketSection"));
+const GuildSection = lazy(() => import("@/components/home/GuildSection"));
+const CoachOSSection = lazy(() => import("@/components/home/CoachOSSection"));
+const PricingPreviewSection = lazy(() => import("@/components/home/PricingPreviewSection"));
+const RoadmapSection = lazy(() => import("@/components/home/RoadmapSection"));
+const FinalCTASection = lazy(() => import("@/components/home/FinalCTASection"));
+const InlineCTA = lazy(() => import("@/components/home/InlineCTA"));
 
 const Index = () => {
   const { t, isRTL } = useTranslation();
@@ -94,39 +95,28 @@ const Index = () => {
             <GameHeroSection />
             {/* 2. The Problem — Why this exists */}
             <ProblemSection />
-            {/* 3. The System Overview — 15 pillars, AI, economy */}
-            <CityShowcaseSection />
-            <InlineCTA variant="default" />
-            {/* 4. AION — Evolving digital identity */}
-            <OrbCollectionSection />
-            {/* 5. Aurora — Consciousness AI */}
-            <AuroraCoachSection />
-            <InlineCTA variant="subtle" />
-            {/* 6. Hypnosis & Meditation */}
-            <HypnosisSection />
-            {/* 7. Why-How-Now — 100-Day Plan */}
-            <PlanCinematicSection />
-            <InlineCTA variant="bold" />
-            {/* 8. Identity — Traits & DNA */}
-            <TraitShowcaseSection />
-            {/* 9. Gamification — XP, Streaks, Skills */}
-            <GamificationSection />
-            <InlineCTA variant="subtle" />
-            {/* 10. Economy — Proof of Growth */}
-            <Play2EarnSection />
-            {/* 11. Marketplace — FreeMarket */}
-            <FreeMarketSection />
-            {/* 12. Community + Learning */}
-            <GuildSection />
-            <InlineCTA variant="default" />
-            {/* 13. Career Platform — 5 paths */}
-            <CoachOSSection />
-            {/* 14. Pricing */}
-            <PricingPreviewSection />
-            {/* 15. Roadmap */}
-            <RoadmapSection />
-            {/* 16. Final CTA */}
-            <FinalCTASection />
+            {/* Below-fold: lazy-loaded for faster initial paint */}
+            <Suspense fallback={<div className="min-h-[200px]" />}>
+              <CityShowcaseSection />
+              <InlineCTA variant="default" />
+              <OrbCollectionSection />
+              <AuroraCoachSection />
+              <InlineCTA variant="subtle" />
+              <HypnosisSection />
+              <PlanCinematicSection />
+              <InlineCTA variant="bold" />
+              <TraitShowcaseSection />
+              <GamificationSection />
+              <InlineCTA variant="subtle" />
+              <Play2EarnSection />
+              <FreeMarketSection />
+              <GuildSection />
+              <InlineCTA variant="default" />
+              <CoachOSSection />
+              <PricingPreviewSection />
+              <RoadmapSection />
+              <FinalCTASection />
+            </Suspense>
           </main>
         </WelcomeGateProvider>
         <Footer />
