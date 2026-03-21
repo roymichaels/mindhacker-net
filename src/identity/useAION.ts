@@ -8,12 +8,11 @@
  *   - AION name (user-defined, from profiles)
  *   - AION activation status
  *   - Wallet/mint status
- *   - Visual profile reference
+ *   - Visual profile reference (Orb reads from DNA-derived values)
  */
 
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useSoulWallet } from '@/hooks/useSoulWallet';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,7 +26,6 @@ export function useAION() {
   const { dna, isLoading: dnaLoading } = useDNA();
   const { level } = useXpProgress();
   const { isMinted, walletAddress, isLoading: walletLoading } = useSoulWallet();
-  const { profile: orbProfile, isLoading: orbLoading } = useOrbProfile();
 
   // Fetch AION-specific fields from profiles
   const { data: aionData, isLoading: aionLoading } = useQuery({
@@ -68,8 +66,6 @@ export function useAION() {
     /** Whether AION has been activated by the user */
     isActivated: aionData?.aion_activated ?? false,
     /** Whether identity data is still loading */
-    isLoading: dnaLoading || walletLoading || aionLoading || orbLoading,
-    /** The orb profile for visual rendering — pass to Orb/PersonalizedOrb */
-    visualProfile: orbProfile,
+    isLoading: dnaLoading || walletLoading || aionLoading,
   };
 }
