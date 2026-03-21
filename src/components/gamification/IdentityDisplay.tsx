@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
-import { getAvatarDNASummary } from '@/lib/avatarDNA';
+// getAvatarDNASummary removed — was imported but never used
 import { getAllArchetypes, type ArchetypeId } from '@/lib/archetypes';
 import { Sparkles, Zap, Heart, Compass, Brain, Palette } from 'lucide-react';
 

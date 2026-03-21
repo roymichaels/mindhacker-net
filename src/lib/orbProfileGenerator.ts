@@ -129,6 +129,19 @@ export function egoStateToArchetype(egoState: string): ArchetypeId {
   return dnaArchetypeToVisual(egoState);
 }
 
+export function generateDefaultProfile(): OrbProfile {
+  return DEFAULT_ORB_PROFILE;
+}
+
+export function getArchetypeIcon(archetypeId: ArchetypeId): string {
+  return getArchetype(archetypeId).icon;
+}
+
+export function getArchetypeName(archetypeId: ArchetypeId, isHebrew: boolean): string {
+  const archetype = getArchetype(archetypeId);
+  return isHebrew ? archetype.nameHe : archetype.name;
+}
+
 /**
  * Lerp an HSL string "H S% L%" component-wise
  */
