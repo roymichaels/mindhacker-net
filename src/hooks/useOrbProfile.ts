@@ -1,8 +1,13 @@
 /**
- * Hook to generate and manage personalized orb profile
- * 
- * FULL DNA SYSTEM - Maps user traits, hobbies, behaviors, AI summary → visual profile
- * Now includes: deterministic seed, diagnostic state, version tracking
+ * Hook to generate and manage personalized orb profile.
+ *
+ * ARCHITECTURE RULE:
+ *   Orb is a PURE VISUAL RENDERER — it must NOT compute identity.
+ *   Identity (archetype, egoState, traits) comes from DNA via mapDNAtoVisual.
+ *   This hook generates VISUAL parameters only.
+ *
+ * Data flow:
+ *   DNA (useDNA) → mapDNAtoVisual → useOrbProfile (visual generation) → Orb (render)
  */
 
 import { useMemo, useEffect, useRef } from 'react';
@@ -10,6 +15,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/hooks/useGameState';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useDNA } from '@/identity/useDNA';
+import { mapDNAtoVisual } from '@/lib/mapDNAtoVisual';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   generateOrbProfile,
