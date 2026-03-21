@@ -43,7 +43,7 @@ export function useLearnPillarAction() {
       }));
 
       if (chatMessages.length < 2) {
-        toast.error(isHe ? 'דבר עם AION קודם כדי לתאר מה תרצה ללמוד' : 'Chat with AION first to describe what you want to learn');
+        toast.error(isHe ? 'דבר עם ה-AION שלך קודם כדי לתאר מה תרצה ללמוד' : 'Chat with your AION first to describe what you want to learn');
         return;
       }
 

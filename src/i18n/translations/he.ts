@@ -202,7 +202,7 @@ export const he = {
       noSessions: "אין אירועים מתוכננים",
       remaining: "נותרו",
       noFocus: "אין תוכנית מיקוד פעילה",
-      suggestion: "דבר עם AION כדי להגדיר מיקוד",
+      suggestion: "דבר עם ה-AION שלך כדי להגדיר מיקוד",
       tip: "הקדש 5 דקות ביום להרהור - זה משנה הכל",
     },
     missions: {

@@ -2084,9 +2084,9 @@ export const en: TranslationKeys = {
     noLeaderboardData: "No ranking data yet",
   },
   aurora: {
-    name: "Aurora",
-    subtitle: "Your life design companion",
-    welcomeTitle: "Hey, I'm Aurora 💜",
+    name: "AION",
+    subtitle: "Your future self, evolved",
+    welcomeTitle: "Hey there 💜",
     // Gendered welcome subtitles (English doesn't need gendering, but keys must exist)
     welcomeSubtitle: "Let's explore what truly matters to you...",
     welcomeSubtitle_male: "Let's explore what truly matters to you...",
