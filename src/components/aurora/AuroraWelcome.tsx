@@ -62,9 +62,11 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
         />
       </div>
 
-      {/* Welcome Text */}
+      {/* Welcome Text — personal AION name */}
       <div className="text-center space-y-1.5 max-w-md">
-        <h2 className="text-xl font-semibold">{t('aurora.welcomeTitle')}</h2>
+        <h2 className="text-xl font-semibold">
+          {isHe ? `היי, אני ${aionName} 💜` : `Hey, I'm ${aionName} 💜`}
+        </h2>
         <p className="text-muted-foreground text-sm">{tg('aurora.welcomeSubtitle')}</p>
       </div>
 

@@ -24,8 +24,8 @@ interface AuroraChatBubblesProps {
 const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesProps) => {
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
-  const { aion, isActivated } = useAION();
-  const aiDisplayName = isActivated ? aion.name : 'Aurora';
+  const { aion } = useAION();
+  const aiDisplayName = aion.name;
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const { 
     activeConversationId, 
