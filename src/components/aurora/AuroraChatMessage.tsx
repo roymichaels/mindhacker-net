@@ -48,6 +48,7 @@ const AuroraChatMessage = ({
   isFailed = false,
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
+  const { displayName: aionName } = useAIONDisplayName();
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const [ttsError, setTtsError] = useState(false);
   
