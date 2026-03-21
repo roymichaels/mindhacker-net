@@ -143,7 +143,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
               {[
                 { icon: '🎮', title: 'Play', desc: t('Unified execution hub with 100-day plans', 'מרכז ביצוע מאוחד עם תוכנית 100 ימים'), color: 'hsl(271 81% 55%)' },
-                { icon: '🧠', title: 'Aurora', desc: t('Adaptive consciousness AI engine', 'מנוע AI תודעתי אדפטיבי'), color: 'hsl(187 85% 50%)' },
+                { icon: '🧠', title: 'AION', desc: t('Identity + AI brain + visual body', 'זהות + מוח AI + גוף ויזואלי'), color: 'hsl(187 85% 50%)' },
                 { icon: '🏪', title: 'FreeMarket', desc: t('Marketplace & Earn economy', 'שוק חופשי וכלכלת Earn'), color: 'hsl(45 90% 55%)' },
                 { icon: '👥', title: 'Community', desc: t('Social feed & level system', 'פיד חברתי ומערכת רמות'), color: 'hsl(168 70% 50%)' },
                 { icon: '📚', title: 'Learn', desc: t('AI-powered adaptive learning', 'למידה אדפטיבית מבוססת AI'), color: 'hsl(320 80% 55%)' },
