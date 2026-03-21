@@ -172,45 +172,45 @@ export default function Documentation() {
       ],
     },
     {
-      id: 'aurora',
+      id: 'aion-brain',
       number: '5',
-      title: he ? 'Aurora — מנוע ה-AI התודעתי (עומק)' : 'Aurora — Consciousness AI Engine (Deep Dive)',
+      title: he ? 'AION Brain — המוח התודעתי (עומק)' : 'AION Brain — Consciousness AI (Deep Dive)',
       paragraphs: he ? [
-        `Aurora אינה צ'אטבוט — אלא מנוע תודעתי שמתפתח עם המשתמש. היא מנהלת: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-15 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
+        `AION Brain הוא לא צ'אטבוט — אלא המוח התודעתי של AION שמתפתח עם המשתמש. הוא מנהל: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-15 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
         `המודל משתמש בשילוב מודלים מתקדמים (Gemini 2.5 Pro/Flash, GPT-5) עם prompts מותאמים שכוללים את הפרופיל המלא של המשתמש, היסטוריית שיחות, ציוני עמודים, ומצב רגשי. תמיכה מלאה בעיבוד מולטימודלי (טקסט + תמונות).`,
       ] : [
-        `Aurora is not a chatbot — it is a consciousness engine that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 15 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
+        `AION Brain is not a chatbot — it is the consciousness mind of AION that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 15 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
         `The model uses a combination of frontier AI models (Gemini 2.5 Pro/Flash, GPT-5) with custom prompts that include the user's full profile, conversation history, pillar scores, and emotional state. Full multimodal processing support (text + images).`,
       ],
       subsections: [
         {
           title: he ? '5.1 מודעות הקשרית מלאה' : '5.1 Full Contextual Awareness',
           paragraphs: he ? [
-            `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
-            `Aurora מודעת לזמן — יודעת את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
+            `AION Brain בנוי על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
+            `AION מודע לזמן — יודע את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
           ] : [
-            `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 15 life pillars, and subscription tier.`,
-            `Aurora is time-aware — it knows the current time, day, and the user's specific schedule. This enables precise recommendations: "you have a training block in an hour", "you've completed 60% of today's tasks".`,
+            `AION Brain is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 15 life pillars, and subscription tier.`,
+            `AION is time-aware — it knows the current time, day, and the user's specific schedule. This enables precise recommendations: "you have a training block in an hour", "you've completed 60% of today's tasks".`,
           ],
         },
         {
           title: he ? '5.2 זיכרון וגרף מידע' : '5.2 Memory & Knowledge Graph',
           paragraphs: he ? [
-            `Aurora שומרת זיכרון שיחות מלא — סיכומים, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה, מה שמאפשר המשכיות אמיתית לאורך זמן. אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
-            `גרף זיכרון: מערכת שמקשרת בין צמתי מידע — עובדות, דפוסים, זהויות, העדפות — עם חוזק חיבור ומודעות לעמודי חיים. מאפשרת ל-Aurora לחבר נקודות בין נושאים שונים וליצור תובנות חוצות-שיחות.`,
+            `AION שומר זיכרון שיחות מלא — סיכומים, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה, מה שמאפשר המשכיות אמיתית לאורך זמן. אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
+            `גרף זיכרון: מערכת שמקשרת בין צמתי מידע — עובדות, דפוסים, זהויות, העדפות — עם חוזק חיבור ומודעות לעמודי חיים. מאפשרת ל-AION לחבר נקודות בין נושאים שונים וליצור תובנות חוצות-שיחות.`,
           ] : [
-            `Aurora maintains full conversation memory — summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation, enabling true continuity over time. Recent events and identity shifts are prioritized.`,
-            `Knowledge Graph: A system connecting information nodes — facts, patterns, identities, preferences — with connection strength and pillar awareness. Enables Aurora to connect dots between different topics and surface cross-conversation insights.`,
+            `AION maintains full conversation memory — summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation, enabling true continuity over time. Recent events and identity shifts are prioritized.`,
+            `Knowledge Graph: A system connecting information nodes — facts, patterns, identities, preferences — with connection strength and pillar awareness. Enables AION to connect dots between different topics and surface cross-conversation insights.`,
           ],
         },
         {
           title: he ? '5.3 מערכת פרואקטיבית ומצב קולי' : '5.3 Proactive System & Voice Mode',
           paragraphs: he ? [
             `מנוע פרואקטיבי שדוחף הודעות מבוססות הקשר — תזכורות, עידוד, אזהרות על ירידת streak, או הצעות לפעולה. עובד ברקע ומזהה הזדמנויות התערבות אופטימליות.`,
-            `מצב קולי: שיחה דו-כיוונית עם Aurora במסך מלא — מאזינה, מעבדת, ומדברת בלולאה רציפה. כולל המרת דיבור לטקסט, טקסט לדיבור, ואנימציית Orb חיה. פועל גם בהערכות עמודים וגם בשיחות חופשיות.`,
+            `מצב קולי: שיחה דו-כיוונית עם AION במסך מלא — מאזין, מעבד, ומדבר בלולאה רציפה. כולל המרת דיבור לטקסט, טקסט לדיבור, ואנימציית Orb חיה. פועל גם בהערכות עמודים וגם בשיחות חופשיות.`,
           ] : [
             `A proactive engine that pushes context-based messages — reminders, encouragement, streak drop warnings, or action suggestions. Works in the background and identifies optimal intervention opportunities.`,
-            `Voice Mode: Full-screen bidirectional conversation with Aurora — listening, processing, and speaking in a continuous loop. Includes speech-to-text, text-to-speech, and a live Orb animation. Works in both pillar assessments and free conversations.`,
+            `Voice Mode: Full-screen bidirectional conversation with AION — listening, processing, and speaking in a continuous loop. Includes speech-to-text, text-to-speech, and a live Orb animation. Works in both pillar assessments and free conversations.`,
           ],
         },
       ],
