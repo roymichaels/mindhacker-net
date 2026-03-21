@@ -36,6 +36,15 @@ export interface MaterialParams {
   emissiveIntensity: number;
 }
 
+/**
+ * OrbProfile — VISUAL-ONLY parameters for the Orb renderer.
+ *
+ * ARCHITECTURE RULE:
+ *   OrbProfile contains VISUAL data (colors, particles, geometry, motion).
+ *   It must NOT be used to compute or define identity (archetype, egoState, traits).
+ *   Identity belongs to DNAProfile (src/identity/types.ts).
+ *   The `computedFrom` field exists for diagnostic/debug purposes only.
+ */
 export interface OrbProfile {
   primaryColor: string;
   secondaryColors: string[];

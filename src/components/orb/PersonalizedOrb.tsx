@@ -1,9 +1,13 @@
 /**
- * PersonalizedOrb — VISUAL RENDERER for AION identity.
+ * PersonalizedOrb — PURE VISUAL RENDERER for AION identity.
  *
- * The Orb is the rendering engine that displays the user's AION.
- * It is NOT the identity itself — AION (src/identity/) is the identity layer.
- * The Orb renders the visual representation based on the OrbProfile data.
+ * ARCHITECTURE RULE:
+ *   Orb is a visual representation of DNA/AION.
+ *   It must NOT compute identity (archetype, egoState, traits).
+ *   Identity comes ONLY from DNA via mapDNAtoVisual.
+ *
+ * Data flow:
+ *   DNA (useDNA) → mapDNAtoVisual → useOrbProfile (visual) → PersonalizedOrb (render)
  *
  * Uses level-based shape morphing: every 25 levels unlocks a new morph shape.
  * Small sizes (<80px) use CSS renderer for performance.
@@ -15,6 +19,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { useXpProgress } from '@/hooks/useGameState';
+import { useDNA } from '@/identity/useDNA';
+import { mapDNAtoVisual } from '@/lib/mapDNAtoVisual';
 import { Orb } from './Orb';
 import { OrbDebugOverlay } from './OrbDebugOverlay';
 import { StandaloneMorphOrb } from './GalleryMorphOrb';
@@ -52,6 +58,9 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     const { profile, isLoading, isPersonalized, storedProfile, seed, diagnosticState, missedFields } = useOrbProfile();
     const { theme, loading: themeLoading } = useThemeSettings();
     const { level } = useXpProgress();
+    // EgoState from DNA — Orb does NOT compute identity
+    const { dna } = useDNA();
+    const dnaVisual = useMemo(() => mapDNAtoVisual(dna), [dna]);
 
     // Smooth transition state
     const prevProfileRef = useRef<OrbProfile | null>(null);
@@ -115,7 +124,8 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     }, [activeProfile]);
 
     const displayProfile = transitionProfile || activeProfile;
-    const egoState = forceEgoState || displayProfile.computedFrom.egoState || 'guardian';
+    // EgoState from DNA (single source of truth) — Orb does NOT derive this
+    const egoState = forceEgoState || dnaVisual.egoState || 'guardian';
 
     if (showLoadingSkeleton && (themeLoading || (isLoading && !storedProfile))) {
       return (

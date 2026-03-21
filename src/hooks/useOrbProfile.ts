@@ -1,8 +1,13 @@
 /**
- * Hook to generate and manage personalized orb profile
- * 
- * FULL DNA SYSTEM - Maps user traits, hobbies, behaviors, AI summary → visual profile
- * Now includes: deterministic seed, diagnostic state, version tracking
+ * Hook to generate and manage personalized orb profile.
+ *
+ * ARCHITECTURE RULE:
+ *   Orb is a PURE VISUAL RENDERER — it must NOT compute identity.
+ *   Identity (archetype, egoState, traits) comes from DNA via mapDNAtoVisual.
+ *   This hook generates VISUAL parameters only.
+ *
+ * Data flow:
+ *   DNA (useDNA) → mapDNAtoVisual → useOrbProfile (visual generation) → Orb (render)
  */
 
 import { useMemo, useEffect, useRef } from 'react';
@@ -10,6 +15,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/hooks/useGameState';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useDNA } from '@/identity/useDNA';
+import { mapDNAtoVisual } from '@/lib/mapDNAtoVisual';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   generateOrbProfile,
@@ -226,6 +233,10 @@ export function useOrbProfile() {
   const { gameState } = useGameState();
   const { isLaunchpadComplete, progress } = useLaunchpadProgress();
 
+  // ── DNA provides identity — Orb only renders ──
+  const { dna } = useDNA();
+  const dnaVisual = useMemo(() => mapDNAtoVisual(dna), [dna]);
+
   const profileData = useMemo(() => {
     return extractProfileData(progress?.step_2_profile_data as Record<string, unknown> | null);
   }, [progress?.step_2_profile_data]);
@@ -303,7 +314,7 @@ export function useOrbProfile() {
     };
   }, [user?.id, profileData, summaryRow, gameState?.level, summarySignals.traits]);
 
-  // FULL DNA: Compute profile from all user signals + seed
+  // VISUAL GENERATION ONLY — identity comes from DNA via dnaVisual
   const computedProfile = useMemo((): OrbProfile => {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
 
@@ -329,7 +340,8 @@ export function useOrbProfile() {
       clarityScore: summaryRow?.clarity_score ?? undefined,
       consciousnessScore: summaryRow?.consciousness_score ?? undefined,
       transformationReadiness: summaryRow?.transformation_readiness ?? undefined,
-      egoState: summarySignals.egoState || gameState?.activeEgoState,
+      // IDENTITY FROM DNA — Orb does NOT derive its own egoState/archetype
+      egoState: dnaVisual.egoState,
       seed,
       userId: user.id,
       // Pass intake data for Visual DNA
@@ -371,7 +383,7 @@ export function useOrbProfile() {
     }
 
     return profile;
-  }, [user?.id, profileData, summarySignals, summaryRow, gameState?.level, gameState?.sessionStreak, gameState?.experience, gameState?.activeEgoState, seed, diagnosticInfo]);
+  }, [user?.id, profileData, summarySignals, summaryRow, gameState?.level, gameState?.sessionStreak, gameState?.experience, dnaVisual.egoState, seed, diagnosticInfo]);
 
   // Mutation to save/update profile
   const saveProfileMutation = useMutation({
@@ -468,6 +480,8 @@ export function useOrbProfileComputed() {
   const { user } = useAuth();
   const { gameState } = useGameState();
   const { progress } = useLaunchpadProgress();
+  const { dna } = useDNA();
+  const dnaVisual = useMemo(() => mapDNAtoVisual(dna), [dna]);
 
   const profileData = useMemo(() => {
     return extractProfileData(progress?.step_2_profile_data as Record<string, unknown> | null);
@@ -488,9 +502,10 @@ export function useOrbProfileComputed() {
       level: gameState?.level || 1,
       experience: gameState?.experience || 0,
       streak: gameState?.sessionStreak || 0,
-      egoState: gameState?.activeEgoState,
+      // IDENTITY FROM DNA — Orb is a pure renderer
+      egoState: dnaVisual.egoState,
       seed,
       userId: user.id,
     });
-  }, [user?.id, profileData, gameState?.activeEgoState, gameState?.level, gameState?.sessionStreak, gameState?.experience, seed]);
+  }, [user?.id, profileData, dnaVisual.egoState, gameState?.level, gameState?.sessionStreak, gameState?.experience, seed]);
 }
