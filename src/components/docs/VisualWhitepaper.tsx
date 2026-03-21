@@ -186,16 +186,17 @@ export function VisualWhitepaper({ onExit }: Props) {
           </VisualSection>
         );
 
-      case 7: // AION Identity
+      case 7: // AION — Unified Identity
         return (
-          <VisualSection index={7} isActive number="07" title={t('AION — Your Future Self', 'AION — העתיד-עצמי שלך')} subtitle={t('Discovered, not configured. DNA → AION → Orb.', 'מתגלה, לא נבנה. DNA → AION → Orb.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
+          <VisualSection index={7} isActive number="07" title={t('AION — Your Future Self', 'AION — העתיד-עצמי שלך')} subtitle={t('Identity + Brain + Visual Body — one entity.', 'זהות + מוח + גוף ויזואלי — ישות אחת.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
             <div className="flex justify-center py-2">
               <WhitepaperOrb size={120} />
             </div>
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
                 { icon: '🧬', title: t('DNA — Base Layer', 'DNA — שכבת בסיס'), desc: t('Aggregates all identity signals into a single source of truth.', 'מאחד את כל אותות הזהות למקור אמת יחיד.') },
-                { icon: '🎨', title: t('Orb — Visual Body', 'Orb — גוף ויזואלי'), desc: t('Colors shift by pillars. Morphology grows with level. Bloom reflects depth.', 'צבעים משתנים לפי עמודים. מורפולוגיה גדלה עם רמה. Bloom משקף עומק.') },
+                { icon: '🧠', title: t('Brain — Consciousness AI', 'Brain — מוח תודעתי'), desc: t('Full contextual awareness, memory graph, proactive engine.', 'מודעות הקשרית מלאה, גרף זיכרון, מנוע פרואקטיבי.') },
+                { icon: '🎨', title: t('Visual Body', 'גוף ויזואלי'), desc: t('Colors shift by pillars. Morphology grows with level. Bloom reflects depth.', 'צבעים משתנים לפי עמודים. מורפולוגיה גדלה עם רמה. Bloom משקף עומק.') },
                 { icon: '🔐', title: t('Web3 Wallet', 'ארנק Web3'), desc: t('No seed phrases — sign in with Google/Email. Digital ownership.', 'ללא seed phrases — כניסה דרך Google/Email. בעלות דיגיטלית.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color="hsl(320 80% 55%)" />
