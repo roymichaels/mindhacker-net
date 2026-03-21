@@ -220,7 +220,7 @@ export function useDNA() {
       gameState: {
         level: gameState?.level,
         experience: gameState?.experience,
-        streak: gameState?.sessionStreak ?? (profileRow?.session_streak as number | undefined),
+        streak: gameState?.sessionStreak ?? profileRow?.session_streak ?? undefined,
       },
       // New complete signals:
       skillDistribution: Object.keys(skillDistribution).length > 0 ? skillDistribution : undefined,
