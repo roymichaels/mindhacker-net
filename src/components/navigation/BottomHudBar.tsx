@@ -30,6 +30,7 @@ export function BottomHudBar() {
   const { movementScore } = useTodayExecution();
   const { profile: userOrbProfile } = useOrbProfile();
   const { openProfile } = useProfileModal();
+  const { displayName: aionName } = useAIONDisplayName();
 
   const [showBalloon, setShowBalloon] = useState(false);
 
