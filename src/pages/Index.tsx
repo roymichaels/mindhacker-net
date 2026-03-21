@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,26 +9,27 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
-import {
-  GameHeroSection,
-  ProblemSection,
-  OrbCollectionSection,
-  CityShowcaseSection,
-  TraitShowcaseSection,
-  PlanCinematicSection,
-  AuroraCoachSection,
-  HypnosisSection,
-  Play2EarnSection,
-  GamificationSection,
-  FreeMarketSection,
-  GuildSection,
-  CoachOSSection,
-  PricingPreviewSection,
-  RoadmapSection,
-  FinalCTASection,
-  InlineCTA,
-} from "@/components/home";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
+
+// Above-fold (eager)
+import { GameHeroSection, ProblemSection } from "@/components/home";
+
+// Below-fold (lazy)
+const CityShowcaseSection = lazy(() => import("@/components/home/CityShowcaseSection"));
+const OrbCollectionSection = lazy(() => import("@/components/home/OrbCollectionSection"));
+const AuroraCoachSection = lazy(() => import("@/components/home/AuroraCoachSection"));
+const HypnosisSection = lazy(() => import("@/components/home/HypnosisSection"));
+const PlanCinematicSection = lazy(() => import("@/components/home/PlanCinematicSection"));
+const TraitShowcaseSection = lazy(() => import("@/components/home/TraitShowcaseSection"));
+const GamificationSection = lazy(() => import("@/components/home/GamificationSection"));
+const Play2EarnSection = lazy(() => import("@/components/home/Play2EarnSection"));
+const FreeMarketSection = lazy(() => import("@/components/home/FreeMarketSection"));
+const GuildSection = lazy(() => import("@/components/home/GuildSection"));
+const CoachOSSection = lazy(() => import("@/components/home/CoachOSSection"));
+const PricingPreviewSection = lazy(() => import("@/components/home/PricingPreviewSection"));
+const RoadmapSection = lazy(() => import("@/components/home/RoadmapSection"));
+const FinalCTASection = lazy(() => import("@/components/home/FinalCTASection"));
+const InlineCTA = lazy(() => import("@/components/home/InlineCTA"));
 
 const Index = () => {
   const { t, isRTL } = useTranslation();
