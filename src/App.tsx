@@ -394,9 +394,6 @@ const App = () => (
                           <Route path="/creator" element={<CreatorLayoutWrapper />} />
                           {/* Therapist */}
                           <Route path="/therapist" element={<TherapistLayoutWrapper />} />
-                          {/* Legacy hypnosis redirects */}
-                          <Route path="/personal-hypnosis/success" element={<Navigate to="/play" replace />} />
-                          <Route path="/personal-hypnosis/pending" element={<Navigate to="/play" replace />} />
                           {/* Success */}
                           <Route path="/success" element={<Success />} />
                         </Route>
