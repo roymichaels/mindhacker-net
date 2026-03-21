@@ -5,6 +5,7 @@ import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 interface AuroraWelcomeProps {
   onSuggestionClick: (suggestion: string) => void;
