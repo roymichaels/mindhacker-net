@@ -213,7 +213,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                 isAI ? "justify-start" : "justify-end"
               )}
             >
-              {/* Aurora avatar */}
+              {/* AION avatar */}
               {isAI && (
                 <div className="flex-shrink-0 mt-1">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
