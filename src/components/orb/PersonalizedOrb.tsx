@@ -58,6 +58,9 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     const { profile, isLoading, isPersonalized, storedProfile, seed, diagnosticState, missedFields } = useOrbProfile();
     const { theme, loading: themeLoading } = useThemeSettings();
     const { level } = useXpProgress();
+    // EgoState from DNA — Orb does NOT compute identity
+    const { dna } = useDNA();
+    const dnaVisual = useMemo(() => mapDNAtoVisual(dna), [dna]);
 
     // Smooth transition state
     const prevProfileRef = useRef<OrbProfile | null>(null);
