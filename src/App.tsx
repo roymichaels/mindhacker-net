@@ -247,9 +247,6 @@ const App = () => (
                       <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<Index />} />
-                        {/* /login and /signup redirect to home (auth is now modal-based) */}
-                        <Route path="/signup" element={<Navigate to="/" replace />} />
-                        <Route path="/login" element={<Navigate to="/" replace />} />
                         <Route path="/blog" element={<Blog />} />
                         <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="/courses" element={<Courses />} />
@@ -259,45 +256,18 @@ const App = () => (
                         <Route path="/install" element={<Install />} />
                         <Route path="/audio/:token" element={<AudioPlayer />} />
                         <Route path="/video/:token" element={<VideoPlayer />} />
-                        {/* Legacy product pages redirect to home */}
-                        <Route path="/personal-hypnosis" element={<Navigate to="/" replace />} />
-                        <Route path="/consciousness-leap" element={<Navigate to="/" replace />} />
-                        <Route path="/consciousness-leap/apply/:token" element={<Navigate to="/" replace />} />
-                        <Route path="/form/:token" element={<Navigate to="/" replace />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                        {/* Onboarding — new entry point */}
                         <Route path="/onboarding" element={<Onboarding />} />
                         <Route path="/ceremony" element={<OnboardingCeremony />} />
-                        {/* Ad landing page */}
                         <Route path="/go" element={<Go />} />
                         <Route path="/founding" element={<FoundingLanding />} />
-                        {/* Feature detail pages */}
                         <Route path="/features/:slug" element={<FeatureDetailPage />} />
-                        {/* Legacy redirects → onboarding */}
-                        <Route path="/start" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/free-journey/start" element={<Navigate to="/onboarding" replace />} />
-                        <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
-                        {/* ── Canonical Routes ──
-                         * /p/:slug          → Coach public storefront (CANONICAL)
-                         * /coach/:slug      → Alias, redirects to /p/:slug
-                         * /practitioners    → Alias, redirects to /coaches directory
-                         * /practitioner/*   → Legacy, redirects to /coaches
-                         * /panel/*          → Legacy, all redirect to /admin-hub
-                         */}
-                        <Route path="/practitioners" element={<Navigate to="/coaches" replace />} />
-                        <Route path="/marketplace" element={<Navigate to="/coaches" replace />} />
+                        {/* Coach slug redirects (dynamic, can't be in map) */}
                         <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
                         <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
-                        {/* Coach slug alias → storefront */}
                         <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
-                        {/* Redirect old affiliate dashboard to new panel */}
-                        <Route
-                          path="/affiliate-dashboard"
-                          element={<Navigate to="/affiliate" replace />}
-                        />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
                         <Route path="/docs" element={<Documentation />} />
 
