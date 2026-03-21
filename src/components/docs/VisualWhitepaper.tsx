@@ -283,8 +283,8 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={12} isActive number="12" title={t('Subscription Model', 'מודל מנויים')} subtitle={t('"Depth of Power" hierarchy', 'היררכיית "עומק הכוח"')} isHe={he} layout="center" accent="hsl(271 81% 55%)">
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
-                { icon: '🌅', title: t('Awakening — Free', 'Awakening — חינם'), desc: t('Basic structure, XP, 5 Aurora messages/day, 2 pillars, Play Hub.', 'מבנה בסיסי, XP, 5 הודעות Aurora ביום, 2 עמודים, Play Hub.'), color: 'hsl(168 70% 50%)' },
-                { icon: '🔥', title: t('Optimization — $69/mo', 'Optimization — $69/חודש'), desc: t('Unlimited Aurora memory, 6 pillars, 100-day plan, AI Hypnosis.', 'Aurora ללא הגבלת זיכרון, 6 עמודים, 100 ימים, היפנוזה AI.'), color: 'hsl(45 90% 55%)' },
+                { icon: '🌅', title: t('Awakening — Free', 'Awakening — חינם'), desc: t('Basic structure, XP, 5 AION messages/day, 2 pillars, Play Hub.', 'מבנה בסיסי, XP, 5 הודעות AION ביום, 2 עמודים, Play Hub.'), color: 'hsl(168 70% 50%)' },
+                { icon: '🔥', title: t('Optimization — $69/mo', 'Optimization — $69/חודש'), desc: t('Unlimited AION memory, 6 pillars, 100-day plan, AI Hypnosis.', 'AION ללא הגבלת זיכרון, 6 עמודים, 100 ימים, היפנוזה AI.'), color: 'hsl(45 90% 55%)' },
                 { icon: '👑', title: t('Command — $199/mo', 'Command — $199/חודש'), desc: t('All 15 pillars, proactive engine, modular plan updates.', 'כל 15 עמודים, מנוע פרואקטיבי, עדכוני תוכנית מודולריים.'), color: 'hsl(271 81% 55%)' },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color={item.color} />
