@@ -124,7 +124,8 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     }, [activeProfile]);
 
     const displayProfile = transitionProfile || activeProfile;
-    const egoState = forceEgoState || displayProfile.computedFrom.egoState || 'guardian';
+    // EgoState from DNA (single source of truth) — Orb does NOT derive this
+    const egoState = forceEgoState || dnaVisual.egoState || 'guardian';
 
     if (showLoadingSkeleton && (themeLoading || (isLoading && !storedProfile))) {
       return (
