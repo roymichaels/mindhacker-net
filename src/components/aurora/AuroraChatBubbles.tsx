@@ -294,7 +294,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               </div>
             </div>
             <div className="max-w-[80%] space-y-1">
-              <span className="text-[10px] font-semibold text-fuchsia-400/70 block px-1">Aurora</span>
+              <span className="text-[10px] font-semibold text-fuchsia-400/70 block px-1">{aiDisplayName}</span>
               <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm bg-muted/30 text-foreground border border-border/30">
                 <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
                   <ReactMarkdown>{streamingContent}</ReactMarkdown>
