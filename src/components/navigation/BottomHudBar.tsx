@@ -1,8 +1,8 @@
 /**
  * BottomHudBar — 3-column grid HUD.
- * Left: Personalized orb + job title → navigates to /profile
+ * Left: Personalized AION orb + job title → navigates to /profile
  * Middle: XP progress bar
- * Right: Aurora orb → opens Aurora dock (with intro balloon)
+ * Right: AION Brain orb → opens chat dock
  */
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
