@@ -143,7 +143,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
               {[
                 { icon: '🎮', title: 'Play', desc: t('Unified execution hub with 100-day plans', 'מרכז ביצוע מאוחד עם תוכנית 100 ימים'), color: 'hsl(271 81% 55%)' },
-                { icon: '🧠', title: 'Aurora', desc: t('Adaptive consciousness AI engine', 'מנוע AI תודעתי אדפטיבי'), color: 'hsl(187 85% 50%)' },
+                { icon: '🧠', title: 'AION', desc: t('Identity + AI brain + visual body', 'זהות + מוח AI + גוף ויזואלי'), color: 'hsl(187 85% 50%)' },
                 { icon: '🏪', title: 'FreeMarket', desc: t('Marketplace & Earn economy', 'שוק חופשי וכלכלת Earn'), color: 'hsl(45 90% 55%)' },
                 { icon: '👥', title: 'Community', desc: t('Social feed & level system', 'פיד חברתי ומערכת רמות'), color: 'hsl(168 70% 50%)' },
                 { icon: '📚', title: 'Learn', desc: t('AI-powered adaptive learning', 'למידה אדפטיבית מבוססת AI'), color: 'hsl(320 80% 55%)' },
@@ -154,14 +154,14 @@ export function VisualWhitepaper({ onExit }: Props) {
           </VisualSection>
         );
 
-      case 5: // Aurora Engine Deep Dive
+      case 5: // AION Brain Deep Dive
         return (
-          <VisualSection index={5} isActive number="05" title={t('Aurora — AI Engine', 'Aurora — מנוע ה-AI')} subtitle={t('The consciousness engine powering AION. Not a chatbot — your AI layer.', 'מנוע התודעה שמניע את AION. לא צ\'אטבוט — שכבת ה-AI שלך.')} isHe={he} layout="center" accent="hsl(271 81% 55%)">
+          <VisualSection index={5} isActive number="05" title={t('AION Brain', 'AION Brain — המוח התודעתי')} subtitle={t('Not a chatbot — the consciousness mind of your Future Self.', 'לא צ\'אטבוט — המוח התודעתי של העצמי העתידי שלך.')} isHe={he} layout="center" accent="hsl(271 81% 55%)">
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
                 { icon: '🔮', title: t('Full Context Awareness', 'מודעות הקשרית מלאה'), desc: t('7+ data sources: profile, plans, schedule, pillar scores, emotional state.', '7+ מקורות: פרופיל, תוכניות, לו"ז, ציוני עמודים, מצב רגשי.') },
                 { icon: '📊', title: t('Memory Graph', 'גרף זיכרון'), desc: t('Dynamic profile of identity, preferences, patterns — cross-conversation insights.', 'פרופיל דינמי של זהות, העדפות, דפוסים — תובנות חוצות-שיחות.') },
-                { icon: '🎤', title: t('Voice Mode', 'מצב קולי'), desc: t('Bidirectional voice with live Orb animation and multimodal processing.', 'קולי דו-כיווני עם אנימציית Orb חיה ועיבוד מולטימודלי.') },
+                { icon: '🎤', title: t('Voice Mode', 'מצב קולי'), desc: t('Bidirectional voice with live AION animation and multimodal processing.', 'קולי דו-כיווני עם אנימציית AION חיה ועיבוד מולטימודלי.') },
                 { icon: '⚡', title: t('Proactive Engine', 'מנוע פרואקטיבי'), desc: t('Context-based nudges, reminders, streak warnings, and action suggestions.', 'דחיפות מבוססות הקשר, תזכורות, אזהרות streak, והצעות פעולה.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.1} color="hsl(271 81% 55%)" />
@@ -186,16 +186,17 @@ export function VisualWhitepaper({ onExit }: Props) {
           </VisualSection>
         );
 
-      case 7: // AION Identity
+      case 7: // AION — Unified Identity
         return (
-          <VisualSection index={7} isActive number="07" title={t('AION — Your Future Self', 'AION — העתיד-עצמי שלך')} subtitle={t('Discovered, not configured. DNA → AION → Orb.', 'מתגלה, לא נבנה. DNA → AION → Orb.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
+          <VisualSection index={7} isActive number="07" title={t('AION — Your Future Self', 'AION — העתיד-עצמי שלך')} subtitle={t('Identity + Brain + Visual Body — one entity.', 'זהות + מוח + גוף ויזואלי — ישות אחת.')} isHe={he} layout="center" accent="hsl(320 80% 55%)">
             <div className="flex justify-center py-2">
               <WhitepaperOrb size={120} />
             </div>
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
                 { icon: '🧬', title: t('DNA — Base Layer', 'DNA — שכבת בסיס'), desc: t('Aggregates all identity signals into a single source of truth.', 'מאחד את כל אותות הזהות למקור אמת יחיד.') },
-                { icon: '🎨', title: t('Orb — Visual Body', 'Orb — גוף ויזואלי'), desc: t('Colors shift by pillars. Morphology grows with level. Bloom reflects depth.', 'צבעים משתנים לפי עמודים. מורפולוגיה גדלה עם רמה. Bloom משקף עומק.') },
+                { icon: '🧠', title: t('Brain — Consciousness AI', 'Brain — מוח תודעתי'), desc: t('Full contextual awareness, memory graph, proactive engine.', 'מודעות הקשרית מלאה, גרף זיכרון, מנוע פרואקטיבי.') },
+                { icon: '🎨', title: t('Visual Body', 'גוף ויזואלי'), desc: t('Colors shift by pillars. Morphology grows with level. Bloom reflects depth.', 'צבעים משתנים לפי עמודים. מורפולוגיה גדלה עם רמה. Bloom משקף עומק.') },
                 { icon: '🔐', title: t('Web3 Wallet', 'ארנק Web3'), desc: t('No seed phrases — sign in with Google/Email. Digital ownership.', 'ללא seed phrases — כניסה דרך Google/Email. בעלות דיגיטלית.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color="hsl(320 80% 55%)" />
@@ -282,8 +283,8 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={12} isActive number="12" title={t('Subscription Model', 'מודל מנויים')} subtitle={t('"Depth of Power" hierarchy', 'היררכיית "עומק הכוח"')} isHe={he} layout="center" accent="hsl(271 81% 55%)">
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
-                { icon: '🌅', title: t('Awakening — Free', 'Awakening — חינם'), desc: t('Basic structure, XP, 5 Aurora messages/day, 2 pillars, Play Hub.', 'מבנה בסיסי, XP, 5 הודעות Aurora ביום, 2 עמודים, Play Hub.'), color: 'hsl(168 70% 50%)' },
-                { icon: '🔥', title: t('Optimization — $69/mo', 'Optimization — $69/חודש'), desc: t('Unlimited Aurora memory, 6 pillars, 100-day plan, AI Hypnosis.', 'Aurora ללא הגבלת זיכרון, 6 עמודים, 100 ימים, היפנוזה AI.'), color: 'hsl(45 90% 55%)' },
+                { icon: '🌅', title: t('Awakening — Free', 'Awakening — חינם'), desc: t('Basic structure, XP, 5 AION messages/day, 2 pillars, Play Hub.', 'מבנה בסיסי, XP, 5 הודעות AION ביום, 2 עמודים, Play Hub.'), color: 'hsl(168 70% 50%)' },
+                { icon: '🔥', title: t('Optimization — $69/mo', 'Optimization — $69/חודש'), desc: t('Unlimited AION memory, 6 pillars, 100-day plan, AI Hypnosis.', 'AION ללא הגבלת זיכרון, 6 עמודים, 100 ימים, היפנוזה AI.'), color: 'hsl(45 90% 55%)' },
                 { icon: '👑', title: t('Command — $199/mo', 'Command — $199/חודש'), desc: t('All 15 pillars, proactive engine, modular plan updates.', 'כל 15 עמודים, מנוע פרואקטיבי, עדכוני תוכנית מודולריים.'), color: 'hsl(271 81% 55%)' },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color={item.color} />
@@ -297,7 +298,7 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={13} isActive number="13" title={t('Community & Connection', 'קהילה וחיבור')} isHe={he} layout="center" accent="hsl(168 70% 45%)">
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
-                { icon: '👥', title: t('Social Feed', 'פיד חברתי'), desc: t('Posts, comments, likes, Aurora AI participation.', 'פוסטים, תגובות, לייקים, השתתפות Aurora AI.') },
+                { icon: '👥', title: t('Social Feed', 'פיד חברתי'), desc: t('Posts, comments, likes, AION AI participation.', 'פוסטים, תגובות, לייקים, השתתפות AION AI.') },
                 { icon: '📸', title: t('Stories', 'סטוריז'), desc: t('Instagram-style stories tied to life pillars.', 'סטוריז בסגנון אינסטגרם מקושרים לעמודי חיים.') },
                 { icon: '🏆', title: t('Level System', 'מערכת רמות'), desc: t('Rise in levels, earn points, and unlock content.', 'עלה ברמות, צבור נקודות ופתח תוכן.') },
                 { icon: '🤝', title: t('AI Matching', 'AI Matching'), desc: t('Smart matching with accountability partners and mentors.', 'התאמה חכמה לשותפי אחריות ומנטורים.') },
@@ -344,9 +345,9 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={16} isActive number="16" title={t('Onboarding & Initiation', 'אונבורדינג וטקס כניסה')} isHe={he} layout="center" accent="hsl(45 90% 55%)">
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
-                { icon: '📝', title: t('Multi-Step Setup', 'הרשמה מדורגת'), desc: t('Email signup, Aurora intro conversation, pillar selection.', 'הרשמה באימייל, שיחת היכרות עם Aurora, בחירת עמודים.') },
+                { icon: '📝', title: t('Multi-Step Setup', 'הרשמה מדורגת'), desc: t('Email signup, AION intro conversation, pillar selection.', 'הרשמה באימייל, שיחת היכרות עם AION, בחירת עמודים.') },
                 { icon: '✨', title: t('Initiation Ceremony', 'טקס כניסה'), desc: t('Immersive visual experience — animations, music, first AION.', 'חוויה ויזואלית אימרסיבית — אנימציות, מוזיקה, AION ראשון.') },
-                { icon: '🎮', title: t('First 100-Day Plan', 'תוכנית 100 ימים ראשונה'), desc: t('Aurora creates your personalized plan after onboarding.', 'Aurora יוצרת תוכנית מותאמת אישית לאחר ההצטרפות.') },
+                { icon: '🎮', title: t('First 100-Day Plan', 'תוכנית 100 ימים ראשונה'), desc: t('AION creates your personalized plan after onboarding.', 'AION יוצר תוכנית מותאמת אישית לאחר ההצטרפות.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color="hsl(45 90% 55%)" />
               ))}
@@ -412,7 +413,7 @@ export function VisualWhitepaper({ onExit }: Props) {
             <RoadmapTimeline
               isHe={he}
               phases={[
-                { label: 'Q1-Q2 2026', items: [t('MVP — AION, Play, Aurora Engine', 'MVP — AION, Play, מנוע Aurora'), t('MOS Wallet, Web3Auth, PWA', 'ארנק MOS, Web3Auth, PWA'), t('Community, Stories, AION Journal', 'קהילה, סטוריז, יומן AION')], color: 'hsl(271 81% 55%)', active: true },
+                { label: 'Q1-Q2 2026', items: [t('MVP — AION (Identity + Brain), Play', 'MVP — AION (זהות + מוח), Play'), t('MOS Wallet, Web3Auth, PWA', 'ארנק MOS, Web3Auth, PWA'), t('Community, Stories, AION Journal', 'קהילה, סטוריז, יומן AION')], color: 'hsl(271 81% 55%)', active: true },
                 { label: 'Q3-Q4 2026', items: [t('FreeMarket & marketplace', 'FreeMarket ושוק פנימי'), t('Learn — adaptive learning', 'Learn — למידה אדפטיבית'), t('Full career paths, Data Marketplace', 'מסלולי קריירה מלאים, שוק נתונים')], color: 'hsl(187 85% 50%)' },
                 { label: '2027', items: [t('Full Web3, DAO, Solana', 'Web3 מלא, DAO, Solana'), t('Native Mobile', 'מובייל נייטיב'), t('Open API & integrations', 'API פתוח ואינטגרציות')], color: 'hsl(45 90% 55%)' },
                 { label: '2028+', items: [t('Autonomous AI', 'AI אוטונומי'), t('Full decentralized economy', 'כלכלה מבוזרת מלאה'), t('Global platform', 'פלטפורמה גלובלית')], color: 'hsl(168 70% 50%)' },

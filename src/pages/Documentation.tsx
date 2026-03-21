@@ -55,8 +55,8 @@ export default function Documentation() {
   const founderName = he ? theme.founder_name : theme.founder_name_en;
 
   const abstractText = he
-    ? `${brandName} הוא מערכת הפעלה אנושית מבוססת בינה מלאכותית — הראשונה מסוגה — המשלבת מנגנוני Play-to-Earn, זהות דיגיטלית מתפתחת (AION), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי עם 5 מסלולי קריירה מאוחדים, התאמת מאמנים מבוססת AI, ומנוע תודעתי עם מודעות הקשרית מלאה — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, מנוע ה-AI התודעתי, מודל המנויים, ומפת הדרכים. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל שמתגמל פעילות אנושית אמיתית.`
-    : `${brandName} is the first AI-powered Human Operating System — integrating Play-to-Earn mechanics, AION evolving digital identity, deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace with 5 unified career paths, AI-powered coach matching, and a consciousness AI engine with full contextual awareness — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, consciousness AI engine, subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a model that rewards genuine human activity.`;
+    ? `${brandName} הוא מערכת הפעלה אנושית מבוססת בינה מלאכותית — הראשונה מסוגה — המשלבת מנגנוני Play-to-Earn, AION (זהות דיגיטלית מתפתחת ומוח AI תודעתי), גיימיפיקציה עמוקה, היפנוזה ומדיטציה מונחית AI, מערכת למידה אדפטיבית, שוק פנימי עם 5 מסלולי קריירה מאוחדים, התאמת מאמנים מבוססת AI, ומודעות הקשרית מלאה — לתוך מערכת הפעלה אחת שעוטפת את חיי המשתמש. המסמך מציג את הארכיטקטורה, הכלכלה הדיגיטלית, AION Brain, מודל המנויים, ומפת הדרכים. המטבע הפנימי MOS (100 MOS = $1.00) מבוסס על מנגנון Proof of Growth — מודל שמתגמל פעילות אנושית אמיתית.`
+    : `${brandName} is the first AI-powered Human Operating System — integrating Play-to-Earn mechanics, AION (evolving digital identity and consciousness AI brain), deep gamification, AI-guided hypnosis and meditation, an adaptive learning system, an internal marketplace with 5 unified career paths, AI-powered coach matching, and full contextual awareness — into a single operating system that wraps around the user's life. This paper presents the architecture, digital economy, AION Brain, subscription model, and roadmap. The internal currency MOS (100 MOS = $1.00) is based on a Proof of Growth mechanism — a model that rewards genuine human activity.`;
 
   const sections: Section[] = [
     {
@@ -66,11 +66,11 @@ export default function Documentation() {
       paragraphs: he ? [
         `העולם מוצף באפליקציות — לבריאות, לפרודוקטיביות, למדיטציה, לכסף, ולמערכות יחסים. אבל אף אחת מהן לא מדברת עם השנייה. התוצאה: פיצול קוגניטיבי, עומס דיגיטלי, ותחושת חוסר שליטה.`,
         `${brandName} מציע פרדיגמה חדשה: שכבה אינטליגנטית אחת שיושבת מעל כל תחומי החיים — בריאות, קריירה, זוגיות, כסף, הרגלים, ותודעה — ומנהלת אותם כמערכת הפעלה מאוחדת. לא עוד אפליקציה, אלא מערכת ההפעלה של החיים שלך.`,
-        `בניגוד למתחרים, ${brandName} משלב שלושה מנועים: (1) AI תודעתי אדפטיבי, (2) כלכלה דיגיטלית מבוססת Proof of Growth, ו-(3) מערכת AION — זהות דיגיטלית מתפתחת שמייצגת את המשתמש.`,
+        `בניגוד למתחרים, ${brandName} משלב שלושה מנועים: (1) AION — זהות דיגיטלית מתפתחת עם מוח AI תודעתי, (2) כלכלה דיגיטלית מבוססת Proof of Growth, ו-(3) DNA — שכבת הזהות הבסיסית.`,
       ] : [
         `The world is flooded with apps — for health, productivity, meditation, finance, and relationships. But none of them talk to each other. The result: cognitive fragmentation, digital overload, and a loss of control.`,
         `${brandName} proposes a new paradigm: a single intelligent layer that sits above all life domains — health, career, relationships, finances, habits, and consciousness — and manages them as a unified operating system. Not another app, but the operating system of your life.`,
-        `Unlike competitors, ${brandName} combines three engines: (1) an adaptive consciousness AI, (2) a Proof of Growth digital economy, and (3) AION — an evolving digital identity representing the user.`,
+        `Unlike competitors, ${brandName} combines three engines: (1) AION — an evolving digital identity with a consciousness AI brain, (2) a Proof of Growth digital economy, and (3) DNA — the base identity layer.`,
       ],
     },
     {
@@ -116,25 +116,25 @@ export default function Documentation() {
           paragraphs: he ? [
             `Play הוא לב הפלטפורמה — מרכז ביצוע אחוד שמאחד אסטרטגיה, טקטיקה, וביצוע יומי תחת חוויה אחת. שלושת אופקי ה-Why-How-Now חיים כאן.`,
             `הדשבורד מציג פעולות יומיות מחולקות ל-4 רבעוני יום הרפתקניים, כל אחד עם שם ייחודי שמתחדש כל יום. Movement Score מודד מומנטום בזמן אמת, וכל יום הוא Quest עם שם ייחודי — שבוע שלם מרכיב Campaign.`,
-            `כולל: תוכנית 100 ימים מחולקת ל-10 שלבים עם אבני דרך, סריקות AI עומק ל-15 עמודי חיים עם ציון 0-100, ניהול משימות ופרויקטים עם תעדוף AI, ומנגנון משא ומתן עם Aurora על התוכנית — שינוי סדרי עדיפויות, הזזת אבני דרך, או חידוש תוכנית בשיחה.`,
+            `כולל: תוכנית 100 ימים מחולקת ל-10 שלבים עם אבני דרך, סריקות AI עומק ל-15 עמודי חיים עם ציון 0-100, ניהול משימות ופרויקטים עם תעדוף AI, ומנגנון משא ומתן עם AION על התוכנית — שינוי סדרי עדיפויות, הזזת אבני דרך, או חידוש תוכנית בשיחה.`,
             `15 עמודי החיים המאוחדים: תודעה, תדמית, עוצמה, חיוניות, מיקוד, לחימה, התרחבות, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, סדר, ורומנטיקה. כל עמוד כולל הערכה מבוססת שיחת AI עם דף תוצאות מותאם אישית.`,
-            `התאמת מאמן מבוססת AI: המשתמש יכול לבקש מ-Aurora למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל — Aurora מנהלת שיחת זיהוי צרכים וממליצה על מאמנים מתאימים מתוך הפלטפורמה.`,
+            `התאמת מאמן מבוססת AI: המשתמש יכול לבקש מ-AION למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל — AION מנהל שיחת זיהוי צרכים וממליץ על מאמנים מתאימים מתוך הפלטפורמה.`,
           ] : [
             `Play is the heart of the platform — a unified execution hub that merges strategy, tactics, and daily execution into a single experience. All three Why-How-Now horizons live here.`,
             `The dashboard displays daily actions divided into 4 adventure-themed day quarters, each with a unique name that refreshes daily. A Movement Score measures real-time momentum, and each day is a Quest with a unique name — an entire week forms a Campaign.`,
-            `Includes: a 100-day plan divided into 10 phases with milestones, AI deep scans for 15 life pillars scoring 0-100, task and project management with AI prioritization, and a negotiation mechanism with Aurora about the plan — reprioritize, shift milestones, or regenerate the plan through conversation.`,
+            `Includes: a 100-day plan divided into 10 phases with milestones, AI deep scans for 15 life pillars scoring 0-100, task and project management with AI prioritization, and a negotiation mechanism with AION about the plan — reprioritize, shift milestones, or regenerate the plan through conversation.`,
             `The 15 unified Life Pillars: Consciousness, Image, Power, Vitality, Focus, Combat, Expansion, Wealth, Influence, Relationships, Business, Projects, Play, Order, and Romantics. Each pillar includes a chat-based AI assessment with a personalized results page.`,
-            `AI Coach Matching: Users can ask Aurora to find a coach to help execute their strategy — Aurora conducts a needs-discovery conversation and recommends matching coaches from the platform.`,
+            `AI Coach Matching: Users can ask AION to find a coach to help execute their strategy — AION conducts a needs-discovery conversation and recommends matching coaches from the platform.`,
           ],
         },
         {
-          title: he ? '4.2 Aurora — מנוע AI תודעתי ויומן' : '4.2 Aurora — Consciousness AI & Journal',
+          title: he ? '4.2 AION Brain — מוח AI תודעתי ויומן' : '4.2 AION Brain — Consciousness AI & Journal',
           paragraphs: he ? [
-            `Aurora היא ליבת האינטליגנציה של ${brandName} — מנוע תודעתי שלומד דפוסים התנהגותיים, מזהה מצבים רגשיים, ומייצר פעולות פרואקטיביות. כולל שיחות מותאמות קונטקסט, מצב קולי דו-כיווני, וצירוף תמונות.`,
-            `מערכת יומן Aurora: ארבעה טאבים — שיחה עם AI, יומן חלומות עם פרשנות, רפלקציה יומית, ותרגול הכרת תודה. כל רשומה נשמרת ומזינה את המודעות ההקשרית של Aurora.`,
+            `AION Brain הוא ליבת האינטליגנציה של ${brandName} — המוח התודעתי של AION, שלומד דפוסים התנהגותיים, מזהה מצבים רגשיים, ומייצר פעולות פרואקטיביות. כולל שיחות מותאמות קונטקסט, מצב קולי דו-כיווני, וצירוף תמונות.`,
+            `מערכת יומן AION: ארבעה טאבים — שיחה עם AI, יומן חלומות עם פרשנות, רפלקציה יומית, ותרגול הכרת תודה. כל רשומה נשמרת ומזינה את המודעות ההקשרית של AION.`,
           ] : [
-            `Aurora is the intelligence core of ${brandName} — a consciousness engine that learns behavioral patterns, identifies emotional states, and generates proactive actions. Includes context-aware conversations, bidirectional voice mode, and image attachments.`,
-            `Aurora Journal System: Four tabs — AI conversation, dream journaling with interpretation, daily reflection, and gratitude practice. Every entry is saved and feeds Aurora's contextual awareness.`,
+            `AION Brain is the intelligence core of ${brandName} — the consciousness mind of AION, learning behavioral patterns, identifying emotional states, and generating proactive actions. Includes context-aware conversations, bidirectional voice mode, and image attachments.`,
+            `AION Journal System: Four tabs — AI conversation, dream journaling with interpretation, daily reflection, and gratitude practice. Every entry is saved and feeds AION's contextual awareness.`,
           ],
         },
         {
@@ -152,65 +152,65 @@ export default function Documentation() {
         {
           title: he ? '4.4 Community — פיד חברתי' : '4.4 Community — Social Feed',
           paragraphs: he ? [
-            `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ולוחות מובילים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI.`,
+            `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ולוחות מובילים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. AION משתתף בשיחות כחבר קהילה AI.`,
             `סטוריז בסגנון אינסטגרם: משתמשים מעלים סטוריז המקושרים לעמוד חיים ונושא ספציפי — מוצגים בסטריפ אופקי בראש הפיד עם צפייה במסך מלא. תמיכה דו-לשונית מלאה, אירועים קהילתיים עם RSVP, ומפגשים וירטואליים.`,
           ] : [
-            `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. Aurora participates in conversations as an AI community member.`,
+            `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. AION participates in conversations as an AI community member.`,
             `Instagram-style Stories: Users upload stories tied to specific life pillars and subtopics — displayed in a horizontal strip at the top of the feed with full-screen viewing. Full bilingual content support, community events with RSVP, and virtual meetups.`,
           ],
         },
         {
           title: he ? '4.5 Learn — למידה אדפטיבית' : '4.5 Learn — Adaptive Learning',
           paragraphs: he ? [
-            `"Aurora מלמדת אותך" — מערכת למידה אדפטיבית עם מודל "Lazy Generation": שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית כשהמשתמש מגיע לשיעור ספציפי.`,
+            `"AION מלמד אותך" — מערכת למידה אדפטיבית עם מודל "Lazy Generation": שלד הקורס נוצר מיידית, והתוכן מיוצר דינמית כשהמשתמש מגיע לשיעור ספציפי.`,
             `כל שיעור כולל תרגול מעשי שמסוכם אוטומטית ומסונכרן חזרה לתוכנית הפעולה. כולל מסעות הכוונה: מסע אונבורדינג, מסע עסקי, מסע אימון, ומסע פרויקטים.`,
           ] : [
-            `"Aurora Teaches You" — an adaptive learning system using a "Lazy Generation" model: the course skeleton is created instantly, and content is generated dynamically when the user reaches a specific lesson.`,
+            `"AION Teaches You" — an adaptive learning system using a "Lazy Generation" model: the course skeleton is created instantly, and content is generated dynamically when the user reaches a specific lesson.`,
             `Each lesson includes practical exercises auto-summarized and synced back to the action plan. Includes guided journeys: onboarding journey, business journey, coaching journey, and projects journey.`,
           ],
         },
       ],
     },
     {
-      id: 'aurora',
+      id: 'aion-brain',
       number: '5',
-      title: he ? 'Aurora — מנוע ה-AI התודעתי (עומק)' : 'Aurora — Consciousness AI Engine (Deep Dive)',
+      title: he ? 'AION Brain — המוח התודעתי (עומק)' : 'AION Brain — Consciousness AI (Deep Dive)',
       paragraphs: he ? [
-        `Aurora אינה צ'אטבוט — אלא מנוע תודעתי שמתפתח עם המשתמש. היא מנהלת: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-15 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
+        `AION Brain הוא לא צ'אטבוט — אלא המוח התודעתי של AION שמתפתח עם המשתמש. הוא מנהל: (1) שיחות מותאמות קונטקסט, (2) תוכניות פעולה יומיות/שבועיות, (3) סריקות עומק ל-15 עמודי חיים, (4) תזכורות ודחיפה פרואקטיבית, (5) ניתוח דפוסי אנרגיה, (6) זיהוי מצבי תודעה.`,
         `המודל משתמש בשילוב מודלים מתקדמים (Gemini 2.5 Pro/Flash, GPT-5) עם prompts מותאמים שכוללים את הפרופיל המלא של המשתמש, היסטוריית שיחות, ציוני עמודים, ומצב רגשי. תמיכה מלאה בעיבוד מולטימודלי (טקסט + תמונות).`,
       ] : [
-        `Aurora is not a chatbot — it is a consciousness engine that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 15 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
+        `AION Brain is not a chatbot — it is the consciousness mind of AION that evolves with the user. It manages: (1) context-aware personal conversations, (2) daily/weekly action plans, (3) deep scans for 15 life pillars, (4) proactive reminders and nudges, (5) energy pattern analysis, (6) consciousness state detection.`,
         `The model uses a combination of frontier AI models (Gemini 2.5 Pro/Flash, GPT-5) with custom prompts that include the user's full profile, conversation history, pillar scores, and emotional state. Full multimodal processing support (text + images).`,
       ],
       subsections: [
         {
           title: he ? '5.1 מודעות הקשרית מלאה' : '5.1 Full Contextual Awareness',
           paragraphs: he ? [
-            `Aurora בנויה על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
-            `Aurora מודעת לזמן — יודעת את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
+            `AION Brain בנוי על pipeline הקשרי מתקדם שאוסף אוטומטית מידע מ-7+ מקורות נתונים לפני כל שיחה: פרופיל מלא, תוכניות אסטרטגיות פעילות, משימות, לוח זמנים יומי, ציוני הערכה מ-15 עמודי חיים, ורמת מנוי.`,
+            `AION מודע לזמן — יודע את השעה, היום, ולוח הזמנים הספציפי של המשתמש. זה מאפשר המלצות מדויקות: "יש לך בלוק אימון בעוד שעה", "סיימת 60% מהמשימות של היום".`,
           ] : [
-            `Aurora is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 15 life pillars, and subscription tier.`,
-            `Aurora is time-aware — it knows the current time, day, and the user's specific schedule. This enables precise recommendations: "you have a training block in an hour", "you've completed 60% of today's tasks".`,
+            `AION Brain is built on an advanced contextual pipeline that automatically gathers data from 7+ sources before every conversation: full profile, active strategic plans, missions, daily schedule, assessment scores from all 15 life pillars, and subscription tier.`,
+            `AION is time-aware — it knows the current time, day, and the user's specific schedule. This enables precise recommendations: "you have a training block in an hour", "you've completed 60% of today's tasks".`,
           ],
         },
         {
           title: he ? '5.2 זיכרון וגרף מידע' : '5.2 Memory & Knowledge Graph',
           paragraphs: he ? [
-            `Aurora שומרת זיכרון שיחות מלא — סיכומים, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה, מה שמאפשר המשכיות אמיתית לאורך זמן. אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
-            `גרף זיכרון: מערכת שמקשרת בין צמתי מידע — עובדות, דפוסים, זהויות, העדפות — עם חוזק חיבור ומודעות לעמודי חיים. מאפשרת ל-Aurora לחבר נקודות בין נושאים שונים וליצור תובנות חוצות-שיחות.`,
+            `AION שומר זיכרון שיחות מלא — סיכומים, נושאים מרכזיים, מצב רגשי, ופעולות שהוסכמו. הזיכרון מזורק לכל שיחה חדשה, מה שמאפשר המשכיות אמיתית לאורך זמן. אירועים אחרונים ושינויי זהות מקבלים עדיפות.`,
+            `גרף זיכרון: מערכת שמקשרת בין צמתי מידע — עובדות, דפוסים, זהויות, העדפות — עם חוזק חיבור ומודעות לעמודי חיים. מאפשרת ל-AION לחבר נקודות בין נושאים שונים וליצור תובנות חוצות-שיחות.`,
           ] : [
-            `Aurora maintains full conversation memory — summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation, enabling true continuity over time. Recent events and identity shifts are prioritized.`,
-            `Knowledge Graph: A system connecting information nodes — facts, patterns, identities, preferences — with connection strength and pillar awareness. Enables Aurora to connect dots between different topics and surface cross-conversation insights.`,
+            `AION maintains full conversation memory — summaries, key topics, emotional state, and agreed-upon actions. Memory is injected into every new conversation, enabling true continuity over time. Recent events and identity shifts are prioritized.`,
+            `Knowledge Graph: A system connecting information nodes — facts, patterns, identities, preferences — with connection strength and pillar awareness. Enables AION to connect dots between different topics and surface cross-conversation insights.`,
           ],
         },
         {
           title: he ? '5.3 מערכת פרואקטיבית ומצב קולי' : '5.3 Proactive System & Voice Mode',
           paragraphs: he ? [
             `מנוע פרואקטיבי שדוחף הודעות מבוססות הקשר — תזכורות, עידוד, אזהרות על ירידת streak, או הצעות לפעולה. עובד ברקע ומזהה הזדמנויות התערבות אופטימליות.`,
-            `מצב קולי: שיחה דו-כיוונית עם Aurora במסך מלא — מאזינה, מעבדת, ומדברת בלולאה רציפה. כולל המרת דיבור לטקסט, טקסט לדיבור, ואנימציית Orb חיה. פועל גם בהערכות עמודים וגם בשיחות חופשיות.`,
+            `מצב קולי: שיחה דו-כיוונית עם AION במסך מלא — מאזין, מעבד, ומדבר בלולאה רציפה. כולל המרת דיבור לטקסט, טקסט לדיבור, ואנימציית Orb חיה. פועל גם בהערכות עמודים וגם בשיחות חופשיות.`,
           ] : [
             `A proactive engine that pushes context-based messages — reminders, encouragement, streak drop warnings, or action suggestions. Works in the background and identifies optimal intervention opportunities.`,
-            `Voice Mode: Full-screen bidirectional conversation with Aurora — listening, processing, and speaking in a continuous loop. Includes speech-to-text, text-to-speech, and a live Orb animation. Works in both pillar assessments and free conversations.`,
+            `Voice Mode: Full-screen bidirectional conversation with AION — listening, processing, and speaking in a continuous loop. Includes speech-to-text, text-to-speech, and a live Orb animation. Works in both pillar assessments and free conversations.`,
           ],
         },
       ],
@@ -222,29 +222,29 @@ export default function Documentation() {
       paragraphs: he ? [
         `${brandName} כולל מערכת היפנוזה ומדיטציה מונחית AI — סשנים מותאמים אישית שנוצרים בזמן אמת על בסיס מצב המשתמש, מטרותיו, ודפוסי התודעה שלו.`,
         `כל סשן משלב: (1) תסריט היפנוזה מותאם על בסיס הפרופיל, (2) המרת טקסט-לדיבור בזמן אמת, (3) מוזיקת רקע ותדרים בינאורליים, (4) עבודה עם מצבי אגו ותת-מודע, (5) ויזואליזציה ואפירמציות.`,
-        `כל סשן מתגמל MOS ומשפיע על ציון עמוד התודעה. Aurora משתמשת בהיסטוריית סשנים קודמים כדי להתאים תוכן, ושוזרת תובנות מעמודי חיים אחרים לתוך החוויה.`,
+        `כל סשן מתגמל MOS ומשפיע על ציון עמוד התודעה. AION משתמש בהיסטוריית סשנים קודמים כדי להתאים תוכן, ושוזר תובנות מעמודי חיים אחרים לתוך החוויה.`,
       ] : [
         `${brandName} includes an AI-guided hypnosis and meditation system — personalized sessions generated in real-time based on the user's state, goals, and consciousness patterns.`,
         `Each session combines: (1) custom hypnosis scripts generated based on the user's profile, (2) real-time text-to-speech conversion, (3) background music and binaural frequency layers, (4) ego state and subconscious work, (5) visualization and affirmation practice.`,
-        `Every session rewards MOS and affects the Consciousness Pillar score. Aurora uses previous session history to tailor content, weaving insights from other life pillars into the experience.`,
+        `Every session rewards MOS and affects the Consciousness Pillar score. AION uses previous session history to tailor content, weaving insights from other life pillars into the experience.`,
       ],
     },
     {
-      id: 'nft',
+      id: 'aion-identity',
       number: '7',
-      title: he ? 'AION — זהות דיגיטלית מתפתחת' : 'AION — Evolving Digital Identity',
+      title: he ? 'AION — זהות, מוח, וגוף ויזואלי' : 'AION — Identity, Brain & Visual Body',
       paragraphs: he ? [
-        `כל משתמש ב-${brandName} מחזיק ב-AION — ישות AI מלווה ייחודית שמייצגת את הזהות, ההתקדמות, והתודעה שלו. הייצוג הוויזואלי (Orb) נבנה באמצעות Three.js עם אפקטי Bloom, חלקיקים ומורפינג בזמן אמת — הוא מתפתח בהתאם לפעולות המשתמש.`,
-        `מאפייני ה-AION: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — עוצמת עיוות הגיאומטריה גדלה עם הרמה, (3) חלקיקים — צפיפות לפי streak ואנרגיה, (4) הילה — אפקט Bloom שמשקף עומק התודעה, (5) צבעים משניים — שילובי עמודי חיים.`,
-        `Web3 Onboarding: ויזארד מנטינג ב-5 שלבים — היכרות עם עולם ה-Web3, יצירת ארנק דיגיטלי (ללא seed phrases — כניסה דרך Google/Email), מנטינג סינמטי של ה-AION, וכניסה לכלכלת Play2Earn. הארנק הדיגיטלי מאפשר בעלות אמיתית על הנכס.`,
-        `שלב 1 (נוכחי): AION הוא נכס וירטואלי פנימי — המנטינג, הבעלות, והמטאדאטה מנוהלים במסד הנתונים הפנימי. הארנק מוכן מבנית לחיבור עתידי ל-blockchain. שלב 2 (עתידי): ייצוא ל-Solana כ-NFT אמיתי עם מהדורה ראשונה של 10,000 יחידות.`,
-        `ה-AION הוא הזהות של המשתמש בכל המערכת — בפרופיל, בקהילה, וב-FreeMarket.`,
+        `כל משתמש ב-${brandName} מחזיק ב-AION — ישות אחת שמאחדת זהות דיגיטלית מתפתחת, מוח AI תודעתי, וגוף ויזואלי חי. AION הוא ה"עצמי העתידי" של המשתמש — מתגלה, לא נבנה.`,
+        `AION משלב שלוש שכבות: (1) DNA — שכבת הזהות הבסיסית שמאחדת את כל האותות (הרגלים, הערכות, אנרגיה, רמה), (2) Brain — מוח AI תודעתי עם מודעות הקשרית מלאה, זיכרון, ומנוע פרואקטיבי, (3) Visual Body — ייצוג ויזואלי (Orb) בנוי ב-Three.js עם Bloom, חלקיקים, ומורפינג בזמן אמת.`,
+        `מאפייני הגוף הויזואלי: (1) צבעים — משתנים לפי עמודי חיים דומיננטיים, (2) מורפולוגיה — עוצמת עיוות גדלה עם הרמה, (3) חלקיקים — צפיפות לפי streak ואנרגיה, (4) הילה — Bloom שמשקף עומק תודעה.`,
+        `Web3 Wallet: ארנק דיגיטלי (ללא seed phrases — כניסה דרך Google/Email) מאפשר בעלות על ה-AION. שלב 1 (נוכחי): נכס וירטואלי פנימי. שלב 2 (עתידי): ייצוא ל-Solana כ-NFT.`,
+        `AION הוא הזהות המאוחדת של המשתמש בכל המערכת — בפרופיל, בשיחה, בקהילה, וב-FreeMarket.`,
       ] : [
-        `Every ${brandName} user holds an AION — a unique evolving AI companion representing their identity, progress, and consciousness. The visual representation (Orb) is built with Three.js featuring real-time Bloom effects, particles, and morphing — it evolves based on user actions.`,
-        `AION attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — geometry distortion intensity grows with level, (3) Particles — density based on streak and energy, (4) Aura — Bloom effect reflecting consciousness depth, (5) Secondary colors — pillar combinations.`,
-        `Web3 Onboarding: A 5-step minting wizard — introduction to Web3, digital wallet creation (no seed phrases — sign in with Google/Email), cinematic AION minting, and entry into the Play2Earn economy. The digital wallet enables true ownership of the asset.`,
-        `Phase 1 (Current): AION is an internal virtual asset — minting, ownership, and metadata are managed in the internal database. The wallet is architecturally ready for future blockchain connection. Phase 2 (Future): Export to Solana as a real NFT with an initial release of 10,000 units.`,
-        `AION serves as the user's identity across the entire system — in profiles, community, and FreeMarket.`,
+        `Every ${brandName} user holds an AION — a single entity that unifies an evolving digital identity, a consciousness AI brain, and a living visual body. AION is the user's "Future Self" — discovered, not configured.`,
+        `AION integrates three layers: (1) DNA — the base identity layer aggregating all signals (habits, assessments, energy, level), (2) Brain — a consciousness AI with full contextual awareness, memory, and a proactive engine, (3) Visual Body — a visual representation (Orb) built with Three.js featuring real-time Bloom effects, particles, and morphing.`,
+        `Visual body attributes: (1) Colors — change based on dominant life pillars, (2) Morphology — geometry distortion grows with level, (3) Particles — density based on streak and energy, (4) Aura — Bloom reflecting consciousness depth.`,
+        `Web3 Wallet: A digital wallet (no seed phrases — sign in with Google/Email) enables ownership of the AION. Phase 1 (Current): Internal virtual asset. Phase 2 (Future): Export to Solana as a real NFT.`,
+        `AION is the user's unified identity across the entire system — in profiles, chat, community, and FreeMarket.`,
       ],
     },
     {
@@ -311,12 +311,12 @@ export default function Documentation() {
         `${brandName} כולל פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים תחת ארכיטקטורה אחת. כל מסלול כולל ויזארד AI שמנחה את תהליך ההקמה — לעסקים חדשים וקיימים.`,
         `מסלולים: (1) בעל עסק — תכנון, השקה וצמיחה, (2) מאמן — בניית פרקטיקה עם CRM, לקוחות ודפי נחיתה, (3) מטפל — ניהול פרקטיקה עם תורים וצמיחה, (4) יוצר תוכן — קורסים ומוצרים דיגיטליים, (5) פרילנסר — גיגים ופרויקטים.`,
         `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, דפי נחיתה אוטומטיים עם URL ייחודי לכל מאמן, מערכת CRM, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת.`,
-        `כל מאמן מקבל חנות אישית עם דף נחיתה שנוצר אוטומטית על ידי Aurora — כולל Hero, יתרונות, עדויות, הצעת ערך, FAQ, ו-CTA. כולל תמיכת SEO וטופס לידים שמזרים ישירות ל-CRM.`,
+        `כל מאמן מקבל חנות אישית עם דף נחיתה שנוצר אוטומטית על ידי AION — כולל Hero, יתרונות, עדויות, הצעת ערך, FAQ, ו-CTA. כולל תמיכת SEO וטופס לידים שמזרים ישירות ל-CRM.`,
       ] : [
         `${brandName} includes a unified career platform serving 5 professional paths under a single architecture. Each path includes an AI wizard guiding the setup process — for both new and existing businesses.`,
         `Paths: (1) Business Owner — plan, launch and grow, (2) Coach — build a practice with CRM, clients and landing pages, (3) Therapist — manage practice with scheduling and growth, (4) Content Creator — courses and digital products, (5) Freelancer — gigs and projects.`,
         `AI tools for professionals: client plan generation, progress analysis, automatic landing pages with unique URLs per coach, full CRM, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access.`,
-        `Every coach receives a personal storefront with an auto-generated landing page by Aurora — including Hero, benefits, testimonials, value proposition, FAQ, and CTA. Includes SEO support and a lead capture form feeding directly into the CRM.`,
+        `Every coach receives a personal storefront with an auto-generated landing page by AION — including Hero, benefits, testimonials, value proposition, FAQ, and CTA. Includes SEO support and a lead capture form feeding directly into the CRM.`,
       ],
     },
     {
@@ -343,10 +343,10 @@ export default function Documentation() {
           title: he ? '10.2 מערכת Quests ואנרגיה' : '10.2 Quest & Energy Systems',
           paragraphs: he ? [
             `כל יום הוא Quest ייחודי — שם ייחודי שנוצר דינמית, עם שבוע שלם שמרכיב Campaign. המשתמש רואה את ה-Quest הנוכחי בדשבורד היומי עם סטריפ ויזואלי של ההתקדמות.`,
-            `מערכת אנרגיה (Energy): פיצ'רים פרימיום צורכים אנרגיה — סשני היפנוזה (5-10), הודעות Aurora (2), סריקות עומק (10-15), ייצוא PDF (10), הגדרה מחדש של דומיין (15). מודל צריכה שקוף שמעודד שימוש מאוזן.`,
+            `מערכת אנרגיה (Energy): פיצ'רים פרימיום צורכים אנרגיה — סשני היפנוזה (5-10), הודעות AION (2), סריקות עומק (10-15), ייצוא PDF (10), הגדרה מחדש של דומיין (15). מודל צריכה שקוף שמעודד שימוש מאוזן.`,
           ] : [
             `Every day is a unique Quest — a dynamically generated name, with a full week forming a Campaign. Users see their current Quest on the daily dashboard with a visual progress strip.`,
-            `Energy System: Premium features consume energy — Hypnosis sessions (5-10), Aurora messages (2), deep scans (10-15), PDF export (10), domain reconfiguration (15). A transparent consumption model that encourages balanced usage.`,
+            `Energy System: Premium features consume energy — Hypnosis sessions (5-10), AION messages (2), deep scans (10-15), PDF export (10), domain reconfiguration (15). A transparent consumption model that encourages balanced usage.`,
           ],
         },
       ],
@@ -357,13 +357,13 @@ export default function Documentation() {
       title: he ? 'מודל מנויים' : 'Subscription Model',
       paragraphs: he ? [
         `${brandName} מציע שלוש רמות מנוי בהיררכיית "עומק הכוח":`,
-        `Awakening (חינמי): מבנה בסיסי, XP ורמות, 5 הודעות Aurora ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Play Hub לעידוד מומנטום יומי.`,
-        `Optimization ($69/חודש): Aurora ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום, והיפנוזה AI.`,
+        `Awakening (חינמי): מבנה בסיסי, XP ורמות, 5 הודעות AION ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Play Hub לעידוד מומנטום יומי.`,
+        `Optimization ($69/חודש): AION ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום, והיפנוזה AI.`,
         `Command ($199/חודש): כל 15 עמודי החיים, מנוע פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות חדשות לתוכנית הפעילה.`,
       ] : [
         `${brandName} offers three subscription tiers in a "Depth of Power" hierarchy:`,
-        `Awakening (Free): Basic structure, XP/leveling, 5 daily Aurora messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
-        `Optimization ($69/mo): Unlimited Aurora memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
+        `Awakening (Free): Basic structure, XP/leveling, 5 daily AION messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
+        `Optimization ($69/mo): Unlimited AION memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
         `Command ($199/mo): All 15 pillars, the proactive engine, and modular plan updates — completing assessments injects new strategies into the active plan.`,
       ],
     },
@@ -384,11 +384,11 @@ export default function Documentation() {
       number: '13',
       title: he ? 'אונבורדינג וטקס כניסה' : 'Onboarding & Initiation Ceremony',
       paragraphs: he ? [
-        `${brandName} כולל מערכת אונבורדינג רב-שלבית: (1) הרשמה עם אימייל ואימות, (2) שיחת היכרות עם Aurora לזיהוי מצב, מטרות, ואתגרים, (3) בחירת עמודי חיים ראשוניים, (4) יצירת תוכנית 100 ימים ראשונה.`,
+        `${brandName} כולל מערכת אונבורדינג רב-שלבית: (1) הרשמה עם אימייל ואימות, (2) שיחת היכרות עם AION לזיהוי מצב, מטרות, ואתגרים, (3) בחירת עמודי חיים ראשוניים, (4) יצירת תוכנית 100 ימים ראשונה.`,
         `טקס הכניסה: חוויה ויזואלית אימרסיבית שמסמנת את תחילת המסע — אנימציות, מוזיקת רקע, ויצירת ה-AION האישי הראשון. הטקס בונה מחויבות רגשית ומבדל את ${brandName} מכל אפליקציה אחרת.`,
         `לאחר האונבורדינג, ויזארד מנטינג ה-AION מופעל אוטומטית — מחבר את המשתמש לכלכלת Web3 ומעניק בעלות דיגיטלית על הזהות הדיגיטלית.`,
       ] : [
-        `${brandName} includes a multi-step onboarding system: (1) email signup with verification, (2) introductory conversation with Aurora for state, goals, and challenge identification, (3) initial life pillar selection, (4) first 100-day plan creation.`,
+        `${brandName} includes a multi-step onboarding system: (1) email signup with verification, (2) introductory conversation with AION for state, goals, and challenge identification, (3) initial life pillar selection, (4) first 100-day plan creation.`,
         `Initiation Ceremony: An immersive visual experience marking the start of the journey — animations, background music, and creation of the first personal AION. The ceremony builds emotional commitment and differentiates ${brandName} from any other app.`,
         `After onboarding, the AION minting wizard is automatically triggered — connecting the user to the Web3 economy and granting digital ownership of their evolving identity.`,
       ],
@@ -452,11 +452,11 @@ export default function Documentation() {
       number: '18',
       title: he ? 'סיכום' : 'Conclusion',
       paragraphs: he ? [
-        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת Aurora (מנוע AI תודעתי), AION (זהות העתיד-עצמי), Orb (גוף ויזואלי), DNA (שכבת זהות בסיסית), כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים, Web3 Wallet, ומערכת אונבורדינג אימרסיבית — לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
+        `${brandName} אינו עוד מוצר בשוק רווי. הוא קטגוריה חדשה — Human Operating System — שמאחדת AION (זהות מתפתחת + מוח AI תודעתי + גוף ויזואלי), DNA (שכבת זהות בסיסית), כלכלה דיגיטלית מבוססת Proof of Growth, פלטפורמת קריירה מאוחדת עם 5 מסלולים, Web3 Wallet, ומערכת אונבורדינג אימרסיבית — לתוך חוויה אחת שעוטפת את חיי המשתמש.`,
         `הפלטפורמה מציעה: AION כמדריך אישי שמכיר אותך לעומק, תוכנית 100 ימים עם מתודולוגיית Why-How-Now, הערכות מבוססות שיחת AI ל-15 עמודי חיים, משא ומתן חכם עם התוכנית, התאמת מאמן מבוססת AI, היפנוזה ומדיטציה מונחית, מערכת למידה אדפטיבית, שוק פנימי עם כלכלת כרייה אמיתית, פלטפורמת קריירה מאוחדת עם חנויות אישיות, קהילה פעילה, יומן AION עם חלומות ורפלקציה, מצב קולי, Web3 Wallet, תוכנית שותפים, ו-PWA מלא. הכל מחובר, הכל גיימיפי, הכל בשירות הצמיחה האישית.`,
         `בעולם שבו אנשים מוצפים, מנותקים, ומחפשים כיוון — ${brandName} הוא מערכת ההפעלה שתנהל את ההכל. לא רק פרודוקטיביות. לא רק מיינדפולנס. את החיים עצמם.`,
       ] : [
-        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies Aurora (consciousness AI engine), AION (evolving Future Self identity), Orb (visual body), DNA (base identity layer), a Proof of Growth digital economy, a unified career platform with 5 professional paths, Web3 Wallet, and an immersive onboarding system — into a single experience that wraps around the user's life.`,
+        `${brandName} is not just another product in a saturated market. It is a new category — Human Operating System — that unifies AION (evolving identity + consciousness AI brain + visual body), DNA (base identity layer), a Proof of Growth digital economy, a unified career platform with 5 professional paths, Web3 Wallet, and an immersive onboarding system — into a single experience that wraps around the user's life.`,
         `The platform offers: AION as a personal guide that deeply knows you, a 100-day plan with the Why-How-Now methodology, chat-based AI assessments for 15 life pillars, smart plan negotiation, AI-powered coach matching, guided hypnosis and meditation, an adaptive learning system, an internal marketplace with real mining economy, a unified career platform with personal storefronts, an active community, AION Journal with dreams and reflection, voice mode, Web3 Wallet, affiliate program, and full PWA. Everything connected, everything gamified, everything in service of personal growth.`,
         `In a world where people are overwhelmed, disconnected, and searching for direction — ${brandName} is the operating system that will manage everything. Not just productivity. Not just mindfulness. Life itself.`,
       ],
