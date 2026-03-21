@@ -32,6 +32,8 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { suggestions, isLoading } = useSmartSuggestions();
   const { openHypnosis } = useAuroraActions();
+  const { displayName: aionName } = useAIONDisplayName();
+  const isHe = isRTL;
 
   const handleSuggestionAction = (action: SuggestionAction) => {
     switch (action.type) {
