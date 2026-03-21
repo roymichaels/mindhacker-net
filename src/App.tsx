@@ -348,9 +348,7 @@ const App = () => (
                           <Route path="/strategy/play/results" element={<PlayResults />} />
                           {/* Strategy domain catch-all */}
                           <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
-                          {/* Legacy redirects */}
-                          <Route path="/tactics" element={<Navigate to="/play" replace />} />
-                          <Route path="/arena" element={<Navigate to="/play" replace />} />
+                          {renderProtectedRedirectRoutes()}
                           <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
                           {/* Coaches */}
                           <Route path="/coaches" element={<CoachesLayoutWrapper />} />
