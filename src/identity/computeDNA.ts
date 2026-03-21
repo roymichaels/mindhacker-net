@@ -59,6 +59,36 @@ function normalizeWeight(value: number, max: number): number {
   return Math.min(1, Math.max(0, value / max));
 }
 
+/** Trait-to-archetype mapping for DNA-level archetype derivation */
+const TRAIT_ARCHETYPE_MAP: Record<string, string> = {
+  ambitious: 'warrior', determined: 'warrior', discipline: 'warrior',
+  creative: 'creator', innovative: 'creator',
+  analytical: 'sage', methodical: 'sage',
+  empathetic: 'healer', nurturing: 'healer', social: 'healer',
+  curious: 'explorer', energy: 'explorer',
+  intuitive: 'mystic', reflective: 'mystic',
+};
+
+/**
+ * Derive dominant archetype purely from DNA trait weights.
+ * This is identity computation — belongs in DNA, NOT in the Orb.
+ */
+function deriveDominantArchetypeFromTraits(dnaTraits: Record<string, number>): string | null {
+  const archetypeScores: Record<string, number> = {};
+  for (const [trait, weight] of Object.entries(dnaTraits)) {
+    // Strip prefixes like "skill:" or "value:" for matching
+    const baseTrait = trait.replace(/^(skill:|value:)/, '').toLowerCase();
+    const archetype = TRAIT_ARCHETYPE_MAP[baseTrait];
+    if (archetype) {
+      archetypeScores[archetype] = (archetypeScores[archetype] || 0) + weight;
+    }
+  }
+  const entries = Object.entries(archetypeScores);
+  if (entries.length === 0) return null;
+  entries.sort(([, a], [, b]) => b - a);
+  return entries[0][0];
+}
+
 /**
  * Compute the unified DNA profile from all available signals.
  * This is a pure function — no side effects, no DB calls.
