@@ -212,6 +212,12 @@ Available Aurora commands:
 `.trim();
   }, []);
 
+  const commandHandlerRef = useRef<((command: AuroraCommand) => void) | null>(null);
+
+  const registerCommandHandler = useCallback((handler: (command: AuroraCommand) => void) => {
+    commandHandlerRef.current = handler;
+  }, []);
+
   return {
     executeCommand,
     executeMessageCommands,
@@ -219,5 +225,6 @@ Available Aurora commands:
     extractCommandTags,
     getAvailableCommands,
     navigationCommands,
+    registerCommandHandler,
   };
 };
