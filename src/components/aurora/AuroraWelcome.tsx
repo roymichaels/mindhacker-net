@@ -5,6 +5,7 @@ import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 interface AuroraWelcomeProps {
   onSuggestionClick: (suggestion: string) => void;
@@ -31,6 +32,8 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { suggestions, isLoading } = useSmartSuggestions();
   const { openHypnosis } = useAuroraActions();
+  const { displayName: aionName } = useAIONDisplayName();
+  const isHe = isRTL;
 
   const handleSuggestionAction = (action: SuggestionAction) => {
     switch (action.type) {
@@ -59,9 +62,11 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
         />
       </div>
 
-      {/* Welcome Text */}
+      {/* Welcome Text — personal AION name */}
       <div className="text-center space-y-1.5 max-w-md">
-        <h2 className="text-xl font-semibold">{t('aurora.welcomeTitle')}</h2>
+        <h2 className="text-xl font-semibold">
+          {isHe ? `היי, אני ${aionName} 💜` : `Hey, I'm ${aionName} 💜`}
+        </h2>
         <p className="text-muted-foreground text-sm">{tg('aurora.welcomeSubtitle')}</p>
       </div>
 

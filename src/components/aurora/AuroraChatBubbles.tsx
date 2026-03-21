@@ -24,8 +24,8 @@ interface AuroraChatBubblesProps {
 const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesProps) => {
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
-  const { aion, isActivated } = useAION();
-  const aiDisplayName = isActivated ? aion.name : 'Aurora';
+  const { aion } = useAION();
+  const aiDisplayName = aion.name;
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const { 
     activeConversationId, 
@@ -187,12 +187,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
         {messages.length === 0 && !streamingContent && (
           <div className="text-center text-muted-foreground text-sm pb-4">
             {language === 'he'
-              ? isActivated
-                ? `אני ${aion.name}. הגרסה שלך — בלי הרעש.`
-                : 'שלום! אני אורורה, המלווה שלך. איך אוכל לעזור?'
-              : isActivated
-                ? `I'm ${aion.name}. Your version — without the noise.`
-                : "Hello! I'm Aurora, your companion. How can I help?"}
+              ? `אני ${aion.name}. הגרסה שלך — בלי הרעש.`
+              : `I'm ${aion.name}. Your version — without the noise.`}
           </div>
         )}
 

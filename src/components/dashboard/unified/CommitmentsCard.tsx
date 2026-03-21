@@ -35,8 +35,8 @@ export function CommitmentsCard({ commitments, className }: CommitmentsCardProps
           </p>
           <p className="text-xs text-muted-foreground/70">
             {language === 'he' 
-              ? 'דבר עם AION כדי להגדיר התחייבויות'
-              : 'Talk to AION to set your commitments'}
+              ? 'דבר עם ה-AION שלך כדי להגדיר התחייבויות'
+              : 'Talk to your AION to set your commitments'}
           </p>
         </CardContent>
       </Card>

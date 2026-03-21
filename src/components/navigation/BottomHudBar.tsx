@@ -18,6 +18,7 @@ import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 export function BottomHudBar() {
   const { language, isRTL } = useTranslation();
@@ -29,6 +30,7 @@ export function BottomHudBar() {
   const { movementScore } = useTodayExecution();
   const { profile: userOrbProfile } = useOrbProfile();
   const { openProfile } = useProfileModal();
+  const { displayName: aionName } = useAIONDisplayName();
 
   const [showBalloon, setShowBalloon] = useState(false);
 
@@ -137,7 +139,7 @@ export function BottomHudBar() {
               >
                 <div className="relative bg-primary text-primary-foreground rounded-2xl px-3.5 py-2 shadow-lg whitespace-nowrap">
                    <p className="text-[11px] font-semibold leading-tight">
-                     {isHe ? '👋 היי, אני AION!' : '👋 Hey, I\'m AION!'}
+                     {isHe ? `👋 היי, אני ${aionName}!` : `👋 Hey, I'm ${aionName}!`}
                    </p>
                    <p className="text-[10px] opacity-90 mt-0.5">
                      {isHe ? 'לחצ/י עליי לשוחח' : 'Tap me to chat'}
