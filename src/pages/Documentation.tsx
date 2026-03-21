@@ -155,7 +155,7 @@ export default function Documentation() {
             `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ולוחות מובילים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI.`,
             `סטוריז בסגנון אינסטגרם: משתמשים מעלים סטוריז המקושרים לעמוד חיים ונושא ספציפי — מוצגים בסטריפ אופקי בראש הפיד עם צפייה במסך מלא. תמיכה דו-לשונית מלאה, אירועים קהילתיים עם RSVP, ומפגשים וירטואליים.`,
           ] : [
-            `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. Aurora participates in conversations as an AI community member.`,
+            `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. AION participates in conversations as an AI community member.`,
             `Instagram-style Stories: Users upload stories tied to specific life pillars and subtopics — displayed in a horizontal strip at the top of the feed with full-screen viewing. Full bilingual content support, community events with RSVP, and virtual meetups.`,
           ],
         },
