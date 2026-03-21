@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
@@ -47,6 +48,7 @@ const AuroraChatMessage = ({
   isFailed = false,
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
+  const { displayName: aionName } = useAIONDisplayName();
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const [ttsError, setTtsError] = useState(false);
   
@@ -72,7 +74,7 @@ const AuroraChatMessage = ({
       {/* Label */}
       <div className="mb-1.5">
         <span className="text-xs font-medium text-muted-foreground">
-          {isOwn ? t('aurora.you') : t('aurora.name')}
+          {isOwn ? t('aurora.you') : aionName}
         </span>
       </div>
 

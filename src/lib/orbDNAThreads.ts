@@ -1,8 +1,10 @@
 /**
  * DNA Threads System - Multi-Thread Orb Visual Mapping
  * 
- * Maps user traits, hobbies, patterns, and consciousness levels
- * to unique visual threads that create a one-of-a-kind orb
+ * ARCHITECTURE RULE: This module is a PURE VISUAL MAPPER.
+ * It maps user traits/hobbies/patterns → visual thread colors and animations.
+ * It does NOT compute identity (archetype, egoState, dominant traits).
+ * Identity comes ONLY from DNA (computeDNA.ts).
  */
 
 // ============= Types =============

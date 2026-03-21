@@ -1,6 +1,10 @@
 /**
  * Orb Visual System - Maps user data to visual profiles
  * 
+ * ARCHITECTURE RULE: This module is a PURE VISUAL MAPPER.
+ * It does NOT compute identity (archetype, egoState, traits).
+ * Identity comes ONLY from DNA (computeDNA.ts).
+ * 
  * SIMPLIFIED: Hobbies + Level + Streak → Color Palette + Morphology
  */
 

@@ -1,10 +1,12 @@
 /**
- * userOrbGenerator.ts — Generates a user's personal orb using the new gallery-quality
- * renderer, driven by their identity traits from onboarding.
+ * userOrbGenerator.ts — PURE VISUAL generator for user orbs.
  *
- * Merges the old DNA thread system (trait → color/animation mappings) with the new
- * gallery orb generator (hueProfile-style materials/geometries) so every user orb
- * looks as polished as the collection orbs while being uniquely theirs.
+ * ARCHITECTURE RULE: This module must NOT compute identity.
+ * It RECEIVES archetype, egoState, and traits from the caller (via DNA/mapDNAtoVisual).
+ * It generates gallery-quality OrbProfile visual parameters only.
+ *
+ * Data flow:
+ *   DNA (computeDNA) → mapDNAtoVisual → orbProfileGenerator → generateUserOrb (this) → OrbProfile
  */
 
 import type { OrbProfile, MaterialType, PatternType, GeometryFamily } from '@/components/orb/types';
