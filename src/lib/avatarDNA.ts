@@ -1,10 +1,15 @@
 /**
- * Avatar DNA System
+ * @deprecated LEGACY — Avatar DNA System
  * 
- * Maps user traits, hobbies, behaviors, and preferences to visual properties
- * that determine the appearance of their personalized avatar/orb.
+ * WARNING: computeAvatarDNA() computes archetype/identity independently.
+ * This VIOLATES the architecture rule: DNA (computeDNA.ts) is the ONLY source of truth.
  * 
- * Now also supports the Job system for RPG-style progression.
+ * This file is kept for backward compatibility but should NOT be used for new code.
+ * Use computeDNA (src/identity/computeDNA.ts) for identity, and
+ * mapDNAtoVisual (src/lib/mapDNAtoVisual.ts) for visual mapping.
+ * 
+ * The visual data tables (HOBBY_MAPPINGS, TRAIT_CATEGORY_MAPPINGS, etc.) may still
+ * be useful as visual-only lookups, but archetype computation must come from DNA.
  */
 
 import { ArchetypeId, blendArchetypes, type ArchetypeBlend } from './archetypes';
