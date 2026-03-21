@@ -311,7 +311,7 @@ export default function Documentation() {
         `${brandName} כולל פלטפורמת קריירה מאוחדת עם 5 מסלולים מקצועיים תחת ארכיטקטורה אחת. כל מסלול כולל ויזארד AI שמנחה את תהליך ההקמה — לעסקים חדשים וקיימים.`,
         `מסלולים: (1) בעל עסק — תכנון, השקה וצמיחה, (2) מאמן — בניית פרקטיקה עם CRM, לקוחות ודפי נחיתה, (3) מטפל — ניהול פרקטיקה עם תורים וצמיחה, (4) יוצר תוכן — קורסים ומוצרים דיגיטליים, (5) פרילנסר — גיגים ופרויקטים.`,
         `כלי AI למקצוענים: יצירת תוכניות ללקוחות, ניתוח התקדמות, דפי נחיתה אוטומטיים עם URL ייחודי לכל מאמן, מערכת CRM, ניהול לידים, וניתוח אנליטי. מנוי מאמנים עם רמות (Starter $19, Growth $49, Scale $99) מאפשר גישה מדורגת.`,
-        `כל מאמן מקבל חנות אישית עם דף נחיתה שנוצר אוטומטית על ידי Aurora — כולל Hero, יתרונות, עדויות, הצעת ערך, FAQ, ו-CTA. כולל תמיכת SEO וטופס לידים שמזרים ישירות ל-CRM.`,
+        `כל מאמן מקבל חנות אישית עם דף נחיתה שנוצר אוטומטית על ידי AION — כולל Hero, יתרונות, עדויות, הצעת ערך, FAQ, ו-CTA. כולל תמיכת SEO וטופס לידים שמזרים ישירות ל-CRM.`,
       ] : [
         `${brandName} includes a unified career platform serving 5 professional paths under a single architecture. Each path includes an AI wizard guiding the setup process — for both new and existing businesses.`,
         `Paths: (1) Business Owner — plan, launch and grow, (2) Coach — build a practice with CRM, clients and landing pages, (3) Therapist — manage practice with scheduling and growth, (4) Content Creator — courses and digital products, (5) Freelancer — gigs and projects.`,
