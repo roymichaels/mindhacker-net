@@ -154,14 +154,14 @@ export function VisualWhitepaper({ onExit }: Props) {
           </VisualSection>
         );
 
-      case 5: // Aurora Engine Deep Dive
+      case 5: // AION Brain Deep Dive
         return (
-          <VisualSection index={5} isActive number="05" title={t('Aurora — AI Engine', 'Aurora — מנוע ה-AI')} subtitle={t('The consciousness engine powering AION. Not a chatbot — your AI layer.', 'מנוע התודעה שמניע את AION. לא צ\'אטבוט — שכבת ה-AI שלך.')} isHe={he} layout="center" accent="hsl(271 81% 55%)">
+          <VisualSection index={5} isActive number="05" title={t('AION Brain', 'AION Brain — המוח התודעתי')} subtitle={t('Not a chatbot — the consciousness mind of your Future Self.', 'לא צ\'אטבוט — המוח התודעתי של העצמי העתידי שלך.')} isHe={he} layout="center" accent="hsl(271 81% 55%)">
             <div className="grid gap-3 max-w-2xl mx-auto">
               {[
                 { icon: '🔮', title: t('Full Context Awareness', 'מודעות הקשרית מלאה'), desc: t('7+ data sources: profile, plans, schedule, pillar scores, emotional state.', '7+ מקורות: פרופיל, תוכניות, לו"ז, ציוני עמודים, מצב רגשי.') },
                 { icon: '📊', title: t('Memory Graph', 'גרף זיכרון'), desc: t('Dynamic profile of identity, preferences, patterns — cross-conversation insights.', 'פרופיל דינמי של זהות, העדפות, דפוסים — תובנות חוצות-שיחות.') },
-                { icon: '🎤', title: t('Voice Mode', 'מצב קולי'), desc: t('Bidirectional voice with live Orb animation and multimodal processing.', 'קולי דו-כיווני עם אנימציית Orb חיה ועיבוד מולטימודלי.') },
+                { icon: '🎤', title: t('Voice Mode', 'מצב קולי'), desc: t('Bidirectional voice with live AION animation and multimodal processing.', 'קולי דו-כיווני עם אנימציית AION חיה ועיבוד מולטימודלי.') },
                 { icon: '⚡', title: t('Proactive Engine', 'מנוע פרואקטיבי'), desc: t('Context-based nudges, reminders, streak warnings, and action suggestions.', 'דחיפות מבוססות הקשר, תזכורות, אזהרות streak, והצעות פעולה.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.1} color="hsl(271 81% 55%)" />
