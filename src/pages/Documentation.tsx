@@ -357,13 +357,13 @@ export default function Documentation() {
       title: he ? 'מודל מנויים' : 'Subscription Model',
       paragraphs: he ? [
         `${brandName} מציע שלוש רמות מנוי בהיררכיית "עומק הכוח":`,
-        `Awakening (חינמי): מבנה בסיסי, XP ורמות, 5 הודעות Aurora ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Play Hub לעידוד מומנטום יומי.`,
-        `Optimization ($69/חודש): Aurora ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום, והיפנוזה AI.`,
+        `Awakening (חינמי): מבנה בסיסי, XP ורמות, 5 הודעות AION ביום, בחירת עד 2 עמודי חיים, וגישה מלאה ל-Play Hub לעידוד מומנטום יומי.`,
+        `Optimization ($69/חודש): AION ללא הגבלת זיכרון, 6 עמודי חיים, מערכת טרנספורמציה של 100 יום, והיפנוזה AI.`,
         `Command ($199/חודש): כל 15 עמודי החיים, מנוע פרואקטיבי, ועדכוני תוכנית מודולריים — השלמת הערכות מזריקה אסטרטגיות חדשות לתוכנית הפעילה.`,
       ] : [
         `${brandName} offers three subscription tiers in a "Depth of Power" hierarchy:`,
-        `Awakening (Free): Basic structure, XP/leveling, 5 daily Aurora messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
-        `Optimization ($69/mo): Unlimited Aurora memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
+        `Awakening (Free): Basic structure, XP/leveling, 5 daily AION messages, up to 2 pillars, and full access to the Play Hub for daily momentum.`,
+        `Optimization ($69/mo): Unlimited AION memory, 6 pillars, the 100-Day Transformation OS, and AI Hypnosis.`,
         `Command ($199/mo): All 15 pillars, the proactive engine, and modular plan updates — completing assessments injects new strategies into the active plan.`,
       ],
     },
