@@ -345,9 +345,9 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={16} isActive number="16" title={t('Onboarding & Initiation', 'אונבורדינג וטקס כניסה')} isHe={he} layout="center" accent="hsl(45 90% 55%)">
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
-                { icon: '📝', title: t('Multi-Step Setup', 'הרשמה מדורגת'), desc: t('Email signup, Aurora intro conversation, pillar selection.', 'הרשמה באימייל, שיחת היכרות עם Aurora, בחירת עמודים.') },
+                { icon: '📝', title: t('Multi-Step Setup', 'הרשמה מדורגת'), desc: t('Email signup, AION intro conversation, pillar selection.', 'הרשמה באימייל, שיחת היכרות עם AION, בחירת עמודים.') },
                 { icon: '✨', title: t('Initiation Ceremony', 'טקס כניסה'), desc: t('Immersive visual experience — animations, music, first AION.', 'חוויה ויזואלית אימרסיבית — אנימציות, מוזיקה, AION ראשון.') },
-                { icon: '🎮', title: t('First 100-Day Plan', 'תוכנית 100 ימים ראשונה'), desc: t('Aurora creates your personalized plan after onboarding.', 'Aurora יוצרת תוכנית מותאמת אישית לאחר ההצטרפות.') },
+                { icon: '🎮', title: t('First 100-Day Plan', 'תוכנית 100 ימים ראשונה'), desc: t('AION creates your personalized plan after onboarding.', 'AION יוצר תוכנית מותאמת אישית לאחר ההצטרפות.') },
               ].map((item, i) => (
                 <FeatureNode key={i} icon={item.icon} title={item.title} description={item.desc} delay={0.5 + i * 0.12} color="hsl(45 90% 55%)" />
               ))}

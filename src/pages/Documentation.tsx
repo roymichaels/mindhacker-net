@@ -316,7 +316,7 @@ export default function Documentation() {
         `${brandName} includes a unified career platform serving 5 professional paths under a single architecture. Each path includes an AI wizard guiding the setup process — for both new and existing businesses.`,
         `Paths: (1) Business Owner — plan, launch and grow, (2) Coach — build a practice with CRM, clients and landing pages, (3) Therapist — manage practice with scheduling and growth, (4) Content Creator — courses and digital products, (5) Freelancer — gigs and projects.`,
         `AI tools for professionals: client plan generation, progress analysis, automatic landing pages with unique URLs per coach, full CRM, lead management, and analytics. Coach subscriptions with tiers (Starter $19, Growth $49, Scale $99) provide tiered access.`,
-        `Every coach receives a personal storefront with an auto-generated landing page by Aurora — including Hero, benefits, testimonials, value proposition, FAQ, and CTA. Includes SEO support and a lead capture form feeding directly into the CRM.`,
+        `Every coach receives a personal storefront with an auto-generated landing page by AION — including Hero, benefits, testimonials, value proposition, FAQ, and CTA. Includes SEO support and a lead capture form feeding directly into the CRM.`,
       ],
     },
     {
