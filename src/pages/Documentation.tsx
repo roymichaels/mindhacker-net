@@ -128,13 +128,13 @@ export default function Documentation() {
           ],
         },
         {
-          title: he ? '4.2 Aurora — מנוע AI תודעתי ויומן' : '4.2 Aurora — Consciousness AI & Journal',
+          title: he ? '4.2 AION Brain — מוח AI תודעתי ויומן' : '4.2 AION Brain — Consciousness AI & Journal',
           paragraphs: he ? [
-            `Aurora היא ליבת האינטליגנציה של ${brandName} — מנוע תודעתי שלומד דפוסים התנהגותיים, מזהה מצבים רגשיים, ומייצר פעולות פרואקטיביות. כולל שיחות מותאמות קונטקסט, מצב קולי דו-כיווני, וצירוף תמונות.`,
-            `מערכת יומן Aurora: ארבעה טאבים — שיחה עם AI, יומן חלומות עם פרשנות, רפלקציה יומית, ותרגול הכרת תודה. כל רשומה נשמרת ומזינה את המודעות ההקשרית של Aurora.`,
+            `AION Brain הוא ליבת האינטליגנציה של ${brandName} — המוח התודעתי של AION, שלומד דפוסים התנהגותיים, מזהה מצבים רגשיים, ומייצר פעולות פרואקטיביות. כולל שיחות מותאמות קונטקסט, מצב קולי דו-כיווני, וצירוף תמונות.`,
+            `מערכת יומן AION: ארבעה טאבים — שיחה עם AI, יומן חלומות עם פרשנות, רפלקציה יומית, ותרגול הכרת תודה. כל רשומה נשמרת ומזינה את המודעות ההקשרית של AION.`,
           ] : [
-            `Aurora is the intelligence core of ${brandName} — a consciousness engine that learns behavioral patterns, identifies emotional states, and generates proactive actions. Includes context-aware conversations, bidirectional voice mode, and image attachments.`,
-            `Aurora Journal System: Four tabs — AI conversation, dream journaling with interpretation, daily reflection, and gratitude practice. Every entry is saved and feeds Aurora's contextual awareness.`,
+            `AION Brain is the intelligence core of ${brandName} — the consciousness mind of AION, learning behavioral patterns, identifying emotional states, and generating proactive actions. Includes context-aware conversations, bidirectional voice mode, and image attachments.`,
+            `AION Journal System: Four tabs — AI conversation, dream journaling with interpretation, daily reflection, and gratitude practice. Every entry is saved and feeds AION's contextual awareness.`,
           ],
         },
         {
