@@ -95,39 +95,28 @@ const Index = () => {
             <GameHeroSection />
             {/* 2. The Problem — Why this exists */}
             <ProblemSection />
-            {/* 3. The System Overview — 15 pillars, AI, economy */}
-            <CityShowcaseSection />
-            <InlineCTA variant="default" />
-            {/* 4. AION — Evolving digital identity */}
-            <OrbCollectionSection />
-            {/* 5. Aurora — Consciousness AI */}
-            <AuroraCoachSection />
-            <InlineCTA variant="subtle" />
-            {/* 6. Hypnosis & Meditation */}
-            <HypnosisSection />
-            {/* 7. Why-How-Now — 100-Day Plan */}
-            <PlanCinematicSection />
-            <InlineCTA variant="bold" />
-            {/* 8. Identity — Traits & DNA */}
-            <TraitShowcaseSection />
-            {/* 9. Gamification — XP, Streaks, Skills */}
-            <GamificationSection />
-            <InlineCTA variant="subtle" />
-            {/* 10. Economy — Proof of Growth */}
-            <Play2EarnSection />
-            {/* 11. Marketplace — FreeMarket */}
-            <FreeMarketSection />
-            {/* 12. Community + Learning */}
-            <GuildSection />
-            <InlineCTA variant="default" />
-            {/* 13. Career Platform — 5 paths */}
-            <CoachOSSection />
-            {/* 14. Pricing */}
-            <PricingPreviewSection />
-            {/* 15. Roadmap */}
-            <RoadmapSection />
-            {/* 16. Final CTA */}
-            <FinalCTASection />
+            {/* Below-fold: lazy-loaded for faster initial paint */}
+            <Suspense fallback={<div className="min-h-[200px]" />}>
+              <CityShowcaseSection />
+              <InlineCTA variant="default" />
+              <OrbCollectionSection />
+              <AuroraCoachSection />
+              <InlineCTA variant="subtle" />
+              <HypnosisSection />
+              <PlanCinematicSection />
+              <InlineCTA variant="bold" />
+              <TraitShowcaseSection />
+              <GamificationSection />
+              <InlineCTA variant="subtle" />
+              <Play2EarnSection />
+              <FreeMarketSection />
+              <GuildSection />
+              <InlineCTA variant="default" />
+              <CoachOSSection />
+              <PricingPreviewSection />
+              <RoadmapSection />
+              <FinalCTASection />
+            </Suspense>
           </main>
         </WelcomeGateProvider>
         <Footer />
