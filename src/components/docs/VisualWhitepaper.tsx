@@ -298,7 +298,7 @@ export function VisualWhitepaper({ onExit }: Props) {
           <VisualSection index={13} isActive number="13" title={t('Community & Connection', 'קהילה וחיבור')} isHe={he} layout="center" accent="hsl(168 70% 45%)">
             <div className="grid gap-3 max-w-xl mx-auto">
               {[
-                { icon: '👥', title: t('Social Feed', 'פיד חברתי'), desc: t('Posts, comments, likes, Aurora AI participation.', 'פוסטים, תגובות, לייקים, השתתפות Aurora AI.') },
+                { icon: '👥', title: t('Social Feed', 'פיד חברתי'), desc: t('Posts, comments, likes, AION AI participation.', 'פוסטים, תגובות, לייקים, השתתפות AION AI.') },
                 { icon: '📸', title: t('Stories', 'סטוריז'), desc: t('Instagram-style stories tied to life pillars.', 'סטוריז בסגנון אינסטגרם מקושרים לעמודי חיים.') },
                 { icon: '🏆', title: t('Level System', 'מערכת רמות'), desc: t('Rise in levels, earn points, and unlock content.', 'עלה ברמות, צבור נקודות ופתח תוכן.') },
                 { icon: '🤝', title: t('AI Matching', 'AI Matching'), desc: t('Smart matching with accountability partners and mentors.', 'התאמה חכמה לשותפי אחריות ומנטורים.') },
