@@ -118,7 +118,7 @@ export default function Documentation() {
             `הדשבורד מציג פעולות יומיות מחולקות ל-4 רבעוני יום הרפתקניים, כל אחד עם שם ייחודי שמתחדש כל יום. Movement Score מודד מומנטום בזמן אמת, וכל יום הוא Quest עם שם ייחודי — שבוע שלם מרכיב Campaign.`,
             `כולל: תוכנית 100 ימים מחולקת ל-10 שלבים עם אבני דרך, סריקות AI עומק ל-15 עמודי חיים עם ציון 0-100, ניהול משימות ופרויקטים עם תעדוף AI, ומנגנון משא ומתן עם AION על התוכנית — שינוי סדרי עדיפויות, הזזת אבני דרך, או חידוש תוכנית בשיחה.`,
             `15 עמודי החיים המאוחדים: תודעה, תדמית, עוצמה, חיוניות, מיקוד, לחימה, התרחבות, עושר, השפעה, מערכות יחסים, עסקים, פרויקטים, משחק, סדר, ורומנטיקה. כל עמוד כולל הערכה מבוססת שיחת AI עם דף תוצאות מותאם אישית.`,
-            `התאמת מאמן מבוססת AI: המשתמש יכול לבקש מ-Aurora למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל — Aurora מנהלת שיחת זיהוי צרכים וממליצה על מאמנים מתאימים מתוך הפלטפורמה.`,
+            `התאמת מאמן מבוססת AI: המשתמש יכול לבקש מ-AION למצוא מאמן שיעזור לו להוציא את האסטרטגיה לפועל — AION מנהל שיחת זיהוי צרכים וממליץ על מאמנים מתאימים מתוך הפלטפורמה.`,
           ] : [
             `Play is the heart of the platform — a unified execution hub that merges strategy, tactics, and daily execution into a single experience. All three Why-How-Now horizons live here.`,
             `The dashboard displays daily actions divided into 4 adventure-themed day quarters, each with a unique name that refreshes daily. A Movement Score measures real-time momentum, and each day is a Quest with a unique name — an entire week forms a Campaign.`,
