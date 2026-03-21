@@ -152,7 +152,7 @@ export default function Documentation() {
         {
           title: he ? '4.4 Community — פיד חברתי' : '4.4 Community — Social Feed',
           paragraphs: he ? [
-            `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ולוחות מובילים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. Aurora משתתפת בשיחות כחברת קהילה AI.`,
+            `פיד חברתי עם פוסטים, תגובות, לייקים, אירועים, ולוחות מובילים. כולל מערכת רמות קהילתיות, נקודות, ו-badges. AION משתתף בשיחות כחבר קהילה AI.`,
             `סטוריז בסגנון אינסטגרם: משתמשים מעלים סטוריז המקושרים לעמוד חיים ונושא ספציפי — מוצגים בסטריפ אופקי בראש הפיד עם צפייה במסך מלא. תמיכה דו-לשונית מלאה, אירועים קהילתיים עם RSVP, ומפגשים וירטואליים.`,
           ] : [
             `Social feed with posts, comments, likes, events, and leaderboards. Includes community levels, points, and badges. AION participates in conversations as an AI community member.`,
