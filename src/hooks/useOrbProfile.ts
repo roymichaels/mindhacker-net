@@ -314,7 +314,7 @@ export function useOrbProfile() {
     };
   }, [user?.id, profileData, summaryRow, gameState?.level, summarySignals.traits]);
 
-  // FULL DNA: Compute profile from all user signals + seed
+  // VISUAL GENERATION ONLY — identity comes from DNA via dnaVisual
   const computedProfile = useMemo((): OrbProfile => {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
 
@@ -340,7 +340,8 @@ export function useOrbProfile() {
       clarityScore: summaryRow?.clarity_score ?? undefined,
       consciousnessScore: summaryRow?.consciousness_score ?? undefined,
       transformationReadiness: summaryRow?.transformation_readiness ?? undefined,
-      egoState: summarySignals.egoState || gameState?.activeEgoState,
+      // IDENTITY FROM DNA — Orb does NOT derive its own egoState/archetype
+      egoState: dnaVisual.egoState,
       seed,
       userId: user.id,
       // Pass intake data for Visual DNA
