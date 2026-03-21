@@ -233,6 +233,10 @@ export function useOrbProfile() {
   const { gameState } = useGameState();
   const { isLaunchpadComplete, progress } = useLaunchpadProgress();
 
+  // ── DNA provides identity — Orb only renders ──
+  const { dna } = useDNA();
+  const dnaVisual = useMemo(() => mapDNAtoVisual(dna), [dna]);
+
   const profileData = useMemo(() => {
     return extractProfileData(progress?.step_2_profile_data as Record<string, unknown> | null);
   }, [progress?.step_2_profile_data]);
