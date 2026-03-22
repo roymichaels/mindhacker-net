@@ -12,7 +12,7 @@ import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import {
   Crosshair, CheckCircle2, Zap, Target,
 } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+
 
 /* ── Pillar visuals ── */
 const PILLAR_VIS: Record<string, { emoji: string; color: string; bg: string; labelHe: string; labelEn: string }> = {
