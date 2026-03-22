@@ -80,17 +80,8 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
 
       {/* Sidebar */}
       <div
-        className={`pointer-events-auto absolute right-0 top-0 bottom-0 z-10 flex transition-transform duration-300 ${
-          collapsed ? "translate-x-[calc(100%-36px)]" : "translate-x-0"
-        }`}
+        className="pointer-events-auto absolute right-0 top-0 bottom-0 z-10 flex"
       >
-        {/* Collapse toggle */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="self-center w-9 h-16 flex items-center justify-center bg-card/80 backdrop-blur-md rounded-l-2xl text-foreground border border-r-0 border-border hover:bg-muted transition-colors"
-        >
-          {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-        </button>
 
         {/* Column 1: Categories */}
         <div className="w-20 h-full bg-card/90 backdrop-blur-xl border-r border-border flex flex-col overflow-y-auto noscrollbar py-2">
