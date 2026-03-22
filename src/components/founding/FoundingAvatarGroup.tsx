@@ -4,7 +4,7 @@
  */
 import { Suspense, useMemo, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { Bounds, useGLTF, useAnimations } from '@react-three/drei';
 import { AVATAR_CATEGORIES, type AvatarAsset } from '@/components/avatar/avatarAssets';
 import { PHOTO_POSES } from '@/components/avatar/avatarStore';
 import type { AvatarCustomizationData } from '@/hooks/useUserAvatarData';
@@ -167,11 +167,11 @@ type AvatarGroupConfig = {
 
 /* ── Group Scene with 5 avatars ── */
 const AVATAR_CONFIGS: AvatarGroupConfig[] = [
-  { seed: 42, pose: PHOTO_POSES.Cool, position: [-2.4, -0.65, 0.2], scale: 0.88 },
-  { seed: 137, pose: PHOTO_POSES.Chill, position: [-1.2, -0.65, -0.1], scale: 0.9 },
-  { seed: 314, pose: PHOTO_POSES.King, position: [0, -0.65, -0.3], scale: 0.95 },
-  { seed: 528, pose: PHOTO_POSES.Ninja, position: [1.2, -0.65, -0.1], scale: 0.9 },
-  { seed: 777, pose: PHOTO_POSES.Punch, position: [2.4, -0.65, 0.2], scale: 0.88 },
+  { seed: 42, pose: PHOTO_POSES.Cool, position: [-3.4, -1.2, 0], scale: 0.86 },
+  { seed: 137, pose: PHOTO_POSES.Chill, position: [-1.7, -1.15, 0], scale: 0.9 },
+  { seed: 314, pose: PHOTO_POSES.King, position: [0, -1.1, 0], scale: 0.95 },
+  { seed: 528, pose: PHOTO_POSES.Ninja, position: [1.7, -1.15, 0], scale: 0.9 },
+  { seed: 777, pose: PHOTO_POSES.Punch, position: [3.4, -1.2, 0], scale: 0.86 },
 ];
 
 function GroupScene() {
@@ -202,28 +202,27 @@ function GroupScene() {
 /* ── Public Component ── */
 export function FoundingAvatarGroup() {
   return (
-    <div className="w-full" style={{ height: 380 }}>
+    <div className="w-full" style={{ height: 290 }}>
       <Canvas
         dpr={[1, 1.5]}
         camera={{
-          position: [0, 0.5, 6],
-          fov: 34,
+          position: [0, 0.1, 9],
+          fov: 30,
           near: 0.1,
           far: 100,
         }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: 'transparent' }}
-        onCreated={({ camera }) => {
-          camera.lookAt(0, 0.2, 0);
-        }}
       >
         <ambientLight intensity={0.8} />
         <directionalLight position={[5, 8, 5]} intensity={1.2} />
         <directionalLight position={[-3, 5, -2]} intensity={0.4} />
         <pointLight position={[0, 3, 3]} intensity={0.5} color="#7c3aed" />
-        <Suspense fallback={null}>
-          <GroupScene />
-        </Suspense>
+        <Bounds fit clip observe margin={1.22}>
+          <Suspense fallback={null}>
+            <GroupScene />
+          </Suspense>
+        </Bounds>
       </Canvas>
     </div>
   );
