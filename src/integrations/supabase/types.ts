@@ -8671,6 +8671,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tts_cache: {
+        Row: {
+          audio_path: string
+          created_at: string
+          duration_seconds: number | null
+          file_size_bytes: number | null
+          id: string
+          model_id: string
+          speed: number
+          text_hash: string
+          user_id: string
+          voice_id: string
+        }
+        Insert: {
+          audio_path: string
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          id?: string
+          model_id?: string
+          speed?: number
+          text_hash: string
+          user_id: string
+          voice_id: string
+        }
+        Update: {
+          audio_path?: string
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          id?: string
+          model_id?: string
+          speed?: number
+          text_hash?: string
+          user_id?: string
+          voice_id?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string

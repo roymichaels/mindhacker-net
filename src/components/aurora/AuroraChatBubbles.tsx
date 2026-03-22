@@ -1,11 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Volume2, Square, Loader2, GraduationCap } from 'lucide-react';
+import { Copy, Loader2, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
@@ -16,6 +15,7 @@ import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAION } from '@/identity';
+import { TTSPlayer } from './TTSPlayer';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
@@ -26,7 +26,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   const { language, isRTL, t } = useTranslation();
   const { aion } = useAION();
   const aiDisplayName = aion.name;
-  const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const { 
     activeConversationId, 
     isChatExpanded, 
@@ -60,14 +59,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   const handleCopy = (content: string) => {
     navigator.clipboard.writeText(content);
     toast.success(t('messages.copied'));
-  };
-
-  const handleVoice = (messageId: string, content: string) => {
-    if (isPlaying && activeMessageId === messageId) {
-      stopPlayback();
-    } else {
-      playMessage(messageId, content);
-    }
   };
 
   // Register send message function for global access
@@ -194,7 +185,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
 
         {messages.map((message) => {
           const isAI = message.is_ai_message;
-          const isPlayingThis = isPlaying && activeMessageId === message.id;
           
           return (
             <motion.div
@@ -257,19 +247,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                     >
                       <Copy className="h-3 w-3 text-muted-foreground" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => handleVoice(message.id, message.content)}
-                      title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
-                    >
-                      {isPlayingThis ? (
-                        <Square className="h-2.5 w-2.5 text-muted-foreground fill-current" />
-                      ) : (
-                        <Volume2 className="h-3 w-3 text-muted-foreground" />
-                      )}
-                    </Button>
+                    <TTSPlayer messageId={message.id} content={message.content} compact className="h-6 w-6" />
                   </div>
                 )}
               </div>

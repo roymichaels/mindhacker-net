@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Copy, Volume2, Square, RefreshCw, AlertCircle } from 'lucide-react';
+import { Copy, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
+import { TTSPlayer } from './TTSPlayer';
 
 interface AuroraChatMessageProps {
   id: string;
@@ -49,24 +49,12 @@ const AuroraChatMessage = ({
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
-  const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
-  const [ttsError, setTtsError] = useState(false);
   
   const { cleanContent, ctas } = extractCTAs(content);
-  const isPlayingThis = isPlaying && activeMessageId === id;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanContent);
     toast.success(t('messages.copied'));
-  };
-
-  const handleVoice = () => {
-    setTtsError(false);
-    if (isPlayingThis) {
-      stopPlayback();
-    } else {
-      playMessage(id, cleanContent);
-    }
   };
 
   return (
@@ -126,19 +114,7 @@ const AuroraChatMessage = ({
               >
                 <Copy className="h-3.5 w-3.5 text-muted-foreground" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={handleVoice}
-                title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
-              >
-                {isPlayingThis ? (
-                  <Square className="h-3 w-3 text-muted-foreground fill-current" />
-                ) : (
-                  <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
-                )}
-              </Button>
+              <TTSPlayer messageId={id} content={cleanContent} compact />
               {onRegenerate && (
                 <Button
                   variant="ghost"
