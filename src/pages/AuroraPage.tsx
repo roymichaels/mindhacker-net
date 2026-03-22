@@ -14,6 +14,7 @@ import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
 import { AuroraJournalModal } from '@/components/aurora/AuroraJournalModal';
 import { AuroraPlanModal } from '@/components/aurora/AuroraPlanModal';
 import { AuroraBeliefsModal } from '@/components/aurora/AuroraBeliefsModal';
+import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 
 type WidgetModal = 'dream' | 'gratitude' | 'plan' | 'beliefs' | null;
 
