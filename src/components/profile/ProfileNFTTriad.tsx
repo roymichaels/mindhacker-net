@@ -168,7 +168,7 @@ export default function ProfileNFTTriad() {
     <>
       <div className="grid grid-cols-3 gap-2.5">
         <NFTTile
-          label={isHe ? 'אורב' : 'Orb'}
+          label="AION"
           sublabel={isHe ? 'גוף ויזואלי' : 'Visual Body'}
           accentColor="hsl(270 70% 55%)"
           delay={0}
