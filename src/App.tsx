@@ -89,6 +89,8 @@ import TherapistLayoutWrapper from "./components/careers/therapist/TherapistLayo
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
+const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
+const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const LifeLayoutWrapper = lazy(() => import("./components/pillars/LifeLayoutWrapper"));
 const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
@@ -271,6 +273,9 @@ const App = () => (
                                               <Route path="/unsubscribe" element={<Unsubscribe />} />
                                               <Route path="/docs" element={<Documentation />} />
 
+                                              {/* Avatar configurator — full-screen, no AppShell */}
+                                              <Route path="/avatar" element={<ProtectedRoute><AvatarConfiguratorPage /></ProtectedRoute>} />
+
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
                                               <Route element={<ProtectedAppShell />}>
                                                 {/* Community */}
@@ -428,6 +433,7 @@ const App = () => (
                                             <WalletModal />
                                             <Suspense fallback={null}><ProfilePage /></Suspense>
                                             <SoulAvatarMintWizardGlobal />
+                                            <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
                                           </Suspense>
                                         </SmartOnboardingProvider>
