@@ -5,7 +5,7 @@
  */
 import { Suspense, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Bounds, useGLTF } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import { cn } from '@/lib/utils';
 import { useUserAvatarData, type AvatarCustomizationData } from '@/hooks/useUserAvatarData';
 import { AVATAR_CATEGORIES } from '@/components/avatar/avatarAssets';
