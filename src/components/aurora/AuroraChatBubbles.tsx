@@ -25,6 +25,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
   const { aion } = useAION();
+  const { profile: orbProfile } = useOrbProfile();
   const aiDisplayName = aion.name;
   const { 
     activeConversationId, 
