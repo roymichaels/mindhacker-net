@@ -144,21 +144,14 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
           />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-[60px] opacity-10 bg-amber-400" />
 
-          {/* Avatar with gold ring */}
-          <div className="relative">
-            <button
-              className="relative cursor-pointer hover:scale-105 transition-transform"
-              onClick={() => setOrbFullscreenOpen(true)}
-            >
-              <div className="absolute -inset-2 rounded-full border border-amber-500/30" style={{ boxShadow: '0 0 20px hsla(35, 80%, 50%, 0.15)' }} />
-              <AvatarMiniPreview size={80} />
-            </button>
-
+          {/* NFT Triad replaces single avatar */}
+          <div className="relative w-full max-w-[340px]">
+            <ProfileNFTTriad />
             {/* Admin-only edit avatar button */}
             {isAdmin && (
               <button
                 onClick={() => { onOpenChange(false); navigate('/avatar'); }}
-                className="absolute -bottom-1 -end-1 z-10 p-1.5 rounded-full bg-primary/90 hover:bg-primary text-primary-foreground shadow-lg transition-colors"
+                className="absolute -bottom-1 end-0 z-10 p-1.5 rounded-full bg-primary/90 hover:bg-primary text-primary-foreground shadow-lg transition-colors"
                 title={isHe ? 'ערוך אווטאר' : 'Edit Avatar'}
               >
                 <Pencil className="w-3 h-3" />
@@ -439,8 +432,6 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
   return (
     <div className="space-y-3">
-      {/* ── NFT TRIAD: Orb | Avatar | DNA ── */}
-      <ProfileNFTTriad />
 
       {/* Stats Strip */}
       <PlayStatsStrip />
