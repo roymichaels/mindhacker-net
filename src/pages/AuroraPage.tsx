@@ -14,6 +14,7 @@ import { IPhoneWidget } from '@/components/ui/IPhoneWidget';
 import { AuroraJournalModal } from '@/components/aurora/AuroraJournalModal';
 import { AuroraPlanModal } from '@/components/aurora/AuroraPlanModal';
 import { AuroraBeliefsModal } from '@/components/aurora/AuroraBeliefsModal';
+import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 
 type WidgetModal = 'dream' | 'gratitude' | 'plan' | 'beliefs' | null;
 
@@ -35,6 +36,7 @@ export default function AuroraPage() {
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
 
   return (
+    <AIONNamingGate>
     <div className="fixed inset-0 top-14 z-40 flex flex-col bg-background overflow-hidden">
       {/* Context badges */}
       {(pillarLabel || (isAssessing && assessLabel)) && (
@@ -130,5 +132,6 @@ export default function AuroraPage() {
         onOpenChange={(o) => !o && setActiveModal(null)}
       />
     </div>
+    </AIONNamingGate>
   );
 }

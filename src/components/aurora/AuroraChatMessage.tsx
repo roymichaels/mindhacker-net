@@ -7,7 +7,8 @@ import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useXpProgress } from '@/hooks/useGameState';
 import { TTSPlayer } from './TTSPlayer';
 
 interface AuroraChatMessageProps {
@@ -49,6 +50,8 @@ const AuroraChatMessage = ({
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
+  const { profile: orbProfile } = useOrbProfile();
+  const { level } = useXpProgress();
   
   const { cleanContent, ctas } = extractCTAs(content);
 
@@ -71,9 +74,9 @@ const AuroraChatMessage = ({
         "flex gap-3",
         isOwn && "flex-row-reverse"
       )}>
-        {/* Avatar - only for Aurora */}
+        {/* Avatar - AION's personalized orb */}
         {!isOwn && (
-          <StandaloneMorphOrb size={32} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
+          <StandaloneMorphOrb size={32} profile={orbProfile} geometryFamily={orbProfile.geometryFamily || 'sphere'} level={level} />
         )}
 
         {/* Message Bubble */}

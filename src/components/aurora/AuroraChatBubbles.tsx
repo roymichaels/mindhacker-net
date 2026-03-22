@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 
@@ -25,6 +25,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
   const { aion } = useAION();
+  const { profile: orbProfile } = useOrbProfile();
   const aiDisplayName = aion.name;
   const { 
     activeConversationId, 
@@ -172,7 +173,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
         {/* Persistent orb */}
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-6 pb-2">
-            <StandaloneMorphOrb size={56} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
+            <StandaloneMorphOrb size={56} profile={orbProfile} geometryFamily={orbProfile.geometryFamily || 'sphere'} level={100} />
           </div>
         )}
         {messages.length === 0 && !streamingContent && (
