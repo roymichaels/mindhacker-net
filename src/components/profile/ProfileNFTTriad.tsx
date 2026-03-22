@@ -2,19 +2,21 @@
  * ProfileNFTTriad — 3-column NFT card grid: Orb | Avatar | DNA
  * Each card opens a frosted-glass NFT detail modal on click.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useDNA } from '@/identity/useDNA';
+import { useUserAvatarData } from '@/hooks/useUserAvatarData';
 import { getOrbRarity } from '@/lib/orbRarity';
 import { getArchetypeName } from '@/lib/orbProfileGenerator';
+import { AVATAR_CATEGORIES } from '@/components/avatar/avatarAssets';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import DNAViewer from '@/components/dna/DNAViewer';
 import { NFTDetailCard } from './NFTDetailCard';
-import { Star, Flame, Zap, Shield, Sparkles, Activity } from 'lucide-react';
+import { Star, Flame, Zap, Shield, Sparkles, Activity, Sword, Crown, Shirt, Eye, Footprints } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { NFTType } from './NFTDetailCard';
 
@@ -90,12 +92,14 @@ export default function ProfileNFTTriad() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const [activeCard, setActiveCard] = useState<NFTType | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const { profile } = useOrbProfile();
   const xp = useXpProgress();
   const streak = useStreak();
   const energy = useEnergy();
   const { dna } = useDNA();
+  const { avatarData } = useUserAvatarData();
   const rarity = getOrbRarity(xp.level);
   const rarityLabel = isHe ? rarity.label.he : rarity.label.en;
 
@@ -104,13 +108,61 @@ export default function ProfileNFTTriad() {
   const geometry = profile.geometryFamily || 'sphere';
   const material = profile.materialType || 'glass';
 
-  // DNA traits for bars
+  // DNA traits
   const dnaTraits = Object.entries(dna.dnaTraits)
     .map(([k, v]) => ({ key: k.replace(/^(value:|skill:)/, ''), weight: v }))
     .sort((a, b) => b.weight - a.weight)
     .slice(0, 6);
 
   const serial = String(xp.experience).padStart(5, '0');
+
+  // RPG names for avatar equipment
+  const RPG_NAMES: Record<string, { en: string; he: string; icon: React.ReactNode }> = {
+    Head: { en: 'Skull Form', he: 'צורת גולגולת', icon: <Crown className="w-3 h-3" /> },
+    Hair: { en: 'Mane of Valor', he: 'רעמת גבורה', icon: <Sparkles className="w-3 h-3" /> },
+    Face: { en: 'War Paint', he: 'ציור מלחמה', icon: <Shield className="w-3 h-3" /> },
+    Eyes: { en: 'Eyes of Sight', he: 'עיני הראייה', icon: <Eye className="w-3 h-3" /> },
+    Eyebrow: { en: 'Brow Mark', he: 'סימן הגבה', icon: <Activity className="w-3 h-3" /> },
+    Nose: { en: 'Nose Guard', he: 'מגן האף', icon: <Shield className="w-3 h-3" /> },
+    'Facial Hair': { en: 'Beard of Wisdom', he: 'זקן החוכמה', icon: <Sword className="w-3 h-3" /> },
+    Top: { en: 'Chest Armor', he: 'שריון חזה', icon: <Shirt className="w-3 h-3" /> },
+    Bottom: { en: 'Leg Guards', he: 'מגני רגליים', icon: <Shield className="w-3 h-3" /> },
+    Shoes: { en: 'Battle Boots', he: 'מגפי קרב', icon: <Footprints className="w-3 h-3" /> },
+    Glasses: { en: 'Vision Lens', he: 'עדשת חזון', icon: <Eye className="w-3 h-3" /> },
+    Hat: { en: 'Helm of Power', he: 'קסדת כוח', icon: <Crown className="w-3 h-3" /> },
+    Earring: { en: 'Rune Earring', he: 'עגיל רון', icon: <Sparkles className="w-3 h-3" /> },
+    Bow: { en: 'Spirit Bow', he: 'פפיון רוח', icon: <Sparkles className="w-3 h-3" /> },
+    Outfit: { en: 'Full Regalia', he: 'מלבוש מלא', icon: <Shirt className="w-3 h-3" /> },
+  };
+
+  // Resolve equipped items
+  const equippedItems = useMemo(() => {
+    if (!avatarData) return [];
+    return AVATAR_CATEGORIES
+      .filter(cat => avatarData[cat.name]?.assetId)
+      .map(cat => {
+        const saved = avatarData[cat.name];
+        const asset = cat.assets.find(a => a.id === saved?.assetId);
+        const rpg = RPG_NAMES[cat.name];
+        return {
+          categoryName: cat.name,
+          assetName: asset?.name || cat.name,
+          rpgName: rpg ? (isHe ? rpg.he : rpg.en) : cat.name,
+          icon: rpg?.icon || <Shield className="w-3 h-3" />,
+          color: saved?.color,
+        };
+      });
+  }, [avatarData, isHe]);
+
+  // Orb visual properties for display
+  const orbProps = [
+    { key: 'shape', label: isHe ? 'צורה' : 'Shape', value: geometry, color: `hsl(${rarity.color})` },
+    { key: 'material', label: isHe ? 'חומר' : 'Material', value: material, color: '#A855F7' },
+    { key: 'morph', label: isHe ? 'עיוות' : 'Morph', value: `${Math.round((profile.morphIntensity || 0.5) * 100)}%`, color: '#06B6D4' },
+    { key: 'speed', label: isHe ? 'מהירות' : 'Speed', value: `${Math.round((profile.morphSpeed || 0.5) * 100)}%`, color: '#22C55E' },
+    { key: 'core', label: isHe ? 'ליבה' : 'Core', value: `${Math.round((profile.coreIntensity || 0.5) * 100)}%`, color: '#F59E0B' },
+    { key: 'layers', label: isHe ? 'שכבות' : 'Layers', value: `${profile.layerCount || 3}`, color: '#EC4899' },
+  ];
 
   return (
     <>
@@ -156,48 +208,85 @@ export default function ProfileNFTTriad() {
         rarity={rarityLabel}
         rarityColor={rarity.color}
         serial={serial}
+        largeVisual
         description={isHe
-          ? 'האורב משקף את הזהות המתפתחת שלך. צורה, צבע ותנועה נגזרים מה-DNA שלך.'
-          : 'Your Orb reflects your evolving identity. Shape, color, and motion are derived from your DNA.'}
-        visual={<PersonalizedOrb size={120} state="breathing" showGlow={false} />}
-        stats={[
-          { icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />, label: isHe ? 'רמה' : 'Level', value: xp.level, color: '#FBBF24' },
-          { icon: <Shield className="w-3.5 h-3.5" />, label: isHe ? 'צורה' : 'Shape', value: geometry, color: `hsl(${rarity.color})` },
-          { icon: <Sparkles className="w-3.5 h-3.5" />, label: isHe ? 'חומר' : 'Material', value: material, color: `hsl(${rarity.color})` },
-        ]}
-        traits={[
-          { name: isHe ? 'עיוות' : 'Morph', value: Math.round((profile.morphIntensity || 0.5) * 100), color: `hsl(${rarity.color})` },
-          { name: isHe ? 'מהירות' : 'Speed', value: Math.round((profile.morphSpeed || 0.5) * 100), color: '#06B6D4' },
-          { name: isHe ? 'ליבה' : 'Core', value: Math.round((profile.coreIntensity || 0.5) * 100), color: '#A855F7' },
-          { name: isHe ? 'שכבות' : 'Layers', value: Math.min((profile.layerCount || 3) * 20, 100), color: '#22C55E' },
-        ]}
-      />
+          ? 'לחץ על מאפיין כדי לחקור אותו'
+          : 'Tap a property to explore it'}
+        visual={<PersonalizedOrb size={200} state="breathing" showGlow={false} />}
+        stats={[]}
+        traits={[]}
+      >
+        {/* Orb properties as clickable dots */}
+        <div className="w-full grid grid-cols-3 gap-1.5">
+          {orbProps.map((p, i) => (
+            <motion.button
+              key={p.key}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + i * 0.05 }}
+              className="flex flex-col items-center gap-1 py-2 px-1 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] transition-colors"
+            >
+              <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
+              <span className="text-[10px] font-bold text-white/80 capitalize">{p.value}</span>
+              <span className="text-[8px] text-white/35 uppercase tracking-wider">{p.label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </NFTDetailCard>
 
       {/* ── AVATAR Detail Card ── */}
       <NFTDetailCard
         open={activeCard === 'avatar'}
-        onClose={() => setActiveCard(null)}
+        onClose={() => { setActiveCard(null); setSelectedSlot(null); }}
         type="avatar"
         title={isHe ? 'אווטאר 3D' : '3D Avatar'}
         subtitle={isHe ? 'הדמות שלך בעולם' : 'Your In-World Character'}
         rarity={rarityLabel}
         rarityColor="35 80% 50%"
         serial={serial}
-        description={isHe
-          ? 'הדמות הדיגיטלית שלך. ייחודית, אישית, ומייצגת אותך בכל מרחב.'
-          : 'Your digital character. Unique, personal, and representing you across every space.'}
-        visual={<AvatarMiniPreview size={130} />}
-        stats={[
-          { icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />, label: isHe ? 'רמה' : 'Level', value: xp.level, color: '#FBBF24' },
-          { icon: <Flame className="w-3.5 h-3.5" />, label: isHe ? 'סטריק' : 'Streak', value: streak.streak, color: '#F97316' },
-          { icon: <Zap className="w-3.5 h-3.5" />, label: isHe ? 'אנרגיה' : 'Energy', value: energy.balance, color: '#06B6D4' },
-        ]}
-        traits={[
-          { name: archetypeName, value: 85, color: '#FBBF24' },
-          { name: isHe ? 'נוכחות' : 'Presence', value: Math.round(Math.min(xp.level * 8, 100)), color: '#A855F7' },
-          { name: isHe ? 'השפעה' : 'Influence', value: Math.round(Math.min(streak.streak * 10, 100)), color: '#EC4899' },
-        ]}
-      />
+        largeVisual
+        visual={<AvatarMiniPreview size={200} />}
+        stats={[]}
+        traits={[]}
+      >
+        {/* Equipment list — RPG style */}
+        <div className="w-full space-y-1">
+          <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] font-bold text-center mb-2">
+            {isHe ? 'ציוד' : 'Equipment'}
+          </p>
+          <div className="space-y-1 max-h-[160px] overflow-y-auto scrollbar-hide">
+            {equippedItems.map((item, i) => (
+              <motion.button
+                key={item.categoryName}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 + i * 0.04 }}
+                onClick={() => setSelectedSlot(selectedSlot === item.categoryName ? null : item.categoryName)}
+                className={cn(
+                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all text-start",
+                  selectedSlot === item.categoryName
+                    ? "bg-white/[0.08] border-amber-500/30"
+                    : "bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06]"
+                )}
+              >
+                <span className="text-amber-400/70">{item.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-white/90 truncate">{item.rpgName}</p>
+                  <p className="text-[9px] text-white/30 uppercase tracking-wider">{item.categoryName}</p>
+                </div>
+                {item.color && (
+                  <div className="w-3 h-3 rounded-full border border-white/10 flex-shrink-0" style={{ background: item.color }} />
+                )}
+              </motion.button>
+            ))}
+            {equippedItems.length === 0 && (
+              <p className="text-[10px] text-white/30 text-center py-3">
+                {isHe ? 'לא נמצא ציוד' : 'No equipment found'}
+              </p>
+            )}
+          </div>
+        </div>
+      </NFTDetailCard>
 
       {/* ── DNA Detail Card ── */}
       <NFTDetailCard
