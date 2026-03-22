@@ -32,138 +32,106 @@ const PILLAR_VIS: Record<string, { emoji: string; color: string; bg: string; lab
 const DEFAULT_PILLAR = { emoji: '🎯', color: 'text-primary', bg: 'bg-primary/15', labelHe: 'כללי', labelEn: 'General' };
 
 
-/* ── Rich per-pillar content ── */
-const FIELD_ASSESSMENT: Record<string, { en: string[]; he: string[] }> = {
-  vitality: {
-    en: [
-      "Today's theater centers on Vitality. Your body is the vehicle for every mission that follows. Without physical readiness, strategic capacity collapses. The operators who last are the ones who treated their body like a weapon system — maintained, calibrated, deployed with intent.",
-      "The field report is clear: physical readiness determines operational capacity. Every system in your life — mental clarity, emotional resilience, creative output — is downstream of how you treat the machine.",
-    ],
-    he: [
-      "זירת היום: חיוניות. הגוף הוא הכלי לכל משימה שתבוא. בלי מוכנות פיזית, הקיבולת האסטרטגית קורסת. המבצעים שמחזיקים מעמד הם אלה שהתייחסו לגוף שלהם כמערכת נשק — מתוחזקת, מכוילת, נפרסת בכוונה.",
-      "דוח השטח ברור: מוכנות פיזית קובעת קיבולת מבצעית. כל מערכת בחיים שלך — בהירות מנטלית, חוסן רגשי, תפוקה יצירתית — נמצאת במורד הזרם של איך שאתה מתייחס למכונה.",
-    ],
-  },
-  focus: {
-    en: [
-      "Cognitive operations are the priority. Your mind is the command center — and today it needs to run clean. Distractions are hostile agents. Every notification is an extraction attempt on your most valuable asset: sustained attention.",
-      "Today's briefing: deep work is the weapon. The battlefield is your attention span. One hour of locked-in focus produces more strategic output than an entire day of scattered effort.",
-    ],
-    he: [
-      "מבצעים קוגניטיביים בעדיפות עליונה. המוח הוא מרכז הפיקוד — והיום הוא צריך לרוץ נקי. הסחות דעת הן סוכנים עוינים. כל התראה היא ניסיון חילוץ של הנכס היקר ביותר שלך.",
-      "תדריך היום: עבודה עמוקה היא הנשק. שדה הקרב הוא טווח הקשב שלך. שעה אחת של מיקוד נעול מייצרת יותר תפוקה אסטרטגית מיום שלם של מאמץ מפוזר.",
-    ],
-  },
-  wealth: {
-    en: [
-      "Economic theater is active. Today's objective: create asymmetric value. The operators who build wealth don't chase money — they build systems that generate it while they sleep. Think in decades, execute in hours.",
-      "Financial intelligence report: resources flow toward clarity and decisive action. Indecision is the most expensive habit. Today's mission: create something worth more than the time it took to build it.",
-    ],
-    he: [
-      "הזירה הכלכלית פעילה. יעד היום: ליצור ערך אסימטרי. המבצעים שבונים עושר לא רודפים אחרי כסף — הם בונים מערכות שמייצרות אותו בזמן שהם ישנים.",
-      "דוח מודיעין פיננסי: משאבים זורמים לכיוון בהירות ופעולה החלטית. חוסר החלטיות הוא ההרגל היקר ביותר. המשימה: לייצר משהו ששווה יותר מהזמן שלקח לבנות אותו.",
-    ],
-  },
-  power: {
-    en: [
-      "Power operations are live. Raw capacity building is today's mission. Strength is not about dominance — it's about having reserves when the world demands everything. The agent who trains when it's inconvenient performs when it matters.",
-      "Power is the foundation pillar. Without raw physical and mental capacity, every other domain operates at a deficit. Today you're depositing into the account that funds everything else.",
-    ],
-    he: [
-      "מבצעי כוח פעילים. בניית קיבולת גולמית היא משימת היום. כוח הוא לא שליטה — הוא לגבות רזרבות כשהעולם דורש הכל.",
-      "כוח הוא עמוד התווך הבסיסי. בלי קיבולת פיזית ומנטלית גולמית, כל תחום אחר פועל בגירעון. היום אתה מפקיד בחשבון שמממן הכל.",
-    ],
-  },
-  consciousness: {
-    en: [
-      "Inner reconnaissance is the mission. Today's terrain is internal. The most dangerous blind spots are inside — assumptions you've never questioned, patterns you've never named, reactions you've mistaken for choices.",
-      "Consciousness work is not soft — it's the hardest theater of operation. Anyone can lift a weight. But sitting with the truth about yourself requires a different kind of courage entirely.",
-    ],
-    he: [
-      "סיור פנימי הוא המשימה. שטח היום הוא פנימי. הנקודות העיוורות המסוכנות ביותר הן הפנימיות — הנחות שמעולם לא הטלת בהן ספק, דפוסים שמעולם לא קראת להם בשם.",
-      "עבודת תודעה היא לא רכה — היא התיאטרון הקשה ביותר של המבצע. כל אחד יכול להרים משקל. אבל לשבת עם האמת על עצמך דורש סוג אחר לגמרי של אומץ.",
-    ],
-  },
-  combat: {
-    en: ["Combat readiness check. The body remembers what the mind forgets. Every drill, every controlled breath under pressure is a deposit into your operational bank. When the real moment comes, you'll fall to your level of training."],
-    he: ["בדיקת מוכנות קרבית. הגוף זוכר מה שהמוח שוכח. כל תרגיל, כל נשימה מבוקרת תחת לחץ היא הפקדה בבנק המבצעי שלך. כשהרגע האמיתי יגיע, תיפול לרמת האימון שלך."],
-  },
-  expansion: {
-    en: ["Expansion operations are live. Growth doesn't happen in the comfort zone — it happens at the edge. Today's mission: push one boundary you've been avoiding. The discomfort is not a warning — it's a signal you're in the right place."],
-    he: ["מבצעי התרחבות חיים. צמיחה לא קורית באזור הנוחות — היא קורית בקצה. משימת היום: לדחוף גבול אחד שנמנעת ממנו. אי הנוחות היא לא אזהרה — היא אות שאתה במקום הנכון."],
-  },
-  influence: {
-    en: ["Influence theater is active. True influence is not about volume — it's about signal clarity. Today's objective: communicate one idea with such precision that it changes how someone thinks."],
-    he: ["זירת ההשפעה פעילה. השפעה אמיתית היא לא עניין של ווליום — היא עניין של בהירות אות. יעד היום: לתקשר רעיון אחד בדיוק כזה שישנה את הצורה שמישהו חושב."],
-  },
-  relationships: {
-    en: ["Relational intelligence is today's focus. The strongest operators know: isolation is a vulnerability, not a strength. Today's mission is connection — one authentic conversation, one moment of real presence."],
-    he: ["אינטליגנציה יחסית היא המיקוד של היום. המבצעים החזקים ביותר יודעים: בידוד הוא פגיעות, לא חוזק. משימת היום היא חיבור — שיחה אותנטית אחת, רגע נוכחות אחד אמיתי."],
-  },
-  business: {
-    en: ["Business operations are hot. Every minute in meetings without outcomes is donated to entropy. Ship something. Decide something. Move the needle on one metric that matters."],
-    he: ["מבצעים עסקיים לוהטים. כל דקה שמבלים בפגישות בלי תוצאות היא דקה שנתרמה לאנטרופיה. שלח משהו. החלט משהו. הזז את המחוג במדד אחד שחשוב."],
-  },
-  projects: {
-    en: ["Project operations in effect. The difference between a dream and a project is a deadline and a next action. Today: advance one project by one concrete step. Not planning. Executing."],
-    he: ["מבצעי פרויקטים בתוקף. ההבדל בין חלום לפרויקט הוא דדליין ופעולה הבאה. היום: להתקדם בפרויקט אחד בצעד אחד קונקרטי. לא תכנון. ביצוע."],
-  },
-};
-const DEFAULT_ASSESSMENT_EN = ["Operations are live. The mission parameters are set. All that remains is execution. The plan is clear — close the gap between intention and action. The briefing is over. Move."];
-const DEFAULT_ASSESSMENT_HE = ["המבצעים חיים. פרמטרי המשימה נקבעו. כל מה שנותר הוא ביצוע. התוכנית ברורה — סגור את הפער בין כוונה לפעולה. התדריך הסתיים. זוז."];
-
-const DOCTRINE: Record<string, { en: string[]; he: string[] }> = {
-  vitality: { en: ["No negotiation with comfort. Execute before the mind builds its case. The body doesn't need permission — it needs direction."], he: ["אין משא ומתן עם הנוחות. בצע לפני שהמוח בונה את הטיעון שלו. הגוף לא צריך רשות — הוא צריך כיוון."] },
-  focus: { en: ["One thread at a time. Multitasking is a myth sold to the undisciplined. Guard your attention like it's the last resource on earth."], he: ["חוט אחד בכל פעם. ריבוי משימות הוא מיתוס שנמכר לחסרי משמעת. שמור על הקשב שלך כאילו הוא המשאב האחרון עלי אדמות."] },
-  wealth: { en: ["Value first, revenue follows. Never chase — position and let it come. The wealthy don't hustle harder — they think clearer."], he: ["ערך קודם, הכנסה עוקבת. לעולם אל תרדוף — מקם ותן לזה להגיע. העשירים לא עובדים יותר קשה — הם חושבים יותר ברור."] },
-  power: { en: ["Discomfort is the price of admission. Pay it daily or forfeit the seat. Strength is borrowed from the future version of you — today's session is the payment."], he: ["אי נוחות היא דמי הכניסה. שלם יומי או ותר על המקום. כוח מושאל מהגרסה העתידית שלך — אימון היום הוא התשלום."] },
-  consciousness: { en: ["Silence is not empty — it's where the signal lives. The noise of daily life drowns the most important intelligence. Today, you tune in."], he: ["שקט הוא לא ריק — שם חי האות. הרעש של החיים היומיומיים מטביע את המודיעין החשוב ביותר. היום, אתה מכוונן."] },
-  combat: { en: ["Train like the fight is tomorrow. Because one day, it will be. And you won't get to choose when."], he: ["תתאמן כאילו הקרב מחר. כי יום אחד, הוא יהיה. ולא תוכל לבחור מתי."] },
-  expansion: { en: ["Growth is not optional — it's the cost of staying relevant. Stagnation is slow decay wearing a comfortable mask."], he: ["צמיחה היא לא אופציונלית — היא המחיר של להישאר רלוונטי. קיפאון הוא ריקבון איטי שלובש מסכה נוחה."] },
-  influence: { en: ["Speak less. Mean more. The most powerful signal is the one people can't ignore — because it's true."], he: ["דבר פחות. התכוון ליותר. האות החזק ביותר הוא זה שאנשים לא יכולים להתעלם ממנו — כי הוא אמיתי."] },
-  relationships: { en: ["Vulnerability is not weakness — it's the highest-level access protocol. Without it, you're operating alone."], he: ["פגיעות היא לא חולשה — היא פרוטוקול הגישה ברמה הגבוהה ביותר. בלעדיה, אתה פועל לבד."] },
-  business: { en: ["Ship beats perfect. A decision today is worth more than a perfect plan next week. Velocity is the ultimate advantage."], he: ["שליחה מנצחת מושלם. החלטה היום שווה יותר מתוכנית מושלמת בשבוע הבא. מהירות היא היתרון האולטימטיבי."] },
-  projects: { en: ["Progress is the project looking different at the end of the day than it did at the start. Everything else is theater."], he: ["התקדמות היא שהפרויקט נראה אחרת בסוף היום ממה שנראה בהתחלה. כל השאר הוא תיאטרון."] },
-};
-const DEFAULT_DOCTRINE_EN = ["Hesitation is a decision — and it's always the wrong one. The gap between knowing and doing is where dreams go to die."];
-const DEFAULT_DOCTRINE_HE = ["היסוס הוא החלטה — והיא תמיד הלא נכונה. הפער בין לדעת ולעשות הוא המקום שבו חלומות הולכים למות."];
-
-const INTEL_NOTES: Record<string, { en: string[]; he: string[] }> = {
-  vitality: { en: ["20 minutes of high-output movement rewires threat assessment for the next 8 hours. Cortisol, decision quality, stress tolerance — all shift after a single session. This is operational intelligence."], he: ["20 דקות של תנועה בעצימות גבוהה משנות הערכת איום ל-8 השעות הבאות. קורטיזול, איכות החלטות, סבילות לחץ — הכל משתנה אחרי מפגש אחד. זה מודיעין מבצעי."] },
-  focus: { en: ["A single 90-minute deep work block produces more strategic output than 8 hours of reactive task-switching. Protect the block. Kill notifications. Stay in the zone."], he: ["בלוק עבודה עמוקה אחד של 90 דקות מייצר יותר תפוקה מ-8 שעות של מיתוג משימות. הגן על הבלוק. הרוג התראות. תישאר בזון."] },
-  wealth: { en: ["Compound returns apply to skills, relationships, and reputation — not just capital. Every day of real value investment pays dividends for decades."], he: ["תשואה מצטברת חלה על מיומנויות, מערכות יחסים ומוניטין — לא רק על הון. כל יום של השקעה בערך אמיתי משלם דיבידנדים לעשרות שנים."] },
-  power: { en: ["Strength gains are neurological before they're muscular. The first 4 weeks are your brain learning to recruit more muscle fiber. Consistency here is everything."], he: ["רווחי כוח הם נוירולוגיים לפני שהם שריריים. 4 השבועות הראשונים הם המוח שלומד לגייס יותר סיבי שריר. עקביות כאן היא הכל."] },
-  consciousness: { en: ["10 minutes of daily introspection improves decision-making accuracy by up to 30%. The ROI on self-awareness is the highest in your entire portfolio."], he: ["10 דקות התבוננות פנימית יומית משפרות דיוק קבלת החלטות בעד 30%. התשואה על מודעות עצמית היא הגבוהה ביותר בפורטפוליו שלך."] },
-  combat: { en: ["Martial training reduces cortisol baseline by 23% over 8 weeks. It's controlled response under pressure — a skill that transfers everywhere."], he: ["אימון לחימה מפחית קורטיזול בסיסי ב-23% על פני 8 שבועות. תגובה מבוקרת תחת לחץ — מיומנות שמתורגמת לכל מקום."] },
-};
-const DEFAULT_INTEL_EN = ["Your best days share one trait — you started before you felt ready. Readiness is a feeling. Starting is a decision. The operators who win make decisions, not excuses."];
-const DEFAULT_INTEL_HE = ["לימים הטובים ביותר שלך יש תכונה אחת משותפת — התחלת לפני שהרגשת מוכן. מוכנות היא תחושה. התחלה היא החלטה. המבצעים שמנצחים מקבלים החלטות, לא תירוצים."];
-
-const COMMANDER_EN = ["End of briefing. Execute with precision. Dismissed.","Field is live. No further instructions required. Move.","The mission doesn't wait for motivation. Neither do you."];
-const COMMANDER_HE = ["סוף תדריך. בצע בדייקנות. שוחרר.","השטח חי. אין צורך בהוראות נוספות. זוז.","המשימה לא מחכה למוטיבציה. גם אתה לא."];
-
-function pick<T>(arr: T[], seed: number) {
-  return arr[Math.abs(seed) % arr.length];
+/* ── Step-by-step guide templates per pillar ── */
+interface MissionGuide {
+  steps: string[];
+  youtubeTip?: string;
 }
 
-/** Get content for a specific pillar key */
-function getPillarContent(pillarKey: string, seed: number, isHe: boolean) {
-  const assessmentPool = FIELD_ASSESSMENT[pillarKey];
-  const assessment = isHe
-    ? pick(assessmentPool?.he || DEFAULT_ASSESSMENT_HE, seed)
-    : pick(assessmentPool?.en || DEFAULT_ASSESSMENT_EN, seed);
+const MISSION_GUIDES_HE: Record<string, MissionGuide> = {
+  vitality: {
+    steps: ['הכן בגדי ספורט ובקבוק מים', 'חמם 3-5 דקות (מתיחות קלות או הליכה)', 'בצע את האימון / פעילות לפי ההנחיה', 'סיים עם שתייה ונשימות עמוקות', 'רשום איך הרגשת אחרי'],
+    youtubeTip: 'חפש: "אימון HIIT קצר בעברית" או "מתיחות בוקר 10 דקות"',
+  },
+  power: {
+    steps: ['הכן את הציוד הנדרש (משקולות / גומיות / מזרן)', 'חימום 5 דקות — סיבובי כתפיים, סקוואט ריק', 'בצע 3-4 סטים של התרגיל המרכזי', 'מנוחה 60-90 שניות בין סטים', 'שתייה וקירור'],
+    youtubeTip: 'חפש: "אימון כוח למתחילים" או "strength training at home"',
+  },
+  focus: {
+    steps: ['השתק את כל ההתראות בטלפון', 'הגדר טיימר לזמן שנקבע', 'בחר משימה אחת בלבד ועבוד עליה', 'אם נתקעת — רשום את החסם והמשך', 'בסיום — סמן מה הושג'],
+    youtubeTip: 'חפש: "pomodoro technique tutorial" או "deep work tips"',
+  },
+  wealth: {
+    steps: ['פתח את הגיליון / אפליקציית המעקב הפיננסי', 'רשום הוצאות / הכנסות של היום', 'בדוק התקדמות מול יעד חודשי', 'זהה הוצאה אחת שניתן לצמצם', 'הגדר פעולה אחת ליום הבא'],
+  },
+  consciousness: {
+    steps: ['שב במקום שקט ונוח', 'עצום עיניים ונשום 5 נשימות עמוקות', 'בצע את התרגול — מדיטציה / כתיבה / רפלקציה', 'שים לב למחשבות בלי לשפוט', 'רשום תובנה אחת שעלתה'],
+    youtubeTip: 'חפש: "מדיטציה מודרכת בעברית" או "guided meditation 10 min"',
+  },
+  combat: {
+    steps: ['חמם את הגוף — ריצה קלה או קפיצות', 'עבוד על טכניקה בסיסית (מכות / בעיטות / תנועה)', 'תרגל קומבינציות 3-5 דקות', 'סיים עם עבודת ליבה ומתיחות', 'שתה מים והירגע'],
+    youtubeTip: 'חפש: "אימון קרב מגע בבית" או "shadow boxing workout"',
+  },
+  expansion: {
+    steps: ['בחר את הנושא / המיומנות החדשה', 'הקדש 15-20 דקות ללמידה מרוכזת', 'תרגל או יישם מה שלמדת', 'רשום 3 דברים חדשים שהבנת', 'תכנן את הצעד הבא'],
+    youtubeTip: 'חפש לפי הנושא הספציפי שלך ביוטיוב',
+  },
+  influence: {
+    steps: ['הגדר את המסר שרוצה להעביר', 'בחר את הפלטפורמה / הערוץ המתאים', 'צור / כתוב / הקלט את התוכן', 'שתף ובקש פידבק מאדם אחד', 'נתח מה עבד ומה פחות'],
+  },
+  relationships: {
+    steps: ['בחר אדם אחד שרוצה לחזק איתו קשר', 'שלח הודעה / התקשר / קבע מפגש', 'תן תשומת לב מלאה בשיחה', 'שאל שאלה אמיתית אחת', 'ציין דבר אחד שאתה מעריך בו'],
+  },
+  business: {
+    steps: ['בדוק את רשימת המשימות העסקיות', 'בחר את המשימה הדחופה / חשובה ביותר', 'עבוד עליה ב-focus block של 25-45 דקות', 'שלח / פרסם / סגור — תעשה אקשן', 'עדכן את הסטטוס ותכנן את הבא'],
+  },
+  projects: {
+    steps: ['פתח את הפרויקט ובדוק מה הצעד הבא', 'פרק אותו למשימה קטנה שאפשר לסיים היום', 'בצע ללא הסחות 20-30 דקות', 'בדוק את התוצאה — האם זה עובד?', 'שמור והתקדם לצעד הבא'],
+  },
+};
 
-  const doctrinePool = DOCTRINE[pillarKey];
-  const doctrine = isHe
-    ? pick(doctrinePool?.he || DEFAULT_DOCTRINE_HE, seed)
-    : pick(doctrinePool?.en || DEFAULT_DOCTRINE_EN, seed);
+const MISSION_GUIDES_EN: Record<string, MissionGuide> = {
+  vitality: {
+    steps: ['Prepare workout clothes & water', 'Warm up 3-5 min (light stretches or walk)', 'Perform the workout as instructed', 'Cool down with deep breaths & hydration', 'Note how you felt after'],
+    youtubeTip: 'Search: "10 min morning stretch" or "quick HIIT workout"',
+  },
+  power: {
+    steps: ['Set up equipment (weights / bands / mat)', 'Warm up 5 min — shoulder circles, bodyweight squats', 'Perform 3-4 sets of main exercise', 'Rest 60-90 sec between sets', 'Hydrate and cool down'],
+    youtubeTip: 'Search: "beginner strength training" or "home workout no equipment"',
+  },
+  focus: {
+    steps: ['Silence all phone notifications', 'Set a timer for the designated duration', 'Pick ONE task and work only on it', 'If stuck — note the blocker and continue', 'Mark what was accomplished'],
+    youtubeTip: 'Search: "pomodoro technique" or "deep work tips"',
+  },
+  wealth: {
+    steps: ['Open your financial tracker / spreadsheet', 'Log today\'s expenses and income', 'Check progress against monthly goal', 'Identify one expense to reduce', 'Set one action for tomorrow'],
+  },
+  consciousness: {
+    steps: ['Sit in a quiet, comfortable place', 'Close eyes and take 5 deep breaths', 'Perform the practice — meditation / journaling / reflection', 'Observe thoughts without judgment', 'Write down one insight'],
+    youtubeTip: 'Search: "guided meditation 10 min" or "mindfulness for beginners"',
+  },
+  combat: {
+    steps: ['Warm up — light jog or jumping jacks', 'Work on basic technique (strikes / kicks / movement)', 'Practice combinations for 3-5 min', 'Finish with core work and stretches', 'Hydrate and recover'],
+    youtubeTip: 'Search: "shadow boxing workout" or "martial arts at home"',
+  },
+  expansion: {
+    steps: ['Choose the topic / new skill', 'Dedicate 15-20 min to focused learning', 'Practice or apply what you learned', 'Write 3 new things you understood', 'Plan the next step'],
+    youtubeTip: 'Search YouTube for your specific topic',
+  },
+  influence: {
+    steps: ['Define the message you want to deliver', 'Choose the right platform / channel', 'Create / write / record the content', 'Share and ask one person for feedback', 'Analyze what worked'],
+  },
+  relationships: {
+    steps: ['Pick one person to strengthen a bond with', 'Send a message / call / schedule a meetup', 'Give full attention in conversation', 'Ask one genuine question', 'Express one thing you appreciate about them'],
+  },
+  business: {
+    steps: ['Review your business task list', 'Pick the most urgent / important task', 'Work on it in a 25-45 min focus block', 'Ship / publish / close — take action', 'Update status and plan the next move'],
+  },
+  projects: {
+    steps: ['Open the project and check the next step', 'Break it into a small task you can finish today', 'Execute without distractions for 20-30 min', 'Review the result — does it work?', 'Save and move to the next step'],
+  },
+};
 
-  const intelPool = INTEL_NOTES[pillarKey];
-  const intel = isHe
-    ? pick(intelPool?.he || DEFAULT_INTEL_HE, seed + 1)
-    : pick(intelPool?.en || DEFAULT_INTEL_EN, seed + 1);
+const DEFAULT_GUIDE_HE: MissionGuide = {
+  steps: ['קרא את תיאור המשימה בעיון', 'הכן את מה שצריך לפני שמתחילים', 'בצע צעד אחד בכל פעם — בלי למהר', 'בדוק את התוצאה ותקן אם צריך', 'סמן כהושלם וקח נשימה'],
+};
+const DEFAULT_GUIDE_EN: MissionGuide = {
+  steps: ['Read the mission description carefully', 'Prepare what you need before starting', 'Execute one step at a time — no rushing', 'Review the result and adjust if needed', 'Mark as done and take a breath'],
+};
 
-  return { assessment, doctrine, intel };
+function getMissionGuide(pillarKey: string, isHe: boolean): MissionGuide {
+  const guides = isHe ? MISSION_GUIDES_HE : MISSION_GUIDES_EN;
+  return guides[pillarKey] || (isHe ? DEFAULT_GUIDE_HE : DEFAULT_GUIDE_EN);
 }
 
 export function TodayOverviewTab() {
@@ -189,12 +157,7 @@ export function TodayOverviewTab() {
   const remainingCount = todayActions.filter((a) => !a.completed).length;
   const totalCount = todayActions.length;
   const completedCount = totalCount - remainingCount;
-  const currentAction = todayActions.find((a) => !a.completed) || null;
   const currentActionIdx = todayActions.findIndex((a) => !a.completed);
-
-  const now = new Date();
-  const seed = now.getDate() + remainingCount;
-  const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
   // The "active" task is: selected task if picked, else current (first incomplete)
   const activeIdx = selectedTaskIdx ?? currentActionIdx;
@@ -202,12 +165,8 @@ export function TodayOverviewTab() {
   const activePillarKey = activeTask?.focusArea || '';
   const activePillar = PILLAR_VIS[activePillarKey] || DEFAULT_PILLAR;
 
-  // Dynamic content based on the ACTIVE task's pillar — use task index as extra seed for variety
-  const taskSeed = seed + (activeIdx >= 0 ? activeIdx : 0);
-  const { assessment, doctrine, intel } = useMemo(
-    () => getPillarContent(activePillarKey, taskSeed, isHe),
-    [activePillarKey, taskSeed, isHe],
-  );
+  // Get step-by-step guide for the active task's pillar
+  const guide = useMemo(() => getMissionGuide(activePillarKey, isHe), [activePillarKey, isHe]);
 
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
@@ -375,34 +334,36 @@ export function TodayOverviewTab() {
             </div>
           )}
 
-          {/* ── Field Briefing — dynamic per active task's pillar ── */}
-          <motion.div
-            key={`briefing-${activeIdx}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2"
-          >
-            <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
-              ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
-            </span>
-            <p className="text-sm text-cyan-100/60 leading-relaxed">
-              {assessment}
-            </p>
-            <p className="text-sm font-semibold text-cyan-100/70 leading-relaxed flex gap-1.5">
-              <span className="flex-shrink-0">⚔️</span> {doctrine}
-            </p>
-            <p className="text-xs italic text-cyan-100/40 leading-relaxed flex gap-1.5">
-              <span className="flex-shrink-0">🔍</span> {intel}
-            </p>
-          </motion.div>
-
-          {/* ── Commander sign-off ── */}
-          <div className="border-t border-white/[0.06] pt-2 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.1em] text-white/15">
-              {commander}
-            </p>
-          </div>
+          {/* ── Step-by-Step Mission Guide ── */}
+          {activeTask && (
+            <motion.div
+              key={`guide-${activeIdx}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2.5"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
+                ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
+              </span>
+              <ol className="space-y-1.5">
+                {guide.steps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-cyan-100/60 leading-relaxed">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              {guide.youtubeTip && (
+                <div className="flex items-center gap-2 pt-1 border-t border-white/[0.05]">
+                  <span className="text-red-400 text-xs">▶</span>
+                  <span className="text-[11px] text-cyan-100/40 italic">{guide.youtubeTip}</span>
+                </div>
+              )}
+            </motion.div>
+          )}
         </div>
       </div>
 
