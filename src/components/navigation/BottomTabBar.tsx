@@ -61,7 +61,7 @@ export function BottomTabBar() {
   const openAurora = () => {
     setShowBalloon(false);
     sessionStorage.setItem('aurora-bar-balloon-dismissed', '1');
-    navigate('/aurora');
+    window.dispatchEvent(new CustomEvent('aion:toggle-chat'));
   };
 
   const dismissBalloon = () => {
