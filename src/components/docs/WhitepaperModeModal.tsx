@@ -8,6 +8,8 @@ interface Props {
 }
 
 export function WhitepaperModeModal({ onSelect, isHe }: Props) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-md"
@@ -16,6 +18,14 @@ export function WhitepaperModeModal({ onSelect, isHe }: Props) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
+      {/* Exit button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="fixed top-4 start-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 backdrop-blur-md transition-all"
+      >
+        <ArrowRight className="w-4 h-4" />
+        <span className="text-xs font-medium">{isHe ? 'חזרה' : 'Back'}</span>
+      </button>
       {/* Ambient glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/8 rounded-full blur-[120px]" />
