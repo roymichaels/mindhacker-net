@@ -28,19 +28,23 @@ function MiniAsset({ url, categoryName, skeleton, color, skinMaterial }: {
     const result: any[] = [];
     scene.traverse((child: any) => {
       if (!child.isMesh) return;
-      const mat = child.material;
+      // Clone material to avoid mutating the cached original
+      const mat = child.material.clone();
       if (color && mat?.name?.includes('Color_')) {
         mat.color.set(color);
       }
+      if (skinColor && mat?.name?.includes('Skin_')) {
+        mat.color.set(skinColor);
+      }
       result.push({
         geometry: child.geometry,
-        material: mat.name?.includes('Skin_') && skinMaterial ? skinMaterial : mat,
+        material: mat,
         morphTargetDictionary: child.morphTargetDictionary,
         morphTargetInfluences: child.morphTargetInfluences,
       });
     });
     return result;
-  }, [scene, color, skinMaterial]);
+  }, [scene, color, skinColor]);
 
   return (
     <>
