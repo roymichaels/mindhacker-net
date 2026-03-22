@@ -135,11 +135,13 @@ export default function ProfileNFTTriad() {
     Outfit: { en: 'Full Regalia', he: 'מלבוש מלא', icon: <Shirt className="w-3 h-3" /> },
   };
 
-  // Resolve equipped items
+  // Only show wearables (not body parts like Head, Face, Eyes, Nose, Eyebrow)
+  const WEARABLE_SLOTS = ['Hair', 'Facial Hair', 'Top', 'Bottom', 'Shoes', 'Glasses', 'Hat', 'Earring', 'Bow', 'Outfit'];
+
   const equippedItems = useMemo(() => {
     if (!avatarData) return [];
     return AVATAR_CATEGORIES
-      .filter(cat => avatarData[cat.name]?.assetId)
+      .filter(cat => WEARABLE_SLOTS.includes(cat.name) && avatarData[cat.name]?.assetId)
       .map(cat => {
         const saved = avatarData[cat.name];
         const asset = cat.assets.find(a => a.id === saved?.assetId);
