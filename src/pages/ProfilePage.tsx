@@ -17,6 +17,7 @@ import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
 import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
+import ProfileHeroSection from '@/components/profile/ProfileHeroSection';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -60,7 +61,12 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* ═══════ HERO: NFT TRIAD ═══════ */}
+      {/* ═══════ HERO: Full Avatar + User Info + Stats ═══════ */}
+      <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        <ProfileHeroSection />
+      </div>
+
+      {/* ═══════ NFT TRIAD ═══════ */}
       <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
         <ProfileNFTTriad />
       </div>
