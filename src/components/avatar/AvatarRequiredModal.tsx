@@ -25,7 +25,7 @@ export const AvatarRequiredModal = () => {
 
     const check = async () => {
       const { data } = await supabase
-        .from("avatar_customizations")
+        .from("avatar_customizations" as any)
         .select("id")
         .eq("user_id", user.id)
         .maybeSingle();
