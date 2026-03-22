@@ -15,6 +15,7 @@ import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAION } from '@/identity';
+import { TTSPlayer } from './TTSPlayer';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
