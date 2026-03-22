@@ -844,6 +844,23 @@ export const routes: RouteEntry[] = [
     cleanupPriority: 'none',
   },
 
+  // ── Avatar ─────────────────────────────────────────
+  {
+    id: 'avatar',
+    name: 'Avatar Configurator',
+    route: '/avatar',
+    category: 'avatar',
+    purpose: '3D character avatar customizer (head, hair, clothes, accessories)',
+    protected: true,
+    mainComponents: ['AvatarConfiguratorPage', 'AvatarConfigurator', 'AvatarModel', 'AvatarConfiguratorUI', 'Asset', 'AssetTilePreview'],
+    keyHooks: ['useUserAvatarData'],
+    identityOwner: 'none',
+    renderType: 'none',
+    status: 'active',
+    cleanupPriority: 'none',
+    notes: 'Loads/saves avatar customization to DB. Uses Zustand store (avatarStore). GLB-based skinned meshes with Armature.',
+  },
+
   // ── Dev / Gallery ─────────────────────────────────
   {
     id: 'orb-gallery-public',
