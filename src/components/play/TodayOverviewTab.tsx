@@ -32,17 +32,6 @@ const PILLAR_VIS: Record<string, { emoji: string; color: string; bg: string; lab
 };
 const DEFAULT_PILLAR = { emoji: '🎯', color: 'text-primary', bg: 'bg-primary/15', labelHe: 'כללי', labelEn: 'General' };
 
-/* ── Directives ── */
-const DIRECTIVES_EN = [
-  'Agent — this is not a to-do list. This is your identity test for today.',
-  'No drama. No excuses. Precision execution wins this day.',
-  'Your mission: act before doubt gets a vote.',
-];
-const DIRECTIVES_HE = [
-  'סוכן — זו לא רשימת משימות. זה מבחן הזהות שלך להיום.',
-  'בלי דרמה, בלי תירוצים — ביצוע מדויק מנצח את היום.',
-  'המשימה שלך: לפעול לפני שהספק מקבל זכות דיבור.',
-];
 
 /* ── Rich per-pillar content ── */
 const FIELD_ASSESSMENT: Record<string, { en: string[]; he: string[] }> = {
@@ -208,7 +197,6 @@ export function TodayOverviewTab() {
 
   const now = new Date();
   const seed = now.getDate() + remainingCount;
-  const directive = isHe ? pick(DIRECTIVES_HE, seed) : pick(DIRECTIVES_EN, seed);
   const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
   // The "active" task is: selected task if picked, else current (first incomplete)
