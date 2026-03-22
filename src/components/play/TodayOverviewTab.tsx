@@ -13,7 +13,6 @@ import {
   Crosshair, CheckCircle2, Target, MessageCircle,
 } from 'lucide-react';
 import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
-import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 
 /* ── Pillar visuals ── */
@@ -170,8 +169,6 @@ function getPillarContent(pillarKey: string, seed: number, isHe: boolean) {
 export function TodayOverviewTab() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const aionName = useAIONDisplayName();
-
   const phasePlan = useWeeklyTacticalPlan();
   const { days, isLoading } = phasePlan as any;
   const { plan } = useLifePlanWithMilestones();
