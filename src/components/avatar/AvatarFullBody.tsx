@@ -123,10 +123,10 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
     <div className={cn('relative', className)} style={{ height }}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop="always"
+        frameloop="demand"
         camera={{
-          position: [0, 0, 5.2],
-          fov: 32,
+          position: [0, 0.5, 3.2],
+          fov: 35,
           near: 0.1,
           far: 100,
         }}
@@ -136,11 +136,9 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
         <ambientLight intensity={0.8} />
         <directionalLight position={[3, 5, 4]} intensity={1.2} />
         <directionalLight position={[-2, 3, -1]} intensity={0.4} />
-        <Bounds fit clip observe margin={1.24}>
-          <Suspense fallback={null}>
-            <FullBodyScene avatarData={avatarData} />
-          </Suspense>
-        </Bounds>
+        <Suspense fallback={null}>
+          <FullBodyScene avatarData={avatarData} />
+        </Suspense>
       </Canvas>
     </div>
   );

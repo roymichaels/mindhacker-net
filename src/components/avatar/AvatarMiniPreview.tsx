@@ -142,10 +142,10 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
     >
       <Canvas
         dpr={[1, 1.5]}
-        frameloop="always"
+        frameloop="demand"
         camera={{
-          position: [0, 0, 2.8],
-          fov: 32,
+          position: [0, 0.8, 3.5],
+          fov: 30,
           near: 0.1,
           far: 100,
         }}
@@ -155,11 +155,9 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
         <ambientLight intensity={0.7} />
         <directionalLight position={[3, 5, 4]} intensity={1.0} />
         <directionalLight position={[-2, 3, -1]} intensity={0.3} />
-        <Bounds fit clip observe margin={1.3}>
-          <Suspense fallback={null}>
-            <MiniAvatarScene avatarData={data} />
-          </Suspense>
-        </Bounds>
+        <Suspense fallback={null}>
+          <MiniAvatarScene avatarData={data} />
+        </Suspense>
       </Canvas>
     </div>
   );
