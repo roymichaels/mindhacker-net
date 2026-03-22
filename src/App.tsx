@@ -273,6 +273,9 @@ const App = () => (
                                               <Route path="/unsubscribe" element={<Unsubscribe />} />
                                               <Route path="/docs" element={<Documentation />} />
 
+                                              {/* Avatar configurator — full-screen, no AppShell */}
+                                              <Route path="/avatar" element={<ProtectedRoute><AvatarConfiguratorPage /></ProtectedRoute>} />
+
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
                                               <Route element={<ProtectedAppShell />}>
                                                 {/* Community */}
