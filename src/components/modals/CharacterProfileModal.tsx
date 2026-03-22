@@ -34,6 +34,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Sub-components reused from existing modals
 import { IdentityProfileCard, CommitmentsCard, DailyAnchorsDisplay, ConsciousnessCard, BehavioralInsightsCard, TraitsCard } from '@/components/dashboard/unified';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
+import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
 import { useTraitGallery, PILLAR_COLORS, type TraitCard } from '@/hooks/useTraitGallery';
 import { useTraitDetail } from '@/hooks/useTraitDetail';
 import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
