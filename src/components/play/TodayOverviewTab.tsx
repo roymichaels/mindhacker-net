@@ -214,22 +214,38 @@ export function TodayOverviewTab() {
             </span>
           </button>
 
-          {/* ── Today's Task Roadmap ── */}
-          {todayActions.length > 0 && (
+          {/* ── Single Container: Tasks ↔ Mission Guide ── */}
+          {todayActions.length > 0 ? (
             <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-2.5">
+              {/* Header with back button when viewing a mission */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Target className="w-3.5 h-3.5 text-cyan-400" />
                   <span className="text-xs font-black uppercase tracking-[0.12em] text-cyan-300/90">
-                    {isHe ? 'משימות היום' : "Today's Missions"}
+                    {selectedTaskIdx !== null
+                      ? (isHe ? 'מדריך שטח' : 'Field Guide')
+                      : (isHe ? 'משימות היום' : "Today's Missions")
+                    }
                   </span>
-                  <span className="text-xs text-cyan-200/40 font-bold">
-                    {completedCount}/{totalCount}
+                  {selectedTaskIdx === null && (
+                    <span className="text-xs text-cyan-200/40 font-bold">
+                      {completedCount}/{totalCount}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedTaskIdx !== null && (
+                    <button
+                      onClick={() => setSelectedTaskIdx(null)}
+                      className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
+                    >
+                      {isHe ? '← כל המשימות' : '← All Tasks'}
+                    </button>
+                  )}
+                  <span className="text-[10px] font-bold text-cyan-200/40">
+                    {isHe ? `יום ${currentDay}/100` : `Day ${currentDay}/100`}
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-cyan-200/40">
-                  {isHe ? `יום ${currentDay}/100` : `Day ${currentDay}/100`}
-                </span>
               </div>
 
               {/* Progress bar */}
@@ -242,136 +258,105 @@ export function TodayOverviewTab() {
                 />
               </div>
 
-              {/* Task tags */}
-              <div className="flex flex-wrap gap-1.5">
-                {todayActions.map((action, idx) => {
-                  const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
-                  const isSelected = activeIdx === idx;
-                  const isDone = action.completed;
-                  const label = action.title || (isHe ? pv.labelHe : pv.labelEn);
+              {selectedTaskIdx === null ? (
+                /* ── Task Tags View ── */
+                <motion.div
+                  key="tasks-view"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-wrap gap-1.5"
+                >
+                  {todayActions.map((action, idx) => {
+                    const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
+                    const isDone = action.completed;
+                    const label = action.title || (isHe ? pv.labelHe : pv.labelEn);
 
-                  return (
-                    <button
-                      key={action.id || idx}
-                      onClick={() => setSelectedTaskIdx(idx)}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold transition-all",
-                        pv.bg,
-                        isDone && "opacity-50 line-through",
-                        isSelected
-                          ? "ring-2 ring-offset-1 ring-offset-transparent ring-current shadow-sm scale-105"
-                          : "hover:brightness-125",
-                        pv.color
-                      )}
-                    >
-                      {isDone ? (
-                        <CheckCircle2 className="w-3 h-3" />
-                      ) : (
-                        <span className="text-xs">{pv.emoji}</span>
-                      )}
-                      <span>{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <button
+                        key={action.id || idx}
+                        onClick={() => setSelectedTaskIdx(idx)}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold transition-all hover:brightness-125",
+                          pv.bg, pv.color,
+                          isDone && "opacity-50 line-through"
+                        )}
+                      >
+                        {isDone ? <CheckCircle2 className="w-3 h-3" /> : <span className="text-xs">{pv.emoji}</span>}
+                        <span>{label}</span>
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              ) : activeTask ? (
+                /* ── Mission Guide View ── */
+                <motion.div
+                  key={`guide-${activeIdx}`}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-3"
+                >
+                  {/* Mission header */}
+                  <div className="flex items-center gap-2.5">
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                      activeTask.completed ? "bg-emerald-500/20" : "bg-cyan-500/15"
+                    )}>
+                      {activeTask.completed
+                        ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        : <Crosshair className="w-4 h-4 text-cyan-400" />
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                        <span className={cn(
+                          "text-[9px] font-black uppercase tracking-[0.12em] px-1.5 py-0.5 rounded",
+                          activeTask.completed ? "text-emerald-400/70 bg-emerald-500/10" : `${activePillar.color} ${activePillar.bg}`
+                        )}>
+                          {isHe ? activePillar.labelHe : activePillar.labelEn}
+                        </span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.12em] text-cyan-500/50">
+                          {isHe ? `משימה ${activeIdx + 1}` : `Mission ${activeIdx + 1}`}
+                        </span>
+                      </div>
+                      <span className={cn(
+                        "text-sm font-black leading-tight block",
+                        activeTask.completed ? "text-white/30 line-through" : "text-white/90"
+                      )}>
+                        {isHe ? activeTask.title : (activeTask.titleEn || activeTask.title)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Steps */}
+                  <div className="border-t border-white/[0.05] pt-2.5">
+                    <ol className="space-y-1.5">
+                      {guide.steps.map((step, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+                            {i + 1}
+                          </span>
+                          <span className="text-xs text-cyan-100/60 leading-relaxed">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    {guide.youtubeTip && (
+                      <div className="flex items-center gap-2 pt-1.5 mt-1.5 border-t border-white/[0.05]">
+                        <span className="text-red-400 text-xs">▶</span>
+                        <span className="text-[11px] text-cyan-100/40 italic">{guide.youtubeTip}</span>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ) : null}
             </div>
-          )}
-
-          {/* ── Selected Mission Detail ── */}
-          {activeTask ? (
-            <motion.div
-              key={activeIdx}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="flex items-start gap-3 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
-            >
-              <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
-                activeTask.completed ? "bg-emerald-500/20" : "bg-cyan-500/15"
-              )}>
-                {activeTask.completed
-                  ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  : <Crosshair className="w-4 h-4 text-cyan-400" />
-                }
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <span className={cn(
-                    "text-[9px] font-black uppercase tracking-[0.12em] px-1.5 py-0.5 rounded",
-                    activeTask.completed ? "text-emerald-400/70 bg-emerald-500/10" : `${activePillar.color} ${activePillar.bg}`
-                  )}>
-                    {isHe ? activePillar.labelHe : activePillar.labelEn}
-                  </span>
-                  <span className="text-[9px] font-black uppercase tracking-[0.12em] text-cyan-500/50">
-                    {activeTask.completed
-                      ? (isHe ? 'הושלם ✓' : 'Completed ✓')
-                      : selectedTaskIdx !== null
-                        ? (isHe ? `משימה ${activeIdx + 1}` : `Mission ${activeIdx + 1}`)
-                        : (isHe ? 'משימה נוכחית' : 'Current Mission')
-                    }
-                  </span>
-                </div>
-                <span className={cn(
-                  "text-sm font-black leading-tight block",
-                  activeTask.completed ? "text-white/30 line-through" : "text-white/90"
-                )}>
-                  {isHe ? activeTask.title : (activeTask.titleEn || activeTask.title)}
-                </span>
-                {activeTask.description && (
-                  <p className={cn("text-xs text-white/40 leading-snug mt-0.5", activeTask.completed && "line-through opacity-50")}>
-                    {isHe ? activeTask.description : (activeTask.descriptionEn || activeTask.description)}
-                  </p>
-                )}
-                {(activeTask as any).timeBlock && (
-                  <span className="text-[10px] text-cyan-300/40 mt-1 block">
-                    🕐 {(activeTask as any).timeBlock}
-                  </span>
-                )}
-              </div>
-            </motion.div>
-          ) : totalCount === 0 ? (
-            <div className="text-center py-3">
+          ) : (
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 text-center py-3">
               <span className="text-xl">🌙</span>
               <h3 className="text-sm font-black text-white mt-1">{isHe ? 'יום התאוששות' : 'Recovery Day'}</h3>
               <p className="text-xs text-cyan-200/50">{isHe ? 'מחר חוזרים חדים.' : 'Tomorrow we return sharp.'}</p>
             </div>
-          ) : (
-            <div className="text-center py-2">
-              <span className="text-xl">🏆</span>
-              <h3 className="text-sm font-black text-white mt-1">{isHe ? 'כל היעדים הושלמו!' : 'All objectives complete!'}</h3>
-            </div>
-          )}
-
-          {/* ── Step-by-Step Mission Guide ── */}
-          {activeTask && (
-            <motion.div
-              key={`guide-${activeIdx}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2.5"
-            >
-              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
-                ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
-              </span>
-              <ol className="space-y-1.5">
-                {guide.steps.map((step, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span className="text-xs text-cyan-100/60 leading-relaxed">{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {guide.youtubeTip && (
-                <div className="flex items-center gap-2 pt-1 border-t border-white/[0.05]">
-                  <span className="text-red-400 text-xs">▶</span>
-                  <span className="text-[11px] text-cyan-100/40 italic">{guide.youtubeTip}</span>
-                </div>
-              )}
-            </motion.div>
           )}
         </div>
       </div>
