@@ -137,7 +137,7 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
 
   return (
     <div
-      className={cn('rounded-full overflow-hidden', className)}
+      className={cn(className)}
       style={{ width: size, height: size }}
     >
       <Canvas
