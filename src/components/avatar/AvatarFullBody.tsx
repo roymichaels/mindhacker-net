@@ -125,8 +125,8 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{
-          position: [0, 0.5, 3.2],
-          fov: 35,
+          position: [0, 0.4, 3.8],
+          fov: 34,
           near: 0.1,
           far: 100,
         }}
