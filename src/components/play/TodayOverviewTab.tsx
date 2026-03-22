@@ -134,30 +134,6 @@ function getMissionGuide(pillarKey: string, isHe: boolean): MissionGuide {
   return guides[pillarKey] || (isHe ? DEFAULT_GUIDE_HE : DEFAULT_GUIDE_EN);
 }
 
-function pick<T>(arr: T[], seed: number) {
-  return arr[Math.abs(seed) % arr.length];
-}
-
-/** Get content for a specific pillar key */
-function getPillarContent(pillarKey: string, seed: number, isHe: boolean) {
-  const assessmentPool = FIELD_ASSESSMENT[pillarKey];
-  const assessment = isHe
-    ? pick(assessmentPool?.he || DEFAULT_ASSESSMENT_HE, seed)
-    : pick(assessmentPool?.en || DEFAULT_ASSESSMENT_EN, seed);
-
-  const doctrinePool = DOCTRINE[pillarKey];
-  const doctrine = isHe
-    ? pick(doctrinePool?.he || DEFAULT_DOCTRINE_HE, seed)
-    : pick(doctrinePool?.en || DEFAULT_DOCTRINE_EN, seed);
-
-  const intelPool = INTEL_NOTES[pillarKey];
-  const intel = isHe
-    ? pick(intelPool?.he || DEFAULT_INTEL_HE, seed + 1)
-    : pick(intelPool?.en || DEFAULT_INTEL_EN, seed + 1);
-
-  return { assessment, doctrine, intel };
-}
-
 export function TodayOverviewTab() {
   const { language } = useTranslation();
   const isHe = language === 'he';
@@ -181,12 +157,7 @@ export function TodayOverviewTab() {
   const remainingCount = todayActions.filter((a) => !a.completed).length;
   const totalCount = todayActions.length;
   const completedCount = totalCount - remainingCount;
-  const currentAction = todayActions.find((a) => !a.completed) || null;
   const currentActionIdx = todayActions.findIndex((a) => !a.completed);
-
-  const now = new Date();
-  const seed = now.getDate() + remainingCount;
-  const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
   // The "active" task is: selected task if picked, else current (first incomplete)
   const activeIdx = selectedTaskIdx ?? currentActionIdx;
@@ -194,12 +165,8 @@ export function TodayOverviewTab() {
   const activePillarKey = activeTask?.focusArea || '';
   const activePillar = PILLAR_VIS[activePillarKey] || DEFAULT_PILLAR;
 
-  // Dynamic content based on the ACTIVE task's pillar — use task index as extra seed for variety
-  const taskSeed = seed + (activeIdx >= 0 ? activeIdx : 0);
-  const { assessment, doctrine, intel } = useMemo(
-    () => getPillarContent(activePillarKey, taskSeed, isHe),
-    [activePillarKey, taskSeed, isHe],
-  );
+  // Get step-by-step guide for the active task's pillar
+  const guide = useMemo(() => getMissionGuide(activePillarKey, isHe), [activePillarKey, isHe]);
 
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
