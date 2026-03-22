@@ -12,7 +12,7 @@ import { flowAudit } from "@/lib/flowAudit";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
 
 // Above-fold (eager)
-import { GameHeroSection, ProblemSection } from "@/components/home";
+import { GameHeroSection, ProblemSection, ShiftSection } from "@/components/home";
 
 // Below-fold (lazy)
 const CityShowcaseSection = lazy(() => import("@/components/home/CityShowcaseSection"));
@@ -91,29 +91,36 @@ const Index = () => {
         <Header />
         <WelcomeGateProvider>
           <main className="relative">
-            {/* 1. Hero — Introduction */}
+            {/* 1. Hook — The game has begun */}
             <GameHeroSection />
-            {/* 2. The Problem — Why this exists */}
+            {/* 2. Problem — Life is fragmented */}
             <ProblemSection />
+            {/* 3. Shift — What if life was a game? */}
+            <ShiftSection />
             {/* Below-fold: lazy-loaded for faster initial paint */}
             <Suspense fallback={<div className="min-h-[200px]" />}>
+              {/* 4. System — Identity Stack: DNA→AION→Orb→Avatar */}
               <CityShowcaseSection />
               <InlineCTA variant="default" />
+              {/* 5. Visual Identity — Orb evolution */}
               <OrbCollectionSection />
+              {/* 6. AION — Your future self AI */}
               <AuroraCoachSection />
               <InlineCTA variant="subtle" />
-              <HypnosisSection />
-              <PlanCinematicSection />
-              <InlineCTA variant="bold" />
+              {/* 7. Traits & Skills */}
               <TraitShowcaseSection />
+              {/* 8. Game Loop — XP, Streaks, Quests */}
               <GamificationSection />
-              <InlineCTA variant="subtle" />
+              <InlineCTA variant="bold" />
+              {/* 9. 100-Day Plan */}
+              <PlanCinematicSection />
+              {/* 10. Economy — MOS, Proof of Growth */}
               <Play2EarnSection />
               <FreeMarketSection />
+              <InlineCTA variant="subtle" />
+              {/* 11. Community & Guild */}
               <GuildSection />
-              <InlineCTA variant="default" />
-              <CoachOSSection />
-              <PricingPreviewSection />
+              {/* 12. Roadmap & CTA */}
               <RoadmapSection />
               <FinalCTASection />
             </Suspense>
