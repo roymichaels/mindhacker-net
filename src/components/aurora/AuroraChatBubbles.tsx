@@ -185,7 +185,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
 
         {messages.map((message) => {
           const isAI = message.is_ai_message;
-          const isPlayingThis = isPlaying && activeMessageId === message.id;
           
           return (
             <motion.div
@@ -248,19 +247,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                     >
                       <Copy className="h-3 w-3 text-muted-foreground" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => handleVoice(message.id, message.content)}
-                      title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
-                    >
-                      {isPlayingThis ? (
-                        <Square className="h-2.5 w-2.5 text-muted-foreground fill-current" />
-                      ) : (
-                        <Volume2 className="h-3 w-3 text-muted-foreground" />
-                      )}
-                    </Button>
+                    <TTSPlayer messageId={message.id} content={message.content} compact className="h-6 w-6" />
                   </div>
                 )}
               </div>
