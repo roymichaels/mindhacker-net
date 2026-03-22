@@ -26,7 +26,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   const { language, isRTL, t } = useTranslation();
   const { aion } = useAION();
   const aiDisplayName = aion.name;
-  const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const { 
     activeConversationId, 
     isChatExpanded, 
