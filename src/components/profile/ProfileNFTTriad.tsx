@@ -203,7 +203,7 @@ export default function ProfileNFTTriad() {
         open={activeCard === 'orb'}
         onClose={() => setActiveCard(null)}
         type="orb"
-        title={isHe ? 'אורב AION' : 'AION Orb'}
+        title="AION"
         subtitle={isHe ? 'הגוף הויזואלי שלך' : 'Your Visual Body'}
         rarity={rarityLabel}
         rarityColor={rarity.color}
