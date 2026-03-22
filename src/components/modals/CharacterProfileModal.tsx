@@ -517,8 +517,6 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </EmpireCard>
       )}
 
-      {/* ── NFT TRIAD: Orb | Avatar | DNA ── */}
-      <ProfileNFTTriad />
 
       {/* ── KINGDOM: Life Direction ── */}
       {lifeDirection && (
