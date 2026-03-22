@@ -123,7 +123,7 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
               )}
 
               <div className="flex-1 overflow-y-auto noscrollbar px-2 pb-3">
-                <div className="grid grid-cols-2 gap-1.5 pt-1">
+                <div className="grid grid-cols-1 gap-1.5 pt-1">
                   {currentCategory.removable && (
                     <button
                       onClick={() => changeAsset(currentCategory.name, null)}

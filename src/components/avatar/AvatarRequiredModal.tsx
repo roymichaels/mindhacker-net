@@ -74,9 +74,9 @@ export const AvatarRequiredModal = () => {
       {isAdmin && (
         <button
           onClick={handleDismiss}
-          className="absolute top-4 left-4 z-[10000] bg-muted hover:bg-muted/80 text-muted-foreground px-4 py-2 rounded-2xl pointer-events-auto flex items-center gap-2 text-sm border border-border transition-colors"
+          className="absolute bottom-6 left-4 z-[10000] bg-card/80 hover:bg-card text-muted-foreground px-3 py-1.5 rounded-2xl pointer-events-auto flex items-center gap-1.5 text-xs border border-border transition-colors backdrop-blur-md"
         >
-          <ShieldCheck className="w-4 h-4" />
+          <ShieldCheck className="w-3.5 h-3.5" />
           דלג (מנהל)
         </button>
       )}
