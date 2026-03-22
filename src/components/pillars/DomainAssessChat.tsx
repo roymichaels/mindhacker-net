@@ -138,6 +138,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   let msgCounter = useRef(0);
   const startedRef = useRef(false);
+  const autoContinueAttempts = useRef(0);
   const messagesRef = useRef<ChatMessage[]>(messages);
   messagesRef.current = messages;
 
