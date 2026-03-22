@@ -123,10 +123,7 @@ const AuroraAccountDropdown = ({
             )}>
               <div className="absolute inset-[-30%] rounded-full bg-primary/20 blur-md pointer-events-none" />
               <div className="relative z-10">
-                <PersonalizedOrb 
-                  size={isCollapsed ? 38 : 44}
-                  state="idle"
-                />
+                <AvatarMiniPreview size={isCollapsed ? 38 : 44} />
               </div>
             </div>
             
