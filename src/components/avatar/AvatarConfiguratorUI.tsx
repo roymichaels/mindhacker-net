@@ -1,13 +1,13 @@
 /**
  * AvatarConfiguratorUI — Sidebar with 3 vertical columns:
  * Column 1: Category list (narrow)
- * Column 2: Asset grid for selected category
- * Column 3: Color palette for selected category
+ * Column 2: Asset grid + color palette for selected category
  */
 
 import { useState } from "react";
 import { useConfiguratorStore } from "./avatarStore";
 import { ChevronLeft, ChevronRight, Shuffle, Save, X } from "lucide-react";
+import { AssetTilePreview } from "./AssetTilePreview";
 
 interface AvatarConfiguratorUIProps {
   onSave?: () => void;
@@ -78,7 +78,7 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
         )}
       </div>
 
-      {/* Sidebar: 3 vertical columns */}
+      {/* Sidebar */}
       <div
         className={`pointer-events-auto absolute right-0 top-0 bottom-0 z-10 flex transition-transform duration-300 ${
           collapsed ? "translate-x-[calc(100%-36px)]" : "translate-x-0"
@@ -109,8 +109,8 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
           ))}
         </div>
 
-        {/* Column 2: Assets + Colors combined */}
-        <div className="w-52 h-full bg-card/80 backdrop-blur-xl border-r border-border flex flex-col overflow-hidden">
+        {/* Column 2: Assets + Colors */}
+        <div className="w-56 h-full bg-card/80 backdrop-blur-xl border-r border-border flex flex-col overflow-hidden">
           {currentCategory && (
             <>
               <div className="px-3 pt-3 pb-1 shrink-0">
@@ -128,10 +128,11 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
                 </p>
               )}
 
-              {/* Color palette inline */}
               {hasColors && (
                 <div className="px-3 pb-2 shrink-0">
-                  <p className="text-muted-foreground text-[9px] uppercase tracking-wider font-semibold mb-1.5">צבע</p>
+                  <p className="text-muted-foreground text-[9px] uppercase tracking-wider font-semibold mb-1.5">
+                    צבע
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {currentCategory.colorPalette!.map((color, i) => (
                       <button
@@ -151,34 +152,44 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
               )}
 
               <div className="flex-1 overflow-y-auto noscrollbar px-2 pb-3">
-                <div className="flex flex-col gap-1 pt-1">
+                <div className="grid grid-cols-2 gap-1.5 pt-1">
                   {currentCategory.removable && (
                     <button
                       onClick={() => changeAsset(currentCategory.name, null)}
-                      className={`flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200 border ${
+                      className={`flex flex-col items-center gap-1 rounded-xl overflow-hidden transition-all border-2 duration-200 p-1.5 ${
                         !customization[currentCategory.name]?.asset
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-transparent bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                          ? "border-primary bg-primary/10"
+                          : "bg-muted border-transparent hover:border-primary/30"
                       }`}
                     >
-                      <X className="w-3.5 h-3.5 shrink-0" />
-                      <span className="text-xs font-medium">ללא</span>
+                      <div className="w-full aspect-square flex items-center justify-center text-muted-foreground bg-card/70 rounded-lg">
+                        <X className="w-4 h-4" />
+                      </div>
+                      <span className="text-[9px] text-muted-foreground truncate w-full text-center">ללא</span>
                     </button>
                   )}
-                  {currentCategory.assets.map((asset, index) => (
+
+                  {currentCategory.assets.map((asset) => (
                     <button
                       key={asset.id}
                       onClick={() => changeAsset(currentCategory.name, asset)}
-                      className={`flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200 border ${
+                      className={`flex flex-col items-center gap-1 rounded-xl overflow-hidden transition-all border-2 duration-200 p-1.5 ${
                         customization[currentCategory.name]?.asset?.id === asset.id
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-transparent bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                          ? "border-primary bg-primary/10"
+                          : "bg-muted border-transparent hover:border-primary/30"
                       }`}
                     >
-                      <span className="w-5 h-5 rounded-md bg-card flex items-center justify-center text-[10px] font-bold shrink-0">
-                        {index + 1}
+                      <div className="w-full aspect-square overflow-hidden rounded-lg bg-card/70">
+                        <AssetTilePreview
+                          assetUrl={asset.url}
+                          category={currentCategory}
+                          assetColor={customization[currentCategory.name]?.color}
+                          skinColor={customization.Head?.color}
+                        />
+                      </div>
+                      <span className="text-[9px] text-muted-foreground truncate w-full text-center">
+                        {asset.name}
                       </span>
-                      <span className="text-xs font-medium truncate">{asset.name}</span>
                     </button>
                   ))}
                 </div>
