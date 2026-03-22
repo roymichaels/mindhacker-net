@@ -36,6 +36,7 @@ export default function AuroraPage() {
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
 
   return (
+    <AIONNamingGate>
     <div className="fixed inset-0 top-14 z-40 flex flex-col bg-background overflow-hidden">
       {/* Context badges */}
       {(pillarLabel || (isAssessing && assessLabel)) && (
