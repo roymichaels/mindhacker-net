@@ -14,7 +14,7 @@ import { useSoulWallet } from '@/hooks/useSoulWallet';
 import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
 import { getOrbRarity, levelsToNextRarity } from '@/lib/orbRarity';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { Star, Flame, Zap, Shield, Sparkles, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -107,7 +107,7 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
             className="absolute -inset-1.5 rounded-full border"
             style={{ borderColor: `hsl(${rarity.color} / 0.25)` }}
           />
-          <PersonalizedOrb size={compact ? 80 : 120} state="idle" />
+          <AvatarMiniPreview size={compact ? 80 : 120} />
         </button>
 
         {/* Identity */}

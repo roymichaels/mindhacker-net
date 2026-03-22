@@ -17,7 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -123,10 +123,7 @@ const AuroraAccountDropdown = ({
             )}>
               <div className="absolute inset-[-30%] rounded-full bg-primary/20 blur-md pointer-events-none" />
               <div className="relative z-10">
-                <PersonalizedOrb 
-                  size={isCollapsed ? 38 : 44}
-                  state="idle"
-                />
+                <AvatarMiniPreview size={isCollapsed ? 38 : 44} />
               </div>
             </div>
             
@@ -167,7 +164,7 @@ const AuroraAccountDropdown = ({
                 <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
                   <div className="absolute inset-[-25%] rounded-full bg-primary/15 blur-md pointer-events-none" />
                   <div className="relative z-10">
-                    <PersonalizedOrb size={80} state="idle" />
+                    <AvatarMiniPreview size={80} />
                   </div>
                 </div>
               </div>

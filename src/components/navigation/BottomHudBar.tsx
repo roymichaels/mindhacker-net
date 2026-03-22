@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress } from '@/hooks/useGameState';
-import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -28,7 +28,7 @@ export function BottomHudBar() {
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
   const { movementScore } = useTodayExecution();
-  const { profile: userOrbProfile } = useOrbProfile();
+  
   const { openProfile } = useProfileModal();
   const { displayName: aionName } = useAIONDisplayName();
 
@@ -89,12 +89,7 @@ export function BottomHudBar() {
             className="flex-shrink-0 rounded-full transition-shadow duration-700"
             style={{ width: 44, height: 44, ...orbGlowStyle }}
           >
-            <StandaloneMorphOrb
-              size={44}
-              profile={userOrbProfile}
-              geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
-              level={xp.level}
-            />
+            <AvatarMiniPreview size={44} />
           </div>
           {identityTitle && (
             <div className="min-w-0 flex flex-col">

@@ -16,8 +16,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
+import { useUserAvatarData } from '@/hooks/useUserAvatarData';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { useUserRoles } from '@/hooks/useUserRoles';
@@ -126,12 +126,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {user ? (
               <>
                 <div className={cn(compact ? "w-7 h-7" : "w-9 h-9", "rounded-full overflow-hidden shrink-0")}>
-                  <StandaloneMorphOrb
-                    size={compact ? 28 : 36}
-                    profile={userOrbProfile}
-                    geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
-                    level={xp.level}
-                  />
+                  <AvatarMiniPreview size={compact ? 28 : 36} />
                 </div>
                 <div className="flex flex-col items-start leading-tight">
                   <span className={cn(
@@ -188,12 +183,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                 onClick={(e) => {
                   e.stopPropagation();
                   setDropdownOpen(false);
-                  setOrbViewerOpen(true);
+                  openProfile();
                 }}
               >
                 <div className="absolute inset-[-30%] rounded-full bg-amber-500/10 blur-lg pointer-events-none" />
                 <div className="relative z-10">
-                  <PersonalizedOrb size={80} state="idle" />
+                  <AvatarMiniPreview size={80} />
                 </div>
               </div>
 
