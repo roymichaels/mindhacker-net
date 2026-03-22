@@ -126,12 +126,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             {user ? (
               <>
                 <div className={cn(compact ? "w-7 h-7" : "w-9 h-9", "rounded-full overflow-hidden shrink-0")}>
-                  <StandaloneMorphOrb
-                    size={compact ? 28 : 36}
-                    profile={userOrbProfile}
-                    geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
-                    level={xp.level}
-                  />
+                  <AvatarMiniPreview size={compact ? 28 : 36} />
                 </div>
                 <div className="flex flex-col items-start leading-tight">
                   <span className={cn(
