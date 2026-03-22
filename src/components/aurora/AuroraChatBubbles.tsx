@@ -61,14 +61,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
     toast.success(t('messages.copied'));
   };
 
-  const handleVoice = (messageId: string, content: string) => {
-    if (isPlaying && activeMessageId === messageId) {
-      stopPlayback();
-    } else {
-      playMessage(messageId, content);
-    }
-  };
-
   // Register send message function for global access
   useEffect(() => {
     registerSendMessage(async (message: string, imageBase64?: string) => {
