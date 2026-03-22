@@ -202,7 +202,6 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
           </div>
         </div>
         <div className="md:px-10 flex flex-col">
-          <PosesBox />
           {currentCategory?.colorPalette && <ColorPicker />}
           <AssetsBox />
         </div>
