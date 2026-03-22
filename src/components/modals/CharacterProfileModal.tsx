@@ -4,6 +4,8 @@
  * with a single inspect panel: Header → Stat Wheel → 4 internal tabs.
  */
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { PlayStatsStrip } from '@/components/play/PlayStatsStrip';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import DNAViewer from '@/components/dna/DNAViewer';
