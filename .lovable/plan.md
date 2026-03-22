@@ -1,132 +1,92 @@
 
 
-# Whitepaper & Codebase Audit — "14 → 15 Pillars" + Content Sync + Directory Cleanup
+## Avatar Configurator Integration Plan
 
-## Part 1: What's Wrong — Audit Findings
+### What we have
+All source files are now available:
+- **Store** (`store.js`): Zustand store with PocketBase for asset fetching, poses, customization, randomize, locked groups
+- **UI** (`UI.jsx`): Poses bar, asset selector with thumbnails, color picker, randomize/screenshot/download buttons, "Customize avatar" / "Photo booth" tabs
+- **Experience** (`Experience.jsx`): 3D scene with lights, shadows, environment, avatar wrapper with spring animations
+- **Avatar** (`Avatar.jsx`): Armature + skinned mesh rendering with GLB export
+- **Asset** (`Asset.jsx`): Individual skinned mesh with color/skin material support
+- **CameraManager** (`CameraManager.jsx`): Camera controls with category-based placement
+- **LoadingAvatar** (`LoadingAvatar.jsx`): Orange cylinder loading animation
+- **App** (`App.jsx`): Canvas + postprocessing + UI overlay
 
-### A. Pillar Count Mismatch (14 → 15)
+GLB models uploaded: `Armature.glb`, `Poses.glb`, `Teleporter Base.glb`, plus asset GLBs (`Bottom.001.glb`, etc.)
 
-The source of truth `CORE_DOMAINS` in `src/navigation/lifeDomains.ts` has **15 pillars**:
-1. Consciousness, 2. Image, 3. Power, 4. Vitality, 5. Focus, 6. Combat, 7. Expansion, 8. Wealth, 9. Influence, 10. Relationships, 11. Business, 12. Projects, 13. Play, 14. Order, 15. Romantics
+### Key challenges
+1. **PocketBase → local data**: The store fetches categories/assets from PocketBase. We need to replace this with a local static config + storage bucket for asset GLBs and thumbnails
+2. **Missing dependencies**: `@react-spring/three@9.6.1`, `leva` (used only for debug, will remove)
+3. **GLB export dependencies** (`@gltf-transform/*`, `three-stdlib`): Only needed for download — will skip for now
+4. **Asset thumbnails**: Source uses `pb.files.getUrl()` — need to serve from storage bucket or public folder
+5. **You said you'll send assets 10 at a time** — we need all the category GLBs and their thumbnails to populate the configurator
 
-But **"14"** is hardcoded in dozens of places:
+### Plan
 
-| File | What says "14" |
-|------|---------------|
-| `Documentation.tsx` | Section 3 (methodology), 4.1 (Play), 5.0 (Aurora), subscription model, conclusion — all say "14 עמודי חיים" / "14 life pillars" |
-| `VisualWhitepaper.tsx` | Hero slide (StatCard value=14), methodology slide, subscription slide ("All 14 pillars") |
-| `i18n/translations/en.ts` | `twoWorlds` section: "14 Life Domains", "14 pillars", "The 14 Pillars" |
-| `usePillarAccess.ts` | Comment: "Apex: all 14 pillars" |
-| `data/featureShowcaseData.ts` | "14 domains" with wrong split "7 Core + 7 Arena" |
-| `PricingPreviewSection.tsx` | "All 14 pillars unlocked" |
-| `CommunityHeader.tsx` | "14 pillars. One civilization." |
-| `CommunityPulse.tsx` | "14 pillars. One civilization." |
-| `ArenaHudSidebar.tsx` | "All 14 pillars in action" |
-| `OnboardingPillarSelection.tsx` | Comment: "all 14 pillars" |
-| `DailyMilestones.tsx` | Comment: "ALL 14 pillars" |
+#### 1. Wait for all asset uploads
+You mentioned sending assets 10 at a time. I need:
+- All category asset GLBs (like `Bottom.001.glb`, `Bottom.002.glb`, etc. for each category: Head, Hair, Face, Eyes, etc.)
+- Thumbnail images for each asset (the small preview images shown in the selector grid)
 
-**Already correct (says 15):** `subscriptionTiers.ts` Apex tier, `pillarColors.ts` comment.
+#### 2. Copy GLB models to `public/models/`
+- `Armature.glb`, `Poses.glb`, `Teleporter Base.glb` → `public/models/`
+- All category asset GLBs → `public/models/assets/` (organized by category or flat)
+- All thumbnails → `public/models/thumbnails/`
 
-### B. Pillar Split Description is Wrong
+#### 3. Install missing dependency
+- `@react-spring/three@9.6.1`
+- Skip `leva` (remove debug controls from CameraManager)
+- Skip `@gltf-transform/*` and `three-stdlib` (remove download/export feature)
 
-The whitepaper (section 4.1) says: "6 Life pillars + 6 Arena pillars + Consciousness and Craft"
-
-**Actual current split:** All 15 are unified under Core. There is no "Craft" pillar. The 15th pillar is "Romantics". The whitepaper description of the split is completely outdated.
-
-### C. PILLAR_QUESTS Registry is Stale
-
-`src/flows/pillarSpecs/index.ts` has 14 entries with **old IDs** that don't match `CORE_DOMAINS`:
-- Has `health`, `mind`, `relationships`, `career`, `money`, `creativity`, `social`, `spirituality` — these IDs don't exist in `CORE_DOMAINS`
-- Missing: `power`, `vitality`, `focus`, `expansion`, `wealth`, `influence`, `business`, `projects`, `romantics`
-
-### D. Whitepaper Content Gaps
-
-Beyond the pillar count, the whitepaper text still references outdated architecture:
-- Says "6 Life + 6 Arena + Consciousness and Craft" — should be "15 unified pillars"
-- Subscription section says Command gets "all 14" — should be "all 15"
-- No mention of the 15th pillar (Romantics) anywhere in whitepaper
-- The `featureShowcaseData.ts` says "7 Core + 7 Arena" which is also wrong
-
----
-
-## Part 2: The Fix Plan
-
-### Task 1: Update all "14" references to "15"
-
-**Files to edit** (all instances of "14 pillars" / "14 עמודי חיים" / "14 Life Domains" → "15"):
-
-1. `src/pages/Documentation.tsx` — ~12 occurrences across sections 3, 4.1, 5.0, 5.1, 11, 18 (conclusion)
-2. `src/components/docs/VisualWhitepaper.tsx` — Hero StatCard, methodology slide, subscription slide
-3. `src/i18n/translations/en.ts` — twoWorlds section (3 strings)
-4. `src/i18n/translations/he.ts` — corresponding Hebrew strings
-5. `src/hooks/usePillarAccess.ts` — comment only
-6. `src/data/featureShowcaseData.ts` — description text
-7. `src/components/home/PricingPreviewSection.tsx` — Apex features
-8. `src/components/community/CommunityHeader.tsx` — subtitle
-9. `src/components/community/CommunityPulse.tsx` — subtitle
-10. `src/components/arena/ArenaHudSidebar.tsx` — label
-11. `src/components/onboarding/OnboardingPillarSelection.tsx` — comment
-12. `src/components/hubs/DailyMilestones.tsx` — comment
-
-### Task 2: Fix pillar split description in whitepaper
-
-Update section 4.1 in `Documentation.tsx` and slide 3-4 in `VisualWhitepaper.tsx`:
-- Remove "6 Life + 6 Arena + Consciousness and Craft"
-- Replace with accurate: "15 unified life pillars: Consciousness, Image, Power, Vitality, Focus, Combat, Expansion, Wealth, Influence, Relationships, Business, Projects, Play, Order, and Romantics"
-- Add Romantics pillar description where pillars are listed
-
-### Task 3: Update featureShowcaseData.ts
-
-Fix the "7 Core + 7 Arena" description to reflect unified 15-pillar model with Romantics included.
-
-### Task 4: Sync PILLAR_QUESTS with CORE_DOMAINS (deferred — separate task)
-
-The `PILLAR_QUESTS` array uses completely different IDs than `CORE_DOMAINS`. This is a larger refactor touching quest specs, flow registration, and database paths. Flag for a dedicated follow-up, not part of this whitepaper update.
-
----
-
-## Part 3: Directory Organization — Project Architecture Diagram
-
-### Task 5: Generate a Mermaid architecture diagram
-
-Create a comprehensive `.mmd` file at `/mnt/documents/` that maps the full project structure:
-
+#### 4. Create static asset configuration
+Replace PocketBase with a hardcoded config file `src/components/avatar/avatarAssets.ts`:
 ```text
-MindOS App
-├── 5 Core Experiences (Hubs)
-│   ├── Play (PlayHub) — Strategy + Tactics + Execution
-│   ├── Aurora (AuroraPage) — AI Chat + Journal + Voice
-│   ├── FreeMarket (FMAppShell) — Marketplace + Earn + Wallet
-│   ├── Community — Feed + Stories + Events
-│   └── Learn (Courses) — Adaptive Learning + Journeys
-├── 15 Life Pillars (unified under Core)
-│   └── Assessment → Strategy → Tactics → Execution pipeline
-├── 5 Career Paths (CareerHub)
-│   └── Business, Coach, Therapist, Creator, Freelancer
-├── Supporting Systems
-│   ├── Gamification (XP, Levels, Streaks, Badges)
-│   ├── Hypnosis & Meditation
-│   ├── Soul Avatar NFT + Web3
-│   ├── MOS Economy + Tokenomics
-│   └── Subscription (Awakening/Optimization/Command)
-└── Infrastructure
-    ├── Auth (Web3Auth + backend sessions)
-    ├── Edge Functions
-    └── Database (RLS-protected)
+categories = [
+  { name: "Head", removable: false, startingAsset: "...", colorPalette: [...], assets: [...] },
+  { name: "Hair", removable: true, assets: [...] },
+  ...
+]
+```
+Each asset entry: `{ id, name, url (GLB path), thumbnail (image path), lockedGroups }`
+
+#### 5. Port components (exact copies, minimal changes)
+- `src/components/avatar/store.ts` — Zustand store, replace PocketBase fetch with static data import
+- `src/components/avatar/Asset.tsx` — exact copy
+- `src/components/avatar/AvatarModel.tsx` — from Avatar.jsx, remove GLB export logic
+- `src/components/avatar/CameraManager.tsx` — remove leva debug, keep camera logic
+- `src/components/avatar/LoadingAvatar.tsx` — exact copy
+- `src/components/avatar/Experience.tsx` — exact copy
+- `src/components/avatar/AvatarConfiguratorUI.tsx` — from UI.jsx, remove Photo Booth tab/mode, remove screenshot/download buttons, remove wawasensei branding
+- `src/components/avatar/AvatarConfigurator.tsx` — from App.jsx, Canvas + postprocessing + UI
+
+#### 6. Create `/avatar` route
+- `src/pages/AvatarConfigurator.tsx` — renders the full configurator
+- Add route in `App.tsx` inside protected routes
+
+#### 7. Database: avatar_customizations table
+```sql
+CREATE TABLE public.avatar_customizations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  customization_data jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+-- RLS: users manage own row only
 ```
 
-The diagram will map actual component files and pages to their functional areas, making the codebase navigable.
+#### 8. Mandatory avatar modal
+- `src/components/avatar/AvatarRequiredModal.tsx` — full-screen Dialog that cannot be closed
+- On mount: query `avatar_customizations` for current user
+- If no row exists → show modal with the full configurator embedded
+- Admin users (checked via `has_role`) can dismiss
+- "Save Avatar" button saves to DB and closes modal
+- Mount in `App.tsx` for all authenticated users
 
----
+#### 9. Add CSS for noscrollbar
+Add `.noscrollbar` utility class to existing styles.
 
-## Summary of Changes
-
-| # | Task | Files | Scope |
-|---|------|-------|-------|
-| 1 | "14" → "15" everywhere | ~12 files | Text updates |
-| 2 | Fix pillar split description | 2 files | Content rewrite |
-| 3 | Fix featureShowcaseData | 1 file | Text update |
-| 4 | Architecture diagram | 1 new `.mmd` file | Documentation |
-
-Total: ~15 file edits + 1 new diagram file. No structural/behavioral changes — purely content accuracy and documentation.
+### What I need from you next
+**Send all the remaining asset GLBs and their thumbnail images** (the small preview pics shown in the category selector). Once I have those + know the full category structure (which assets belong to which category, colors, starting defaults), I'll implement everything.
 
