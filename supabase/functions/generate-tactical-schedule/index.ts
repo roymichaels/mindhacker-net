@@ -239,7 +239,13 @@ ${adjustmentContext}
               "difficulty": 1,
               "xp_reward": 5,
               "execution_template": "tts_guided",
-              "order_index": 0
+              "order_index": 0,
+              "mission_guide": {
+                "steps": ["Find a quiet spot and sit upright", "Set a 5-min timer", "Inhale 4s, hold 4s, exhale 6s", "Repeat for full duration", "Note your energy shift"],
+                "steps_he": ["מצא מקום שקט ושב ישר", "הגדר טיימר ל-5 דקות", "שאף 4 שניות, החזק 4, נשוף 6", "חזור על כך למשך כל הזמן", "שים לב לשינוי באנרגיה"],
+                "youtube_tip": "Search: box breathing tutorial",
+                "youtube_tip_he": "חפש: תרגול נשימת קופסה"
+              }
             },
             {
               "milestone_id": null,
@@ -251,7 +257,13 @@ ${adjustmentContext}
               "difficulty": 2,
               "xp_reward": 10,
               "execution_template": "timer_focus",
-              "order_index": 1
+              "order_index": 1,
+              "mission_guide": {
+                "steps": ["Stand with feet shoulder-width apart", "Begin with 2-min slow arm circles", "Follow along with form movements", "Focus on breath synchronization", "End with 1-min stillness"],
+                "steps_he": ["עמוד עם רגליים ברוחב הכתפיים", "התחל עם 2 דקות סיבובי ידיים", "עקוב אחרי תנועות הטופס", "התמקד בסנכרון הנשימה", "סיים עם דקת שקט"],
+                "youtube_tip": "Search: tai chi for beginners 10 min",
+                "youtube_tip_he": "חפש: טאי צ'י למתחילים"
+              }
             }
           ],
           "total_minutes": 35,
