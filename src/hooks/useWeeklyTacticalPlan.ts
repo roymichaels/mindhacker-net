@@ -417,71 +417,73 @@ function buildFallbackDays(
   phaseNumber: number,
 ): DayPlan[] {
   const phaseStartDay = (phaseNumber - 1) * 10 + 1;
-  const dayLoad = new Array(10).fill(0);
-  // Store actions grouped by day AND category
-  const dayActionsByCategory: Record<string, TacticalAction[]>[] = Array.from({ length: 10 }, () => ({}));
 
-  for (const mm of milestones) {
-    if (mm.is_completed) continue;
-    let bestDay = 0;
-    for (let d = 1; d < 10; d++) {
-      if (dayLoad[d] < dayLoad[bestDay]) bestDay = d;
-    }
-    dayLoad[bestDay] += 15;
-    const absDay = phaseStartDay + bestDay;
-    const category = focusAreaToCategory(mm.focus_area);
+  // Find today's index, default to 0
+  const todayIdx = Math.max(0, phaseDates.indexOf(todayStr));
 
-    if (!dayActionsByCategory[bestDay][category]) {
-      dayActionsByCategory[bestDay][category] = [];
-    }
-
-    dayActionsByCategory[bestDay][category].push({
-      id: `${mm.id}-d${bestDay}`,
-      title: mm.title || '',
-      titleEn: mm.title_en || mm.title || '',
-      description: mm.description || null,
-      descriptionEn: mm.description_en || null,
-      sourceMilestoneId: mm.id,
-      executionTemplate: 'step_by_step',
-      actionType: mm.focus_area || null,
-      estimatedMinutes: 15,
-      cadence: 'daily',
-      completed: false,
-      completedAt: null,
-      xpReward: 10,
-      blockCategory: category,
-      difficulty: (mm.difficulty || 3) as Difficulty,
-      scheduledDay: absDay,
-      calendarDate: phaseDates[bestDay] || '',
-      focusArea: mm.focus_area || null,
-      missionId: mm.mission_id || null,
-      startTime: null,
-      endTime: null,
-      orderIndex: 0,
+  // Build actions from ALL milestones (not distributed — show everything on each day)
+  const allActions: TacticalAction[] = milestones
+    .filter(mm => !mm.is_completed)
+    .map((mm, mIdx) => {
+      const category = focusAreaToCategory(mm.focus_area);
+      return {
+        id: `${mm.id}-fallback`,
+        title: mm.title || '',
+        titleEn: mm.title_en || mm.title || '',
+        description: mm.description || null,
+        descriptionEn: mm.description_en || null,
+        sourceMilestoneId: mm.id,
+        executionTemplate: 'step_by_step',
+        actionType: mm.focus_area || null,
+        estimatedMinutes: 15,
+        cadence: 'daily' as Cadence,
+        completed: false,
+        completedAt: null,
+        xpReward: 10,
+        blockCategory: category,
+        difficulty: (mm.difficulty || 3) as Difficulty,
+        scheduledDay: phaseStartDay + todayIdx,
+        calendarDate: todayStr,
+        focusArea: mm.focus_area || null,
+        missionId: mm.mission_id || null,
+        startTime: null,
+        endTime: null,
+        orderIndex: mIdx,
+      };
     });
+
+  // Group by category for today
+  const catGroups: Record<string, TacticalAction[]> = {};
+  for (const a of allActions) {
+    const cat = a.blockCategory;
+    if (!catGroups[cat]) catGroups[cat] = [];
+    catGroups[cat].push(a);
   }
 
-  return phaseDates.map((date, d) => {
-    const catGroups = dayActionsByCategory[d];
-    const categoryOrder: BlockCategory[] = ['health', 'training', 'focus', 'action', 'creation', 'social', 'review'];
+  const categoryOrder: BlockCategory[] = ['health', 'training', 'focus', 'action', 'creation', 'social', 'review'];
 
-    const blocks: TacticalBlock[] = categoryOrder
-      .filter(cat => catGroups[cat] && catGroups[cat].length > 0)
-      .map((cat, bIdx) => {
-        const actions = catGroups[cat];
-        return {
-          id: `fallback-block-${d}-${bIdx}`,
-          title: BLOCK_LABELS[cat]?.he || 'בלוק',
-          titleEn: BLOCK_LABELS[cat]?.en || 'Block',
-          emoji: BLOCK_EMOJIS[cat] || '📋',
-          category: cat,
-          estimatedMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
-          actions,
-          completedCount: 0,
-          startTime: null,
-          endTime: null,
-        };
-      });
+  return phaseDates.map((date, d) => {
+    const isDayToday = date === todayStr;
+    // Only populate blocks for today; other days get empty blocks (no AI schedule yet)
+    const blocks: TacticalBlock[] = isDayToday
+      ? categoryOrder
+          .filter(cat => catGroups[cat] && catGroups[cat].length > 0)
+          .map((cat, bIdx) => {
+            const actions = catGroups[cat].map(a => ({ ...a, calendarDate: date, scheduledDay: phaseStartDay + d }));
+            return {
+              id: `fallback-block-${d}-${bIdx}`,
+              title: BLOCK_LABELS[cat]?.he || 'בלוק',
+              titleEn: BLOCK_LABELS[cat]?.en || 'Block',
+              emoji: BLOCK_EMOJIS[cat] || '📋',
+              category: cat,
+              estimatedMinutes: actions.reduce((s, a) => s + a.estimatedMinutes, 0),
+              actions,
+              completedCount: 0,
+              startTime: null,
+              endTime: null,
+            };
+          })
+      : [];
 
     const totalActions = blocks.reduce((s, b) => s + b.actions.length, 0);
     return {
@@ -490,7 +492,7 @@ function buildFallbackDays(
       totalActions,
       completedActions: 0,
       totalMinutes: blocks.reduce((s, b) => s + b.estimatedMinutes, 0),
-      isToday: date === todayStr,
+      isToday: isDayToday,
     };
   });
 }
