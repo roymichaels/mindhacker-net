@@ -78,7 +78,7 @@ function FullBodyScene({ avatarData }: { avatarData: AvatarCustomizationData }) 
   }, [avatarData]);
 
   return (
-    <group ref={group} dispose={null} position={[0, -0.9, 0]}>
+    <group ref={group} dispose={null} position={[0, -1.05, 0]}>
       <group name="Scene">
         <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
           <primitive object={nodes.mixamorigHips} />
