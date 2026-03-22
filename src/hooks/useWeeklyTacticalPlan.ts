@@ -521,24 +521,23 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
   // Recompute on every render — toDateStr is trivial and must reflect current local date
   const todayStr = toDateStr(new Date());
 
-  // Only fetch tactical schedule for the PRIMARY plan (not all plans)
-  // to avoid duplicate/overlapping blocks from Arena and Core plans
+  // Fetch tactical schedules for ALL plans in the same batch (core + arena)
   const { data: aiSchedules, isLoading: scheduleLoading } = useQuery({
-    queryKey: ['tactical-schedule', planId, currentPhase],
+    queryKey: ['tactical-schedule', allPlanIds, currentPhase],
     queryFn: async () => {
-      if (!planId || !currentPhase || !user?.id) return [];
+      const ids = allPlanIds?.length ? allPlanIds : (planId ? [planId] : []);
+      if (ids.length === 0 || !currentPhase || !user?.id) return [];
       const { data, error } = await supabase
         .from('tactical_schedules')
         .select('schedule_data, wake_time, sleep_time, version, generated_at, plan_id')
         .eq('user_id', user.id)
-        .eq('plan_id', planId)
+        .in('plan_id', ids)
         .eq('phase_number', currentPhase)
-        .order('generated_at', { ascending: false })
-        .limit(1);
+        .order('generated_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
-    enabled: !!planId && !!currentPhase && !!user?.id,
+    enabled: !!(allPlanIds?.length || planId) && !!currentPhase && !!user?.id,
     staleTime: 5 * 60_000,
   });
   // ── Fetch completed action_items for the phase date range ──
