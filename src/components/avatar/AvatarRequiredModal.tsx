@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AvatarConfigurator } from "./AvatarConfigurator";
 import { useConfiguratorStore } from "./avatarStore";
 import { toast } from "sonner";
+import { ShieldCheck } from "lucide-react";
 
 export const AvatarRequiredModal = () => {
   const { user, isAdmin } = useAuth();
@@ -50,12 +51,12 @@ export const AvatarRequiredModal = () => {
       } as any, { onConflict: "user_id" });
 
     if (error) {
-      toast.error("Failed to save avatar");
+      toast.error("שגיאה בשמירת האווטאר");
       console.error(error);
       return;
     }
 
-    toast.success("Avatar saved!");
+    toast.success("האווטאר נשמר!");
     setHasAvatar(true);
     setShow(false);
   };
@@ -69,13 +70,14 @@ export const AvatarRequiredModal = () => {
   if (!show || !user) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black">
+    <div className="fixed inset-0 z-[9999] bg-background">
       {isAdmin && (
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 z-[10000] bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg pointer-events-auto"
+          className="absolute top-4 left-4 z-[10000] bg-muted hover:bg-muted/80 text-muted-foreground px-4 py-2 rounded-2xl pointer-events-auto flex items-center gap-2 text-sm border border-border transition-colors"
         >
-          Skip (Admin)
+          <ShieldCheck className="w-4 h-4" />
+          דלג (מנהל)
         </button>
       )}
       <div className="w-full h-full">
