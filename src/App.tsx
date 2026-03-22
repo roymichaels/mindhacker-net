@@ -426,6 +426,8 @@ const App = () => (
                       <CookieConsent />
                       <SubscriptionsModal />
                       <WalletModal />
+                      <Suspense fallback={null}><ProfilePage /></Suspense>
+                      <SoulAvatarMintWizardGlobal />
                       
                     </Suspense>
                     </SmartOnboardingProvider>
@@ -433,8 +435,6 @@ const App = () => (
                    </FlowAuditProvider>
                 </BrowserRouter>
                 </TooltipProvider>
-                <Suspense fallback={null}><ProfilePage /></Suspense>
-                <SoulAvatarMintWizardGlobal />
                 </ProfileModalProvider>
                 </SoulAvatarProvider>
                 </WalletModalProvider>
