@@ -42,7 +42,7 @@ interface NFTDetailCardProps {
 
 export function NFTDetailCard({
   open, onClose, type, title, subtitle, rarity, rarityColor,
-  serial, visual, stats, traits, description,
+  serial, visual, stats, traits, description, largeVisual,
 }: NFTDetailCardProps) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
