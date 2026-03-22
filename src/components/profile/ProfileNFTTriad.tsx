@@ -209,20 +209,13 @@ export default function ProfileNFTTriad() {
         rarity={rarityLabel}
         rarityColor="220 80% 55%"
         serial={serial}
+        largeVisual
         description={isHe
-          ? 'ה-DNA שלך נבנה מהפעולות, ההרגלים והבחירות שלך. כל תכונה משקפת אות אמיתי.'
-          : 'Your DNA is built from actions, habits, and choices. Each trait reflects a real signal.'}
-        visual={<DNAViewer height={130} />}
-        stats={[
-          { icon: <Activity className="w-3.5 h-3.5" />, label: isHe ? 'אותות' : 'Signals', value: dnaTraits.length, color: '#3B82F6' },
-          { icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />, label: isHe ? 'רמה' : 'Level', value: xp.level, color: '#FBBF24' },
-          { icon: <Sparkles className="w-3.5 h-3.5" />, label: isHe ? 'דרגה' : 'Rarity', value: rarityLabel, color: `hsl(${rarity.color})` },
-        ]}
-        traits={dnaTraits.map(t => ({
-          name: isHe ? (TRAIT_LABELS_HE[t.key] || t.key) : t.key.charAt(0).toUpperCase() + t.key.slice(1),
-          value: Math.round(t.weight * 100),
-          color: TRAIT_COLORS[t.key] || '#6366F1',
-        }))}
+          ? 'לחץ על הנקודות כדי לחקור את התכונות שלך'
+          : 'Tap the nodes to explore your traits'}
+        visual={<DNAViewer height={300} />}
+        stats={[]}
+        traits={[]}
       />
     </>
   );
