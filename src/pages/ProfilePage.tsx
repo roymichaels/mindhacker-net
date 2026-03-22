@@ -6,9 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { OrbNFTCard } from '@/components/gamification/OrbNFTCard';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
-import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { PracticesModal } from '@/components/modals/PracticesModal';
 import { AchievementGalleryModal } from '@/components/modals/AchievementGalleryModal';
 import { InventoryBagModal } from '@/components/modals/InventoryBagModal';
@@ -18,6 +16,7 @@ import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal
 import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
 import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
+import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -29,7 +28,6 @@ export default function ProfilePage() {
   const [achievementsOpen, setAchievementsOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
-  const [orbFullscreenOpen, setOrbFullscreenOpen] = useState(false);
 
   // Lock body scroll while profile is mounted
   useEffect(() => {
@@ -51,7 +49,6 @@ export default function ProfilePage() {
       <PracticesModal open={practicesOpen} onOpenChange={setPracticesOpen} />
       <AchievementGalleryModal open={achievementsOpen} onOpenChange={setAchievementsOpen} />
       <InventoryBagModal open={inventoryOpen} onOpenChange={setInventoryOpen} />
-      <OrbFullscreenViewer open={orbFullscreenOpen} onClose={() => setOrbFullscreenOpen(false)} />
 
       {/* ═══════ CLOSE BUTTON ═══════ */}
       <div className="sticky top-0 z-50 flex justify-end p-3">
@@ -63,9 +60,9 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* ═══════ HERO: NFT Orb Card ═══════ */}
+      {/* ═══════ HERO: NFT TRIAD ═══════ */}
       <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        <OrbNFTCard onTapOrb={() => setOrbFullscreenOpen(true)} />
+        <ProfileNFTTriad />
       </div>
 
       {/* ═══════ ACTION BUTTONS (2x2 grid) ═══════ */}
