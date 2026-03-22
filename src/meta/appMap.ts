@@ -21,7 +21,7 @@ export type Category =
   | 'homepage' | 'onboarding' | 'play' | 'aion' | 'dna' | 'profile'
   | 'community' | 'learn' | 'fm' | 'careers' | 'docs' | 'admin'
   | 'settings' | 'auth' | 'affiliate' | 'dev' | 'legal' | 'media'
-  | 'other';
+  | 'avatar' | 'other';
 
 export type Status = 'active' | 'partial' | 'legacy' | 'deprecated' | 'hidden';
 export type IdentityOwner = 'DNA' | 'AION' | 'Orb' | 'Aurora' | 'none';
@@ -104,13 +104,14 @@ export const routes: RouteEntry[] = [
     name: 'Founding Landing',
     route: '/founding',
     category: 'homepage',
-    purpose: 'Founding members landing page',
+    purpose: 'Founding members landing page with avatar group showcase',
     protected: false,
-    mainComponents: ['FoundingLanding'],
+    mainComponents: ['FoundingLanding', 'FoundingHero', 'FoundingAvatarGroup', 'FoundingPlatformDeep'],
     identityOwner: 'none',
     renderType: 'none',
     status: 'active',
     cleanupPriority: 'none',
+    notes: 'Shows 5 random avatars with different poses as a group',
   },
   {
     id: 'features',
@@ -843,6 +844,23 @@ export const routes: RouteEntry[] = [
     cleanupPriority: 'none',
   },
 
+  // ── Avatar ─────────────────────────────────────────
+  {
+    id: 'avatar',
+    name: 'Avatar Configurator',
+    route: '/avatar',
+    category: 'avatar',
+    purpose: '3D character avatar customizer (head, hair, clothes, accessories)',
+    protected: true,
+    mainComponents: ['AvatarConfiguratorPage', 'AvatarConfigurator', 'AvatarModel', 'AvatarConfiguratorUI', 'Asset', 'AssetTilePreview'],
+    keyHooks: ['useUserAvatarData'],
+    identityOwner: 'none',
+    renderType: 'none',
+    status: 'active',
+    cleanupPriority: 'none',
+    notes: 'Loads/saves avatar customization to DB. Uses Zustand store (avatarStore). GLB-based skinned meshes with Armature.',
+  },
+
   // ── Dev / Gallery ─────────────────────────────────
   {
     id: 'orb-gallery-public',
@@ -1061,6 +1079,18 @@ export const hooks: HookEntry[] = [
   { name: 'useAdminAuroraInsights', file: 'src/hooks/useAdminAuroraInsights.ts', purpose: 'Admin AI insights dashboard', featureArea: 'admin', status: 'active' },
   { name: 'useAdminJourneyProgress', file: 'src/hooks/useAdminJourneyProgress.ts', purpose: 'Admin journey progress tracking', featureArea: 'admin', status: 'active' },
 
+  // ── Avatar ──
+  { name: 'useUserAvatarData', file: 'src/hooks/useUserAvatarData.ts', purpose: 'Load saved avatar customization from DB', featureArea: 'avatar', status: 'active' },
+
+  // ── Launchpad ──
+  { name: 'useLaunchpadAutoSave', file: 'src/hooks/useLaunchpadAutoSave.ts', purpose: 'Auto-save launchpad progress', featureArea: 'onboarding', status: 'active' },
+  { name: 'useLaunchpadData', file: 'src/hooks/useLaunchpadData.ts', purpose: 'Launchpad configuration data', featureArea: 'onboarding', status: 'active' },
+  { name: 'useLaunchpadProgress', file: 'src/hooks/useLaunchpadProgress.ts', purpose: 'Launchpad step progress tracking', featureArea: 'onboarding', status: 'active' },
+
+  // ── UI Utility ──
+  { name: 'useMobile', file: 'src/hooks/use-mobile.tsx', purpose: 'Mobile viewport detection', featureArea: 'other', status: 'active' },
+  { name: 'useToast', file: 'src/hooks/use-toast.ts', purpose: 'Toast notification hook (shadcn)', featureArea: 'other', status: 'active' },
+
   // ── Deprecated / Legacy ──
   { name: 'useAdaptiveDifficulty', file: 'src/lib/adaptiveDifficulty.ts', purpose: 'Adaptive difficulty system', featureArea: 'play', status: 'legacy', notes: 'Logic exists in lib; hook was deleted' },
 ];
@@ -1147,6 +1177,26 @@ export const identityLayers: IdentityLayerEntry[] = [
     ],
     status: 'legacy',
     notes: 'Name persists in code for stability. Conceptually part of AION NFT system.',
+  },
+  {
+    name: 'Avatar (3D Character)',
+    internalName: 'AvatarConfigurator / avatarStore',
+    purpose: 'User-customizable 3D character body. Persisted to avatar_customizations table. Rendered via GLB skinned meshes.',
+    files: [
+      'src/components/avatar/avatarStore.ts',
+      'src/components/avatar/avatarAssets.ts',
+      'src/components/avatar/AvatarModel.tsx',
+      'src/components/avatar/AvatarConfigurator.tsx',
+      'src/components/avatar/AvatarConfiguratorUI.tsx',
+      'src/components/avatar/AvatarMiniPreview.tsx',
+      'src/components/avatar/Asset.tsx',
+      'src/components/avatar/AssetTilePreview.tsx',
+      'src/components/founding/FoundingAvatarGroup.tsx',
+      'src/hooks/useUserAvatarData.ts',
+      'src/pages/AvatarConfiguratorPage.tsx',
+    ],
+    status: 'active',
+    notes: 'Future game body. Zustand store manages customization state. AvatarMiniPreview used in profile/nav/founding. DB table: avatar_customizations.',
   },
 ];
 
