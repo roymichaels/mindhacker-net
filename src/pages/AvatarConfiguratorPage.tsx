@@ -19,11 +19,11 @@ const AvatarConfiguratorPage = () => {
     const data = getCustomizationData();
 
     const { error } = await supabase
-      .from("avatar_customizations")
+      .from("avatar_customizations" as any)
       .upsert({
         user_id: user.id,
         customization_data: data,
-      }, { onConflict: "user_id" });
+      } as any, { onConflict: "user_id" });
 
     if (error) {
       toast.error("Failed to save avatar");
