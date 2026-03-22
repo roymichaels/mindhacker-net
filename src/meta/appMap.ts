@@ -1178,6 +1178,26 @@ export const identityLayers: IdentityLayerEntry[] = [
     status: 'legacy',
     notes: 'Name persists in code for stability. Conceptually part of AION NFT system.',
   },
+  {
+    name: 'Avatar (3D Character)',
+    internalName: 'AvatarConfigurator / avatarStore',
+    purpose: 'User-customizable 3D character body. Persisted to avatar_customizations table. Rendered via GLB skinned meshes.',
+    files: [
+      'src/components/avatar/avatarStore.ts',
+      'src/components/avatar/avatarAssets.ts',
+      'src/components/avatar/AvatarModel.tsx',
+      'src/components/avatar/AvatarConfigurator.tsx',
+      'src/components/avatar/AvatarConfiguratorUI.tsx',
+      'src/components/avatar/AvatarMiniPreview.tsx',
+      'src/components/avatar/Asset.tsx',
+      'src/components/avatar/AssetTilePreview.tsx',
+      'src/components/founding/FoundingAvatarGroup.tsx',
+      'src/hooks/useUserAvatarData.ts',
+      'src/pages/AvatarConfiguratorPage.tsx',
+    ],
+    status: 'active',
+    notes: 'Future game body. Zustand store manages customization state. AvatarMiniPreview used in profile/nav/founding. DB table: avatar_customizations.',
+  },
 ];
 
 // ─── HELPER: Get route by ID ─────────────────────────────────────────
