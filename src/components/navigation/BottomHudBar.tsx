@@ -12,6 +12,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress } from '@/hooks/useGameState';
 import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
+import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { Progress } from '@/components/ui/progress';
