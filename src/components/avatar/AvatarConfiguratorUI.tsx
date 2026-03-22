@@ -26,7 +26,7 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
     lockedGroups,
     updateColor,
   } = useConfiguratorStore();
-  const [collapsed, setCollapsed] = useState(false);
+  
 
   const hasColors = currentCategory?.colorPalette && currentCategory.colorPalette.length > 0;
 
