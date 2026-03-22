@@ -2,19 +2,21 @@
  * ProfileNFTTriad — 3-column NFT card grid: Orb | Avatar | DNA
  * Each card opens a frosted-glass NFT detail modal on click.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useDNA } from '@/identity/useDNA';
+import { useUserAvatarData } from '@/hooks/useUserAvatarData';
 import { getOrbRarity } from '@/lib/orbRarity';
 import { getArchetypeName } from '@/lib/orbProfileGenerator';
+import { AVATAR_CATEGORIES } from '@/components/avatar/avatarAssets';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import DNAViewer from '@/components/dna/DNAViewer';
 import { NFTDetailCard } from './NFTDetailCard';
-import { Star, Flame, Zap, Shield, Sparkles, Activity } from 'lucide-react';
+import { Star, Flame, Zap, Shield, Sparkles, Activity, Sword, Crown, Shirt, Eye, Footprints } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { NFTType } from './NFTDetailCard';
 
