@@ -151,40 +151,34 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
               )}
 
               <div className="flex-1 overflow-y-auto noscrollbar px-2 pb-3">
-                <div className="grid grid-cols-2 gap-1.5 pt-1">
+                <div className="flex flex-col gap-1 pt-1">
                   {currentCategory.removable && (
                     <button
                       onClick={() => changeAsset(currentCategory.name, null)}
-                      className={`flex flex-col items-center gap-1 rounded-xl overflow-hidden transition-all border-2 duration-200 p-1.5 ${
+                      className={`flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200 border ${
                         !customization[currentCategory.name]?.asset
-                          ? "border-primary bg-primary/10"
-                          : "bg-muted border-transparent hover:border-primary/30"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-transparent bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground"
                       }`}
                     >
-                      <div className="w-full aspect-square flex items-center justify-center text-muted-foreground">
-                        <X className="w-4 h-4" />
-                      </div>
-                      <span className="text-[9px] text-muted-foreground truncate w-full text-center">ללא</span>
+                      <X className="w-3.5 h-3.5 shrink-0" />
+                      <span className="text-xs font-medium">ללא</span>
                     </button>
                   )}
-                  {currentCategory.assets.map((asset) => (
+                  {currentCategory.assets.map((asset, index) => (
                     <button
                       key={asset.id}
                       onClick={() => changeAsset(currentCategory.name, asset)}
-                      className={`flex flex-col items-center gap-1 rounded-xl overflow-hidden transition-all border-2 duration-200 p-1.5 ${
+                      className={`flex items-center gap-2 rounded-xl px-3 py-2 transition-all duration-200 border ${
                         customization[currentCategory.name]?.asset?.id === asset.id
-                          ? "border-primary bg-primary/10"
-                          : "bg-muted border-transparent hover:border-primary/30"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-transparent bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground"
                       }`}
                     >
-                      <div className="w-full aspect-square overflow-hidden rounded-lg">
-                        <img
-                          className="object-cover w-full h-full"
-                          src={asset.thumbnail}
-                          alt={asset.name}
-                        />
-                      </div>
-                      <span className="text-[9px] text-muted-foreground truncate w-full text-center">{asset.name}</span>
+                      <span className="w-5 h-5 rounded-md bg-card flex items-center justify-center text-[10px] font-bold shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="text-xs font-medium truncate">{asset.name}</span>
                     </button>
                   ))}
                 </div>
