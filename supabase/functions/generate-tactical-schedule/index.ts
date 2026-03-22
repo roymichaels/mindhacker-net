@@ -212,6 +212,12 @@ ${adjustmentContext}
 9. CRITICAL: Use the EXACT difficulty value (1-5) from each milestone — do NOT change it.
 10. CRITICAL: Every block MUST have at least 2 milestones in its "milestones" array. If a category only has 1 milestone, merge it into an adjacent block.
 11. CRITICAL: Each milestone object MUST include a "focus_area" field with the EXACT pillar/focus_area value from the milestone list above (e.g., "vitality", "focus", "wealth"). Do NOT use block categories as focus_area.
+12. CRITICAL: Each milestone/practice MUST include a "mission_guide" object with UNIQUE, SPECIFIC step-by-step instructions tailored to THAT EXACT task (not generic pillar advice). Include:
+    - "steps": array of 4-6 short actionable steps in English
+    - "steps_he": same steps in Hebrew
+    - "youtube_tip": a specific YouTube search query related to this exact task (or null if not applicable)
+    - "youtube_tip_he": same YouTube tip in Hebrew (or null)
+    Each mission_guide must be DIFFERENT even for tasks in the same pillar. Tailor steps to the specific milestone title and description.
 
 ## CATEGORIES: health, training, focus, action, creation, review, social
 
