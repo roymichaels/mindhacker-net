@@ -4,10 +4,9 @@
  * but with a static head-focused camera and no animations.
  * Falls back to a colored circle with initials when no avatar data exists.
  */
-import { Suspense, useMemo, useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import { Suspense, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { Bounds, useGLTF } from '@react-three/drei';
 import { cn } from '@/lib/utils';
 import { useUserAvatarData, type AvatarCustomizationData } from '@/hooks/useUserAvatarData';
 import { AVATAR_CATEGORIES } from '@/components/avatar/avatarAssets';
@@ -144,12 +143,9 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
       <Canvas
         dpr={[1, 1.5]}
         frameloop="always"
-        onCreated={({ camera }) => {
-          camera.lookAt(0, 0.72, 0);
-        }}
         camera={{
-          position: [0, 0.72, 1.8],
-          fov: 30,
+          position: [0, 0, 2.8],
+          fov: 32,
           near: 0.1,
           far: 100,
         }}
@@ -159,9 +155,11 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
         <ambientLight intensity={0.7} />
         <directionalLight position={[3, 5, 4]} intensity={1.0} />
         <directionalLight position={[-2, 3, -1]} intensity={0.3} />
-        <Suspense fallback={null}>
-          <MiniAvatarScene avatarData={data} />
-        </Suspense>
+        <Bounds fit clip observe margin={1.3}>
+          <Suspense fallback={null}>
+            <MiniAvatarScene avatarData={data} />
+          </Suspense>
+        </Bounds>
       </Canvas>
     </div>
   );
