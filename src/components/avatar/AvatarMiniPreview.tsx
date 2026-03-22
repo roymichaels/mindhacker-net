@@ -5,6 +5,7 @@
  * Falls back to a colored circle with initials when no avatar data exists.
  */
 import { Suspense, useMemo, useRef, useEffect } from 'react';
+import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { cn } from '@/lib/utils';
