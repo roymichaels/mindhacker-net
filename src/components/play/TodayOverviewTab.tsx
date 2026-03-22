@@ -307,7 +307,7 @@ export function TodayOverviewTab() {
                   const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
                   const isSelected = activeIdx === idx;
                   const isDone = action.completed;
-                  const label = isHe ? pv.labelHe : pv.labelEn;
+                  const label = action.title || (isHe ? pv.labelHe : pv.labelEn);
 
                   return (
                     <button
