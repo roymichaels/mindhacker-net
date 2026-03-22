@@ -334,34 +334,36 @@ export function TodayOverviewTab() {
             </div>
           )}
 
-          {/* ── Field Briefing — dynamic per active task's pillar ── */}
-          <motion.div
-            key={`briefing-${activeIdx}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2"
-          >
-            <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
-              ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
-            </span>
-            <p className="text-sm text-cyan-100/60 leading-relaxed">
-              {assessment}
-            </p>
-            <p className="text-sm font-semibold text-cyan-100/70 leading-relaxed flex gap-1.5">
-              <span className="flex-shrink-0">⚔️</span> {doctrine}
-            </p>
-            <p className="text-xs italic text-cyan-100/40 leading-relaxed flex gap-1.5">
-              <span className="flex-shrink-0">🔍</span> {intel}
-            </p>
-          </motion.div>
-
-          {/* ── Commander sign-off ── */}
-          <div className="border-t border-white/[0.06] pt-2 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.1em] text-white/15">
-              {commander}
-            </p>
-          </div>
+          {/* ── Step-by-Step Mission Guide ── */}
+          {activeTask && (
+            <motion.div
+              key={`guide-${activeIdx}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-3 py-3 space-y-2.5"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400/50 flex items-center gap-1.5">
+                ✦ {isHe ? 'מדריך שטח' : 'Field Guide'}
+              </span>
+              <ol className="space-y-1.5">
+                {guide.steps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-cyan-100/60 leading-relaxed">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              {guide.youtubeTip && (
+                <div className="flex items-center gap-2 pt-1 border-t border-white/[0.05]">
+                  <span className="text-red-400 text-xs">▶</span>
+                  <span className="text-[11px] text-cyan-100/40 italic">{guide.youtubeTip}</span>
+                </div>
+              )}
+            </motion.div>
+          )}
         </div>
       </div>
 
