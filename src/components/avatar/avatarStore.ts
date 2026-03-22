@@ -131,6 +131,8 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   randomize: () => {
     const customization: Record<string, CategoryCustomization> = {};
     const categories = get().categories;
+    // Categories that should always have an asset even if marked removable
+    const essentialCategories = new Set(['Face', 'Top', 'Shoes', 'Eyes', 'Head', 'Bottom']);
 
     categories.forEach((category) => {
       if (category.assets.length === 0) {
@@ -141,7 +143,8 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
       }
 
       let randomAsset: AvatarAsset | null = category.assets[randInt(0, category.assets.length - 1)];
-      if (category.removable && randInt(0, category.assets.length) === 0) {
+      const isEssential = essentialCategories.has(category.name) || !category.removable;
+      if (category.removable && !isEssential && randInt(0, category.assets.length) === 0) {
         randomAsset = null;
       }
 
