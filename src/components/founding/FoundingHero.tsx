@@ -10,7 +10,7 @@ const FoundingHero = () => {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
-        className="mb-4 w-full max-w-xl"
+        className="-mt-6 mb-2 w-full max-w-5xl"
       >
         <div className="relative">
           <div className="absolute inset-0 rounded-3xl blur-[80px] opacity-30 pointer-events-none"
