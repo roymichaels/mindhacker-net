@@ -49,24 +49,12 @@ const AuroraChatMessage = ({
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
-  const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
-  const [ttsError, setTtsError] = useState(false);
   
   const { cleanContent, ctas } = extractCTAs(content);
-  const isPlayingThis = isPlaying && activeMessageId === id;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanContent);
     toast.success(t('messages.copied'));
-  };
-
-  const handleVoice = () => {
-    setTtsError(false);
-    if (isPlayingThis) {
-      stopPlayback();
-    } else {
-      playMessage(id, cleanContent);
-    }
   };
 
   return (
