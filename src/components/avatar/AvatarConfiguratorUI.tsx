@@ -176,6 +176,7 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
                           category={currentCategory}
                           assetColor={customization[currentCategory.name]?.color}
                           skinColor={customization.Head?.color}
+                          thumbnail={asset.thumbnail}
                         />
                       </div>
                       <span className="text-[9px] text-muted-foreground truncate w-full text-center">

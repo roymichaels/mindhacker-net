@@ -1,7 +1,8 @@
 /**
- * AssetTilePreview — Simple styled preview tile (no WebGL).
- * Using text + color badges instead of 3D canvases to avoid
- * exceeding browser WebGL context limits.
+ * AssetTilePreview — Shows the asset's thumbnail image.
+ * Uses static thumbnail images (same approach as the original
+ * r3f-ultimate-character-configurator project).
+ * No WebGL — avoids browser context limits.
  */
 
 interface AssetTilePreviewProps {
@@ -9,25 +10,26 @@ interface AssetTilePreviewProps {
   category: { name: string; colorPalette?: string[] };
   assetColor?: string;
   skinColor?: string;
+  thumbnail?: string;
 }
 
 export const AssetTilePreview = ({
-  assetColor,
-  skinColor,
-  category,
+  thumbnail,
 }: AssetTilePreviewProps) => {
-  // Show a color swatch representing the current asset color or skin color
-  const displayColor = assetColor || skinColor || '#888';
+  if (!thumbnail) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-muted/30 rounded-md">
+        <span className="text-muted-foreground text-xs">—</span>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="w-full h-full flex items-center justify-center rounded-md"
-      style={{ backgroundColor: displayColor + '22' }}
-    >
-      <div
-        className="w-8 h-8 rounded-full border-2 border-border/50"
-        style={{ backgroundColor: displayColor }}
-      />
-    </div>
+    <img
+      src={thumbnail}
+      alt=""
+      className="w-full h-full object-cover rounded-md"
+      loading="lazy"
+    />
   );
 };
