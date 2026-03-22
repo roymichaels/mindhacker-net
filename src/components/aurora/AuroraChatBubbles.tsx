@@ -173,7 +173,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
         {/* Persistent orb */}
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-6 pb-2">
-            <StandaloneMorphOrb size={56} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
+            <StandaloneMorphOrb size={56} profile={orbProfile} geometryFamily={orbProfile.geometryFamily || 'sphere'} level={100} />
           </div>
         )}
         {messages.length === 0 && !streamingContent && (
