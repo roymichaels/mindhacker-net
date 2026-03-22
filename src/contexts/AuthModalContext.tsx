@@ -152,6 +152,8 @@ const resolveIdentityFromProvider = async (
   };
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const AuthModalContext = createContext<AuthModalContextType>({
   openAuthModal: () => {},
   closeAuthModal: () => {},
@@ -244,6 +246,12 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         setPendingCallback(undefined);
       } catch (err: any) {
         console.error('[Web3Auth] Backend session bridge failed:', err);
+        try {
+          await disconnect({ cleanup: true });
+        } catch {
+          // non-blocking
+        }
+        forceCloseW3AModal();
         bridgedRef.current = false;
         toast({
           title: 'Authentication error',
@@ -364,7 +372,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           console.log('[Web3Auth] Resolved identity from wallet provider');
         }
 
-        for (let attempt = 0; attempt < 3; attempt++) {
+        for (let attempt = 0; attempt < 8; attempt++) {
           try {
             const info = await getUserInfo();
             console.log(`[Web3Auth] getUserInfo() attempt ${attempt + 1}:`, JSON.stringify(info));
@@ -378,6 +386,20 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
             console.warn(`[Web3Auth] getUserInfo attempt ${attempt + 1} failed:`, e);
           }
 
+          if (!resolvedEmail) {
+            try {
+              resolvedIdToken = (await getIdentityToken()) || resolvedIdToken;
+              const tokenIdentity = resolveIdentityFromIdToken(resolvedIdToken);
+              if (tokenIdentity.email) {
+                resolvedEmail = tokenIdentity.email;
+                resolvedName = resolvedName || tokenIdentity.name;
+                console.log(`[Web3Auth] Resolved identity from idToken (attempt ${attempt + 1})`);
+              }
+            } catch (e) {
+              console.warn(`[Web3Auth] getIdentityToken attempt ${attempt + 1} failed:`, e);
+            }
+          }
+
           if (resolvedEmail) break;
 
           const liveIdentity = resolveIdentityFromAny(userInfo);
@@ -387,32 +409,30 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
             break;
           }
 
-          await new Promise((r) => setTimeout(r, 800));
+          await sleep(700);
         }
 
         if (!resolvedEmail) {
-          try {
-            resolvedIdToken = (await getIdentityToken()) || undefined;
-            const tokenIdentity = resolveIdentityFromIdToken(resolvedIdToken);
-            if (tokenIdentity.email) {
-              resolvedEmail = tokenIdentity.email;
-              resolvedName = resolvedName || tokenIdentity.name;
-              console.log('[Web3Auth] Resolved identity from idToken payload');
-            }
-          } catch (e) {
-            console.warn('[Web3Auth] idToken fallback failed:', e);
+          // Give fallback useEffect bridge path time to resolve asynchronously.
+          const maxWaitMs = 4000;
+          const startedAt = Date.now();
+          while (!bridgedRef.current && Date.now() - startedAt < maxWaitMs) {
+            await sleep(250);
           }
         }
 
         if (resolvedEmail) {
           await doBridge({ email: resolvedEmail, name: resolvedName, idToken: resolvedIdToken });
         } else {
-          // Wait a moment — the fallback bridge effect may resolve asynchronously
-          await new Promise((r) => setTimeout(r, 1500));
-          // If bridged in the meantime (via the useEffect fallback), don't show error
+          // If bridged in the meantime (via the useEffect fallback), don't show error.
           if (!bridgedRef.current) {
             console.error('[Web3Auth] No identity found after all attempts');
             loginIntentRef.current = false;
+            try {
+              await disconnect({ cleanup: true });
+            } catch {
+              // non-blocking
+            }
             forceCloseW3AModal();
             toast({
               title: 'Authentication incomplete',
@@ -431,6 +451,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         console.error('[Web3Auth] Connect error:', err);
+        forceCloseW3AModal();
         toast({
           title: 'Connection failed',
           description: err?.message || 'Could not open login',
@@ -442,6 +463,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       doBridge,
+      forceCloseW3AModal,
       getIdentityToken,
       getUserInfo,
       initError,
