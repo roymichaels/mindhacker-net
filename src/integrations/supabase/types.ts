@@ -1180,6 +1180,30 @@ export type Database = {
         }
         Relationships: []
       }
+      avatar_customizations: {
+        Row: {
+          created_at: string | null
+          customization_data: Json
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customization_data?: Json
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customization_data?: Json
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_id: string | null
