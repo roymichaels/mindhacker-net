@@ -78,7 +78,7 @@ function FullBodyScene({ avatarData }: { avatarData: AvatarCustomizationData }) 
   }, [avatarData]);
 
   return (
-    <group ref={group} dispose={null} position={[0, -0.9, 0]}>
+    <group ref={group} dispose={null} position={[0, -1.05, 0]}>
       <group name="Scene">
         <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
           <primitive object={nodes.mixamorigHips} />
@@ -125,8 +125,8 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{
-          position: [0, 0.5, 3.2],
-          fov: 35,
+          position: [0, 0.4, 3.8],
+          fov: 34,
           near: 0.1,
           far: 100,
         }}
