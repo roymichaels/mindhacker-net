@@ -9,11 +9,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserAvatarData } from "@/hooks/useUserAvatarData";
 import { supabase } from "@/integrations/supabase/client";
 import { useCallback, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 const AvatarConfiguratorPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const getCustomizationData = useConfiguratorStore((state) => state.getCustomizationData);
   const loadCustomizationData = useConfiguratorStore((state) => state.loadCustomizationData);
   const loading = useConfiguratorStore((state) => state.loading);
@@ -45,8 +47,8 @@ const AvatarConfiguratorPage = () => {
       console.error(error);
     } else {
       toast.success("Avatar saved!");
-      // Invalidate avatar query so mini previews update
       queryClient.invalidateQueries({ queryKey: ['avatar-customization', user.id] });
+      navigate('/play');
     }
   }, [user, getCustomizationData, queryClient]);
 
