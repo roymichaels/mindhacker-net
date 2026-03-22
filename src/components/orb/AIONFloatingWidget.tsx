@@ -35,12 +35,12 @@ function AIONFloatingWidgetInner() {
   const shouldHide = !user
     || HIDDEN_ROUTES.some(r => location.pathname.startsWith(r));
 
-  // If on /aurora route, auto-open chat panel
+  // Listen for global toggle event from nav buttons
   useEffect(() => {
-    if (location.pathname === '/aurora') {
-      setChatOpen(true);
-    }
-  }, [location.pathname]);
+    const handleToggle = () => setChatOpen(prev => !prev);
+    window.addEventListener('aion:toggle-chat', handleToggle);
+    return () => window.removeEventListener('aion:toggle-chat', handleToggle);
+  }, []);
 
   // Track mouse/touch
   useEffect(() => {
