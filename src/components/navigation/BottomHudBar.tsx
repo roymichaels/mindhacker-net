@@ -60,10 +60,7 @@ export function BottomHudBar() {
   const openAurora = () => {
     setShowBalloon(false);
     sessionStorage.setItem('aurora-balloon-dismissed', '1');
-    if (ctx) {
-      ctx.setIsDockVisible(true);
-      ctx.setIsChatExpanded(true);
-    }
+    window.dispatchEvent(new CustomEvent('aion:toggle-chat'));
   };
 
   const dismissBalloon = () => {
