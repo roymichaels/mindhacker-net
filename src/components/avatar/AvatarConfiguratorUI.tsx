@@ -103,8 +103,8 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
           ))}
         </div>
 
-        {/* Column 2: Assets */}
-        <div className="w-48 h-full bg-card/80 backdrop-blur-xl border-r border-border flex flex-col overflow-hidden">
+        {/* Column 2: Assets + Colors combined */}
+        <div className="w-52 h-full bg-card/80 backdrop-blur-xl border-r border-border flex flex-col overflow-hidden">
           {currentCategory && (
             <>
               <div className="px-3 pt-3 pb-1 shrink-0">
@@ -122,37 +122,63 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
                 </p>
               )}
 
+              {/* Color palette inline */}
+              {hasColors && (
+                <div className="px-3 pb-2 shrink-0">
+                  <p className="text-muted-foreground text-[9px] uppercase tracking-wider font-semibold mb-1.5">צבע</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {currentCategory.colorPalette!.map((color, i) => (
+                      <button
+                        key={`${i}-${color}`}
+                        className={`w-7 h-7 p-0.5 rounded-lg shrink-0 transition-all duration-200 border-2 ${
+                          customization[currentCategory.name]?.color === color
+                            ? "border-primary scale-110"
+                            : "border-transparent hover:border-primary/40"
+                        }`}
+                        onClick={() => updateColor(color)}
+                      >
+                        <div className="w-full h-full rounded-md" style={{ backgroundColor: color }} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex-1 overflow-y-auto noscrollbar px-2 pb-3">
-                <div className="grid grid-cols-1 gap-1.5 pt-1">
+                <div className="grid grid-cols-2 gap-1.5 pt-1">
                   {currentCategory.removable && (
                     <button
                       onClick={() => changeAsset(currentCategory.name, null)}
-                      className={`aspect-square rounded-xl overflow-hidden transition-all border-2 duration-200 ${
+                      className={`flex flex-col items-center gap-1 rounded-xl overflow-hidden transition-all border-2 duration-200 p-1.5 ${
                         !customization[currentCategory.name]?.asset
                           ? "border-primary bg-primary/10"
                           : "bg-muted border-transparent hover:border-primary/30"
                       }`}
                     >
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                      <div className="w-full aspect-square flex items-center justify-center text-muted-foreground">
                         <X className="w-4 h-4" />
                       </div>
+                      <span className="text-[9px] text-muted-foreground truncate w-full text-center">ללא</span>
                     </button>
                   )}
                   {currentCategory.assets.map((asset) => (
                     <button
                       key={asset.id}
                       onClick={() => changeAsset(currentCategory.name, asset)}
-                      className={`aspect-square rounded-xl overflow-hidden transition-all border-2 duration-200 ${
+                      className={`flex flex-col items-center gap-1 rounded-xl overflow-hidden transition-all border-2 duration-200 p-1.5 ${
                         customization[currentCategory.name]?.asset?.id === asset.id
                           ? "border-primary bg-primary/10"
                           : "bg-muted border-transparent hover:border-primary/30"
                       }`}
                     >
-                      <img
-                        className="object-cover w-full h-full"
-                        src={asset.thumbnail}
-                        alt={asset.name}
-                      />
+                      <div className="w-full aspect-square overflow-hidden rounded-lg">
+                        <img
+                          className="object-cover w-full h-full"
+                          src={asset.thumbnail}
+                          alt={asset.name}
+                        />
+                      </div>
+                      <span className="text-[9px] text-muted-foreground truncate w-full text-center">{asset.name}</span>
                     </button>
                   ))}
                 </div>
@@ -160,25 +186,6 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
             </>
           )}
         </div>
-
-        {/* Column 3: Colors (only if palette exists) */}
-        {hasColors && (
-          <div className="w-12 h-full bg-card/70 backdrop-blur-xl flex flex-col items-center overflow-y-auto noscrollbar py-3 gap-1.5">
-            {currentCategory!.colorPalette!.map((color, i) => (
-              <button
-                key={`${i}-${color}`}
-                className={`w-8 h-8 p-0.5 rounded-xl shrink-0 transition-all duration-200 border-2 ${
-                  customization[currentCategory!.name]?.color === color
-                    ? "border-primary scale-110"
-                    : "border-transparent hover:border-primary/40"
-                }`}
-                onClick={() => updateColor(color)}
-              >
-                <div className="w-full h-full rounded-lg" style={{ backgroundColor: color }} />
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
