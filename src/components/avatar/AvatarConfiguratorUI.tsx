@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useConfiguratorStore } from "./avatarStore";
-import { ChevronLeft, ChevronRight, Shuffle, Save, X } from "lucide-react";
+import { Shuffle, Save, X } from "lucide-react";
 import { AssetTilePreview } from "./AssetTilePreview";
 
 interface AvatarConfiguratorUIProps {
