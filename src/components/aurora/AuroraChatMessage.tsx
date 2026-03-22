@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Copy, Volume2, Square, RefreshCw, AlertCircle } from 'lucide-react';
+import { Copy, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
+import { TTSPlayer } from './TTSPlayer';
 
 interface AuroraChatMessageProps {
   id: string;
