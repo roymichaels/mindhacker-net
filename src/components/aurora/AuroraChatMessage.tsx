@@ -74,9 +74,9 @@ const AuroraChatMessage = ({
         "flex gap-3",
         isOwn && "flex-row-reverse"
       )}>
-        {/* Avatar - only for Aurora */}
+        {/* Avatar - AION's personalized orb */}
         {!isOwn && (
-          <StandaloneMorphOrb size={32} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
+          <StandaloneMorphOrb size={32} profile={orbProfile} geometryFamily={orbProfile.geometryFamily || 'sphere'} level={level} />
         )}
 
         {/* Message Bubble */}

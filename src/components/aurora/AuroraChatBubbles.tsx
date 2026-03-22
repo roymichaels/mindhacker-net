@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 
