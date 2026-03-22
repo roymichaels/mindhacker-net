@@ -258,7 +258,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       console.error('Failed to save:', err);
       setSaving(false);
     }
-  }, [saveAssessment, navigate, domainId, meta]);
+  }, [saveAssessment, navigate, domainId, meta, asModal, asDock, onClose]);
 
   async function streamChat(
     msgs: { role: string; content: string }[],
