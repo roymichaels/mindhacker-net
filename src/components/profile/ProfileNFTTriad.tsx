@@ -249,38 +249,37 @@ export default function ProfileNFTTriad() {
         stats={[]}
         traits={[]}
       >
-        {/* Equipment list — RPG style */}
-        <div className="w-full space-y-1">
+        {/* Equipment grid — 3 columns like AION card */}
+        <div className="w-full">
           <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] font-bold text-center mb-2">
             {isHe ? 'ציוד' : 'Equipment'}
           </p>
-          <div className="space-y-1 max-h-[160px] overflow-y-auto scrollbar-hide">
+          <div className="grid grid-cols-3 gap-1.5 max-h-[200px] overflow-y-auto scrollbar-hide">
             {equippedItems.map((item, i) => (
               <motion.button
                 key={item.categoryName}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.15 + i * 0.04 }}
                 onClick={() => setSelectedSlot(selectedSlot === item.categoryName ? null : item.categoryName)}
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all text-start",
+                  "flex flex-col items-center gap-1 py-2 px-1 rounded-xl border transition-all",
                   selectedSlot === item.categoryName
                     ? "bg-white/[0.08] border-amber-500/30"
-                    : "bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06]"
+                    : "bg-white/[0.04] border-white/[0.06] hover:bg-white/[0.08]"
                 )}
               >
-                <span className="text-amber-400/70">{item.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold text-white/90 truncate">{item.rpgName}</p>
-                  <p className="text-[9px] text-white/30 uppercase tracking-wider">{item.categoryName}</p>
-                </div>
-                {item.color && (
-                  <div className="w-3 h-3 rounded-full border border-white/10 flex-shrink-0" style={{ background: item.color }} />
+                {item.color ? (
+                  <div className="w-2 h-2 rounded-full" style={{ background: item.color }} />
+                ) : (
+                  <span className="text-amber-400/70">{item.icon}</span>
                 )}
+                <span className="text-[10px] font-bold text-white/80 truncate w-full text-center">{item.rpgName}</span>
+                <span className="text-[8px] text-white/35 uppercase tracking-wider">{item.categoryName}</span>
               </motion.button>
             ))}
             {equippedItems.length === 0 && (
-              <p className="text-[10px] text-white/30 text-center py-3">
+              <p className="text-[10px] text-white/30 text-center py-3 col-span-3">
                 {isHe ? 'לא נמצא ציוד' : 'No equipment found'}
               </p>
             )}
