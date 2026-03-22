@@ -92,8 +92,10 @@ export default function ProfileHeroSection() {
         </div>
 
         {/* Job / Identity Title */}
-        {identityTitle && (
-          <p className="text-xs text-muted-foreground">{identityTitle}</p>
+        {identityTitle?.title && (
+          <p className="text-xs text-muted-foreground">
+            {isHe ? identityTitle.title : identityTitle.titleEn}
+          </p>
         )}
       </motion.div>
 
