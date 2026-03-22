@@ -433,6 +433,7 @@ const App = () => (
                                             <WalletModal />
                                             <Suspense fallback={null}><ProfilePage /></Suspense>
                                             <SoulAvatarMintWizardGlobal />
+                                            <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
                                           </Suspense>
                                         </SmartOnboardingProvider>
