@@ -123,13 +123,12 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
     <div className={cn('relative', className)} style={{ height }}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop="demand"
+        frameloop="always"
         onCreated={({ camera }) => {
-          // Look at the center of the body
-          camera.lookAt(0, 0.85, 0);
+          camera.lookAt(0, 0.55, 0);
         }}
         camera={{
-          position: [0, 0.85, 3.2],
+          position: [0, 0.55, 3.8],
           fov: 30,
           near: 0.1,
           far: 100,
