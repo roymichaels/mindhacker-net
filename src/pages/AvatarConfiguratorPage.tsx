@@ -1,18 +1,33 @@
 /**
  * AvatarConfiguratorPage — /avatar route.
- * Full-page avatar configurator.
+ * Full-page avatar configurator. Loads saved data and saves on exit.
  */
 
 import { AvatarConfigurator } from "@/components/avatar/AvatarConfigurator";
 import { useConfiguratorStore } from "@/components/avatar/avatarStore";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserAvatarData } from "@/hooks/useUserAvatarData";
 import { supabase } from "@/integrations/supabase/client";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AvatarConfiguratorPage = () => {
   const { user } = useAuth();
   const getCustomizationData = useConfiguratorStore((state) => state.getCustomizationData);
+  const loadCustomizationData = useConfiguratorStore((state) => state.loadCustomizationData);
+  const loading = useConfiguratorStore((state) => state.loading);
+  const { avatarData, hasAvatar } = useUserAvatarData();
+  const hasLoadedRef = useRef(false);
+  const queryClient = useQueryClient();
+
+  // Load saved avatar data into store once categories are initialized
+  useEffect(() => {
+    if (!loading && hasAvatar && avatarData && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      loadCustomizationData(avatarData);
+    }
+  }, [loading, hasAvatar, avatarData, loadCustomizationData]);
 
   const handleSave = useCallback(async () => {
     if (!user) return;
@@ -30,8 +45,10 @@ const AvatarConfiguratorPage = () => {
       console.error(error);
     } else {
       toast.success("Avatar saved!");
+      // Invalidate avatar query so mini previews update
+      queryClient.invalidateQueries({ queryKey: ['avatar-customization', user.id] });
     }
-  }, [user, getCustomizationData]);
+  }, [user, getCustomizationData, queryClient]);
 
   return (
     <div className="w-screen h-screen">
