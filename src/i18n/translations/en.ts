@@ -2857,10 +2857,10 @@ export const en: TranslationKeys = {
     // GameHeroSection
     gameHero: {
       badge: 'The Game Has Begun',
-      title: 'Build Your Empire.',
-      subtitle: 'AI × Identity × Economy',
-      cta: '⚡ Start Building',
-      ctaMeta: '5 min assessment • Free to start • Earn while you build',
+      title: 'The Game of Your Life.',
+      subtitle: 'Play • Grow • Earn • Evolve',
+      cta: '🎮 Start Playing',
+      ctaMeta: '5 min assessment • Free to start • Earn as you grow',
       scrollDown: 'Scroll Down',
     },
 
