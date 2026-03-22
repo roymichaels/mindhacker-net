@@ -72,6 +72,9 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   const [practicesOpen, setPracticesOpen] = useState(false);
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
   const [orbFullscreenOpen, setOrbFullscreenOpen] = useState(false);
+  const navigate = useNavigate();
+  const { hasRole } = useUserRoles();
+  const isAdmin = hasRole('admin');
 
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
   const archetypeName = getArchetypeName(dominantArchetype, isHe);
