@@ -301,48 +301,38 @@ export function TodayOverviewTab() {
                 />
               </div>
 
-              {/* Horizontal task nodes */}
-              <ScrollArea className="w-full">
-                <div className="flex gap-1 p-0.5">
-                  {todayActions.map((action, idx) => {
-                    const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
-                    const isSelected = activeIdx === idx;
-                    const isDone = action.completed;
-                    const isCurrent = !isDone && currentActionIdx === idx;
+              {/* Task tags */}
+              <div className="flex flex-wrap gap-1.5">
+                {todayActions.map((action, idx) => {
+                  const pv = PILLAR_VIS[action.focusArea || ''] || DEFAULT_PILLAR;
+                  const isSelected = activeIdx === idx;
+                  const isDone = action.completed;
+                  const label = isHe ? pv.labelHe : pv.labelEn;
 
-                    return (
-                      <button
-                        key={action.id || idx}
-                        onClick={() => setSelectedTaskIdx(idx)}
-                        className={cn(
-                          "flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 transition-all flex-shrink-0 min-w-[44px]",
-                          isDone
-                            ? "bg-emerald-500/10 border border-emerald-500/20"
-                            : isCurrent
-                              ? "bg-cyan-500/15 border border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.15)]"
-                              : "border border-white/[0.06] hover:border-white/15",
-                          isSelected && !isDone && "ring-2 ring-cyan-400 bg-cyan-500/20 border-cyan-400/50 shadow-[0_0_12px_rgba(6,182,212,0.3)]",
-                          isSelected && isDone && "ring-2 ring-emerald-400 bg-emerald-500/20"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-5 h-5 rounded-full flex items-center justify-center text-[10px]",
-                          isDone ? "bg-emerald-500/30" : isSelected ? "bg-cyan-500/30" : isCurrent ? "bg-cyan-500/20" : "bg-white/[0.04]"
-                        )}>
-                          {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <span>{pv.emoji}</span>}
-                        </div>
-                        <span className={cn(
-                          "text-[8px] font-black",
-                          isSelected ? "text-cyan-200" : isDone ? "text-emerald-400/60" : isCurrent ? "text-cyan-300" : "text-white/25"
-                        )}>
-                          {idx + 1}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
+                  return (
+                    <button
+                      key={action.id || idx}
+                      onClick={() => setSelectedTaskIdx(idx)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold transition-all",
+                        pv.bg,
+                        isDone && "opacity-50 line-through",
+                        isSelected
+                          ? "ring-2 ring-offset-1 ring-offset-transparent ring-current shadow-sm scale-105"
+                          : "hover:brightness-125",
+                        pv.color
+                      )}
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="w-3 h-3" />
+                      ) : (
+                        <span className="text-xs">{pv.emoji}</span>
+                      )}
+                      <span>{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
