@@ -34,12 +34,8 @@ function generateRandomAvatar(seed: number): AvatarCustomizationData {
     }
 
     const isEssential = essentialCategories.has(cat.name) || !cat.removable;
-    let asset: AvatarAsset | null = cat.assets[randInt(0, cat.assets.length - 1)];
-
-    // Skip locked-group assets to avoid conflicts
-    if (asset?.lockedGroups?.length) {
-      asset = cat.assets.find(a => !a.lockedGroups?.length) || asset;
-    }
+    const safeAssets = cat.assets.filter((a) => !a.lockedGroups?.length);
+    let asset: AvatarAsset | null = (safeAssets.length ? safeAssets : cat.assets)[randInt(0, (safeAssets.length ? safeAssets : cat.assets).length - 1)];
 
     if (cat.removable && !isEssential && rng() < 0.3) {
       asset = null;
@@ -89,6 +85,7 @@ function GroupAsset({ url, skeleton, color }: {
           skeleton={skeleton}
           morphTargetDictionary={item.morphTargetDictionary}
           morphTargetInfluences={item.morphTargetInfluences}
+          frustumCulled={false}
         />
       ))}
     </>
@@ -96,10 +93,11 @@ function GroupAsset({ url, skeleton, color }: {
 }
 
 /* ── Single Avatar in group scene ── */
-function GroupAvatar({ avatarData, pose, position }: {
+function GroupAvatar({ avatarData, pose, position, scale = 0.72 }: {
   avatarData: AvatarCustomizationData;
   pose: string;
   position: [number, number, number];
+  scale?: number;
 }) {
   const group = useRef<Group>(null);
   const { scene: armatureScene } = useGLTF('/models/Armature.glb');
@@ -141,7 +139,7 @@ function GroupAvatar({ avatarData, pose, position }: {
   if (!hips || !skeleton) return null;
 
   return (
-    <group ref={group} position={position} dispose={null}>
+    <group ref={group} position={position} scale={scale} dispose={null}>
       <group name="Scene">
         <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
           <primitive object={hips} />
@@ -160,13 +158,20 @@ function GroupAvatar({ avatarData, pose, position }: {
   );
 }
 
+type AvatarGroupConfig = {
+  seed: number;
+  pose: string;
+  position: [number, number, number];
+  scale: number;
+};
+
 /* ── Group Scene with 5 avatars ── */
-const AVATAR_CONFIGS = [
-  { seed: 42, pose: PHOTO_POSES.Cool, position: [-2.2, 0, 0.3] as [number, number, number] },
-  { seed: 137, pose: PHOTO_POSES.Chill, position: [-1.0, 0, -0.2] as [number, number, number] },
-  { seed: 314, pose: PHOTO_POSES.King, position: [0, 0, -0.5] as [number, number, number] },
-  { seed: 528, pose: PHOTO_POSES.Ninja, position: [1.0, 0, -0.2] as [number, number, number] },
-  { seed: 777, pose: PHOTO_POSES.Punch, position: [2.2, 0, 0.3] as [number, number, number] },
+const AVATAR_CONFIGS: AvatarGroupConfig[] = [
+  { seed: 42, pose: PHOTO_POSES.Cool, position: [-1.85, -0.72, 0.25], scale: 0.68 },
+  { seed: 137, pose: PHOTO_POSES.Chill, position: [-0.95, -0.76, -0.15], scale: 0.7 },
+  { seed: 314, pose: PHOTO_POSES.King, position: [0, -0.78, -0.35], scale: 0.74 },
+  { seed: 528, pose: PHOTO_POSES.Busy, position: [0.95, -0.76, -0.15], scale: 0.7 },
+  { seed: 777, pose: PHOTO_POSES.Idle, position: [1.85, -0.72, 0.25], scale: 0.68 },
 ];
 
 function GroupScene() {
@@ -186,6 +191,7 @@ function GroupScene() {
             avatarData={avatar.data}
             pose={avatar.pose}
             position={avatar.position}
+            scale={avatar.scale}
           />
         </Suspense>
       ))}
@@ -196,19 +202,19 @@ function GroupScene() {
 /* ── Public Component ── */
 export function FoundingAvatarGroup() {
   return (
-    <div className="w-full" style={{ height: 320 }}>
+    <div className="w-full" style={{ height: 300 }}>
       <Canvas
         dpr={[1, 1.5]}
         camera={{
-          position: [0, 0.9, 6.5],
-          fov: 32,
+          position: [0, 0.6, 8],
+          fov: 29,
           near: 0.1,
           far: 100,
         }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: 'transparent' }}
         onCreated={({ camera }) => {
-          camera.lookAt(0, 0.8, 0);
+          camera.lookAt(0, 0.2, 0);
         }}
       >
         <ambientLight intensity={0.8} />
