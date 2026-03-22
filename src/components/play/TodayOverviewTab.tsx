@@ -171,7 +171,7 @@ export function TodayOverviewTab() {
   const activePillar = PILLAR_VIS[activePillarKey] || DEFAULT_PILLAR;
 
   // Get step-by-step guide for the active task's pillar
-  const guide = useMemo(() => getMissionGuide(activePillarKey, isHe), [activePillarKey, isHe]);
+  const guide = useMemo(() => getMissionGuide(activePillarKey, isHe, (activeTask as any)?.metadata), [activePillarKey, isHe, activeTask]);
 
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
