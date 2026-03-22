@@ -514,15 +514,8 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </EmpireCard>
       )}
 
-      {/* ── DNA VISUALIZATION ── */}
-      <EmpireCard className="text-center overflow-hidden">
-        <SectionTitle
-          icon={<Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
-          title={isHe ? 'ה-DNA שלך' : 'Your DNA'}
-          accentColor="bg-indigo-500/10"
-        />
-        <DNAViewer height={320} />
-      </EmpireCard>
+      {/* ── NFT TRIAD: Orb | Avatar | DNA ── */}
+      <ProfileNFTTriad />
 
       {/* ── KINGDOM: Life Direction ── */}
       {lifeDirection && (
