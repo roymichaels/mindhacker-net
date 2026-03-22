@@ -17,7 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
