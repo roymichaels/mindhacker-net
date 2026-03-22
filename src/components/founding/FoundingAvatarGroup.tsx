@@ -102,9 +102,21 @@ function GroupAvatar({ avatarData, pose, position }: {
   position: [number, number, number];
 }) {
   const group = useRef<Group>(null);
-  const { nodes } = useGLTF('/models/Armature.glb') as any;
+  const { scene: armatureScene } = useGLTF('/models/Armature.glb');
   const { animations } = useGLTF('/models/Poses.glb') as any;
   const { actions } = useAnimations(animations, group);
+
+  // Clone the entire armature so each avatar gets its own skeleton instance
+  const { hips, skeleton } = useMemo(() => {
+    const cloned = armatureScene.clone(true);
+    let skel: any = null;
+    let hipsBone: any = null;
+    cloned.traverse((child: any) => {
+      if (child.name === 'mixamorigHips' && !hipsBone) hipsBone = child;
+      if (child.isSkinnedMesh && child.skeleton && !skel) skel = child.skeleton;
+    });
+    return { hips: hipsBone, skeleton: skel };
+  }, [armatureScene]);
 
   useEffect(() => {
     const action = actions[pose];
@@ -126,16 +138,18 @@ function GroupAvatar({ avatarData, pose, position }: {
     return result;
   }, [avatarData]);
 
+  if (!hips || !skeleton) return null;
+
   return (
     <group ref={group} position={position} dispose={null}>
       <group name="Scene">
         <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
-          <primitive object={nodes.mixamorigHips} />
+          <primitive object={hips} />
           {resolvedAssets.map((asset) => (
             <Suspense key={asset.url}>
               <GroupAsset
                 url={asset.url}
-                skeleton={nodes.Plane.skeleton}
+                skeleton={skeleton}
                 color={asset.color}
               />
             </Suspense>
