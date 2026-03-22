@@ -145,8 +145,8 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{
-          position: [0, 0.8, 2.0],
-          fov: 35,
+          position: [0, 1.55, 2.2],
+          fov: 30,
           near: 0.1,
           far: 100,
         }}
