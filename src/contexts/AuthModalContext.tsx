@@ -407,13 +407,19 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         if (resolvedEmail) {
           await doBridge({ email: resolvedEmail, name: resolvedName, idToken: resolvedIdToken });
         } else {
-          console.error('[Web3Auth] No identity found after all attempts');
-          loginIntentRef.current = false;
-          toast({
-            title: 'Authentication incomplete',
-            description: 'Could not retrieve your email. Please try again.',
-            variant: 'destructive',
-          });
+          // Wait a moment — the fallback bridge effect may resolve asynchronously
+          await new Promise((r) => setTimeout(r, 1500));
+          // If bridged in the meantime (via the useEffect fallback), don't show error
+          if (!bridgedRef.current) {
+            console.error('[Web3Auth] No identity found after all attempts');
+            loginIntentRef.current = false;
+            forceCloseW3AModal();
+            toast({
+              title: 'Authentication incomplete',
+              description: 'Could not retrieve your email. Please try again.',
+              variant: 'destructive',
+            });
+          }
         }
       } catch (err: any) {
         loginIntentRef.current = false;
