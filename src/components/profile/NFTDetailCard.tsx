@@ -36,6 +36,8 @@ interface NFTDetailCardProps {
   stats: NFTStat[];
   traits: NFTTrait[];
   description?: string;
+  /** When true, visual takes ~2/3 of the card and stats are hidden */
+  largeVisual?: boolean;
 }
 
 export function NFTDetailCard({
