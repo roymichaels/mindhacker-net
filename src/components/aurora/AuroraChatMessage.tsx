@@ -50,6 +50,8 @@ const AuroraChatMessage = ({
 }: AuroraChatMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
+  const { profile: orbProfile } = useOrbProfile();
+  const { level } = useXpProgress();
   
   const { cleanContent, ctas } = extractCTAs(content);
 
