@@ -947,9 +947,9 @@ export const he = {
     breadcrumbHome: "דף הבית",
     breadcrumbDashboard: "דאשבורד",
     breadcrumbCourses: "מוצרים דיגיטליים",
-    indexTitle: "Mind OS | פלטפורמת התפתחות אישית מבוססת AI",
-    indexDescription: "שלושה מסלולים לשינוי אמיתי: מסע התבוננות חינם, סרטון היפנוזה אישי, או תהליך קפיצה לתודעה חדשה. בחר את המסלול שמתאים לך.",
-    indexKeywords: "היפנוזה, שינוי תודעתי, אימון אישי, תהליך אישי, טרנספורמציה, סרטון היפנוזה, Mind OS",
+    indexTitle: "MindOS | המשחק של החיים שלך — Life MMO מבוסס AI",
+    indexDescription: "הפוך את החיים האמיתיים שלך למערכת שניתן לשחק בה. DNA מגדיר מי אתה, AION מנחה לאן אתה הולך, האווטאר מייצג אותך. שחק, צמח, הרווח, התפתח.",
+    indexKeywords: "משחק חיים, התפתחות אישית, מאמן AI, גיימיפיקציה, Life MMO, AION, MindOS, טרנספורמציה, XP, זהות דיגיטלית",
   },
    about: {
     sectionTitle: "הכירו",

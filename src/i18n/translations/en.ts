@@ -949,9 +949,9 @@ export const en: TranslationKeys = {
     breadcrumbHome: "Home",
     breadcrumbDashboard: "Dashboard",
     breadcrumbCourses: "Digital Products",
-    indexTitle: "Mind OS | AI-Powered Personal Development Platform",
-    indexDescription: "Three paths to real change: Free Introspection Journey, Personalized Hypnosis Video, or Consciousness Leap process. Choose the path that's right for you.",
-    indexKeywords: "hypnosis, consciousness change, personal coaching, personal process, transformation, hypnosis video, Mind OS",
+    indexTitle: "MindOS | The Game of Your Life — AI-Powered Life MMO",
+    indexDescription: "Turn your real life into a playable system. DNA defines who you are, AION guides who you become, your Avatar represents you. Play, grow, earn, evolve.",
+    indexKeywords: "life game, personal development, AI coach, gamification, life MMO, AION, MindOS, transformation, XP, digital identity",
   },
   about: {
     sectionTitle: "About",
