@@ -67,6 +67,20 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
         >
           <Shuffle className="w-5 h-5" />
         </button>
+        <button
+          className="rounded-2xl bg-secondary hover:bg-secondary/90 transition-colors text-secondary-foreground p-3 shadow-lg"
+          onClick={() => {
+            const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+            if (!canvas) return;
+            const link = document.createElement('a');
+            link.setAttribute('download', `avatar-${Date.now()}.png`);
+            link.setAttribute('href', canvas.toDataURL('image/png'));
+            link.click();
+          }}
+          title="הורדה"
+        >
+          <Download className="w-5 h-5" />
+        </button>
         {showSaveButton && onSave && (
           <button
             className="rounded-2xl bg-primary hover:bg-primary/90 transition-colors text-primary-foreground font-medium px-6 py-3 text-sm flex items-center gap-2 shadow-lg"
