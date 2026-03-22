@@ -11,6 +11,15 @@
   display: none;
 }
 
+/* Noscrollbar utility for avatar configurator */
+.noscrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.noscrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Legacy class kept for compatibility */
 .scrollbar-hide {
   -ms-overflow-style: none;
