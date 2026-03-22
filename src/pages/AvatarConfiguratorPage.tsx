@@ -47,8 +47,8 @@ const AvatarConfiguratorPage = () => {
       console.error(error);
     } else {
       toast.success("Avatar saved!");
-      // Invalidate avatar query so mini previews update
       queryClient.invalidateQueries({ queryKey: ['avatar-customization', user.id] });
+      navigate('/play');
     }
   }, [user, getCustomizationData, queryClient]);
 
