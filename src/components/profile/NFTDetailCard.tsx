@@ -30,14 +30,15 @@ interface NFTDetailCardProps {
   title: string;
   subtitle: string;
   rarity: string;
-  rarityColor: string; // hsl string like "270 70% 55%"
+  rarityColor: string;
   serial?: string;
   visual: React.ReactNode;
   stats: NFTStat[];
   traits: NFTTrait[];
   description?: string;
-  /** When true, visual takes ~2/3 of the card and stats are hidden */
   largeVisual?: boolean;
+  /** Custom content rendered below the visual/title */
+  children?: React.ReactNode;
 }
 
 export function NFTDetailCard({
