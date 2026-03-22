@@ -138,6 +138,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   let msgCounter = useRef(0);
   const startedRef = useRef(false);
+  const autoContinueAttempts = useRef(0);
   const messagesRef = useRef<ChatMessage[]>(messages);
   messagesRef.current = messages;
 
@@ -257,7 +258,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       console.error('Failed to save:', err);
       setSaving(false);
     }
-  }, [saveAssessment, navigate, domainId, meta]);
+  }, [saveAssessment, navigate, domainId, meta, asModal, asDock, onClose]);
 
   async function streamChat(
     msgs: { role: string; content: string }[],
@@ -392,14 +393,14 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
     };
     try {
       await streamChat([], updateAssistant, () => {
-        setIsStreaming(false);
         if (assistantSoFar) addAssistantMessage(assistantSoFar);
         setStreamingContent('');
+        setIsStreaming(false);
       }, handleToolCall);
     } catch (e) {
       console.error(e);
-      setIsStreaming(false);
       setStreamingContent('');
+      setIsStreaming(false);
     }
   }, [language, handleToolCall, addAssistantMessage]);
 
@@ -433,16 +434,18 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         updated.map(m => ({ role: m.role, content: m.content })),
         updateAssistant,
         () => {
-          setIsStreaming(false);
           if (assistantSoFar) addAssistantMessage(assistantSoFar);
           setStreamingContent('');
+          setIsStreaming(false);
+          // Reset auto-continue attempts on successful response
+          autoContinueAttempts.current = 0;
         },
         handleToolCall
       );
     } catch (e) {
       console.error(e);
-      setIsStreaming(false);
       setStreamingContent('');
+      setIsStreaming(false);
     }
   }, [isStreaming, handleToolCall, addAssistantMessage, conversationId, saveMessageToDB]);
 
@@ -459,6 +462,13 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
     // Has existing messages — check if the last message is from the user (AI never replied)
     const currentMessages = messagesRef.current;
     if (currentMessages.length > 0 && currentMessages[currentMessages.length - 1].role === 'user' && !isStreaming) {
+      // Guard: max 2 auto-continue attempts to prevent infinite loops
+      if (autoContinueAttempts.current >= 2) {
+        console.warn('[DomainAssessChat] Max auto-continue attempts reached, stopping');
+        return;
+      }
+      autoContinueAttempts.current += 1;
+      
       // Re-send the full history to get Aurora's response
       setIsStreaming(true);
       setStreamingContent('');
@@ -471,15 +481,16 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         currentMessages.map(m => ({ role: m.role, content: m.content })),
         updateAssistant,
         () => {
-          setIsStreaming(false);
           if (assistantSoFar) addAssistantMessage(assistantSoFar);
           setStreamingContent('');
+          setIsStreaming(false);
+          autoContinueAttempts.current = 0;
         },
         handleToolCall
       ).catch(e => {
         console.error('Auto-continue error:', e);
-        setIsStreaming(false);
         setStreamingContent('');
+        setIsStreaming(false);
       });
     }
   }, [loadingHistory, conversationId, startConversation, isStreaming, handleToolCall, addAssistantMessage]);
