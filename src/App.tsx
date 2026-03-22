@@ -222,230 +222,230 @@ const App = () => (
       <ThemeProvider>
         <BackgroundEffect />
         <div className="relative z-10">
-          <Web3AuthProviderWrapper>
-            <AuthProvider>
-              <AuroraChatProvider>
-               <LanguageProvider>
-               <AuthModalProvider>
-                <GameStateProvider>
-                <SubscriptionsModalProvider>
-                 <CoachesModalProvider>
-                 <WalletModalProvider>
-                 <SoulAvatarProvider>
-                 <ProfileModalProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                
-                <BrowserRouter>
-                   <FlowAuditProvider>
-                   <AffiliateTracker />
-                   <UTMTrackerMount />
-                    <AnalyticsProvider>
-                    <SmartOnboardingProvider>
-                    <Suspense fallback={<PageSkeleton />}>
-                      <Routes>
-                        {/* Public routes */}
-                        <Route path="/" element={<Index />} />
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:slug" element={<BlogPost />} />
-                        <Route path="/courses" element={<Courses />} />
-                        <Route path="/courses/:slug" element={<CourseDetail />} />
-                        <Route path="/courses/:slug/watch" element={<CourseWatch />} />
-                        <Route path="/subscriptions" element={<Subscriptions />} />
-                        <Route path="/install" element={<Install />} />
-                        <Route path="/audio/:token" element={<AudioPlayer />} />
-                        <Route path="/video/:token" element={<VideoPlayer />} />
-                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                        <Route path="/terms-of-service" element={<TermsOfService />} />
-                        <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                        <Route path="/onboarding" element={<Onboarding />} />
-                        <Route path="/ceremony" element={<OnboardingCeremony />} />
-                        <Route path="/go" element={<Go />} />
-                        <Route path="/founding" element={<FoundingLanding />} />
-                        <Route path="/features/:slug" element={<FeatureDetailPage />} />
-                        {/* Coach slug redirects (dynamic, can't be in map) */}
-                        <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
-                        <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
-                        <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
-                        <Route path="/unsubscribe" element={<Unsubscribe />} />
-                        <Route path="/docs" element={<Documentation />} />
+          <BrowserRouter>
+            <Web3AuthProviderWrapper>
+              <AuthProvider>
+                <AuroraChatProvider>
+                  <LanguageProvider>
+                    <AuthModalProvider>
+                      <GameStateProvider>
+                        <SubscriptionsModalProvider>
+                          <CoachesModalProvider>
+                            <WalletModalProvider>
+                              <SoulAvatarProvider>
+                                <ProfileModalProvider>
+                                  <TooltipProvider>
+                                    <Toaster />
+                                    <Sonner />
 
-                        {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
-                        <Route element={<ProtectedAppShell />}>
-                          {/* Community */}
-                          <Route path="/community" element={<CommunityLayoutWrapper />} />
-                          <Route path="/community/post/:postId" element={<CommunityThread />} />
-                          {/* Messages */}
-                          <Route path="/messages" element={<Messages />} />
-                          <Route path="/messages/:conversationId" element={<MessageThread />} />
-                          {/* Aurora Chat */}
-                          <Route path="/aurora" element={<AuroraPage />} />
-                          {/* Legacy redirects to Play */}
-                          <Route path="/now" element={<Navigate to="/play" replace />} />
-                          <Route path="/plan" element={<Navigate to="/play" replace />} />
-                          {/* Play (merged Strategy + Tactics) */}
-                          <Route path="/play" element={<PlayLayoutWrapper />} />
-                          {/* Profile removed — now modal-based via ProfileModalContext */}
-                          <Route path="/profile" element={<Navigate to="/play" replace />} />
-                          {/* Strategy sub-routes for pillar assessments */}
-                          <Route path="/strategy" element={<Navigate to="/play" replace />} />
-                          <Route path="/strategy/presence" element={<PresenceHome />} />
-                          <Route path="/strategy/presence/scan" element={<PresenceScan />} />
-                          <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
-                          <Route path="/strategy/presence/results" element={<PresenceResultsPage />} />
-                          <Route path="/strategy/presence/assess" element={<PresenceChatAssess />} />
-                          <Route path="/strategy/presence/chat-results" element={<PresenceChatResults />} />
-                          <Route path="/strategy/presence/history" element={<PresenceHistory />} />
-                          {/* Power */}
-                          <Route path="/strategy/power" element={<PowerHome />} />
-                          <Route path="/strategy/power/assess" element={<PowerChatAssess />} />
-                          <Route path="/strategy/power/chat-results" element={<PowerChatResults />} />
-                          <Route path="/strategy/power/results" element={<PowerResultsPage />} />
-                          <Route path="/strategy/power/history" element={<PowerHistory />} />
-                          {/* Vitality */}
-                          <Route path="/strategy/vitality" element={<VitalityHome />} />
-                          <Route path="/strategy/vitality/assess" element={<VitalityChatAssess />} />
-                          <Route path="/strategy/vitality/chat-results" element={<VitalityChatResults />} />
-                          <Route path="/strategy/vitality/intake" element={<VitalityIntake />} />
-                          <Route path="/strategy/vitality/results" element={<VitalityResults />} />
-                          <Route path="/strategy/vitality/history" element={<VitalityHistory />} />
-                          {/* Focus */}
-                          <Route path="/strategy/focus" element={<FocusHome />} />
-                          <Route path="/strategy/focus/assess" element={<FocusChatAssess />} />
-                          <Route path="/strategy/focus/chat-results" element={<FocusChatResults />} />
-                          <Route path="/strategy/focus/results" element={<FocusResults />} />
-                          <Route path="/strategy/focus/history" element={<FocusHistory />} />
-                          {/* Combat */}
-                          <Route path="/strategy/combat" element={<CombatHome />} />
-                          <Route path="/strategy/combat/assess" element={<CombatChatAssess />} />
-                          <Route path="/strategy/combat/chat-results" element={<CombatChatResults />} />
-                          <Route path="/strategy/combat/results" element={<CombatResults />} />
-                          <Route path="/strategy/combat/history" element={<CombatHistory />} />
-                          {/* Expansion */}
-                          <Route path="/strategy/expansion" element={<ExpansionHome />} />
-                          <Route path="/strategy/expansion/assess" element={<ExpansionChatAssess />} />
-                          <Route path="/strategy/expansion/chat-results" element={<ExpansionChatResults />} />
-                          <Route path="/strategy/expansion/results" element={<ExpansionResults />} />
-                          <Route path="/strategy/expansion/history" element={<ExpansionHistory />} />
-                          {/* Consciousness */}
-                          <Route path="/strategy/consciousness" element={<ConsciousnessHome />} />
-                          <Route path="/strategy/consciousness/assess" element={<ConsciousnessAssess />} />
-                          <Route path="/strategy/consciousness/results" element={<ConsciousnessResults />} />
-                          <Route path="/strategy/consciousness/history" element={<ConsciousnessHistory />} />
-                          {/* Arena domain routes — now under /strategy */}
-                          <Route path="/strategy/wealth/assess" element={<WealthAssess />} />
-                          <Route path="/strategy/wealth/results" element={<WealthResults />} />
-                          <Route path="/strategy/influence/assess" element={<InfluenceAssess />} />
-                          <Route path="/strategy/influence/results" element={<InfluenceResults />} />
-                          <Route path="/strategy/relationships/assess" element={<RelationshipsAssess />} />
-                          <Route path="/strategy/relationships/results" element={<RelationshipsResults />} />
-                          <Route path="/strategy/business/assess" element={<BusinessAssess />} />
-                          <Route path="/strategy/business/results" element={<BusinessResults />} />
-                          <Route path="/strategy/projects/assess" element={<ProjectsAssess />} />
-                          <Route path="/strategy/projects/results" element={<ProjectsResults />} />
-                          <Route path="/strategy/play/assess" element={<PlayAssess />} />
-                          <Route path="/strategy/play/results" element={<PlayResults />} />
-                          {/* Strategy domain catch-all */}
-                          <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
-                          {renderProtectedRedirectRoutes()}
-                          <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
-                          {/* Coaches */}
-                          <Route path="/coaches" element={<CoachesLayoutWrapper />} />
-                          {/* Admin Hub */}
-                          <Route path="/admin-hub" element={<AdminLayoutWrapper />} />
-                          {/* Launchpad */}
-                          <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
-                          {/* Quests */}
-                          <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
-                          {/* Learn */}
-                          <Route path="/learn" element={<LearnLayoutWrapper />} />
-                          {/* Work Hub */}
-                          <Route path="/work" element={<WorkLayoutWrapper />} />
-                          <Route path="/fm" element={<FMAppShell />}>
-                            <Route index element={<FMMarketLayoutWrapper />} />
-                            <Route path="home" element={<Navigate to="/fm" replace />} />
-                            <Route path="earn" element={<Navigate to="/fm" replace />} />
-                            <Route path="market" element={<Navigate to="/fm" replace />} />
-                            <Route path="work" element={<Navigate to="/fm" replace />} />
-                            <Route path="share" element={<Navigate to="/fm" replace />} />
-                            <Route path="contribute" element={<Navigate to="/fm" replace />} />
-                            <Route path="wallet" element={<Navigate to="/fm" replace />} />
-                            <Route path="cashout" element={<FMCashout />} />
-                            <Route path="bridge" element={<FMBridge />} />
-                            <Route path="coaches" element={<Navigate to="/coaches" replace />} />
-                          </Route>
-                          
-                          {/* Journeys */}
-                          <Route path="/coaching/journey" element={<CoachingJourney />} />
-                          <Route path="/coaching/journey/:journeyId" element={<CoachingJourney />} />
-                          <Route path="/admin/journey" element={<AdminJourney />} />
-                          <Route path="/admin/journey/:journeyId" element={<AdminJourney />} />
-                          <Route path="/projects/journey" element={<ProjectsJourney />} />
-                          <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
-                          {/* Business */}
-                          <Route path="/business" element={<BusinessIndexWrapper />} />
-                          <Route path="/business/journey" element={<BusinessJourneyWrapper />} />
-                          <Route path="/business/journey/:journeyId" element={<BusinessJourneyWrapper />} />
-                          <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
-                          {/* Freelancer */}
-                          <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
-                          {/* Creator */}
-                          <Route path="/creator" element={<CreatorLayoutWrapper />} />
-                          {/* Therapist */}
-                          <Route path="/therapist" element={<TherapistLayoutWrapper />} />
-                          {/* Success */}
-                          <Route path="/success" element={<Success />} />
-                        </Route>
+                                    <FlowAuditProvider>
+                                      <AffiliateTracker />
+                                      <UTMTrackerMount />
+                                      <AnalyticsProvider>
+                                        <SmartOnboardingProvider>
+                                          <Suspense fallback={<PageSkeleton />}>
+                                            <Routes>
+                                              {/* Public routes */}
+                                              <Route path="/" element={<Index />} />
+                                              <Route path="/blog" element={<Blog />} />
+                                              <Route path="/blog/:slug" element={<BlogPost />} />
+                                              <Route path="/courses" element={<Courses />} />
+                                              <Route path="/courses/:slug" element={<CourseDetail />} />
+                                              <Route path="/courses/:slug/watch" element={<CourseWatch />} />
+                                              <Route path="/subscriptions" element={<Subscriptions />} />
+                                              <Route path="/install" element={<Install />} />
+                                              <Route path="/audio/:token" element={<AudioPlayer />} />
+                                              <Route path="/video/:token" element={<VideoPlayer />} />
+                                              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                                              <Route path="/terms-of-service" element={<TermsOfService />} />
+                                              <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+                                              <Route path="/onboarding" element={<Onboarding />} />
+                                              <Route path="/ceremony" element={<OnboardingCeremony />} />
+                                              <Route path="/go" element={<Go />} />
+                                              <Route path="/founding" element={<FoundingLanding />} />
+                                              <Route path="/features/:slug" element={<FeatureDetailPage />} />
+                                              {/* Coach slug redirects (dynamic, can't be in map) */}
+                                              <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
+                                              <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
+                                              <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
+                                              <Route path="/unsubscribe" element={<Unsubscribe />} />
+                                              <Route path="/docs" element={<Documentation />} />
 
-                        {/* All legacy/panel/admin redirects from config */}
-                        {renderRedirectRoutes()}
-                        {/* Affiliate Panel */}
-                        <Route
-                          path="/affiliate"
-                          element={
-                            <RoleRoute allowedRoles={['affiliate']}>
-                              <AffiliatePanel />
-                            </RoleRoute>
-                          }
-                        >
-                          <Route index element={<AffiliateDashboardPanel />} />
-                          <Route path="links" element={<MyLinks />} />
-                          <Route path="referrals" element={<MyReferrals />} />
-                          <Route path="payouts" element={<MyPayouts />} />
-                        </Route>
-                        {/* Dev routes */}
-                        <Route path="/orbs" element={<OrbGalleryPage />} />
-                        <Route path="/dev/orb-gallery" element={<OrbGallery />} />
-                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                      <PWAInstallBanner />
-                      <PWAUpdatePrompt />
-                      <NotificationPermissionPrompt />
-                      <CookieConsent />
-                      <SubscriptionsModal />
-                      <WalletModal />
-                      <Suspense fallback={null}><ProfilePage /></Suspense>
-                      <SoulAvatarMintWizardGlobal />
-                      
-                    </Suspense>
-                    </SmartOnboardingProvider>
-                  </AnalyticsProvider>
-                   </FlowAuditProvider>
-                </BrowserRouter>
-                </TooltipProvider>
-                </ProfileModalProvider>
-                </SoulAvatarProvider>
-                </WalletModalProvider>
-                </CoachesModalProvider>
-                </SubscriptionsModalProvider>
-              </GameStateProvider>
-             </AuthModalProvider>
-               </LanguageProvider>
-            </AuroraChatProvider>
-          </AuthProvider>
-          </Web3AuthProviderWrapper>
+                                              {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
+                                              <Route element={<ProtectedAppShell />}>
+                                                {/* Community */}
+                                                <Route path="/community" element={<CommunityLayoutWrapper />} />
+                                                <Route path="/community/post/:postId" element={<CommunityThread />} />
+                                                {/* Messages */}
+                                                <Route path="/messages" element={<Messages />} />
+                                                <Route path="/messages/:conversationId" element={<MessageThread />} />
+                                                {/* Aurora Chat */}
+                                                <Route path="/aurora" element={<AuroraPage />} />
+                                                {/* Legacy redirects to Play */}
+                                                <Route path="/now" element={<Navigate to="/play" replace />} />
+                                                <Route path="/plan" element={<Navigate to="/play" replace />} />
+                                                {/* Play (merged Strategy + Tactics) */}
+                                                <Route path="/play" element={<PlayLayoutWrapper />} />
+                                                {/* Profile removed — now modal-based via ProfileModalContext */}
+                                                <Route path="/profile" element={<Navigate to="/play" replace />} />
+                                                {/* Strategy sub-routes for pillar assessments */}
+                                                <Route path="/strategy" element={<Navigate to="/play" replace />} />
+                                                <Route path="/strategy/presence" element={<PresenceHome />} />
+                                                <Route path="/strategy/presence/scan" element={<PresenceScan />} />
+                                                <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
+                                                <Route path="/strategy/presence/results" element={<PresenceResultsPage />} />
+                                                <Route path="/strategy/presence/assess" element={<PresenceChatAssess />} />
+                                                <Route path="/strategy/presence/chat-results" element={<PresenceChatResults />} />
+                                                <Route path="/strategy/presence/history" element={<PresenceHistory />} />
+                                                {/* Power */}
+                                                <Route path="/strategy/power" element={<PowerHome />} />
+                                                <Route path="/strategy/power/assess" element={<PowerChatAssess />} />
+                                                <Route path="/strategy/power/chat-results" element={<PowerChatResults />} />
+                                                <Route path="/strategy/power/results" element={<PowerResultsPage />} />
+                                                <Route path="/strategy/power/history" element={<PowerHistory />} />
+                                                {/* Vitality */}
+                                                <Route path="/strategy/vitality" element={<VitalityHome />} />
+                                                <Route path="/strategy/vitality/assess" element={<VitalityChatAssess />} />
+                                                <Route path="/strategy/vitality/chat-results" element={<VitalityChatResults />} />
+                                                <Route path="/strategy/vitality/intake" element={<VitalityIntake />} />
+                                                <Route path="/strategy/vitality/results" element={<VitalityResults />} />
+                                                <Route path="/strategy/vitality/history" element={<VitalityHistory />} />
+                                                {/* Focus */}
+                                                <Route path="/strategy/focus" element={<FocusHome />} />
+                                                <Route path="/strategy/focus/assess" element={<FocusChatAssess />} />
+                                                <Route path="/strategy/focus/chat-results" element={<FocusChatResults />} />
+                                                <Route path="/strategy/focus/results" element={<FocusResults />} />
+                                                <Route path="/strategy/focus/history" element={<FocusHistory />} />
+                                                {/* Combat */}
+                                                <Route path="/strategy/combat" element={<CombatHome />} />
+                                                <Route path="/strategy/combat/assess" element={<CombatChatAssess />} />
+                                                <Route path="/strategy/combat/chat-results" element={<CombatChatResults />} />
+                                                <Route path="/strategy/combat/results" element={<CombatResults />} />
+                                                <Route path="/strategy/combat/history" element={<CombatHistory />} />
+                                                {/* Expansion */}
+                                                <Route path="/strategy/expansion" element={<ExpansionHome />} />
+                                                <Route path="/strategy/expansion/assess" element={<ExpansionChatAssess />} />
+                                                <Route path="/strategy/expansion/chat-results" element={<ExpansionChatResults />} />
+                                                <Route path="/strategy/expansion/results" element={<ExpansionResults />} />
+                                                <Route path="/strategy/expansion/history" element={<ExpansionHistory />} />
+                                                {/* Consciousness */}
+                                                <Route path="/strategy/consciousness" element={<ConsciousnessHome />} />
+                                                <Route path="/strategy/consciousness/assess" element={<ConsciousnessAssess />} />
+                                                <Route path="/strategy/consciousness/results" element={<ConsciousnessResults />} />
+                                                <Route path="/strategy/consciousness/history" element={<ConsciousnessHistory />} />
+                                                {/* Arena domain routes — now under /strategy */}
+                                                <Route path="/strategy/wealth/assess" element={<WealthAssess />} />
+                                                <Route path="/strategy/wealth/results" element={<WealthResults />} />
+                                                <Route path="/strategy/influence/assess" element={<InfluenceAssess />} />
+                                                <Route path="/strategy/influence/results" element={<InfluenceResults />} />
+                                                <Route path="/strategy/relationships/assess" element={<RelationshipsAssess />} />
+                                                <Route path="/strategy/relationships/results" element={<RelationshipsResults />} />
+                                                <Route path="/strategy/business/assess" element={<BusinessAssess />} />
+                                                <Route path="/strategy/business/results" element={<BusinessResults />} />
+                                                <Route path="/strategy/projects/assess" element={<ProjectsAssess />} />
+                                                <Route path="/strategy/projects/results" element={<ProjectsResults />} />
+                                                <Route path="/strategy/play/assess" element={<PlayAssess />} />
+                                                <Route path="/strategy/play/results" element={<PlayResults />} />
+                                                {/* Strategy domain catch-all */}
+                                                <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
+                                                {renderProtectedRedirectRoutes()}
+                                                <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
+                                                {/* Coaches */}
+                                                <Route path="/coaches" element={<CoachesLayoutWrapper />} />
+                                                {/* Admin Hub */}
+                                                <Route path="/admin-hub" element={<AdminLayoutWrapper />} />
+                                                {/* Launchpad */}
+                                                <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
+                                                {/* Quests */}
+                                                <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
+                                                {/* Learn */}
+                                                <Route path="/learn" element={<LearnLayoutWrapper />} />
+                                                {/* Work Hub */}
+                                                <Route path="/work" element={<WorkLayoutWrapper />} />
+                                                <Route path="/fm" element={<FMAppShell />}>
+                                                  <Route index element={<FMMarketLayoutWrapper />} />
+                                                  <Route path="home" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="earn" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="market" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="work" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="share" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="contribute" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="wallet" element={<Navigate to="/fm" replace />} />
+                                                  <Route path="cashout" element={<FMCashout />} />
+                                                  <Route path="bridge" element={<FMBridge />} />
+                                                  <Route path="coaches" element={<Navigate to="/coaches" replace />} />
+                                                </Route>
+
+                                                {/* Journeys */}
+                                                <Route path="/coaching/journey" element={<CoachingJourney />} />
+                                                <Route path="/coaching/journey/:journeyId" element={<CoachingJourney />} />
+                                                <Route path="/admin/journey" element={<AdminJourney />} />
+                                                <Route path="/admin/journey/:journeyId" element={<AdminJourney />} />
+                                                <Route path="/projects/journey" element={<ProjectsJourney />} />
+                                                <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
+                                                {/* Business */}
+                                                <Route path="/business" element={<BusinessIndexWrapper />} />
+                                                <Route path="/business/journey" element={<BusinessJourneyWrapper />} />
+                                                <Route path="/business/journey/:journeyId" element={<BusinessJourneyWrapper />} />
+                                                <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
+                                                {/* Freelancer */}
+                                                <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
+                                                {/* Creator */}
+                                                <Route path="/creator" element={<CreatorLayoutWrapper />} />
+                                                {/* Therapist */}
+                                                <Route path="/therapist" element={<TherapistLayoutWrapper />} />
+                                                {/* Success */}
+                                                <Route path="/success" element={<Success />} />
+                                              </Route>
+
+                                              {/* All legacy/panel/admin redirects from config */}
+                                              {renderRedirectRoutes()}
+                                              {/* Affiliate Panel */}
+                                              <Route
+                                                path="/affiliate"
+                                                element={
+                                                  <RoleRoute allowedRoles={['affiliate']}>
+                                                    <AffiliatePanel />
+                                                  </RoleRoute>
+                                                }
+                                              >
+                                                <Route index element={<AffiliateDashboardPanel />} />
+                                                <Route path="links" element={<MyLinks />} />
+                                                <Route path="referrals" element={<MyReferrals />} />
+                                                <Route path="payouts" element={<MyPayouts />} />
+                                              </Route>
+                                              {/* Dev routes */}
+                                              <Route path="/orbs" element={<OrbGalleryPage />} />
+                                              <Route path="/dev/orb-gallery" element={<OrbGallery />} />
+                                              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                                              <Route path="*" element={<NotFound />} />
+                                            </Routes>
+                                            <PWAInstallBanner />
+                                            <PWAUpdatePrompt />
+                                            <NotificationPermissionPrompt />
+                                            <CookieConsent />
+                                            <SubscriptionsModal />
+                                            <WalletModal />
+                                            <Suspense fallback={null}><ProfilePage /></Suspense>
+                                            <SoulAvatarMintWizardGlobal />
+
+                                          </Suspense>
+                                        </SmartOnboardingProvider>
+                                      </AnalyticsProvider>
+                                    </FlowAuditProvider>
+                                  </TooltipProvider>
+                                </ProfileModalProvider>
+                              </SoulAvatarProvider>
+                            </WalletModalProvider>
+                          </CoachesModalProvider>
+                        </SubscriptionsModalProvider>
+                      </GameStateProvider>
+                    </AuthModalProvider>
+                  </LanguageProvider>
+                </AuroraChatProvider>
+              </AuthProvider>
+            </Web3AuthProviderWrapper>
+          </BrowserRouter>
         </div>
       </ThemeProvider>
     </QueryClientProvider>
