@@ -12,7 +12,7 @@ import { flowAudit } from "@/lib/flowAudit";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
 
 // Above-fold (eager)
-import { GameHeroSection, ProblemSection } from "@/components/home";
+import { GameHeroSection, ProblemSection, ShiftSection } from "@/components/home";
 
 // Below-fold (lazy)
 const CityShowcaseSection = lazy(() => import("@/components/home/CityShowcaseSection"));
