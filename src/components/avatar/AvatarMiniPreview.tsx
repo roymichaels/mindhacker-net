@@ -5,6 +5,7 @@
  * Falls back to a colored circle with initials when no avatar data exists.
  */
 import { Suspense, useMemo, useRef, useEffect } from 'react';
+import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { cn } from '@/lib/utils';
@@ -14,12 +15,12 @@ import type { Skeleton, Group } from 'three';
 import { User } from 'lucide-react';
 
 /* ── Lightweight Asset (no store dependency) ── */
-function MiniAsset({ url, categoryName, skeleton, color, skinMaterial }: {
+function MiniAsset({ url, categoryName, skeleton, color, skinColor }: {
   url: string;
   categoryName: string;
   skeleton: Skeleton;
   color?: string;
-  skinMaterial?: any;
+  skinColor?: string;
 }) {
   const { scene } = useGLTF(url);
 
@@ -27,19 +28,23 @@ function MiniAsset({ url, categoryName, skeleton, color, skinMaterial }: {
     const result: any[] = [];
     scene.traverse((child: any) => {
       if (!child.isMesh) return;
-      const mat = child.material;
+      // Clone material to avoid mutating the cached original
+      const mat = child.material.clone();
       if (color && mat?.name?.includes('Color_')) {
         mat.color.set(color);
       }
+      if (skinColor && mat?.name?.includes('Skin_')) {
+        mat.color.set(skinColor);
+      }
       result.push({
         geometry: child.geometry,
-        material: mat.name?.includes('Skin_') && skinMaterial ? skinMaterial : mat,
+        material: mat,
         morphTargetDictionary: child.morphTargetDictionary,
         morphTargetInfluences: child.morphTargetInfluences,
       });
     });
     return result;
-  }, [scene, color, skinMaterial]);
+  }, [scene, color, skinColor]);
 
   return (
     <>
@@ -62,16 +67,7 @@ function MiniAvatarScene({ avatarData }: { avatarData: AvatarCustomizationData }
   const group = useRef<Group>(null);
   const { nodes } = useGLTF('/models/Armature.glb') as any;
 
-  // Build skin material from head color
-  const skinMaterial = useMemo(() => {
-    const skinColor = avatarData.Head?.color;
-    if (!skinColor) return null;
-    const mat = (nodes.Plane?.skeleton as any)
-      ? null
-      : null;
-    // Clone a basic material for skin
-    return null; // Let Asset.tsx handle skin via store
-  }, [avatarData.Head?.color, nodes]);
+  const headSkinColor = avatarData.Head?.color;
 
   // Resolve assets from saved data
   const resolvedAssets = useMemo(() => {
@@ -90,13 +86,6 @@ function MiniAvatarScene({ avatarData }: { avatarData: AvatarCustomizationData }
     return result;
   }, [avatarData]);
 
-  // Apply skin color to all Skin_ materials
-  useEffect(() => {
-    const skinColor = avatarData.Head?.color;
-    if (!skinColor || !nodes.Plane?.skeleton) return;
-    // We'll handle skin via material traversal in MiniAsset
-  }, [avatarData.Head?.color, nodes]);
-
   return (
     <group ref={group} dispose={null}>
       <group name="Scene">
@@ -109,7 +98,7 @@ function MiniAvatarScene({ avatarData }: { avatarData: AvatarCustomizationData }
                 categoryName={asset.categoryName}
                 skeleton={nodes.Plane.skeleton}
                 color={asset.color}
-                skinMaterial={null}
+                skinColor={headSkinColor}
               />
             </Suspense>
           ))}
