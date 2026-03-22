@@ -156,8 +156,12 @@ export function TodayOverviewTab() {
 
   const openDayChat = useCallback(() => setChatOpen(true), []);
 
+  const todayIndex = useMemo(() => {
+    const idx = (days || []).findIndex((d: DayPlan) => d.isToday);
+    return idx >= 0 ? idx : 0;
+  }, [days]);
   const todayPlan: DayPlan | null = useMemo(
-    () => (days || []).find((d: DayPlan) => d.isToday) || null, [days],
+    () => days?.[todayIndex] || null, [days, todayIndex],
   );
   const todayActions: TacticalAction[] = useMemo(
     () => (todayPlan ? todayPlan.blocks.flatMap((b) => b.actions) : []), [todayPlan],
