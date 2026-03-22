@@ -2951,16 +2951,16 @@ export const en: TranslationKeys = {
 
     // FinalCTASection
     finalCta: {
-      title: 'Choose Your Rank',
-      subtitle: 'Start free. Upgrade when you\'re ready to go deeper.',
-      epicTitle: 'Your Empire Awaits',
-      cta: '⚡ Start Building',
-      personalCoach: 'Personal AI Coach 24/7',
+      title: 'Ready to Play?',
+      subtitle: 'Start free. Level up when ready.',
+      epicTitle: 'Your Game Awaits',
+      cta: '🎮 Start Playing',
+      personalCoach: 'Personal AI (AION) 24/7',
       plan100: 'Tailored 100-Day Plan',
       domains14: '15 Life Domains',
       hypnosis: 'Custom Hypnosis Sessions',
       gamification: 'Full Gamification',
-      orbAvatar: 'Personalized Orb Avatar',
+      orbAvatar: 'Personalized 3D Avatar',
       personalJourney: 'Personalized journey',
       fiveMinutes: '5 minutes to start',
       cancelAnytime: 'Cancel anytime',
