@@ -61,6 +61,13 @@ export interface TacticalAction {
   startTime: string | null;
   endTime: string | null;
   orderIndex: number;
+  /** AI-generated step-by-step guide unique to this mission */
+  missionGuide?: {
+    steps: string[];
+    steps_he: string[];
+    youtube_tip?: string | null;
+    youtube_tip_he?: string | null;
+  } | null;
 }
 
 /** A themed block containing multiple milestones */
@@ -333,6 +340,7 @@ function parseAiSchedule(
         };
         (action as any).blockId = block.block_id || null;
         (action as any).missionTitle = m.mission_title || null;
+        action.missionGuide = m.mission_guide || null;
         return action;
       });
 
