@@ -107,7 +107,7 @@ export function OrbNFTCard({ onTapOrb, compact = false }: OrbNFTCardProps) {
             className="absolute -inset-1.5 rounded-full border"
             style={{ borderColor: `hsl(${rarity.color} / 0.25)` }}
           />
-          <PersonalizedOrb size={compact ? 80 : 120} state="idle" />
+          <AvatarMiniPreview size={compact ? 80 : 120} />
         </button>
 
         {/* Identity */}

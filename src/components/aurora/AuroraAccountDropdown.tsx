@@ -164,7 +164,7 @@ const AuroraAccountDropdown = ({
                 <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
                   <div className="absolute inset-[-25%] rounded-full bg-primary/15 blur-md pointer-events-none" />
                   <div className="relative z-10">
-                    <PersonalizedOrb size={80} state="idle" />
+                    <AvatarMiniPreview size={80} />
                   </div>
                 </div>
               </div>

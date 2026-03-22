@@ -183,12 +183,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
                 onClick={(e) => {
                   e.stopPropagation();
                   setDropdownOpen(false);
-                  setOrbViewerOpen(true);
+                  openProfile();
                 }}
               >
                 <div className="absolute inset-[-30%] rounded-full bg-amber-500/10 blur-lg pointer-events-none" />
                 <div className="relative z-10">
-                  <PersonalizedOrb size={80} state="idle" />
+                  <AvatarMiniPreview size={80} />
                 </div>
               </div>
 

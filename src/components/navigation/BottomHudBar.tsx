@@ -88,12 +88,7 @@ export function BottomHudBar() {
             className="flex-shrink-0 rounded-full transition-shadow duration-700"
             style={{ width: 44, height: 44, ...orbGlowStyle }}
           >
-            <StandaloneMorphOrb
-              size={44}
-              profile={userOrbProfile}
-              geometryFamily={userOrbProfile.geometryFamily || 'sphere'}
-              level={xp.level}
-            />
+            <AvatarMiniPreview size={44} />
           </div>
           {identityTitle && (
             <div className="min-w-0 flex flex-col">
