@@ -7,7 +7,8 @@ import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { AURORA_ORB_PROFILE } from '@/components/aurora/AuroraHoloOrb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useXpProgress } from '@/hooks/useGameState';
 import { TTSPlayer } from './TTSPlayer';
 
 interface AuroraChatMessageProps {
