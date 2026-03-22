@@ -5,3 +5,4 @@ export { default as ProfileAurora } from './ProfileAurora';
 export { default as ProfileActivity } from './ProfileActivity';
 export { default as ProfilePurchases } from './ProfilePurchases';
 export { default as ProfileActions } from './ProfileActions';
+export { default as ProfileNFTTriad } from './ProfileNFTTriad';
