@@ -21,6 +21,7 @@ import { getEgoStateLabel } from '@/lib/egoStateLabels';
 import { supabase } from '@/integrations/supabase/client';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { Progress } from '@/components/ui/progress';
 // Tabs removed — profile content shown directly
 import { Badge } from '@/components/ui/badge';
