@@ -67,16 +67,7 @@ function MiniAvatarScene({ avatarData }: { avatarData: AvatarCustomizationData }
   const group = useRef<Group>(null);
   const { nodes } = useGLTF('/models/Armature.glb') as any;
 
-  // Build skin material from head color
-  const skinMaterial = useMemo(() => {
-    const skinColor = avatarData.Head?.color;
-    if (!skinColor) return null;
-    const mat = (nodes.Plane?.skeleton as any)
-      ? null
-      : null;
-    // Clone a basic material for skin
-    return null; // Let Asset.tsx handle skin via store
-  }, [avatarData.Head?.color, nodes]);
+  const headSkinColor = avatarData.Head?.color;
 
   // Resolve assets from saved data
   const resolvedAssets = useMemo(() => {
@@ -95,13 +86,6 @@ function MiniAvatarScene({ avatarData }: { avatarData: AvatarCustomizationData }
     return result;
   }, [avatarData]);
 
-  // Apply skin color to all Skin_ materials
-  useEffect(() => {
-    const skinColor = avatarData.Head?.color;
-    if (!skinColor || !nodes.Plane?.skeleton) return;
-    // We'll handle skin via material traversal in MiniAsset
-  }, [avatarData.Head?.color, nodes]);
-
   return (
     <group ref={group} dispose={null}>
       <group name="Scene">
@@ -114,7 +98,7 @@ function MiniAvatarScene({ avatarData }: { avatarData: AvatarCustomizationData }
                 categoryName={asset.categoryName}
                 skeleton={nodes.Plane.skeleton}
                 color={asset.color}
-                skinMaterial={null}
+                skinColor={headSkinColor}
               />
             </Suspense>
           ))}
