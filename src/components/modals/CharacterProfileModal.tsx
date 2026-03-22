@@ -37,7 +37,7 @@ import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { useTraitGallery, PILLAR_COLORS, type TraitCard } from '@/hooks/useTraitGallery';
 import { useTraitDetail } from '@/hooks/useTraitDetail';
 import { getTraitDisplayName } from '@/utils/traitNameSanitizer';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, ChevronLeft, Sparkles, Dumbbell } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, ChevronLeft, Sparkles, Dumbbell, Pencil } from 'lucide-react';
 import { PracticesModal } from './PracticesModal';
 
 interface CharacterProfileModalProps {
