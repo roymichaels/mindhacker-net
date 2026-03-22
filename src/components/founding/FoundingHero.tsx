@@ -1,36 +1,11 @@
 import { motion } from 'framer-motion';
-import { Orb } from '@/components/orb/Orb';
-import { VISUAL_DEFAULTS } from '@/components/orb/types';
-import type { OrbProfile } from '@/components/orb/types';
 import { ChevronDown } from 'lucide-react';
-
-const heroOrbProfile: OrbProfile = {
-  primaryColor: 'hsl(265, 85%, 55%)',
-  secondaryColors: ['hsl(190, 95%, 45%)', 'hsl(230, 80%, 60%)'],
-  accentColor: 'hsl(280, 90%, 65%)',
-  morphSpeed: 0.3,
-  morphIntensity: 0.6,
-  fractalOctaves: 3,
-  coreIntensity: 0.7,
-  coreSize: 0.4,
-  layerCount: 3,
-  geometryDetail: 4,
-  particleEnabled: true,
-  particleCount: 20,
-  particleColor: 'hsl(265, 85%, 65%)',
-  motionSpeed: 0.5,
-  pulseRate: 0.5,
-  smoothness: 0.8,
-  textureType: 'plasma',
-  textureIntensity: 0.5,
-  ...VISUAL_DEFAULTS,
-  computedFrom: { level: 1, streak: 0, clarityScore: 50 },
-};
+import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 
 const FoundingHero = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[100svh] px-6 text-center relative z-10" dir="rtl">
-      {/* Glowing orb */}
+      {/* Avatar character instead of orb */}
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -38,13 +13,11 @@ const FoundingHero = () => {
         className="mb-8"
       >
         <div className="relative">
-          <div className="absolute inset-0 rounded-full blur-[60px] opacity-50"
+          <div className="absolute inset-[-30%] rounded-full blur-[60px] opacity-40"
             style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.6), rgba(6,182,212,0.3))' }} />
-          <Orb
-            size={180}
-            renderer="css"
-            profile={heroOrbProfile}
-          />
+          <div className="relative z-10">
+            <AvatarMiniPreview size={180} />
+          </div>
         </div>
       </motion.div>
 
@@ -73,7 +46,7 @@ const FoundingHero = () => {
         ואפילו להתחיל להרוויח תוך כדי
       </motion.p>
 
-      {/* Scroll indicator instead of aggressive CTA */}
+      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
