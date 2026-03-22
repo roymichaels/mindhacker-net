@@ -36,11 +36,13 @@ interface NFTDetailCardProps {
   stats: NFTStat[];
   traits: NFTTrait[];
   description?: string;
+  /** When true, visual takes ~2/3 of the card and stats are hidden */
+  largeVisual?: boolean;
 }
 
 export function NFTDetailCard({
   open, onClose, type, title, subtitle, rarity, rarityColor,
-  serial, visual, stats, traits, description,
+  serial, visual, stats, traits, description, largeVisual,
 }: NFTDetailCardProps) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -149,7 +151,12 @@ export function NFTDetailCard({
                   className="absolute -inset-6 rounded-full opacity-20 blur-2xl"
                   style={{ background: `hsl(${rarityColor})` }}
                 />
-                <div className="relative w-[140px] h-[140px] flex items-center justify-center rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06]">
+                <div className={cn(
+                  "relative flex items-center justify-center overflow-hidden bg-white/[0.03] border border-white/[0.06]",
+                  largeVisual
+                    ? "w-full min-h-[300px] rounded-2xl"
+                    : "w-[140px] h-[140px] rounded-2xl"
+                )}>
                   {visual}
                 </div>
               </div>
@@ -167,8 +174,8 @@ export function NFTDetailCard({
                 </p>
               )}
 
-              {/* Stats row */}
-              {stats.length > 0 && (
+              {/* Stats row — hidden in largeVisual mode */}
+              {!largeVisual && stats.length > 0 && (
                 <div className="w-full grid grid-cols-3 gap-2">
                   {stats.map((s, i) => (
                     <div key={i} className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
