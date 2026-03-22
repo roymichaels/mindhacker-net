@@ -143,12 +143,12 @@ export function AvatarMiniPreview({ size = 80, className, avatarData: overrideDa
     >
       <Canvas
         dpr={[1, 1.5]}
-        frameloop="demand"
+        frameloop="always"
         onCreated={({ camera }) => {
-          camera.lookAt(0, 1.15, 0);
+          camera.lookAt(0, 0.72, 0);
         }}
         camera={{
-          position: [0, 1.35, 2.25],
+          position: [0, 0.72, 1.8],
           fov: 30,
           near: 0.1,
           far: 100,

@@ -125,11 +125,11 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
         dpr={[1, 1.5]}
         frameloop="always"
         onCreated={({ camera }) => {
-          camera.lookAt(0, 0.55, 0);
+          camera.lookAt(0, 0.45, 0);
         }}
         camera={{
-          position: [0, 0.55, 3.8],
-          fov: 30,
+          position: [0, 0.45, 4.2],
+          fov: 28,
           near: 0.1,
           far: 100,
         }}
