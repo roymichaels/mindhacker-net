@@ -3005,16 +3005,16 @@ export const he = {
 
     // FinalCTASection
     finalCta: {
-      title: 'בחר את הדרגה שלך',
-      subtitle: 'התחל בחינם. שדרג כשמוכן ללכת עמוק יותר.',
-      epicTitle: 'האימפריה שלך מחכה',
-      cta: '⚡ התחל לבנות',
-      personalCoach: 'מאמן AI אישי 24/7',
+      title: 'מוכן לשחק?',
+      subtitle: 'התחל בחינם. עלה רמה כשמוכן.',
+      epicTitle: 'המשחק שלך מחכה',
+      cta: '🎮 התחל לשחק',
+      personalCoach: 'AI אישי (AION) 24/7',
       plan100: 'תוכנית 100 יום מותאמת',
       domains14: '15 תחומי חיים',
       hypnosis: 'היפנוזה מותאמת אישית',
       gamification: 'גיימיפיקציה מלאה',
-      orbAvatar: 'אווטאר Orb אישי',
+      orbAvatar: 'אווטאר 3D אישי',
       personalJourney: 'מסע מותאם אישית',
       fiveMinutes: '5 דקות להתחיל',
       cancelAnytime: 'ביטול בכל רגע',
