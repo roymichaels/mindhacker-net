@@ -393,14 +393,14 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
     };
     try {
       await streamChat([], updateAssistant, () => {
-        setIsStreaming(false);
         if (assistantSoFar) addAssistantMessage(assistantSoFar);
         setStreamingContent('');
+        setIsStreaming(false);
       }, handleToolCall);
     } catch (e) {
       console.error(e);
-      setIsStreaming(false);
       setStreamingContent('');
+      setIsStreaming(false);
     }
   }, [language, handleToolCall, addAssistantMessage]);
 
