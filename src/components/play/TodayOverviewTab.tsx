@@ -2,7 +2,7 @@
  * TodayOverviewTab — Adventure-game styled mission card with today's task roadmap.
  * Content dynamically updates based on selected task node.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -10,8 +10,9 @@ import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hook
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
 import {
-  Crosshair, CheckCircle2, Zap, Target,
+  Crosshair, CheckCircle2, Target, MessageCircle,
 } from 'lucide-react';
+import { PlanChatWizard } from '@/components/plan/PlanChatWizard';
 
 
 /* ── Pillar visuals ── */
@@ -30,17 +31,6 @@ const PILLAR_VIS: Record<string, { emoji: string; color: string; bg: string; lab
 };
 const DEFAULT_PILLAR = { emoji: '🎯', color: 'text-primary', bg: 'bg-primary/15', labelHe: 'כללי', labelEn: 'General' };
 
-/* ── Directives ── */
-const DIRECTIVES_EN = [
-  'Agent — this is not a to-do list. This is your identity test for today.',
-  'No drama. No excuses. Precision execution wins this day.',
-  'Your mission: act before doubt gets a vote.',
-];
-const DIRECTIVES_HE = [
-  'סוכן — זו לא רשימת משימות. זה מבחן הזהות שלך להיום.',
-  'בלי דרמה, בלי תירוצים — ביצוע מדויק מנצח את היום.',
-  'המשימה שלך: לפעול לפני שהספק מקבל זכות דיבור.',
-];
 
 /* ── Rich per-pillar content ── */
 const FIELD_ASSESSMENT: Record<string, { en: string[]; he: string[] }> = {
@@ -179,13 +169,15 @@ function getPillarContent(pillarKey: string, seed: number, isHe: boolean) {
 export function TodayOverviewTab() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-
   const phasePlan = useWeeklyTacticalPlan();
   const { days, isLoading } = phasePlan as any;
   const { plan } = useLifePlanWithMilestones();
   const currentDay = useMemo(() => getCurrentDayInIsrael(plan?.start_date), [plan?.start_date]);
 
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const openDayChat = useCallback(() => setChatOpen(true), []);
 
   const todayPlan: DayPlan | null = useMemo(
     () => (days || []).find((d: DayPlan) => d.isToday) || null, [days],
@@ -202,7 +194,6 @@ export function TodayOverviewTab() {
 
   const now = new Date();
   const seed = now.getDate() + remainingCount;
-  const directive = isHe ? pick(DIRECTIVES_HE, seed) : pick(DIRECTIVES_EN, seed);
   const commander = isHe ? pick(COMMANDER_HE, seed + 2) : pick(COMMANDER_EN, seed + 2);
 
   // The "active" task is: selected task if picked, else current (first incomplete)
@@ -217,12 +208,6 @@ export function TodayOverviewTab() {
     () => getPillarContent(activePillarKey, taskSeed, isHe),
     [activePillarKey, taskSeed, isHe],
   );
-
-  const classification = totalCount === 0
-    ? 'RECOVERY PROTOCOL'
-    : remainingCount === 0 ? 'MISSION ACCOMPLISHED'
-    : remainingCount <= 2 ? 'FINAL WINDOW'
-    : 'ACTIVE OPERATION';
 
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
@@ -250,28 +235,16 @@ export function TodayOverviewTab() {
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
         <div className="relative z-10 p-4 space-y-3">
-          {/* ── Header: Active Pillar + Classification ── */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{activePillar.emoji}</span>
-              <span className="text-sm font-extrabold text-cyan-300 tracking-wide">
-                {isHe ? activePillar.labelHe : activePillar.labelEn}
-              </span>
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/[0.08]">
-              <div className={cn(
-                "w-1.5 h-1.5 rounded-full",
-                remainingCount === 0 ? "bg-emerald-400" : remainingCount <= 2 ? "bg-amber-400 animate-pulse" : "bg-cyan-400 animate-pulse"
-              )} />
-              <span className="text-[9px] font-black tracking-[0.14em] text-cyan-200/80">{classification}</span>
-            </div>
-          </div>
-
-          {/* ── Directive quote ── */}
-          <p className="text-sm text-cyan-100/50 italic leading-snug">
-            "{directive}"
-          </p>
+          {/* ── CTA: Talk to your day ── */}
+          <button
+            onClick={openDayChat}
+            className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500/20 via-violet-500/15 to-cyan-500/20 border border-cyan-400/30 hover:border-cyan-400/50 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] active:scale-[0.98] group"
+          >
+            <MessageCircle className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+            <span className="text-sm font-black text-cyan-200 group-hover:text-cyan-100 transition-colors">
+              {isHe ? 'ספר לי מה עשית היום' : 'Tell me what you did today'}
+            </span>
+          </button>
 
           {/* ── Today's Task Roadmap ── */}
           {todayActions.length > 0 && (
@@ -432,6 +405,9 @@ export function TodayOverviewTab() {
           </div>
         </div>
       </div>
+
+      {/* Day Chat Wizard */}
+      <PlanChatWizard open={chatOpen} onOpenChange={setChatOpen} />
     </motion.div>
   );
 }
