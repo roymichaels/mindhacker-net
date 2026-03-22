@@ -1,105 +1,75 @@
 /**
- * AvatarConfiguratorUI — The customization panel overlay.
- * Ported from original UI.jsx.
- * Removed: Photo Booth tab, Screenshot button, Download button, wawasensei branding.
+ * AvatarConfiguratorUI — Sidebar-based customization panel.
+ * Categories listed vertically on the left, assets + colors in a side panel.
  */
 
-import { useConfiguratorStore, PHOTO_POSES } from "./avatarStore";
+import { useState } from "react";
+import { useConfiguratorStore } from "./avatarStore";
+import { ChevronLeft, ChevronRight, Shuffle, X } from "lucide-react";
 
-const PosesBox = () => {
-  const curPose = useConfiguratorStore((state) => state.pose);
-  const setPose = useConfiguratorStore((state) => state.setPose);
+const CategoryList = () => {
+  const { categories, currentCategory, setCurrentCategory } = useConfiguratorStore();
 
   return (
-    <div className="pointer-events-auto md:rounded-t-lg bg-gradient-to-br from-black/30 to-indigo-900/20 backdrop-blur-sm drop-shadow-md flex p-6 gap-3 overflow-x-auto noscrollbar">
-      {Object.keys(PHOTO_POSES).map((pose) => (
+    <div className="flex flex-col gap-1 py-2">
+      {categories.map((category) => (
         <button
-          key={pose}
-          className={`transition-colors duration-200 font-medium flex-shrink-0 border-b ${
-            curPose === PHOTO_POSES[pose]
-              ? "text-white shadow-purple-100 border-b-white"
-              : "text-gray-200 hover:text-gray-100 border-b-transparent"
+          key={category.id}
+          onClick={() => setCurrentCategory(category)}
+          className={`text-left px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg mx-2 ${
+            currentCategory?.name === category.name
+              ? "bg-white/20 text-white"
+              : "text-gray-300 hover:text-white hover:bg-white/10"
           }`}
-          onClick={() => setPose(PHOTO_POSES[pose])}
         >
-          {pose}
+          {category.name}
         </button>
       ))}
     </div>
   );
 };
 
-const AssetsBox = () => {
-  const {
-    categories,
-    currentCategory,
-    setCurrentCategory,
-    changeAsset,
-    customization,
-    lockedGroups,
-  } = useConfiguratorStore();
+const AssetGrid = () => {
+  const { currentCategory, changeAsset, customization, lockedGroups } = useConfiguratorStore();
+
+  if (!currentCategory) return null;
 
   return (
-    <div className="md:rounded-t-lg bg-gradient-to-br from-black/30 to-indigo-900/20 backdrop-blur-sm drop-shadow-md flex flex-col py-6 gap-3 overflow-hidden">
-      <div className="flex items-center gap-8 pointer-events-auto noscrollbar overflow-x-auto px-6 pb-2">
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => setCurrentCategory(category)}
-            className={`transition-colors duration-200 font-medium flex-shrink-0 border-b ${
-              currentCategory?.name === category.name
-                ? "text-white shadow-purple-100 border-b-white"
-                : "text-gray-200 hover:text-gray-100 border-b-transparent"
-            }`}
-          >
-            {category.name}
-          </button>
-        ))}
-      </div>
-      {lockedGroups[currentCategory?.name || ""] && (
-        <p className="text-red-400 px-6">
-          Asset is hidden by{" "}
-          {lockedGroups[currentCategory!.name]
-            .map((asset) => `${asset.name} (${asset.categoryName})`)
+    <div className="flex flex-col gap-3 px-3">
+      <h3 className="text-white font-semibold text-sm px-1">{currentCategory.name}</h3>
+
+      {lockedGroups[currentCategory.name] && (
+        <p className="text-red-400 text-xs px-1">
+          Hidden by{" "}
+          {lockedGroups[currentCategory.name]
+            .map((a) => `${a.name} (${a.categoryName})`)
             .join(", ")}
         </p>
       )}
-      <div className="flex gap-2 overflow-x-auto noscrollbar px-6">
-        {currentCategory?.removable && (
+
+      <div className="grid grid-cols-3 gap-2">
+        {currentCategory.removable && (
           <button
             onClick={() => changeAsset(currentCategory.name, null)}
-            className={`w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden pointer-events-auto hover:opacity-100 transition-all border-2 duration-300 bg-gradient-to-tr ${
+            className={`aspect-square rounded-xl overflow-hidden pointer-events-auto transition-all border-2 duration-300 bg-gradient-to-tr ${
               !customization[currentCategory.name]?.asset
                 ? "border-white from-white/20 to-white/30"
-                : "from-black/70 to-black/20 border-black"
+                : "from-black/70 to-black/20 border-black/50"
             }`}
           >
             <div className="w-full h-full flex items-center justify-center bg-black/40 text-white">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-8"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-6 h-6" />
             </div>
           </button>
         )}
-        {currentCategory?.assets.map((asset) => (
+        {currentCategory.assets.map((asset) => (
           <button
             key={asset.id}
             onClick={() => changeAsset(currentCategory.name, asset)}
-            className={`w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden pointer-events-auto hover:opacity-100 transition-all border-2 duration-300 bg-gradient-to-tr ${
+            className={`aspect-square rounded-xl overflow-hidden pointer-events-auto transition-all border-2 duration-300 bg-gradient-to-tr ${
               customization[currentCategory.name]?.asset?.id === asset.id
                 ? "border-white from-white/20 to-white/30"
-                : "from-black/70 to-black/20 border-black"
+                : "from-black/70 to-black/20 border-black/50"
             }`}
           >
             <img
@@ -114,58 +84,36 @@ const AssetsBox = () => {
   );
 };
 
-const RandomizeButton = () => {
-  const randomize = useConfiguratorStore((state) => state.randomize);
-  return (
-    <button
-      className="rounded-lg bg-indigo-500 hover:bg-indigo-600 transition-colors duration-300 text-white font-medium px-4 py-3 pointer-events-auto drop-shadow-md"
-      onClick={randomize}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="size-6"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3"
-        />
-      </svg>
-    </button>
-  );
-};
-
 const ColorPicker = () => {
   const updateColor = useConfiguratorStore((state) => state.updateColor);
   const currentCategory = useConfiguratorStore((state) => state.currentCategory);
   const customization = useConfiguratorStore((state) => state.customization);
 
-  if (!currentCategory || !customization[currentCategory.name]?.asset) {
+  if (!currentCategory || !customization[currentCategory.name]?.asset || !currentCategory.colorPalette) {
     return null;
   }
 
   return (
-    <div className="pointer-events-auto relative flex gap-2 max-w-full overflow-x-auto backdrop-blur-sm py-2 drop-shadow-md noscrollbar px-2 md:px-0">
-      {currentCategory.colorPalette?.map((color, index) => (
-        <button
-          key={`${index}-${color}`}
-          className={`w-10 h-10 p-1.5 drop-shadow-md bg-black/20 shrink-0 rounded-lg overflow-hidden transition-all duration-300 border-2 ${
-            customization[currentCategory.name]?.color === color
-              ? "border-white"
-              : "border-transparent"
-          }`}
-          onClick={() => updateColor(color)}
-        >
-          <div
-            className="w-full h-full rounded-md"
-            style={{ backgroundColor: color }}
-          />
-        </button>
-      ))}
+    <div className="px-3">
+      <h4 className="text-white/70 text-xs font-medium mb-2 px-1">Color</h4>
+      <div className="flex flex-wrap gap-1.5">
+        {currentCategory.colorPalette.map((color, index) => (
+          <button
+            key={`${index}-${color}`}
+            className={`w-8 h-8 p-1 rounded-lg overflow-hidden transition-all duration-300 border-2 ${
+              customization[currentCategory.name]?.color === color
+                ? "border-white"
+                : "border-transparent"
+            }`}
+            onClick={() => updateColor(color)}
+          >
+            <div
+              className="w-full h-full rounded-md"
+              style={{ backgroundColor: color }}
+            />
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
@@ -176,36 +124,76 @@ interface AvatarConfiguratorUIProps {
 }
 
 export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfiguratorUIProps) => {
-  const currentCategory = useConfiguratorStore((state) => state.currentCategory);
   const loading = useConfiguratorStore((state) => state.loading);
+  const randomize = useConfiguratorStore((state) => state.randomize);
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <main className="pointer-events-none fixed z-10 inset-0 select-none">
+    <div className="pointer-events-none fixed z-10 inset-0 select-none">
+      {/* Loading overlay */}
       <div
-        className={`absolute inset-0 bg-black z-10 pointer-events-none flex items-center justify-center transition-opacity duration-1000 ${
+        className={`absolute inset-0 bg-black z-20 pointer-events-none flex items-center justify-center transition-opacity duration-1000 ${
           loading ? "opacity-100" : "opacity-0"
         }`}
       />
-      <div className="mx-auto h-full max-w-screen-xl w-full flex flex-col justify-between">
-        <div className="flex justify-between items-center p-10">
-          <div /> {/* Spacer — branding removed */}
-          <div className="flex items-center gap-2">
-            <RandomizeButton />
-            {showSaveButton && onSave && (
+
+      {/* Sidebar */}
+      <div
+        className={`pointer-events-auto absolute right-0 top-0 bottom-0 z-10 flex transition-transform duration-300 ${
+          collapsed ? "translate-x-[calc(100%-40px)]" : "translate-x-0"
+        }`}
+      >
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="self-center -ml-0 w-10 h-16 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-l-xl text-white hover:bg-black/60 transition-colors"
+        >
+          {collapsed ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+        </button>
+
+        {/* Panel */}
+        <div className="w-72 h-full bg-gradient-to-b from-black/60 to-indigo-950/60 backdrop-blur-xl flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <h2 className="text-white font-bold text-lg">Customize</h2>
+            <div className="flex gap-2">
               <button
-                className="rounded-lg bg-green-500 hover:bg-green-600 transition-colors duration-300 text-white font-medium px-6 py-3 pointer-events-auto drop-shadow-md"
-                onClick={onSave}
+                className="rounded-lg bg-indigo-500 hover:bg-indigo-600 transition-colors duration-300 text-white p-2 drop-shadow-md"
+                onClick={randomize}
+                title="Randomize"
               >
-                Save Avatar
+                <Shuffle className="w-4 h-4" />
               </button>
-            )}
+              {showSaveButton && onSave && (
+                <button
+                  className="rounded-lg bg-green-500 hover:bg-green-600 transition-colors duration-300 text-white font-medium px-4 py-2 text-sm drop-shadow-md"
+                  onClick={onSave}
+                >
+                  Save
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto noscrollbar">
+            {/* Categories */}
+            <div className="border-b border-white/10">
+              <CategoryList />
+            </div>
+
+            {/* Color picker */}
+            <div className="py-3">
+              <ColorPicker />
+            </div>
+
+            {/* Asset grid */}
+            <div className="pb-6">
+              <AssetGrid />
+            </div>
           </div>
         </div>
-        <div className="md:px-10 flex flex-col">
-          {currentCategory?.colorPalette && <ColorPicker />}
-          <AssetsBox />
-        </div>
       </div>
-    </main>
+    </div>
   );
 };
