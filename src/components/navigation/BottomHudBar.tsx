@@ -27,7 +27,7 @@ export function BottomHudBar() {
   const xp = useXpProgress();
   const ctx = useAuroraChatContextSafe();
   const { movementScore } = useTodayExecution();
-  const { profile: userOrbProfile } = useOrbProfile();
+  
   const { openProfile } = useProfileModal();
   const { displayName: aionName } = useAIONDisplayName();
 
