@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useConfiguratorStore } from "./avatarStore";
-import { Shuffle, Save, X } from "lucide-react";
+import { Shuffle, Save, X, Download } from "lucide-react";
 import { AssetTilePreview } from "./AssetTilePreview";
 
 interface AvatarConfiguratorUIProps {
@@ -66,6 +66,20 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
           title="אקראי"
         >
           <Shuffle className="w-5 h-5" />
+        </button>
+        <button
+          className="rounded-2xl bg-secondary hover:bg-secondary/90 transition-colors text-secondary-foreground p-3 shadow-lg"
+          onClick={() => {
+            const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+            if (!canvas) return;
+            const link = document.createElement('a');
+            link.setAttribute('download', `avatar-${Date.now()}.png`);
+            link.setAttribute('href', canvas.toDataURL('image/png'));
+            link.click();
+          }}
+          title="הורדה"
+        >
+          <Download className="w-5 h-5" />
         </button>
         {showSaveButton && onSave && (
           <button
