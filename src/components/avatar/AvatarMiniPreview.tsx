@@ -15,12 +15,12 @@ import type { Skeleton, Group } from 'three';
 import { User } from 'lucide-react';
 
 /* ── Lightweight Asset (no store dependency) ── */
-function MiniAsset({ url, categoryName, skeleton, color, skinMaterial }: {
+function MiniAsset({ url, categoryName, skeleton, color, skinColor }: {
   url: string;
   categoryName: string;
   skeleton: Skeleton;
   color?: string;
-  skinMaterial?: any;
+  skinColor?: string;
 }) {
   const { scene } = useGLTF(url);
 
