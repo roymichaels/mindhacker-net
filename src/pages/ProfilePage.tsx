@@ -17,6 +17,7 @@ import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
 import { TransformationReportCard } from '@/components/profile/TransformationReportCard';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
+import ProfileHeroSection from '@/components/profile/ProfileHeroSection';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
