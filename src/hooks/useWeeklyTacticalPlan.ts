@@ -521,24 +521,23 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
   // Recompute on every render — toDateStr is trivial and must reflect current local date
   const todayStr = toDateStr(new Date());
 
-  // Only fetch tactical schedule for the PRIMARY plan (not all plans)
-  // to avoid duplicate/overlapping blocks from Arena and Core plans
+  // Fetch tactical schedules for ALL plans in the same batch (core + arena)
   const { data: aiSchedules, isLoading: scheduleLoading } = useQuery({
-    queryKey: ['tactical-schedule', planId, currentPhase],
+    queryKey: ['tactical-schedule', allPlanIds, currentPhase],
     queryFn: async () => {
-      if (!planId || !currentPhase || !user?.id) return [];
+      const ids = allPlanIds?.length ? allPlanIds : (planId ? [planId] : []);
+      if (ids.length === 0 || !currentPhase || !user?.id) return [];
       const { data, error } = await supabase
         .from('tactical_schedules')
         .select('schedule_data, wake_time, sleep_time, version, generated_at, plan_id')
         .eq('user_id', user.id)
-        .eq('plan_id', planId)
+        .in('plan_id', ids)
         .eq('phase_number', currentPhase)
-        .order('generated_at', { ascending: false })
-        .limit(1);
+        .order('generated_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
-    enabled: !!planId && !!currentPhase && !!user?.id,
+    enabled: !!(allPlanIds?.length || planId) && !!currentPhase && !!user?.id,
     staleTime: 5 * 60_000,
   });
   // ── Fetch completed action_items for the phase date range ──
@@ -609,7 +608,7 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
 
     if (phaseDates.length === 0 || currentPhaseMilestones.length === 0) return emptyPlan;
 
-    // Merge schedule_data from all plans
+    // Merge schedule_data from all plans (core + arena)
     const validSchedules = (aiSchedules || []).filter(s => s.schedule_data && Array.isArray(s.schedule_data));
     const hasAnyAiSchedule = validSchedules.length > 0;
 
@@ -621,8 +620,29 @@ export function useWeeklyTacticalPlan(): PhasePlan & { isLoading: boolean; gener
         if (m.id && m.focus_area) focusMap[m.id] = m.focus_area;
       }
 
-      // Parse the single primary schedule
+      // Parse primary schedule first
       days = parseAiSchedule(validSchedules[0].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
+
+      // Merge additional schedules (e.g., arena plan) into the same days
+      for (let s = 1; s < validSchedules.length; s++) {
+        const extraDays = parseAiSchedule(validSchedules[s].schedule_data as any[], phaseDates, todayStr, currentPhase || 1, focusMap, completedItemsMap);
+        for (let d = 0; d < days.length && d < extraDays.length; d++) {
+          // Append blocks from extra schedule into the same day
+          const existingTitles = new Set(days[d].blocks.flatMap(b => b.actions.map(a => a.title.toLowerCase())));
+          for (const extraBlock of extraDays[d].blocks) {
+            // Filter out duplicate actions
+            const uniqueActions = extraBlock.actions.filter(a => !existingTitles.has(a.title.toLowerCase()));
+            if (uniqueActions.length > 0) {
+              extraBlock.actions = uniqueActions;
+              extraBlock.completedCount = uniqueActions.filter(a => a.completed).length;
+              days[d].blocks.push(extraBlock);
+              days[d].totalActions += uniqueActions.length;
+              days[d].completedActions += uniqueActions.filter(a => a.completed).length;
+              days[d].totalMinutes += uniqueActions.reduce((s, a) => s + a.estimatedMinutes, 0);
+            }
+          }
+        }
+      }
     } else {
       days = buildFallbackDays(currentPhaseMilestones, phaseDates, todayStr, currentPhase || 1);
     }

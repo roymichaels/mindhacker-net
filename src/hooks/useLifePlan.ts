@@ -68,14 +68,17 @@ export function useLifePlan() {
       if (error) throw error;
       if (!data || data.length === 0) return null;
 
-      // Return the earliest start_date plan as the "primary" for timeline calculations
-      // but we'll aggregate milestones from all plans
+      // Return the LATEST plan as the "primary" for timeline calculations
+      // Sort by start_date descending — newest plan drives the schedule
       const sorted = [...data].sort((a, b) => 
-        new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+        new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
       );
-      // Attach all plan IDs for milestone aggregation
+      // Primary = latest start_date plan; aggregate milestones from all plans with the SAME start_date
       const primary = sorted[0] as LifePlan & { all_plan_ids?: string[] };
-      primary.all_plan_ids = data.map(p => p.id);
+      const primaryStart = primary.start_date.slice(0, 10);
+      // Only include plans that share the same start_date (same generation batch)
+      const sameBatchPlans = data.filter(p => p.start_date.slice(0, 10) === primaryStart);
+      primary.all_plan_ids = sameBatchPlans.map(p => p.id);
       return primary;
     },
     enabled: !!user?.id,
