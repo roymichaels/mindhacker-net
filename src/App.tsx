@@ -285,8 +285,8 @@ const App = () => (
                                                 {/* Messages */}
                                                 <Route path="/messages" element={<Messages />} />
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
-                                                {/* Aurora Chat */}
-                                                <Route path="/aurora" element={<AuroraPage />} />
+                                                {/* Aurora Chat — now widget-based, redirect to play */}
+                                                <Route path="/aurora" element={<Navigate to="/play" replace />} />
                                                 {/* Legacy redirects to Play */}
                                                 <Route path="/now" element={<Navigate to="/play" replace />} />
                                                 <Route path="/plan" element={<Navigate to="/play" replace />} />
