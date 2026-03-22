@@ -61,7 +61,12 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* ═══════ HERO: NFT TRIAD ═══════ */}
+      {/* ═══════ HERO: Full Avatar + User Info + Stats ═══════ */}
+      <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        <ProfileHeroSection />
+      </div>
+
+      {/* ═══════ NFT TRIAD ═══════ */}
       <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
         <ProfileNFTTriad />
       </div>
