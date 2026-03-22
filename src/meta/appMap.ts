@@ -1079,6 +1079,18 @@ export const hooks: HookEntry[] = [
   { name: 'useAdminAuroraInsights', file: 'src/hooks/useAdminAuroraInsights.ts', purpose: 'Admin AI insights dashboard', featureArea: 'admin', status: 'active' },
   { name: 'useAdminJourneyProgress', file: 'src/hooks/useAdminJourneyProgress.ts', purpose: 'Admin journey progress tracking', featureArea: 'admin', status: 'active' },
 
+  // ── Avatar ──
+  { name: 'useUserAvatarData', file: 'src/hooks/useUserAvatarData.ts', purpose: 'Load saved avatar customization from DB', featureArea: 'avatar', status: 'active' },
+
+  // ── Launchpad ──
+  { name: 'useLaunchpadAutoSave', file: 'src/hooks/useLaunchpadAutoSave.ts', purpose: 'Auto-save launchpad progress', featureArea: 'onboarding', status: 'active' },
+  { name: 'useLaunchpadData', file: 'src/hooks/useLaunchpadData.ts', purpose: 'Launchpad configuration data', featureArea: 'onboarding', status: 'active' },
+  { name: 'useLaunchpadProgress', file: 'src/hooks/useLaunchpadProgress.ts', purpose: 'Launchpad step progress tracking', featureArea: 'onboarding', status: 'active' },
+
+  // ── UI Utility ──
+  { name: 'useMobile', file: 'src/hooks/use-mobile.tsx', purpose: 'Mobile viewport detection', featureArea: 'other', status: 'active' },
+  { name: 'useToast', file: 'src/hooks/use-toast.ts', purpose: 'Toast notification hook (shadcn)', featureArea: 'other', status: 'active' },
+
   // ── Deprecated / Legacy ──
   { name: 'useAdaptiveDifficulty', file: 'src/lib/adaptiveDifficulty.ts', purpose: 'Adaptive difficulty system', featureArea: 'play', status: 'legacy', notes: 'Logic exists in lib; hook was deleted' },
 ];
