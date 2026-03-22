@@ -7,7 +7,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// @ts-ignore - GLTFLoader exists in three but types may not resolve
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // ── Shared offscreen renderer singleton ──
 let _renderer: THREE.WebGLRenderer | null = null;
