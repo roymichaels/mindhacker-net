@@ -114,19 +114,7 @@ const AuroraChatMessage = ({
               >
                 <Copy className="h-3.5 w-3.5 text-muted-foreground" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={handleVoice}
-                title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
-              >
-                {isPlayingThis ? (
-                  <Square className="h-3 w-3 text-muted-foreground fill-current" />
-                ) : (
-                  <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
-                )}
-              </Button>
+              <TTSPlayer messageId={id} content={cleanContent} compact />
               {onRegenerate && (
                 <Button
                   variant="ghost"
