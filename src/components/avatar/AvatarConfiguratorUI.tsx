@@ -7,7 +7,7 @@
 
 import { useState } from "react";
 import { useConfiguratorStore } from "./avatarStore";
-import { ChevronLeft, ChevronRight, Shuffle, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Shuffle, Save, X } from "lucide-react";
 
 interface AvatarConfiguratorUIProps {
   onSave?: () => void;
@@ -30,30 +30,44 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
 
   const hasColors = currentCategory?.colorPalette && customization[currentCategory.name]?.asset;
 
+  // Hebrew labels for categories
+  const categoryLabels: Record<string, string> = {
+    Head: "ראש",
+    Hair: "שיער",
+    FacialHair: "זקן",
+    Nose: "אף",
+    Glasses: "משקפיים",
+    Hat: "כובע",
+    Top: "חולצה",
+    Outfit: "תלבושת",
+    Shoes: "נעליים",
+  };
+
   return (
     <div className="pointer-events-none fixed z-10 inset-0 select-none">
       {/* Loading overlay */}
       <div
-        className={`absolute inset-0 bg-black z-20 pointer-events-none transition-opacity duration-1000 ${
+        className={`absolute inset-0 bg-background z-20 pointer-events-none transition-opacity duration-1000 ${
           loading ? "opacity-100" : "opacity-0"
         }`}
       />
 
-      {/* Top bar: Save + Randomize */}
-      <div className="pointer-events-auto absolute top-4 right-4 z-10 flex gap-2">
+      {/* Bottom bar: Save + Randomize */}
+      <div className="pointer-events-auto absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-3">
         <button
-          className="rounded-lg bg-indigo-500 hover:bg-indigo-600 transition-colors text-white p-2.5"
+          className="rounded-2xl bg-primary hover:bg-primary/90 transition-colors text-primary-foreground p-3 shadow-lg"
           onClick={randomize}
-          title="Randomize"
+          title="אקראי"
         >
           <Shuffle className="w-5 h-5" />
         </button>
         {showSaveButton && onSave && (
           <button
-            className="rounded-lg bg-green-500 hover:bg-green-600 transition-colors text-white font-medium px-5 py-2.5 text-sm"
+            className="rounded-2xl bg-primary hover:bg-primary/90 transition-colors text-primary-foreground font-medium px-6 py-3 text-sm flex items-center gap-2 shadow-lg"
             onClick={onSave}
           >
-            Save
+            <Save className="w-4 h-4" />
+            שמירה
           </button>
         )}
       </div>
@@ -61,47 +75,47 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
       {/* Sidebar: 3 vertical columns */}
       <div
         className={`pointer-events-auto absolute right-0 top-0 bottom-0 z-10 flex transition-transform duration-300 ${
-          collapsed ? "translate-x-[calc(100%-32px)]" : "translate-x-0"
+          collapsed ? "translate-x-[calc(100%-36px)]" : "translate-x-0"
         }`}
       >
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="self-center w-8 h-14 flex items-center justify-center bg-black/50 backdrop-blur-md rounded-l-lg text-white hover:bg-black/70 transition-colors"
+          className="self-center w-9 h-16 flex items-center justify-center bg-card/80 backdrop-blur-md rounded-l-2xl text-foreground border border-r-0 border-border hover:bg-muted transition-colors"
         >
           {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
 
         {/* Column 1: Categories */}
-        <div className="w-20 h-full bg-black/50 backdrop-blur-xl border-r border-white/10 flex flex-col overflow-y-auto noscrollbar py-2">
+        <div className="w-20 h-full bg-card/90 backdrop-blur-xl border-r border-border flex flex-col overflow-y-auto noscrollbar py-2">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setCurrentCategory(category)}
               className={`px-2 py-3 text-[11px] font-medium text-center transition-all duration-200 border-r-2 ${
                 currentCategory?.name === category.name
-                  ? "bg-white/15 text-white border-r-white"
-                  : "text-gray-400 hover:text-white hover:bg-white/5 border-r-transparent"
+                  ? "bg-primary/10 text-primary border-r-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted border-r-transparent"
               }`}
             >
-              {category.name}
+              {categoryLabels[category.name] || category.name}
             </button>
           ))}
         </div>
 
         {/* Column 2: Assets */}
-        <div className="w-48 h-full bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col overflow-hidden">
+        <div className="w-48 h-full bg-card/80 backdrop-blur-xl border-r border-border flex flex-col overflow-hidden">
           {currentCategory && (
             <>
               <div className="px-3 pt-3 pb-1 shrink-0">
-                <p className="text-white/50 text-[10px] uppercase tracking-wider font-semibold">
-                  {currentCategory.name}
+                <p className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+                  {categoryLabels[currentCategory.name] || currentCategory.name}
                 </p>
               </div>
 
               {lockedGroups[currentCategory.name] && (
-                <p className="text-red-400 text-[10px] px-3 pb-1">
-                  Hidden by{" "}
+                <p className="text-destructive text-[10px] px-3 pb-1">
+                  מוסתר על ידי{" "}
                   {lockedGroups[currentCategory.name]
                     .map((a) => `${a.name}`)
                     .join(", ")}
@@ -113,13 +127,13 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
                   {currentCategory.removable && (
                     <button
                       onClick={() => changeAsset(currentCategory.name, null)}
-                      className={`aspect-square rounded-lg overflow-hidden transition-all border-2 duration-200 bg-gradient-to-tr ${
+                      className={`aspect-square rounded-xl overflow-hidden transition-all border-2 duration-200 ${
                         !customization[currentCategory.name]?.asset
-                          ? "border-white from-white/20 to-white/30"
-                          : "from-black/60 to-black/20 border-transparent hover:border-white/30"
+                          ? "border-primary bg-primary/10"
+                          : "bg-muted border-transparent hover:border-primary/30"
                       }`}
                     >
-                      <div className="w-full h-full flex items-center justify-center bg-black/40 text-white">
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         <X className="w-4 h-4" />
                       </div>
                     </button>
@@ -128,10 +142,10 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
                     <button
                       key={asset.id}
                       onClick={() => changeAsset(currentCategory.name, asset)}
-                      className={`aspect-square rounded-lg overflow-hidden transition-all border-2 duration-200 bg-gradient-to-tr ${
+                      className={`aspect-square rounded-xl overflow-hidden transition-all border-2 duration-200 ${
                         customization[currentCategory.name]?.asset?.id === asset.id
-                          ? "border-white from-white/20 to-white/30"
-                          : "from-black/60 to-black/20 border-transparent hover:border-white/30"
+                          ? "border-primary bg-primary/10"
+                          : "bg-muted border-transparent hover:border-primary/30"
                       }`}
                     >
                       <img
@@ -149,18 +163,18 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
 
         {/* Column 3: Colors (only if palette exists) */}
         {hasColors && (
-          <div className="w-12 h-full bg-black/30 backdrop-blur-xl flex flex-col items-center overflow-y-auto noscrollbar py-3 gap-1.5">
+          <div className="w-12 h-full bg-card/70 backdrop-blur-xl flex flex-col items-center overflow-y-auto noscrollbar py-3 gap-1.5">
             {currentCategory!.colorPalette!.map((color, i) => (
               <button
                 key={`${i}-${color}`}
-                className={`w-8 h-8 p-0.5 rounded-md shrink-0 transition-all duration-200 border-2 ${
+                className={`w-8 h-8 p-0.5 rounded-xl shrink-0 transition-all duration-200 border-2 ${
                   customization[currentCategory!.name]?.color === color
-                    ? "border-white scale-110"
-                    : "border-transparent hover:border-white/40"
+                    ? "border-primary scale-110"
+                    : "border-transparent hover:border-primary/40"
                 }`}
                 onClick={() => updateColor(color)}
               >
-                <div className="w-full h-full rounded" style={{ backgroundColor: color }} />
+                <div className="w-full h-full rounded-lg" style={{ backgroundColor: color }} />
               </button>
             ))}
           </div>
