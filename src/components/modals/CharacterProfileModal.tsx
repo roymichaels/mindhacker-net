@@ -439,6 +439,9 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 
   return (
     <div className="space-y-3">
+      {/* ── NFT TRIAD: Orb | Avatar | DNA ── */}
+      <ProfileNFTTriad />
+
       {/* Stats Strip */}
       <PlayStatsStrip />
 
@@ -514,8 +517,6 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </EmpireCard>
       )}
 
-      {/* ── NFT TRIAD: Orb | Avatar | DNA ── */}
-      <ProfileNFTTriad />
 
       {/* ── KINGDOM: Life Direction ── */}
       {lifeDirection && (
