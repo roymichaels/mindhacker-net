@@ -5,7 +5,7 @@
  */
 import { Suspense, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { Bounds, useGLTF } from '@react-three/drei';
 import { cn } from '@/lib/utils';
 import { useUserAvatarData, type AvatarCustomizationData } from '@/hooks/useUserAvatarData';
 import { AVATAR_CATEGORIES } from '@/components/avatar/avatarAssets';
@@ -124,12 +124,9 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
       <Canvas
         dpr={[1, 1.5]}
         frameloop="always"
-        onCreated={({ camera }) => {
-          camera.lookAt(0, 0.45, 0);
-        }}
         camera={{
-          position: [0, 0.45, 4.2],
-          fov: 28,
+          position: [0, 0, 5.2],
+          fov: 32,
           near: 0.1,
           far: 100,
         }}
@@ -139,9 +136,11 @@ export function AvatarFullBody({ height = 280, className }: AvatarFullBodyProps)
         <ambientLight intensity={0.8} />
         <directionalLight position={[3, 5, 4]} intensity={1.2} />
         <directionalLight position={[-2, 3, -1]} intensity={0.4} />
-        <Suspense fallback={null}>
-          <FullBodyScene avatarData={avatarData} />
-        </Suspense>
+        <Bounds fit clip observe margin={1.24}>
+          <Suspense fallback={null}>
+            <FullBodyScene avatarData={avatarData} />
+          </Suspense>
+        </Bounds>
       </Canvas>
     </div>
   );
