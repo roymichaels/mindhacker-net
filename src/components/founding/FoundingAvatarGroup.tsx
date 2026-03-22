@@ -167,11 +167,11 @@ type AvatarGroupConfig = {
 
 /* ── Group Scene with 5 avatars ── */
 const AVATAR_CONFIGS: AvatarGroupConfig[] = [
-  { seed: 42, pose: PHOTO_POSES.Cool, position: [-1.85, -0.72, 0.25], scale: 0.68 },
-  { seed: 137, pose: PHOTO_POSES.Chill, position: [-0.95, -0.76, -0.15], scale: 0.7 },
-  { seed: 314, pose: PHOTO_POSES.King, position: [0, -0.78, -0.35], scale: 0.74 },
-  { seed: 528, pose: PHOTO_POSES.Busy, position: [0.95, -0.76, -0.15], scale: 0.7 },
-  { seed: 777, pose: PHOTO_POSES.Idle, position: [1.85, -0.72, 0.25], scale: 0.68 },
+  { seed: 42, pose: PHOTO_POSES.Cool, position: [-2.4, -0.65, 0.2], scale: 0.88 },
+  { seed: 137, pose: PHOTO_POSES.Chill, position: [-1.2, -0.65, -0.1], scale: 0.9 },
+  { seed: 314, pose: PHOTO_POSES.King, position: [0, -0.65, -0.3], scale: 0.95 },
+  { seed: 528, pose: PHOTO_POSES.Ninja, position: [1.2, -0.65, -0.1], scale: 0.9 },
+  { seed: 777, pose: PHOTO_POSES.Punch, position: [2.4, -0.65, 0.2], scale: 0.88 },
 ];
 
 function GroupScene() {
@@ -202,12 +202,12 @@ function GroupScene() {
 /* ── Public Component ── */
 export function FoundingAvatarGroup() {
   return (
-    <div className="w-full" style={{ height: 300 }}>
+    <div className="w-full" style={{ height: 380 }}>
       <Canvas
         dpr={[1, 1.5]}
         camera={{
-          position: [0, 0.6, 8],
-          fov: 29,
+          position: [0, 0.5, 6],
+          fov: 34,
           near: 0.1,
           far: 100,
         }}
