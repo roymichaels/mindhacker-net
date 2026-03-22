@@ -129,7 +129,12 @@ const DEFAULT_GUIDE_EN: MissionGuide = {
   steps: ['Read the mission description carefully', 'Prepare what you need before starting', 'Execute one step at a time — no rushing', 'Review the result and adjust if needed', 'Mark as done and take a breath'],
 };
 
-function getMissionGuide(pillarKey: string, isHe: boolean): MissionGuide {
+function getMissionGuide(pillarKey: string, isHe: boolean, taskMetadata?: any): MissionGuide {
+  // Priority: stored guide in task metadata > hardcoded pillar guide > default
+  if (taskMetadata?.mission_guide) {
+    const stored = taskMetadata.mission_guide;
+    if (stored.steps?.length) return stored as MissionGuide;
+  }
   const guides = isHe ? MISSION_GUIDES_HE : MISSION_GUIDES_EN;
   return guides[pillarKey] || (isHe ? DEFAULT_GUIDE_HE : DEFAULT_GUIDE_EN);
 }
