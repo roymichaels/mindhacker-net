@@ -21,7 +21,7 @@ export type Category =
   | 'homepage' | 'onboarding' | 'play' | 'aion' | 'dna' | 'profile'
   | 'community' | 'learn' | 'fm' | 'careers' | 'docs' | 'admin'
   | 'settings' | 'auth' | 'affiliate' | 'dev' | 'legal' | 'media'
-  | 'other';
+  | 'avatar' | 'other';
 
 export type Status = 'active' | 'partial' | 'legacy' | 'deprecated' | 'hidden';
 export type IdentityOwner = 'DNA' | 'AION' | 'Orb' | 'Aurora' | 'none';
