@@ -340,6 +340,7 @@ function parseAiSchedule(
         };
         (action as any).blockId = block.block_id || null;
         (action as any).missionTitle = m.mission_title || null;
+        action.missionGuide = m.mission_guide || null;
         return action;
       });
 
