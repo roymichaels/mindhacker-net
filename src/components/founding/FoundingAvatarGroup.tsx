@@ -196,17 +196,20 @@ function GroupScene() {
 /* ── Public Component ── */
 export function FoundingAvatarGroup() {
   return (
-    <div className="w-full" style={{ height: 280 }}>
+    <div className="w-full" style={{ height: 320 }}>
       <Canvas
         dpr={[1, 1.5]}
         camera={{
-          position: [0, 1.2, 5.5],
-          fov: 30,
+          position: [0, 0.9, 6.5],
+          fov: 32,
           near: 0.1,
           far: 100,
         }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: 'transparent' }}
+        onCreated={({ camera }) => {
+          camera.lookAt(0, 0.8, 0);
+        }}
       >
         <ambientLight intensity={0.8} />
         <directionalLight position={[5, 8, 5]} intensity={1.2} />
