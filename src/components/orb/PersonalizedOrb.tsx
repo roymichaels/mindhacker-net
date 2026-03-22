@@ -23,7 +23,7 @@ import { useDNA } from '@/identity/useDNA';
 import { mapDNAtoVisual } from '@/lib/mapDNAtoVisual';
 import { Orb } from './Orb';
 import { OrbDebugOverlay } from './OrbDebugOverlay';
-import { StandaloneMorphOrb } from './GalleryMorphOrb';
+import { OrganicOrbCanvas } from './OrganicOrbCanvas';
 import type { OrbRef, OrbProps, OrbProfile } from './types';
 import { DEFAULT_ORB_PROFILE, interpolateOrbProfiles } from '@/lib/orbProfileGenerator';
 
@@ -147,11 +147,10 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     if (useMorphOrb) {
       return (
         <div className="relative" style={{ width: size, height: size }}>
-          <StandaloneMorphOrb
+          <OrganicOrbCanvas
             size={size}
             profile={displayProfile}
-            geometryFamily={displayProfile.geometryFamily || 'sphere'}
-            level={level}
+            audioLevel={audioLevel}
           />
           <OrbDebugOverlay
             profile={displayProfile}

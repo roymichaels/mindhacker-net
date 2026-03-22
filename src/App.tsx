@@ -89,6 +89,7 @@ import TherapistLayoutWrapper from "./components/careers/therapist/TherapistLayo
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
+const AIONFloatingWidget = lazy(() => import("./components/orb/AIONFloatingWidget"));
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
 const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const LifeLayoutWrapper = lazy(() => import("./components/pillars/LifeLayoutWrapper"));
@@ -433,6 +434,7 @@ const App = () => (
                                             <WalletModal />
                                             <Suspense fallback={null}><ProfilePage /></Suspense>
                                             <SoulAvatarMintWizardGlobal />
+                                            <Suspense fallback={null}><AIONFloatingWidget /></Suspense>
                                             <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
                                           </Suspense>
