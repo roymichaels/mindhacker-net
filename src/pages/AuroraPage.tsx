@@ -132,5 +132,6 @@ export default function AuroraPage() {
         onOpenChange={(o) => !o && setActiveModal(null)}
       />
     </div>
+    </AIONNamingGate>
   );
 }
