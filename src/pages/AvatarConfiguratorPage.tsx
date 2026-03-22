@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const AvatarConfiguratorPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const getCustomizationData = useConfiguratorStore((state) => state.getCustomizationData);
   const loadCustomizationData = useConfiguratorStore((state) => state.loadCustomizationData);
   const loading = useConfiguratorStore((state) => state.loading);
