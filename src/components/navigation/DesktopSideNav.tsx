@@ -37,7 +37,7 @@ export function DesktopSideNav() {
   };
 
   const openAurora = () => {
-    navigate('/aurora');
+    window.dispatchEvent(new CustomEvent('aion:toggle-chat'));
   };
 
   // Same order as bottom bar: FM | Aurora | Path | Community | Study
