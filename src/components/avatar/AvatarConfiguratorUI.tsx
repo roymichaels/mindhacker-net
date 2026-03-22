@@ -28,19 +28,25 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
   } = useConfiguratorStore();
   const [collapsed, setCollapsed] = useState(false);
 
-  const hasColors = currentCategory?.colorPalette && customization[currentCategory.name]?.asset;
+  const hasColors = currentCategory?.colorPalette && currentCategory.colorPalette.length > 0;
 
   // Hebrew labels for categories
   const categoryLabels: Record<string, string> = {
     Head: "ראש",
     Hair: "שיער",
-    FacialHair: "זקן",
+    Face: "פנים",
+    Eyes: "עיניים",
+    Eyebrow: "גבות",
     Nose: "אף",
+    "Facial Hair": "זקן",
+    Top: "חולצה",
+    Bottom: "מכנסיים",
+    Shoes: "נעליים",
     Glasses: "משקפיים",
     Hat: "כובע",
-    Top: "חולצה",
+    Earring: "עגיל",
+    Bow: "פפיון",
     Outfit: "תלבושת",
-    Shoes: "נעליים",
   };
 
   return (
