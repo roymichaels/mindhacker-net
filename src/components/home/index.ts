@@ -1,6 +1,7 @@
 // Primary homepage components
 export { default as GameHeroSection } from './GameHeroSection';
 export { default as ProblemSection } from './ProblemSection';
+export { default as ShiftSection } from './ShiftSection';
 export { default as OrbCollectionSection } from './OrbCollectionSection';
 export { default as CityShowcaseSection } from './CityShowcaseSection';
 export { default as TraitShowcaseSection } from './TraitShowcaseSection';
