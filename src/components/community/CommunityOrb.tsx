@@ -4,7 +4,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Orb } from '@/components/orb/Orb';
+import { OrganicOrbCanvas } from '@/components/orb/OrganicOrbCanvas';
 import { DEFAULT_ORB_PROFILE } from '@/hooks/useOrbProfile';
 import { VISUAL_DEFAULTS } from '@/components/orb/types';
 import type { OrbProfile } from '@/components/orb/types';
