@@ -84,19 +84,8 @@ export function useSharedOrb() {
 function OrbScene({ entry }: { entry: OrbEntryData }) {
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 2.8]} fov={40} />
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[5, 5, 8]} intensity={1.4} color="#ffffff" />
-      <directionalLight position={[-3, 2, -4]} intensity={0.6} color="#aaaaff" />
-      <directionalLight position={[0, -3, 2]} intensity={0.3} color="#ffaadd" />
-      <pointLight position={[2, 3, 4]} intensity={0.8} color="#ffffff" distance={15} />
-      <Environment preset="city" background={false} />
-      <MorphOrbMesh
-        profile={entry.profile}
-        geometryFamily={entry.geometryFamily}
-        level={entry.level}
-        randomShapeCount={entry.randomShapeCount}
-      />
+      <PerspectiveCamera makeDefault position={[0, 0, 3.2]} fov={45} />
+      <OrganicSphere profile={entry.profile} />
     </>
   );
 }

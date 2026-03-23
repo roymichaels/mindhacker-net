@@ -84,11 +84,9 @@ export function SharedOrbView({
   // Fallback: if no shared canvas context, render CSS orb
   if (!ctx) {
     return (
-      <CSSGalleryOrb
+      <OrganicOrbCanvas
         profile={profile}
-        geometryFamily={geometryFamily}
         size={size}
-        level={level}
         className={className}
       />
     );
