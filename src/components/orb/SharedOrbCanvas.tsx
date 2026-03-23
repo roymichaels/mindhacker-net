@@ -1,12 +1,12 @@
 /**
  * SharedOrbCanvas — Single WebGL context for ALL orbs on a page.
  * Stores orb DATA (not React nodes) to avoid infinite re-render loops.
- * Renders OrbScene centrally inside the single Canvas.
+ * Renders OrbScene centrally inside the single Canvas using OrganicSphere.
  */
 import React, { createContext, useContext, useRef, useCallback, useSyncExternalStore } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { View, PerspectiveCamera, Environment } from '@react-three/drei';
-import { MorphOrbMesh } from './GalleryMorphOrb';
+import { View, PerspectiveCamera } from '@react-three/drei';
+import { OrganicSphere } from './OrganicSphere';
 import type { OrbProfile } from './types';
 
 // ─── Entry data (plain objects, no React nodes) ───
