@@ -1,11 +1,11 @@
 /**
  * SharedOrbView — Registers orb DATA with SharedOrbCanvas.
  * No React nodes stored in parent state = no infinite loops.
- * Falls back to CSSGalleryOrb when outside a SharedOrbCanvas.
+ * Falls back to OrganicOrbCanvas when outside a SharedOrbCanvas.
  */
 import { useRef, useEffect, useId, useMemo } from 'react';
 import { useSharedOrb } from './SharedOrbCanvas';
-import { CSSGalleryOrb } from './CSSGalleryOrb';
+import { OrganicOrbCanvas } from './OrganicOrbCanvas';
 import type { OrbProfile } from './types';
 
 interface SharedOrbViewProps {
@@ -84,11 +84,9 @@ export function SharedOrbView({
   // Fallback: if no shared canvas context, render CSS orb
   if (!ctx) {
     return (
-      <CSSGalleryOrb
+      <OrganicOrbCanvas
         profile={profile}
-        geometryFamily={geometryFamily}
         size={size}
-        level={level}
         className={className}
       />
     );

@@ -4,7 +4,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Orb } from '@/components/orb/Orb';
+import { OrganicOrbCanvas } from '@/components/orb/OrganicOrbCanvas';
 import { DEFAULT_ORB_PROFILE } from '@/hooks/useOrbProfile';
 import { VISUAL_DEFAULTS } from '@/components/orb/types';
 import type { OrbProfile } from '@/components/orb/types';
@@ -58,12 +58,9 @@ export default function CommunityOrb({ userId, size = 36, className }: Community
 
   return (
     <div className={cn('rounded-full overflow-hidden shrink-0', className)} style={{ width: size, height: size }}>
-      <Orb
-        size={size}
-        state="idle"
+      <OrganicOrbCanvas
         profile={profile}
-        showGlow={false}
-        renderer="css"
+        size={size}
       />
     </div>
   );

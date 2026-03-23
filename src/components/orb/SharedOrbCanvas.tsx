@@ -1,12 +1,12 @@
 /**
  * SharedOrbCanvas — Single WebGL context for ALL orbs on a page.
  * Stores orb DATA (not React nodes) to avoid infinite re-render loops.
- * Renders OrbScene centrally inside the single Canvas.
+ * Renders OrbScene centrally inside the single Canvas using OrganicSphere.
  */
 import React, { createContext, useContext, useRef, useCallback, useSyncExternalStore } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { View, PerspectiveCamera, Environment } from '@react-three/drei';
-import { MorphOrbMesh } from './GalleryMorphOrb';
+import { View, PerspectiveCamera } from '@react-three/drei';
+import { OrganicSphere } from './OrganicSphere';
 import type { OrbProfile } from './types';
 
 // ─── Entry data (plain objects, no React nodes) ───
@@ -84,19 +84,8 @@ export function useSharedOrb() {
 function OrbScene({ entry }: { entry: OrbEntryData }) {
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 2.8]} fov={40} />
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[5, 5, 8]} intensity={1.4} color="#ffffff" />
-      <directionalLight position={[-3, 2, -4]} intensity={0.6} color="#aaaaff" />
-      <directionalLight position={[0, -3, 2]} intensity={0.3} color="#ffaadd" />
-      <pointLight position={[2, 3, 4]} intensity={0.8} color="#ffffff" distance={15} />
-      <Environment preset="city" background={false} />
-      <MorphOrbMesh
-        profile={entry.profile}
-        geometryFamily={entry.geometryFamily}
-        level={entry.level}
-        randomShapeCount={entry.randomShapeCount}
-      />
+      <PerspectiveCamera makeDefault position={[0, 0, 3.2]} fov={45} />
+      <OrganicSphere profile={entry.profile} />
     </>
   );
 }
