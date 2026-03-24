@@ -1,0 +1,27 @@
+{
+  "name": "MindOS - Mind Operation System",
+  "short_name": "MindOS",
+  "description": "A gamified personal development platform with AI coaching, personalized hypnosis, and real-life RPG mechanics.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#a855f7",
+  "background_color": "#0a0a0f",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
