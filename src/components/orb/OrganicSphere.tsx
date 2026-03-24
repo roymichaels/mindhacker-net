@@ -38,11 +38,23 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
   ));
 
   // Smooth variations (like Bruno's easing system)
+  // Use profile seed to create unique base parameters per orb
+  const baseParams = useMemo(() => {
+    const s = profile.seed || 42;
+    const hash = (n: number) => ((Math.sin(n * 127.1 + s * 311.7) * 43758.5453) % 1 + 1) % 1;
+    return {
+      volume: 0.18 + hash(1) * 0.12,        // 0.18–0.30
+      distortion: 0.8 + hash(2) * 1.2,       // 0.8–2.0
+      fresnel: 3.2 + hash(3) * 1.5,          // 3.2–4.7
+      timeFreq: 0.0004 + hash(4) * 0.0004,   // varied animation speed
+    };
+  }, [profile.seed]);
+
   const variations = useRef({
-    volume: { current: 0.152, target: 0.152 },
-    distortion: { current: 0.65, target: 0.65 },
-    fresnel: { current: 3.587, target: 3.587 },
-    timeFreq: { current: 0.0003, target: 0.0003 },
+    volume: { current: baseParams.volume, target: baseParams.volume },
+    distortion: { current: baseParams.distortion, target: baseParams.distortion },
+    fresnel: { current: baseParams.fresnel, target: baseParams.fresnel },
+    timeFreq: { current: baseParams.timeFreq, target: baseParams.timeFreq },
   });
 
   // Derive colors from OrbProfile
@@ -55,10 +67,10 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
   // Light spherical positions based on profile seed
   const lightPositions = useMemo(() => {
     const seed = profile.seed || 42;
-    const phiA = 0.615 + (seed % 100) * 0.01;
-    const thetaA = 2.049 + (seed % 50) * 0.02;
-    const phiB = 2.561 - (seed % 80) * 0.005;
-    const thetaB = -1.844 + (seed % 60) * 0.015;
+    const phiA = 0.5 + (seed % 100) * 0.015;
+    const thetaA = 1.8 + (seed % 50) * 0.03;
+    const phiB = 2.2 - (seed % 80) * 0.008;
+    const thetaB = -1.5 + (seed % 60) * 0.02;
     return {
       a: new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, phiA, thetaA)),
       b: new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, phiB, thetaB)),
@@ -80,19 +92,19 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
       uniforms: {
         uLightAColor: { value: lightAColor },
         uLightAPosition: { value: lightPositions.a },
-        uLightAIntensity: { value: 1.85 },
+        uLightAIntensity: { value: 2.8 },
         uLightBColor: { value: lightBColor },
         uLightBPosition: { value: lightPositions.b },
-        uLightBIntensity: { value: 1.4 },
+        uLightBIntensity: { value: 2.2 },
         uSubdivision: { value: new THREE.Vector2(segments, segments) },
         uOffset: { value: new THREE.Vector3() },
-        uDistortionFrequency: { value: 1.5 },
-        uDistortionStrength: { value: 0.65 },
+        uDistortionFrequency: { value: 1.5 + (profile.morphIntensity || 0.5) * 0.8 },
+        uDistortionStrength: { value: baseParams.distortion },
         uDisplacementFrequency: { value: 2.120 },
-        uDisplacementStrength: { value: 0.152 },
-        uFresnelOffset: { value: -1.609 },
-        uFresnelMultiplier: { value: 3.587 },
-        uFresnelPower: { value: 1.793 },
+        uDisplacementStrength: { value: baseParams.volume },
+        uFresnelOffset: { value: -1.2 },
+        uFresnelMultiplier: { value: baseParams.fresnel },
+        uFresnelPower: { value: 1.4 },
         uTime: { value: 0 },
       },
       defines: { USE_TANGENT: '' },
@@ -116,10 +128,10 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
 
     // Voice-reactive targets
     const hasAudio = audioLevel > 0.01;
-    v.volume.target = hasAudio ? 0.152 + audioLevel * 0.3 : 0.152;
-    v.distortion.target = hasAudio ? 0.65 + audioLevel * 5 : 0.65;
-    v.fresnel.target = hasAudio ? 3.587 + audioLevel * 2 : 3.587;
-    v.timeFreq.target = hasAudio ? 0.0003 + audioLevel * 0.003 : 0.0003;
+    v.volume.target = hasAudio ? baseParams.volume + audioLevel * 0.3 : baseParams.volume;
+    v.distortion.target = hasAudio ? baseParams.distortion + audioLevel * 5 : baseParams.distortion;
+    v.fresnel.target = hasAudio ? baseParams.fresnel + audioLevel * 2 : baseParams.fresnel;
+    v.timeFreq.target = hasAudio ? baseParams.timeFreq + audioLevel * 0.003 : baseParams.timeFreq;
 
     // Easing
     const ease = (v: { current: number; target: number }, up: number, down: number) => {
