@@ -67,10 +67,10 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
   // Light spherical positions based on profile seed
   const lightPositions = useMemo(() => {
     const seed = profile.seed || 42;
-    const phiA = 0.615 + (seed % 100) * 0.01;
-    const thetaA = 2.049 + (seed % 50) * 0.02;
-    const phiB = 2.561 - (seed % 80) * 0.005;
-    const thetaB = -1.844 + (seed % 60) * 0.015;
+    const phiA = 0.5 + (seed % 100) * 0.015;
+    const thetaA = 1.8 + (seed % 50) * 0.03;
+    const phiB = 2.2 - (seed % 80) * 0.008;
+    const thetaB = -1.5 + (seed % 60) * 0.02;
     return {
       a: new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, phiA, thetaA)),
       b: new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, phiB, thetaB)),
