@@ -92,10 +92,10 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
       uniforms: {
         uLightAColor: { value: lightAColor },
         uLightAPosition: { value: lightPositions.a },
-        uLightAIntensity: { value: 2.8 },
+        uLightAIntensity: { value: 3.5 },
         uLightBColor: { value: lightBColor },
         uLightBPosition: { value: lightPositions.b },
-        uLightBIntensity: { value: 2.2 },
+        uLightBIntensity: { value: 2.8 },
         uSubdivision: { value: new THREE.Vector2(segments, segments) },
         uOffset: { value: new THREE.Vector3() },
         uDistortionFrequency: { value: 1.5 + (profile.morphIntensity || 0.5) * 0.8 },
