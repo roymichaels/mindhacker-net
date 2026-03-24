@@ -43,10 +43,10 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
     const s = profile.seed || 42;
     const hash = (n: number) => ((Math.sin(n * 127.1 + s * 311.7) * 43758.5453) % 1 + 1) % 1;
     return {
-      volume: 0.18 + hash(1) * 0.12,        // 0.18–0.30
-      distortion: 0.8 + hash(2) * 1.2,       // 0.8–2.0
-      fresnel: 3.2 + hash(3) * 1.5,          // 3.2–4.7
-      timeFreq: 0.0004 + hash(4) * 0.0004,   // varied animation speed
+      volume: 0.15 + hash(1) * 0.15,        // 0.15–0.30
+      distortion: 1.0 + hash(2) * 1.5,       // 1.0–2.5
+      fresnel: 3.8 + hash(3) * 2.0,          // 3.8–5.8
+      timeFreq: 0.0003 + hash(4) * 0.0005,   // varied animation speed
     };
   }, [profile.seed]);
 
@@ -92,19 +92,19 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
       uniforms: {
         uLightAColor: { value: lightAColor },
         uLightAPosition: { value: lightPositions.a },
-        uLightAIntensity: { value: 2.8 },
+        uLightAIntensity: { value: 3.5 },
         uLightBColor: { value: lightBColor },
         uLightBPosition: { value: lightPositions.b },
-        uLightBIntensity: { value: 2.2 },
+        uLightBIntensity: { value: 2.8 },
         uSubdivision: { value: new THREE.Vector2(segments, segments) },
         uOffset: { value: new THREE.Vector3() },
         uDistortionFrequency: { value: 1.5 + (profile.morphIntensity || 0.5) * 0.8 },
         uDistortionStrength: { value: baseParams.distortion },
         uDisplacementFrequency: { value: 2.120 },
         uDisplacementStrength: { value: baseParams.volume },
-        uFresnelOffset: { value: -1.2 },
+        uFresnelOffset: { value: -0.8 },
         uFresnelMultiplier: { value: baseParams.fresnel },
-        uFresnelPower: { value: 1.4 },
+        uFresnelPower: { value: 1.1 },
         uTime: { value: 0 },
       },
       defines: { USE_TANGENT: '' },
