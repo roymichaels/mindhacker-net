@@ -79,7 +79,7 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
 
   // Geometry with tangents (required for bi-tangent normal computation)
   const geometry = useMemo(() => {
-    const segments = Math.min(512, Math.max(128, profile.geometryDetail * 40));
+    const segments = Math.min(512, Math.max(200, profile.geometryDetail * 60));
     const geo = new THREE.SphereGeometry(1, segments, segments);
     geo.computeTangents();
     return geo;

@@ -24,7 +24,7 @@ export const OrganicOrbCanvas = memo(function OrganicOrbCanvas({
   return (
     <div className={cn('pointer-events-auto', className)} style={{ width: size, height: size }}>
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={[1.5, 2.5]}
         camera={{ position: [0, 0, 3.2], fov: 45, near: 0.1, far: 100 }}
         gl={{ alpha: true, antialias: true, preserveDrawingBuffer: false }}
         style={{ background: 'transparent' }}
