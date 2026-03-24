@@ -128,10 +128,10 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
 
     // Voice-reactive targets
     const hasAudio = audioLevel > 0.01;
-    v.volume.target = hasAudio ? 0.152 + audioLevel * 0.3 : 0.152;
-    v.distortion.target = hasAudio ? 0.65 + audioLevel * 5 : 0.65;
-    v.fresnel.target = hasAudio ? 3.587 + audioLevel * 2 : 3.587;
-    v.timeFreq.target = hasAudio ? 0.0003 + audioLevel * 0.003 : 0.0003;
+    v.volume.target = hasAudio ? baseParams.volume + audioLevel * 0.3 : baseParams.volume;
+    v.distortion.target = hasAudio ? baseParams.distortion + audioLevel * 5 : baseParams.distortion;
+    v.fresnel.target = hasAudio ? baseParams.fresnel + audioLevel * 2 : baseParams.fresnel;
+    v.timeFreq.target = hasAudio ? baseParams.timeFreq + audioLevel * 0.003 : baseParams.timeFreq;
 
     // Easing
     const ease = (v: { current: number; target: number }, up: number, down: number) => {
