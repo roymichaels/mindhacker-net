@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable/index';
 import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { useOrbPresetMorph } from '@/hooks/useOrbPresetMorph';
 import { CSSOrb } from '@/components/orb/CSSOrb';
@@ -186,8 +185,9 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
 
   const handleGoogleSignIn = async () => {
     setIsAuthLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: window.location.origin + '/onboarding',
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/onboarding' },
     });
     setIsAuthLoading(false);
     if (error) {
@@ -197,8 +197,9 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
 
   const handleAppleSignIn = async () => {
     setIsAuthLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth('apple', {
-      redirect_uri: window.location.origin + '/onboarding',
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: window.location.origin + '/onboarding' },
     });
     setIsAuthLoading(false);
     if (error) {
