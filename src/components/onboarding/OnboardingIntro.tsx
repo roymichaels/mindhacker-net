@@ -217,6 +217,11 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
           .from('profiles')
           .update({ full_name: name.trim() })
           .eq('id', user.id);
+        
+        // Redirect to play/dashboard after profile setup
+        setTimeout(() => {
+          navigate('/play', { replace: true });
+        }, 500);
       }
 
       onComplete({ name: name.trim(), gender, ageBracket });
