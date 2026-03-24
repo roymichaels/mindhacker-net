@@ -177,14 +177,19 @@ void main() {
   float lightAIntensity = max(0.0, -dot(computedNormal, normalize(-uLightAPosition))) * uLightAIntensity;
   float lightBIntensity = max(0.0, -dot(computedNormal, normalize(-uLightBPosition))) * uLightBIntensity;
 
-  // Ambient base — blend of both lights so it's never pure black
-  vec3 ambient = (uLightAColor * 0.18 + uLightBColor * 0.12) + vec3(0.06);
+  // Ambient base — subtle so darks stay rich
+  vec3 ambient = (uLightAColor * 0.08 + uLightBColor * 0.05) + vec3(0.02);
   vec3 color = ambient;
   color = mix(color, uLightAColor, lightAIntensity * fresnel);
   color = mix(color, uLightBColor, lightBIntensity * fresnel);
   // Rim highlight
-  color += uLightAColor * 0.15 * fresnel;
-  color = mix(color, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.6), 2.5), 0.0, 1.0));
+  color += uLightAColor * 0.1 * fresnel;
+  // Contrast boost — push darks darker, brights brighter
+  color = pow(color, vec3(1.3));
+  color = mix(color, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.7), 3.0), 0.0, 1.0));
+  // Saturation boost
+  float lum = dot(color, vec3(0.299, 0.587, 0.114));
+  color = mix(vec3(lum), color, 1.4);
 
   vColor = color;
 }
