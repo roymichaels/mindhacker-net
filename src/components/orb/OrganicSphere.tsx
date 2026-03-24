@@ -38,11 +38,23 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
   ));
 
   // Smooth variations (like Bruno's easing system)
+  // Use profile seed to create unique base parameters per orb
+  const baseParams = useMemo(() => {
+    const s = profile.seed || 42;
+    const hash = (n: number) => ((Math.sin(n * 127.1 + s * 311.7) * 43758.5453) % 1 + 1) % 1;
+    return {
+      volume: 0.18 + hash(1) * 0.12,        // 0.18–0.30
+      distortion: 0.8 + hash(2) * 1.2,       // 0.8–2.0
+      fresnel: 3.2 + hash(3) * 1.5,          // 3.2–4.7
+      timeFreq: 0.0004 + hash(4) * 0.0004,   // varied animation speed
+    };
+  }, [profile.seed]);
+
   const variations = useRef({
-    volume: { current: 0.152, target: 0.152 },
-    distortion: { current: 0.65, target: 0.65 },
-    fresnel: { current: 3.587, target: 3.587 },
-    timeFreq: { current: 0.0003, target: 0.0003 },
+    volume: { current: baseParams.volume, target: baseParams.volume },
+    distortion: { current: baseParams.distortion, target: baseParams.distortion },
+    fresnel: { current: baseParams.fresnel, target: baseParams.fresnel },
+    timeFreq: { current: baseParams.timeFreq, target: baseParams.timeFreq },
   });
 
   // Derive colors from OrbProfile
