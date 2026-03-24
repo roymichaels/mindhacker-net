@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from "@/components/ui/toaster";
 import { renderRedirectRoutes, renderProtectedRedirectRoutes } from "@/routes/redirects";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -436,6 +437,7 @@ const App = () => (
                                             <SoulAvatarMintWizardGlobal />
                                             <Suspense fallback={null}><AIONFloatingWidget /></Suspense>
                                             <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
+                                            <Analytics />
 
                                           </Suspense>
                                         </SmartOnboardingProvider>
