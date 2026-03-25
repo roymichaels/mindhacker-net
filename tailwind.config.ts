@@ -55,8 +55,10 @@ export default {
         },
       },
       fontFamily: {
-        heebo: ['Heebo', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        heebo: ['Inter', 'sans-serif'],
         space: ['Space Grotesk', 'monospace'],
+        mono: ['Space Grotesk', 'monospace'],
       },
       borderRadius: {
         lg: "var(--radius)",

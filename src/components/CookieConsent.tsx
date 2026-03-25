@@ -34,30 +34,31 @@ const CookieConsent = () => {
 
   return (
     <div 
-      className="fixed bottom-20 md:bottom-24 left-0 right-0 z-40 p-4 animate-in slide-in-from-bottom-5 duration-300 pointer-events-none"
+      className="fixed left-0 right-0 z-40 px-3 pb-3 md:px-4 md:pb-4 animate-in slide-in-from-bottom-5 duration-300 pointer-events-none"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="max-w-4xl mx-auto">
-        <div className="glass-panel p-4 md:p-6 rounded-xl border border-primary/20 flex flex-col md:flex-row items-center gap-4 pointer-events-auto">
-          <Cookie className="w-8 h-8 text-primary flex-shrink-0 hidden md:block" />
+        <div className="glass-panel p-3 md:p-6 rounded-2xl border border-primary/20 shadow-[0_18px_50px_rgba(0,0,0,0.28)] flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 pointer-events-auto">
+          <Cookie className="w-7 h-7 text-primary flex-shrink-0 hidden md:block" />
           
-          <div className="flex-1 text-center md:text-start">
-            <p className="text-sm md:text-base text-muted-foreground">
+          <div className="flex-1 text-center md:text-start min-w-0">
+            <p className="text-sm leading-6 md:text-base text-muted-foreground">
               {t('legal.cookies.message')}{' '}
               <Link 
                 to="/privacy-policy" 
-                className="text-primary hover:underline"
+                className="text-primary hover:underline whitespace-nowrap"
               >
                 {t('legal.cookies.learnMore')}
               </Link>
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex w-full md:w-auto items-center justify-center gap-2">
             <Button
               onClick={handleAccept}
               size="sm"
-              className="bg-primary hover:bg-primary-glow"
+              className="bg-primary hover:bg-primary-glow min-w-[112px]"
             >
               {t('legal.cookies.accept')}
             </Button>
@@ -65,7 +66,7 @@ const CookieConsent = () => {
               onClick={handleDismiss}
               size="sm"
               variant="ghost"
-              className="p-2"
+              className="h-9 w-9 p-0 shrink-0"
               aria-label={t('common.close')}
             >
               <X className="w-4 h-4" />

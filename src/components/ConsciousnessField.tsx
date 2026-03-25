@@ -265,7 +265,7 @@ const ConsciousnessField = () => {
         }
 
         // Draw glyph
-        ctx.font = `${particle.size}px "Heebo", sans-serif`;
+        ctx.font = `${particle.size}px "Inter", sans-serif`;
         ctx.fillStyle = color;
 
         // Add glow for front layer

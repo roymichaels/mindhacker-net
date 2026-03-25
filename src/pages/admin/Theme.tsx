@@ -292,10 +292,10 @@ const Theme = () => {
                 <Input
                   value={localTheme.font_family_primary}
                   onChange={(e) => handleChange('font_family_primary', e.target.value)}
-                  placeholder="Heebo, sans-serif"
+                  placeholder="Inter, sans-serif"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {isRTL ? "שם הגופן (למשל: Heebo, Assistant, Rubik)" : "Font name (e.g., Heebo, Assistant, Rubik)"}
+                  {isRTL ? "שם הגופן (למשל: Inter, Rubik, Assistant)" : "Font name (e.g., Inter, Rubik, Assistant)"}
                 </p>
               </div>
               <div className="space-y-2">

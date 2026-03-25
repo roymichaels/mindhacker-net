@@ -118,7 +118,7 @@ const defaultTheme: ThemeSettings = {
   muted_h: "260",
   muted_s: "40%",
   muted_l: "15%",
-  font_family_primary: "Heebo",
+  font_family_primary: "Inter",
   font_family_secondary: "inherit",
   background_effect: "none",
   matrix_rain_enabled: true,

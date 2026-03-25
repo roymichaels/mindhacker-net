@@ -182,7 +182,7 @@ const MatrixRain = () => {
 
       // Draw each layer
       layers.forEach((layer) => {
-        ctx.font = `${layer.fontSize}px ${theme.font_family_primary || 'Heebo'}, sans-serif`;
+        ctx.font = `${layer.fontSize}px ${theme.font_family_primary || 'Inter'}, sans-serif`;
         ctx.filter = layer.blur > 0 ? `blur(${layer.blur}px)` : "none";
         
         // Glow effect - reduced in light mode
