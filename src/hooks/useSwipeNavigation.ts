@@ -4,12 +4,14 @@
 import { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
+import { useStoryWorld } from '@/contexts/StoryWorldContext';
 
 const TAB_ORDER = ['/fm', '/mindos/tactics', '/community', '/learn'];
 
 export function useSwipeNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { openSurface } = useStoryWorld();
 
   const currentIndex = TAB_ORDER.findIndex(path => {
     if (path === '/mindos/tactics') {
@@ -34,9 +36,20 @@ export function useSwipeNavigation() {
       ? Math.min(currentIndex + 1, TAB_ORDER.length - 1)
       : Math.max(currentIndex - 1, 0);
     if (nextIndex !== currentIndex) {
-      navigate(TAB_ORDER[nextIndex]);
+      const nextPath = TAB_ORDER[nextIndex];
+      const nextSurface =
+        nextPath === '/fm'
+          ? 'fm'
+          : nextPath === '/community'
+            ? 'community'
+            : nextPath === '/learn'
+              ? 'study'
+              : 'mindos';
+
+      openSurface(nextSurface, 'fullscreen');
+      navigate(nextPath, { state: { openSurface: true, storyMode: 'fullscreen' } });
     }
-  }, [currentIndex, navigate]);
+  }, [currentIndex, navigate, openSurface]);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => goTo('left'),

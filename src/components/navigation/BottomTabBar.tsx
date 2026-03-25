@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useStoryWorld } from '@/contexts/StoryWorldContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 import { getVisibleTabs } from '@/navigation/osNav';
@@ -13,11 +14,19 @@ const TAB_COLORS: Record<string, { solid: string; text: string; inactive: string
 export function BottomTabBar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { openSurface } = useStoryWorld();
   const { hasRole, loading } = useUserRoles();
 
   if (location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
+
+  const getSurfaceForTab = (tabId: string) => {
+    if (tabId === 'fm') return 'fm' as const;
+    if (tabId === 'mindos') return 'mindos' as const;
+    if (tabId === 'community') return 'community' as const;
+    return 'study' as const;
+  };
 
   const isActive = (path: string) => {
     if (path === '/mindos/tactics') {
@@ -48,7 +57,10 @@ export function BottomTabBar() {
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(tab.path)}
+              onClick={() => {
+                openSurface(getSurfaceForTab(tab.id), 'fullscreen');
+                navigate(tab.path, { state: { openSurface: true, storyMode: 'fullscreen' } });
+              }}
               aria-label={label}
               title={label}
               className="relative flex items-center justify-center px-2 py-1.5 transition-all min-w-[60px]"
