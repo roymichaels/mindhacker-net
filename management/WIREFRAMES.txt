@@ -1,0 +1,187 @@
+MindOS Wireframes
+Text-first reference, based on current route structure
+
+==================================================
+1. PUBLIC LANDING (/)
+==================================================
+
++--------------------------------------------------------------+
+| Top Nav                                                      |
+| logo | links | login / CTA                                  |
++--------------------------------------------------------------+
+| Hero                                                         |
+| headline                                                     |
+| subheadline                                                  |
+| CTA                                                          |
++--------------------------------------------------------------+
+| Feature bands / proof / pricing / final CTA                  |
+| modular sections from components/home/*                      |
++--------------------------------------------------------------+
+| Footer                                                       |
++--------------------------------------------------------------+
+
+==================================================
+2. PROTECTED APP SHELL
+==================================================
+
++--------------------------------------------------------------+
+| TopNavBar                                                    |
+| app dropdown | search/actions | notif | profile/orb          |
++--------------------------------------------------------------+
+| optional left sidebar | main page content | optional right   |
+|                      |                   | sidebar/activity  |
+|                      |                   |                   |
+|                      |                   |                   |
++--------------------------------------------------------------+
+| BottomTabBar                                                 |
+| FM | Aurora(injected) | PLAY(center) | Community | Study     |
++--------------------------------------------------------------+
+| GlobalChatInput floats on many routes                        |
++--------------------------------------------------------------+
+
+==================================================
+3. PLAY HUB (/play)
+==================================================
+
++--------------------------------------------------------------+
+| Header / hero strip                                          |
+| daily status | level/xp | summary actions                    |
++--------------------------------------------------------------+
+| Mission / priorities / execution center                      |
+|                                                              |
+| [Today overview] [daily priorities] [movement score]         |
+| [milestones]   [focus queue]     [execution actions]         |
+|                                                              |
+| Aurora prompts and planning widgets appear inline            |
++--------------------------------------------------------------+
+| FAB / bottom affordances                                     |
+| floating chat / modal launch / quick actions                 |
++--------------------------------------------------------------+
+
+==================================================
+4. AURORA CHAT SURFACE
+==================================================
+
++--------------------------------------------------------------+
+| Aurora header                                                |
+| orb | title | language switch | controls                     |
++--------------------------------------------------------------+
+| Scrollable conversation                                      |
+|                                                              |
+|  [assistant bubble]                                          |
+|  [user bubble]                                               |
+|  [assistant streaming bubble.............]                   |
+|                                                              |
+|  optional typing indicator                                   |
++--------------------------------------------------------------+
+| Input row                                                    |
+| text box | voice | image | send                              |
++--------------------------------------------------------------+
+
+Voice mode overlay:
+
++--------------------------------------------------------------+
+| full-screen orb                                              |
+| state: idle / listening / processing / speaking              |
+| transcript preview                                           |
+| end / mute / replay controls                                 |
++--------------------------------------------------------------+
+
+==================================================
+5. DOMAIN ASSESSMENT CHAT MODAL
+==================================================
+
++--------------------------------------------------------------+
+| Domain header                                                |
+| back | orb | "Aurora - Scanning <domain>" | language switch  |
++--------------------------------------------------------------+
+| Intro block                                                  |
+| "what this scan does / why / what we ask"                    |
++--------------------------------------------------------------+
+| assessment chat stream                                       |
+| user replies                                                 |
+| tool-call completion leads to save + navigate to results     |
++--------------------------------------------------------------+
+| input                                                        |
++--------------------------------------------------------------+
+
+Docked version:
+
++--------------------------------------------------------------+
+| embedded assessment body only                                |
+| no outer shell, no duplicated input if global input used     |
++--------------------------------------------------------------+
+
+==================================================
+6. DOMAIN RESULTS PAGE
+==================================================
+
++--------------------------------------------------------------+
+| page header + domain identity                                |
++--------------------------------------------------------------+
+| primary score / confidence / summary                         |
++--------------------------------------------------------------+
+| subsystem breakdown cards                                    |
+| findings                                                     |
+| next step                                                    |
++--------------------------------------------------------------+
+| actions: save / plan / back to strategy                      |
++--------------------------------------------------------------+
+
+==================================================
+7. COMMUNITY (/community)
+==================================================
+
++--------------------------------------------------------------+
+| Community header                                             |
+| tabs / filters / create actions                              |
++--------------------------------------------------------------+
+| stories strip                                                |
++--------------------------------------------------------------+
+| feed column                    | HUD/activity sidebars        |
+| post cards                     | leaderboards                |
+| thread cards                   | pulse / orb widgets         |
+| topic boards                   |                             |
++--------------------------------------------------------------+
+| bottom tabs remain visible                                   |
++--------------------------------------------------------------+
+
+==================================================
+8. LEARN (/learn)
+==================================================
+
++--------------------------------------------------------------+
+| Learn header                                                 |
++--------------------------------------------------------------+
+| Left curriculum sidebar | Lesson / course body | Right rail  |
+| courses                 | video/text/quizzes   | progress    |
+| filters                 | lesson controls      | actions     |
++--------------------------------------------------------------+
+
+==================================================
+9. FM (/fm)
+==================================================
+
++--------------------------------------------------------------+
+| FMTopNav / balance / wallet actions                          |
++--------------------------------------------------------------+
+| market / publish / mining / earn surfaces                    |
+| cards, wallet state, launchpad, opportunities                |
++--------------------------------------------------------------+
+| FM-specific bottom nav / app shell                           |
++--------------------------------------------------------------+
+
+==================================================
+10. ADMIN HUB (/admin-hub)
+==================================================
+
++--------------------------------------------------------------+
+| Admin shell header                                           |
++--------------------------------------------------------------+
+| left tab column | primary admin workspace                    |
+| overview         | users / content / campaigns / system      |
+| campaigns        | tables, dialogs, uploaders               |
+| content          |                                           |
+| site             |                                           |
+| system           |                                           |
++--------------------------------------------------------------+
