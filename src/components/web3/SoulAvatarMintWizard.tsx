@@ -11,13 +11,14 @@ import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import {
   Sparkles, Shield, Coins, ChevronRight, ChevronLeft,
   Wallet, Globe, Gem, PartyPopper, Loader2, Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export function SoulAvatarMintWizard() {
   const { wizardOpen, closeWizard } = useSoulAvatarWizard();
@@ -113,6 +114,15 @@ export function SoulAvatarMintWizard() {
         className="max-w-lg w-full p-0 gap-0 overflow-hidden bg-background border-primary/20"
         onInteractOutside={(e) => e.preventDefault()}
       >
+        <VisuallyHidden>
+          <DialogTitle>{isHe ? 'אשף יצירת AION' : 'AION creation wizard'}</DialogTitle>
+          <DialogDescription>
+            {isHe
+              ? 'אשף יצירת ארנק, Mint וחיבור זהות ה-AION שלך.'
+              : 'Wizard for wallet creation, minting, and connecting your AION identity.'}
+          </DialogDescription>
+        </VisuallyHidden>
+
         {/* Progress dots */}
         <div className="flex items-center justify-center gap-2 pt-5 pb-2">
           {[0, 1, 2, 3, 4].map(i => (

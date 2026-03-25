@@ -4,7 +4,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
-import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
+import { useAIONVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnergy } from '@/hooks/useGameState';
@@ -17,6 +17,7 @@ import VoiceRecordingButton from './VoiceRecordingButton';
 import VoiceModeButton from './VoiceModeButton';
 import AuroraVoiceMode from './AuroraVoiceMode';
 import { cn } from '@/lib/utils';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 interface AuroraChatInputProps {
   onSend: (message: string) => void;
@@ -36,9 +37,10 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { canAfford } = useEnergy();
   const { spendEnergy } = useGameState();
+  const { displayName: aionName } = useAIONDisplayName();
 
   // Voice mode
-  const voiceMode = useAuroraVoiceMode({
+  const voiceMode = useAIONVoiceMode({
     onSend,
     useGlobalResponseEvent: true,
   });
@@ -136,7 +138,7 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={tg('aurora.chat.placeholder')}
+              placeholder={isRTL ? `שלח/י הודעה ל-${aionName}...` : `Message ${aionName}...`}
               disabled={disabled || isRecording}
               rows={1}
               className={cn(

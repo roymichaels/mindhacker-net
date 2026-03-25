@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-25
 
-This file is the current product contract for the live repo state. It replaces the older 5-tab `FM | Aurora | Play | Community | Study` interpretation.
+This file is the current product contract for the live repo state. It replaces the older 5-tab `FM | AION | Play | Community | Study` interpretation.
 
 ## Brand Model
 
@@ -40,7 +40,7 @@ The section shell is implemented in [src/pages/MindOSPage.tsx](c:\Users\roymicha
 
 Legacy routes remain valid through redirects:
 
-- `/aurora` -> `/mindos/chat`
+- `/aurora` -> `/mindos/chat` (legacy redirect into AION chat)
 - `/play` -> `/mindos/tactics`
 - `/now` -> `/mindos/tactics`
 - `/plan` -> `/mindos/tactics`

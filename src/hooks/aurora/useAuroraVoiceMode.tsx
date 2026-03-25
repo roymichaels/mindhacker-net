@@ -225,3 +225,5 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     feedResponse,
   };
 }
+
+export const useAIONVoiceMode = useAuroraVoiceMode;

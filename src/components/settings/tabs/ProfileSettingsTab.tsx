@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 interface ProfileSettingsTabProps {
   displayName: string;
   setDisplayName: (name: string) => void;
+  aionName: string;
+  setAionName: (name: string) => void;
   bio: string;
   setBio: (bio: string) => void;
   email: string;
@@ -18,6 +20,8 @@ interface ProfileSettingsTabProps {
 const ProfileSettingsTab = ({
   displayName,
   setDisplayName,
+  aionName,
+  setAionName,
   bio,
   setBio,
   email,
@@ -38,6 +42,23 @@ const ProfileSettingsTab = ({
           placeholder={t('aurora.settings.displayNamePlaceholder')}
           className="bg-background/50"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="aionName" className="text-sm font-medium">
+          AION Name
+        </Label>
+        <Input
+          id="aionName"
+          value={aionName}
+          onChange={(e) => setAionName(e.target.value)}
+          placeholder="AION"
+          maxLength={40}
+          className="bg-background/50"
+        />
+        <p className="text-xs text-muted-foreground">
+          {`Meet ${aionName || 'AION'}, your AI coach.`}
+        </p>
       </div>
 
       {/* Email (Read-only) */}

@@ -65,9 +65,9 @@ export const useLifeModel = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         debug.warn('[useLifeModel] Life direction fetch error:', error);
         throw error;
       }

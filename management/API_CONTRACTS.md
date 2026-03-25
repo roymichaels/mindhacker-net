@@ -50,17 +50,17 @@ Legend:
 
 | Function | Auth | Stream | Purpose / contract summary |
 |---|---|---:|---|
-| `aurora-chat` | public + manual token handling | yes | Legacy-compatible MindOS chat handler; body includes messages/context/language; SSE passthrough from AI gateway |
+| `aurora-chat` | public + manual token handling | yes | Legacy-named AION MindOS chat handler; body includes messages/context/language; SSE passthrough from AI gateway |
 | `domain-assess` | public/manual | yes | Domain assessment conversation; tool-call extraction for structured scores |
 | `plan-chat` | public/manual | yes | Planning chat for strategy / negotiation |
 | `work-chat` | public/manual | yes | Work-planning chat using work sessions and tasks |
 | `onboarding-chat` | public/manual | no | Onboarding conversational helper |
 | `consciousness-assess` | public/manual | no | Consciousness-focused assessment |
-| `aurora-analyze` | public/manual | no | Legacy analysis endpoint for pillar or user context |
-| `aurora-proactive` | public/admin-style service access | no | Generates, lists, acknowledges proactive AI items |
-| `aurora-recalibrate` | public/service | no | Recalculates pulse / calibration state for a user |
-| `aurora-generate-title` | public/manual | no | Generates titles for conversations/content |
-| `aurora-summarize-conversation` | public/manual | no | Summarizes existing conversations |
+| `aurora-analyze` | public/manual | no | Legacy-named AION analysis endpoint for pillar or user context |
+| `aurora-proactive` | public/admin-style service access | no | Legacy-named AION proactive item generator/list/ack flow |
+| `aurora-recalibrate` | public/service | no | Legacy-named AION pulse / calibration recalculation |
+| `aurora-generate-title` | public/manual | no | Legacy-named AION conversation/content title generator |
+| `aurora-summarize-conversation` | public/manual | no | Legacy-named AION conversation summarizer |
 | `suggest-practices` | manual | no | Returns suggested user practices using DB context and tool call |
 | `add-plate-item` | public | yes | Conversational item creation wizard, streams and tool-calls `create_plate_item` |
 | `career-wizard` | manual | no | AI career path helper with structured output |
@@ -177,12 +177,12 @@ Complete directory inventory from `supabase/functions` excluding `_shared`:
 - `analyze-introspection-form`
 - `analyze-life-plan`
 - `analyze-presence`
-- `aurora-analyze`
-- `aurora-chat`
-- `aurora-generate-title`
-- `aurora-proactive`
-- `aurora-recalibrate`
-- `aurora-summarize-conversation`
+- `aurora-analyze` (legacy name; AION)
+- `aurora-chat` (legacy name; AION)
+- `aurora-generate-title` (legacy name; AION)
+- `aurora-proactive` (legacy name; AION)
+- `aurora-recalibrate` (legacy name; AION)
+- `aurora-summarize-conversation` (legacy name; AION)
 - `cache-hypnosis-audio`
 - `career-wizard`
 - `check-coach-subscription`

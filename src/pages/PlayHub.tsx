@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 import { TodayOverviewTab } from '@/components/play/TodayOverviewTab';
 import { MissionControlTab } from '@/components/play/MissionControlTab';
@@ -30,6 +31,7 @@ export default function PlayHub() {
   const [workOpen, setWorkOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const aionName = useAIONDisplayName();
   const auroraChat = useAuroraChatContextSafe();
   const { openHypnosis } = useAuroraActions();
 
@@ -41,8 +43,8 @@ export default function PlayHub() {
     auroraChat.setIsChatExpanded(true);
     auroraChat.setPendingAssistantGreeting(
       isHe
-        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**'
-        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**"
+        ? `👋 שלום! אני ${aionName}, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי מה הדבר שהכי היית רוצה לשפר בחיים שלך עכשיו?**`
+        : `👋 Hey! I'm ${aionName}, and I'll help you find your perfect coach.\n\n**Tell me what you'd most like to improve in your life right now.**`
     );
   };
 

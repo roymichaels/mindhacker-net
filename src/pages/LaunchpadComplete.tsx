@@ -92,7 +92,7 @@ export default function LaunchpadComplete() {
           .eq('user_id', user.id)
           .order('generated_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (summaryError && summaryError.code !== 'PGRST116') {
           console.error('Error fetching summary:', summaryError);
@@ -114,7 +114,7 @@ export default function LaunchpadComplete() {
           .eq('user_id', user.id)
           .order('updated_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (planError && planError.code !== 'PGRST116') {
           console.error('Error fetching plan:', planError);
@@ -129,7 +129,7 @@ export default function LaunchpadComplete() {
           .from('launchpad_progress')
           .select('step_1_intention, step_2_profile_data, step_5_focus_areas_selected, step_6_actions')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (progressError && progressError.code !== 'PGRST116') {
           console.error('Error fetching progress:', progressError);

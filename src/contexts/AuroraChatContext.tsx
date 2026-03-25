@@ -46,6 +46,7 @@ interface AuroraChatContextType {
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
+export type AIONChatContextType = AuroraChatContextType;
 
 export const useAuroraChatContext = () => {
   const context = useContext(AuroraChatContext);
@@ -58,6 +59,8 @@ export const useAuroraChatContext = () => {
 export const useAuroraChatContextSafe = () => {
   return useContext(AuroraChatContext);
 };
+export const useAIONChatContext = useAuroraChatContext;
+export const useAIONChatContextSafe = useAuroraChatContextSafe;
 
 export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const conversations = useAuroraConversations();
@@ -92,3 +95,5 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     </AuroraChatContext.Provider>
   );
 };
+
+export const AIONChatProvider = AuroraChatProvider;

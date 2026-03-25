@@ -84,7 +84,7 @@ export default function CoachOSSection() {
                   {isRTL ? 'מצא מאמן' : 'Find a Coach'}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {isRTL ? 'Aurora ממליצה על מאמנים מתאימים' : 'Aurora matches you with the right coach'}
+                  {isRTL ? 'AION מתאימה לך את המאמן הנכון' : 'AION matches you with the right coach'}
                 </p>
               </div>
             </div>
@@ -163,8 +163,8 @@ export default function CoachOSSection() {
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isRTL
-                  ? 'תאר את השירות שלך ו-Aurora תבנה לך דף נחיתה מקצועי עם לכידת לידים, טסטימוניאלס, ו-CTA — הכל אוטומטי. בלי מעצב, בלי קוד.'
-                  : 'Describe your service and Aurora builds a professional landing page with lead capture, testimonials, and CTAs — fully automated. No designer, no code.'}
+                  ? 'תאר את השירות שלך ו-AION תבנה לך דף נחיתה מקצועי עם לכידת לידים, טסטימוניאלס ו-CTA, באופן אוטומטי.'
+                  : 'Describe your service and AION builds a professional landing page with lead capture, testimonials, and CTAs, fully automated.'}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">

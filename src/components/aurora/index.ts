@@ -7,3 +7,6 @@ export { default as AuroraWelcome } from './AuroraWelcome';
 export { default as AuroraLayout } from './AuroraLayout';
 export { default as AuroraChatArea } from './AuroraChatArea';
 export { default as AuroraAccountDropdown } from './AuroraAccountDropdown';
+export { default as AIONMessage } from './AuroraChatMessage';
+export { default as AIONTypingIndicator } from './AuroraTypingIndicator';
+export { AuroraOrbIcon as AIONOrbIcon } from '@/components/icons/AuroraOrbIcon';

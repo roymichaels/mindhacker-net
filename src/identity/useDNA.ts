@@ -57,7 +57,7 @@ export function useDNA() {
         .from('profiles')
         .select('session_streak')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       return data;
     },
     enabled: !!user?.id,

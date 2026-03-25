@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils';
 
-interface AuroraOrbIconProps {
+interface AIONOrbIconProps {
   className?: string;
   size?: number;
   gradient?: boolean;
 }
 
-export const AuroraOrbIcon = ({ className, size = 16, gradient = true }: AuroraOrbIconProps) => {
+export const AIONOrbIcon = ({ className, size = 16, gradient = true }: AIONOrbIconProps) => {
   const id = `auroraGrad-${size}`;
   const filterId = `softGlow-${size}`;
 
@@ -58,3 +58,6 @@ export const AuroraOrbIcon = ({ className, size = 16, gradient = true }: AuroraO
     </svg>
   );
 };
+
+export type AuroraOrbIconProps = AIONOrbIconProps;
+export const AuroraOrbIcon = AIONOrbIcon;

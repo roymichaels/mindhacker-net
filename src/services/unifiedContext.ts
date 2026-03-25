@@ -108,7 +108,7 @@ export async function loadUnifiedContext(userId: string): Promise<UnifiedUserCon
     sessionsRes,
     weeklyStatsRes,
   ] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", userId).single(),
+    supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
     supabase.from("aurora_identity_elements").select("*").eq("user_id", userId),
     supabase.from("aurora_life_visions").select("*").eq("user_id", userId),
@@ -116,9 +116,9 @@ export async function loadUnifiedContext(userId: string): Promise<UnifiedUserCon
     supabase.from("aurora_energy_patterns").select("*").eq("user_id", userId),
     supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
     supabase.from("aurora_focus_plans").select("*").eq("user_id", userId).eq("status", "active").limit(1),
-    supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
+    supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).maybeSingle(),
     supabase.from("hypnosis_sessions").select("id, ego_state, action, duration_seconds, completed_at").eq("user_id", userId).order("completed_at", { ascending: false }).limit(20),
-    supabase.from("weekly_user_stats").select("*").eq("user_id", userId).single(),
+    supabase.from("weekly_user_stats").select("*").eq("user_id", userId).maybeSingle(),
   ]);
 
   const profile = profileRes.data;

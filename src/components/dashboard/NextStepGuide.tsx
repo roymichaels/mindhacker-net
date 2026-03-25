@@ -17,6 +17,7 @@ import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import type { NowQueueItem } from '@/types/planning';
 import { Button } from '@/components/ui/button';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import {
   Play, ChevronRight, CheckCircle2, Sparkles, AlertCircle,
   Rocket, Brain, Clock, Zap, ArrowRight, X, MessageCircle,
@@ -62,6 +63,7 @@ interface NextStepGuideProps {
 export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const aionName = useAIONDisplayName();
   const navigate = useNavigate();
   const { smartNavigate } = useSmartOnboarding();
   const { openHypnosis } = useAuroraActions();
@@ -123,12 +125,12 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
       );
     }
 
-    // P0.5: Aurora proactive nudge — dismiss inline, don't navigate away
+    // P0.5: AION proactive nudge — dismiss inline, don't navigate away
     if (hasPendingItems && currentItem) {
       return (
         <GuideBar
           emoji="💬"
-          title={currentItem.title || (isHe ? 'אורורה רוצה לעזור' : 'Aurora wants to help')}
+          title={currentItem.title || (isHe ? `${aionName} רוצה לעזור` : `${aionName} wants to help`)}
           subtitle={currentItem.body?.slice(0, 60) || ''}
           accentClass="border-primary/30 from-primary/15 to-accent/10"
           iconColor="text-primary"
@@ -204,7 +206,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
           subtitle={isHe ? 'יום מצוין. שוחח עם AION לתכנון מחר' : 'Great day. Chat with AION to plan tomorrow'}
           accentClass="border-emerald-500/30 from-emerald-500/15 to-teal-500/10"
           iconColor="text-emerald-400"
-          actionLabel={isHe ? 'אורורה' : 'Aurora'}
+          actionLabel={aionName}
           actionIcon={<Sparkles className="w-3.5 h-3.5" />}
           onAction={() => window.dispatchEvent(new CustomEvent('aion:toggle-chat'))}
           onDismiss={() => setDismissed(true)}
@@ -229,7 +231,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
       );
     }
 
-    // Fallback: Aurora chat
+    // Fallback: AION chat
     return (
       <GuideBar
         emoji="✨"
@@ -237,7 +239,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
         subtitle={isHe ? 'שוחח עם AION' : 'Chat with AION'}
         accentClass="border-primary/30 from-primary/15 to-accent/10"
         iconColor="text-primary"
-        actionLabel={isHe ? 'אורורה' : 'Aurora'}
+        actionLabel={aionName}
         onAction={() => window.dispatchEvent(new CustomEvent('aion:toggle-chat'))}
         onDismiss={() => setDismissed(true)}
         isRTL={isRTL}

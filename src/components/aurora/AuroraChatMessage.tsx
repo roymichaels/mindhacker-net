@@ -11,7 +11,7 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { TTSPlayer } from './TTSPlayer';
 
-interface AuroraChatMessageProps {
+interface AIONMessageProps {
   id: string;
   content: string;
   isOwn: boolean;
@@ -37,7 +37,7 @@ const extractCTAs = (content: string): { cleanContent: string; ctas: string[] } 
   return { cleanContent, ctas };
 };
 
-const AuroraChatMessage = ({
+const AIONMessage = ({
   id,
   content,
   isOwn,
@@ -47,7 +47,7 @@ const AuroraChatMessage = ({
   onRegenerate,
   onRetry,
   isFailed = false,
-}: AuroraChatMessageProps) => {
+}: AIONMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
   const { profile: orbProfile } = useOrbProfile();
@@ -146,4 +146,6 @@ const AuroraChatMessage = ({
   );
 };
 
-export default AuroraChatMessage;
+export type AuroraChatMessageProps = AIONMessageProps;
+export const AuroraChatMessage = AIONMessage;
+export default AIONMessage;

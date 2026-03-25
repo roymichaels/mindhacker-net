@@ -102,13 +102,13 @@ export function useProfilePDF() {
         launchpadProgressRes,
       ] = await Promise.all([
         supabase.from('profiles').select('full_name').eq('id', user.id).single(),
-        supabase.from('launchpad_summaries').select('summary_data, consciousness_score, clarity_score, transformation_readiness').eq('user_id', user.id).single(),
-        supabase.from('life_plans').select('id, plan_data, life_plan_milestones(*)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single(),
+        supabase.from('launchpad_summaries').select('summary_data, consciousness_score, clarity_score, transformation_readiness').eq('user_id', user.id).order('generated_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('life_plans').select('id, plan_data, life_plan_milestones(*)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
         supabase.from('aurora_identity_elements').select('*').eq('user_id', user.id),
         supabase.from('aurora_life_visions').select('*').eq('user_id', user.id),
         supabase.from('aurora_commitments').select('*').eq('user_id', user.id).eq('status', 'active'),
         supabase.from('aurora_daily_minimums').select('*').eq('user_id', user.id).eq('is_active', true),
-        supabase.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user.id).single(),
+        supabase.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user.id).maybeSingle(),
       ]);
 
       const profile = profileRes.data;

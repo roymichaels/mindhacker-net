@@ -15,6 +15,7 @@ import AuroraVoiceMode from '@/components/aurora/AuroraVoiceMode';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +25,7 @@ const GlobalChatInput = () => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { user } = useAuth();
   const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
+  const { displayName: aionName } = useAIONDisplayName();
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -311,7 +313,7 @@ const GlobalChatInput = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={handleFocus}
-              placeholder={tg('aurora.chat.placeholder')}
+              placeholder={isRTL ? `שלח/י הודעה ל-${aionName}...` : `Message ${aionName}...`}
               disabled={isStreaming || isRecording}
               rows={1}
               className={cn(

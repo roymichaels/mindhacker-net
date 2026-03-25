@@ -3,7 +3,7 @@
  *
  * Notes:
  * - Client ID is a publishable key, safe for frontend usage.
- * - Defaults to SAPPHIRE_DEVNET for the fallback client ID.
+ * - Defaults to SAPPHIRE_MAINNET when no explicit network is provided.
  * - Includes AA chain config required by dashboard Smart Account settings.
  */
 import {
@@ -18,15 +18,14 @@ const FALLBACK_CLIENT_ID =
   'BDUeePBUxdKKnluY6zAzDRsrDwOz1YQNKm1l-jKStb5SP5qGKlYRYrNspoXH3eGnTJJJUo9dGPkOht7cu1Kil18';
 
 const CLIENT_ID = import.meta.env.VITE_WEB3AUTH_CLIENT_ID || FALLBACK_CLIENT_ID;
-
-const defaultNetworkForClient =
-  CLIENT_ID === FALLBACK_CLIENT_ID ? 'SAPPHIRE_DEVNET' : 'SAPPHIRE_MAINNET';
 const NETWORK_KEY = (
-  import.meta.env.VITE_WEB3AUTH_NETWORK || defaultNetworkForClient
+  import.meta.env.VITE_WEB3AUTH_NETWORK || 'SAPPHIRE_MAINNET'
 ).toUpperCase();
 const WEB3AUTH_NETWORK_VALUE =
   WEB3AUTH_NETWORK[NETWORK_KEY as keyof typeof WEB3AUTH_NETWORK] ??
   WEB3AUTH_NETWORK.SAPPHIRE_MAINNET;
+const ENABLE_EXTERNAL_WALLETS =
+  import.meta.env.VITE_ENABLE_EXTERNAL_WALLETS === 'true';
 
 const MAINNET_CHAIN = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -109,11 +108,11 @@ export const web3AuthOptions: Web3AuthOptions = {
       },
       [WALLET_CONNECTORS.WALLET_CONNECT_V2]: {
         label: 'wallet_connect',
-        showOnModal: true,
+        showOnModal: ENABLE_EXTERNAL_WALLETS,
       },
       [WALLET_CONNECTORS.METAMASK]: {
         label: 'metamask',
-        showOnModal: true,
+        showOnModal: ENABLE_EXTERNAL_WALLETS,
       },
     },
   },

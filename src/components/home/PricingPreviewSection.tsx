@@ -15,7 +15,7 @@ const tiers = [
     nameHe: 'התעוררות', nameEn: 'Awakening',
     priceHe: 'חינם', priceEn: 'Free',
     color: 'text-blue-500', border: 'border-blue-500/30', bg: 'bg-blue-500/5',
-    featuresHe: ['2 פילרים מתוך 15 תחומים', '5 הודעות Aurora ליום', 'אבחון מלא', 'דאשבורד ומבנה יומי'],
+    featuresHe: ['2 פילרים מתוך 15 תחומים', '5 הודעות AION ליום', 'אבחון מלא', 'דאשבורד ומבנה יומי'],
     featuresEn: ['2 of 15 life pillars', '5 MindOS messages/day', 'Full assessment', 'Dashboard & daily structure'],
   },
   {
@@ -25,7 +25,7 @@ const tiers = [
     priceHe: '$69/חודש', priceEn: '$69/mo',
     color: 'text-primary', border: 'border-primary/40', bg: 'bg-primary/5',
     featured: true,
-    featuresHe: ['6 פילרים מתוך 15 תחומים', 'Aurora ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
+    featuresHe: ['6 פילרים מתוך 15 תחומים', 'AION ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
     featuresEn: ['6 of 15 life pillars', 'Unlimited MindOS + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
   },
   {

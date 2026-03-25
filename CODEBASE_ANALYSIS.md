@@ -26,7 +26,7 @@ That means the app is functionally ahead of its filesystem structure.
 
 - primary tabs are `Free Market`, `MindOS`, `Community`, `Study`
 - `MindOS` has internal sections for chat, tactics, strategy, work, and journal
-- legacy `Aurora` and `Play` routes now redirect into `MindOS`
+- legacy `Aurora` and `Play` routes now redirect into `MindOS`; Aurora branding is being deprecated in favor of AION
 
 ### Runtime
 

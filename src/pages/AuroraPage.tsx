@@ -1,11 +1,12 @@
 /**
- * AuroraPage - Full-page AION chat surface.
+ * AIONPage - Full-page AION chat surface.
  * Keeps the same signature header and quick actions as the floating widget.
  */
 import { useState } from 'react';
 import { MessageSquare, Moon, Heart, Target, Brain } from 'lucide-react';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
@@ -18,9 +19,10 @@ import { AIONContextBadges, AIONHeader, AIONQuickActions } from '@/components/or
 
 type WidgetModal = 'dream' | 'gratitude' | 'plan' | 'beliefs' | null;
 
-export default function AuroraPage() {
+export default function AIONPage() {
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const { displayName: aionName } = useAIONDisplayName();
   const { activePillar, assessmentDomainId, endAssessment } = useAuroraChatContext();
   const [activeModal, setActiveModal] = useState<WidgetModal>(null);
 
@@ -65,8 +67,8 @@ export default function AuroraPage() {
     <AIONNamingGate>
       <div className="fixed inset-0 top-14 z-40 flex flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,rgba(10,18,34,0.98),rgba(7,11,20,0.96))] overflow-hidden">
         <AIONHeader
-          title="AION"
-          subtitle={isHe ? 'מרכז השיחה של MindOS' : 'MindOS conversation hub'}
+          title={aionName}
+          subtitle={isHe ? `מרכז השיחה של ${aionName}` : `${aionName}'s conversation hub`}
           icon={<MessageSquare className="w-4 h-4" />}
           className="bg-black/10"
         />

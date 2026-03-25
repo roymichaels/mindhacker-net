@@ -12,7 +12,7 @@ This repository is in a staged architecture transition:
   - `MindOS` -> `/mindos/*`
   - `Community` -> `/community`
   - `Study` -> `/learn`
-- Legacy routes such as `/aurora`, `/play`, and `/work` are preserved as redirects
+- Legacy routes such as `/aurora`, `/play`, and `/work` are preserved as redirects; `/aurora` now resolves into the AION chat experience
 - OpenClaw-style agent runtime is already live through Vercel `/api/*`
 - The repo is now bootstrapped as a workspace monorepo, but the live app source still physically lives in root `src/` and `supabase/`
 

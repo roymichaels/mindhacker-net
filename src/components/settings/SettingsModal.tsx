@@ -30,6 +30,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
 
   // Profile state
   const [displayName, setDisplayName] = useState('');
+  const [aionName, setAionName] = useState('AION');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
 
@@ -46,6 +47,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   // Track initial values for change detection
   const [initialValues, setInitialValues] = useState({
     displayName: '',
+    aionName: 'AION',
     bio: '',
     preferences: { tone: 'warm', intensity: 'balanced', gender: 'neutral' } as AuroraPreferences,
   });
@@ -57,7 +59,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
     const fetchProfile = async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, bio, aurora_preferences')
+        .select('full_name, bio, aion_name, aurora_preferences')
         .eq('id', user.id)
         .single();
 
@@ -67,6 +69,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
       }
 
       const name = data?.full_name || '';
+      const personalAionName = data?.aion_name || 'AION';
       const userBio = data?.bio || '';
       let prefs: AuroraPreferences = { tone: 'warm', intensity: 'balanced', gender: 'neutral' };
 
@@ -80,11 +83,12 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
       }
 
       setDisplayName(name);
+      setAionName(personalAionName);
       setBio(userBio);
       setPreferences(prefs);
       setEmail(user.email || '');
 
-      setInitialValues({ displayName: name, bio: userBio, preferences: prefs });
+      setInitialValues({ displayName: name, aionName: personalAionName, bio: userBio, preferences: prefs });
     };
 
     fetchProfile();
@@ -94,16 +98,23 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   useEffect(() => {
     const changed =
       displayName !== initialValues.displayName ||
+      aionName !== initialValues.aionName ||
       bio !== initialValues.bio ||
       preferences.tone !== initialValues.preferences.tone ||
       preferences.intensity !== initialValues.preferences.intensity ||
       preferences.gender !== initialValues.preferences.gender;
 
     setHasChanges(changed);
-  }, [displayName, bio, preferences, initialValues]);
+  }, [displayName, aionName, bio, preferences, initialValues]);
 
   const handleSave = async () => {
     if (!user?.id) return;
+    const normalizedAionName = aionName.trim() || 'AION';
+
+    if (normalizedAionName !== initialValues.aionName) {
+      const confirmed = window.confirm(`Rename your AION to "${normalizedAionName}"?`);
+      if (!confirmed) return;
+    }
 
     setIsSaving(true);
     try {
@@ -111,6 +122,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
         .from('profiles')
         .update({
           full_name: displayName,
+          aion_name: normalizedAionName,
           bio,
           aurora_preferences: {
             tone: preferences.tone,
@@ -123,7 +135,8 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
 
       if (error) throw error;
 
-      setInitialValues({ displayName, bio, preferences });
+      setInitialValues({ displayName, aionName: normalizedAionName, bio, preferences });
+      setAionName(normalizedAionName);
       setHasChanges(false);
       toast.success(t('aurora.settings.saved'));
     } catch (err) {
@@ -181,6 +194,8 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
               <ProfileSettingsTab
                 displayName={displayName}
                 setDisplayName={setDisplayName}
+                aionName={aionName}
+                setAionName={setAionName}
                 bio={bio}
                 setBio={setBio}
                 email={email}

@@ -140,7 +140,7 @@ export default function GuildSection() {
             {/* Learning flow mock */}
             <div className="mt-5 p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
               <p className="text-xs font-bold text-indigo-400 mb-2 text-center">
-                {isRTL ? 'זרימה: Aurora מלמדת אותך' : 'Flow: Aurora Teaches You'}
+                {isRTL ? 'זרימה: AION מלמדת אותך' : 'Flow: AION Teaches You'}
               </p>
               <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
                 <span className="px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 font-bold">

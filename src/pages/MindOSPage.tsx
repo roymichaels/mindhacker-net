@@ -2,9 +2,10 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Brain, ClipboardList, Target, Briefcase, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 const MINDOS_SECTIONS = [
-  { to: '/mindos/chat', labelEn: 'Chat', labelHe: 'צ׳אט', icon: Brain },
+  { to: '/mindos/chat', key: 'chat', labelEn: 'Chat', labelHe: 'צ׳אט', icon: Brain },
   { to: '/mindos/tactics', labelEn: 'Tactics', labelHe: 'טקטיקה', icon: ClipboardList },
   { to: '/mindos/strategy', labelEn: 'Strategy', labelHe: 'אסטרטגיה', icon: Target },
   { to: '/mindos/work', labelEn: 'Work', labelHe: 'עבודה', icon: Briefcase },
@@ -13,6 +14,7 @@ const MINDOS_SECTIONS = [
 
 export default function MindOSPage() {
   const { language, isRTL } = useTranslation();
+  const { displayName: aionName } = useAIONDisplayName();
   const location = useLocation();
 
   if (location.pathname === '/mindos/tactics') {
@@ -50,7 +52,11 @@ export default function MindOSPage() {
                   }
                 >
                   <Icon className="h-4 w-4" />
-                  <span>{language === 'he' ? section.labelHe : section.labelEn}</span>
+                  <span>
+                    {section.key === 'chat'
+                      ? aionName
+                      : (language === 'he' ? section.labelHe : section.labelEn)}
+                  </span>
                 </NavLink>
               );
             })}

@@ -14,7 +14,7 @@ ROOT
 |- backend/
 |  |- openclaw/
 |  |  |- agents/
-|  |  |  |- aurora-chat.yaml
+|  |  |  |- aion-chat.yaml (legacy file may still be aurora-chat.yaml)
 |  |  |  `- domain-assess.yaml
 |  |  |- tools/
 |  |  |  |- supabase_query.py
@@ -24,7 +24,7 @@ ROOT
 |     `- README.md
 |
 |- api/
-|  |- aurora-chat.ts
+|  |- aion-chat.ts (legacy file may still be aurora-chat.ts)
 |  |- domain-assess.ts
 |  `- _lib/
 |     |- agent-runtime.ts
@@ -53,7 +53,7 @@ ROOT
 |  |  |- admin/
 |  |  `- dev/
 |  |- components/
-|  |  |- aurora/
+|  |  |- aion/ (legacy folder may still be aurora/)
 |  |  |- avatar/
 |  |  |- community/
 |  |  |- navigation/
@@ -64,7 +64,7 @@ ROOT
 |  |  |- layout/
 |  |  `- ui/
 |  |- hooks/
-|  |  |- aurora/
+|  |  |- aion/ (legacy folder may still be aurora/)
 |  |  |- fm/
 |  |  |- coaches/
 |  |  `- root feature hooks
@@ -84,7 +84,7 @@ ROOT
    |- config.toml
    |- migrations/
    `- functions/
-      |- aurora-chat/
+      |- aion-chat/ (legacy folder may still be aurora-chat/)
       |- domain-assess/
       |- plan-chat/
       |- work-chat/
@@ -124,7 +124,7 @@ CURRENT ROUTE SPINE
 |  `- /success
 |
 `- Transitional legacy routes
-   |- /aurora -> /mindos/chat
+   |- /aurora -> /mindos/chat (legacy redirect)
    |- /play -> /mindos/tactics
    |- /now -> /mindos/tactics
    |- /plan -> /mindos/tactics

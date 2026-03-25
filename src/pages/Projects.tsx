@@ -16,6 +16,7 @@ import ProGateOverlay from '@/components/subscription/ProGateOverlay';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { motion } from 'framer-motion';
 import { PageShell } from '@/components/aurora-ui/PageShell';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 interface ProjectsProps {
   openWizardTrigger?: number;
@@ -28,6 +29,7 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   const { projects, isLoading } = useProjects();
   const { canAccessProjects } = useSubscriptionGate();
   const { isLaunchpadComplete } = useLaunchpadProgress();
+  const aionName = useAIONDisplayName();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<UserProject | null>(null);
 
@@ -45,7 +47,7 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   if (!isLaunchpadComplete) {
     const features = [
       { icon: Target, he: 'תוכנית 90 יום מותאמת אישית', en: 'Personalized 90-day plan' },
-      { icon: Sparkles, he: 'אימון AI יומי עם אורורה', en: 'Daily AI coaching with Aurora' },
+      { icon: Sparkles, he: 'אימון AI יומי עם AION', en: `Daily AI coaching with ${aionName}` },
       { icon: Brain, he: 'כלי התבוננות וצמיחה', en: 'Introspection & growth tools' },
     ];
     return (
@@ -123,8 +125,8 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 {language === 'he'
-                  ? 'נהל את כל הפרויקטים שלך, שלב עם המטרות והתוכניות שלך דרך אורורה'
-                  : 'Manage all your projects, integrate with your goals and plans through Aurora'}
+                  ? `נהל את כל הפרויקטים שלך, שלב עם המטרות והתוכניות שלך דרך ${aionName}`
+                  : `Manage all your projects, integrate with your goals and plans through ${aionName}`}
               </p>
             </div>
             <Button
@@ -154,8 +156,8 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
             </h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               {language === 'he'
-                ? 'צור את הפרויקט הראשון שלך ואורורה תעזור לך לשלב אותו עם המטרות והתוכניות שלך'
-                : 'Create your first project and Aurora will help you integrate it with your goals and plans'}
+                ? `צור את הפרויקט הראשון שלך ו-${aionName} תעזור לך לשלב אותו עם המטרות והתוכניות שלך`
+                : `Create your first project and ${aionName} will help you integrate it with your goals and plans`}
             </p>
             <Button onClick={() => setWizardOpen(true)} className="bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white gap-2">
               <Plus className="h-4 w-4" />

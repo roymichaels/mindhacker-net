@@ -12,29 +12,28 @@ The component layer is broad and feature-rich, but unevenly organized. Most majo
 
 Purpose:
 
-- core MindOS layer UI, voice mode, message rendering, dock/modals, and unified AI brain components
+- core MindOS layer UI, voice mode, message rendering, dock/modals, and unified AION components
 
 Key components:
 
-- `AuroraChatInput`
-- `AuroraChatMessage`
-- `AuroraChatArea`
-- `AuroraDock`
-- `AuroraVoiceMode`
-- `AuroraHoloOrb`
-- `AuroraFloatingOrb`
-- `AuroraPlanModal`
-- `AuroraJournalModal`
+- `AIONChatInput` / legacy `AuroraChatInput`
+- `AIONMessage` / legacy `AuroraChatMessage`
+- `AIONChatArea` / legacy `AuroraChatArea`
+- `AIONDock` / legacy `AuroraDock`
+- `AIONVoiceMode` / legacy `AuroraVoiceMode`
+- `AIONOrb` / legacy orb components
+- `AIONPlanModal` / legacy `AuroraPlanModal`
+- `AIONJournalModal` / legacy `AuroraJournalModal`
 - `AIONNamingGate`
 
 Status:
 
-- active but legacy-named
+- active with compatibility aliases during the Aurora -> AION migration
 - strategic area under ongoing migration because backend calls are changing fastest here
 
 Depends on:
 
-- `hooks/aurora`
+- `hooks/aurora` (legacy path, active AION logic)
 - contexts
 - Supabase client
 - voice services
@@ -314,10 +313,10 @@ Status:
 
 ## Ownership and Stability Notes
 
-- Most volatile: `aurora`, `pillars`, `play`, backend-coupled dialog flows
+- Most volatile: AION chat layer, `pillars`, `play`, backend-coupled dialog flows
 - Most stable: `ui`, `navigation`, `layout`, many `learn` primitives
 - Largest maintenance burden: `admin`, `careers`, `dashboard`
-- Legacy naming burden: `aurora`, `play`, `SoulAvatar`, old route assumptions, duplicate coach hooks
+- Legacy naming burden: Aurora-era folders, `play`, `SoulAvatar`, old route assumptions, duplicate coach hooks
 
 ## Cross-Directory Dependencies
 
@@ -325,11 +324,11 @@ Status:
 navigation/layout
   -> all route surfaces
 
-aurora
+AION layer
   -> hooks/aurora, services/unifiedContext, lib/tools, auth/language contexts
 
 pillars
-  -> navigation/lifeDomains, hooks/useDomainAssessment, aurora, lib/domain-assess
+  -> navigation/lifeDomains, hooks/useDomainAssessment, AION layer, lib/domain-assess
 
 play/dashboard
   -> action items, planning hooks, game state, MindOS widgets
