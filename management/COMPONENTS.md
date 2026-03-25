@@ -12,7 +12,7 @@ The component layer is broad and feature-rich, but unevenly organized. Most majo
 
 Purpose:
 
-- core AI chat UI, voice mode, message rendering, dock/modals, Aurora shell pieces
+- core MindOS chat UI, voice mode, message rendering, dock/modals, and Aurora persona components
 
 Key components:
 
@@ -29,7 +29,7 @@ Key components:
 
 Status:
 
-- active
+- active but legacy-named
 - strategic area under ongoing migration because backend calls are changing fastest here
 
 Depends on:
@@ -38,6 +38,11 @@ Depends on:
 - contexts
 - Supabase client
 - voice services
+
+Alignment note:
+
+- this folder is the current implementation of the MindOS conversational layer
+- chat entry is now primarily the floating AION orb, with `/mindos/chat` as the route fallback
 
 ### `src/components/pillars`
 
@@ -72,7 +77,7 @@ Depends on:
 
 Purpose:
 
-- daily execution and Play hub widgets
+- daily execution and tactics widgets that currently power the MindOS default surface
 
 Key components:
 
@@ -87,8 +92,13 @@ Key components:
 
 Status:
 
-- active
+- active but legacy-named
 - stable enough for iteration, but some strategy logic still overlaps with `plan` and `dashboard`
+
+Alignment note:
+
+- this directory is still the real implementation behind `/mindos/tactics`
+- rename/move later only after route and import cleanup is complete
 
 ### `src/components/dashboard`
 
@@ -307,7 +317,7 @@ Status:
 - Most volatile: `aurora`, `pillars`, `play`, backend-coupled dialog flows
 - Most stable: `ui`, `navigation`, `layout`, many `learn` primitives
 - Largest maintenance burden: `admin`, `careers`, `dashboard`
-- Legacy naming burden: `SoulAvatar`, some old Aurora route assumptions, duplicate coach hooks
+- Legacy naming burden: `aurora`, `play`, `SoulAvatar`, some old route assumptions, duplicate coach hooks
 
 ## Cross-Directory Dependencies
 

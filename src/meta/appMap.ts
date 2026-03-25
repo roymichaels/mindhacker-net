@@ -186,10 +186,10 @@ export const routes: RouteEntry[] = [
   // ── Play Hub ──────────────────────────────────────
   {
     id: 'play',
-    name: 'Play Hub',
-    route: '/play',
+    name: 'MindOS Tactics',
+    route: '/mindos/tactics',
     category: 'play',
-    purpose: 'Main dashboard merging Strategy + Tactics views',
+    purpose: 'Primary MindOS execution surface backed by the original Play Hub UI',
     protected: true,
     mainComponents: ['PlayHub', 'PlayLayoutWrapper'],
     layoutWrapper: 'ProtectedAppShell',
@@ -198,7 +198,8 @@ export const routes: RouteEntry[] = [
     identityOwner: 'AION',
     renderType: 'orb',
     status: 'active',
-    cleanupPriority: 'none',
+    cleanupPriority: 'low',
+    notes: 'Legacy /play now redirects here',
   },
 
   // ── Strategy / Pillars ────────────────────────────
@@ -356,19 +357,19 @@ export const routes: RouteEntry[] = [
   {
     id: 'aurora-chat',
     name: 'AION Chat',
-    route: '/aurora',
+    route: '/mindos/chat',
     category: 'aion',
-    purpose: 'Primary AION chat interface (Aurora engine)',
+    purpose: 'MindOS chat surface and orb-backed conversation interface',
     protected: true,
-    mainComponents: ['AuroraPage', 'AuroraChatView'],
+    mainComponents: ['MindOS/ChatPage', 'AuroraPage', 'AIONChatPanel'],
     layoutWrapper: 'ProtectedAppShell',
     keyContexts: ['AuroraChatContext', 'AuroraActionsContext'],
     keyHooks: ['useAuroraChat', 'useAuroraCommands', 'useAuroraVoice'],
     identityOwner: 'AION',
     renderType: 'orb',
     status: 'active',
-    cleanupPriority: 'none',
-    notes: 'User-facing name is personal AION name, engine is Aurora internally',
+    cleanupPriority: 'low',
+    notes: 'Legacy /aurora now redirects here; primary quick-entry is the floating AION orb widget',
   },
 
   // ── Profile ───────────────────────────────────────
@@ -386,7 +387,7 @@ export const routes: RouteEntry[] = [
     renderType: 'mixed',
     status: 'active',
     cleanupPriority: 'none',
-    notes: 'Route redirects to /play; profile is modal-based via ProfileModalContext',
+    notes: 'Route redirects to /mindos/tactics; profile is modal-based via ProfileModalContext',
   },
 
   // ── Community ─────────────────────────────────────

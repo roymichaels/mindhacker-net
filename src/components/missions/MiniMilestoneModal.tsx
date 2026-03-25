@@ -97,7 +97,7 @@ export function MiniMilestoneModal({ open, onOpenChange, milestoneId, milestoneT
 
   const handleTalkToAurora = () => {
     onOpenChange(false);
-    navigate('/aurora');
+    window.dispatchEvent(new CustomEvent('aion:toggle-chat'));
   };
 
   return (

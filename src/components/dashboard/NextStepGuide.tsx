@@ -159,7 +159,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
           accentClass="border-red-500/30 from-red-500/15 to-rose-500/10"
           iconColor="text-red-400"
           actionLabel={isHe ? 'צפה' : 'View'}
-          onAction={() => navigate('/play')}
+          onAction={() => navigate('/mindos/tactics')}
           isRTL={isRTL}
         />
       );
@@ -186,7 +186,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
             } else if (onExecuteTask) {
               onExecuteTask(nextTask.item);
             } else {
-              navigate('/play');
+              navigate('/mindos/tactics');
             }
           }}
           progress={totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}
@@ -206,7 +206,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
           iconColor="text-emerald-400"
           actionLabel={isHe ? 'אורורה' : 'Aurora'}
           actionIcon={<Sparkles className="w-3.5 h-3.5" />}
-          onAction={() => navigate('/aurora')}
+          onAction={() => window.dispatchEvent(new CustomEvent('aion:toggle-chat'))}
           onDismiss={() => setDismissed(true)}
           isRTL={isRTL}
         />
@@ -223,7 +223,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
           accentClass="border-amber-500/30 from-amber-500/15 to-orange-500/10"
           iconColor="text-amber-400"
           actionLabel={isHe ? 'התחל' : 'Start'}
-          onAction={() => navigate('/play')}
+          onAction={() => navigate('/mindos/tactics')}
           isRTL={isRTL}
         />
       );
@@ -238,7 +238,7 @@ export function NextStepGuide({ onExecuteTask, className }: NextStepGuideProps) 
         accentClass="border-primary/30 from-primary/15 to-accent/10"
         iconColor="text-primary"
         actionLabel={isHe ? 'אורורה' : 'Aurora'}
-        onAction={() => navigate('/aurora')}
+        onAction={() => window.dispatchEvent(new CustomEvent('aion:toggle-chat'))}
         onDismiss={() => setDismissed(true)}
         isRTL={isRTL}
       />

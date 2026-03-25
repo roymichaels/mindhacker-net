@@ -16,12 +16,12 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { openWallet, isOpen: isWalletOpen } = useWalletModal();
-  const isAuroraPage = location.pathname === '/aurora';
+  const isMindOSChatPage = location.pathname === '/mindos/chat' || location.pathname === '/aurora';
   const isFMPage = location.pathname.startsWith('/fm');
 
   return (
     <div className="flex items-center gap-1">
-      {isAuroraPage && <AuroraSearchBar />}
+      {isMindOSChatPage && <AuroraSearchBar />}
       {isAdmin && (
         <Button
           variant="ghost"

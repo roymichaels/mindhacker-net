@@ -34,13 +34,13 @@ Text-first reference, based on current route structure
 |                      |                   |                   |
 +--------------------------------------------------------------+
 | BottomTabBar                                                 |
-| FM | Aurora(injected) | PLAY(center) | Community | Study     |
+| icon-only colored slots: FM | MindOS | Community | Study     |
 +--------------------------------------------------------------+
 | GlobalChatInput floats on many routes                        |
 +--------------------------------------------------------------+
 
 ==================================================
-3. PLAY HUB (/play)
+3. MINDOS TACTICS (/mindos/tactics)
 ==================================================
 
 +--------------------------------------------------------------+
@@ -52,18 +52,18 @@ Text-first reference, based on current route structure
 | [Today overview] [daily priorities] [movement score]         |
 | [milestones]   [focus queue]     [execution actions]         |
 |                                                              |
-| Aurora prompts and planning widgets appear inline            |
+| AION prompts and planning widgets appear inline              |
 +--------------------------------------------------------------+
 | FAB / bottom affordances                                     |
-| floating chat / modal launch / quick actions                 |
+| floating AION orb / modal launch / quick actions             |
 +--------------------------------------------------------------+
 
 ==================================================
-4. AURORA CHAT SURFACE
+4. AION CHAT SURFACE
 ==================================================
 
 +--------------------------------------------------------------+
-| Aurora header                                                |
+| AION orb/widget panel                                        |
 | orb | title | language switch | controls                     |
 +--------------------------------------------------------------+
 | Scrollable conversation                                      |
@@ -76,6 +76,13 @@ Text-first reference, based on current route structure
 +--------------------------------------------------------------+
 | Input row                                                    |
 | text box | voice | image | send                              |
++--------------------------------------------------------------+
+
+Dedicated route fallback:
+
++--------------------------------------------------------------+
+| /mindos/chat                                                 |
+| Uses the existing Aurora chat UI inside the MindOS route     |
 +--------------------------------------------------------------+
 
 Voice mode overlay:
