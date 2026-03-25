@@ -59,7 +59,7 @@ export function BottomTabBar() {
               key={tab.id}
               onClick={() => {
                 openSurface(getSurfaceForTab(tab.id), 'fullscreen');
-                navigate(tab.path, { state: { openSurface: true, storyMode: 'fullscreen' } });
+                navigate(tab.path);
               }}
               aria-label={label}
               title={label}

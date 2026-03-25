@@ -47,7 +47,7 @@ export function useSwipeNavigation() {
               : 'mindos';
 
       openSurface(nextSurface, 'fullscreen');
-      navigate(nextPath, { state: { openSurface: true, storyMode: 'fullscreen' } });
+      navigate(nextPath);
     }
   }, [currentIndex, navigate, openSurface]);
 

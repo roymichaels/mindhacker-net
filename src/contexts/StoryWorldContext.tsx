@@ -18,11 +18,6 @@ interface StoryWorldContextValue {
 
 const StoryWorldContext = createContext<StoryWorldContextValue | null>(null);
 
-interface StoryRouteState {
-  openSurface?: boolean;
-  storyMode?: StoryMode;
-}
-
 function resolveSurface(pathname: string): StorySurface {
   if (pathname.startsWith('/fm')) return 'fm';
   if (pathname.startsWith('/community')) return 'community';
@@ -51,7 +46,6 @@ export function StoryWorldProvider({ children }: { children: ReactNode }) {
   const [activeMode, setActiveMode] = useState<StoryMode>('fullscreen');
   const [loading, setLoading] = useState(false);
   const [manualSceneKey, setManualSceneKey] = useState<string | null>(null);
-  const routeState = (location.state as StoryRouteState | null) || null;
 
   const refreshScene = useCallback(
     async (sceneKey?: string) => {
@@ -110,16 +104,6 @@ export function StoryWorldProvider({ children }: { children: ReactNode }) {
       void refreshScene(resolveSceneKey(location.pathname));
     }
   }, [location.pathname, manualSceneKey, refreshScene]);
-
-  useEffect(() => {
-    if (!routeState?.openSurface) return;
-
-    const nextSurface = resolveSurface(location.pathname);
-    if (!nextSurface) return;
-
-    setActiveSurface(nextSurface);
-    setActiveMode(routeState.storyMode || 'fullscreen');
-  }, [location.pathname, routeState?.openSurface, routeState?.storyMode]);
 
   const openSurface = useCallback((surface: Exclude<StorySurface, null>, mode: StoryMode = 'fullscreen') => {
     setActiveSurface(surface);
