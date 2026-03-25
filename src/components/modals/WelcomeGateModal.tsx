@@ -2,7 +2,7 @@
  * WelcomeGateModal — Gamified entry gate: "First time?" or "Welcome back"
  */
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Rocket } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -11,6 +11,7 @@ import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { Orb } from '@/components/orb/Orb';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface WelcomeGateModalProps {
   open: boolean;
@@ -36,6 +37,13 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
         className="sm:max-w-md p-0 overflow-hidden border-2 border-primary/30 bg-card/95 backdrop-blur-xl shadow-[0_0_80px_hsl(var(--primary)/0.15)]"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
+        <VisuallyHidden>
+          <DialogTitle>{isRTL ? 'התחברות ל-MindOS' : 'Sign in to MindOS'}</DialogTitle>
+          <DialogDescription>
+            {isRTL ? 'התחבר כדי להתחיל את המסע שלך.' : 'Sign in to start your journey.'}
+          </DialogDescription>
+        </VisuallyHidden>
+
         {/* Background effects */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-accent/5 pointer-events-none" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />

@@ -30,14 +30,6 @@ type BasicWeb3AuthUser = {
   idToken?: string;
 };
 
-type WalletProviderLike = {
-  request?: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-  selectedAddress?: unknown;
-  publicAddress?: unknown;
-  address?: unknown;
-  accounts?: unknown;
-};
-
 const asNonEmptyString = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
@@ -68,12 +60,6 @@ const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
   } catch {
     return null;
   }
-};
-
-const extractFirstAddress = (value: unknown): string | undefined => {
-  if (!Array.isArray(value)) return undefined;
-  const first = value[0];
-  return asNonEmptyString(first);
 };
 
 const resolveIdentityFromAny = (value: unknown): BasicWeb3AuthUser => {
@@ -121,35 +107,6 @@ const resolveIdentityFromIdToken = (idToken?: string): BasicWeb3AuthUser => {
   const payload = decodeJwtPayload(idToken);
   if (!payload) return {};
   return resolveIdentityFromAny(payload);
-};
-
-const resolveIdentityFromProvider = async (
-  provider: WalletProviderLike | null,
-): Promise<BasicWeb3AuthUser> => {
-  if (!provider) return {};
-
-  let walletAddress =
-    asNonEmptyString(provider.selectedAddress) ||
-    asNonEmptyString(provider.publicAddress) ||
-    asNonEmptyString(provider.address) ||
-    extractFirstAddress(provider.accounts);
-
-  if (!walletAddress && typeof provider.request === 'function') {
-    try {
-      const accounts = await provider.request({ method: 'eth_accounts' });
-      walletAddress = extractFirstAddress(accounts);
-    } catch {
-      // Non-blocking: some providers may not support this call here.
-    }
-  }
-
-  const email = normalizeIdentityEmail(walletAddress);
-  if (!email) return {};
-
-  return {
-    email,
-    name: 'Wallet User',
-  };
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -357,22 +314,14 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         }
 
         console.log('[Web3Auth] Opening SDK modal...');
-        const provider = (await connect()) as WalletProviderLike | null;
+        await connect();
 
-        // Fetch identity — retry as data may take a moment after connect
+        // Fetch identity from Web3Auth auth data only. Avoid provider/RPC probes here.
         let resolvedEmail: string | undefined;
         let resolvedName: string | undefined;
         let resolvedIdToken: string | undefined;
 
-        // Wallet-first fallback (MetaMask/Brave may not expose email in userInfo)
-        const providerIdentity = await resolveIdentityFromProvider(provider);
-        if (providerIdentity.email) {
-          resolvedEmail = providerIdentity.email;
-          resolvedName = providerIdentity.name;
-          console.log('[Web3Auth] Resolved identity from wallet provider');
-        }
-
-        for (let attempt = 0; attempt < 8; attempt++) {
+        for (let attempt = 0; attempt < 3; attempt++) {
           try {
             const info = await getUserInfo();
             console.log(`[Web3Auth] getUserInfo() attempt ${attempt + 1}:`, JSON.stringify(info));
@@ -409,15 +358,15 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
             break;
           }
 
-          await sleep(700);
+          await sleep(250);
         }
 
         if (!resolvedEmail) {
-          // Give fallback useEffect bridge path time to resolve asynchronously.
-          const maxWaitMs = 4000;
+          // Give the fallback bridge effect a brief chance to resolve asynchronously.
+          const maxWaitMs = 1000;
           const startedAt = Date.now();
           while (!bridgedRef.current && Date.now() - startedAt < maxWaitMs) {
-            await sleep(250);
+            await sleep(100);
           }
         }
 
