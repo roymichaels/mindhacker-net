@@ -1,4 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { generateStoryScene } from '../_lib/story-engine.js';
 
 function parseBody(body: unknown) {
@@ -13,7 +12,7 @@ function parseBody(body: unknown) {
   return body as Record<string, unknown>;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
