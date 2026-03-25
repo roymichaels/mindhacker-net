@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSoulWallet } from '@/hooks/useSoulWallet';
 import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -23,13 +24,20 @@ export function SoulAvatarMintWizard() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const [step, setStep] = useState(0);
-  const { createWallet, mintAvatar, isMinted, walletAddress } = useSoulWallet();
+  const { createWallet, mintAvatar, isMinted, walletAddress, hasSession } = useSoulWallet();
+  const { openAuthModal, isAuthenticating } = useAuthModal();
   const [localWallet, setLocalWallet] = useState<string | null>(walletAddress);
   const [minting, setMinting] = useState(false);
   const [minted, setMinted] = useState(isMinted);
 
   const handleCreateWallet = async () => {
     try {
+      if (!hasSession) {
+        openAuthModal('login');
+        toast.error(isHe ? 'יש להתחבר לפני יצירת הארנק' : 'Please sign in before creating the wallet');
+        return;
+      }
+
       // Generate a simulated Web3Auth wallet address
       // In production, this would call Web3Auth SDK
       const simulatedAddress = '0x' + Array.from(
@@ -78,6 +86,8 @@ export function SoulAvatarMintWizard() {
     <StepCreateWallet
       key="wallet"
       isHe={isHe}
+      hasSession={hasSession}
+      isAuthenticating={isAuthenticating}
       walletAddress={localWallet}
       isCreating={createWallet.isPending}
       onCreateWallet={handleCreateWallet}
@@ -216,9 +226,10 @@ function StepExplainWeb3({ isHe, onNext, onBack }: { isHe: boolean; onNext: () =
 }
 
 function StepCreateWallet({
-  isHe, walletAddress, isCreating, onCreateWallet, onNext, onBack
+  isHe, hasSession, isAuthenticating, walletAddress, isCreating, onCreateWallet, onNext, onBack
 }: {
   isHe: boolean; walletAddress: string | null; isCreating: boolean;
+  hasSession: boolean; isAuthenticating: boolean;
   onCreateWallet: () => void; onNext: () => void; onBack: () => void;
 }) {
   return (
@@ -255,10 +266,19 @@ function StepCreateWallet({
           </Button>
         </div>
       ) : (
-        <Button onClick={onCreateWallet} disabled={isCreating} size="lg" className="gap-2 px-8">
+        <div className="w-full space-y-3">
+          {!hasSession && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+              {isAuthenticating
+                ? (isHe ? 'האימות עדיין מושלם...' : 'Authentication is still completing...')
+                : (isHe ? 'צריך חיבור פעיל לפני יצירת הארנק.' : 'A live authenticated session is required before wallet creation.')}
+            </div>
+          )}
+          <Button onClick={onCreateWallet} disabled={isCreating || !hasSession} size="lg" className="gap-2 px-8">
           {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {isHe ? 'צור ארנק עכשיו' : 'Create Wallet Now'}
-        </Button>
+          </Button>
+        </div>
       )}
 
       <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">

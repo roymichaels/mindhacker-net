@@ -32,7 +32,21 @@ async function getAccessTokenWithRetry(): Promise<string> {
     }
 
     lastToken = data.session?.access_token ?? null;
-    if (lastToken) return lastToken;
+    if (lastToken) {
+      const validation = await supabase.auth.getUser(lastToken);
+      if (!validation.error && validation.data.user) {
+        return lastToken;
+      }
+
+      const refreshed = await supabase.auth.refreshSession();
+      const refreshedToken = refreshed.data.session?.access_token ?? null;
+      if (refreshedToken) {
+        const refreshedValidation = await supabase.auth.getUser(refreshedToken);
+        if (!refreshedValidation.error && refreshedValidation.data.user) {
+          return refreshedToken;
+        }
+      }
+    }
 
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
@@ -40,8 +54,34 @@ async function getAccessTokenWithRetry(): Promise<string> {
   throw new Error('No authenticated session available yet. Please try again.');
 }
 
+async function invokeWalletFunction(accessToken: string, body: Record<string, unknown>) {
+  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/web3-wallet`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      apikey:
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMessage =
+      typeof payload?.error === 'string'
+        ? payload.error
+        : `Wallet function failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return payload;
+}
+
 export function useSoulWallet() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: wallet, isLoading } = useQuery({
@@ -60,30 +100,31 @@ export function useSoulWallet() {
 
   const createWallet = useMutation({
     mutationFn: async ({ walletAddress, provider }: { walletAddress: string; provider?: string }) => {
+      if (!user?.id) {
+        throw new Error('You must be signed in before creating a wallet.');
+      }
+
       const accessToken = await getAccessTokenWithRetry();
-      const { data, error } = await supabase.functions.invoke('web3-wallet', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: { action: 'create', wallet_address: walletAddress, provider },
+      return invokeWalletFunction(accessToken, {
+        action: 'create',
+        wallet_address: walletAddress,
+        provider,
       });
-      if (error) throw error;
-      return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['soul-wallet'] }),
   });
 
   const mintAvatar = useMutation({
     mutationFn: async (nftMetadata?: Record<string, unknown>) => {
+      if (!user?.id) {
+        throw new Error('You must be signed in before minting AION.');
+      }
+
       const accessToken = await getAccessTokenWithRetry();
-      const { data, error } = await supabase.functions.invoke('web3-wallet', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: { action: 'mint', nft_metadata: nftMetadata },
+      return invokeWalletFunction(accessToken, {
+        action: 'mint',
+        nft_metadata: nftMetadata,
       });
-      if (error) throw error;
-      return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['soul-wallet'] }),
   });
@@ -94,6 +135,7 @@ export function useSoulWallet() {
     hasWallet: !!wallet,
     isMinted: wallet?.is_minted ?? false,
     walletAddress: wallet?.wallet_address ?? null,
+    hasSession: !!session?.access_token,
     createWallet,
     mintAvatar,
   };
