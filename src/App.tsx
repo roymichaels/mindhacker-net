@@ -71,7 +71,6 @@ const FoundingLanding = lazy(() => import("./pages/FoundingLanding"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
-const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -86,14 +85,17 @@ const Creator = lazy(() => import("./pages/Creator"));
 import FreelancerLayoutWrapper from "./components/careers/freelancer/FreelancerLayoutWrapper";
 import CreatorLayoutWrapper from "./components/careers/creator/CreatorLayoutWrapper";
 import TherapistLayoutWrapper from "./components/careers/therapist/TherapistLayoutWrapper";
-const LifeHub = lazy(() => import("./pages/LifeHub"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
 const AIONFloatingWidget = lazy(() => import("./components/orb/AIONFloatingWidget"));
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
 const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
-const LifeLayoutWrapper = lazy(() => import("./components/pillars/LifeLayoutWrapper"));
-const PlayLayoutWrapper = lazy(() => import("./components/plan/PlayLayoutWrapper"));
+const MindOSPage = lazy(() => import("./pages/MindOSPage"));
+const MindOSChatPage = lazy(() => import("./pages/MindOS/ChatPage"));
+const MindOSTacticsPage = lazy(() => import("./pages/MindOS/TacticsPage"));
+const MindOSStrategyPage = lazy(() => import("./pages/MindOS/StrategyPage"));
+const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
+const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 
 const PresenceHome = lazy(() => import("./pages/pillars/PresenceHome"));
@@ -162,7 +164,6 @@ const ArenaLayoutWrapper = lazy(() => import("./components/pillars/ArenaLayoutWr
 const ArenaDomainPage = lazy(() => import("./pages/ArenaDomainPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 const LearnLayoutWrapper = lazy(() => import("./components/learn/LearnLayoutWrapper"));
-const WorkLayoutWrapper = lazy(() => import("./components/work/WorkLayoutWrapper"));
 
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
@@ -186,9 +187,15 @@ const queryClient = new QueryClient({
 const CoachesLayoutWrapper = lazy(() => import('./components/careers/coach/CoachesLayoutWrapper'));
 
 // Redirect old /arena/:domainId/* → /play (via /strategy/:domainId/*)
-function ArenaToStrategyRedirect() {
+function StrategyToMindOSRedirect() {
+  const loc = window.location.pathname + window.location.search;
+  const newPath = loc.replace(/^\/strategy/, '/mindos/strategy');
+  return <Navigate to={newPath} replace />;
+}
+
+function ArenaToMindOSRedirect() {
   const loc = window.location.pathname;
-  const newPath = loc.replace(/^\/arena/, '/strategy');
+  const newPath = loc.replace(/^\/arena/, '/mindos/strategy');
   return <Navigate to={newPath} replace />;
 }
 
@@ -285,17 +292,25 @@ const App = () => (
                                                 {/* Messages */}
                                                 <Route path="/messages" element={<Messages />} />
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
+                                                <Route path="/mindos" element={<MindOSPage />}>
+                                                  <Route index element={<Navigate to="/mindos/chat" replace />} />
+                                                  <Route path="chat" element={<MindOSChatPage />} />
+                                                  <Route path="tactics" element={<MindOSTacticsPage />} />
+                                                  <Route path="strategy" element={<MindOSStrategyPage />} />
+                                                  <Route path="work" element={<MindOSWorkPage />} />
+                                                  <Route path="journal" element={<MindOSJournalPage />} />
+                                                </Route>
                                                 {/* Aurora Chat — now widget-based, redirect to play */}
-                                                <Route path="/aurora" element={<Navigate to="/play" replace />} />
+                                                <Route path="/aurora" element={<Navigate to="/mindos/chat" replace />} />
                                                 {/* Legacy redirects to Play */}
-                                                <Route path="/now" element={<Navigate to="/play" replace />} />
-                                                <Route path="/plan" element={<Navigate to="/play" replace />} />
+                                                <Route path="/now" element={<Navigate to="/mindos/tactics" replace />} />
+                                                <Route path="/plan" element={<Navigate to="/mindos/tactics" replace />} />
                                                 {/* Play (merged Strategy + Tactics) */}
-                                                <Route path="/play" element={<PlayLayoutWrapper />} />
+                                                <Route path="/play" element={<Navigate to="/mindos/tactics" replace />} />
                                                 {/* Profile removed — now modal-based via ProfileModalContext */}
-                                                <Route path="/profile" element={<Navigate to="/play" replace />} />
+                                                <Route path="/profile" element={<Navigate to="/mindos/tactics" replace />} />
                                                 {/* Strategy sub-routes for pillar assessments */}
-                                                <Route path="/strategy" element={<Navigate to="/play" replace />} />
+                                                <Route path="/strategy" element={<Navigate to="/mindos/strategy" replace />} />
                                                 <Route path="/strategy/presence" element={<PresenceHome />} />
                                                 <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                                                 <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
@@ -355,7 +370,7 @@ const App = () => (
                                                 {/* Strategy domain catch-all */}
                                                 <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
                                                 {renderProtectedRedirectRoutes()}
-                                                <Route path="/arena/:domainId/*" element={<ArenaToStrategyRedirect />} />
+                                                <Route path="/arena/:domainId/*" element={<ArenaToMindOSRedirect />} />
                                                 {/* Coaches */}
                                                 <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                                                 {/* Admin Hub */}
@@ -367,7 +382,7 @@ const App = () => (
                                                 {/* Learn */}
                                                 <Route path="/learn" element={<LearnLayoutWrapper />} />
                                                 {/* Work Hub */}
-                                                <Route path="/work" element={<WorkLayoutWrapper />} />
+                                                <Route path="/work" element={<Navigate to="/mindos/work" replace />} />
                                                 <Route path="/fm" element={<FMAppShell />}>
                                                   <Route index element={<FMMarketLayoutWrapper />} />
                                                   <Route path="home" element={<Navigate to="/fm" replace />} />

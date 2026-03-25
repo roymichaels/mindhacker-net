@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
   <head>
     <script>
-      (function() {
+      (function () {
         try {
           var theme = localStorage.getItem('theme-preference');
           if (theme === 'light' || theme === '"light"') {
@@ -16,133 +16,121 @@
       })();
     </script>
     <meta charset="UTF-8" />
-    
-    <!-- Preconnect FIRST for faster resource loading -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://voiomhujdmadsidbqskp.supabase.co" crossorigin />
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
-    <!-- Primary Meta Tags -->
-    <title>MindOS - Mind Operation System</title>
-    <meta name="title" content="MindOS - Mind Operation System" />
-    <meta name="description" content="MindOS is a gamified personal development platform with AI coaching, personalized hypnosis, and real-life RPG mechanics. Level up your mind, habits, and life." />
-    <meta name="keywords" content="MindOS, personal development, AI coaching, life RPG, gamification, self improvement, personal growth, hypnosis, mindset, productivity, habit tracker, life operating system, consciousness" />
-    <meta name="author" content="MindOS" />
+
+    <title>Evolve | MindOS AI Coaching Layer</title>
+    <meta name="title" content="Evolve | MindOS AI Coaching Layer" />
+    <meta
+      name="description"
+      content="Evolve is the personal growth platform. MindOS is the AI coaching layer for chat, tactics, strategy, work, and journaling."
+    />
+    <meta
+      name="keywords"
+      content="Evolve, MindOS, personal development, AI coaching, productivity, journaling, strategy, work, gamification"
+    />
+    <meta name="author" content="Evolve" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="language" content="en, he" />
     <meta name="theme-color" content="#a855f7" />
     <meta name="google-site-verification" content="" />
-    
-    <!-- PWA Meta Tags -->
+
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="MindOS" />
-    <meta name="application-name" content="MindOS" />
+    <meta name="apple-mobile-web-app-title" content="Evolve" />
+    <meta name="application-name" content="Evolve" />
     <meta name="msapplication-TileColor" content="#0a0a0f" />
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="format-detection" content="telephone=no" />
-    
-    <!-- Apple Touch Icons -->
+
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon.png" />
-    
-    <!-- Canonical URL -->
+
     <link rel="canonical" href="https://mindos.space" />
-    
-    <!-- Alternate languages -->
     <link rel="alternate" hreflang="en" href="https://mindos.space" />
     <link rel="alternate" hreflang="he" href="https://mindos.space" />
     <link rel="alternate" hreflang="x-default" href="https://mindos.space" />
-    
-    <!-- Open Graph / Facebook -->
+
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mindos.space" />
-    <meta property="og:site_name" content="MindOS" />
-    <meta property="og:title" content="MindOS — Your Life's Operating System | AI Coaching & Gamified Growth" />
-    <meta property="og:description" content="A gamified personal development platform with AI coaching, personalized hypnosis, and real-life RPG mechanics. Level up your mind, habits, and life." />
+    <meta property="og:site_name" content="Evolve" />
+    <meta property="og:title" content="Evolve | MindOS AI Coaching Layer" />
+    <meta property="og:description" content="Evolve is the platform. MindOS is the coaching and execution layer." />
     <meta property="og:image" content="https://mindos.space/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="MindOS — Gamified personal development platform" />
+    <meta property="og:image:alt" content="Evolve platform powered by MindOS" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="he_IL" />
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://mindos.space" />
-    <meta name="twitter:title" content="MindOS — Your Life's Operating System" />
-    <meta name="twitter:description" content="Gamified personal development with AI coaching, hypnosis & real-life RPG mechanics. Level up your life." />
+    <meta name="twitter:title" content="Evolve | MindOS AI Coaching Layer" />
+    <meta
+      name="twitter:description"
+      content="Evolve is the platform. MindOS is the AI layer for coaching, strategy, work, and journaling."
+    />
     <meta property="twitter:image" content="https://mindos.space/og-image.png" />
-    
-    <!-- JSON-LD Structured Data -->
+
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "MindOS",
-      "url": "https://mindos.space",
-      "description": "A gamified personal development platform with AI coaching, personalized hypnosis, and real-life RPG mechanics.",
-      "applicationCategory": "HealthApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "MindOS",
-        "url": "https://mindos.space"
-      },
-      "potentialAction": {
-        "@type": "ViewAction",
-        "target": "https://mindos.space",
-        "name": "Start Your Journey"
-      },
-      "sameAs": []
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Evolve",
+        "url": "https://mindos.space",
+        "description": "Evolve is the personal growth platform powered by MindOS, its AI coaching layer.",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Evolve",
+          "url": "https://mindos.space"
+        },
+        "potentialAction": {
+          "@type": "ViewAction",
+          "target": "https://mindos.space",
+          "name": "Start Your Journey"
+        },
+        "sameAs": []
+      }
     </script>
-    
-    <!-- Preload critical font (Heebo 900 for hero heading) -->
-    <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbFhsqMA.woff2" crossorigin />
-    
-    <!-- Fonts with display=swap for faster FCP -->
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
-    
-    <!-- Favicon - using Aurora orb icon -->
+
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbFhsqMA.woff2"
+      crossorigin
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+
     <link rel="icon" type="image/svg+xml" href="/aurora-icon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=10" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png?v=10" />
-
-    <!-- Meta Pixel (Facebook) — replace YOUR_PIXEL_ID with actual pixel ID -->
-    <!--
-    <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-      document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', 'YOUR_PIXEL_ID');
-      fbq('track', 'PageView');
-    </script>
-    -->
-
-    <!-- Google Ads / GA4 — replace YOUR_MEASUREMENT_ID with actual ID -->
-    <!--
-    <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_MEASUREMENT_ID"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'YOUR_MEASUREMENT_ID');
-    </script>
-    -->
   </head>
 
   <body>

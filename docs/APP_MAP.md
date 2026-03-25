@@ -1,181 +1,138 @@
-# App Map — Single Source of Truth
+# APP_MAP.md
 
-> Updated: 2026-03-22 | Avatar system + founding page updates
+Last updated: 2026-03-25
 
-## Tab Structure (Bottom Nav)
+This is the route and shell map for the current repo state.
 
-| Tab | Route | Component | Position |
-|-----|-------|-----------|----------|
-| **FM** | `/fm` | `FMAppShell > FMMarketLayoutWrapper` | Left |
-| **Aurora** | `/aurora` | `AuroraPage` | Injected (special button) |
-| **Play** | `/play` | `PlayLayoutWrapper > PlayHub` | Center (oversized icon) |
-| **Community** | `/community` | `CommunityLayoutWrapper` | Right of center |
-| **Study** | `/learn` | `LearnLayoutWrapper` | Right |
+## Bottom Navigation
 
-## Active Routes
+Source of truth: [src/navigation/osNav.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\osNav.ts)
 
-### Public
-| Route | Component |
-|-------|-----------|
-| `/` | `Index` |
-| `/founding` | `FoundingLanding` (with FoundingAvatarGroup — 5 random 3D avatars) |
-| `/courses` | `Courses` |
-| `/courses/:slug` | `CourseDetail` |
-| `/courses/:slug/watch` | `CourseWatch` |
-| `/subscriptions` | `Subscriptions` |
-| `/install` | `Install` |
-| `/audio/:token` | `AudioPlayer` |
-| `/video/:token` | `VideoPlayer` |
-| `/blog` | `Blog` |
-| `/blog/:slug` | `BlogPost` |
-| `/privacy-policy` | `PrivacyPolicy` |
-| `/terms-of-service` | `TermsOfService` |
-| `/affiliate-signup` | `AffiliateSignup` |
-| `/onboarding` | `Onboarding` |
-| `/ceremony` | `OnboardingCeremony` |
-| `/go` | `Go` |
-| `/features/:slug` | `FeatureDetailPage` |
-| `/docs` | `Documentation` |
-| `/unsubscribe` | `Unsubscribe` |
-| `/p/:slug` | Coach storefront |
-| `/practitioner/:slug` | `CoachSlugRedirect` |
-| `/orbs` | `OrbGalleryPage` |
+| Tab | Route |
+|---|---|
+| `Free Market` | `/fm` |
+| `MindOS` | `/mindos/chat` |
+| `Community` | `/community` |
+| `Study` | `/learn` |
 
-### Protected — App Shell
-| Route | Component | Tab |
-|-------|-----------|-----|
-| `/play` | `PlayLayoutWrapper > PlayHub` | Play |
-| `/aurora` | `AuroraPage` | Aurora |
-| `/community` | `CommunityLayoutWrapper` | Community |
-| `/community/post/:postId` | `CommunityThread` | Community |
-| `/learn` | `LearnLayoutWrapper` | Study |
-| `/profile` | `ProfilePage` (modal, redirects to /play) | — |
-| `/messages` | `Messages` | — |
-| `/messages/:conversationId` | `MessageThread` | — |
-| `/fm/*` | FM sub-routes (market, wallet, cashout, bridge) | FM |
-| `/coaches` | `CoachesLayoutWrapper` | — |
-| `/admin-hub` | `AdminLayoutWrapper` | — (admin-only) |
-| `/work` | `WorkLayoutWrapper` | — |
-| `/business` | `BusinessIndexWrapper` | — |
-| `/business/journey` | `BusinessJourneyWrapper` | — |
-| `/business/:businessId` | `BusinessDashboardWrapper` | — |
-| `/freelancer` | `FreelancerLayoutWrapper` | — |
-| `/creator` | `CreatorLayoutWrapper` | — |
-| `/therapist` | `TherapistLayoutWrapper` | — |
-| `/quests/:pillar` | `QuestRunnerPage` | — |
-| `/launchpad/complete` | `LaunchpadComplete` | — |
-| `/success` | `Success` | — |
-| `/avatar` | `AvatarConfiguratorPage` | — (admin edit via profile) |
+## MindOS Internal Sections
 
-### Protected — Strategy (Pillar Assessments)
-| Route Pattern | Domains |
-|---------------|---------|
-| `/strategy/:domain` | presence, power, vitality, focus, combat, expansion, consciousness |
-| `/strategy/:domain/assess` | Chat-based assessment |
-| `/strategy/:domain/results` | Assessment results |
-| `/strategy/:domain/history` | Assessment history |
-| `/strategy/:domain/scan` | Presence scan only |
-| `/strategy/:arenaId/assess` | wealth, influence, relationships, business, projects, play |
+Source of truth: [src/pages/MindOSPage.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\pages\MindOSPage.tsx)
 
-### Protected — Journeys
-| Route | Component |
-|-------|-----------|
-| `/coaching/journey` | `CoachingJourney` |
-| `/admin/journey` | `AdminJourney` |
-| `/projects/journey` | `ProjectsJourney` |
+| Section | Route |
+|---|---|
+| `Chat` | `/mindos/chat` |
+| `Tactics` | `/mindos/tactics` |
+| `Strategy` | `/mindos/strategy` |
+| `Work` | `/mindos/work` |
+| `Journal` | `/mindos/journal` |
 
-### Protected — Affiliate (role-gated)
-| Route | Component |
-|-------|-----------|
-| `/affiliate` | `AffiliatePanel > AffiliateDashboard` |
-| `/affiliate/links` | `MyLinks` |
-| `/affiliate/referrals` | `MyReferrals` |
-| `/affiliate/payouts` | `MyPayouts` |
+## Public Routes
 
-### Dev
-| Route | Component |
-|-------|-----------|
-| `/orbs` | `OrbGalleryPage` |
-| `/dev/orb-gallery` | `OrbGallery` |
+Defined in [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx).
 
-## Avatar System
+| Route | Surface |
+|---|---|
+| `/` | landing |
+| `/founding` | founding landing |
+| `/onboarding` | onboarding |
+| `/ceremony` | onboarding ceremony |
+| `/go` | go page |
+| `/courses` | courses listing |
+| `/courses/:slug` | course detail |
+| `/courses/:slug/watch` | course watch |
+| `/blog` | blog |
+| `/blog/:slug` | blog post |
+| `/docs` | documentation |
+| `/subscriptions` | subscriptions |
+| `/install` | install |
+| `/audio/:token` | tokenized audio |
+| `/video/:token` | tokenized video |
+| `/privacy-policy` | legal |
+| `/terms-of-service` | legal |
+| `/affiliate-signup` | affiliate signup |
+| `/unsubscribe` | unsubscribe |
+| `/features/:slug` | feature page |
+| `/practitioner/:slug` | coach redirect |
+| `/practitioners/:slug` | coach redirect |
+| `/coach/:slug` | coach redirect |
+| `/orbs` | orb gallery |
+| `/dev/orb-gallery` | dev orb gallery |
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| `AvatarConfiguratorPage` | `src/pages/AvatarConfiguratorPage.tsx` | Full-page configurator, loads/saves to DB |
-| `AvatarConfigurator` | `src/components/avatar/AvatarConfigurator.tsx` | Canvas + UI overlay |
-| `AvatarModel` | `src/components/avatar/AvatarModel.tsx` | Armature + skinned mesh rendering |
-| `AvatarConfiguratorUI` | `src/components/avatar/AvatarConfiguratorUI.tsx` | Sidebar: categories, assets, colors |
-| `Asset` | `src/components/avatar/Asset.tsx` | Individual skinned mesh with color/skin |
-| `AssetTilePreview` | `src/components/avatar/AssetTilePreview.tsx` | Asset thumbnail in sidebar |
-| `AvatarMiniPreview` | `src/components/avatar/AvatarMiniPreview.tsx` | Small avatar in profile/nav/dropdown |
-| `FoundingAvatarGroup` | `src/components/founding/FoundingAvatarGroup.tsx` | 5 random avatars with poses for founding page |
-| `avatarStore` | `src/components/avatar/avatarStore.ts` | Zustand store: customization, randomize, save/load |
-| `avatarAssets` | `src/components/avatar/avatarAssets.ts` | Static asset config (categories, GLB URLs, palettes) |
-| `useUserAvatarData` | `src/hooks/useUserAvatarData.ts` | React Query hook: loads avatar_customizations from DB |
-| `PlayerAvatar` | `src/components/community/PlayerAvatar.tsx` | Community avatar fallback (letter-based) |
+## Protected Routes
 
-**DB Table:** `avatar_customizations` — stores `customization_data` (JSON) per `user_id`
+### Full-screen protected route
 
-**Essential categories** (never null in randomize): Face, Top, Shoes, Eyes, Head, Bottom
+| Route | Surface |
+|---|---|
+| `/avatar` | avatar configurator |
 
-## Identity Layers
+### Main protected shell
 
-| Layer | Internal Name | Purpose | Status |
-|-------|---------------|---------|--------|
-| **DNA** | `computeDNA` | Single source of truth for identity structure (archetype, egoState, traits) | Active |
-| **AION** | `Aurora (engine)` | User-facing identity abstraction — the "Future Self" with personal name | Active |
-| **Orb** | `MorphOrb` | Pure visual renderer for AION. Receives params from `mapDNAtoVisual` | Active |
-| **Aurora** | `Aurora` | AI engine powering AION (chat, commands, suggestions, proactive) | Active |
-| **Avatar** | `AvatarConfigurator` | User-customizable 3D character body. Future game body | Active |
-| **SoulAvatar** | `SoulAvatar` | Legacy NFT minting, being absorbed into AION NFT | Legacy |
+| Route | Surface |
+|---|---|
+| `/mindos/*` | MindOS shell |
+| `/community` | community |
+| `/community/post/:postId` | community thread |
+| `/messages` | messages |
+| `/messages/:conversationId` | message thread |
+| `/coaches` | coaches |
+| `/admin-hub` | admin hub |
+| `/launchpad/complete` | launchpad complete |
+| `/quests/:pillar` | quest runner |
+| `/learn` | study |
+| `/fm` | free market shell |
+| `/business` | business hub |
+| `/business/journey` | business journey |
+| `/business/:businessId` | business dashboard |
+| `/freelancer` | freelancer |
+| `/creator` | creator |
+| `/therapist` | therapist |
+| `/success` | success |
 
-## Redirect Routes
+## Strategy / Assessment Routes
 
-| From | To |
-|------|----|
-| `/plan`, `/now`, `/today`, `/dashboard`, `/me`, `/tactics`, `/arena`, `/projects` | `/play` |
-| `/life`, `/life/*` | `/play` |
-| `/consciousness`, `/health/*`, `/relationships/*`, `/finances/*`, `/learning/*`, `/purpose/*`, `/hobbies/*` | `/play` |
-| `/personal-hypnosis`, `/consciousness-leap`, `/consciousness-leap/apply/*`, `/form/*` | `/` |
-| `/personal-hypnosis/success`, `/personal-hypnosis/pending` | `/play` |
-| `/strategy` | `/play` |
-| `/profile` | `/play` |
-| `/messages/ai` | `/aurora` |
-| `/combat-community` | `/community` |
-| `/signup`, `/login` | `/` |
-| `/admin`, `/admin/*`, `/panel/*` | `/admin-hub` |
-| `/coach`, `/coach/*`, `/practitioners`, `/marketplace` | `/coaches` |
-| `/start`, `/free-journey/*` | `/onboarding` |
-| `/affiliate-dashboard` | `/affiliate` |
-| `/arena/:domainId/*` | `/strategy/:domainId` |
-| `/fm/home`, `/fm/earn`, `/fm/market`, `/fm/work`, `/fm/share`, `/fm/contribute`, `/fm/wallet` | `/fm` |
-| `/fm/coaches` | `/coaches` |
+The top-level strategic entry is now `MindOS`, but detailed assessment routes remain on the legacy `strategy` tree for now.
 
-## Navigation Config
+| Route pattern | Purpose |
+|---|---|
+| `/strategy/presence/*` | presence flows |
+| `/strategy/power/*` | power flows |
+| `/strategy/vitality/*` | vitality flows |
+| `/strategy/focus/*` | focus flows |
+| `/strategy/combat/*` | combat flows |
+| `/strategy/expansion/*` | expansion flows |
+| `/strategy/consciousness/*` | consciousness flows |
+| `/strategy/wealth/*` | arena assessment |
+| `/strategy/influence/*` | arena assessment |
+| `/strategy/relationships/*` | arena assessment |
+| `/strategy/business/*` | arena assessment |
+| `/strategy/projects/*` | arena assessment |
+| `/strategy/play/*` | arena assessment |
+| `/strategy/:domainId` | domain landing |
 
-Single source of truth: `src/navigation/osNav.ts`
-- `OS_TABS` — 4 visible tabs (FM, Play, Community, Study)
-- Aurora injected by `BottomTabBar` between FM and Play
-- `COACH_TAB` — nested under FM, not top-level
-- `ADMIN_TAB` — app dropdown only, not bottom nav
+## Redirect Policy
 
-## Key Contexts
+Source of truth: [src/routes/redirects.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\routes\redirects.tsx)
 
-| Context | Purpose |
-|---------|---------|
-| `AuthContext` | User auth state, login/logout, admin flag |
-| `AuthModalContext` | Web3Auth modal open/close |
-| `AuroraChatContext` | AION chat state, messages, send/receive |
-| `AuroraActionsContext` | AION autonomous actions and trust levels |
-| `GameStateContext` | XP, tokens, level, streaks, gamification |
-| `LanguageContext` | i18n language and RTL management |
-| `SmartOnboardingContext` | Onboarding progress and smart navigation |
-| `ProfileModalContext` | Profile modal open/close state |
-| `SoulAvatarContext` | NFT minting state (legacy) |
-| `CoachesModalContext` | Coaches browsing modal state |
-| `SubscriptionsModalContext` | Subscription upsell modal state |
-| `WalletModalContext` | Wallet modal open/close |
-| `SidebarContext` | Sidebar collapsed/expanded state |
-| `WelcomeGateContext` | Welcome gate / first-visit state |
-| `ChromeVisibilityContext` | Header/footer/sidebar visibility |
+Main redirects:
+
+- `/aurora` -> `/mindos/chat`
+- `/play` -> `/mindos/tactics`
+- `/now` -> `/mindos/tactics`
+- `/plan` -> `/mindos/tactics`
+- `/profile` -> `/mindos/tactics`
+- `/strategy` -> `/mindos/strategy`
+- `/work` -> `/mindos/work`
+- `/dashboard` -> `/mindos/tactics`
+- `/today` -> `/mindos/tactics`
+- `/messages/ai` -> `/mindos/chat`
+- `/admin` and `/panel/*` -> `/admin-hub`
+- `/coach` and `/practitioners` aliases -> `/coaches`
+
+## Navigation Notes
+
+- `Aurora` is no longer a primary bottom tab
+- `MindOS` is the protected coaching hub
+- deep strategy/pillar flows are still in transition
+- the route truth is [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx), even where older docs say otherwise

@@ -19,8 +19,25 @@ export async function loadAgentConfig(agentName: string): Promise<AgentConfig> {
   const cached = agentCache.get(agentName);
   if (cached) return cached;
 
-  const filePath = path.join(process.cwd(), 'openclaw-workspace', 'agents', `${agentName}.yaml`);
-  const raw = await readFile(filePath, 'utf8');
+  const candidatePaths = [
+    path.join(process.cwd(), 'backend', 'openclaw', 'agents', `${agentName}.yaml`),
+    path.join(process.cwd(), 'openclaw-workspace', 'agents', `${agentName}.yaml`),
+  ];
+
+  let raw: string | null = null;
+  for (const filePath of candidatePaths) {
+    try {
+      raw = await readFile(filePath, 'utf8');
+      break;
+    } catch {
+      continue;
+    }
+  }
+
+  if (!raw) {
+    throw new Error(`Agent config not found for ${agentName}`);
+  }
+
   const parsed = YAML.parse(raw) as AgentConfig;
 
   if (!parsed?.name || !parsed?.model || !parsed?.system_prompt) {

@@ -1,7 +1,7 @@
 {
-  "name": "MindOS - Mind Operation System",
-  "short_name": "MindOS",
-  "description": "A gamified personal development platform with AI coaching, personalized hypnosis, and real-life RPG mechanics.",
+  "name": "Evolve",
+  "short_name": "Evolve",
+  "description": "Evolve is the personal growth platform. MindOS is its AI coaching and execution layer.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -48,7 +48,7 @@ const AvatarConfiguratorPage = () => {
     } else {
       toast.success("Avatar saved!");
       queryClient.invalidateQueries({ queryKey: ['avatar-customization', user.id] });
-      navigate('/play');
+      navigate('/mindos/tactics');
     }
   }, [user, getCustomizationData, queryClient]);
 

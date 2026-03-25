@@ -7,12 +7,10 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { useCommunityUsername } from '@/hooks/useCommunityUsername';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Rocket, X } from 'lucide-react';
-import { UsernameSetupScreen } from '@/components/onboarding/UsernameSetupScreen';
 import { Button } from '@/components/ui/button';
 
 interface OnboardingGateProps {
@@ -33,7 +31,6 @@ const ADMIN_BANNER_DISMISSED_KEY = 'admin-onboarding-banner-dismissed';
 
 export function OnboardingGate({ children }: OnboardingGateProps) {
   const { isLaunchpadComplete, isLoading } = useLaunchpadProgress();
-  const { username, isLoading: usernameLoading } = useCommunityUsername();
   const { user, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -105,7 +102,7 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
   }
 
   // Don't gate while loading
-  if (isLoading || usernameLoading || checkingPlan) {
+  if (isLoading || checkingPlan) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -121,11 +118,6 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
   // Redirect to onboarding only if launchpad not complete AND no active plan AND not just finished ceremony
   if (!isLaunchpadComplete && !hasActivePlan && !justCompleted) {
     return <Navigate to="/onboarding" replace />;
-  }
-
-  // Require username setup after onboarding
-  if (!username) {
-    return <UsernameSetupScreen />;
   }
 
   return <>{children}</>;

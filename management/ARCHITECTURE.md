@@ -1,19 +1,30 @@
-# MindOS Architecture
+# Evolve Architecture
 
 Last updated: 2026-03-25
+
+## Architecture State
+
+The repository is currently in a hybrid state:
+
+- product architecture has already shifted to `Evolve` + `MindOS`
+- runtime architecture has partly shifted from Supabase edge functions to Vercel `/api`
+- filesystem architecture has begun shifting to a workspace monorepo
+
+The right way to read this repo is: current production first, future alignment second.
 
 ## Stack
 
 ### Frontend
 
-- React 18 + Vite + TypeScript
-- React Router for route composition
-- Tailwind + shadcn/ui + Radix primitives
-- React Query for server state
-- Context providers for app-wide client state
-- Zustand in limited scope, currently most visibly for avatar configuration
-- Framer Motion for motion
-- Three.js / React Three Fiber for orb and avatar rendering
+- React 18
+- Vite
+- TypeScript
+- React Router
+- Tailwind + shadcn/ui + Radix
+- React Query
+- context providers
+- Zustand in isolated areas like avatar config
+- Three.js / React Three Fiber
 - i18n for Hebrew + English
 
 ### Backend
@@ -21,323 +32,250 @@ Last updated: 2026-03-25
 - Supabase PostgreSQL
 - Supabase Auth
 - Supabase Storage
-- Supabase Edge Functions in `supabase/functions`
-- Vercel serverless API routes in `api/` for newer agent runtime
+- Supabase Edge Functions in root `supabase/functions`
+- Vercel `/api` runtime for newer MindOS agents
 
-### External Services
+### External services
 
 - Supabase project `voiomhujdmadsidbqskp`
-- Vercel hosting
+- Vercel
+- OpenRouter
 - Web3Auth
-- OpenRouter for current Vercel agent runtime
-- Lovable AI gateway still referenced by many legacy edge functions
-- ElevenLabs for voice
-- Stripe for subscriptions and checkout
-- Resend / email queue infrastructure
-- push notification services
+- Stripe
+- ElevenLabs
+- Resend / email queue infra
 
-## Current High-Level Shape
+## Physical Repository Shape
 
 ```text
-Browser
-  -> React app
-    -> contexts + hooks + React Query
-    -> Supabase client
-    -> Vercel /api agents or Supabase edge functions
-      -> Supabase DB / storage / auth
-      -> external AI / voice / payments
+repo root
+  |- apps/evolve            # new app package entrypoint
+  |- backend/openclaw       # new AI backend boundary
+  |- backend/supabase       # target location, not yet physically migrated
+  |- design                 # reserved design home
+  |- management             # architecture/docs source of truth
+  |- api                    # current Vercel routes
+  |- src                    # current live app source
+  `- supabase               # current live Supabase project
 ```
+
+Important:
+
+- `apps/evolve` is the active package Vercel now builds toward
+- root `src/` is still the real source tree used by that package
 
 ## Identity Layers
 
-Canonical identity layering:
-
 ```text
 DNA
-  -> computed identity facts
-  -> archetype, traits, signal weights
-
-AION
-  -> user-facing future-self abstraction
-  -> personal identity narrative
-
-Orb
-  -> visual rendering of identity
-  -> no identity invention
-
-Aurora
-  -> AI operating layer
-  -> chat, assessment, plan, proactive guidance
-
-Avatar
-  -> customizable 3D body
-  -> persisted separately from orb
+  -> AION
+    -> Orb
+      -> Aurora
+        -> Avatar
 ```
 
-Source files:
+- `DNA` comes from [src/identity/computeDNA.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\identity\computeDNA.ts)
+- `AION` is the identity abstraction in code
+- `Orb` is the visual output
+- `Aurora` is the AI persona and reasoning surface
+- `Avatar` is the customizable 3D body
 
-- DNA: [src/identity/computeDNA.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\identity\computeDNA.ts)
-- Identity registry: [src/meta/appMap.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\meta\appMap.ts)
-- Domain registry: [src/navigation/lifeDomains.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\lifeDomains.ts)
+## Navigation Architecture
 
-## Data Flows
+Primary nav source:
+
+- [src/navigation/osNav.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\osNav.ts)
+
+Current visible tabs:
+
+- `/fm`
+- `/mindos/chat`
+- `/community`
+- `/learn`
+
+MindOS internal sections:
+
+- `/mindos/chat`
+- `/mindos/tactics`
+- `/mindos/strategy`
+- `/mindos/work`
+- `/mindos/journal`
+
+MindOS shell:
+
+- [src/pages/MindOSPage.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\pages\MindOSPage.tsx)
+
+## Routing Architecture
+
+Route truth currently lives in [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx).
+
+### Public routes
+
+- landing
+- onboarding
+- ceremony
+- docs
+- blog
+- courses
+- legal/media/token routes
+
+### Protected shell routes
+
+- MindOS
+- Free Market
+- Community
+- Study
+- coaches
+- admin
+- journeys
+- business
+
+### Transitional routes
+
+- `/aurora` -> `/mindos/chat`
+- `/play` -> `/mindos/tactics`
+- `/work` -> `/mindos/work`
+- `/strategy` -> `/mindos/strategy`
+
+### Transitional deep strategy reality
+
+Deep pillar flows still exist on `/strategy/*`. The architecture is therefore:
+
+```text
+MindOS route shell
+  -> strategic landing in /mindos/strategy
+  -> legacy detailed pillar routes still mounted under /strategy/*
+```
+
+## State Management
+
+### Contexts
+
+Main provider composition is still in [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx).
+
+Important contexts:
+
+- `AuthContext`
+- `AuroraChatContext`
+- `LanguageContext`
+- `GameStateContext`
+- `SmartOnboardingContext`
+- modal/shell contexts
+
+### React Query
+
+Used heavily for:
+
+- profile data
+- community data
+- assessments
+- execution/work data
+- admin data
+
+### Zustand
+
+Current confirmed use:
+
+- avatar configuration store
+
+## AI Runtime Architecture
+
+### Current flow
+
+```text
+User
+  -> React client
+    -> /api/aurora-chat or /api/domain-assess
+      -> api/_lib/agent-runtime.ts
+        -> src/lib/openclaw.ts
+        -> src/lib/tools/*
+        -> OpenRouter
+      -> SSE back to client
+```
+
+### Backend alignment path
+
+```text
+backend/openclaw/
+  |- agents/
+  |- tools/
+  `- workspace/
+```
+
+Current state:
+
+- canonical agent configs now live in [backend/openclaw/agents](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw\agents)
+- loader in [src/lib/openclaw.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\lib\openclaw.ts) prefers that new location
+- Python tool stubs exist for future service extraction
+
+## Data Flow Diagrams
 
 ### Auth and app boot
 
 ```text
 Browser
   -> BrowserRouter
-  -> Web3AuthProviderWrapper
-  -> AuthProvider
+  -> Web3Auth provider
+  -> Auth provider
   -> ProtectedAppShell
   -> route page
-  -> hooks fetch Supabase data
+  -> hooks/query -> Supabase
 ```
 
-### Domain assessment flow
+### Domain assess flow
 
 ```text
 User input
   -> DomainAssessChat
-  -> fetch /api/domain-assess
+  -> POST /api/domain-assess
   -> agent runtime
-  -> model stream (SSE)
-  -> optional tool call extract_domain_profile
-  -> assessment payload
-  -> useDomainAssessment.saveAssessment()
-  -> Supabase tables / results route
+  -> OpenRouter stream
+  -> extract_domain_profile tool schema
+  -> client persists structured result
 ```
 
-Primary file:
-
-- [src/components/pillars/DomainAssessChat.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\components\pillars\DomainAssessChat.tsx)
-
-### Aurora chat flow
+### Wallet flow
 
 ```text
-User message
-  -> chat hook / context
-  -> /api/aurora-chat
-  -> agent runtime
-  -> Supabase query tools + OpenRouter
-  -> SSE back to client
-  -> UI stream renderer
-  -> optional persistence / follow-up actions
+Web3Auth login
+  -> Supabase bridge/session
+  -> edge function web3-wallet
+  -> wallet create/status/mint
 ```
 
-### Identity computation flow
+## Edge Function Catalog
 
-```text
-Orb profile
-Onboarding identity profile
-Game state
-Pillar scores
-Skill distribution
-Habit completion
-Energy signal
-Community score
-  -> computeDNA()
-  -> DNAProfile
-  -> downstream renderers / AI context / profile views
-```
-
-## State Management
-
-### Context-based app state
-
-Provider order is defined in [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx).
-
-Key contexts:
-
-- `AuthContext`
-- `AuroraChatContext`
-- `LanguageContext`
-- `AuthModalContext`
-- `GameStateContext`
-- `SubscriptionsModalContext`
-- `CoachesModalContext`
-- `WalletModalContext`
-- `SoulAvatarContext`
-- `ProfileModalContext`
-- `SmartOnboardingContext`
-
-### React Query
-
-Used for:
-
-- user/profile reads
-- domain assessments
-- community data
-- work sessions
-- courses and content
-- admin reads
-
-### Zustand
-
-Current confirmed active usage:
-
-- avatar configurator store in [src/components/avatar/avatarStore.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\components\avatar\avatarStore.ts)
-
-### Local component state
-
-Still heavily used for:
-
-- chat streaming state
-- modal visibility
-- form progression
-- view toggles and shell responsiveness
-
-## Routing Architecture
-
-### Public routes
-
-Public routes are mounted directly in [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx).
-
-Primary public surfaces:
-
-- `/`
-- `/founding`
-- `/courses/*`
-- `/blog/*`
-- `/onboarding`
-- `/ceremony`
-- `/docs`
-- `/install`
-- media token routes
-- legal routes
-
-### Protected routes
-
-Protected shell:
-
-- wrapped by `ProtectedAppShell`
-- default protected center of gravity is `/play`
-
-Main protected groups:
-
-- `/play`
-- `/community`
-- `/messages`
-- `/strategy/*`
-- `/coaches`
-- `/admin-hub`
-- `/learn`
-- `/work`
-- `/fm/*`
-- `/business`
-- `/freelancer`
-- `/creator`
-- `/therapist`
-- `/quests/*`
-
-### Redirect architecture
-
-Redirects are centralized in [src/routes/redirects.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\routes\redirects.tsx).
-
-Current routing reality that differs from old docs:
-
-- `/aurora` redirects to `/play`
-- `/plan`, `/now`, `/strategy`, `/profile`, `/arena` all redirect to `/play`
-- many old legacy routes collapse to `/play`, `/community`, `/coaches`, or `/admin-hub`
-
-## Navigation Architecture
-
-Primary navigation source:
-
-- [src/navigation/osNav.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\osNav.ts)
-
-Visible bottom tabs:
-
-- `FM`
-- `Play`
-- `Community`
-- `Study`
-
-Special behavior:
-
-- Aurora is injected by UI, not defined as a standard `OS_TABS` item
-- admin is dropdown-only
-- coach is nested, not bottom-tab primary
-
-## Edge Functions Catalog
-
-The project has a large Supabase edge-function surface. Current strategic classification:
-
-### High-priority conversational / agent functions
+High-value legacy functions still in `supabase/functions`:
 
 - `aurora-chat`
 - `domain-assess`
 - `plan-chat`
 - `work-chat`
 - `onboarding-chat`
-- `consciousness-assess`
+- `aurora-proactive`
+- commerce / webhook / media / auth bridge functions
 
-These are the strongest candidates for OpenClaw-style or Vercel-side agent migration.
-
-### AI generation functions
-
-- plan generation
-- milestone / execution / tactical schedule generation
-- launchpad summary
-- orb narrative
-- business / branding / curriculum / blog / story generation
-
-### Commerce and account functions
-
-- checkout
-- customer portal
-- stripe webhook
-- subscription checks
-- admin grants
-
-### Media / notification functions
-
-- TTS / transcription
-- welcome / order / newsletter email
-- push notifications
-
-### Web3 / auth bridge functions
-
-- `web3auth-exchange`
-- `web3-wallet`
-
-## Which Functions Should Move First
-
-Priority order:
+Functions most likely to migrate first:
 
 1. `aurora-chat`
 2. `domain-assess`
 3. `plan-chat`
 4. `work-chat`
-5. `onboarding-chat`
-6. `aurora-proactive`
+5. `aurora-proactive`
 
-Reason:
+Functions likely to remain serverless/infrastructure-oriented:
 
-- they are streaming or conversational
-- they rely on AI context assembly
-- they benefit most from reusable tools and sessions
+- Stripe webhooks
+- customer portal / checkout flows
+- email queue processors
+- tokenized media delivery
+- Web3 bridge flows until auth is redesigned
 
-## Current Hybrid Reality
+## Current Risks
 
-As of now the app is hybrid:
-
-- legacy edge functions still exist under `supabase/functions`
-- new chat endpoints now also exist in `api/`
-- frontend behavior is no longer exclusively edge-function-based
-
-That means architecture decisions must distinguish:
-
-- legacy supported
-- actively used in production
-- migration target
-
-## Known Architecture Risks
-
-1. `App.tsx` is too large and owns too much route truth
-2. product docs still trail runtime reality
-3. edge-function and Vercel-agent systems overlap
-4. naming is inconsistent across AION / Aurora / SoulAvatar / legacy orbital concepts
-5. domain logic is split across too many folders
-6. auth depends on external Web3Auth config correctness
-7. many legacy edge functions still depend on Lovable gateway keys
+1. `src/App.tsx` is still a route/provider monolith
+2. physical directory migration is incomplete
+3. strategy route migration is incomplete
+4. AI backend is hybrid
+5. Web3Auth remains brittle
+6. many legacy edge functions still reference older AI gateway assumptions

@@ -1,73 +1,144 @@
-# Welcome to your Lovable project
+# Evolve
 
-## Project info
+Evolve is the platform. `MindOS` is the AI coaching and execution layer inside it.
 
-**URL**: https://lovable.dev/projects/6edc83df-25e0-44e9-b5db-cd1d60befc7c
+## Current Status
 
-## How can I edit this code?
+This repository is in a staged architecture transition:
 
-There are several ways of editing your application.
+- Production app behavior is already aligned around `Evolve` + `MindOS`
+- Main protected navigation is now:
+  - `Free Market` -> `/fm`
+  - `MindOS` -> `/mindos/*`
+  - `Community` -> `/community`
+  - `Study` -> `/learn`
+- Legacy routes such as `/aurora`, `/play`, and `/work` are preserved as redirects
+- OpenClaw-style agent runtime is already live through Vercel `/api/*`
+- The repo is now bootstrapped as a workspace monorepo, but the live app source still physically lives in root `src/` and `supabase/`
 
-**Use Lovable**
+## Workspace Shape
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6edc83df-25e0-44e9-b5db-cd1d60befc7c) and start prompting.
+```text
+.
+|- apps/
+|  `- evolve/           # active Vite package used by root workspace build
+|- backend/
+|  |- openclaw/         # agent configs, tool stubs, future service boundary
+|  `- supabase/         # target home for Supabase assets (bootstrap docs only for now)
+|- design/              # reserved for design assets and brand material
+|- management/          # architecture and operational source of truth
+|- api/                 # current Vercel serverless routes
+|- src/                 # current live React application source
+`- supabase/            # current live Supabase project files
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+## Product Structure
 
-**Use your preferred IDE**
+### Platform tabs
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- `Free Market` -> marketplace, wallet, earning surfaces
+- `MindOS` -> coaching hub with:
+  - `chat`
+  - `tactics`
+  - `strategy`
+  - `work`
+  - `journal`
+- `Community` -> social feed, stories, profiles
+- `Study` -> courses and learning
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Identity stack
 
-Follow these steps:
+```text
+DNA -> AION -> Orb -> Aurora -> Avatar
+```
+
+- `DNA` is the canonical identity computation layer
+- `AION` is the future-self identity abstraction in code
+- `Aurora` is the AI persona and coaching engine
+- `Avatar` is the user's 3D body/customization layer
+
+## Runtime Architecture
+
+### Frontend
+
+- React 18
+- Vite
+- TypeScript
+- React Router
+- Tailwind + shadcn/ui
+- React Query
+- Context providers
+- Three.js / React Three Fiber
+
+### Backend / services
+
+- Supabase for auth, DB, storage, and legacy edge functions
+- Vercel `/api` routes for the current MindOS agent runtime
+- OpenRouter for model access
+- Web3Auth for wallet bootstrap
+- Stripe, ElevenLabs, Resend, push infrastructure
+
+## OpenClaw Status
+
+The repo already contains the first practical cut of the OpenClaw migration:
+
+- agent runtime in `api/`
+- config loader in `src/lib/openclaw.ts`
+- shared agent tools in `src/lib/tools/`
+- backend-aligned agent configs in `backend/openclaw/agents/`
+
+The next step is moving from "runtime works" to "backend boundary is fully normalized."
+
+## Development
+
+Install from the workspace root:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Run the app:
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Build the app:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run build
+```
 
-**Use GitHub Codespaces**
+App package only:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+npm run dev:app
+npm run build:app
+```
 
-## What technologies are used for this project?
+## Environment
 
-This project is built with:
+See [.env.example](c:\Users\roymichaels\Desktop\mindhacker-net\.env.example).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Core variables:
 
-## How can I deploy this project?
+```sh
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+OPENROUTER_API_KEY=
+VITE_WEB3AUTH_CLIENT_ID=
+VITE_WEB3AUTH_NETWORK=
+```
 
-Simply open [Lovable](https://lovable.dev/projects/6edc83df-25e0-44e9-b5db-cd1d60befc7c) and click on Share -> Publish.
+## Source Of Truth Docs
 
-## Can I connect a custom domain to my Lovable project?
+Start here:
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- [management/VISION.md](c:\Users\roymichaels\Desktop\mindhacker-net\management\VISION.md)
+- [management/ARCHITECTURE.md](c:\Users\roymichaels\Desktop\mindhacker-net\management\ARCHITECTURE.md)
+- [management/API_CONTRACTS.md](c:\Users\roymichaels\Desktop\mindhacker-net\management\API_CONTRACTS.md)
+- [management/OPENCLAW_MIGRATION.md](c:\Users\roymichaels\Desktop\mindhacker-net\management\OPENCLAW_MIGRATION.md)
+- [management/DIRECTORY_ALIGNMENT.md](c:\Users\roymichaels\Desktop\mindhacker-net\management\DIRECTORY_ALIGNMENT.md)

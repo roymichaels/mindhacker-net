@@ -1,132 +1,107 @@
-# MindOS Codebase Analysis
+# Evolve Codebase Analysis
 
-**Date:** 2026-03-24  
-**Analyzed by:** Harvey  
-**Scope:** Full stack audit (frontend, backend, dependencies, architecture)
+Last updated: 2026-03-25
 
----
+This document is a practical architecture snapshot, not a legacy audit of the Lovable-era app.
 
-## 1. PROJECT OVERVIEW
+## Executive Summary
 
-**Type:** Full-stack SPA (Single Page App) + Supabase edge functions  
-**Scale:** 1,094 files, ~51.5k lines of TypeScript/React code  
-**Framework:** React 18 + Vite + TypeScript  
-**Deployment:** Currently Lovable → Moving to Vercel  
-**Backend:** Supabase (PostgreSQL, edge functions, auth, storage)  
+The repository now has three simultaneous realities:
 
----
+1. the product has already rebranded from "MindOS app" to `Evolve`
+2. the protected user experience now centers on `MindOS` as an internal hub
+3. the codebase has begun a monorepo/bootstrap migration, but the live code still physically sits in root `src/` and `supabase/`
 
-## 2. ARCHITECTURE
+That means the app is functionally ahead of its filesystem structure.
 
-### Frontend Stack
-```
-React 18 (SPA)
-├── Vite (bundler, dev server)
-├── TypeScript 5.8
-├── React Router v7 (navigation)
-├── Tailwind CSS 3.4 + shadcn/ui (Radix primitives)
-├── Zustand (state management)
-├── React Query v5 (server state, caching)
-├── React Hook Form (forms)
-├── Framer Motion (animations)
-├── Three.js + React Three Fiber (3D orbs)
-└── ElevenLabs (TTS/STT for voice mode)
-```
+## What Is True Right Now
 
-### Backend Stack
-```
-Supabase (tsvfsbluyuaajqmkpzdv)
-├── PostgreSQL (database)
-├── Edge Functions (TypeScript serverless)
-│   ├── aurora-chat (main AI coaching)
-│   ├── aurora-analyze (pillar assessment)
-│   ├── aurora-proactive (notifications)
-│   ├── aurora-generate-title (content generation)
-│   ├── elevenlabs-transcribe (voice)
-│   ├── web3auth-exchange (wallet connect)
-│   ├── push-notifications
-│   └── submit-lead
-├── Auth (Google, Apple OAuth)
-├── Storage (file uploads)
-└── Realtime (websocket events)
-```
+### Product
 
----
+- `Evolve` is the platform brand
+- `MindOS` is the coaching/execution layer
+- `Aurora` remains the AI persona
 
-## 3. CRITICAL ISSUES
+### Navigation
 
-### 🔴 High Priority
+- primary tabs are `Free Market`, `MindOS`, `Community`, `Study`
+- `MindOS` has internal sections for chat, tactics, strategy, work, and journal
+- legacy `Aurora` and `Play` routes now redirect into `MindOS`
 
-#### 1. **Lovable Dependency** (BLOCKER)
-- **Package:** `@lovable.dev/cloud-auth-js@0.0.3`
-- **Used in:** `src/integrations/lovable/index.ts` + `src/components/onboarding/OnboardingIntro.tsx`
-- **Problem:** OAuth initialization tied to Lovable's service
-- **Solution:** Replace with native Supabase OAuth
+### Runtime
 
-#### 2. **Security Vulnerabilities**
-- **32 total:** 19 low, 4 moderate, 8 high, 1 critical
-- **Critical:** elliptic (Web3Auth dependency)
-- **Fix:** `npm audit fix` available
+- frontend is React + Vite + TypeScript
+- auth/data/storage are still Supabase-based
+- new conversational runtime uses Vercel `/api`
+- legacy edge functions still exist and still matter
 
-#### 3. **Zero Tests**
-- No unit/integration tests across 1,094 files
-- High refactor risk
+### Repository
 
-#### 4. **Build Issues**
-- Three.js peer dependency mismatch
-- npm install times out in constrained environments
+- workspace root exists
+- [apps/evolve](c:\Users\roymichaels\Desktop\mindhacker-net\apps\evolve) now builds the app package
+- [backend/openclaw](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw) exists as the new AI backend boundary
+- root `src/` still contains the active application source
+- root `supabase/` still contains the active Supabase project
 
----
+## Strengths
 
-## 4. WHAT'S WORKING WELL
+- product direction is clearer than before
+- AI routing is moving away from ad hoc edge-only logic
+- identity model is differentiated and already implemented
+- bilingual support is built in
+- avatar/orb/identity stack is a meaningful moat
+- the app still builds after the workspace bootstrap
 
-✅ Architecture: Clean separation, 13 context providers  
-✅ Supabase: 25 edge functions, solid auth setup  
-✅ UI/UX: shadcn/ui + Framer Motion polish  
-✅ Type coverage: ~90% TypeScript  
-✅ PWA: Installable with service worker  
-✅ i18n: Hebrew + English built-in  
-✅ Product spec: Frozen & documented  
+## Main Risks
 
----
+### 1. Structure lags behavior
 
-## 5. IMMEDIATE ACTION ITEMS
+The app behavior already reflects the new platform model, but the filesystem still reflects older phases of the product.
 
-### Lovable Removal (2-3 hours)
-1. Replace `@lovable.dev/cloud-auth-js` with native Supabase OAuth
-2. Remove lovable-tagger from package.json & vite.config.ts
-3. Update OnboardingIntro.tsx to use supabase.auth directly
-4. Delete `.lovable/` directory
-5. Test Google + Apple OAuth
+### 2. Routing is partly modernized, partly transitional
 
-### Build Fixes (1-2 hours)
-6. Fix Three.js peer dependency conflict
-7. Ensure @vitejs/plugin-react-swc included
-8. Test full build
+- `/mindos/*` is the new protected hub
+- deep pillar flows still live in the older `/strategy/*` tree
 
-### Vercel Deploy (1 hour)
-9. Push changes to GitHub
-10. Deploy to Vercel (auto via webhook)
-11. Configure OAuth redirect URIs for new domain
+### 3. AI backend is hybrid
 
----
+- new routes: `api/aurora-chat.ts`, `api/domain-assess.ts`
+- old edge functions still exist and are still part of the runtime surface
 
-## 6. FILE BREAKDOWN
+### 4. Auth is still complex
 
-**51.5k LOC across:**
-- 118 pages
-- 400+ components (52 subdirectories)
-- 134 custom hooks
-- 13 context providers
-- 40+ utility modules
-- 25 Supabase edge functions
+- Supabase auth
+- Web3Auth bridge
+- wallet creation/mint side effects
 
-**Largest component directories:**
-- admin/ (696 KB)
-- careers/ (540 KB)
-- dashboard/ (404 KB)
-- journeys/ (340 KB)
+### 5. Documentation drift has been high
 
----
+The repo had multiple conflicting "truths" before this consolidation pass.
 
-Generated: 2026-03-24 03:30 UTC
+## Architectural Recommendation
+
+Treat the repo as a staged migration, not a clean-sheet rewrite.
+
+### Correct next order
+
+1. keep current app behavior stable
+2. finish doc consolidation
+3. move physical app source into `apps/evolve`
+4. move physical Supabase project into `backend/supabase`
+5. normalize AI backend around `backend/openclaw`
+6. reduce route/provider monolith in `src/App.tsx`
+
+### Wrong order
+
+- broad rename/move of everything first
+- deleting legacy edges before parity is proven
+- assuming route migration is finished because the main tab structure is finished
+
+## Current Source Of Truth Files
+
+- [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx)
+- [src/navigation/osNav.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\osNav.ts)
+- [src/pages/MindOSPage.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\pages\MindOSPage.tsx)
+- [src/lib/openclaw.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\lib\openclaw.ts)
+- [backend/openclaw](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw)
+- [management/ARCHITECTURE.md](c:\Users\roymichaels\Desktop\mindhacker-net\management\ARCHITECTURE.md)

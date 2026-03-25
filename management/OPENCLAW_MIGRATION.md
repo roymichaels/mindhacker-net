@@ -1,20 +1,29 @@
-# OpenClaw Migration Plan
+# OpenClaw Migration
 
 Last updated: 2026-03-25
 
-## Status
+## Current State
 
-The repo already contains a practical first cut of the migration:
+OpenClaw migration has already started.
 
-- `api/aurora-chat.ts`
-- `api/domain-assess.ts`
-- `api/_lib/agent-runtime.ts`
-- `src/lib/openclaw.ts`
-- `src/lib/tools/supabaseQuery.ts`
-- `src/lib/tools/extractDomainProfile.ts`
-- `openclaw-workspace/agents/*.yaml`
+Live runtime pieces:
 
-This means the migration is not theoretical anymore. The remaining work is standardization, parity hardening, and legacy removal.
+- [api/aurora-chat.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\aurora-chat.ts)
+- [api/domain-assess.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\domain-assess.ts)
+- [api/_lib/agent-runtime.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\_lib\agent-runtime.ts)
+- [src/lib/openclaw.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\lib\openclaw.ts)
+- [src/lib/tools/supabaseQuery.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\lib\tools\supabaseQuery.ts)
+- [src/lib/tools/extractDomainProfile.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\lib\tools\extractDomainProfile.ts)
+
+Backend alignment layer:
+
+- [backend/openclaw/agents](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw\agents)
+- [backend/openclaw/tools](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw\tools)
+- [backend/openclaw/workspace](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw\workspace)
+
+## Goal
+
+Move from "Vercel runtime with OpenClaw-style configs" to "clear MindOS backend boundary powered by OpenClaw tooling."
 
 ## Replace First
 
@@ -24,68 +33,54 @@ Priority order:
 2. `domain-assess`
 3. `plan-chat`
 4. `work-chat`
-5. `onboarding-chat`
-6. `aurora-proactive`
+5. `aurora-proactive`
+6. remaining conversational generation assistants
 
-Why this order:
-
-- highest user-facing value
-- strongest streaming requirement
-- strongest reuse of shared tools and memory/session model
-
-## Target Agent Structure
-
-Recommended workspace:
+## Target Runtime Shape
 
 ```text
-openclaw-workspace/
-  agents/
-    aurora-chat.yaml
-    domain-assess.yaml
-    plan-chat.yaml
-    work-chat.yaml
-  prompts/
-  tools/
+Frontend
+  -> Vercel /api proxy or backend service endpoint
+    -> OpenClaw runtime
+      -> agent configs
+      -> tools
+      -> memory/session
+      -> OpenRouter
+      -> Supabase
 ```
 
-Recommended runtime split:
+## Agent Definitions
 
-- server runtime in `api/_lib`
-- agent definitions in `openclaw-workspace/agents`
-- tool wrappers in `src/lib/tools`
-- thin route handlers in `api/*.ts`
+Canonical backend location:
+
+- `backend/openclaw/agents/aurora-chat.yaml`
+- `backend/openclaw/agents/domain-assess.yaml`
+
+Current loader behavior:
+
+- prefer `backend/openclaw/agents`
+- fall back to legacy `openclaw-workspace/agents`
+
+This is intentional so migration can proceed without breaking runtime during the transition window.
 
 ## Required Tools
 
 ### `supabase_query`
 
-Purpose:
+Required for:
 
-- fetch user profile
-- fetch plans, milestones, action items
-- fetch recent messages and conversations
-- fetch work sessions and scores
-- fetch launchpad data and identity context
-- fetch domain results
-
-Requirements:
-
-- enforce an allowlist of tables and views
-- parameterize queries
-- log query intent, not raw secrets
+- user profile and subscription context
+- plans, action items, milestones
+- recent messages/conversations
+- assessment context and results
 
 ### `extract_domain_profile`
 
-Purpose:
+Required for:
 
-- transform assessment conversation into structured scoring payload
-- maintain domain-specific question/subsystem logic
-- preserve current result shape expected by `useDomainAssessment`
-
-Requirements:
-
-- return scores, confidence, findings, mirror statement, next step
-- keep domain-specific metrics for save compatibility
+- structured assessment output
+- current frontend save contract compatibility
+- preserving subsystem scoring and result shapes
 
 ### Recommended next tools
 
@@ -93,105 +88,55 @@ Requirements:
 - `upsert_memory`
 - `create_action_item`
 - `generate_title`
-- `list_recent_notifications`
+- `list_notifications`
 
-## Migration Steps
+## Migration Phases
 
-### Phase 1: Parallel path
+### Phase 1: hybrid stability
 
-1. keep edge functions live
-2. add Vercel or server runtime equivalent
-3. match request/response contracts exactly
-4. route selected frontend callers to new endpoints
+- keep legacy edge functions live
+- run new `/api/*` endpoints in production
+- preserve SSE shape and sessionKey behavior
 
-### Phase 2: Parity verification
+### Phase 2: backend normalization
 
-1. compare streamed chunk format
-2. compare tool call payloads
-3. compare save success rates
-4. compare response latency
-5. verify Hebrew and English prompts
+- move canonical prompts/configs under `backend/openclaw`
+- move tool ownership to backend contracts
+- add clearer telemetry and agent run logging
 
-### Phase 3: Controlled cutover
+### Phase 3: parity hardening
 
-1. route all production clients to new endpoints
-2. keep edge functions as emergency fallback for one release window
-3. log failures with route-level tagging
-4. remove stale UI assumptions about edge-function URLs
+- compare latency
+- compare SSE completion rate
+- compare assessment save success
+- compare Hebrew/English quality
+- compare auth failure patterns
 
-### Phase 4: Legacy cleanup
+### Phase 4: controlled cutover
 
-1. delete or archive unused edge functions
-2. remove Lovable AI gateway dependencies from remaining agentic paths
-3. centralize prompts and tool schemas
-4. update docs and runbooks
+- move callers one surface at a time
+- keep emergency fallback window
+- only then archive stale edge functions
 
-## Keep / Cut Guidance
+## Monitoring
 
-Keep for now:
+Track:
 
-- billing functions
-- webhook handlers
-- email queue processors
-- tokenized media delivery
-- web3 exchange until auth flow is refactored holistically
+- request volume by endpoint
+- SSE open/completion rate
+- fallback usage
+- tool invocation success
+- auth failures
+- assessment persistence success
+- latency p50/p95
 
-Cut over early:
+## Important Constraint
 
-- conversational streaming AI
-- domain assessments
-- plan/work conversational guidance
-
-## Monitoring Plan
-
-Track these side by side during migration:
-
-- request count by endpoint
-- SSE open rate
-- SSE completion rate
-- tool-call parse success
-- message persistence success
-- assessment save success
-- median and p95 latency
-- fallback usage rate
-- auth failures by client route
-
-Recommended log tags:
-
-- `agent_name`
-- `session_key`
-- `user_id`
-- `route_source`
-- `language`
-- `fallback_used`
-- `tool_invocations`
-
-## Parity Checklist
-
-- same request body fields
-- same SSE framing
-- same tool-call JSON schema
-- same results persistence
-- same session continuity behavior
-- same free/pro gating behavior
-- same Hebrew / English quality floor
-- graceful error fallback to user-visible message
-
-## Risks
-
-1. Many old edge functions assume Lovable model semantics
-2. Some UI code still assumes Supabase function URLs or old route names
-3. Auth fallback behavior is inconsistent across clients
-4. Structured outputs vary by domain and are easy to regress silently
-
-## Recommendation
-
-Treat OpenClaw migration as an application platform migration, not a simple model swap. The real unit of work is:
+This is not only a model migration. It is a migration of:
 
 - prompts
 - tools
-- session model
-- persistence contract
-- streaming contract
-
-That is the layer users actually feel.
+- contracts
+- persistence
+- session continuity
+- streaming behavior

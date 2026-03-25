@@ -218,9 +218,9 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
           .update({ full_name: name.trim() })
           .eq('id', user.id);
         
-        // Redirect to play/dashboard after profile setup
+        // Redirect into MindOS after profile setup
         setTimeout(() => {
-          navigate('/play', { replace: true });
+          navigate('/mindos/tactics', { replace: true });
         }, 500);
       }
 
@@ -247,7 +247,7 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
     <div className="min-h-[calc(100dvh-3.5rem)] bg-background flex flex-col items-center justify-center relative px-4 py-12" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Exit button */}
       <button
-        onClick={() => navigate(user ? '/today' : '/')}
+        onClick={() => navigate(user ? '/mindos/tactics' : '/')}
         className="absolute top-4 end-4 z-10 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         aria-label="Exit"
       >

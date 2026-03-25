@@ -1,7 +1,7 @@
 /**
  * Onboarding — Route page for /onboarding
  * Uses the full OnboardingFlow (Neural Intake) for first-time users.
- * Redirects to /now if user already has an active plan.
+ * Redirects to MindOS if user already has an active plan.
  */
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ const Onboarding = () => {
   }
 
   if (hasActivePlan && !isAdmin) {
-    return <Navigate to="/play" replace />;
+    return <Navigate to="/mindos/tactics" replace />;
   }
 
   return (

@@ -1,13 +1,9 @@
 /**
  * @module navigation/osNav
- * @purpose Single source of truth for all OS-level tabs, routes, role gating, and i18n labels
- * 
- * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
+ * @purpose Single source of truth for app-level tabs, routes, and role-gated nav items.
  */
 
-import { Flame, Swords, Shield, Users, Briefcase, GraduationCap, User, Store, type LucideIcon } from 'lucide-react';
-
-// ─── Tab Definition ──────────────────────────────────────────────────────────
+import { Brain, Shield, Users, Briefcase, GraduationCap, Store, type LucideIcon } from 'lucide-react';
 
 export interface OsTab {
   id: string;
@@ -15,27 +11,17 @@ export interface OsTab {
   icon: LucideIcon;
   labelEn: string;
   labelHe: string;
-  /** Role required to see this tab (undefined = visible to all authenticated users) */
   requiredRole?: 'admin' | 'practitioner';
   comingSoon?: boolean;
-  /** If true, BottomTabBar renders the user orb instead of icon */
-  useOrb?: boolean;
-  /** If true, rendered as floating center button */
-  isCenter?: boolean;
 }
 
-/** The main tabs visible to every authenticated user.
- *  Order (RTL): Study | Community | Aurora(injected) | FM(center) | Path
- *  Order (LTR): Path | FM(center) | Aurora(injected) | Community | Study
- */
 export const OS_TABS: OsTab[] = [
-  { id: 'fm',        path: '/fm',        icon: Store,          labelEn: 'Market',    labelHe: 'מרקט' },
-  { id: 'play',      path: '/play',      icon: Flame,          labelEn: 'Play',      labelHe: 'Play', isCenter: true },
-  { id: 'community', path: '/community', icon: Users,          labelEn: 'Feed',      labelHe: 'פיד' },
-  { id: 'study',     path: '/learn',     icon: GraduationCap,  labelEn: 'Study',     labelHe: 'למידה' },
+  { id: 'fm', path: '/fm', icon: Store, labelEn: 'Free Market', labelHe: 'שוק חופשי' },
+  { id: 'mindos', path: '/mindos/chat', icon: Brain, labelEn: 'MindOS', labelHe: 'MindOS' },
+  { id: 'community', path: '/community', icon: Users, labelEn: 'Community', labelHe: 'קהילה' },
+  { id: 'study', path: '/learn', icon: GraduationCap, labelEn: 'Study', labelHe: 'לימוד' },
 ];
 
-/** Coach tab — now nested under FM, not a top-level tab */
 export const COACH_TAB: OsTab = {
   id: 'coach',
   path: '/coaches',
@@ -44,7 +30,6 @@ export const COACH_TAB: OsTab = {
   labelHe: 'מאמנים',
 };
 
-/** Admin-only tab — now used only in the app dropdown, NOT in bottom tab bar */
 export const ADMIN_TAB: OsTab = {
   id: 'admin',
   path: '/admin-hub',
@@ -54,46 +39,37 @@ export const ADMIN_TAB: OsTab = {
   requiredRole: 'admin',
 };
 
-// ─── Sub-routes per tab (for sidebar consumption) ────────────────────────────
-
 export interface SubRoute {
   id: string;
   labelEn: string;
   labelHe: string;
-  /** Relative path segment (appended to tab path or used as search param) */
   segment: string;
 }
 
 export const COACH_SUB_ROUTES: SubRoute[] = [
-  { id: 'overview',       labelEn: 'Overview',       labelHe: 'סקירה',        segment: 'overview' },
-  { id: 'clients',        labelEn: 'Clients',        labelHe: 'מתאמנים',      segment: 'clients' },
-  { id: 'plans',          labelEn: 'Plans',          labelHe: 'תוכניות',      segment: 'plans' },
-  { id: 'marketing',      labelEn: 'Marketing',      labelHe: 'שיווק',        segment: 'marketing' },
-  { id: 'landing-pages',  labelEn: 'Landing Pages',  labelHe: 'דפי נחיתה',    segment: 'landing-pages' },
-  { id: 'settings',       labelEn: 'Settings',       labelHe: 'הגדרות',       segment: 'settings' },
+  { id: 'overview', labelEn: 'Overview', labelHe: 'סקירה', segment: 'overview' },
+  { id: 'clients', labelEn: 'Clients', labelHe: 'לקוחות', segment: 'clients' },
+  { id: 'plans', labelEn: 'Plans', labelHe: 'תוכניות', segment: 'plans' },
+  { id: 'marketing', labelEn: 'Marketing', labelHe: 'שיווק', segment: 'marketing' },
+  { id: 'landing-pages', labelEn: 'Landing Pages', labelHe: 'דפי נחיתה', segment: 'landing-pages' },
+  { id: 'settings', labelEn: 'Settings', labelHe: 'הגדרות', segment: 'settings' },
 ];
 
 export const ADMIN_SUB_ROUTES: SubRoute[] = [
-  { id: 'overview',     labelEn: 'Overview',     labelHe: 'סקירה',         segment: 'overview' },
-  { id: 'admin',        labelEn: 'Admin',        labelHe: 'ניהול',         segment: 'admin' },
-  { id: 'campaigns',    labelEn: 'Campaigns',    labelHe: 'קמפיינים',     segment: 'campaigns' },
-  { id: 'content',      labelEn: 'Content',      labelHe: 'תוכן',         segment: 'content' },
-  { id: 'site',         labelEn: 'Site',         labelHe: 'אתר',          segment: 'site' },
-  { id: 'system',       labelEn: 'System',       labelHe: 'מערכת',        segment: 'system' },
+  { id: 'overview', labelEn: 'Overview', labelHe: 'סקירה', segment: 'overview' },
+  { id: 'admin', labelEn: 'Admin', labelHe: 'ניהול', segment: 'admin' },
+  { id: 'campaigns', labelEn: 'Campaigns', labelHe: 'קמפיינים', segment: 'campaigns' },
+  { id: 'content', labelEn: 'Content', labelHe: 'תוכן', segment: 'content' },
+  { id: 'site', labelEn: 'Site', labelHe: 'אתר', segment: 'site' },
+  { id: 'system', labelEn: 'System', labelHe: 'מערכת', segment: 'system' },
 ];
 
 export const PROJECTS_SUB_ROUTES: SubRoute[] = [
-  { id: 'board',      labelEn: 'Board',      labelHe: 'לוח',       segment: 'board' },
-  { id: 'timeline',   labelEn: 'Timeline',   labelHe: 'ציר זמן',   segment: 'timeline' },
-  { id: 'settings',   labelEn: 'Settings',   labelHe: 'הגדרות',    segment: 'settings' },
+  { id: 'board', labelEn: 'Board', labelHe: 'לוח', segment: 'board' },
+  { id: 'timeline', labelEn: 'Timeline', labelHe: 'ציר זמן', segment: 'timeline' },
+  { id: 'settings', labelEn: 'Settings', labelHe: 'הגדרות', segment: 'settings' },
 ];
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/**
- * Build the visible tabs array based on user roles.
- * Admin tab is no longer in the bottom nav — it's accessed via the app dropdown.
- */
-export function getVisibleTabs(roles: { hasRole: (role: string) => boolean }): OsTab[] {
+export function getVisibleTabs(_roles: { hasRole: (role: string) => boolean }): OsTab[] {
   return [...OS_TABS];
 }

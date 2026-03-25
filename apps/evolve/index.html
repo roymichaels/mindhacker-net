@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem('theme-preference');
+          if (theme === 'light' || theme === '"light"') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Evolve | MindOS AI Coaching Layer</title>
+    <meta
+      name="description"
+      content="Evolve is the personal growth platform. MindOS is the AI coaching layer for chat, tactics, strategy, work, and journaling."
+    />
+    <link rel="icon" type="image/svg+xml" href="/aurora-icon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="../../src/main.tsx"></script>
+  </body>
+</html>

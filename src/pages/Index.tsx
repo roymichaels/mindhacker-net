@@ -51,8 +51,8 @@ const Index = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      flowAudit.redirect('/', '/play', 'Authenticated user on Index — redirecting to play');
-      navigate('/play', { replace: true });
+      flowAudit.redirect('/', '/mindos/tactics', 'Authenticated user on Index — redirecting to MindOS');
+      navigate('/mindos/tactics', { replace: true });
     }
   }, [user, loading, navigate]);
 

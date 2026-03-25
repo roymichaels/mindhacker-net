@@ -1,235 +1,133 @@
-MindOS App Tree
-Generated from current route/filesystem review on 2026-03-25
+Evolve App Tree
+Last updated: 2026-03-25
 
 ROOT
-|- src/App.tsx
-|  |- Providers
-|  |  |- Web3AuthProviderWrapper
-|  |  |- AuthProvider
-|  |  |- AuroraChatProvider
-|  |  |- LanguageProvider
-|  |  |- AuthModalProvider
-|  |  |- GameStateProvider
-|  |  |- SubscriptionsModalProvider
-|  |  |- CoachesModalProvider
-|  |  |- WalletModalProvider
-|  |  |- SoulAvatarProvider
-|  |  |- ProfileModalProvider
-|  |  |- FlowAuditProvider
-|  |  |- AnalyticsProvider
-|  |  `- SmartOnboardingProvider
-|  |- Public Routes
-|  |  |- / -> pages/Index.tsx
-|  |  |- /founding -> pages/FoundingLanding.tsx
-|  |  |- /onboarding -> pages/Onboarding.tsx
-|  |  |- /ceremony -> pages/OnboardingCeremony.tsx
-|  |  |- /go -> pages/Go.tsx
-|  |  |- /courses -> pages/Courses.tsx
-|  |  |- /courses/:slug -> pages/CourseDetail.tsx
-|  |  |- /courses/:slug/watch -> pages/CourseWatch.tsx
-|  |  |- /blog -> pages/Blog.tsx
-|  |  |- /blog/:slug -> pages/BlogPost.tsx
-|  |  |- /docs -> pages/Documentation.tsx
-|  |  |- /install -> pages/Install.tsx
-|  |  |- /subscriptions -> pages/Subscriptions.tsx
-|  |  |- /privacy-policy -> pages/PrivacyPolicy.tsx
-|  |  |- /terms-of-service -> pages/TermsOfService.tsx
-|  |  |- /affiliate-signup -> pages/AffiliateSignup.tsx
-|  |  |- /audio/:token -> pages/AudioPlayer.tsx
-|  |  |- /video/:token -> pages/VideoPlayer.tsx
-|  |  |- /unsubscribe -> pages/Unsubscribe.tsx
-|  |  |- /features/:slug -> pages/FeatureDetailPage.tsx
-|  |  |- /practitioner/:slug -> components/careers/coach/CoachSlugRedirect.tsx
-|  |  |- /practitioners/:slug -> components/careers/coach/CoachSlugRedirect.tsx
-|  |  |- /coach/:slug -> components/careers/coach/CoachSlugRedirect.tsx
-|  |  |- /orbs -> pages/OrbGallery.tsx
-|  |  `- /dev/orb-gallery -> pages/dev/OrbGallery.tsx
-|  |- Protected Full-Screen
-|  |  `- /avatar -> pages/AvatarConfiguratorPage.tsx
-|  `- ProtectedAppShell Routes
-|     |- /play -> components/plan/PlayLayoutWrapper.tsx
-|     |  `- pages/PlayHub.tsx
-|     |- /community -> components/community/CommunityLayoutWrapper.tsx
-|     |- /community/post/:postId -> pages/CommunityThread.tsx
-|     |- /messages -> pages/Messages.tsx
-|     |- /messages/:conversationId -> pages/MessageThread.tsx
-|     |- /aurora -> redirect to /play
-|     |- /now -> redirect to /play
-|     |- /plan -> redirect to /play
-|     |- /profile -> redirect to /play
-|     |- /strategy -> redirect to /play
-|     |- /strategy/:domainId -> pages/LifeDomainPage.tsx
-|     |- /strategy/presence/*
-|     |  |- pages/pillars/PresenceHome.tsx
-|     |  |- pages/pillars/PresenceScan.tsx
-|     |  |- pages/pillars/PresenceAnalyzing.tsx
-|     |  |- pages/pillars/PresenceChatAssess.tsx
-|     |  |- pages/pillars/PresenceChatResults.tsx
-|     |  |- pages/pillars/PresenceResultsPage.tsx
-|     |  `- pages/pillars/PresenceHistory.tsx
-|     |- /strategy/power/*
-|     |  |- pages/pillars/PowerHome.tsx
-|     |  |- pages/pillars/PowerChatAssess.tsx
-|     |  |- pages/pillars/PowerChatResults.tsx
-|     |  |- pages/pillars/PowerResultsPage.tsx
-|     |  `- pages/pillars/PowerHistory.tsx
-|     |- /strategy/vitality/*
-|     |  |- pages/pillars/VitalityHome.tsx
-|     |  |- pages/pillars/VitalityChatAssess.tsx
-|     |  |- pages/pillars/VitalityChatResults.tsx
-|     |  |- pages/pillars/VitalityIntake.tsx
-|     |  |- pages/pillars/VitalityResults.tsx
-|     |  `- pages/pillars/VitalityHistory.tsx
-|     |- /strategy/focus/*
-|     |  |- pages/pillars/FocusHome.tsx
-|     |  |- pages/pillars/FocusChatAssess.tsx
-|     |  |- pages/pillars/FocusChatResults.tsx
-|     |  |- pages/pillars/FocusResults.tsx
-|     |  `- pages/pillars/FocusHistory.tsx
-|     |- /strategy/combat/*
-|     |  |- pages/pillars/CombatHome.tsx
-|     |  |- pages/pillars/CombatChatAssess.tsx
-|     |  |- pages/pillars/CombatChatResults.tsx
-|     |  |- pages/pillars/CombatResults.tsx
-|     |  `- pages/pillars/CombatHistory.tsx
-|     |- /strategy/expansion/*
-|     |  |- pages/pillars/ExpansionHome.tsx
-|     |  |- pages/pillars/ExpansionChatAssess.tsx
-|     |  |- pages/pillars/ExpansionChatResults.tsx
-|     |  |- pages/pillars/ExpansionResults.tsx
-|     |  `- pages/pillars/ExpansionHistory.tsx
-|     |- /strategy/consciousness/*
-|     |  |- pages/pillars/ConsciousnessHome.tsx
-|     |  |- pages/pillars/ConsciousnessAssess.tsx
-|     |  |- pages/pillars/ConsciousnessResults.tsx
-|     |  `- pages/pillars/ConsciousnessHistory.tsx
-|     |- /strategy/wealth/* -> pages/pillars/WealthAssess.tsx, WealthResults.tsx
-|     |- /strategy/influence/* -> pages/pillars/InfluenceAssess.tsx, InfluenceResults.tsx
-|     |- /strategy/relationships/* -> pages/pillars/RelationshipsAssess.tsx, RelationshipsResults.tsx
-|     |- /strategy/business/* -> pages/pillars/BusinessAssess.tsx, BusinessResults.tsx
-|     |- /strategy/projects/* -> pages/pillars/ProjectsAssess.tsx, ProjectsResults.tsx
-|     |- /strategy/play/* -> pages/pillars/PlayAssess.tsx, PlayResults.tsx
-|     |- /arena/:domainId/* -> redirect to /strategy/:domainId
-|     |- /coaches -> components/careers/coach/CoachesLayoutWrapper.tsx
-|     |- /admin-hub -> components/admin/AdminLayoutWrapper.tsx
-|     |- /launchpad/complete -> pages/LaunchpadComplete.tsx
-|     |- /quests/:pillar -> pages/QuestRunnerPage.tsx
-|     |- /learn -> components/learn/LearnLayoutWrapper.tsx
-|     |- /work -> components/work/WorkLayoutWrapper.tsx
-|     |- /fm -> components/fm/FMAppShell.tsx
-|     |  |- index -> components/fm/FMMarketLayoutWrapper.tsx
-|     |  |- /cashout -> pages/fm/FMCashout.tsx
-|     |  |- /bridge -> pages/fm/FMBridge.tsx
-|     |  `- aliases redirect to /fm
-|     |- /coaching/journey* -> pages/CoachingJourney.tsx
-|     |- /admin/journey* -> pages/AdminJourney.tsx
-|     |- /projects/journey* -> pages/ProjectsJourney.tsx
-|     |- /business -> components/careers/business/BusinessLayoutWrapper.tsx
-|     |- /business/journey* -> components/careers/business/BusinessLayoutWrapper.tsx
-|     |- /business/:businessId -> components/careers/business/BusinessLayoutWrapper.tsx
-|     |- /freelancer -> components/careers/freelancer/FreelancerLayoutWrapper.tsx
-|     |- /creator -> components/careers/creator/CreatorLayoutWrapper.tsx
-|     |- /therapist -> components/careers/therapist/TherapistLayoutWrapper.tsx
-|     `- /success -> pages/Success.tsx
+|- apps/
+|  `- evolve/
+|     |- index.html
+|     |- package.json
+|     |- vite.config.ts
+|     |- tailwind.config.ts
+|     |- postcss.config.js
+|     `- tsconfig.json
 |
-|- src/navigation
-|  |- osNav.ts
-|  |- lifeDomains.ts
-|  `- domainIntakeQuestions.ts
+|- backend/
+|  |- openclaw/
+|  |  |- agents/
+|  |  |  |- aurora-chat.yaml
+|  |  |  `- domain-assess.yaml
+|  |  |- tools/
+|  |  |  |- supabase_query.py
+|  |  |  `- extract_domain_profile.py
+|  |  `- workspace/
+|  `- supabase/
+|     `- README.md
 |
-|- src/identity
-|  |- computeDNA.ts
-|  |- useDNA.ts
-|  |- useAION.ts
-|  |- aliases.ts
-|  `- types.ts
-|
-|- src/components
-|  |- aurora/
-|  |- aurora-ui/
-|  |- avatar/
-|  |- community/
-|  |- dashboard/
-|  |- journeys/
-|  |- pillars/
-|  |- play/
-|  |- fm/
-|  |- admin/
-|  |- learn/
-|  |- home/
-|  |- navigation/
-|  |- subscription/
-|  |- settings/
-|  |- layout/
-|  |- auth/
-|  |- ui/
-|  `- many feature-specific support dirs
-|
-|- src/hooks
-|  |- aurora/
-|  |- coaches/
-|  |- fm/
-|  |- journey/
-|  `- 100+ feature hooks at root
-|
-|- src/pages
-|  |- top-level public and protected pages
-|  |- pillars/
-|  |- admin/
-|  |- fm/
-|  |- panel/
-|  `- dev/
-|
-|- src/lib
-|  |- openclaw.ts
-|  |- tools/
-|  |- domain-assess/
-|  |- presence/
-|  |- power/
-|  |- focus/
-|  |- combat/
-|  |- expansion/
-|  |- consciousness/
-|  |- vitality/
-|  `- shared utilities and identity rendering helpers
-|
-|- src/contexts
-|  |- AuthContext.tsx
-|  |- AuroraChatContext.tsx
-|  |- LanguageContext.tsx
-|  |- GameStateContext.tsx
-|  |- SmartOnboardingContext.tsx
-|  |- ProfileModalContext.tsx
-|  |- WalletModalContext.tsx
-|  |- SubscriptionsModalContext.tsx
-|  |- CoachesModalContext.tsx
-|  |- SoulAvatarContext.tsx
-|  `- shell / UI visibility contexts
-|
-|- src/services
-|  |- actionItems.ts
-|  |- hypnosis.ts
-|  |- journalEntries.ts
-|  |- scheduleBlocks.ts
-|  |- unifiedContext.ts
-|  |- userMemory.ts
-|  |- voice.ts
-|  `- workSessions.ts
-|
-|- src/integrations/supabase
-|  |- client.ts
-|  `- types.ts
-|
-|- api
+|- api/
 |  |- aurora-chat.ts
 |  |- domain-assess.ts
 |  `- _lib/
+|     |- agent-runtime.ts
+|     `- sse.ts
 |
-`- supabase/functions
-   |- conversational: aurora-chat, domain-assess, plan-chat, work-chat, onboarding-chat
-   |- generation: generate-*
-   |- voice: elevenlabs-tts, elevenlabs-transcribe
-   |- billing: create-checkout-session, customer-portal, stripe-webhook
-   |- auth/web3: web3auth-exchange, web3-wallet
-   |- admin: admin-refresh-users, admin-grant-purchase
-   `- notifications/email/media utility functions
+|- src/
+|  |- App.tsx
+|  |- navigation/
+|  |  |- osNav.ts
+|  |  `- lifeDomains.ts
+|  |- pages/
+|  |  |- Index.tsx
+|  |  |- Onboarding.tsx
+|  |  |- OnboardingCeremony.tsx
+|  |  |- AvatarConfiguratorPage.tsx
+|  |  |- Community.tsx
+|  |  |- MindOSPage.tsx
+|  |  |- MindOS/
+|  |  |  |- ChatPage.tsx
+|  |  |  |- TacticsPage.tsx
+|  |  |  |- StrategyPage.tsx
+|  |  |  |- WorkPage.tsx
+|  |  |  `- JournalPage.tsx
+|  |  |- pillars/
+|  |  |- fm/
+|  |  |- admin/
+|  |  `- dev/
+|  |- components/
+|  |  |- aurora/
+|  |  |- avatar/
+|  |  |- community/
+|  |  |- navigation/
+|  |  |- pillars/
+|  |  |- play/
+|  |  |- fm/
+|  |  |- learn/
+|  |  |- layout/
+|  |  `- ui/
+|  |- hooks/
+|  |  |- aurora/
+|  |  |- fm/
+|  |  |- coaches/
+|  |  `- root feature hooks
+|  |- contexts/
+|  |- identity/
+|  |- integrations/
+|  |  `- supabase/
+|  |- lib/
+|  |  |- openclaw.ts
+|  |  `- tools/
+|  |     |- supabaseQuery.ts
+|  |     `- extractDomainProfile.ts
+|  `- routes/
+|     `- redirects.tsx
+|
+`- supabase/
+   |- config.toml
+   |- migrations/
+   `- functions/
+      |- aurora-chat/
+      |- domain-assess/
+      |- plan-chat/
+      |- work-chat/
+      |- web3-wallet/
+      |- web3auth-exchange/
+      |- create-checkout-session/
+      |- customer-portal/
+      |- stripe-webhook/
+      `- many additional legacy/support functions
+
+CURRENT ROUTE SPINE
+|- Public
+|  |- / -> Index
+|  |- /onboarding -> Onboarding
+|  |- /ceremony -> OnboardingCeremony
+|  |- /docs -> Documentation
+|  |- /courses/* -> course surfaces
+|  |- /blog/* -> blog surfaces
+|  `- legal/media/token routes
+|
+|- Protected
+|  |- /avatar -> AvatarConfiguratorPage
+|  |- /mindos/*
+|  |  |- /mindos/chat
+|  |  |- /mindos/tactics
+|  |  |- /mindos/strategy
+|  |  |- /mindos/work
+|  |  `- /mindos/journal
+|  |- /community
+|  |- /learn
+|  |- /fm
+|  |- /coaches
+|  |- /admin-hub
+|  |- /business/*
+|  |- /messages/*
+|  |- /quests/:pillar
+|  `- /success
+|
+`- Transitional legacy routes
+   |- /aurora -> /mindos/chat
+   |- /play -> /mindos/tactics
+   |- /now -> /mindos/tactics
+   |- /plan -> /mindos/tactics
+   |- /work -> /mindos/work
+   |- /strategy -> /mindos/strategy
+   `- /strategy/* -> still active for detailed pillar flows

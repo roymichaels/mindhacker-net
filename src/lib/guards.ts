@@ -72,12 +72,12 @@ export function requireCheckoutUrlOrToast(
 /** Known application routes for validation */
 const KNOWN_ROUTES = [
   '/', '/now', '/dashboard', '/onboarding', '/go',
-  '/messages', '/messages/ai', '/aurora',
+  '/messages', '/messages/ai', '/aurora', '/mindos',
   '/coaches', '/therapist', '/freelancer', '/creator', '/business', '/p/',
   '/launchpad', '/settings',
   '/community', '/content',
   '/success', '/auth',
-  '/strategy', '/tactics', '/play',
+  '/strategy', '/tactics', '/play', '/mindos/chat', '/mindos/tactics', '/mindos/strategy', '/mindos/work', '/mindos/journal',
   '/fm',
 ];
 
@@ -88,7 +88,7 @@ const KNOWN_ROUTES = [
 export function safeNavigate(
   navigate: NavigateFunction,
   target: string,
-  fallback: string = '/now'
+  fallback: string = '/mindos/tactics'
 ): void {
   const isKnown = KNOWN_ROUTES.some(r => target === r || target.startsWith(r + '/') || target.startsWith(r + '?'));
   if (!isKnown) {

@@ -3,7 +3,7 @@
  * Step 1: Avatar reveal (personalized orb) with rich lore
  * Step 2: Identity deep-dive (archetypes, traits, behavioral patterns)
  * Step 3: Strategy overview (plan, milestones, daily structure, domains)
- * Then redirects to /play
+ * Then redirects to /mindos/tactics
  */
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -209,7 +209,7 @@ export default function OnboardingCeremony() {
       setTimeout(() => setStep(s => s + 1), 300);
     } else {
       sessionStorage.setItem('just_completed_onboarding', '1');
-      navigate('/play', { replace: true });
+      navigate('/mindos/tactics', { replace: true });
     }
   };
 

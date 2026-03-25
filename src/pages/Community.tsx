@@ -8,7 +8,6 @@ import { supabase as supabaseClient } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useQueryClient as useQC } from '@tanstack/react-query';
-import UsernameGate from '@/components/community/UsernameGate';
 import CommunityLeaderboard from '@/components/community/CommunityLeaderboard';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CreateStoryModal from '@/components/community/CreateStoryModal';
@@ -159,7 +158,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
   const pillarLabel = domain ? (isHe ? domain.labelHe : domain.labelEn) : selectedPillar;
 
   return (
-    <UsernameGate>
       <PageShell>
         <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full pb-24">
           {/* ── Stories Strip ── */}
@@ -359,7 +357,6 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
         <AIMatchModal open={matchOpen} onOpenChange={setMatchOpen} />
         <CreateStoryModal open={storyOpen} onOpenChange={setStoryOpen} />
       </PageShell>
-    </UsernameGate>
   );
 };
 

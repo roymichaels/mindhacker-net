@@ -1,250 +1,109 @@
-# PRODUCT_SPEC.md — Frozen Source of Truth
+# PRODUCT_SPEC.md
 
-> **Purpose**: This document is the contract that all future prompts reference before making changes.  
-> **Last updated**: 2026-03-10  
-> **Rule**: No UI or architecture change may contradict this spec without updating it first.
+Last updated: 2026-03-25
 
----
+This file is the current product contract for the live repo state. It replaces the older 5-tab `FM | Aurora | Play | Community | Study` interpretation.
 
-## Section 1: The 5 Bottom Tabs
+## Brand Model
 
-### Tab 1: FM (`/fm/earn`)
+- `Evolve` = the platform brand
+- `MindOS` = the AI coaching and execution layer inside Evolve
+- `Aurora` = the AI persona/interface used within MindOS
 
-| Field | Value |
-|-------|-------|
-| Label | FM |
-| Icon | `Store` |
-| Purpose | Free Market — earn, trade, and manage MOS tokens |
+## Primary Navigation
 
-**MVP Behaviors:**
-- Earn MOS via data sharing, mining, bounties, referrals
-- 10-milestone Earn Launchpad onboarding
-- Marketplace (courses, NFTs, services)
-- Wallet & cashout
-- AI-powered content publishing via Aurora wizard
+Current visible app tabs are defined in [src/navigation/osNav.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\osNav.ts).
 
-**Sub-routes:** `/fm/earn`, `/fm/work`, `/fm/wallet`, `/fm/cashout`, `/fm/bridge`
+| Tab | Route | Purpose |
+|---|---|---|
+| `Free Market` | `/fm` | Marketplace, wallet, earning, monetization |
+| `MindOS` | `/mindos/chat` | Coaching and execution hub |
+| `Community` | `/community` | Social feed, stories, interaction |
+| `Study` | `/learn` | Courses and education |
 
----
+## MindOS Structure
 
-### Tab 2: PLAY (`/play`) — Center Tab
+`MindOS` is now the main protected coaching surface:
 
-| Field | Value |
-|-------|-------|
-| Label | Play |
-| Icon | `Flame` (oversized, w-16 h-16, no text label) |
-| Purpose | Unified execution hub — tactics, strategy, and work |
+| Section | Route | Purpose |
+|---|---|---|
+| `Chat` | `/mindos/chat` | Aurora conversation and coaching |
+| `Tactics` | `/mindos/tactics` | Daily execution and operational focus |
+| `Strategy` | `/mindos/strategy` | Domain strategy hub and assessment entry |
+| `Work` | `/mindos/work` | Projects, milestones, work execution |
+| `Journal` | `/mindos/journal` | Reflection and journaling surfaces |
 
-**MVP Behaviors:**
-- `PlayHub` — merged Tactics + Strategy + Work views
-- Tactics: daily/weekly task execution with movement score
-- Strategy: 100-day life plan, pillar assessments (via modals)
-- Work: projects and milestones management
-- `PlanChatWizard` — Aurora-powered plan negotiation
-- Domain assessment launching via strategy modal
+The section shell is implemented in [src/pages/MindOSPage.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\pages\MindOSPage.tsx).
 
-**Data sources:** `life_plans`, `life_plan_milestones`, `action_items`, `tactical_schedules`, `mini_milestones`
+## Legacy Route Policy
 
-**Key files:**
-- `src/pages/PlayHub.tsx`
-- `src/components/plan/PlayLayoutWrapper.tsx`
-- `src/components/plan/PlanChatWizard.tsx`
-- `src/components/plan/PlanNegotiateModal.tsx`
+Legacy routes remain valid through redirects:
 
----
+- `/aurora` -> `/mindos/chat`
+- `/play` -> `/mindos/tactics`
+- `/now` -> `/mindos/tactics`
+- `/plan` -> `/mindos/tactics`
+- `/work` -> `/mindos/work`
+- `/strategy` -> `/mindos/strategy`
+- `/messages/ai` -> `/mindos/chat`
+- `/arena/:domainId/*` -> `/mindos/strategy...`
 
-### Tab 3: AURORA (injected between tabs, `/aurora`)
+Important transitional note:
 
-| Field | Value |
-|-------|-------|
-| Label | Aurora |
-| Icon | Custom `AuroraOrbIcon` |
-| Purpose | AI coaching chat + journaling |
+- top-level MindOS routes are live
+- deep pillar flows still physically live under `/strategy/*` in the router
+- `/mindos/strategy` is the new strategic landing layer, not yet a full replacement for every old pillar path
 
-**MVP Behaviors:**
-- Multi-tab interface: Chat, Dreams, Reflection, Gratitude
-- `AuroraChatBubbles` — full conversation with streaming
-- `StandaloneMorphOrb` above chat messages
-- Domain assessment chat (DomainAssessChat) for pillar scanning
-- Voice mode (full-screen bidirectional voice via ElevenLabs STT/TTS)
-- Voice recording + transcription
-- Image attachment
-- Message count gating for free users (5/day)
-- Journal entries persisted to `journal_entries` table
+## Identity Model
 
-**Data sources:** `conversations`, `aurora_messages`, `daily_message_counts`, `journal_entries`
+Canonical product identity stack:
 
-**Key files:**
-- `src/pages/AuroraPage.tsx`
-- `src/components/aurora/AuroraChatBubbles.tsx`
-- `src/components/aurora/AuroraVoiceMode.tsx`
-- `src/components/aurora/JournalTab.tsx`
+```text
+DNA -> AION -> Orb -> Aurora -> Avatar
+```
 
----
+- `DNA` is computed in [src/identity/computeDNA.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\identity\computeDNA.ts)
+- `AION` is the current canonical internal name
+- `Aurora` is the AI interface/persona
+- `Avatar` is the customizable body layer
 
-### Tab 4: FEED (`/community`)
+## Onboarding Contract
 
-| Field | Value |
-|-------|-------|
-| Label | Feed / פיד |
-| Icon | `Users` |
-| Purpose | Social feed, stories, events, and member interaction |
+Current onboarding flow:
 
-**MVP Behaviors:**
-- Social feed with posts, likes, and comments
-- Instagram-style Stories tied to pillars and subtopics
-- Events with RSVP
-- Member profiles and leaderboard
-- Category and pillar filtering
+1. public landing
+2. `/onboarding`
+3. `/ceremony`
+4. avatar configuration
+5. protected entry into `MindOS`
 
----
+Recent update:
 
-### Tab 5: STUDY (`/learn`)
+- community username setup is now captured inside the avatar configurator instead of being blocked later on Community
+- the username field lives at the top of the avatar sidebar in [src/components/avatar/AvatarConfiguratorUI.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\components\avatar\AvatarConfiguratorUI.tsx)
 
-| Field | Value |
-|-------|-------|
-| Label | Study / למידה |
-| Icon | `GraduationCap` |
-| Purpose | Courses and educational content |
+## AI Contract
 
----
+Current AI runtime is hybrid:
 
-## Section 2: Global UI Elements
+- conversational migration path uses Vercel `/api/aurora-chat` and `/api/domain-assess`
+- many legacy AI flows still exist in `supabase/functions`
+- backend OpenClaw alignment now starts from `backend/openclaw/`
 
-### Header (ProtectedAppShell)
-- `AppNameDropdown` — HUD with personalized orb (80px), user name, archetype, XP progress bar, level badge (amber/gold FM theme)
-- Aurora search icon (on `/aurora` route)
-- Notification bell
+## Subscription / Gating
 
-### Bottom Tab Bar
-- 5-item layout: FM | Aurora | Play (center) | Study | Feed
-- Play tab: oversized filled icon, no label
-- Color-coded highlights: Cyan for Play, Violet for Aurora
-- Aurora injected as special button between FM and Play
+Current gating remains based on Supabase subscription state plus app-side guards.
 
-### Floating Chat Input
-- `GlobalChatInput` — transparent background, fixed bottom, doesn't obscure messages
-- Available on all pages except `/aurora` (where it's integrated inline)
-- Voice recording, image attach, voice mode trigger
+Key realities:
 
----
+- Free users are still gated on certain AI usage limits
+- Commerce and billing remain Stripe + Supabase driven
+- Wallet onboarding still depends on Web3Auth plus Supabase bridge flows
 
-## Section 3: Aurora Capabilities
+## Non-Negotiable Current Truths
 
-### Chat Features
-- Streaming AI responses via `aurora-chat` edge function
-- Context-aware (identity, life direction, assessments, behavioral patterns, energy patterns)
-- Pillar-specific conversations
-- Proactive messages and nudges
-- Command bus for in-chat actions (navigate, create tasks, etc.)
-- Memory graph for long-term context retention
-
-### Voice Mode
-- Full-screen overlay with animated orb
-- States: idle → listening → processing → speaking → listening (auto-loop)
-- ElevenLabs STT (transcribe) + TTS (speak)
-- Works in both main chat and domain assessments
-
-### Journal System (on `/aurora`)
-- **Chat**: AI conversation with Aurora
-- **Dreams**: Dream journaling with interpretation
-- **Reflection**: Daily reflection prompts
-- **Gratitude**: Gratitude practice entries
-- Tabs are sticky with blurred backdrop
-
----
-
-## Section 4: Gating Rules
-
-### Source of Truth
-
-| Item | Value |
-|------|-------|
-| Hook | `useSubscriptionGate` |
-| File | `src/hooks/useSubscriptionGate.ts` |
-| Table | `user_subscriptions` (status IN `active`, `trialing`) |
-| Pro Product ID | `prod_TzbSX1sFG1woDZ` |
-
-### Free Tier
-
-| Feature | Limit |
-|---------|-------|
-| Aurora messages | 5/day (tracked in `daily_message_counts`) |
-| Habits | max 3 |
-| Proactive nudges | LOCKED |
-| Play hub | FULL ACCESS |
-| FM | FULL ACCESS |
-| Community | FULL ACCESS |
-| Study | FULL ACCESS |
-
-### Pro Tier
-Everything unlimited.
-
-### Stripe Flow
-1. `create-checkout-session` → Stripe Checkout (with `client_reference_id = user.id`)
-2. `stripe-webhook` → upserts `user_subscriptions` + updates `profiles.subscription_tier`
-3. `check-subscription` → reads from DB (no Stripe API call)
-4. `customer-portal` → opens Stripe billing portal
-
----
-
-## Section 5: Strategy Routes (Pillar Assessments)
-
-All under `/strategy/*` within ProtectedAppShell:
-
-| Domain | Routes |
-|--------|--------|
-| Presence | `/strategy/presence`, `/strategy/presence/scan`, `/strategy/presence/assess`, etc. |
-| Power | `/strategy/power`, `/strategy/power/assess`, etc. |
-| Vitality | `/strategy/vitality`, `/strategy/vitality/assess`, etc. |
-| Focus | `/strategy/focus`, `/strategy/focus/assess`, etc. |
-| Combat | `/strategy/combat`, `/strategy/combat/assess`, etc. |
-| Expansion | `/strategy/expansion`, `/strategy/expansion/assess`, etc. |
-| Consciousness | `/strategy/consciousness`, `/strategy/consciousness/assess`, etc. |
-| Arena domains | `/strategy/wealth/*`, `/strategy/influence/*`, `/strategy/relationships/*`, `/strategy/business/*`, `/strategy/projects/*`, `/strategy/play/*` |
-
----
-
-## Section 6: Other Protected Routes
-
-| Route | Purpose |
-|-------|---------|
-| `/coaches` | Coach marketplace (find/become) |
-| `/admin-hub` | Admin panel (role-gated) |
-| `/business` | Business journey & dashboard |
-| `/freelancer` | Freelancer tools |
-| `/creator` | Creator tools |
-| `/therapist` | Therapist tools |
-| `/work` | Work hub |
-| `/profile` | User profile page |
-| `/quests/:pillar` | Quest runner |
-
----
-
-## Section 7: Legacy Redirects
-
-All legacy routes redirect to `/play`:
-- `/plan`, `/now`, `/today`, `/dashboard`, `/me`, `/tactics`, `/arena`
-- `/projects`, `/life`, `/life/*`
-- `/consciousness`, `/health/*`, `/relationships/*`, `/finances/*`, `/learning/*`, `/purpose/*`, `/hobbies/*`
-- `/personal-hypnosis/*` → `/play`
-
-Other redirects:
-- `/messages/ai` → `/aurora`
-- `/combat-community` → `/community`
-- `/admin`, `/admin/*`, `/panel/*` → `/admin-hub`
-- `/coach`, `/coach/*`, `/practitioners`, `/marketplace` → `/coaches`
-
----
-
-## Section 8: Deleted Pages (Cleanup 2026-03-10)
-
-| Page | Reason |
-|------|--------|
-| `FormView` | No longer used, route redirects to `/` |
-| `PersonalHypnosisLanding` | Legacy product page, redirects to `/` |
-| `PersonalHypnosisSuccess` | Legacy, redirects to `/play` |
-| `PersonalHypnosisPending` | Legacy, redirects to `/play` |
-| `ConsciousnessLeapLanding` | Legacy product page, redirects to `/` |
-| `ConsciousnessLeapApply` | Legacy product page, redirects to `/` |
-| `DynamicLandingPage` | Unused dynamic landing system |
+1. `Evolve` is the platform name
+2. `MindOS` is not the whole app, it is the internal coaching layer
+3. `Aurora` remains the chat persona
+4. the main protected destination is now `MindOS`, not `Play`
+5. docs that still describe a 5-tab app are obsolete

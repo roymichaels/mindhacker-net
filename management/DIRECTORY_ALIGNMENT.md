@@ -2,166 +2,135 @@
 
 Last updated: 2026-03-25
 
-## Current Structure Critique
+## Current Physical Reality
 
-What is messy today:
+The repo is only partially aligned with the target monorepo.
 
-1. `src/App.tsx` is oversized
-   - providers, route definitions, redirects, and app boot are concentrated in one file
-2. feature ownership is split by both concern and surface
-   - example: a domain feature can span `pages`, `components/pillars`, `hooks`, `lib/domain-assess`, `services`, and edge functions
-3. root `hooks/` is overloaded
-   - many feature hooks sit at root, while some areas also have nested subfolders
-4. duplicate coach hooks exist
-   - both root `hooks/*` and `hooks/coaches/*`
-5. `lib/` mixes domain logic, infra helpers, prompt tooling, identity render logic, and pure utilities
-6. route docs and route code are not co-located
-7. legacy names remain in current paths
-   - `SoulAvatar`, old Aurora assumptions, some legacy route aliases
+### Already created
 
-## Proposed Folder Structure
+- [apps/evolve](c:\Users\roymichaels\Desktop\mindhacker-net\apps\evolve)
+- [backend/openclaw](c:\Users\roymichaels\Desktop\mindhacker-net\backend\openclaw)
+- [backend/supabase](c:\Users\roymichaels\Desktop\mindhacker-net\backend\supabase)
+- [design](c:\Users\roymichaels\Desktop\mindhacker-net\design)
+- [management](c:\Users\roymichaels\Desktop\mindhacker-net\management)
 
-Recommended direction for `src/`:
+### Still physically at root
+
+- `src/`
+- `public/`
+- `api/`
+- `supabase/`
+- root shared configs
+
+This is deliberate. The workspace bootstrap was done in a compatibility-first way so the app could keep building and deploying while the structure changes.
+
+## Current Critique
+
+Problems that still exist:
+
+1. root `src/` is still the real app source
+2. root `supabase/` is still the real Supabase project
+3. `src/App.tsx` still owns too much
+4. feature logic is spread across `components`, `hooks`, `pages`, `lib`, and `services`
+5. there is still naming and route debt from older product phases
+
+## Target Shape
 
 ```text
-src/
+apps/
+  evolve/
+    src/
+    public/
+    api/
+backend/
+  supabase/
+  openclaw/
+design/
+management/
+```
+
+## Safe Move Plan
+
+### Phase 1: bootstrap
+
+Completed:
+
+- root workspace package
+- `apps/evolve` package
+- `backend/openclaw` scaffold
+- Vercel build output retargeted to `apps/evolve/dist`
+
+### Phase 2: app source migration
+
+Next:
+
+1. move `src/` into `apps/evolve/src`
+2. move `public/` into `apps/evolve/public`
+3. move app configs into `apps/evolve/`
+4. update aliases/imports/config references
+5. keep build green at each slice
+
+### Phase 3: backend migration
+
+1. move `supabase/` into `backend/supabase/`
+2. update Supabase CLI workflows
+3. update docs and deployment scripts
+
+### Phase 4: feature decomposition
+
+1. split router/providers out of `App.tsx`
+2. organize by feature domain inside app package
+3. keep compatibility shims where necessary
+
+## Feature-Oriented Target
+
+Recommended future app structure:
+
+```text
+apps/evolve/src/
   app/
-    providers/
-    router/
-    layouts/
-  features/
-    aurora/
-    assessments/
-    play/
+  components/
+    evolve/
+    mindos/
+    marketplace/
     community/
     learn/
-    fm/
-    admin/
-    coaches/
-    business/
-    avatar/
-    identity/
-    onboarding/
-    messaging/
-  shared/
-    ui/
-    navigation/
-    hooks/
-    lib/
-    services/
-    types/
+    shared/
+  contexts/
+    evolve/
+    mindos/
+    marketplace/
+    community/
+  hooks/
   integrations/
-    supabase/
-    web3auth/
+  identity/
+  lib/
   pages/
-    public/
-    protected/
+  types/
 ```
 
-## Suggested Mapping
+## Transition Rules
 
-### Move route ownership
+- no wide destructive move without a passing build
+- one vertical slice at a time
+- prefer compatibility shims
+- update docs with each structural milestone
+- do not treat scaffold folders as proof the migration is finished
 
-- `src/App.tsx`
-  -> `src/app/router/AppRouter.tsx`
-- redirect tables
-  -> `src/app/router/redirects.tsx`
-- provider composition
-  -> `src/app/providers/AppProviders.tsx`
+## Rollback
 
-### Consolidate feature slices
+For each structural slice:
 
-- `components/aurora`, `hooks/aurora`, `api/aurora-chat.ts`, `services/unifiedContext.ts`
-  -> feature-owned `features/aurora/*`
-- `components/pillars`, `pages/pillars`, `lib/domain-assess`, `hooks/useDomainAssessment`
-  -> `features/assessments/*`
-- `components/play`, `components/dashboard`, `plan/*`, planning hooks
-  -> `features/play/*`
+1. isolate it in its own commit
+2. keep old paths working temporarily when possible
+3. revert only that slice if it regresses
 
-### Normalize role-based surfaces
+## Current Recommendation
 
-- `components/careers/coach`, `components/careers/coaches`, root coach hooks
-  -> one `features/coaches/*`
-- `components/careers/business`, business hooks and pages
-  -> `features/business/*`
+The next structural pass should be:
 
-### Reduce `lib/` sprawl
+1. physically move `src/` into `apps/evolve/src`
+2. physically move `public/` into `apps/evolve/public`
+3. then move `supabase/` into `backend/supabase`
 
-Split into:
-
-- `shared/lib` for generic helpers
-- `features/<name>/lib` for feature-owned business logic
-- `integrations/*` for external service clients
-
-## Rename / Move Plan
-
-### Phase 1: No behavior change
-
-1. create new folders
-2. add barrel exports
-3. move only one slice at a time
-4. keep import compatibility via re-export shims
-
-### Phase 2: Route decomposition
-
-1. extract router and provider composition from `App.tsx`
-2. move route groups into separate modules
-3. keep exact route behavior unchanged
-
-### Phase 3: Feature ownership cleanup
-
-1. merge duplicate coach hooks
-2. move assessment logic under one feature
-3. move Aurora agent tooling into a dedicated feature folder
-
-### Phase 4: Legacy names
-
-1. deprecate `SoulAvatar` naming behind aliases
-2. align AION/Aurora naming policy
-3. update docs and import paths after stable cutover
-
-## How To Transition Safely
-
-- use path aliases and barrel files first
-- avoid broad import rewrites in one commit
-- keep one vertical slice per refactor
-- run build after each slice
-- keep route behavior unchanged until router extraction is complete
-
-Practical pattern:
-
-```text
-new file created
-  -> old file re-exports from new file
-  -> imports migrate incrementally
-  -> old file deleted only after global usage is zero
-```
-
-## Rollback Plan
-
-For each slice:
-
-1. move in one isolated commit
-2. preserve old export shims
-3. if regressions appear, point old shim back to original implementation
-4. only remove compatibility layers after a stable release window
-
-## Immediate Recommendations
-
-1. Extract `AppProviders.tsx`
-2. Extract `AppRouter.tsx`
-3. Merge duplicate coach hooks
-4. Create `features/assessments`
-5. Create `features/aurora`
-6. Move OpenClaw runtime ownership under one feature boundary
-
-## Non-Negotiable Rule
-
-Identity source-of-truth files should remain obvious and centralized:
-
-- `computeDNA`
-- `lifeDomains`
-- route registry / router modules
-- agent/tool contracts
-
-Those should never be scattered again.
+That sequence minimizes risk because the app package already exists and already builds.

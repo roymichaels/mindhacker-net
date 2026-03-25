@@ -1,203 +1,141 @@
-# MindOS Vision
+# Evolve Vision
 
 Last updated: 2026-03-25
 
-## Purpose
+## Core Framing
 
-MindOS is a personal operating system for self-development, execution, and identity-based guidance. It combines assessment, planning, AI coaching, community, learning, and monetization into one continuous user experience.
+- `Evolve` is the platform
+- `MindOS` is the AI processing and coaching layer inside Evolve
+- `Aurora` is the primary conversational persona/interface of MindOS
 
-The product promise is simple:
-
-- map the user clearly
-- turn that map into direction
-- turn direction into daily execution
-- keep the loop alive through Aurora, identity, and feedback
-
-## Who We Are
-
-MindOS is not a single-feature app. It is a structured life system:
-
-- identity engine
-- AI coach
-- execution hub
-- learning layer
-- social layer
-- creator / coach / market layer
-
-It is designed as a system users live inside, not a dashboard they visit occasionally.
+The product goal is not "chat with an AI." The goal is to turn identity, assessment, memory, and execution into one continuous operating system for growth.
 
 ## Who We Serve
 
 Primary users:
 
-- ambitious individuals who want structure, clarity, and execution support
-- users who resonate with identity-based growth, assessment, and coaching
-- bilingual Hebrew / English users
+- ambitious users seeking structure and execution
+- bilingual Hebrew/English users
+- users drawn to identity-based growth rather than generic productivity
 
 Secondary users:
 
-- coaches and practitioners
-- creators and business builders
-- affiliates and community contributors
+- coaches
+- creators
+- community contributors
+- business builders
 
-## Core Proposition
+## Product Promise
 
-MindOS helps a user answer three questions continuously:
+Evolve should help a user answer, continuously:
 
 1. Who am I becoming?
 2. What matters next?
 3. What should I do today?
 
-The differentiated layer is that these answers are grounded in identity, domains, and memory, not just generic chat.
-
 ## Identity Stack
 
-Important naming note:
+Canonical stack:
 
-- Current codebase term: `AION`
-- User prompt term: `AINO`
-- Repository evidence does not show `AINO`; use `AION` as canonical unless branding changes intentionally
+```text
+DNA -> AION -> Orb -> Aurora -> Avatar
+```
 
-Current identity stack:
+- `DNA` = canonical computed identity layer
+- `AION` = future-self identity abstraction in code
+- `Orb` = visual expression of identity
+- `Aurora` = AI interaction layer
+- `Avatar` = embodied customizable body layer
 
-1. `DNA`
-   - canonical identity computation layer
-   - computed by [src/identity/computeDNA.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\identity\computeDNA.ts)
-   - merges orb signals, onboarding identity profile, pillar scores, skills, habits, energy, and community activity
-2. `AION`
-   - user-facing future-self identity abstraction
-   - the branded persona users relate to
-3. `Orb`
-   - visual body of AION
-   - must render identity, not invent it
-4. `Aurora`
-   - AI engine behind chat, assessments, commands, and proactive behavior
-5. `Avatar`
-   - user-customized 3D body, separate from the orb
+Note:
 
-In practical terms:
+- the codebase uses `AION`, not `AINO`
+- future branding can rename this, but current docs should not invent a different canonical internal term
 
-`DNA -> AION meaning -> Orb visualization -> Aurora interaction -> Avatar embodiment`
+## Domains
 
-## 14 Life Domains
+Canonical product-facing domains:
 
-Canonical domain list comes from [src/navigation/lifeDomains.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\navigation\lifeDomains.ts).
+1. consciousness
+2. presence
+3. power
+4. vitality
+5. focus
+6. combat
+7. expansion
+8. wealth
+9. influence
+10. relationships
+11. business
+12. projects
+13. play
+14. order
 
-1. `consciousness`
-   - self-awareness, inner coherence, identity clarity
-2. `presence`
-   - appearance, grooming, style, posture, visible self-presentation
-3. `power`
-   - strength, physical capability, skill progression
-4. `vitality`
-   - sleep, nutrition, recovery, hormones, energy foundations
-5. `focus`
-   - attention control, deep work, dopamine discipline
-6. `combat`
-   - pressure capacity, technical fighting exposure, reaction and resilience
-7. `expansion`
-   - learning, creativity, language, intellectual range
-8. `wealth`
-   - income, monetization, financial control
-9. `influence`
-   - communication, leadership, charisma, persuasion
-10. `relationships`
-   - social bonds, support network, partnerships
-11. `business`
-   - building and operating ventures
-12. `projects`
-   - organizing goals, delivery, and execution systems
-13. `play`
-   - regeneration, joy, movement, recovery through engagement
-14. `order`
-   - cleanliness, systems, digital and physical organization
+Purpose:
 
-Outdated note:
-
-- `romantics` exists in code and assessment tooling, but the current canonical domain registry still documents 14 domains in product-facing language. Treat `romantics` as implemented-but-not-fully-aligned with top-level product messaging.
+- these domains let MindOS move from vague motivation to structured diagnostic guidance
 
 ## User Journey
 
 ```text
-Public landing
-  -> onboarding / ceremony
-  -> auth / wallet auth
-  -> launchpad + identity capture
-  -> DNA / orb / AION initialization
-  -> Play hub
-  -> domain assessments
-  -> Aurora-guided plans and daily execution
-  -> community / learn / FM / role-specific hubs
+Landing
+  -> onboarding
+  -> ceremony
+  -> avatar + username setup
+  -> protected MindOS entry
+  -> assessment / planning / execution
+  -> community / market / study
 ```
 
-Expanded flow:
+Operationally:
 
-1. Public user lands on `/` or `/founding`
-2. User enters onboarding through `/onboarding`
-3. Launchpad collects profile, lifestyle, goals, and preferences
-4. Identity is synthesized into DNA, orb, and AION-facing outputs
-5. User enters protected shell at `/play`
-6. User completes domain assessments in `/strategy/*`
-7. Aurora uses memory, plans, scores, and context to guide execution
-8. User expands into community, learning, FM, coaching, or role-specific routes
+1. user lands in Evolve
+2. onboarding captures profile, intent, and identity signals
+3. avatar setup now also captures community username
+4. user enters `MindOS`
+5. user chats, assesses, plans, and executes
+6. user extends into Free Market, Community, and Study
 
-## Product Surfaces
+## What MindOS Must Do
 
-Current primary protected surfaces:
-
-- `Play` for execution and strategy
-- `Community` for social layer
-- `Learn` for content and courses
-- `FM` for marketplace and monetization
-- `Aurora` as pervasive assistant, now increasingly widget- and modal-driven
+- maintain session continuity
+- use user context and memory
+- support Hebrew and English
+- convert assessments into structured recommendations
+- convert guidance into action
+- remain embedded in the product, not feel like a detached chatbot
 
 ## Success Metrics
 
-North-star product metrics:
-
-- onboarding completion rate
-- first assessment completion rate
-- `% users reaching /play after onboarding`
-- weekly active users returning to protected routes
-- Aurora conversations per active user
-- assessment-to-plan conversion rate
-- action completion / daily execution adherence
-- subscription conversion from free to paid
-- retention of users who complete at least one domain assessment
-
-Operational metrics:
-
-- SSE chat success rate
-- edge/api failure rate
-- auth success rate
-- average time to first meaningful response
-- assessment save success rate
+- onboarding completion
+- avatar completion
+- first MindOS session start
+- first domain assessment completion
+- action item creation and completion
+- weekly retained active users
+- free-to-paid conversion
+- SSE success rate for AI flows
 
 ## Current Blockers
 
-1. Documentation drift
-   - `README.md` is still Lovable boilerplate
-   - `PRODUCT_SPEC.md` and `docs/APP_MAP.md` partially conflict with current routes
-2. Route/spec drift
-   - `/aurora` is documented as a full route, but [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx) currently redirects it to `/play`
-   - FM is documented as `/fm/earn`; current route root is `/fm`
-3. Architecture concentration
-   - [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx) is still the route and provider monolith
-4. AI backend transition
-   - Supabase edge functions and new Vercel `/api/*` agent runtime now coexist
-   - cutover policy is not yet fully normalized
-5. Naming inconsistency
-   - AION vs AINO vs Aurora needs one canonical external language policy
-6. Folder sprawl
-   - domain logic is split across `components`, `hooks`, `lib`, `pages`, and `flows`
-7. Legacy systems remain live
-   - Lovable references, SoulAvatar naming, duplicate hooks, and unused aliases still exist
+1. route migration is only partially complete
+2. app source is still physically outside the target `apps/evolve/src` structure
+3. Supabase project files are still physically outside `backend/supabase`
+4. Vercel `/api` and Supabase edge functions overlap
+5. Web3Auth remains a fragile dependency
+6. docs have historically drifted faster than the code
 
-## What Future Prompts Should Assume
+## Direction Of Travel
 
-- `DNA` is the identity source of truth
-- `AION` is the correct identity abstraction name in code
-- `Aurora` is the AI engine
-- `Play` is the protected default destination
-- `lifeDomains.ts` is the canonical domain registry
-- `App.tsx` is the current route truth, even where product docs lag
+Near-term direction:
+
+- stabilize current `Evolve` + `MindOS` navigation
+- finish documentation alignment
+- move repo structure toward monorepo form
+- finish OpenClaw backend normalization
+
+Longer-term direction:
+
+- platform shell in `apps/evolve`
+- minimal serverless surface for webhooks/auth bridges
+- OpenClaw as the primary MindOS orchestration engine
