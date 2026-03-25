@@ -1,7 +1,7 @@
 /**
- * DomainAssessChat — Uses Aurora chat UI for domain assessments.
- * Streams messages from domain-assess edge function, extracts profile via tool call.
- * Messages are persisted to the database for continuity across sessions.
+ * DomainAssessChat — Uses the MindOS chat surface for domain assessments.
+ * Streams messages from domain-assess, extracts profile data via tool call,
+ * and persists messages for continuity across sessions.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -482,7 +482,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       }
       autoContinueAttempts.current += 1;
       
-      // Re-send the full history to get Aurora's response
+      // Re-send the full history to get the MindOS response
       setIsStreaming(true);
       setStreamingContent('');
       let assistantSoFar = '';
@@ -543,7 +543,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         style={asDock && dockHeightVh ? { height: `${dockHeightVh}vh` } : undefined}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Header — Aurora style (hidden when parent provides its own) */}
+        {/* Header — MindOS style (hidden when parent provides its own) */}
         {!hideHeader && (
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
           {!asModal && !asDock && (
@@ -554,10 +554,10 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           <AuroraHoloOrb size={32} glow="subtle" />
           <div className="flex-1">
             <h1 className="text-sm font-bold text-foreground">
-              {isHe ? 'אורורה' : 'Aurora'} — {isHe ? 'סריקת' : 'Scanning'} {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
+              {isHe ? 'MindOS' : 'MindOS'} — {isHe ? 'סריקת' : 'Scanning'} {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
             </h1>
             <p className="text-[10px] text-muted-foreground">
-              {isHe ? 'ענה על השאלות כדי שאורורה תבנה לך פרופיל מדויק' : 'Answer the questions so Aurora can build your accurate profile'}
+              {isHe ? 'ענה על השאלות כדי ש-MindOS יבנה לך פרופיל מדויק' : 'Answer the questions so MindOS can build your accurate profile'}
             </p>
           </div>
           <button
@@ -570,7 +570,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           </button>
         </div>
         )}
-        {/* Chat messages — Aurora style */}
+        {/* Chat messages — MindOS style */}
         <ScrollArea className="flex-1 min-h-0">
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
             <div className="space-y-6">
@@ -618,7 +618,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           </div>
         </ScrollArea>
 
-        {/* Input — Aurora style (hidden when docked, uses root GlobalChatInput instead) */}
+        {/* Input — MindOS style (hidden when docked, uses root GlobalChatInput instead) */}
         {!asDock && <AuroraChatInput onSend={sendMessage} disabled={isStreaming} bypassLimits={asModal} />}
       </div>
     </Wrapper>

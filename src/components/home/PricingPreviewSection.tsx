@@ -16,7 +16,7 @@ const tiers = [
     priceHe: 'חינם', priceEn: 'Free',
     color: 'text-blue-500', border: 'border-blue-500/30', bg: 'bg-blue-500/5',
     featuresHe: ['2 פילרים מתוך 15 תחומים', '5 הודעות Aurora ליום', 'אבחון מלא', 'דאשבורד ומבנה יומי'],
-    featuresEn: ['2 of 15 life pillars', '5 Aurora messages/day', 'Full assessment', 'Dashboard & daily structure'],
+    featuresEn: ['2 of 15 life pillars', '5 MindOS messages/day', 'Full assessment', 'Dashboard & daily structure'],
   },
   {
     id: 'plus',
@@ -26,7 +26,7 @@ const tiers = [
     color: 'text-primary', border: 'border-primary/40', bg: 'bg-primary/5',
     featured: true,
     featuresHe: ['6 פילרים מתוך 15 תחומים', 'Aurora ללא הגבלה + זיכרון', 'תוכנית טרנספורמציה 100 יום', 'היפנוזה AI + מנוע ביצוע'],
-    featuresEn: ['6 of 15 life pillars', 'Unlimited Aurora + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
+    featuresEn: ['6 of 15 life pillars', 'Unlimited MindOS + memory', '100-Day Transformation Plan', 'AI Hypnosis + execution engine'],
   },
   {
     id: 'apex',
@@ -35,7 +35,7 @@ const tiers = [
     priceHe: '$199/חודש', priceEn: '$199/mo',
     color: 'text-amber-500', border: 'border-amber-500/30', bg: 'bg-amber-500/5',
     featuresHe: ['כל 15 הפילרים פתוחים', 'מנוע Jarvis פרואקטיבי', 'פרויקטים + עסקים מתקדם', 'Orb DNA מלא'],
-    featuresEn: ['All 15 pillars unlocked', 'Proactive Jarvis engine', 'Projects + Business Advanced', 'Full Orb DNA profile'],
+    featuresEn: ['All 15 pillars unlocked', 'Proactive MindOS engine', 'Projects + Business Advanced', 'Full AION profile'],
   },
 ];
 

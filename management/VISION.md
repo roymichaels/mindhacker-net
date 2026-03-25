@@ -6,7 +6,8 @@ Last updated: 2026-03-25
 
 - `Evolve` is the platform
 - `MindOS` is the AI processing and coaching layer inside Evolve
-- `Aurora` is the primary conversational persona/interface of MindOS
+- `AION` is the visual presence layer for MindOS
+- `MindOS` is the single conversational and reasoning brain
 
 The product goal is not "chat with an AI." The goal is to turn identity, assessment, memory, and execution into one continuous operating system for growth.
 
@@ -38,13 +39,12 @@ Evolve should help a user answer, continuously:
 Canonical stack:
 
 ```text
-DNA -> AION -> Orb -> Aurora -> Avatar
+DNA -> AION -> MindOS Layer -> Avatar
 ```
 
 - `DNA` = canonical computed identity layer
-- `AION` = future-self identity abstraction in code
-- `Orb` = visual expression of identity
-- `Aurora` = AI interaction layer
+- `AION` = future-self identity and visual presence abstraction
+- `MindOS Layer` = the OpenClaw-powered AI interaction layer
 - `Avatar` = embodied customizable body layer
 
 Note:

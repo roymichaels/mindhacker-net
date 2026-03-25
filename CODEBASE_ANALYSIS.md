@@ -20,7 +20,7 @@ That means the app is functionally ahead of its filesystem structure.
 
 - `Evolve` is the platform brand
 - `MindOS` is the coaching/execution layer
-- `Aurora` remains the AI persona
+- `MindOS` is now the single AI brain across coaching surfaces
 
 ### Navigation
 
@@ -49,7 +49,7 @@ That means the app is functionally ahead of its filesystem structure.
 - AI routing is moving away from ad hoc edge-only logic
 - identity model is differentiated and already implemented
 - bilingual support is built in
-- avatar/orb/identity stack is a meaningful moat
+- avatar/AION/identity stack is a meaningful moat
 - the app still builds after the workspace bootstrap
 
 ## Main Risks
@@ -65,7 +65,7 @@ The app behavior already reflects the new platform model, but the filesystem sti
 
 ### 3. AI backend is hybrid
 
-- new routes: `api/aurora-chat.ts`, `api/domain-assess.ts`
+- new routes: `api/mindos-chat.ts`, `api/domain-assess.ts`
 - old edge functions still exist and are still part of the runtime surface
 
 ### 4. Auth is still complex

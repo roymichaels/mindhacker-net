@@ -200,7 +200,7 @@ export default function LaunchpadComplete() {
           animate={{ scale: 1, opacity: 1 }}
           className="text-center space-y-4"
         >
-          {/* Large 3D Identity Orb */}
+          {/* Large 3D AION presence */}
           <motion.div
             className="relative w-36 h-36 mx-auto"
             animate={{
@@ -224,7 +224,7 @@ export default function LaunchpadComplete() {
           <p className="text-muted-foreground">
             {language === 'he'
               ? 'אורורה ניתחה את כל המידע שלך ויצרה עבורך פרופיל אישי ותוכנית טרנספורמציה'
-              : 'Aurora analyzed all your data and created a personal profile and transformation plan for you'}
+              : 'MindOS analyzed all your data and created a personal profile and transformation path for you'}
           </p>
 
           {/* Rewards */}

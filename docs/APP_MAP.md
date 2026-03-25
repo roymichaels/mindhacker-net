@@ -56,8 +56,8 @@ Defined in [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx
 | `/practitioner/:slug` | coach redirect |
 | `/practitioners/:slug` | coach redirect |
 | `/coach/:slug` | coach redirect |
-| `/orbs` | orb gallery |
-| `/dev/orb-gallery` | dev orb gallery |
+| `/orbs` | AION gallery |
+| `/dev/orb-gallery` | dev AION gallery |
 
 ## Protected Routes
 
@@ -134,5 +134,6 @@ Main redirects:
 
 - `Aurora` is no longer a primary bottom tab
 - `MindOS` is the protected coaching hub
+- `AION` is the floating presence/widget layer
 - deep strategy/pillar flows are still in transition
 - the route truth is [src/App.tsx](c:\Users\roymichaels\Desktop\mindhacker-net\src\App.tsx), even where older docs say otherwise

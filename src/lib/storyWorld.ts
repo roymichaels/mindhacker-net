@@ -115,7 +115,7 @@ export const storyScenePresets: Record<string, StoryScene> = {
     chapterKey: 'act_3_covenant',
     sceneType: 'ceremony',
     headline: 'The covenant is sealed',
-    body: 'Your orb, avatar, and plan lock into one visible path forward.',
+    body: 'Your AION presence, avatar, and MindOS path lock into one visible direction.',
     accent: '#a855f7',
     secondary: '#22d3ee',
   }),

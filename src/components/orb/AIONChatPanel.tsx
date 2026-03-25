@@ -1,6 +1,6 @@
-/**
- * AIONChatPanel - Floating chat widget panel that replaces the old Aurora page.
- * Shares the same AION signature shell pieces as the modal chat surfaces.
+﻿/**
+ * AIONChatPanel - Floating AION launcher panel for the MindOS layer.
+ * Shares the same signature shell pieces as the expanded MindOS surfaces.
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -40,28 +40,28 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
     {
       id: 'dream',
       icon: Moon,
-      label: isHe ? 'חלומות' : 'Dreams',
+      label: isHe ? 'ื—ืื•ืื•ืช' : 'Dreams',
       gradient: 'from-indigo-500 to-indigo-700',
       onClick: () => setActiveModal('dream'),
     },
     {
       id: 'gratitude',
       icon: Heart,
-      label: isHe ? 'תודה' : 'Gratitude',
+      label: isHe ? 'ืชื•ื“ื”' : 'Gratitude',
       gradient: 'from-rose-500 to-pink-600',
       onClick: () => setActiveModal('gratitude'),
     },
     {
       id: 'plan',
       icon: Target,
-      label: isHe ? 'תוכנית' : 'Plan',
+      label: isHe ? 'ืชื•ืื ืืช' : 'Plan',
       gradient: 'from-cyan-500 to-teal-600',
       onClick: () => setActiveModal('plan'),
     },
     {
       id: 'beliefs',
       icon: Brain,
-      label: isHe ? 'אמונות' : 'Beliefs',
+      label: isHe ? 'ืืื•ื ื•ืช' : 'Beliefs',
       gradient: 'from-violet-500 to-purple-600',
       onClick: () => setActiveModal('beliefs'),
     },
@@ -88,8 +88,8 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
           >
             <AIONNamingGate>
               <AIONHeader
-                title="AION"
-                subtitle={isHe ? 'שיחה חיה עם שכבת MindOS' : 'Live MindOS conversation layer'}
+                title="MindOS"
+                subtitle={isHe ? 'שכבת ה-AI החיה של AION' : 'AION-powered MindOS layer'}
                 icon={<MessageSquare className="w-4 h-4" />}
                 onClose={onClose}
               />
@@ -103,7 +103,7 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
                   ) : null}
                   {isAssessing && assessLabel ? (
                     <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
-                      {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
+                      {isHe ? 'ืกืจืืงื”' : 'Scan'}: {assessLabel}
                     </span>
                   ) : null}
                 </AIONContextBadges>
@@ -153,3 +153,4 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
     </AnimatePresence>
   );
 }
+

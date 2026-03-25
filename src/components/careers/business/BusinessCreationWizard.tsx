@@ -81,7 +81,7 @@ export default function BusinessCreationWizard({ onClose, onComplete }: Business
 
     try {
       const resp = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
+        `${window.location.origin}/api/mindos-chat`,
         {
           method: 'POST',
           headers: {

@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { parseAllTags, stripAllTags } from '@/lib/commandBus';
 import { useCommandBus } from './useCommandBus';
 
-const AURORA_CHAT_URL = `${import.meta.env.VITE_AGENT_API_BASE_URL || ''}/api/aurora-chat`;
+const MINDOS_CHAT_URL = `${import.meta.env.VITE_AGENT_API_BASE_URL || ''}/api/mindos-chat`;
 
 interface Message {
   id: string;
@@ -273,7 +273,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       const response = await fetch(
-        AURORA_CHAT_URL,
+        MINDOS_CHAT_URL,
         {
           method: 'POST',
           headers: {
@@ -296,7 +296,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       );
 
       if (!response.ok || !response.body) {
-        throw new Error('Failed to get response from Aurora');
+        throw new Error('Failed to get response from MindOS');
       }
 
       const reader = response.body.getReader();
@@ -354,7 +354,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         }
       }
 
-      // Save Aurora's response
+      // Save the MindOS response
       if (cleanedContent) {
         await supabase.from('messages').insert({
           conversation_id: conversationId,
@@ -388,8 +388,8 @@ export const useAuroraChat = (conversationId: string | null) => {
       if ((err as Error).name === 'AbortError') {
         debug.log('Request aborted');
       } else {
-        console.error('Aurora chat error:', err);
-        setError('Failed to get response from Aurora');
+        console.error('MindOS chat error:', err);
+        setError('Failed to get response from MindOS');
         // Mark the last user message as failed for retry
         const lastUserMsg = messages[messages.length - 1] || null;
         if (lastUserMsg && !lastUserMsg.is_ai_message) {

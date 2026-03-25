@@ -12,7 +12,7 @@ The component layer is broad and feature-rich, but unevenly organized. Most majo
 
 Purpose:
 
-- core MindOS chat UI, voice mode, message rendering, dock/modals, and Aurora persona components
+- core MindOS layer UI, voice mode, message rendering, dock/modals, and unified AI brain components
 
 Key components:
 
@@ -42,7 +42,7 @@ Depends on:
 Alignment note:
 
 - this folder is the current implementation of the MindOS conversational layer
-- chat entry is now primarily the floating AION orb, with `/mindos/chat` as the route fallback
+- chat entry is now primarily the floating AION presence widget, with `/mindos/chat` as the route fallback
 
 ### `src/components/pillars`
 
@@ -71,7 +71,7 @@ Depends on:
 - `hooks/useDomainAssessment`
 - `navigation/lifeDomains`
 - `lib/domain-assess`
-- Aurora UI components
+- MindOS layer UI components
 
 ### `src/components/play`
 
@@ -251,7 +251,7 @@ Status:
 
 Purpose:
 
-- orb rendering, canvas layers, presets, gallery, AION visual system
+- AION rendering, canvas layers, presets, gallery, and visual presence system
 
 Key components:
 
@@ -317,7 +317,7 @@ Status:
 - Most volatile: `aurora`, `pillars`, `play`, backend-coupled dialog flows
 - Most stable: `ui`, `navigation`, `layout`, many `learn` primitives
 - Largest maintenance burden: `admin`, `careers`, `dashboard`
-- Legacy naming burden: `aurora`, `play`, `SoulAvatar`, some old route assumptions, duplicate coach hooks
+- Legacy naming burden: `aurora`, `play`, `SoulAvatar`, old route assumptions, duplicate coach hooks
 
 ## Cross-Directory Dependencies
 
@@ -332,7 +332,7 @@ pillars
   -> navigation/lifeDomains, hooks/useDomainAssessment, aurora, lib/domain-assess
 
 play/dashboard
-  -> action items, planning hooks, game state, Aurora widgets
+  -> action items, planning hooks, game state, MindOS widgets
 
 community
   -> auth, profile/avatar, notifications, community hooks

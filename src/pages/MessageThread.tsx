@@ -43,13 +43,13 @@ const MessageThread = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
 
-  // Check if this is Aurora - either by param OR by route path
+  // Check if this is the MindOS AI thread - either by param OR by route path
   const isAI = conversationId === 'ai' || location.pathname === '/messages/ai';
 
   // Hide sidebars for message threads
   useSidebars(null, null);
 
-  // If this is an AI conversation, render Aurora instead
+  // If this is an AI conversation, render the MindOS thread instead
   if (isAI) {
     return <AuroraMessageThread conversationId="ai" />;
   }
@@ -192,7 +192,7 @@ const MessageThread = () => {
     setIsStreaming(true);
     setStreamingContent('');
 
-    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
+    const CHAT_URL = `${window.location.origin}/api/mindos-chat`;
     
     try {
       // Build message history for AI

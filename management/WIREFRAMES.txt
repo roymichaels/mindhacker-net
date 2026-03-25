@@ -26,7 +26,7 @@ Text-first reference, based on current route structure
 
 +--------------------------------------------------------------+
 | TopNavBar                                                    |
-| app dropdown | search/actions | notif | profile/orb          |
+| app dropdown | search/actions | notif | profile/AION         |
 +--------------------------------------------------------------+
 | optional left sidebar | main page content | optional right   |
 |                      |                   | sidebar/activity  |
@@ -55,7 +55,7 @@ Text-first reference, based on current route structure
 | AION prompts and planning widgets appear inline              |
 +--------------------------------------------------------------+
 | FAB / bottom affordances                                     |
-| floating AION orb / modal launch / quick actions             |
+| floating AION presence / modal launch / quick actions        |
 +--------------------------------------------------------------+
 
 ==================================================
@@ -63,8 +63,8 @@ Text-first reference, based on current route structure
 ==================================================
 
 +--------------------------------------------------------------+
-| AION orb/widget panel                                        |
-| orb | title | language switch | controls                     |
+| AION widget / MindOS panel                                   |
+| AION | title | language switch | controls                    |
 +--------------------------------------------------------------+
 | Scrollable conversation                                      |
 |                                                              |
@@ -82,13 +82,13 @@ Dedicated route fallback:
 
 +--------------------------------------------------------------+
 | /mindos/chat                                                 |
-| Uses the existing Aurora chat UI inside the MindOS route     |
+| Uses the existing MindOS chat UI inside the MindOS route     |
 +--------------------------------------------------------------+
 
 Voice mode overlay:
 
 +--------------------------------------------------------------+
-| full-screen orb                                              |
+| full-screen AION                                             |
 | state: idle / listening / processing / speaking              |
 | transcript preview                                           |
 | end / mute / replay controls                                 |
@@ -100,7 +100,7 @@ Voice mode overlay:
 
 +--------------------------------------------------------------+
 | Domain header                                                |
-| back | orb | "Aurora - Scanning <domain>" | language switch  |
+| back | AION | "MindOS - Scanning <domain>" | language switch |
 +--------------------------------------------------------------+
 | Intro block                                                  |
 | "what this scan does / why / what we ask"                    |

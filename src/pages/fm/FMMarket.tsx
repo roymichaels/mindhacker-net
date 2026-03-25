@@ -1,6 +1,6 @@
 /**
  * FMMarket — Earn hub with Services, Bounties, and P2P Marketplace.
- * Route: /fm/earn — all publishing flows use Aurora AI wizard.
+ * Route: /fm/earn — all publishing flows use the MindOS AI wizard.
  */
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +53,7 @@ export default function FMMarket() {
 
   const [view, setView] = useState<MarketView>('services');
 
-  // ── Aurora Publish Wizard state ──
+  // ── MindOS publish wizard state ──
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardType, setWizardType] = useState<FMPublishType>('service');
 
@@ -262,7 +262,7 @@ export default function FMMarket() {
             {canCreateService && (
               <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('service')}>
                 <Sparkles className="w-3.5 h-3.5" />
-                {isHe ? 'פרסם עם Aurora' : 'Publish with Aurora'}
+                {isHe ? 'פרסם עם Aurora' : 'Publish with MindOS'}
               </Button>
             )}
           </div>
@@ -336,7 +336,7 @@ export default function FMMarket() {
             {isAdmin && (
               <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('bounty')}>
                 <Sparkles className="w-3.5 h-3.5" />
-                {isHe ? 'צור עם Aurora' : 'Create with Aurora'}
+                {isHe ? 'צור עם Aurora' : 'Create with MindOS'}
               </Button>
             )}
           </div>
@@ -415,7 +415,7 @@ export default function FMMarket() {
             <h2 className="font-bold text-foreground">{isHe ? 'מרקטפלייס' : 'Marketplace'}</h2>
             <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => openWizard('marketplace')}>
               <Sparkles className="w-3.5 h-3.5" />
-              {isHe ? 'פרסם עם Aurora' : 'List with Aurora'}
+              {isHe ? 'פרסם עם Aurora' : 'List with MindOS'}
             </Button>
           </div>
 
@@ -462,7 +462,7 @@ export default function FMMarket() {
         </div>
       )}
 
-      {/* Aurora Publish Wizard */}
+      {/* MindOS Publish Wizard */}
       <FMPublishWizard open={wizardOpen} onOpenChange={setWizardOpen} type={wizardType} />
     </div>
   );

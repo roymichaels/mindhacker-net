@@ -8,7 +8,8 @@ This file is the current product contract for the live repo state. It replaces t
 
 - `Evolve` = the platform brand
 - `MindOS` = the AI coaching and execution layer inside Evolve
-- `Aurora` = the AI persona/interface used within MindOS
+- `AION` = the visual/presence layer
+- `MindOS` is the single AI brain, powered by OpenClaw
 
 ## Primary Navigation
 
@@ -27,7 +28,7 @@ Current visible app tabs are defined in [src/navigation/osNav.ts](c:\Users\roymi
 
 | Section | Route | Purpose |
 |---|---|---|
-| `Chat` | `/mindos/chat` | Aurora conversation and coaching |
+| `Chat` | `/mindos/chat` | MindOS conversation and coaching |
 | `Tactics` | `/mindos/tactics` | Daily execution and operational focus |
 | `Strategy` | `/mindos/strategy` | Domain strategy hub and assessment entry |
 | `Work` | `/mindos/work` | Projects, milestones, work execution |
@@ -59,12 +60,12 @@ Important transitional note:
 Canonical product identity stack:
 
 ```text
-DNA -> AION -> Orb -> Aurora -> Avatar
+DNA -> AION -> MindOS Layer -> Avatar
 ```
 
 - `DNA` is computed in [src/identity/computeDNA.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\identity\computeDNA.ts)
-- `AION` is the current canonical internal name
-- `Aurora` is the AI interface/persona
+- `AION` is the current canonical presence/visual identity name
+- `MindOS Layer` is the unified AI interface and reasoning surface
 - `Avatar` is the customizable body layer
 
 ## Onboarding Contract
@@ -86,7 +87,7 @@ Recent update:
 
 Current AI runtime is hybrid:
 
-- conversational migration path uses Vercel `/api/aurora-chat` and `/api/domain-assess`
+- conversational migration path uses Vercel `/api/mindos-chat` and `/api/domain-assess`
 - many legacy AI flows still exist in `supabase/functions`
 - backend OpenClaw alignment now starts from `backend/openclaw/`
 
@@ -104,6 +105,6 @@ Key realities:
 
 1. `Evolve` is the platform name
 2. `MindOS` is not the whole app, it is the internal coaching layer
-3. `Aurora` remains the chat persona
+3. `MindOS` is the single AI brain across chat, assessment, and planning
 4. the main protected destination is now `MindOS`, not `Play`
 5. docs that still describe a 5-tab app are obsolete

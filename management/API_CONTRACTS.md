@@ -11,7 +11,7 @@ Last updated: 2026-03-25
 
 ## Current Vercel Agent Contracts
 
-### `/api/aurora-chat`
+### `/api/mindos-chat`
 
 - Method: `POST`
 - Auth: bearer token or session-derived fallback, depending on caller
@@ -50,7 +50,7 @@ Legend:
 
 | Function | Auth | Stream | Purpose / contract summary |
 |---|---|---:|---|
-| `aurora-chat` | public + manual token handling | yes | Main Aurora chat; body includes messages/context/language; SSE passthrough from AI gateway |
+| `aurora-chat` | public + manual token handling | yes | Legacy-compatible MindOS chat handler; body includes messages/context/language; SSE passthrough from AI gateway |
 | `domain-assess` | public/manual | yes | Domain assessment conversation; tool-call extraction for structured scores |
 | `plan-chat` | public/manual | yes | Planning chat for strategy / negotiation |
 | `work-chat` | public/manual | yes | Work-planning chat using work sessions and tasks |
@@ -82,7 +82,7 @@ Legend:
 | `analyze-introspection-form` | public/manual | no | Turns introspection form data into analysis |
 | `generate-launchpad-summary` | jwt | no | Summarizes launchpad data for the authenticated user |
 | `generate-identity-archetype` | public | no | Generates identity/archetype framing |
-| `generate-orb-narrative` | public/manual | no | Generates orb narrative copy |
+| `generate-orb-narrative` | public/manual | no | Generates AION narrative copy |
 | `generate-business-plan` | public | no | AI-generated business plan |
 | `generate-branding-suggestions` | public | no | Brand/name/positioning ideas |
 | `generate-coach-plan` | public | no | Coach offering/business plan output |
@@ -245,7 +245,7 @@ For agent parity, the replacement runtime needs these tools:
 - `extract_domain_profile`
   - produce structured domain assessment payloads from conversational evidence
 - `memory_upsert` or equivalent
-  - optional next step for long-term Aurora context parity
+  - optional next step for long-term MindOS context parity
 - `action_item_create`
   - eventual parity for in-chat execution actions
 - `conversation_title_generate`

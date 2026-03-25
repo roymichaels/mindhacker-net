@@ -8,7 +8,7 @@ OpenClaw migration has already started.
 
 Live runtime pieces:
 
-- [api/aurora-chat.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\aurora-chat.ts)
+- [api/mindos-chat.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\mindos-chat.ts)
 - [api/domain-assess.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\domain-assess.ts)
 - [api/_lib/agent-runtime.ts](c:\Users\roymichaels\Desktop\mindhacker-net\api\_lib\agent-runtime.ts)
 - [src/lib/openclaw.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\lib\openclaw.ts)
@@ -29,7 +29,7 @@ Move from "Vercel runtime with OpenClaw-style configs" to "clear MindOS backend 
 
 Priority order:
 
-1. `aurora-chat`
+1. `mindos-chat`
 2. `domain-assess`
 3. `plan-chat`
 4. `work-chat`
@@ -54,6 +54,7 @@ Frontend
 Canonical backend location:
 
 - `backend/openclaw/agents/aurora-chat.yaml`
+  - current legacy filename; runtime role is the unified MindOS brain
 - `backend/openclaw/agents/domain-assess.yaml`
 
 Current loader behavior:

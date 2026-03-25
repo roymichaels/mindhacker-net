@@ -44,7 +44,7 @@ function AIONFloatingWidgetInner() {
             exit={{ opacity: 0, scale: 0.4, y: 24 }}
             transition={{ type: 'spring', stiffness: 240, damping: 18 }}
             onClick={handleClick}
-            aria-label="Open AION chat"
+            aria-label="Open MindOS"
             className="fixed z-[88] right-4 md:right-6 bottom-[96px] md:bottom-6 flex items-center gap-3 bg-transparent border-0 p-0"
           >
             <motion.div

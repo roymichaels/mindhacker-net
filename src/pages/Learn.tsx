@@ -1,5 +1,5 @@
 /**
- * Learn — Aurora Teaches You. Full curriculum system.
+ * Learn — MindOS teaches you. Full curriculum system.
  * Sidebar-less: course list + curriculum tree are inline.
  */
 import { useState, useMemo, useCallback, useEffect } from 'react';
@@ -174,7 +174,7 @@ export default function Learn() {
     auroraChat.setPendingAssistantGreeting(
       isHe
         ? '🔥 שלום! אני Aurora, ואני הולכת לבנות לך תוכנית לימודים אינטנסיבית.\n\nזה לא קורס רגיל — זה **Boot Camp**. אני אדחוף אותך מאפס למקצוען.\n\n**מה אתה רוצה ללמוד?**\n\nתהיה ספציפי — "Python לData Science", "גיטרה קלאסית", "שיווק דיגיטלי" — כל מה שתרצה.'
-        : "🔥 Hey! I'm Aurora, and I'm about to build you an intensive learning curriculum.\n\nThis isn't a casual course — this is a **Boot Camp**. I'll push you from zero to pro.\n\n**What do you want to learn?**\n\nBe specific — \"Python for Data Science\", \"Classical Guitar\", \"Digital Marketing\" — anything you want to master."
+        : "🔥 Hey! I'm MindOS, and I'm about to build you an intensive learning curriculum.\n\nThis isn't a casual course — this is a **Boot Camp**. I'll push you from zero to pro.\n\n**What do you want to learn?**\n\nBe specific — \"Python for Data Science\", \"Classical Guitar\", \"Digital Marketing\" — anything you want to master."
     );
   }, [auroraChat, isHe]);
 
@@ -381,7 +381,7 @@ export default function Learn() {
               <div>
                 <h3 className="text-lg font-bold">{isHe ? 'מוכן להתחיל ללמוד?' : 'Ready to learn?'}</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  {isHe ? 'ספר ל-Aurora מה אתה רוצה ללמוד והיא תבנה לך תוכנית אינטנסיבית.' : "Tell Aurora what you want to learn and she'll build an intensive curriculum."}
+                  {isHe ? 'ספר ל-Aurora מה אתה רוצה ללמוד והיא תבנה לך תוכנית אינטנסיבית.' : "Tell MindOS what you want to learn and it will build an intensive curriculum."}
                 </p>
               </div>
               <Button onClick={openWizardInDock} className="gap-2 rounded-full px-6">

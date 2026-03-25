@@ -49,12 +49,12 @@ This repository is in a staged architecture transition:
 ### Identity stack
 
 ```text
-DNA -> AION -> Orb -> Aurora -> Avatar
+DNA -> AION -> MindOS Layer -> Avatar
 ```
 
 - `DNA` is the canonical identity computation layer
-- `AION` is the future-self identity abstraction in code
-- `Aurora` is the AI persona and coaching engine
+- `AION` is the future-self presence and visual identity abstraction
+- `MindOS Layer` is the unified OpenClaw-powered intelligence surface
 - `Avatar` is the user's 3D body/customization layer
 
 ## Runtime Architecture

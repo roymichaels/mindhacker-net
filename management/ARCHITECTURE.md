@@ -69,15 +69,13 @@ Important:
 ```text
 DNA
   -> AION
-    -> Orb
-      -> Aurora
-        -> Avatar
+    -> MindOS Layer
+      -> Avatar
 ```
 
 - `DNA` comes from [src/identity/computeDNA.ts](c:\Users\roymichaels\Desktop\mindhacker-net\src\identity\computeDNA.ts)
-- `AION` is the identity abstraction in code
-- `Orb` is the visual output
-- `Aurora` is the AI persona and reasoning surface
+- `AION` is the identity abstraction and visual presence in code
+- `MindOS Layer` is the AI reasoning surface powered by OpenClaw
 - `Avatar` is the customizable 3D body
 
 ## Navigation Architecture
@@ -185,7 +183,7 @@ Current confirmed use:
 ```text
 User
   -> React client
-    -> /api/aurora-chat or /api/domain-assess
+    -> /api/mindos-chat or /api/domain-assess
       -> api/_lib/agent-runtime.ts
         -> src/lib/openclaw.ts
         -> src/lib/tools/*
@@ -247,7 +245,7 @@ Web3Auth login
 
 High-value legacy functions still in `supabase/functions`:
 
-- `aurora-chat`
+- `mindos-chat` (compat alias over `aurora-chat`)
 - `domain-assess`
 - `plan-chat`
 - `work-chat`
@@ -257,7 +255,7 @@ High-value legacy functions still in `supabase/functions`:
 
 Functions most likely to migrate first:
 
-1. `aurora-chat`
+1. `mindos-chat`
 2. `domain-assess`
 3. `plan-chat`
 4. `work-chat`
