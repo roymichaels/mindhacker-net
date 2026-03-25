@@ -2,21 +2,47 @@
 -- Allows public reads on theme/settings/practitioners
 -- Allows analytics inserts
 
-CREATE POLICY IF NOT EXISTS "Allow public read on site_settings" 
-  ON public.site_settings FOR SELECT TO public USING (true);
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'site_settings' and policyname = 'Allow public read on site_settings'
+  ) then
+    create policy "Allow public read on site_settings"
+      on public.site_settings for select to public using (true);
+  end if;
 
-CREATE POLICY IF NOT EXISTS "Allow public read on theme_settings" 
-  ON public.theme_settings FOR SELECT TO public USING (true);
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'theme_settings' and policyname = 'Allow public read on theme_settings'
+  ) then
+    create policy "Allow public read on theme_settings"
+      on public.theme_settings for select to public using (true);
+  end if;
 
-CREATE POLICY IF NOT EXISTS "Allow public read on practitioners" 
-  ON public.practitioners FOR SELECT TO public USING (true);
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'practitioners' and policyname = 'Allow public read on practitioners'
+  ) then
+    create policy "Allow public read on practitioners"
+      on public.practitioners for select to public using (true);
+  end if;
 
-CREATE POLICY IF NOT EXISTS "Allow visitor_sessions insert" 
-  ON public.visitor_sessions FOR INSERT TO public WITH CHECK (true);
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'visitor_sessions' and policyname = 'Allow visitor_sessions insert'
+  ) then
+    create policy "Allow visitor_sessions insert"
+      on public.visitor_sessions for insert to public with check (true);
+  end if;
 
-CREATE POLICY IF NOT EXISTS "Allow page_views insert" 
-  ON public.page_views FOR INSERT TO public WITH CHECK (true);
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'page_views' and policyname = 'Allow page_views insert'
+  ) then
+    create policy "Allow page_views insert"
+      on public.page_views for insert to public with check (true);
+  end if;
 
--- Also allow authenticated users to read profiles
-CREATE POLICY IF NOT EXISTS "Allow authenticated read profiles"
-  ON public.profiles FOR SELECT TO authenticated USING (true);
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'Allow authenticated read profiles'
+  ) then
+    create policy "Allow authenticated read profiles"
+      on public.profiles for select to authenticated using (true);
+  end if;
+end $$;

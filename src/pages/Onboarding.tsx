@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { CinematicOnboardingStage } from '@/components/story/CinematicOnboardingStage';
 
 const Onboarding = () => {
   const { isRTL } = useTranslation();
@@ -52,13 +53,15 @@ const Onboarding = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <OnboardingFlow />
-      </div>
+    <CinematicOnboardingStage>
+      <div className="min-h-screen flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <OnboardingFlow />
+        </div>
 
-      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-    </div>
+        <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+      </div>
+    </CinematicOnboardingStage>
   );
 };
 

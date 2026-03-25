@@ -8,6 +8,9 @@ import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useTheme } from 'next-themes';
 import { FMTopNav } from '@/components/fm/FMTopNav';
 import { useChromeVisibility } from '@/contexts/ChromeVisibilityContext';
+import { featureFlags } from '@/lib/featureFlags';
+import { StoryWorldShell } from '@/components/story/StoryWorldShell';
+import { StorySurfaceHost } from '@/components/story/StorySurfaceHost';
 
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
@@ -83,8 +86,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 relative ${isFM ? 'pb-16 md:pb-20' : headerHidden ? 'pb-0' : 'pb-20 md:pb-24'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {/* Route-colored ambient glow */}
               <div className="absolute inset-0 pointer-events-none" style={{ background: isDark ? theme.ambientGlowDark : theme.ambientGlow }} />
+              {featureFlags.enableStoryWorld ? <StoryWorldShell compact={false} /> : null}
               <div className="relative z-10 flex flex-col flex-1">
-                {children}
+                <StorySurfaceHost>{children}</StorySurfaceHost>
               </div>
             </main>
           </div>

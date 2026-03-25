@@ -1,9 +1,8 @@
 /**
- * DomainAssessModal - Wraps DomainAssessChat in the shared AION dialog shell.
+ * DomainAssessModal - Wraps DomainAssessChat in the shared story assessment shell.
  */
-import { Brain } from 'lucide-react';
-import { AIONDialogShell } from '@/components/orb/AIONSignature';
 import DomainAssessChat from './DomainAssessChat';
+import { StoryAssessmentSurface } from '@/components/story/StorySurfaceShell';
 
 interface DomainAssessModalProps {
   open: boolean;
@@ -13,17 +12,16 @@ interface DomainAssessModalProps {
 
 export function DomainAssessModal({ open, onOpenChange, domainId }: DomainAssessModalProps) {
   return (
-    <AIONDialogShell
+    <StoryAssessmentSurface
       open={open}
       onOpenChange={onOpenChange}
       title="AION Assessment"
       subtitle="Domain scan and guided reflection"
       description="AION domain assessment conversation"
-      icon={<Brain className="w-4 h-4" />}
       preventClose
       contentClassName="overflow-hidden"
     >
       <DomainAssessChat domainId={domainId} asModal onClose={() => onOpenChange(false)} />
-    </AIONDialogShell>
+    </StoryAssessmentSurface>
   );
 }

@@ -1,5 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "WEB3AUTH_CLIENT_ID",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "OPENROUTER_API_KEY",
+    "AI_IMAGE_API_KEY",
+    "AI_IMAGE_MODEL",
+    "AI_IMAGE_BASE_URL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

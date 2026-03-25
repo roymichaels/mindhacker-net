@@ -32,6 +32,7 @@ import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
 import Web3AuthProviderWrapper from "@/providers/Web3AuthProviderWrapper";
+import { StoryWorldProvider } from "@/contexts/StoryWorldContext";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -252,9 +253,10 @@ const App = () => (
                                       <AffiliateTracker />
                                       <UTMTrackerMount />
                                       <AnalyticsProvider>
-                                        <SmartOnboardingProvider>
-                                          <Suspense fallback={<PageSkeleton />}>
-                                            <Routes>
+                                        <StoryWorldProvider>
+                                          <SmartOnboardingProvider>
+                                            <Suspense fallback={<PageSkeleton />}>
+                                              <Routes>
                                               {/* Public routes */}
                                               <Route path="/" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
@@ -440,20 +442,21 @@ const App = () => (
                                               <Route path="/dev/orb-gallery" element={<OrbGallery />} />
                                               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                                               <Route path="*" element={<NotFound />} />
-                                            </Routes>
-                                            <PWAInstallBanner />
-                                            <PWAUpdatePrompt />
-                                            <NotificationPermissionPrompt />
-                                            <CookieConsent />
-                                            <SubscriptionsModal />
-                                            <WalletModal />
-                                            <Suspense fallback={null}><ProfilePage /></Suspense>
-                                            <SoulAvatarMintWizardGlobal />
-                                            <Suspense fallback={null}><AIONFloatingWidget /></Suspense>
-                                            <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
+                                              </Routes>
+                                              <PWAInstallBanner />
+                                              <PWAUpdatePrompt />
+                                              <NotificationPermissionPrompt />
+                                              <CookieConsent />
+                                              <SubscriptionsModal />
+                                              <WalletModal />
+                                              <Suspense fallback={null}><ProfilePage /></Suspense>
+                                              <SoulAvatarMintWizardGlobal />
+                                              <Suspense fallback={null}><AIONFloatingWidget /></Suspense>
+                                              <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
-                                          </Suspense>
-                                        </SmartOnboardingProvider>
+                                            </Suspense>
+                                          </SmartOnboardingProvider>
+                                        </StoryWorldProvider>
                                       </AnalyticsProvider>
                                     </FlowAuditProvider>
                                   </TooltipProvider>

@@ -43,6 +43,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import type { FlowAnswers, MiniStep, FlowOption } from '@/lib/flow/types';
 import { cn } from '@/lib/utils';
+import { featureFlags } from '@/lib/featureFlags';
 
 // ─── Sortable Item for priority_rank ───
 function SortableRankItem({ item, index, language }: { item: FlowOption; index: number; language: string }) {
@@ -168,10 +169,27 @@ export function OnboardingFlow() {
         step_3_lifestyle_data: merged as any,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
+
+      await supabase.from('user_story_profiles').upsert({
+        user_id: user.id,
+        current_chapter: phase.startsWith('plan') || phase === 'complete' ? 'act_3_covenant' : phase === 'assessments' ? 'act_2_trials' : 'act_1_awakening',
+        language,
+        last_scene_type: phase,
+        theme_params: {},
+        identity_summary: {},
+      }, { onConflict: 'user_id' });
+
+      await supabase.from('user_story_beats').upsert({
+        user_id: user.id,
+        beat_key: `onboarding:${phase}`,
+        beat_type: 'onboarding_phase',
+        payload: phaseData,
+        completed_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,beat_key' });
     } catch (e) {
       console.error('Save phase error:', e);
     }
-  }, [user?.id]);
+  }, [language, user?.id]);
 
   // Helper to apply restored phase state
   const applyPhaseState = useCallback((savedPhase: string | undefined, phaseData: Record<string, unknown> | null, restored: FlowAnswers, savedStep?: number) => {
@@ -785,8 +803,10 @@ export function OnboardingFlow() {
 
   const currentPhase = phaseLabels[currentStep.id];
 
+  const cinematic = featureFlags.enableCinematicOnboarding;
+
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className={cn("min-h-screen flex flex-col", cinematic ? "bg-transparent" : "bg-background")} dir={isRTL ? 'rtl' : 'ltr'}>
       <WizardHeader
         label={isHe ? currentPhase?.he : currentPhase?.en}
         segments={steps.map((_, idx) => ({
@@ -807,7 +827,14 @@ export function OnboardingFlow() {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="w-full"
           >
-            <div className="bg-card border border-border rounded-2xl shadow-lg p-6 space-y-6">
+            <div
+              className={cn(
+                "border rounded-2xl p-6 space-y-6",
+                cinematic
+                  ? "bg-slate-950/55 border-white/10 shadow-[0_25px_120px_rgba(2,6,23,0.58)] backdrop-blur-2xl"
+                  : "bg-card border-border shadow-lg"
+              )}
+            >
               {/* Question */}
               <div className="text-center space-y-2">
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">

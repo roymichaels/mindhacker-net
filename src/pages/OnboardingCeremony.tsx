@@ -20,6 +20,8 @@ import {
   Compass, Award, BarChart3, Calendar,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { featureFlags } from '@/lib/featureFlags';
+import { CinematicOnboardingStage } from '@/components/story/CinematicOnboardingStage';
 
 const PILLAR_ICONS: Record<string, React.ElementType> = {
   consciousness: Eye,
@@ -265,8 +267,8 @@ export default function OnboardingCeremony() {
     growth: { he: 'צמיחה', en: 'Growth' },
   };
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8 overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
+  const content = (
+    <div className={cn("min-h-screen flex flex-col items-center justify-center px-4 py-8 overflow-y-auto", featureFlags.enableCinematicOnboarding ? "bg-transparent" : "bg-background")} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Progress dots */}
       <div className="fixed top-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
         {[0, 1, 2].map(i => (
@@ -654,4 +656,14 @@ export default function OnboardingCeremony() {
       </motion.div>
     </div>
   );
+
+  if (featureFlags.enableCinematicOnboarding) {
+    return (
+      <CinematicOnboardingStage>
+        {content}
+      </CinematicOnboardingStage>
+    );
+  }
+
+  return content;
 }

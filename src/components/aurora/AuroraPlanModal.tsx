@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Target, CheckCircle2, Circle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { AIONDialogShell } from '@/components/orb/AIONSignature';
+import { StoryPlanSurface } from '@/components/story/StorySurfaceShell';
 
 interface AuroraPlanModalProps {
   open: boolean;
@@ -44,13 +44,12 @@ export function AuroraPlanModal({ open, onOpenChange }: AuroraPlanModalProps) {
   const total = actions.length;
 
   return (
-    <AIONDialogShell
+    <StoryPlanSurface
       open={open}
       onOpenChange={onOpenChange}
       title={isHe ? 'התוכנית שלי' : 'My Plan'}
       subtitle={`${done}/${total} ${isHe ? 'הושלמו' : 'done'}`}
       description="AION plan overview"
-      icon={<Target className="w-4 h-4" />}
       className="max-w-lg h-[80vh]"
     >
       <ScrollArea className="flex-1 min-h-0">
@@ -98,6 +97,6 @@ export function AuroraPlanModal({ open, onOpenChange }: AuroraPlanModalProps) {
           )}
         </div>
       </ScrollArea>
-    </AIONDialogShell>
+    </StoryPlanSurface>
   );
 }
