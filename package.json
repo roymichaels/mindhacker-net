@@ -13,7 +13,9 @@
     "lint": "turbo run lint --filter=@evolve/app",
     "test": "turbo run test",
     "build:app": "npm run build --workspace @evolve/app",
-    "dev:app": "npm run dev --workspace @evolve/app"
+    "dev:app": "npm run dev --workspace @evolve/app",
+    "dev:game-server": "npm run dev --workspace @evolve/game-server",
+    "build:game-server": "npm run build --workspace @evolve/game-server"
   },
   "devDependencies": {
     "turbo": "^2.0.0"

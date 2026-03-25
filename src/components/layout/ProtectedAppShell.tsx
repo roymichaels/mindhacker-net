@@ -11,6 +11,7 @@ import { SidebarProvider } from '@/contexts/SidebarContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { OnboardingGate } from '@/components/layout/OnboardingGate';
 import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
+import GameLayerBootstrap from '@/components/game/GameLayerBootstrap';
 
 const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
 
@@ -22,6 +23,7 @@ export default function ProtectedAppShell() {
           <SidebarProvider>
             <Suspense fallback={<PageSkeleton />}>
               <DashboardLayout>
+                <GameLayerBootstrap />
                 <Outlet />
               </DashboardLayout>
             </Suspense>
