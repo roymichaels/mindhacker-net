@@ -55,7 +55,7 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const origin = req.headers.get("origin") || "https://mind-os-space.lovable.app";
+    const origin = req.headers.get("origin") || Deno.env.get("SITE_URL") || "https://mindos.space";
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,

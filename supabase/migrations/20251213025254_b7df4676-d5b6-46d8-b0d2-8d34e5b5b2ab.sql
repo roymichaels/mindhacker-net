@@ -13,7 +13,7 @@ DECLARE
   v_supabase_url TEXT;
 BEGIN
   -- Get environment variables
-  v_supabase_url := 'https://tsvfsbluyuaajqmkpzdv.supabase.co';
+  v_supabase_url := 'https://voiomhujdmadsidbqskp.supabase.co';
   
   -- Call the push-notifications edge function
   PERFORM net.http_post(

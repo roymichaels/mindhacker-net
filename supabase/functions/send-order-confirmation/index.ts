@@ -63,7 +63,7 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     const isRTL = language === 'he';
-    const siteUrl = Deno.env.get("SITE_URL") || "https://tsvfsbluyuaajqmkpzdv.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://mindos.space";
     const displayName = userName || userEmail.split('@')[0];
 
     // Get WhatsApp number from site settings

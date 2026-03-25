@@ -8,6 +8,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { parseAllTags, stripAllTags } from '@/lib/commandBus';
 import { useCommandBus } from './useCommandBus';
 
+const AURORA_CHAT_URL = `${import.meta.env.VITE_AGENT_API_BASE_URL || ''}/api/aurora-chat`;
+
 interface Message {
   id: string;
   conversation_id: string;
@@ -271,17 +273,18 @@ export const useAuroraChat = (conversationId: string | null) => {
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
+        AURORA_CHAT_URL,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             messages: chatMessages,
             userId: user.id,
+            conversationId,
+            sessionKey: `${user.id}:${conversationId}`,
             language,
             pillar: chatContext?.activePillar || null,
             hasImages: !!imageBase64,

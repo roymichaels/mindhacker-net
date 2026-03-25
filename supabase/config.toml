@@ -1,8 +1,4 @@
-project_id = "tsvfsbluyuaajqmkpzdv"
-
-# DEPRECATED: Use aurora-chat with mode='widget' instead
-[functions.chat-assistant]
-verify_jwt = false
+project_id = "voiomhujdmadsidbqskp"
 
 [functions.aurora-chat]
 verify_jwt = false
@@ -25,9 +21,6 @@ verify_jwt = true
 [functions.push-notifications]
 verify_jwt = false
 
-[functions.submit-lead]
-verify_jwt = false
-
 [functions.get-audio-by-token]
 verify_jwt = false
 
@@ -37,22 +30,7 @@ verify_jwt = true
 [functions.get-video-by-token]
 verify_jwt = false
 
-[functions.submit-consciousness-leap-lead]
-verify_jwt = false
-
-[functions.validate-consciousness-leap-token]
-verify_jwt = false
-
-[functions.submit-consciousness-leap-application]
-verify_jwt = false
-
-[functions.generate-analytics-report]
-verify_jwt = false
-
 [functions.send-welcome-email]
-verify_jwt = false
-
-[functions.send-form-pdf-email]
 verify_jwt = false
 
 [functions.send-newsletter]
@@ -70,16 +48,10 @@ verify_jwt = false
 [functions.generate-hypnosis-script]
 verify_jwt = true
 
-[functions.text-to-speech]
-verify_jwt = false
-
 [functions.ai-hypnosis]
 verify_jwt = true
 
 [functions.elevenlabs-tts]
-verify_jwt = false
-
-[functions.generate-first-week-actions]
 verify_jwt = false
 
 [functions.generate-launchpad-summary]
@@ -98,9 +70,6 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.generate-branding-suggestions]
-verify_jwt = false
-
-[functions.generate-health-plan]
 verify_jwt = false
 
 [functions.stripe-webhook]
@@ -127,19 +96,7 @@ verify_jwt = false
 [functions.generate-execution-steps]
 verify_jwt = false
 
-[functions.generate-weekly-build]
-verify_jwt = false
-
-[functions.generate-daily-quests]
-verify_jwt = false
-
 [functions.generate-landing-page]
-verify_jwt = false
-
-[functions.generate-data-snapshot]
-verify_jwt = false
-
-[functions.data-marketplace-api]
 verify_jwt = false
 
 [functions.generate-tactical-schedule]

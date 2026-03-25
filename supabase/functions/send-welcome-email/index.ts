@@ -49,7 +49,7 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    const siteUrl = Deno.env.get("SITE_URL") || "https://tsvfsbluyuaajqmkpzdv.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://mindos.space";
     const isRTL = language === 'he';
     
     // Get the introspection form token

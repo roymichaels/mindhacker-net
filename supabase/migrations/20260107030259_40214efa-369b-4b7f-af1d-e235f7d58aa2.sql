@@ -71,11 +71,17 @@ END;
 $$;
 
 -- Create trigger for consciousness leap applications
-DROP TRIGGER IF EXISTS trigger_notify_consciousness_leap ON public.consciousness_leap_applications;
-CREATE TRIGGER trigger_notify_consciousness_leap
-AFTER INSERT ON public.consciousness_leap_applications
-FOR EACH ROW
-EXECUTE FUNCTION public.notify_consciousness_leap_application();
+DO $$
+BEGIN
+  IF to_regclass('public.consciousness_leap_applications') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS trigger_notify_consciousness_leap ON public.consciousness_leap_applications';
+    EXECUTE 'CREATE TRIGGER trigger_notify_consciousness_leap
+      AFTER INSERT ON public.consciousness_leap_applications
+      FOR EACH ROW
+      EXECUTE FUNCTION public.notify_consciousness_leap_application()';
+  END IF;
+END
+$$;
 
 -- Create function for lead notifications (general leads)
 CREATE OR REPLACE FUNCTION public.notify_new_lead()
@@ -131,11 +137,17 @@ END;
 $$;
 
 -- Create trigger for consciousness leap leads
-DROP TRIGGER IF EXISTS trigger_notify_consciousness_leap_lead ON public.consciousness_leap_leads;
-CREATE TRIGGER trigger_notify_consciousness_leap_lead
-AFTER INSERT ON public.consciousness_leap_leads
-FOR EACH ROW
-EXECUTE FUNCTION public.notify_consciousness_leap_lead();
+DO $$
+BEGIN
+  IF to_regclass('public.consciousness_leap_leads') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS trigger_notify_consciousness_leap_lead ON public.consciousness_leap_leads';
+    EXECUTE 'CREATE TRIGGER trigger_notify_consciousness_leap_lead
+      AFTER INSERT ON public.consciousness_leap_leads
+      FOR EACH ROW
+      EXECUTE FUNCTION public.notify_consciousness_leap_lead()';
+  END IF;
+END
+$$;
 
 -- Create function for personal hypnosis order notifications (purchases with specific package types)
 CREATE OR REPLACE FUNCTION public.notify_personal_hypnosis_order()

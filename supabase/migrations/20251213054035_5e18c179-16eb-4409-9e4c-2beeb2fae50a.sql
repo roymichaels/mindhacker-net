@@ -10,10 +10,10 @@ DECLARE
 BEGIN
   -- Call the push-notifications edge function using net.http_post
   SELECT net.http_post(
-    url := 'https://tsvfsbluyuaajqmkpzdv.supabase.co/functions/v1/push-notifications',
+    url := 'https://voiomhujdmadsidbqskp.supabase.co/functions/v1/push-notifications',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzdmZzYmx1eXVhYWpxbWtwemR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNDY3ODAsImV4cCI6MjA3ODcyMjc4MH0.25iZhw71Zlha_JNO8pBDTaxPy4IuTGKFlcP3D80Md1Y'
+      'Authorization', 'Bearer sb_publishable_IwjpGxraAQjdV_83wETmKA_tbnmLufc'
     ),
     body := jsonb_build_object(
       'action', 'send',

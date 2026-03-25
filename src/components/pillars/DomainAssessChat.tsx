@@ -31,7 +31,7 @@ interface ChatMessage {
   created_at: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/domain-assess`;
+const CHAT_URL = `${import.meta.env.VITE_AGENT_API_BASE_URL || ''}/api/domain-assess`;
 
 /** Static intro messages per domain — explains goal, why we ask, what we'll cover */
 const DOMAIN_INTROS: Record<string, { he: string; en: string }> = {
@@ -266,13 +266,26 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
     onDone: () => void,
     onToolCall: (args: any) => void,
   ) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const authToken =
+      session?.access_token ||
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
     const resp = await fetch(CHAT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        Authorization: `Bearer ${authToken}`,
       },
-      body: JSON.stringify({ messages: msgs, language, domainId }),
+      body: JSON.stringify({
+        messages: msgs,
+        language,
+        domainId,
+        conversationId,
+        userId: user?.id || null,
+        sessionKey: `${user?.id || 'guest'}:${domainId}:${conversationId || 'pending'}`,
+      }),
     });
 
     if (!resp.ok || !resp.body) throw new Error(`Stream failed: ${resp.status}`);

@@ -9,8 +9,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_supabase_url TEXT := 'https://tsvfsbluyuaajqmkpzdv.supabase.co';
-  v_anon_key TEXT := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzdmZzYmx1eXVhYWpxbWtwemR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNDY3ODAsImV4cCI6MjA3ODcyMjc4MH0.25iZhw71Zlha_JNO8pBDTaxPy4IuTGKFlcP3D80Md1Y';
+  v_supabase_url TEXT := 'https://voiomhujdmadsidbqskp.supabase.co';
+  v_anon_key TEXT := 'sb_publishable_IwjpGxraAQjdV_83wETmKA_tbnmLufc';
 BEGIN
   -- Call the push-notifications edge function
   PERFORM extensions.http_post(
