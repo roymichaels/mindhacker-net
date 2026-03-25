@@ -127,9 +127,9 @@
    * Activated by next-themes adding .dark class to <html>
    */
   html.dark, .dark {
-    /* Dark backgrounds - Deep blue-black */
-    --background: 220 30% 6%;
-    --background-end: 220 25% 9%;
+    /* Dark backgrounds - Deep purple-black */
+    --background: 260 60% 5%;
+    --background-end: 260 50% 8%;
     --foreground: 0 0% 100%;
 
     --card: 220 25% 11%;
