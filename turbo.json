@@ -6,9 +6,7 @@
     "SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
     "OPENROUTER_API_KEY",
-    "AI_IMAGE_API_KEY",
-    "AI_IMAGE_MODEL",
-    "AI_IMAGE_BASE_URL"
+    "OPENROUTER_MODEL_STORY_IMAGE"
   ],
   "tasks": {
     "build": {
