@@ -1,18 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 import { getVisibleTabs } from '@/navigation/osNav';
 
-const TAB_COLORS: Record<string, string> = {
-  fm: 'text-amber-500',
-  mindos: 'text-cyan-400',
-  community: 'text-emerald-500',
-  study: 'text-violet-400',
+const TAB_COLORS: Record<string, { solid: string; text: string; inactive: string }> = {
+  fm: { solid: 'bg-amber-500', text: 'text-white', inactive: 'text-amber-400/60' },
+  mindos: { solid: 'bg-cyan-500', text: 'text-white', inactive: 'text-cyan-400/60' },
+  community: { solid: 'bg-emerald-500', text: 'text-white', inactive: 'text-emerald-400/60' },
+  study: { solid: 'bg-violet-500', text: 'text-white', inactive: 'text-violet-400/60' },
 };
 
 export function BottomTabBar() {
-  const { language } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
@@ -39,26 +37,30 @@ export function BottomTabBar() {
   };
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="grid h-[84px] grid-cols-4 px-2">
+    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/100">
+      <div className="flex items-center justify-around h-[84px] px-2">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
-          const color = TAB_COLORS[tab.id] || 'text-primary';
+          const colors = TAB_COLORS[tab.id] || TAB_COLORS.mindos;
+          const label = tab.labelEn;
 
           return (
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-2xl transition-colors',
-                active ? 'bg-muted/70' : 'hover:bg-muted/40'
-              )}
+              aria-label={label}
+              title={label}
+              className="relative flex items-center justify-center px-2 py-1.5 transition-all min-w-[60px]"
             >
-              <Icon className={cn('h-5 w-5 transition-colors', active ? color : 'text-muted-foreground')} />
-              <span className={cn('text-[11px] font-semibold', active ? 'text-foreground' : 'text-muted-foreground')}>
-                {language === 'he' ? tab.labelHe : tab.labelEn}
-              </span>
+              <div
+                className={cn(
+                  'w-14 h-14 rounded-2xl flex items-center justify-center transition-all',
+                  active ? `${colors.solid} shadow-lg ring-2 ring-white/80` : 'bg-muted/40'
+                )}
+              >
+                <Icon className={cn('h-7 w-7 transition-colors', active ? colors.text : colors.inactive)} />
+              </div>
             </button>
           );
         })}

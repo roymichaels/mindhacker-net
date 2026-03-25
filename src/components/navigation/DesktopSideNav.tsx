@@ -4,15 +4,31 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 import { getVisibleTabs } from '@/navigation/osNav';
 
-const TAB_COLORS: Record<string, string> = {
-  fm: 'text-amber-500',
-  mindos: 'text-cyan-400',
-  community: 'text-emerald-500',
-  study: 'text-violet-400',
+const TAB_COLORS: Record<string, { bg: string; active: string; inactive: string }> = {
+  fm: {
+    bg: 'bg-amber-500/15 border-amber-500/30',
+    active: 'text-amber-300',
+    inactive: 'text-amber-400/60',
+  },
+  mindos: {
+    bg: 'bg-cyan-500/15 border-cyan-500/30',
+    active: 'text-cyan-300',
+    inactive: 'text-cyan-400/60',
+  },
+  community: {
+    bg: 'bg-emerald-500/15 border-emerald-500/30',
+    active: 'text-emerald-300',
+    inactive: 'text-emerald-400/60',
+  },
+  study: {
+    bg: 'bg-violet-500/15 border-violet-500/30',
+    active: 'text-violet-300',
+    inactive: 'text-violet-400/60',
+  },
 };
 
 export function DesktopSideNav() {
-  const { language, isRTL } = useTranslation();
+  const { isRTL } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
@@ -39,7 +55,7 @@ export function DesktopSideNav() {
   return (
     <nav
       className={cn(
-        'hidden md:flex w-52 shrink-0 flex-col gap-2 border-border/50 bg-background px-2 py-3',
+        'hidden md:flex w-20 shrink-0 flex-col items-center gap-3 border-border/50 bg-background px-2 py-4',
         isRTL ? 'border-l' : 'border-r'
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
@@ -47,23 +63,21 @@ export function DesktopSideNav() {
       {tabs.map((tab) => {
         const active = isActive(tab.path);
         const Icon = tab.icon;
-        const color = TAB_COLORS[tab.id] || 'text-primary';
+        const colors = TAB_COLORS[tab.id] || TAB_COLORS.mindos;
+        const label = tab.labelEn;
 
         return (
           <button
             key={tab.id}
             onClick={() => navigate(tab.path)}
+            aria-label={label}
+            title={label}
             className={cn(
-              'flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors',
-              active
-                ? 'border-primary/20 bg-muted text-foreground'
-                : 'border-transparent bg-transparent text-muted-foreground hover:bg-muted/40'
+              'flex h-14 w-14 items-center justify-center rounded-2xl border transition-all',
+              active ? `${colors.bg} shadow-lg ring-2 ring-white/10` : 'border-transparent bg-muted/25 hover:bg-muted/40'
             )}
           >
-            <Icon className={cn('h-5 w-5 shrink-0', active ? color : 'text-muted-foreground')} />
-            <span className={cn('truncate', active ? 'text-foreground' : 'text-muted-foreground')}>
-              {language === 'he' ? tab.labelHe : tab.labelEn}
-            </span>
+            <Icon className={cn('h-6 w-6', active ? colors.active : colors.inactive)} />
           </button>
         );
       })}
