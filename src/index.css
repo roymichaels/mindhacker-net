@@ -164,19 +164,19 @@
 
     --border: 210 30% 25%;
     --input: 220 25% 18%;
-    --ring: 204 88% 53%;
+    --ring: 292 95% 73%;
 
     --glass-bg: 220 25% 11%;
-    --glass-border: 204 88% 53%;
+    --glass-border: 292 95% 73%;
 
     --sidebar-background: 220 30% 6%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 204 88% 53%;
-    --sidebar-primary-foreground: 220 30% 6%;
+    --sidebar-primary: 292 95% 73%;
+    --sidebar-primary-foreground: 260 60% 5%;
     --sidebar-accent: 220 25% 16%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 210 30% 25%;
-    --sidebar-ring: 204 88% 53%;
+    --sidebar-ring: 292 95% 73%;
   }
 }
 
