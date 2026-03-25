@@ -137,14 +137,14 @@
     --popover: 220 25% 11%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Twitter Blue */
-    --primary: 204 88% 53%;
-    --primary-foreground: 220 30% 6%;
-    --primary-glow: 204 92% 62%;
+    /* Primary - Purple */
+    --primary: 292 95% 73%;
+    --primary-foreground: 260 60% 5%;
+    --primary-glow: 292 95% 80%;
 
-    /* Secondary - Lighter Blue */
-    --secondary: 204 80% 58%;
-    --secondary-foreground: 220 30% 6%;
+    /* Secondary - Deeper Purple */
+    --secondary: 270 95% 65%;
+    --secondary-foreground: 260 60% 5%;
 
     --muted: 220 25% 16%;
     --muted-foreground: 210 20% 75%;
