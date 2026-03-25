@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Brain, ClipboardList, Target, Briefcase, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -13,6 +13,11 @@ const MINDOS_SECTIONS = [
 
 export default function MindOSPage() {
   const { language, isRTL } = useTranslation();
+  const location = useLocation();
+
+  if (location.pathname === '/mindos/tactics') {
+    return <Outlet />;
+  }
 
   return (
     <div className="flex min-h-full flex-col" dir={isRTL ? 'rtl' : 'ltr'}>

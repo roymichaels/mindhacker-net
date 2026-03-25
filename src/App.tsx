@@ -293,7 +293,7 @@ const App = () => (
                                                 <Route path="/messages" element={<Messages />} />
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
                                                 <Route path="/mindos" element={<MindOSPage />}>
-                                                  <Route index element={<Navigate to="/mindos/chat" replace />} />
+                                                  <Route index element={<Navigate to="/mindos/tactics" replace />} />
                                                   <Route path="chat" element={<MindOSChatPage />} />
                                                   <Route path="tactics" element={<MindOSTacticsPage />} />
                                                   <Route path="strategy" element={<MindOSStrategyPage />} />

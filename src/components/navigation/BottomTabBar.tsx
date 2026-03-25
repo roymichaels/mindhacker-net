@@ -20,7 +20,7 @@ export function BottomTabBar() {
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isActive = (path: string) => {
-    if (path === '/mindos/chat') {
+    if (path === '/mindos/tactics') {
       return (
         location.pathname.startsWith('/mindos') ||
         location.pathname === '/play' ||

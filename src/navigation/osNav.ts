@@ -17,7 +17,7 @@ export interface OsTab {
 
 export const OS_TABS: OsTab[] = [
   { id: 'fm', path: '/fm', icon: Store, labelEn: 'Free Market', labelHe: 'שוק חופשי' },
-  { id: 'mindos', path: '/mindos/chat', icon: Brain, labelEn: 'MindOS', labelHe: 'MindOS' },
+  { id: 'mindos', path: '/mindos/tactics', icon: Brain, labelEn: 'MindOS', labelHe: 'MindOS' },
   { id: 'community', path: '/community', icon: Users, labelEn: 'Community', labelHe: 'קהילה' },
   { id: 'study', path: '/learn', icon: GraduationCap, labelEn: 'Study', labelHe: 'לימוד' },
 ];
