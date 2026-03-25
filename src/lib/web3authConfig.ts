@@ -4,7 +4,7 @@
  * Notes:
  * - Client ID is a publishable key, safe for frontend usage.
  * - Defaults to a network that matches the configured client ID.
- * - Includes the AA chain config expected by the dashboard smart-account setup.
+ * - Keep startup auth-only. Do not initialize smart-account / AA features here.
  */
 import {
   CHAIN_NAMESPACES,
@@ -58,26 +58,6 @@ const CHAINS = [DEFAULT_CHAIN, MAINNET_CHAIN, HOLESKY_CHAIN].filter(
   (chain, index, chains) =>
     chains.findIndex((candidate) => candidate.chainId === chain.chainId) === index
 );
-const ACCOUNT_ABSTRACTION_CHAINS = [
-  {
-    chainId: MAINNET_CHAIN.chainId,
-    bundlerConfig: {
-      url:
-        import.meta.env.VITE_WEB3AUTH_BUNDLER_URL_MAINNET ||
-        import.meta.env.VITE_WEB3AUTH_BUNDLER_URL ||
-        'https://public.pimlico.io/v2/1/rpc',
-    },
-  },
-  {
-    chainId: HOLESKY_CHAIN.chainId,
-    bundlerConfig: {
-      url:
-        import.meta.env.VITE_WEB3AUTH_BUNDLER_URL_HOLESKY ||
-        'https://public.pimlico.io/v2/17000/rpc',
-    },
-  },
-];
-
 const withConnectionId = (
   config: NonNullable<LoginMethodConfig[keyof LoginMethodConfig]>,
   authConnectionId?: string
@@ -131,13 +111,9 @@ if (import.meta.env.DEV && !import.meta.env.VITE_WEB3AUTH_NETWORK) {
 export const web3AuthOptions: Web3AuthOptions = {
   clientId: CLIENT_ID,
   web3AuthNetwork: WEB3AUTH_NETWORK_VALUE,
-  enableLogging: import.meta.env.DEV,
+  enableLogging: false,
   defaultChainId: DEFAULT_CHAIN.chainId,
   chains: CHAINS,
-  accountAbstractionConfig: {
-    chains: ACCOUNT_ABSTRACTION_CHAINS,
-  },
-  useAAWithExternalWallet: false,
   modalConfig: {
     connectors: {
       [WALLET_CONNECTORS.AUTH]: {
@@ -145,14 +121,18 @@ export const web3AuthOptions: Web3AuthOptions = {
         showOnModal: true,
         loginMethods,
       },
-      [WALLET_CONNECTORS.WALLET_CONNECT_V2]: {
-        label: 'wallet_connect',
-        showOnModal: ENABLE_EXTERNAL_WALLETS,
-      },
-      [WALLET_CONNECTORS.METAMASK]: {
-        label: 'metamask',
-        showOnModal: ENABLE_EXTERNAL_WALLETS,
-      },
+      ...(ENABLE_EXTERNAL_WALLETS
+        ? {
+            [WALLET_CONNECTORS.WALLET_CONNECT_V2]: {
+              label: 'wallet_connect',
+              showOnModal: true,
+            },
+            [WALLET_CONNECTORS.METAMASK]: {
+              label: 'metamask',
+              showOnModal: true,
+            },
+          }
+        : {}),
     },
   },
 };
