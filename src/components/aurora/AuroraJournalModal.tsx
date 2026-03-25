@@ -1,6 +1,7 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Moon, Heart } from 'lucide-react';
 import { JournalTab } from './JournalTab';
 import type { JournalType } from '@/services/journalEntries';
+import { AIONDialogShell } from '@/components/orb/AIONSignature';
 
 interface AuroraJournalModalProps {
   type: JournalType;
@@ -9,11 +10,20 @@ interface AuroraJournalModalProps {
 }
 
 export function AuroraJournalModal({ type, open, onOpenChange }: AuroraJournalModalProps) {
+  const isDream = type === 'dream';
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg h-[80vh] p-0 flex flex-col overflow-hidden">
-        <JournalTab type={type} />
-      </DialogContent>
-    </Dialog>
+    <AIONDialogShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isDream ? 'Dreams' : 'Gratitude'}
+      subtitle={isDream ? 'Capture symbols, fragments, and meanings' : 'Record what grounded you today'}
+      description={`AION ${type} journal`}
+      icon={isDream ? <Moon className="w-4 h-4" /> : <Heart className="w-4 h-4" />}
+      className="max-w-lg h-[80vh]"
+      contentClassName="overflow-hidden"
+    >
+      <JournalTab type={type} />
+    </AIONDialogShell>
   );
 }
