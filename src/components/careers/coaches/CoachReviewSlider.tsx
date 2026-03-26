@@ -217,5 +217,3 @@ const CoachReviewSlider = ({ reviews, testimonials = [] }: CoachReviewSliderProp
 };
 
 export default CoachReviewSlider;
-/** @deprecated Use CoachReviewSlider */
-export { CoachReviewSlider as PractitionerReviewSlider };

@@ -1,7 +1,6 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMyCoachProfile, useCoachReviewStats, useCoachUpcomingBookings, useCoachPlansCount } from '@/domain/coaches';
-import { useCoachClientStats } from '@/hooks/useCoachClients';
-import { useCoachLeadStats } from '@/hooks/useCoachLeads';
+import { useCoachClientStats, useCoachLeadStats } from '@/hooks/coaches';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart3, Users, Star, Calendar, TrendingUp, Target, DollarSign, UserCheck } from 'lucide-react';

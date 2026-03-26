@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useCoachLeads, useCoachLeadStats, useAddCoachLead, useUpdateCoachLead, useDeleteCoachLead } from '@/hooks/useCoachLeads';
+import { useCoachLeads, useCoachLeadStats, useAddCoachLead, useUpdateCoachLead, useDeleteCoachLead } from '@/hooks/coaches';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

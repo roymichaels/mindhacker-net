@@ -3,7 +3,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useMyCoachProfile } from '@/domain/coaches';
-import { PractitionerClient } from '@/hooks/useCoachClients';
+import { PractitionerClient } from '@/hooks/coaches';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';

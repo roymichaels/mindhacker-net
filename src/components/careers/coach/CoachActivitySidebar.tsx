@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelLeftClose, PanelLeftOpen, UserPlus, MessageSquare, Calendar, Search, Brain, Loader2 } from 'lucide-react';
-import { useCoachClients, useCoachClientStats, useAddCoachClient, PractitionerClient } from '@/hooks/useCoachClients';
+import { useCoachClients, useCoachClientStats, useAddCoachClient, PractitionerClient } from '@/hooks/coaches';
 import { useMyCoachProfile, useCoachActivityFeed } from '@/domain/coaches';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';

@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useCoachClients } from '@/hooks/useCoachClients';
+import { useCoachClients } from '@/hooks/coaches';
 import { useMyCoachProfile } from '@/domain/coaches';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';

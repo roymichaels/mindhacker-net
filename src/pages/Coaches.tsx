@@ -4,7 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useCoachSubscription } from '@/hooks/useCoachSubscription';
+import { useCoachSubscription } from '@/hooks/coaches';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { toast } from 'sonner';
 import CareerHub from './CareerHub';

@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useCoachClientStats } from '@/hooks/useCoachClients';
+import { useCoachClientStats } from '@/hooks/coaches';
 import { useMyCoachProfile, useCoachReviewStats, useCoachUpcomingBookings, useCoachPlansCount } from '@/domain/coaches';
 import { Sparkles, DollarSign, FileText } from 'lucide-react';
 import AutoPlanEngineModal from './AutoPlanEngineModal';

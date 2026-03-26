@@ -12,7 +12,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useMyCoachProfile, useCoachReviewStats, useFirstCoachSlug, useCoach } from '@/domain/coaches';
-import { useCoachClientStats } from '@/hooks/useCoachClients';
+import { useCoachClientStats } from '@/hooks/coaches';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

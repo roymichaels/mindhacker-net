@@ -1,6 +1,6 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { Users, Calendar, TrendingUp } from 'lucide-react';
-import { useCoachClientStats } from '@/hooks/useCoachClients';
+import { useCoachClientStats } from '@/hooks/coaches';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MetricCard } from '@/components/aurora-ui/MetricCard';
 

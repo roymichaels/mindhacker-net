@@ -6,7 +6,7 @@ import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMyCoachProfile, useCoachReviewStats, useFirstCoachSlug, useCoach } from '@/domain/coaches';
-import { useCoachClientStats, useCoachClients, useAddCoachClient, PractitionerClient } from '@/hooks/useCoachClients';
+import { useCoachClientStats, useCoachClients, useAddCoachClient, PractitionerClient } from '@/hooks/coaches';
 import { useCoachActivityFeed } from '@/domain/coaches';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';

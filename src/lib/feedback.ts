@@ -184,9 +184,6 @@ export const showEnergyEarned = (amount: number): void => {
   toast.success(msg);
 };
 
-/** @deprecated Use showEnergyEarned */
-export const showTokensEarned = showEnergyEarned;
-
 /**
  * Show level up toast with new level
  */

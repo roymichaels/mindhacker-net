@@ -165,5 +165,3 @@ export function CoachesModal({ open, onOpenChange }: CoachesModalProps) {
   );
 }
 
-/** @deprecated Use CoachesModal */
-export { CoachesModal as PractitionersModal };

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, MessageSquare, UserPlus, MoreVertical, Eye } from 'lucide-react';
-import { useCoachClients, useCoachClientStats } from '@/hooks/useCoachClients';
+import { useCoachClients, useCoachClientStats } from '@/hooks/coaches';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';

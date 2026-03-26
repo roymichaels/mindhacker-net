@@ -97,5 +97,3 @@ const CoachCard = ({ practitioner, onSelect }: CoachCardProps) => {
 };
 
 export default CoachCard;
-/** @deprecated Use CoachCard */
-export { CoachCard as PractitionerCard };

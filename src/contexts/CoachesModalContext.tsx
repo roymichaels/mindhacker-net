@@ -21,9 +21,6 @@ export const useCoachesModal = () => {
   return ctx;
 };
 
-/** @deprecated Use useCoachesModal */
-export const usePractitionersModal = useCoachesModal;
-
 export const CoachesModalProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [_selectedId, setSelectedId] = useState<string | undefined>();
@@ -41,5 +38,3 @@ export const CoachesModalProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-/** @deprecated Use CoachesModalProvider */
-export const PractitionersModalProvider = CoachesModalProvider;

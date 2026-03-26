@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useCoachingJourneyProgress, COACHING_STEPS, COACHING_PHASES } from '@/hooks/useCoachingJourneyProgress';
+import { useCoachingJourneyProgress, COACHING_STEPS, COACHING_PHASES } from '@/hooks/coaches';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journeys/shared';

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, User, FileText } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useCoachClientStats } from '@/hooks/useCoachClients';
+import { useCoachClientStats } from '@/hooks/coaches';
 import { useMyCoachProfile, useCoach, useCoachReviewStats, useFirstCoachSlug } from '@/domain/coaches';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
