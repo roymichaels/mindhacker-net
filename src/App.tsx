@@ -31,7 +31,6 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
-import Web3AuthProviderWrapper from "@/providers/Web3AuthProviderWrapper";
 import { StoryWorldProvider } from "@/contexts/StoryWorldContext";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -234,29 +233,28 @@ const App = () => (
         <BackgroundEffect />
         <div className="relative z-10">
           <BrowserRouter>
-            <Web3AuthProviderWrapper>
-              <AuthProvider>
-                <AuroraChatProvider>
-                  <LanguageProvider>
-                    <AuthModalProvider>
-                      <GameStateProvider>
-                        <SubscriptionsModalProvider>
-                          <CoachesModalProvider>
-                            <WalletModalProvider>
-                              <SoulAvatarProvider>
-                                <ProfileModalProvider>
-                                  <TooltipProvider>
-                                    <Toaster />
-                                    <Sonner />
+            <AuthProvider>
+              <AuroraChatProvider>
+                <LanguageProvider>
+                  <AuthModalProvider>
+                    <GameStateProvider>
+                      <SubscriptionsModalProvider>
+                        <CoachesModalProvider>
+                          <WalletModalProvider>
+                            <SoulAvatarProvider>
+                              <ProfileModalProvider>
+                                <TooltipProvider>
+                                  <Toaster />
+                                  <Sonner />
 
-                                    <FlowAuditProvider>
-                                      <AffiliateTracker />
-                                      <UTMTrackerMount />
-                                      <AnalyticsProvider>
-                                        <StoryWorldProvider>
-                                          <SmartOnboardingProvider>
-                                            <Suspense fallback={<PageSkeleton />}>
-                                              <Routes>
+                                  <FlowAuditProvider>
+                                    <AffiliateTracker />
+                                    <UTMTrackerMount />
+                                    <AnalyticsProvider>
+                                      <StoryWorldProvider>
+                                        <SmartOnboardingProvider>
+                                          <Suspense fallback={<PageSkeleton />}>
+                                            <Routes>
                                               {/* Public routes */}
                                               <Route path="/" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
@@ -454,23 +452,22 @@ const App = () => (
                                               <Suspense fallback={null}><AIONFloatingWidget /></Suspense>
                                               <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
-                                            </Suspense>
-                                          </SmartOnboardingProvider>
-                                        </StoryWorldProvider>
-                                      </AnalyticsProvider>
-                                    </FlowAuditProvider>
-                                  </TooltipProvider>
-                                </ProfileModalProvider>
-                              </SoulAvatarProvider>
-                            </WalletModalProvider>
-                          </CoachesModalProvider>
-                        </SubscriptionsModalProvider>
-                      </GameStateProvider>
-                    </AuthModalProvider>
-                  </LanguageProvider>
-                </AuroraChatProvider>
-              </AuthProvider>
-            </Web3AuthProviderWrapper>
+                                          </Suspense>
+                                        </SmartOnboardingProvider>
+                                      </StoryWorldProvider>
+                                    </AnalyticsProvider>
+                                  </FlowAuditProvider>
+                                </TooltipProvider>
+                              </ProfileModalProvider>
+                            </SoulAvatarProvider>
+                          </WalletModalProvider>
+                        </CoachesModalProvider>
+                      </SubscriptionsModalProvider>
+                    </GameStateProvider>
+                  </AuthModalProvider>
+                </LanguageProvider>
+              </AuroraChatProvider>
+            </AuthProvider>
           </BrowserRouter>
         </div>
       </ThemeProvider>
