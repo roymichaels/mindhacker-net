@@ -62,8 +62,19 @@ const HOLESKY_CHAIN = {
   logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
 };
 
+const SEPOLIA_CHAIN = {
+  chainNamespace: CHAIN_NAMESPACES.EIP155,
+  chainId: '0xaa36a7',
+  rpcTarget: 'https://ethereum-sepolia-rpc.publicnode.com',
+  displayName: 'Ethereum Sepolia',
+  blockExplorerUrl: 'https://sepolia.etherscan.io',
+  ticker: 'ETH',
+  tickerName: 'Ethereum',
+  logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+};
+
 const DEFAULT_CHAIN = IS_FALLBACK_CLIENT_ID ? HOLESKY_CHAIN : MAINNET_CHAIN;
-const CHAINS = [DEFAULT_CHAIN, MAINNET_CHAIN, HOLESKY_CHAIN].filter(
+const CHAINS = [DEFAULT_CHAIN, MAINNET_CHAIN, HOLESKY_CHAIN, SEPOLIA_CHAIN].filter(
   (chain, index, chains) =>
     chains.findIndex((candidate) => candidate.chainId === chain.chainId) === index
 );
