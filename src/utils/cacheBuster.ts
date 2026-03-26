@@ -5,7 +5,7 @@
  * - Triggers a one-time hard reload when needed
  */
 
-const CACHE_BUST_VERSION = '2026-03-20-v5';
+const CACHE_BUST_VERSION = '2026-03-25-v6';
 const CACHE_BUST_KEY = 'mindos-cache-bust-version';
 const CACHE_BUST_PARAM = 'cbv';
 

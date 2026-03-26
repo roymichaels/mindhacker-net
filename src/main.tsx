@@ -26,11 +26,19 @@ function renderApp() {
   });
 }
 
+const bootstrapReset = (globalThis as typeof globalThis & {
+  __MINDOS_BOOTSTRAP__?: Promise<unknown>;
+}).__MINDOS_BOOTSTRAP__;
+
 // Fail-safe: never block app render forever if cache APIs hang.
-Promise.race<boolean>([
-  bustOldCaches(),
-  new Promise((resolve) => setTimeout(() => resolve(false), 2000)),
-])
+Promise.resolve(bootstrapReset)
+  .catch(() => undefined)
+  .then(() =>
+    Promise.race<boolean>([
+      bustOldCaches(),
+      new Promise((resolve) => setTimeout(() => resolve(false), 2000)),
+    ])
+  )
   .then((reloading) => {
     if (!reloading) renderApp();
   })
