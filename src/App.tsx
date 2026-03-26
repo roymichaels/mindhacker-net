@@ -32,6 +32,8 @@ import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
 import { StoryWorldProvider } from "@/contexts/StoryWorldContext";
+import Web3AuthProviderWrapper from "@/providers/Web3AuthProviderWrapper";
+import Web3AuthModalBridge from "@/components/auth/Web3AuthModalBridge";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -236,16 +238,18 @@ const App = () => (
             <AuthProvider>
               <AuroraChatProvider>
                 <LanguageProvider>
-                  <AuthModalProvider>
-                    <GameStateProvider>
-                      <SubscriptionsModalProvider>
-                        <CoachesModalProvider>
-                          <WalletModalProvider>
-                            <SoulAvatarProvider>
-                              <ProfileModalProvider>
-                                <TooltipProvider>
-                                  <Toaster />
-                                  <Sonner />
+                  <Web3AuthProviderWrapper>
+                    <AuthModalProvider>
+                      <Web3AuthModalBridge />
+                      <GameStateProvider>
+                        <SubscriptionsModalProvider>
+                          <CoachesModalProvider>
+                            <WalletModalProvider>
+                              <SoulAvatarProvider>
+                                <ProfileModalProvider>
+                                  <TooltipProvider>
+                                    <Toaster />
+                                    <Sonner />
 
                                   <FlowAuditProvider>
                                     <AffiliateTracker />
@@ -457,14 +461,15 @@ const App = () => (
                                       </StoryWorldProvider>
                                     </AnalyticsProvider>
                                   </FlowAuditProvider>
-                                </TooltipProvider>
-                              </ProfileModalProvider>
-                            </SoulAvatarProvider>
-                          </WalletModalProvider>
-                        </CoachesModalProvider>
-                      </SubscriptionsModalProvider>
-                    </GameStateProvider>
-                  </AuthModalProvider>
+                                  </TooltipProvider>
+                                </ProfileModalProvider>
+                              </SoulAvatarProvider>
+                            </WalletModalProvider>
+                          </CoachesModalProvider>
+                        </SubscriptionsModalProvider>
+                      </GameStateProvider>
+                    </AuthModalProvider>
+                  </Web3AuthProviderWrapper>
                 </LanguageProvider>
               </AuroraChatProvider>
             </AuthProvider>

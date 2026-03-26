@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useCallback, useContext, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 interface AuthModalContextType {
@@ -8,7 +8,12 @@ interface AuthModalContextType {
   isAuthenticating: boolean;
 }
 
-const AUTH_RETURN_TO_KEY = "mindos_auth_return_to";
+interface AuthModalInternalContextType {
+  isAuthFlowOpen: boolean;
+  completeAuthFlow: () => void;
+  failAuthFlow: (message: string) => void;
+  cancelAuthFlow: () => void;
+}
 
 const AuthModalContext = createContext<AuthModalContextType>({
   openAuthModal: () => {},
@@ -16,82 +21,77 @@ const AuthModalContext = createContext<AuthModalContextType>({
   isAuthenticating: false,
 });
 
-export const useAuthModal = () => useContext(AuthModalContext);
+const AuthModalInternalContext = createContext<AuthModalInternalContextType>({
+  isAuthFlowOpen: false,
+  completeAuthFlow: () => {},
+  failAuthFlow: () => {},
+  cancelAuthFlow: () => {},
+});
 
-const getCurrentLocation = () => {
-  const { pathname, search, hash } = window.location;
-  return `${pathname}${search}${hash}`;
-};
+export const useAuthModal = () => useContext(AuthModalContext);
+export const useAuthModalInternal = () => useContext(AuthModalInternalContext);
 
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isAuthFlowOpen, setIsAuthFlowOpen] = useState(false);
+  const onSuccessRef = useRef<(() => void) | undefined>();
 
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "TOKEN_REFRESHED") return;
-
-      setIsAuthenticating(false);
-
-      const returnTo = sessionStorage.getItem(AUTH_RETURN_TO_KEY);
-      if (!returnTo) return;
-
-      sessionStorage.removeItem(AUTH_RETURN_TO_KEY);
-
-      const current = getCurrentLocation();
-      if (returnTo !== current) {
-        window.location.replace(returnTo);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+  const clearAuthFlow = useCallback(() => {
+    setIsAuthenticating(false);
+    setIsAuthFlowOpen(false);
   }, []);
+
+  const completeAuthFlow = useCallback(() => {
+    const onSuccess = onSuccessRef.current;
+    onSuccessRef.current = undefined;
+    clearAuthFlow();
+    onSuccess?.();
+  }, [clearAuthFlow]);
+
+  const failAuthFlow = useCallback(
+    (message: string) => {
+      onSuccessRef.current = undefined;
+      clearAuthFlow();
+      toast({
+        title: "Authentication unavailable",
+        description: message,
+        variant: "destructive",
+      });
+    },
+    [clearAuthFlow]
+  );
+
+  const cancelAuthFlow = useCallback(() => {
+    onSuccessRef.current = undefined;
+    clearAuthFlow();
+  }, [clearAuthFlow]);
 
   const openAuthModal = useCallback(
     async (_view: "login" | "signup" = "login", onSuccess?: () => void) => {
-      setIsAuthenticating(true);
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        setIsAuthenticating(false);
+      if (user?.id) {
         onSuccess?.();
         return;
       }
 
-      const returnTo = getCurrentLocation();
-      sessionStorage.setItem(AUTH_RETURN_TO_KEY, returnTo);
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}${returnTo}`,
-        },
-      });
-
-      if (error) {
-        setIsAuthenticating(false);
-        sessionStorage.removeItem(AUTH_RETURN_TO_KEY);
-        toast({
-          title: "Authentication unavailable",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      onSuccessRef.current = onSuccess;
+      setIsAuthenticating(true);
+      setIsAuthFlowOpen(true);
     },
-    []
+    [user?.id]
   );
 
   const closeAuthModal = useCallback(() => {
-    setIsAuthenticating(false);
-  }, []);
+    cancelAuthFlow();
+  }, [cancelAuthFlow]);
 
   return (
-    <AuthModalContext.Provider value={{ openAuthModal, closeAuthModal, isAuthenticating }}>
-      {children}
-    </AuthModalContext.Provider>
+    <AuthModalInternalContext.Provider
+      value={{ isAuthFlowOpen, completeAuthFlow, failAuthFlow, cancelAuthFlow }}
+    >
+      <AuthModalContext.Provider value={{ openAuthModal, closeAuthModal, isAuthenticating }}>
+        {children}
+      </AuthModalContext.Provider>
+    </AuthModalInternalContext.Provider>
   );
 }
