@@ -73,8 +73,28 @@ const SEPOLIA_CHAIN = {
   logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
 };
 
+// The fallback Web3Auth client currently returns smart-account support for
+// chain 0xe705. Web3Auth validates that every AA chain is also declared in the
+// local chain config, so include it explicitly to prevent modal init failure.
+const LINEA_SEPOLIA_CHAIN = {
+  chainNamespace: CHAIN_NAMESPACES.EIP155,
+  chainId: '0xe705',
+  rpcTarget: 'https://rpc.sepolia.linea.build',
+  displayName: 'Linea Sepolia',
+  blockExplorerUrl: 'https://sepolia.lineascan.build',
+  ticker: 'ETH',
+  tickerName: 'Ethereum',
+  logo: 'https://linea.build/icons/favicon.svg',
+};
+
 const DEFAULT_CHAIN = IS_FALLBACK_CLIENT_ID ? HOLESKY_CHAIN : MAINNET_CHAIN;
-const CHAINS = [DEFAULT_CHAIN, MAINNET_CHAIN, HOLESKY_CHAIN, SEPOLIA_CHAIN].filter(
+const CHAINS = [
+  DEFAULT_CHAIN,
+  MAINNET_CHAIN,
+  HOLESKY_CHAIN,
+  SEPOLIA_CHAIN,
+  LINEA_SEPOLIA_CHAIN,
+].filter(
   (chain, index, chains) =>
     chains.findIndex((candidate) => candidate.chainId === chain.chainId) === index
 );
