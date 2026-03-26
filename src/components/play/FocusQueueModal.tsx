@@ -24,13 +24,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useWeeklyTacticalPlan, type TacticalAction, type DayPlan } from '@/hooks/useWeeklyTacticalPlan';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   GripVertical, Play, CheckCircle2, SkipForward, Circle,
   Zap, Target, Dumbbell, Brain, Briefcase, Heart, X,
   MessageSquare, Calendar, Wand2,
 } from 'lucide-react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface FocusQueueModalProps {
   open: boolean;
@@ -139,6 +140,14 @@ export function FocusQueueModal({ open, onOpenChange, onExecuteAction, onTalkToT
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[95vw] max-h-[85vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
+        <VisuallyHidden>
+          <DialogTitle>{isHe ? 'תור המשימות' : 'Focus Queue'}</DialogTitle>
+          <DialogDescription>
+            {isHe
+              ? 'חלון משימות ממוקדות להיום ולימים הקרובים.'
+              : 'Modal showing today and upcoming focus tasks.'}
+          </DialogDescription>
+        </VisuallyHidden>
         {/* Header */}
         <div className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="flex items-center justify-between px-4 py-3">

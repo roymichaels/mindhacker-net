@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -588,6 +588,9 @@ export function UserDocsModal({ open, onOpenChange }: UserDocsModalProps) {
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) handleClose(); onOpenChange(val); }}>
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+        <DialogDescription className="sr-only">
+          {isRTL ? 'מדריך שימוש בתוך האפליקציה.' : 'In-app user guide and walkthrough.'}
+        </DialogDescription>
         <DialogHeader
           title={title}
           icon={selectedGuide ? <selectedGuide.icon className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}

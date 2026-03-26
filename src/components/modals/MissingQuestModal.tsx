@@ -3,7 +3,7 @@
  * who already completed onboarding but have unanswered quest assessments.
  */
 import { useCallback, useRef, useMemo } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -15,6 +15,7 @@ import { FlowRenderer } from '@/components/flow/FlowRenderer';
 import { toast } from 'sonner';
 import type { MissingQuest } from '@/hooks/useSmartOnboardingRedirect';
 import { cn } from '@/lib/utils';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import '@/flows/pillarSpecs'; // ensure specs are registered
 
 interface MissingQuestModalProps {
@@ -135,6 +136,14 @@ export function MissingQuestModal({ quest, onClose, onDismissAll, remainingCount
         className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 border-2 border-primary/20 bg-card/98 backdrop-blur-xl"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
+        <VisuallyHidden>
+          <DialogTitle>{language === 'he' ? quest.meta.title_he : quest.meta.title_en}</DialogTitle>
+          <DialogDescription>
+            {language === 'he'
+              ? 'חלון השלמת שאלון חסר למסע ההצטרפות.'
+              : 'Modal for completing a missing onboarding assessment.'}
+          </DialogDescription>
+        </VisuallyHidden>
         {/* Header */}
         <div className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
