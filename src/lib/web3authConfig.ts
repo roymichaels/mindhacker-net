@@ -17,22 +17,15 @@ import {
 const FALLBACK_CLIENT_ID =
   'BDUeePBUxdKKnluY6zAzDRsrDwOz1YQNKm1l-jKStb5SP5qGKlYRYrNspoXH3eGnTJJJUo9dGPkOht7cu1Kil18';
 
-// Default to the dev-safe fallback client unless production client usage is
-// explicitly opted in. This avoids wallet-service / smart-account gating on
-// environments that only need social auth right now.
-const USE_PROD_CLIENT = import.meta.env.VITE_WEB3AUTH_USE_PROD_CLIENT === 'true';
-const CLIENT_ID =
-  USE_PROD_CLIENT && import.meta.env.VITE_WEB3AUTH_CLIENT_ID
-    ? import.meta.env.VITE_WEB3AUTH_CLIENT_ID
-    : FALLBACK_CLIENT_ID;
+// Use the configured client id whenever it is provided.
+// Fallback is only for local/dev environments where env vars may be missing.
+const CLIENT_ID = import.meta.env.VITE_WEB3AUTH_CLIENT_ID || FALLBACK_CLIENT_ID;
 const IS_FALLBACK_CLIENT_ID = CLIENT_ID === FALLBACK_CLIENT_ID;
 const DEFAULT_NETWORK_KEY = IS_FALLBACK_CLIENT_ID
   ? 'SAPPHIRE_DEVNET'
   : 'SAPPHIRE_MAINNET';
 const NETWORK_KEY = (
-  IS_FALLBACK_CLIENT_ID
-    ? DEFAULT_NETWORK_KEY
-    : import.meta.env.VITE_WEB3AUTH_NETWORK || DEFAULT_NETWORK_KEY
+  import.meta.env.VITE_WEB3AUTH_NETWORK || DEFAULT_NETWORK_KEY
 ).toUpperCase();
 const WEB3AUTH_NETWORK_VALUE =
   WEB3AUTH_NETWORK[NETWORK_KEY as keyof typeof WEB3AUTH_NETWORK] ??
@@ -136,9 +129,9 @@ const loginMethods: LoginMethodConfig = {
   farcaster: { name: 'Farcaster', showOnModal: false },
 };
 
-if (!USE_PROD_CLIENT) {
+if (IS_FALLBACK_CLIENT_ID) {
   console.info(
-    '[Web3Auth] Using fallback dev client for auth-only login. Set VITE_WEB3AUTH_USE_PROD_CLIENT=true to use the configured production client.'
+    '[Web3Auth] Using fallback dev client for auth-only login. Set VITE_WEB3AUTH_CLIENT_ID to use your project client.'
   );
 }
 
