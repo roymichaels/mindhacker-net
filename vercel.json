@@ -10,6 +10,9 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "/(.*)", "dest": "apps/evolve/dist/$1" }
+    // Serve static assets and built files directly when they exist
+    { "src": "/(.*)", "dest": "apps/evolve/dist/$1" },
+    // Fallback: rewrite any non‑file route to the SPA entry point
+    { "src": "/(.*)", "dest": "apps/evolve/dist/index.html" }
   ]
 }
