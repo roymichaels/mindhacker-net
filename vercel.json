@@ -10,6 +10,6 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1.js" },
-    { "source": "/(.*)", "destination": "/apps/evolve/dist/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
