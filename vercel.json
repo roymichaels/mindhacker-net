@@ -1,9 +1,15 @@
 {
-  "buildCommand": "npm run build",
+  "version": 2,
+  "buildCommand": "./vercel-build.sh",
   "outputDirectory": "apps/evolve/dist",
-  "installCommand": "npm install",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "/(.*)", "dest": "apps/evolve/dist/$1" }
   ]
 }

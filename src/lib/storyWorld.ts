@@ -106,7 +106,8 @@ export const storyScenePresets: Record<string, StoryScene> = {
   onboarding: buildFallbackStoryScene({
     chapterKey: 'act_1_awakening',
     sceneType: 'onboarding',
-    headline: 'Awaken the next self',
+    // Hide the headline when the onboarding flow is skipping the story background
+    headline: typeof window !== 'undefined' && (window as any).__skipStoryWorld ? '' : 'Awaken the next self',
     body: 'Your story begins with identity, pressure, and the first signal of who you are becoming.',
     accent: '#22d3ee',
     secondary: '#8b5cf6',
