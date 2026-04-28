@@ -70,11 +70,16 @@ export function StoryWorldShell({ compact = false, className }: StoryWorldShellP
       >
         <div className="absolute inset-[-60px] rounded-full blur-3xl" style={{ background: scene.theme.glow }} />
         <PersonalizedOrb size={compact ? 120 : 180} renderer="css" state="breathing" />
-        {user ? (
-          <div className="mt-4 rounded-full border border-white/10 bg-slate-950/45 px-4 py-1.5 text-xs text-white/80 backdrop-blur-xl">
-            {isHe ? 'הנוכחות שלך בעולם' : 'Your hero presence in the world'}
-          </div>
-        ) : null}
+        {/* Hide the presence message when onboarding skips the story background */}
+        {(() => {
+          const skip = typeof window !== 'undefined' && (window as any).__skipStoryWorld;
+          if (skip) return null;
+          return user ? (
+            <div className="mt-4 rounded-full border border-white/10 bg-slate-950/45 px-4 py-1.5 text-xs text-white/80 backdrop-blur-xl">
+              {isHe ? 'הנוכחות שלך בעולם' : 'Your hero presence in the world'}
+            </div>
+          ) : null;
+        })()}
       </motion.div>
     </div>
   );
