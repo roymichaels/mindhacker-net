@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev --parallel --filter=@evolve/app",
+    "start": "npm run dev --workspace @evolve/app",
     "build": "turbo run build --filter=@evolve/app",
     "lint": "turbo run lint --filter=@evolve/app",
     "test": "turbo run test",
