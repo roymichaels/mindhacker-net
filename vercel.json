@@ -8,11 +8,8 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    // Serve static assets and built files directly when they exist
-    { "src": "/(.*)", "dest": "apps/evolve/dist/$1" },
-    // Fallback: rewrite any non‑file route to the SPA entry point
-    { "src": "/(.*)", "dest": "apps/evolve/dist/index.html" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1.js" },
+    { "source": "/(.*)", "destination": "/apps/evolve/dist/index.html" }
   ]
 }
