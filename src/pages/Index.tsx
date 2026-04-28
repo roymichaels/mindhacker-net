@@ -38,20 +38,15 @@ const Index = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null!);
 
-  // Don't block homepage on auth — show content after 1.5s even if auth is still loading
-  const [authTimedOut, setAuthTimedOut] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setAuthTimedOut(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
+  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Redirect immediately once auth state is known
   useEffect(() => {
     if (!loading && user) {
-      flowAudit.redirect('/', '/mindos/tactics', 'Authenticated user on Index — redirecting to MindOS');
+      // Direct navigation without extra timeout
       navigate('/mindos/tactics', { replace: true });
     }
   }, [user, loading, navigate]);
@@ -80,8 +75,8 @@ const Index = () => {
     ],
   });
 
-  // Show spinner briefly, but timeout so homepage always renders
-  if (loading && !authTimedOut) {
+  // Show spinner while auth is loading
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
