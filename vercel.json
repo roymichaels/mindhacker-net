@@ -12,7 +12,4 @@
     { "source": "/api/(.*)", "destination": "/api/$1.js" },
     { "source": "/(.*)", "destination": "/apps/evolve/dist/index.html" }
   ]
-  ,"routes": [
-    { "src": "/(.*)", "dest": "apps/evolve/dist/$1" }
-  ]
 }
