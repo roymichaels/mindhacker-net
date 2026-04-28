@@ -396,16 +396,7 @@ export function OnboardingReveal({ answers, onContinue, onBack }: OnboardingReve
           transition={{ duration: 0.5 }}
           className="max-w-lg w-full space-y-6 py-6"
         >
-          {/* ─── Title ─── */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-center space-y-2">
-            <Brain className="w-10 h-10 text-primary mx-auto" />
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-              {isHe ? 'תוצאות כיול + פרוטוקול שבוע 1' : 'Calibration Results + Week 1 Protocol'}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {isHe ? 'מבוסס על 70+ משתנים התנהגותיים' : 'Based on 70+ behavioral variables'}
-            </p>
-          </motion.div>
+          {/* Title block removed to eliminate "Awaken the next self" section */}
           {/* The rest of the original component JSX follows */}
           {/* ─── Section 1: 6 Diagnostic Scores ─── */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
@@ -435,12 +426,62 @@ export function OnboardingReveal({ answers, onContinue, onBack }: OnboardingReve
             </div>
           </motion.div>
           {/* ─── Section 2: Week 1 Protocol ─── */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="space-y-3">
-            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
-              {t('onboarding.reveal.week1Protocol')}
-            </h2>
-            {/* ... remaining original JSX unchanged ... */}
-          </motion.div>
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold">{t('onboarding.reveal.week1Protocol')}</h2>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              {week1.anchorHabits.map((h, i) => (
+                <li key={`anchor-${i}`}>{h}</li>
+              ))}
+            </ul>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              {week1.focusBlocks.map((b, i) => (
+                <li key={`focus-${i}`}>{b}</li>
+              ))}
+            </ul>
+            <p className="text-muted-foreground">{week1.recoveryBlock}</p>
+            <p className="text-muted-foreground">{week1.trainingSuggestion}</p>
+          </section>
+
+          {/* ─── Section 3: Daily Structure ─── */}
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold">{t('onboarding.reveal.dailyStructure')}</h2>
+            <div className="grid gap-2 md:grid-cols-2">
+              {dailyStructure.map((item, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <item.icon className={`w-5 h-5 ${item.color}`} />
+                  <span className="font-medium">{item.label}:</span>
+                  <span className="text-muted-foreground">{item.time}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ─── Navigation Buttons ─── */}
+          <div className="flex justify-between pt-6">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="px-4 py-2 rounded-md bg-muted text-muted-foreground hover:bg-muted/80"
+              >
+                <ChevronLeft className="inline w-4 h-4 mr-1" />
+                {t('common.back')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleEnterSystem}
+              disabled={isLoading}
+              className="flex items-center px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <ArrowRight className="w-5 h-5 mr-2" />
+              )}
+              {t('onboarding.reveal.startSystem')}
+            </button>
+          </div>
         </motion.div>
       </div>
     </CinematicOnboardingStage>
