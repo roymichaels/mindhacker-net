@@ -12,13 +12,15 @@
     "build": "turbo run build --filter=@evolve/app",
     "lint": "turbo run lint --filter=@evolve/app",
     "test": "turbo run test",
-    "build:app": "npm run build --workspace @evolve/app",
+    "build:app": "cross-env NODE_OPTIONS=--max-old-space-size=4096 npm run build --workspace @evolve/app",
     "dev:app": "npm run dev --workspace @evolve/app",
     "dev:game-server": "npm run dev --workspace @evolve/game-server",
     "build:game-server": "npm run build --workspace @evolve/game-server"
   },
   "devDependencies": {
-    "turbo": "^2.0.0"
+    "turbo": "^2.0.0",
+    "vite": "^5.4.19",
+    "cross-env": "^7.0.3"
   },
   "dependencies": {
     "@vercel/node": "^5.6.20"
