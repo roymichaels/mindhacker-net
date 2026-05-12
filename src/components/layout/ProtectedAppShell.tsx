@@ -13,8 +13,20 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { OnboardingGate } from '@/components/layout/OnboardingGate';
 import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
 import GameLayerBootstrap from '@/components/game/GameLayerBootstrap';
+import { AionDecisionProvider, useAionDecision } from '@/contexts/AionDecisionContext';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const DashboardLayout = lazyWithRetry(() => import('@/components/dashboard/DashboardLayout'), 'DashboardLayout');
+
+function RouteSignalEmitter() {
+  const location = useLocation();
+  const { signal } = useAionDecision();
+  useEffect(() => {
+    signal('route_change', { path: location.pathname });
+  }, [location.pathname, signal]);
+  return null;
+}
 
 export default function ProtectedAppShell() {
   return (
@@ -22,12 +34,15 @@ export default function ProtectedAppShell() {
       <OnboardingGate>
         <ChromeVisibilityProvider>
           <SidebarProvider>
-            <Suspense fallback={<PageSkeleton />}>
-              <DashboardLayout>
-                <GameLayerBootstrap />
-                <Outlet />
-              </DashboardLayout>
-            </Suspense>
+            <AionDecisionProvider>
+              <Suspense fallback={<PageSkeleton />}>
+                <DashboardLayout>
+                  <RouteSignalEmitter />
+                  <GameLayerBootstrap />
+                  <Outlet />
+                </DashboardLayout>
+              </Suspense>
+            </AionDecisionProvider>
           </SidebarProvider>
         </ChromeVisibilityProvider>
       </OnboardingGate>
