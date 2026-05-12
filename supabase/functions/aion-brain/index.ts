@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { aiChatCompletion } from "../_shared/aiGateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,7 +10,11 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+
+// Always route through OpenRouter free model. The shared aiGateway helper
+// auto-selects OpenRouter when OPENROUTER_API_KEY is set, and `:free` models
+// are passed through untouched (see isOpenRouterOnly).
+const BRAIN_MODEL = "nvidia/nemotron-nano-9b-v2:free";
 
 const DECISION_TOOL = {
   type: "function",
@@ -154,21 +159,14 @@ async function decideForUser(admin: any, userId: string, force: boolean) {
     return upserted;
   }
 
-  const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash-lite",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: JSON.stringify(snapshot) },
-      ],
-      tools: [DECISION_TOOL],
-      tool_choice: { type: "function", function: { name: "emit_decision" } },
-    }),
+  const aiResp = await aiChatCompletion({
+    model: BRAIN_MODEL,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: JSON.stringify(snapshot) },
+    ],
+    tools: [DECISION_TOOL],
+    tool_choice: { type: "function", function: { name: "emit_decision" } },
   });
 
   if (!aiResp.ok) {
