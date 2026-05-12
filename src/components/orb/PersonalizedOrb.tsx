@@ -23,7 +23,7 @@ import { useDNA } from '@/identity/useDNA';
 import { mapDNAtoVisual } from '@/lib/mapDNAtoVisual';
 import { Orb } from './Orb';
 import { OrbDebugOverlay } from './OrbDebugOverlay';
-import { OrganicOrbCanvas } from './OrganicOrbCanvas';
+import OrbView, { type OrbViewState } from './v2/OrbView';
 import type { OrbRef, OrbProps, OrbProfile } from './types';
 import { DEFAULT_ORB_PROFILE, interpolateOrbProfiles } from '@/lib/orbProfileGenerator';
 
@@ -145,12 +145,22 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     const useMorphOrb = size >= MORPH_SIZE_THRESHOLD && renderer !== 'css';
 
     if (useMorphOrb) {
+      const stateMap: Record<string, OrbViewState> = {
+        idle: 'idle',
+        listening: 'listening',
+        thinking: 'thinking',
+        speaking: 'responding',
+        session: 'focus',
+        breathing: 'recovery',
+      };
+      const orbState: OrbViewState = stateMap[state ?? 'idle'] ?? 'idle';
       return (
         <div className="relative" style={{ width: size, height: size }}>
-          <OrganicOrbCanvas
+          <OrbView
             size={size}
-            profile={displayProfile}
+            state={orbState}
             audioLevel={audioLevel}
+            profile={displayProfile}
           />
           <OrbDebugOverlay
             profile={displayProfile}

@@ -38,6 +38,7 @@ import { StoryWorldProvider } from "@/contexts/StoryWorldContext";
 import { OverlayProvider } from "@/shell/overlay/OverlayController";
 import InteractiveAIONHost from "@/components/aion/InteractiveAIONHost";
 import CloudAuthModal from "@/components/auth/CloudAuthModal";
+import SharedOrbStage from "@/components/orb/v2/SharedOrbStage";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -261,6 +262,7 @@ const App = () => (
                                     <Toaster />
                                     <Sonner />
                                     <InteractiveAIONHost />
+                                    <SharedOrbStage />
 
                                   <FlowAuditProvider>
                                     <AffiliateTracker />
