@@ -104,18 +104,21 @@ serve(async (req) => {
       }
     }
 
-    // Model by tier: Free=flash-lite, Plus=flash, Apex=pro
+    // OpenRouter model override (free, fast Nemotron). Vision falls back to Gemini.
+    const OPENROUTER_DEFAULT = "nvidia/nemotron-3-super-120b-a12b:free";
     const TIER_MODELS: Record<string, string> = {
-      free: "google/gemini-2.5-flash-lite",
-      plus: "google/gemini-2.5-flash",
-      apex: "google/gemini-2.5-pro",
+      free: OPENROUTER_DEFAULT,
+      plus: OPENROUTER_DEFAULT,
+      apex: OPENROUTER_DEFAULT,
     };
 
     // 4. Orchestrate (Layer 2 - policy + routing)
     const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar);
     // Use vision-capable model when images are present; otherwise tier-based model
-    const tierModel = TIER_MODELS[userTier] || "google/gemini-2.5-flash-lite";
-    const model = hasImages ? "google/gemini-2.5-flash" : (mode === "widget" ? widgetModel : tierModel);
+    const tierModel = TIER_MODELS[userTier] || OPENROUTER_DEFAULT;
+    const model = hasImages
+      ? "google/gemini-2.5-flash"
+      : (mode === "widget" ? widgetModel : tierModel);
 
     console.log("Aurora chat - Mode: " + mode + ", User: " + (userId || "guest") + ", Tier: " + userTier + ", Model: " + model + ", Version: " + orchestrated.promptVersion + ", ContextHash: " + context.context_hash.slice(0, 8));
 
