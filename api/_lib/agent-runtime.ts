@@ -1,8 +1,16 @@
 import { buildSessionKey, createOpenRouterClient, interpolatePrompt, loadAgentConfig, resolveAgentModel } from '../../src/lib/openclaw.js';
-import { buildAuroraContextSummary, authenticateBearerToken } from '../../src/lib/tools/supabaseQuery.js';
 import { buildDomainAssessSystemPrompt, buildExtractDomainProfileTool } from '../../src/lib/tools/extractDomainProfile.js';
 import { initSse, writeContentFallback, writeDone, writeSse } from './sse.js';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+
+/**
+ * NOTE — chat consolidation (Phase 1.1):
+ * The streamAuroraAgent path (Vercel-hosted AION chat) was deleted because it
+ * bypassed the canonical SSE sanitizer in supabase/functions/_shared/sanitizeStream.ts
+ * and risked leaking chain-of-thought into AION's voice. The single chat entry
+ * point is now supabase/functions/aurora-chat. This module only powers the
+ * non-chat domain-assess flow.
+ */
 
 type ChatMessage = {
   role: 'user' | 'assistant' | 'system';
@@ -37,53 +45,6 @@ function parseBody(body: unknown) {
     }
   }
   return body as Record<string, unknown>;
-}
-
-export async function streamAuroraAgent(req: any, res: any) {
-  const body = parseBody(req.body);
-  const agentConfig = await loadAgentConfig('aurora-chat');
-  const auth = await authenticateBearerToken(req.headers.authorization);
-  const userId = auth.userId || body.userId || null;
-  const language = body.language === 'he' ? 'he' : 'en';
-  const timezone = typeof body.timezone === 'string' ? body.timezone : null;
-  const pillar = typeof body.pillar === 'string' ? body.pillar : '';
-  const sessionKey = body.sessionKey || buildSessionKey(['aurora-chat', userId, body.conversationId]);
-  const contextSummary = await buildAuroraContextSummary({ userId, language, timezone });
-
-  const client = createOpenRouterClient();
-  const systemPrompt = interpolatePrompt(agentConfig.system_prompt, {
-    language,
-    language_label: language === 'he' ? 'Hebrew' : 'English',
-    pillar,
-    timezone: timezone || 'UTC',
-    session_key: sessionKey,
-    context_summary: contextSummary,
-  });
-
-  initSse(res);
-
-  try {
-    const stream = await client.chat.completions.create({
-      model: resolveAgentModel('aurora-chat', agentConfig.model),
-      temperature: agentConfig.temperature ?? 0.7,
-      max_tokens: agentConfig.max_output_tokens ?? 900,
-      stream: true,
-      messages: [{ role: 'system', content: systemPrompt }, ...sanitizeMessages(body.messages || [])],
-    });
-
-    for await (const chunk of stream) {
-      writeSse(res, chunk);
-    }
-
-    writeDone(res);
-  } catch (error) {
-    console.error('[aurora-chat] agent error', error);
-    const fallback =
-      language === 'he'
-        ? 'יש כרגע תקלה זמנית בחיבור. תמשיך מהנקודה האחרונה במשפט אחד, ואני אמשיך איתך ברגע שהחיבור יתייצב.'
-        : 'There is a temporary connection issue right now. Continue from the last point in one sentence and I will pick it up as soon as the connection stabilizes.';
-    writeContentFallback(res, fallback);
-  }
 }
 
 export async function streamDomainAssessAgent(req: any, res: any) {
