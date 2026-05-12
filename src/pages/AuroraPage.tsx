@@ -5,11 +5,11 @@
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
+import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 import InteractiveAION from '@/components/aion/InteractiveAION';
 import { useClientFlag } from '@/lib/clientFlags';
-import MinimalHome from '@/components/aurora/home/MinimalHome';
 
 export default function AIONPage() {
   useTranslation();
@@ -31,9 +31,9 @@ export default function AIONPage() {
   return (
     <AIONNamingGate>
       <div className="flex-1 min-h-0 -mx-2 lg:-mx-3 flex flex-col bg-background overflow-hidden">
-        {/* Default home is the calm Minimal Home surface. The chat history
-            is reachable via the floating AION overlay / pull-up sheet — it
-            no longer lives as the default body of `/aurora`. */}
+        {/* Home IS the chat. Like ChatGPT / Lovable: a single conversation
+            surface with a composer dock at the bottom. No dashboards, no
+            cards, no launchers. */}
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-1 pb-40">
           {isAssessing && assessmentDomainId ? (
             <DomainAssessChat
@@ -43,7 +43,7 @@ export default function AIONPage() {
               onClose={() => endAssessment()}
             />
           ) : (
-            <MinimalHome />
+            <AuroraChatBubbles showOrbAboveMessages={false} />
           )}
         </div>
 
