@@ -42,7 +42,7 @@ export function HubModalHost() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed inset-0 z-[70] bg-background flex flex-col"
+          className="fixed top-0 inset-x-0 bottom-[84px] z-[70] bg-background flex flex-col"
         >
           <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border bg-background/95 backdrop-blur-xl shrink-0">
             <div className="flex items-center gap-2 min-w-0">
