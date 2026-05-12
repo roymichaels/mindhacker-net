@@ -7,6 +7,7 @@ export interface BackfillResult {
   ok: boolean;
   totals: Counts;
   by_source: Record<string, Counts>;
+  errors?: Record<string, string[]>;
 }
 
 export function useBackfillBrain() {
@@ -21,10 +22,21 @@ export function useBackfillBrain() {
     },
     onSuccess: (res) => {
       const t = res.totals;
-      toast.success(
-        `Brain updated · +${t.inserted} new · ${t.updated} reinforced`,
-      );
+      const errCount = Object.values(res.errors ?? {}).reduce((s, a) => s + a.length, 0);
+      if (t.inserted + t.updated === 0) {
+        const firstErr = Object.values(res.errors ?? {})[0]?.[0];
+        toast.error(
+          firstErr
+            ? `Brain backfill skipped everything: ${firstErr}`
+            : `Brain backfill found nothing to add (skipped ${t.skipped})`,
+        );
+      } else if (errCount > 0) {
+        toast.warning(`Brain updated · +${t.inserted} new · ${t.updated} reinforced · ${errCount} errors`);
+      } else {
+        toast.success(`Brain updated · +${t.inserted} new · ${t.updated} reinforced`);
+      }
       qc.invalidateQueries({ queryKey: ["brain-overview"] });
+      qc.invalidateQueries({ queryKey: ["brain-fallback"] });
     },
     onError: (e: any) => {
       toast.error(`Backfill failed: ${e?.message ?? e}`);
