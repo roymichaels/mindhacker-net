@@ -14,7 +14,7 @@ export default function ArtifactFrame({ title, onClose, defaultFullscreen, child
     <div
       className={
         fullscreen
-          ? 'fixed inset-0 z-50 flex flex-col bg-background'
+          ? 'fixed inset-0 z-[70] flex flex-col bg-background'
           : 'relative flex flex-col rounded-2xl border border-white/10 bg-card overflow-hidden'
       }
       style={fullscreen ? undefined : { maxHeight: '70vh' }}

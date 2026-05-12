@@ -47,7 +47,7 @@ export function FMOnboarding({ onFinish }: Props) {
   const current = STEPS[step];
 
   return (
-    <div className="fixed inset-0 z-[100] bg-gradient-to-b from-amber-950/98 via-background/98 to-background/95 backdrop-blur-xl flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[70] bg-gradient-to-b from-amber-950/98 via-background/98 to-background/95 backdrop-blur-xl flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <AnimatePresence mode="wait">
           <motion.div

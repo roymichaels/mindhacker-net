@@ -142,7 +142,7 @@ const AuroraAccountDropdown = ({
         <DropdownMenuContent
           align={isRTL ? "end" : "start"}
           side="top"
-          className="w-72 bg-popover border border-border shadow-xl z-[100]"
+          className="w-72 bg-popover border border-border shadow-xl z-[70]"
         >
           {/* Compact Orb + HUD */}
           <div 

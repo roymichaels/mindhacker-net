@@ -404,7 +404,7 @@ const Users = () => {
                             </div>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align={isRTL ? "end" : "start"} className="w-48 bg-card border border-border z-[100]">
+                        <DropdownMenuContent align={isRTL ? "end" : "start"} className="w-48 bg-card border border-border z-[70]">
                           <DropdownMenuLabel className="text-xs">
                             {language === 'he' ? 'ניהול תפקידים' : 'Manage Roles'}
                           </DropdownMenuLabel>
@@ -442,7 +442,7 @@ const Users = () => {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align={isRTL ? "start" : "end"} className="bg-card border border-border z-[100]">
+                        <DropdownMenuContent align={isRTL ? "start" : "end"} className="bg-card border border-border z-[70]">
                           <DropdownMenuItem onClick={() => navigate(`/panel/users/${user.id}`)}>
                             <Eye className="h-4 w-4 me-2" />
                             {t('common.view')}
