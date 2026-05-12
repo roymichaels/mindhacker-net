@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_aion_signals_user_kind_recent ON public.aion_signals (user_id, kind, created_at DESC);
