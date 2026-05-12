@@ -5,6 +5,7 @@ import EnvironmentSection from './sections/EnvironmentSection';
 import MemoryWriterSection from './sections/MemoryWriterSection';
 import GraphCountersSection from './sections/GraphCountersSection';
 import LeakGuardSection from './sections/LeakGuardSection';
+import ResponseSourceSection from './sections/ResponseSourceSection';
 
 export default function DiagnosticsSheet({ onClose }: { onClose: () => void }) {
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function DiagnosticsSheet({ onClose }: { onClose: () => void }) {
           <Section title="3 · Memory Writer"><MemoryWriterSection /></Section>
           <Section title="4 · Graph counters"><GraphCountersSection active /></Section>
           <Section title="5 · Leak guard"><LeakGuardSection /></Section>
+          <Section title="6 · Response source"><ResponseSourceSection /></Section>
           <p className="pt-2 text-[10px] text-muted-foreground">
             Hidden from end users. Disable with <code>?diag=0</code> or
             <code className="mx-1">localStorage.removeItem('mindos.diag')</code>.
