@@ -422,7 +422,7 @@ export async function buildContext(
        const filtered = (recentMsgs || []).filter((m: any) => {
          if (!m?.is_ai_message) return true;
          return !isStaleAssistantContext(m.content);
-       });
+       }).filter((m: any) => !m?.is_ai_message);
        return { data: filtered.map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
     })(),
     // Life domains (assessments, rawInputsUsed, willingness)
@@ -472,7 +472,7 @@ export async function buildContext(
   const minimums = minimumsRes.data || [];
   const onboarding = onboardingRes.data;
   const lifePlan = lifePlanRes.data;
-  const conversationMemories = conversationMemoryRes.data || [];
+  const conversationMemories = (conversationMemoryRes.data || []).filter((m: any) => !isStaleAssistantContext(m.summary));
   const pendingReminders = remindersRes.data || [];
   const recentInsights = recentInsightsRes.data || [];
   const userProjects = projectsRes.data || [];
