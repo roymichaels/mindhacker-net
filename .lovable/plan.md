@@ -1,89 +1,65 @@
-## Dev Diagnostics Panel — Plan
+## Validation pass — what I observed
 
-A dev-only floating overlay that proves the brain → environment → memory-writer → graph loop is alive. Zero impact on production users, zero clutter in normal UI.
+I could not drive the chat from the headless browser (it lands on `/aurora` without your Supabase session). I validated everything I could from logs + database + code.
 
-### Visibility & gating
+### Pipelines that ARE alive
+- `aurora-chat` (id `9a00…`), `aion-orchestrator` (`4575…`), `memory-writer` (`268e…`), `aion-brain` (`3c6e…`) all returning **200** repeatedly in the last few minutes.
+- `aion_signals` is being populated: latest entries include `route_change` at 20:27, `intent.classified` (smalltalk, 0.95) at 20:24, `emotion.detected` (joyful, valence 0.7) at 20:24 — so the chat → orchestrator → signals path works.
+- The client heartbeat I added is firing: every route change calls `aion-brain` (visible in edge logs).
 
-- Mounted globally inside `App.tsx` next to `<SharedOrbStage />` so it's available on every authenticated route.
-- Renders only when `import.meta.env.DEV === true` **OR** `localStorage.getItem('mindos.diag') === '1'` (safe flag for staging/prod debugging by us). Otherwise returns `null`.
-- Also auto-hides if there's no logged-in user (avoids public landing).
-- A tiny floating **brain icon button** sits at `bottom-20 left-3` (above bottom tab, below safe area), `z-[60]`, 36px, `backdrop-blur` chip. Tap opens a bottom sheet (mobile) / right drawer (≥md). Esc / outside-tap closes.
+### What is broken — root cause found
 
-### File layout (new)
+**`aion_decisions` row is frozen at `updated_at = 15:47:16 UTC` (4h+ ago) and `expires_at = 15:57:16 UTC`.** The brain edge function is being invoked but **never writes a fresh row**. That is why:
+- `BrainSection` shows "expired"
+- `EnvironmentSection.source = fast-tier`
+- All replies feel scripted (fast-tier rules drive tone/density without a live decision)
 
-```text
-src/diagnostics/
-  DiagnosticsHost.tsx        ← mounted in App.tsx; floating button + sheet
-  DiagnosticsSheet.tsx       ← layout, sections, refresh control
-  sections/
-    BrainSection.tsx         ← AION decision row
-    EnvironmentSection.tsx   ← EnvironmentProvider state
-    MemoryWriterSection.tsx  ← last invocation telemetry
-    GraphCountersSection.tsx ← table counts
-    LeakGuardSection.tsx     ← last sanitizer outcome
-  diagnosticsBus.ts          ← tiny event bus (memory-writer + leak-guard)
-  useDiagnosticsFlag.ts      ← DEV || localStorage flag, with `?diag=1` URL toggle
+The smoking gun is in `supabase/functions/aion-brain/index.ts`:
+
+```ts
+if (!aiResp.ok) {
+  if (existing) return { ...existing, stale: true };   // ← returns 200, row untouched
+  throw new Error(`AI gateway ${aiResp.status}`);
+}
+const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
+if (!toolCall) {
+  if (existing) return { ...existing, stale: true };   // ← same problem
+  throw new Error("No tool call returned");
+}
 ```
 
-No new providers, no context — sections read from the existing hooks (`useAionDecision`, `useEnvironment`, `useAuth`) and from the bus.
+When the AI gateway either errors OR returns a response without a `tool_calls` block, the function returns the **old row** with `stale: true` — **without bumping `updated_at` / `expires_at`**. That's why every retry succeeds (200) yet the decision never refreshes. The model `google/gemini-3-flash-preview` likely isn't returning tool calls reliably for this prompt, so we're stuck in this branch.
 
-### Section contents
+## Fix
 
-**1. AION Brain** — from `useAionDecision().decision`:
-- `mode`, `tone`, `density`, `expires_at`
-- `focus_target` and `suggestion` rendered as collapsible `<pre>` JSON
-- live/expired badge (compare `expires_at` to `Date.now()`)
-- "no decision yet — fast-tier in control" empty state
+### 1. `supabase/functions/aion-brain/index.ts` — never return silently-stale
+- Switch model to `google/gemini-2.5-flash-lite` (proven tool-calling on the free tier and what the rest of the orchestrator already uses).
+- When the gateway fails OR returns no `tool_calls`, do NOT return the old row. Instead **compute a deterministic heuristic decision** from `signals` + hour-of-day + previous mode and **upsert it** so `expires_at` advances. This guarantees the heartbeat always produces a fresh row.
+- Log the failure shape (`aiResp.status`, first 300 chars of body, or `aiJson.choices?.[0]?.message`) so we can see why tool-calling missed.
+- Drop the `60_000`ms debounce to `20_000`ms so route_change → composer_focus bursts within a minute can still get a fresh decision after the first one settles.
+- Add a `source` field to the row payload (`'llm' | 'heuristic'`) so diagnostics can show which path produced the current decision.
 
-**2. Environment** — from `useEnvironment().state`:
-- `mode`, `cognitiveBudget`, `source` (`fast-tier` / `slow-tier`), `reason`, `updatedAt`
-- `aionDecision` echo (proves binding works)
-- chrome/orb hints from `state` if present (`chromeVisibility`, `orbState` — render only when defined; never assume shape)
+### 2. `BrainSection.tsx` — surface the new `source` field
+- Show a chip: `source: llm` (emerald) or `source: heuristic` (amber). This makes it obvious when the brain is running on its own fallback heuristic vs the LLM.
 
-**3. Memory Writer** — from `diagnosticsBus`:
-- last `source` (chat/journal/hypnosis/mission), `status` (`pending` | `ok` | `error`), `duration_ms`
-- counts from response: `inserted`, `reinforced`, `skipped` (derived from `writes.graph[].action`)
-- last error string if any
-- "Test write" button that calls `supabase.functions.invoke('memory-writer', { body: { source: 'chat', context: { messages: [{role:'user', content:'diag ping'}] } } })` and feeds result back to bus
+### 3. Schema — add `source` column to `aion_decisions`
+Migration to add a nullable `source TEXT` column, default null. Backfill not needed.
 
-**4. Graph Counters** — direct `supabase.from(...).select('*', { count: 'exact', head: true })`:
-- `aurora_memory_graph` (total + last-24h)
-- `aurora_behavioral_patterns` (total)
-- `aurora_identity_elements` (total)
-- `aion_signals` last 24h
-- Manual "Refresh" button + auto-refresh every 30s while sheet is open
+### 4. Re-validate after fix
+Once deployed, the next `route_change` (or my 60s auto-refresh) should produce a row with `updated_at = now()` and `expires_at = now() + 10min`. I'll then have you send "היי" and a reflection and report:
+- response source header (`live`)
+- mode downgrade (`lite` for greeting)
+- memory-writer event in the panel
+- graph counter delta
+- leak-guard status
+- new `aion-brain run` event with `ok` status and duration
 
-**5. Leak Guard** — from `diagnosticsBus`:
-- last assistant message length (raw vs sanitized)
-- `clean | sanitized | rejected` derived by comparing `stripReasoning(raw).length` vs `raw.length`
-- list of matched forbidden patterns (we re-run a small detector that just reports which `THINK_BLOCK` / preamble fired, without mutating the message)
+## Out of scope
 
-### Wiring (minimal touch outside the new folder)
+- No visual graph, room UI, or homepage redesign (per your standing instruction).
+- Not changing `aion-orchestrator`, `memory-writer`, or chat sanitizer — they're verified working.
+- No new tables; just one column on `aion_decisions`.
 
-- `src/App.tsx`: import + render `<DiagnosticsHost />` once, near `<SharedOrbStage />`. ~2 lines.
-- `src/hooks/aurora/useAuroraChat.tsx`:
-  - On the existing `memory-writer` invoke, capture `{ status, duration_ms, response | error }` and push to `diagnosticsBus.emit('memory-writer', …)`. Already wrapped in try/catch — non-blocking guarantee preserved.
-  - Right after `cleanedContent` is computed, push `{ rawLen, cleanLen, matched }` to `diagnosticsBus.emit('leak-guard', …)`.
+## Why this is the right fix
 
-That's the entire production surface change: one mount, two `emit` calls. Both are no-ops in production builds because subscribers only attach inside the dev-only host.
-
-### Non-blocking guarantee
-
-- `diagnosticsBus` is a synchronous in-memory `EventTarget`; `emit` never throws.
-- All section reads are wrapped in `try/catch` and render an inline error chip rather than crashing the panel.
-- "Test write" uses `void` + `.catch` like the production path.
-- Counter queries use `head: true` so they're cheap.
-
-### Out of scope (explicitly)
-
-- No graph visualisation, no room UI, no homepage changes.
-- No new tables, no migrations, no RLS edits.
-- No telemetry shipped anywhere — all data is local to the running tab.
-- No edits to sanitizer or memory-writer logic — diagnostics observes only.
-
-### Acceptance
-
-- In dev: brain icon visible bottom-left; sheet opens; all 5 sections populate within ≤1s of opening.
-- Send a chat → Memory Writer section flips to `ok` with `duration_ms` and counts; Leak Guard updates with `clean`/`sanitized`.
-- Mutate a row in `aion_decisions` → Brain + Environment sections update live (existing realtime).
-- Production build: panel and button absent from the DOM unless `localStorage['mindos.diag']='1'`.
+The orchestration loop you asked for IS wired end-to-end. Client heartbeat fires, edge function is reached, signals flow, downstream services emit. The single broken link is the brain choosing to discard its own output silently. Removing that silent path makes the loop actually breathe.
