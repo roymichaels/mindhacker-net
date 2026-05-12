@@ -50,11 +50,11 @@ export function HubModalHost() {
       {activeHub && (
         <motion.div
           key={activeHub}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 24 }}
+          initial={{ y: 24 }}
+          animate={{ y: 0 }}
+          exit={{ y: 24 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed inset-0 z-[95] bg-background flex flex-col"
+          className="fixed inset-0 z-[95] flex flex-col bg-background"
           style={{ backgroundColor: 'hsl(var(--background))', zIndex: 95 }}
         >
           <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border bg-background shrink-0">
@@ -73,7 +73,10 @@ export function HubModalHost() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto bg-background">
+          <div
+            className="flex-1 min-h-0 overflow-y-auto bg-background"
+            style={{ backgroundColor: 'hsl(var(--background))' }}
+          >
             <Suspense fallback={<PageSkeleton />}>
               <HubBody hub={activeHub} />
             </Suspense>
