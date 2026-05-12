@@ -379,6 +379,19 @@ const App = () => (
                                                 <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/profile" element={<Navigate to="/aurora" replace />} />
+                                                {/* Quarantined hubs — kept as backend engines / chat artifacts only.
+                                                    Redirect any stale deep-links so they never resurface as primary surfaces. */}
+                                                <Route path="/life" element={<Navigate to="/" replace />} />
+                                                <Route path="/life-plan" element={<Navigate to="/strategy" replace />} />
+                                                <Route path="/career" element={<Navigate to="/outer-world" replace />} />
+                                                <Route path="/arena" element={<Navigate to="/strategy" replace />} />
+                                                <Route path="/play-hub" element={<Navigate to="/strategy?tab=missions" replace />} />
+                                                <Route path="/work-hub" element={<Navigate to="/mindos/work" replace />} />
+                                                <Route path="/journal-hub" element={<Navigate to="/journal" replace />} />
+                                                <Route path="/profile-hub" element={<Navigate to="/aurora" replace />} />
+                                                <Route path="/coach-hub" element={<Navigate to="/coaches" replace />} />
+                                                <Route path="/creator-hub" element={<Navigate to="/creator" replace />} />
+                                                <Route path="/freelancer-hub" element={<Navigate to="/freelancer" replace />} />
                                                 <Route path="/strategy/presence" element={<PresenceHome />} />
                                                 <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                                                 <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
