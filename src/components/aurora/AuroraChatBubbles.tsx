@@ -356,6 +356,16 @@ function SaveToJournalButton({ excerpt }: { excerpt: string }) {
           if (error) throw error;
           if (data?.saved) {
             toast.success(isHe ? 'נשמר ביומן' : 'Saved to Journal');
+            // Surface as floating artifact inside Interactive AION mode.
+            try {
+              const { emitArtifact } = await import('@/components/aion/artifacts/artifactBus');
+              emitArtifact({
+                kind: 'journal_capture',
+                title: isHe ? 'נשמר ביומן' : 'Saved to Journal',
+                body: excerpt.slice(0, 140),
+                cta: { label: isHe ? 'פתח יומן' : 'Open Journal', href: '/journal' },
+              });
+            } catch {}
           } else {
             toast.message(isHe ? 'אין מספיק חומר רפלקטיבי לשמירה' : 'Not enough reflective content to save');
           }
