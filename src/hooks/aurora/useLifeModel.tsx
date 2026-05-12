@@ -161,25 +161,26 @@ export const useLifeModel = () => {
   useEffect(() => {
     if (!user?.id) return;
 
+    const suffix = `${user.id}-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
     const channels = [
       supabase
-        .channel('aurora-life-direction-realtime')
+        .channel(`aurora-life-direction-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_life_direction', filter: `user_id=eq.${user.id}` }, () => refetchDirection())
         .subscribe(),
       supabase
-        .channel('aurora-energy-patterns-realtime')
+        .channel(`aurora-energy-patterns-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_energy_patterns', filter: `user_id=eq.${user.id}` }, () => refetchEnergy())
         .subscribe(),
       supabase
-        .channel('aurora-behavioral-patterns-realtime')
+        .channel(`aurora-behavioral-patterns-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_behavioral_patterns', filter: `user_id=eq.${user.id}` }, () => refetchBehavioral())
         .subscribe(),
       supabase
-        .channel('aurora-focus-plans-realtime')
+        .channel(`aurora-focus-plans-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_focus_plans', filter: `user_id=eq.${user.id}` }, () => refetchFocus())
         .subscribe(),
       supabase
-        .channel('aurora-daily-minimums-realtime')
+        .channel(`aurora-daily-minimums-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_daily_minimums', filter: `user_id=eq.${user.id}` }, () => refetchMinimums())
         .subscribe(),
     ];
@@ -187,7 +188,8 @@ export const useLifeModel = () => {
     return () => {
       channels.forEach((ch) => supabase.removeChannel(ch));
     };
-  }, [user?.id, refetchDirection, refetchEnergy, refetchBehavioral, refetchFocus, refetchMinimums]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   return {
     lifeDirection,

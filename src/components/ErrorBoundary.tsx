@@ -101,7 +101,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
                 onClick={this.handleReload}
-                className="gap-2 bg-gradient-to-r from-pink-400 to-fuchsia-500 text-black hover:from-pink-300 hover:to-fuchsia-400 shadow-[0_0_30px_-5px_hsl(320_90%_65%/0.7)] border-0"
+                className="gap-2 bg-gradient-to-r from-pink-300 to-pink-500 text-black hover:from-pink-200 hover:to-pink-400 shadow-[0_0_30px_-5px_hsl(330_90%_70%/0.7)] border-0"
               >
                 <RefreshCw className="w-4 h-4" />
                 {isHe ? 'רענן עמוד' : 'Refresh page'}
