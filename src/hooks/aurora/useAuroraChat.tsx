@@ -243,6 +243,19 @@ export const useAuroraChat = (conversationId: string | null) => {
       console.warn('Failed to award XP:', e);
     }
 
+    // AION orchestration micro-skills (fire-and-forget — must not block chat)
+    try {
+      const { classifyIntent, detectEmotion } = await import('@/services/aionSkills');
+      const recentUserMsgs = messages
+        .filter((m) => !m.is_ai_message)
+        .slice(-2)
+        .map((m) => m.content);
+      classifyIntent(content, typeof window !== 'undefined' ? window.location.pathname : null);
+      detectEmotion([...recentUserMsgs, content]);
+    } catch (e) {
+      console.warn('[aion-skills] dispatch failed', e);
+    }
+
     // Build message history for AI
     const chatMessages: ChatMessage[] = [
       ...messages.map((m) => ({
