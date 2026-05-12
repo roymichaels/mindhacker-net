@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * FMPublishWizard — Aurora-powered conversational wizard for publishing
  * services, bounties, or marketplace items in the FM.

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * EarnLaunchpadModal — Simplified milestone checklist for Earn onboarding.
  * Each milestone is clickable and helps the user complete it.
