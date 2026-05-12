@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
+  ChevronRight,
   Sparkles,
   Network,
   Target,
@@ -22,6 +23,8 @@ import {
   User,
   Settings,
   Shield,
+  Bell,
+  Clock,
   type LucideIcon,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -68,10 +71,25 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
 
   const primary: Hub[] = [
     { id: 'aion', icon: Sparkles, labelEn: 'AION', labelHe: 'AION', action: () => go('/aurora') },
-    { id: 'graph', icon: Network, labelEn: 'Mind Map', labelHe: 'מפת תודעה', action: openProfileSheet },
+    { id: 'brain', icon: Network, labelEn: 'Brain', labelHe: 'מוח', action: openProfileSheet },
+    { id: 'memory', icon: Clock, labelEn: 'Memory', labelHe: 'זיכרון', action: () => go('/journal') },
+    { id: 'notifications', icon: Bell, labelEn: 'Notifications', labelHe: 'התראות', action: () => go('/notifications') },
+    ...(onOpenSettings
+      ? [{
+          id: 'settings-primary',
+          icon: Settings,
+          labelEn: 'Settings',
+          labelHe: 'הגדרות',
+          action: () => { setOpen(false); onOpenSettings(); },
+        } as Hub]
+      : [{ id: 'settings-primary', icon: Settings, labelEn: 'Settings', labelHe: 'הגדרות', action: () => go('/settings') } as Hub]),
+  ];
+
+  // Legacy capabilities kept reachable but moved out of primary nav.
+  // AION should summon these via conversation; this is a transition shelf.
+  const more: Hub[] = [
     { id: 'strategy', icon: Target, labelEn: 'Strategy', labelHe: 'אסטרטגיה', action: () => go('/strategy') },
     { id: 'hypnosis', icon: Brain, labelEn: 'Hypnosis', labelHe: 'היפנוזה', action: () => go('/hypnosis') },
-    { id: 'journal', icon: BookOpen, labelEn: 'Journal', labelHe: 'יומן', action: () => go('/journal') },
     { id: 'identity', icon: Fingerprint, labelEn: 'Identity', labelHe: 'זהות', action: openProfileSheet },
     { id: 'fm', icon: Coins, labelEn: 'Free Market', labelHe: 'שוק חופשי', action: () => go('/fm') },
     { id: 'community', icon: Users, labelEn: 'Community', labelHe: 'קהילה', action: () => go('/community') },
@@ -80,15 +98,6 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
 
   const secondary: Hub[] = [
     { id: 'profile', icon: User, labelEn: 'Profile', labelHe: 'פרופיל', action: openProfileSheet },
-    ...(onOpenSettings
-      ? [{
-          id: 'settings',
-          icon: Settings,
-          labelEn: 'Settings',
-          labelHe: 'הגדרות',
-          action: () => { setOpen(false); onOpenSettings(); },
-        } as Hub]
-      : []),
     ...(isAdmin
       ? [{
           id: 'admin',
