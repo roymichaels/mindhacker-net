@@ -52,9 +52,9 @@ function resolveTier(size: number, tier: OrbViewTier): 'presence' | 'standard' |
   return 'cinematic';
 }
 
-/** Geometry segments by tier */
+/** Geometry segments by tier — keeps silhouette smooth at every scale. */
 function tierSegments(t: 'presence' | 'standard' | 'cinematic'): number {
-  return t === 'presence' ? 64 : t === 'standard' ? 128 : 192;
+  return t === 'presence' ? 96 : t === 'standard' ? 160 : 256;
 }
 
 export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView(
@@ -132,7 +132,9 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   // State multipliers — applied on top of OrganicSphere's base params via props
   const stateMul = STATE_MULTIPLIERS[state];
   const legacyState = LEGACY_STATE_MAP[state];
-  const shouldUseFallback = !stageReady || resolvedTier === 'presence';
+  // Use the WebGL stage at every tier (header → cinematic). Only fall back
+  // to the CSS renderer when WebGL is genuinely unavailable.
+  const shouldUseFallback = !stageReady;
 
   const Wrapper: any = onClick ? 'button' : 'div';
   return (
