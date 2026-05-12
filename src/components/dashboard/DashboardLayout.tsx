@@ -16,6 +16,8 @@ import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
+import { HubModalHost } from '@/components/navigation/HubModalHost';
+import { HubModalProvider } from '@/contexts/HubModalContext';
 import { SettingsModal } from '@/components/settings';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -44,6 +46,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <AuroraActionsProvider>
       <SidebarProvider>
+        <HubModalProvider>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           {!headerHidden && (
             isMobile ? (
@@ -95,8 +98,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
           {!headerHidden && <AuroraDock />}
           {!headerHidden && <BottomTabBar />}
+          <HubModalHost />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
+        </HubModalProvider>
       </SidebarProvider>
     </AuroraActionsProvider>
   );
