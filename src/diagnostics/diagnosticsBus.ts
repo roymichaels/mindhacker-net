@@ -36,6 +36,14 @@ export type ResponseSourceEvent = {
   greeting: boolean;
   degraded: boolean;
   duplicateOfPrevious: boolean;
+  historyCount?: number;
+  assistantHistoryCount?: number;
+  historyFilteredCount?: number;
+  taskSource?: string;
+  currentTime?: string;
+  dailyBriefingSource?: string;
+  proactiveUsed?: boolean;
+  cachedResponse?: boolean;
   preview?: string;
 };
 
