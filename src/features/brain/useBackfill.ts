@@ -7,6 +7,16 @@ export interface BackfillResult {
   ok: boolean;
   totals: Counts;
   by_source: Record<string, Counts>;
+  source_counts?: {
+    onboarding: number;
+    assessments: number;
+    journals: number;
+    actions: number;
+    profile: number;
+    plans: number;
+  };
+  detailed_source_counts?: Record<string, number>;
+  message?: string;
   errors?: Record<string, string[]>;
 }
 
@@ -23,12 +33,13 @@ export function useBackfillBrain() {
     onSuccess: (res) => {
       const t = res.totals;
       const errCount = Object.values(res.errors ?? {}).reduce((s, a) => s + a.length, 0);
+      console.log("[brain] backfill result", res);
       if (t.inserted + t.updated === 0) {
         const firstErr = Object.values(res.errors ?? {})[0]?.[0];
         toast.error(
           firstErr
             ? `Brain backfill skipped everything: ${firstErr}`
-            : `Brain backfill found nothing to add (skipped ${t.skipped})`,
+            : (res.message ?? `Brain backfill found nothing to add (skipped ${t.skipped})`),
         );
       } else if (errCount > 0) {
         toast.warning(`Brain updated · +${t.inserted} new · ${t.updated} reinforced · ${errCount} errors`);
