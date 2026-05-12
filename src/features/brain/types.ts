@@ -30,6 +30,12 @@ export interface BrainOverview {
   recent: Array<{ id: string; type: string; content: string; confidence: number; last_evidence_at: string }>;
   unknown_areas: string[];
   generated_at: string;
+  debug?: {
+    source_counts?: Record<string, number>;
+    message?: string;
+    errors?: string[];
+    origin?: "fallback" | "backfill";
+  };
 }
 
 export interface BrainEvidenceRow {
