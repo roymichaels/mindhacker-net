@@ -131,6 +131,10 @@ export interface OrchestratorResult {
   promptVersion: string;
   lanes: LaneSet;
   intent: IntentKind;
+  // Conversation-as-Intake telemetry
+  probedPillar?: string | null;
+  surfacedContradictionId?: string | null;
+  intakeSummary?: { avg_confidence: number; lowest_pillars: string[]; open_contradictions: number };
 }
 
 export interface ValidatedRequest {
