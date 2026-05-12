@@ -4,7 +4,8 @@
  * Hub pages set their sidebars via useSidebars() hook.
  * Gates access behind authentication AND onboarding completion.
  */
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
+import { lazyWithRetry } from '@/lib/lazyWithRetry';
 import { Outlet } from 'react-router-dom';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { SidebarProvider } from '@/contexts/SidebarContext';
@@ -13,7 +14,7 @@ import { OnboardingGate } from '@/components/layout/OnboardingGate';
 import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
 import GameLayerBootstrap from '@/components/game/GameLayerBootstrap';
 
-const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
+const DashboardLayout = lazyWithRetry(() => import('@/components/dashboard/DashboardLayout'), 'DashboardLayout');
 
 export default function ProtectedAppShell() {
   return (
