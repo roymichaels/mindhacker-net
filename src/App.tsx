@@ -16,6 +16,8 @@ import { SoulAvatarProvider } from "@/contexts/SoulAvatarContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import { EnvironmentProvider, MotionLayer } from "@/orchestration";
+import { AIONStateProvider } from "@/contexts/AIONStateContext";
+import { AIONStateBridge } from "@/components/aion/AIONStateBridge";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
@@ -243,6 +245,8 @@ const App = () => (
                       <GameStateProvider>
                         <EnvironmentProvider>
                         <MotionLayer>
+                         <AIONStateProvider>
+                          <AIONStateBridge />
                          <SubscriptionsModalProvider>
                           <CoachesModalProvider>
                             <WalletModalProvider>
@@ -467,6 +471,7 @@ const App = () => (
                             </WalletModalProvider>
                           </CoachesModalProvider>
                          </SubscriptionsModalProvider>
+                         </AIONStateProvider>
                         </MotionLayer>
                         </EnvironmentProvider>
                       </GameStateProvider>

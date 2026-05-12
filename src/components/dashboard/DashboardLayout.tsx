@@ -18,6 +18,7 @@ import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { HubModalHost } from '@/components/navigation/HubModalHost';
 import { HubModalProvider, useHubModalSafe } from '@/contexts/HubModalContext';
 import { SettingsModal } from '@/components/settings';
+import { ChromeGate } from '@/orchestration';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
@@ -142,7 +143,11 @@ function DashboardLayoutInner({
             </main>
           </div>
 
-          {!headerHidden && !hubActive && <AuroraDock />}
+          {!headerHidden && !hubActive && (
+            <ChromeGate id="aurora-dock">
+              <AuroraDock />
+            </ChromeGate>
+          )}
           <HubModalHost />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
