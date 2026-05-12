@@ -75,7 +75,7 @@ class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-          <div className="glass-panel p-8 text-center max-w-md mx-auto space-y-6">
+          <div className="bg-card p-8 text-center max-w-md mx-auto space-y-6 rounded-2xl border border-pink-500/40 shadow-[0_0_40px_-10px_hsl(320_90%_65%/0.45)]">
             <div className="flex justify-center">
               <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
                 <AlertTriangle className="w-8 h-8 text-destructive" />
@@ -99,16 +99,17 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
+              <Button
                 onClick={this.handleReload}
-                className="gap-2"
+                className="gap-2 bg-gradient-to-r from-pink-400 to-fuchsia-500 text-black hover:from-pink-300 hover:to-fuchsia-400 shadow-[0_0_30px_-5px_hsl(320_90%_65%/0.7)] border-0"
               >
                 <RefreshCw className="w-4 h-4" />
                 {isHe ? 'רענן עמוד' : 'Refresh page'}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={this.handleGoHome}
+                className="border-pink-500/30 bg-transparent text-foreground hover:bg-pink-500/10"
               >
                 {isHe ? 'חזור לדף הבית' : 'Go to home page'}
               </Button>
