@@ -79,12 +79,6 @@ export const AvatarExperience = () => {
           <AvatarModel />
         </animated.group>
       </AvatarWrapper>
-      <Gltf
-        position-y={-0.31}
-        src="/models/Teleporter Base.glb"
-        castShadow
-        receiveShadow
-      />
       <LoadingAvatar loading={loading} />
     </>
   );
