@@ -249,6 +249,40 @@ async function computeHash(data: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
+const STALE_ASSISTANT_CONTEXT_PATTERNS = [
+  /השעה עכשיו/i,
+  /יש לך היום/i,
+  /היום יש לך/i,
+  /המשימות הבאות/i,
+  /בוקר טוב/i,
+  /current time/i,
+  /today you have/i,
+  /tasks scheduled for today/i,
+];
+
+function isStaleAssistantContext(text: string | null | undefined): boolean {
+  const value = (text || "").trim();
+  return !!value && STALE_ASSISTANT_CONTEXT_PATTERNS.some((pattern) => pattern.test(value));
+}
+
+function dateInTimezone(now: Date, timezone: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now);
+    const year = parts.find((part) => part.type === "year")?.value;
+    const month = parts.find((part) => part.type === "month")?.value;
+    const day = parts.find((part) => part.type === "day")?.value;
+    if (year && month && day) return `${year}-${month}-${day}`;
+  } catch {
+    // fallback below
+  }
+  return now.toISOString().split("T")[0];
+}
+
 // ─── Main Builder ──────────────────────────────────────────
 
 export async function buildContext(
@@ -258,9 +292,9 @@ export async function buildContext(
   clientTimezone?: string | null
 ): Promise<AuroraContext> {
   const now = new Date();
-  const today = now.toISOString().split("T")[0];
   // Use client-provided timezone > language-based fallback > UTC
   const userTimezone = clientTimezone || (language === 'he' ? 'Asia/Jerusalem' : 'UTC');
+  const today = dateInTimezone(now, userTimezone);
   
   // Use toLocaleString with timezone directly — avoid parsing locale strings back into Date
   let localTimeStr: string;
