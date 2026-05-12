@@ -13,9 +13,8 @@ import { StoryWorldShell } from '@/components/story/StoryWorldShell';
 import { StorySurfaceHost } from '@/components/story/StorySurfaceHost';
 
 import { HeaderActions } from '@/components/navigation/HeaderActions';
-import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
+import { AppSideMenu } from '@/components/navigation/AppSideMenu';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
-import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { HubModalHost } from '@/components/navigation/HubModalHost';
 import { HubModalProvider } from '@/contexts/HubModalContext';
 import { SettingsModal } from '@/components/settings';
@@ -60,7 +59,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               >
                 <div className="flex h-14 items-center justify-between px-3">
                   <div className="flex items-center gap-1">
-                    <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
+                    <AppSideMenu onOpenSettings={() => setSettingsOpen(true)} />
                   </div>
                   <HeaderActions compact />
                 </div>
@@ -76,7 +75,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
-                  <AppNameDropdown onOpenSettings={() => setSettingsOpen(true)} />
+                  <AppSideMenu onOpenSettings={() => setSettingsOpen(true)} />
                   <div className="flex items-center gap-1">
                     <HeaderActions />
                   </div>
@@ -86,7 +85,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           )}
 
           <div className="flex-1 min-h-0 flex !flex-row" dir="ltr">
-            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 relative ${isFM ? 'pb-16 md:pb-20' : headerHidden ? 'pb-0' : 'pb-20 md:pb-24'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+            <main className={`flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 flex flex-col transition-all duration-300 relative ${headerHidden ? 'pb-0' : 'pb-3'}`} dir={isRTL ? 'rtl' : 'ltr'}>
               {/* Route-colored ambient glow */}
               <div className="absolute inset-0 pointer-events-none" style={{ background: isDark ? theme.ambientGlowDark : theme.ambientGlow }} />
               {featureFlags.enableStoryWorld ? <StoryWorldShell compact={false} /> : null}
@@ -97,7 +96,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
 
           {!headerHidden && <AuroraDock />}
-          {!headerHidden && <BottomTabBar />}
           <HubModalHost />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
