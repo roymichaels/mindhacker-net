@@ -31,7 +31,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
-import { useHubModalSafe } from '@/contexts/HubModalContext';
 import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -55,7 +54,6 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
   const isDark = resolvedTheme === 'dark';
   const { hasRole, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
-  const hubModal = useHubModalSafe();
   const { openSubscriptions } = useSubscriptionsModal();
   const { openProfile } = useProfileModal();
 
