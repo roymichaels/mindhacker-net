@@ -10,7 +10,7 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { OrganicOrbCanvas } from './OrganicOrbCanvas';
 import { AIONChatPanel } from './AIONChatPanel';
 
-const HIDDEN_ROUTES = ['/avatar', '/onboarding', '/ceremony', '/founding', '/docs', '/go'];
+const HIDDEN_ROUTES = ['/avatar', '/onboarding', '/ceremony', '/founding', '/docs', '/go', '/mindos/chat'];
 const ORB_SIZE = 72;
 
 function AIONFloatingWidgetInner() {
