@@ -11,6 +11,8 @@ const corsHeaders = {
 type Counts = { inserted: number; updated: number; skipped: number };
 const newCounts = (): Counts => ({ inserted: 0, updated: 0, skipped: 0 });
 
+type SourceErrors = Record<string, string[]>;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -31,6 +33,7 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const bySource: Record<string, Counts> = {};
+    const errors: SourceErrors = {};
     const totals = newCounts();
 
     const upsert = async (
@@ -65,7 +68,13 @@ Deno.serve(async (req) => {
         p_emotional_charge: opts.emotionalCharge ?? null,
         p_summary: opts.summary ?? null,
       });
-      if (error) { c.skipped++; totals.skipped++; return; }
+      if (error) {
+        c.skipped++; totals.skipped++;
+        const list = (errors[source] ??= []);
+        if (list.length < 5) list.push(error.message ?? String(error));
+        console.warn(`[brain-backfill] upsert failed source=${source} type=${type}:`, error.message ?? error);
+        return;
+      }
       const created = (data as any)?.created;
       if (created) { c.inserted++; totals.inserted++; }
       else { c.updated++; totals.updated++; }
@@ -193,7 +202,98 @@ Deno.serve(async (req) => {
       });
     }
 
-    return json({ ok: true, totals, by_source: bySource });
+    // 7) onboarding progress
+    const { data: onboarding } = await supabase
+      .from('aurora_onboarding_progress')
+      .select('direction_clarity, identity_understanding, energy_patterns_status, energy_level, onboarding_complete')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (onboarding) {
+      if (onboarding.energy_level) {
+        await upsert('onboarding', 'pattern', `Baseline energy level: ${onboarding.energy_level}`, {
+          layer: 'pattern', deltaConf: 20, sourceRef: { field: 'energy_level' },
+        });
+      }
+      if (onboarding.identity_understanding) {
+        await upsert('onboarding', 'identity', `Identity understanding: ${onboarding.identity_understanding}`, {
+          layer: 'deep', deltaConf: 15, sourceRef: { field: 'identity_understanding' },
+        });
+      }
+      if (onboarding.direction_clarity) {
+        await upsert('onboarding', 'pattern', `Direction clarity: ${onboarding.direction_clarity}`, {
+          layer: 'pattern', deltaConf: 15, sourceRef: { field: 'direction_clarity' },
+        });
+      }
+    }
+
+    // 8) life plans + milestones
+    const { data: plans } = await supabase
+      .from('life_plans')
+      .select('id, plan_data, status, start_date, progress_percentage')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+    for (const p of plans ?? []) {
+      const pd: any = p.plan_data ?? {};
+      const vision = String(pd.vision ?? pd.summary ?? '').slice(0, 280);
+      if (vision) {
+        await upsert('life_plan', 'goal', vision, {
+          layer: 'pattern', deltaConf: 25, deltaStrength: 3,
+          sourceRef: { id: p.id, status: p.status },
+        });
+      }
+      const focusPillars: string[] = Array.isArray(pd.focus_pillars) ? pd.focus_pillars : [];
+      for (const fp of focusPillars) {
+        await upsert('life_plan', 'goal', `Plan focus: ${fp}`, {
+          layer: 'pattern', pillar: String(fp), deltaConf: 20,
+          sourceRef: { id: p.id, field: 'focus_pillars' },
+        });
+      }
+    }
+
+    const planIds = (plans ?? []).map((p) => p.id);
+    if (planIds.length > 0) {
+      const { data: milestones } = await supabase
+        .from('life_plan_milestones')
+        .select('id, plan_id, title, goal, focus_area, is_completed, week_number')
+        .in('plan_id', planIds)
+        .limit(200);
+      for (const m of milestones ?? []) {
+        const title = String(m.title ?? '').trim();
+        if (!title) continue;
+        await upsert('milestone', m.is_completed ? 'breakthrough' : 'goal', title, {
+          layer: m.is_completed ? 'pattern' : 'surface',
+          pillar: m.focus_area ?? null,
+          deltaConf: m.is_completed ? 20 : 10,
+          deltaStrength: m.is_completed ? 2 : 1,
+          sourceRef: { id: m.id, week: m.week_number, completed: m.is_completed },
+          summary: m.goal ?? null,
+        });
+      }
+    }
+
+    // 9) presence scans
+    const { data: scans } = await supabase
+      .from('presence_scans')
+      .select('id, derived_metrics, scores, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    for (const s of scans ?? []) {
+      const scores: any = s.scores ?? {};
+      const top = Object.entries(scores)
+        .filter(([, v]) => typeof v === 'number')
+        .sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+      if (top) {
+        await upsert('presence', 'pattern', `Presence signal: ${top[0]} (${Math.round(Number(top[1]))})`, {
+          layer: 'pattern', pillar: 'presence', deltaConf: 15,
+          sourceRef: { id: s.id, key: top[0] },
+        });
+      }
+    }
+
+    console.log('[brain-backfill] done', { userId, totals, bySource, errors });
+    return json({ ok: true, totals, by_source: bySource, errors });
   } catch (e) {
     console.error('brain-backfill error', e);
     return json({ error: String((e as Error)?.message ?? e) }, 500);
