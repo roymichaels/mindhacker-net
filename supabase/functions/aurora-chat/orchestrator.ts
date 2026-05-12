@@ -29,12 +29,108 @@ If the user did not explicitly ask for a summary, do not volunteer task lists, d
 
 export type AuroraMode = "full" | "lite" | "widget";
 
+// ─── Context Lanes ─────────────────────────────────────────
+// Hard separation between the 5 cognition layers. Only the lanes
+// requested by the resolved intent are merged into the prompt.
+export type Lane = "live" | "memory" | "planning" | "proactive" | "execution" | "analytics";
+export type LaneSet = Record<Lane, boolean>;
+
+export type IntentKind =
+  | "greeting"
+  | "time_query"
+  | "status_query"
+  | "plan_edit"
+  | "reflection"
+  | "conversational";
+
+export interface IntentResolution {
+  intent: IntentKind;
+  lanes: LaneSet;
+}
+
+const ALL_LANES_OFF: LaneSet = {
+  live: true, // live is always on
+  memory: false,
+  planning: false,
+  proactive: false,
+  execution: false,
+  analytics: false,
+};
+
+// Regex packs (Hebrew + English)
+const RX_TIME = /(מה השעה|איזו שעה|השעה עכשיו|what(?:'s| is) the time|current time|what time is it)/i;
+const RX_STATUS = /(מה יש לי היום|מה תכננתי|סיכום היום|בריפ|סטטוס|מה המצב|what (?:do i have|is on) today|today'?s (?:tasks|schedule|briefing)|status update|summary)/i;
+const RX_PLAN = /(תוכנית|אבני דרך|מילסטון|שבוע W?\d|פוקוס שבועי|plan|milestone|weekly goal|roadmap|strateg)/i;
+const RX_REFLECT = /(אני מרגיש|אני תקוע|אני חרד|אני עייף|רגש|פחד|חרדה|עזור לי להבין|למה אני|i feel|i'?m stuck|anxious|tired|overwhelmed|help me understand|why do i)/i;
+const RX_GREETING = /^(היי+|הי|שלום|בוקר טוב|ערב טוב|לילה טוב|מה קורה|מה נשמע|hi+|hello|hey+|yo|sup|good (morning|evening|night))[!?.\s]*$/i;
+
+/**
+ * Pure intent resolver. Inspects only the latest user message text.
+ * Lane defaults are intentionally narrow — keep AION present, not stitched.
+ */
+export function detectIntent(lastUserText: string, mode: AuroraMode): IntentResolution {
+  const text = (lastUserText || "").trim();
+  const lanes: LaneSet = { ...ALL_LANES_OFF };
+
+  if (mode === "widget") {
+    return { intent: "conversational", lanes };
+  }
+
+  // 1. Greeting / lite — live only
+  if (mode === "lite" || (text.length > 0 && text.length <= 30 && RX_GREETING.test(text))) {
+    return { intent: "greeting", lanes };
+  }
+
+  // 2. Time query — live only
+  if (RX_TIME.test(text) && text.length < 80) {
+    return { intent: "time_query", lanes };
+  }
+
+  // 3. Explicit status / "what do I have today" — execution + proactive
+  if (RX_STATUS.test(text)) {
+    return {
+      intent: "status_query",
+      lanes: { ...lanes, execution: true, proactive: true },
+    };
+  }
+
+  // 4. Plan editing / strategy — planning lane
+  if (RX_PLAN.test(text)) {
+    return {
+      intent: "plan_edit",
+      lanes: { ...lanes, planning: true },
+    };
+  }
+
+  // 5. Reflection / coaching — memory lane
+  if (RX_REFLECT.test(text)) {
+    return {
+      intent: "reflection",
+      lanes: { ...lanes, memory: true },
+    };
+  }
+
+  // 6. Default conversational — minimal: live + light memory
+  return {
+    intent: "conversational",
+    lanes: { ...lanes, memory: true },
+  };
+}
+
+export function lanesToString(lanes: LaneSet): string {
+  return (Object.keys(lanes) as Lane[])
+    .filter((k) => lanes[k])
+    .join(",");
+}
+
 export interface OrchestratorResult {
   systemPrompt: string;
   model: string;
   maxTokens: number;
   temperature: number;
   promptVersion: string;
+  lanes: LaneSet;
+  intent: IntentKind;
 }
 
 export interface ValidatedRequest {
@@ -149,7 +245,8 @@ export function prepare(
   language: string,
   knowledgeBase: string = "",
   customSystemPrompt: string | null = null,
-  pillar: string | null = null
+  pillar: string | null = null,
+  intent: IntentResolution = { intent: "conversational", lanes: { live: true, memory: true, planning: false, proactive: false, execution: false, analytics: false } }
 ): OrchestratorResult {
   const promptVersion = PROMPT_VERSIONS[mode];
 
@@ -161,11 +258,15 @@ export function prepare(
       maxTokens: 500,
       temperature: 0.7,
       promptVersion: `${promptVersion}-custom`,
+      lanes: intent.lanes,
+      intent: intent.intent,
     };
   }
 
-  const contextMarkdown = formatContextForPrompt(context, language, mode);
+  const contextMarkdown = formatContextForPrompt(context, language, mode, intent.lanes);
   const openerSection = formatOpenerContext(context, language);
+
+  const laneRules = buildLaneRules(intent, language);
 
   if (mode === "widget") {
     return {
@@ -174,16 +275,20 @@ export function prepare(
       maxTokens: 1000,
       temperature: 0.7,
       promptVersion,
+      lanes: intent.lanes,
+      intent: intent.intent,
     };
   }
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
       promptVersion,
+      lanes: intent.lanes,
+      intent: intent.intent,
     };
   }
 
@@ -194,6 +299,7 @@ export function prepare(
     systemPrompt:
       FINAL_ONLY_GUARD +
       HISTORY_ONLY_RULES +
+      laneRules +
       buildFullPrompt(language, contextMarkdown, openerSection) +
       pillarSection +
       socraticSection,
@@ -201,7 +307,38 @@ export function prepare(
     maxTokens: 1000,
     temperature: 0.7,
     promptVersion,
+    lanes: intent.lanes,
+    intent: intent.intent,
   };
+}
+
+// ─── Lane Rules block ──────────────────────────────────────
+
+function buildLaneRules(intent: IntentResolution, language: string): string {
+  const isHe = language === "he";
+  const active = (Object.keys(intent.lanes) as Lane[]).filter((k) => intent.lanes[k]);
+  if (isHe) {
+    return `# שכבות הקשר פעילות (CONTEXT LANES)
+כוונת המשתמש זוהתה כ: ${intent.intent}.
+שכבות פעילות בלבד: ${active.join(", ")}.
+חוקים נוקשים:
+- אל תזכיר נתונים משכבות שלא מופיעות בהקשר. אם אין execution — אל תזכיר משימות. אם אין planning — אל תזכיר אבני דרך, W1, שבוע, יעדים שבועיים, או "אופטימיזציה". אם אין proactive — אל תזכיר תזכורות, משימות באיחור, או הצעות יזומות.
+- אם המשתמש רק שאל "מה השעה" — ענה רק את השעה, בלי שום הקשר נוסף.
+- אל תמציא אבני דרך, אימונים, או נתוני אנליטיקה שלא מופיעים בהקשר.
+- אל תוסיף תוכן מוטיבציוני סינתטי (W1, "שלב 1", "מסע" וכו') אלא אם המשתמש ביקש במפורש.
+
+`;
+  }
+  return `# Active context lanes
+Detected intent: ${intent.intent}.
+Active lanes only: ${active.join(", ")}.
+Hard rules:
+- Never mention data from lanes that are not in the context block. No execution lane → no task lists. No planning lane → no milestones, W1, weekly goals, or optimization talk. No proactive lane → no reminders, overdue items, or proactive nudges.
+- If the user only asked "what time is it", answer ONLY the time. No surrounding context.
+- Do not invent milestones, training blocks, or analytics that are not in the context.
+- Do not add synthetic motivational padding (W1, "Step 1", "journey", etc.) unless the user explicitly asked for it.
+
+`;
 }
 
 // ─── Socratic Mode ─────────────────────────────────────────
@@ -352,12 +489,17 @@ You are currently in the Coach Matching Wizard. Your goal is to understand what 
 
 // ─── Context → Markdown Formatter ──────────────────────────
 
-function formatContextForPrompt(ctx: AuroraContext, language: string, mode: AuroraMode = "full"): string {
+function formatContextForPrompt(
+  ctx: AuroraContext,
+  language: string,
+  mode: AuroraMode = "full",
+  lanes: LaneSet = { live: true, memory: false, planning: false, proactive: false, execution: false, analytics: false }
+): string {
   const isHe = language === "he";
   const parts: string[] = [];
   const isGreetingLite = mode === "lite";
 
-  // Dates & Time Awareness (enriched)
+  // ── LIVE lane (always on): time + minimal user identity ──
   parts.push(isHe
     ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה מקומית: ${ctx.current_time_local}\n- אזור זמן: ${ctx.user_timezone}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
     : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Local time: ${ctx.current_time_local}\n- Timezone: ${ctx.user_timezone}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
@@ -369,14 +511,15 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
     return parts.join("\n\n");
   }
 
-  if (ctx.life_plan) {
+  // ── PLANNING lane ──
+  if (lanes.planning && ctx.life_plan) {
     parts.push(isHe
       ? `- תוכנית חיים פעילה מאז: ${ctx.life_plan.start_date}\n- **יום ${ctx.life_plan.current_day} מתוך 100** (נותרו ${ctx.life_plan.days_remaining} ימים)\n- שבוע נוכחי: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`
       : `- Active life plan since: ${ctx.life_plan.start_date}\n- **Day ${ctx.life_plan.current_day} of 100** (${ctx.life_plan.days_remaining} days remaining)\n- Current week: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`);
   }
 
-  // Habits
-  if (ctx.action_items.habits.length > 0) {
+  // ── EXECUTION lane ──
+  if (lanes.execution && ctx.action_items.habits.length > 0) {
     const habitLines = ctx.action_items.habits.map(h => {
       const status = h.completed_today ? "✅" : "❓";
       const streak = h.streak > 0 ? ` (streak: ${h.streak}${h.streak >= 3 ? " 🔥" : ""})` : "";
@@ -387,15 +530,15 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 🔄 Daily Habit Tracking (today: ${ctx.today})\n${habitLines.join("\n")}\nTotal: ${ctx.habits_status.completed}/${ctx.habits_status.total}`);
   }
 
-  // Reminders
-  if (ctx.pending_reminders.length > 0) {
+  // ── PROACTIVE lane ──
+  if (lanes.proactive && ctx.pending_reminders.length > 0) {
     parts.push(isHe
       ? `## ⏰ תזכורות להיום\n${ctx.pending_reminders.map(r => `- ${r.message}`).join("\n")}`
       : `## ⏰ Today's Reminders\n${ctx.pending_reminders.map(r => `- ${r.message}`).join("\n")}`);
   }
 
-  // Memory
-  if (ctx.conversation_memories.length > 0) {
+  // ── MEMORY lane ──
+  if (lanes.memory && ctx.conversation_memories.length > 0) {
     const lines = ctx.conversation_memories.map(m => {
       const recency = m.days_ago === 0 ? (isHe ? '(היום)' : '(today)') : m.days_ago === 1 ? (isHe ? '(אתמול)' : '(yesterday)') : `(${m.days_ago} ${isHe ? 'ימים' : 'days'})`;
       const emoState = m.emotional_state ? ` | ${isHe ? 'מצב רוח' : 'mood'}: ${m.emotional_state}` : '';
@@ -406,15 +549,15 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 🧠 Recent Conversation Memory (time-aware)\n${lines.join("\n")}`);
   }
 
-  // Launchpad
-  if (ctx.launchpad_summary) {
+  // ── PLANNING lane: launchpad ──
+  if (lanes.planning && ctx.launchpad_summary) {
     parts.push(isHe
       ? `## 📋 סיכום מסע הטרנספורמציה\n${ctx.launchpad_summary.summary || "לא הושלם"}${ctx.launchpad_summary.transformation_readiness ? `\nמוכנות: ${ctx.launchpad_summary.transformation_readiness}%` : ""}`
       : `## 📋 Transformation Journey Summary\n${ctx.launchpad_summary.summary || "Not completed"}${ctx.launchpad_summary.transformation_readiness ? `\nReadiness: ${ctx.launchpad_summary.transformation_readiness}%` : ""}`);
   }
 
-  // Overdue
-  if (ctx.action_items.overdue_tasks.length > 0) {
+  // ── PROACTIVE lane: overdue ──
+  if (lanes.proactive && ctx.action_items.overdue_tasks.length > 0) {
     const lines = ctx.action_items.overdue_tasks.map(t => {
       const daysOverdue = Math.ceil((new Date(ctx.today).getTime() - new Date(t.due_at).getTime()) / (1000 * 60 * 60 * 24));
       return `- "${t.title}" - ${daysOverdue} ${isHe ? "ימים באיחור" : "days overdue"}${t.pillar ? ` [${t.pillar}]` : ''}`;
@@ -424,16 +567,16 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## ⚠️ Overdue Tasks!\n${lines.join("\n")}`);
   }
 
-  // Today's pending tasks
-  if (ctx.action_items.today_tasks.length > 0) {
+  // ── EXECUTION lane: today's pending ──
+  if (lanes.execution && ctx.action_items.today_tasks.length > 0) {
     const lines = ctx.action_items.today_tasks.map(t => `- "${t.title}" [${t.status}]${t.pillar ? ` (${t.pillar})` : ''}`);
     parts.push(isHe
       ? `## 📅 משימות להיום (ממתינות)\n${lines.join("\n")}`
       : `## 📅 Today's Pending Tasks\n${lines.join("\n")}`);
   }
 
-  // Today's completed tasks
-  if (ctx.action_items.today_completed.length > 0) {
+  // ── EXECUTION lane: today's completed ──
+  if (lanes.execution && ctx.action_items.today_completed.length > 0) {
     const lines = ctx.action_items.today_completed.map(t => {
       const time = new Date(t.completed_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', timeZone: ctx.user_timezone || 'UTC' });
       return `- ✅ "${t.title}" (${isHe ? 'הושלם ב-' : 'completed at '}${time})${t.pillar ? ` [${t.pillar}]` : ''}`;
@@ -443,8 +586,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## ✅ Tasks Completed Today\n${lines.join("\n")}`);
   }
 
-  // Recently completed (last 7 days)
-  if (ctx.action_items.recently_completed.length > 0) {
+  // ── ANALYTICS lane: recently completed ──
+  if (lanes.analytics && ctx.action_items.recently_completed.length > 0) {
     const lines = ctx.action_items.recently_completed.slice(0, 10).map(t => 
       `- "${t.title}" (${t.days_ago} ${isHe ? 'ימים' : 'days'} ago)${t.pillar ? ` [${t.pillar}]` : ''}`
     );
@@ -453,8 +596,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 📜 Recently Completed (7 days)\n${lines.join("\n")}`);
   }
 
-  // Upcoming tasks
-  if (ctx.action_items.upcoming_tasks.length > 0) {
+  // ── PROACTIVE lane: upcoming ──
+  if (lanes.proactive && ctx.action_items.upcoming_tasks.length > 0) {
     const lines = ctx.action_items.upcoming_tasks.map(t => 
       `- "${t.title}" → ${t.scheduled_date}${t.pillar ? ` [${t.pillar}]` : ''}`
     );
@@ -463,7 +606,7 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 🔜 Upcoming Tasks (next 3 days)\n${lines.join("\n")}`);
   }
 
-  // Profile
+  // ── LIVE lane: profile (always for non-greeting) ──
   const genderText = isHe
     ? (ctx.profile.gender === "male" ? "זכר (פנה אליו בלשון זכר)" : ctx.profile.gender === "female" ? "נקבה (פני אליה בלשון נקבה)" : "ניטרלי")
     : (ctx.profile.gender || "neutral");
@@ -472,45 +615,40 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
     ? `## פרופיל משתמש\n- שם: ${ctx.profile.full_name}\n- מגדר לפנייה: ${genderText}\n- סגנון: ${ctx.profile.preferred_tone}\n- עוצמת אתגר: ${ctx.profile.challenge_intensity}`
     : `## User Profile\n- Name: ${ctx.profile.full_name}\n- Preferred tone: ${ctx.profile.preferred_tone}\n- Challenge intensity: ${ctx.profile.challenge_intensity}`);
 
-  // Direction & identity
-  parts.push(isHe
-    ? `## כיוון חיים\n${ctx.direction?.content || "טרם הוגדר"}${ctx.direction?.clarity_score ? ` (בהירות: ${ctx.direction.clarity_score}%)` : ""}`
-    : `## Life Direction\n${ctx.direction?.content || "Not yet defined"}${ctx.direction?.clarity_score ? ` (Clarity: ${ctx.direction.clarity_score}%)` : ""}`);
-
-  parts.push(isHe
-    ? `## זהות\n- ערכים: ${ctx.identity.values.join(", ") || "טרם זוהו"}\n- עקרונות: ${ctx.identity.principles.join(", ") || "טרם זוהו"}`
-    : `## Identity\n- Values: ${ctx.identity.values.join(", ") || "Not yet identified"}\n- Principles: ${ctx.identity.principles.join(", ") || "Not yet identified"}`);
-
-  // Commitments
-  if (ctx.commitments.length > 0) {
+  // ── PLANNING lane: identity, direction, commitments, focus, daily minimums ──
+  if (lanes.planning) {
     parts.push(isHe
-      ? `## התחייבויות פעילות\n${ctx.commitments.map(c => `- ${c}`).join("\n")}`
-      : `## Active Commitments\n${ctx.commitments.map(c => `- ${c}`).join("\n")}`);
+      ? `## כיוון חיים\n${ctx.direction?.content || "טרם הוגדר"}${ctx.direction?.clarity_score ? ` (בהירות: ${ctx.direction.clarity_score}%)` : ""}`
+      : `## Life Direction\n${ctx.direction?.content || "Not yet defined"}${ctx.direction?.clarity_score ? ` (Clarity: ${ctx.direction.clarity_score}%)` : ""}`);
+
+    parts.push(isHe
+      ? `## זהות\n- ערכים: ${ctx.identity.values.join(", ") || "טרם זוהו"}\n- עקרונות: ${ctx.identity.principles.join(", ") || "טרם זוהו"}`
+      : `## Identity\n- Values: ${ctx.identity.values.join(", ") || "Not yet identified"}\n- Principles: ${ctx.identity.principles.join(", ") || "Not yet identified"}`);
+
+    if (ctx.commitments.length > 0) {
+      parts.push(isHe
+        ? `## התחייבויות פעילות\n${ctx.commitments.map(c => `- ${c}`).join("\n")}`
+        : `## Active Commitments\n${ctx.commitments.map(c => `- ${c}`).join("\n")}`);
+    }
+    if (ctx.focus) {
+      parts.push(isHe
+        ? `## פוקוס נוכחי\n${ctx.focus.title} (${ctx.focus.duration_days} ימים)`
+        : `## Current Focus\n${ctx.focus.title} (${ctx.focus.duration_days} days)`);
+    }
+    if (ctx.daily_minimums.length > 0) {
+      parts.push(isHe
+        ? `## מינימום יומי\n${ctx.daily_minimums.map(m => `- ${m}`).join("\n")}`
+        : `## Daily Minimums\n${ctx.daily_minimums.map(m => `- ${m}`).join("\n")}`);
+    }
   }
 
-  // Energy & behavioral patterns
-  if (ctx.energy_patterns.length > 0) {
+  // ── ANALYTICS lane: energy patterns, projects ──
+  if (lanes.analytics && ctx.energy_patterns.length > 0) {
     parts.push(isHe
       ? `## דפוסי אנרגיה\n${ctx.energy_patterns.map(e => `- ${e.type}: ${e.description}`).join("\n")}`
       : `## Energy Patterns\n${ctx.energy_patterns.map(e => `- ${e.type}: ${e.description}`).join("\n")}`);
   }
-
-  // Focus
-  if (ctx.focus) {
-    parts.push(isHe
-      ? `## פוקוס נוכחי\n${ctx.focus.title} (${ctx.focus.duration_days} ימים)`
-      : `## Current Focus\n${ctx.focus.title} (${ctx.focus.duration_days} days)`);
-  }
-
-  // Daily minimums
-  if (ctx.daily_minimums.length > 0) {
-    parts.push(isHe
-      ? `## מינימום יומי\n${ctx.daily_minimums.map(m => `- ${m}`).join("\n")}`
-      : `## Daily Minimums\n${ctx.daily_minimums.map(m => `- ${m}`).join("\n")}`);
-  }
-
-  // Projects
-  if (ctx.projects.length > 0) {
+  if (lanes.analytics && ctx.projects.length > 0) {
     const projLines = ctx.projects.map(p => {
       const staleWarning = p.days_since_update >= 7 ? (isHe ? `⚠️ לא עודכן ${p.days_since_update} ימים!` : `⚠️ Not updated in ${p.days_since_update} days!`) : "";
       return `- "${p.name}" (${p.category || (isHe ? "כללי" : "General")}, ${p.progress}%${p.target_date ? `, ${isHe ? "יעד" : "target"}: ${p.target_date}` : ""})\n  ${staleWarning}`.trim();
@@ -520,16 +658,16 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 📂 Active Projects\n${projLines.join("\n")}`);
   }
 
-  // Open checklists summary
-  if (ctx.action_items.open_checklists.length > 0) {
+  // ── EXECUTION lane: open checklists ──
+  if (lanes.execution && ctx.action_items.open_checklists.length > 0) {
     const lines = ctx.action_items.open_checklists.map(c => `- ${c.title} (${c.children_done}/${c.children_total})`);
     parts.push(isHe
       ? `## רשימות פעילות\n${lines.join("\n")}`
       : `## Active Checklists\n${lines.join("\n")}`);
   }
 
-  // Plan milestones (for live editing)
-  if (ctx.plan_milestones && ctx.plan_milestones.length > 0) {
+  // ── PLANNING lane: milestones (W1...) ──
+  if (lanes.planning && ctx.plan_milestones && ctx.plan_milestones.length > 0) {
     const lines = ctx.plan_milestones.map(m => {
       const status = m.is_completed ? "✅" : "⬜";
       const tasks = m.tasks ? ` | ${isHe ? 'משימות' : 'tasks'}: ${m.tasks.map((t: any, i: number) => `[${i}]${typeof t === 'string' ? t : (t as any).title || JSON.stringify(t)}`).join(', ')}` : '';
@@ -540,13 +678,13 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 📋 Plan Milestones (live-editable!)\n⚠️ When user asks to edit/change/fix something in the plan - USE plan: tags to actually make the change! Don't just talk about it!\n${lines.join("\n")}`);
   }
 
-  // Progress
-  parts.push(isHe
-    ? `## סטטוס התקדמות\n- בהירות כיוון: ${ctx.onboarding.direction_clarity}\n- הבנת זהות: ${ctx.onboarding.identity_understanding}\n- מיפוי אנרגיה: ${ctx.onboarding.energy_patterns_status}`
-    : `## Progress Status\n- Direction clarity: ${ctx.onboarding.direction_clarity}\n- Identity understanding: ${ctx.onboarding.identity_understanding}\n- Energy mapping: ${ctx.onboarding.energy_patterns_status}`);
-
-  // Adaptive Difficulty Signals
-  if (ctx.pulse_week) {
+  // ── ANALYTICS lane: progress + adaptive difficulty ──
+  if (lanes.analytics) {
+    parts.push(isHe
+      ? `## סטטוס התקדמות\n- בהירות כיוון: ${ctx.onboarding.direction_clarity}\n- הבנת זהות: ${ctx.onboarding.identity_understanding}\n- מיפוי אנרגיה: ${ctx.onboarding.energy_patterns_status}`
+      : `## Progress Status\n- Direction clarity: ${ctx.onboarding.direction_clarity}\n- Identity understanding: ${ctx.onboarding.identity_understanding}\n- Energy mapping: ${ctx.onboarding.energy_patterns_status}`);
+  }
+  if (lanes.analytics && ctx.pulse_week) {
     const pw = ctx.pulse_week;
     // Compute completion stats from action items
     const totalToday = ctx.action_items.today_tasks.length + ctx.action_items.today_completed.length;
@@ -559,16 +697,14 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 📊 Adaptive Difficulty Engine\n- Avg energy (7d): ${pw.avg_energy}/5\n- Avg confidence: ${pw.avg_confidence}/5\n- Overall compliance: ${pw.compliance}%\n- Recovery debt: ${pw.recovery_debt}%\n- Today's task completion: ${completionPct}%\n- Today's habit completion: ${habitsCompletionPct}%\n- Days logged this week: ${pw.days_logged}/7\n⚠️ If you detect a clear pattern (positive or negative), suggest a difficulty change to the user!`);
   }
 
-  // Recent insights
-  if (ctx.recent_insights.length > 0) {
+  // ── MEMORY lane: recent insights, cross-conversation, memory graph ──
+  if (lanes.memory && ctx.recent_insights.length > 0) {
     const lines = ctx.recent_insights.map(i => `- ${i.type}: "${i.content}"`);
     parts.push(isHe
       ? `## 💡 תובנות אחרונות\n${lines.join("\n")}`
       : `## 💡 Recent Insights\n${lines.join("\n")}`);
   }
-
-  // Cross-conversation memory (one brain across all pillars)
-  if (ctx.cross_conversation_history.length > 0) {
+  if (lanes.memory && ctx.cross_conversation_history.length > 0) {
     const lines = ctx.cross_conversation_history.map(m => {
       const pillarTag = m.pillar ? ` [${m.pillar}]` : '';
       const roleLabel = m.role === 'aurora' ? 'Assistant (historical only)' : (isHe ? 'משתמש' : 'User');
@@ -579,9 +715,7 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       ? `## 🧠 זיכרון צולב-שיחות (היסטורי בלבד)\nאלה קטעים אחרונים משיחות קודמות. הם לא עובדות עדכניות, ולא מקור לסיכום פתיחה.\n${lines.join("\n")}`
       : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — with exact timestamps. I remember everything.\n${lines.join("\n")}`);
   }
-
-  // Memory Graph (Knowledge Graph of beliefs, fears, breakthroughs, patterns)
-  if (ctx.memory_graph && ctx.memory_graph.length > 0) {
+  if (lanes.memory && ctx.memory_graph && ctx.memory_graph.length > 0) {
     const nodeTypeLabels: Record<string, { en: string; he: string; emoji: string }> = {
       belief: { en: "Belief", he: "אמונה", emoji: "💭" },
       fear: { en: "Fear", he: "פחד", emoji: "😰" },
@@ -603,8 +737,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 🕸️ Deep Knowledge Graph (beliefs, fears, breakthroughs)\nThese are the deepest things I know about you. 🔴=recent, 🟡=this week, ⚪=older. Use this knowledge gently but clearly.\n${lines.join("\n")}`);
   }
 
-  // ── Strategic Plans ─────────────────────────────────
-  if (ctx.active_plans && ctx.active_plans.length > 0) {
+  // ── PLANNING lane: strategic plans + missions ──
+  if (lanes.planning && ctx.active_plans && ctx.active_plans.length > 0) {
     const lines = ctx.active_plans.map(p => {
       const pillars = p.pillars.length > 0 ? p.pillars.join(', ') : (isHe ? 'לא צוינו' : 'none');
       return `- Plan ${p.id.slice(0, 8)} | ${p.start_date} → ${p.end_date} | ${isHe ? 'התקדמות' : 'progress'}: ${p.progress_percentage}% | ${isHe ? 'פילרים' : 'pillars'}: ${pillars}${p.plan_summary ? ` | ${p.plan_summary.slice(0, 100)}` : ''}`;
@@ -613,9 +747,7 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       ? `## 🗺️ תוכניות אסטרטגיות פעילות\n${lines.join("\n")}`
       : `## 🗺️ Active Strategic Plans\n${lines.join("\n")}`);
   }
-
-  // ── Plan Missions ───────────────────────────────────
-  if (ctx.plan_missions && ctx.plan_missions.length > 0) {
+  if (lanes.planning && ctx.plan_missions && ctx.plan_missions.length > 0) {
     const lines = ctx.plan_missions.map(m => {
       const status = m.is_completed ? '✅' : '⬜';
       return `- ${status} M${m.mission_number} [${m.pillar}]: "${m.title}"${m.description ? ` — ${m.description.slice(0, 80)}` : ''}`;
@@ -626,8 +758,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 🎯 Strategic Missions (${completed}/${ctx.plan_missions.length} completed)\n${lines.join("\n")}`);
   }
 
-  // ── Tactical Schedule (today's blocks) ──────────────
-  if (ctx.tactical_schedule_today && ctx.tactical_schedule_today.length > 0) {
+  // ── EXECUTION lane: today's tactical schedule ──
+  if (lanes.execution && ctx.tactical_schedule_today && ctx.tactical_schedule_today.length > 0) {
     const lines = ctx.tactical_schedule_today.map(b => {
       const actionLines = b.actions.map(a => `    - ${a.title} (${a.duration}${isHe ? ' דק׳' : 'min'})`).join("\n");
       return `- **${b.block_title}** [${b.block_category}]\n${actionLines}`;
@@ -637,8 +769,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string, mode: Auro
       : `## 📋 Today's Tactical Schedule\nThis is the detailed schedule built for today. Use it to track and advise.\n${lines.join("\n")}`);
   }
 
-  // ── Domain Assessment Scores ────────────────────────
-  if (ctx.domain_scores && ctx.domain_scores.length > 0) {
+  // ── ANALYTICS lane: domain assessment scores ──
+  if (lanes.analytics && ctx.domain_scores && ctx.domain_scores.length > 0) {
     const scored = ctx.domain_scores.filter(d => d.score !== null);
     if (scored.length > 0) {
       const lines = scored.map(d => `- ${d.domain_id}: ${d.score}/100 (${d.status})`);

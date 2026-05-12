@@ -9,7 +9,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildContext } from "./contextBuilder.ts";
-import { validateRequest, getWidgetSettings, getKnowledgeBase, prepare } from "./orchestrator.ts";
+import { validateRequest, getWidgetSettings, getKnowledgeBase, prepare, detectIntent, lanesToString } from "./orchestrator.ts";
 import { fetchWithTimeout } from "../_shared/fetchWithRetry.ts";
 import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
@@ -40,7 +40,7 @@ function isStaleAssistantHistoryMessage(content: unknown): boolean {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-  "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded, x-aurora-history-count, x-aurora-history-assistant-count, x-aurora-history-filtered-count, x-aurora-task-source, x-aurora-current-time, x-aurora-daily-briefing-source, x-aurora-proactive-used, x-aurora-cached-response",
+  "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded, x-aurora-history-count, x-aurora-history-assistant-count, x-aurora-history-filtered-count, x-aurora-task-source, x-aurora-current-time, x-aurora-daily-briefing-source, x-aurora-proactive-used, x-aurora-cached-response, x-aurora-intent, x-aurora-lanes",
 };
 
 serve(async (req) => {
@@ -172,8 +172,12 @@ serve(async (req) => {
     };
     const OPENROUTER_DEFAULT = TIER_MODELS.free;
 
+    // 3c. Detect intent → resolve active context lanes
+    const intentResolution = detectIntent(lastUserText, mode);
+    console.log(`[aurora-chat] intent=${intentResolution.intent} lanes=${lanesToString(intentResolution.lanes)}`);
+
     // 4. Orchestrate (Layer 2 - policy + routing)
-    const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar);
+    const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar, intentResolution);
     // Use vision-capable model when images are present; otherwise tier-based model
     const tierModel = TIER_MODELS[userTier] || OPENROUTER_DEFAULT;
     const model = hasImages
@@ -286,11 +290,13 @@ serve(async (req) => {
         "X-Aurora-History-Count": String(modelMessages.length),
         "X-Aurora-History-Assistant-Count": String(historyStats.assistantIncluded),
         "X-Aurora-History-Filtered-Count": String(historyStats.filteredOut),
-        "X-Aurora-Task-Source": mode === "lite" ? "none:greeting-lite" : "action_items:today",
+        "X-Aurora-Task-Source": intentResolution.lanes.execution ? "action_items:today" : `none:lane-${intentResolution.intent}`,
         "X-Aurora-Current-Time": context.current_time_local,
-        "X-Aurora-Daily-Briefing-Source": mode === "lite" ? "none:greeting-lite" : "disabled-unless-explicit",
+        "X-Aurora-Daily-Briefing-Source": intentResolution.lanes.proactive ? "proactive-lane" : "disabled",
         "X-Aurora-Proactive-Used": "false",
         "X-Aurora-Cached-Response": "false",
+        "X-Aurora-Intent": intentResolution.intent,
+        "X-Aurora-Lanes": lanesToString(intentResolution.lanes),
       },
     });
   } catch (error: unknown) {

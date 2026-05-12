@@ -434,6 +434,8 @@ export const useAuroraChat = (conversationId: string | null) => {
           dailyBriefingSource: response.headers.get('x-aurora-daily-briefing-source') || 'unknown',
           proactiveUsed: (response.headers.get('x-aurora-proactive-used') || '') === 'true',
           cachedResponse: (response.headers.get('x-aurora-cached-response') || '') === 'true',
+          intent: response.headers.get('x-aurora-intent') || 'unknown',
+          lanes: response.headers.get('x-aurora-lanes') || '',
           preview: cleanedContent.slice(0, 240),
         });
         if (duplicate) {
