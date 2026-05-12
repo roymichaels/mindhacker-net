@@ -63,7 +63,7 @@ export const diagnosticsBus = {
     return () => listeners[kind].delete(listener as Listener<K>);
   },
   last<K extends keyof EventMap>(kind: K): EventMap[K] | undefined {
-    return last[kind];
+    return last[kind] as EventMap[K] | undefined;
   },
 };
 
