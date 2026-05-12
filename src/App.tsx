@@ -69,7 +69,6 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Documentation = lazy(() => import("./pages/Documentation"));
-const HallwayShell = lazy(() => import("./hallway/HallwayShell"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const OrbGalleryPage = lazy(() => import("./pages/OrbGallery"));
 const CommunityLayoutWrapper = lazy(() => import("./components/community/CommunityLayoutWrapper"));
@@ -301,10 +300,6 @@ const App = () => (
                                               <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
                                               <Route path="/unsubscribe" element={<Unsubscribe />} />
                                               <Route path="/docs" element={<Documentation />} />
-
-                                              {/* Hallway preview — consciousness OS shell (Phase 1 scaffold) */}
-                                              <Route path="/hallway" element={<HallwayShell />} />
-                                              <Route path="/hallway/:roomId" element={<HallwayShell />} />
 
                                               {/* Avatar configurator — full-screen, no AppShell */}
                                               <Route path="/avatar" element={<ProtectedRoute><AvatarConfiguratorPage /></ProtectedRoute>} />
