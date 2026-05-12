@@ -13,8 +13,7 @@ import { StoryWorldShell } from '@/components/story/StoryWorldShell';
 import { StorySurfaceHost } from '@/components/story/StorySurfaceHost';
 
 import { HeaderActions } from '@/components/navigation/HeaderActions';
-import { AppSideMenu } from '@/components/navigation/AppSideMenu';
-import { HeaderBrand } from '@/components/navigation/HeaderBrand';
+import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { HubModalHost } from '@/components/navigation/HubModalHost';
 import { HubModalProvider, useHubModalSafe } from '@/contexts/HubModalContext';
@@ -107,11 +106,8 @@ function DashboardLayoutInner({
                 data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-3">
-                  <HeaderBrand />
-                  <div className="flex items-center gap-1">
-                    <HeaderActions compact />
-                    <AppSideMenu onOpenSettings={() => setSettingsOpen(true)} />
-                  </div>
+                  <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
+                  <HeaderActions compact />
                 </div>
               </header>
             ) : (
@@ -125,11 +121,8 @@ function DashboardLayoutInner({
                 data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
-                  <HeaderBrand />
-                  <div className="flex items-center gap-1">
-                    <HeaderActions />
-                    <AppSideMenu onOpenSettings={() => setSettingsOpen(true)} />
-                  </div>
+                  <AppNameDropdown onOpenSettings={() => setSettingsOpen(true)} />
+                  <HeaderActions />
                 </div>
               </header>
             )
