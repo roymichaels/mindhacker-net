@@ -47,7 +47,7 @@ const Index = () => {
   useEffect(() => {
     if (!loading && user) {
       // Direct navigation without extra timeout
-      navigate('/mindos/tactics', { replace: true });
+      navigate('/mindos/chat', { replace: true });
     }
   }, [user, loading, navigate]);
 

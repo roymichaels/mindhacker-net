@@ -1,8 +1,8 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useStoryWorld } from '@/contexts/StoryWorldContext';
+import { useLocation } from 'react-router-dom';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 import { getVisibleTabs } from '@/navigation/osNav';
+import { useHubModalSafe, type HubId } from '@/contexts/HubModalContext';
 
 const TAB_COLORS: Record<string, { solid: string; text: string; inactive: string }> = {
   fm: { solid: 'bg-amber-500', text: 'text-white', inactive: 'text-amber-400/60' },
@@ -13,43 +13,26 @@ const TAB_COLORS: Record<string, { solid: string; text: string; inactive: string
 
 export function BottomTabBar() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { openSurface } = useStoryWorld();
   const { hasRole, loading } = useUserRoles();
+  const hubModal = useHubModalSafe();
 
   if (location.pathname.startsWith('/coaches') || location.pathname.startsWith('/business')) return null;
 
   const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
-  const getSurfaceForTab = (tabId: string) => {
-    if (tabId === 'fm') return 'fm' as const;
-    if (tabId === 'mindos') return 'mindos' as const;
-    if (tabId === 'community') return 'community' as const;
-    return 'study' as const;
-  };
-
-  const isActive = (path: string) => {
-    if (path === '/mindos/tactics') {
-      return (
-        location.pathname.startsWith('/mindos') ||
-        location.pathname === '/play' ||
-        location.pathname === '/aurora' ||
-        location.pathname === '/work' ||
-        location.pathname === '/now' ||
-        location.pathname === '/plan' ||
-        location.pathname === '/dashboard' ||
-        location.pathname.startsWith('/strategy')
-      );
-    }
-    if (path === '/fm') return location.pathname.startsWith('/fm');
-    return location.pathname.startsWith(path);
+  const tabToHub = (tabId: string): HubId => {
+    if (tabId === 'fm') return 'fm';
+    if (tabId === 'mindos') return 'mindos';
+    if (tabId === 'community') return 'community';
+    return 'study';
   };
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/100">
       <div className="flex items-center justify-around h-[84px] px-2">
         {tabs.map((tab) => {
-          const active = isActive(tab.path);
+          const hub = tabToHub(tab.id);
+          const active = hubModal?.activeHub === hub;
           const Icon = tab.icon;
           const colors = TAB_COLORS[tab.id] || TAB_COLORS.mindos;
           const label = tab.labelEn;
@@ -58,8 +41,13 @@ export function BottomTabBar() {
             <button
               key={tab.id}
               onClick={() => {
-                openSurface(getSurfaceForTab(tab.id), 'fullscreen');
-                navigate(tab.path);
+                if (hubModal) {
+                  if (hubModal.activeHub === hub) {
+                    hubModal.closeHub();
+                  } else {
+                    hubModal.openHub(hub);
+                  }
+                }
               }}
               aria-label={label}
               title={label}
