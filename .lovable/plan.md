@@ -1,67 +1,81 @@
-## Menu items open as modal hubs (no page navigation)
+## Orchestrator Brain — always-on AION decision layer
 
-Goal: tapping any item in the AppName menu (Home, Free Market, Strategy, Hypnosis, Journal, Community, Learn) opens a **fullscreen modal hub overlay** layered above the current screen, instead of routing away. Existing routes stay intact for deep links and back-compat — but the menu never navigates.
+Foundation slice for the AION-centered direction. Adds a backend that continuously watches the user, decides what AION should do, and exposes those decisions globally — without yet rewriting any UI. Later slices (orb states, mode engine, intent bar) plug into this single source of truth.
 
-### 1. New global hub-modal layer
-
-Create:
-
-- `src/contexts/HubModalContext.tsx` — exposes `openHub(id: HubId)`, `closeHub()`, and current `activeHub`.
-- `src/components/navigation/HubModal.tsx` — single fullscreen overlay that renders the hub component for `activeHub`.
+### Mental model
 
 ```text
-HubId = 'home' | 'fm' | 'strategy' | 'hypnosis' | 'journal' | 'community' | 'study'
+signals → brain → decision → realtime → useAionDecision() → (future UI layers react)
 ```
 
-Component map (lazy-loaded with `React.lazy` to avoid bundling everything up front):
+- **Signals**: lightweight events the app already emits or can cheaply emit (route change, composer focus, AI streamed message, action completed, session done, idle, time-of-day, recent tone).
+- **Brain**: Deno edge function `aion-brain` that fuses signals + existing `buildContext` and asks Lovable AI for one structured Decision.
+- **Decision**: a single current-state row per user — `mode`, `tone`, `density`, `focus_target`, `suggestion`, `expires_at`, `reasoning`. Always overwritten (we keep one live decision; history archived).
+- **Distribution**: `aion_decisions` realtime → `useAionDecision` hook → `AionDecisionContext`. UI just reads.
 
-| HubId       | Component rendered inside the modal              |
-|-------------|--------------------------------------------------|
-| home        | `Dashboard` (existing `/dashboard` page)         |
-| fm          | `FMAppShell` (with synthetic outlet → FM home)   |
-| strategy    | `StrategyPage`                                   |
-| hypnosis    | `HypnosisPage`                                   |
-| journal     | `JournalingHub`                                  |
-| community   | `CommunityLayoutWrapper`                         |
-| study       | `LearnPage` (or whatever `/learn` resolves to)   |
+### 1. Database (`supabase--migration`)
 
-### 2. Modal shell (mobile-first, AION-presence aligned)
+**New table `aion_signals`** — append-only event log, retention 7 days.
+- Columns: `user_id`, `kind` (`route_change|composer_focus|ai_message|action_completed|session_completed|journal_saved|idle|tone_signal`), `payload jsonb`, `client_at timestamptz`, `created_at`.
+- RLS: user can insert + select own. Index on `(user_id, created_at desc)`.
 
-Use Radix `Dialog` styled as a fullscreen surface (not a side `Sheet`, since these are full hubs):
+**New table `aion_decisions`** — one live row per user (upsert by `user_id`).
+- Columns: `user_id` (PK), `mode` (`flow|focus|recovery|overwhelmed|hypnosis|calm|neutral`), `tone` (`grounded|energizing|gentle|direct`), `density` (`minimal|standard|rich`), `focus_target jsonb` (e.g. `{ type:'mission', id:'…' }`), `suggestion jsonb` (e.g. `{ label, action, hub }`), `reasoning text`, `signals_snapshot jsonb`, `expires_at timestamptz`, `updated_at`.
+- RLS: user reads own; only service role writes.
+- Add to `supabase_realtime` publication.
 
-- `fixed inset-0 z-[70]` overlay with `bg-background` and `backdrop-blur-2xl`.
-- `motion` enter: fade + slight scale-up (`enter` keyframe from the design system).
-- Top bar (40px): small AION orb on the start side, hub label centered, `X` close on the end side. No back button.
-- Body: `flex-1 min-h-0 overflow-y-auto` containing the lazy-loaded hub component.
-- Esc / swipe-down on mobile / X click → `closeHub()`.
-- Trap focus and lock body scroll while open.
+**New table `aion_decision_history`** — same shape as `aion_decisions` minus PK constraint, append-only, for audit/learning. Insert via trigger on update of live row.
 
-Routing inside the modal: hub components that internally use `useNavigate` still work — but routes that change the page (e.g. `/strategy/presence`) will mutate the URL without unmounting the modal because the modal is rendered above `<Routes>`. We keep the modal open across these in-hub navigations; closing the modal returns the user to wherever they were before opening it (we snapshot `location` on open and `navigate(snapshot)` only when needed for cleanup).
+### 2. Edge function `aion-brain`
 
-For v1 we deliberately do **not** try to sync the URL to the modal state. Direct URL visits to `/strategy` etc. still render the page normally without the modal — the modal is purely an in-app navigation overlay. This keeps scope contained.
+`supabase/functions/aion-brain/index.ts`. CORS, JWT validated in code (Lovable Cloud default).
 
-### 3. Wire up
+Inputs (POST body, all optional):
+- `force: boolean` — bypass debounce.
+- `trigger: string` — what caused this call (for debugging).
 
-- Mount `<HubModalProvider>` near the top of the auth shell (inside `ProtectedAppShell`, above `<Outlet />`).
-- Mount `<HubModal />` inside the provider so it's always available globally.
-- Update `src/components/navigation/AppNameMenu.tsx`:
-  - Remove `useNavigate` + `go(path)`.
-  - Each nav button calls `openHub(item.id)` then `setOpen(false)` to close the AppName popover.
-  - `home` maps to id `'home'`; rest come from `OS_TABS` directly.
+Steps:
+1. Resolve userId from JWT.
+2. Debounce: if `aion_decisions.updated_at` < 60s ago and `!force`, return current row.
+3. Pull last 50 signals (`aion_signals`) + reuse `buildContext` from `_shared/contextBuilder.ts` for canonical user context (active mission, streak, energy, recent chat tone, etc.).
+4. Compose prompt with two parts: (a) static system describing AION's job and the Decision schema, (b) compact user state JSON.
+5. Call Lovable AI Gateway, model `google/gemini-3-flash-preview`, with a single tool `emit_decision` whose JSON Schema mirrors the `aion_decisions` columns. `tool_choice` forces the call.
+6. Upsert `aion_decisions` for user with returned values + `expires_at = now() + 10m`. Trigger writes previous row to `aion_decision_history`.
+7. Return decision JSON.
 
-### 4. Out of scope for this turn
+Errors: 429/402 surfaced cleanly; on AI failure, keep last decision and return it with `stale: true`.
 
-- Converting bottom tab bar / other entry points (FM bottom tab, header brand link, push notifications, deep links) — they keep navigating as today. Only the AppName menu items become modal-openers per the user's request.
-- Closing the modal automatically when the inner hub deeplinks elsewhere — kept open intentionally, matching "environment" feel.
-- Per-hub state preservation across opens (each open mounts fresh).
+### 3. Cron + invocation paths
 
-### 5. Files
+- **Cron** (pg_cron + pg_net): every 5 minutes, call `aion-brain` for users active in the last 30 minutes (filtered server-side inside the function via a `select_active_users` SQL call). Single batched invocation that loops users.
+- **Event hooks** (client side): thin helper `recordSignal(kind, payload)` writes into `aion_signals`. After key bursts (3+ signals in 30s, or `session_completed`, or `journal_saved`), debounced call to `aion-brain`.
+- **Explicit**: `useAionDecision().refresh()` for places that need immediate re-evaluation.
 
-- new: `src/contexts/HubModalContext.tsx`
-- new: `src/components/navigation/HubModal.tsx`
-- edit: `src/components/navigation/AppNameMenu.tsx`
-- edit: `src/components/auth/ProtectedAppShell.tsx` (or equivalent) to wrap children in `<HubModalProvider>` and render `<HubModal />`.
+### 4. Client surface (no UI rewrite yet)
+
+- `src/services/aionSignals.ts` — `recordSignal(kind, payload)` (insert into `aion_signals`).
+- `src/hooks/aion/useAionDecision.ts` — fetches initial decision + subscribes to realtime updates of own row + exposes `refresh()`.
+- `src/contexts/AionDecisionContext.tsx` — provider mounted inside `ProtectedAppShell` wrapping the same tree as `HubModalProvider`. Exposes `{ decision, refresh, recordSignal }`.
+- Wire **only two** initial signal sources to prove the loop end-to-end:
+  - route changes (in `ProtectedAppShell` via `useLocation`)
+  - AI message completions (in `aurora-chat` client invoker)
+- Everything else (orb states, mode-driven density, intent bar) is left to follow-up slices that just consume `useAionDecision()`.
+
+### 5. Out of scope this slice
+
+- No visible UI changes. The orb still pulses on its current logic; nav still shows; hub modals stay as-is.
+- No model fine-tuning or learning loop yet — `aion_decision_history` exists but isn't analyzed.
+- No tone analysis pipeline beyond what `buildContext` already provides.
+- No new pricing/tier logic.
+
+### 6. Files
+
+- new migration: `aion_signals`, `aion_decisions`, `aion_decision_history`, RLS, realtime publication, history trigger.
+- new edge fn: `supabase/functions/aion-brain/index.ts`
+- new cron entry (via `supabase--insert`, not migration, since it embeds project URL + anon key).
+- new client: `src/services/aionSignals.ts`, `src/hooks/aion/useAionDecision.ts`, `src/contexts/AionDecisionContext.tsx`.
+- edits: `src/components/layout/ProtectedAppShell.tsx` to mount provider; one signal call in `aurora-chat` client invoker; one in shell route effect.
 
 ### Result
 
-Tapping any menu item slides up an immersive AION-feeling overlay containing that hub. The user feels they’re entering an environment AION opens for them — not navigating to a page.
+After this slice ships, AION has a real, always-on decision pulse. Every surface in the app can subscribe to `useAionDecision()` and react — which is the prerequisite for the next slices (Reactive Orb States, Adaptive Environments, Intent Bar) without further backend work.

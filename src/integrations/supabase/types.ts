@@ -575,6 +575,111 @@ export type Database = {
           },
         ]
       }
+      aion_decision_history: {
+        Row: {
+          archived_at: string
+          density: string
+          focus_target: Json
+          id: string
+          mode: string
+          reasoning: string | null
+          signals_snapshot: Json
+          suggestion: Json
+          tone: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string
+          density: string
+          focus_target?: Json
+          id?: string
+          mode: string
+          reasoning?: string | null
+          signals_snapshot?: Json
+          suggestion?: Json
+          tone: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string
+          density?: string
+          focus_target?: Json
+          id?: string
+          mode?: string
+          reasoning?: string | null
+          signals_snapshot?: Json
+          suggestion?: Json
+          tone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aion_decisions: {
+        Row: {
+          density: string
+          expires_at: string | null
+          focus_target: Json
+          mode: string
+          reasoning: string | null
+          signals_snapshot: Json
+          suggestion: Json
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          density?: string
+          expires_at?: string | null
+          focus_target?: Json
+          mode?: string
+          reasoning?: string | null
+          signals_snapshot?: Json
+          suggestion?: Json
+          tone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          density?: string
+          expires_at?: string | null
+          focus_target?: Json
+          mode?: string
+          reasoning?: string | null
+          signals_snapshot?: Json
+          suggestion?: Json
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aion_signals: {
+        Row: {
+          client_at: string | null
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          user_id: string
+        }
+        Insert: {
+          client_at?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          payload?: Json
+          user_id: string
+        }
+        Update: {
+          client_at?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_reports: {
         Row: {
           created_at: string | null
@@ -10140,6 +10245,12 @@ export type Database = {
       }
     }
     Functions: {
+      aion_recent_active_users: {
+        Args: { p_minutes?: number }
+        Returns: {
+          user_id: string
+        }[]
+      }
       assign_user_job: {
         Args: {
           p_assigned_by?: string
