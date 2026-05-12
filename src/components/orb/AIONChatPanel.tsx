@@ -54,14 +54,14 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
     {
       id: 'plan',
       icon: Target,
-      label: isHe ? 'ืชื•ืื ืืช' : 'Plan',
+      label: isHe ? 'תוכנית' : 'Plan',
       gradient: 'from-cyan-500 to-teal-600',
       onClick: () => setActiveModal('plan'),
     },
     {
       id: 'beliefs',
       icon: Brain,
-      label: isHe ? 'ืืื•ื ื•ืช' : 'Beliefs',
+      label: isHe ? 'אמונות' : 'Beliefs',
       gradient: 'from-violet-500 to-purple-600',
       onClick: () => setActiveModal('beliefs'),
     },
@@ -103,7 +103,7 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
                   ) : null}
                   {isAssessing && assessLabel ? (
                     <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
-                      {isHe ? 'ืกืจืืงื”' : 'Scan'}: {assessLabel}
+                      {isHe ? 'סריקה' : 'Scan'}: {assessLabel}
                     </span>
                   ) : null}
                 </AIONContextBadges>
