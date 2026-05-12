@@ -21,7 +21,7 @@ export function AchievementGalleryModal({ open, onOpenChange }: AchievementGalle
   return createPortal(
     <div
       role="dialog"
-      className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
+      className="fixed inset-0 z-[70] flex flex-col overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
       style={{ background: 'linear-gradient(180deg, hsl(220 25% 6%) 0%, hsl(225 20% 10%) 40%, hsl(220 25% 6%) 100%)' }}
     >

@@ -51,7 +51,7 @@ export function FMWalletModal({ open, onClose }: FMWalletModalProps) {
       <div className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 top-16 z-[71] flex justify-center px-4">
+      <div className="fixed inset-x-0 top-16 z-[70] flex justify-center px-4">
         <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl max-h-[80vh] overflow-y-auto scrollbar-hide">
           {/* Header */}
           <div className="sticky top-0 bg-card/95 backdrop-blur-lg border-b border-border px-4 py-3 flex items-center justify-between rounded-t-2xl z-10">

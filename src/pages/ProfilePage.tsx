@@ -44,7 +44,7 @@ export default function ProfilePage() {
 
   const content = (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto scrollbar-hide"
+      className="fixed inset-0 z-[70] flex flex-col overflow-y-auto scrollbar-hide"
       dir={isRTL ? 'rtl' : 'ltr'}
       style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end, var(--background))) 40%, hsl(var(--background)) 100%)' }}
     >
@@ -142,7 +142,7 @@ export default function ProfilePage() {
       {/* ═══════ TRAITS MODAL (separate portal like practices) ═══════ */}
       {traitsOpen && (
         <div
-          className="fixed inset-0 z-[10000] flex flex-col overflow-hidden"
+          className="fixed inset-0 z-[70] flex flex-col overflow-hidden"
           style={{ backgroundColor: 'hsl(var(--background))' }}
           dir={isRTL ? 'rtl' : 'ltr'}
         >

@@ -87,7 +87,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
   const traitsModal = traitsOpen ? createPortal(
     <div
       role="dialog"
-      className="fixed inset-0 z-[10000] bg-background flex flex-col overflow-hidden"
+      className="fixed inset-0 z-[70] bg-background flex flex-col overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="flex items-center justify-between px-4 pt-4">
@@ -122,7 +122,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
     {createPortal(
     <div
       role="dialog"
-      className="fixed inset-0 z-[9999] flex flex-col overflow-hidden"
+      className="fixed inset-0 z-[70] flex flex-col overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
       style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end, var(--background))) 40%, hsl(var(--background)) 100%)' }}
     >

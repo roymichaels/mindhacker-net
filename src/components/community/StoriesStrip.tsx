@@ -226,7 +226,7 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[10000] bg-black flex flex-col"
+              className="fixed inset-0 z-[70] bg-black flex flex-col"
             >
               <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 px-2 pt-2">
                 {userStories.map((_, i) => (

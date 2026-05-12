@@ -87,7 +87,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10000] bg-black flex flex-col"
+        className="fixed inset-0 z-[70] bg-black flex flex-col"
         dir={isHe ? 'rtl' : 'ltr'}
       >
         {/* Progress bars */}
