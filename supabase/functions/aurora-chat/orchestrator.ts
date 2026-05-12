@@ -245,7 +245,8 @@ export function prepare(
   language: string,
   knowledgeBase: string = "",
   customSystemPrompt: string | null = null,
-  pillar: string | null = null
+  pillar: string | null = null,
+  intent: IntentResolution = { intent: "conversational", lanes: { live: true, memory: true, planning: false, proactive: false, execution: false, analytics: false } }
 ): OrchestratorResult {
   const promptVersion = PROMPT_VERSIONS[mode];
 
@@ -257,11 +258,15 @@ export function prepare(
       maxTokens: 500,
       temperature: 0.7,
       promptVersion: `${promptVersion}-custom`,
+      lanes: intent.lanes,
+      intent: intent.intent,
     };
   }
 
-  const contextMarkdown = formatContextForPrompt(context, language, mode);
+  const contextMarkdown = formatContextForPrompt(context, language, mode, intent.lanes);
   const openerSection = formatOpenerContext(context, language);
+
+  const laneRules = buildLaneRules(intent, language);
 
   if (mode === "widget") {
     return {
@@ -270,16 +275,20 @@ export function prepare(
       maxTokens: 1000,
       temperature: 0.7,
       promptVersion,
+      lanes: intent.lanes,
+      intent: intent.intent,
     };
   }
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
       promptVersion,
+      lanes: intent.lanes,
+      intent: intent.intent,
     };
   }
 
@@ -290,6 +299,7 @@ export function prepare(
     systemPrompt:
       FINAL_ONLY_GUARD +
       HISTORY_ONLY_RULES +
+      laneRules +
       buildFullPrompt(language, contextMarkdown, openerSection) +
       pillarSection +
       socraticSection,
@@ -297,7 +307,38 @@ export function prepare(
     maxTokens: 1000,
     temperature: 0.7,
     promptVersion,
+    lanes: intent.lanes,
+    intent: intent.intent,
   };
+}
+
+// ─── Lane Rules block ──────────────────────────────────────
+
+function buildLaneRules(intent: IntentResolution, language: string): string {
+  const isHe = language === "he";
+  const active = (Object.keys(intent.lanes) as Lane[]).filter((k) => intent.lanes[k]);
+  if (isHe) {
+    return `# שכבות הקשר פעילות (CONTEXT LANES)
+כוונת המשתמש זוהתה כ: ${intent.intent}.
+שכבות פעילות בלבד: ${active.join(", ")}.
+חוקים נוקשים:
+- אל תזכיר נתונים משכבות שלא מופיעות בהקשר. אם אין execution — אל תזכיר משימות. אם אין planning — אל תזכיר אבני דרך, W1, שבוע, יעדים שבועיים, או "אופטימיזציה". אם אין proactive — אל תזכיר תזכורות, משימות באיחור, או הצעות יזומות.
+- אם המשתמש רק שאל "מה השעה" — ענה רק את השעה, בלי שום הקשר נוסף.
+- אל תמציא אבני דרך, אימונים, או נתוני אנליטיקה שלא מופיעים בהקשר.
+- אל תוסיף תוכן מוטיבציוני סינתטי (W1, "שלב 1", "מסע" וכו') אלא אם המשתמש ביקש במפורש.
+
+`;
+  }
+  return `# Active context lanes
+Detected intent: ${intent.intent}.
+Active lanes only: ${active.join(", ")}.
+Hard rules:
+- Never mention data from lanes that are not in the context block. No execution lane → no task lists. No planning lane → no milestones, W1, weekly goals, or optimization talk. No proactive lane → no reminders, overdue items, or proactive nudges.
+- If the user only asked "what time is it", answer ONLY the time. No surrounding context.
+- Do not invent milestones, training blocks, or analytics that are not in the context.
+- Do not add synthetic motivational padding (W1, "Step 1", "journey", etc.) unless the user explicitly asked for it.
+
+`;
 }
 
 // ─── Socratic Mode ─────────────────────────────────────────
