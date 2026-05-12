@@ -26,9 +26,27 @@ interface OrganicSphereProps {
   profile: OrbProfile;
   audioLevel?: number;
   size?: number;
+  /** Geometry segments (lat=lon). Defaults to 128 (was 200-512). */
+  segments?: number;
+  /** State-driven scalar multipliers applied on top of base params. */
+  stateMultipliers?: {
+    volume: number;
+    distortion: number;
+    fresnel: number;
+    timeFreq: number;
+    intensityBoost: number;
+  };
 }
 
-export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphereProps) {
+const NEUTRAL_MUL = { volume: 1, distortion: 1, fresnel: 1, timeFreq: 1, intensityBoost: 1 };
+
+export function OrganicSphere({
+  profile,
+  audioLevel = 0,
+  size = 1,
+  segments,
+  stateMultipliers = NEUTRAL_MUL,
+}: OrganicSphereProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const elapsedTimeRef = useRef(0);
   const offsetRef = useRef(new THREE.Vector3(
@@ -79,11 +97,11 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
 
   // Geometry with tangents (required for bi-tangent normal computation)
   const geometry = useMemo(() => {
-    const segments = Math.min(512, Math.max(200, profile.geometryDetail * 60));
-    const geo = new THREE.SphereGeometry(1, segments, segments);
+    const seg = segments ?? Math.min(192, Math.max(96, profile.geometryDetail * 32));
+    const geo = new THREE.SphereGeometry(1, seg, seg);
     geo.computeTangents();
     return geo;
-  }, [profile.geometryDetail]);
+  }, [profile.geometryDetail, segments]);
 
   // ShaderMaterial
   const material = useMemo(() => {
@@ -125,13 +143,14 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
   useFrame((_, delta) => {
     const v = variations.current;
     const clampedDelta = Math.min(delta, 0.05) * 1000; // ms like Bruno's time.delta
+    const sm = stateMultipliers;
 
     // Voice-reactive targets
     const hasAudio = audioLevel > 0.01;
-    v.volume.target = hasAudio ? baseParams.volume + audioLevel * 0.3 : baseParams.volume;
-    v.distortion.target = hasAudio ? baseParams.distortion + audioLevel * 5 : baseParams.distortion;
-    v.fresnel.target = hasAudio ? baseParams.fresnel + audioLevel * 2 : baseParams.fresnel;
-    v.timeFreq.target = hasAudio ? baseParams.timeFreq + audioLevel * 0.003 : baseParams.timeFreq;
+    v.volume.target = (hasAudio ? baseParams.volume + audioLevel * 0.3 : baseParams.volume) * sm.volume;
+    v.distortion.target = (hasAudio ? baseParams.distortion + audioLevel * 5 : baseParams.distortion) * sm.distortion;
+    v.fresnel.target = (hasAudio ? baseParams.fresnel + audioLevel * 2 : baseParams.fresnel) * sm.fresnel;
+    v.timeFreq.target = (hasAudio ? baseParams.timeFreq + audioLevel * 0.003 : baseParams.timeFreq) * sm.timeFreq;
 
     // Easing
     const ease = (v: { current: number; target: number }, up: number, down: number) => {
@@ -151,6 +170,8 @@ export function OrganicSphere({ profile, audioLevel = 0, size = 1 }: OrganicSphe
     material.uniforms.uDisplacementStrength.value = v.volume.current;
     material.uniforms.uDistortionStrength.value = v.distortion.current;
     material.uniforms.uFresnelMultiplier.value = v.fresnel.current;
+    material.uniforms.uLightAIntensity.value = 3.5 * sm.intensityBoost;
+    material.uniforms.uLightBIntensity.value = 2.8 * sm.intensityBoost;
 
     // Offset drift
     const t = elapsedTimeRef.current * 0.3;
