@@ -17,6 +17,16 @@ const PROMPT_VERSIONS = {
   widget: "widget-v1.0",
 } as const;
 
+const HISTORY_ONLY_RULES = `# Context freshness — critical
+Conversation history is historical context only.
+Never treat previous assistant messages as current facts.
+Never copy old assistant wording.
+Never reuse a previous greeting or task summary.
+Current time may only come from the latest request metadata or the current server context block.
+If the user asks for tasks, use only fresh action_items from the current context for today in the user's timezone.
+If the user did not explicitly ask for a summary, do not volunteer task lists, daily briefings, or checklist recaps.
+`;
+
 export type AuroraMode = "full" | "lite" | "widget";
 
 export interface OrchestratorResult {
@@ -154,12 +164,12 @@ export function prepare(
     };
   }
 
-  const contextMarkdown = formatContextForPrompt(context, language);
+  const contextMarkdown = formatContextForPrompt(context, language, mode);
   const openerSection = formatOpenerContext(context, language);
 
   if (mode === "widget") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + buildWidgetPrompt(language, knowledgeBase),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildWidgetPrompt(language, knowledgeBase),
       model: "google/gemini-2.5-flash",
       maxTokens: 1000,
       temperature: 0.7,
@@ -169,7 +179,7 @@ export function prepare(
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
@@ -183,6 +193,7 @@ export function prepare(
   return {
     systemPrompt:
       FINAL_ONLY_GUARD +
+      HISTORY_ONLY_RULES +
       buildFullPrompt(language, contextMarkdown, openerSection) +
       pillarSection +
       socraticSection,
