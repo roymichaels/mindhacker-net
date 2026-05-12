@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAuth } from "../_shared/auth.ts";
+import { sanitizeFinalText } from "../_shared/sanitizeStream.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -98,6 +99,11 @@ Respond in JSON format:
     } catch {
       parsed = { approved: false, reason: "Failed to parse AI response", suggestion: content };
     }
+
+    // Defensive sanitization — strip any reasoning/meta the model may have
+    // leaked into the user-visible fields.
+    if (typeof parsed?.reason === "string") parsed.reason = sanitizeFinalText(parsed.reason);
+    if (typeof parsed?.suggestion === "string") parsed.suggestion = sanitizeFinalText(parsed.suggestion);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
