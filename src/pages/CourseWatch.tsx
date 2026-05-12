@@ -178,7 +178,7 @@ const CourseWatch = () => {
   if (courseLoading || curriculumLoading || accessLoading) {
     return (
       <div className="min-h-screen">
-        <div className="h-16 border-b bg-background/95 backdrop-blur" />
+        <div className="h-16 border-b bg-background backdrop-blur" />
         <div className="container mx-auto px-4 py-8">
           <Skeleton className="h-96 w-full mb-4" />
           <Skeleton className="h-8 w-3/4 mb-2" />
