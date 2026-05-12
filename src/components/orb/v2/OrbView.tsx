@@ -130,7 +130,21 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   }, []);
 
   // State multipliers — applied on top of OrganicSphere's base params via props
-  const stateMul = STATE_MULTIPLIERS[state];
+  const baseMul = STATE_MULTIPLIERS[state];
+  // Dampen displacement at small sizes — keeps presence orbs smooth & legible.
+  const tierDamp =
+    resolvedTier === 'presence'
+      ? { volume: 0.55, distortion: 0.45, fresnel: 0.9, timeFreq: 0.85, intensityBoost: 1.0 }
+      : resolvedTier === 'standard'
+        ? { volume: 0.85, distortion: 0.8, fresnel: 1.0, timeFreq: 0.95, intensityBoost: 1.0 }
+        : { volume: 1.0, distortion: 1.0, fresnel: 1.0, timeFreq: 1.0, intensityBoost: 1.0 };
+  const stateMul = {
+    volume: baseMul.volume * tierDamp.volume,
+    distortion: baseMul.distortion * tierDamp.distortion,
+    fresnel: baseMul.fresnel * tierDamp.fresnel,
+    timeFreq: baseMul.timeFreq * tierDamp.timeFreq,
+    intensityBoost: baseMul.intensityBoost * tierDamp.intensityBoost,
+  };
   const legacyState = LEGACY_STATE_MAP[state];
   // Use the WebGL stage at every tier (header → cinematic). Only fall back
   // to the CSS renderer when WebGL is genuinely unavailable.
