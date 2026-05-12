@@ -44,6 +44,8 @@ export type ResponseSourceEvent = {
   dailyBriefingSource?: string;
   proactiveUsed?: boolean;
   cachedResponse?: boolean;
+  intent?: string;
+  lanes?: string;
   preview?: string;
 };
 
