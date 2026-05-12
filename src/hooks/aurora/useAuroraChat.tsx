@@ -8,7 +8,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { parseAllTags, stripAllTags } from '@/lib/commandBus';
 import { useCommandBus } from './useCommandBus';
 
-const MINDOS_CHAT_URL = `${import.meta.env.VITE_AGENT_API_BASE_URL || ''}/api/mindos-chat`;
+const AURORA_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
+const AION_FALLBACK_HE = 'אני מחובר, אבל הייתה תקלה בחשיבה שלי. נסה שוב רגע.';
 
 interface Message {
   id: string;
@@ -101,7 +102,7 @@ export const useAuroraChat = (conversationId: string | null) => {
 
     // Subscribe to new messages
     const channel = supabase
-      .channel(`aurora-messages:${conversationId}`)
+      .channel(`aurora-messages:${conversationId}:${Math.random().toString(36).slice(2, 8)}`)
       .on(
         'postgres_changes',
         {
@@ -273,12 +274,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       const response = await fetch(
-        MINDOS_CHAT_URL,
+        AURORA_CHAT_URL,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
           body: JSON.stringify({
             messages: chatMessages,
@@ -296,7 +298,10 @@ export const useAuroraChat = (conversationId: string | null) => {
       );
 
       if (!response.ok || !response.body) {
-        throw new Error('Failed to get response from MindOS');
+        let bodyPreview = '';
+        try { bodyPreview = (await response.text()).slice(0, 500); } catch {}
+        console.error('[aurora-chat] HTTP', response.status, AURORA_CHAT_URL, bodyPreview);
+        throw new Error(`aurora-chat ${response.status}`);
       }
 
       const reader = response.body.getReader();
@@ -340,21 +345,33 @@ export const useAuroraChat = (conversationId: string | null) => {
       const commands = parseAllTags(fullContent);
       const cleanedContent = stripAllTags(fullContent);
 
-      // Dispatch commands through the bus (trust-gated)
+      // Dispatch commands through the bus (trust-gated) — fire-and-forget so
+      // a single orchestration failure can never block the next reply.
       if (commands.length > 0) {
-        // Handle triggerAnalysis separately since it needs chat context
         const hasAnalysis = commands.some(c => c.type === 'triggerAnalysis');
         const nonAnalysisCommands = commands.filter(c => c.type !== 'triggerAnalysis');
-        
         if (nonAnalysisCommands.length > 0) {
-          await dispatchCommands(nonAnalysisCommands);
+          void Promise.resolve()
+            .then(() => dispatchCommands(nonAnalysisCommands))
+            .catch((e) => console.warn('[aurora] dispatchCommands failed:', e));
         }
         if (hasAnalysis) {
-          triggerBackgroundAnalysis();
+          try { triggerBackgroundAnalysis(); } catch (e) { console.warn('[aurora] analysis failed:', e); }
         }
       }
 
-      // Save the MindOS response
+      // If the stream produced nothing, surface the Hebrew fallback as an AION message.
+      if (!cleanedContent) {
+        await supabase.from('messages').insert({
+          conversation_id: conversationId,
+          sender_id: null,
+          content: AION_FALLBACK_HE,
+          is_ai_message: true,
+        });
+        console.warn('[aurora-chat] empty stream — inserted fallback message');
+      }
+
+      // Save the AION response
       if (cleanedContent) {
         await supabase.from('messages').insert({
           conversation_id: conversationId,
@@ -367,29 +384,38 @@ export const useAuroraChat = (conversationId: string | null) => {
         window.dispatchEvent(new CustomEvent('aurora:response', { detail: { text: cleanedContent } }));
       }
 
-      // Generate title after first exchange
-      if (messageCountRef.current <= 2) {
-        generateTitle(conversationId, [
-          ...chatMessages,
-          { role: 'assistant', content: cleanedContent },
-        ]);
+      // Background side-effects — never awaited; failures must not block chat.
+      if (messageCountRef.current <= 2 && cleanedContent) {
+        try {
+          generateTitle(conversationId, [
+            ...chatMessages,
+            { role: 'assistant', content: cleanedContent },
+          ]);
+        } catch (e) { console.warn('[aurora] generateTitle failed:', e); }
       }
-
-      // Trigger analysis every 4 messages
       if (messageCountRef.current > 0 && messageCountRef.current % 4 === 0) {
-        triggerBackgroundAnalysis();
+        try { triggerBackgroundAnalysis(); } catch (e) { console.warn('[aurora] analysis failed:', e); }
       }
-
-      // Summarize conversation every 6 messages (more frequent memory saves)
       if (messageCountRef.current > 0 && messageCountRef.current % 6 === 0) {
-        summarizeConversation();
+        try { summarizeConversation(); } catch (e) { console.warn('[aurora] summarize failed:', e); }
       }
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
         debug.log('Request aborted');
       } else {
-        console.error('MindOS chat error:', err);
-        setError('Failed to get response from MindOS');
+        console.error('AION chat error:', err);
+        setError(AION_FALLBACK_HE);
+        // Insert visible Hebrew fallback so the user sees AION respond.
+        try {
+          await supabase.from('messages').insert({
+            conversation_id: conversationId,
+            sender_id: null,
+            content: AION_FALLBACK_HE,
+            is_ai_message: true,
+          });
+        } catch (e) {
+          console.warn('[aurora] failed to insert fallback message:', e);
+        }
         // Mark the last user message as failed for retry
         const lastUserMsg = messages[messages.length - 1] || null;
         if (lastUserMsg && !lastUserMsg.is_ai_message) {
