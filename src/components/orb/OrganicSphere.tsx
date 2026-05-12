@@ -1,4 +1,13 @@
 /**
+ * @deprecated Phase 1.2 — orb unification.
+ * The canonical AION orb renderer is `@/components/orb/v2/OrbView`, which
+ * tunnels into the single global `SharedOrbStage` Canvas mounted at the App
+ * root. Do NOT use this legacy renderer in new code: it instantiates its own
+ * WebGL Canvas, fragments the orb identity, and bypasses the shared
+ * post-processing / DPR pipeline. Existing call sites are scheduled for
+ * migration. See mem://architecture/orb-pure-renderer-standard.
+ */
+/**
  * OrganicSphere — R3F component ported from Bruno Simon's organic-sphere.
  * Accepts OrbProfile for DNA-driven colors and audioLevel for voice reactivity.
  * Uses custom GLSL shaders with perlin noise displacement.

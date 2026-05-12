@@ -40,6 +40,10 @@ import InteractiveAIONHost from "@/components/aion/InteractiveAIONHost";
 import CloudAuthModal from "@/components/auth/CloudAuthModal";
 import SharedOrbStage from "@/components/orb/v2/SharedOrbStage";
 
+// Hallway / world-first navigation (Phase 1.4)
+const HallwayShell = lazy(() => import("./hallway/HallwayShell"));
+const RoomEnvironment = lazy(() => import("./hallway/RoomEnvironment"));
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
@@ -317,6 +321,10 @@ const App = () => (
                                                 <Route path="/dashboard" element={<UserDashboard />} />
                                                 <Route path="/strategy" element={<StrategyPage />} />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
+                                                {/* Hallway — world-first shell. Rooms are config-driven environments,
+                                                    not pages. See src/hallway/rooms.ts. */}
+                                                <Route path="/hallway" element={<HallwayShell />} />
+                                                <Route path="/hallway/:slug" element={<RoomEnvironment />} />
                                                 {/* Legacy MindOS → flat redirects */}
                                                 <Route path="/mindos" element={<Navigate to="/aurora" replace />} />
                                                 <Route path="/mindos/chat" element={<Navigate to="/aurora" replace />} />

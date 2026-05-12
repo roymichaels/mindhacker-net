@@ -1,3 +1,12 @@
+/**
+ * @deprecated Phase 1.2 — orb unification.
+ * The canonical AION orb renderer is `@/components/orb/v2/OrbView`, which
+ * tunnels into the single global `SharedOrbStage` Canvas mounted at the App
+ * root. Do NOT use this legacy renderer in new code: it instantiates its own
+ * WebGL Canvas, fragments the orb identity, and bypasses the shared
+ * post-processing / DPR pipeline. Existing call sites are scheduled for
+ * migration. See mem://architecture/orb-pure-renderer-standard.
+ */
 import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 
