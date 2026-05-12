@@ -163,7 +163,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
         <DropdownMenuContent
           align={isRTL ? "end" : "start"}
           side="bottom"
-          className="w-72 bg-popover shadow-xl z-[100]"
+          className="w-72 bg-popover shadow-xl z-[70]"
           style={{ border: '1px solid hsl(var(--gold-border) / 0.25)' }}
         >
           {/* Compact gamified profile card */}

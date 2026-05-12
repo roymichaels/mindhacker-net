@@ -88,7 +88,7 @@ const FoundingLanding = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] overflow-y-auto"
+            className="fixed inset-0 z-[70] overflow-y-auto"
             style={{ background: 'rgba(5,5,5,0.97)' }}
           >
             {/* Close button */}
