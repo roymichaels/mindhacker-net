@@ -83,7 +83,7 @@ function DashboardLayoutInner({
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           {showHeader && (
             <header
-              className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-background/80 backdrop-blur-xl pt-safe"
+              className="sticky top-0 z-30 w-full border-b border-white/[0.06] bg-background/80 backdrop-blur-xl pt-safe"
               dir={isRTL ? 'rtl' : 'ltr'}
             >
               <div
