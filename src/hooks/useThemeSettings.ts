@@ -302,7 +302,7 @@ export const useThemeSettings = () => {
 
     // Subscribe to real-time updates
     const channel = supabase
-      .channel('theme_settings_changes')
+      .channel(`theme_settings_changes_${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
