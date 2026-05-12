@@ -20,8 +20,14 @@ import {
   Star,
   Flame,
   Gem,
+  Bell,
+  Search,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
+import { UserNotificationPanel } from '@/components/UserNotificationPanel';
+import { useUserNotifications } from '@/hooks/useUserNotifications';
+import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -47,6 +53,8 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
   const [open, setOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [bugOpen, setBugOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { user } = useAuth();
   const { language, isRTL } = useTranslation();
   const { setLanguage } = useLanguage();
@@ -57,6 +65,7 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
   const { openSubscriptions } = useSubscriptionsModal();
   const { openProfile } = useProfileModal();
   const dashboard = useUnifiedDashboard();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useUserNotifications();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -178,6 +187,21 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
               </Section>
 
               <Section label={language === 'he' ? 'פעולות' : 'Quick Actions'}>
+                <MenuItem
+                  icon={Search}
+                  label={language === 'he' ? 'חיפוש בשיחות' : 'Search chats'}
+                  onClick={() => { close(); setSearchOpen(true); }}
+                />
+                <MenuItem
+                  icon={Bell}
+                  label={language === 'he' ? 'התראות' : 'Notifications'}
+                  onClick={() => { close(); setNotifOpen(true); if (unreadCount > 0) markAllAsRead(); }}
+                  trailing={unreadCount > 0 ? (
+                    <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] rounded-full">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </Badge>
+                  ) : null}
+                />
                 <MenuItem icon={Settings} label={language === 'he' ? 'הגדרות' : 'Settings'} onClick={() => { close(); onOpenSettings?.(); }} />
                 <MenuItem icon={CreditCard} label={language === 'he' ? 'מנויים' : 'Subscriptions'} onClick={() => { close(); openSubscriptions(); }} />
               </Section>
@@ -215,6 +239,33 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
 
       <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
       <BugReportDialog open={bugOpen} onOpenChange={setBugOpen} />
+
+      <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+        <SheetContent
+          side={isRTL ? 'left' : 'right'}
+          className="p-0 w-[92vw] max-w-[400px] bg-transparent border-0 shadow-none"
+        >
+          <div className="m-2 rounded-3xl border border-white/10 bg-card/95 backdrop-blur-2xl shadow-[0_30px_120px_rgba(0,0,0,0.55)] overflow-hidden">
+            <UserNotificationPanel
+              notifications={notifications.slice(0, 10)}
+              onMarkAsRead={markAsRead}
+              onMarkAllAsRead={markAllAsRead}
+              onClose={() => setNotifOpen(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
+        <SheetContent
+          side="top"
+          className="p-0 h-[92dvh] w-full bg-background border-0"
+        >
+          <div className="relative h-full w-full">
+            <AuroraSearchBarAutoOpen onClose={() => setSearchOpen(false)} />
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
@@ -224,9 +275,10 @@ interface MenuItemProps {
   label: ReactNode;
   onClick: () => void;
   destructive?: boolean;
+  trailing?: ReactNode;
 }
 
-function MenuItem({ icon: Icon, label, onClick, destructive }: MenuItemProps) {
+function MenuItem({ icon: Icon, label, onClick, destructive, trailing }: MenuItemProps) {
   return (
     <button
       type="button"
@@ -242,8 +294,40 @@ function MenuItem({ icon: Icon, label, onClick, destructive }: MenuItemProps) {
         <Icon className="h-4 w-4 opacity-90" />
       </span>
       <span className="flex-1 truncate">{label}</span>
+      {trailing}
     </button>
   );
+}
+
+function AuroraSearchBarAutoOpen({ onClose }: { onClose: () => void }) {
+  // AuroraSearchBar starts collapsed; we render it always-open by remounting in expanded state.
+  // Easiest approach: render the component and trigger a click to expand on mount.
+  return (
+    <div className="absolute inset-0">
+      <AuroraSearchBar />
+      {/* Auto-expand: simulate click on mount */}
+      <AutoExpand />
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute top-3 right-3 z-[60] p-2 rounded-md text-muted-foreground hover:text-foreground"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
+function AutoExpand() {
+  // On mount, click the collapsed search trigger button rendered by AuroraSearchBar.
+  if (typeof window !== 'undefined') {
+    setTimeout(() => {
+      const btn = document.querySelector<HTMLButtonElement>('[title="Search chats"], [title="חיפוש בשיחות"]');
+      btn?.click();
+    }, 0);
+  }
+  return null;
 }
 
 function Section({ label, children }: { label: string; children: ReactNode }) {
