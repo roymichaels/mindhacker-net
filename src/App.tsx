@@ -256,6 +256,7 @@ const App = () => (
                     <AuthModalProvider>
                       <CloudAuthModal />
                       <GameStateProvider>
+                        <AionDecisionProvider>
                         <EnvironmentProvider>
                         <MotionLayer>
                          <AIONStateProvider>
@@ -500,6 +501,7 @@ const App = () => (
                          </AIONStateProvider>
                         </MotionLayer>
                         </EnvironmentProvider>
+                        </AionDecisionProvider>
                       </GameStateProvider>
                     </AuthModalProvider>
                 </LanguageProvider>
