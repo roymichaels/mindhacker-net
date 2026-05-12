@@ -300,15 +300,13 @@ function MenuItem({ icon: Icon, label, onClick, destructive, trailing }: MenuIte
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-[15px] font-medium transition-colors text-start',
+        'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-colors text-start',
         destructive
           ? 'text-destructive hover:bg-destructive/10'
-          : 'text-foreground hover:bg-white/5'
+          : 'text-foreground/90 hover:bg-white/[0.04]'
       )}
     >
-      <span className="inline-flex items-center justify-center h-7 w-7 rounded-lg bg-white/5 shrink-0">
-        <Icon className="h-4 w-4 opacity-90" />
-      </span>
+      <Icon className="h-[17px] w-[17px] shrink-0 opacity-80" />
       <span className="flex-1 truncate">{label}</span>
       {trailing}
     </button>
@@ -348,11 +346,11 @@ function AutoExpand() {
 
 function Section({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="pt-3">
-      <div className="px-2 pt-2 pb-1.5 text-[10px] tracking-[0.18em] uppercase text-muted-foreground/70">
+    <div className="pt-2 first:pt-1">
+      <div className="px-3 pt-1.5 pb-1 text-[10px] tracking-[0.16em] uppercase text-muted-foreground/60 font-medium">
         {label}
       </div>
-      <div className="space-y-0.5">{children}</div>
+      <div className="space-y-px">{children}</div>
     </div>
   );
 }
