@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { GalleryCanvas } from "@/components/orb/GalleryMorphOrb";
@@ -43,13 +43,11 @@ const Index = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Redirect immediately once auth state is known
-  useEffect(() => {
-    if (!loading && user) {
-      // Direct navigation without extra timeout
-      navigate('/mindos/chat', { replace: true });
-    }
-  }, [user, loading, navigate]);
+  // Authenticated users: home IS the AION chat surface.
+  // Use a synchronous redirect so the marketing landing never flashes.
+  if (!loading && user) {
+    return <Navigate to="/aurora" replace />;
+  }
 
   const brandSettings: BrandSettings = {
     brandName: theme.brand_name,
@@ -84,9 +82,7 @@ const Index = () => {
     );
   }
 
-  if (user) {
-    return null;
-  }
+  // (auth-gated redirect handled above)
 
   return (
     <div ref={containerRef} className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
