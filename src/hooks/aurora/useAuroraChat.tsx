@@ -399,6 +399,27 @@ export const useAuroraChat = (conversationId: string | null) => {
 
         // Emit event for voice mode auto-play
         window.dispatchEvent(new CustomEvent('aurora:response', { detail: { text: cleanedContent } }));
+
+        // Phase B — silently grow the consciousness graph. Fire-and-forget;
+        // never await, never surface errors to the user.
+        try {
+          const lastUser = [...chatMessages].reverse().find((m) => m.role === 'user');
+          void supabase.functions
+            .invoke('memory-writer', {
+              body: {
+                source: 'chat',
+                context: {
+                  messages: [
+                    ...(lastUser ? [{ role: 'user', content: lastUser.content }] : []),
+                    { role: 'assistant', content: cleanedContent },
+                  ],
+                },
+              },
+            })
+            .catch((e) => console.warn('[memory-writer] invoke failed:', e));
+        } catch (e) {
+          console.warn('[memory-writer] dispatch failed:', e);
+        }
       }
 
       // Background side-effects — never awaited; failures must not block chat.

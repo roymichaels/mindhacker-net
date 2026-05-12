@@ -17,6 +17,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import { EnvironmentProvider, MotionLayer } from "@/orchestration";
 import { AIONStateProvider } from "@/contexts/AIONStateContext";
+import { AionDecisionProvider } from "@/contexts/AionDecisionContext";
 import { AIONStateBridge } from "@/components/aion/AIONStateBridge";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -255,6 +256,7 @@ const App = () => (
                     <AuthModalProvider>
                       <CloudAuthModal />
                       <GameStateProvider>
+                        <AionDecisionProvider>
                         <EnvironmentProvider>
                         <MotionLayer>
                          <AIONStateProvider>
@@ -499,6 +501,7 @@ const App = () => (
                          </AIONStateProvider>
                         </MotionLayer>
                         </EnvironmentProvider>
+                        </AionDecisionProvider>
                       </GameStateProvider>
                     </AuthModalProvider>
                 </LanguageProvider>

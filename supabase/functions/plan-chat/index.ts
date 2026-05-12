@@ -5,6 +5,7 @@
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sanitizeStream } from "../_shared/sanitizeStream.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -431,7 +432,10 @@ ${tacticalContext}${actionContext}`;
       throw new Error("AI gateway error");
     }
 
-    return new Response(response.body, {
+    const sanitized = response.body
+      ? response.body.pipeThrough(sanitizeStream())
+      : null;
+    return new Response(sanitized, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {

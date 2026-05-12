@@ -47,6 +47,21 @@ export interface EnvironmentState {
   ttl: number; // ms
   source: 'default' | 'fast-tier' | 'slow-tier' | 'user';
   updatedAt: number;
+  /**
+   * Raw AION decision pass-through. When present, this is the authoritative
+   * brain output (mode/tone/density/focus_target/suggestion) and overrides
+   * fast-tier rule-derived fields above. Consumers that want the brain's
+   * verbatim values should read this; consumers that just want a normalized
+   * mode/intensity should keep using the top-level fields.
+   */
+  aionDecision?: {
+    mode: 'flow' | 'focus' | 'recovery' | 'overwhelmed' | 'hypnosis' | 'calm' | 'neutral';
+    tone: 'grounded' | 'energizing' | 'gentle' | 'direct';
+    density: 'minimal' | 'standard' | 'rich';
+    focusTarget: Record<string, unknown>;
+    suggestion: Record<string, unknown>;
+    reasoning: string | null;
+  };
 }
 
 export interface SignalSnapshot {
