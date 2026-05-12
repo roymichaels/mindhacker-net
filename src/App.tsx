@@ -18,6 +18,7 @@ import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
+import { lazyWithRetry } from "@/lib/lazyWithRetry";
 import MatrixRain from "@/components/MatrixRain";
 import ConsciousnessField from "@/components/ConsciousnessField";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -37,7 +38,7 @@ import CloudAuthModal from "@/components/auth/CloudAuthModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
-const ProtectedAppShell = lazy(() => import("./components/layout/ProtectedAppShell"));
+const ProtectedAppShell = lazyWithRetry(() => import("./components/layout/ProtectedAppShell"), "ProtectedAppShell");
 
 import { PageSkeleton } from "@/components/ui/skeleton";
 
@@ -86,9 +87,9 @@ const Creator = lazy(() => import("./pages/Creator"));
 import FreelancerLayoutWrapper from "./components/careers/freelancer/FreelancerLayoutWrapper";
 import CreatorLayoutWrapper from "./components/careers/creator/CreatorLayoutWrapper";
 import TherapistLayoutWrapper from "./components/careers/therapist/TherapistLayoutWrapper";
-const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const ProfilePage = lazyWithRetry(() => import("./pages/ProfilePage"), "ProfilePage");
 const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
-const AIONFloatingWidget = lazy(() => import("./components/orb/AIONFloatingWidget"));
+const AIONFloatingWidget = lazyWithRetry(() => import("./components/orb/AIONFloatingWidget"), "AIONFloatingWidget");
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
 const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const MindOSPage = lazy(() => import("./pages/MindOSPage"));
@@ -159,7 +160,7 @@ const AdminJourney = lazy(() => import("./pages/AdminJourney"));
 const ProjectsJourney = lazy(() => import("./pages/ProjectsJourney"));
 const CoachProfile = lazy(() => import("./pages/PractitionerProfile"));
 const CoachSlugRedirect = lazy(() => import("./components/careers/coach/CoachSlugRedirect"));
-const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
+const AdminLayoutWrapper = lazyWithRetry(() => import("./components/admin/AdminLayoutWrapper"), "AdminLayoutWrapper");
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
 const ArenaLayoutWrapper = lazy(() => import("./components/pillars/ArenaLayoutWrapper"));
 const ArenaDomainPage = lazy(() => import("./pages/ArenaDomainPage"));
@@ -379,7 +380,7 @@ const App = () => (
                                                 {/* Coaches */}
                                                 <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                                                 {/* Admin Hub */}
-                                                <Route path="/admin-hub" element={<AdminLayoutWrapper />} />
+                                                <Route path="/admin-hub" element={<AdminRoute><AdminLayoutWrapper /></AdminRoute>} />
                                                 {/* Launchpad */}
                                                 <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
                                                 {/* Quests */}
