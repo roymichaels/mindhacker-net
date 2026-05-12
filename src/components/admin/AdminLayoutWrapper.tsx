@@ -2,13 +2,14 @@
  * AdminLayoutWrapper - Sidebar-less layout for Admin hub.
  * Navigation and stats are rendered inline in the page body.
  */
-import { Suspense, lazy, useState, useCallback } from 'react';
+import { Suspense, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ADMIN_TABS } from '@/domain/admin';
 import { useSidebars } from '@/hooks/useSidebars';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { lazyWithRetry } from '@/lib/lazyWithRetry';
 
-const AdminHub = lazy(() => import('@/pages/AdminHub'));
+const AdminHub = lazyWithRetry(() => import('@/pages/AdminHub'), 'AdminHub');
 
 export default function AdminLayoutWrapper() {
   const [searchParams, setSearchParams] = useSearchParams();
