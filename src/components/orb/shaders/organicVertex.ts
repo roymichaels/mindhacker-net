@@ -173,23 +173,24 @@ void main() {
   float fresnel = uFresnelOffset + (1.0 + dot(viewDirection, computedNormal)) * uFresnelMultiplier;
   fresnel = pow(max(0.0, fresnel), uFresnelPower);
 
-  // Lighting
-  float lightAIntensity = max(0.0, -dot(computedNormal, normalize(-uLightAPosition))) * uLightAIntensity;
-  float lightBIntensity = max(0.0, -dot(computedNormal, normalize(-uLightBPosition))) * uLightBIntensity;
+  // Lighting — soft wrap-around lambert so the orb stays alive on the dark side
+  float ndlA = -dot(computedNormal, normalize(-uLightAPosition));
+  float ndlB = -dot(computedNormal, normalize(-uLightBPosition));
+  float lightAIntensity = (ndlA * 0.5 + 0.5) * uLightAIntensity;
+  float lightBIntensity = (ndlB * 0.5 + 0.5) * uLightBIntensity * 0.85;
 
   // Ambient base — subtle so darks stay rich
-  vec3 ambient = (uLightAColor * 0.08 + uLightBColor * 0.05) + vec3(0.02);
+  vec3 ambient = (uLightAColor * 0.08 + uLightBColor * 0.06) + vec3(0.015);
   vec3 color = ambient;
-  color = mix(color, uLightAColor, lightAIntensity * fresnel);
-  color = mix(color, uLightBColor, lightBIntensity * fresnel);
-  // Rim highlight
-  color += uLightAColor * 0.1 * fresnel;
-  // Contrast boost — push darks darker, brights brighter
-  color = pow(color, vec3(1.3));
-  color = mix(color, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.7), 3.0), 0.0, 1.0));
-  // Saturation boost
+  color += uLightAColor * lightAIntensity * 0.55;
+  color += uLightBColor * lightBIntensity * 0.55;
+  // Rim highlight — gentler, and warmed toward primary
+  color += uLightAColor * 0.12 * fresnel;
+  // Soft tone compression instead of hard contrast pow — prevents blown whites.
+  color = color / (1.0 + color * 0.55);
+  // Mild saturation lift
   float lum = dot(color, vec3(0.299, 0.587, 0.114));
-  color = mix(vec3(lum), color, 1.4);
+  color = mix(vec3(lum), color, 1.18);
 
   vColor = color;
 }
