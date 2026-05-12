@@ -30,9 +30,7 @@ export default function ChromeLayer() {
           <Menu className="h-5 w-5" />
         </button>
 
-        <div className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/60">
-          MindOS
-        </div>
+        <div aria-hidden className="h-9 w-9" />
 
         <button
           type="button"
