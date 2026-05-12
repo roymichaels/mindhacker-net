@@ -240,7 +240,7 @@ const App = () => (
                 <LanguageProvider>
                   <Web3AuthProviderWrapper>
                     <AuthModalProvider>
-                      <Web3AuthModalBridge />
+                      <CloudAuthModal />
                       <GameStateProvider>
                         <SubscriptionsModalProvider>
                           <CoachesModalProvider>
