@@ -1,98 +1,76 @@
-# Brain MVP — make /brain useful now
+# Brain page — native mobile UX pass
 
-Stop shell work. Use what's already there.
+UX-only. No architecture, no data changes, no new shell.
 
-## What exists today
+## What's wrong now
 
-- Route `/brain` → `BrainPage` → `BrainView` + `BrainGraphCanvas` (2D SVG, layered rings, click → `BrainNodeSheet`). Already mounted, already styled.
-- Tables: `aurora_memory_graph` (28 rows, full schema with layer/confidence/pillar/etc), `aurora_identity_elements` (223 rows), `aurora_behavioral_patterns` (0), `brain_edges` (0), `brain_evidence`, `pillar_confidence` (1 row), `aurora_conversation_memory` (2), `action_items` (127), `journal_entries` (0).
-- RPC `brain_get_overview` already drives `BrainView`. RPC `brain_upsert_node` exists.
-- Edge function `memory-writer` already runs after each chat turn (per `mem://architecture/brain-and-graph-foundation`).
+- ChromeLayer (Menu · "MindOS" · History) overlaps the in-view "Brain View" header → two title rows fighting at the top.
+- BrainView header crams: title + counts + "Build my brain" + "Show weak" pills on one row at 402px.
+- Layer filter chips sit right under the header → busy desktop strip.
+- Empty state is a generic boxed card, no premium feel.
+- Graph canvas is wrapped as a bordered web card (`rounded-2xl border bg-background/40`).
 
-The graph is sparse because **223 identity rows + 127 action_items + onboarding/assessment data never got written into `aurora_memory_graph`**. That's the whole problem.
+## Fix
 
-## Plan
+### 1. `BrainPage.tsx`
+- Bump top padding to clear ChromeLayer cleanly: `pt-16` → use safe-area aware spacing, no overlap with the 12-tall fixed header.
+- Drop horizontal `px-1`, use `px-4` for native feel.
 
-### 1. Backfill edge function — `brain-backfill` (new)
-
-One endpoint, idempotent, safe to rerun. Reads the user's existing data and upserts into `aurora_memory_graph` via `brain_upsert_node` (or direct upsert keyed on `content_key`).
-
-Sources mapped to graph node types:
-
-| Source table | node_type | layer | pillar | confidence seed |
-|---|---|---|---|---|
-| `aurora_identity_elements` (element_type=identity/value/belief) | `identity` / `value` / `belief` | deep | from metadata.pillar | 70 |
-| `aurora_identity_elements` (element_type=goal) | `goal` | pattern | metadata.pillar | 60 |
-| `aurora_behavioral_patterns` | `pattern` | pattern | from row | 60 |
-| `action_items` (active/recurring) | `habit` | surface | row.pillar | 40–70 by completion ratio |
-| `journal_entries` (when seeded) | `memory` | surface | inferred | 35 |
-| `pillar_confidence` rows | `pillar_marker` | pattern | the pillar | row.confidence |
-| `profiles` core fields (name, job, focus) | `identity` | deep | null | 90 |
-| Onboarding answers (existing flow_state / assessment tables) | `belief`/`goal` per answer | pattern | mapped pillar | 55 |
-
-Dedupe: `content_key = lower(trim(content))[0..120]` already in schema → upsert by `(user_id, content_key)`. Bump `reference_count`, `last_evidence_at`, write a `brain_evidence` row with the source.
-
-Returns `{ inserted, updated, skipped, by_source: {...} }`.
-
-### 2. UI additions to `BrainView`
-
-Keep the existing graph. Add a structured panel above/below it so the page is never empty:
+### 2. `BrainView.tsx` — restructure header
+Replace the cramped row with a vertical iOS-style block:
 
 ```text
-[ Build my brain ]  ← button, calls brain-backfill, shows progress toast
-─────────────────────────────────────────
-What AION knows about me
-  • Identity     (chips from node_type=identity, deep layer)
-  • Beliefs      (node_type=belief)
-  • Goals        (node_type=goal)
-  • Habits       (node_type=habit, from action_items)
-  • Patterns     (node_type=pattern)
-  • Emotions     (top emotional_charge nodes + aurora_energy_patterns)
-  • Contradictions (from brain_get_overview.contradictions)
-  • Recent memories (overview.recent)
-  • Pillar confidence (bars from pillar_confidence + overview.pillars)
-─────────────────────────────────────────
-[ existing 2D graph canvas + filters ]
+┌────────────────────────────┐
+│ Brain                      │ ← text-2xl font-semibold
+│ AION is building your map  │ ← text-xs text-muted-foreground
+│                            │
+│ ⟳ Build / Refresh brain    │ ← single full-width primary button
+└────────────────────────────┘
 ```
 
-All sections read from the same `useBrainOverview` data — no extra queries needed except `pillar_confidence` and `aurora_energy_patterns` (one small hook each). Click any chip → opens existing `BrainNodeSheet`.
+- One primary action button only. Label flips to "Refresh brain" once nodes > 0; "Building…" while pending.
+- Remove "Show weak" + the "All / Surface / Pattern / Deep" desktop filter strip from the top.
+- Move filters into a compact horizontal pill row placed **below the graph**, scrollable, with snap. "Show weak" becomes a small toggle chip in that same row.
+- Counts ("Understanding 42% · 28 nodes") move to a tiny line under the subtitle, muted, no chip styling.
 
-### 3. "Build my brain" button
+### 3. Empty state
+- Replace the boxed empty card with a centered column:
+  - Soft circular brain glyph (use `lucide-react` `Brain` icon at 64px inside a 96px circle with `bg-primary/10`, `backdrop-blur`, `ring-1 ring-primary/20`). No animation library — a simple Tailwind `animate-pulse` on the ring is enough for "premium feel".
+  - H2: "Your brain is still forming"
+  - Subtitle: "AION will build it from your conversations, journals, goals and history."
+  - Button: "Build my brain" (rounded-2xl, primary fill).
+- Vertically centered in the available viewport (`min-h-[60vh] flex items-center justify-center`).
 
-- Button in `BrainView` header.
-- Calls `supabase.functions.invoke('brain-backfill')`.
-- Streams/polls progress (simple: show counts returned, `react-query` invalidate `brain-overview`).
-- Disabled while running. Re-enabled after, safe to rerun.
-- First-load empty state shows the button prominently with copy: "Pull your identity, goals, habits and history into the graph."
+### 4. Graph container
+- Drop the bordered card framing on `BrainGraphCanvas` outer div: change to `bg-transparent`, no border. Keep only the inner SVG. This makes it feel full-bleed.
+- Reduce padding around it; let it breathe edge-to-edge.
 
-### 4. Memory-writer (already wired)
+### 5. Sections (`BrainSections.tsx`)
+- Keep, but soften containers: `border-0 bg-white/[0.03]` instead of `border-border/40 bg-background/40`. Consistent native-card look.
 
-No code change required — `useAuroraChat` already invokes `memory-writer` after each assistant turn. Just confirm `BrainView` invalidates `brain-overview` query when the user returns to `/brain` (set `staleTime: 0` on focus, or invalidate on a `memory-graph-updated` event already emitted? if not present, simply rely on existing 30s staleTime + manual refresh button).
-
-Add a small "Refresh" icon next to "Build my brain".
-
-### 5. Out of scope (explicit)
-
-- No shell/overlay changes.
-- No new homepage.
-- No 3D, no force-directed lib.
-- No design system overhaul.
-- No new tables — `brain_edges` and `aurora_behavioral_patterns` stay empty until memory-writer fills them.
-
-## Acceptance
-
-- `/brain` shows non-empty sections for any user with onboarding/identity/action_items.
-- "Build my brain" pulls 223 identity + 127 action_items into graph nodes (deduped).
-- Graph canvas renders dozens of nodes; click → detail sheet.
-- New chat turn → next `/brain` visit shows the new node.
-- Zero shell/route changes.
+### 6. Chrome
+- ChromeLayer already exposes the ShellV2 menu via `overlay.toggle('drawer')`. No changes there — it's the canonical hamburger. Remove **only** the `MindOS` center label so the brain page title doesn't compete with chrome text.
 
 ## Files
 
-- **new** `supabase/functions/brain-backfill/index.ts` — JWT-validated, reads user tables, upserts via `brain_upsert_node`, writes `brain_evidence`.
-- **edit** `src/features/brain/BrainView.tsx` — add structured sections + Build/Refresh buttons.
-- **new** `src/features/brain/BrainSections.tsx` — pure presentation, reads from overview.
-- **new** `src/features/brain/useBackfill.ts` — mutation hook wrapping the edge function.
-- **new** `src/features/brain/usePillarConfidence.ts` — small read hook.
+- **edit** `src/shellv2/layers/ChromeLayer.tsx` — drop the center "MindOS" text (keeps menu + history icons).
+- **edit** `src/pages/BrainPage.tsx` — `px-4 pt-16 pb-40`, remove horizontal cramp.
+- **edit** `src/features/brain/BrainView.tsx` — vertical iOS header block, single primary button, premium empty state, filters moved below graph.
+- **edit** `src/features/brain/BrainGraphCanvas.tsx` — remove outer border/card; transparent container.
+- **edit** `src/features/brain/BrainSections.tsx` — soften card chrome to match.
 
-No migrations needed (schema already supports everything).
+## Out of scope
+
+- No data/RPC/edge function changes.
+- No new routes.
+- No animation libs.
+- No design-system color changes.
+
+## Acceptance
+
+- No two header rows competing at the top.
+- One clear "Build / Refresh" CTA.
+- Filters live below the graph, not in the header.
+- Empty state is centered, calm, branded.
+- Graph reads as full-width, not as a card on a page.
+- All existing data and click behavior intact.
