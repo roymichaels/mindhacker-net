@@ -1,109 +1,67 @@
+## Goal
+Make the header orb render reliably and make the interactive orb look premium at large size instead of pixelated, clipped, or faceted.
 
-## Audit — why orbs are invisible right now
+## Audit findings
+1. **Header orb is on the wrong renderer path**
+   - `OrbView` forces all small orbs (`size <= 64`) into the legacy CSS fallback.
+   - The header orb is `size={40}`, so it never uses the shared stage / high-fidelity path.
+   - That means the header is still using the old blob illusion instead of the new premium renderer.
 
-I traced every orb surface and the shared pipeline. Three concrete bugs explain the blank screen, plus structural cleanup we should do while we're here.
+2. **Interactive orb is using a shader that breaks when enlarged**
+   - `InteractiveAION` renders `PersonalizedOrb`, which routes large sizes into `OrbView` → `OrganicSphere`.
+   - `OrganicSphere` is a vertex-lit displacement shader with hard fresnel and no proper post-processing pipeline.
+   - On a large orb this creates the exact problems you reported: faceting, clipped white highlights, low perceived resolution, weak depth, and a cheap enlarged look.
 
-### Bug 1 — Z-stack occlusion (root cause of "nothing shows")
-
-`SharedOrbStage` mounts a fixed full-viewport Canvas at **`z-[60]`**.
-Overlays that host orbs render **above** it:
-
-| Surface | z-index | Background |
-|---|---|---|
-| SharedOrbStage Canvas | `z-[60]` | transparent |
-| InteractiveAION backdrop | `z-[75]` | `bg-black/40` |
-| InteractiveAION panel | `z-[80]` | **opaque `bg-background`** |
-| Various sheets/modals | `z-[90]+` | opaque |
-
-drei's `<View track={ref}/>` doesn't render in-place — it renders into the **shared Canvas pixel coordinates** of the tracked rect. So when the panel slides over the canvas, the orb is painted *underneath the panel's opaque background* and disappears. That matches exactly what your screenshot shows: the panel chrome is visible, the orb spot is empty/dark.
-
-Header orb on `/index` doesn't render either because `/index` renders the marketing `Index` page which has its own header path; `OrbView` is mounted but the surrounding layout never lays it out at a non-zero size in that route.
-
-### Bug 2 — Lazy chunk import failure
-
-Console shows:
-```
-TypeError: Importing a module script failed.
-componentStack: Lazy → Suspense → Suspense
-```
-That's `lazyWithRetry(() => import('./InteractiveAION'))` failing — almost certainly a stale chunk after the v2 orb refactor changed the dependency graph. Hard reload would fix the symptom; we should also force a cache-bust.
-
-### Bug 3 — Fragmentation still present
-
-The "single orb identity" goal isn't done:
-
-- `Orb.tsx` (legacy CSS/canvas) still rendered for `size < 80` via `PersonalizedOrb`
-- `AuroraOrbIcon` still imported in `Header.tsx` even though `OrbView` replaced it
-- `OrganicOrbCanvas`, `PersonalizedOrb` are now thin wrappers — keeping them adds two extra render layers and one extra wrapping `<div>` around every orb (interferes with `View`'s rect tracking)
-- `OrbDebugOverlay` is positioned absolutely *next to* `OrbView`'s wrapper div, so it sits in the layout flow but the orb itself is painted in the canvas — debug labels can drift
-
----
+3. **The current architecture mixes two incompatible quality levels**
+   - Small surfaces use the legacy CSS orb.
+   - Large surfaces use the newer WebGL orb.
+   - So the app is not rendering “one living entity,” it is switching identities depending on size.
 
 ## Plan
+### 1) Split orb rendering by surface role, not only by size
+- Update `OrbView` so header/presence/inline orbs can use a dedicated **small-orb renderer** instead of the current forced CSS fallback.
+- Keep a low-cost small-surface path for reliability, but make it visually consistent with the premium orb instead of the old blob look.
+- Remove the “all small orbs must fall back” assumption.
 
-### Step 1 — Fix the z-stack so orbs always paint on top
+### 2) Replace the enlarged interactive orb’s current material pipeline
+- Rework the large interactive orb around a **cinematic renderer** tuned for close-up viewing.
+- Keep the shared global stage, but replace the current harsh lighting/material behavior in `OrganicSphere`.
+- Add softer specular response, controlled fresnel, better internal depth, and highlight compression so whites never blow out.
+- Increase perceived detail with a shader/material approach that survives scale instead of exposing mesh faceting.
 
-Raise `SharedOrbStage` above every overlay and keep `pointer-events-none` so it never steals input.
+### 3) Unify the orb states visually
+- Map the interactive states (`idle`, `listening`, `thinking`, `responding`, `recovery`, `focus`, `hypnosis`) to one coherent motion language.
+- Make small and large orbs share the same palette, breathing rhythm, highlight behavior, and surface character.
+- Ensure the header orb reads as the same living presence as the interactive orb, just at a smaller scale.
 
-```tsx
-// SharedOrbStage.tsx
-<div
-  aria-hidden
-  className="fixed inset-0 z-[2147483000] pointer-events-none"
-  style={{ contain: 'strict' }}
->
-  <Canvas ... />
-</div>
-```
+### 4) Add progressive quality and fallbacks properly
+- Define tiers explicitly:
+  - **Header / inline**: crisp, lightweight premium small renderer
+  - **Interactive / fullscreen**: cinematic renderer
+  - **Low-end fallback**: controlled CSS/2D fallback that matches the same look language
+- Keep one WebGL context and cap DPR intelligently on mobile.
+- Reduce quality only when necessary instead of defaulting small surfaces to the old renderer.
 
-Why a max-ish z: we have sheets, toasts, dialogs all using high z. The orb is a *visual layer*, not a UI surface, so it should sit above everything visually but be input-transparent. The View pixel coordinates already match the tracked rects, so an orb tracked inside a modal will visually appear inside that modal's frame.
+### 5) Validate against the actual failure cases
+- Verify header orb is visible and visually correct on mobile.
+- Verify interactive orb no longer shows faceting, hard clipping, or blown highlights.
+- Verify slide-in interactive mode still works from the left.
+- Verify no blank/or missing orb state in header or interactive mode.
 
-### Step 2 — Force-flush stale chunks
+## Technical details
+- Files likely involved:
+  - `src/components/orb/v2/OrbView.tsx`
+  - `src/components/orb/OrganicSphere.tsx`
+  - `src/components/orb/shaders/organicVertex.ts`
+  - `src/components/orb/PersonalizedOrb.tsx`
+  - `src/components/aion/InteractiveAION.tsx`
+  - possibly `src/components/Header.tsx`
+- Main implementation change:
+  - stop using the current “presence = legacy CSS” rule
+  - introduce explicit renderer selection by **surface role and quality tier**
+  - tune or replace the current fullscreen shader/material so large-scale rendering looks dense and premium
 
-Bump `cacheBuster` version so the SW/precache evicts the old `InteractiveAION` chunk that's failing to import. Also wrap `lazyWithRetry` for `InteractiveAION` with a one-time `location.reload()` on `ChunkLoadError` (it already has retry; add a final hard-reload fallback).
-
-### Step 3 — Finish the unification
-
-- **Delete `AuroraOrbIcon` import** from `Header.tsx` (already replaced by `OrbView`, the import is dead but adds chunk weight).
-- **`PersonalizedOrb`**: collapse the WebGL branch into a direct `OrbView` render (drop the extra `<div className="relative">` wrapper — pass `className` to `OrbView` instead). For `size < 80`, also route to `OrbView` with `tier="presence"` instead of legacy `Orb`. Remove `renderer="css"` branch entirely.
-- **`OrganicOrbCanvas`**: re-export `OrbView` directly (keep the file name for back-compat imports, but make it a one-line alias) — eliminates a render layer.
-- **`OrbDebugOverlay`**: gate behind `import.meta.env.DEV` and render in a portal at the tracked rect, so it stays aligned with the canvas-painted orb.
-
-### Step 4 — Quality pass on the Canvas
-
-While we're in `SharedOrbStage`:
-- Add `gl={{ alpha: true, antialias: true, powerPreference: 'high-performance', premultipliedAlpha: true }}` (already mostly there).
-- Re-enable a *light* bloom via `@react-three/postprocessing` (already in deps) but only when **at least one** `OrbView` is mounted at `tier !== 'presence'`. Use a context counter to toggle the `<EffectComposer>` mount, so header/presence orbs don't pay the cost. This was removed last round to fix visibility — with the z-stack fix it's safe to bring back.
-- Keep `dpr` policy as-is (1.5 floor on mobile, cap 2.0).
-
-### Step 5 — Verification
-
-Manually verify on the user's preview:
-1. Header orb visible on `/dashboard` (route with the standard shell).
-2. Mobile presence orb visible above the bottom nav.
-3. Open Interactive AION → orb visible *inside* the slide-in panel, breathing, no occlusion.
-4. Open it during a sheet/modal → orb still paints.
-5. No console "Importing a module script failed".
-6. Performance: only one WebGL context (`document.querySelectorAll('canvas').length === 1`).
-
----
-
-## Technical notes
-
-**Why not a per-surface Canvas?**
-We had that before — it blew through iOS's ~8-context limit and gave inconsistent DPR/bloom per surface. Single canvas + drei `View` is the right architecture; the only thing wrong was its z-index.
-
-**Why z = 2,147,483,000 instead of 9999?**
-Sonner toasts use `2147483647`. We sit just below that so toasts still float over the orb, but above all app overlays.
-
-**Files touched**
-- `src/components/orb/v2/SharedOrbStage.tsx` — z-index, optional bloom toggle
-- `src/components/orb/v2/OrbView.tsx` — accept `className` cleanly, expose `useOrbStageDemand()` hook for cinematic counter
-- `src/components/orb/PersonalizedOrb.tsx` — collapse to OrbView for all sizes, remove wrapper div
-- `src/components/orb/OrganicOrbCanvas.tsx` — convert to alias re-export
-- `src/components/Header.tsx` — drop `AuroraOrbIcon` import
-- `src/components/orb/OrbDebugOverlay.tsx` — DEV-gate + portal alignment
-- `src/utils/cacheBuster.ts` — bump version
-- `src/components/aion/InteractiveAIONHost.tsx` — hard-reload fallback on chunk load error
-
-No backend, no schema, no auth changes.
+## Expected result
+- The header orb renders correctly.
+- The interactive orb stops looking like a stretched low-quality object.
+- Both orbs feel like the same premium living presence instead of two different systems.
