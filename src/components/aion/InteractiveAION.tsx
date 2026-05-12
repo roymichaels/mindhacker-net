@@ -26,6 +26,20 @@ import { emitArtifact } from './artifacts/artifactBus';
 
 const CHROME_HIDE_MS = 3000;
 
+/** Extracts the first actionable line (numbered list, bullet, or imperative). */
+function extractFirstActionLine(text: string): string | null {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  for (const line of lines) {
+    // Numbered: "1. ..." / "1) ..."
+    const num = line.match(/^\d+[.)]\s+(.{6,})$/);
+    if (num) return num[1].trim();
+    // Bullet: "- ..." / "• ..." / "* ..."
+    const bul = line.match(/^[-•*]\s+(.{6,})$/);
+    if (bul) return bul[1].trim();
+  }
+  return null;
+}
+
 /** Maps live AION state → orb visual state (the orb supports a smaller set). */
 function mapToOrbState(s: ReturnType<typeof useAIONState>['state']) {
   switch (s) {
