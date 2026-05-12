@@ -15,6 +15,7 @@ import { WalletModalProvider } from "@/contexts/WalletModalContext";
 import { SoulAvatarProvider } from "@/contexts/SoulAvatarContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
+import { EnvironmentProvider, MotionLayer } from "@/orchestration";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
@@ -241,7 +242,9 @@ const App = () => (
                     <AuthModalProvider>
                       <CloudAuthModal />
                       <GameStateProvider>
-                        <SubscriptionsModalProvider>
+                        <EnvironmentProvider>
+                        <MotionLayer>
+                         <SubscriptionsModalProvider>
                           <CoachesModalProvider>
                             <WalletModalProvider>
                               <SoulAvatarProvider>
@@ -468,7 +471,9 @@ const App = () => (
                               </SoulAvatarProvider>
                             </WalletModalProvider>
                           </CoachesModalProvider>
-                        </SubscriptionsModalProvider>
+                         </SubscriptionsModalProvider>
+                        </MotionLayer>
+                        </EnvironmentProvider>
                       </GameStateProvider>
                     </AuthModalProvider>
                 </LanguageProvider>
