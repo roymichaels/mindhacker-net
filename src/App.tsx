@@ -91,7 +91,8 @@ import CreatorLayoutWrapper from "./components/careers/creator/CreatorLayoutWrap
 import TherapistLayoutWrapper from "./components/careers/therapist/TherapistLayoutWrapper";
 const ProfilePage = lazyWithRetry(() => import("./pages/ProfilePage"), "ProfilePage");
 const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvatarMintWizardGlobal"));
-const AIONFloatingWidget = lazyWithRetry(() => import("./components/orb/AIONFloatingWidget"), "AIONFloatingWidget");
+// Phase A shell collapse: AIONFloatingWidget retired in favor of shell/AIONPresenceButton.
+// Component file kept under legacy until Phase E cleanup.
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
 const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
@@ -457,7 +458,7 @@ const App = () => (
                                               <WalletModal />
                                               <Suspense fallback={null}><ProfilePage /></Suspense>
                                               <SoulAvatarMintWizardGlobal />
-                                              <Suspense fallback={null}><AIONFloatingWidget /></Suspense>
+                                              {/* AIONFloatingWidget removed — single AION presence lives in DashboardLayout shell */}
                                               <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
                                           </Suspense>
