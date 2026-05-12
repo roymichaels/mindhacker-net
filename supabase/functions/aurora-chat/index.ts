@@ -17,10 +17,30 @@ import { optionalAuth } from "../_shared/auth.ts";
 import { aiChatCompletion, getProvider } from "../_shared/aiGateway.ts";
 import { sanitizeStream } from "./sanitizeStream.ts";
 
+const STALE_HISTORY_PATTERNS = [
+  /השעה עכשיו/i,
+  /יש לך היום/i,
+  /היום יש לך/i,
+  /המשימות הבאות/i,
+  /בוקר טוב/i,
+  /current time/i,
+  /today you have/i,
+  /tasks scheduled for today/i,
+];
+
+function isStaleAssistantHistoryMessage(content: unknown): boolean {
+  const text = typeof content === "string"
+    ? content
+    : Array.isArray(content)
+      ? content.map((part: any) => part?.text || "").join(" ")
+      : "";
+  return STALE_HISTORY_PATTERNS.some((pattern) => pattern.test(text));
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-  "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded",
+  "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded, x-aurora-history-count, x-aurora-history-assistant-count, x-aurora-history-filtered-count, x-aurora-task-source, x-aurora-current-time, x-aurora-daily-briefing-source, x-aurora-proactive-used, x-aurora-cached-response",
 };
 
 serve(async (req) => {
@@ -65,6 +85,26 @@ serve(async (req) => {
       console.log("[aurora-chat] greeting detected, downgrading to lite mode");
       mode = "lite";
     }
+
+    const historyStats = {
+      total: messages.length,
+      assistantIncluded: 0,
+      filteredOut: 0,
+    };
+    let modelMessages = messages.filter((msg) => {
+      if (msg.role !== "assistant") return true;
+      if (isStaleAssistantHistoryMessage(msg.content)) {
+        historyStats.filteredOut += 1;
+        return false;
+      }
+      return true;
+    });
+
+    if (mode === "lite") {
+      modelMessages = modelMessages.filter((msg) => msg.role !== "assistant");
+    }
+
+    historyStats.assistantIncluded = modelMessages.filter((msg) => msg.role === "assistant").length;
 
     // For non-widget mode, require authentication
     if (mode !== "widget" && !auth) {
@@ -153,7 +193,7 @@ serve(async (req) => {
             model,
             messages: [
               { role: "system", content: orchestrated.systemPrompt },
-              ...messages,
+              ...modelMessages,
             ],
             stream: true,
             max_tokens: orchestrated.maxTokens,
@@ -243,6 +283,14 @@ serve(async (req) => {
         "X-Aurora-Source": "live",
         "X-Aurora-Mode": mode,
         "X-Aurora-Greeting": isShortGreeting ? "true" : "false",
+        "X-Aurora-History-Count": String(modelMessages.length),
+        "X-Aurora-History-Assistant-Count": String(historyStats.assistantIncluded),
+        "X-Aurora-History-Filtered-Count": String(historyStats.filteredOut),
+        "X-Aurora-Task-Source": mode === "lite" ? "none:greeting-lite" : "action_items:today",
+        "X-Aurora-Current-Time": context.current_time_local,
+        "X-Aurora-Daily-Briefing-Source": mode === "lite" ? "none:greeting-lite" : "disabled-unless-explicit",
+        "X-Aurora-Proactive-Used": "false",
+        "X-Aurora-Cached-Response": "false",
       },
     });
   } catch (error: unknown) {
