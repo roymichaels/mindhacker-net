@@ -11,10 +11,9 @@
  *
  * Close: top-right X button, Escape, or `aion:open-interactive` with `open: false`.
  */
-import { useEffect, useState, useRef, lazy, Suspense } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { X } from 'lucide-react';
-
-const InteractiveAION = lazy(() => import('./InteractiveAION'));
+import InteractiveAION from './InteractiveAION';
 
 const EDGE_THRESHOLD_PX = 24;
 const SWIPE_TRIGGER_PX = 80;
@@ -85,9 +84,7 @@ export default function InteractiveAIONHost() {
 
   return (
     <div className="fixed inset-0 z-[80] animate-fade-in">
-      <Suspense fallback={<div className="fixed inset-0 bg-background z-[80]" />}>
-        <InteractiveAION />
-      </Suspense>
+      <InteractiveAION />
       {/* Close affordance */}
       <button
         type="button"

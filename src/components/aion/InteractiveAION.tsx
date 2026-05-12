@@ -13,7 +13,7 @@
  * chat history sheet are NOT in this phase.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, Mic, MicOff, Moon } from 'lucide-react';
+import { Menu, Mic, MicOff, Moon, ChevronUp } from 'lucide-react';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { useOverlay } from '@/shell/overlay/OverlayController';
@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import ArtifactLayer from './artifacts/ArtifactLayer';
 import { emitArtifact } from './artifacts/artifactBus';
 import HypnosisLayer from './layers/HypnosisLayer';
+import ChatHistorySheet from './ChatHistorySheet';
 
 const CHROME_HIDE_MS = 3000;
 
@@ -230,6 +231,17 @@ export default function InteractiveAION() {
         <span className="opacity-90">{caption}</span>
       </div>
 
+      {/* Pull-up history affordance */}
+      <button
+        type="button"
+        onClick={() => overlay.open('aion')}
+        aria-label="פתח היסטוריית שיחה"
+        className="absolute bottom-[68px] left-1/2 -translate-x-1/2 z-10 h-7 px-3 rounded-full bg-card/40 backdrop-blur-md border border-white/10 flex items-center gap-1 text-[11px] text-foreground/60 hover:text-foreground/90"
+      >
+        <ChevronUp className="h-3 w-3" />
+        היסטוריה
+      </button>
+
       {/* Floating artifacts (next actions, journal captures, plans) */}
       <ArtifactLayer bottomOffset={220} />
 
@@ -276,6 +288,9 @@ export default function InteractiveAION() {
 
       {/* Hypnosis modifier — visual-only */}
       <HypnosisLayer active={hypnosisActive} onExit={() => setHypnosisActive(false)} />
+
+      {/* Pull-up chat history (binds to OverlayKind 'aion') */}
+      <ChatHistorySheet />
     </div>
   );
 }
