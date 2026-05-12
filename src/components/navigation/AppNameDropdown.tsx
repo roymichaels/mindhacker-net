@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen, User, HelpCircle, Bug, Menu, Home } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard, FileText, BookOpen, User, HelpCircle, Bug } from 'lucide-react';
 import { Flame, Gem, Star } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -31,7 +31,6 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { useUserJob } from '@/hooks/useUserJob';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
-import { OS_TABS } from '@/navigation/osNav';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
@@ -124,13 +123,39 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               compact ? "gap-1.5" : "gap-2"
             )}
           >
-            <Menu className={cn(compact ? "h-4 w-4" : "h-5 w-5", "text-foreground")} />
-            <span className={cn(
-              "font-bold text-foreground",
-              compact ? "text-sm" : "text-base"
-            )}>
-              {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
-            </span>
+            {user ? (
+              <>
+                <div className={cn(compact ? "w-7 h-7" : "w-9 h-9", "rounded-full overflow-hidden shrink-0")}>
+                  <AvatarMiniPreview size={compact ? 28 : 36} />
+                </div>
+                <div className="flex flex-col items-start leading-tight">
+                  <span className={cn(
+                    "font-bold text-foreground truncate max-w-[120px]",
+                    compact ? "text-xs" : "text-sm"
+                  )}>
+                    {displayName}
+                  </span>
+                  {dashboard.identityTitle && (
+                    <span className={cn(
+                      "text-muted-foreground truncate max-w-[120px]",
+                      compact ? "text-[10px]" : "text-xs"
+                    )}>
+                      {dashboard.identityTitle.title}
+                    </span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <AuroraOrbIcon className={cn(compact ? "w-7 h-7" : "w-10 h-10", "text-foreground")} size={compact ? 28 : 40} />
+                <span className={cn(
+                  "font-bold text-foreground",
+                  compact ? "text-sm" : "text-base"
+                )}>
+                  {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
+                </span>
+              </>
+            )}
             <ChevronDown className={cn(compact ? "h-3.5 w-3.5" : "h-4 w-4", "text-muted-foreground")} />
           </button>
         </DropdownMenuTrigger>
@@ -303,26 +328,6 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             <LogOut className="h-4 w-4 me-2" />
             {t('aurora.account.signOut')}
           </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
-          {/* App Navigation */}
-          <DropdownMenuItem onClick={() => { setDropdownOpen(false); navigate('/dashboard'); }}>
-            <Home className="h-4 w-4 me-2" />
-            {language === 'he' ? 'בית' : 'Home'}
-          </DropdownMenuItem>
-          {OS_TABS.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <DropdownMenuItem
-                key={tab.id}
-                onClick={() => { setDropdownOpen(false); navigate(tab.path); }}
-              >
-                <Icon className="h-4 w-4 me-2" />
-                {language === 'he' ? tab.labelHe : tab.labelEn}
-              </DropdownMenuItem>
-            );
-          })}
         </DropdownMenuContent>
       </DropdownMenu>
       <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
