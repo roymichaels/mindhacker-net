@@ -1,0 +1,1 @@
+ALTER TABLE public.aion_decisions ADD COLUMN IF NOT EXISTS source TEXT;

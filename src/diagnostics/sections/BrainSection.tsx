@@ -48,6 +48,22 @@ export default function BrainSection() {
       <Row label="mode" value={decision.mode} />
       <Row label="tone" value={decision.tone} />
       <Row label="density" value={decision.density} />
+      <Row
+        label="source"
+        value={
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${
+              (decision as any).source === 'llm'
+                ? 'bg-emerald-500/15 text-emerald-300'
+                : (decision as any).source === 'heuristic'
+                ? 'bg-amber-500/15 text-amber-300'
+                : 'bg-muted/30 text-muted-foreground'
+            }`}
+          >
+            {(decision as any).source ?? 'unknown'}
+          </span>
+        }
+      />
       <Row label="expires" value={fmtTtl(ttlMs)} />
       <Row label="updated" value={fmtAbs(updatedAtMs)} />
       <Row label="last brain run" value={fmtAbs(lastBrainRunAt)} />

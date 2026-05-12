@@ -622,6 +622,7 @@ export type Database = {
           mode: string
           reasoning: string | null
           signals_snapshot: Json
+          source: string | null
           suggestion: Json
           tone: string
           updated_at: string
@@ -634,6 +635,7 @@ export type Database = {
           mode?: string
           reasoning?: string | null
           signals_snapshot?: Json
+          source?: string | null
           suggestion?: Json
           tone?: string
           updated_at?: string
@@ -646,6 +648,7 @@ export type Database = {
           mode?: string
           reasoning?: string | null
           signals_snapshot?: Json
+          source?: string | null
           suggestion?: Json
           tone?: string
           updated_at?: string
