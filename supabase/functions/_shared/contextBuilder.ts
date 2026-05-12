@@ -395,6 +395,9 @@ export async function buildContext(
     tacticalScheduleRes,
     // NEW: User subscription
     subscriptionRes,
+    // NEW: Conversation-as-Intake
+    pillarConfidenceRes,
+    openContradictionsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
