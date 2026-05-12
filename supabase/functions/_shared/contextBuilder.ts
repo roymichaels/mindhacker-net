@@ -954,6 +954,29 @@ export async function buildContext(
 
     // ─── Subscription Tier ───────────────────────────
     subscription_tier: subscriptionData?.subscription_tiers?.name || null,
+
+    // ─── Intake (Conversation-as-Intake) ─────────────
+    intake: (() => {
+      const rows = (pillarConfidenceRes as any)?.data || [];
+      const contradictions = (openContradictionsRes as any)?.data || [];
+      const avg = rows.length
+        ? Math.round(
+            rows.reduce((s: number, r: any) => s + Number(r.confidence || 0), 0) / rows.length,
+          )
+        : 0;
+      return {
+        pillar_confidence: rows.map((r: any) => ({
+          pillar_id: r.pillar_id,
+          confidence: Number(r.confidence || 0),
+          signal_count: r.signal_count || 0,
+          gaps: Array.isArray(r.gaps) ? r.gaps : [],
+          last_signal_at: r.last_signal_at ?? null,
+          last_probed_at: r.last_probed_at ?? null,
+        })),
+        open_contradictions: contradictions,
+        avg_confidence: avg,
+      };
+    })(),
   };
 
   // Compute hash for tracing
