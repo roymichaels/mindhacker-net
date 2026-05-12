@@ -88,6 +88,9 @@ const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
 
+// ShellV2 — Phase 1 dev preview route (`/__shellv2`).
+const ShellV2DevPage = lazy(() => import("./shellv2/dev/ShellV2DevPage"));
+
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
@@ -308,6 +311,8 @@ const App = () => (
                                               <Route path="/go" element={<Go />} />
                                               <Route path="/founding" element={<FoundingLanding />} />
                                               <Route path="/features/:slug" element={<FeatureDetailPage />} />
+                                              {/* ShellV2 dev preview — Phase 1 skeleton. Public, no shell wrappers. */}
+                                              <Route path="/__shellv2" element={<ShellV2DevPage />} />
                                               {/* Coach slug redirects (dynamic, can't be in map) */}
                                               <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
                                               <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
