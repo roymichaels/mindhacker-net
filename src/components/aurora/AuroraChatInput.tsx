@@ -129,7 +129,7 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
   };
 
   return (
-    <div className="shrink-0 w-full bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4">
+    <div className="shrink-0 w-full bg-background backdrop-blur-xl border-t border-border pt-3 pb-4 px-4">
       <form onSubmit={handleSubmit} className="w-full">
         <div className="relative flex items-end gap-3">
           {/* Composer "+" — capability launcher (replaces module nav) */}

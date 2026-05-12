@@ -64,7 +64,7 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
 
       <SheetContent
         side={isRTL ? 'right' : 'left'}
-        className="w-[300px] sm:w-[320px] p-0 bg-card/95 backdrop-blur-2xl border-0 ring-1 ring-white/[0.08] shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)]"
+        className="w-[300px] sm:w-[320px] p-0 bg-card backdrop-blur-2xl border-0 ring-1 ring-white/[0.08] shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)]"
       >
         <div className="flex h-full flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
           {/* Brand row */}
