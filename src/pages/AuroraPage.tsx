@@ -9,14 +9,27 @@ import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
+import InteractiveAION from '@/components/aion/InteractiveAION';
+import { useClientFlag } from '@/lib/clientFlags';
 
 export default function AIONPage() {
   useTranslation();
   const { assessmentDomainId, endAssessment } = useAuroraChatContext();
+  const interactive = useClientFlag('interactive_mode');
 
   const isAssessing = !!assessmentDomainId;
   // Note: pillar/scan context label is now reflected in the global header dropdown.
   void LIFE_DOMAINS;
+
+  // Interactive AION Mode (opt-in via `?ff_interactive_mode=1`).
+  // Falls back to compact chat surface for assessment flows.
+  if (interactive && !isAssessing) {
+    return (
+      <AIONNamingGate>
+        <InteractiveAION />
+      </AIONNamingGate>
+    );
+  }
 
   return (
     <AIONNamingGate>
