@@ -10,7 +10,7 @@ import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { PracticesModal } from '@/components/modals/PracticesModal';
 import { AchievementGalleryModal } from '@/components/modals/AchievementGalleryModal';
 import { InventoryBagModal } from '@/components/modals/InventoryBagModal';
-import { Sparkles, Dumbbell, Trophy, Package, X, Brain } from 'lucide-react';
+import { Sparkles, Dumbbell, Trophy, Package, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ProfileTab, TraitsTab } from '@/components/modals/CharacterProfileModal';
 import { OrbNarrativeCard } from '@/components/profile/OrbNarrativeCard';
