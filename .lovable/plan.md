@@ -1,184 +1,98 @@
-## Goal
+# Brain MVP — make /brain useful now
 
-Replace the four-shell legacy stack (DashboardLayout + PresenceShell + Hallway + HubModalHost) with a single **ShellV2** where chat is the only persistent surface. Everything else is summoned as an artifact or routed through one overlay controller.
+Stop shell work. Use what's already there.
 
-## Architecture target
+## What exists today
 
-```
-ProtectedAppShellV2  (auth + onboarding gate)
-└── ShellV2
-    ├── BackgroundLayer   z=10   SharedOrbStage canvas
-    ├── ChatLayer         z=20   AuroraChatBubbles + ArtifactLayer
-    ├── ComposerLayer     z=30   GlobalChatInput + ComposerActions
-    ├── ChromeLayer       z=40   MinimalHeader (drawer trigger, AION pulse, history)
-    ├── OverlayLayer      z=55–80 UnifiedOverlayController (Radix dialog/sheet/drawer + AION panel + toasts)
-    └── BlockingLayer     z=90   naming gate, theme flash, avatar required, network reconnect
-```
+- Route `/brain` → `BrainPage` → `BrainView` + `BrainGraphCanvas` (2D SVG, layered rings, click → `BrainNodeSheet`). Already mounted, already styled.
+- Tables: `aurora_memory_graph` (28 rows, full schema with layer/confidence/pillar/etc), `aurora_identity_elements` (223 rows), `aurora_behavioral_patterns` (0), `brain_edges` (0), `brain_evidence`, `pillar_confidence` (1 row), `aurora_conversation_memory` (2), `action_items` (127), `journal_entries` (0).
+- RPC `brain_get_overview` already drives `BrainView`. RPC `brain_upsert_node` exists.
+- Edge function `memory-writer` already runs after each chat turn (per `mem://architecture/brain-and-graph-foundation`).
 
-Single z-scale lives in `src/shellv2/zindex.ts`. Every Tailwind `z-[…]` class above the scale is rewritten to a token during Phase 7.
+The graph is sparse because **223 identity rows + 127 action_items + onboarding/assessment data never got written into `aurora_memory_graph`**. That's the whole problem.
 
-## Migration principles
+## Plan
 
-1. Build ShellV2 next to the old shell — never edit both at once.
-2. Each phase is shippable on its own and gated by a feature flag (`ff_shell_v2`).
-3. Deletions are preferred over additions. No new components unless they replace ≥2 old ones.
-4. No more z-index, opacity, or background patches on `dashboard/`, `presence/`, `hallway/`, `HubModal*`. Touch them only to delete.
-5. Anything new asks first: route, artifact, tool, inline interaction, or AI suggestion? Default = artifact.
+### 1. Backfill edge function — `brain-backfill` (new)
 
-## Phase 0 — Freeze (½ day)
+One endpoint, idempotent, safe to rerun. Reads the user's existing data and upserts into `aurora_memory_graph` via `brain_upsert_node` (or direct upsert keyed on `content_key`).
 
-- Add `src/_legacy/README.md` listing frozen folders: `components/dashboard/`, `presence/`, `hallway/`, `contexts/HubModalContext.tsx`, `components/navigation/HubModalHost.tsx`, `pages/AuroraPage.tsx`, `pages/UserDashboard.tsx`, `pages/MindOS/*`, `pages/pillars/*`, `components/aion/artifacts/artifactBus.ts`.
-- Add a feature flag `ff_shell_v2` (default off) in `src/lib/clientFlags.ts`.
-- Acceptance: PR description template requires "no edits to frozen folders unless deleting".
+Sources mapped to graph node types:
 
-## Phase 1 — ShellV2 skeleton (1 day)
+| Source table | node_type | layer | pillar | confidence seed |
+|---|---|---|---|---|
+| `aurora_identity_elements` (element_type=identity/value/belief) | `identity` / `value` / `belief` | deep | from metadata.pillar | 70 |
+| `aurora_identity_elements` (element_type=goal) | `goal` | pattern | metadata.pillar | 60 |
+| `aurora_behavioral_patterns` | `pattern` | pattern | from row | 60 |
+| `action_items` (active/recurring) | `habit` | surface | row.pillar | 40–70 by completion ratio |
+| `journal_entries` (when seeded) | `memory` | surface | inferred | 35 |
+| `pillar_confidence` rows | `pillar_marker` | pattern | the pillar | row.confidence |
+| `profiles` core fields (name, job, focus) | `identity` | deep | null | 90 |
+| Onboarding answers (existing flow_state / assessment tables) | `belief`/`goal` per answer | pattern | mapped pillar | 55 |
 
-Files to create:
-- `src/shellv2/zindex.ts` — single Z scale.
-- `src/shellv2/ShellV2.tsx` — pure layout, no behaviour.
-- `src/shellv2/layers/BackgroundLayer.tsx` — re-mounts `SharedOrbStage` at z=10.
-- `src/shellv2/layers/ChromeLayer.tsx` — minimal top bar (left: drawer trigger, right: AION pulse + history).
-- `src/shellv2/layers/ChatLayer.tsx` — placeholder.
-- `src/shellv2/layers/ComposerLayer.tsx` — placeholder.
-- `src/shellv2/layers/OverlayLayer.tsx` — wraps `OverlayProvider` + `UnifiedOverlayHost`.
-- `src/shellv2/layers/BlockingLayer.tsx` — naming gate slot.
-- `src/shellv2/UnifiedOverlayHost.tsx` — renders the active overlay from `OverlayController`.
-- `src/shellv2/ProtectedAppShellV2.tsx` — auth + onboarding gate + ShellV2.
-- New dev-only route `/__shellv2` rendering ShellV2 with an empty ChatLayer.
+Dedupe: `content_key = lower(trim(content))[0..120]` already in schema → upsert by `(user_id, content_key)`. Bump `reference_count`, `last_evidence_at`, write a `brain_evidence` row with the source.
 
-Acceptance: `/__shellv2` shows orb + minimal header + empty body + composer placeholder, no other chrome.
+Returns `{ inserted, updated, skipped, by_source: {...} }`.
 
-## Phase 2 — Chat in ShellV2 (1–2 days)
+### 2. UI additions to `BrainView`
 
-- ChatLayer mounts `AuroraChatBubbles` + `ArtifactLayer` (the existing `src/lib/aion/artifactBus` SSOT).
-- Delete the duplicate `src/components/aion/artifacts/artifactBus.ts` and its `ArtifactLayer.tsx` sibling.
-- When `ff_shell_v2` is on, `/` and `/aurora` render ShellV2 instead of `AuroraPage` + DashboardLayout.
-- Verify `AuroraChatContext` / `useAuroraChat` provider order at App root.
+Keep the existing graph. Add a structured panel above/below it so the page is never empty:
 
-Quarantine (do not delete yet): `pages/AuroraPage.tsx`, `components/aurora/AuroraChatArea.tsx`, `components/aurora/JourneyChatDock.tsx`, `pages/MindOS/ChatPage.tsx`, `components/aurora/AuroraChatInput.tsx`.
-
-Risk: streaming hook regressions. Mitigation: keep both shells live behind the flag for one release cycle.
-
-Acceptance: with the flag on, `/` is the chat, with no header dropdowns, no MobileHeroGrid, no story surfaces.
-
-## Phase 3 — Composer + artifacts in ShellV2 (1 day)
-
-- ComposerLayer mounts `GlobalChatInput` + `ComposerActions`.
-- Add `summon` plus-menu items: assessment, plan, today-list, journey, journal, business-canvas, landing-builder, hypnosis-session, brain-profile.
-- Centralise body scroll lock inside `OverlayController` (single `useLockBodyScroll`).
-- Confirm `ArtifactFrame` uses `OverlayController` for fullscreen artifacts (no hand-rolled `fixed inset-0`).
-
-Acceptance: typing works, voice works, summoning any artifact opens it inline; only one composer in the DOM at any time.
-
-## Phase 4 — Brain route replaces Profile (1 day)
-
-- New `/brain` page: `BrainGraphCanvas` + identity panel (DNA + AION) + recent decisions + memory list.
-- `OSDrawer` and `MindOSSheet` callers of `openProfile()` → `navigate('/brain')`.
-- Redirects: `/profile` → `/brain`.
-- Quarantine (don't delete yet): `src/pages/ProfilePage.tsx`, `src/contexts/ProfileModalContext.tsx`.
-
-Acceptance: tapping the user chip in the drawer lands on `/brain` with the existing graph view.
-
-## Phase 5 — Route map collapse (1–2 days)
-
-- Replace HubModal pattern with route-level summoning. Each "hub" route becomes a thin page that renders ShellV2 and summons the appropriate artifact via `artifactBus.summon(kind, params, { replaceKind: true })` on mount.
-  - `/strategy` → summon `plan` + `today-list`
-  - `/strategy/:pillar` → summon `assessment` (replaces all `pages/pillars/*`)
-  - `/journal` → summon `journal` artifact
-  - `/hypnosis` → summon `hypnosis-session` artifact
-  - `/fm`, `/community`, `/messages` → keep as full routes (large surfaces)
-- Add redirects in `src/routes/redirects.tsx`:
-  - `/aurora`, `/dashboard`, `/play`, `/plan`, `/now`, `/mindos`, `/mindos/*`, `/hallway`, `/hallway/:slug` → `/`
-  - All current pillar wizard sub-routes → `/strategy/:pillar`
-- Replace `HubModalContext.openHub(...)` callers with `navigate(...)`.
-
-Acceptance: any legacy URL lands inside ShellV2 with the right artifact summoned. `useHubModal` has zero callers outside its own files.
-
-## Phase 6 — Delete legacy shells (1 day)
-
-Move to `src/_legacy/` then delete after one green release:
-- `src/components/dashboard/{DashboardLayout,DashboardLayoutWrapper,MobileHeroGrid,UserDashboard children,unified/,v2/,missions/,DailyPrioritiesModal,DailyRoadmap,ExecutionModal,HypnosisModal,JobPanel,MilestoneDetailModal,NextStepGuide,NowSection,PillarSynthesisModal,SkillsPanel,SkillDetailModal}`
-- `src/pages/UserDashboard.tsx`, `src/pages/AuroraPage.tsx`, `src/pages/MindOSPage.tsx`, `src/pages/MindOS/*`, `src/pages/pillars/*` (after artifact replacements verified), `src/pages/ProfilePage.tsx`
-- `src/presence/*`, `src/hallway/*`
-- `src/contexts/{HubModalContext,ProfileModalContext}.tsx`
-- `src/components/navigation/{HubModalHost,AppNameDropdown,AppNameMenu,AppSideMenu,BottomTabBar,BottomHudBar,TopNavBar,DesktopSideNav,HeaderActions}.tsx`
-- `src/components/aurora/{AuroraChatArea,AuroraChatInput,AuroraDock,JourneyChatDock,AuroraLayout}.tsx`
-- `src/components/aion/{InteractiveAIONHost,InteractiveAION}.tsx` after merging into ChromeLayer
-- All `*Sidebar.tsx` files (admin, community, projects, fm, coach) — sidebar concept retired
-- `src/contexts/SidebarContext.tsx`, `src/components/dashboard/DashboardLayoutWrapper.tsx`
-
-Risk: hidden imports. Mitigation: quarantine first, run typecheck (auto), delete only after CI green for 24h.
-
-Acceptance: `rg -l "from .*dashboard/DashboardLayout|HubModalContext|presence/PresenceShell|hallway/Hallway"` returns zero hits in non-`_legacy` paths.
-
-## Phase 7 — Polish + overlay cleanup (1–2 days)
-
-- Normalise every overlay through `OverlayController`. Convert `AvatarRequiredModal`, `CreateStoryModal`, `NFTDetailCard`, `AIONNamingGate`, ThemeProvider flash to Radix Dialog or `BottomSheet`. Delete every hand-rolled `fixed inset-0 z-[9999+]`.
-- Fix `alert-dialog` content z (currently 50, below its overlay 70).
-- Replace dual toaster (Sonner + shadcn Toaster) with one (Sonner).
-- Move `ff_shell_v2` to default-on; remove old shell mount path from `App.tsx`.
-- Replace 100% of `z-[…]` arbitrary classes with the `Z` token map.
-- Edge-swipe drawer open, safe-area paddings audited, theme flash priced into BlockingLayer at z=90.
-
-Acceptance: zero `z-[9000+]` remaining. Manual QA matrix passes on iOS Safari + Android Chrome (drawer ↔ dialog ↔ artifact ↔ AION panel ↔ toast in every order).
-
-## Per-file disposition (master table)
-
-| Item | Action |
-|---|---|
-| `src/App.tsx` | KEEP, prune providers, remove old shell branch in Phase 7 |
-| `components/layout/ProtectedAppShell.tsx` | MERGE → `shellv2/ProtectedAppShellV2.tsx` |
-| `components/dashboard/DashboardLayout.tsx` + Wrapper + UserDashboard + MobileHeroGrid + sub-modals | REMOVE (Phase 6) |
-| `presence/*`, `hallway/*` | REMOVE (Phase 6) |
-| `contexts/HubModalContext.tsx`, `components/navigation/HubModalHost.tsx` | REMOVE (Phase 5/6) |
-| `shell/overlay/OverlayController.tsx` + `BottomSheet.tsx` | KEEP — promoted to overlay SSOT |
-| `components/shell/OSDrawer.tsx` | KEEP — single nav drawer |
-| `components/shell/MindOSSheet.tsx` | MERGE into OSDrawer |
-| `components/shell/AIONPresenceButton.tsx` | KEEP |
-| `components/orb/v2/SharedOrbStage.tsx` | KEEP — z lowered to 10 inside Background layer |
-| `components/aion/InteractiveAIONHost.tsx` + `InteractiveAION.tsx` | MERGE into ChromeLayer (Phase 6) |
-| `pages/AuroraPage.tsx` | REMOVE — Shell IS the chat |
-| `components/aurora/AuroraChatBubbles`, `useAuroraChat`, `AuroraChatContext`, `AuroraChatMessage`, `AuroraTypingIndicator`, `AuroraWelcome`, `AuroraActionConfirmation` | KEEP |
-| `components/aurora/{AuroraChatArea,AuroraChatInput,AuroraDock,JourneyChatDock,AuroraLayout}` | REMOVE |
-| `components/dashboard/GlobalChatInput.tsx` + `aurora/composer/ComposerActions.tsx` | KEEP |
-| `components/artifacts/*`, `lib/aion/artifactBus.ts`, `lib/aion/artifactRegistry.ts` | KEEP — already on-spec |
-| `components/aion/artifacts/artifactBus.ts` + sibling ArtifactLayer | REMOVE — duplicate bus |
-| `components/story/StorySurfaceHost.tsx` | CONTEXTUAL — convert to `story-scene` artifact or delete |
-| `pages/pillars/*` | REMOVE — replaced by `assessment` artifact |
-| `pages/ProfilePage.tsx`, `contexts/ProfileModalContext.tsx` | REMOVE — replaced by `/brain` |
-| `features/brain/*` | KEEP — used by `/brain` |
-| `components/ui/{dialog,sheet,drawer,alert-dialog}.tsx` | KEEP — normalise z, fix alert-dialog content z |
-| `AvatarRequiredModal`, `CreateStoryModal`, `NFTDetailCard`, `AIONNamingGate` | MERGE into Radix Dialog (Phase 7) |
-| `ThemeProvider` flash overlay | KEEP — re-priced into BlockingLayer |
-| Sonner + shadcn Toaster | MERGE — keep Sonner only |
-| `contexts/SidebarContext.tsx`, all `*Sidebar.tsx` (admin, community, fm, coach, projects) | REMOVE — sidebar concept retired |
-| `navigation/{AppNameDropdown,AppNameMenu,AppSideMenu,BottomTabBar,BottomHudBar,TopNavBar,DesktopSideNav,HeaderActions}.tsx` | REMOVE |
-| Public `Header.tsx` | KEEP for marketing routes only |
-| Career hubs (Business/Freelancer/Creator/Coach) | CONTEXTUAL — keep as routes; revisit after ShellV2 lands |
-
-## Z-index scale (single source)
-
-```ts
-// src/shellv2/zindex.ts
-export const Z = {
-  base: 0, background: 10, chat: 20, composer: 30,
-  chrome: 40, scrim: 55, overlay: 60, aionPanel: 70,
-  toast: 80, blocking: 90,
-} as const;
+```text
+[ Build my brain ]  ← button, calls brain-backfill, shows progress toast
+─────────────────────────────────────────
+What AION knows about me
+  • Identity     (chips from node_type=identity, deep layer)
+  • Beliefs      (node_type=belief)
+  • Goals        (node_type=goal)
+  • Habits       (node_type=habit, from action_items)
+  • Patterns     (node_type=pattern)
+  • Emotions     (top emotional_charge nodes + aurora_energy_patterns)
+  • Contradictions (from brain_get_overview.contradictions)
+  • Recent memories (overview.recent)
+  • Pillar confidence (bars from pillar_confidence + overview.pillars)
+─────────────────────────────────────────
+[ existing 2D graph canvas + filters ]
 ```
 
-## What we will NOT do
-- No new CSS patches on `dashboard/` / `presence/` / `hallway/`.
-- No "lower this z by 5" attempts on overlays we plan to delete.
-- No new feature work on `MobileHeroGrid` or any dashboard child.
-- No big-bang rewrite — every phase ships behind `ff_shell_v2` until Phase 7.
+All sections read from the same `useBrainOverview` data — no extra queries needed except `pillar_confidence` and `aurora_energy_patterns` (one small hook each). Click any chip → opens existing `BrainNodeSheet`.
 
-## Definition of done (whole migration)
-1. `/` renders ShellV2: orb + chat + composer + minimal header. Nothing else.
-2. Every old route resolves inside ShellV2 with the right artifact summoned.
-3. `rg "z-\[9"` returns zero hits.
-4. `rg -l "DashboardLayout|HubModalContext|PresenceShell|HallwayShell"` returns only `_legacy/` (or nothing).
-5. One overlay manager (`OverlayController`), one toaster (Sonner), one orb stage, one chat surface, one composer, one nav drawer.
-6. The brain graph (`aurora_memory_graph` + neighbours) is the only durable user model — Profile modal removed, `/brain` is the only identity surface.
+### 3. "Build my brain" button
 
-Ready to start with Phase 0 + Phase 1 on approval.
+- Button in `BrainView` header.
+- Calls `supabase.functions.invoke('brain-backfill')`.
+- Streams/polls progress (simple: show counts returned, `react-query` invalidate `brain-overview`).
+- Disabled while running. Re-enabled after, safe to rerun.
+- First-load empty state shows the button prominently with copy: "Pull your identity, goals, habits and history into the graph."
+
+### 4. Memory-writer (already wired)
+
+No code change required — `useAuroraChat` already invokes `memory-writer` after each assistant turn. Just confirm `BrainView` invalidates `brain-overview` query when the user returns to `/brain` (set `staleTime: 0` on focus, or invalidate on a `memory-graph-updated` event already emitted? if not present, simply rely on existing 30s staleTime + manual refresh button).
+
+Add a small "Refresh" icon next to "Build my brain".
+
+### 5. Out of scope (explicit)
+
+- No shell/overlay changes.
+- No new homepage.
+- No 3D, no force-directed lib.
+- No design system overhaul.
+- No new tables — `brain_edges` and `aurora_behavioral_patterns` stay empty until memory-writer fills them.
+
+## Acceptance
+
+- `/brain` shows non-empty sections for any user with onboarding/identity/action_items.
+- "Build my brain" pulls 223 identity + 127 action_items into graph nodes (deduped).
+- Graph canvas renders dozens of nodes; click → detail sheet.
+- New chat turn → next `/brain` visit shows the new node.
+- Zero shell/route changes.
+
+## Files
+
+- **new** `supabase/functions/brain-backfill/index.ts` — JWT-validated, reads user tables, upserts via `brain_upsert_node`, writes `brain_evidence`.
+- **edit** `src/features/brain/BrainView.tsx` — add structured sections + Build/Refresh buttons.
+- **new** `src/features/brain/BrainSections.tsx` — pure presentation, reads from overview.
+- **new** `src/features/brain/useBackfill.ts` — mutation hook wrapping the edge function.
+- **new** `src/features/brain/usePillarConfidence.ts` — small read hook.
+
+No migrations needed (schema already supports everything).
