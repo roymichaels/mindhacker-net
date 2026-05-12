@@ -1,119 +1,109 @@
 
-# AION Orb — Real-Time Living Entity Rebuild
+## Audit — why orbs are invisible right now
 
-## 1. Audit findings (why it looks bad today)
+I traced every orb surface and the shared pipeline. Three concrete bugs explain the blank screen, plus structural cleanup we should do while we're here.
 
-The "orb" the user sees is **three different things in three places**, none of them the actual WebGL renderer:
+### Bug 1 — Z-stack occlusion (root cause of "nothing shows")
 
-| Surface | What's actually rendering | Problem |
+`SharedOrbStage` mounts a fixed full-viewport Canvas at **`z-[60]`**.
+Overlays that host orbs render **above** it:
+
+| Surface | z-index | Background |
 |---|---|---|
-| Header (top bar) | `AuroraOrbIcon` — a **static SVG glyph** (geometric star + circle, `feGaussianBlur stdDev=8`) | Vector logo, not an orb. Reads as a flat icon. The "blown-out glow" is the SVG blur stack. |
-| Mobile shell (`AIONPresenceButton`) | **CSS `radial-gradient` on a span** + outer animated pulse div + `box-shadow` halo | The "stretched PNG" feeling. Scaling enlarges a flat radial gradient — no depth, no parallax. |
-| Interactive AION (fullscreen) | Real `OrganicSphere` (Three.js + GLSL perlin shader) via `OrganicOrbCanvas` | Good base, but: `dpr=[1, 1.25]` on mobile (a DPR-3 iPhone renders at ~40% native → pixelation/jaggies), `antialias: false` on mobile, no bloom, no tone-mapping, no post-processing. Geometry up to 512² segments (over-budget on phones). |
+| SharedOrbStage Canvas | `z-[60]` | transparent |
+| InteractiveAION backdrop | `z-[75]` | `bg-black/40` |
+| InteractiveAION panel | `z-[80]` | **opaque `bg-background`** |
+| Various sheets/modals | `z-[90]+` | opaque |
 
-Additional weight: **10+ legacy orb files** (`WebGLOrb.tsx` 879 LOC, `GalleryMorphOrb.tsx` 697 LOC, `CSSGalleryOrb`, `CSSOrb`, `BusinessOrb`, `PresetOrb`, `SharedOrbView`, `SharedOrbCanvas`, `Orb`, `OrganicSphere`, `PersonalizedOrb`) — fragmenting the visual identity. Each surface picks a different one, so "the orb" never feels like one entity.
+drei's `<View track={ref}/>` doesn't render in-place — it renders into the **shared Canvas pixel coordinates** of the tracked rect. So when the panel slides over the canvas, the orb is painted *underneath the panel's opaque background* and disappears. That matches exactly what your screenshot shows: the panel chrome is visible, the orb spot is empty/dark.
 
-The WebGL orb is also instantiated **per surface** (header vs presence vs fullscreen) — multiple WebGL contexts on iOS where the limit is ~8.
+Header orb on `/index` doesn't render either because `/index` renders the marketing `Index` page which has its own header path; `OrbView` is mounted but the surrounding layout never lays it out at a non-zero size in that route.
 
-## 2. Strategy
+### Bug 2 — Lazy chunk import failure
 
-**One orb. One renderer. Three tiers of fidelity. Shared GPU context.**
+Console shows:
+```
+TypeError: Importing a module script failed.
+componentStack: Lazy → Suspense → Suspense
+```
+That's `lazyWithRetry(() => import('./InteractiveAION'))` failing — almost certainly a stale chunk after the v2 orb refactor changed the dependency graph. Hard reload would fix the symptom; we should also force a cache-bust.
 
-Approach: keep the existing perlin-displaced shader as the **base** (it already maps DNA → color → motion), but rebuild the rendering pipeline around it:
+### Bug 3 — Fragmentation still present
 
-- **Single shared `<Canvas>`** mounted once near the app root. Header / presence / fullscreen orbs render as **drei `<View>` portals** into that canvas → one WebGL context, no contention, no context loss.
-- **DPR done correctly**: `dpr={[1.5, Math.min(window.devicePixelRatio, 2.5)]}` everywhere. Antialias on (MSAA 4× when supported). On phones cap at 2.0 to keep fill-rate sane while killing jaggies.
-- **Post-processing pass** (`@react-three/postprocessing`): ACES tone-mapping, soft bloom (intensity 0.6, threshold 0.5, radius 0.85), subtle chromatic aberration on cinematic tier only, optional film grain in hypnosis state. This is what produces the "Interstellar plasma" feel.
-- **LOD tiers** chosen by render size, not by code path:
-  - **Presence (≤ 56 px)** — fragment-only fullscreen quad with a cheap raymarched sphere + procedural fresnel. No geometry, no displacement. Crisp at any DPR. ~0.2ms/frame.
-  - **Standard (56–256 px)** — current `OrganicSphere` with **128² segments** (down from 512²) + bloom. Visually identical at this size.
-  - **Cinematic (> 256 px)** — 256² segments + bloom + chromatic aberration + inner volumetric glow (fragment ray-march from camera into a soft sphere with noise). For Interactive AION fullscreen.
-- **State machine** (`useAIONOrbState`) drives uniforms, not React: `idle | listening | thinking | responding | recovery | focus | hypnosis`. Each state is a target vector of `(distortion, displacement, fresnel, timeFreq, bloomIntensity, hueShift, palette)`. Lerp toward target every frame — no React re-renders during state changes.
-- **Audio reactivity** via shared `AnalyserNode` from voice mode (already exists). Smoothed RMS + low-band energy fed into uniforms.
-- **Fallback**: if `WebGLRenderingContext` unavailable OR `navigator.deviceMemory < 2`, render a **CSS shader-emulation variant** (radial-gradient + conic-gradient + animated `mask`) — better than today's flat radial. Single component, used everywhere.
+The "single orb identity" goal isn't done:
 
-## 3. New file layout
+- `Orb.tsx` (legacy CSS/canvas) still rendered for `size < 80` via `PersonalizedOrb`
+- `AuroraOrbIcon` still imported in `Header.tsx` even though `OrbView` replaced it
+- `OrganicOrbCanvas`, `PersonalizedOrb` are now thin wrappers — keeping them adds two extra render layers and one extra wrapping `<div>` around every orb (interferes with `View`'s rect tracking)
+- `OrbDebugOverlay` is positioned absolutely *next to* `OrbView`'s wrapper div, so it sits in the layout flow but the orb itself is painted in the canvas — debug labels can drift
 
-```text
-src/components/orb/
-  v2/
-    SharedOrbStage.tsx        # the one <Canvas>, mounted at app root
-    OrbView.tsx               # drei <View> portal, drop-in replacement everywhere
-    OrbScene.tsx              # picks tier by size, renders sphere or fullscreen quad
-    tiers/
-      PresenceQuad.tsx        # fragment-only LOD0
-      StandardSphere.tsx      # LOD1 — refined OrganicSphere (128 seg)
-      CinematicSphere.tsx     # LOD2 — + volumetric inner glow
-    post/
-      OrbPostFX.tsx           # bloom, ACES, optional CA + grain
-    shaders/
-      organicVertex.ts        # kept (already good)
-      organicFragment.ts      # refined (better fresnel falloff, soft edge AA)
-      presenceFragment.ts     # new — cheap raymarch
-      volumetricFragment.ts   # new — inner glow
-    state/
-      useAIONOrbState.ts      # state machine, uniform targets, ease loop
-      orbStates.ts            # 7 state presets
-    fallback/
-      CSSPresence.tsx         # CSS-only orb (no WebGL)
+---
+
+## Plan
+
+### Step 1 — Fix the z-stack so orbs always paint on top
+
+Raise `SharedOrbStage` above every overlay and keep `pointer-events-none` so it never steals input.
+
+```tsx
+// SharedOrbStage.tsx
+<div
+  aria-hidden
+  className="fixed inset-0 z-[2147483000] pointer-events-none"
+  style={{ contain: 'strict' }}
+>
+  <Canvas ... />
+</div>
 ```
 
-To deprecate (move to `legacy/` then delete after one release):
-`Orb.tsx`, `WebGLOrb.tsx`, `GalleryMorphOrb.tsx`, `CSSOrb.tsx`, `CSSGalleryOrb.tsx`, `BusinessOrb.tsx`, `PresetOrb.tsx`, `SharedOrbView.tsx`, `SharedOrbCanvas.tsx`, `OrganicOrbCanvas.tsx`, `OrganicSphere.tsx`. `PersonalizedOrb.tsx` becomes a thin wrapper around `OrbView`.
+Why a max-ish z: we have sheets, toasts, dialogs all using high z. The orb is a *visual layer*, not a UI surface, so it should sit above everything visually but be input-transparent. The View pixel coordinates already match the tracked rects, so an orb tracked inside a modal will visually appear inside that modal's frame.
 
-`AuroraOrbIcon` keeps existing only as a tiny **fallback brand mark** for SSR/skeleton states; it stops being used as the header orb.
+### Step 2 — Force-flush stale chunks
 
-## 4. Surface migrations
+Bump `cacheBuster` version so the SW/precache evicts the old `InteractiveAION` chunk that's failing to import. Also wrap `lazyWithRetry` for `InteractiveAION` with a one-time `location.reload()` on `ChunkLoadError` (it already has retry; add a final hard-reload fallback).
 
-- **Header** (`Header.tsx`): replace `AuroraOrbIcon size={40}` with `<OrbView size={40} state="idle" />`.
-- **Mobile presence** (`AIONPresenceButton.tsx`): replace CSS gradient core with `<OrbView size={56} state={presenceState} />`. Outer pulse stays as ambient halo but uses a single `radial-gradient` matched to the orb's current palette uniform.
-- **Interactive AION** (`InteractiveAION.tsx`): replace `<PersonalizedOrb size={...} />` with `<OrbView size={cinematicSize} tier="cinematic" state={interactiveState} />`.
+### Step 3 — Finish the unification
 
-All three now share **one WebGL context**, one palette source (DNA via `useOrbProfile`), one state machine.
+- **Delete `AuroraOrbIcon` import** from `Header.tsx` (already replaced by `OrbView`, the import is dead but adds chunk weight).
+- **`PersonalizedOrb`**: collapse the WebGL branch into a direct `OrbView` render (drop the extra `<div className="relative">` wrapper — pass `className` to `OrbView` instead). For `size < 80`, also route to `OrbView` with `tier="presence"` instead of legacy `Orb`. Remove `renderer="css"` branch entirely.
+- **`OrganicOrbCanvas`**: re-export `OrbView` directly (keep the file name for back-compat imports, but make it a one-line alias) — eliminates a render layer.
+- **`OrbDebugOverlay`**: gate behind `import.meta.env.DEV` and render in a portal at the tracked rect, so it stays aligned with the canvas-painted orb.
 
-## 5. Performance budget
+### Step 4 — Quality pass on the Canvas
 
-- Mobile target: **stable 60fps on iPhone 12+, 30fps floor on iPhone X / mid Android**.
-- Frame budget by tier (mobile): presence 0.2ms, standard 1.5ms, cinematic 4ms (only one cinematic visible at a time).
-- Pause render loop when no orb is in viewport (`frameloop="demand"` + visibility observer on each `<View>`).
-- Post-processing only on the cinematic view (header/presence skip the bloom pass).
-- Geometry: 128² standard, 256² cinematic (down from 512²) — verified visually identical with bloom on.
-- Textureless: zero asset bytes, zero decode cost. No raster upscaling possible.
+While we're in `SharedOrbStage`:
+- Add `gl={{ alpha: true, antialias: true, powerPreference: 'high-performance', premultipliedAlpha: true }}` (already mostly there).
+- Re-enable a *light* bloom via `@react-three/postprocessing` (already in deps) but only when **at least one** `OrbView` is mounted at `tier !== 'presence'`. Use a context counter to toggle the `<EffectComposer>` mount, so header/presence orbs don't pay the cost. This was removed last round to fix visibility — with the z-stack fix it's safe to bring back.
+- Keep `dpr` policy as-is (1.5 floor on mobile, cap 2.0).
 
-## 6. State definitions (initial values)
+### Step 5 — Verification
 
-| State | distortion | volume | fresnel | timeFreq | bloom | palette shift |
-|---|---|---|---|---|---|---|
-| idle | 0.7 | 0.12 | 4.5 | 0.0004 | 0.5 | base |
-| listening | 1.1 | 0.18 | 5.2 | 0.0008 | 0.7 | +cool 8° |
-| thinking | 1.6 | 0.22 | 5.8 | 0.0012 | 0.85 | +violet 12° |
-| responding | 1.3 | 0.20 | 5.0 | 0.0010 | 0.95 | base |
-| recovery | 0.4 | 0.08 | 3.5 | 0.0002 | 0.4 | +warm 6° |
-| focus | 0.5 | 0.10 | 6.0 | 0.0003 | 0.6 | desat 20% |
-| hypnosis | 2.2 | 0.30 | 6.5 | 0.0006 | 1.1 | full hue cycle, +grain |
+Manually verify on the user's preview:
+1. Header orb visible on `/dashboard` (route with the standard shell).
+2. Mobile presence orb visible above the bottom nav.
+3. Open Interactive AION → orb visible *inside* the slide-in panel, breathing, no occlusion.
+4. Open it during a sheet/modal → orb still paints.
+5. No console "Importing a module script failed".
+6. Performance: only one WebGL context (`document.querySelectorAll('canvas').length === 1`).
 
-Audio level adds on top (existing reactivity preserved).
+---
 
-## 7. Phasing
+## Technical notes
 
-1. **Phase 1 — pipeline** (no visual change yet): introduce `SharedOrbStage`, `OrbView`, refined DPR/antialias/post-processing. Keep current `OrganicSphere` shader. *Outcome: pixelation gone, glow controlled, header/presence still old.*
-2. **Phase 2 — surfaces**: migrate header + presence button + Interactive AION to `OrbView`. Retire `AuroraOrbIcon` from header. *Outcome: one entity across the app.*
-3. **Phase 3 — tiers + state machine**: add presence raymarch tier, cinematic tier with volumetric glow + chromatic aberration, wire state machine to AION events (mic open, AI thinking stream, response start/end, hypnosis layer mount).
-4. **Phase 4 — cleanup**: delete legacy orb files, update memories (`orb-system-centralization`, `orb-pure-renderer-standard`, `organic-sphere-rendering-quality`).
+**Why not a per-surface Canvas?**
+We had that before — it blew through iOS's ~8-context limit and gave inconsistent DPR/bloom per surface. Single canvas + drei `View` is the right architecture; the only thing wrong was its z-index.
 
-Each phase ships independently and is reversible.
+**Why z = 2,147,483,000 instead of 9999?**
+Sonner toasts use `2147483647`. We sit just below that so toasts still float over the orb, but above all app overlays.
 
-## 8. Technical notes
+**Files touched**
+- `src/components/orb/v2/SharedOrbStage.tsx` — z-index, optional bloom toggle
+- `src/components/orb/v2/OrbView.tsx` — accept `className` cleanly, expose `useOrbStageDemand()` hook for cinematic counter
+- `src/components/orb/PersonalizedOrb.tsx` — collapse to OrbView for all sizes, remove wrapper div
+- `src/components/orb/OrganicOrbCanvas.tsx` — convert to alias re-export
+- `src/components/Header.tsx` — drop `AuroraOrbIcon` import
+- `src/components/orb/OrbDebugOverlay.tsx` — DEV-gate + portal alignment
+- `src/utils/cacheBuster.ts` — bump version
+- `src/components/aion/InteractiveAIONHost.tsx` — hard-reload fallback on chunk load error
 
-- Add `@react-three/postprocessing@^2.16` (compatible with R3F 8 / React 18 already pinned).
-- Use `gl.setPixelRatio(...)` via R3F's `dpr` prop, not manually — keeps it in sync with resize.
-- Wrap `Canvas` in `<Suspense>` with the CSS fallback so WebGL load failure (the bug being chased the last two days) never leaves a blank orb.
-- Inside the volumetric fragment shader, use a soft analytic falloff for edges (`smoothstep(1.0, 0.985, length(p))`) — eliminates aliasing on the silhouette without MSAA dependence.
-- WebGPU is **not** required and the sandbox preview has no GPU adapter for it — sticking with WebGL2 keeps preview parity with production.
-
-## 9. Open questions for you
-
-- **Presence orb size on mobile**: today 56px. Bump to 64–72px so the LOD0 raymarch reads as a real entity rather than a button? (Affects thumb ergonomics.)
-- **Hypnosis-state grain**: keep subtle (recommended) or push toward "old-CRT" texture for the recovery sessions?
-- **Header orb**: should it animate continuously (always alive) or only when AION is actively in a non-idle state? Continuous is more "alive" but +0.2ms/frame globally.
-
+No backend, no schema, no auth changes.
