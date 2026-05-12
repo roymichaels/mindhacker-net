@@ -18,17 +18,21 @@ export function useCurrentUserId() {
 }
 
 export function useBrainOverview(userId: string | null, minConfidence = 25, limit = 120) {
-  return useQuery<BrainOverview>({
+  return useQuery<BrainOverview, Error>({
     queryKey: ["brain-overview", userId, minConfidence, limit],
     enabled: !!userId,
     staleTime: 30_000,
+    retry: false,
     queryFn: async () => {
       const { data, error } = await supabase.rpc("brain_get_overview" as any, {
         p_user_id: userId,
         p_min_confidence: minConfidence,
         p_limit: limit,
       });
-      if (error) throw error;
+      if (error) {
+        console.error("[brain] overview RPC error", error);
+        throw new Error(error.message ?? "brain_get_overview failed");
+      }
       const obj = (data ?? {}) as Partial<BrainOverview>;
       return {
         nodes: obj.nodes ?? [],
