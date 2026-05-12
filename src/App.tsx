@@ -259,6 +259,7 @@ const App = () => (
                                   <OverlayProvider>
                                     <Toaster />
                                     <Sonner />
+                                    <InteractiveAIONHost />
 
                                   <FlowAuditProvider>
                                     <AffiliateTracker />
