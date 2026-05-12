@@ -45,3 +45,38 @@ export function useClientFlag(flag: ClientFlag): boolean {
     () => false,
   );
 }
+
+/**
+ * Phase 6 of ShellV2 migration: ShellV2 is now the default for authenticated
+ * surfaces. Opt out by visiting any page with `?ff_shell_v2=0` — that flips
+ * the persistent flag to '0' and the legacy shell renders again.
+ *
+ * Read semantics: default TRUE; only '0' disables. Distinct from the raw
+ * `useClientFlag('shell_v2')` which uses default-FALSE semantics.
+ */
+const OFF = '0';
+function readShellV2Enabled(): boolean {
+  if (typeof window === 'undefined') return true;
+  return window.localStorage.getItem(PREFIX + 'shell_v2') !== OFF;
+}
+
+export function useShellV2Enabled(): boolean {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('ff_shell_v2');
+    if (v === '1') {
+      window.localStorage.removeItem(PREFIX + 'shell_v2');
+      emit();
+    } else if (v === '0') {
+      window.localStorage.setItem(PREFIX + 'shell_v2', OFF);
+      emit();
+    }
+  }, []);
+
+  return useSyncExternalStore(
+    (cb) => { listeners.add(cb); return () => listeners.delete(cb); },
+    readShellV2Enabled,
+    () => true,
+  );
+}
