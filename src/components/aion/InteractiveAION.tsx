@@ -13,7 +13,7 @@
  * chat history sheet are NOT in this phase.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, Mic, MicOff } from 'lucide-react';
+import { Menu, Mic, MicOff, Moon } from 'lucide-react';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { useOverlay } from '@/shell/overlay/OverlayController';
@@ -23,6 +23,7 @@ import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import { cn } from '@/lib/utils';
 import ArtifactLayer from './artifacts/ArtifactLayer';
 import { emitArtifact } from './artifacts/artifactBus';
+import HypnosisLayer from './layers/HypnosisLayer';
 
 const CHROME_HIDE_MS = 3000;
 
@@ -60,6 +61,7 @@ export default function InteractiveAION() {
   const [chromeVisible, setChromeVisible] = useState(true);
   const hideTimerRef = useRef<number | null>(null);
   const [orbSize, setOrbSize] = useState(320);
+  const [hypnosisActive, setHypnosisActive] = useState(false);
 
   // Voice loop — re-uses existing transcribe + TTS pipeline.
   const voice = useAuroraVoiceMode({
@@ -100,6 +102,23 @@ export default function InteractiveAION() {
     window.addEventListener('aurora:response', handler);
     return () => window.removeEventListener('aurora:response', handler);
   }, []);
+
+  // Global toggle: window.dispatchEvent(new CustomEvent('aion:hypnosis', { detail: { active: true } }))
+  useEffect(() => {
+    function handler(e: Event) {
+      const detail = (e as CustomEvent<{ active?: boolean }>).detail;
+      setHypnosisActive(!!detail?.active);
+    }
+    window.addEventListener('aion:hypnosis', handler);
+    return () => window.removeEventListener('aion:hypnosis', handler);
+  }, []);
+
+  // While hypnosis is on, force AION live state to immersive.
+  useEffect(() => {
+    if (hypnosisActive) setState('immersive');
+    else if (state === 'immersive') setState('idle');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hypnosisActive]);
 
   // Scale orb to viewport so it dominates the upper half on phones.
   useEffect(() => {
@@ -216,19 +235,34 @@ export default function InteractiveAION() {
 
       {/* Voice toggle pill */}
       <div className="absolute inset-x-0 bottom-[112px] flex justify-center">
-        <button
-          type="button"
-          onClick={toggleVoice}
-          className={cn(
-            'h-10 px-4 rounded-full backdrop-blur-md border text-xs font-medium flex items-center gap-2 transition-colors',
-            voice.isActive
-              ? 'bg-primary/20 border-primary/40 text-primary-foreground'
-              : 'bg-card/40 border-white/10 text-foreground/80'
-          )}
-        >
-          {voice.isActive ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
-          {voice.isActive ? 'מצב קולי פעיל' : 'מצב קולי'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleVoice}
+            className={cn(
+              'h-10 px-4 rounded-full backdrop-blur-md border text-xs font-medium flex items-center gap-2 transition-colors',
+              voice.isActive
+                ? 'bg-primary/20 border-primary/40 text-primary-foreground'
+                : 'bg-card/40 border-white/10 text-foreground/80'
+            )}
+          >
+            {voice.isActive ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+            {voice.isActive ? 'מצב קולי פעיל' : 'מצב קולי'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setHypnosisActive((v) => !v)}
+            aria-label="היפנוזה"
+            className={cn(
+              'h-10 w-10 rounded-full backdrop-blur-md border flex items-center justify-center transition-colors',
+              hypnosisActive
+                ? 'bg-primary/25 border-primary/40 text-primary-foreground'
+                : 'bg-card/40 border-white/10 text-foreground/70 hover:text-foreground'
+            )}
+          >
+            <Moon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Composer — secondary, minimal */}
@@ -239,6 +273,9 @@ export default function InteractiveAION() {
           </div>
         </div>
       </div>
+
+      {/* Hypnosis modifier — visual-only */}
+      <HypnosisLayer active={hypnosisActive} onExit={() => setHypnosisActive(false)} />
     </div>
   );
 }
