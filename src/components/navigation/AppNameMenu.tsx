@@ -11,7 +11,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, ChevronDown, Home } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OS_TABS } from '@/navigation/osNav';
@@ -46,8 +46,8 @@ export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProp
   ];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <button
           type="button"
           aria-label="Open app menu"
@@ -69,29 +69,30 @@ export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProp
             className={cn(compact ? 'h-3.5 w-3.5' : 'h-4 w-4', 'text-muted-foreground')}
           />
         </button>
-      </SheetTrigger>
+      </PopoverTrigger>
 
-      <SheetContent
-        side={isRTL ? 'right' : 'left'}
-        className="p-0 w-[88vw] max-w-[360px] bg-transparent border-0 shadow-none"
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="p-0 w-[300px] max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card/95 backdrop-blur-2xl ring-1 ring-white/[0.08] border-0 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)] overflow-hidden"
       >
         <div
-          className="flex flex-col my-3 mx-2 rounded-[28px] bg-card/85 backdrop-blur-2xl shadow-[0_24px_80px_-12px_rgba(0,0,0,0.6)] ring-1 ring-white/[0.06] overflow-hidden max-h-[calc(100dvh-1.5rem)]"
+          className="flex flex-col max-h-[min(560px,calc(100dvh-5rem))]"
           dir={isRTL ? 'rtl' : 'ltr'}
         >
-          {/* Nested: full avatar dropdown component AS-IS */}
-          <div className="px-4 pt-4 pb-3 flex items-center justify-start">
+          {/* Nested: full avatar dropdown component AS-IS (self-contained) */}
+          <div className="px-3 pt-3 pb-2 flex items-center justify-start">
             <AppNameDropdown onOpenSettings={onOpenSettings} />
           </div>
 
-          <div className="mx-4 h-px bg-white/[0.08]" />
+          <div className="mx-3 my-1 h-px bg-white/[0.08]" />
 
           {/* Separate block: app navigation */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-2 py-3">
-            <div className="px-3 pb-2 text-[10px] tracking-[0.16em] uppercase text-muted-foreground/60 font-medium">
+          <div className="px-2 pt-2 pb-2 overflow-y-auto">
+            <div className="px-2.5 pb-1 text-[10px] tracking-[0.16em] uppercase text-muted-foreground/60 font-medium">
               {language === 'he' ? 'ניווט' : 'Navigation'}
             </div>
-            <div className="space-y-px">
+            <div className="space-y-0.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -99,9 +100,9 @@ export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProp
                     key={item.id}
                     type="button"
                     onClick={() => go(item.path)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-colors text-start text-foreground/90 hover:bg-white/[0.05]"
+                    className="w-full h-9 flex items-center gap-2.5 px-2.5 rounded-lg text-[13.5px] font-medium transition-colors text-start text-foreground/90 hover:bg-white/[0.05]"
                   >
-                    <Icon className="h-[17px] w-[17px] shrink-0 opacity-80" />
+                    <Icon className="h-4 w-4 shrink-0 opacity-75" />
                     <span className="flex-1 truncate">
                       {language === 'he' ? item.labelHe : item.labelEn}
                     </span>
@@ -111,8 +112,8 @@ export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProp
             </div>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </PopoverContent>
+    </Popover>
   );
 }
 
