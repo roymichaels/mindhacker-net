@@ -8,7 +8,9 @@ export type AionSignalKind =
   | "session_completed"
   | "journal_saved"
   | "idle"
-  | "tone_signal";
+  | "tone_signal"
+  | "env_change"
+  | "presence_summon";
 
 export async function recordSignal(kind: AionSignalKind, payload: Record<string, unknown> = {}) {
   try {
