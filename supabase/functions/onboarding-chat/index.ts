@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { withFinalOnlyGuard, NO_REASONING_FIELDS } from "../_shared/identity.ts";
+import { sanitizeStream } from "../_shared/sanitizeStream.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -215,9 +217,10 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          messages: [{ role: "system", content: systemContent }, ...messages],
+          messages: [{ role: "system", content: withFinalOnlyGuard(systemContent) }, ...messages],
           tools: [buildExtractTool()],
           stream: true,
+          ...NO_REASONING_FIELDS,
         }),
       }
     );
@@ -239,7 +242,8 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    return new Response(response.body, {
+    const sanitized = response.body!.pipeThrough(sanitizeStream());
+    return new Response(sanitized, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
