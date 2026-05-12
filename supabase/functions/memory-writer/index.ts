@@ -59,6 +59,18 @@ const IDENTITY_TYPES = [
   "ai_archetype",
 ] as const;
 
+/** All known internal life pillars. Used as the closed vocabulary the
+ *  inference LLM is allowed to score. */
+const PILLAR_IDS = [
+  "consciousness", "presence", "power", "vitality", "focus", "combat",
+  "expansion", "wealth", "influence", "relationships", "business",
+  "projects", "play", "order", "romantics",
+] as const;
+
+function normalize(s: string): string {
+  return String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 /** Local skill: produce typed graph node candidates from a snippet. */
 const GRAPH_PROPOSAL_SKILL = {
   name: "emit_graph_proposal",
@@ -86,6 +98,14 @@ const GRAPH_PROPOSAL_SKILL = {
                 "dream",
                 "blocker",
                 "insight",
+                "value",
+                "desire",
+                "wound",
+                "goal",
+                "habit",
+                "avoidance",
+                "strength",
+                "loop",
               ],
             },
             content: { type: "string", maxLength: 400 },
@@ -100,6 +120,40 @@ const GRAPH_PROPOSAL_SKILL = {
             },
           },
           required: ["node_type", "content"],
+        },
+      },
+      pillar_signals: {
+        type: "array",
+        maxItems: 5,
+        description:
+          "Per-pillar inference: how much this snippet teaches us about each pillar. delta is -10..+10. Only include pillars truly evidenced.",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            pillar: { type: "string", enum: PILLAR_IDS as unknown as string[] },
+            delta: { type: "number" },
+            evidence: { type: "string", maxLength: 240 },
+            gaps_resolved: { type: "array", items: { type: "string", maxLength: 120 }, maxItems: 4 },
+            gaps_added: { type: "array", items: { type: "string", maxLength: 120 }, maxItems: 4 },
+          },
+          required: ["pillar", "delta"],
+        },
+      },
+      contradictions: {
+        type: "array",
+        maxItems: 2,
+        description:
+          "Tensions between this snippet and prior stated content. Only include when the contradiction is concrete and meaningful.",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            pillar: { type: "string" },
+            with_statement: { type: "string", maxLength: 240, description: "Quote or paraphrase of the prior stance" },
+            explanation: { type: "string", maxLength: 240 },
+          },
+          required: ["with_statement", "explanation"],
         },
       },
     },
@@ -254,6 +308,8 @@ serve(async (req) => {
     // 4. graph.proposal — typed candidates
     let proposed: ProposedNode[] = [];
     let proposalRaw: any = null;
+    let pillarSignals: Array<{ pillar: string; delta: number; evidence?: string; gaps_resolved?: string[]; gaps_added?: string[] }> = [];
+    let rawContradictions: Array<{ pillar?: string; with_statement: string; explanation: string }> = [];
     try {
       const r = await callSkill<{
         nodes: Array<{
@@ -263,9 +319,15 @@ serve(async (req) => {
           pattern_type?: typeof PATTERN_TYPES[number];
           identity_type?: typeof IDENTITY_TYPES[number];
         }>;
+        pillar_signals?: typeof pillarSignals;
+        contradictions?: typeof rawContradictions;
       }>({
         system:
-          "You extract durable consciousness-graph nodes from a short snippet of the user's life. Be conservative. Only emit nodes that look recurring, identity-relevant, or emotionally weighty. Match the snippet's language. Return at most 5 nodes; return an empty list when in doubt.",
+          "You are AION's silent inference engine. Three jobs:\n" +
+          "1) Extract durable consciousness-graph nodes (beliefs, values, fears, goals, wounds, habits, patterns…). Be conservative; recurring/identity-relevant only.\n" +
+          "2) Score each life pillar this snippet truly evidences (delta -10..+10). Note gaps revealed or filled.\n" +
+          "3) Flag contradictions ONLY when the snippet conflicts with a prior stance the user actually stated.\n" +
+          "Match the snippet's language. When in doubt, return empty arrays.",
         user: JSON.stringify({ source: body.source, pillar: body.context.pillar ?? null, snippet }),
         schema: GRAPH_PROPOSAL_SKILL,
         timeoutMs: 15_000,
@@ -282,6 +344,8 @@ serve(async (req) => {
             identity_type: n.identity_type,
           },
         }));
+        if (Array.isArray(r.result?.pillar_signals)) pillarSignals = r.result.pillar_signals;
+        if (Array.isArray(r.result?.contradictions)) rawContradictions = r.result.contradictions;
       }
     } catch (e) {
       console.warn("[memory-writer] graph.proposal failed", e);
@@ -291,6 +355,98 @@ serve(async (req) => {
     // 5. upsert
     const upserts = await upsertGraphNodes(supabase, user_id, proposed);
     writes.graph = upserts;
+
+    // 5b. pillar_confidence updates
+    const pillarUpdates: any[] = [];
+    for (const sig of pillarSignals) {
+      if (!PILLAR_IDS.includes(sig.pillar as any)) continue;
+      const delta = Math.max(-10, Math.min(10, Number(sig.delta) || 0));
+      try {
+        const { data: existing } = await supabase
+          .from("pillar_confidence")
+          .select("id, confidence, signal_count, gaps")
+          .eq("user_id", user_id)
+          .eq("pillar_id", sig.pillar)
+          .maybeSingle();
+
+        const oldConf = Number(existing?.confidence ?? 0);
+        // Diminishing returns above 70: positive deltas decay.
+        const decay = oldConf >= 70 && delta > 0 ? 0.4 : oldConf >= 50 && delta > 0 ? 0.7 : 1;
+        const newConf = Math.max(0, Math.min(100, oldConf + delta * decay));
+
+        const oldGaps: string[] = Array.isArray(existing?.gaps) ? existing!.gaps as string[] : [];
+        const resolved = new Set((sig.gaps_resolved ?? []).map((g) => g.toLowerCase()));
+        const merged = new Set(oldGaps.filter((g) => !resolved.has(g.toLowerCase())));
+        for (const g of (sig.gaps_added ?? [])) merged.add(g.slice(0, 120));
+        const nextGaps = Array.from(merged).slice(0, 8);
+
+        if (existing?.id) {
+          await supabase
+            .from("pillar_confidence")
+            .update({
+              confidence: Number(newConf.toFixed(2)),
+              signal_count: (existing.signal_count ?? 0) + 1,
+              gaps: nextGaps,
+              last_signal_at: new Date().toISOString(),
+            })
+            .eq("id", existing.id);
+        } else {
+          await supabase
+            .from("pillar_confidence")
+            .insert({
+              user_id,
+              pillar_id: sig.pillar,
+              confidence: Number(newConf.toFixed(2)),
+              signal_count: 1,
+              gaps: nextGaps,
+              last_signal_at: new Date().toISOString(),
+            });
+        }
+        pillarUpdates.push({ pillar: sig.pillar, old: oldConf, new: newConf, delta });
+      } catch (e) {
+        console.warn("[memory-writer] pillar_confidence failed", sig.pillar, e);
+      }
+    }
+    writes.pillar_confidence = pillarUpdates;
+
+    // 5c. contradictions — match `with_statement` to an existing strong graph node
+    const contradictionWrites: any[] = [];
+    for (const c of rawContradictions) {
+      if (!c?.with_statement || !c?.explanation) continue;
+      try {
+        const { data: candidates } = await supabase
+          .from("aurora_memory_graph")
+          .select("id, content, strength")
+          .eq("user_id", user_id)
+          .eq("is_active", true)
+          .gte("strength", 5)
+          .limit(40);
+        const needle = normalize(c.with_statement);
+        const matchA = (candidates ?? []).find((r: any) =>
+          normalize(String(r.content ?? "")).includes(needle.slice(0, 40)) ||
+          needle.includes(normalize(String(r.content ?? "")).slice(0, 40)),
+        );
+        // The "B" side is the most recent insert from this batch (if any has strength≥5).
+        const matchB = upserts.find((u) => u.action === "inserted" && (u.strength ?? 0) >= 5);
+        if (matchA && matchB?.id) {
+          const { data: ins, error: insErr } = await supabase
+            .from("aurora_contradictions")
+            .insert({
+              user_id,
+              pillar_id: c.pillar ?? body.context.pillar ?? null,
+              statement_a: matchA.id,
+              statement_b: matchB.id,
+              explanation: c.explanation.slice(0, 400),
+            })
+            .select("id")
+            .maybeSingle();
+          if (!insErr) contradictionWrites.push({ id: ins?.id, pillar: c.pillar });
+        }
+      } catch (e) {
+        console.warn("[memory-writer] contradiction insert failed", e);
+      }
+    }
+    writes.contradictions = contradictionWrites;
 
     // 6. recurring patterns → aurora_behavioral_patterns
     for (let i = 0; i < upserts.length; i++) {

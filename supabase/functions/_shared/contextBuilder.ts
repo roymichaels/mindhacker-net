@@ -238,6 +238,29 @@ export interface AuroraContext {
 
   // ─── Subscription Tier ─────────────────────────
   subscription_tier: string | null;
+
+  // ─── Intake / Conversation-as-Intake ────────────
+  // Lightweight summary that powers the curiosity engine and
+  // contradiction surfacing. Always populated.
+  intake: {
+    pillar_confidence: {
+      pillar_id: string;
+      confidence: number;
+      signal_count: number;
+      gaps: string[];
+      last_signal_at: string | null;
+      last_probed_at: string | null;
+    }[];
+    open_contradictions: {
+      id: string;
+      pillar_id: string | null;
+      explanation: string;
+      statement_a: string | null;
+      statement_b: string | null;
+      detected_at: string;
+    }[];
+    avg_confidence: number; // 0–100, average across known pillars
+  };
 }
 
 // ─── Hash ──────────────────────────────────────────────────
@@ -372,6 +395,9 @@ export async function buildContext(
     tacticalScheduleRes,
     // NEW: User subscription
     subscriptionRes,
+    // NEW: Conversation-as-Intake
+    pillarConfidenceRes,
+    openContradictionsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -459,6 +485,34 @@ export async function buildContext(
     })(),
     // User subscription tier
     supabase.from("user_subscriptions").select("tier_id, status, subscription_tiers(name)").eq("user_id", userId).eq("status", "active").limit(1).maybeSingle(),
+    // Intake — pillar confidence
+    supabase.from("pillar_confidence")
+      .select("pillar_id, confidence, signal_count, gaps, last_signal_at, last_probed_at")
+      .eq("user_id", userId),
+    // Intake — open contradictions (most recent first), join the two graph nodes
+    (async () => {
+      const { data: rows } = await supabase
+        .from("aurora_contradictions")
+        .select("id, pillar_id, explanation, statement_a, statement_b, detected_at")
+        .eq("user_id", userId)
+        .eq("status", "open")
+        .order("detected_at", { ascending: false })
+        .limit(5);
+      if (!rows || rows.length === 0) return { data: [], error: null };
+      const ids = Array.from(new Set(rows.flatMap((r: any) => [r.statement_a, r.statement_b]).filter(Boolean)));
+      const { data: nodes } = ids.length
+        ? await supabase.from("aurora_memory_graph").select("id, content").in("id", ids)
+        : { data: [] as any[] };
+      const map = new Map((nodes || []).map((n: any) => [n.id, n.content]));
+      return { data: rows.map((r: any) => ({
+        id: r.id,
+        pillar_id: r.pillar_id,
+        explanation: r.explanation,
+        statement_a: map.get(r.statement_a) ?? null,
+        statement_b: map.get(r.statement_b) ?? null,
+        detected_at: r.detected_at,
+      })), error: null };
+    })(),
   ]);
 
   const profile = profileRes.data;
@@ -900,6 +954,29 @@ export async function buildContext(
 
     // ─── Subscription Tier ───────────────────────────
     subscription_tier: subscriptionData?.subscription_tiers?.name || null,
+
+    // ─── Intake (Conversation-as-Intake) ─────────────
+    intake: (() => {
+      const rows = (pillarConfidenceRes as any)?.data || [];
+      const contradictions = (openContradictionsRes as any)?.data || [];
+      const avg = rows.length
+        ? Math.round(
+            rows.reduce((s: number, r: any) => s + Number(r.confidence || 0), 0) / rows.length,
+          )
+        : 0;
+      return {
+        pillar_confidence: rows.map((r: any) => ({
+          pillar_id: r.pillar_id,
+          confidence: Number(r.confidence || 0),
+          signal_count: r.signal_count || 0,
+          gaps: Array.isArray(r.gaps) ? r.gaps : [],
+          last_signal_at: r.last_signal_at ?? null,
+          last_probed_at: r.last_probed_at ?? null,
+        })),
+        open_contradictions: contradictions,
+        avg_confidence: avg,
+      };
+    })(),
   };
 
   // Compute hash for tracing
@@ -966,5 +1043,6 @@ function createEmptyContext(today: string): AuroraContext {
     tactical_schedule_today: [],
     domain_scores: [],
     subscription_tier: null,
+    intake: { pillar_confidence: [], open_contradictions: [], avg_confidence: 0 },
   };
 }

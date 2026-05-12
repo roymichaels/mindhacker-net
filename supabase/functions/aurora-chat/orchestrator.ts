@@ -131,6 +131,10 @@ export interface OrchestratorResult {
   promptVersion: string;
   lanes: LaneSet;
   intent: IntentKind;
+  // Conversation-as-Intake telemetry
+  probedPillar?: string | null;
+  surfacedContradictionId?: string | null;
+  intakeSummary?: { avg_confidence: number; lowest_pillars: string[]; open_contradictions: number };
 }
 
 export interface ValidatedRequest {
@@ -267,6 +271,7 @@ export function prepare(
   const openerSection = formatOpenerContext(context, language);
 
   const laneRules = buildLaneRules(intent, language);
+  const intakeBlock = buildIntakeBlock(context, intent, language);
 
   if (mode === "widget") {
     return {
@@ -282,13 +287,16 @@ export function prepare(
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + intakeBlock.prompt + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
       promptVersion,
       lanes: intent.lanes,
       intent: intent.intent,
+      probedPillar: intakeBlock.probedPillar,
+      surfacedContradictionId: intakeBlock.surfacedContradictionId,
+      intakeSummary: intakeBlock.summary,
     };
   }
 
@@ -300,6 +308,7 @@ export function prepare(
       FINAL_ONLY_GUARD +
       HISTORY_ONLY_RULES +
       laneRules +
+      intakeBlock.prompt +
       buildFullPrompt(language, contextMarkdown, openerSection) +
       pillarSection +
       socraticSection,
@@ -309,6 +318,73 @@ export function prepare(
     promptVersion,
     lanes: intent.lanes,
     intent: intent.intent,
+    probedPillar: intakeBlock.probedPillar,
+    surfacedContradictionId: intakeBlock.surfacedContradictionId,
+    intakeSummary: intakeBlock.summary,
+  };
+}
+
+// ─── Intake / Curiosity ────────────────────────────────────
+
+const PROBE_COOLDOWN_HOURS = 6;
+
+function buildIntakeBlock(
+  context: AuroraContext,
+  intent: IntentResolution,
+  language: string,
+): { prompt: string; probedPillar: string | null; surfacedContradictionId: string | null; summary: { avg_confidence: number; lowest_pillars: string[]; open_contradictions: number } } {
+  const isHe = language === "he";
+  const intake = (context as any).intake || { pillar_confidence: [], open_contradictions: [], avg_confidence: 0 };
+  const lowest = [...intake.pillar_confidence]
+    .sort((a: any, b: any) => Number(a.confidence) - Number(b.confidence))
+    .slice(0, 3);
+  const summary = {
+    avg_confidence: intake.avg_confidence ?? 0,
+    lowest_pillars: lowest.map((p: any) => p.pillar_id),
+    open_contradictions: intake.open_contradictions?.length ?? 0,
+  };
+
+  // Skip probes when the user wants something direct.
+  const skipProbe = intent.intent === "time_query" || intent.intent === "status_query" || intent.intent === "plan_edit";
+  let probed: any = null;
+  if (!skipProbe) {
+    const now = Date.now();
+    probed = lowest.find((p: any) => {
+      if (!p.last_probed_at) return true;
+      return now - new Date(p.last_probed_at).getTime() > PROBE_COOLDOWN_HOURS * 3600_000;
+    }) || null;
+  }
+
+  const contradiction = (intake.open_contradictions || [])[0] || null;
+
+  const lines: string[] = [];
+  lines.push(isHe ? "# שכבת הבנה (INTAKE LANE)" : "# Understanding lane (INTAKE)");
+  lines.push(isHe
+    ? `הבנה ממוצעת על המשתמש: ${summary.avg_confidence}%. תחומים חלשים: ${summary.lowest_pillars.join(", ") || "—"}.`
+    : `Average understanding: ${summary.avg_confidence}%. Weakest areas: ${summary.lowest_pillars.join(", ") || "—"}.`);
+
+  if (probed) {
+    const gaps = (probed.gaps || []).slice(0, 3).join("; ");
+    lines.push(isHe
+      ? `הנחיה פנימית: הביטחון על "${probed.pillar_id}" הוא ${Math.round(probed.confidence)}%. פערים: ${gaps || "לא ידוע"}. אם זה טבעי בשיחה — שלב שאלה סקרנית אחת על התחום הזה. לעולם לא כסקר. שאלה אחת לכל תגובה לכל היותר.`
+      : `Internal: confidence on "${probed.pillar_id}" is ${Math.round(probed.confidence)}%. Gaps: ${gaps || "unknown"}. If it fits naturally, weave ONE curious question about this — never a survey. Max one probe per reply.`);
+  }
+
+  if (contradiction) {
+    lines.push(isHe
+      ? `מתח ידוע: בעבר אמרת — "${contradiction.statement_a ?? "?"}", ועכשיו משתמע — "${contradiction.statement_b ?? "?"}". (${contradiction.explanation}). אם יש אמון, שמה את זה בעדינות במהלך השיחה.`
+      : `Known tension: earlier "${contradiction.statement_a ?? "?"}" vs now "${contradiction.statement_b ?? "?"}" (${contradiction.explanation}). If trust allows, name the tension gently.`);
+  }
+
+  lines.push(isHe
+    ? `כללים: לעולם אל תקרא לזה "אבחון", "אונבורדינג" או "טופס". האסיפה היא שיחה — לא סקר.`
+    : `Rules: never call this "assessment", "onboarding", or "intake". Gathering happens through conversation — never a survey.`);
+
+  return {
+    prompt: lines.join("\n") + "\n\n",
+    probedPillar: probed?.pillar_id ?? null,
+    surfacedContradictionId: contradiction?.id ?? null,
+    summary,
   };
 }
 
