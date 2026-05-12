@@ -8,8 +8,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { parseAllTags, stripAllTags } from '@/lib/commandBus';
 import { useCommandBus } from './useCommandBus';
 import { stripReasoning } from '@/lib/stripReasoning';
+import { AION_CHAT_URL } from '@/lib/chat/canonicalChat';
 
-const AURORA_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
+const AURORA_CHAT_URL = AION_CHAT_URL;
 const AION_FALLBACK_HE = 'אני מחובר, אבל הייתה תקלה בחשיבה שלי. נסה שוב רגע.';
 
 interface Message {
