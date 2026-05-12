@@ -40,14 +40,14 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
     {
       id: 'dream',
       icon: Moon,
-      label: isHe ? 'ื—ืื•ืื•ืช' : 'Dreams',
+      label: isHe ? 'חלומות' : 'Dreams',
       gradient: 'from-indigo-500 to-indigo-700',
       onClick: () => setActiveModal('dream'),
     },
     {
       id: 'gratitude',
       icon: Heart,
-      label: isHe ? 'ืชื•ื“ื”' : 'Gratitude',
+      label: isHe ? 'תודה' : 'Gratitude',
       gradient: 'from-rose-500 to-pink-600',
       onClick: () => setActiveModal('gratitude'),
     },
