@@ -6,6 +6,7 @@ import BrainNodeSheet from "./BrainNodeSheet";
 import BrainSections from "./BrainSections";
 import { useBackfillBrain } from "./useBackfill";
 import { useBrainOverview, useCurrentUserId } from "./useBrainOverview";
+import { useBrainFallback } from "./useBrainFallback";
 import type { BrainLayer, BrainNode } from "./types";
 
 const LAYER_LABEL: Record<BrainLayer | "all", string> = {
@@ -23,8 +24,11 @@ interface Props {
 export default function BrainView({ onTalkToAion }: Props) {
   const navigate = useNavigate();
   const userId = useCurrentUserId();
-  const { data, isLoading } = useBrainOverview(userId);
+  const { data: primary, isLoading, error } = useBrainOverview(userId);
   const backfill = useBackfillBrain();
+  const primaryEmpty = !primary || primary.nodes.length === 0;
+  const { data: fallback } = useBrainFallback(userId, primaryEmpty || !!error);
+  const data = !primary || primary.nodes.length === 0 ? fallback ?? primary : primary;
   const [layer, setLayer] = useState<"all" | BrainLayer>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showWeak, setShowWeak] = useState(false);
@@ -53,6 +57,7 @@ export default function BrainView({ onTalkToAion }: Props) {
 
   const selected = filteredNodes.find((n) => n.id === selectedId) ?? null;
   const hasNodes = (data?.nodes.length ?? 0) > 0;
+  const usingFallback = !!fallback && (!primary || primary.nodes.length === 0);
   const ctaLabel = backfill.isPending
     ? "Building…"
     : hasNodes
@@ -91,6 +96,11 @@ export default function BrainView({ onTalkToAion }: Props) {
             AION will build it from your conversations, journals, goals and history.
           </p>
         </div>
+        {error && (
+          <p className="text-[11px] text-destructive max-w-xs">
+            Backend error: {error.message}
+          </p>
+        )}
         <button
           onClick={() => backfill.mutate()}
           disabled={backfill.isPending}
@@ -116,6 +126,12 @@ export default function BrainView({ onTalkToAion }: Props) {
         {hasNodes && (
           <p className="text-[11px] text-muted-foreground/70 mt-0.5">
             Understanding {understanding}% · {data?.nodes.length ?? 0} nodes
+            {usingFallback && " · fallback view"}
+          </p>
+        )}
+        {error && (
+          <p className="text-[11px] text-destructive mt-1">
+            Live graph error: {error.message}
           </p>
         )}
         <button
