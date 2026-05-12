@@ -315,6 +315,7 @@ const App = () => (
                                                 <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/mindos/work" element={<MindOSWorkPage />} />
                                                 <Route path="/mindos/journal" element={<MindOSJournalPage />} />
+                                                <Route path="/journal" element={<JournalingHub />} />
                                                 <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
