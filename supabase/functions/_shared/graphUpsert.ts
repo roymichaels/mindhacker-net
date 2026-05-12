@@ -18,7 +18,16 @@ export type GraphNodeType =
   | "value_shift"
   | "dream"
   | "blocker"
-  | "insight";
+  | "insight"
+  | "value"
+  | "desire"
+  | "wound"
+  | "goal"
+  | "habit"
+  | "contradiction"
+  | "avoidance"
+  | "strength"
+  | "loop";
 
 export interface ProposedNode {
   node_type: GraphNodeType;
@@ -47,6 +56,15 @@ const VALID_TYPES: GraphNodeType[] = [
   "dream",
   "blocker",
   "insight",
+  "value",
+  "desire",
+  "wound",
+  "goal",
+  "habit",
+  "contradiction",
+  "avoidance",
+  "strength",
+  "loop",
 ];
 
 function normalize(s: string): string {
