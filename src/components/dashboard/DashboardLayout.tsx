@@ -12,8 +12,9 @@ import { featureFlags } from '@/lib/featureFlags';
 import { StoryWorldShell } from '@/components/story/StoryWorldShell';
 import { StorySurfaceHost } from '@/components/story/StorySurfaceHost';
 
-import { HeaderActions } from '@/components/navigation/HeaderActions';
-import { AppNameMenu } from '@/components/navigation/AppNameMenu';
+import { OSDrawer } from '@/components/shell/OSDrawer';
+import { MindOSSheet } from '@/components/shell/MindOSSheet';
+import { AIONPresenceButton } from '@/components/shell/AIONPresenceButton';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { HubModalHost } from '@/components/navigation/HubModalHost';
 import { HubModalProvider, useHubModalSafe } from '@/contexts/HubModalContext';
@@ -106,8 +107,9 @@ function DashboardLayoutInner({
                 data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-3">
-                  <AppNameMenu compact onOpenSettings={() => setSettingsOpen(true)} />
-                  <HeaderActions compact />
+                  <OSDrawer onOpenSettings={() => setSettingsOpen(true)} />
+                  <MindOSSheet compact />
+                  <AIONPresenceButton compact />
                 </div>
               </header>
             ) : (
@@ -121,8 +123,9 @@ function DashboardLayoutInner({
                 data-theme-header
               >
                 <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
-                  <AppNameMenu onOpenSettings={() => setSettingsOpen(true)} />
-                  <HeaderActions />
+                  <OSDrawer onOpenSettings={() => setSettingsOpen(true)} />
+                  <MindOSSheet />
+                  <AIONPresenceButton />
                 </div>
               </header>
             )
