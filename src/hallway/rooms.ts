@@ -125,7 +125,7 @@ export const ROOM_REGISTRY: readonly RoomDefinition[] = [
       },
     },
     surfaces: ['body.scan', 'body.breath', 'body.hypnosis'],
-    implemented: false,
+    implemented: true,
   },
 ] as const;
 
