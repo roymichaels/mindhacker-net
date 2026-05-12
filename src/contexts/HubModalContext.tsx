@@ -22,3 +22,7 @@ export function useHubModal() {
   if (!ctx) throw new Error('useHubModal must be used within HubModalProvider');
   return ctx;
 }
+
+export function useHubModalSafe() {
+  return useContext(Ctx);
+}
