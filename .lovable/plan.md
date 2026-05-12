@@ -1,45 +1,30 @@
-# Mobile-Friendly Avatar Wizard
+## Mobile avatar wizard fixes
 
-## Problem
-On mobile (≤402px), `AvatarConfiguratorUI` pins a fixed **304px right rail** (username card + 80px category column + 224px asset grid) over the avatar canvas. The avatar is nearly fully covered, the username card overlaps the categories, and the action buttons (randomize/download/save) sit at the bottom of the screen behind the system tab bar. Desktop layout works fine.
+Two visible problems in the current mobile layout (`src/components/avatar/AvatarConfiguratorUI.tsx`, mobile branch):
 
-## Approach
-Split the configurator into two layouts via a `useIsMobile()` breakpoint switch — keep the current desktop right-rail untouched, and add a mobile-native bottom-sheet layout that exposes **every existing feature** without covering the avatar.
+1. The floating Randomize / Download dock is positioned at `bottom-[calc(var(--sheet-h)+12px)]`, which lands directly on top of the asset thumbnails inside the sheet.
+2. The expanded sheet takes `62vh`, plus the top username chip eats more space, leaving the avatar cropped (only the hat is visible).
 
-## Mobile layout (new)
+### Changes (UI only, single file)
 
-```text
-┌──────────────────────────────┐
-│  ⓧ                  👤 שם    │  ← floating top bar (close + username chip→opens sheet)
-│                              │
-│        [ AVATAR CANVAS ]     │  ← full screen, unobstructed
-│                              │
-│         🎲  ⬇  💾            │  ← floating action dock (randomize / download / save)
-├──────────────────────────────┤
-│ שיער פנים עיניים גבות אף ... │  ← horizontal scrolling category tabs
-├──────────────────────────────┤
-│ צבע: ● ● ● ● ● ● (h-scroll)  │  ← compact color row (when category has palette)
-│ ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐    │  ← 3-col asset grid, sheet ~38vh, drag-to-expand to ~70vh
-│ │  │ │  │ │  │ │  │ │  │    │
-│ └──┘ └──┘ └──┘ └──┘ └──┘    │
-└──────────────────────────────┘
-```
+**`src/components/avatar/AvatarConfiguratorUI.tsx` — mobile branch only**
 
-Behavior:
-- **Bottom sheet** (Radix Sheet from `side="bottom"` already used elsewhere in shadcn ui) holds tabs + colors + asset grid; collapses to a 56-px handle when the user wants to inspect the avatar, expands by drag or by tapping a category chip.
-- **Username** moves out of the rail into a small chip in the top bar; tapping it opens a small modal/sheet section with the existing input + helper text + save validation logic (unchanged).
-- **Action dock** (randomize / download / save) becomes a floating pill above the bottom sheet handle — always reachable, never under iOS home indicator (`pb-[env(safe-area-inset-bottom)]`).
-- **Category tabs** become a horizontally scrollable row (`overflow-x-auto`, snap, no scrollbar) so all 15 categories are reachable with a swipe instead of vertical scroll in an 80px column.
-- **Asset grid** uses `grid-cols-3` on mobile (vs current 2) so more options are visible without scrolling — same tile component (`AssetTilePreview`).
-- "None" removable tile, locked-group warning, and color palette all rendered identically — no feature dropped.
+- Remove the floating action dock (Randomize / Download) that sits between the canvas and the sheet.
+- Move Randomize and Download into the sheet header, inline with the drag handle:
+  - Layout: `[Randomize]   ——drag handle——   [Download]` in a single `flex items-center justify-between` row.
+  - Tapping the handle area still toggles expand/collapse; the two buttons stop propagation so taps on them don't toggle the sheet.
+  - Use the same circular `bg-secondary/90` styling, smaller (h-9 w-9) so the header stays compact.
+- Reduce default sheet height from `62vh` to `52vh` so more of the avatar is visible. Collapsed height stays `112px`.
+- When collapsed, keep the same header row visible (handle + 2 buttons) so Randomize/Download remain reachable without expanding.
+- Keep the top username chip + Save button row unchanged.
+- Keep the asset grid (`grid-cols-3`), color row, and category tabs unchanged.
 
-## Desktop layout
-Untouched. Same right rail, same widths, same behavior at `sm` and above.
+### Out of scope
 
-## Files to change
-- `src/components/avatar/AvatarConfiguratorUI.tsx` — extract two render branches (`MobileLayout` / `DesktopLayout`) sharing the same store hooks; wire `useIsMobile()`.
+- Desktop layout (untouched).
+- Camera / canvas framing (not the cause — the sheet height is what's cropping the avatar).
+- Store, data, save logic.
 
-No store/data changes; all behavior already lives in `useConfiguratorStore` + `useCommunityUsername`.
+### Files changed
 
-## Verification
-On the 402×716 preview: avatar visible full-screen, all 15 categories reachable via horizontal scroll, color palette + asset grid expand from bottom, save/randomize/download accessible above the home indicator, username editable from the top chip.
+- `src/components/avatar/AvatarConfiguratorUI.tsx`
