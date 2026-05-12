@@ -46,8 +46,8 @@ export function SharedOrbStage() {
   return (
     <div
       aria-hidden
-      className="fixed inset-0 z-[60] pointer-events-none"
-      style={{ contain: 'strict' }}
+      className="fixed inset-0 pointer-events-none"
+      style={{ contain: 'strict', zIndex: 2147483000 }}
     >
       <Canvas
         dpr={dpr}

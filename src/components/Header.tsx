@@ -32,7 +32,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { AuroraOrbIcon } from "@/components/icons/AuroraOrbIcon";
 import OrbView from "@/components/orb/v2/OrbView";
 import { openInteractiveAION } from "@/components/aion/InteractiveAIONHost";
 
