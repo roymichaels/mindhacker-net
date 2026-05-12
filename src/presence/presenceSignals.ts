@@ -22,9 +22,9 @@ export function evaluateSignals(now: Date = new Date()): SignalSuggestion | null
   if (hour >= 23 || hour < 5) {
     return { roomId: 'time', reason: 'It is late. Let us close the day.' };
   }
-  // Early morning → focus.
+  // Early morning → identity (set the day's intent).
   if (hour >= 5 && hour < 9) {
-    return { roomId: 'focus', reason: 'A new day. Where is your attention?' };
+    return { roomId: 'identity', reason: 'A new day. Who do you want to be in it?' };
   }
   return null;
 }
