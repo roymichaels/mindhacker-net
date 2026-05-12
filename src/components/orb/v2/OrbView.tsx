@@ -10,6 +10,7 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { View, PerspectiveCamera } from '@react-three/drei';
 import { OrganicSphere } from '../OrganicSphere';
+import { Orb } from '../Orb';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
@@ -75,7 +76,7 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   const setRef = (el: HTMLDivElement | null) => {
     trackRef.current = el;
     if (typeof ref === 'function') ref(el);
-    else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
+    else if (ref) ref.current = el;
   };
 
   const { profile: userProfile } = useOrbProfile();
@@ -100,6 +101,21 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   const resolvedTier = resolveTier(size, tier);
   const segments = tierSegments(resolvedTier);
 
+  const [stageReady, setStageReady] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return Boolean((window as Window & { __MINDOS_ORB_STAGE_READY__?: boolean }).__MINDOS_ORB_STAGE_READY__);
+  });
+
+  useEffect(() => {
+    const onStage = (event: Event) => {
+      const detail = (event as CustomEvent<{ ready?: boolean }>).detail;
+      setStageReady(Boolean(detail?.ready));
+    };
+
+    window.addEventListener('mindos:orb-stage', onStage as EventListener);
+    return () => window.removeEventListener('mindos:orb-stage', onStage as EventListener);
+  }, []);
+
   // Visibility gating — pause heavy frame work when offscreen
   const [visible, setVisible] = useState(true);
   useEffect(() => {
@@ -115,6 +131,8 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
 
   // State multipliers — applied on top of OrganicSphere's base params via props
   const stateMul = STATE_MULTIPLIERS[state];
+  const legacyState = LEGACY_STATE_MAP[state];
+  const shouldUseFallback = !stageReady || resolvedTier === 'presence';
 
   const Wrapper: any = onClick ? 'button' : 'div';
   return (
@@ -130,17 +148,31 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
       )}
       style={{ width: size, height: size }}
     >
-      <View track={trackRef as React.MutableRefObject<HTMLElement>}>
-        <PerspectiveCamera makeDefault position={[0, 0, 3.2]} fov={45} near={0.1} far={100} />
-        {visible && (
+      {shouldUseFallback ? (
+        <Orb
+          size={size}
+          state={legacyState}
+          audioLevel={audioLevel}
+          profile={profile}
+          renderer="css"
+          showGlow={resolvedTier !== 'presence'}
+          className="pointer-events-none"
+        />
+      ) : (
+        <View
+          className="h-full w-full rounded-full"
+          style={{ width: '100%', height: '100%' }}
+          visible={visible}
+        >
+          <PerspectiveCamera makeDefault position={[0, 0, 3.2]} fov={45} near={0.1} far={100} />
           <OrganicSphere
             profile={profile}
             audioLevel={audioLevel}
             segments={segments}
             stateMultipliers={stateMul}
           />
-        )}
-      </View>
+        </View>
+      )}
     </Wrapper>
   );
 });
@@ -166,5 +198,15 @@ export const STATE_MULTIPLIERS: Record<OrbViewState, OrbStateMultipliers> = {
   focus:      { volume: 0.80, distortion: 0.70, fresnel: 1.30, timeFreq: 0.70, intensityBoost: 0.90 },
   hypnosis:   { volume: 1.80, distortion: 2.00, fresnel: 1.40, timeFreq: 1.30, intensityBoost: 1.15 },
 };
+
+const LEGACY_STATE_MAP = {
+  idle: 'idle',
+  listening: 'listening',
+  thinking: 'thinking',
+  responding: 'speaking',
+  recovery: 'breathing',
+  focus: 'session',
+  hypnosis: 'session',
+} as const;
 
 export default OrbView;
