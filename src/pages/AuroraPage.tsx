@@ -2,6 +2,8 @@
  * AIONPage - Full-page AION chat surface.
  * Keeps the same signature header and quick actions as the floating widget.
  */
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
@@ -10,11 +12,33 @@ import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 import InteractiveAION from '@/components/aion/InteractiveAION';
 import { useClientFlag } from '@/lib/clientFlags';
+import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
+import { artifactBus, type ArtifactKind } from '@/lib/aion/artifactBus';
 
 export default function AIONPage() {
   useTranslation();
   const { assessmentDomainId, endAssessment } = useAuroraChatContext();
   const interactive = useClientFlag('interactive_mode');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Deep-link: /aurora?summon=<kind>&...rest -> summon artifact, then strip params.
+  useEffect(() => {
+    const summon = searchParams.get('summon');
+    if (!summon) return;
+    const kind = summon as ArtifactKind;
+    const params: Record<string, unknown> = {};
+    searchParams.forEach((v, k) => {
+      if (k !== 'summon') params[k] = v;
+    });
+    artifactBus.summon(kind, params, { replaceKind: true });
+    const next = new URLSearchParams(searchParams);
+    next.delete('summon');
+    Array.from(next.keys()).forEach((k) => {
+      // Keep unrelated params; drop the ones we consumed as artifact params.
+      if (k in params) next.delete(k);
+    });
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const isAssessing = !!assessmentDomainId;
 
@@ -43,7 +67,10 @@ export default function AIONPage() {
               onClose={() => endAssessment()}
             />
           ) : (
-            <AuroraChatBubbles showOrbAboveMessages={false} />
+            <>
+              <AuroraChatBubbles showOrbAboveMessages={false} />
+              <ArtifactLayer />
+            </>
           )}
         </div>
 
