@@ -29,7 +29,6 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import AffiliateTracker from "@/components/AffiliateTracker";
 import FlowAuditProvider from "@/components/FlowAuditProvider";
 import { useUTMTracker } from "@/hooks/useUTMTracker";
-import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import CookieConsent from "@/components/CookieConsent";
@@ -449,7 +448,6 @@ const App = () => (
                                               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                                               <Route path="*" element={<NotFound />} />
                                               </Routes>
-                                              <PWAInstallBanner />
                                               <PWAUpdatePrompt />
                                               <NotificationPermissionPrompt />
                                               <CookieConsent />
