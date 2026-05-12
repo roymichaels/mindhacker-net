@@ -200,8 +200,9 @@ export const useDailyHabits = (user: User | null): DailyHabitsResult => {
 
     // Subscribe to changes
     if (user?.id) {
+      const suffix = `${user.id}-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
       const channel = supabase
-        .channel('daily-habit-logs')
+        .channel(`daily-habit-logs-${suffix}`)
         .on(
           'postgres_changes',
           {
@@ -218,7 +219,8 @@ export const useDailyHabits = (user: User | null): DailyHabitsResult => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user?.id, fetchHabits]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Complete habit for today
   const completeHabit = useCallback(async (

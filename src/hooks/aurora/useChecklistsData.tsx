@@ -193,8 +193,9 @@ export const useChecklistsData = (user: User | null) => {
     syncWeeklyTasks(user.id).then(() => fetchChecklists());
 
     // Subscribe to changes (only refetch, don't re-sync)
+    const suffix = `${user.id}-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
     const checklistChannel = supabase
-      .channel('aurora-checklists')
+      .channel(`aurora-checklists-${suffix}`)
       .on(
         'postgres_changes',
         {
@@ -208,7 +209,7 @@ export const useChecklistsData = (user: User | null) => {
       .subscribe();
 
     const itemsChannel = supabase
-      .channel('aurora-checklist-items')
+      .channel(`aurora-checklist-items-${suffix}`)
       .on(
         'postgres_changes',
         {
@@ -224,7 +225,8 @@ export const useChecklistsData = (user: User | null) => {
       supabase.removeChannel(checklistChannel);
       supabase.removeChannel(itemsChannel);
     };
-  }, [user?.id, syncWeeklyTasks, fetchChecklists]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Create checklist
   const createChecklist = useCallback(async (title: string, origin: 'manual' | 'aurora' = 'manual', context?: string) => {

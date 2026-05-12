@@ -66,8 +66,9 @@ export const useAuroraReminders = (user: User | null): UseAuroraRemindersResult 
 
     // Subscribe to changes
     if (user?.id) {
+      const suffix = `${user.id}-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
       const channel = supabase
-        .channel('aurora-reminders')
+        .channel(`aurora-reminders-${suffix}`)
         .on(
           'postgres_changes',
           {
@@ -84,7 +85,8 @@ export const useAuroraReminders = (user: User | null): UseAuroraRemindersResult 
         supabase.removeChannel(channel);
       };
     }
-  }, [user?.id, fetchReminders]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Create a new reminder
   const createReminder = useCallback(async (

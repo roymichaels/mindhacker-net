@@ -117,17 +117,18 @@ export const useDashboard = () => {
   useEffect(() => {
     if (!user?.id) return;
 
+    const suffix = `${user.id}-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
     const channels = [
       supabase
-        .channel('aurora-identity-elements-realtime')
+        .channel(`aurora-identity-elements-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_identity_elements', filter: `user_id=eq.${user.id}` }, () => refetchIdentity())
         .subscribe(),
       supabase
-        .channel('aurora-life-visions-realtime')
+        .channel(`aurora-life-visions-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_life_visions', filter: `user_id=eq.${user.id}` }, () => refetchVisions())
         .subscribe(),
       supabase
-        .channel('aurora-commitments-realtime')
+        .channel(`aurora-commitments-${suffix}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'aurora_commitments', filter: `user_id=eq.${user.id}` }, () => refetchCommitments())
         .subscribe(),
     ];
@@ -135,7 +136,8 @@ export const useDashboard = () => {
     return () => {
       channels.forEach((ch) => supabase.removeChannel(ch));
     };
-  }, [user?.id, refetchIdentity, refetchVisions, refetchCommitments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   return {
     // Raw data
