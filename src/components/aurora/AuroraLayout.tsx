@@ -7,6 +7,7 @@ import AuroraChatArea from './AuroraChatArea';
 import { useSidebars } from '@/hooks/useSidebars';
 import { usePromoPopup } from '@/hooks/usePromoPopup';
 import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
+import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 
 const AuroraLayout = () => {
   const { user } = useAuth();
@@ -35,8 +36,15 @@ const AuroraLayout = () => {
 
   return (
     <>
-      <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>
-        <AuroraChatArea conversationId={activeConversationId} />
+      <div className="flex-1 min-h-0 w-full h-full flex flex-col overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <AuroraChatArea conversationId={activeConversationId} />
+        </div>
+        <div className="shrink-0 px-3 pb-safe pt-2 border-t border-white/[0.05] bg-background/85 backdrop-blur-xl">
+          <div className="mx-auto w-full max-w-3xl">
+            <GlobalChatInput />
+          </div>
+        </div>
       </div>
       <PromoUpgradeModal open={shouldShowPromo} onDismiss={dismissPromo} />
     </>
