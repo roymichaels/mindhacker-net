@@ -8,6 +8,10 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { ADMIN_TABS } from '@/domain/admin';
 import { AdminInlineNav } from '@/components/admin/AdminInlineNav';
 import { AdminStatsBar } from '@/components/admin/AdminStatsBar';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface AdminHubProps {
   activeTab?: string;
@@ -41,9 +45,35 @@ export default function AdminHub({ activeTab = 'overview', activeSubTab, onTabCh
       />
 
       {/* Active sub-page */}
-      <Suspense fallback={<PageSkeleton />}>
-        {ActiveSubComponent && <ActiveSubComponent />}
-      </Suspense>
+      <ErrorBoundary
+        key={`${activeTab}:${currentSubTab}`}
+        fallback={
+          <Card className="p-6 space-y-4 border-destructive/30 bg-destructive/5">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              <h3 className="font-semibold">
+                This admin section failed to load
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              The other tabs still work — switch tabs above, or reload to retry.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Reload
+            </Button>
+          </Card>
+        }
+      >
+        <Suspense fallback={<PageSkeleton />}>
+          {ActiveSubComponent && <ActiveSubComponent />}
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }
