@@ -18,6 +18,7 @@ import VoiceModeButton from './VoiceModeButton';
 import AuroraVoiceMode from './AuroraVoiceMode';
 import { cn } from '@/lib/utils';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
+import ComposerActions from './composer/ComposerActions';
 
 interface AuroraChatInputProps {
   onSend: (message: string) => void;
@@ -131,6 +132,12 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
     <div className="shrink-0 w-full bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4">
       <form onSubmit={handleSubmit} className="w-full">
         <div className="relative flex items-end gap-3">
+          {/* Composer "+" — capability launcher (replaces module nav) */}
+          <ComposerActions
+            disabled={disabled || isRecording}
+            onSend={(prompt) => sendMessage(prompt)}
+            onVoice={!bypassLimits ? voiceMode.open : undefined}
+          />
           {/* Input Container */}
           <div className="flex-1 relative bg-muted rounded-2xl border border-border">
             <textarea
