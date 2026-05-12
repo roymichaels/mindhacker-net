@@ -8,7 +8,7 @@ import type { JournalType } from '@/services/journalEntries';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Trash2, Moon, Sun, Heart, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Moon, Sun, Heart, Loader2, Target, Brain, Sparkles, Smile, Lightbulb, Trophy, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -37,6 +37,42 @@ const JOURNAL_CONFIG: Record<JournalType, {
     placeholderHe: 'על מה את/ה אסיר/ת תודה היום?', placeholderEn: 'What are you grateful for today?',
     emptyHe: 'אין רשומות הכרת תודה. שתפ/י על מה את/ה מודה!', emptyEn: 'No gratitude entries. Share what you\'re thankful for!',
     icon: Heart,
+  },
+  plan: {
+    titleHe: 'תוכניות וכוונות', titleEn: 'Plans & Intentions',
+    placeholderHe: 'מה אתה מתכנן? מה הצעד הבא?', placeholderEn: 'What are you planning? What is your next step?',
+    emptyHe: 'אין תוכניות מתועדות עדיין.', emptyEn: 'No plans logged yet.',
+    icon: Target,
+  },
+  beliefs: {
+    titleHe: 'אמונות וזהות', titleEn: 'Beliefs & Identity',
+    placeholderHe: 'איזו אמונה עלתה? מה השתנה בתפיסה שלך?', placeholderEn: 'What belief surfaced? What shifted in your perception?',
+    emptyHe: 'אין רשומות אמונה עדיין.', emptyEn: 'No belief entries yet.',
+    icon: Brain,
+  },
+  breakthrough: {
+    titleHe: 'פריצות דרך', titleEn: 'Breakthroughs',
+    placeholderHe: 'מה התבהר? מה השתחרר?', placeholderEn: 'What became clear? What got unlocked?',
+    emptyHe: 'אין פריצות דרך מתועדות.', emptyEn: 'No breakthroughs logged.',
+    icon: Sparkles,
+  },
+  emotion: {
+    titleHe: 'מצב רגשי', titleEn: 'Emotional State',
+    placeholderHe: 'מה אתה מרגיש כעת? מה עומד מאחורי זה?', placeholderEn: 'What are you feeling now? What is behind it?',
+    emptyHe: 'אין רשומות רגשיות.', emptyEn: 'No emotional notes yet.',
+    icon: Smile,
+  },
+  lesson: {
+    titleHe: 'לקחים', titleEn: 'Lessons',
+    placeholderHe: 'מה למדת? מה לא תחזור על?', placeholderEn: 'What did you learn? What will you not repeat?',
+    emptyHe: 'אין לקחים מתועדים.', emptyEn: 'No lessons logged.',
+    icon: Lightbulb,
+  },
+  win: {
+    titleHe: 'ניצחונות', titleEn: 'Wins',
+    placeholderHe: 'מה הצלחת? במה לזכור את הרגע הזה?', placeholderEn: 'What did you accomplish? Capture this moment.',
+    emptyHe: 'אין ניצחונות מתועדים.', emptyEn: 'No wins logged yet.',
+    icon: Trophy,
   },
 };
 
