@@ -13,7 +13,7 @@
  * chat history sheet are NOT in this phase.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, Mic, MicOff } from 'lucide-react';
+import { Menu, Mic, MicOff, Moon } from 'lucide-react';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { useOverlay } from '@/shell/overlay/OverlayController';
@@ -23,6 +23,7 @@ import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import { cn } from '@/lib/utils';
 import ArtifactLayer from './artifacts/ArtifactLayer';
 import { emitArtifact } from './artifacts/artifactBus';
+import HypnosisLayer from './layers/HypnosisLayer';
 
 const CHROME_HIDE_MS = 3000;
 
@@ -60,6 +61,7 @@ export default function InteractiveAION() {
   const [chromeVisible, setChromeVisible] = useState(true);
   const hideTimerRef = useRef<number | null>(null);
   const [orbSize, setOrbSize] = useState(320);
+  const [hypnosisActive, setHypnosisActive] = useState(false);
 
   // Voice loop — re-uses existing transcribe + TTS pipeline.
   const voice = useAuroraVoiceMode({
@@ -100,6 +102,23 @@ export default function InteractiveAION() {
     window.addEventListener('aurora:response', handler);
     return () => window.removeEventListener('aurora:response', handler);
   }, []);
+
+  // Global toggle: window.dispatchEvent(new CustomEvent('aion:hypnosis', { detail: { active: true } }))
+  useEffect(() => {
+    function handler(e: Event) {
+      const detail = (e as CustomEvent<{ active?: boolean }>).detail;
+      setHypnosisActive(!!detail?.active);
+    }
+    window.addEventListener('aion:hypnosis', handler);
+    return () => window.removeEventListener('aion:hypnosis', handler);
+  }, []);
+
+  // While hypnosis is on, force AION live state to immersive.
+  useEffect(() => {
+    if (hypnosisActive) setState('immersive');
+    else if (state === 'immersive') setState('idle');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hypnosisActive]);
 
   // Scale orb to viewport so it dominates the upper half on phones.
   useEffect(() => {
