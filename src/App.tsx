@@ -259,6 +259,9 @@ const App = () => (
                                             <Routes>
                                               {/* Public routes */}
                                               <Route path="/" element={<Index />} />
+                                              <Route path="/index" element={<Navigate to="/mindos/chat" replace />} />
+                                              <Route path="/home" element={<Navigate to="/mindos/chat" replace />} />
+                                              <Route path="/landing" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
                                               <Route path="/blog/:slug" element={<BlogPost />} />
                                               <Route path="/courses" element={<Courses />} />
