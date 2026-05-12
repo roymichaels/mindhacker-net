@@ -31,7 +31,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
-import { useHubModalSafe, type HubId } from '@/contexts/HubModalContext';
 import { AvatarMiniPreview } from '@/components/avatar/AvatarMiniPreview';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -55,7 +54,6 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
   const isDark = resolvedTheme === 'dark';
   const { hasRole, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
-  const hubModal = useHubModalSafe();
   const { openSubscriptions } = useSubscriptionsModal();
   const { openProfile } = useProfileModal();
 
@@ -92,12 +90,6 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
     navigate(path);
   };
 
-  const openHub = (id: HubId) => {
-    if (!hubModal) return;
-    close();
-    hubModal.openHub(id);
-  };
-
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -105,13 +97,6 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
     } catch (e) {
       window.location.href = '/';
     }
-  };
-
-  const tabToHub = (tabId: string): HubId => {
-    if (tabId === 'fm') return 'fm';
-    if (tabId === 'mindos') return 'mindos';
-    if (tabId === 'community') return 'community';
-    return 'study';
   };
 
   return (
@@ -170,7 +155,7 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
                     key={tab.id}
                     icon={Icon}
                     label={label}
-                    onClick={() => openHub(tabToHub(tab.id))}
+                    onClick={() => go(tab.path)}
                   />
                 );
               })}

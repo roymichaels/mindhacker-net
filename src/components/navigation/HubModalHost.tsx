@@ -8,11 +8,9 @@ import { cn } from '@/lib/utils';
 const FMMarketLayoutWrapper = lazy(() => import('@/components/fm/FMMarketLayoutWrapper'));
 const CommunityLayoutWrapper = lazy(() => import('@/components/community/CommunityLayoutWrapper'));
 const LearnLayoutWrapper = lazy(() => import('@/components/learn/LearnLayoutWrapper'));
-const MindOSTacticsPage = lazy(() => import('@/pages/MindOS/TacticsPage'));
 
 const HUB_META: Record<HubId, { title: string; accent: string }> = {
   fm: { title: 'Free Market', accent: 'bg-amber-400' },
-  mindos: { title: 'MindOS · Tactics', accent: 'bg-cyan-400' },
   community: { title: 'Community', accent: 'bg-emerald-400' },
   study: { title: 'Study', accent: 'bg-violet-400' },
 };
@@ -25,8 +23,6 @@ function HubBody({ hub }: { hub: HubId }) {
       return <CommunityLayoutWrapper />;
     case 'study':
       return <LearnLayoutWrapper />;
-    case 'mindos':
-      return <MindOSTacticsPage />;
   }
 }
 

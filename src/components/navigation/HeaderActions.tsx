@@ -1,7 +1,7 @@
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Wallet } from 'lucide-react';
+import { Shield, Wallet, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,16 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
   return (
     <div className="flex items-center gap-1">
       {isMindOSChatPage && <AuroraSearchBar />}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 text-muted-foreground hover:text-primary"
+        onClick={() => navigate('/strategy?tab=missions')}
+        title="Play"
+        aria-label="Open Mission Control"
+      >
+        <Play className="h-4 w-4" />
+      </Button>
       {isAdmin && (
         <Button
           variant="ghost"

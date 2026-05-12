@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
-export type HubId = 'fm' | 'mindos' | 'community' | 'study';
+export type HubId = 'fm' | 'community' | 'study';
 
 interface HubModalContextValue {
   activeHub: HubId | null;
