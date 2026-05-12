@@ -153,12 +153,13 @@ export default function FMPublishWizard({ open, onOpenChange, type }: FMPublishW
 
     try {
       const resp = await fetch(
-        `${window.location.origin}/api/mindos-chat`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
           body: JSON.stringify({
             messages: [systemMsg, ...currentMessages],

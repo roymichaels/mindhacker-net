@@ -31,7 +31,7 @@ interface ChatMessage {
   created_at: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_AGENT_API_BASE_URL || ''}/api/domain-assess`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/domain-assess`;
 
 /** Static intro messages per domain — explains goal, why we ask, what we'll cover */
 const DOMAIN_INTROS: Record<string, { he: string; en: string }> = {
@@ -277,6 +277,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
       },
       body: JSON.stringify({
         messages: msgs,

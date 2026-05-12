@@ -192,7 +192,7 @@ const MessageThread = () => {
     setIsStreaming(true);
     setStreamingContent('');
 
-    const CHAT_URL = `${window.location.origin}/api/mindos-chat`;
+    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
     
     try {
       // Build message history for AI
@@ -207,6 +207,7 @@ const MessageThread = () => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ messages: history, mode: 'widget' }),
       });
