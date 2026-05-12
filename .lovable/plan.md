@@ -1,1 +1,110 @@
-\n# MindOS — First-Principles Audit & Evolution Plan\n\nThis is analysis only. No code will be changed. Goal: align the codebase with the new vision — **a navigable consciousness operating system** with AION as the living center, a hallway of deep rooms, and a subconscious graph as the meta layer.\n\n---\n\n## 1. Where MindOS Stands Today (Honest Audit)\n\n### 1.1 Routing & surface area\nThe app has accumulated **~70 top-level pages** and many nested layouts. A quick map of what actually exists:\n\n```text\nPublic:        Index, FoundingLanding, Blog, Docs, Pricing, Onboarding, Auth\nProtected hub: UserDashboard, MindOS/(chat|tactics|strategy|work|journal),\n               JournalingHub, StrategyPage, HypnosisPage, AuroraPage, PlayHub,\n               LifeHub, WorkHub, CareerHub, ArenaHub, LifeDomainPage, OrbGallery\nPillars:       11 domains × (Home, Assess, ChatAssess, Results, History, Analyzing)\nCareers:       Business, Freelancer, Creator, Coaches, Therapist, Coach (each\n               with its own LayoutWrapper + journey page)\nMarketplace:   FM (FMAppShell, FMMarketLayout, Bridge, Cashout, Wallet)\nAdmin:         AdminHub + 6 sub-routes, AdminJourney\nPanel:         Affiliate dashboard, links, referrals, payouts\nMisc:          Messages, MessageThread, Community, AvatarConfigurator,\n               OnboardingCeremony, Install, Subscriptions, Success\n```\n\nThat is a **feature-first architecture**. It is fundamentally incompatible with “world-first.” The user is forced to make a navigation decision the moment they enter, instead of being received by a presence.\n\n### 1.2 Orb / AION layer\nThere are currently **17 orb-related components**:\n`Orb, CSSOrb, CSSGalleryOrb, GalleryMorphOrb, OrganicSphere, OrganicOrbCanvas, WebGLOrb, PersonalizedOrb, PresetOrb, BusinessOrb, SharedOrbCanvas, SharedOrbView, LazyOrbView, OrbParticles, OrbDebugOverlay, OrbFullscreenViewer, AIONSignature` plus `v2/{OrbView, SharedOrbStage}`.\n\nThis is the core architectural debt. The orb is supposed to be **one entity** — instead it is a fragmented zoo where each surface picks a different renderer, a different motion language, and a different fallback path. That is why the past 3 turns of patches kept failing: we were patching *one* of many parallel orbs.\n\nStated memory rule already says: *“Unified Orb Stage v4 — single shared WebGL canvas; OrbView is the only orb entry point.”* The codebase has not been collapsed to that rule yet.\n\n### 1.3 Chat / AION presence\n- `InteractiveAIONHost` + `InteractiveAION` exist but render as a modal/panel rather than as the persistent world.\n- `AuroraChatProvider`, `AionDecisionProvider`, `AIONStateProvider`, `ChromeVisibilityProvider`, `EnvironmentProvider` are layered but not unified — each owns part of “what AION is doing.”\n- `aurora-chat` edge function does the heavy LLM work; there is *also* `aion-brain`, `aion-orchestrator`, `mindos-chat` (api/), and `work-chat`. Four entry points, overlapping responsibilities.\n- `production-rules.ts` already declares the leak-prevention contract (`hideReasoning`, `streamOnlyFinalAnswer`) but enforcement is split between `_shared/sanitizeStream.ts`, `aurora-chat/sanitizeStream.ts`, and client-side filtering — so leaks recur whenever a new path is added.\n\n### 1.4 Orchestration layer\n`src/orchestration/` already contains the right *idea*: `EnvironmentProvider`, `SignalAggregator`, `ChromeGate`, `MotionLayer`, fast-tier rules, `EnvironmentState` with mode/intensity/orb/hidden chrome. **This is the seed of the consciousness OS.** It is underused — most pages ignore it and render their own chrome.\n\n### 1.5 UX state (mobile, current viewport 402×716)\nWhat currently competes for attention on a typical hub screen:\n- top header with brand + status + nav\n- bottom tab bar (`OS_TABS` = 6 tabs + coach + admin)\n- floating AION widget\n- gamification HUD (XP, energy, level)\n- sidebar drawers\n- bottom sheets / overlay controller\n- promo modals, wallet modal, subscriptions modal, profile modal\n- per-page hero cards, stats cards, action cards\n\nThat is **9–11 simultaneous systems**. Lovable/ChatGPT mobile run with **2–3**. This is the single biggest UX problem.\n\n### 1.6 What is genuinely promising and must be preserved\n- **DNA SSOT + AION identity model** (already memory-locked).\n- **Orchestration primitives** (`EnvironmentState`, signal aggregation).\n- **OrbView v2 + SharedOrbStage** — correct direction, just needs to become the *only* path.\n- **Pillar/domain content** — the 11 domains map cleanly to consciousness rooms (don’t throw it away, *re-house* it).\n- **TTS cache + advanced voice loop** — already aligned with “presence.”\n- **AION proactive orchestrator** — the nudge/briefing engine is the right backbone for an entity-led app.\n\n### 1.7 What is dragging the vision down\n- Dashboard pages: `UserDashboard`, `LifeHub`, `WorkHub`, `CareerHub`, `PlayHub` overlap.\n- Journey pages: 5 separate “Journey” pages (Business/Coaching/Admin/Projects/etc.) duplicating the same shell.\n- 17 orb components.\n- 4 chat entry points.\n- Pillar pages × 5 sub-pages × 11 domains = 55 routes for what should be 1 room with sub-states.\n- A “tab bar” mental model that contradicts a “hallway” mental model.\n\n---\n\n## 2. The Target Mental Model\n\n```text\n                        ┌───────────────────────┐\n                        │   PRESENCE LAYER      │   always on\n                        │   AION orb + voice    │\n                        │   ambient + emotion   │\n                        └──────────┬────────────┘\n                                   │\n                        ┌──────────┴────────────┐\n                        │   HALLWAY LAYER       │   the world\n                        │   6–8 rooms (states)  │\n                        └──────────┬────────────┘\n                                   │\n              ┌────────────────────┼────────────────────┐\n              │                    │                    │\n        ┌─────┴─────┐        ┌─────┴─────┐        ┌─────┴─────┐\n        │   ROOM    │        │   ROOM    │   ...  │   ROOM    │\n        │ (env+AI)  │        │ (env+AI)  │        │ (env+AI)  │\n        └─────┬─────┘        └─────┬─────┘        └─────┬─────┘\n              │                    │                    │\n              └────────────────────┼────────────────────┘\n                                   │\n                        ┌──────────┴────────────┐\n                        │   GRAPH LAYER (meta)  │   subconscious atlas\n                        │   nodes + links       │\n                        └───────────────────────┘\n```\n\nThree layers, one entity (AION) threading all of them.\n\n### 2.1 Proposed rooms (start with 6, design for 8)\n1. **Beliefs** — cognitive scripts, reframes, identity statements.\n2. **Emotions / Energy** — affect, nervous system, vitality.\n3. **Inner Characters / Parts** — IFS-style sub-personalities, archetypes.\n4. **Time / Memory** — past anchors, future-self, timeline work.\n5. **Identity / Roles** — who I am across domains (collapses career hubs).\n6. **Body / Soma** — physical, breath, sleep, hypnosis lives here.\n7. *(Phase 2)* **Dreams / Symbols** — symbolic + imaginal layer.\n8. *(Phase 2)* **The Beyond / Higher Self** — transpersonal anchor.\n\nEach room owns: color identity, soundscape, AI behavior mode, geometry, and a slice of the graph.\n\n### 2.2 What today’s features collapse into\n| Today | Becomes |\n|---|---|\n| 11 pillar pages × 5 sub-routes | Subsections of 6 rooms |\n| StrategyPage, PlayHub, WorkHub, LifeHub, CareerHub | Artifacts/overlays summoned from hallway |\n| Journaling | A capture surface inside any room (and the graph) |\n| Hypnosis | A mode of the Body room |\n| Coaches / FM marketplace | Stays separate, but lives behind a single “Outer World” door — not on the tab bar |\n| Admin | Stays out of the world entirely (separate /admin app) |\n| Tab bar | Replaced by hallway navigation |\n\n---\n\n## 3. AION as Living Entity\n\nWhat is missing for AION to *feel* alive:\n1. **Single renderer** — collapse 17 orb components to OrbView only (memory rule already says this; enforce it).\n2. **State → motion contract** — orb has 4 states (`still / breath / pulse / kinetic`) and 4 sizes already in `OrbState`. Bind them to `AIONStateContext` so every context (chat, listening, navigating, hypnosis) maps to one motion.\n3. **Voice as default input** — bottom dock = hold-to-talk first, type second.\n4. **Emotional mirror** — orb hue shifts on `EnvironmentState.emotionalTone`; environment lighting follows.\n5. **Persistent presence** — orb is never unmounted. Rooms swap *around* it, not the other way around.\n6. **Strict response pipeline** — one sanitized stream, one final-answer contract enforced server-side, never client-patched.\n\n---\n\n## 4. Subconscious Graph (Meta Layer)\n\nNot a productivity graph. Think: **Obsidian × neural galaxy × detective board**.\n\n### Node types\n`belief, emotion, memory, character, goal, ritual, mission, pattern, dream, symbol, role`.\n\n### Edge types\n`triggers, reinforces, contradicts, originated_from, evolves_into, mirrors, blocks, heals`.\n\n### Properties\n- Color = room of origin.\n- Glow = recency/charge.\n- Cluster = archetype or trauma cluster.\n- Link weight = recurrence + emotional intensity.\n\n### Generation\nEvery AION turn, hypnosis session, and journal capture proposes nodes/edges. Graph is read-only by default; user opens it to *navigate by meaning*, not to manage tasks.\n\n---\n\n## 5. Orchestration Engine (the brain behind AION)\n\n```text\nuser input (voice/text/gesture)\n        │\n        ▼\nSignalAggregator  ──►  IntentClassifier (LLM)\n        │                       │\n        │                       ▼\n        │                Decision: room? mode? artifact? memory? answer?\n        ▼                       │\nEnvironmentProvider  ◄──────────┘\n        │\n        ├─► RoomRouter (which room/env)\n        ├─► ChromeGate (what UI is visible)\n        ├─► OrbStateBus (motion/hue/glow)\n        ├─► MemoryWriter (graph + journal)\n        └─► ArtifactRenderer (cards, plans, hypnosis scripts)\n```\n\nThis consolidates today’s `aion-brain`, `aion-orchestrator`, `aurora-chat`, `mindos-chat`, `work-chat`, `AionDecisionContext`, `AIONStateContext`, `EnvironmentProvider`, and `SignalAggregator` into **one decision pipeline with one writer.**\n\n---\n\n## 6. Mobile Shell — Target\n\n```text\n┌─────────────────────────────────┐\n│  ▾ Beliefs Room        · · ·    │  6mm header, room name + tiny status\n├─────────────────────────────────┤\n│                                 │\n│                                 │\n│            ◯  AION              │  full-bleed environment\n│         (breathing)             │  orb is the focal point\n│                                 │\n│                                 │\n│                                 │\n├─────────────────────────────────┤\n│   🎙  hold to speak    ⌨  ⋯     │  voice-first dock\n└─────────────────────────────────┘\n```\n\nHallway navigation = horizontal swipe between rooms (with cinematic transition + soundscape crossfade). No tab bar. Account/profile/marketplace/admin live behind a single overflow gesture, not the primary surface.\n\n---\n\n## 7. Response Pipeline Hardening (no leaks)\n\nSingle source of truth: **one server-side sanitizer** invoked by every chat entry point. Client renders raw. Contract:\n\n1. Edge function strips `<think> / <reasoning> / <analysis> / [Memory] / [Plan]` *before* it leaves the function.\n2. Edge function refuses to forward tool deltas; only the final assistant text streams.\n3. Any new chat path must import the shared sanitizer or fail CI.\n4. Client never tries to “clean” text — if it sees junk, that is a server bug.\n\nThis collapses today’s 3 sanitizers into one, eliminating the recurring leak surface.\n\n---\n\n## 8. Implementation Roadmap\n\n### Phase 1 — Collapse & Foundations (do first)\n- 
+
+# Phase 3: State-Space First — Graph as the Operating System
+
+You are right. The hallway turned into a homepage of cards because we still have a "landing page" mental model. We need to delete that mental model entirely. There is no homepage. There is only **AION presence + a living graph + spatial lenses into it**.
+
+## Guiding principles (locked)
+
+1. **No homepages, ever.** No grid of cards, no dashboard, no "choose a section."
+2. **State-space first.** The user enters into a *state* (presence with AION), not a page.
+3. **Graph is the OS.** Every interaction (chat, journal, hypnosis, mission, scan) writes nodes/edges. The graph is the canonical truth; rooms and missions are *projections* of it.
+4. **AION orchestrates.** The user almost never manually categorizes, updates stats, or fills dashboards. AION infers from conversation and writes to the graph.
+5. **Rooms are lenses, not destinations.** A room is a filtered view of the graph + an ambience + an AION mode. It is not a feature container.
+
+## The new shell (replaces /index, /dashboard, /hallway-as-grid)
+
+```text
+┌─────────────────────────────────────────────┐
+│                                             │
+│           AION orb (always present)         │
+│         (emotional state = orb state)       │
+│                                             │
+│         [ ambient room name + tone ]        │
+│                                             │
+│   ╭───────────── chat dock ─────────────╮   │
+│   │  speak / type to AION               │   │
+│   ╰─────────────────────────────────────╯   │
+│                                             │
+│   swipe ←/→  : traverse rooms (lenses)      │
+│   swipe ↑    : zoom into graph (3 layers)   │
+│   swipe ↓    : surface artifacts (mission,  │
+│                journal, hypnosis, scans)    │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+No tab bar. No card grid. No "Open feature." Navigation is **gestural traversal of one continuous space**.
+
+## Step-by-step plan
+
+### 1. Delete the homepage mental model
+- `/index` and `/dashboard` redirect to `/` which renders **PresenceShell** (orb + chat dock + ambient room context). No cards. No "rooms grid."
+- Remove `HallwayShell.tsx` door grid. Replace with `PresenceShell` as the single shell.
+- Rooms become *swipeable lenses* around presence, not a list you pick from.
+
+### 2. Build the Graph as the actual data layer
+New tables (migration):
+- `graph_nodes` — `id, user_id, kind (belief|emotion|part|memory|identity|body_signal|mission|relationship|pattern|archetype), label, layer (surface|mid|deep), weight, valence, last_touched_at, metadata jsonb`
+- `graph_edges` — `id, user_id, from_node, to_node, relation (causes|correlates|triggers|reinforces|conflicts|belongs_to), strength, last_touched_at`
+- `graph_events` — append-only log of every write (source: chat turn id, journal id, hypnosis session id, mission id) for auditability and replay.
+
+RLS: user can only read/write their own rows. All writes go through `MemoryWriter` (single edge function) — no direct client inserts.
+
+### 3. MemoryWriter as the only graph mutator
+One edge function `memory-writer` that:
+- Accepts a structured "observation" (from `aurora-chat` post-processing, journal save, hypnosis end, mission complete, scan result).
+- Uses an LLM pass to extract candidate nodes/edges with `layer`, `valence`, `weight` deltas.
+- Upserts into `graph_nodes` / `graph_edges`, decays old weights, strengthens repeated patterns.
+- Emits a realtime event so PresenceShell can react (orb state, room ambience, surfaced artifact).
+
+### 4. Wire `aurora-chat` → MemoryWriter
+- After every assistant turn (and every user turn worth interpreting), `aurora-chat` posts a sanitized observation to `memory-writer`.
+- This is the moment "I feel drained" becomes: emotion node + vitality trend + sleep correlation candidate + mission suggestion. **The user did nothing but talk.**
+
+### 5. Rooms become lens projections
+Each room (`beliefs`, `emotions`, `parts`, `time`, `identity`, `body`) is now defined by:
+- A **graph filter** (which `kind` + `layer` it surfaces)
+- An **ambience** (already done)
+- An **AION mode** (already done)
+- A **default artifact slot** (e.g. body → hypnosis, time → timeline, identity → DNA)
+
+Swiping left/right between rooms re-queries the graph with a different filter. Same data, different lens. No separate "feature pages."
+
+### 6. Three-layer graph zoom (swipe up)
+A single `GraphCanvas` component (Three.js / r3f) that renders the user's nodes:
+- **Surface layer**: today's missions, active emotions, recent memories.
+- **Mid layer**: weekly patterns, habits, emotional clusters.
+- **Deep layer**: beliefs, identity nodes, archetypes, long-term memories.
+
+Pinch / scroll = zoom between layers. Tap a node = AION speaks about it ("This belief about money has been thickening for 3 weeks…"). Long-press = inspect/edit.
+
+This replaces every "stats page," "insights page," and "patterns page" we have.
+
+### 7. Artifacts dock (swipe down)
+A bottom sheet that surfaces *contextual* artifacts AION has prepared: today's mission, a hypnosis recommendation, a journal prompt, a scan result. Not a menu — a feed of what's *currently relevant* based on graph state.
+
+### 8. Migrate, then delete
+After the shell + graph + writer are live:
+- Redirect `/play`, `/strategy`, `/work`, `/hub`, `/dashboard`, `/hallway` → `/`.
+- Existing pillars/missions/journal/hypnosis remain as **artifacts** rendered inside PresenceShell or the artifacts dock — not as standalone pages.
+- Quietly delete the legacy hub/dashboard files in a follow-up cleanup pass.
+
+### What we are NOT touching
+- DNA SSOT, identity model, AION naming gate
+- Gamification economy, XP RPCs
+- TTS cache, Web3Auth, subscription tiers
+- Existing pillar logic (it stays — we just stop rendering it as a homepage)
+
+### Risks / open questions
+- **Performance**: 3-layer graph render on 402px mobile. Mitigation: r3f with instanced points, cap visible nodes per layer, LOD.
+- **Cold start**: a brand-new user has an empty graph. Mitigation: AION's onboarding chat seeds initial nodes via MemoryWriter from the first 3–5 turns; presence shell shows "AION is listening" state until first nodes exist.
+- **Discoverability**: gestural nav has no menu. Mitigation: first-run coach marks + AION verbally guiding ("swipe up to see your inner map").
+- **Backwards links**: external links / SEO to `/dashboard` etc. Mitigation: redirects, not 404s.
+
+## Decisions I need from you before building
+
+1. **Order of attack**: do we build (a) PresenceShell + gesture nav first with rooms as lenses against *existing* data, then add graph tables; or (b) graph tables + MemoryWriter first, then shell? I recommend **(a)** — ship the felt experience fast, then deepen the substrate underneath.
+2. **Graph render**: r3f 3D galaxy (immersive, heavier) vs. 2D force-directed canvas (faster, still alive). I recommend **2D force-directed for v1**, upgrade to 3D once node counts and perf are proven.
+3. **Should `/index` immediately redirect to `/` PresenceShell this phase**, or keep `/index` alive one more iteration as a fallback while we migrate? I recommend **immediate redirect** — the homepage is the disease.
+
+Answer those three and I'll start Phase 3 with PresenceShell + gesture nav + lens-based rooms.
