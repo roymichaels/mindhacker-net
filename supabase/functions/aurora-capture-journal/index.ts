@@ -62,6 +62,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const excerpt: string = String(body?.excerpt || '').slice(0, 6000).trim();
     const linkedMissionId: string | undefined = body?.linked_mission_id ?? undefined;
+    const forceSave: boolean = !!body?.force_save;
     if (!excerpt) return jsonResp({ error: 'excerpt required' }, 400);
 
     // AI extraction via tool calling
@@ -114,11 +115,17 @@ Deno.serve(async (req) => {
     const toolCall = aiJson?.choices?.[0]?.message?.tool_calls?.[0];
     const args = toolCall ? JSON.parse(toolCall.function.arguments || '{}') : {};
 
-    if (!args?.should_save) {
+    if (!args?.should_save && !forceSave) {
       return jsonResp({ saved: false, reason: 'not_meaningful' });
     }
+    // When force-saving (manual journal capture), fall back to 'reflection'
+    // if the model didn't classify confidently. Never let manual entries fail silently.
     if (!ALLOWED_CATEGORIES.includes(args.category)) {
-      return jsonResp({ saved: false, reason: 'invalid_category' });
+      if (forceSave) {
+        args.category = 'reflection';
+      } else {
+        return jsonResp({ saved: false, reason: 'invalid_category' });
+      }
     }
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
