@@ -255,6 +255,7 @@ const App = () => (
                               <SoulAvatarProvider>
                                 <ProfileModalProvider>
                                   <TooltipProvider>
+                                  <OverlayProvider>
                                     <Toaster />
                                     <Sonner />
 
