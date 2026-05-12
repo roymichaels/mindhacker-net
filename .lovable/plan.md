@@ -1,102 +1,98 @@
 ## Goal
 
-Shift MindOS from a dashboard/launcher to a conversation-first OS where AION is the primary interface. UI surfaces (landing-page builder, blog creator, strategy planner, mind map, etc.) appear *because* of conversational intent, not as permanent menu entries.
+Collapse the authenticated home (`/aurora`) into a single calm, focused surface. Remove ~70% of permanent UI. AION becomes the visual and functional center; everything else emerges contextually from conversation.
 
-## Principle
+## What the home should answer (and only this)
 
-- **Conversation-first, capability surfaces second.**
-- Persistent navigation = foundational only.
-- Everything else = invoked by AION as in-chat artifacts, temporary workspaces, or composer actions.
+1. What does AION understand right now?
+2. What matters most right now?
+3. What should happen next?
+4. How do I talk to it?
 
-## Scope
+## What's there today (to be removed/collapsed)
 
-Frontend shell + composer + intent routing only. No changes to existing tool implementations (landing builder, blog creator, strategy, etc.) — they get *invoked differently*, not rebuilt.
+`/aurora` empty state currently shows `AuroraWelcome` with:
 
----
+- 80px orb + greeting
+- 2×2 grid of 4 colored "smart suggestion" cards (purple/cyan/amber/emerald)
+- Multiple floating elements competing with the composer (header MindOS dropdown, AIONPresenceButton, ArtifactLayer, composer "+", attach menu, voice button, mode pill, etc.)
 
-## 1. Slim the world-switcher (`MindOSSheet`)
+Combined with header/dock/artifacts, this presents 10+ persistent surfaces at once.
 
-Reduce the primary grid from 9 hubs to 5 foundational destinations:
+## New home layout (single surface, top → bottom)
 
-- **AION** (chat) — `/aurora`
-- **Brain / Identity** — opens Brain View (existing profile sheet)
-- **Timeline / Memory** — `/journal` (rebranded "Memory")
-- **Notifications**
-- **Settings**
-
-**Move out of the menu** (still reachable via routes for now, but not surfaced as nav):
-Strategy, Hypnosis, Free Market, Community, Learn, Career/Business/Creator/Freelancer hubs, Mind Map page, etc. → become AION-summonable capabilities.
-
-Keep Admin link gated to admins.
-
-## 2. Composer "+" menu (new)
-
-Add a `+` button at the start of `AuroraChatInput` that opens a compact action sheet:
-
-```
-┌─ Composer actions ──────────┐
-│ 📎 Upload / attach context  │
-│ ✨ Create…  (business, page,│
-│    course, blog, strategy)  │
-│ 🧭 Map my mind              │
-│ 🚀 Launch workflow          │
-│ 🔍 Deep dive                │
-│ 🎙 Voice mode               │
-│ 📂 Open current task        │
-└─────────────────────────────┘
+```text
+┌───────────────────────────────────────────┐
+│   minimal header                          │
+│   (orb · MindOS · overflow — already slim)│
+├───────────────────────────────────────────┤
+│                                           │
+│             [ AION orb, large ]           │  ← presence, breathing
+│                                           │
+│            "good evening, Tomer"          │  ← single soft greeting
+│                                           │
+│   ┌────── ambient context card ──────┐   │  ← ONE adaptive card
+│   │ understanding · focus · next     │   │
+│   └──────────────────────────────────┘   │
+│                                           │
+│         · · ·  active worlds  · · ·      │  ← optional thin strip
+│                                           │
+├───────────────────────────────────────────┤
+│        composer dock (chat entry)         │
+└───────────────────────────────────────────┘
 ```
 
-Each entry **prefills the chat** with a structured intent (e.g. "Create a business for me") and submits — letting the orchestrator drive from there. No direct route navigation from composer.
+### The single ambient card (replaces the 2×2 grid)
 
-New file: `src/components/aurora/composer/ComposerActions.tsx` + an intents registry `src/components/aurora/composer/intents.ts`.
+A quiet, multi-line card with three soft slots that AION fills from the brain graph:
 
-## 3. Capability registry (intent → surface)
+- **Understanding** — short sentence: "I sense you've been low on energy this week."
+- **Focus** — what matters most: "Your business launch is the live thread."
+- **Next step** — one suggested action as a tap-to-send line: "Want to plan tomorrow's first move?"
 
-New file: `src/lib/aion/capabilities.ts` — single source of truth mapping intent keywords to existing routes/artifacts:
+Tapping any line sends it to AION as a message. No buttons, no colors competing for attention. Empty/loading state shows a single "I'm getting to know you…" line.
 
-```
-business      → /business       (artifact: BusinessBuilder)
-landing page  → existing landing builder route
-blog          → existing blog creator
-course        → /courses/new
-strategy      → /strategy
-mind map      → Brain View (profile sheet)
-fitness plan  → /strategy?domain=health
-content plan  → existing content workflow
-```
+### Active worlds strip (optional, suppressed by default)
 
-The orchestrator already routes intents in `aurora-chat`; we only add a *client-side* capability map so AION's responses can include a `summon: { capability, params }` directive that the chat UI renders as an in-message **"Open surface" card** (uses existing `ArtifactLayer`).
+A single horizontal row of tiny dots/labels (max 3) showing currently in-flight efforts pulled from `action_items` / brain state — e.g. `business launch · sleep reset · daily writing`. Tap = ask AION about that thread. Hidden when there's nothing live.
 
-No new edge-function logic in this plan — the registry is consumed by the existing artifact renderer; orchestrator changes deferred to a follow-up if needed.
+## What to remove from the home
 
-## 4. In-chat surfaces (existing `ArtifactLayer`)
+- `AuroraWelcome` 2×2 grid (suggestion cards, color schemes, icons).
+- Local welcome `useSmartSuggestions` UI (data may still feed the ambient card, single suggestion only).
+- Any duplicate composer affordance on the home (we already have one floating dock; remove inline composer block if present).
+- `AIONPresenceButton` floating overlay **on `/aurora`** — the orb on the page IS the presence; two AI buttons confuse. Keep the button on every other route as the global summon.
+- `ArtifactLayer` shows nothing on a fresh home (no auto-emitted starter artifacts) — only emerges after intent.
+- Any "category pills / services feed / progress bars / stats cards" if they appear via PresenceShell or hallway rooms behind `/aurora` — confirm none render here; if a `PresenceShell` layer leaks through, hide it on `/aurora`.
 
-Extend `src/components/aion/artifacts/ArtifactLayer.tsx` to support a new artifact kind: `capability_card` — renders title, short description, "Open" CTA, "Continue in chat" CTA. Tapping "Open" routes to the existing destination (so we don't rebuild). This is the bridge from conversation to existing tools.
+## Files to change
 
-## 5. Header + presence
+- `src/components/aurora/AuroraWelcome.tsx` — rewrite to the calm layout above (orb · greeting · ambient card · optional worlds strip). Drop the 2×2 grid and color schemes.
+- `src/components/aurora/AmbientContextCard.tsx` *(new)* — renders the three ambient lines from brain/decision data; tap = send.
+- `src/hooks/aurora/useAmbientContext.ts` *(new)* — small hook that derives `{ understanding, focus, nextStep }` from existing sources (brain overview, latest action items, AION decision). Reuses what we already have; no new edge functions.
+- `src/components/aurora/ActiveWorldsStrip.tsx` *(new, optional render)* — thin horizontal strip; hidden when empty.
+- `src/pages/AuroraPage.tsx` — ensure only one composer (the floating dock) renders; remove any extra inline input.
+- `src/components/aion/InteractiveAIONHost.tsx` (or wherever the floating `AIONPresenceButton` is mounted) — suppress the floating button when route is `/aurora`.
+- `src/components/aion/artifacts/ArtifactLayer.tsx` — confirm no artifacts auto-emit on home load (verify, no code change expected).
 
-Header structure stays as previously fixed (orb · MindOS · overflow). MindOSSheet trimmed per §1. No other header changes.
+## What stays
 
-## 6. Files to change
+- Header (orb · MindOS · overflow) — already slimmed.
+- Single floating composer dock on `/aurora`.
+- Composer "+" → ComposerActions (already added) is the only capability launcher.
+- Brain View, Strategy, Hypnosis, Free Market etc. remain reachable via "More capabilities" in MindOS sheet and via AION conversation — they are **not** surfaced on the home.
 
-- `src/components/shell/MindOSSheet.tsx` — slim primary grid to 5 entries; move rest to a collapsed "More" section (so power users still reach legacy pages during transition).
-- `src/components/aurora/AuroraChatInput.tsx` — add `+` button + open `ComposerActions`.
-- `src/components/aurora/composer/ComposerActions.tsx` (new) — bottom-sheet of composer actions.
-- `src/components/aurora/composer/intents.ts` (new) — labels + prefilled prompts.
-- `src/lib/aion/capabilities.ts` (new) — intent → route/artifact map.
-- `src/components/aion/artifacts/ArtifactLayer.tsx` — add `capability_card` renderer.
+## Out of scope (follow-ups)
 
-## 7. Out of scope (follow-ups)
+- Refactoring the rest of `/aurora` chat thread visuals.
+- Brain-graph-driven proactive suggestions beyond the simple single-suggestion ambient card.
+- Removing the marketing `/` page or other routes.
+- Hallway / PresenceShell architecture changes (only ensure they don't bleed into `/aurora`).
 
-- Orchestrator-side intent classification upgrades (today AION can already mention capabilities in text; structured `summon` directive can ship next).
-- Removing legacy routes — they remain reachable for now, just not surfaced in nav.
-- Redesign of individual tool pages.
-- Proactive AION suggestions / autonomous workflows (separate plan).
+## Acceptance signals
 
-## 8. Acceptance signals
-
-- MindOS sheet shows ≤6 primary tiles (foundational only).
-- Composer `+` opens action sheet with at least 6 capability prompts; tapping one sends a chat message.
-- AION reply containing a capability reference renders an inline `capability_card` with "Open" CTA that routes to the existing tool.
-- No existing route is broken; legacy hubs reachable via "More" disclosure or direct URL.
-- Hebrew/RTL labels intact; full-spelling rule respected.
+- Fresh `/aurora` shows ≤6 visible elements: header, orb, greeting, ambient card (3 lines), optional worlds strip, composer dock. Nothing else.
+- No 2×2 grid, no colored suggestion cards, no duplicate composer, no floating AI button on this route.
+- Tapping any ambient line sends a chat message; conversation surface takes over.
+- All previously available capabilities remain reachable via composer "+" or MindOS "More" — none lost.
+- Visual feel: calm, single-focus, RTL-correct, full Hebrew spelling preserved.
