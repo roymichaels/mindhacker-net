@@ -17,7 +17,7 @@ import { Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { he, enUS } from 'date-fns/locale';
+import { he, enUS, type Locale } from 'date-fns/locale';
 
 const CATEGORY_LABEL: Record<string, { he: string; en: string }> = {
   gratitude:    { he: 'תודה',          en: 'Gratitude' },
