@@ -43,8 +43,9 @@ export function HubModalHost() {
           exit={{ opacity: 0, y: 24 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className="fixed top-0 inset-x-0 bottom-[84px] z-[70] bg-background flex flex-col"
+          style={{ backgroundColor: 'hsl(var(--background))' }}
         >
-          <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border bg-background/95 backdrop-blur-xl shrink-0">
+          <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border bg-background shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <span className={cn('h-2.5 w-2.5 rounded-full shrink-0', HUB_META[activeHub].accent)} />
               <span className="text-sm font-semibold tracking-wide truncate">
@@ -60,7 +61,7 @@ export function HubModalHost() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto bg-background">
             <Suspense fallback={<PageSkeleton />}>
               <HubBody hub={activeHub} />
             </Suspense>

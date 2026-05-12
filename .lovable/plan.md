@@ -1,37 +1,25 @@
-# Fix the admin panel crash
+## Goal
+Ensure every hub modal (FM, MindOS Tactics, Community, Study) renders with a fully opaque background so the page behind it never bleeds through.
 
-## What I found
-- `/admin-hub` currently renders inside the main authenticated shell, but it is **not wrapped with `AdminRoute`** even though that guard already exists.
-- The blank/crash state is **not coming from `AdminHub.tsx` itself**. The browser is failing while loading shared lazy modules used around the admin page:
-  - `src/components/dashboard/DashboardLayout.tsx`
-  - `src/pages/ProfilePage.tsx`
-  - `src/components/orb/AIONFloatingWidget.tsx`
-- That means the admin screen is crashing through the **global shell / global overlays path**, not because the admin tab config is wrong.
+## Findings
+- All four hubs are rendered inside a single shared shell: `src/components/navigation/HubModalHost.tsx`.
+- The shell already uses `bg-background`, but:
+  - The header bar uses `bg-background/95 backdrop-blur-xl` (semi-transparent).
+  - The inner hub wrappers (`FMMarketLayoutWrapper`, `CommunityLayoutWrapper`, `LearnLayoutWrapper`, `MindOS/TacticsPage` → `PlayLayoutWrapper`) don't enforce their own opaque background, so any transparent areas inside the page can show the underlying app.
 
-## Plan
-1. **Protect the admin route correctly**
-   - Wrap `/admin-hub` with the existing `AdminRoute` so role/auth loading finishes before the admin shell renders.
-   - Keep unauthorized users out of the admin UI instead of letting the page fall into a broken shared-shell state.
+## Changes (visual / Tailwind only)
 
-2. **Make the admin shell resilient to lazy-load failures**
-   - Remove or reduce lazy loading for the critical admin path modules that are blanking the screen (`DashboardLayout`, and if needed the always-mounted global overlays).
-   - For non-critical global UI like `ProfilePage` and `AIONFloatingWidget`, keep them from taking down the whole route if their import fails.
+1. **`src/components/navigation/HubModalHost.tsx`**
+   - Keep root container `bg-background` and add an extra solid layer class to guarantee no translucency (e.g. replace with `bg-background` + ensure no `/xx` opacity).
+   - Change header from `bg-background/95 backdrop-blur-xl` → `bg-background` (drop opacity + blur) so the top bar matches the body.
+   - Wrap `<HubBody>` in a `bg-background` container so each hub's content sits on a solid surface regardless of the inner wrapper.
 
-3. **Keep the admin page isolated from unrelated global chrome failures**
-   - Ensure the admin hub can still render even if optional global overlays/widgets fail.
-   - Preserve the existing admin content structure (`AdminLayoutWrapper` → `AdminHub`) without changing business logic.
-
-4. **Validate the actual route**
-   - Re-test `/admin-hub` in preview after the changes.
-   - Confirm the page renders instead of showing the generic crash card.
-
-## Files likely involved
-- `src/App.tsx`
-- `src/components/layout/ProtectedAppShell.tsx`
-- `src/components/dashboard/DashboardLayout.tsx`
-- `src/pages/ProfilePage.tsx`
-- `src/components/orb/AIONFloatingWidget.tsx`
+2. No changes to the inner hub pages — the wrapping container in `HubModalHost` will guarantee opacity for all four hubs uniformly.
 
 ## Out of scope
-- No redesign of the admin UI.
-- No database or backend changes unless a new signal shows a data-layer error.
+- No layout, spacing, typography, or behavior changes.
+- No changes to colors/tokens themselves — still using semantic `bg-background`.
+- No edits to individual hub pages or business logic.
+
+## Validation
+- Open each hub (FM, MindOS, Community, Study) from the bottom tab bar and confirm the modal fully covers the underlying page with no see-through.
