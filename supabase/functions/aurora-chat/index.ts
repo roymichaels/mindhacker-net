@@ -14,6 +14,7 @@ import { fetchWithTimeout } from "../_shared/fetchWithRetry.ts";
 import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
 import { optionalAuth } from "../_shared/auth.ts";
+import { aiChatCompletion, getProvider } from "../_shared/aiGateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,15 +122,11 @@ serve(async (req) => {
     // 5. Call LLM with timeout (Layer 3 - model call)
     let response: Response;
     try {
-      response = await fetchWithTimeout(
-        "https://ai.gateway.lovable.dev/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + Deno.env.get("LOVABLE_API_KEY"),
-          },
-          body: JSON.stringify({
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 90_000);
+      try {
+        response = await aiChatCompletion(
+          {
             model,
             messages: [
               { role: "system", content: orchestrated.systemPrompt },
@@ -138,10 +135,13 @@ serve(async (req) => {
             stream: true,
             max_tokens: orchestrated.maxTokens,
             temperature: orchestrated.temperature,
-          }),
-        },
-        90_000 // 90s timeout
-      );
+          },
+          { signal: controller.signal }
+        );
+      } finally {
+        clearTimeout(timer);
+      }
+      console.log("[aurora-chat] provider: " + getProvider());
     } catch (timeoutErr) {
       // Circuit breaker: AI gateway timed out — return degraded response
       console.error("AI Gateway timeout, returning fallback:", timeoutErr);
