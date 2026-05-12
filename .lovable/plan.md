@@ -1,20 +1,19 @@
 ## Problem
 
-The page content is wrapped inside a secondary "world surface" card (`StorySurfaceHost`) — a max-width 1380px rounded-[32px] bordered container that sits on top of the `StoryWorldShell` background scene. On mobile this:
+The AION floating orb (bottom-right) is wrapped in three decorative layers in `src/components/orb/AIONFloatingWidget.tsx`:
 
-- creates the visible bordered card with a leaking right edge (the AION orb sits outside it)
-- shifts content right and clips the page chrome
-- appears across all main hubs (`/mindos`, `/fm`, `/community`, `/learn`, `/strategy`, `/work`)
+1. A cyan blur halo (`inset-[-22px] bg-cyan-400/20 blur-2xl`)
+2. A rotating cyan ring with radial gradient (`inset-[-10px] border border-cyan-300/25 bg-[radial-gradient...]`)
+3. A dark slate disk with cyan border + shadow that the orb sits inside (`border-cyan-200/35 bg-slate-950/80 shadow-[0_0_40px_rgba(34,211,238,0.4)] overflow-hidden`)
+
+Together they form the "outsider container" the user sees around the orb.
 
 ## Fix
 
-Disable both world-shell wrappers app-wide so each page renders directly inside the main scroll container with no inner card.
+Edit only `src/components/orb/AIONFloatingWidget.tsx`:
 
-In `src/lib/featureFlags.ts`:
+- Remove the two outer decorative divs (halo + rotating ring).
+- Remove the dark slate disk wrapper around `OrganicOrbCanvas`; render the canvas directly inside the motion wrapper so only the orb itself is visible (transparent background, no border/shadow).
+- Keep the floating motion, hover/tap scale, the AION pill (desktop only), the chat-panel toggle, and the hidden-routes logic untouched.
 
-- Default `enableStoryWorld` → `false` (removes the background scene + decorative orb overlay layer in `DashboardLayout`).
-- Default `enableModalWorldShell` → `false` (makes `StorySurfaceHost` a transparent passthrough that renders `children` directly, removing the rounded inner card and its title bar).
-
-No component logic changes; the env vars still allow re-enabling later. Header, bottom tab bar, AION dock, and page contents stay intact — they just sit flat against the page background instead of inside a nested card.
-
-Single file edit: `src/lib/featureFlags.ts`.
+Single file change, presentation only.

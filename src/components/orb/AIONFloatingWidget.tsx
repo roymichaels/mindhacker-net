@@ -66,22 +66,7 @@ function AIONFloatingWidgetInner() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.94 }}
             >
-              <motion.div
-                className="absolute inset-[-22px] rounded-full bg-cyan-400/20 blur-2xl"
-                animate={{ scale: [1, 1.08, 0.96, 1], opacity: [0.55, 0.82, 0.62, 0.55] }}
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.div
-                className="absolute inset-[-10px] rounded-full border border-cyan-300/25 bg-[radial-gradient(circle,rgba(34,211,238,0.16),transparent_68%)]"
-                animate={{ rotate: [0, 360], scale: [1, 1.03, 1] }}
-                transition={{
-                  rotate: { duration: 18, repeat: Infinity, ease: 'linear' },
-                  scale: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
-                }}
-              />
-              <div className="relative rounded-full border border-cyan-200/35 bg-slate-950/80 shadow-[0_0_40px_rgba(34,211,238,0.4)] overflow-hidden">
-                <OrganicOrbCanvas profile={profile} size={ORB_SIZE} />
-              </div>
+              <OrganicOrbCanvas profile={profile} size={ORB_SIZE} />
             </motion.div>
           </motion.button>
         )}
