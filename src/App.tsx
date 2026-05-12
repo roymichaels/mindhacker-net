@@ -91,6 +91,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 // ShellV2 — Phase 1 dev preview route (`/__shellv2`).
 const ShellV2DevPage = lazy(() => import("./shellv2/dev/ShellV2DevPage"));
 const BrainPage = lazy(() => import("./pages/BrainPage"));
+const SummonRoute = lazy(() => import("./shellv2/SummonRoute"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -337,7 +338,18 @@ const App = () => (
                                                 {/* Flat top-level environments (replaces MindOS hub) */}
                                                 <Route path="/aurora" element={<AuroraPage />} />
                                                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
-                                                <Route path="/strategy" element={<StrategyPage />} />
+                                                {/* Phase 5: when ff_shell_v2 is on, /strategy summons the
+                                                    `plan` artifact inside ShellV2; otherwise legacy page. */}
+                                                <Route
+                                                  path="/strategy"
+                                                  element={
+                                                    <SummonRoute
+                                                      kind="plan"
+                                                      fullscreen
+                                                      fallback={<StrategyPage />}
+                                                    />
+                                                  }
+                                                />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
                                                 {/* Hallway routes retired in Phase 3.1 — rooms are now
                                                     swipeable lenses inside PresenceShell, not destinations.
@@ -351,7 +363,17 @@ const App = () => (
                                                 <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/mindos/work" element={<MindOSWorkPage />} />
                                                 <Route path="/mindos/journal" element={<MindOSJournalPage />} />
-                                                <Route path="/journal" element={<JournalingHub />} />
+                                                <Route
+                                                  path="/journal"
+                                                  element={
+                                                    <SummonRoute
+                                                      kind="today-list"
+                                                      params={{ source: 'journal' }}
+                                                      fullscreen
+                                                      fallback={<JournalingHub />}
+                                                    />
+                                                  }
+                                                />
                                                 <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
