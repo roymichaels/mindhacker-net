@@ -293,3 +293,13 @@ No DB migration required for this phase. Artifacts ride in the message JSON.
 ---
 
 When you say **"build phase 1"** of section 15 I'll start. Nothing is touched yet.
+
+---
+
+### Phase 1 — shipped
+
+- `src/lib/clientFlags.ts` — runtime flag store (`?ff_interactive_mode=1` to enable).
+- `src/components/aion/InteractiveAION.tsx` — full-bleed surface, orb anchored to ~52vh, auto-hide chrome (3s), state-driven radial backdrop, secondary composer.
+- `src/pages/AuroraPage.tsx` — renders InteractiveAION when flag is on (assessment flows still use compact chat).
+
+Next: Phase 2 (`useVoiceLoop` hold-to-talk + hands-free) and Phase 3 (LiveCaption from active conversation).
