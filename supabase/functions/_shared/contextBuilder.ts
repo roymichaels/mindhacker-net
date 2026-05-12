@@ -482,6 +482,34 @@ export async function buildContext(
     })(),
     // User subscription tier
     supabase.from("user_subscriptions").select("tier_id, status, subscription_tiers(name)").eq("user_id", userId).eq("status", "active").limit(1).maybeSingle(),
+    // Intake — pillar confidence
+    supabase.from("pillar_confidence")
+      .select("pillar_id, confidence, signal_count, gaps, last_signal_at, last_probed_at")
+      .eq("user_id", userId),
+    // Intake — open contradictions (most recent first), join the two graph nodes
+    (async () => {
+      const { data: rows } = await supabase
+        .from("aurora_contradictions")
+        .select("id, pillar_id, explanation, statement_a, statement_b, detected_at")
+        .eq("user_id", userId)
+        .eq("status", "open")
+        .order("detected_at", { ascending: false })
+        .limit(5);
+      if (!rows || rows.length === 0) return { data: [], error: null };
+      const ids = Array.from(new Set(rows.flatMap((r: any) => [r.statement_a, r.statement_b]).filter(Boolean)));
+      const { data: nodes } = ids.length
+        ? await supabase.from("aurora_memory_graph").select("id, content").in("id", ids)
+        : { data: [] as any[] };
+      const map = new Map((nodes || []).map((n: any) => [n.id, n.content]));
+      return { data: rows.map((r: any) => ({
+        id: r.id,
+        pillar_id: r.pillar_id,
+        explanation: r.explanation,
+        statement_a: map.get(r.statement_a) ?? null,
+        statement_b: map.get(r.statement_b) ?? null,
+        detected_at: r.detected_at,
+      })), error: null };
+    })(),
   ]);
 
   const profile = profileRes.data;
