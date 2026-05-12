@@ -38,8 +38,8 @@ export function HubModalHost() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed inset-0 z-[70] bg-background flex flex-col"
-          style={{ backgroundColor: 'hsl(var(--background))', zIndex: 70 }}
+          className="fixed inset-0 z-[95] bg-background flex flex-col"
+          style={{ backgroundColor: 'hsl(var(--background))', zIndex: 95 }}
         >
           <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border bg-background shrink-0">
             <div className="flex items-center gap-2 min-w-0">
