@@ -272,8 +272,8 @@ const App = () => (
                                             <Routes>
                                               {/* Public routes */}
                                               <Route path="/" element={<Index />} />
-                                              <Route path="/index" element={<Navigate to="/aurora" replace />} />
-                                              <Route path="/home" element={<Navigate to="/aurora" replace />} />
+                                              <Route path="/index" element={<Navigate to="/dashboard" replace />} />
+                                              <Route path="/home" element={<Navigate to="/dashboard" replace />} />
                                               <Route path="/landing" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
                                               <Route path="/blog/:slug" element={<BlogPost />} />
