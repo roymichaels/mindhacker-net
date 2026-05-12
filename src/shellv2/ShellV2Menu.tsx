@@ -39,7 +39,7 @@ export default function ShellV2Menu() {
       onSelect: () => overlay.open('aion'),
     },
     { label: 'Settings', icon: Settings, onSelect: () => go('/subscriptions') },
-    { label: 'Outer World', icon: Globe2, onSelect: () => go('/coaches') },
+    { label: 'Outer World', icon: Globe2, onSelect: () => go('/outer-world') },
     { label: 'Account', icon: User, onSelect: () => go('/profile') },
     {
       label: 'Sign out',
