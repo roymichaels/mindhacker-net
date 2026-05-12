@@ -885,6 +885,76 @@ export type Database = {
         }
         Relationships: []
       }
+      aurora_contradictions: {
+        Row: {
+          aion_note: string | null
+          created_at: string
+          detected_at: string
+          explanation: string
+          id: string
+          pillar_id: string | null
+          resolved_at: string | null
+          statement_a: string | null
+          statement_b: string | null
+          status: string
+          surfaced_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aion_note?: string | null
+          created_at?: string
+          detected_at?: string
+          explanation: string
+          id?: string
+          pillar_id?: string | null
+          resolved_at?: string | null
+          statement_a?: string | null
+          statement_b?: string | null
+          status?: string
+          surfaced_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aion_note?: string | null
+          created_at?: string
+          detected_at?: string
+          explanation?: string
+          id?: string
+          pillar_id?: string | null
+          resolved_at?: string | null
+          statement_a?: string | null
+          statement_b?: string | null
+          status?: string
+          surfaced_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aurora_contradictions_statement_a_fkey"
+            columns: ["statement_a"]
+            isOneToOne: false
+            referencedRelation: "aurora_memory_graph"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aurora_contradictions_statement_b_fkey"
+            columns: ["statement_b"]
+            isOneToOne: false
+            referencedRelation: "aurora_memory_graph"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aurora_contradictions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aurora_conversation_memory: {
         Row: {
           action_items: string[] | null
@@ -6922,6 +6992,53 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      pillar_confidence: {
+        Row: {
+          confidence: number
+          created_at: string
+          gaps: Json
+          id: string
+          last_probed_at: string | null
+          last_signal_at: string | null
+          pillar_id: string
+          signal_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence?: number
+          created_at?: string
+          gaps?: Json
+          id?: string
+          last_probed_at?: string | null
+          last_signal_at?: string | null
+          pillar_id: string
+          signal_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number
+          created_at?: string
+          gaps?: Json
+          id?: string
+          last_probed_at?: string | null
+          last_signal_at?: string | null
+          pillar_id?: string
+          signal_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pillar_confidence_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plan_missions: {
         Row: {
