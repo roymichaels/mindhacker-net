@@ -79,7 +79,7 @@ async function decideForUser(admin: any, userId: string, force: boolean) {
 
   if (!force && existing?.updated_at) {
     const ageMs = Date.now() - new Date(existing.updated_at).getTime();
-    if (ageMs < 60_000) return { ...existing, debounced: true };
+    if (ageMs < 20_000) return { ...existing, debounced: true };
   }
 
   const { data: signals } = await admin
@@ -103,6 +103,57 @@ async function decideForUser(admin: any, userId: string, force: boolean) {
       : null,
   };
 
+  function heuristicDecision() {
+    const sigs = signals ?? [];
+    const hour = new Date().getUTCHours();
+    let mode: string = "neutral";
+    let tone: string = "grounded";
+    let density: string = "standard";
+    // Tone signals from recent emotion/intent events
+    const lastEmotion = sigs.find((s: any) => s.kind === "emotion.detected");
+    const valence = lastEmotion?.payload?.valence ?? 0;
+    const arousal = lastEmotion?.payload?.arousal ?? 0;
+    const burst = sigs.filter((s: any) => Date.now() - new Date(s.created_at).getTime() < 5 * 60_000).length;
+    if (burst >= 12 || (arousal > 0.7 && valence < 0)) {
+      mode = "overwhelmed"; tone = "gentle"; density = "minimal";
+    } else if (hour >= 22 || hour < 5) {
+      mode = "recovery"; tone = "gentle"; density = "minimal";
+    } else if (sigs.some((s: any) => s.kind === "action.completed")) {
+      mode = "focus"; tone = "energizing"; density = "rich";
+    } else if (valence > 0.4) {
+      mode = "flow"; tone = "energizing"; density = "rich";
+    }
+    return {
+      mode, tone, density,
+      focus_target: { type: "none" },
+      suggestion: { action: "none" },
+      reasoning: `heuristic: hour=${hour} burst=${burst} valence=${valence} arousal=${arousal}`,
+    };
+  }
+
+  async function persist(decision: any, source: "llm" | "heuristic") {
+    const row = {
+      user_id: userId,
+      mode: decision.mode,
+      tone: decision.tone,
+      density: decision.density,
+      focus_target: decision.focus_target ?? {},
+      suggestion: decision.suggestion ?? {},
+      reasoning: decision.reasoning ?? null,
+      signals_snapshot: snapshot,
+      source,
+      expires_at: new Date(Date.now() + 10 * 60_000).toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    const { data: upserted, error } = await admin
+      .from("aion_decisions")
+      .upsert(row, { onConflict: "user_id" })
+      .select()
+      .single();
+    if (error) throw error;
+    return upserted;
+  }
+
   const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -110,7 +161,7 @@ async function decideForUser(admin: any, userId: string, force: boolean) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: "google/gemini-2.5-flash-lite",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: JSON.stringify(snapshot) },
@@ -121,38 +172,26 @@ async function decideForUser(admin: any, userId: string, force: boolean) {
   });
 
   if (!aiResp.ok) {
-    if (existing) return { ...existing, stale: true };
-    throw new Error(`AI gateway ${aiResp.status}`);
+    const bodyText = await aiResp.text().catch(() => "");
+    console.warn(`[aion-brain] gateway ${aiResp.status}: ${bodyText.slice(0, 300)} — falling back to heuristic`);
+    return await persist(heuristicDecision(), "heuristic");
   }
 
   const aiJson = await aiResp.json();
   const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
   if (!toolCall) {
-    if (existing) return { ...existing, stale: true };
-    throw new Error("No tool call returned");
+    const msg = aiJson.choices?.[0]?.message;
+    console.warn(`[aion-brain] no tool_call returned, message=${JSON.stringify(msg)?.slice(0, 300)} — falling back to heuristic`);
+    return await persist(heuristicDecision(), "heuristic");
   }
-  const decision = JSON.parse(toolCall.function.arguments);
-
-  const row = {
-    user_id: userId,
-    mode: decision.mode,
-    tone: decision.tone,
-    density: decision.density,
-    focus_target: decision.focus_target ?? {},
-    suggestion: decision.suggestion ?? {},
-    reasoning: decision.reasoning ?? null,
-    signals_snapshot: snapshot,
-    expires_at: new Date(Date.now() + 10 * 60_000).toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  const { data: upserted, error } = await admin
-    .from("aion_decisions")
-    .upsert(row, { onConflict: "user_id" })
-    .select()
-    .single();
-  if (error) throw error;
-  return upserted;
+  let decision: any;
+  try {
+    decision = JSON.parse(toolCall.function.arguments);
+  } catch (e) {
+    console.warn(`[aion-brain] tool_call args parse failed — falling back to heuristic`, e);
+    return await persist(heuristicDecision(), "heuristic");
+  }
+  return await persist(decision, "llm");
 }
 
 serve(async (req) => {
