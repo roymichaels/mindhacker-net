@@ -44,6 +44,17 @@ export async function getJournalEntries(userId: string, type: JournalType, limit
   return (data || []) as unknown as JournalEntry[];
 }
 
+export async function getAllJournalEntries(userId: string, limit = 50): Promise<JournalEntry[]> {
+  const { data, error } = await supabase
+    .from('journal_entries')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []) as unknown as JournalEntry[];
+}
+
 export async function createJournalEntry(input: {
   user_id: string;
   journal_type: JournalType;
