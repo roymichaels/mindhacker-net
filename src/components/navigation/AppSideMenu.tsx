@@ -22,12 +22,15 @@ import {
   Gem,
   Bell,
   Search,
+  Download,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { UserNotificationPanel } from '@/components/UserNotificationPanel';
 import { useUserNotifications } from '@/hooks/useUserNotifications';
 import { AuroraSearchBar } from '@/components/aurora/AuroraSearchBar';
+import { PWAInstallModal } from '@/components/PWAInstallModal';
+import { usePWA } from '@/hooks/usePWA';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -55,6 +58,7 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
   const [bugOpen, setBugOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [installOpen, setInstallOpen] = useState(false);
   const { user } = useAuth();
   const { language, isRTL } = useTranslation();
   const { setLanguage } = useLanguage();
@@ -66,6 +70,17 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
   const { openProfile } = useProfileModal();
   const dashboard = useUnifiedDashboard();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useUserNotifications();
+  const { isInstalled, canPromptInstall, promptInstall } = usePWA();
+
+  const handleInstallClick = async () => {
+    close();
+    if (canPromptInstall) {
+      const accepted = await promptInstall();
+      if (!accepted) setInstallOpen(true);
+    } else {
+      setInstallOpen(true);
+    }
+  };
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -230,6 +245,13 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
             </div>
 
             <div className="px-3 py-2 border-t border-white/5">
+              {!isInstalled && (
+                <MenuItem
+                  icon={Download}
+                  label={language === 'he' ? 'התקן כאפליקציה' : 'Install app'}
+                  onClick={handleInstallClick}
+                />
+              )}
               <MenuItem icon={Bug} label={language === 'he' ? 'דווח על באג' : 'Report a bug'} onClick={() => { close(); setBugOpen(true); }} />
               <MenuItem icon={LogOut} label={language === 'he' ? 'התנתק' : 'Sign out'} onClick={handleSignOut} destructive />
             </div>
@@ -239,6 +261,7 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
 
       <UserDocsModal open={docsOpen} onOpenChange={setDocsOpen} />
       <BugReportDialog open={bugOpen} onOpenChange={setBugOpen} />
+      <PWAInstallModal open={installOpen} onOpenChange={setInstallOpen} />
 
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
         <SheetContent
