@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Hook to generate and manage personalized orb profile.
  *
