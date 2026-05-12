@@ -1,42 +1,37 @@
-# Plan: Make AION chat feel like the Lovable mobile app
+# Fix the admin panel crash
 
-Light, scoped UI polish to `src/pages/AuroraPage.tsx` (and supporting bits) so the home chat surface mirrors the Lovable app screenshot.
+## What I found
+- `/admin-hub` currently renders inside the main authenticated shell, but it is **not wrapped with `AdminRoute`** even though that guard already exists.
+- The blank/crash state is **not coming from `AdminHub.tsx` itself**. The browser is failing while loading shared lazy modules used around the admin page:
+  - `src/components/dashboard/DashboardLayout.tsx`
+  - `src/pages/ProfilePage.tsx`
+  - `src/components/orb/AIONFloatingWidget.tsx`
+- That means the admin screen is crashing through the **global shell / global overlays path**, not because the admin tab config is wrong.
 
-## Visual changes
+## Plan
+1. **Protect the admin route correctly**
+   - Wrap `/admin-hub` with the existing `AdminRoute` so role/auth loading finishes before the admin shell renders.
+   - Keep unauthorized users out of the admin UI instead of letting the page fall into a broken shared-shell state.
 
-1. **Top bar** (replace current `AIONHeader` on the home chat only)
-   - Left: circular ghost icon button (hamburger / menu — opens existing left sidebar/profile drawer)
-   - Center: pill-shaped selector showing current context (e.g. "MindOS ▾" or active pillar) — tap = no-op for now
-   - Right: circular ghost icon button (▶ play / quick action)
-   - Flat dark, no borders, generous spacing
+2. **Make the admin shell resilient to lazy-load failures**
+   - Remove or reduce lazy loading for the critical admin path modules that are blanking the screen (`DashboardLayout`, and if needed the always-mounted global overlays).
+   - For non-critical global UI like `ProfilePage` and `AIONFloatingWidget`, keep them from taking down the whole route if their import fails.
 
-2. **Conversation surface**
-   - Remove the gradient radial background; use solid near-black (`bg-background`) like Lovable
-   - Center a small timestamp divider ("12 May at 00:52") at the top of each session
-   - User bubbles: pill-shaped, subtle muted gray, right-aligned, italic-friendly
-   - AION replies: no bubble — plain text, left-aligned, muted label like "Thought for Ns" above when applicable
-   - Inline "Edited file.tsx — short reasoning" cards as compact rounded rows with chevron (re-style existing tool/result chips)
+3. **Keep the admin page isolated from unrelated global chrome failures**
+   - Ensure the admin hub can still render even if optional global overlays/widgets fail.
+   - Preserve the existing admin content structure (`AdminLayoutWrapper` → `AdminHub`) without changing business logic.
 
-3. **Suggestion chips row** (just above composer)
-   - Horizontal scroll of 3–4 short prompt chips (use existing quick actions, restyled): rounded-full, dark surface, single-line, fade on right edge
-   - Replaces the current colored gradient quick-action squares on this page only (keep them in the orb modal)
+4. **Validate the actual route**
+   - Re-test `/admin-hub` in preview after the changes.
+   - Confirm the page renders instead of showing the generic crash card.
 
-4. **Composer** (restyle `GlobalChatInput` wrapper on this page)
-   - Single rounded-3xl pill containing placeholder "Queue follow-up…"
-   - Bottom row inside the pill: left = `+` and `…` ghost circles; right = map/route, mic, send/stop circles
-   - Soft inner border, no harsh top divider
-
-5. **Spacing & chrome**
-   - Tighten vertical paddings to match screenshot density
-   - Keep header + bottom tab bar untouched (already correct)
-   - Hide the floating AION orb on this route only (it's redundant when chat is the page)
-
-## Scope guardrails
-- Frontend/presentation only. No routing, data, or backend changes.
-- Changes limited to: `src/pages/AuroraPage.tsx`, a small new `AIONHomeHeader` component, light wrapper styles around `GlobalChatInput` and `AuroraChatBubbles`, and a one-line `HIDDEN_ROUTES` addition in `AIONFloatingWidget.tsx` for `/mindos/chat`.
-- Orb modal (`AIONChatPanel`) keeps its current look — only the home page changes.
+## Files likely involved
+- `src/App.tsx`
+- `src/components/layout/ProtectedAppShell.tsx`
+- `src/components/dashboard/DashboardLayout.tsx`
+- `src/pages/ProfilePage.tsx`
+- `src/components/orb/AIONFloatingWidget.tsx`
 
 ## Out of scope
-- Building a real project switcher / menu drawer behavior
-- Restyling messages globally (only on the home chat surface)
-- Any change to AI behavior, tools, or message data shape
+- No redesign of the admin UI.
+- No database or backend changes unless a new signal shows a data-layer error.
