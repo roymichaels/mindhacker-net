@@ -12,7 +12,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 
 const PREFIX = 'aion.flag.';
 
-export type ClientFlag = 'interactive_mode';
+export type ClientFlag = 'interactive_mode' | 'shell_v2';
 
 const listeners = new Set<() => void>();
 function emit() { listeners.forEach((l) => l()); }
