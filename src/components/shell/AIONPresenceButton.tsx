@@ -11,37 +11,27 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { recordSignal } from '@/services/aionSignals';
 import { cn } from '@/lib/utils';
 import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
+import OrbView, { type OrbViewState } from '@/components/orb/v2/OrbView';
 
 interface PresenceVisual {
   hue: string;
-  pulse: 'slow' | 'medium' | 'fast';
+  state: OrbViewState;
+  pulseDuration: number;
 }
 
 function visualForMode(mode: string | undefined, isStreaming: boolean): PresenceVisual {
-  if (isStreaming) return { hue: 'hsl(var(--primary))', pulse: 'fast' };
+  if (isStreaming) return { hue: 'hsl(var(--primary))', state: 'responding', pulseDuration: 1.4 };
   switch (mode) {
-    case 'focus':
-      return { hue: 'hsl(265 90% 65%)', pulse: 'medium' };
-    case 'recovery':
-      return { hue: 'hsl(20 85% 65%)', pulse: 'slow' };
-    case 'flow':
-      return { hue: 'hsl(180 80% 60%)', pulse: 'medium' };
-    case 'overwhelmed':
-      return { hue: 'hsl(350 85% 65%)', pulse: 'fast' };
-    case 'hypnosis':
-      return { hue: 'hsl(290 80% 65%)', pulse: 'slow' };
+    case 'focus':       return { hue: 'hsl(265 90% 65%)', state: 'focus',     pulseDuration: 2.6 };
+    case 'recovery':    return { hue: 'hsl(20 85% 65%)',  state: 'recovery',  pulseDuration: 4.5 };
+    case 'flow':        return { hue: 'hsl(180 80% 60%)', state: 'thinking',  pulseDuration: 2.6 };
+    case 'overwhelmed': return { hue: 'hsl(350 85% 65%)', state: 'thinking',  pulseDuration: 1.4 };
+    case 'hypnosis':    return { hue: 'hsl(290 80% 65%)', state: 'hypnosis',  pulseDuration: 4.5 };
     case 'calm':
     case 'neutral':
-    default:
-      return { hue: 'hsl(var(--primary))', pulse: 'slow' };
+    default:            return { hue: 'hsl(var(--primary))', state: 'idle',   pulseDuration: 4.5 };
   }
 }
-
-const PULSE_DURATION: Record<PresenceVisual['pulse'], number> = {
-  slow: 4.5,
-  medium: 2.6,
-  fast: 1.4,
-};
 
 export function AIONPresenceButton({ compact = false }: { compact?: boolean }) {
   const { language } = useTranslation();
@@ -58,7 +48,7 @@ export function AIONPresenceButton({ compact = false }: { compact?: boolean }) {
     openInteractiveAION();
   };
 
-  const size = compact ? 32 : 36;
+  const size = compact ? 44 : 56;
 
   return (
     <button
@@ -71,30 +61,28 @@ export function AIONPresenceButton({ compact = false }: { compact?: boolean }) {
       )}
       style={{ width: size, height: size }}
     >
-      {/* Outer pulse ring */}
+      {/* Ambient halo — palette-matched, pulsing */}
       <motion.span
         aria-hidden
         className="absolute inset-0 rounded-full"
         style={{
           background: `radial-gradient(circle, ${visual.hue} 0%, transparent 70%)`,
-          opacity: 0.5,
+          opacity: 0.45,
+          filter: 'blur(2px)',
         }}
-        animate={{ scale: [1, 1.35, 1], opacity: [0.45, 0.15, 0.45] }}
+        animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0.1, 0.4] }}
         transition={{
-          duration: PULSE_DURATION[visual.pulse],
+          duration: visual.pulseDuration,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
       />
-      {/* Core orb */}
-      <span
-        className="relative inline-block rounded-full ring-1 ring-white/25"
-        style={{
-          width: size - 14,
-          height: size - 14,
-          background: `radial-gradient(circle at 30% 30%, hsl(0 0% 100% / 0.6), ${visual.hue} 60%, hsl(0 0% 0% / 0.5) 100%)`,
-          boxShadow: `0 0 18px ${visual.hue}`,
-        }}
+      {/* Living core — real-time WebGL orb tunneled into shared stage */}
+      <OrbView
+        size={size - 8}
+        state={visual.state}
+        tintHue={visual.hue}
+        className="relative"
       />
     </button>
   );
