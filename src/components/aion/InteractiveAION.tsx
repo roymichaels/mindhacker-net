@@ -12,11 +12,13 @@
  * Voice loop, artifacts, hypnosis layer, focus modifier, and pull-up
  * chat history sheet are NOT in this phase.
  */
-import { useEffect, useRef, useState } from 'react';
-import { Menu } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Menu, Mic, MicOff } from 'lucide-react';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { useOverlay } from '@/shell/overlay/OverlayController';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
+import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import { cn } from '@/lib/utils';
 
@@ -36,11 +38,29 @@ function mapToOrbState(s: ReturnType<typeof useAIONState>['state']) {
 }
 
 export default function InteractiveAION() {
-  const { state } = useAIONState();
+  const { state, setState } = useAIONState();
   const overlay = useOverlay();
+  const { sendMessageRef } = useAuroraChatContext();
   const [chromeVisible, setChromeVisible] = useState(true);
   const hideTimerRef = useRef<number | null>(null);
   const [orbSize, setOrbSize] = useState(320);
+
+  // Voice loop — re-uses existing transcribe + TTS pipeline.
+  const voice = useAuroraVoiceMode({
+    useGlobalResponseEvent: true,
+    onSend: useCallback((text: string) => {
+      sendMessageRef.current?.(text);
+    }, [sendMessageRef]),
+  });
+
+  // Mirror voice state → AION live state so the orb reacts.
+  useEffect(() => {
+    if (!voice.isActive) return;
+    if (voice.state === 'listening') setState('listening');
+    else if (voice.state === 'processing') setState('thinking');
+    else if (voice.state === 'speaking') setState('speaking');
+    else setState('idle');
+  }, [voice.isActive, voice.state, setState]);
 
   // Scale orb to viewport so it dominates the upper half on phones.
   useEffect(() => {
@@ -77,6 +97,22 @@ export default function InteractiveAION() {
     : state === 'listening' ? 'from-primary/15'
     : state === 'immersive' ? 'from-primary/30'
     : 'from-primary/10';
+
+  const toggleVoice = useCallback(() => {
+    if (voice.isActive) voice.close();
+    else voice.open();
+  }, [voice]);
+
+  // Live caption — prefers user's live transcript, then assistant response.
+  const caption =
+    voice.isActive && voice.state === 'listening' && voice.userTranscript
+      ? voice.userTranscript
+      : voice.auroraResponse || (
+        state === 'listening' ? 'מקשיב...' :
+        state === 'thinking' ? 'חושב...' :
+        state === 'speaking' ? '...' :
+        'דבר אליי, או הקלד למטה.'
+      );
 
   return (
     <div className="fixed inset-0 z-30 bg-background overflow-hidden touch-none select-none">
@@ -117,24 +153,40 @@ export default function InteractiveAION() {
         <div className="h-11 w-11" aria-hidden />
       </div>
 
-      {/* Orb stage — the anchor */}
-      <div className="absolute inset-x-0 top-[14%] flex justify-center pointer-events-none">
+      {/* Orb stage — tap toggles voice. */}
+      <button
+        type="button"
+        aria-label={voice.isActive ? 'Stop voice' : 'Start voice'}
+        onClick={toggleVoice}
+        className="absolute inset-x-0 top-[14%] flex justify-center bg-transparent border-0 outline-none"
+      >
         <PersonalizedOrb
           size={orbSize}
           state={mapToOrbState(state)}
           showGlow
         />
+      </button>
+
+      {/* Live caption */}
+      <div className="absolute inset-x-6 bottom-[160px] text-center text-foreground/80 text-base leading-relaxed min-h-[3em]">
+        <span className="opacity-90">{caption}</span>
       </div>
 
-      {/* Live caption placeholder (Phase 3 wires real content). */}
-      <div className="absolute inset-x-0 top-[calc(14%+var(--orb-h,0px))]" />
-      <div className="absolute inset-x-6 bottom-[148px] text-center text-foreground/70 text-base leading-relaxed">
-        {state === 'listening' && 'מקשיב...'}
-        {state === 'thinking' && 'חושב...'}
-        {state === 'speaking' && '...'}
-        {(state === 'idle' || state === 'guiding' || state === 'immersive') && (
-          <span className="opacity-70">דבר אליי, או הקלד למטה.</span>
-        )}
+      {/* Voice toggle pill */}
+      <div className="absolute inset-x-0 bottom-[112px] flex justify-center">
+        <button
+          type="button"
+          onClick={toggleVoice}
+          className={cn(
+            'h-10 px-4 rounded-full backdrop-blur-md border text-xs font-medium flex items-center gap-2 transition-colors',
+            voice.isActive
+              ? 'bg-primary/20 border-primary/40 text-primary-foreground'
+              : 'bg-card/40 border-white/10 text-foreground/80'
+          )}
+        >
+          {voice.isActive ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+          {voice.isActive ? 'מצב קולי פעיל' : 'מצב קולי'}
+        </button>
       </div>
 
       {/* Composer — secondary, minimal */}
