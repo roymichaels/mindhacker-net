@@ -55,6 +55,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const proactiveHandled = useRef(false);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
@@ -115,20 +116,60 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
     if (!pendingAssistantGreeting) greetingHandled.current = false;
   }, [pendingAssistantGreeting]);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollToMessageId) return;
-    // The scroll container is an ancestor with overflow-y-auto, not scrollRef itself.
+  // Resolve the nearest scrollable ancestor once.
+  const getScrollParent = useCallback((): HTMLElement | null => {
     let el: HTMLElement | null = scrollRef.current;
     while (el && el !== document.body) {
       const style = window.getComputedStyle(el);
-      if (/(auto|scroll)/.test(style.overflowY)) {
-        el.scrollTop = el.scrollHeight;
-        break;
-      }
+      if (/(auto|scroll)/.test(style.overflowY)) return el;
       el = el.parentElement;
     }
-  }, [messages, streamingContent, scrollToMessageId, isStreaming]);
+    return null;
+  }, []);
+
+  const scrollToBottom = useCallback((smooth = false) => {
+    const parent = getScrollParent();
+    if (parent) {
+      parent.scrollTo({ top: parent.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+    }
+    bottomRef.current?.scrollIntoView({ block: 'end', behavior: smooth ? 'smooth' : 'auto' });
+  }, [getScrollParent]);
+
+  // Auto-scroll to bottom on every message / streaming chunk. Double rAF
+  // ensures layout (including markdown reflow) has settled before we pin.
+  useEffect(() => {
+    if (scrollToMessageId) return;
+    let raf1 = 0, raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => scrollToBottom(false));
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [messages, streamingContent, isStreaming, scrollToMessageId, scrollToBottom]);
+
+  // While streaming, content height grows between React renders (token
+  // batching, image loads, markdown). Pin to the bottom on a tight interval
+  // until the stream ends.
+  useEffect(() => {
+    if (!isStreaming || scrollToMessageId) return;
+    const id = window.setInterval(() => scrollToBottom(false), 120);
+    return () => window.clearInterval(id);
+  }, [isStreaming, scrollToMessageId, scrollToBottom]);
+
+  // Observe the messages container for any size mutation (images decoding,
+  // late layout) and re-pin to bottom.
+  useEffect(() => {
+    const target = scrollRef.current;
+    if (!target || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      if (scrollToMessageId) return;
+      scrollToBottom(false);
+    });
+    ro.observe(target);
+    return () => ro.disconnect();
+  }, [scrollToBottom, scrollToMessageId]);
 
   // Scroll to specific message when searching
   useEffect(() => {
@@ -333,6 +374,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             </Button>
           </motion.div>
         )}
+        {/* Bottom anchor — always pinned target for auto-scroll. */}
+        <div ref={bottomRef} aria-hidden className="h-px w-full" />
     </div>
   );
 };
