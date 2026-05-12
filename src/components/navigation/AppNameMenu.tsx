@@ -9,13 +9,13 @@
  *   └────────────────────────────────────┘
  */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Menu, ChevronDown, Home } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OS_TABS } from '@/navigation/osNav';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
+import { useHubModal, type HubId } from '@/contexts/HubModalContext';
 import { cn } from '@/lib/utils';
 
 interface AppNameMenuProps {
@@ -26,19 +26,18 @@ interface AppNameMenuProps {
 export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProps) {
   const { language, isRTL } = useTranslation();
   const { theme: brandTheme } = useThemeSettings();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { openHub } = useHubModal();
 
-  const go = (path: string) => {
+  const go = (id: HubId) => {
     setOpen(false);
-    navigate(path);
+    openHub(id);
   };
 
   const navItems = [
-    { id: 'home', path: '/dashboard', icon: Home, labelEn: 'Home', labelHe: 'בית' },
+    { id: 'home' as HubId, icon: Home, labelEn: 'Home', labelHe: 'בית' },
     ...OS_TABS.map((t) => ({
-      id: t.id,
-      path: t.path,
+      id: t.id as HubId,
       icon: t.icon,
       labelEn: t.labelEn,
       labelHe: t.labelHe,
@@ -99,7 +98,7 @@ export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProp
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => go(item.path)}
+                    onClick={() => go(item.id)}
                     className="w-full h-9 flex items-center gap-2.5 px-2.5 rounded-lg text-[13.5px] font-medium transition-colors text-start text-foreground/90 hover:bg-white/[0.05]"
                   >
                     <Icon className="h-4 w-4 shrink-0 opacity-75" />

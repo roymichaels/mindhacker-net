@@ -5,20 +5,36 @@ import { useHubModal, type HubId } from '@/contexts/HubModalContext';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
+const DashboardLayoutWrapper = lazy(() => import('@/components/dashboard/DashboardLayoutWrapper'));
 const FMMarketLayoutWrapper = lazy(() => import('@/components/fm/FMMarketLayoutWrapper'));
 const CommunityLayoutWrapper = lazy(() => import('@/components/community/CommunityLayoutWrapper'));
 const LearnLayoutWrapper = lazy(() => import('@/components/learn/LearnLayoutWrapper'));
+const StrategyPage = lazy(() => import('@/pages/StrategyPage'));
+const HypnosisPage = lazy(() => import('@/pages/HypnosisPage'));
+const JournalingHub = lazy(() => import('@/pages/JournalingHub'));
 
 const HUB_META: Record<HubId, { title: string; accent: string }> = {
+  home: { title: 'Home', accent: 'bg-primary' },
   fm: { title: 'Free Market', accent: 'bg-amber-400' },
+  strategy: { title: 'Strategy', accent: 'bg-sky-400' },
+  hypnosis: { title: 'Hypnosis', accent: 'bg-fuchsia-400' },
+  journal: { title: 'Journal', accent: 'bg-rose-400' },
   community: { title: 'Community', accent: 'bg-emerald-400' },
   study: { title: 'Study', accent: 'bg-violet-400' },
 };
 
 function HubBody({ hub }: { hub: HubId }) {
   switch (hub) {
+    case 'home':
+      return <DashboardLayoutWrapper />;
     case 'fm':
       return <FMMarketLayoutWrapper />;
+    case 'strategy':
+      return <StrategyPage />;
+    case 'hypnosis':
+      return <HypnosisPage />;
+    case 'journal':
+      return <JournalingHub />;
     case 'community':
       return <CommunityLayoutWrapper />;
     case 'study':
