@@ -52,7 +52,7 @@ export default function AIONPage() {
           className="fixed inset-x-0 bottom-0 z-40 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-none"
         >
           <div className="mx-auto w-full max-w-screen-md pointer-events-auto">
-            <div className="rounded-3xl border border-white/10 bg-background/80 px-2 py-2 backdrop-blur-xl shadow-lg">
+            <div className="rounded-3xl border border-white/10 bg-background px-2 py-2 backdrop-blur-xl shadow-lg">
               <GlobalChatInput />
             </div>
           </div>

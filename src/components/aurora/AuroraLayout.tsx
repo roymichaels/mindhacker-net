@@ -40,7 +40,7 @@ const AuroraLayout = () => {
         <div className="flex-1 min-h-0 overflow-hidden">
           <AuroraChatArea conversationId={activeConversationId} />
         </div>
-        <div className="shrink-0 px-3 pb-safe pt-2 border-t border-white/[0.05] bg-background/85 backdrop-blur-xl">
+        <div className="shrink-0 px-3 pb-safe pt-2 border-t border-white/[0.05] bg-background backdrop-blur-xl">
           <div className="mx-auto w-full max-w-3xl">
             <GlobalChatInput />
           </div>

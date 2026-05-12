@@ -223,7 +223,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
           </ScrollArea>
 
           {/* Save Button - only show for profile/aurora tabs */}
-          <div className="px-6 py-4 border-t border-border/50 bg-background/80 backdrop-blur-sm">
+          <div className="px-6 py-4 border-t border-border/50 bg-background backdrop-blur-sm">
             <Button
               onClick={handleSave}
               disabled={isSaving || !hasChanges}

@@ -104,7 +104,7 @@ export default function InteractiveAIONHost() {
         onClick={() => setOpen(false)}
         aria-hidden
         className={
-          'fixed inset-0 z-[75] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ' +
+          'fixed inset-0 z-[75] bg-black/85 backdrop-blur-sm transition-opacity duration-300 ' +
           (open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
         }
       />
@@ -129,7 +129,7 @@ export default function InteractiveAIONHost() {
           >
             <Suspense
               fallback={
-                <div className="absolute inset-0 bg-background/95 backdrop-blur-md flex items-center justify-center text-foreground/60 text-sm">
+                <div className="absolute inset-0 bg-background backdrop-blur-md flex items-center justify-center text-foreground/60 text-sm">
                   טוען…
                 </div>
               }

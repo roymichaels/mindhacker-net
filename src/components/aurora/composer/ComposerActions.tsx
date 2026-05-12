@@ -68,7 +68,7 @@ export default function ComposerActions({ onSend, onVoice, onUpload, disabled }:
 
       <SheetContent
         side="bottom"
-        className="rounded-t-3xl border-0 bg-card/95 backdrop-blur-2xl ring-1 ring-white/[0.08] p-0 max-h-[85vh]"
+        className="rounded-t-3xl border-0 bg-card backdrop-blur-2xl ring-1 ring-white/[0.08] p-0 max-h-[85vh]"
       >
         <div className="px-4 pt-3 pb-6" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="mx-auto h-1 w-10 rounded-full bg-white/15 mb-4" />

@@ -41,7 +41,7 @@ export default function AuroraVoiceMode({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[60] flex flex-col items-center justify-between bg-background/95 backdrop-blur-2xl"
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-between bg-background backdrop-blur-2xl"
         >
           {/* Transcript Area */}
           <div className="w-full max-w-md px-6 pt-16 text-center space-y-3 min-h-[120px]">
