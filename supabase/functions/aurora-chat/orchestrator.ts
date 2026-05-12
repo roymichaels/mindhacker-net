@@ -29,12 +29,108 @@ If the user did not explicitly ask for a summary, do not volunteer task lists, d
 
 export type AuroraMode = "full" | "lite" | "widget";
 
+// ─── Context Lanes ─────────────────────────────────────────
+// Hard separation between the 5 cognition layers. Only the lanes
+// requested by the resolved intent are merged into the prompt.
+export type Lane = "live" | "memory" | "planning" | "proactive" | "execution" | "analytics";
+export type LaneSet = Record<Lane, boolean>;
+
+export type IntentKind =
+  | "greeting"
+  | "time_query"
+  | "status_query"
+  | "plan_edit"
+  | "reflection"
+  | "conversational";
+
+export interface IntentResolution {
+  intent: IntentKind;
+  lanes: LaneSet;
+}
+
+const ALL_LANES_OFF: LaneSet = {
+  live: true, // live is always on
+  memory: false,
+  planning: false,
+  proactive: false,
+  execution: false,
+  analytics: false,
+};
+
+// Regex packs (Hebrew + English)
+const RX_TIME = /(מה השעה|איזו שעה|השעה עכשיו|what(?:'s| is) the time|current time|what time is it)/i;
+const RX_STATUS = /(מה יש לי היום|מה תכננתי|סיכום היום|בריפ|סטטוס|מה המצב|what (?:do i have|is on) today|today'?s (?:tasks|schedule|briefing)|status update|summary)/i;
+const RX_PLAN = /(תוכנית|אבני דרך|מילסטון|שבוע W?\d|פוקוס שבועי|plan|milestone|weekly goal|roadmap|strateg)/i;
+const RX_REFLECT = /(אני מרגיש|אני תקוע|אני חרד|אני עייף|רגש|פחד|חרדה|עזור לי להבין|למה אני|i feel|i'?m stuck|anxious|tired|overwhelmed|help me understand|why do i)/i;
+const RX_GREETING = /^(היי+|הי|שלום|בוקר טוב|ערב טוב|לילה טוב|מה קורה|מה נשמע|hi+|hello|hey+|yo|sup|good (morning|evening|night))[!?.\s]*$/i;
+
+/**
+ * Pure intent resolver. Inspects only the latest user message text.
+ * Lane defaults are intentionally narrow — keep AION present, not stitched.
+ */
+export function detectIntent(lastUserText: string, mode: AuroraMode): IntentResolution {
+  const text = (lastUserText || "").trim();
+  const lanes: LaneSet = { ...ALL_LANES_OFF };
+
+  if (mode === "widget") {
+    return { intent: "conversational", lanes };
+  }
+
+  // 1. Greeting / lite — live only
+  if (mode === "lite" || (text.length > 0 && text.length <= 30 && RX_GREETING.test(text))) {
+    return { intent: "greeting", lanes };
+  }
+
+  // 2. Time query — live only
+  if (RX_TIME.test(text) && text.length < 80) {
+    return { intent: "time_query", lanes };
+  }
+
+  // 3. Explicit status / "what do I have today" — execution + proactive
+  if (RX_STATUS.test(text)) {
+    return {
+      intent: "status_query",
+      lanes: { ...lanes, execution: true, proactive: true },
+    };
+  }
+
+  // 4. Plan editing / strategy — planning lane
+  if (RX_PLAN.test(text)) {
+    return {
+      intent: "plan_edit",
+      lanes: { ...lanes, planning: true },
+    };
+  }
+
+  // 5. Reflection / coaching — memory lane
+  if (RX_REFLECT.test(text)) {
+    return {
+      intent: "reflection",
+      lanes: { ...lanes, memory: true },
+    };
+  }
+
+  // 6. Default conversational — minimal: live + light memory
+  return {
+    intent: "conversational",
+    lanes: { ...lanes, memory: true },
+  };
+}
+
+export function lanesToString(lanes: LaneSet): string {
+  return (Object.keys(lanes) as Lane[])
+    .filter((k) => lanes[k])
+    .join(",");
+}
+
 export interface OrchestratorResult {
   systemPrompt: string;
   model: string;
   maxTokens: number;
   temperature: number;
   promptVersion: string;
+  lanes: LaneSet;
+  intent: IntentKind;
 }
 
 export interface ValidatedRequest {
