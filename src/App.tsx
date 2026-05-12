@@ -35,6 +35,7 @@ import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
 import { StoryWorldProvider } from "@/contexts/StoryWorldContext";
+import { OverlayProvider } from "@/shell/overlay/OverlayController";
 import CloudAuthModal from "@/components/auth/CloudAuthModal";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -254,6 +255,7 @@ const App = () => (
                               <SoulAvatarProvider>
                                 <ProfileModalProvider>
                                   <TooltipProvider>
+                                  <OverlayProvider>
                                     <Toaster />
                                     <Sonner />
 
@@ -466,6 +468,7 @@ const App = () => (
                                       </StoryWorldProvider>
                                     </AnalyticsProvider>
                                   </FlowAuditProvider>
+                                  </OverlayProvider>
                                   </TooltipProvider>
                                 </ProfileModalProvider>
                               </SoulAvatarProvider>
