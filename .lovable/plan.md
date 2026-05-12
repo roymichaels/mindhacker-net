@@ -1,63 +1,37 @@
 ## Problem
 
-AION is streaming raw chain-of-thought instead of a reply. The leaked text shows it analyzing the system prompt out loud:
-"This is confirmed multiple times in the conversation history by Aurora herself.", "According to the guidelines:", "I need to check what tasks/habits the user has for today", "Looking at the user's profile…".
+Tapping the header orb on `/dashboard` or `/aurora` does nothing. Runtime error in the preview:
+
+```
+TypeError: Importing a module script failed.
+URL: /node_modules/.vite/deps/chunk-VJA5E53X.js
+```
 
 ## Root cause
 
-`supabase/functions/aurora-chat/index.ts` routes every tier (free/plus/apex) to `nvidia/nemotron-3-super-120b-a12b:free` via OpenRouter. Nemotron is a reasoning model that, on the OpenRouter free endpoint, streams its reasoning as **plain `delta.content` text** (not wrapped in `<think>` tags and not in a separate `reasoning` field). Our existing sanitizer in `supabase/functions/_shared/sanitizeStream.ts` only catches:
-- `<think>/<reasoning>/<analysis>/<internal>/<scratchpad>` tag blocks
-- `[reasoning]/[plan]/...` meta lines
-- A short list of English/Hebrew preamble phrases, and only **before** the first "real" token
+`src/components/aion/InteractiveAIONHost.tsx` currently does a **synchronous** top-level `import InteractiveAION from './InteractiveAION'`. `InteractiveAION` pulls a heavy dependency tree (PersonalizedOrb / WebGL, voice mode hook, GlobalChatInput, ChatHistorySheet → Supabase realtime, ArtifactLayer, HypnosisLayer). When Vite's pre-bundled chunk for one of those deps fails to fetch (stale `.vite/deps` cache after recent edits to model defaults / sanitizer), the host module itself fails to evaluate. Result: the `aion:open-interactive` event listener is **never registered**, and `openInteractiveAION()` from the header dispatches an event that nobody hears → "nothing happens".
 
-So Nemotron's untagged reasoning slips through, and once `emittedReal` flips true, every subsequent meta sentence is forwarded verbatim.
-
-The `reasoning: { exclude: true }` flag in the request body is ignored by Nemotron-free; that toggle only works for providers that emit reasoning in a dedicated channel.
+We changed the host away from `lazy()` in an earlier phase to fix a different "failed module import" symptom; that just moved the failure earlier in the boot sequence.
 
 ## Fix
 
-Two complementary changes, both server-side, in the existing edge function — no client changes.
+In `src/components/aion/InteractiveAIONHost.tsx`:
 
-### 1. Stop defaulting to a leaky reasoning model
+1. Convert the host's own import of `InteractiveAION` back to **lazy + Suspense**, but use the project's `lazyWithRetry` helper (`src/lib/lazyWithRetry.ts`) instead of bare `React.lazy`. `lazyWithRetry` already handles the "Importing a module script failed" case by busting the cache and retrying — that is exactly the error we are seeing.
+2. Keep the event listener, edge-swipe listener, and Escape handler at the **top level of the host component**, completely independent of whether `InteractiveAION` has loaded. This guarantees `openInteractiveAION()` is always heard, even if the immersive surface chunk is briefly unavailable.
+3. While `open === true` and the lazy chunk is still loading, render a small Suspense fallback (full-screen `bg-background/95 backdrop-blur-md` with a tiny "טוען…" line) so the user gets immediate feedback on tap.
+4. If the lazy import rejects again after `lazyWithRetry` exhausted retries, catch it via a tiny inline error boundary that closes the overlay and shows a one-line toast ("מצב AION לא זמין כרגע — נסה שוב"). Use the existing `sonner` toast (`import { toast } from 'sonner'`).
 
-In `supabase/functions/aurora-chat/index.ts` replace the Nemotron default with a non-reasoning chat model that has been stable for AION:
+No other files need to change. Header wiring (`onClick={openInteractiveAION}`) and global mount in `src/App.tsx` (inside `OverlayProvider`) stay as-is.
 
-```
-const TIER_MODELS = {
-  free: "google/gemini-2.5-flash-lite",
-  plus: "google/gemini-2.5-flash",
-  apex: "google/gemini-2.5-pro",
-};
-```
+### Verification
 
-(Vision path already forces `google/gemini-2.5-flash`, leave it.)
-
-This alone removes the leak source for new sessions.
-
-### 2. Harden the sanitizer as defense-in-depth
-
-In `supabase/functions/_shared/sanitizeStream.ts`:
-
-- Expand `PREAMBLE_PATTERNS` to also catch the phrases observed in the screenshot, e.g.
-  - `/\bthis is confirmed (multiple times )?in the conversation\b/i`
-  - `/\bthe user'?s most recent message\b/i`
-  - `/\baccording to the guidelines\b/i`
-  - `/\bi need to check what (tasks|habits)\b/i`
-  - `/\blooking at the user'?s profile\b/i`
-  - `/\bgiven that:?$/i`
-  - `/\bactually,?\s+looking (more carefully )?at\b/i`
-- Add a "meta block" mode: if a sanitized line matches any preamble pattern **anywhere** in the stream (not just before `emittedReal`), drop the line and the next blank-separated continuation lines until we hit a line that starts with a Hebrew word, an emoji, or a short greeting (≤80 chars) — i.e., assume the model has finally entered the user-facing answer.
-- Drop standalone bulleted analysis lines that start with `- ` or `* ` and contain `(0/0)`, English colonized headers like `According to the guidelines:`, or template fragments like `For morning (06:00-12:00):`.
-- Keep the existing `<think>` and `[reasoning]` handling unchanged.
-
-### 3. Verification
-
-- Redeploy `aurora-chat` (auto on edit).
-- Trigger a fresh "היי" in `/aurora`; confirm response is a short Hebrew greeting, no English meta narration.
-- Tail `supabase--edge_function_logs aurora-chat` for `[aurora-chat] sanitizer dropped N chars` to confirm the sanitizer is active even on the new model (should normally be 0).
+1. Hard reload preview on `/dashboard`.
+2. Tap the header orb — overlay opens (with brief fallback if needed), close (X / Escape) works.
+3. Repeat on `/aurora`.
+4. Confirm no `Importing a module script failed` toast in console after reload.
 
 ## Out of scope
 
-- No prompt changes in `orchestrator.ts` / `contextBuilder.ts`.
-- No UI changes in `AuroraChatBubbles` / `InteractiveAION`.
-- Nemotron stays mapped in `aiGateway.ts` for any caller that explicitly opts in; we just stop defaulting to it.
+- No changes to `InteractiveAION.tsx`, `ChatHistorySheet.tsx`, `Header.tsx`, or `App.tsx`.
+- No backend / model / sanitizer changes.
