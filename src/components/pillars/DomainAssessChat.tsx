@@ -277,6 +277,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
       },
       body: JSON.stringify({
         messages: msgs,
