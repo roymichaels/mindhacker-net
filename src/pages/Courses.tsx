@@ -119,7 +119,7 @@ const Courses = () => {
 
         {/* Search Bar with Filter Button */}
         <div 
-          className="flex items-center gap-2 mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/95 backdrop-blur-sm py-2"
+          className="flex items-center gap-2 mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background backdrop-blur-sm py-2"
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           {/* Filter Button */}

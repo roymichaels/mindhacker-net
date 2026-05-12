@@ -262,7 +262,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background backdrop-blur shadow-sm">
         <div className="container flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6">
           {/* Left side - Logo + Brand */}
           <div className="flex items-center gap-2 sm:gap-3">

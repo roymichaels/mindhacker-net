@@ -208,7 +208,7 @@ function Drawer({
   lang: 'en' | 'he';
 }) {
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-background/85 backdrop-blur-xl">
+    <div className="fixed inset-0 z-40 flex flex-col bg-background backdrop-blur-xl">
       <button
         type="button"
         onClick={onClose}

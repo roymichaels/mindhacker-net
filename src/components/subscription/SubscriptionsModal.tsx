@@ -97,7 +97,7 @@ const SubscriptionsModal = () => {
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && closeSubscriptions()}>
       <DialogContent
-        className="max-w-4xl w-[95vw] max-h-[90vh] p-0 border-border/50 bg-background/95 backdrop-blur-xl rounded-2xl overflow-hidden [&>button]:hidden"
+        className="max-w-4xl w-[95vw] max-h-[90vh] p-0 border-border/50 bg-background backdrop-blur-xl rounded-2xl overflow-hidden [&>button]:hidden"
         dir={isRTL ? "rtl" : "ltr"}
       >
         <button
