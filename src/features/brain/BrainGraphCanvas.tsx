@@ -57,7 +57,7 @@ export default function BrainGraphCanvas({ nodes, edges, selectedId, onSelect, h
 
   return (
     <div
-      className="relative w-full rounded-2xl bg-background/40 backdrop-blur-md border border-border/40 overflow-hidden"
+      className="relative w-full overflow-hidden"
       style={{ height }}
     >
       <svg viewBox={`0 0 ${view} ${view}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
