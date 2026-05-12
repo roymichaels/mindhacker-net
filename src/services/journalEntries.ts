@@ -3,7 +3,16 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 
-export type JournalType = 'dream' | 'reflection' | 'gratitude';
+export type JournalType =
+  | 'dream'
+  | 'reflection'
+  | 'gratitude'
+  | 'plan'
+  | 'beliefs'
+  | 'breakthrough'
+  | 'emotion'
+  | 'lesson'
+  | 'win';
 
 export interface JournalEntry {
   id: string;
@@ -15,6 +24,12 @@ export interface JournalEntry {
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
+  title?: string | null;
+  summary?: string | null;
+  source_excerpt?: string | null;
+  ai_insight?: string | null;
+  source?: 'manual' | 'aion' | null;
+  linked_mission_id?: string | null;
 }
 
 export async function getJournalEntries(userId: string, type: JournalType, limit = 30): Promise<JournalEntry[]> {
@@ -35,6 +50,12 @@ export async function createJournalEntry(input: {
   content: string;
   mood?: string;
   tags?: string[];
+  title?: string;
+  summary?: string;
+  source_excerpt?: string;
+  ai_insight?: string;
+  source?: 'manual' | 'aion';
+  linked_mission_id?: string;
 }): Promise<JournalEntry> {
   const { data, error } = await supabase
     .from('journal_entries')
