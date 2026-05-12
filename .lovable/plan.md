@@ -1,1 +1,89 @@
-# Phase A + B — Wake the Brain, Wake the Graph\n\nTwo foundations, no new UI: (A) AION decisions reach the entire app and drive the environment; (B) every interaction silently feeds the memory graph. No homepage cards, no room cards, no graph viewer yet.\n\n---\n\n## Phase A — Lift the Brain to Root + Make EnvironmentProvider Authoritative\n\n### A1. Lift `AionDecisionProvider` out of `ProtectedAppShell` to App root\n\nToday it's mounted in `src/components/layout/ProtectedAppShell.tsx` (line 37), so anything outside the dashboard layout — including `PresenceShell` at `/` — gets a no-op context. Move it up to `src/App.tsx`, just inside `AuthProvider` and above `EnvironmentProvider`.\n\n```text\nAuthProvider\n  └─ AuroraChatProvider\n      └─ LanguageProvider\n          └─ AionDecisionProvider          ← lifted here\n              └─ EnvironmentProvider\n                  └─ MotionLayer …\n```\n\nRemove the duplicate provider from `ProtectedAppShell` (keep `RouteSignalEmitter`, just call `useAionDecision` from the lifted context).\n\nAcceptance: `useAionDecision()` returns a live decision on `/` (PresenceShell route) and updates in realtime via the existing postgres_changes channel.\n\n### A2. Make `EnvironmentProvider` always-on; bind it to `aion_decisions`\n\nToday it's gated by `localStorage['mindos.aol.enabled']` (line 22–31 of `EnvironmentProvider.tsx`). Remove the flag entirely and let the provider always evaluate. Then introduce `aion_decisions` as the *authoritative* override of the fast-tier rule output:\n\n- Read `useAionDecision().decision` inside the provider.\n- When a decision exists and is not expired, its fields override the fast-tier evaluation:\n  - `decision.mode` → `state.mode`\n  - `decision.tone` → `state.tone`\n  - `decision.density` → `state.density`\n  - `decision.focus_target` → `state.focusTarget`\n  - `decision.suggestion` → `state.suggestion`\n- Fast-tier rules continue to run as a fallback when no decision exists yet (cold-start), and provide chrome-visibility / orb-state hints that decisions don't carry.\n- Keep `setUserMode` as a manual override, but a fresh decision should *not* clobber an active manual override (existing `overrideRef` semantics).\n\nDelete `setAolEnabled` and the `mindos:aol:toggle` event listener — no UI should toggle this anymore. Keep the safe-default branch in `useEnvironment()` so SSR/test renders don't crash.\n\nAcceptance: changing a row in `aion_decisions` updates `state.mode/tone/density` in `<PresenceShell>` within ~1s; ChromeGate / MotionLayer react accordingly with no manual toggles.\n\n### A3. Audit chat-like edges for sanitizer coverage\n\nConfirmed today:\n- `aurora-chat` ✓ (uses local `./sanitizeStream.ts`)\n- `work-chat` ✓\n- `onboarding-chat` ✓\n- `plan-chat` ✗ — missing\n- `negotiate-plan` ✗ — missing\n\nAction:\n- Add `import { sanitizeStream } from \
+## Dev Diagnostics Panel — Plan
+
+A dev-only floating overlay that proves the brain → environment → memory-writer → graph loop is alive. Zero impact on production users, zero clutter in normal UI.
+
+### Visibility & gating
+
+- Mounted globally inside `App.tsx` next to `<SharedOrbStage />` so it's available on every authenticated route.
+- Renders only when `import.meta.env.DEV === true` **OR** `localStorage.getItem('mindos.diag') === '1'` (safe flag for staging/prod debugging by us). Otherwise returns `null`.
+- Also auto-hides if there's no logged-in user (avoids public landing).
+- A tiny floating **brain icon button** sits at `bottom-20 left-3` (above bottom tab, below safe area), `z-[60]`, 36px, `backdrop-blur` chip. Tap opens a bottom sheet (mobile) / right drawer (≥md). Esc / outside-tap closes.
+
+### File layout (new)
+
+```text
+src/diagnostics/
+  DiagnosticsHost.tsx        ← mounted in App.tsx; floating button + sheet
+  DiagnosticsSheet.tsx       ← layout, sections, refresh control
+  sections/
+    BrainSection.tsx         ← AION decision row
+    EnvironmentSection.tsx   ← EnvironmentProvider state
+    MemoryWriterSection.tsx  ← last invocation telemetry
+    GraphCountersSection.tsx ← table counts
+    LeakGuardSection.tsx     ← last sanitizer outcome
+  diagnosticsBus.ts          ← tiny event bus (memory-writer + leak-guard)
+  useDiagnosticsFlag.ts      ← DEV || localStorage flag, with `?diag=1` URL toggle
+```
+
+No new providers, no context — sections read from the existing hooks (`useAionDecision`, `useEnvironment`, `useAuth`) and from the bus.
+
+### Section contents
+
+**1. AION Brain** — from `useAionDecision().decision`:
+- `mode`, `tone`, `density`, `expires_at`
+- `focus_target` and `suggestion` rendered as collapsible `<pre>` JSON
+- live/expired badge (compare `expires_at` to `Date.now()`)
+- "no decision yet — fast-tier in control" empty state
+
+**2. Environment** — from `useEnvironment().state`:
+- `mode`, `cognitiveBudget`, `source` (`fast-tier` / `slow-tier`), `reason`, `updatedAt`
+- `aionDecision` echo (proves binding works)
+- chrome/orb hints from `state` if present (`chromeVisibility`, `orbState` — render only when defined; never assume shape)
+
+**3. Memory Writer** — from `diagnosticsBus`:
+- last `source` (chat/journal/hypnosis/mission), `status` (`pending` | `ok` | `error`), `duration_ms`
+- counts from response: `inserted`, `reinforced`, `skipped` (derived from `writes.graph[].action`)
+- last error string if any
+- "Test write" button that calls `supabase.functions.invoke('memory-writer', { body: { source: 'chat', context: { messages: [{role:'user', content:'diag ping'}] } } })` and feeds result back to bus
+
+**4. Graph Counters** — direct `supabase.from(...).select('*', { count: 'exact', head: true })`:
+- `aurora_memory_graph` (total + last-24h)
+- `aurora_behavioral_patterns` (total)
+- `aurora_identity_elements` (total)
+- `aion_signals` last 24h
+- Manual "Refresh" button + auto-refresh every 30s while sheet is open
+
+**5. Leak Guard** — from `diagnosticsBus`:
+- last assistant message length (raw vs sanitized)
+- `clean | sanitized | rejected` derived by comparing `stripReasoning(raw).length` vs `raw.length`
+- list of matched forbidden patterns (we re-run a small detector that just reports which `THINK_BLOCK` / preamble fired, without mutating the message)
+
+### Wiring (minimal touch outside the new folder)
+
+- `src/App.tsx`: import + render `<DiagnosticsHost />` once, near `<SharedOrbStage />`. ~2 lines.
+- `src/hooks/aurora/useAuroraChat.tsx`:
+  - On the existing `memory-writer` invoke, capture `{ status, duration_ms, response | error }` and push to `diagnosticsBus.emit('memory-writer', …)`. Already wrapped in try/catch — non-blocking guarantee preserved.
+  - Right after `cleanedContent` is computed, push `{ rawLen, cleanLen, matched }` to `diagnosticsBus.emit('leak-guard', …)`.
+
+That's the entire production surface change: one mount, two `emit` calls. Both are no-ops in production builds because subscribers only attach inside the dev-only host.
+
+### Non-blocking guarantee
+
+- `diagnosticsBus` is a synchronous in-memory `EventTarget`; `emit` never throws.
+- All section reads are wrapped in `try/catch` and render an inline error chip rather than crashing the panel.
+- "Test write" uses `void` + `.catch` like the production path.
+- Counter queries use `head: true` so they're cheap.
+
+### Out of scope (explicitly)
+
+- No graph visualisation, no room UI, no homepage changes.
+- No new tables, no migrations, no RLS edits.
+- No telemetry shipped anywhere — all data is local to the running tab.
+- No edits to sanitizer or memory-writer logic — diagnostics observes only.
+
+### Acceptance
+
+- In dev: brain icon visible bottom-left; sheet opens; all 5 sections populate within ≤1s of opening.
+- Send a chat → Memory Writer section flips to `ok` with `duration_ms` and counts; Leak Guard updates with `clean`/`sanitized`.
+- Mutate a row in `aion_decisions` → Brain + Environment sections update live (existing realtime).
+- Production build: panel and button absent from the DOM unless `localStorage['mindos.diag']='1'`.
