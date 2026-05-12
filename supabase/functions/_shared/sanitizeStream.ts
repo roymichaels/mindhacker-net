@@ -26,6 +26,18 @@ const PREAMBLE_PATTERNS: RegExp[] = [
   /\bdeveloper message\b/i,
   /\bconversation log\b/i,
   /\bchain of thought\b/i,
+  /\bthis is confirmed (multiple times )?in the conversation\b/i,
+  /\bthe user'?s most recent message\b/i,
+  /\baccording to the guidelines\b/i,
+  /\bi need to (check|verify|confirm|understand)\b/i,
+  /\blooking at the user'?s profile\b/i,
+  /\bgiven that:?\s*$/i,
+  /\bactually,?\s+looking (more carefully )?at\b/i,
+  /\bfor (morning|afternoon|evening|night) \(\d{2}:\d{2}/i,
+  /\bin my previous (interaction|message|response)\b/i,
+  /\bthis suggests that\b/i,
+  /\bi think the safest approach\b/i,
+  /\bi should not claim\b/i,
   /\bבואו? (לחשוב|לבדוק|נחשוב|נבדוק)\b/,
   /\bהמערכת אומרת\b/,
   /\bכאורורה\b/,
@@ -101,14 +113,16 @@ function filterVisible(text: string, state: SanitizerState): string {
     }
     if (META_LINE.test(line)) continue;
 
-    if (!state.emittedReal) {
-      // Strip leading reasoning preamble until we hit a real sentence.
-      const trimmed = line.trimStart();
-      if (!trimmed) continue;
-      const matchesPreamble = PREAMBLE_PATTERNS.some((re) => re.test(trimmed));
-      if (matchesPreamble) continue;
-      state.emittedReal = true;
+    const trimmed = line.trimStart();
+    if (!trimmed) {
+      if (state.emittedReal) kept.push(line);
+      continue;
     }
+    // Drop reasoning-style lines anywhere in the stream (defense in depth
+    // against models that don't wrap CoT in <think> tags).
+    const matchesPreamble = PREAMBLE_PATTERNS.some((re) => re.test(trimmed));
+    if (matchesPreamble) continue;
+    if (!state.emittedReal) state.emittedReal = true;
 
     kept.push(line);
   }

@@ -105,13 +105,14 @@ serve(async (req) => {
       }
     }
 
-    // OpenRouter model override (free, fast Nemotron). Vision falls back to Gemini.
-    const OPENROUTER_DEFAULT = "nvidia/nemotron-3-super-120b-a12b:free";
+    // Non-reasoning chat models per tier. Avoids CoT leaks from reasoning
+    // models (e.g. Nemotron) that stream their thoughts as plain content.
     const TIER_MODELS: Record<string, string> = {
-      free: OPENROUTER_DEFAULT,
-      plus: OPENROUTER_DEFAULT,
-      apex: OPENROUTER_DEFAULT,
+      free: "google/gemini-2.5-flash-lite",
+      plus: "google/gemini-2.5-flash",
+      apex: "google/gemini-2.5-pro",
     };
+    const OPENROUTER_DEFAULT = TIER_MODELS.free;
 
     // 4. Orchestrate (Layer 2 - policy + routing)
     const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar);
