@@ -32,7 +32,6 @@ import CookieConsent from "@/components/CookieConsent";
 import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { WalletModal } from "@/components/fm/WalletModal";
 import { StoryWorldProvider } from "@/contexts/StoryWorldContext";
-import Web3AuthProviderWrapper from "@/providers/Web3AuthProviderWrapper";
 import CloudAuthModal from "@/components/auth/CloudAuthModal";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -238,7 +237,6 @@ const App = () => (
             <AuthProvider>
               <AuroraChatProvider>
                 <LanguageProvider>
-                  <Web3AuthProviderWrapper>
                     <AuthModalProvider>
                       <CloudAuthModal />
                       <GameStateProvider>
@@ -469,7 +467,6 @@ const App = () => (
                         </SubscriptionsModalProvider>
                       </GameStateProvider>
                     </AuthModalProvider>
-                  </Web3AuthProviderWrapper>
                 </LanguageProvider>
               </AuroraChatProvider>
             </AuthProvider>
