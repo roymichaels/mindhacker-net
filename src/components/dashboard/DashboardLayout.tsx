@@ -16,7 +16,7 @@ import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppSideMenu } from '@/components/navigation/AppSideMenu';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { HubModalHost } from '@/components/navigation/HubModalHost';
-import { HubModalProvider } from '@/contexts/HubModalContext';
+import { HubModalProvider, useHubModalSafe } from '@/contexts/HubModalContext';
 import { SettingsModal } from '@/components/settings';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -46,8 +46,55 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <AuroraActionsProvider>
       <SidebarProvider>
         <HubModalProvider>
+          <DashboardLayoutInner
+            isMobile={isMobile}
+            isRTL={isRTL}
+            theme={theme}
+            isDark={isDark}
+            headerBg={headerBg}
+            headerHidden={headerHidden}
+            settingsOpen={settingsOpen}
+            setSettingsOpen={setSettingsOpen}
+          >
+            {children}
+          </DashboardLayoutInner>
+        </HubModalProvider>
+      </SidebarProvider>
+    </AuroraActionsProvider>
+  );
+};
+
+interface InnerProps {
+  isMobile: boolean;
+  isRTL: boolean;
+  theme: ReturnType<typeof useRouteTheme>;
+  isDark: boolean;
+  headerBg: string;
+  headerHidden: boolean;
+  settingsOpen: boolean;
+  setSettingsOpen: (v: boolean) => void;
+  children: ReactNode;
+}
+
+function DashboardLayoutInner({
+  isMobile,
+  isRTL,
+  theme,
+  isDark,
+  headerBg,
+  headerHidden,
+  settingsOpen,
+  setSettingsOpen,
+  children,
+}: InnerProps) {
+  const hubModal = useHubModalSafe();
+  const hubActive = !!hubModal?.activeHub;
+  const showHeader = !headerHidden && !hubActive;
+
+  return (
+    <>
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-          {!headerHidden && (
+          {showHeader && (
             isMobile ? (
               <header
                 className="sticky top-0 z-50 w-full border-b backdrop-blur-xl"
@@ -95,14 +142,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
           </div>
 
-          {!headerHidden && <AuroraDock />}
+          {!headerHidden && !hubActive && <AuroraDock />}
           <HubModalHost />
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
-        </HubModalProvider>
-      </SidebarProvider>
-    </AuroraActionsProvider>
+    </>
   );
-};
+}
 
 export default DashboardLayout;
