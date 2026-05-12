@@ -17,7 +17,7 @@ export default function MindOSPage() {
   const { displayName: aionName } = useAIONDisplayName();
   const location = useLocation();
 
-  if (location.pathname === '/mindos/tactics') {
+  if (location.pathname === '/mindos/tactics' || location.pathname === '/mindos/chat') {
     return <Outlet />;
   }
 
