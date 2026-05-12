@@ -180,6 +180,7 @@ serve(async (req) => {
           "Cache-Control": "no-cache",
           "Connection": "keep-alive",
           "X-Aurora-Degraded": "true",
+          "X-Aurora-Source": "fallback",
         },
       });
     }
@@ -199,6 +200,7 @@ serve(async (req) => {
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "X-Aurora-Degraded": "true",
+            "X-Aurora-Source": "fallback",
           },
         });
       }
