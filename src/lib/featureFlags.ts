@@ -21,9 +21,9 @@ export const featureFlags: FeatureFlags = {
   enableMultiplayer: readFlag(import.meta.env.VITE_ENABLE_MULTIPLAYER, false),
   enableQuests: readFlag(import.meta.env.VITE_ENABLE_QUESTS, false),
   enableNftInventory: readFlag(import.meta.env.VITE_ENABLE_NFT_INVENTORY, false),
-  enableStoryWorld: readFlag(import.meta.env.VITE_ENABLE_STORY_WORLD, true),
+  enableStoryWorld: readFlag(import.meta.env.VITE_ENABLE_STORY_WORLD, false),
   enableCinematicOnboarding: readFlag(import.meta.env.VITE_ENABLE_CINEMATIC_ONBOARDING, true),
-  enableModalWorldShell: readFlag(import.meta.env.VITE_ENABLE_MODAL_WORLD_SHELL, true),
+  enableModalWorldShell: readFlag(import.meta.env.VITE_ENABLE_MODAL_WORLD_SHELL, false),
   enableAiSceneGeneration: readFlag(import.meta.env.VITE_ENABLE_AI_SCENE_GENERATION, true),
 };
 
