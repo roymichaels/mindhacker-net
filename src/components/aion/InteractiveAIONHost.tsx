@@ -11,9 +11,26 @@
  *
  * Close: top-right X button, Escape, or `aion:open-interactive` with `open: false`.
  */
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense, Component, ReactNode } from 'react';
 import { X } from 'lucide-react';
-import InteractiveAION from './InteractiveAION';
+import { toast } from 'sonner';
+import { lazyWithRetry } from '@/lib/lazyWithRetry';
+
+const InteractiveAION = lazyWithRetry(
+  () => import('./InteractiveAION'),
+  'InteractiveAION'
+);
+
+/** Tiny inline error boundary so a chunk-load failure doesn't kill the host. */
+class InteractiveErrorBoundary extends Component<
+  { onError: () => void; children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch() { this.props.onError(); }
+  render() { return this.state.hasError ? null : this.props.children; }
+}
 
 const EDGE_THRESHOLD_PX = 24;
 const SWIPE_TRIGGER_PX = 80;
@@ -84,7 +101,22 @@ export default function InteractiveAIONHost() {
 
   return (
     <div className="fixed inset-0 z-[80] animate-fade-in">
-      <InteractiveAION />
+      <InteractiveErrorBoundary
+        onError={() => {
+          toast.error('מצב AION לא זמין כרגע — נסה שוב');
+          setOpen(false);
+        }}
+      >
+        <Suspense
+          fallback={
+            <div className="fixed inset-0 bg-background/95 backdrop-blur-md flex items-center justify-center text-foreground/60 text-sm">
+              טוען…
+            </div>
+          }
+        >
+          <InteractiveAION />
+        </Suspense>
+      </InteractiveErrorBoundary>
       {/* Close affordance */}
       <button
         type="button"
