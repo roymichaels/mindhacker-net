@@ -13,7 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { OnboardingGate } from '@/components/layout/OnboardingGate';
 import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
 import GameLayerBootstrap from '@/components/game/GameLayerBootstrap';
-import { AionDecisionProvider, useAionDecision } from '@/contexts/AionDecisionContext';
+import { useAionDecision } from '@/contexts/AionDecisionContext';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -34,15 +34,13 @@ export default function ProtectedAppShell() {
       <OnboardingGate>
         <ChromeVisibilityProvider>
           <SidebarProvider>
-            <AionDecisionProvider>
-              <Suspense fallback={<PageSkeleton />}>
-                <DashboardLayout>
-                  <RouteSignalEmitter />
-                  <GameLayerBootstrap />
-                  <Outlet />
-                </DashboardLayout>
-              </Suspense>
-            </AionDecisionProvider>
+            <Suspense fallback={<PageSkeleton />}>
+              <DashboardLayout>
+                <RouteSignalEmitter />
+                <GameLayerBootstrap />
+                <Outlet />
+              </DashboardLayout>
+            </Suspense>
           </SidebarProvider>
         </ChromeVisibilityProvider>
       </OnboardingGate>
