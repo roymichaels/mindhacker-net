@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Moon, Heart, Target, Brain } from 'lucide-react';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
@@ -27,6 +28,7 @@ interface AIONChatPanelProps {
 export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const { displayName } = useAIONDisplayName();
   const { activePillar, assessmentDomainId, endAssessment } = useAuroraChatContext();
   const [activeModal, setActiveModal] = useState<WidgetModal>(null);
 
@@ -88,8 +90,8 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
           >
             <AIONNamingGate>
               <AIONHeader
-                title="MindOS"
-                subtitle={isHe ? 'שכבת ה-AI החיה של AION' : 'AION-powered MindOS layer'}
+                title={displayName}
+                subtitle={isHe ? `שכבת ה-AI החיה של ${displayName}` : `${displayName}-powered MindOS layer`}
                 icon={<MessageSquare className="w-4 h-4" />}
                 onClose={onClose}
               />
