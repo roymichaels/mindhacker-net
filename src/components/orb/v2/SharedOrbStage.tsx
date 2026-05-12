@@ -12,7 +12,6 @@
  */
 import { Canvas } from '@react-three/fiber';
 import { View, Preload } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { useEffect, useState, useMemo } from 'react';
 
 function pickDpr(): [number, number] {
@@ -42,12 +41,6 @@ export function SharedOrbStage() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Bloom amount scales down on mobile to keep fill rate sane
-  const bloomIntensity = useMemo(() => {
-    if (typeof window === 'undefined') return 0.6;
-    return window.matchMedia('(max-width: 768px)').matches ? 0.45 : 0.65;
-  }, []);
-
   if (!hasWebGL) return null;
 
   return (
@@ -71,15 +64,6 @@ export function SharedOrbStage() {
         eventPrefix="client"
       >
         <View.Port />
-        <EffectComposer multisampling={0} enableNormalPass={false}>
-          <Bloom
-            intensity={bloomIntensity}
-            luminanceThreshold={0.35}
-            luminanceSmoothing={0.85}
-            mipmapBlur
-            radius={0.85}
-          />
-        </EffectComposer>
         <Preload all />
       </Canvas>
     </div>
