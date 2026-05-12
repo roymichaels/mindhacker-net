@@ -72,26 +72,28 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
     return (
       <>
         {showBanner && (
-          <div className="sticky top-0 z-[60] flex items-center justify-between gap-3 bg-primary/10 border-b border-primary/20 px-4 py-2">
-            <div className="flex items-center gap-2 text-sm text-foreground">
-              <Rocket className="h-4 w-4 text-primary shrink-0" />
-              <span>{isRTL ? 'עדיין לא השלמת את תהליך ההצטרפות.' : 'You haven\'t completed onboarding yet.'}</span>
+          <div className="sticky top-0 z-[60] flex items-center gap-2 bg-primary/10 border-b border-primary/20 px-3 py-1.5 h-8">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1 text-xs text-foreground">
+              <Rocket className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span className="truncate">
+                {isRTL ? 'עדיין לא השלמת הצטרפות' : "You haven't completed onboarding"}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 shrink-0">
               <Button
                 size="sm"
                 variant="default"
-                className="h-7 text-xs"
+                className="h-6 px-2 text-[11px]"
                 onClick={() => navigate('/onboarding')}
               >
-                {isRTL ? 'התחל הצטרפות' : 'Start Onboarding'}
+                {isRTL ? 'התחל' : 'Start'}
               </Button>
               <button
                 onClick={handleDismiss}
-                className="p-1 rounded-md hover:bg-muted transition-colors"
+                className="p-0.5 rounded-md hover:bg-muted transition-colors"
                 aria-label="Dismiss"
               >
-                <X className="h-3.5 w-3.5 text-muted-foreground" />
+                <X className="h-3 w-3 text-muted-foreground" />
               </button>
             </div>
           </div>
