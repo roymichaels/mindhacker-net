@@ -4,13 +4,12 @@
  */
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
-import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 import InteractiveAION from '@/components/aion/InteractiveAION';
 import { useClientFlag } from '@/lib/clientFlags';
+import MinimalHome from '@/components/aurora/home/MinimalHome';
 
 export default function AIONPage() {
   useTranslation();
@@ -18,8 +17,6 @@ export default function AIONPage() {
   const interactive = useClientFlag('interactive_mode');
 
   const isAssessing = !!assessmentDomainId;
-  // Note: pillar/scan context label is now reflected in the global header dropdown.
-  void LIFE_DOMAINS;
 
   // Interactive AION Mode (opt-in via `?ff_interactive_mode=1`).
   // Falls back to compact chat surface for assessment flows.
@@ -34,7 +31,9 @@ export default function AIONPage() {
   return (
     <AIONNamingGate>
       <div className="flex-1 min-h-0 -mx-2 lg:-mx-3 flex flex-col bg-background overflow-hidden">
-        {/* Conversation surface — leaves room at the bottom for the floating dock */}
+        {/* Default home is the calm Minimal Home surface. The chat history
+            is reachable via the floating AION overlay / pull-up sheet — it
+            no longer lives as the default body of `/aurora`. */}
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-1 pb-40">
           {isAssessing && assessmentDomainId ? (
             <DomainAssessChat
@@ -44,7 +43,7 @@ export default function AIONPage() {
               onClose={() => endAssessment()}
             />
           ) : (
-            <AuroraChatBubbles showOrbAboveMessages={false} />
+            <MinimalHome />
           )}
         </div>
 
