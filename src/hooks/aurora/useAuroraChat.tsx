@@ -426,6 +426,14 @@ export const useAuroraChat = (conversationId: string | null) => {
           greeting: headerGreeting,
           degraded,
           duplicateOfPrevious: duplicate,
+          historyCount: Number(response.headers.get('x-aurora-history-count') || '0'),
+          assistantHistoryCount: Number(response.headers.get('x-aurora-history-assistant-count') || '0'),
+          historyFilteredCount: Number(response.headers.get('x-aurora-history-filtered-count') || '0'),
+          taskSource: response.headers.get('x-aurora-task-source') || 'unknown',
+          currentTime: response.headers.get('x-aurora-current-time') || 'unknown',
+          dailyBriefingSource: response.headers.get('x-aurora-daily-briefing-source') || 'unknown',
+          proactiveUsed: (response.headers.get('x-aurora-proactive-used') || '') === 'true',
+          cachedResponse: (response.headers.get('x-aurora-cached-response') || '') === 'true',
           preview: cleanedContent.slice(0, 240),
         });
         if (duplicate) {
