@@ -10,6 +10,7 @@ import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useXpProgress } from '@/hooks/useGameState';
 import { TTSPlayer } from './TTSPlayer';
+import { stripReasoning } from '@/lib/stripReasoning';
 
 interface AIONMessageProps {
   id: string;
@@ -28,12 +29,14 @@ const extractCTAs = (content: string): { cleanContent: string; ctas: string[] } 
   const ctaRegex = /\[cta:(\w+)\]/g;
   const ctas: string[] = [];
   let match;
-  
-  while ((match = ctaRegex.exec(content)) !== null) {
+
+  // Sanitize first so any leaked reasoning never reaches the bubble.
+  const safe = stripReasoning(content);
+  while ((match = ctaRegex.exec(safe)) !== null) {
     ctas.push(match[1]);
   }
-  
-  const cleanContent = content.replace(ctaRegex, '').trim();
+
+  const cleanContent = safe.replace(ctaRegex, '').trim();
   return { cleanContent, ctas };
 };
 

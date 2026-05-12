@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAION } from '@/identity';
 import { TTSPlayer } from './TTSPlayer';
+import { stripReasoning } from '@/lib/stripReasoning';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
@@ -237,7 +238,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                 >
                   {isAI ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
-                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                      <ReactMarkdown>{stripReasoning(message.content)}</ReactMarkdown>
                     </div>
                   ) : (
                     <p>{message.content}</p>
@@ -281,7 +282,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               <span className="text-[10px] font-semibold text-fuchsia-400/70 block px-1">{aiDisplayName}</span>
               <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm bg-muted/30 text-foreground border border-border/30">
                 <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
-                  <ReactMarkdown>{streamingContent}</ReactMarkdown>
+                  <ReactMarkdown>{stripReasoning(streamingContent)}</ReactMarkdown>
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@
  */
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAionDecision } from '@/contexts/AionDecisionContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -44,9 +45,10 @@ const PULSE_DURATION: Record<PresenceVisual['pulse'], number> = {
 
 export function AIONPresenceButton({ compact = false }: { compact?: boolean }) {
   const { language } = useTranslation();
-  const { isStreaming, isDockVisible, setIsDockVisible, setIsChatExpanded } =
-    useAuroraChatContext();
+  const { isStreaming } = useAuroraChatContext();
   const { decision } = useAionDecision();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const visual = useMemo(
     () => visualForMode(decision?.mode, isStreaming),
@@ -55,8 +57,9 @@ export function AIONPresenceButton({ compact = false }: { compact?: boolean }) {
 
   const handleSummon = () => {
     void recordSignal('presence_summon', { mode: decision?.mode ?? 'neutral' });
-    if (!isDockVisible) setIsDockVisible(true);
-    setIsChatExpanded(true);
+    // Native shell: chat IS the home surface — go there instead of opening
+    // a competing full-screen overlay.
+    if (location.pathname !== '/aurora') navigate('/aurora');
   };
 
   const size = compact ? 32 : 36;
