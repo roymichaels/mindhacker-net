@@ -1,28 +1,11 @@
 ---
-name: Presence Shell State Space v3
-description: Phase 3 — `/` is state-space (PresenceShell), not a homepage. Rooms are swipeable lenses, not pages. Graph is the OS.
-type: feature
+name: Presence Shell — State Space (v3.2)
+description: PresenceShell at / has no room menu. Active state is mutated only by AION, presenceSignals, or the global window.__mindosTransitionState bridge. Vertical gestures only.
+type: architecture
 ---
-# Presence Shell — State-Space Root (Phase 3.1)
-
-**The homepage is dead.** For authenticated users, `/` renders `src/presence/PresenceShell.tsx` — an ambient state-space, not a card grid. Unauthenticated visitors still see the public marketing `Index`.
-
-## Locked rules
-- **No homepage.** Never reintroduce a card grid, dashboard hub, or "choose a section" landing for authed users.
-- **Rooms are lenses.** The 6 rooms (`beliefs`, `emotions`, `parts`, `time`, `identity`, `body`) are swipeable ambient states inside PresenceShell — not destinations. Do NOT add `<Route path="/hallway/*">` back.
-- **Graph is the OS.** All meaningful state lives in `graph_nodes` / `graph_edges` (Phase 3.2+) and is mutated only via the `memory-writer` edge function. UI never inserts directly.
-- **Gestures**: ←/→ rooms, ↑ Graph drawer, ↓ Artifacts drawer. Keyboard arrows mirror this.
-- **AION presence is global.** The orb (`SharedOrbStage`) and `InteractiveAIONHost` mount at the app root. PresenceShell never re-mounts them.
-- **Redirects**: `/index`, `/home`, `/dashboard`, `/hallway`, `/hallway/:slug` → `/`.
-
-## What lives where
-- `src/presence/SmartRoot.tsx` — gates `/` between Index and PresenceShell.
-- `src/presence/PresenceShell.tsx` — ambient room state + gesture nav + drawers.
-- `src/presence/GraphCanvas.tsx` — placeholder for the 3-layer subconscious atlas.
-- `src/presence/ArtifactsDock.tsx` — contextual feed of orchestrator-prepared artifacts.
-- `src/hallway/rooms.ts` — room registry (still SSOT for room ambience/AION mode).
-
-## Out of scope for 3.1
-- `graph_nodes` / `graph_edges` tables and `memory-writer` edge function (Phase 3.2–3.4).
-- Force-directed canvas render (Phase 3.6, 2D first then r3f).
-- Wiring legacy pillar pages as artifacts inside PresenceShell (Phase 3.7).
+- `src/presence/useActiveState.ts` is SSOT for the active room/state. UI subscribes via `useActiveRoom`/`useActiveState`. Mutations go through `setActiveState(roomId, source, reason)` only.
+- Sources: `'aion' | 'signal' | 'boot' | 'manual'`. Never wire a menu/list to `setActiveState`.
+- `PresenceShell` exposes vertical gestures only: ↑ Graph, ↓ Artifacts. Horizontal swipes and arrow ←/→ are intentionally ignored.
+- The AION whisper line is the only "you just moved" indicator. No toasts, no breadcrumbs, no dots, no sheet.
+- `presenceSignals.evaluateSignals()` runs on mount, on focus, and every 5 min — proposes a transition; never forces a modal.
+- `window.__mindosTransitionState(roomId, reason, source)` is the global bridge for non-React surfaces (chat handlers, AION runtime). Installed by PresenceShell on mount.
