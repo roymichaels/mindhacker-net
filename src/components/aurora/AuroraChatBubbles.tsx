@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Loader2, GraduationCap } from 'lucide-react';
+import { Copy, Loader2, GraduationCap, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
@@ -257,6 +257,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                       <Copy className="h-3 w-3 text-muted-foreground" />
                     </Button>
                     <TTSPlayer messageId={message.id} content={message.content} compact className="h-6 w-6" />
+                    <SaveToJournalButton excerpt={message.content} />
                   </div>
                 )}
               </div>
@@ -336,3 +337,34 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
 };
 
 export default AuroraChatBubbles;
+
+function SaveToJournalButton({ excerpt }: { excerpt: string }) {
+  const { language } = useTranslation();
+  const isHe = language === 'he';
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-6 w-6"
+      title={isHe ? 'שמור ביומן' : 'Save to Journal'}
+      onClick={async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('aurora-capture-journal', {
+            body: { excerpt },
+          });
+          if (error) throw error;
+          if (data?.saved) {
+            toast.success(isHe ? 'נשמר ביומן' : 'Saved to Journal');
+          } else {
+            toast.message(isHe ? 'אין מספיק חומר רפלקטיבי לשמירה' : 'Not enough reflective content to save');
+          }
+        } catch (e) {
+          console.error('save-to-journal failed', e);
+          toast.error(isHe ? 'שמירה ליומן נכשלה' : 'Failed to save to Journal');
+        }
+      }}
+    >
+      <BookOpen className="h-3 w-3 text-muted-foreground" />
+    </Button>
+  );
+}
