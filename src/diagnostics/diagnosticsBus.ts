@@ -39,10 +39,19 @@ export type ResponseSourceEvent = {
   preview?: string;
 };
 
+export type BrainRunEvent = {
+  at: number;
+  trigger: string;
+  status: 'started' | 'ok' | 'error';
+  durationMs?: number;
+  error?: string;
+};
+
 type EventMap = {
   'memory-writer': MemoryWriterEvent;
   'leak-guard': LeakGuardEvent;
   'response-source': ResponseSourceEvent;
+  'brain-run': BrainRunEvent;
 };
 
 type Listener<K extends keyof EventMap> = (payload: EventMap[K]) => void;
@@ -51,14 +60,38 @@ const listeners: { [K in keyof EventMap]: Set<Listener<K>> } = {
   'memory-writer': new Set(),
   'leak-guard': new Set(),
   'response-source': new Set(),
+  'brain-run': new Set(),
 };
 
-const last: Partial<{ [K in keyof EventMap]: EventMap[K] }> = {};
+const STORAGE_KEY = 'mindos.diag.last';
+
+function loadInitial(): Partial<{ [K in keyof EventMap]: EventMap[K] }> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+const last: Partial<{ [K in keyof EventMap]: EventMap[K] }> = loadInitial();
+
+function persist(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(last));
+  } catch {
+    /* quota / disabled — ignore */
+  }
+}
 
 export const diagnosticsBus = {
   emit<K extends keyof EventMap>(kind: K, payload: EventMap[K]): void {
     try {
       last[kind] = payload;
+      persist();
       for (const l of listeners[kind]) {
         try {
           l(payload);

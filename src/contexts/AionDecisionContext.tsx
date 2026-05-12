@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { recordSignal, type AionSignalKind } from "@/services/aionSignals";
+import { diagnosticsBus } from "@/diagnostics/diagnosticsBus";
 
 export interface AionDecision {
   user_id: string;
@@ -17,20 +18,32 @@ export interface AionDecision {
 
 interface AionDecisionCtx {
   decision: AionDecision | null;
+  /** Wall-clock ms when brain finished its last run (success or error). null = never run this session. */
+  lastBrainRunAt: number | null;
+  /** True when the brain has no live decision and we're operating on fast-tier rules. */
+  isFallback: boolean;
   refresh: () => Promise<void>;
   signal: (kind: AionSignalKind, payload?: Record<string, unknown>) => Promise<void>;
+  /** Activity heartbeat — call on user interaction. Triggers a refresh if the brain is stale. */
+  pulse: (kind?: AionSignalKind) => void;
 }
 
 const Ctx = createContext<AionDecisionCtx>({
   decision: null,
+  lastBrainRunAt: null,
+  isFallback: true,
   refresh: async () => {},
   signal: async () => {},
+  pulse: () => {},
 });
 
 export function AionDecisionProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [decision, setDecision] = useState<AionDecision | null>(null);
+  const [lastBrainRunAt, setLastBrainRunAt] = useState<number | null>(null);
   const debounceRef = useRef<number | null>(null);
+  const inFlightRef = useRef<boolean>(false);
+  const lastPulseAtRef = useRef<number>(0);
 
   // Initial fetch
   useEffect(() => {
@@ -70,14 +83,49 @@ export function AionDecisionProvider({ children }: { children: ReactNode }) {
     };
   }, [user?.id]);
 
-  const refresh = useCallback(async () => {
+  const runBrain = useCallback(async (trigger: string, body: Record<string, unknown> = {}) => {
     if (!user?.id) return;
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    const startedAt = Date.now();
     try {
-      await supabase.functions.invoke("aion-brain", { body: { force: true } });
+      diagnosticsBus.emit("brain-run", { at: startedAt, trigger, status: "started" });
+    } catch { /* never block */ }
+    try {
+      const { error } = await supabase.functions.invoke("aion-brain", { body });
+      const finishedAt = Date.now();
+      setLastBrainRunAt(finishedAt);
+      try {
+        diagnosticsBus.emit("brain-run", {
+          at: finishedAt,
+          trigger,
+          status: error ? "error" : "ok",
+          durationMs: finishedAt - startedAt,
+          error: error ? String((error as any)?.message ?? error) : undefined,
+        });
+      } catch { /* never block */ }
+      if (error) console.warn("[aion] brain refresh error", error);
     } catch (e) {
+      const finishedAt = Date.now();
+      setLastBrainRunAt(finishedAt);
+      try {
+        diagnosticsBus.emit("brain-run", {
+          at: finishedAt,
+          trigger,
+          status: "error",
+          durationMs: finishedAt - startedAt,
+          error: String((e as any)?.message ?? e),
+        });
+      } catch { /* never block */ }
       console.warn("[aion] refresh failed", e);
+    } finally {
+      inFlightRef.current = false;
     }
   }, [user?.id]);
+
+  const refresh = useCallback(async () => {
+    await runBrain("manual", { force: true });
+  }, [runBrain]);
 
   const signal = useCallback(
     async (kind: AionSignalKind, payload: Record<string, unknown> = {}) => {
@@ -85,13 +133,56 @@ export function AionDecisionProvider({ children }: { children: ReactNode }) {
       // Debounced brain refresh after each signal burst
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
       debounceRef.current = window.setTimeout(() => {
-        supabase.functions.invoke("aion-brain", { body: { trigger: kind } }).catch(() => {});
+        void runBrain(kind, { trigger: kind });
       }, 4000);
     },
-    [],
+    [runBrain],
   );
 
-  const value = useMemo(() => ({ decision, refresh, signal }), [decision, refresh, signal]);
+  // ── Heartbeat: auto-refresh expired/missing decision while user is active ──
+  const isExpired = useMemo(() => {
+    if (!decision) return true;
+    if (!decision.expires_at) return false;
+    return Date.parse(decision.expires_at) <= Date.now();
+  }, [decision]);
+
+  const isFallback = !decision || isExpired;
+
+  // Periodic check: every 60s, if expired/missing, auto-refresh.
+  useEffect(() => {
+    if (!user?.id) return;
+    const tick = () => {
+      const now = Date.now();
+      const stale = !decision || (decision.expires_at && Date.parse(decision.expires_at) <= now);
+      const since = lastBrainRunAt ? now - lastBrainRunAt : Infinity;
+      // Throttle: at most one auto-refresh per 60s.
+      if (stale && since > 60_000) {
+        void runBrain("auto.expired", { trigger: "auto.expired" });
+      }
+    };
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
+  }, [user?.id, decision, lastBrainRunAt, runBrain]);
+
+  // Activity heartbeat: callable from chat send / route change. Coalesced to 30s.
+  const pulse = useCallback((kind: AionSignalKind = "route_change") => {
+    if (!user?.id) return;
+    const now = Date.now();
+    if (now - lastPulseAtRef.current < 30_000) return;
+    lastPulseAtRef.current = now;
+    const since = lastBrainRunAt ? now - lastBrainRunAt : Infinity;
+    const stale = !decision || (decision.expires_at && Date.parse(decision.expires_at) <= now);
+    // Only fire the brain when actually needed; otherwise the pulse just resets the clock.
+    if (stale || since > 5 * 60_000) {
+      void runBrain(`pulse.${kind}`, { trigger: `pulse.${kind}` });
+    }
+  }, [user?.id, decision, lastBrainRunAt, runBrain]);
+
+  const value = useMemo(
+    () => ({ decision, lastBrainRunAt, isFallback, refresh, signal, pulse }),
+    [decision, lastBrainRunAt, isFallback, refresh, signal, pulse],
+  );
 
   // Dev-only visibility into the live decision (Phase A validation hook).
   // Surfaces mode/tone/density/focus/suggestion in the console whenever the

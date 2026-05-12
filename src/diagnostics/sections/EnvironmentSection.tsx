@@ -1,9 +1,18 @@
 import { useEnvironment } from '@/orchestration';
+import { useAionDecision } from '@/contexts/AionDecisionContext';
 
 export default function EnvironmentSection() {
   const { state, enabled } = useEnvironment();
+  const { isFallback } = useAionDecision();
+  const sourceIsFastTier = (state.source || '').toLowerCase().includes('fast');
+  const showFallbackBadge = isFallback || sourceIsFastTier;
   return (
     <div className="space-y-2 text-xs">
+      {showFallbackBadge && (
+        <div className="rounded-md border border-rose-500/40 bg-rose-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-rose-300">
+          RUNNING ON FALLBACK — no live brain decision
+        </div>
+      )}
       <Row label="enabled" value={String(enabled)} />
       <Row label="mode" value={state.mode} />
       <Row label="cognitiveBudget" value={state.cognitiveBudget} />

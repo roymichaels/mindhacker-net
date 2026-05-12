@@ -10,6 +10,7 @@ import { useCommandBus } from './useCommandBus';
 import { stripReasoning } from '@/lib/stripReasoning';
 import { diagnosticsBus, detectLeaks } from '@/diagnostics/diagnosticsBus';
 import { AION_CHAT_URL } from '@/lib/chat/canonicalChat';
+import { useAionDecision } from '@/contexts/AionDecisionContext';
 
 const AURORA_CHAT_URL = AION_CHAT_URL;
 const AION_FALLBACK_HE = 'אני מחובר, אבל הייתה תקלה בחשיבה שלי. נסה שוב רגע.';
@@ -58,6 +59,7 @@ export const useAuroraChat = (conversationId: string | null) => {
   const queryClient = useQueryClient();
   const { dispatchCommands, pendingCommands } = useCommandBus();
   const chatContext = useAuroraChatContextSafe();
+  const { pulse } = useAionDecision();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -238,6 +240,9 @@ export const useAuroraChat = (conversationId: string | null) => {
     setError(null);
     setIsStreaming(true);
     setStreamingContent('');
+
+    // Heartbeat: keep the orchestration loop breathing during active chat.
+    try { pulse('composer_focus'); } catch { /* never block send */ }
 
     // Save user message (text only for DB)
     const displayContent = imageBase64 ? `${content}\n[📷 תמונה צורפה]` : content;
