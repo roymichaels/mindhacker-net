@@ -93,10 +93,6 @@ const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvat
 const AIONFloatingWidget = lazyWithRetry(() => import("./components/orb/AIONFloatingWidget"), "AIONFloatingWidget");
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
 const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
-const MindOSPage = lazy(() => import("./pages/MindOSPage"));
-const MindOSChatPage = lazy(() => import("./pages/MindOS/ChatPage"));
-const MindOSTacticsPage = lazy(() => import("./pages/MindOS/TacticsPage"));
-const MindOSStrategyPage = lazy(() => import("./pages/MindOS/StrategyPage"));
 const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
 const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const StrategyPage = lazy(() => import("./pages/StrategyPage"));
