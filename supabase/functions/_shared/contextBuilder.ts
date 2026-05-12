@@ -238,6 +238,29 @@ export interface AuroraContext {
 
   // ─── Subscription Tier ─────────────────────────
   subscription_tier: string | null;
+
+  // ─── Intake / Conversation-as-Intake ────────────
+  // Lightweight summary that powers the curiosity engine and
+  // contradiction surfacing. Always populated.
+  intake: {
+    pillar_confidence: {
+      pillar_id: string;
+      confidence: number;
+      signal_count: number;
+      gaps: string[];
+      last_signal_at: string | null;
+      last_probed_at: string | null;
+    }[];
+    open_contradictions: {
+      id: string;
+      pillar_id: string | null;
+      explanation: string;
+      statement_a: string | null;
+      statement_b: string | null;
+      detected_at: string;
+    }[];
+    avg_confidence: number; // 0–100, average across known pillars
+  };
 }
 
 // ─── Hash ──────────────────────────────────────────────────
