@@ -166,7 +166,7 @@ export function AionDecisionProvider({ children }: { children: ReactNode }) {
   }, [user?.id, decision, lastBrainRunAt, runBrain]);
 
   // Activity heartbeat: callable from chat send / route change. Coalesced to 30s.
-  const pulse = useCallback((kind: AionSignalKind = "activity" as AionSignalKind) => {
+  const pulse = useCallback((kind: AionSignalKind = "route_change") => {
     if (!user?.id) return;
     const now = Date.now();
     if (now - lastPulseAtRef.current < 30_000) return;
