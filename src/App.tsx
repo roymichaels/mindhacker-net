@@ -471,7 +471,9 @@ const App = () => (
                               </SoulAvatarProvider>
                             </WalletModalProvider>
                           </CoachesModalProvider>
-                        </SubscriptionsModalProvider>
+                         </SubscriptionsModalProvider>
+                        </MotionLayer>
+                        </EnvironmentProvider>
                       </GameStateProvider>
                     </AuthModalProvider>
                 </LanguageProvider>
