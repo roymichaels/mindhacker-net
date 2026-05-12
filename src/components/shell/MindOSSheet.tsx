@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
+  ChevronRight,
   Sparkles,
   Network,
   Target,
@@ -22,6 +23,8 @@ import {
   User,
   Settings,
   Shield,
+  Bell,
+  Clock,
   type LucideIcon,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -53,6 +56,7 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
   const { openProfile } = useProfileModal();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const isAdmin = hasRole('admin');
 
@@ -68,10 +72,25 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
 
   const primary: Hub[] = [
     { id: 'aion', icon: Sparkles, labelEn: 'AION', labelHe: 'AION', action: () => go('/aurora') },
-    { id: 'graph', icon: Network, labelEn: 'Mind Map', labelHe: 'מפת תודעה', action: openProfileSheet },
+    { id: 'brain', icon: Network, labelEn: 'Brain', labelHe: 'מוח', action: openProfileSheet },
+    { id: 'memory', icon: Clock, labelEn: 'Memory', labelHe: 'זיכרון', action: () => go('/journal') },
+    { id: 'notifications', icon: Bell, labelEn: 'Notifications', labelHe: 'התראות', action: () => go('/notifications') },
+    ...(onOpenSettings
+      ? [{
+          id: 'settings-primary',
+          icon: Settings,
+          labelEn: 'Settings',
+          labelHe: 'הגדרות',
+          action: () => { setOpen(false); onOpenSettings(); },
+        } as Hub]
+      : [{ id: 'settings-primary', icon: Settings, labelEn: 'Settings', labelHe: 'הגדרות', action: () => go('/settings') } as Hub]),
+  ];
+
+  // Legacy capabilities kept reachable but moved out of primary nav.
+  // AION should summon these via conversation; this is a transition shelf.
+  const more: Hub[] = [
     { id: 'strategy', icon: Target, labelEn: 'Strategy', labelHe: 'אסטרטגיה', action: () => go('/strategy') },
     { id: 'hypnosis', icon: Brain, labelEn: 'Hypnosis', labelHe: 'היפנוזה', action: () => go('/hypnosis') },
-    { id: 'journal', icon: BookOpen, labelEn: 'Journal', labelHe: 'יומן', action: () => go('/journal') },
     { id: 'identity', icon: Fingerprint, labelEn: 'Identity', labelHe: 'זהות', action: openProfileSheet },
     { id: 'fm', icon: Coins, labelEn: 'Free Market', labelHe: 'שוק חופשי', action: () => go('/fm') },
     { id: 'community', icon: Users, labelEn: 'Community', labelHe: 'קהילה', action: () => go('/community') },
@@ -80,15 +99,6 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
 
   const secondary: Hub[] = [
     { id: 'profile', icon: User, labelEn: 'Profile', labelHe: 'פרופיל', action: openProfileSheet },
-    ...(onOpenSettings
-      ? [{
-          id: 'settings',
-          icon: Settings,
-          labelEn: 'Settings',
-          labelHe: 'הגדרות',
-          action: () => { setOpen(false); onOpenSettings(); },
-        } as Hub]
-      : []),
     ...(isAdmin
       ? [{
           id: 'admin',
@@ -152,6 +162,55 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
               );
             })}
           </div>
+
+          {more.length > 0 && (
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                className="w-full flex items-center justify-between text-[11px] tracking-[0.2em] uppercase text-muted-foreground/70 mb-2 px-1 py-1 hover:text-foreground/80 transition-colors"
+              >
+                <span>{language === 'he' ? 'עוד יכולות' : 'More capabilities'}</span>
+                <ChevronRight
+                  className={cn(
+                    'h-3.5 w-3.5 transition-transform',
+                    moreOpen && 'rotate-90',
+                  )}
+                />
+              </button>
+              {moreOpen && (
+                <div className="grid grid-cols-3 gap-2">
+                  {more.map((h) => {
+                    const Icon = h.icon;
+                    return (
+                      <button
+                        key={h.id}
+                        type="button"
+                        onClick={h.action}
+                        className={cn(
+                          'group flex flex-col items-center justify-center gap-1.5 rounded-2xl px-2 py-3',
+                          'ring-1 ring-white/[0.04] bg-white/[0.015] hover:bg-white/[0.05] hover:ring-white/[0.1]',
+                          'transition-all active:scale-[0.97]',
+                        )}
+                      >
+                        <div className="h-8 w-8 rounded-xl bg-white/[0.05] inline-flex items-center justify-center text-foreground/70 group-hover:bg-primary/15 group-hover:text-primary transition-colors">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <span className="text-[11.5px] font-medium text-foreground/85 text-center leading-tight">
+                          {language === 'he' ? h.labelHe : h.labelEn}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              <p className="text-[10.5px] text-muted-foreground/60 mt-2 px-1 leading-snug">
+                {language === 'he'
+                  ? 'אלו יכולות ש-AION יכול להפעיל בשבילך מתוך השיחה.'
+                  : 'These are capabilities AION can summon for you from chat.'}
+              </p>
+            </div>
+          )}
 
           {secondary.length > 0 && (
             <>

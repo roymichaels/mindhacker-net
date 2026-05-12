@@ -16,7 +16,8 @@ export type ArtifactKind =
   | 'journal_capture'
   | 'plan_summary'
   | 'note'
-  | 'insight';
+  | 'insight'
+  | 'capability';
 
 export interface AionArtifact {
   id: string;
