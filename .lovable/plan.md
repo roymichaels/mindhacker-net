@@ -1,98 +1,104 @@
+# Minimal Home — Hard Reset
+
 ## Goal
 
-Collapse the authenticated home (`/aurora`) into a single calm, focused surface. Remove ~70% of permanent UI. AION becomes the visual and functional center; everything else emerges contextually from conversation.
+Stop redecorating. Subtract. The authenticated home (`/aurora`) must render at most **6 elements**, never the current stacked dashboard (capability icons, greeting card, metric cards, category pills, services feed, workflow row, multiple AI cards).
 
-## What the home should answer (and only this)
+Capabilities don't disappear from the app — they only disappear from the *default* home. They reappear contextually when AION detects intent.
 
-1. What does AION understand right now?
-2. What matters most right now?
-3. What should happen next?
-4. How do I talk to it?
+## Final homepage composition (in vertical order)
 
-## What's there today (to be removed/collapsed)
-
-`/aurora` empty state currently shows `AuroraWelcome` with:
-
-- 80px orb + greeting
-- 2×2 grid of 4 colored "smart suggestion" cards (purple/cyan/amber/emerald)
-- Multiple floating elements competing with the composer (header MindOS dropdown, AIONPresenceButton, ArtifactLayer, composer "+", attach menu, voice button, mode pill, etc.)
-
-Combined with header/dock/artifacts, this presents 10+ persistent surfaces at once.
-
-## New home layout (single surface, top → bottom)
-
-```text
-┌───────────────────────────────────────────┐
-│   minimal header                          │
-│   (orb · MindOS · overflow — already slim)│
-├───────────────────────────────────────────┤
-│                                           │
-│             [ AION orb, large ]           │  ← presence, breathing
-│                                           │
-│            "good evening, Tomer"          │  ← single soft greeting
-│                                           │
-│   ┌────── ambient context card ──────┐   │  ← ONE adaptive card
-│   │ understanding · focus · next     │   │
-│   └──────────────────────────────────┘   │
-│                                           │
-│         · · ·  active worlds  · · ·      │  ← optional thin strip
-│                                           │
-├───────────────────────────────────────────┤
-│        composer dock (chat entry)         │
-└───────────────────────────────────────────┘
+```
+┌─────────────────────────────────────┐
+│  ·  identity dot · phase            │  ← top: tiny presence row
+│                                     │
+│                                     │
+│            (   ORB   )              │  ← ambient AION, large, centered
+│                                     │
+│         optional 1-line             │  ← state line, ≤80 chars, no CTA
+│                                     │
+│   ┌───────────────────────────┐     │
+│   │  ONE focus card           │     │  ← single adaptive card, tap=send
+│   └───────────────────────────┘     │
+│                                     │
+│   • business  • fitness  • content  │  ← active-worlds strip (only if any)
+│                                     │
+│   78% understood · 12d · ↑ calm     │  ← micro indicators row (one line)
+│                                     │
+│                                     │
+│   ┌─────────────────────────────┐   │
+│   │  voice  📎  ░ message…   ▶  │   │  ← single composer dock
+│   └─────────────────────────────┘   │
+└─────────────────────────────────────┘
 ```
 
-### The single ambient card (replaces the 2×2 grid)
+Hard rules:
+- Nothing else mounts on `/aurora` by default.
+- No grids, no tabs, no lists, no metric cards, no service feed, no capability launcher, no duplicate composer, no floating AION button on this route.
+- Empty states collapse fully (no placeholder boxes, no "no items in this category" rows).
 
-A quiet, multi-line card with three soft slots that AION fills from the brain graph:
+## What to remove from the home render path
 
-- **Understanding** — short sentence: "I sense you've been low on energy this week."
-- **Focus** — what matters most: "Your business launch is the live thread."
-- **Next step** — one suggested action as a tap-to-send line: "Want to plan tomorrow's first move?"
+These must NOT mount on `/aurora` anymore (they remain reachable elsewhere — MindOS sheet "More", direct routes, or summoned by AION):
 
-Tapping any line sends it to AION as a message. No buttons, no colors competing for attention. Empty/loading state shows a single "I'm getting to know you…" line.
+- Top capability icon row (the 5 colored tiles in the screenshot)
+- Big greeting card with "פתח" button
+- 4-up metrics cards (`1%`, `יום 1`, `42`, `15/15`)
+- "שירותים / מבצע שיא" services header + "פרסם עם Aurora" creation row
+- Category pills (הכל / עיצוב / כתיבה / תרגום / פיתוח / …)
+- Workflow row (גאות הפלדה / 7 מסלולים / + הוסף)
+- "דבר עם התוכנית שלך" secondary composer
+- Services feed list (היפנוזה יומית, בסיס, חיוניות rows)
+- Floating `AIONPresenceButton` (already a duplicate when home IS AION)
+- Auto-emitted artifacts on mount (artifact layer stays, but starts empty)
 
-### Active worlds strip (optional, suppressed by default)
+## What stays / what's new
 
-A single horizontal row of tiny dots/labels (max 3) showing currently in-flight efforts pulled from `action_items` / brain state — e.g. `business launch · sleep reset · daily writing`. Tap = ask AION about that thread. Hidden when there's nothing live.
+| Surface | Component | Notes |
+|---|---|---|
+| Orb | existing `PersonalizedOrb` | larger (≈220–280px), centered, no chrome |
+| State line | reuse `useAmbientContext().understanding` | 1 line, muted, no tap action |
+| Focus card | new `FocusCard` (1 file) | renders the single highest-priority signal from `useAmbientContext().nextStep` (or focus). Tap = send prompt |
+| Active worlds strip | new `ActiveWorldsStrip` | reads only currently-active contexts (business/fitness/etc. that the user has already engaged); hidden entirely when empty. Tap = open that world |
+| Micro indicators | new `PresenceIndicators` | one row: understanding %, streak, emotional trend, current phase. Plain text, no cards, no progress bars |
+| Composer dock | existing `GlobalChatInput` wrapper from `AuroraPage` | unchanged, single instance |
 
-## What to remove from the home
+Top header stays as the global slim header (already minimized). MindOS sheet stays as the only launcher, behind the menu icon.
 
-- `AuroraWelcome` 2×2 grid (suggestion cards, color schemes, icons).
-- Local welcome `useSmartSuggestions` UI (data may still feed the ambient card, single suggestion only).
-- Any duplicate composer affordance on the home (we already have one floating dock; remove inline composer block if present).
-- `AIONPresenceButton` floating overlay **on `/aurora`** — the orb on the page IS the presence; two AI buttons confuse. Keep the button on every other route as the global summon.
-- `ArtifactLayer` shows nothing on a fresh home (no auto-emitted starter artifacts) — only emerges after intent.
-- Any "category pills / services feed / progress bars / stats cards" if they appear via PresenceShell or hallway rooms behind `/aurora` — confirm none render here; if a `PresenceShell` layer leaks through, hide it on `/aurora`.
+## File-level changes
 
-## Files to change
+1. **`src/pages/AuroraPage.tsx`** — replace the body with a new `<MinimalHome />` for the non-assessment, non-interactive path. Keep the `AIONNamingGate` wrap, the assessment branch, the `interactive` flag branch, and the existing fixed-bottom composer dock untouched.
 
-- `src/components/aurora/AuroraWelcome.tsx` — rewrite to the calm layout above (orb · greeting · ambient card · optional worlds strip). Drop the 2×2 grid and color schemes.
-- `src/components/aurora/AmbientContextCard.tsx` *(new)* — renders the three ambient lines from brain/decision data; tap = send.
-- `src/hooks/aurora/useAmbientContext.ts` *(new)* — small hook that derives `{ understanding, focus, nextStep }` from existing sources (brain overview, latest action items, AION decision). Reuses what we already have; no new edge functions.
-- `src/components/aurora/ActiveWorldsStrip.tsx` *(new, optional render)* — thin horizontal strip; hidden when empty.
-- `src/pages/AuroraPage.tsx` — ensure only one composer (the floating dock) renders; remove any extra inline input.
-- `src/components/aion/InteractiveAIONHost.tsx` (or wherever the floating `AIONPresenceButton` is mounted) — suppress the floating button when route is `/aurora`.
-- `src/components/aion/artifacts/ArtifactLayer.tsx` — confirm no artifacts auto-emit on home load (verify, no code change expected).
+2. **`src/components/aurora/home/MinimalHome.tsx`** *(new)* — composes: `PresenceTopRow` · `PersonalizedOrb` · state line · `FocusCard` · `ActiveWorldsStrip` · `PresenceIndicators`. Pure layout; no data fetching beyond the hooks below.
 
-## What stays
+3. **`src/components/aurora/home/FocusCard.tsx`** *(new)* — single rounded card, glass surface, ≤2 lines text + chevron. Source: `useAmbientContext().nextStep` (already exists). Tap → `sendMessageRef.current?.(prompt)`.
 
-- Header (orb · MindOS · overflow) — already slimmed.
-- Single floating composer dock on `/aurora`.
-- Composer "+" → ComposerActions (already added) is the only capability launcher.
-- Brain View, Strategy, Hypnosis, Free Market etc. remain reachable via "More capabilities" in MindOS sheet and via AION conversation — they are **not** surfaced on the home.
+4. **`src/components/aurora/home/ActiveWorldsStrip.tsx`** *(new)* — horizontal scroll row of dot+label chips. Source: a new selector `useActiveWorlds()` that reads only worlds with recent activity (last conversation/artifact/mission within N days). Returns `[]` → component renders `null`.
 
-## Out of scope (follow-ups)
+5. **`src/hooks/aurora/useActiveWorlds.ts`** *(new)* — thin hook over existing world/domain registry; filters by recent activity. No new tables.
 
-- Refactoring the rest of `/aurora` chat thread visuals.
-- Brain-graph-driven proactive suggestions beyond the simple single-suggestion ambient card.
-- Removing the marketing `/` page or other routes.
-- Hallway / PresenceShell architecture changes (only ensure they don't bleed into `/aurora`).
+6. **`src/components/aurora/home/PresenceIndicators.tsx`** *(new)* — one-line muted text row built from existing signals (understanding %, streak, emotional trend, current phase). No icons larger than 12px, no bars.
 
-## Acceptance signals
+7. **`src/components/aurora/home/PresenceTopRow.tsx`** *(new)* — tiny identity dot + current phase label, top-left/top-right depending on `isRTL`.
 
-- Fresh `/aurora` shows ≤6 visible elements: header, orb, greeting, ambient card (3 lines), optional worlds strip, composer dock. Nothing else.
-- No 2×2 grid, no colored suggestion cards, no duplicate composer, no floating AI button on this route.
-- Tapping any ambient line sends a chat message; conversation surface takes over.
-- All previously available capabilities remain reachable via composer "+" or MindOS "More" — none lost.
-- Visual feel: calm, single-focus, RTL-correct, full Hebrew spelling preserved.
+8. **`src/components/aion/InteractiveAIONHost.tsx`** — confirm it already suppresses the floating AION button on `/aurora`; if not, add the route check.
+
+9. **Audit pass (no edits unless found mounting on `/aurora`):** `AuroraWelcome.tsx`, `AmbientContextCard.tsx`, any home dashboard widgets, services-feed components, capability-launcher grids, "פרסם עם Aurora" creation row, secondary "דבר עם התוכנית שלך" composer. Anything still rendered on `/aurora` gets removed from that route only (kept as a component for other routes if used elsewhere).
+
+No backend, schema, RLS, or edge-function work. No new dependencies.
+
+## Acceptance criteria
+
+- Fresh `/aurora` (no assessment, no `?ff_interactive_mode=1`) shows: orb, ≤1 state line, exactly one focus card, optional worlds strip, one micro-indicators line, one composer dock. Nothing else.
+- DOM check: no element from the removal list is mounted on `/aurora`.
+- Worlds strip is absent (not empty-bordered) when no active worlds.
+- Focus card never shows more than one entry; tapping sends a chat message.
+- All capabilities removed from the home are still reachable via MindOS sheet → "More capabilities" or by asking AION in chat.
+- No floating AION button overlaps the orb on `/aurora`.
+- Other routes (`/journal`, `/free-market`, `/learn`, business/fitness workspaces, etc.) are visually unchanged.
+
+## Out of scope
+
+- Redesigning the composer itself.
+- Building new "intent → workspace" auto-summoning logic (the strip already reflects whatever is active; deeper auto-generation is the next phase).
+- Touching the public marketing `/` page.
