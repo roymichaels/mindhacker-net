@@ -99,6 +99,9 @@ const MindOSTacticsPage = lazy(() => import("./pages/MindOS/TacticsPage"));
 const MindOSStrategyPage = lazy(() => import("./pages/MindOS/StrategyPage"));
 const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
 const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
+const StrategyPage = lazy(() => import("./pages/StrategyPage"));
+const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
+const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 
 const PresenceHome = lazy(() => import("./pages/pillars/PresenceHome"));
@@ -263,8 +266,8 @@ const App = () => (
                                             <Routes>
                                               {/* Public routes */}
                                               <Route path="/" element={<Index />} />
-                                              <Route path="/index" element={<Navigate to="/mindos/chat" replace />} />
-                                              <Route path="/home" element={<Navigate to="/mindos/chat" replace />} />
+                                              <Route path="/index" element={<Navigate to="/aurora" replace />} />
+                                              <Route path="/home" element={<Navigate to="/aurora" replace />} />
                                               <Route path="/landing" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
                                               <Route path="/blog/:slug" element={<BlogPost />} />
@@ -301,25 +304,21 @@ const App = () => (
                                                 {/* Messages */}
                                                 <Route path="/messages" element={<Messages />} />
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
-                                                <Route path="/mindos" element={<MindOSPage />}>
-                                                  <Route index element={<Navigate to="/mindos/chat" replace />} />
-                                                  <Route path="chat" element={<MindOSChatPage />} />
-                                                  <Route path="tactics" element={<MindOSTacticsPage />} />
-                                                  <Route path="strategy" element={<MindOSStrategyPage />} />
-                                                  <Route path="work" element={<MindOSWorkPage />} />
-                                                  <Route path="journal" element={<MindOSJournalPage />} />
-                                                </Route>
-                                                {/* Aurora Chat — now widget-based, redirect to play */}
-                                                <Route path="/aurora" element={<Navigate to="/mindos/chat" replace />} />
-                                                {/* Legacy redirects to Play */}
-                                                <Route path="/now" element={<Navigate to="/mindos/tactics" replace />} />
-                                                <Route path="/plan" element={<Navigate to="/mindos/tactics" replace />} />
-                                                {/* Play (merged Strategy + Tactics) */}
-                                                <Route path="/play" element={<Navigate to="/mindos/tactics" replace />} />
-                                                {/* Profile removed — now modal-based via ProfileModalContext */}
-                                                <Route path="/profile" element={<Navigate to="/mindos/tactics" replace />} />
-                                                {/* Strategy sub-routes for pillar assessments */}
-                                                <Route path="/strategy" element={<Navigate to="/mindos/strategy" replace />} />
+                                                {/* Flat top-level environments (replaces MindOS hub) */}
+                                                <Route path="/aurora" element={<AuroraPage />} />
+                                                <Route path="/strategy" element={<StrategyPage />} />
+                                                <Route path="/hypnosis" element={<HypnosisPage />} />
+                                                {/* Legacy MindOS → flat redirects */}
+                                                <Route path="/mindos" element={<Navigate to="/aurora" replace />} />
+                                                <Route path="/mindos/chat" element={<Navigate to="/aurora" replace />} />
+                                                <Route path="/mindos/strategy" element={<Navigate to="/strategy" replace />} />
+                                                <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
+                                                <Route path="/mindos/work" element={<MindOSWorkPage />} />
+                                                <Route path="/mindos/journal" element={<MindOSJournalPage />} />
+                                                <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
+                                                <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
+                                                <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
+                                                <Route path="/profile" element={<Navigate to="/aurora" replace />} />
                                                 <Route path="/strategy/presence" element={<PresenceHome />} />
                                                 <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                                                 <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
