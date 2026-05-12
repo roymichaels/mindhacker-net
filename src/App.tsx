@@ -104,6 +104,7 @@ const StrategyPage = lazy(() => import("./pages/StrategyPage"));
 const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
 const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 
 const PresenceHome = lazy(() => import("./pages/pillars/PresenceHome"));
 const PresenceScan = lazy(() => import("./pages/pillars/PresenceScan"));
@@ -271,8 +272,8 @@ const App = () => (
                                             <Routes>
                                               {/* Public routes */}
                                               <Route path="/" element={<Index />} />
-                                              <Route path="/index" element={<Navigate to="/aurora" replace />} />
-                                              <Route path="/home" element={<Navigate to="/aurora" replace />} />
+                                              <Route path="/index" element={<Navigate to="/dashboard" replace />} />
+                                              <Route path="/home" element={<Navigate to="/dashboard" replace />} />
                                               <Route path="/landing" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
                                               <Route path="/blog/:slug" element={<BlogPost />} />
@@ -311,6 +312,7 @@ const App = () => (
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
                                                 {/* Flat top-level environments (replaces MindOS hub) */}
                                                 <Route path="/aurora" element={<AuroraPage />} />
+                                                <Route path="/dashboard" element={<UserDashboard />} />
                                                 <Route path="/strategy" element={<StrategyPage />} />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
                                                 {/* Legacy MindOS → flat redirects */}
