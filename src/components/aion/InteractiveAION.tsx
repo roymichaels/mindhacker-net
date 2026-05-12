@@ -21,6 +21,7 @@ import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import { cn } from '@/lib/utils';
+import ArtifactLayer from './artifacts/ArtifactLayer';
 
 const CHROME_HIDE_MS = 3000;
 
@@ -171,6 +172,9 @@ export default function InteractiveAION() {
       <div className="absolute inset-x-6 bottom-[160px] text-center text-foreground/80 text-base leading-relaxed min-h-[3em]">
         <span className="opacity-90">{caption}</span>
       </div>
+
+      {/* Floating artifacts (next actions, journal captures, plans) */}
+      <ArtifactLayer bottomOffset={220} />
 
       {/* Voice toggle pill */}
       <div className="absolute inset-x-0 bottom-[112px] flex justify-center">
