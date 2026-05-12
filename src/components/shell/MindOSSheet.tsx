@@ -56,6 +56,7 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
   const { openProfile } = useProfileModal();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const isAdmin = hasRole('admin');
 
@@ -161,6 +162,55 @@ export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProp
               );
             })}
           </div>
+
+          {more.length > 0 && (
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                className="w-full flex items-center justify-between text-[11px] tracking-[0.2em] uppercase text-muted-foreground/70 mb-2 px-1 py-1 hover:text-foreground/80 transition-colors"
+              >
+                <span>{language === 'he' ? 'עוד יכולות' : 'More capabilities'}</span>
+                <ChevronRight
+                  className={cn(
+                    'h-3.5 w-3.5 transition-transform',
+                    moreOpen && 'rotate-90',
+                  )}
+                />
+              </button>
+              {moreOpen && (
+                <div className="grid grid-cols-3 gap-2">
+                  {more.map((h) => {
+                    const Icon = h.icon;
+                    return (
+                      <button
+                        key={h.id}
+                        type="button"
+                        onClick={h.action}
+                        className={cn(
+                          'group flex flex-col items-center justify-center gap-1.5 rounded-2xl px-2 py-3',
+                          'ring-1 ring-white/[0.04] bg-white/[0.015] hover:bg-white/[0.05] hover:ring-white/[0.1]',
+                          'transition-all active:scale-[0.97]',
+                        )}
+                      >
+                        <div className="h-8 w-8 rounded-xl bg-white/[0.05] inline-flex items-center justify-center text-foreground/70 group-hover:bg-primary/15 group-hover:text-primary transition-colors">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <span className="text-[11.5px] font-medium text-foreground/85 text-center leading-tight">
+                          {language === 'he' ? h.labelHe : h.labelEn}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              <p className="text-[10.5px] text-muted-foreground/60 mt-2 px-1 leading-snug">
+                {language === 'he'
+                  ? 'אלו יכולות ש-AION יכול להפעיל בשבילך מתוך השיחה.'
+                  : 'These are capabilities AION can summon for you from chat.'}
+              </p>
+            </div>
+          )}
 
           {secondary.length > 0 && (
             <>
