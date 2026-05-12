@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { listRooms, getRoomBySlug } from '@/hallway/rooms';
 import type { RoomDefinition } from '@/hallway/types';
+import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
 import GraphCanvas from './GraphCanvas';
 import ArtifactsDock from './ArtifactsDock';
 
@@ -141,6 +142,17 @@ export default function PresenceShell({ initialRoomSlug }: { initialRoomSlug?: s
           “{room.copy.entryWhisper[lang]}”
         </p>
       </section>
+
+      {/* Talk-to-AION dock — primary action, always present */}
+      <div className="mx-auto w-full max-w-md px-6 pb-3">
+        <button
+          type="button"
+          onClick={() => openInteractiveAION()}
+          className="w-full rounded-full border border-border/60 bg-card/40 px-5 py-3 text-sm text-muted-foreground backdrop-blur-md transition-colors hover:bg-card/60 hover:text-foreground"
+        >
+          {lang === 'he' ? 'דבר עם אַיון…' : 'Speak to AION…'}
+        </button>
+      </div>
 
       {/* Room dots — minimal positional hint, not a tab bar */}
       <div className="flex items-center justify-center gap-2 pb-4">
