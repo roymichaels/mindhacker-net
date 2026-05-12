@@ -43,10 +43,10 @@ const Index = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Authenticated users: home IS the AION chat surface.
-  // Use a synchronous redirect so the marketing landing never flashes.
+  // Authenticated users: home IS the dashboard. The chat lives at /aurora as
+  // its own dedicated surface, separate from the dashboard.
   if (!loading && user) {
-    return <Navigate to="/aurora" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const brandSettings: BrandSettings = {
