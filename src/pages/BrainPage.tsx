@@ -16,7 +16,7 @@ export default function BrainPage() {
     <ProtectedRoute>
       <ShellV2>
         <main
-          className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-1 pt-14 pb-40"
+          className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-4 pt-16 pb-40"
           style={zStyle("chat")}
           data-shellv2-layer="chat"
           data-shellv2-route="brain"
