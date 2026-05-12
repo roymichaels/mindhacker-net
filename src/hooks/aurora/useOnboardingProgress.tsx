@@ -64,8 +64,9 @@ export const useOnboardingProgress = () => {
   useEffect(() => {
     if (!user?.id) return;
 
+    const suffix = `${user.id}-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel('aurora-onboarding-progress-realtime')
+      .channel(`aurora-onboarding-progress-${suffix}`)
       .on(
         'postgres_changes',
         {
@@ -81,7 +82,8 @@ export const useOnboardingProgress = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, refetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Computed helpers
   const hasDirection = onboarding?.direction_clarity !== 'incomplete';
