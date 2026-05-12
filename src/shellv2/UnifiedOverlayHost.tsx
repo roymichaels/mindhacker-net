@@ -6,13 +6,21 @@
  * `useOverlay()` from `src/shell/overlay/OverlayController`. No hand-rolled
  * `fixed inset-0` portals are allowed inside `src/shellv2/`.
  */
-import { useOverlay } from '@/shell/overlay/OverlayController';
+import ShellV2Menu from './ShellV2Menu';
+import ChatHistorySheet from '@/components/aion/ChatHistorySheet';
 
+/**
+ * UnifiedOverlayHost — SSOT mount point for ShellV2 sheets.
+ *
+ * Each child binds to its own OverlayKind via OverlayController. The
+ * controller enforces "one overlay at a time" — opening one closes the
+ * others. No hand-rolled `fixed inset-0` portals belong here.
+ */
 export default function UnifiedOverlayHost() {
-  const { active } = useOverlay();
-  // Nothing to render in Phase 1 — primitives below the overlay layer
-  // (Radix dialogs/sheets/drawers) keep portalling to body and continue
-  // to work as before.
-  void active;
-  return null;
+  return (
+    <>
+      <ShellV2Menu />
+      <ChatHistorySheet />
+    </>
+  );
 }

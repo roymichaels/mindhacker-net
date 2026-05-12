@@ -10,9 +10,11 @@
  * it belongs here, it probably belongs in the composer plus-menu instead.
  */
 import { Menu, History } from 'lucide-react';
+import { useOverlay } from '@/shell/overlay/OverlayController';
 import { zStyle } from '../zindex';
 
 export default function ChromeLayer() {
+  const overlay = useOverlay();
   return (
     <header
       className="pointer-events-none fixed inset-x-0 top-0 pt-[env(safe-area-inset-top)]"
@@ -22,6 +24,7 @@ export default function ChromeLayer() {
         <button
           type="button"
           aria-label="Menu"
+          onClick={() => overlay.toggle('drawer')}
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-foreground/80 transition-colors hover:bg-white/[0.06]"
         >
           <Menu className="h-5 w-5" />
@@ -34,6 +37,7 @@ export default function ChromeLayer() {
         <button
           type="button"
           aria-label="History"
+          onClick={() => overlay.toggle('aion')}
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-foreground/80 transition-colors hover:bg-white/[0.06]"
         >
           <History className="h-5 w-5" />
