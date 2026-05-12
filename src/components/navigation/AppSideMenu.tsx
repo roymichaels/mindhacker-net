@@ -45,7 +45,6 @@ import { getVisibleTabs } from '@/navigation/osNav';
 import { UserDocsModal } from '@/components/modals/UserDocsModal';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 interface AppSideMenuProps {
