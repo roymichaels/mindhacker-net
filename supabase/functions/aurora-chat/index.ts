@@ -15,6 +15,7 @@ import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
 import { optionalAuth } from "../_shared/auth.ts";
 import { aiChatCompletion, getProvider } from "../_shared/aiGateway.ts";
+import { sanitizeStream } from "./sanitizeStream.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -138,6 +139,9 @@ serve(async (req) => {
             stream: true,
             max_tokens: orchestrated.maxTokens,
             temperature: orchestrated.temperature,
+            // Suppress chain-of-thought from reasoning models (Nemotron, etc.)
+            reasoning: { exclude: true, effort: "low" },
+            include_reasoning: false,
           },
           { signal: controller.signal }
         );
@@ -205,8 +209,11 @@ serve(async (req) => {
       }).then(() => {}).catch(e => console.error("Log error:", e));
     }
 
-    // 7. Stream response back
-    return new Response(response.body, {
+    // 7. Stream response back through sanitizer (strip <think> + reasoning leaks)
+    const cleanBody = response.body
+      ? response.body.pipeThrough(sanitizeStream())
+      : response.body;
+    return new Response(cleanBody, {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/event-stream",
