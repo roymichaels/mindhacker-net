@@ -1169,54 +1169,91 @@ export type Database = {
       }
       aurora_memory_graph: {
         Row: {
+          confidence: number
           content: string
+          content_key: string | null
           context: string | null
           created_at: string
+          emotional_charge: number
+          evidence_count: number
           first_seen_at: string
           id: string
           is_active: boolean | null
+          last_evidence_at: string | null
           last_referenced_at: string
+          layer: string | null
           metadata: Json | null
           node_type: string
           pillar: string | null
           reference_count: number | null
           related_node_ids: string[] | null
+          room: string | null
           strength: number | null
+          superseded_by: string | null
+          user_confirmed: boolean
+          user_corrected_at: string | null
           user_id: string
         }
         Insert: {
+          confidence?: number
           content: string
+          content_key?: string | null
           context?: string | null
           created_at?: string
+          emotional_charge?: number
+          evidence_count?: number
           first_seen_at?: string
           id?: string
           is_active?: boolean | null
+          last_evidence_at?: string | null
           last_referenced_at?: string
+          layer?: string | null
           metadata?: Json | null
           node_type: string
           pillar?: string | null
           reference_count?: number | null
           related_node_ids?: string[] | null
+          room?: string | null
           strength?: number | null
+          superseded_by?: string | null
+          user_confirmed?: boolean
+          user_corrected_at?: string | null
           user_id: string
         }
         Update: {
+          confidence?: number
           content?: string
+          content_key?: string | null
           context?: string | null
           created_at?: string
+          emotional_charge?: number
+          evidence_count?: number
           first_seen_at?: string
           id?: string
           is_active?: boolean | null
+          last_evidence_at?: string | null
           last_referenced_at?: string
+          layer?: string | null
           metadata?: Json | null
           node_type?: string
           pillar?: string | null
           reference_count?: number | null
           related_node_ids?: string[] | null
+          room?: string | null
           strength?: number | null
+          superseded_by?: string | null
+          user_confirmed?: boolean
+          user_corrected_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "aurora_memory_graph_superseded_by_fkey"
+            columns: ["superseded_by"]
+            isOneToOne: false
+            referencedRelation: "aurora_memory_graph"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "aurora_memory_graph_user_id_fkey"
             columns: ["user_id"]
@@ -1501,6 +1538,112 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "practitioner_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_edges: {
+        Row: {
+          created_at: string
+          from_node: string
+          id: string
+          last_seen_at: string
+          relation: string
+          to_node: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          from_node: string
+          id?: string
+          last_seen_at?: string
+          relation: string
+          to_node: string
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          from_node?: string
+          id?: string
+          last_seen_at?: string
+          relation?: string
+          to_node?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_edges_from_node_fkey"
+            columns: ["from_node"]
+            isOneToOne: false
+            referencedRelation: "aurora_memory_graph"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_edges_to_node_fkey"
+            columns: ["to_node"]
+            isOneToOne: false
+            referencedRelation: "aurora_memory_graph"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_edges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_evidence: {
+        Row: {
+          created_at: string
+          delta_confidence: number
+          delta_strength: number
+          id: string
+          node_id: string
+          source_kind: string
+          source_ref: Json
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta_confidence?: number
+          delta_strength?: number
+          id?: string
+          node_id: string
+          source_kind: string
+          source_ref?: Json
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta_confidence?: number
+          delta_strength?: number
+          id?: string
+          node_id?: string
+          source_kind?: string
+          source_ref?: Json
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_evidence_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "aurora_memory_graph"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_evidence_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -10421,6 +10564,26 @@ export type Database = {
           p_idempotency_key?: string
           p_reason?: string
           p_source: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      brain_get_overview: {
+        Args: { p_limit?: number; p_min_confidence?: number; p_user_id: string }
+        Returns: Json
+      }
+      brain_upsert_node: {
+        Args: {
+          p_content: string
+          p_delta_conf?: number
+          p_delta_strength?: number
+          p_emotional_charge?: number
+          p_layer?: string
+          p_pillar?: string
+          p_source_kind?: string
+          p_source_ref?: Json
+          p_summary?: string
+          p_type: string
           p_user_id: string
         }
         Returns: Json

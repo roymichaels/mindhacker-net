@@ -18,6 +18,7 @@ import { TransformationReportCard } from '@/components/profile/TransformationRep
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
 import ProfileHeroSection from '@/components/profile/ProfileHeroSection';
+import BrainView from '@/features/brain/BrainView';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -29,6 +30,7 @@ export default function ProfilePage() {
   const [achievementsOpen, setAchievementsOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
+  const [classicOpen, setClassicOpen] = useState(false);
 
   // Lock body scroll while profile is mounted
   useEffect(() => {
@@ -71,6 +73,24 @@ export default function ProfilePage() {
         <ProfileNFTTriad />
       </div>
 
+      {/* ═══════ BRAIN VIEW (primary) ═══════ */}
+      <div className="px-4 mt-3 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        <BrainView />
+      </div>
+
+      {/* ═══════ CLASSIC TOGGLE ═══════ */}
+      <div className="px-4 mt-3 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        <button
+          onClick={() => setClassicOpen((v) => !v)}
+          className="w-full text-[11px] text-muted-foreground hover:text-foreground py-2 rounded-xl border border-border/30"
+        >
+          {classicOpen ? (isHe ? 'הסתר תצוגה קלאסית' : 'Hide classic view') : (isHe ? 'הצג תצוגה קלאסית' : 'Show classic view')}
+        </button>
+      </div>
+
+      {!classicOpen && <div className="h-16" />}
+
+      {classicOpen && <>
       {/* ═══════ ACTION BUTTONS (2x2 grid) ═══════ */}
       <div className="px-4 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3">
@@ -159,6 +179,7 @@ export default function ProfilePage() {
           isOwner={true}
         />
       </div>
+      </>}
     </div>
   );
 
