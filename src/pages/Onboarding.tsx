@@ -53,7 +53,7 @@ const Onboarding = () => {
   }
 
   return (
-    <CinematicOnboardingStage>
+    <CinematicOnboardingStage skipStory>
       <div className="min-h-screen flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex-1 min-h-0 overflow-y-auto">
           <OnboardingFlow />
