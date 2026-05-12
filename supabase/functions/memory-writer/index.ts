@@ -67,6 +67,10 @@ const PILLAR_IDS = [
   "projects", "play", "order", "romantics",
 ] as const;
 
+function normalize(s: string): string {
+  return String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 /** Local skill: produce typed graph node candidates from a snippet. */
 const GRAPH_PROPOSAL_SKILL = {
   name: "emit_graph_proposal",
