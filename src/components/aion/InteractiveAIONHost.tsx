@@ -97,36 +97,58 @@ export default function InteractiveAIONHost() {
     };
   }, [open]);
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[80] animate-fade-in">
-      <InteractiveErrorBoundary
-        onError={() => {
-          toast.error('מצב AION לא זמין כרגע — נסה שוב');
-          setOpen(false);
-        }}
-      >
-        <Suspense
-          fallback={
-            <div className="fixed inset-0 bg-background/95 backdrop-blur-md flex items-center justify-center text-foreground/60 text-sm">
-              טוען…
-            </div>
-          }
-        >
-          <InteractiveAION />
-        </Suspense>
-      </InteractiveErrorBoundary>
-      {/* Close affordance */}
-      <button
-        type="button"
+    <>
+      {/* Backdrop — fades, dismisses on tap */}
+      <div
         onClick={() => setOpen(false)}
-        aria-label="סגור מצב AION"
-        className="fixed z-[90] top-[calc(env(safe-area-inset-top)+12px)] end-3 h-11 w-11 rounded-full bg-card/40 backdrop-blur-md border border-white/5 flex items-center justify-center text-foreground/80 hover:text-foreground"
+        aria-hidden
+        className={
+          'fixed inset-0 z-[75] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ' +
+          (open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
+        }
+      />
+      {/* Slide-in panel from the LEFT edge */}
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Interactive AION"
+        className={
+          'fixed top-0 bottom-0 left-0 z-[80] w-full sm:w-[440px] md:w-[480px] ' +
+          'bg-background shadow-[0_0_60px_rgba(0,0,0,0.5)] ' +
+          'transform-gpu transition-transform duration-[360ms] ease-[cubic-bezier(.22,.61,.36,1)] will-change-transform ' +
+          (open ? 'translate-x-0' : '-translate-x-full')
+        }
       >
-        <X className="h-5 w-5" />
-      </button>
-    </div>
+        {open && (
+          <InteractiveErrorBoundary
+            onError={() => {
+              toast.error('מצב AION לא זמין כרגע — נסה שוב');
+              setOpen(false);
+            }}
+          >
+            <Suspense
+              fallback={
+                <div className="absolute inset-0 bg-background/95 backdrop-blur-md flex items-center justify-center text-foreground/60 text-sm">
+                  טוען…
+                </div>
+              }
+            >
+              <InteractiveAION />
+            </Suspense>
+          </InteractiveErrorBoundary>
+        )}
+        {/* Close affordance — pinned to the panel's right edge */}
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="סגור מצב AION"
+          className="absolute z-[90] top-[calc(env(safe-area-inset-top)+12px)] right-3 h-11 w-11 rounded-full bg-card/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-foreground/80 hover:text-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </aside>
+    </>
   );
 }
 
