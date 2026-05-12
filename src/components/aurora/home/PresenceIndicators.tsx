@@ -20,18 +20,17 @@ export default function PresenceIndicators() {
 
   const parts: string[] = [];
 
-  if (typeof decision?.confidence === 'number') {
-    const pct = Math.round(decision.confidence * 100);
-    parts.push(isHe ? `${pct}% מובן` : `${pct}% understood`);
-  }
-
   if (streak && streak > 0) {
     parts.push(isHe ? `${streak} ימים` : `${streak}d`);
   }
 
   if (decision?.mode) {
     const m = isHe ? (MODE_HE[decision.mode] ?? decision.mode) : decision.mode;
-    parts.push(`· ${m}`);
+    parts.push(m);
+  }
+
+  if (decision?.tone) {
+    parts.push(decision.tone);
   }
 
   if (!parts.length) return null;
