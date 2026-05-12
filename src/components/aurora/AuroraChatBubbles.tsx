@@ -116,10 +116,18 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (scrollRef.current && !scrollToMessageId) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollToMessageId) return;
+    // The scroll container is an ancestor with overflow-y-auto, not scrollRef itself.
+    let el: HTMLElement | null = scrollRef.current;
+    while (el && el !== document.body) {
+      const style = window.getComputedStyle(el);
+      if (/(auto|scroll)/.test(style.overflowY)) {
+        el.scrollTop = el.scrollHeight;
+        break;
+      }
+      el = el.parentElement;
     }
-  }, [messages, streamingContent, scrollToMessageId]);
+  }, [messages, streamingContent, scrollToMessageId, isStreaming]);
 
   // Scroll to specific message when searching
   useEffect(() => {
