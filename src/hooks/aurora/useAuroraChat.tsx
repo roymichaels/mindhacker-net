@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { parseAllTags, stripAllTags } from '@/lib/commandBus';
 import { useCommandBus } from './useCommandBus';
 import { stripReasoning } from '@/lib/stripReasoning';
+import { diagnosticsBus, detectLeaks } from '@/diagnostics/diagnosticsBus';
 import { AION_CHAT_URL } from '@/lib/chat/canonicalChat';
 
 const AURORA_CHAT_URL = AION_CHAT_URL;
@@ -362,6 +363,26 @@ export const useAuroraChat = (conversationId: string | null) => {
       // but apply stripReasoning here too so any leak never reaches the database.
       const cleanedContent = stripReasoning(stripAllTags(fullContent));
 
+      // ── Dev diagnostics: report sanitizer outcome (no behavioural impact) ──
+      try {
+        const rawLen = fullContent.length;
+        const cleanLen = cleanedContent.length;
+        const matched = detectLeaks(fullContent);
+        diagnosticsBus.emit('leak-guard', {
+          at: Date.now(),
+          rawLen,
+          cleanLen,
+          matched,
+          status:
+            !cleanLen && rawLen
+              ? 'rejected'
+              : matched.length || rawLen !== cleanLen
+              ? 'sanitized'
+              : 'clean',
+          preview: cleanedContent.slice(0, 240),
+        });
+      } catch { /* never block chat */ }
+
       // Dispatch commands through the bus (trust-gated) — fire-and-forget so
       // a single orchestration failure can never block the next reply.
       if (commands.length > 0) {
@@ -404,6 +425,8 @@ export const useAuroraChat = (conversationId: string | null) => {
         // never await, never surface errors to the user.
         try {
           const lastUser = [...chatMessages].reverse().find((m) => m.role === 'user');
+          const startedAt = Date.now();
+          diagnosticsBus.emit('memory-writer', { source: 'chat', status: 'pending', startedAt });
           void supabase.functions
             .invoke('memory-writer', {
               body: {
@@ -416,7 +439,32 @@ export const useAuroraChat = (conversationId: string | null) => {
                 },
               },
             })
-            .catch((e) => console.warn('[memory-writer] invoke failed:', e));
+            .then((res) => {
+              const data: any = (res as any)?.data;
+              const error: any = (res as any)?.error;
+              const writes = data?.writes?.graph as Array<{ action: string }> | undefined;
+              diagnosticsBus.emit('memory-writer', {
+                source: 'chat',
+                status: error ? 'error' : 'ok',
+                startedAt,
+                durationMs: Date.now() - startedAt,
+                inserted: writes?.filter((w) => w.action === 'inserted').length ?? 0,
+                reinforced: writes?.filter((w) => w.action === 'reinforced').length ?? 0,
+                skipped: writes?.filter((w) => w.action === 'skipped').length ?? 0,
+                error: error?.message,
+                raw: data,
+              });
+            })
+            .catch((e) => {
+              diagnosticsBus.emit('memory-writer', {
+                source: 'chat',
+                status: 'error',
+                startedAt,
+                durationMs: Date.now() - startedAt,
+                error: String(e?.message ?? e),
+              });
+              console.warn('[memory-writer] invoke failed:', e);
+            });
         } catch (e) {
           console.warn('[memory-writer] dispatch failed:', e);
         }
