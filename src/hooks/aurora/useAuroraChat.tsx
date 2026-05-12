@@ -14,6 +14,29 @@ import { AION_CHAT_URL } from '@/lib/chat/canonicalChat';
 const AURORA_CHAT_URL = AION_CHAT_URL;
 const AION_FALLBACK_HE = 'אני מחובר, אבל הייתה תקלה בחשיבה שלי. נסה שוב רגע.';
 
+// Freshness guard: remember the previous assistant text so we can flag when
+// AION repeats itself (likely caused by deterministic context or a cached
+// briefing being injected upstream). Module-scope so it survives re-renders.
+let _lastAssistantText = '';
+function _normalizeForCompare(s: string): string {
+  return s.replace(/\s+/g, ' ').replace(/[\d:.,]/g, '').trim().toLowerCase();
+}
+function _similarityRatio(a: string, b: string): number {
+  if (!a || !b) return 0;
+  const A = _normalizeForCompare(a);
+  const B = _normalizeForCompare(b);
+  if (!A || !B) return 0;
+  const short = A.length < B.length ? A : B;
+  const long = A.length < B.length ? B : A;
+  if (long.includes(short) && short.length > 24) return short.length / long.length;
+  // crude token overlap
+  const ta = new Set(A.split(' '));
+  const tb = new Set(B.split(' '));
+  let hit = 0;
+  ta.forEach((t) => { if (tb.has(t)) hit++; });
+  return hit / Math.max(ta.size, tb.size, 1);
+}
+
 interface Message {
   id: string;
   conversation_id: string;
@@ -381,6 +404,29 @@ export const useAuroraChat = (conversationId: string | null) => {
               : 'clean',
           preview: cleanedContent.slice(0, 240),
         });
+      } catch { /* never block chat */ }
+
+      // ── Dev diagnostics: report response source + freshness ──
+      try {
+        const headerSource = (response.headers.get('x-aurora-source') || 'unknown').toLowerCase();
+        const headerMode = response.headers.get('x-aurora-mode') || 'unknown';
+        const headerGreeting = (response.headers.get('x-aurora-greeting') || '') === 'true';
+        const degraded = (response.headers.get('x-aurora-degraded') || '') === 'true';
+        const sim = _similarityRatio(cleanedContent, _lastAssistantText);
+        const duplicate = sim >= 0.8 && cleanedContent.length > 40;
+        diagnosticsBus.emit('response-source', {
+          at: Date.now(),
+          source: (headerSource === 'live' || headerSource === 'fallback') ? headerSource : 'unknown',
+          mode: headerMode,
+          greeting: headerGreeting,
+          degraded,
+          duplicateOfPrevious: duplicate,
+          preview: cleanedContent.slice(0, 240),
+        });
+        if (duplicate) {
+          console.warn('[aurora-chat] response is very similar to previous reply (sim=' + sim.toFixed(2) + ')');
+        }
+        _lastAssistantText = cleanedContent || _lastAssistantText;
       } catch { /* never block chat */ }
 
       // Dispatch commands through the bus (trust-gated) — fire-and-forget so

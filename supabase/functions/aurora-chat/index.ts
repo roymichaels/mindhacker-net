@@ -48,6 +48,23 @@ serve(async (req) => {
     const { messages, customSystemPrompt, language, pillar, hasImages, timezone } = parsed;
     mode = parsed.mode;
 
+    // Greeting auto-detection: short opener messages should NOT trigger
+    // the full briefing-style prompt. Downgrade to lite mode so the LLM
+    // gets a minimal context and replies with 1-2 fresh sentences.
+    const lastUser = [...messages].reverse().find((m: any) => m.role === "user");
+    const lastUserText = typeof lastUser?.content === "string"
+      ? lastUser.content
+      : Array.isArray(lastUser?.content)
+        ? lastUser.content.map((p: any) => p?.text || "").join(" ")
+        : "";
+    const trimmed = (lastUserText || "").trim();
+    const GREETING_RE = /^(היי+|הי|שלום|בוקר טוב|ערב טוב|לילה טוב|מה קורה|מה נשמע|hi+|hello|hey+|yo|sup|good (morning|evening|night))[!?.\s]*$/i;
+    const isShortGreeting = trimmed.length > 0 && trimmed.length <= 30 && GREETING_RE.test(trimmed);
+    if (isShortGreeting && mode === "full" && !customSystemPrompt) {
+      console.log("[aurora-chat] greeting detected, downgrading to lite mode");
+      mode = "lite";
+    }
+
     // For non-widget mode, require authentication
     if (mode !== "widget" && !auth) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -163,6 +180,7 @@ serve(async (req) => {
           "Cache-Control": "no-cache",
           "Connection": "keep-alive",
           "X-Aurora-Degraded": "true",
+          "X-Aurora-Source": "fallback",
         },
       });
     }
@@ -182,6 +200,7 @@ serve(async (req) => {
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "X-Aurora-Degraded": "true",
+            "X-Aurora-Source": "fallback",
           },
         });
       }
@@ -220,6 +239,9 @@ serve(async (req) => {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
+        "X-Aurora-Source": "live",
+        "X-Aurora-Mode": mode,
+        "X-Aurora-Greeting": isShortGreeting ? "true" : "false",
       },
     });
   } catch (error: unknown) {

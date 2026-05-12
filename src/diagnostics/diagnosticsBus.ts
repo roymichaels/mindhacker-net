@@ -29,9 +29,20 @@ export type LeakGuardEvent = {
   preview?: string;
 };
 
+export type ResponseSourceEvent = {
+  at: number;
+  source: 'live' | 'fallback' | 'unknown';
+  mode: string;
+  greeting: boolean;
+  degraded: boolean;
+  duplicateOfPrevious: boolean;
+  preview?: string;
+};
+
 type EventMap = {
   'memory-writer': MemoryWriterEvent;
   'leak-guard': LeakGuardEvent;
+  'response-source': ResponseSourceEvent;
 };
 
 type Listener<K extends keyof EventMap> = (payload: EventMap[K]) => void;
@@ -39,6 +50,7 @@ type Listener<K extends keyof EventMap> = (payload: EventMap[K]) => void;
 const listeners: { [K in keyof EventMap]: Set<Listener<K>> } = {
   'memory-writer': new Set(),
   'leak-guard': new Set(),
+  'response-source': new Set(),
 };
 
 const last: Partial<{ [K in keyof EventMap]: EventMap[K] }> = {};
