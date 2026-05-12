@@ -1,65 +1,88 @@
 /**
  * PresenceShell — the state-space root for MindOS.
  *
- * Phase 3.1 of the world-first rebuild. Replaces the homepage / dashboard
- * mental model. There is no card grid, no menu, no list of features. The
- * authenticated user enters into AION's *presence*; rooms are lateral
- * ambient lenses; the graph (up) and artifacts (down) are drawers.
+ * Phase 3.2 of the world-first rebuild. The user does NOT pick a room.
+ * AION (or passive signals) move them through states. The hallway *is* the
+ * indicator of where you are. There is no list of rooms, no dot pager, no
+ * swipe-to-cycle. The only deliberate gestures are vertical zoom (↑ inner
+ * map, ↓ artifacts) and "speak to AION".
  *
  * Composition contract:
  *  - The orb is NOT mounted here. The canonical AION presence is the global
  *    SharedOrbStage + AIONPresenceButton already living at the app root.
- *  - This shell only provides: ambient room background, room label, AION
- *    entry whisper, and gesture affordances for traversal.
+ *  - This shell subscribes to `useActiveState` — the SSOT for the current
+ *    state. Mutations only happen through `setActiveState` (AION runtime,
+ *    `presenceSignals`, or the global transition bridge).
  *  - All graph mutations happen through `memory-writer` (Phase 3.2), not here.
- *
- * Gestures:
- *  - swipe ←/→  : switch active room (lens)
- *  - swipe ↑    : open Graph drawer (zoomable subconscious atlas)
- *  - swipe ↓    : open Artifacts drawer (today's mission, journal, hypnosis…)
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { listRooms, getRoomBySlug } from '@/hallway/rooms';
-import type { RoomDefinition } from '@/hallway/types';
+import { getRoomBySlug } from '@/hallway/rooms';
 import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
 import GraphCanvas from './GraphCanvas';
 import ArtifactsDock from './ArtifactsDock';
+import StateTransition from './StateTransition';
+import {
+  installGlobalTransitionBridge,
+  setActiveState,
+  useActiveRoom,
+  useActiveState,
+} from './useActiveState';
+import { evaluateSignals } from './presenceSignals';
 
 const SWIPE_THRESHOLD = 48;
+const SIGNAL_POLL_MS = 5 * 60_000;
 
 type Drawer = 'graph' | 'artifacts' | null;
 
 export default function PresenceShell({ initialRoomSlug }: { initialRoomSlug?: string }) {
   const { language, isRTL } = useLanguage();
   const lang = language === 'he' ? 'he' : 'en';
-  const rooms = useMemo(() => listRooms(), []);
 
-  const startingIndex = useMemo(() => {
-    const found = initialRoomSlug ? rooms.findIndex((r) => r.slug === initialRoomSlug) : -1;
-    return found >= 0 ? found : 0;
-  }, [initialRoomSlug, rooms]);
+  // Install the global transition bridge once. Lets non-React surfaces
+  // (chat handlers, AION runtime callbacks) move the user without prop
+  // drilling. Never expose a UI to call this.
+  useEffect(() => {
+    installGlobalTransitionBridge();
+  }, []);
 
-  const [roomIndex, setRoomIndex] = useState(startingIndex);
+  // Honour an initial slug exactly once on mount (deep link from auth flow,
+  // notification, etc.). This is *not* a router — it's a one-shot seed.
+  useEffect(() => {
+    if (!initialRoomSlug) return;
+    const r = getRoomBySlug(initialRoomSlug);
+    if (r) setActiveState(r.id, 'manual', 'Resumed where you left off.');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Passive signal evaluator. Suggests transitions; never forces a modal.
+  useEffect(() => {
+    const tick = () => {
+      const suggestion = evaluateSignals();
+      if (suggestion) setActiveState(suggestion.roomId, 'signal', suggestion.reason);
+    };
+    tick();
+    const id = window.setInterval(tick, SIGNAL_POLL_MS);
+    const onFocus = () => tick();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []);
+
+  const room = useActiveRoom();
+  const activeState = useActiveState();
   const [drawer, setDrawer] = useState<Drawer>(null);
-  const room: RoomDefinition = rooms[roomIndex];
 
-  // Touch gesture handling — single-pointer, threshold-based.
+  // Vertical-only gesture handling. Horizontal swipes are intentionally
+  // ignored — the user does not "page through" rooms.
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
   }, []);
-
-  const advance = useCallback(
-    (dir: 1 | -1) => {
-      // Mirror direction in RTL so swipe always feels physical.
-      const effective = (isRTL ? (dir * -1) : dir) as 1 | -1;
-      setRoomIndex((i) => (i + effective + rooms.length) % rooms.length);
-    },
-    [isRTL, rooms.length],
-  );
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
@@ -72,32 +95,26 @@ export default function PresenceShell({ initialRoomSlug }: { initialRoomSlug?: s
       const ax = Math.abs(dx);
       const ay = Math.abs(dy);
       if (Math.max(ax, ay) < SWIPE_THRESHOLD) return;
-      if (ax > ay) {
-        advance(dx < 0 ? 1 : -1);
-      } else if (dy < 0) {
-        setDrawer('graph');
-      } else {
-        setDrawer('artifacts');
-      }
+      if (ay <= ax) return; // ignore horizontal swipes — no room paging
+      if (dy < 0) setDrawer('graph');
+      else setDrawer('artifacts');
     },
-    [advance],
+    [],
   );
 
-  // Keyboard fallback for desktop preview / accessibility.
+  // Keyboard fallback — vertical only. Arrow ←/→ no longer cycles rooms.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (drawer) {
         if (e.key === 'Escape') setDrawer(null);
         return;
       }
-      if (e.key === 'ArrowRight') advance(1);
-      else if (e.key === 'ArrowLeft') advance(-1);
-      else if (e.key === 'ArrowUp') setDrawer('graph');
+      if (e.key === 'ArrowUp') setDrawer('graph');
       else if (e.key === 'ArrowDown') setDrawer('artifacts');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [advance, drawer]);
+  }, [drawer]);
 
   const { hue, saturation, lightness } = room.ambience;
   const ambient: React.CSSProperties = {
@@ -105,41 +122,45 @@ export default function PresenceShell({ initialRoomSlug }: { initialRoomSlug?: s
     transition: 'background 700ms ease',
   };
 
+  // The whisper line: prefer an AION/signal-supplied reason if one exists,
+  // otherwise fall back to the room's own entry whisper. This is the *only*
+  // surface that reveals "you just moved" — no breadcrumbs, no toasts.
+  const whisper =
+    activeState.reason && activeState.source !== 'boot'
+      ? activeState.reason
+      : room.copy.entryWhisper[lang];
+
   return (
     <div
       dir={isRTL ? 'rtl' : 'ltr'}
       data-presence-shell
       data-room-id={room.id}
       data-aion-mode={room.aion}
+      data-state-source={activeState.source}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden"
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10" style={ambient} />
+      <StateTransition />
 
-      {/* Top: ambient room label */}
+      {/* Top: ambient state name. Not a "lens chooser" — just where you are. */}
       <header className="pointer-events-none flex flex-col items-center pt-10 text-center">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground/80">
-          {lang === 'he' ? 'עדשה פעילה' : 'Active lens'}
-        </p>
-        <h1 className="mt-2 text-lg font-light text-foreground/90">
+        <h1 className="text-base font-light tracking-wide text-foreground/70">
           {room.copy.label[lang]}
         </h1>
-        <p className="mt-1 max-w-[280px] text-xs text-muted-foreground">
-          {room.copy.tagline[lang]}
-        </p>
       </header>
 
       {/* Middle: reserved space for the global orb (mounted at app root). */}
       <div className="flex-1" />
 
-      {/* AION entry whisper — single-line state cue */}
+      {/* AION whisper — the only "you moved" indicator */}
       <section
         aria-label={lang === 'he' ? 'אַיון לוחש' : 'AION whispers'}
         className="pointer-events-none mx-auto max-w-md px-6 pb-2 text-center"
       >
-        <p className="text-sm italic text-foreground/85">
-          “{room.copy.entryWhisper[lang]}”
+        <p key={activeState.changedAt} className="animate-in fade-in text-sm italic text-foreground/85 duration-700">
+          “{whisper}”
         </p>
       </section>
 
@@ -154,23 +175,8 @@ export default function PresenceShell({ initialRoomSlug }: { initialRoomSlug?: s
         </button>
       </div>
 
-      {/* Room dots — minimal positional hint, not a tab bar */}
-      <div className="flex items-center justify-center gap-2 pb-4">
-        {rooms.map((r, i) => (
-          <button
-            key={r.id}
-            type="button"
-            aria-label={r.copy.label[lang]}
-            onClick={() => setRoomIndex(i)}
-            className={`h-1.5 rounded-full transition-all ${
-              i === roomIndex ? 'w-6 bg-foreground/80' : 'w-1.5 bg-foreground/25'
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Gesture affordances */}
-      <div className="pointer-events-none flex items-center justify-between px-4 pb-6 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60">
+      {/* Vertical gesture affordances only. No room list. */}
+      <div className="pointer-events-none flex items-center justify-between px-4 pb-6 pt-2 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60">
         <span>↑ {lang === 'he' ? 'מפה פנימית' : 'inner map'}</span>
         <span>↓ {lang === 'he' ? 'חפצים' : 'artifacts'}</span>
       </div>
