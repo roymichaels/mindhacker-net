@@ -352,14 +352,22 @@ You are currently in the Coach Matching Wizard. Your goal is to understand what 
 
 // ─── Context → Markdown Formatter ──────────────────────────
 
-function formatContextForPrompt(ctx: AuroraContext, language: string): string {
+function formatContextForPrompt(ctx: AuroraContext, language: string, mode: AuroraMode = "full"): string {
   const isHe = language === "he";
   const parts: string[] = [];
+  const isGreetingLite = mode === "lite";
 
   // Dates & Time Awareness (enriched)
   parts.push(isHe
     ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה מקומית: ${ctx.current_time_local}\n- אזור זמן: ${ctx.user_timezone}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
     : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Local time: ${ctx.current_time_local}\n- Timezone: ${ctx.user_timezone}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
+
+  if (isGreetingLite) {
+    parts.push(isHe
+      ? `## כללי פתיחה קצרים\n- זו פתיחת שיחה קצרה. אל תסכם משימות, הרגלים, בריפים יומיים או היסטוריה.\n- אם המשתמש לא ביקש סטטוס מפורש, הגב בקצרה ובטריות.`
+      : `## Short greeting rules\n- This is a short opener. Do not summarize tasks, habits, daily briefings, or history.\n- If the user did not explicitly ask for status, respond briefly and freshly.`);
+    return parts.join("\n\n");
+  }
 
   if (ctx.life_plan) {
     parts.push(isHe
@@ -563,12 +571,12 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
   if (ctx.cross_conversation_history.length > 0) {
     const lines = ctx.cross_conversation_history.map(m => {
       const pillarTag = m.pillar ? ` [${m.pillar}]` : '';
-      const roleLabel = m.role === 'aurora' ? 'Aurora' : (isHe ? 'משתמש' : 'User');
+      const roleLabel = m.role === 'aurora' ? 'Assistant (historical only)' : (isHe ? 'משתמש' : 'User');
       const recency = m.days_ago === 0 ? (isHe ? 'היום' : 'today') : m.days_ago === 1 ? (isHe ? 'אתמול' : 'yesterday') : `${m.days_ago}d`;
       return `- ${m.date} ${m.time} (${recency})${pillarTag} ${roleLabel}: ${m.content}`;
     });
     parts.push(isHe
-      ? `## 🧠 זיכרון צולב-שיחות (כל השיחות שלי עם המשתמש)\nאלה קטעים אחרונים מכל השיחות שלנו — כולל זמנים מדויקים. אני זוכרת הכל.\n${lines.join("\n")}`
+      ? `## 🧠 זיכרון צולב-שיחות (היסטורי בלבד)\nאלה קטעים אחרונים משיחות קודמות. הם לא עובדות עדכניות, ולא מקור לסיכום פתיחה.\n${lines.join("\n")}`
       : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — with exact timestamps. I remember everything.\n${lines.join("\n")}`);
   }
 
