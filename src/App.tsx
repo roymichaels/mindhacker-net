@@ -44,6 +44,9 @@ import SharedOrbStage from "@/components/orb/v2/SharedOrbStage";
 const HallwayShell = lazy(() => import("./hallway/HallwayShell"));
 const RoomEnvironment = lazy(() => import("./hallway/RoomEnvironment"));
 
+// Phase 3.1 — PresenceShell replaces the homepage mental model.
+const SmartRoot = lazy(() => import("./presence/SmartRoot"));
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
@@ -277,9 +280,12 @@ const App = () => (
                                           <Suspense fallback={<PageSkeleton />}>
                                             <Routes>
                                               {/* Public routes */}
-                                              <Route path="/" element={<Index />} />
-                                              <Route path="/index" element={<Navigate to="/dashboard" replace />} />
-                                              <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+                                              {/* Phase 3.1 — `/` is state-space, not a homepage.
+                                                  SmartRoot renders PresenceShell for authed users
+                                                  and the public marketing Index otherwise. */}
+                                              <Route path="/" element={<SmartRoot />} />
+                                              <Route path="/index" element={<Navigate to="/" replace />} />
+                                              <Route path="/home" element={<Navigate to="/" replace />} />
                                               <Route path="/landing" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
                                               <Route path="/blog/:slug" element={<BlogPost />} />
@@ -318,13 +324,14 @@ const App = () => (
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
                                                 {/* Flat top-level environments (replaces MindOS hub) */}
                                                 <Route path="/aurora" element={<AuroraPage />} />
-                                                <Route path="/dashboard" element={<UserDashboard />} />
+                                                <Route path="/dashboard" element={<Navigate to="/" replace />} />
                                                 <Route path="/strategy" element={<StrategyPage />} />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
-                                                {/* Hallway — world-first shell. Rooms are config-driven environments,
-                                                    not pages. See src/hallway/rooms.ts. */}
-                                                <Route path="/hallway" element={<HallwayShell />} />
-                                                <Route path="/hallway/:slug" element={<RoomEnvironment />} />
+                                                {/* Hallway routes retired in Phase 3.1 — rooms are now
+                                                    swipeable lenses inside PresenceShell, not destinations.
+                                                    Both /hallway and /hallway/:slug fold back to `/`. */}
+                                                <Route path="/hallway" element={<Navigate to="/" replace />} />
+                                                <Route path="/hallway/:slug" element={<Navigate to="/" replace />} />
                                                 {/* Legacy MindOS → flat redirects */}
                                                 <Route path="/mindos" element={<Navigate to="/aurora" replace />} />
                                                 <Route path="/mindos/chat" element={<Navigate to="/aurora" replace />} />
