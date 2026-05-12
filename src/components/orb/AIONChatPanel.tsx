@@ -2,9 +2,8 @@
  * AIONChatPanel - Floating AION launcher panel for the MindOS layer.
  * Shares the same signature shell pieces as the expanded MindOS surfaces.
  */
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Moon, Heart, Target, Brain } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
@@ -12,13 +11,8 @@ import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/pillars/DomainAssessChat';
-import { AuroraJournalModal } from '@/components/aurora/AuroraJournalModal';
-import { AuroraPlanModal } from '@/components/aurora/AuroraPlanModal';
-import { AuroraBeliefsModal } from '@/components/aurora/AuroraBeliefsModal';
 import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
-import { AIONContextBadges, AIONHeader, AIONQuickActions } from './AIONSignature';
-
-type WidgetModal = 'dream' | 'gratitude' | 'plan' | 'beliefs' | null;
+import { AIONContextBadges, AIONHeader } from './AIONSignature';
 
 interface AIONChatPanelProps {
   open: boolean;
@@ -30,44 +24,12 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
   const isHe = language === 'he';
   const { displayName } = useAIONDisplayName();
   const { activePillar, assessmentDomainId, endAssessment } = useAuroraChatContext();
-  const [activeModal, setActiveModal] = useState<WidgetModal>(null);
 
   const isAssessing = !!assessmentDomainId;
   const pillarDomain = activePillar ? LIFE_DOMAINS.find((d) => d.id === activePillar) : null;
   const pillarLabel = pillarDomain ? (isHe ? pillarDomain.labelHe : pillarDomain.labelEn) : null;
   const assessDomain = assessmentDomainId ? LIFE_DOMAINS.find((d) => d.id === assessmentDomainId) : null;
   const assessLabel = assessDomain ? (isHe ? assessDomain.labelHe : assessDomain.labelEn) : null;
-
-  const quickActions = [
-    {
-      id: 'dream',
-      icon: Moon,
-      label: isHe ? 'חלומות' : 'Dreams',
-      gradient: 'from-indigo-500 to-indigo-700',
-      onClick: () => setActiveModal('dream'),
-    },
-    {
-      id: 'gratitude',
-      icon: Heart,
-      label: isHe ? 'תודה' : 'Gratitude',
-      gradient: 'from-rose-500 to-pink-600',
-      onClick: () => setActiveModal('gratitude'),
-    },
-    {
-      id: 'plan',
-      icon: Target,
-      label: isHe ? 'תוכנית' : 'Plan',
-      gradient: 'from-cyan-500 to-teal-600',
-      onClick: () => setActiveModal('plan'),
-    },
-    {
-      id: 'beliefs',
-      icon: Brain,
-      label: isHe ? 'אמונות' : 'Beliefs',
-      gradient: 'from-violet-500 to-purple-600',
-      onClick: () => setActiveModal('beliefs'),
-    },
-  ] as const;
 
   return (
     <AnimatePresence>
@@ -111,8 +73,6 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
                 </AIONContextBadges>
               )}
 
-              <AIONQuickActions actions={[...quickActions]} />
-
               <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-1">
                 {isAssessing && assessmentDomainId ? (
                   <DomainAssessChat
@@ -131,24 +91,6 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
               </div>
             </AIONNamingGate>
 
-            <AuroraJournalModal
-              type="dream"
-              open={activeModal === 'dream'}
-              onOpenChange={(nextOpen) => !nextOpen && setActiveModal(null)}
-            />
-            <AuroraJournalModal
-              type="gratitude"
-              open={activeModal === 'gratitude'}
-              onOpenChange={(nextOpen) => !nextOpen && setActiveModal(null)}
-            />
-            <AuroraPlanModal
-              open={activeModal === 'plan'}
-              onOpenChange={(nextOpen) => !nextOpen && setActiveModal(null)}
-            />
-            <AuroraBeliefsModal
-              open={activeModal === 'beliefs'}
-              onOpenChange={(nextOpen) => !nextOpen && setActiveModal(null)}
-            />
           </motion.div>
         </>
       )}

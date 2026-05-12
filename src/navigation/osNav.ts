@@ -3,7 +3,7 @@
  * @purpose Single source of truth for app-level tabs, routes, and role-gated nav items.
  */
 
-import { Sparkles, Shield, Users, Briefcase, GraduationCap, Store, Target, type LucideIcon } from 'lucide-react';
+import { Sparkles, Shield, Users, Briefcase, GraduationCap, Store, Target, BookOpen, type LucideIcon } from 'lucide-react';
 
 export interface OsTab {
   id: string;
@@ -19,6 +19,7 @@ export const OS_TABS: OsTab[] = [
   { id: 'fm', path: '/fm', icon: Store, labelEn: 'Free Market', labelHe: 'שוק חופשי' },
   { id: 'strategy', path: '/strategy', icon: Target, labelEn: 'Strategy', labelHe: 'אסטרטגיה' },
   { id: 'hypnosis', path: '/hypnosis', icon: Sparkles, labelEn: 'Hypnosis', labelHe: 'היפנוזה' },
+  { id: 'journal', path: '/journal', icon: BookOpen, labelEn: 'Journal', labelHe: 'יומן' },
   { id: 'community', path: '/community', icon: Users, labelEn: 'Community', labelHe: 'קהילה' },
   { id: 'study', path: '/learn', icon: GraduationCap, labelEn: 'Study', labelHe: 'לימוד' },
 ];
