@@ -161,42 +161,38 @@ export const AvatarConfiguratorUI = ({ onSave, showSaveButton }: AvatarConfigura
           </div>
         )}
 
-        {/* Floating action dock (randomize / download) */}
-        <div className="pointer-events-auto absolute bottom-[calc(var(--sheet-h,42vh)+12px)] inset-x-0 z-20 flex justify-center gap-3 transition-all">
-          <button
-            className="rounded-full bg-secondary/90 p-3 text-secondary-foreground shadow-lg backdrop-blur-xl"
-            onClick={randomize}
-            title={isHe ? "ערבוב" : "Randomize"}
-          >
-            <Shuffle className="h-4 w-4" />
-          </button>
-          <button
-            className="rounded-full bg-secondary/90 p-3 text-secondary-foreground shadow-lg backdrop-blur-xl"
-            onClick={downloadAvatar}
-            title={isHe ? "הורדה" : "Download"}
-          >
-            <Download className="h-4 w-4" />
-          </button>
-        </div>
-
         {/* Bottom sheet */}
         <div
           className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 flex flex-col rounded-t-3xl border-t border-border bg-card/95 backdrop-blur-xl shadow-2xl transition-[height] duration-300 ease-out"
           style={{
-            height: sheetExpanded ? "62vh" : "112px",
+            height: sheetExpanded ? "52vh" : "96px",
             paddingBottom: "env(safe-area-inset-bottom)",
-            // expose height for action dock positioning
-            ['--sheet-h' as any]: sheetExpanded ? "62vh" : "112px",
           }}
         >
-          {/* Drag handle */}
-          <button
-            onClick={() => setSheetExpanded((v) => !v)}
-            className="mx-auto mt-2 mb-1 flex h-6 w-full items-center justify-center"
-            aria-label={sheetExpanded ? "Collapse" : "Expand"}
-          >
-            <span className="block h-1.5 w-12 rounded-full bg-muted-foreground/40" />
-          </button>
+          {/* Header: randomize | drag handle | download */}
+          <div className="relative flex shrink-0 items-center justify-between px-3 pt-2 pb-1">
+            <button
+              onClick={(e) => { e.stopPropagation(); randomize(); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/90 text-secondary-foreground shadow-md backdrop-blur-xl"
+              title={isHe ? "ערבוב" : "Randomize"}
+            >
+              <Shuffle className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setSheetExpanded((v) => !v)}
+              className="absolute left-1/2 top-2 -translate-x-1/2 flex h-6 w-20 items-center justify-center"
+              aria-label={sheetExpanded ? "Collapse" : "Expand"}
+            >
+              <span className="block h-1.5 w-12 rounded-full bg-muted-foreground/40" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); downloadAvatar(); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/90 text-secondary-foreground shadow-md backdrop-blur-xl"
+              title={isHe ? "הורדה" : "Download"}
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          </div>
 
           {/* Category tabs (horizontal) */}
           <div className="shrink-0 overflow-x-auto noscrollbar">
