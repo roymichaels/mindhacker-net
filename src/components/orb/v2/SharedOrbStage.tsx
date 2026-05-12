@@ -13,7 +13,6 @@
 import { Canvas } from '@react-three/fiber';
 import { View, Preload } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { ToneMappingMode } from 'postprocessing';
 import { useEffect, useState, useMemo } from 'react';
 
 function pickDpr(): [number, number] {
@@ -72,7 +71,7 @@ export function SharedOrbStage() {
         eventPrefix="client"
       >
         <View.Port />
-        <EffectComposer multisampling={0} disableNormalPass>
+        <EffectComposer multisampling={0} enableNormalPass={false}>
           <Bloom
             intensity={bloomIntensity}
             luminanceThreshold={0.35}
