@@ -12,7 +12,7 @@
 import { useEffect } from 'react';
 import ShellV2 from './ShellV2';
 import { artifactBus, type ArtifactKind } from '@/lib/aion/artifactBus';
-import { useClientFlag } from '@/lib/clientFlags';
+import { useShellV2Enabled } from '@/lib/clientFlags';
 
 interface SummonRouteProps {
   kind: ArtifactKind;
@@ -23,7 +23,7 @@ interface SummonRouteProps {
 }
 
 export default function SummonRoute({ kind, params, fullscreen, fallback }: SummonRouteProps) {
-  const enabled = useClientFlag('shell_v2');
+  const enabled = useShellV2Enabled();
 
   useEffect(() => {
     if (!enabled) return;
