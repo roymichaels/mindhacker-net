@@ -1043,5 +1043,6 @@ function createEmptyContext(today: string): AuroraContext {
     tactical_schedule_today: [],
     domain_scores: [],
     subscription_tier: null,
+    intake: { pillar_confidence: [], open_contradictions: [], avg_confidence: 0 },
   };
 }
