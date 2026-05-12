@@ -12,7 +12,7 @@
  */
 import { Canvas } from '@react-three/fiber';
 import { View, Preload } from '@react-three/drei';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 function pickDpr(): [number, number] {
   if (typeof window === 'undefined') return [1.5, 2];
@@ -29,16 +29,28 @@ export function SharedOrbStage() {
   const [hasWebGL, setHasWebGL] = useState(true);
 
   useEffect(() => {
+    const setStageFlag = (ready: boolean) => {
+      (window as Window & { __MINDOS_ORB_STAGE_READY__?: boolean }).__MINDOS_ORB_STAGE_READY__ = ready;
+      window.dispatchEvent(new CustomEvent('mindos:orb-stage', { detail: { ready } }));
+    };
+
     try {
       const c = document.createElement('canvas');
       const gl = c.getContext('webgl2') || c.getContext('webgl');
-      if (!gl) setHasWebGL(false);
+      const ready = Boolean(gl);
+      setHasWebGL(ready);
+      setStageFlag(ready);
     } catch {
       setHasWebGL(false);
+      setStageFlag(false);
     }
+
     const onResize = () => setDpr(pickDpr());
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      setStageFlag(false);
+      window.removeEventListener('resize', onResize);
+    };
   }, []);
 
   if (!hasWebGL) return null;
