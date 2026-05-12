@@ -142,55 +142,48 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
 
         <SheetContent
           side={isRTL ? 'right' : 'left'}
-          className="p-0 w-[88vw] max-w-[360px] bg-transparent border-0 shadow-none"
+          className="p-0 w-[86vw] max-w-[340px] bg-transparent border-0 shadow-none"
         >
           <div
-            className="flex flex-col m-2 rounded-3xl border border-white/10 bg-card/95 backdrop-blur-2xl shadow-[0_30px_120px_rgba(0,0,0,0.55)] overflow-hidden"
-            style={{ height: 'calc(100dvh - 1rem)' }}
+            className="flex flex-col my-3 mx-2 rounded-[28px] bg-card/80 backdrop-blur-2xl shadow-[0_24px_80px_-12px_rgba(0,0,0,0.6)] ring-1 ring-white/[0.06] overflow-hidden max-h-[calc(100dvh-1.5rem)]"
           >
-            {/* Identity Card */}
-            <div className="p-3 pb-1">
-              <button
-                type="button"
-                onClick={() => { close(); openProfile(); }}
-                className="relative w-full rounded-2xl border border-primary/15 bg-gradient-to-b from-primary/10 to-transparent p-5 text-center transition-transform active:scale-[0.99] hover:border-primary/30"
-              >
-                <div className="relative mx-auto mb-3 h-[104px] w-[104px] flex items-center justify-center">
-                  <span className="absolute inset-[-30%] rounded-full bg-primary/20 blur-2xl pointer-events-none" />
-                  <span className="relative z-10 inline-flex h-[104px] w-[104px] rounded-full ring-2 ring-primary/30 overflow-hidden items-center justify-center">
-                    <AvatarMiniPreview size={96} />
+            {/* Identity row — emotional, compact */}
+            <button
+              type="button"
+              onClick={() => { close(); openProfile(); }}
+              className="group flex items-center gap-3 px-4 pt-5 pb-4 text-start transition-opacity active:opacity-80"
+              dir={isRTL ? 'rtl' : 'ltr'}
+            >
+              <span className="relative inline-flex h-14 w-14 shrink-0 items-center justify-center">
+                <span className="absolute inset-[-25%] rounded-full bg-primary/25 blur-xl pointer-events-none" />
+                <span className="relative z-10 inline-flex h-14 w-14 rounded-full overflow-hidden ring-1 ring-white/15">
+                  <AvatarMiniPreview size={56} />
+                </span>
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-[15px] font-semibold text-foreground truncate leading-tight">{displayName}</span>
+                {dashboard.identityTitle ? (
+                  <span className="mt-0.5 block text-[12px] text-primary/90 truncate">
+                    {dashboard.identityTitle.title}
                   </span>
-                </div>
-                <div className="text-base font-semibold truncate text-foreground">{displayName}</div>
-                <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
-                {dashboard.identityTitle && (
-                  <div className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                    <span>{dashboard.identityTitle.icon}</span>
-                    <span className="truncate">{dashboard.identityTitle.title}</span>
-                  </div>
+                ) : (
+                  <span className="mt-0.5 block text-[12px] text-muted-foreground truncate">{user?.email}</span>
                 )}
                 {!dashboard.isLoading && (
-                  <div className="mt-3 space-y-1.5">
-                    <Progress value={dashboard.xpProgress.percentage} className="h-1" />
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20 text-[10px] font-bold">
-                        <Star className="h-2.5 w-2.5" /> Lv.{dashboard.level}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-yellow-500 text-[10px] font-semibold">
-                        <Gem className="h-2.5 w-2.5" /> {dashboard.tokens}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-orange-500 text-[10px] font-semibold">
-                        <Flame className="h-2.5 w-2.5" /> {dashboard.streak}
-                      </span>
-                    </div>
-                  </div>
+                  <span className="mt-1.5 inline-flex items-center gap-3 text-[11px] text-muted-foreground/80 font-medium">
+                    <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-primary/80" />Lv.{dashboard.level}</span>
+                    <span className="inline-flex items-center gap-1"><Flame className="h-3 w-3 text-orange-500/80" />{dashboard.streak}</span>
+                    <span className="inline-flex items-center gap-1"><Gem className="h-3 w-3 text-yellow-500/80" />{dashboard.tokens}</span>
+                  </span>
                 )}
-              </button>
-            </div>
+              </span>
+            </button>
+
+            <div className="mx-4 h-px bg-white/[0.06]" />
 
             {/* Scrollable sections */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-2">
-              <Section label={language === 'he' ? 'סביבות' : 'Environments'}>
+            <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2">
+              <Section label={language === 'he' ? 'עולמות' : 'Worlds'}>
                 <MenuItem icon={Home} label={language === 'he' ? 'בית' : 'Home'} onClick={() => go('/aurora')} />
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -201,7 +194,7 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
                 })}
               </Section>
 
-              <Section label={language === 'he' ? 'פעולות' : 'Quick Actions'}>
+              <Section label={language === 'he' ? 'פעולות' : 'Actions'}>
                 <MenuItem
                   icon={Search}
                   label={language === 'he' ? 'חיפוש בשיחות' : 'Search chats'}
@@ -212,16 +205,16 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
                   label={language === 'he' ? 'התראות' : 'Notifications'}
                   onClick={() => { close(); setNotifOpen(true); if (unreadCount > 0) markAllAsRead(); }}
                   trailing={unreadCount > 0 ? (
-                    <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] rounded-full">
+                    <Badge variant="destructive" className="h-4 min-w-4 px-1 text-[10px] rounded-full">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </Badge>
                   ) : null}
                 />
-                <MenuItem icon={Settings} label={language === 'he' ? 'הגדרות' : 'Settings'} onClick={() => { close(); onOpenSettings?.(); }} />
                 <MenuItem icon={CreditCard} label={language === 'he' ? 'מנויים' : 'Subscriptions'} onClick={() => { close(); openSubscriptions(); }} />
               </Section>
 
               <Section label={language === 'he' ? 'העדפות' : 'Preferences'}>
+                <MenuItem icon={Settings} label={language === 'he' ? 'הגדרות' : 'Settings'} onClick={() => { close(); onOpenSettings?.(); }} />
                 <MenuItem
                   icon={isDark ? Sun : Moon}
                   label={isDark ? (language === 'he' ? 'מצב בהיר' : 'Light mode') : (language === 'he' ? 'מצב כהה' : 'Dark mode')}
@@ -244,7 +237,7 @@ export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
               )}
             </div>
 
-            <div className="px-3 py-2 border-t border-white/5">
+            <div className="px-2 pt-1.5 pb-2 border-t border-white/[0.06]">
               {!isInstalled && (
                 <MenuItem
                   icon={Download}
