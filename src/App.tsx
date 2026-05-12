@@ -96,6 +96,7 @@ const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage
 const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
 const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
+const JournalingHub = lazy(() => import("./pages/JournalingHub"));
 const StrategyPage = lazy(() => import("./pages/StrategyPage"));
 const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
 const AuroraPage = lazy(() => import("./pages/AuroraPage"));
