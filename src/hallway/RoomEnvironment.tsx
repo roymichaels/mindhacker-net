@@ -14,6 +14,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getRoomBySlug } from './rooms';
+import { pillarsForRoom } from './pillarMap';
+import { Surface, isSurfaceImplemented } from './surfaceRegistry';
 
 export default function RoomEnvironment() {
   const { slug } = useParams<{ slug: string }>();
@@ -76,19 +78,50 @@ export default function RoomEnvironment() {
         <h2 className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
           {lang === 'he' ? 'משטחים בתוך החדר' : 'Surfaces inside this room'}
         </h2>
-        <ul className="mt-4 grid gap-2">
-          {room.surfaces.map((surfaceId) => (
-            <li
-              key={surfaceId}
-              className="rounded-xl border border-border/50 bg-card/30 px-4 py-3 text-sm text-muted-foreground"
-            >
-              <span className="font-mono text-xs">{surfaceId}</span>
-              <span className="ms-3 text-[11px] uppercase tracking-widest">
-                {lang === 'he' ? 'בבנייה' : 'pending'}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-4 grid gap-3">
+          {room.surfaces.map((surfaceId) => {
+            const live = isSurfaceImplemented(surfaceId);
+            const pendingFallback = (
+              <div className="rounded-xl border border-border/50 bg-card/30 px-4 py-3 text-sm text-muted-foreground">
+                <span className="font-mono text-xs">{surfaceId}</span>
+                <span className="ms-3 text-[11px] uppercase tracking-widest">
+                  {lang === 'he' ? 'בבנייה' : 'pending'}
+                </span>
+              </div>
+            );
+            if (!live) return <div key={surfaceId}>{pendingFallback}</div>;
+            return (
+              <Surface
+                key={surfaceId}
+                surfaceId={surfaceId}
+                roomId={room.id}
+                fallback={pendingFallback}
+              />
+            );
+          })}
+        </div>
+
+        {(() => {
+          const pillars = pillarsForRoom(room.id);
+          if (!pillars.length) return null;
+          return (
+            <div className="mt-8">
+              <h2 className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                {lang === 'he' ? 'תחומים מאוחדים בחדר זה' : 'Pillars federated here'}
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {pillars.map((p) => (
+                  <li
+                    key={p}
+                    className="rounded-full border border-border/50 bg-card/30 px-3 py-1 text-xs text-muted-foreground"
+                  >
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
       </section>
     </div>
   );
