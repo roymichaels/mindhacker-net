@@ -1,30 +1,45 @@
-# Switch AI Engine to OpenRouter (AION Brain First)
+# Mobile-Friendly Avatar Wizard
+
+## Problem
+On mobile (≤402px), `AvatarConfiguratorUI` pins a fixed **304px right rail** (username card + 80px category column + 224px asset grid) over the avatar canvas. The avatar is nearly fully covered, the username card overlaps the categories, and the action buttons (randomize/download/save) sit at the bottom of the screen behind the system tab bar. Desktop layout works fine.
 
 ## Approach
-Introduce a shared backend helper that routes AI calls to **OpenRouter** when `OPENROUTER_API_KEY` is configured, with the existing Lovable AI Gateway as a fallback. Migrate the **AION Brain** (`aurora-chat`) first so the user-facing chat is fast immediately; the remaining 40 edge functions automatically benefit later as they adopt the helper (no need to touch all 41 in one pass).
+Split the configurator into two layouts via a `useIsMobile()` breakpoint switch — keep the current desktop right-rail untouched, and add a mobile-native bottom-sheet layout that exposes **every existing feature** without covering the avatar.
 
-## What you provide
-One secret: **`OPENROUTER_API_KEY`** — get it from https://openrouter.ai/keys (account → Keys → Create Key). I'll request it via the secrets prompt after you approve this plan.
+## Mobile layout (new)
 
-## Changes
+```text
+┌──────────────────────────────┐
+│  ⓧ                  👤 שם    │  ← floating top bar (close + username chip→opens sheet)
+│                              │
+│        [ AVATAR CANVAS ]     │  ← full screen, unobstructed
+│                              │
+│         🎲  ⬇  💾            │  ← floating action dock (randomize / download / save)
+├──────────────────────────────┤
+│ שיער פנים עיניים גבות אף ... │  ← horizontal scrolling category tabs
+├──────────────────────────────┤
+│ צבע: ● ● ● ● ● ● (h-scroll)  │  ← compact color row (when category has palette)
+│ ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐    │  ← 3-col asset grid, sheet ~38vh, drag-to-expand to ~70vh
+│ │  │ │  │ │  │ │  │ │  │    │
+│ └──┘ └──┘ └──┘ └──┘ └──┘    │
+└──────────────────────────────┘
+```
 
-### 1. New shared helper — `supabase/functions/_shared/aiGateway.ts`
-- Single `chatCompletion({ model, messages, stream, tools, ... })` function.
-- If `OPENROUTER_API_KEY` is set → POST `https://openrouter.ai/api/v1/chat/completions` with `Authorization: Bearer …`, `HTTP-Referer`, and `X-Title` headers.
-- Else → fall back to existing `https://ai.gateway.lovable.dev/v1/chat/completions` with `LOVABLE_API_KEY`.
-- Model alias map so existing call-sites keep working:
-  - `google/gemini-3-flash-preview` → `google/gemini-2.5-flash`
-  - `google/gemini-2.5-flash` / `-flash-lite` → kept as-is (OpenRouter supports them)
-  - `openai/gpt-5*` → `openai/gpt-4o` family equivalents
-- Forwards SSE stream bodies untouched, surfaces `429` / `402` cleanly.
+Behavior:
+- **Bottom sheet** (Radix Sheet from `side="bottom"` already used elsewhere in shadcn ui) holds tabs + colors + asset grid; collapses to a 56-px handle when the user wants to inspect the avatar, expands by drag or by tapping a category chip.
+- **Username** moves out of the rail into a small chip in the top bar; tapping it opens a small modal/sheet section with the existing input + helper text + save validation logic (unchanged).
+- **Action dock** (randomize / download / save) becomes a floating pill above the bottom sheet handle — always reachable, never under iOS home indicator (`pb-[env(safe-area-inset-bottom)]`).
+- **Category tabs** become a horizontally scrollable row (`overflow-x-auto`, snap, no scrollbar) so all 15 categories are reachable with a swipe instead of vertical scroll in an 80px column.
+- **Asset grid** uses `grid-cols-3` on mobile (vs current 2) so more options are visible without scrolling — same tile component (`AssetTilePreview`).
+- "None" removable tile, locked-group warning, and color palette all rendered identically — no feature dropped.
 
-### 2. Update AION Brain — `supabase/functions/aurora-chat/index.ts`
-- Replace direct `fetch` to Lovable gateway with the new helper.
-- Default model for AION: **`google/gemini-2.5-flash`** (fast + cheap, suits chat). Reasoning/tool calls stay on whichever model the route already requests.
-- Keep streaming, CORS, error handling, and JWT validation unchanged.
+## Desktop layout
+Untouched. Same right rail, same widths, same behavior at `sm` and above.
 
-### 3. (Out of scope, follow-up) Other functions
-The other 40 functions keep running on Lovable AI until each is migrated to the helper in subsequent passes — zero behavior change for them today.
+## Files to change
+- `src/components/avatar/AvatarConfiguratorUI.tsx` — extract two render branches (`MobileLayout` / `DesktopLayout`) sharing the same store hooks; wire `useIsMobile()`.
+
+No store/data changes; all behavior already lives in `useConfiguratorStore` + `useCommunityUsername`.
 
 ## Verification
-After secret is added: open AION chat in the preview, send a message, confirm tokens stream in noticeably faster and edge-function logs show `openrouter.ai` as the upstream.
+On the 402×716 preview: avatar visible full-screen, all 15 categories reachable via horizontal scroll, color palette + asset grid expand from bottom, save/randomize/download accessible above the home indicator, username editable from the top chip.
