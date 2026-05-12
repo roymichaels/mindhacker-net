@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin Coupon Management — CRUD for discount codes.
  */

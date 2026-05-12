@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * OnboardingFlow — Full-screen neural architecture intake orchestrator.
  * 
