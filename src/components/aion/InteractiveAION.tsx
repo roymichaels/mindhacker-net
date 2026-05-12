@@ -235,19 +235,34 @@ export default function InteractiveAION() {
 
       {/* Voice toggle pill */}
       <div className="absolute inset-x-0 bottom-[112px] flex justify-center">
-        <button
-          type="button"
-          onClick={toggleVoice}
-          className={cn(
-            'h-10 px-4 rounded-full backdrop-blur-md border text-xs font-medium flex items-center gap-2 transition-colors',
-            voice.isActive
-              ? 'bg-primary/20 border-primary/40 text-primary-foreground'
-              : 'bg-card/40 border-white/10 text-foreground/80'
-          )}
-        >
-          {voice.isActive ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
-          {voice.isActive ? 'מצב קולי פעיל' : 'מצב קולי'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleVoice}
+            className={cn(
+              'h-10 px-4 rounded-full backdrop-blur-md border text-xs font-medium flex items-center gap-2 transition-colors',
+              voice.isActive
+                ? 'bg-primary/20 border-primary/40 text-primary-foreground'
+                : 'bg-card/40 border-white/10 text-foreground/80'
+            )}
+          >
+            {voice.isActive ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+            {voice.isActive ? 'מצב קולי פעיל' : 'מצב קולי'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setHypnosisActive((v) => !v)}
+            aria-label="היפנוזה"
+            className={cn(
+              'h-10 w-10 rounded-full backdrop-blur-md border flex items-center justify-center transition-colors',
+              hypnosisActive
+                ? 'bg-primary/25 border-primary/40 text-primary-foreground'
+                : 'bg-card/40 border-white/10 text-foreground/70 hover:text-foreground'
+            )}
+          >
+            <Moon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Composer — secondary, minimal */}
@@ -258,6 +273,9 @@ export default function InteractiveAION() {
           </div>
         </div>
       </div>
+
+      {/* Hypnosis modifier — visual-only */}
+      <HypnosisLayer active={hypnosisActive} onExit={() => setHypnosisActive(false)} />
     </div>
   );
 }
