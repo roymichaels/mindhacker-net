@@ -36,6 +36,20 @@ export interface ProposedNode {
   pillar?: string | null;
   strength?: number; // 1..10, default 1
   metadata?: Record<string, unknown>;
+  /** Where this node came from (used for brain_evidence). Default "conversation". */
+  source_kind?:
+    | "conversation"
+    | "onboarding"
+    | "assessment"
+    | "journal"
+    | "hypnosis"
+    | "mission"
+    | "habit"
+    | "pulse"
+    | "dna"
+    | "manual";
+  /** Stable reference for idempotent evidence writes. */
+  source_ref?: Record<string, unknown>;
 }
 
 export interface UpsertResult {
@@ -45,6 +59,7 @@ export interface UpsertResult {
   id?: string;
   reference_count?: number;
   strength?: number;
+  confidence?: number;
 }
 
 const VALID_TYPES: GraphNodeType[] = [
@@ -87,74 +102,44 @@ export async function upsertGraphNodes(
       continue;
     }
     const content = raw.content.trim().slice(0, 800);
-    const normalized = normalize(content);
 
-    // Look for an existing node of the same type whose normalized content matches.
-    const { data: existingRows } = await client
-      .from("aurora_memory_graph")
-      .select("id, content, strength, reference_count, metadata")
-      .eq("user_id", user_id)
-      .eq("node_type", raw.node_type)
-      .eq("is_active", true)
-      .limit(50);
+    // Route through brain_upsert_node so every write also records evidence
+    // and maintains layer/confidence/dedupe in a single place.
+    const { data, error } = await client.rpc("brain_upsert_node", {
+      p_user_id: user_id,
+      p_type: raw.node_type,
+      p_content: content,
+      p_layer: null,
+      p_pillar: raw.pillar ?? null,
+      p_source_kind: raw.source_kind ?? "conversation",
+      p_source_ref: raw.source_ref ?? raw.metadata ?? {},
+      p_delta_conf: 5,
+      p_delta_strength: Math.max(1, Math.min(10, raw.strength ?? 1)),
+      p_emotional_charge: null,
+      p_summary: content.slice(0, 200),
+    });
 
-    const match = (existingRows ?? []).find(
-      (r: any) => normalize(String(r.content ?? "")) === normalized,
-    );
-
-    if (match) {
-      const nextStrength = Math.min(10, (match.strength ?? 1) + 1);
-      const nextCount = (match.reference_count ?? 1) + 1;
-      const mergedMeta = { ...(match.metadata ?? {}), ...(raw.metadata ?? {}) };
-      const { error } = await client
-        .from("aurora_memory_graph")
-        .update({
-          strength: nextStrength,
-          reference_count: nextCount,
-          last_referenced_at: new Date().toISOString(),
-          metadata: mergedMeta,
-        })
-        .eq("id", match.id);
-      if (error) {
-        out.push({ node_type: raw.node_type, content, action: "skipped" });
-      } else {
-        out.push({
-          node_type: raw.node_type,
-          content,
-          action: "reinforced",
-          id: match.id,
-          reference_count: nextCount,
-          strength: nextStrength,
-        });
-      }
+    if (error || !data) {
+      out.push({ node_type: raw.node_type, content, action: "skipped" });
       continue;
     }
 
-    const { data: inserted, error: insErr } = await client
-      .from("aurora_memory_graph")
-      .insert({
-        user_id,
-        node_type: raw.node_type,
-        content,
-        context: raw.context ?? null,
-        pillar: raw.pillar ?? null,
-        strength: Math.max(1, Math.min(10, raw.strength ?? 1)),
-        metadata: raw.metadata ?? {},
-      })
-      .select("id")
-      .maybeSingle();
-    if (insErr) {
-      out.push({ node_type: raw.node_type, content, action: "skipped" });
-    } else {
-      out.push({
-        node_type: raw.node_type,
-        content,
-        action: "inserted",
-        id: inserted?.id,
-        reference_count: 1,
-        strength: Math.max(1, Math.min(10, raw.strength ?? 1)),
-      });
-    }
+    const result = data as {
+      node_id: string;
+      created: boolean;
+      new_confidence: number;
+      new_strength: number;
+    };
+
+    out.push({
+      node_type: raw.node_type,
+      content,
+      action: result.created ? "inserted" : "reinforced",
+      id: result.node_id,
+      strength: result.new_strength,
+      confidence: result.new_confidence,
+      reference_count: result.created ? 1 : 2,
+    });
   }
   return out;
 }
