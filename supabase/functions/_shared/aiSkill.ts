@@ -40,6 +40,7 @@ export interface SkillCallResult<T> {
 }
 
 const DEFAULT_OR_MODEL = "nvidia/nemotron-nano-9b-v2:free";
+const FALLBACK_OR_MODEL = "google/gemini-2.5-flash-lite";
 const DEFAULT_LOVABLE_MODEL = "google/gemini-3.1-flash-lite-preview";
 
 export async function callSkill<T = unknown>(
@@ -49,7 +50,7 @@ export async function callSkill<T = unknown>(
   const model =
     opts.model ?? (hasOpenRouter ? DEFAULT_OR_MODEL : (opts.fallbackModel ?? DEFAULT_LOVABLE_MODEL));
   const maxTokens = opts.maxTokens ?? 800;
-  const timeoutMs = opts.timeoutMs ?? 8000;
+  const timeoutMs = opts.timeoutMs ?? 20000;
 
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -122,6 +123,51 @@ export async function callSkill<T = unknown>(
     return { ok: true, result: parsed, duration_ms: Date.now() - start, model };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "unknown";
+    // On timeout / network failure with default Nemotron-free, retry once on fast fallback.
+    if (
+      hasOpenRouter &&
+      !opts.model &&
+      (ctrl.signal.aborted || /timeout|network|fetch/i.test(msg))
+    ) {
+      try {
+        const ctrl2 = new AbortController();
+        const t2 = setTimeout(() => ctrl2.abort(), 8000);
+        const start2 = Date.now();
+        const resp2 = await aiChatCompletion(
+          {
+            model: FALLBACK_OR_MODEL,
+            messages: [
+              { role: "system", content: opts.system },
+              { role: "user", content: opts.user },
+            ],
+            temperature: opts.temperature ?? 0.4,
+            max_tokens: maxTokens,
+            tools: [{ type: "function", function: opts.schema }],
+            tool_choice: { type: "function", function: { name: opts.schema.name } },
+          },
+          { signal: ctrl2.signal },
+        );
+        clearTimeout(t2);
+        if (resp2.ok) {
+          const j = await resp2.json();
+          const tc = j.choices?.[0]?.message?.tool_calls?.[0];
+          if (tc?.function?.arguments) {
+            const parsed =
+              typeof tc.function.arguments === "string"
+                ? JSON.parse(tc.function.arguments)
+                : tc.function.arguments;
+            return {
+              ok: true,
+              result: parsed as T,
+              duration_ms: Date.now() - start2,
+              model: FALLBACK_OR_MODEL,
+            };
+          }
+        }
+      } catch (_) {
+        /* fall through to original error */
+      }
+    }
     return {
       ok: false,
       error: ctrl.signal.aborted ? "timeout" : msg,
