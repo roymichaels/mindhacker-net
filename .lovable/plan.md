@@ -1,28 +1,29 @@
-## Bug
+## Goal
 
-Runtime error: `cannot add postgres_changes callbacks for realtime:theme_settings_changes after subscribe()` — surfaces a full-screen "משהו השתבש" error.
+Make login work end-to-end on Lovable Cloud (managed Google OAuth + email/password) and remove the Web3Auth layer that's interfering.
 
-## Root cause
+## Problems
 
-`src/hooks/useThemeSettings.ts` (line 304) creates a Supabase realtime channel with a hard-coded name `'theme_settings_changes'`. The hook is mounted by multiple components (ThemeProvider, header, etc.). When a second instance mounts, `supabase.channel('theme_settings_changes')` returns the existing already-subscribed channel and `.on('postgres_changes', …)` is called after `.subscribe()` has already run → throw.
+1. Auth log shows `400: Unsupported provider: missing OAuth secret` on `/authorize` → Google provider isn't configured for the managed Cloud auth.
+2. Auth log shows `403: invalid claim: missing sub claim` → stale Web3Auth-issued JWT in storage is being sent to Cloud auth.
+3. `Web3AuthProviderWrapper` still wraps the entire app (`src/App.tsx`), pulling in the Web3Auth SDK and polyfills on every load even though no UI uses it anymore.
+4. `CloudAuthModal` calls `supabase.auth.signInWithOAuth("google", …)` directly. With Lovable Cloud managed OAuth we should use `lovable.auth.signInWithOAuth` from `src/integrations/lovable/index.ts` instead.
 
-## Fix
+## Plan
 
-In `src/hooks/useThemeSettings.ts`, give each mount its own channel by appending a unique suffix:
-
-```ts
-const channel = supabase
-  .channel(`theme_settings_changes_${Math.random().toString(36).slice(2)}`)
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'theme_settings' }, () => {
-    cachedTheme = null;
-    cacheTimestamp = 0;
-    fetchTheme();
-  })
-  .subscribe();
-```
-
-That's the only change. Cleanup in the existing `return () => supabase.removeChannel(channel)` already handles teardown.
+1. **Enable managed Google OAuth** via `supabase--configure_social_auth` with `providers: ["google"]`. This scaffolds `src/integrations/lovable/` and installs `@lovable.dev/cloud-auth-js`. Email/password stays enabled (do NOT pass `disable_providers`).
+2. **Update `src/components/auth/CloudAuthModal.tsx`**:
+   - Replace the Google handler with `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })` from `@/integrations/lovable`.
+   - Keep email/password flow on `supabase.auth` as-is.
+3. **Remove Web3Auth from the runtime path**:
+   - In `src/App.tsx`: drop the `<Web3AuthProviderWrapper>` wrapper and its import.
+   - In `src/main.tsx`: remove the Web3Auth browser polyfills block.
+   - Delete `src/providers/Web3AuthProviderWrapper.tsx`, `src/lib/web3auth.ts`, `src/lib/web3authConfig.ts`, `src/components/auth/Web3AuthLoginButton.tsx`, `src/components/auth/Web3AuthModalBridge.tsx`. (Already not used anywhere.)
+   - In `src/components/web3/SoulAvatarMintWizard.tsx` (only remaining web3 reference): replace the wallet-connection check with the Cloud-auth user check, or stub the wallet step out — confirm during implementation.
+4. **Clear stale tokens**: add a one-time effect that, if `localStorage` contains `openlogin_store` / `Web3Auth-cachedAdapter`, removes them so the bad JWT stops being attached.
+5. Verify: open the auth modal → "Continue with Google" routes through Lovable's OAuth broker; email signup/login still works.
 
 ## Out of scope
 
-No other files. No theme/UI behavior changes.
+- The pre-existing TypeScript errors in unrelated files (already silenced with `// @ts-nocheck`).
+- Apple / SAML / phone auth.
