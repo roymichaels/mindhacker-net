@@ -17,6 +17,16 @@ const PROMPT_VERSIONS = {
   widget: "widget-v1.0",
 } as const;
 
+const HISTORY_ONLY_RULES = `# Context freshness — critical
+Conversation history is historical context only.
+Never treat previous assistant messages as current facts.
+Never copy old assistant wording.
+Never reuse a previous greeting or task summary.
+Current time may only come from the latest request metadata or the current server context block.
+If the user asks for tasks, use only fresh action_items from the current context for today in the user's timezone.
+If the user did not explicitly ask for a summary, do not volunteer task lists, daily briefings, or checklist recaps.
+`;
+
 export type AuroraMode = "full" | "lite" | "widget";
 
 export interface OrchestratorResult {
@@ -154,12 +164,12 @@ export function prepare(
     };
   }
 
-  const contextMarkdown = formatContextForPrompt(context, language);
+  const contextMarkdown = formatContextForPrompt(context, language, mode);
   const openerSection = formatOpenerContext(context, language);
 
   if (mode === "widget") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + buildWidgetPrompt(language, knowledgeBase),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildWidgetPrompt(language, knowledgeBase),
       model: "google/gemini-2.5-flash",
       maxTokens: 1000,
       temperature: 0.7,
@@ -169,7 +179,7 @@ export function prepare(
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
@@ -183,6 +193,7 @@ export function prepare(
   return {
     systemPrompt:
       FINAL_ONLY_GUARD +
+      HISTORY_ONLY_RULES +
       buildFullPrompt(language, contextMarkdown, openerSection) +
       pillarSection +
       socraticSection,
@@ -341,14 +352,22 @@ You are currently in the Coach Matching Wizard. Your goal is to understand what 
 
 // ─── Context → Markdown Formatter ──────────────────────────
 
-function formatContextForPrompt(ctx: AuroraContext, language: string): string {
+function formatContextForPrompt(ctx: AuroraContext, language: string, mode: AuroraMode = "full"): string {
   const isHe = language === "he";
   const parts: string[] = [];
+  const isGreetingLite = mode === "lite";
 
   // Dates & Time Awareness (enriched)
   parts.push(isHe
     ? `## תאריכים, זמן ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה מקומית: ${ctx.current_time_local}\n- אזור זמן: ${ctx.user_timezone}\n- יום בשבוע: ${ctx.day_of_week_he}\n- שעה UTC: ${ctx.current_time}`
     : `## Dates, Time & Tracking\n- Current date: ${ctx.today}\n- Local time: ${ctx.current_time_local}\n- Timezone: ${ctx.user_timezone}\n- Day of week: ${ctx.day_of_week}\n- UTC time: ${ctx.current_time}`);
+
+  if (isGreetingLite) {
+    parts.push(isHe
+      ? `## כללי פתיחה קצרים\n- זו פתיחת שיחה קצרה. אל תסכם משימות, הרגלים, בריפים יומיים או היסטוריה.\n- אם המשתמש לא ביקש סטטוס מפורש, הגב בקצרה ובטריות.`
+      : `## Short greeting rules\n- This is a short opener. Do not summarize tasks, habits, daily briefings, or history.\n- If the user did not explicitly ask for status, respond briefly and freshly.`);
+    return parts.join("\n\n");
+  }
 
   if (ctx.life_plan) {
     parts.push(isHe
@@ -552,12 +571,12 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
   if (ctx.cross_conversation_history.length > 0) {
     const lines = ctx.cross_conversation_history.map(m => {
       const pillarTag = m.pillar ? ` [${m.pillar}]` : '';
-      const roleLabel = m.role === 'aurora' ? 'Aurora' : (isHe ? 'משתמש' : 'User');
+      const roleLabel = m.role === 'aurora' ? 'Assistant (historical only)' : (isHe ? 'משתמש' : 'User');
       const recency = m.days_ago === 0 ? (isHe ? 'היום' : 'today') : m.days_ago === 1 ? (isHe ? 'אתמול' : 'yesterday') : `${m.days_ago}d`;
       return `- ${m.date} ${m.time} (${recency})${pillarTag} ${roleLabel}: ${m.content}`;
     });
     parts.push(isHe
-      ? `## 🧠 זיכרון צולב-שיחות (כל השיחות שלי עם המשתמש)\nאלה קטעים אחרונים מכל השיחות שלנו — כולל זמנים מדויקים. אני זוכרת הכל.\n${lines.join("\n")}`
+      ? `## 🧠 זיכרון צולב-שיחות (היסטורי בלבד)\nאלה קטעים אחרונים משיחות קודמות. הם לא עובדות עדכניות, ולא מקור לסיכום פתיחה.\n${lines.join("\n")}`
       : `## 🧠 Cross-Conversation Memory (all my conversations with this user)\nRecent excerpts from ALL our conversations — with exact timestamps. I remember everything.\n${lines.join("\n")}`);
   }
 

@@ -31,6 +31,14 @@ export default function ResponseSourceSection() {
       <Row label="mode" value={last.mode} />
       <Row label="greeting downgrade" value={last.greeting ? 'yes (lite)' : 'no'} />
       <Row label="degraded" value={last.degraded ? 'yes' : 'no'} />
+      <Row label="history messages" value={String(last.historyCount ?? 0)} />
+      <Row label="assistant history" value={String(last.assistantHistoryCount ?? 0)} />
+      <Row label="history filtered" value={String(last.historyFilteredCount ?? 0)} />
+      <Row label="task source" value={last.taskSource ?? 'unknown'} />
+      <Row label="current time" value={last.currentTime ?? 'unknown'} />
+      <Row label="daily briefing" value={last.dailyBriefingSource ?? 'unknown'} />
+      <Row label="proactive queue" value={last.proactiveUsed ? 'used' : 'not used'} />
+      <Row label="cached response" value={last.cachedResponse ? 'yes' : 'no'} />
       <Row
         label="duplicate of previous"
         value={

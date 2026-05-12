@@ -249,6 +249,40 @@ async function computeHash(data: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
+const STALE_ASSISTANT_CONTEXT_PATTERNS = [
+  /השעה עכשיו/i,
+  /יש לך היום/i,
+  /היום יש לך/i,
+  /המשימות הבאות/i,
+  /בוקר טוב/i,
+  /current time/i,
+  /today you have/i,
+  /tasks scheduled for today/i,
+];
+
+function isStaleAssistantContext(text: string | null | undefined): boolean {
+  const value = (text || "").trim();
+  return !!value && STALE_ASSISTANT_CONTEXT_PATTERNS.some((pattern) => pattern.test(value));
+}
+
+function dateInTimezone(now: Date, timezone: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now);
+    const year = parts.find((part) => part.type === "year")?.value;
+    const month = parts.find((part) => part.type === "month")?.value;
+    const day = parts.find((part) => part.type === "day")?.value;
+    if (year && month && day) return `${year}-${month}-${day}`;
+  } catch {
+    // fallback below
+  }
+  return now.toISOString().split("T")[0];
+}
+
 // ─── Main Builder ──────────────────────────────────────────
 
 export async function buildContext(
@@ -258,9 +292,9 @@ export async function buildContext(
   clientTimezone?: string | null
 ): Promise<AuroraContext> {
   const now = new Date();
-  const today = now.toISOString().split("T")[0];
   // Use client-provided timezone > language-based fallback > UTC
   const userTimezone = clientTimezone || (language === 'he' ? 'Asia/Jerusalem' : 'UTC');
+  const today = dateInTimezone(now, userTimezone);
   
   // Use toLocaleString with timezone directly — avoid parsing locale strings back into Date
   let localTimeStr: string;
@@ -377,14 +411,19 @@ export async function buildContext(
     supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).gte("log_date", new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]).order("log_date", { ascending: false }),
     // Latest recalibration
     supabase.from("recalibration_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
-    // Cross-conversation history: recent messages from THIS USER's Aurora conversations only
+    // Cross-conversation history: recent USER messages from THIS USER's Aurora conversations only.
+    // Exclude assistant briefing-style text so old generated summaries never become facts.
     (async () => {
       const { data: aiConvs } = await supabase.from("conversations").select("id, context").eq("participant_1", userId).eq("type", "ai").order("updated_at", { ascending: false }).limit(10);
       if (!aiConvs || aiConvs.length === 0) return { data: [], error: null };
       const convIds = aiConvs.map((c: any) => c.id);
       const convContextMap = new Map(aiConvs.map((c: any) => [c.id, c.context]));
       const { data: recentMsgs } = await supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").in("conversation_id", convIds).order("created_at", { ascending: false }).limit(60);
-      return { data: (recentMsgs || []).map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
+       const filtered = (recentMsgs || []).filter((m: any) => {
+         if (!m?.is_ai_message) return true;
+         return !isStaleAssistantContext(m.content);
+       }).filter((m: any) => !m?.is_ai_message);
+       return { data: filtered.map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
     })(),
     // Life domains (assessments, rawInputsUsed, willingness)
     supabase.from("life_domains").select("domain_id, domain_config, status").eq("user_id", userId),
@@ -433,7 +472,7 @@ export async function buildContext(
   const minimums = minimumsRes.data || [];
   const onboarding = onboardingRes.data;
   const lifePlan = lifePlanRes.data;
-  const conversationMemories = conversationMemoryRes.data || [];
+  const conversationMemories = (conversationMemoryRes.data || []).filter((m: any) => !isStaleAssistantContext(m.summary));
   const pendingReminders = remindersRes.data || [];
   const recentInsights = recentInsightsRes.data || [];
   const userProjects = projectsRes.data || [];
@@ -672,7 +711,7 @@ export async function buildContext(
       created_at: r.created_at,
     })),
 
-    // Cross-conversation memory: recent exchanges from all pillar/general chats (time-enriched)
+    // Cross-conversation memory: keep user-authored continuity, but do not feed old assistant briefings back into chat.
     cross_conversation_history: crossConvData.slice(0, 40).reverse().map((m: any) => {
       const pillarCtx = m.pillar_context;
       const pillar = pillarCtx ? pillarCtx.replace('pillar:', '') : null;
