@@ -17,7 +17,7 @@ export async function recordSignal(kind: AionSignalKind, payload: Record<string,
     await supabase.from("aion_signals").insert({
       user_id: user.id,
       kind,
-      payload,
+      payload: payload as never,
       client_at: new Date().toISOString(),
     });
   } catch (e) {
