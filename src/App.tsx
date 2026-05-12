@@ -468,6 +468,7 @@ const App = () => (
                                       </StoryWorldProvider>
                                     </AnalyticsProvider>
                                   </FlowAuditProvider>
+                                  </OverlayProvider>
                                   </TooltipProvider>
                                 </ProfileModalProvider>
                               </SoulAvatarProvider>
