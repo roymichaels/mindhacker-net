@@ -92,6 +92,29 @@ export function AionDecisionProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(() => ({ decision, refresh, signal }), [decision, refresh, signal]);
+
+  // Dev-only visibility into the live decision (Phase A validation hook).
+  // Surfaces mode/tone/density/focus/suggestion in the console whenever the
+  // brain pushes a new row. No UI side-effects.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    if (!decision) {
+      // eslint-disable-next-line no-console
+      console.log("[aion.decision] (none) — fast-tier rules in control");
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.log("[aion.decision]", {
+      mode: decision.mode,
+      tone: decision.tone,
+      density: decision.density,
+      focus_target: decision.focus_target,
+      suggestion: decision.suggestion,
+      reasoning: decision.reasoning,
+      expires_at: decision.expires_at,
+    });
+  }, [decision]);
+
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
