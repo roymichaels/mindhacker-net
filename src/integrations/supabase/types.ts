@@ -5151,35 +5151,53 @@ export type Database = {
       }
       journal_entries: {
         Row: {
+          ai_insight: string | null
           content: string
           created_at: string
           id: string
           journal_type: string
+          linked_mission_id: string | null
           metadata: Json | null
           mood: string | null
+          source: string
+          source_excerpt: string | null
+          summary: string | null
           tags: string[] | null
+          title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          ai_insight?: string | null
           content: string
           created_at?: string
           id?: string
           journal_type: string
+          linked_mission_id?: string | null
           metadata?: Json | null
           mood?: string | null
+          source?: string
+          source_excerpt?: string | null
+          summary?: string | null
           tags?: string[] | null
+          title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          ai_insight?: string | null
           content?: string
           created_at?: string
           id?: string
           journal_type?: string
+          linked_mission_id?: string | null
           metadata?: Json | null
           mood?: string | null
+          source?: string
+          source_excerpt?: string | null
+          summary?: string | null
           tags?: string[] | null
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
