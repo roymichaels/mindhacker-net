@@ -65,7 +65,7 @@ export default function AIONPage() {
 
   return (
     <AIONNamingGate>
-      <div className="fixed inset-0 top-14 z-40 flex flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,rgba(10,18,34,0.98),rgba(7,11,20,0.96))] overflow-hidden">
+      <div className="flex-1 min-h-0 -mx-2 lg:-mx-3 flex flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,rgba(10,18,34,0.98),rgba(7,11,20,0.96))] overflow-hidden">
         <AIONHeader
           title={aionName}
           subtitle={isHe ? `מרכז השיחה של ${aionName}` : `${aionName}'s conversation hub`}
@@ -90,7 +90,7 @@ export default function AIONPage() {
 
         <AIONQuickActions actions={[...quickActions]} className="pt-3" />
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-1 pb-[140px]">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-1">
           {isAssessing && assessmentDomainId ? (
             <DomainAssessChat
               domainId={assessmentDomainId}
@@ -103,10 +103,8 @@ export default function AIONPage() {
           )}
         </div>
 
-        <div className="fixed bottom-[calc(84px+env(safe-area-inset-bottom))] inset-x-0 z-30 px-3 pb-2">
-          <div className="rounded-2xl bg-slate-950/45 border border-white/10 shadow-[0_18px_50px_rgba(8,15,28,0.45)] backdrop-blur-xl p-2">
-            <GlobalChatInput />
-          </div>
+        <div className="shrink-0 px-3 py-2 border-t border-white/10 bg-black/20 backdrop-blur-xl">
+          <GlobalChatInput />
         </div>
 
         <AuroraJournalModal
