@@ -1,21 +1,9 @@
-// Browser polyfills required by Web3Auth SDK — must run before any imports
-import { Buffer } from 'buffer';
-import process from 'process';
-
-if (typeof globalThis.Buffer === 'undefined') {
-  (globalThis as any).Buffer = Buffer;
-}
-if (typeof (globalThis as any).global === 'undefined') {
-  (globalThis as any).global = globalThis;
-}
-if (
-  typeof (globalThis as any).process === 'undefined' ||
-  typeof (globalThis as any).process?.nextTick !== 'function'
-) {
-  (globalThis as any).process = process;
-}
-
 import { bustOldCaches } from "./utils/cacheBuster";
+
+// One-time cleanup of stale Web3Auth tokens that cause "missing sub claim" errors
+try {
+  ["openlogin_store", "Web3Auth-cachedAdapter"].forEach((k) => localStorage.removeItem(k));
+} catch {}
 
 function renderApp() {
   import("react-dom/client").then(({ createRoot }) => {
