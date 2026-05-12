@@ -312,6 +312,7 @@ const App = () => (
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
                                                 {/* Flat top-level environments (replaces MindOS hub) */}
                                                 <Route path="/aurora" element={<AuroraPage />} />
+                                                <Route path="/dashboard" element={<UserDashboard />} />
                                                 <Route path="/strategy" element={<StrategyPage />} />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
                                                 {/* Legacy MindOS → flat redirects */}
