@@ -31,6 +31,11 @@ export function resolveModel(model: string, provider: "openrouter" | "lovable"):
   return model;
 }
 
+// Models that only exist on OpenRouter — never remap to Lovable.
+export function isOpenRouterOnly(model: string): boolean {
+  return model.includes(":free") || model.startsWith("nvidia/") || model.startsWith("meta-llama/") || model.startsWith("mistralai/");
+}
+
 export function getProvider(): "openrouter" | "lovable" {
   return Deno.env.get("OPENROUTER_API_KEY") ? "openrouter" : "lovable";
 }
