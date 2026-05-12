@@ -208,6 +208,7 @@ const queryClient = new QueryClient({
 
 // Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/careers/coach/CoachesLayoutWrapper'));
+const OuterWorldHub = lazy(() => import('./pages/OuterWorldHub'));
 
 // Redirect old /arena/:domainId/* → /play (via /strategy/:domainId/*)
 function StrategyToMindOSRedirect() {
@@ -440,6 +441,8 @@ const App = () => (
                                                 <Route path="/arena/:domainId/*" element={<ArenaToMindOSRedirect />} />
                                                 {/* Coaches */}
                                                 <Route path="/coaches" element={<CoachesLayoutWrapper />} />
+                                                {/* Outer World hub — economy index, not a wizard */}
+                                                <Route path="/outer-world" element={<OuterWorldHub />} />
                                                 {/* Admin Hub */}
                                                 <Route path="/admin-hub" element={<AdminRoute><AdminLayoutWrapper /></AdminRoute>} />
                                                 {/* Launchpad */}
