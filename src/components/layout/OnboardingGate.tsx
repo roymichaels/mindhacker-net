@@ -71,26 +71,28 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
 
     return (
       <>
+        {children}
         {showBanner && (
-          <div className="sticky top-0 z-[60] flex items-center gap-2 bg-primary/10 border-b border-primary/20 px-3 py-1.5 h-8">
-            <div className="flex items-center gap-1.5 min-w-0 flex-1 text-xs text-foreground">
-              <Rocket className="h-3.5 w-3.5 text-primary shrink-0" />
-              <span className="truncate">
+          <div
+            className="fixed inset-x-0 z-[60] flex justify-center px-3 pointer-events-none"
+            style={{ bottom: 'calc(var(--bottom-tab-h, 72px) + env(safe-area-inset-bottom) + 8px)' }}
+          >
+            <div className="pointer-events-auto flex items-center gap-2 max-w-[92%] rounded-full bg-background/85 backdrop-blur-md border border-primary/30 shadow-lg pl-2 pr-1 py-1">
+              <Rocket className="h-3.5 w-3.5 text-primary shrink-0 mx-1" />
+              <span className="truncate text-xs text-foreground min-w-0">
                 {isRTL ? 'עדיין לא השלמת הצטרפות' : "You haven't completed onboarding"}
               </span>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
               <Button
                 size="sm"
                 variant="default"
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2.5 text-[11px] rounded-full shrink-0"
                 onClick={() => navigate('/onboarding')}
               >
                 {isRTL ? 'התחל' : 'Start'}
               </Button>
               <button
                 onClick={handleDismiss}
-                className="p-0.5 rounded-md hover:bg-muted transition-colors"
+                className="p-1 rounded-full hover:bg-muted transition-colors shrink-0"
                 aria-label="Dismiss"
               >
                 <X className="h-3 w-3 text-muted-foreground" />
@@ -98,7 +100,6 @@ export function OnboardingGate({ children }: OnboardingGateProps) {
             </div>
           </div>
         )}
-        {children}
       </>
     );
   }
