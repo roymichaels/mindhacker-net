@@ -3,6 +3,7 @@ import type { EnvironmentState, EnvironmentMode, SignalSnapshot } from './types'
 import { DEFAULT_ENVIRONMENT } from './types';
 import { evaluateFastTier } from './rules/fastTier';
 import { buildSignalSnapshot } from './SignalAggregator';
+import { useAionDecision, type AionDecision } from '@/contexts/AionDecisionContext';
 
 interface EnvironmentContextValue {
   state: EnvironmentState;
@@ -13,63 +14,84 @@ interface EnvironmentContextValue {
   setUserMode: (mode: EnvironmentMode | null) => void;
   /** Patch additional signals (open loops, sentiment, etc.). */
   updateSignals: (patch: Partial<SignalSnapshot>) => void;
-  /** Whether the orchestration layer is active (vs. legacy default). */
+  /** Always true now — kept for backwards compatibility with callers. */
   enabled: boolean;
 }
 
 const EnvironmentContext = createContext<EnvironmentContextValue | null>(null);
 
-const FEATURE_FLAG_KEY = 'mindos.aol.enabled';
+/** Map AION decision modes onto the EnvironmentMode vocabulary. */
+const MODE_MAP: Record<AionDecision['mode'], EnvironmentMode> = {
+  flow: 'focus',
+  focus: 'focus',
+  recovery: 'recover',
+  overwhelmed: 'calm',
+  hypnosis: 'reflect',
+  calm: 'calm',
+  neutral: 'execute',
+};
 
-function readFlag(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    return window.localStorage.getItem(FEATURE_FLAG_KEY) === '1';
-  } catch {
-    return false;
-  }
+const DENSITY_TO_BUDGET = {
+  minimal: 'minimal' as const,
+  standard: 'normal' as const,
+  rich: 'expanded' as const,
+};
+
+function isExpired(decision: AionDecision | null): boolean {
+  if (!decision?.expires_at) return false;
+  const t = Date.parse(decision.expires_at);
+  return Number.isFinite(t) && t < Date.now();
 }
 
 export function EnvironmentProvider({ children }: { children: React.ReactNode }) {
-  const [enabled, setEnabled] = useState<boolean>(readFlag);
   const [signals, setSignals] = useState<SignalSnapshot>(() => buildSignalSnapshot());
   const [state, setState] = useState<EnvironmentState>(DEFAULT_ENVIRONMENT);
   const overrideRef = useRef<EnvironmentMode | null>(null);
+  const { decision } = useAionDecision();
 
-  // Recompute state from signals (fast tier).
-  const recompute = useCallback((next: SignalSnapshot) => {
-    if (!enabled) {
-      setState(DEFAULT_ENVIRONMENT);
+  /**
+   * Recompute state. AION decisions are authoritative: if a non-expired
+   * decision exists and the user hasn't manually overridden, the decision's
+   * mode/tone/density become the live environment. Fast-tier rules act as
+   * the cold-start fallback and continue to drive chrome/orb hints.
+   */
+  const recompute = useCallback((next: SignalSnapshot, dec: AionDecision | null) => {
+    const fast = evaluateFastTier({ ...next, userOverrideMode: overrideRef.current ?? undefined });
+    const decisionLive = dec && !isExpired(dec);
+    if (!decisionLive || overrideRef.current) {
+      setState(fast);
       return;
     }
-    const evaluated = evaluateFastTier({ ...next, userOverrideMode: overrideRef.current ?? undefined });
-    setState(evaluated);
-  }, [enabled]);
-
-  // Reactive flag: listen for storage + custom toggle event so the provider
-  // can flip on/off without a reload.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const refresh = () => setEnabled(readFlag());
-    window.addEventListener('storage', refresh);
-    window.addEventListener('mindos:aol:toggle', refresh);
-    return () => {
-      window.removeEventListener('storage', refresh);
-      window.removeEventListener('mindos:aol:toggle', refresh);
-    };
+    const decMode = MODE_MAP[dec.mode] ?? fast.mode;
+    const decBudget = DENSITY_TO_BUDGET[dec.density] ?? fast.cognitiveBudget;
+    setState({
+      ...fast,
+      mode: decMode,
+      cognitiveBudget: decBudget,
+      reason: dec.reasoning ?? fast.reason,
+      source: 'slow-tier',
+      updatedAt: Date.now(),
+      aionDecision: {
+        mode: dec.mode,
+        tone: dec.tone,
+        density: dec.density,
+        focusTarget: dec.focus_target ?? {},
+        suggestion: dec.suggestion ?? {},
+        reasoning: dec.reasoning,
+      },
+    });
   }, []);
 
-  // Re-evaluate whenever flag flips.
-  useEffect(() => { recompute(signals); }, [enabled, recompute, signals]);
+  // Re-evaluate whenever signals or the live decision change.
+  useEffect(() => { recompute(signals, decision); }, [signals, decision, recompute]);
 
   // Periodic re-evaluation for time-of-day drift (cheap, fast tier only).
   useEffect(() => {
-    if (!enabled) return;
     const id = window.setInterval(() => {
       setSignals((prev) => buildSignalSnapshot(prev));
     }, 5 * 60 * 1000);
     return () => window.clearInterval(id);
-  }, [enabled]);
+  }, []);
 
   const reportIntent = useCallback((text: string) => {
     setSignals((prev) => ({ ...prev, lastIntentText: text, lastIntentAt: Date.now() }));
@@ -85,8 +107,8 @@ export function EnvironmentProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const value = useMemo<EnvironmentContextValue>(() => ({
-    state, signals, reportIntent, setUserMode, updateSignals, enabled,
-  }), [state, signals, reportIntent, setUserMode, updateSignals, enabled]);
+    state, signals, reportIntent, setUserMode, updateSignals, enabled: true,
+  }), [state, signals, reportIntent, setUserMode, updateSignals]);
 
   return <EnvironmentContext.Provider value={value}>{children}</EnvironmentContext.Provider>;
 }
@@ -105,15 +127,4 @@ export function useEnvironment(): EnvironmentContextValue {
     };
   }
   return ctx;
-}
-
-/** Helper for app-level toggles (e.g. settings panel). */
-export function setAolEnabled(enabled: boolean) {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(FEATURE_FLAG_KEY, enabled ? '1' : '0');
-    window.dispatchEvent(new Event('mindos:aol:toggle'));
-  } catch {
-    /* ignore */
-  }
 }
