@@ -1,29 +1,34 @@
-## Goal
+# Fix the Crash + Pink-Themed Error Screen
 
-Make login work end-to-end on Lovable Cloud (managed Google OAuth + email/password) and remove the Web3Auth layer that's interfering.
+## Problem
 
-## Problems
+Two issues are visible on the preview:
 
-1. Auth log shows `400: Unsupported provider: missing OAuth secret` on `/authorize` → Google provider isn't configured for the managed Cloud auth.
-2. Auth log shows `403: invalid claim: missing sub claim` → stale Web3Auth-issued JWT in storage is being sent to Cloud auth.
-3. `Web3AuthProviderWrapper` still wraps the entire app (`src/App.tsx`), pulling in the Web3Auth SDK and polyfills on every load even though no UI uses it anymore.
-4. `CloudAuthModal` calls `supabase.auth.signInWithOAuth("google", …)` directly. With Lovable Cloud managed OAuth we should use `lovable.auth.signInWithOAuth` from `src/integrations/lovable/index.ts` instead.
+1. **Underlying crash** (the cause of the error screen): `src/components/avatar/Experience.tsx` loads `/models/Teleporter Base.glb` via `<Gltf>`. In the preview deployment that asset 404s (URL-encoded space `Teleporter%20Base.glb`), which throws inside react-three-fiber and is caught by the global `ErrorBoundary`. The avatar itself doesn't need this teleporter base to render.
 
-## Plan
+2. **Theme mismatch**: The error screen currently shows the cyan/blue primary button (image 1). The user wants the pink/magenta variant (image 2) to match the rest of the dark UI.
 
-1. **Enable managed Google OAuth** via `supabase--configure_social_auth` with `providers: ["google"]`. This scaffolds `src/integrations/lovable/` and installs `@lovable.dev/cloud-auth-js`. Email/password stays enabled (do NOT pass `disable_providers`).
-2. **Update `src/components/auth/CloudAuthModal.tsx`**:
-   - Replace the Google handler with `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })` from `@/integrations/lovable`.
-   - Keep email/password flow on `supabase.auth` as-is.
-3. **Remove Web3Auth from the runtime path**:
-   - In `src/App.tsx`: drop the `<Web3AuthProviderWrapper>` wrapper and its import.
-   - In `src/main.tsx`: remove the Web3Auth browser polyfills block.
-   - Delete `src/providers/Web3AuthProviderWrapper.tsx`, `src/lib/web3auth.ts`, `src/lib/web3authConfig.ts`, `src/components/auth/Web3AuthLoginButton.tsx`, `src/components/auth/Web3AuthModalBridge.tsx`. (Already not used anywhere.)
-   - In `src/components/web3/SoulAvatarMintWizard.tsx` (only remaining web3 reference): replace the wallet-connection check with the Cloud-auth user check, or stub the wallet step out — confirm during implementation.
-4. **Clear stale tokens**: add a one-time effect that, if `localStorage` contains `openlogin_store` / `Web3Auth-cachedAdapter`, removes them so the bad JWT stops being attached.
-5. Verify: open the auth modal → "Continue with Google" routes through Lovable's OAuth broker; email signup/login still works.
+There is also a noisy `[story-world] scene fallback` SyntaxError logged from `StoryWorldContext.tsx`, but it is already handled by a fallback path and does not trigger the boundary — out of scope unless it surfaces again.
+
+## Changes
+
+### 1. Stop the crash in `src/components/avatar/Experience.tsx`
+- Remove the `<Gltf src="/models/Teleporter Base.glb" …>` element (the floor disc under the avatar). It is decorative, the file is unreliable in deployment, and removing it eliminates the boundary trip on `/index`.
+- No other avatar logic changes.
+
+### 2. Re-skin `src/components/ErrorBoundary.tsx` to the pink theme
+Match image 2 exactly while keeping the same structure, copy, RTL behavior, and buttons:
+- Card: dark `bg-card` with a soft pink border (`border-pink-500/40`) and outer pink glow (`shadow-[0_0_40px_-10px_hsl(320_90%_65%/0.45)]`), rounded-2xl.
+- Icon bubble: keep red `AlertTriangle` in `bg-destructive/10`.
+- Primary button (`Refresh page`): gradient pink `from-pink-400 to-fuchsia-500`, black text, glow `shadow-[0_0_30px_-5px_hsl(320_90%_65%/0.7)]`.
+- Secondary button (`Go to home page`): ghost/outline with pink-tinted border `border-pink-500/30`, transparent background, foreground text.
+- Error ID stays muted mono.
+- No changes to copy, language detection, or handlers.
+
+### 3. Verify
+Reload `/index` in the preview; avatar should render without tripping the boundary, and any future crash will display the pink-themed card.
 
 ## Out of scope
-
-- The pre-existing TypeScript errors in unrelated files (already silenced with `// @ts-nocheck`).
-- Apple / SAML / phone auth.
+- Story-world JSON fallback log noise.
+- Pre-existing TypeScript `@ts-nocheck` files.
+- Auth flow (already migrated in previous turn).
