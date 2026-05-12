@@ -22,6 +22,7 @@ import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import { cn } from '@/lib/utils';
 import ArtifactLayer from './artifacts/ArtifactLayer';
+import { emitArtifact } from './artifacts/artifactBus';
 
 const CHROME_HIDE_MS = 3000;
 
@@ -62,6 +63,29 @@ export default function InteractiveAION() {
     else if (voice.state === 'speaking') setState('speaking');
     else setState('idle');
   }, [voice.isActive, voice.state, setState]);
+
+  // Listen for assistant responses and surface a "next action" artifact when
+  // the response contains an actionable instruction (numbered list / imperative).
+  useEffect(() => {
+    let lastEmittedAt = 0;
+    function handler(e: Event) {
+      const text = (e as CustomEvent<{ text?: string }>).detail?.text;
+      if (!text) return;
+      // Debounce: don't emit more than once per 12s
+      if (Date.now() - lastEmittedAt < 12_000) return;
+      const action = extractFirstActionLine(text);
+      if (!action) return;
+      lastEmittedAt = Date.now();
+      emitArtifact({
+        kind: 'next_action',
+        title: action.length > 80 ? action.slice(0, 78) + '…' : action,
+        cta: { label: 'פתח Play', href: '/play' },
+        ttl: 12_000,
+      });
+    }
+    window.addEventListener('aurora:response', handler);
+    return () => window.removeEventListener('aurora:response', handler);
+  }, []);
 
   // Scale orb to viewport so it dominates the upper half on phones.
   useEffect(() => {
