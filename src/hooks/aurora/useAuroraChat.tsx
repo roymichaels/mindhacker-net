@@ -572,6 +572,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       abortControllerRef.current = null;
       
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+      try { tracer.end(); } catch { /* ignore */ }
     }
   }, [user?.id, conversationId, isStreaming, messages, language, dispatchCommands, generateTitle, triggerBackgroundAnalysis, summarizeConversation, queryClient]);
 
