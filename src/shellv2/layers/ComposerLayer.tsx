@@ -19,8 +19,8 @@ export default function ComposerLayer() {
       data-shellv2-layer="composer"
     >
       <div
-        className="pointer-events-auto mx-auto w-full max-w-screen-md rounded-2xl bg-background/70 backdrop-blur-xl border border-border/40 px-2 py-2"
-        style={{ position: 'fixed', left: 0, right: 0, bottom: 'max(env(safe-area-inset-bottom), 12px)', marginLeft: 'auto', marginRight: 'auto', maxWidth: '48rem' }}
+        className="pointer-events-auto mx-auto w-full max-w-screen-md rounded-2xl bg-background/70 backdrop-blur-xl border border-border/40 px-2 py-2 fixed inset-x-3"
+        style={{ bottom: 'max(env(safe-area-inset-bottom), 12px)', left: '12px', right: '12px', maxWidth: 'calc(100% - 24px)' }}
       >
         <GlobalChatInput />
       </div>
