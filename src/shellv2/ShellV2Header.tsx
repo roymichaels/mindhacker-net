@@ -12,7 +12,7 @@
 import { useLocation } from 'react-router-dom';
 import { History, Menu } from 'lucide-react';
 import { useOverlay } from '@/shell/overlay/OverlayController';
-import { zStyle } from '../zindex';
+import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
 
 function surfaceLabel(pathname: string): string {
