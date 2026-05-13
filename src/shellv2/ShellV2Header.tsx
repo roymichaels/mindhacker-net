@@ -7,31 +7,37 @@
  * dashboard logic. Hamburger and orb both open ShellV2Drawer via
  * OverlayController.
  */
-import { Menu } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, Sparkles, Info } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 
 export default function ShellV2Header() {
   const overlay = useOverlay();
   const { language, isRTL } = useTranslation();
-  // Brand is intentionally Latin in both locales for consistency.
+  const [brandOpen, setBrandOpen] = useState(false);
   const brand = 'MindOS';
+  const isHe = language === 'he';
 
   return (
+    <>
     <header
       className={cn(
         'pointer-events-none fixed inset-x-0 top-0',
-        'pt-[max(env(safe-area-inset-top),0.25rem)]',
+        'bg-background/55 backdrop-blur-2xl backdrop-saturate-150',
+        'border-b border-white/[0.06]',
+        'pt-[max(env(safe-area-inset-top),0.5rem)] pb-1.5',
       )}
       style={zStyle('chrome')}
       data-shellv2-layer="chrome"
       data-shellv2-header
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="pointer-events-auto mx-auto flex h-12 w-full max-w-screen-md items-center justify-between gap-2 px-3">
+      <div className="pointer-events-auto mx-auto flex h-11 w-full max-w-screen-md items-center justify-between gap-2 px-3">
         {/* Left: orb badge */}
         <button
           type="button"
@@ -42,12 +48,18 @@ export default function ShellV2Header() {
           <AuroraOrbIcon size={22} />
         </button>
 
-        {/* Center: brand */}
-        <div className="flex min-w-0 flex-1 items-center justify-center select-none">
+        {/* Center: brand (tap to open about sheet) */}
+        <button
+          type="button"
+          onClick={() => setBrandOpen(true)}
+          className="flex min-w-0 flex-1 items-center justify-center gap-1.5 select-none rounded-full px-3 py-1 active:scale-[0.97] transition"
+          aria-label={isHe ? 'אודות' : 'About'}
+        >
           <span className="truncate text-[15px] font-bold tracking-wide text-foreground/90">
             {brand}
           </span>
-        </div>
+          <Sparkles className="h-3 w-3 text-foreground/40" />
+        </button>
 
         {/* Right: hamburger */}
         <button
@@ -60,5 +72,31 @@ export default function ShellV2Header() {
         </button>
       </div>
     </header>
+
+    <Sheet open={brandOpen} onOpenChange={setBrandOpen}>
+      <SheetContent
+        side="bottom"
+        dir={isRTL ? 'rtl' : 'ltr'}
+        className="rounded-t-3xl border-white/10 bg-background/85 backdrop-blur-2xl pb-[max(env(safe-area-inset-bottom),1rem)]"
+      >
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
+        <SheetHeader className={isRTL ? 'text-right' : 'text-left'}>
+          <div className="flex items-center gap-2">
+            <AuroraOrbIcon size={28} />
+            <SheetTitle className="text-lg">{brand}</SheetTitle>
+          </div>
+          <SheetDescription className="text-foreground/70">
+            {isHe
+              ? 'מערכת ההפעלה של החיים שלך — משחק, מסע ותרגול יומי.'
+              : 'The operating system for your life — game, journey, and daily practice.'}
+          </SheetDescription>
+        </SheetHeader>
+        <div className="mt-4 flex items-center gap-2 rounded-2xl bg-white/[0.04] px-3 py-2.5 text-xs text-foreground/60">
+          <Info className="h-4 w-4 shrink-0" />
+          <span>{isHe ? 'גרסה 2 · ShellV2' : 'Version 2 · ShellV2'}</span>
+        </div>
+      </SheetContent>
+    </Sheet>
+    </>
   );
 }
