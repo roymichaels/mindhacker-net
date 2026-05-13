@@ -24,6 +24,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callSkill } from "../_shared/aiSkill.ts";
 import { SKILLS } from "../_shared/skillRegistry.ts";
 import { upsertGraphNodes, type GraphNodeType, type ProposedNode } from "../_shared/graphUpsert.ts";
+import { startServerTrace, getTraceIdFromRequest } from "../_shared/turnTrace.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
