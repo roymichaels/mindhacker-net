@@ -427,6 +427,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         }
         _lastAssistantText = cleanedContent || _lastAssistantText;
       } catch { /* never block chat */ }
+      tracer.mark('stream.end', { len: fullContent.length });
 
       // Dispatch commands through the bus (trust-gated) — fire-and-forget so
       // a single orchestration failure can never block the next reply.
