@@ -425,6 +425,45 @@ export const useAuroraChat = (conversationId: string | null) => {
         console.warn('[aion-artifacts] parse failed', e);
       }
 
+      // Phase 3 — Capability proposal fallback. If the server router decided
+      // `propose` (destructive/side-effect cap) and the LLM didn't emit a
+      // confirm sentinel, synthesize a deterministic confirm artifact from
+      // response headers so the user always gets a tappable confirmation.
+      try {
+        const router = (response.headers.get('x-aurora-router') || '').toLowerCase();
+        const capability = response.headers.get('x-aurora-capability') || '';
+        if (router === 'propose' && capability) {
+          const alreadyConfirmed = cleanedContent.includes('<<AION_ARTIFACT');
+          if (!alreadyConfirmed) {
+            const { emitArtifact } = await import('@/components/aion/artifacts/artifactBus');
+            const labels: Record<string, { title: string; cta: string }> = {
+              'plan.restart':   { title: 'Rebuild your 100-day plan?', cta: 'Rebuild' },
+              'plan.delete':    { title: 'Delete your active plan?',    cta: 'Delete' },
+              'daily.generate': { title: "Generate today's queue?",     cta: 'Generate' },
+              'hypnosis.start': { title: 'Start a hypnosis session?',   cta: 'Start' },
+            };
+            const meta = labels[capability] ?? { title: `Run ${capability}?`, cta: 'Confirm' };
+            const traceId = tracer.id ?? null;
+            emitArtifact({
+              kind: 'confirm',
+              title: meta.title,
+              ttl: 0,
+              cta: {
+                label: meta.cta,
+                onClick: () =>
+                  window.dispatchEvent(
+                    new CustomEvent('aion:capability:invoke', {
+                      detail: { capability, params: {}, traceId },
+                    }),
+                  ),
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('[aion-propose] fallback failed', e);
+      }
+
       // ── Dev diagnostics: report sanitizer outcome (no behavioural impact) ──
       try {
         const rawLen = fullContent.length;
