@@ -386,6 +386,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         const parsed = parseArtifactSentinels(cleanedContent);
         if (parsed.artifacts.length > 0) {
           cleanedContent = parsed.cleanText;
+          const traceIdForArt = tracer.id ?? null;
           for (const a of parsed.artifacts) {
             const sticky = a.kind === 'confirm';
             emitArtifact({
@@ -401,7 +402,7 @@ export const useAuroraChat = (conversationId: string | null) => {
                       ? () =>
                           window.dispatchEvent(
                             new CustomEvent('aion:capability:invoke', {
-                              detail: { capability: a.cta!.capability, params: a.cta!.params },
+                              detail: { capability: a.cta!.capability, params: a.cta!.params, traceId: traceIdForArt },
                             }),
                           )
                       : undefined,
@@ -412,7 +413,7 @@ export const useAuroraChat = (conversationId: string | null) => {
                       onClick: () =>
                         window.dispatchEvent(
                           new CustomEvent('aion:capability:invoke', {
-                            detail: { capability: a.confirm!.capability, params: a.confirm!.params },
+                            detail: { capability: a.confirm!.capability, params: a.confirm!.params, traceId: traceIdForArt },
                           }),
                         ),
                     }
