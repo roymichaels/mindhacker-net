@@ -53,7 +53,6 @@ const SmartRoot = lazy(() => import("./presence/SmartRoot"));
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
-const ProtectedAppShell = lazyWithRetry(() => import("./components/layout/ProtectedAppShell"), "ProtectedAppShell");
 const ProtectedAppShellV2 = lazy(() => import("./shellv2/ProtectedAppShellV2"));
 
 import { PageSkeleton } from "@/components/ui/skeleton";
@@ -339,7 +338,7 @@ const App = () => (
                                               </Route>
 
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
-                                              <Route element={<ProtectedAppShell />}>
+                                              <Route element={<ProtectedAppShellV2 />}>
                                                 {/* Community */}
                                                 <Route path="/community" element={<CommunityLayoutWrapper />} />
                                                 <Route path="/community/post/:postId" element={<CommunityThread />} />
