@@ -1,8 +1,21 @@
 /**
  * Centralized redirect map — keeps App.tsx lean.
- * Each entry: [fromPath, toPath]
+ * Each entry: [fromPath, toPath].
+ *
+ * Rule: every entry must point at a CANONICAL destination
+ * (one of: /, /aurora, /brain, /strategy, /outer-world, /coaches,
+ * /creator, /freelancer, /admin-hub, /launchpad/complete, /journal).
+ * Never chain through another redirect target like /mindos/* — those
+ * legacy paths are themselves redirected and create double-hops.
  */
 import { Route, Navigate } from 'react-router-dom';
+
+/** Public-shell redirects (rendered above the protected outlet). */
+const PUBLIC_REDIRECTS: [string, string][] = [
+  ['/index', '/'],
+  ['/home', '/'],
+  ['/onboarding', '/'],
+];
 
 const SIMPLE_REDIRECTS: [string, string][] = [
   // Auth (modal-based now)
@@ -22,28 +35,24 @@ const SIMPLE_REDIRECTS: [string, string][] = [
   ['/practitioners', '/coaches'],
   ['/marketplace', '/coaches'],
   ['/affiliate-dashboard', '/affiliate'],
-  // Legacy → /play
+  // Legacy life-domain pages → Strategy missions (canonical)
   ['/combat-community', '/community'],
-  ['/dashboard', '/mindos/tactics'],
-  ['/today', '/mindos/tactics'],
-  ['/me', '/mindos/tactics'],
-  ['/projects', '/mindos/tactics'],
-  ['/life', '/mindos/tactics'],
-  ['/life/*', '/mindos/tactics'],
-  ['/consciousness', '/mindos/tactics'],
-  ['/health', '/mindos/tactics'],
-  ['/health/*', '/mindos/tactics'],
-  ['/relationships', '/mindos/tactics'],
-  ['/relationships/*', '/mindos/tactics'],
-  ['/finances', '/mindos/tactics'],
-  ['/finances/*', '/mindos/tactics'],
-  ['/learning', '/mindos/tactics'],
-  ['/learning/*', '/mindos/tactics'],
-  ['/purpose', '/mindos/tactics'],
-  ['/purpose/*', '/mindos/tactics'],
-  ['/hobbies', '/mindos/tactics'],
-  ['/hobbies/*', '/mindos/tactics'],
-  ['/messages/ai', '/mindos/chat'],
+  ['/today', '/strategy?tab=missions'],
+  ['/projects', '/strategy?tab=missions'],
+  ['/consciousness', '/strategy?tab=missions'],
+  ['/health', '/strategy?tab=missions'],
+  ['/health/*', '/strategy?tab=missions'],
+  ['/relationships', '/strategy?tab=missions'],
+  ['/relationships/*', '/strategy?tab=missions'],
+  ['/finances', '/strategy?tab=missions'],
+  ['/finances/*', '/strategy?tab=missions'],
+  ['/learning', '/strategy?tab=missions'],
+  ['/learning/*', '/strategy?tab=missions'],
+  ['/purpose', '/strategy?tab=missions'],
+  ['/purpose/*', '/strategy?tab=missions'],
+  ['/hobbies', '/strategy?tab=missions'],
+  ['/hobbies/*', '/strategy?tab=missions'],
+  ['/messages/ai', '/aurora'],
   // Admin
   ['/admin', '/admin-hub'],
   ['/admin/*', '/admin-hub'],
@@ -84,14 +93,38 @@ const PANEL_REDIRECTS: [string, string][] = [
 
 /** Protected-shell redirects (rendered inside ProtectedAppShell) */
 export const PROTECTED_REDIRECTS: [string, string][] = [
-  ['/now', '/mindos/tactics'],
-  ['/plan', '/mindos/tactics'],
-  ['/profile', '/mindos/tactics'],
-  ['/strategy', '/mindos/strategy'],
-  ['/tactics', '/mindos/tactics'],
-  ['/arena', '/mindos/strategy'],
-  ['/personal-hypnosis/success', '/mindos/tactics'],
-  ['/personal-hypnosis/pending', '/mindos/tactics'],
+  // Strategy (missions) aliases — point straight at canonical
+  ['/now', '/strategy?tab=missions'],
+  ['/plan', '/strategy?tab=missions'],
+  ['/play', '/strategy?tab=missions'],
+  ['/play-hub', '/strategy?tab=missions'],
+  ['/tactics', '/strategy?tab=missions'],
+  ['/arena', '/strategy'],
+  ['/personal-hypnosis/success', '/strategy?tab=missions'],
+  ['/personal-hypnosis/pending', '/strategy?tab=missions'],
+  // Legacy hub aliases
+  ['/dashboard', '/'],
+  ['/hallway', '/'],
+  ['/hallway/:slug', '/'],
+  ['/work', '/'],
+  ['/work-hub', '/'],
+  ['/journal-hub', '/journal'],
+  ['/life', '/'],
+  ['/life-plan', '/strategy'],
+  ['/career', '/outer-world'],
+  ['/profile', '/aurora'],
+  ['/profile-hub', '/aurora'],
+  ['/coach-hub', '/coaches'],
+  ['/creator-hub', '/creator'],
+  ['/freelancer-hub', '/freelancer'],
+  ['/me', '/aurora'],
+  // Legacy MindOS namespace → flat canonical
+  ['/mindos', '/aurora'],
+  ['/mindos/chat', '/aurora'],
+  ['/mindos/strategy', '/strategy'],
+  ['/mindos/tactics', '/strategy?tab=missions'],
+  ['/mindos/work', '/'],
+  ['/mindos/journal', '/journal'],
 ];
 
 export function renderRedirectRoutes() {
@@ -103,7 +136,11 @@ export function renderRedirectRoutes() {
   const simpleRoutes = SIMPLE_REDIRECTS.map(([from, to]) => (
     <Route key={from} path={from} element={<Navigate to={to} replace />} />
   ));
-  return [...panelRoutes, ...simpleRoutes];
+  // Public-shell flat redirects (e.g. /index → /)
+  const publicRoutes = PUBLIC_REDIRECTS.map(([from, to]) => (
+    <Route key={from} path={from} element={<Navigate to={to} replace />} />
+  ));
+  return [...panelRoutes, ...simpleRoutes, ...publicRoutes];
 }
 
 export function renderProtectedRedirectRoutes() {
