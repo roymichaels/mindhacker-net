@@ -525,6 +525,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         } catch (e) {
           console.warn('[memory-writer] dispatch failed:', e);
         }
+        tracer.mark('post.memory-writer');
       }
 
       // Background side-effects — never awaited; failures must not block chat.
