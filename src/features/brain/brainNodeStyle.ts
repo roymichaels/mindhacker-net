@@ -39,6 +39,9 @@ export function edgeStyle(relation: string, inferred: boolean) {
     case "triggers":    return { stroke: "hsl(45 95% 60%)",  opacity: 0.45, dash: undefined };
     case "blocks":      return { stroke: "hsl(0 80% 60%)",   opacity: 0.5,  dash: "4 4" };
     case "evolved_from":return { stroke: "hsl(var(--primary))", opacity: 0.4, dash: "1 3" };
+    case "originated_from": return { stroke: "hsl(var(--primary))", opacity: 0.35, dash: "2 5" };
+    case "heals":       return { stroke: "hsl(160 70% 60%)", opacity: 0.55, dash: undefined };
+    case "belongs_to_room": return { stroke: "hsl(var(--foreground))", opacity: 0.05, dash: "1 6" };
     default:            return { stroke: "hsl(var(--foreground))", opacity: 0.18, dash: undefined };
   }
 }

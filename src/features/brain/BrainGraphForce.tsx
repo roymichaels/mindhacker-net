@@ -33,8 +33,8 @@ export default function BrainGraphForce({
 
   const allEdges = useMemo(
     () => [
-      ...edges.map((e) => ({ from: e.from, to: e.to, weight: e.weight, inferred: false })),
-      ...softEdges.map((e) => ({ from: e.from, to: e.to, weight: e.weight, inferred: true })),
+      ...edges.map((e) => ({ from: e.from, to: e.to, weight: e.weight, relation: e.relation, inferred: false })),
+      ...softEdges.map((e) => ({ from: e.from, to: e.to, weight: e.weight, relation: e.relation, inferred: true })),
     ],
     [edges, softEdges],
   );
