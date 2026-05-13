@@ -12,7 +12,9 @@ export type RoomId =
   | 'parts'
   | 'time'
   | 'identity'
-  | 'body';
+  | 'body'
+  | 'dreams'
+  | 'beyond';
 
 /** AION's behavioural mode while the user is inside this room. */
 export type RoomAionMode =
@@ -21,7 +23,9 @@ export type RoomAionMode =
   | 'empathic'
   | 'mirror'
   | 'witness'
-  | 'somatic';
+  | 'somatic'
+  | 'oneiric'
+  | 'transcendent';
 
 export type RoomDensity = 'minimal' | 'standard' | 'rich';
 

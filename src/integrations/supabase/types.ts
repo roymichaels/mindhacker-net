@@ -1173,6 +1173,7 @@ export type Database = {
           content: string
           content_key: string | null
           context: string | null
+          coverage: number | null
           created_at: string
           emotional_charge: number
           evidence_count: number
@@ -1199,6 +1200,7 @@ export type Database = {
           content: string
           content_key?: string | null
           context?: string | null
+          coverage?: number | null
           created_at?: string
           emotional_charge?: number
           evidence_count?: number
@@ -1225,6 +1227,7 @@ export type Database = {
           content?: string
           content_key?: string | null
           context?: string | null
+          coverage?: number | null
           created_at?: string
           emotional_charge?: number
           evidence_count?: number
@@ -10568,8 +10571,17 @@ export type Database = {
         }
         Returns: Json
       }
+      brain_get_atlas: { Args: { p_user_id: string }; Returns: Json }
+      brain_get_node: {
+        Args: { p_node_id: string; p_user_id: string }
+        Returns: Json
+      }
       brain_get_overview: {
         Args: { p_limit?: number; p_min_confidence?: number; p_user_id: string }
+        Returns: Json
+      }
+      brain_get_room: {
+        Args: { p_limit?: number; p_room: string; p_user_id: string }
         Returns: Json
       }
       brain_upsert_node: {
