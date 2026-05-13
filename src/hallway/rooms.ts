@@ -127,6 +127,44 @@ export const ROOM_REGISTRY: readonly RoomDefinition[] = [
     surfaces: ['body.scan', 'body.breath', 'body.hypnosis'],
     implemented: true,
   },
+  {
+    id: 'dreams',
+    slug: 'dreams',
+    aion: 'oneiric',
+    ambience: { hue: 248, saturation: 60, lightness: 14, density: 'rich' },
+    copy: {
+      label: { en: 'Dreams & Symbols', he: 'חלומות וסמלים' },
+      tagline: {
+        en: 'The images that arrive on their own.',
+        he: 'הדימויים שמגיעים מעצמם.',
+      },
+      entryWhisper: {
+        en: 'What did the night leave behind?',
+        he: 'מה הלילה השאיר אחריו?',
+      },
+    },
+    surfaces: ['dreams.journal', 'dreams.symbols'],
+    implemented: false,
+  },
+  {
+    id: 'beyond',
+    slug: 'beyond',
+    aion: 'transcendent',
+    ambience: { hue: 195, saturation: 35, lightness: 12, density: 'minimal' },
+    copy: {
+      label: { en: 'Beyond / Higher Self', he: 'מעבר / העצמי הגבוה' },
+      tagline: {
+        en: 'The you that is bigger than your story.',
+        he: 'האתה שגדול יותר מהסיפור שלך.',
+      },
+      entryWhisper: {
+        en: 'Step out of the room. Look at the room.',
+        he: 'צא מהחדר. הסתכל על החדר.',
+      },
+    },
+    surfaces: ['beyond.witness', 'beyond.intentions'],
+    implemented: false,
+  },
 ] as const;
 
 const BY_SLUG = new Map(ROOM_REGISTRY.map((r) => [r.slug, r] as const));
