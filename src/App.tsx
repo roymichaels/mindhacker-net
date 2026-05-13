@@ -294,8 +294,6 @@ const App = () => (
                                                   SmartRoot renders PresenceShell for authed users
                                                   and the public marketing Index otherwise. */}
                                               <Route path="/" element={<SmartRoot />} />
-                                              <Route path="/index" element={<Navigate to="/" replace />} />
-                                              <Route path="/home" element={<Navigate to="/" replace />} />
                                               <Route path="/landing" element={<Index />} />
                                               <Route path="/blog" element={<Blog />} />
                                               <Route path="/blog/:slug" element={<BlogPost />} />
@@ -309,7 +307,6 @@ const App = () => (
                                               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                               <Route path="/terms-of-service" element={<TermsOfService />} />
                                               <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                                              <Route path="/onboarding" element={<Navigate to="/" replace />} />
                                               <Route path="/ceremony" element={<OnboardingCeremony />} />
                                               <Route path="/go" element={<Go />} />
                                               <Route path="/founding" element={<FoundingLanding />} />
@@ -344,43 +341,14 @@ const App = () => (
                                                 {/* Messages */}
                                                 <Route path="/messages" element={<Messages />} />
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
-                                                {/* Flat top-level environments (replaces MindOS hub) */}
-                                                <Route path="/dashboard" element={<Navigate to="/" replace />} />
                                                 {/* Phase 5: when ff_shell_v2 is on, /strategy summons the
                                                     `plan` artifact inside ShellV2; otherwise legacy page. */}
                                                 {/* Quarantined — legacy surfaces redirect to ShellV2 home. */}
                                                 <Route path="/strategy" element={<StrategyPage />} />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
-                                                {/* Hallway routes retired in Phase 3.1 — rooms are now
-                                                    swipeable lenses inside PresenceShell, not destinations.
-                                                    Both /hallway and /hallway/:slug fold back to `/`. */}
-                                                <Route path="/hallway" element={<Navigate to="/" replace />} />
-                                                <Route path="/hallway/:slug" element={<Navigate to="/" replace />} />
-                                                {/* Legacy MindOS → flat redirects */}
-                                                <Route path="/mindos" element={<Navigate to="/aurora" replace />} />
-                                                <Route path="/mindos/chat" element={<Navigate to="/aurora" replace />} />
-                                                <Route path="/mindos/strategy" element={<Navigate to="/strategy" replace />} />
-                                                <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
-                                                <Route path="/mindos/work" element={<Navigate to="/" replace />} />
-                                                <Route path="/mindos/journal" element={<Navigate to="/" replace />} />
                                                 <Route path="/journal" element={<JournalingHub />} />
-                                                <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
-                                                <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
-                                                <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
-                                                <Route path="/profile" element={<Navigate to="/aurora" replace />} />
-                                                {/* Quarantined hubs — kept as backend engines / chat artifacts only.
-                                                    Redirect any stale deep-links so they never resurface as primary surfaces. */}
-                                                <Route path="/life" element={<Navigate to="/" replace />} />
-                                                <Route path="/life-plan" element={<Navigate to="/strategy" replace />} />
-                                                <Route path="/career" element={<Navigate to="/outer-world" replace />} />
-                                                <Route path="/arena" element={<Navigate to="/strategy" replace />} />
-                                                <Route path="/play-hub" element={<Navigate to="/strategy?tab=missions" replace />} />
-                                                <Route path="/work-hub" element={<Navigate to="/mindos/work" replace />} />
-                                                <Route path="/journal-hub" element={<Navigate to="/journal" replace />} />
-                                                <Route path="/profile-hub" element={<Navigate to="/aurora" replace />} />
-                                                <Route path="/coach-hub" element={<Navigate to="/coaches" replace />} />
-                                                <Route path="/creator-hub" element={<Navigate to="/creator" replace />} />
-                                                <Route path="/freelancer-hub" element={<Navigate to="/freelancer" replace />} />
+                                                {/* All legacy aliases (/play /now /plan /hallway /mindos/* /work /life /career /*-hub …)
+                                                    are owned by PROTECTED_REDIRECTS in src/routes/redirects.tsx. */}
                                                 <Route path="/strategy/presence" element={<PresenceHome />} />
                                                 <Route path="/strategy/presence/scan" element={<PresenceScan />} />
                                                 <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
@@ -452,7 +420,6 @@ const App = () => (
                                                 {/* Learn */}
                                                 <Route path="/learn" element={<LearnLayoutWrapper />} />
                                                 {/* Work Hub */}
-                                                <Route path="/work" element={<Navigate to="/" replace />} />
                                                 {/* Free Market routes */}
                                                 <Route path="/fm" element={<FMMarketLayoutWrapper />} />
                                                 <Route path="/fm/cashout" element={<FMCashout />} />
