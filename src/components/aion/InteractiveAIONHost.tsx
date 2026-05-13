@@ -99,28 +99,26 @@ export default function InteractiveAIONHost() {
 
   return (
     <>
-      {/* Backdrop — fades, dismisses on tap */}
-      <div
-        onClick={() => setOpen(false)}
-        aria-hidden
-        className={
-          'fixed inset-0 z-[75] bg-black/85 backdrop-blur-sm transition-opacity duration-300 ' +
-          (open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
-        }
-      />
-      {/* Slide-in panel from the LEFT edge */}
-      <aside
+      {/* Ghost-mount guard: render zero DOM when closed so the host
+          never sits on top of ShellV2 layers as a hidden overlay. */}
+      {!open ? null : (
+        <>
+          {/* Backdrop — dismisses on tap */}
+          <div
+            onClick={() => setOpen(false)}
+            aria-hidden
+            className="fixed inset-0 z-[75] bg-black/85 backdrop-blur-sm"
+          />
+          {/* Slide-in panel from the LEFT edge */}
+          <aside
         role="dialog"
         aria-modal="true"
         aria-label="Interactive AION"
         className={
           'fixed top-0 bottom-0 left-0 z-[80] w-full sm:w-[440px] md:w-[480px] ' +
-          'bg-background shadow-[0_0_60px_rgba(0,0,0,0.5)] ' +
-          'transform-gpu transition-transform duration-[360ms] ease-[cubic-bezier(.22,.61,.36,1)] will-change-transform ' +
-          (open ? 'translate-x-0' : '-translate-x-full')
+          'bg-background shadow-[0_0_60px_rgba(0,0,0,0.5)] translate-x-0'
         }
       >
-        {open && (
           <InteractiveErrorBoundary
             onError={() => {
               toast.error('מצב AION לא זמין כרגע — נסה שוב');
@@ -137,7 +135,6 @@ export default function InteractiveAIONHost() {
               <InteractiveAION />
             </Suspense>
           </InteractiveErrorBoundary>
-        )}
         {/* Close affordance — pinned to the panel's right edge */}
         <button
           type="button"
@@ -147,7 +144,9 @@ export default function InteractiveAIONHost() {
         >
           <X className="h-5 w-5" />
         </button>
-      </aside>
+        </aside>
+        </>
+      )}
     </>
   );
 }
