@@ -61,7 +61,6 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
-const DashboardLayoutWrapper = lazy(() => import("./components/dashboard/DashboardLayoutWrapper"));
 
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
