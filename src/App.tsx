@@ -317,8 +317,7 @@ const App = () => (
                                               <Route path="/features/:slug" element={<FeatureDetailPage />} />
                                               {/* ShellV2 dev preview — Phase 1 skeleton. Public, no shell wrappers. */}
                                               <Route path="/__shellv2" element={<ShellV2DevPage />} />
-                                              {/* Brain — Phase 4 of ShellV2. Graph + identity, formerly a profile modal tab. */}
-                                              <Route path="/brain" element={<BrainPage />} />
+                                              {/* /brain is now mounted under ProtectedAppShellV2 below. */}
                                               {/* Coach slug redirects (dynamic, can't be in map) */}
                                               <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
                                               <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
