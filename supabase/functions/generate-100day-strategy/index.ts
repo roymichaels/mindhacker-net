@@ -704,11 +704,29 @@ serve(async (req) => {
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { user_id, hub, force_regenerate, selected_pillars, single_pillar, skip_quality_gate } = body;
+    const { user_id, hub, force_regenerate, selected_pillars, single_pillar, skip_quality_gate, mode } = body;
 
     if (!user_id) {
       return new Response(JSON.stringify({ error: "user_id required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // === PURGE MODE: delete strategy + downstream artifacts, no regeneration ===
+    if (mode === 'purge') {
+      const { data: activePlans } = await supabaseClient
+        .from('life_plans').select('id')
+        .eq('user_id', user_id).eq('status', 'active');
+      const ids = (activePlans || []).map((p: any) => p.id);
+      if (ids.length > 0) {
+        await supabaseClient.from('plan_missions').delete().in('plan_id', ids);
+        await supabaseClient.from('action_items').delete().eq('user_id', user_id).in('plan_id', ids);
+        await supabaseClient.from('life_plan_milestones').delete().in('plan_id', ids);
+        await supabaseClient.from('skills').delete().eq('user_id', user_id).in('life_plan_id', ids);
+        await supabaseClient.from('life_plans').update({ status: 'archived' }).in('id', ids);
+      }
+      return new Response(JSON.stringify({ purged: true, count: ids.length }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
