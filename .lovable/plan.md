@@ -162,3 +162,15 @@ Awaiting approval to implement.
 - UI: new `AIONTracePanel` section (live via Realtime) at the top of `DiagnosticsSheet`.
 - Behavior: zero changes — observation only.
 - Enable: `localStorage.setItem('ff_aion_trace','1')` (client) + `AION_TRACE=1` (edge env).
+
+---
+
+## Status — Phase 2 shipped (Capability Registry binding)
+
+- Router: new `routeCapability(intent, text)` in `_shared/capabilityRegistry.ts`. Heuristic Hebrew/English matchers map to existing capabilities.
+- Wiring: `aurora-chat/index.ts` calls the router behind env flag `AION_CAPS=1`. Non-destructive caps (`progress.summarize`, `nextStep.suggest`) execute via the registry's `run()` using the same service-role client; the result is folded into the system prompt as a `[capability_result]` block.
+- Destructive / side-effecting caps (`plan.restart`, `plan.delete`, `daily.generate`, `hypnosis.start`) resolve to `decision: "propose"` — never auto-executed; the model is instructed to ask a one-line confirmation in the user's language.
+- Trace: new `capability.invoked` / `capability.proposed` events on the aurora-chat trace. Header `router_decision` + `capability` set on close.
+- Response headers: added `X-Aurora-Router` and `X-Aurora-Capability`, exposed via CORS.
+- Off by default. Activation: `AION_CAPS=1` (edge env).
+- Out of scope: client-side artifact rendering, confirmation sheet UI, and dispatching invokes from the client — Phase 3.
