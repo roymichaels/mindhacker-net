@@ -7,7 +7,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import DomainAssessChat from '@/components/pillars/DomainAssessChat';
-import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 import InteractiveAION from '@/components/aion/InteractiveAION';
 import { useClientFlag } from '@/lib/clientFlags';
 import { artifactBus, type ArtifactKind } from '@/lib/aion/artifactBus';
@@ -45,16 +44,11 @@ export default function AIONPage() {
   // Interactive AION Mode (opt-in via `?ff_interactive_mode=1`).
   // Falls back to compact chat surface for assessment flows.
   if (interactive && !isAssessing) {
-    return (
-      <AIONNamingGate>
-        <InteractiveAION />
-      </AIONNamingGate>
-    );
+    return <InteractiveAION />;
   }
 
   return (
-    <AIONNamingGate>
-      <main
+    <main
         className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-1 pt-14 pb-40"
         style={zStyle('chat')}
         data-shellv2-layer="chat"
@@ -73,7 +67,6 @@ export default function AIONPage() {
             <ArtifactLayer />
           </>
         )}
-      </main>
-    </AIONNamingGate>
+    </main>
   );
 }
