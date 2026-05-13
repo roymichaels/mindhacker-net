@@ -116,6 +116,8 @@ const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const JournalingHub = lazy(() => import("./pages/JournalingHub"));
 const StrategyPage = lazy(() => import("./pages/StrategyPage"));
 const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
+const JournalingHub = lazy(() => import("./pages/JournalingHub"));
+const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
 const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
@@ -363,7 +365,7 @@ const App = () => (
                                                 <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/mindos/work" element={<Navigate to="/" replace />} />
                                                 <Route path="/mindos/journal" element={<Navigate to="/" replace />} />
-                                                <Route path="/journal" element={<Navigate to="/" replace />} />
+                                                <Route path="/journal" element={<JournalingHub />} />
                                                 <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
