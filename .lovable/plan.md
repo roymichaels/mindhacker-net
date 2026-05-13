@@ -150,3 +150,15 @@ For each, trace shows: what was understood (intent/emotion), what was decided (r
 - No PII beyond a 140-char input preview already stored in `aurora_messages`.
 
 Awaiting approval to implement.
+
+---
+
+## Status — Phase 1 shipped
+
+- Migration: `aion_turn_traces` + `aion_turn_trace_events` (RLS, realtime).
+- Server helper: `supabase/functions/_shared/turnTrace.ts` (env-gated by `AION_TRACE=1`).
+- Emitters wired: `aurora-chat`, `memory-writer`, `aion-capabilities`, `aion-brain`.
+- Client: `useAuroraChat` propagates `X-Aion-Trace-Id` to aurora-chat + memory-writer; `aionTrace.ts` writes header + events directly to the new tables; the old `aion_signals/trace.mark` mirror is removed.
+- UI: new `AIONTracePanel` section (live via Realtime) at the top of `DiagnosticsSheet`.
+- Behavior: zero changes — observation only.
+- Enable: `localStorage.setItem('ff_aion_trace','1')` (client) + `AION_TRACE=1` (edge env).
