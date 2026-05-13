@@ -47,9 +47,9 @@ export default function FloatingBackButton() {
       type="button"
       onClick={handleBack}
       aria-label={isRTL ? 'חזרה' : 'Back'}
-      className="fixed z-[60] h-10 w-10 inline-flex items-center justify-center rounded-full bg-background/70 backdrop-blur-xl border border-white/10 text-foreground/90 active:scale-95 transition shadow-sm"
+      className="fixed z-[55] h-9 w-9 inline-flex items-center justify-center rounded-full bg-background/70 backdrop-blur-xl border border-white/10 text-foreground/90 active:scale-95 transition shadow-sm"
       style={{
-        top: 'calc(env(safe-area-inset-top, 0px) + 0.625rem)',
+        top: 'calc(env(safe-area-inset-top, 0px) + 4rem)',
         insetInlineStart: 'calc(env(safe-area-inset-left, 0px) + 0.75rem)',
       }}
     >
