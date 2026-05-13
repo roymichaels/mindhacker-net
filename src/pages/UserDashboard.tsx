@@ -6,8 +6,9 @@ import { MobileHeroGrid } from '@/components/dashboard/MobileHeroGrid';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { getCurrentDayInIsrael } from '@/utils/currentDay';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
-export default function UserDashboard() {
+function UserDashboardImpl() {
   const { plan, milestones, isLoading } = useLifePlanWithMilestones();
 
   if (isLoading) return <PageSkeleton />;
@@ -30,3 +31,5 @@ export default function UserDashboard() {
 
   return <MobileHeroGrid planData={planData} />;
 }
+
+export default withLegacyGuard('UserDashboard', UserDashboardImpl);

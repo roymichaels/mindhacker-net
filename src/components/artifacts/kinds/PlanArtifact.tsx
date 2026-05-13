@@ -1,9 +1,7 @@
 import type { ArtifactComponentProps } from '@/lib/aion/artifactRegistry';
 
-export default function PlanArtifact({ params }: ArtifactComponentProps) {
-  return (
-    <div className="p-6 text-sm text-muted-foreground">
-      PlanArtifact placeholder. params: {JSON.stringify(params)}
-    </div>
-  );
+// Native empty card — no debug placeholder text. The real plan artifact
+// renderer will replace this; until then we render nothing visible.
+export default function PlanArtifact(_props: ArtifactComponentProps) {
+  return null;
 }

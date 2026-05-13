@@ -7,6 +7,7 @@ import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useTheme } from 'next-themes';
 import { useChromeVisibility } from '@/contexts/ChromeVisibilityContext';
 import { StorySurfaceHost } from '@/components/story/StorySurfaceHost';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
 import { OSDrawer } from '@/components/shell/OSDrawer';
 import { MindOSSheet } from '@/components/shell/MindOSSheet';
@@ -120,4 +121,4 @@ function DashboardLayoutInner({
   );
 }
 
-export default DashboardLayout;
+export default withLegacyGuard('DashboardLayout', DashboardLayout);

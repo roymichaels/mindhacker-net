@@ -5,8 +5,9 @@
  */
 import { useNavigate } from 'react-router-dom';
 import { HypnosisModal } from '@/components/dashboard/HypnosisModal';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
-export default function HypnosisPage() {
+function HypnosisPageImpl() {
   const navigate = useNavigate();
   return (
     <HypnosisModal
@@ -17,3 +18,5 @@ export default function HypnosisPage() {
     />
   );
 }
+
+export default withLegacyGuard('HypnosisPage', HypnosisPageImpl);

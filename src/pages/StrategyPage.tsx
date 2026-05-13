@@ -9,10 +9,11 @@ import LifeHub from '@/pages/LifeHub';
 import PlayLayoutWrapper from '@/components/plan/PlayLayoutWrapper';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
 type StrategyTab = 'overview' | 'missions';
 
-export default function StrategyPage() {
+function StrategyPageImpl() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,3 +66,5 @@ export default function StrategyPage() {
     </div>
   );
 }
+
+export default withLegacyGuard('StrategyPage', StrategyPageImpl);
