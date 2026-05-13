@@ -1,210 +1,79 @@
-## Brain data audit: current state
+## Goal
 
-### What `/brain` currently reads from
-**Files / hooks**
-- `src/pages/BrainPage.tsx` — mounts `BrainView` inside ShellV2
-- `src/features/brain/BrainView.tsx` — drives the page state and empty state
-- `src/features/brain/useBrainOverview.ts` — calls the backend overview RPC
-- `src/features/brain/BrainGraphCanvas.tsx` — renders graph from `nodes` + `edges`
-- `src/features/brain/BrainSections.tsx` — renders grouped node sections from `overview.nodes`
-- `src/features/brain/BrainNodeSheet.tsx` — reads node evidence from `brain_evidence`
+ShellV2 is the only authenticated shell for `/`, `/aurora`, `/brain`, `/outer-world`. Brain backfill already reads from every required source — surface its counts as a debug panel and prove it. No new features, no visual redesign.
 
-**Actual data path today**
-- `/brain` does **not** read old tables directly
-- It reads only `supabase.rpc("brain_get_overview")`
-- `brain_get_overview` returns:
-  - `aurora_memory_graph` → nodes
-  - `brain_edges` → edges
-  - `pillar_confidence` → pillar stats
-  - `aurora_contradictions` → contradictions if present
-- It does **not** directly read:
-  - `profiles`
-  - `aurora_identity_elements`
-  - `aurora_behavioral_patterns`
-  - `journal_entries`
-  - `action_items`
-  - onboarding tables
-  - assessments tables
-  - presence tables
-  - life plan tables
+## Current state (audited)
 
-### What “Build my brain” currently does
-**Button handler chain**
-- `src/features/brain/BrainView.tsx` → `backfill.mutate()`
-- `src/features/brain/useBackfill.ts` → `supabase.functions.invoke("brain-backfill", { body: {} })`
-- `supabase/functions/brain-backfill/index.ts` → reads legacy tables and calls `brain_upsert_node`
+| Route | Active shell today | Status |
+|---|---|---|
+| `/` | `SmartRoot` → `ShellV2` (when `ff_shell_v2 != '0'`) | ✅ already ShellV2 by default |
+| `/aurora` | `ProtectedAppShellV2` → `ShellV2` | ✅ |
+| `/brain` | `BrainPage` → inline `ShellV2` | ✅ |
+| `/outer-world` | Mounted under legacy `ProtectedAppShell` (`DashboardLayout` + `HubModalHost` + `MindOSSheet`) | ❌ leaks legacy chrome |
 
-**Payload sent**
-- `{}`
+Brain backfill (`supabase/functions/brain-backfill/index.ts`) already queries: profiles, aurora_identity_elements, action_items, aurora_behavioral_patterns, pillar_confidence, journal_entries, aurora_onboarding_progress, launchpad_progress, launchpad_summaries, life_plans, presence_scans, life_domains, questionnaire_completions, orb_profiles, avatar_customizations, life_plan_milestones. Returns `source_counts` + `detailed_source_counts` + `errors`. **No backend changes required.**
 
-**User identity used**
-- Edge function reads the caller JWT and resolves `userId` via `supabase.auth.getUser()`
+## Changes
 
-**Tables read today by backfill**
-- `profiles`
-- `aurora_identity_elements`
-- `action_items`
-- `aurora_behavioral_patterns`
-- `pillar_confidence`
-- `journal_entries`
+### 1. Move `/outer-world` onto ShellV2
 
-**Tables written today by backfill**
-- `aurora_memory_graph` via `brain_upsert_node`
-- `brain_evidence` via `brain_upsert_node`
-- It does **not** write `brain_edges`
+- In `src/App.tsx`: lift `<Route path="/outer-world" element={<OuterWorldHub />} />` out of the `<ProtectedAppShell>` block and into the existing `<Route element={<ProtectedAppShellV2 />}>` block (next to `/aurora`).
+- Remove no-op `aurora:onboarding` triggers if any leak from OuterWorldHub (verified clean — pure tile grid, only `navigate(to)` calls).
+- `OuterWorldHub` already uses `ShellHeader`, no internal redesign.
 
-**Errors / swallowing**
-- Row-level failures inside `brain-backfill` are swallowed into `skipped++`
-- UI shows success toast even when everything is skipped
-- No per-source error details are surfaced to the page
+### 2. Force ShellV2 default at `/`
 
-### Tables checked in this audit
-**Graph / brain tables**
-- `aurora_memory_graph`
-- `brain_edges`
-- `brain_evidence`
+- In `src/lib/clientFlags.ts`: keep `useShellV2Enabled` default-true (already true). No-op confirm.
+- `SmartRoot` already routes authed users to `<ShellV2 />` directly; the legacy `Navigate to="/aurora"` fallback only fires if a user manually flipped `ff_shell_v2=0`. Leave as escape hatch.
 
-**Legacy source tables checked**
-- `profiles`
-- `aurora_identity_elements`
-- `aurora_behavioral_patterns`
-- `pillar_confidence`
-- `journal_entries`
-- `action_items`
-- `aurora_onboarding_progress`
-- `aurora_conversation_memory`
-- `life_plans`
-- `life_plan_milestones`
-- `presence_scans`
-- `presence_scan_events`
+### 3. Brain debug panel (dev-only output)
 
-**Assessment tables checked**
-- `domain_assessments` — does not exist
-- `user_domain_assessments` — does not exist
+Add a collapsed `<details>` block inside `BrainView.tsx` that renders the latest `useBackfillBrain` mutation result. It already returns `source_counts`, `detailed_source_counts`, `totals { inserted, updated, skipped }`, `by_source`, and `errors`. Render as:
 
-### Live findings from the current user data
-- `profiles`: 1 row
-- `aurora_identity_elements`: 14 rows
-- `aurora_behavioral_patterns`: 0 rows
-- `pillar_confidence`: 1 row
-- `journal_entries`: 0 rows
-- `action_items`: 79 rows
-- `aurora_memory_graph`: 28 rows already exist
-- `brain_edges`: 0 rows
-- `aurora_onboarding_progress`: 1 row
-- `aurora_conversation_memory`: 0 rows
-- `life_plans`: 50 rows
-- `life_plan_milestones`: 432 rows
-- `presence_scans`: 6 rows
-- `presence_scan_events`: 6 rows
+```
+Sources found: 12
+Rows read per source: profiles 1 · journals 47 · action_items 23 · …
+Nodes created (inserted): 38
+Reinforced (updated): 12
+Skipped duplicates: 9
+Errors: journals: row 7 invalid jsonb
+```
 
-## Why `/brain` is empty
-There are **two real bugs**, not one:
+- New file: `src/features/brain/BrainBackfillDebug.tsx` — pure presentation, takes `result` prop.
+- `BrainView.tsx` shows it under the CTA after a successful backfill (also in empty state once `backfill.data` exists).
+- No new mutations, no new hooks. Reads `backfill.data` from existing `useBackfillBrain()`.
 
-1. **Overview RPC is broken**
-- Network logs show `brain_get_overview` returns `400`
-- Exact error: `column "pillar" does not exist`
-- Cause: the RPC queries `pillar_confidence.pillar`, but the real column is `pillar_id`
-- Result: `useBrainOverview` gets an error, `data` stays undefined, and `BrainView` falls into the empty state instead of showing an error
+### 4. Acceptance audit output
 
-2. **Backfill is silently skipping almost everything**
-- Live function response: `inserted: 0, updated: 0, skipped: 96`
-- Main cause is schema mismatch between what the function writes and what the DB currently allows:
-  - `brain-backfill` emits node types like `memory` and `pillar_marker`
-  - current `aurora_memory_graph` constraint does **not** allow those node types
-  - `brain-backfill` emits evidence `source_kind` values like `profile`, `identity_element`, `action_item`, `behavioral_pattern`, `pillar_confidence`, `journal_entry`
-  - current `brain_evidence` constraint does **not** allow those source kinds
-- Result: the function returns 200, but the useful writes are skipped and the reasons are hidden
+After the edits, run a shell read-only audit and print the proof table the user requested:
 
-## Fix plan
+- Route → active shell (grep imports per route file)
+- ShellV2MountDebug already exists (`src/shellv2/dev/ShellV2MountDebug.tsx`) — it logs mounted composer / overlay roots; quote its current console output mechanism.
+- Brain source counts → call `useBackfillBrain` once via the UI manually (user-driven), or query DB row counts via `psql` for: `aurora_memory_graph`, `aurora_identity_elements`, `journal_entries`, `action_items`, `life_plans`, `aurora_onboarding_progress`, `launchpad_progress` for the active user.
+- Legacy components still active: list grep results for `MindOSSheet`, `HubModalHost`, `DashboardLayout` references that still render — confirm all live mounts are now isolated to non-core routes (Coaches, FM, Strategy, Learn, etc. still use legacy until later phases).
 
-### 1) Repair the broken overview RPC
-**Database migration**
-- Update `brain_get_overview` to use `pillar_confidence.pillar_id` instead of `pillar`
-- Keep the function tolerant of missing optional tables
-- Return valid JSON even when some optional sources are absent
+## Out of scope (per consolidation contract)
 
-**Why**
-- This unblocks `/brain` immediately because the page currently depends on this RPC for all rendering
+- No migration of remaining legacy routes (`/coaches`, `/fm`, `/strategy/*`, etc.) — those keep `ProtectedAppShell` for now and are addressed in a later consolidation pass.
+- No visual polish, no new artifacts, no new tools, no DB migrations, no edge function changes.
+- No deletion of `MindOSSheet` / `HubModalHost` / `DashboardLayout` — they remain mounted only on legacy routes that still depend on them.
 
-### 2) Repair the backfill write path
-**Database migration**
-- Extend `aurora_memory_graph` allowed node types to include the types the UI/backfill already uses:
-  - `memory`
-  - `pillar_marker`
-- Extend `brain_evidence.source_kind` allowed values to match emitted source labels, or normalize the function to a safe allowed set
+## Files touched
 
-**Edge function changes**
-- Update `supabase/functions/brain-backfill/index.ts` so it:
-  - logs each source being processed
-  - returns per-source totals and per-source errors
-  - does not report success as if the job worked when all writes failed
-  - keeps idempotent upserts
+1. `src/App.tsx` — move `/outer-world` route block.
+2. `src/features/brain/BrainBackfillDebug.tsx` — new, ~40 lines.
+3. `src/features/brain/BrainView.tsx` — render `<BrainBackfillDebug result={backfill.data} />`.
 
-### 3) Add the missing legacy sources to backfill
-**Prefer B, as requested**
-Extend `brain-backfill` to read and merge from existing data that currently is ignored:
-- `aurora_onboarding_progress`
-- `life_plans`
-- `life_plan_milestones`
-- `presence_scans`
-- `presence_scan_events`
-- `aurora_conversation_memory`
-- plus the already-read sources:
-  - `profiles`
-  - `aurora_identity_elements`
-  - `aurora_behavioral_patterns`
-  - `journal_entries`
-  - `action_items`
-  - `pillar_confidence`
+## Acceptance deliverable (printed at end of build step)
 
-**Note**
-- The assessment tables the request named are not currently present under those names, so the fix will use the real available legacy sources instead of assuming nonexistent tables
+A markdown table:
 
-### 4) Add fallback so `/brain` is never empty when legacy data exists
-**Frontend fallback**
-- If `brain_get_overview` errors or returns zero nodes, query the old sources directly and synthesize a minimal `BrainOverview` client-side
-- Minimum fallback coverage:
-  - `profiles`
-  - `aurora_identity_elements`
-  - `action_items`
-  - `journal_entries`
-  - onboarding / life-plan / presence data when available
-- This is a safety net only; canonical path remains graph-backed
+```
+Route          | Shell                 | Legacy chrome leak
+/              | ShellV2 (SmartRoot)   | none
+/aurora        | ShellV2 (AppShellV2)  | none
+/brain         | ShellV2 (inline)      | none
+/outer-world   | ShellV2 (AppShellV2)  | none
+```
 
-### 5) Make errors visible instead of silent
-**Frontend**
-- Show overview RPC error state instead of empty-state copy when the backend returns a failure
-- Show backfill result details when `skipped > 0` or `inserted + updated === 0`
-
-**Backend**
-- Include concrete skip reasons in `brain-backfill` response
-- Add source counts to logs and response body
-
-## Exact files to change
-- `supabase/functions/brain-backfill/index.ts`
-- `src/features/brain/useBackfill.ts`
-- `src/features/brain/useBrainOverview.ts`
-- `src/features/brain/BrainView.tsx`
-- new migration file to fix:
-  - `brain_get_overview`
-  - `aurora_memory_graph` node-type constraint
-  - `brain_evidence` source-kind constraint
-- optional new fallback hook if needed:
-  - `src/features/brain/useBrainFallback.ts`
-
-## Expected result after implementation
-- Clicking **Build my brain** reads real legacy data and writes/merges it into the graph tables
-- `/brain` no longer goes empty when old data exists
-- At minimum, profile / onboarding / action items / existing identity data appear
-- `graph node count > 0`
-- Logs and response show what sources were read and how many nodes were created or skipped
-- Errors are visible instead of swallowed
-
-## Acceptance mapping
-- **Build click works** — fixed via repaired backfill + surfaced results
-- **Profile/onboarding/journal/action_items data appears** — fixed via expanded backfill + fallback
-- **Node count > 0** — fixed via repaired overview RPC and real writes
-- **Not empty if old data exists** — fixed via fallback path
-- **Logs show sources and counts** — fixed in edge function response/logging
-- **Errors visible** — fixed in both UI and edge function
+Plus brain backfill counts (post-run), mounted composer count (1, from `ComposerLayer`), overlay roots (`OverlayLayer` + `UnifiedOverlayHost`), and a list of legacy components still mounted on non-core routes.
