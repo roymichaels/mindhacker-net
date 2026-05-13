@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 
 import { toast } from 'sonner';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { OrbView } from '@/components/orb/v2/OrbView';
 import { useAION } from '@/identity';
 import { TTSPlayer } from './TTSPlayer';
 import { stripReasoning } from '@/lib/stripReasoning';
@@ -254,8 +254,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               {/* AION avatar */}
               {isAI && (
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
-                    <AuroraOrbIcon className="w-4 h-4" size={16} gradient />
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
+                    <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" />
                   </div>
                 </div>
               )}
@@ -316,8 +316,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             className="flex gap-2.5 justify-start"
           >
             <div className="flex-shrink-0 mt-1">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
-                <AuroraOrbIcon className="w-4 h-4" size={16} gradient />
+              <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
+                <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" />
               </div>
             </div>
             <div className="max-w-[80%] space-y-1">
@@ -339,8 +339,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             className="flex gap-2.5 justify-start"
           >
             <div className="flex-shrink-0 mt-1">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500/15 via-cyan-400/15 to-amber-400/15 border border-fuchsia-400/30 flex items-center justify-center">
-                <AuroraOrbIcon className="w-4 h-4 animate-pulse" size={16} gradient />
+              <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
+                <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" state="thinking" />
               </div>
             </div>
             <div className="bg-muted/30 border border-border/30 rounded-2xl rounded-ss-md px-4 py-3">
