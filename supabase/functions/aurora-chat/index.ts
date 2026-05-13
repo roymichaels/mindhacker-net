@@ -177,7 +177,24 @@ serve(async (req) => {
     console.log(`[aurora-chat] intent=${intentResolution.intent} lanes=${lanesToString(intentResolution.lanes)}`);
 
     // 4. Orchestrate (Layer 2 - policy + routing)
-    const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar, intentResolution);
+    // Phase 4: graph-informed responses + repetition guard (gated by env flag).
+    const phase4Enabled = (Deno.env.get("AION_PHASE4") || "").trim() === "1";
+    const recentAssistantOpeners = phase4Enabled
+      ? modelMessages
+          .filter((m: any) => m.role === "assistant" && typeof m.content === "string")
+          .slice(-3)
+          .map((m: any) => String(m.content).split(/\r?\n/)[0] || "")
+      : [];
+    const orchestrated = prepare(
+      mode,
+      context,
+      language,
+      knowledgeBase,
+      customSystemPrompt,
+      pillar,
+      intentResolution,
+      { enabled: phase4Enabled, recentAssistantOpeners },
+    );
     // Use vision-capable model when images are present; otherwise tier-based model
     const tierModel = TIER_MODELS[userTier] || OPENROUTER_DEFAULT;
     const model = hasImages

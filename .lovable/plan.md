@@ -226,6 +226,11 @@ Conditionally:
 - aurora-chat `contextBuilder` pulls top-K graph nodes by intent + active pillar; injects compact "what AION knows" block.
 - Repetition guard + greeting suppression turned on.
 
+_Status: shipped behind env flag `AION_PHASE4=1`._
+- Compact "What I know about you" block (top 5 strongest `aurora_memory_graph` nodes) injected into `full` and `lite` prompts regardless of memory lane.
+- Anti-repetition rule injected with the last 3 assistant message openings (≤80 chars each) extracted from `modelMessages`.
+- Off by default; zero behavior change until `AION_PHASE4=1` is set.
+
 **Phase 5 — Proactive engine**
 - aurora-proactive becomes consumer of `aion_decisions` + open `action_items`; emits artifact-only nudges. Hard cap: 1 nudge / 90min / user.
 
