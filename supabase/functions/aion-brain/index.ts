@@ -240,6 +240,22 @@ serve(async (req) => {
     }
 
     const decision = await decideForUser(admin, userData.user.id, force);
+    try {
+      const { startServerTrace, getTraceIdFromRequest } = await import("../_shared/turnTrace.ts");
+      const tracer = startServerTrace({
+        traceId: getTraceIdFromRequest(req),
+        userId: userData.user.id,
+        source: "aion-brain",
+      });
+      if (tracer.enabled) {
+        tracer.event("brain.refresh", {
+          trigger: "turn",
+          mode: (decision as any)?.mode ?? null,
+          density: (decision as any)?.density ?? null,
+        });
+        tracer.upsertHeader({ brain_refreshed: true });
+      }
+    } catch { /* observation only */ }
     return new Response(JSON.stringify({ decision }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
