@@ -6,14 +6,15 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
-import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import DomainAssessChat from '@/components/pillars/DomainAssessChat';
 import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 import InteractiveAION from '@/components/aion/InteractiveAION';
 import { useClientFlag } from '@/lib/clientFlags';
-import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
 import { artifactBus, type ArtifactKind } from '@/lib/aion/artifactBus';
+import ShellV2 from '@/shellv2/ShellV2';
+import { zStyle } from '@/shellv2/zindex';
+import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
+import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
 
 export default function AIONPage() {
   useTranslation();
@@ -54,11 +55,13 @@ export default function AIONPage() {
 
   return (
     <AIONNamingGate>
-      <div className="flex-1 min-h-0 -mx-2 lg:-mx-3 flex flex-col bg-background overflow-hidden">
-        {/* Home IS the chat. Like ChatGPT / Lovable: a single conversation
-            surface with a composer dock at the bottom. No dashboards, no
-            cards, no launchers. */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-1 pb-40">
+      <ShellV2>
+        <main
+          className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-1 pt-14 pb-40"
+          style={zStyle('chat')}
+          data-shellv2-layer="chat"
+          data-shellv2-route="aurora"
+        >
           {isAssessing && assessmentDomainId ? (
             <DomainAssessChat
               domainId={assessmentDomainId}
@@ -72,19 +75,8 @@ export default function AIONPage() {
               <ArtifactLayer />
             </>
           )}
-        </div>
-
-        {/* Floating dock — composer only (journaling lives in /journal) */}
-        <div
-          className="fixed inset-x-0 bottom-0 z-40 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-none"
-        >
-          <div className="mx-auto w-full max-w-screen-md pointer-events-auto">
-            <div className="rounded-3xl border border-white/10 bg-background px-2 py-2 backdrop-blur-xl shadow-lg">
-              <GlobalChatInput />
-            </div>
-          </div>
-        </div>
-      </div>
+        </main>
+      </ShellV2>
     </AIONNamingGate>
   );
 }
