@@ -35,7 +35,14 @@ function StrategyPageImpl() {
   };
 
   return (
-    <div className="flex min-h-full flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+    <main
+      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y"
+      dir={isRTL ? 'rtl' : 'ltr'}
+      style={{
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.25rem)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6.5rem)',
+      }}
+    >
       <div className="sticky top-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
           {tabs.map(({ id, label, icon: Icon }) => {
@@ -60,10 +67,10 @@ function StrategyPageImpl() {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1">
         {tab === 'overview' ? <LifeHub /> : <PlayLayoutWrapper />}
       </div>
-    </div>
+    </main>
   );
 }
 

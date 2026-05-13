@@ -33,7 +33,13 @@ export default function AdminHub({ activeTab = 'overview', activeSubTab, onTabCh
   }, [currentTabConfig, currentSubTab]);
 
   return (
-    <div className="min-h-[60vh] space-y-4 pb-6">
+    <main
+      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-4 space-y-4"
+      style={{
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6.5rem)',
+      }}
+    >
       {/* Stats bar — isolated so a stats failure can't take down the whole admin */}
       <ErrorBoundary fallback={<div className="h-12" />}>
         <AdminStatsBar onNavigate={onTabChange} />
@@ -84,6 +90,6 @@ export default function AdminHub({ activeTab = 'overview', activeSubTab, onTabCh
           {ActiveSubComponent && <ActiveSubComponent />}
         </Suspense>
       </ErrorBoundary>
-    </div>
+    </main>
   );
 }
