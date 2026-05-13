@@ -533,6 +533,16 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
 
       if (!response.ok) {
         console.error(`AI call failed: ${response.status} (attempt ${attempt+1})`);
+        // Hard-fail on quota / rate-limit — do NOT silently fall back to junk
+        // templates 21 times. Bubble up so the caller can abort cleanly.
+        if (response.status === 402 || response.status === 429) {
+          throw new AIQuotaError(
+            response.status,
+            response.status === 402
+              ? 'AI credits exhausted'
+              : 'AI rate limit exceeded',
+          );
+        }
         if (attempt < retries) continue;
         return null;
       }
@@ -568,6 +578,8 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
       }
       return parsed;
     } catch (e) {
+      // Quota errors must propagate, never get retried or swallowed.
+      if (e instanceof AIQuotaError) throw e;
       console.error(`AI call exception (attempt ${attempt+1}):`, e);
       if (attempt < retries) continue;
       return null;
