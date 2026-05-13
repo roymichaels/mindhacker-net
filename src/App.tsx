@@ -349,8 +349,8 @@ const App = () => (
                                                 {/* Phase 5: when ff_shell_v2 is on, /strategy summons the
                                                     `plan` artifact inside ShellV2; otherwise legacy page. */}
                                                 {/* Quarantined — legacy surfaces redirect to ShellV2 home. */}
-                                                <Route path="/strategy" element={<Navigate to="/" replace />} />
-                                                <Route path="/hypnosis" element={<Navigate to="/" replace />} />
+                                                <Route path="/strategy" element={<StrategyPage />} />
+                                                <Route path="/hypnosis" element={<HypnosisPage />} />
                                                 {/* Hallway routes retired in Phase 3.1 — rooms are now
                                                     swipeable lenses inside PresenceShell, not destinations.
                                                     Both /hallway and /hallway/:slug fold back to `/`. */}
