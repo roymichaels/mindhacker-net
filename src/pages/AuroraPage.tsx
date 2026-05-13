@@ -11,7 +11,6 @@ import { AIONNamingGate } from '@/components/aurora/AIONNamingGate';
 import InteractiveAION from '@/components/aion/InteractiveAION';
 import { useClientFlag } from '@/lib/clientFlags';
 import { artifactBus, type ArtifactKind } from '@/lib/aion/artifactBus';
-import ShellV2 from '@/shellv2/ShellV2';
 import { zStyle } from '@/shellv2/zindex';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
@@ -55,28 +54,26 @@ export default function AIONPage() {
 
   return (
     <AIONNamingGate>
-      <ShellV2>
-        <main
-          className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-1 pt-14 pb-40"
-          style={zStyle('chat')}
-          data-shellv2-layer="chat"
-          data-shellv2-route="aurora"
-        >
-          {isAssessing && assessmentDomainId ? (
-            <DomainAssessChat
-              domainId={assessmentDomainId}
-              asDock
-              dockHeightVh={85}
-              onClose={() => endAssessment()}
-            />
-          ) : (
-            <>
-              <AuroraChatBubbles showOrbAboveMessages={false} />
-              <ArtifactLayer />
-            </>
-          )}
-        </main>
-      </ShellV2>
+      <main
+        className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-1 pt-14 pb-40"
+        style={zStyle('chat')}
+        data-shellv2-layer="chat"
+        data-shellv2-route="aurora"
+      >
+        {isAssessing && assessmentDomainId ? (
+          <DomainAssessChat
+            domainId={assessmentDomainId}
+            asDock
+            dockHeightVh={85}
+            onClose={() => endAssessment()}
+          />
+        ) : (
+          <>
+            <AuroraChatBubbles showOrbAboveMessages={false} />
+            <ArtifactLayer />
+          </>
+        )}
+      </main>
     </AIONNamingGate>
   );
 }
