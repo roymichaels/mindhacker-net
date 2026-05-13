@@ -235,6 +235,21 @@ export function useStrategyPlans() {
         const errorAny = error as any;
         const message = typeof errorAny?.message === 'string' ? errorAny.message : String(error);
 
+        // Surface AI gateway quota errors with a clear, actionable toast
+        // instead of a generic "Failed to generate strategy".
+        const bodyJson = parseMaybeJson(message) || parseMaybeJson(errorAny?.context?.body);
+        const code = bodyJson?.code;
+        if (code === 'AI_CREDITS_EXHAUSTED' || message.includes('402')) {
+          const quotaErr = new Error('הקרדיטים של ה-AI אזלו — נסי שוב מאוחר יותר או הוסיפי קרדיטים בהגדרות.') as any;
+          quotaErr.code = 'AI_CREDITS_EXHAUSTED';
+          throw quotaErr;
+        }
+        if (code === 'AI_RATE_LIMITED' || message.includes('429')) {
+          const rlErr = new Error('יותר מדי בקשות ל-AI — נסי שוב בעוד דקה.') as any;
+          rlErr.code = 'AI_RATE_LIMITED';
+          throw rlErr;
+        }
+
         // Defensive: handle legacy 400 responses that may still contain the marker
         if (message.includes('MISSING_ASSESSMENT_DATA')) {
           let payload: any = parseMaybeJson(message);

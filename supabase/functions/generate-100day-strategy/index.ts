@@ -215,6 +215,33 @@ const PILLAR_CATEGORY_MAP: Record<string, string> = {
   projects: 'wealth', play: 'spirit', order: 'mind',
 };
 
+// Hebrew pillar names — used for fallback trait/skill labels so we never
+// render junk like "לוחם הbusiness" when the AI call fails.
+const PILLAR_HE_MAP: Record<string, string> = {
+  consciousness: 'התודעה', presence: 'הנוכחות', power: 'העוצמה', vitality: 'החיוניות',
+  focus: 'הפוקוס', combat: 'הלחימה', expansion: 'ההתרחבות', wealth: 'העושר',
+  influence: 'ההשפעה', relationships: 'הקשרים', business: 'העסקים',
+  projects: 'הפרויקטים', play: 'המשחק', order: 'הסדר',
+};
+
+const PILLAR_EN_MAP: Record<string, string> = {
+  consciousness: 'Consciousness', presence: 'Presence', power: 'Power', vitality: 'Vitality',
+  focus: 'Focus', combat: 'Combat', expansion: 'Expansion', wealth: 'Wealth',
+  influence: 'Influence', relationships: 'Relationships', business: 'Business',
+  projects: 'Projects', play: 'Play', order: 'Order',
+};
+
+// Tagged error so the top-level handler can distinguish AI quota/rate-limit
+// failures from generic errors and abort cleanly instead of writing junk fallbacks.
+class AIQuotaError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'AIQuotaError';
+    this.status = status;
+  }
+}
+
 // ========== TRAIT GENERATION PROMPT ==========
 function buildTraitPrompt(
   pillarId: string,
@@ -506,6 +533,16 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
 
       if (!response.ok) {
         console.error(`AI call failed: ${response.status} (attempt ${attempt+1})`);
+        // Hard-fail on quota / rate-limit — do NOT silently fall back to junk
+        // templates 21 times. Bubble up so the caller can abort cleanly.
+        if (response.status === 402 || response.status === 429) {
+          throw new AIQuotaError(
+            response.status,
+            response.status === 402
+              ? 'AI credits exhausted'
+              : 'AI rate limit exceeded',
+          );
+        }
         if (attempt < retries) continue;
         return null;
       }
@@ -541,6 +578,8 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
       }
       return parsed;
     } catch (e) {
+      // Quota errors must propagate, never get retried or swallowed.
+      if (e instanceof AIQuotaError) throw e;
       console.error(`AI call exception (attempt ${attempt+1}):`, e);
       if (attempt < retries) continue;
       return null;
@@ -572,11 +611,14 @@ async function generatePillarStrategy(
   
   const traits = traitResult?.traits || [];
   
-  // Ensure we have exactly traitCount traits (pad with fallbacks)
+  // Ensure we have exactly traitCount traits (pad with fallbacks).
+  // Use Hebrew pillar names (PILLAR_HE_MAP) so we never render "לוחם הbusiness".
+  const pHe = PILLAR_HE_MAP[pillarId] || pillarId;
+  const pEn = PILLAR_EN_MAP[pillarId] || pillarId;
   const fallbackTraits = [
-    { name_en: `${pillarId} Warrior`, name_he: `לוחם ה${pillarId}`, description_en: `Core ${pillarId} ability`, description_he: `יכולת ליבה`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-    { name_en: `${pillarId} Architect`, name_he: `אדריכל ה${pillarId}`, description_en: `Strategic ${pillarId} ability`, description_he: `יכולת אסטרטגית`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-    { name_en: `${pillarId} Master`, name_he: `אמן ה${pillarId}`, description_en: `Advanced ${pillarId} ability`, description_he: `יכולת מתקדמת`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pEn} Warrior`,   name_he: `לוחם ${pHe}`,   description_en: `Core ${pEn} ability`,        description_he: `יכולת ליבה`,        icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pEn} Architect`, name_he: `אדריכל ${pHe}`, description_en: `Strategic ${pEn} ability`,   description_he: `יכולת אסטרטגית`,   icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pEn} Master`,    name_he: `אמן ${pHe}`,    description_en: `Advanced ${pEn} ability`,    description_he: `יכולת מתקדמת`,    icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
   ];
   while (traits.length < traitCount) traits.push(fallbackTraits[traits.length % 3]);
 
@@ -1155,7 +1197,36 @@ serve(async (req) => {
         });
 
         const aiResults = await Promise.allSettled(aiPromises);
-        
+
+        // === QUOTA ABORT GATE ===
+        // If ANY pillar failed because the AI gateway returned 402/429,
+        // abort the whole run instead of persisting 21 identical fallback
+        // missions. Roll back the in-flight 'generating' plan and return a
+        // clear error so the client can show a real toast.
+        const quotaFailure = aiResults.find(
+          (r) => r.status === 'rejected' && (r.reason instanceof AIQuotaError),
+        ) as PromiseRejectedResult | undefined;
+        if (quotaFailure) {
+          const err = quotaFailure.reason as AIQuotaError;
+          console.error(`🛑 Aborting strategy run — AI quota error (${err.status}): ${err.message}`);
+          // Cleanup: delete the partial 'generating' plan and any rows already inserted for it.
+          try {
+            await supabaseClient.from('plan_missions').delete().eq('plan_id', plan.id);
+            await supabaseClient.from('life_plan_milestones').delete().eq('plan_id', plan.id);
+            await supabaseClient.from('skills').delete().eq('life_plan_id', plan.id);
+            await supabaseClient.from('life_plans').delete().eq('id', plan.id);
+          } catch (cleanupErr) {
+            console.warn('Quota-abort cleanup warning:', cleanupErr);
+          }
+          return new Response(
+            JSON.stringify({
+              error: err.message,
+              code: err.status === 402 ? 'AI_CREDITS_EXHAUSTED' : 'AI_RATE_LIMITED',
+            }),
+            { status: err.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+          );
+        }
+
         for (const result of aiResults) {
           if (result.status === 'fulfilled' && result.value.data) {
             const { pillarId, traitCount } = result.value;
@@ -1251,10 +1322,11 @@ serve(async (req) => {
               fallbackSkillId = existingSkill.id;
             } else {
               // Create a lightweight fallback trait for this pillar
-              const capitalizedPid = pid.charAt(0).toUpperCase() + pid.slice(1);
+              const fallbackEn = PILLAR_EN_MAP[pid] || (pid.charAt(0).toUpperCase() + pid.slice(1));
+              const fallbackHe = PILLAR_HE_MAP[pid] || pid;
               const { data: newSkill } = await supabaseClient.from('skills').insert({
                 user_id, life_plan_id: plan.id, pillar: pid,
-                name: `${capitalizedPid} Mastery`, name_he: `שליטה ב${pid}`,
+                name: `${fallbackEn} Mastery`, name_he: `שליטה ב${fallbackHe}`,
                 category: 'trait', is_active: true, current_level: 1, xp_total: 0,
               }).select('id').single();
               fallbackSkillId = newSkill?.id || null;
@@ -1317,8 +1389,24 @@ serve(async (req) => {
       results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, ai_generated: allAiSuccess });
     }
 
-    // Auto-generate tactical schedules — fire-and-forget (non-blocking)
-    // Uses EdgeRuntime.waitUntil if available, otherwise just fire and forget
+    // Helper: keep async work alive past the response. Without
+    // EdgeRuntime.waitUntil, Deno Deploy kills any pending fetch the moment
+    // we return — which is exactly why tactical_schedules was empty.
+    const keepAlive = (p: Promise<unknown>) => {
+      try {
+        // @ts-ignore — EdgeRuntime is a Deno Deploy global
+        if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime?.waitUntil) {
+          // @ts-ignore
+          EdgeRuntime.waitUntil(p);
+          return;
+        }
+      } catch (_) { /* fall through */ }
+      // Best-effort fallback: at least swallow the rejection.
+      p.catch(() => {});
+    };
+
+    // Auto-generate tactical schedules — backgrounded via waitUntil so it
+    // ACTUALLY completes after the response is sent.
     for (const r of results) {
       if (r.plan_id && r.milestones > 0) {
         const tacticsUrl = `${supabaseUrl}/functions/v1/generate-tactical-schedule`;
@@ -1332,29 +1420,26 @@ serve(async (req) => {
           'Authorization': `Bearer ${supabaseKey}`,
         };
         
-        console.log(`[auto-tactics] Firing tactical schedule for plan ${r.plan_id} phase 1 (non-blocking)...`);
-        
-        // Fire and forget — don't await, don't block the response
-        fetch(tacticsUrl, {
-          method: 'POST',
-          headers: tacticsHeaders,
-          body: tacticsBody,
-        }).then(async (resp) => {
-          if (resp.ok) {
-            const data = await resp.json();
-            console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, data);
-          } else {
-            console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${await resp.text()}`);
-          }
-        }).catch(err => {
-          console.warn(`[auto-tactics] ⚠️ Error:`, err);
-        });
+        console.log(`[auto-tactics] Firing tactical schedule for plan ${r.plan_id} phase 1 (waitUntil)...`);
+
+        keepAlive(
+          fetch(tacticsUrl, { method: 'POST', headers: tacticsHeaders, body: tacticsBody })
+            .then(async (resp) => {
+              if (resp.ok) {
+                const data = await resp.json();
+                console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, data);
+              } else {
+                console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${await resp.text()}`);
+              }
+            })
+            .catch((err) => console.warn(`[auto-tactics] ⚠️ Error:`, err)),
+        );
         
         r.tactical_schedule_generated = 'pending'; // Will complete in background
       }
     }
 
-    // Auto-generate plan-driven courses — fire-and-forget (non-blocking)
+    // Auto-generate plan-driven courses — backgrounded via waitUntil.
     const planIds = results.map((r: any) => r.plan_id).filter(Boolean);
     if (planIds.length > 0) {
       const orchestratorUrl = `${supabaseUrl}/functions/v1/course-orchestrator`;
@@ -1364,22 +1449,20 @@ serve(async (req) => {
         'Authorization': `Bearer ${supabaseKey}`,
       };
       
-      console.log(`[auto-courses] Firing course orchestrator for ${planIds.length} plans (non-blocking)...`);
-      
-      fetch(orchestratorUrl, {
-        method: 'POST',
-        headers: orchestratorHeaders,
-        body: orchestratorBody,
-      }).then(async (resp) => {
-        if (resp.ok) {
-          const data = await resp.json();
-          console.log(`[auto-courses] ✅ Generated courses:`, data);
-        } else {
-          console.warn(`[auto-courses] ⚠️ Failed: ${await resp.text()}`);
-        }
-      }).catch(err => {
-        console.warn(`[auto-courses] ⚠️ Error:`, err);
-      });
+      console.log(`[auto-courses] Firing course orchestrator for ${planIds.length} plans (waitUntil)...`);
+
+      keepAlive(
+        fetch(orchestratorUrl, { method: 'POST', headers: orchestratorHeaders, body: orchestratorBody })
+          .then(async (resp) => {
+            if (resp.ok) {
+              const data = await resp.json();
+              console.log(`[auto-courses] ✅ Generated courses:`, data);
+            } else {
+              console.warn(`[auto-courses] ⚠️ Failed: ${await resp.text()}`);
+            }
+          })
+          .catch((err) => console.warn(`[auto-courses] ⚠️ Error:`, err)),
+      );
     }
 
     return new Response(
