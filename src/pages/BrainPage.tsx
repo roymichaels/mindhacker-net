@@ -10,6 +10,7 @@ import { useSearchParams } from "react-router-dom";
 import BrainView from "@/features/brain/BrainView";
 import BrainErrorBoundary from "@/features/brain/BrainErrorBoundary";
 import ConsciousnessAtlas from "@/features/brain/atlas/ConsciousnessAtlas";
+import RoomView from "@/features/brain/atlas/RoomView";
 import { useBrainAtlas } from "@/features/brain/data/useBrainAtlas";
 import { useCurrentUserId } from "@/features/brain/useBrainOverview";
 import { getRoomById } from "@/hallway/rooms";
@@ -55,7 +56,7 @@ export default function BrainPage() {
               title={isRTL ? roomDef.copy.label.he : roomDef.copy.label.en}
               subtitle={isRTL ? roomDef.copy.tagline.he : roomDef.copy.tagline.en}
             />
-            <BrainView />
+            <RoomView roomId={roomDef.id} />
           </div>
         ) : (
           <div className="space-y-4">
