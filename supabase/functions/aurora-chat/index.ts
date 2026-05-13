@@ -17,6 +17,7 @@ import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
 import { optionalAuth } from "../_shared/auth.ts";
 import { aiChatCompletion, getProvider } from "../_shared/aiGateway.ts";
 import { sanitizeStream } from "./sanitizeStream.ts";
+import { CAPABILITIES, routeCapability } from "../_shared/capabilityRegistry.ts";
 
 const STALE_HISTORY_PATTERNS = [
   /השעה עכשיו/i,
@@ -197,6 +198,45 @@ serve(async (req) => {
       tracer.event("graph.read", { nodes_pulled: (context as any)?.memory_graph?.length ?? 0 });
     }
 
+    // ── AION Phase 2: capability routing (gated by env flag) ──
+    const capsEnabled = (Deno.env.get("AION_CAPS") || "").trim() === "1";
+    let capabilityBlock = "";
+    let routerDecisionLabel: "reply" | "invoke" | "propose" = "reply";
+    let proposedCapability: string | null = null;
+    let invokedCapability: string | null = null;
+    if (capsEnabled && userId && mode !== "widget") {
+      const decision = routeCapability(intentResolution.intent, lastUserText);
+      if (decision.decision === "invoke") {
+        const cap = CAPABILITIES[decision.capability];
+        if (cap && !cap.destructive) {
+          const t0 = Date.now();
+          let res: Awaited<ReturnType<typeof cap.run>>;
+          try {
+            res = await cap.run(userId, decision.params ?? {}, supabase);
+          } catch (e) {
+            res = { ok: false, error: e instanceof Error ? e.message : "unknown" };
+          }
+          const dt = Date.now() - t0;
+          invokedCapability = decision.capability;
+          routerDecisionLabel = "invoke";
+          if (tracer.enabled) {
+            tracer.event("capability.invoked", { capability: decision.capability, ok: res.ok, ms: dt, source: "aurora-chat" });
+          }
+          if (res.ok && res.result !== undefined) {
+            const compact = JSON.stringify(res.result).slice(0, 1200);
+            capabilityBlock = `\n\n[capability_result:${decision.capability}]\n${compact}\n[/capability_result]\nUse this fresh data verbatim where useful; do NOT invent fields. Reply naturally in ${language}.`;
+          }
+        }
+      } else if (decision.decision === "propose") {
+        proposedCapability = decision.capability;
+        routerDecisionLabel = "propose";
+        if (tracer.enabled) {
+          tracer.event("capability.proposed", { capability: decision.capability, reason: decision.reason });
+        }
+        capabilityBlock = `\n\n[capability_proposed:${decision.capability}]\nReason: ${decision.reason}. Acknowledge briefly in ${language} that this action requires explicit user confirmation. Do NOT execute it. Ask one short confirmation question.`;
+      }
+    }
+
     // 4. Orchestrate (Layer 2 - policy + routing)
     // Phase 4: graph-informed responses + repetition guard (gated by env flag).
     const phase4Enabled = (Deno.env.get("AION_PHASE4") || "").trim() === "1";
@@ -216,6 +256,10 @@ serve(async (req) => {
       intentResolution,
       { enabled: phase4Enabled, recentAssistantOpeners },
     );
+    // Append capability routing block (if any) to the system prompt.
+    if (capabilityBlock) {
+      orchestrated.systemPrompt = orchestrated.systemPrompt + capabilityBlock;
+    }
     // Use vision-capable model when images are present; otherwise tier-based model
     const tierModel = TIER_MODELS[userTier] || OPENROUTER_DEFAULT;
     const model = hasImages
@@ -225,7 +269,11 @@ serve(async (req) => {
     console.log("Aurora chat - Mode: " + mode + ", User: " + (userId || "guest") + ", Tier: " + userTier + ", Model: " + model + ", Version: " + orchestrated.promptVersion + ", ContextHash: " + context.context_hash.slice(0, 8));
 
     if (tracer.enabled) {
-      tracer.event("router", { decision: "reply", capability: null, artifact: null });
+      tracer.event("router", {
+        decision: routerDecisionLabel,
+        capability: invokedCapability ?? proposedCapability,
+        artifact: null,
+      });
       tracer.event("stream.start", { model });
     }
 
@@ -325,7 +373,10 @@ serve(async (req) => {
       // Stream end + close happen async after the client finishes reading.
       // We mark logical close here so duration_ms reflects server work.
       tracer.event("stream.end", { ok: true });
-      tracer.end({ router_decision: "reply" });
+      tracer.end({
+        router_decision: routerDecisionLabel,
+        capability: invokedCapability ?? proposedCapability,
+      });
     }
     return new Response(cleanBody, {
       headers: {
@@ -346,6 +397,8 @@ serve(async (req) => {
         "X-Aurora-Cached-Response": "false",
         "X-Aurora-Intent": intentResolution.intent,
         "X-Aurora-Lanes": lanesToString(intentResolution.lanes),
+        "X-Aurora-Router": routerDecisionLabel,
+        "X-Aurora-Capability": invokedCapability ?? proposedCapability ?? "",
       },
     });
   } catch (error: unknown) {
