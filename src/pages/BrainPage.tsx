@@ -8,15 +8,18 @@
  */
 import BrainView from "@/features/brain/BrainView";
 import { zStyle } from "@/shellv2/zindex";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * BrainPage — rendered inside ProtectedAppShellV2 → ShellV2 via <Outlet />.
  * Acts as the chat-slot replacement for /brain. No nested ShellV2 here.
  */
 export default function BrainPage() {
+  const { isRTL } = useTranslation();
   return (
     <main
-      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-4 pt-16 pb-40"
+      dir={isRTL ? 'rtl' : 'ltr'}
+      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-44"
       style={zStyle("chat")}
       data-shellv2-layer="chat"
       data-shellv2-route="brain"
