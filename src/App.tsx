@@ -349,8 +349,8 @@ const App = () => (
                                                 {/* Phase 5: when ff_shell_v2 is on, /strategy summons the
                                                     `plan` artifact inside ShellV2; otherwise legacy page. */}
                                                 {/* Quarantined — legacy surfaces redirect to ShellV2 home. */}
-                                                <Route path="/strategy" element={<Navigate to="/" replace />} />
-                                                <Route path="/hypnosis" element={<Navigate to="/" replace />} />
+                                                <Route path="/strategy" element={<StrategyPage />} />
+                                                <Route path="/hypnosis" element={<HypnosisPage />} />
                                                 {/* Hallway routes retired in Phase 3.1 — rooms are now
                                                     swipeable lenses inside PresenceShell, not destinations.
                                                     Both /hallway and /hallway/:slug fold back to `/`. */}
@@ -363,7 +363,7 @@ const App = () => (
                                                 <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/mindos/work" element={<Navigate to="/" replace />} />
                                                 <Route path="/mindos/journal" element={<Navigate to="/" replace />} />
-                                                <Route path="/journal" element={<Navigate to="/" replace />} />
+                                                <Route path="/journal" element={<JournalingHub />} />
                                                 <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
