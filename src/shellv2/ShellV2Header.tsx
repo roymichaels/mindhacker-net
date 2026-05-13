@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { Menu, Sparkles, Info } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { OrbView } from '@/components/orb/v2/OrbView';
 import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -45,7 +45,7 @@ export default function ShellV2Header() {
           onClick={() => overlay.open('drawer')}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] backdrop-blur-md transition-colors hover:bg-white/[0.08]"
         >
-          <AuroraOrbIcon size={22} />
+          <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" ariaLabel={isHe ? 'תפריט' : 'Menu'} />
         </button>
 
         {/* Center: brand (tap to open about sheet) */}
@@ -82,7 +82,7 @@ export default function ShellV2Header() {
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
         <SheetHeader className={isRTL ? 'text-right' : 'text-left'}>
           <div className="flex items-center gap-2">
-            <AuroraOrbIcon size={28} />
+            <OrbView size={32} neutral tintHue="hsl(0 0% 100%)" tier="presence" />
             <SheetTitle className="text-lg">{brand}</SheetTitle>
           </div>
           <SheetDescription className="text-foreground/70">
