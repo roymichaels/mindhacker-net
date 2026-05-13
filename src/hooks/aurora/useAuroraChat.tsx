@@ -536,6 +536,7 @@ export const useAuroraChat = (conversationId: string | null) => {
           diagnosticsBus.emit('memory-writer', { source: 'chat', status: 'pending', startedAt });
           void supabase.functions
             .invoke('memory-writer', {
+              headers: tracer.id ? { 'X-Aion-Trace-Id': tracer.id } : undefined,
               body: {
                 source: 'chat',
                 context: {
