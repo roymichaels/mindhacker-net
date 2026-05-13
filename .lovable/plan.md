@@ -1,86 +1,54 @@
 ## Goal
 
-1. When a new strategy is generated, the previous active strategy + downstream artifacts are wiped (no leftovers).
-2. The composer dock feels like a native iOS app: bigger inputs, taller pill, lifted off the bottom edge.
-3. AION can delete/regenerate strategies on user request from chat, with an in-chat approval card before destructive action runs.
+The `/brain` route is throwing into the global `ErrorBoundary` (the pink "משהו השתבש" card with `ERR-…` id). Without the actual stack we can't pinpoint a single line, but the route has several thin spots that can throw on real user data, and there is no local boundary — any one of them takes the whole page down.
 
----
+## What I'll do
 
-## 1. Strategy regen always wipes the previous one
+### 1. Add a local error boundary around the Brain surface
+- Wrap `<BrainView />` inside `src/pages/BrainPage.tsx` with a small `BrainErrorBoundary` (new file `src/features/brain/BrainErrorBoundary.tsx`) that:
+  - Catches render errors only inside Brain.
+  - Shows a Hebrew/English fallback ("המוח לא נטען — נסה שוב") with a "Rebuild" button that calls `useBackfillBrain` and a "Reload" button.
+  - Logs the real error + component stack via `debug.error` so the next reproduction surfaces in console with a real stack instead of the generic ErrorBoundary id.
 
-**`src/hooks/useStrategyPlans.ts`**
-- In `generateStrategy.mutationFn`, always pass `force_regenerate: true` (the edge function already archives plans + deletes `plan_missions`, `action_items`, `life_plan_milestones`, `skills`). Drop the `forceRegenerate` opt-in branch — the new contract is "generate = replace".
-- After success, also invalidate `['weekly-tactical-plan']`, `['plan-missions']`, `['skills']`, `['life-plan-milestones']` (already partially invalidated) and clear any cached `plan_data` in `react-query`.
+### 2. Defensive fixes in the render path
+These are the hot spots most likely to throw on partial data:
 
-No edge-function change needed — `force_regenerate` already does the SQL wipe (lines 743–752 of `generate-100day-strategy/index.ts`).
+- **`src/features/brain/useBrainOverview.ts`**
+  - The RPC sometimes returns `null` data on RLS-filtered users. Treat `null` like empty: return the same shape with empty arrays (today it already does, but only when the call resolves; if the JS client throws we still propagate). Wrap the body in a `try/catch` and rethrow a clean `Error("brain_get_overview failed: …")` so React Query stores a serializable error.
+  - In `confirmBrainNode` / `rejectBrainNode`, swallow the network error into a toast instead of throwing into the click handler (a rejected promise from `onClick` currently bubbles to the page boundary because the handlers are `async` without try/catch).
 
----
+- **`src/features/brain/BrainView.tsx`**
+  - Coerce `data.pillars` to a plain object before `Object.values(...)` (RPC could theoretically return an array literal in a misconfigured row): `const pillarVals = data?.pillars && typeof data.pillars === 'object' && !Array.isArray(data.pillars) ? Object.values(data.pillars) : [];`
+  - Guard `n.confidence` / `n.score` / `n.strength` numerics with `Number(... ?? 0)` before they reach math.
+  - Make the ShellHeader subtitle a plain string instead of a JSX fragment (subtitle is typed `string`; the fragment we pass as `children` is fine but the inline `<span>`s read better as `children` only — keep one source of truth).
 
-## 2. Native-feel composer dock
+- **`src/features/brain/BrainGraphForce.tsx`**
+  - Early-return a minimal placeholder when `nodes.length === 0` (today the SVG still mounts and the force-loop runs over 0 nodes; harmless but wastes a frame).
+  - Clamp `r`, `cx`, `cy`, `x1/y1/x2/y2` to finite numbers (`Number.isFinite(v) ? v : 0`) so a stray `NaN` from `useForceLayout` cannot throw inside React's SVG attribute serializer in production.
 
-**`src/shellv2/layers/ComposerLayer.tsx`**
-- Lift the dock above the bottom edge: replace `bottom-0` with `bottom-[max(env(safe-area-inset-bottom),12px)]` and add horizontal padding `px-3`.
-- Add a soft floating background container (`rounded-2xl`, `bg-background/70 backdrop-blur-xl`, `border border-border/40`, subtle shadow) wrapping `<GlobalChatInput />` so it visually floats like an iOS pill bar.
+- **`src/features/brain/useForceLayout.ts`**
+  - Replace `Math.sqrt(n.score) / 3` with `Math.sqrt(Math.max(0, Number(n.score) || 0)) / 3` so a missing/negative `score` cannot produce `NaN` radii.
+  - Initial coordinates: guard against `Math.cos(angle) * radius` being `NaN` when `nodes.length === 0`.
 
-**`src/components/dashboard/GlobalChatInput.tsx`**
-- Increase pill height: input row from `h-9` → `h-12`, textarea `maxHeight: 36px` → `120px` with `rows={1}` auto-grow kept. Buttons `h-9 w-9` → `h-11 w-11`, icons `w-4` → `w-5`.
-- Bump font `text-sm` → `text-base`, `rounded-lg` → `rounded-xl` on inner controls.
-- Increase form vertical padding (`py-2`) so the dock breathes.
+- **`src/features/brain/BrainSections.tsx`**
+  - `arr.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))` — same numeric guard.
+  - Guard `Object.entries(pillars)` the same way as in BrainView.
 
-Memory rule respected: rounded-2xl floating UI, backdrop-blur, no gradients/shadows beyond subtle.
+### 3. Verification
+- Reload `/brain` logged-in (via the browser tool) and confirm:
+  - No ErrorBoundary fallback on initial render.
+  - Empty state still renders the "Build my brain" CTA.
+  - A forced throw inside `BrainGraphForce` (temporary `throw new Error('test')`, then reverted) is caught by the new local boundary and shows the Brain-specific fallback, not the global one.
+- Check console for the `[brain] overview RPC error` log path when RPC fails (force by passing an invalid uuid in dev).
 
----
+## Files touched
 
-## 3. AION can delete & regenerate strategies (with approval card)
+- `src/pages/BrainPage.tsx` (wrap with boundary)
+- `src/features/brain/BrainErrorBoundary.tsx` (new)
+- `src/features/brain/BrainView.tsx`
+- `src/features/brain/BrainGraphForce.tsx`
+- `src/features/brain/useForceLayout.ts`
+- `src/features/brain/BrainSections.tsx`
+- `src/features/brain/useBrainOverview.ts`
 
-### a) Skill registration in chat orchestrator
-
-**`supabase/functions/aurora-chat/orchestrator.ts`**
-- Add two new action tags to the prompt (Hebrew + English sections):
-  - `[action:strategy_regenerate]` — "use when user explicitly asks to rebuild / replace / regenerate their 100-day plan"
-  - `[action:strategy_delete]` — "use when user explicitly asks to delete / wipe their plan"
-- Instruct AION to ALWAYS emit the tag, never run silently. Frontend will show a confirmation card; AION must wait for the user reply before assuming success.
-
-### b) Frontend command handler
-
-**`src/hooks/aurora/useAuroraCommands.tsx`**
-- Add `actionCommands.strategy_regenerate` and `strategy_delete`. They dispatch a `window.dispatchEvent(new CustomEvent('aion:strategy-confirm', { detail: { kind: 'regenerate' | 'delete' } }))`.
-- Append the new tags to `getAvailableCommands()` doc.
-
-### c) In-chat approval card
-
-New component: **`src/components/aurora/StrategyApprovalCard.tsx`**
-- Listens for the `aion:strategy-confirm` event, renders a floating card inside the chat thread (mounted near the chat layer) with:
-  - Title: "Replace your 100-day plan?" / "מחיקת התוכנית הנוכחית?"
-  - Body explaining: archives current plan + clears all related missions, daily actions, milestones, skills.
-  - Buttons: **Confirm** (calls `useStrategyPlans().generateStrategy.mutate({ hub: 'both' })` for regenerate, or a new `deleteAllStrategies` mutation for delete), **Cancel**.
-- After confirm/cancel, dispatch `aion:strategy-confirm-result` so AION's next turn (and toast) reflects the outcome.
-
-Mount the card once globally inside `src/shellv2/ShellV2.tsx` (chat layer overlay) so it works on every route.
-
-### d) Delete-all mutation
-
-**`src/hooks/useStrategyPlans.ts`**
-- Add `deleteAllStrategies` mutation: calls a small new edge function `strategy-purge` (or reuses `generate-100day-strategy` with a new `mode: 'purge'` flag).
-- Recommended: extend existing edge function with `mode: 'purge'` branch that runs the same SQL wipe block (lines 743–752) and returns `{ purged: true }` without generating new plans. This avoids a new function file and keeps the destructive logic in one place.
-
----
-
-## File touch list
-
-- `src/hooks/useStrategyPlans.ts` — always force regen, add `deleteAllStrategies`
-- `src/shellv2/layers/ComposerLayer.tsx` — lift + float container
-- `src/components/dashboard/GlobalChatInput.tsx` — bigger native-feel pill
-- `src/hooks/aurora/useAuroraCommands.tsx` — strategy_regenerate / strategy_delete tags
-- `supabase/functions/aurora-chat/orchestrator.ts` — register tags in system prompt (HE + EN)
-- `supabase/functions/generate-100day-strategy/index.ts` — `mode: 'purge'` branch
-- `src/components/aurora/StrategyApprovalCard.tsx` — new approval card
-- `src/shellv2/ShellV2.tsx` — mount approval card globally
-
----
-
-## Acceptance
-
-- Tapping "Generate strategy" anywhere always replaces the active plan; no duplicate active rows remain.
-- Composer floats ~12px off the bottom with safe-area, taller (h-12) input with iOS-style rounded pill.
-- Saying "regenerate my strategy" / "תמחק את התוכנית" in chat produces an approval card; only after confirm does the wipe + regen run; AION acknowledges the result.
+No DB / edge-function / migration changes. UI + presentation only.
