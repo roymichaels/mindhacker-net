@@ -17,7 +17,8 @@ import { cn } from '@/lib/utils';
 export default function ShellV2Header() {
   const overlay = useOverlay();
   const { language, isRTL } = useTranslation();
-  const brand = language === 'he' ? 'מיינד OS' : 'Mind OS';
+  // Brand is intentionally Latin in both locales for consistency.
+  const brand = 'MindOS';
 
   return (
     <header
