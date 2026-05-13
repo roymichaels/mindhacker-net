@@ -268,6 +268,46 @@ export function describeRegistry() {
   }));
 }
 
+/* ------------------------------- router -------------------------------- */
+
+export type RouterDecision =
+  | { decision: 'reply' }
+  | { decision: 'invoke'; capability: string; params?: Record<string, unknown> }
+  | { decision: 'propose'; capability: string; reason: string };
+
+// Heuristic regexes (Hebrew + English) — kept narrow on purpose.
+const RX_BRAIN = /(\bהמוח שלי\b|מה אתה יודע עלי|מה את יודעת עלי|what do you know about me|my brain|consciousness)/i;
+const RX_NEXT_STEP = /(מה הצעד הבא|מה לעשות עכשיו|אני תקוע|next step|what should i do|i(?:'| a)?m stuck)/i;
+const RX_DAILY_GEN = /(תבנה לי יום|אין לי משימות|generate today|build my day)/i;
+const RX_PLAN_RESTART = /(תבנה מחדש|התחל מחדש|תוכנית חדשה|restart plan|new strategy|wipe.+(plan|strategy))/i;
+const RX_PLAN_DELETE = /(מחק את התוכנית|delete (my )?plan|delete strategy)/i;
+const RX_HYPNOSIS = /(היפנוזה|לישון|להירדם|hypnosis|help me sleep)/i;
+
+/**
+ * Phase 2 router: maps an intent + raw text to a capability decision.
+ * Destructive capabilities resolve to `propose` (client must confirm later);
+ * non-destructive ones can be `invoke`d server-side and folded into the prompt.
+ */
+export function routeCapability(
+  intent: string,
+  text: string,
+): RouterDecision {
+  const t = (text || '').trim();
+  if (!t) return { decision: 'reply' };
+
+  if (RX_PLAN_RESTART.test(t)) return { decision: 'propose', capability: 'plan.restart', reason: 'destructive' };
+  if (RX_PLAN_DELETE.test(t)) return { decision: 'propose', capability: 'plan.delete', reason: 'destructive' };
+
+  if (RX_BRAIN.test(t)) return { decision: 'invoke', capability: 'progress.summarize' };
+  if (RX_NEXT_STEP.test(t)) return { decision: 'invoke', capability: 'nextStep.suggest' };
+  if (RX_DAILY_GEN.test(t)) return { decision: 'propose', capability: 'daily.generate', reason: 'side_effect' };
+  if (RX_HYPNOSIS.test(t)) return { decision: 'propose', capability: 'hypnosis.start', reason: 'side_effect' };
+
+  if (intent === 'status_query') return { decision: 'invoke', capability: 'nextStep.suggest' };
+
+  return { decision: 'reply' };
+}
+
 /** Lightweight params validator — supports type + required + enum + additionalProperties. */
 export function validateParams(
   schema: CapabilityDef['params'],
