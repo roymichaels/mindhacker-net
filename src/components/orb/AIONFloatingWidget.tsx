@@ -12,13 +12,24 @@ import { AIONChatPanel } from './AIONChatPanel';
 import { useEnvironment } from '@/orchestration';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { cn } from '@/lib/utils';
+import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
+import type { OrbProfile } from './types';
+
+// Fixed cyan-blue palette matching the chat bubble color (see screenshot).
+const CYAN_ORB_PROFILE: OrbProfile = {
+  ...DEFAULT_ORB_PROFILE,
+  primaryColor: '199 89% 58%',
+  secondaryColors: ['205 92% 64%', '188 88% 60%'],
+  accentColor: '195 95% 70%',
+};
 
 const HIDDEN_ROUTES = ['/avatar', '/onboarding', '/ceremony', '/founding', '/docs', '/go', '/mindos/chat'];
 const BASE_ORB_SIZE = 72;
 
 function AIONFloatingWidgetInner() {
   const { user } = useAuth();
-  const { profile } = useOrbProfile();
+  // Force the persistent orb to the brand cyan, regardless of DNA palette.
+  const profile = CYAN_ORB_PROFILE;
   const location = useLocation();
   const [chatOpen, setChatOpen] = useState(false);
   const { state: env, enabled: envEnabled } = useEnvironment();
@@ -69,10 +80,12 @@ function AIONFloatingWidgetInner() {
             onClick={handleClick}
             aria-label="Open MindOS"
             className={cn(
-              "fixed z-[88] right-4 md:right-6 bottom-[96px] md:bottom-6 flex items-center gap-3 bg-transparent border-0 p-0",
+              // z=35 sits below the chrome header (z=40) so it's clipped under
+              // the top bar — only the orb living inside the header is visible there.
+              "fixed z-[35] right-4 md:right-6 bottom-[96px] md:bottom-6 flex items-center gap-3 bg-transparent border-0 p-0",
               aion === 'thinking' && "drop-shadow-[0_0_18px_hsl(var(--primary)/0.45)]",
-              aion === 'listening' && "drop-shadow-[0_0_22px_hsl(200_90%_60%/0.55)]",
-              aion === 'speaking' && "drop-shadow-[0_0_22px_hsl(var(--primary)/0.6)]"
+              aion === 'listening' && "drop-shadow-[0_0_22px_hsl(199_89%_60%/0.55)]",
+              aion === 'speaking' && "drop-shadow-[0_0_22px_hsl(199_89%_60%/0.6)]"
             )}
           >
             <motion.div
