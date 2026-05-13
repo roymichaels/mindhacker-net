@@ -20,6 +20,7 @@ import ComposerLayer from './layers/ComposerLayer';
 import ChromeLayer from './layers/ChromeLayer';
 import OverlayLayer from './layers/OverlayLayer';
 import BlockingLayer from './layers/BlockingLayer';
+import StrategyApprovalCard from '@/components/aurora/StrategyApprovalCard';
 
 export interface ShellV2Props {
   /** Optional override for the chat surface. Defaults to placeholder. */
@@ -37,6 +38,7 @@ export default function ShellV2({ children }: ShellV2Props) {
       <ChromeLayer />
       <OverlayLayer />
       <BlockingLayer />
+      <StrategyApprovalCard />
     </div>
   );
 }

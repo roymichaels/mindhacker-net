@@ -482,6 +482,17 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Emit event for voice mode auto-play
         window.dispatchEvent(new CustomEvent('aurora:response', { detail: { text: cleanedContent } }));
 
+        // Strategy action tags emitted by AION — surface confirmation card.
+        try {
+          const tagMatches = cleanedContent.match(/\[action:(strategy_regenerate|strategy_delete)\]/gi) || [];
+          tagMatches.forEach((raw) => {
+            const m = raw.match(/strategy_(regenerate|delete)/i);
+            if (!m) return;
+            const kind = m[1].toLowerCase() === 'delete' ? 'delete' : 'regenerate';
+            window.dispatchEvent(new CustomEvent('aion:strategy-confirm', { detail: { kind } }));
+          });
+        } catch (e) { console.warn('[aurora] strategy tag parse failed:', e); }
+
         // Phase B — silently grow the consciousness graph. Fire-and-forget;
         // never await, never surface errors to the user.
         try {

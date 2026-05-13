@@ -1094,6 +1094,8 @@ function buildFullPrompt(language: string, contextMarkdown: string, openerSectio
 
 ### תגיות CTA (כפתורי פעולה)
 - [action:analyze] - כאשר יש תובנה משמעותית לשמור
+- [action:strategy_regenerate] - כאשר המשתמש מבקש במפורש לבנות מחדש / להחליף את התוכנית של 100 הימים. תמיד שלח את התגית; הממשק יציג למשתמש כרטיס אישור לפני שהפעולה תרוץ. אל תניח שהפעולה הסתיימה.
+- [action:strategy_delete] - כאשר המשתמש מבקש במפורש למחוק / לאפס את התוכנית של 100 הימים. תמיד שלח את התגית; הממשק יבקש אישור.
 - [cta:life_direction] - כפתור לחקירת כיוון החיים
 - [cta:explore_values] - כפתור לחקירת ערכים
 - [cta:map_energy] - כפתור למיפוי אנרגיה
@@ -1300,6 +1302,8 @@ Before executing ANY action, check if more than one item matches the user's requ
 ## Action Tags (processed in background, not shown to user)
 Only use these tags when exactly ONE match exists!
 - [action:analyze] - when there's significant insight to save
+- [action:strategy_regenerate] - when the user explicitly asks to rebuild / replace / regenerate their 100-day strategy. ALWAYS emit the tag; the app will show the user a confirmation card before any destructive action runs. Never assume it has happened.
+- [action:strategy_delete] - when the user explicitly asks to delete / wipe their 100-day strategy. ALWAYS emit the tag; the app will require user confirmation.
 - [cta:life_direction] - button to explore life direction
 - [cta:explore_values] - button to explore values
 - [cta:map_energy] - button to map energy

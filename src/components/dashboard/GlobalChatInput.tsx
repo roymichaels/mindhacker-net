@@ -228,12 +228,12 @@ const GlobalChatInput = () => {
       </AnimatePresence>
 
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
-        <div className="relative flex items-end gap-2">
+        <div className="relative flex items-end gap-2 py-1">
           {/* Voice Mode Button — outermost, closest to page edge */}
           <VoiceModeButton
             onClick={voiceMode.open}
             disabled={isStreaming || isRecording}
-            className="h-9 w-9 shrink-0 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg"
+            className="h-11 w-11 shrink-0 bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl"
           />
 
           {/* Plus Button with Attach Menu */}
@@ -242,7 +242,7 @@ const GlobalChatInput = () => {
               type="button"
               onClick={() => setShowAttachMenu(!showAttachMenu)}
               className={cn(
-                "h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-all shrink-0",
+                "h-11 w-11 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl hover:bg-muted/50 transition-all shrink-0",
                 showAttachMenu && "bg-muted/50 rotate-45"
               )}
             >
@@ -306,7 +306,7 @@ const GlobalChatInput = () => {
           </div>
 
           {/* Input Container */}
-          <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
+          <div className="flex-1 min-h-11 relative bg-background/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center">
             <textarea
               ref={textareaRef}
               value={input}
@@ -317,14 +317,14 @@ const GlobalChatInput = () => {
               disabled={isStreaming || isRecording}
               rows={1}
               className={cn(
-                "w-full h-9 bg-transparent px-3 py-2 pe-10 text-sm leading-tight",
+                "w-full bg-transparent px-3 py-3 pe-12 text-base leading-snug",
                 "resize-none overflow-hidden",
                 "focus:outline-none",
                 "disabled:opacity-50",
                 "placeholder:text-muted-foreground"
               )}
               dir={isRTL ? 'rtl' : 'ltr'}
-              style={{ maxHeight: '36px' }}
+              style={{ maxHeight: '120px', minHeight: '44px' }}
             />
 
             {/* Voice recording button inside input */}
@@ -336,7 +336,7 @@ const GlobalChatInput = () => {
                 onStopRecording={handleStopRecording}
                 disabled={isStreaming}
                 compact
-                className="h-7 w-7"
+                className="h-9 w-9"
               />
             </div>
           </div>
@@ -346,14 +346,14 @@ const GlobalChatInput = () => {
             type="submit"
             disabled={isStreaming || (!input.trim() && !selectedImage) || isRecording}
             className={cn(
-              "h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0",
+              "h-11 w-11 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl hover:bg-muted/50 transition-colors shrink-0",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
             {isStreaming ? (
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             ) : (
-              <Send className="w-4 h-4 text-muted-foreground" />
+              <Send className="w-5 h-5 text-muted-foreground" />
             )}
           </button>
         </div>

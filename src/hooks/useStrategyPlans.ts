@@ -156,7 +156,10 @@ export function useStrategyPlans() {
         body: {
           user_id: user!.id,
           hub: hub || 'both',
-          force_regenerate: forceRegenerate || false,
+          // SSOT: generating a new strategy always replaces the active one.
+          // The edge function archives existing plans + clears plan_missions,
+          // action_items, life_plan_milestones, and skills.
+          force_regenerate: true,
           selected_pillars: selectedPillars,
           single_pillar: singlePillar,
         },
@@ -269,6 +272,10 @@ export function useStrategyPlans() {
       queryClient.invalidateQueries({ queryKey: ['life-plan'] });
       queryClient.invalidateQueries({ queryKey: ['daily-missions'] });
       queryClient.invalidateQueries({ queryKey: ['daily-milestones'] });
+      queryClient.invalidateQueries({ queryKey: ['weekly-tactical-plan'] });
+      queryClient.invalidateQueries({ queryKey: ['plan-missions'] });
+      queryClient.invalidateQueries({ queryKey: ['skills'] });
+      queryClient.invalidateQueries({ queryKey: ['life-plan-milestones'] });
       toast({
         title: '✅ Strategy generated',
         description: 'Your 100-day plan has been created based on your assessments.',
@@ -282,6 +289,30 @@ export function useStrategyPlans() {
         description: error instanceof Error ? error.message : 'Failed to generate strategy',
         variant: 'destructive',
       });
+    },
+  });
+
+  const deleteAllStrategies = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('generate-100day-strategy', {
+        body: { user_id: user!.id, mode: 'purge' },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
+      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+      queryClient.invalidateQueries({ queryKey: ['weekly-tactical-plan'] });
+      queryClient.invalidateQueries({ queryKey: ['plan-missions'] });
+      queryClient.invalidateQueries({ queryKey: ['skills'] });
+      queryClient.invalidateQueries({ queryKey: ['life-plan-milestones'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-missions'] });
+      queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+      toast({ title: '🗑️ Strategy deleted', description: 'Your 100-day plan and related items were removed.' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error?.message || 'Failed to delete strategy', variant: 'destructive' });
     },
   });
 
@@ -307,5 +338,7 @@ export function useStrategyPlans() {
     isHealing: query.data?._legacyFound || false,
     generateStrategy,
     isGenerating: generateStrategy.isPending,
+    deleteAllStrategies,
+    isDeleting: deleteAllStrategies.isPending,
   };
 }

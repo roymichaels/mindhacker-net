@@ -14,11 +14,13 @@ import { zStyle } from '../zindex';
 export default function ComposerLayer() {
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0"
-      style={zStyle('composer')}
+      className="pointer-events-none fixed inset-x-0 px-3 flex justify-center"
+      style={{ ...zStyle('composer'), bottom: 'max(env(safe-area-inset-bottom), 12px)' }}
       data-shellv2-layer="composer"
     >
-      <div className="pointer-events-auto mx-auto w-full max-w-screen-md">
+      <div
+        className="pointer-events-auto w-full max-w-screen-md rounded-2xl bg-background/70 backdrop-blur-xl border border-border/40 px-2 py-2"
+      >
         <GlobalChatInput />
       </div>
     </div>
