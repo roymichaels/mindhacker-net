@@ -125,6 +125,14 @@ export const useAuroraCommands = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return true;
     },
+    strategy_regenerate: () => {
+      window.dispatchEvent(new CustomEvent('aion:strategy-confirm', { detail: { kind: 'regenerate' } }));
+      return true;
+    },
+    strategy_delete: () => {
+      window.dispatchEvent(new CustomEvent('aion:strategy-confirm', { detail: { kind: 'delete' } }));
+      return true;
+    },
   }), []);
 
   // Execute a single command
@@ -209,6 +217,8 @@ Available Aurora commands:
 - [mode:quiet:on] - Mute notifications
 - [action:new_chat] - Start a new conversation
 - [action:refresh] - Refresh the page
+- [action:strategy_regenerate] - Ask user to confirm regenerating their 100-day strategy (replaces current plan)
+- [action:strategy_delete] - Ask user to confirm deleting their 100-day strategy
 `.trim();
   }, []);
 
