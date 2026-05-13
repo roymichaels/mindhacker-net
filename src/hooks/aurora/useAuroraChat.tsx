@@ -373,7 +373,55 @@ export const useAuroraChat = (conversationId: string | null) => {
       const commands = parseAllTags(fullContent);
       // Defense in depth: server's sanitizeStream already strips chain-of-thought,
       // but apply stripReasoning here too so any leak never reaches the database.
-      const cleanedContent = stripReasoning(stripAllTags(fullContent));
+      let cleanedContent = stripReasoning(stripAllTags(fullContent));
+
+      // Phase 3 — Artifact router. Extract <<AION_ARTIFACT …>> sentinels from
+      // the assistant reply and forward them to the artifact bus. Only the
+      // visible text is persisted/displayed.
+      try {
+        const { parseArtifactSentinels } = await import('@/lib/aion/parseArtifactSentinels');
+        const { emitArtifact } = await import('@/components/aion/artifacts/artifactBus');
+        const parsed = parseArtifactSentinels(cleanedContent);
+        if (parsed.artifacts.length > 0) {
+          cleanedContent = parsed.cleanText;
+          for (const a of parsed.artifacts) {
+            const sticky = a.kind === 'confirm';
+            emitArtifact({
+              kind: a.kind,
+              title: a.title,
+              body: a.body,
+              ttl: sticky ? 0 : (a.ttl ?? 9000),
+              cta: a.cta?.label
+                ? {
+                    label: a.cta.label,
+                    href: a.cta.href,
+                    onClick: a.cta.capability
+                      ? () =>
+                          window.dispatchEvent(
+                            new CustomEvent('aion:capability:invoke', {
+                              detail: { capability: a.cta!.capability, params: a.cta!.params },
+                            }),
+                          )
+                      : undefined,
+                  }
+                : a.confirm
+                  ? {
+                      label: a.confirm.label ?? 'אישור',
+                      onClick: () =>
+                        window.dispatchEvent(
+                          new CustomEvent('aion:capability:invoke', {
+                            detail: { capability: a.confirm!.capability, params: a.confirm!.params },
+                          }),
+                        ),
+                    }
+                  : undefined,
+            });
+          }
+          tracer.mark('stream.end', { artifacts: parsed.artifacts.length });
+        }
+      } catch (e) {
+        console.warn('[aion-artifacts] parse failed', e);
+      }
 
       // ── Dev diagnostics: report sanitizer outcome (no behavioural impact) ──
       try {
