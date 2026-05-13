@@ -13,10 +13,10 @@ const SIMPLE_REDIRECTS: [string, string][] = [
   ['/consciousness-leap', '/'],
   ['/consciousness-leap/apply/:token', '/'],
   ['/form/:token', '/'],
-  // Legacy onboarding
-  ['/start', '/onboarding'],
-  ['/free-journey', '/onboarding'],
-  ['/free-journey/start', '/onboarding'],
+  // Legacy onboarding — onboarding flow removed; route everything to Home (AION chat)
+  ['/start', '/'],
+  ['/free-journey', '/'],
+  ['/free-journey/start', '/'],
   ['/free-journey/complete', '/launchpad/complete'],
   // Coach/practitioner aliases
   ['/practitioners', '/coaches'],
