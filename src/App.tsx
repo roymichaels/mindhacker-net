@@ -116,8 +116,6 @@ const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const JournalingHub = lazy(() => import("./pages/JournalingHub"));
 const StrategyPage = lazy(() => import("./pages/StrategyPage"));
 const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
-const JournalingHub = lazy(() => import("./pages/JournalingHub"));
-const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
 const AuroraPage = lazy(() => import("./pages/AuroraPage"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
