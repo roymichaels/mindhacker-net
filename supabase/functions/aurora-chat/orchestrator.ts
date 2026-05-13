@@ -250,7 +250,8 @@ export function prepare(
   knowledgeBase: string = "",
   customSystemPrompt: string | null = null,
   pillar: string | null = null,
-  intent: IntentResolution = { intent: "conversational", lanes: { live: true, memory: true, planning: false, proactive: false, execution: false, analytics: false } }
+  intent: IntentResolution = { intent: "conversational", lanes: { live: true, memory: true, planning: false, proactive: false, execution: false, analytics: false } },
+  phase4: { enabled?: boolean; recentAssistantOpeners?: string[] } = {}
 ): OrchestratorResult {
   const promptVersion = PROMPT_VERSIONS[mode];
 
@@ -272,6 +273,7 @@ export function prepare(
 
   const laneRules = buildLaneRules(intent, language);
   const intakeBlock = buildIntakeBlock(context, intent, language);
+  const phase4Block = phase4.enabled ? buildPhase4Block(context, language, phase4.recentAssistantOpeners ?? []) : "";
 
   if (mode === "widget") {
     return {
@@ -287,7 +289,7 @@ export function prepare(
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + intakeBlock.prompt + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + intakeBlock.prompt + phase4Block + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
@@ -309,6 +311,7 @@ export function prepare(
       HISTORY_ONLY_RULES +
       laneRules +
       intakeBlock.prompt +
+      phase4Block +
       buildFullPrompt(language, contextMarkdown, openerSection) +
       pillarSection +
       socraticSection,
@@ -322,6 +325,48 @@ export function prepare(
     surfacedContradictionId: intakeBlock.surfacedContradictionId,
     intakeSummary: intakeBlock.summary,
   };
+}
+
+// ─── Phase 4: Graph-Informed Compact Block + Repetition Guard ──────────
+/**
+ * Returns a compact, always-on system prompt fragment used by Phase 4 of the
+ * AION orchestration reset. Two parts:
+ *  1. "What I know about you" — top 5 strongest graph nodes regardless of lane.
+ *  2. Repetition guard — last 3 assistant openings the model must not reuse.
+ * Both segments are short, fact-only, and do not introduce new behavior unless
+ * `AION_PHASE4=1` is enabled server-side.
+ */
+function buildPhase4Block(
+  ctx: AuroraContext,
+  language: string,
+  recentOpeners: string[]
+): string {
+  const isHe = language === "he";
+  const segments: string[] = [];
+
+  const nodes = (ctx.memory_graph || []).slice(0, 5);
+  if (nodes.length > 0) {
+    const lines = nodes.map((n: any) => {
+      const tag = n.node_type ? `[${n.node_type}]` : "";
+      const pill = n.pillar ? ` (${n.pillar})` : "";
+      return `- ${tag}${pill} ${n.content}`;
+    });
+    segments.push(isHe
+      ? `\n\n## 🧠 מה אני יודעת עליך (תקציר)\nהשתמשי בידע הזה בעדינות. אל תצטטי אותו במילים האלו.\n${lines.join("\n")}`
+      : `\n\n## 🧠 What I know about you (compact)\nUse this knowledge gently. Do not quote it verbatim.\n${lines.join("\n")}`);
+  }
+
+  const cleanedOpeners = recentOpeners
+    .map((o) => (o || "").trim().slice(0, 80))
+    .filter((o) => o.length >= 6)
+    .slice(0, 3);
+  if (cleanedOpeners.length > 0) {
+    segments.push(isHe
+      ? `\n\n## 🚫 כלל אנטי-חזרה\nאל תפתחי את התגובה באותה דרך כמו הפתיחות האחרונות שלך:\n${cleanedOpeners.map((o) => `- "${o}"`).join("\n")}\nשני נימה, ניסוח ואורך.`
+      : `\n\n## 🚫 Anti-repetition rule\nDo not open this reply the same way as your recent openings:\n${cleanedOpeners.map((o) => `- "${o}"`).join("\n")}\nVary tone, phrasing, and length.`);
+  }
+
+  return segments.join("");
 }
 
 // ─── Intake / Curiosity ────────────────────────────────────
