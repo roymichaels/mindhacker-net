@@ -10,6 +10,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildContext } from "./contextBuilder.ts";
 import { validateRequest, getWidgetSettings, getKnowledgeBase, prepare, detectIntent, lanesToString } from "./orchestrator.ts";
+import { startServerTrace, getTraceIdFromRequest } from "../_shared/turnTrace.ts";
 import { fetchWithTimeout } from "../_shared/fetchWithRetry.ts";
 import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
