@@ -46,8 +46,8 @@ export default function ShellV2Header() {
         {/* Left: orb badge */}
         <button
           type="button"
-          aria-label={language === 'he' ? 'תפריט' : 'Menu'}
-          onClick={() => overlay.open('drawer')}
+          aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
+          onClick={() => overlay.open('aion')}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] backdrop-blur-md transition-colors hover:bg-white/[0.08]"
         >
           <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" ariaLabel={isHe ? 'תפריט' : 'Menu'} />
