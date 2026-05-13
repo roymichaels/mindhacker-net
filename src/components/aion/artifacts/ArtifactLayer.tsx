@@ -9,7 +9,7 @@
  * subtle border + blur (per project design rules).
  */
 import { useEffect, useState, useCallback } from 'react';
-import { X, Sparkles, NotebookPen, Target, Lightbulb, ListChecks, Wand2 } from 'lucide-react';
+import { X, Sparkles, NotebookPen, Target, Lightbulb, ListChecks, Wand2, ShieldAlert } from 'lucide-react';
 import type { AionArtifact, ArtifactKind } from './artifactBus';
 import { onArtifact } from './artifactBus';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,7 @@ const ICONS: Record<ArtifactKind, React.ComponentType<{ className?: string }>> =
   note: Sparkles,
   insight: Lightbulb,
   capability: Wand2,
+  confirm: ShieldAlert,
 };
 
 const KIND_LABEL: Record<ArtifactKind, string> = {
@@ -32,6 +33,7 @@ const KIND_LABEL: Record<ArtifactKind, string> = {
   note: 'הערה',
   insight: 'תובנה',
   capability: 'יכולת',
+  confirm: 'אישור נדרש',
 };
 
 interface ArtifactLayerProps {

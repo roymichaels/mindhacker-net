@@ -19,6 +19,7 @@ import { EnvironmentProvider, MotionLayer } from "@/orchestration";
 import { AIONStateProvider } from "@/contexts/AIONStateContext";
 import { AionDecisionProvider } from "@/contexts/AionDecisionContext";
 import { AIONStateBridge } from "@/components/aion/AIONStateBridge";
+import { CapabilityInvokerBridge } from "@/components/aion/CapabilityInvokerBridge";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
@@ -266,6 +267,7 @@ const App = () => (
                         <MotionLayer>
                          <AIONStateProvider>
                           <AIONStateBridge />
+                          <CapabilityInvokerBridge />
                          <SubscriptionsModalProvider>
                           <CoachesModalProvider>
                             <WalletModalProvider>
