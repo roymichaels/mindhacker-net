@@ -215,6 +215,33 @@ const PILLAR_CATEGORY_MAP: Record<string, string> = {
   projects: 'wealth', play: 'spirit', order: 'mind',
 };
 
+// Hebrew pillar names — used for fallback trait/skill labels so we never
+// render junk like "לוחם הbusiness" when the AI call fails.
+const PILLAR_HE_MAP: Record<string, string> = {
+  consciousness: 'התודעה', presence: 'הנוכחות', power: 'העוצמה', vitality: 'החיוניות',
+  focus: 'הפוקוס', combat: 'הלחימה', expansion: 'ההתרחבות', wealth: 'העושר',
+  influence: 'ההשפעה', relationships: 'הקשרים', business: 'העסקים',
+  projects: 'הפרויקטים', play: 'המשחק', order: 'הסדר',
+};
+
+const PILLAR_EN_MAP: Record<string, string> = {
+  consciousness: 'Consciousness', presence: 'Presence', power: 'Power', vitality: 'Vitality',
+  focus: 'Focus', combat: 'Combat', expansion: 'Expansion', wealth: 'Wealth',
+  influence: 'Influence', relationships: 'Relationships', business: 'Business',
+  projects: 'Projects', play: 'Play', order: 'Order',
+};
+
+// Tagged error so the top-level handler can distinguish AI quota/rate-limit
+// failures from generic errors and abort cleanly instead of writing junk fallbacks.
+class AIQuotaError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'AIQuotaError';
+    this.status = status;
+  }
+}
+
 // ========== TRAIT GENERATION PROMPT ==========
 function buildTraitPrompt(
   pillarId: string,
