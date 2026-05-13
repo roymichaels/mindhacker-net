@@ -31,13 +31,14 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { useUserJob } from '@/hooks/useUserJob';
 import { BugReportDialog } from '@/components/aurora/BugReportDialog';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
   compact?: boolean;
 }
 
-export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDropdownProps) {
+function AppNameDropdownImpl({ onOpenSettings, compact = false }: AppNameDropdownProps) {
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const { setLanguage } = useLanguage();
@@ -335,3 +336,5 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
     </>
   );
 }
+
+export const AppNameDropdown = withLegacyGuard('AppNameDropdown', AppNameDropdownImpl);

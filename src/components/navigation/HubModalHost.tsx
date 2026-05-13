@@ -42,7 +42,7 @@ function HubBody({ hub }: { hub: HubId }) {
   }
 }
 
-export function HubModalHost() {
+function HubModalHostImpl() {
   const { activeHub, closeHub } = useHubModal();
 
   return (
@@ -87,4 +87,6 @@ export function HubModalHost() {
   );
 }
 
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
+export const HubModalHost = withLegacyGuard('HubModalHost', HubModalHostImpl);
 export default HubModalHost;

@@ -7,12 +7,13 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
 interface TopNavBarProps {
   onOpenSettings: () => void;
 }
 
-export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
+function TopNavBarImpl({ onOpenSettings }: TopNavBarProps) {
   const { isRTL } = useTranslation();
 
   return (
@@ -29,3 +30,5 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
     </header>
   );
 }
+
+export const TopNavBar = withLegacyGuard('TopNavBar', TopNavBarImpl);

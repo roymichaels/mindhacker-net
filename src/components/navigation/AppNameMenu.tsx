@@ -23,7 +23,7 @@ interface AppNameMenuProps {
   compact?: boolean;
 }
 
-export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProps) {
+function AppNameMenuImpl({ onOpenSettings, compact = false }: AppNameMenuProps) {
   const { language, isRTL } = useTranslation();
   const { theme: brandTheme } = useThemeSettings();
   const [open, setOpen] = useState(false);
@@ -116,4 +116,6 @@ export function AppNameMenu({ onOpenSettings, compact = false }: AppNameMenuProp
   );
 }
 
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
+export const AppNameMenu = withLegacyGuard('AppNameMenu', AppNameMenuImpl);
 export default AppNameMenu;
