@@ -10,14 +10,25 @@ import { Outlet } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { OnboardingGate } from '@/components/layout/OnboardingGate';
 import ShellV2 from './ShellV2';
+import { SidebarProvider } from '@/contexts/SidebarContext';
+import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
+import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
+import GameLayerBootstrap from '@/components/game/GameLayerBootstrap';
 
 export default function ProtectedAppShellV2() {
   return (
     <ProtectedRoute>
       <OnboardingGate>
-        <ShellV2>
-          <Outlet />
-        </ShellV2>
+        <ChromeVisibilityProvider>
+          <SidebarProvider>
+            <AuroraActionsProvider>
+              <ShellV2>
+                <GameLayerBootstrap />
+                <Outlet />
+              </ShellV2>
+            </AuroraActionsProvider>
+          </SidebarProvider>
+        </ChromeVisibilityProvider>
       </OnboardingGate>
     </ProtectedRoute>
   );
