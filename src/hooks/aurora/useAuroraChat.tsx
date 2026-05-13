@@ -215,6 +215,14 @@ export const useAuroraChat = (conversationId: string | null) => {
     setIsStreaming(true);
     setStreamingContent('');
 
+    // Phase 1 — AION orchestration trace (observation-only, flag-gated).
+    const tracer = (await import('@/diagnostics/aionTrace')).startTurnTrace({
+      route: typeof window !== 'undefined' ? window.location.pathname : null,
+      conversationId,
+      hasImage: !!imageBase64,
+      msgLen: content.length,
+    });
+
     // Heartbeat: keep the orchestration loop breathing during active chat.
     try { pulse('composer_focus'); } catch { /* never block send */ }
 
@@ -257,6 +265,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         .map((m) => m.content);
       classifyIntent(content, typeof window !== 'undefined' ? window.location.pathname : null);
       detectEmotion([...recentUserMsgs, content]);
+      tracer.mark('sense.dispatched');
     } catch (e) {
       console.warn('[aion-skills] dispatch failed', e);
     }
@@ -326,6 +335,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const decoder = new TextDecoder();
       let buffer = '';
       let fullContent = '';
+      tracer.mark('stream.start');
 
       while (true) {
         const { done, value } = await reader.read();
@@ -417,6 +427,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         }
         _lastAssistantText = cleanedContent || _lastAssistantText;
       } catch { /* never block chat */ }
+      tracer.mark('stream.end', { len: fullContent.length });
 
       // Dispatch commands through the bus (trust-gated) — fire-and-forget so
       // a single orchestration failure can never block the next reply.
@@ -514,6 +525,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         } catch (e) {
           console.warn('[memory-writer] dispatch failed:', e);
         }
+        tracer.mark('post.memory-writer');
       }
 
       // Background side-effects — never awaited; failures must not block chat.
@@ -560,6 +572,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       abortControllerRef.current = null;
       
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+      try { tracer.end(); } catch { /* ignore */ }
     }
   }, [user?.id, conversationId, isStreaming, messages, language, dispatchCommands, generateTitle, triggerBackgroundAnalysis, summarizeConversation, queryClient]);
 

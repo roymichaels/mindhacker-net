@@ -57,11 +57,26 @@ export type BrainRunEvent = {
   error?: string;
 };
 
+export type AionTraceEvent = {
+  at: number;
+  traceId: string;
+  stage:
+    | 'turn.start'
+    | 'sense.dispatched'
+    | 'stream.start'
+    | 'stream.end'
+    | 'post.memory-writer'
+    | 'post.signals'
+    | 'turn.end';
+  data?: Record<string, unknown>;
+};
+
 type EventMap = {
   'memory-writer': MemoryWriterEvent;
   'leak-guard': LeakGuardEvent;
   'response-source': ResponseSourceEvent;
   'brain-run': BrainRunEvent;
+  'aion-trace': AionTraceEvent;
 };
 
 type Listener<K extends keyof EventMap> = (payload: EventMap[K]) => void;
@@ -71,6 +86,7 @@ const listeners: { [K in keyof EventMap]: Set<Listener<K>> } = {
   'leak-guard': new Set(),
   'response-source': new Set(),
   'brain-run': new Set(),
+  'aion-trace': new Set(),
 };
 
 const STORAGE_KEY = 'mindos.diag.last';

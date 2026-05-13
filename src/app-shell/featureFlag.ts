@@ -12,3 +12,21 @@ export function useAppShellFlag(): boolean {
 }
 
 export const APP_SHELL_FLAG_KEY = "ff_app_shell";
+
+/**
+ * Phase-1 AION orchestration trace.
+ * When on, every chat turn emits trace.* signals into `aion_signals`
+ * and onto the diagnostics bus. Pure observation — no behavior change.
+ * Toggle: localStorage.setItem("ff_aion_trace", "1")
+ */
+export const AION_TRACE_FLAG_KEY = "ff_aion_trace";
+
+export function isAionTraceEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const ls = window.localStorage.getItem(AION_TRACE_FLAG_KEY);
+    return ls === "1" || ls === "true";
+  } catch {
+    return false;
+  }
+}
