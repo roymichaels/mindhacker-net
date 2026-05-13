@@ -14,7 +14,8 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Menu, Mic, MicOff, Moon } from 'lucide-react';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { SharedOrbView } from '@/components/orb/SharedOrbView';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { useOverlay } from '@/shell/overlay/OverlayController';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
@@ -62,6 +63,7 @@ export default function InteractiveAION() {
   const hideTimerRef = useRef<number | null>(null);
   const [orbSize, setOrbSize] = useState(320);
   const [hypnosisActive, setHypnosisActive] = useState(false);
+  const { profile: orbProfile } = useOrbProfile();
 
   // Voice loop — re-uses existing transcribe + TTS pipeline.
   const voice = useAuroraVoiceMode({
@@ -218,10 +220,12 @@ export default function InteractiveAION() {
         onClick={toggleVoice}
         className="absolute inset-x-0 top-[14%] flex justify-center bg-transparent border-0 outline-none"
       >
-        <PersonalizedOrb
+        <SharedOrbView
+          profile={orbProfile}
+          geometryFamily={orbProfile.geometryFamily || 'sphere'}
           size={orbSize}
-          state={mapToOrbState(state)}
-          showGlow
+          level={100}
+          randomShapeCount
         />
       </button>
 
