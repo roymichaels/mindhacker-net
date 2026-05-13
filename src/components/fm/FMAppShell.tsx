@@ -4,6 +4,7 @@
  */
 import { Outlet } from 'react-router-dom';
 import { useFMWallet } from '@/hooks/useFMWallet';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 import { useSoulWallet } from '@/hooks/useSoulWallet';
 import { useSoulAvatarWizard } from '@/contexts/SoulAvatarContext';
 import { FMOnboarding } from '@/components/fm/FMOnboarding';
@@ -12,7 +13,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { useSidebars } from '@/hooks/useSidebars';
 import { useEffect } from 'react';
 
-export default function FMAppShell() {
+function FMAppShellImpl() {
   const { wallet, isLoading, completeOnboarding } = useFMWallet();
   const { isMinted, isLoading: soulLoading } = useSoulWallet();
   const { openWizard } = useSoulAvatarWizard();
@@ -58,3 +59,5 @@ export default function FMAppShell() {
     </div>
   );
 }
+
+export default withLegacyGuard('FMAppShell', FMAppShellImpl);
