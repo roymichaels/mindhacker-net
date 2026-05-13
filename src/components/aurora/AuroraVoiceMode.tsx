@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Mic } from 'lucide-react';
-import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { OrbView, type OrbViewState } from '@/components/orb/v2/OrbView';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import type { VoiceModeState } from '@/hooks/aurora/useAuroraVoiceMode';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,13 @@ const stateLabels = {
   listening: { en: 'Listening...', he: 'מקשיב...' },
   processing: { en: 'Thinking...', he: 'חושב...' },
   speaking: { en: 'Speaking...', he: 'מדבר...' },
+};
+
+const VOICE_TO_ORB: Record<VoiceModeState, OrbViewState> = {
+  idle: 'idle',
+  listening: 'listening',
+  processing: 'thinking',
+  speaking: 'responding',
 };
 
 export default function AuroraVoiceMode({
@@ -123,7 +130,7 @@ export default function AuroraVoiceMode({
                 }
                 transition={{ duration: state === 'speaking' ? 1.5 : 3, repeat: Infinity }}
               >
-                <AuroraHoloOrb size={120} glow="full" />
+                <OrbView size={220} state={VOICE_TO_ORB[state]} tier="cinematic" />
               </motion.div>
             </div>
 
