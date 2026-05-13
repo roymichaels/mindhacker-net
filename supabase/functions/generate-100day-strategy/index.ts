@@ -1197,7 +1197,36 @@ serve(async (req) => {
         });
 
         const aiResults = await Promise.allSettled(aiPromises);
-        
+
+        // === QUOTA ABORT GATE ===
+        // If ANY pillar failed because the AI gateway returned 402/429,
+        // abort the whole run instead of persisting 21 identical fallback
+        // missions. Roll back the in-flight 'generating' plan and return a
+        // clear error so the client can show a real toast.
+        const quotaFailure = aiResults.find(
+          (r) => r.status === 'rejected' && (r.reason instanceof AIQuotaError),
+        ) as PromiseRejectedResult | undefined;
+        if (quotaFailure) {
+          const err = quotaFailure.reason as AIQuotaError;
+          console.error(`🛑 Aborting strategy run — AI quota error (${err.status}): ${err.message}`);
+          // Cleanup: delete the partial 'generating' plan and any rows already inserted for it.
+          try {
+            await supabaseClient.from('plan_missions').delete().eq('plan_id', plan.id);
+            await supabaseClient.from('life_plan_milestones').delete().eq('plan_id', plan.id);
+            await supabaseClient.from('skills').delete().eq('life_plan_id', plan.id);
+            await supabaseClient.from('life_plans').delete().eq('id', plan.id);
+          } catch (cleanupErr) {
+            console.warn('Quota-abort cleanup warning:', cleanupErr);
+          }
+          return new Response(
+            JSON.stringify({
+              error: err.message,
+              code: err.status === 402 ? 'AI_CREDITS_EXHAUSTED' : 'AI_RATE_LIMITED',
+            }),
+            { status: err.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+          );
+        }
+
         for (const result of aiResults) {
           if (result.status === 'fulfilled' && result.value.data) {
             const { pillarId, traitCount } = result.value;
