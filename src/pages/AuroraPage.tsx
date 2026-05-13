@@ -13,6 +13,7 @@ import { artifactBus, type ArtifactKind } from '@/lib/aion/artifactBus';
 import { zStyle } from '@/shellv2/zindex';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
+import ShellHeader from '@/shellv2/ShellHeader';
 
 export default function AIONPage() {
   useTranslation();
@@ -54,6 +55,11 @@ export default function AIONPage() {
         data-shellv2-layer="chat"
         data-shellv2-route="aurora"
       >
+        {!isAssessing && (
+          <div className="mx-auto w-full max-w-screen-sm px-4">
+            <ShellHeader title="AION" subtitle="Your Future Self. Ask anything." />
+          </div>
+        )}
         {isAssessing && assessmentDomainId ? (
           <DomainAssessChat
             domainId={assessmentDomainId}
