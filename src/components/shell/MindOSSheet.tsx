@@ -33,6 +33,7 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { cn } from '@/lib/utils';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
 type HubAction = () => void;
 
@@ -49,7 +50,7 @@ interface MindOSSheetProps {
   onOpenSettings?: () => void;
 }
 
-export function MindOSSheet({ compact = false, onOpenSettings }: MindOSSheetProps) {
+function MindOSSheetImpl({ compact = false, onOpenSettings }: MindOSSheetProps) {
   const { language, isRTL } = useTranslation();
   const { theme: brandTheme } = useThemeSettings();
   const { hasRole } = useUserRoles();
