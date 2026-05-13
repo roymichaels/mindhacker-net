@@ -16,6 +16,7 @@ import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { MissionControlTab } from '@/components/play/MissionControlTab';
+import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
 
 export default function ShellV2Header() {
   const overlay = useOverlay();
@@ -44,7 +45,7 @@ export default function ShellV2Header() {
         <button
           type="button"
           aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
-          onClick={() => overlay.open('aion')}
+          onClick={() => openInteractiveAION()}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] backdrop-blur-md transition-colors hover:bg-white/[0.08]"
         >
           <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" ariaLabel={isHe ? 'תפריט' : 'Menu'} />

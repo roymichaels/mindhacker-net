@@ -7,7 +7,6 @@
  * `fixed inset-0` portals are allowed inside `src/shellv2/`.
  */
 import ShellV2Drawer from './ShellV2Drawer';
-import ChatHistorySheet from '@/components/aion/ChatHistorySheet';
 
 /**
  * UnifiedOverlayHost — SSOT mount point for ShellV2 sheets.
@@ -20,7 +19,6 @@ export default function UnifiedOverlayHost() {
   return (
     <>
       <ShellV2Drawer />
-      <ChatHistorySheet />
     </>
   );
 }
