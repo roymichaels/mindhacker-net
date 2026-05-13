@@ -251,6 +251,11 @@ serve(async (req) => {
           payload: { ...r.result, source: body.source },
         });
         writes.emotion = r.result;
+        if (tracer.enabled) {
+          tracer.event("sense.emotion", { emotion: (r.result as any)?.emotion ?? null });
+          tracer.upsertHeader({ emotion: (r.result as any)?.emotion ?? null });
+          tracer.event("signals.write", { kind: skill.signalKind });
+        }
       }
     } catch (e) {
       console.warn("[memory-writer] emotion.detect failed", e);
