@@ -334,6 +334,8 @@ const App = () => (
                                                 <Route path="/aurora" element={<AuroraPage />} />
                                                 {/* Outer World — economy index, ShellV2 only */}
                                                 <Route path="/outer-world" element={<OuterWorldHub />} />
+                                                {/* Brain — ShellV2 graph + identity surface */}
+                                                <Route path="/brain" element={<BrainPage />} />
                                               </Route>
 
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
@@ -348,17 +350,9 @@ const App = () => (
                                                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
                                                 {/* Phase 5: when ff_shell_v2 is on, /strategy summons the
                                                     `plan` artifact inside ShellV2; otherwise legacy page. */}
-                                                <Route
-                                                  path="/strategy"
-                                                  element={
-                                                    <SummonRoute
-                                                      kind="plan"
-                                                      fullscreen
-                                                      fallback={<StrategyPage />}
-                                                    />
-                                                  }
-                                                />
-                                                <Route path="/hypnosis" element={<HypnosisPage />} />
+                                                {/* Quarantined — legacy surfaces redirect to ShellV2 home. */}
+                                                <Route path="/strategy" element={<Navigate to="/" replace />} />
+                                                <Route path="/hypnosis" element={<Navigate to="/" replace />} />
                                                 {/* Hallway routes retired in Phase 3.1 — rooms are now
                                                     swipeable lenses inside PresenceShell, not destinations.
                                                     Both /hallway and /hallway/:slug fold back to `/`. */}
@@ -369,19 +363,9 @@ const App = () => (
                                                 <Route path="/mindos/chat" element={<Navigate to="/aurora" replace />} />
                                                 <Route path="/mindos/strategy" element={<Navigate to="/strategy" replace />} />
                                                 <Route path="/mindos/tactics" element={<Navigate to="/strategy?tab=missions" replace />} />
-                                                <Route path="/mindos/work" element={<MindOSWorkPage />} />
-                                                <Route path="/mindos/journal" element={<MindOSJournalPage />} />
-                                                <Route
-                                                  path="/journal"
-                                                  element={
-                                                    <SummonRoute
-                                                      kind="today-list"
-                                                      params={{ source: 'journal' }}
-                                                      fullscreen
-                                                      fallback={<JournalingHub />}
-                                                    />
-                                                  }
-                                                />
+                                                <Route path="/mindos/work" element={<Navigate to="/" replace />} />
+                                                <Route path="/mindos/journal" element={<Navigate to="/" replace />} />
+                                                <Route path="/journal" element={<Navigate to="/" replace />} />
                                                 <Route path="/now" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/plan" element={<Navigate to="/strategy?tab=missions" replace />} />
                                                 <Route path="/play" element={<Navigate to="/strategy?tab=missions" replace />} />
@@ -470,20 +454,10 @@ const App = () => (
                                                 {/* Learn */}
                                                 <Route path="/learn" element={<LearnLayoutWrapper />} />
                                                 {/* Work Hub */}
-                                                <Route path="/work" element={<Navigate to="/mindos/work" replace />} />
-                                                <Route path="/fm" element={<FMAppShell />}>
-                                                  <Route index element={<FMMarketLayoutWrapper />} />
-                                                  <Route path="home" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="earn" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="market" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="work" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="share" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="contribute" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="wallet" element={<Navigate to="/fm" replace />} />
-                                                  <Route path="cashout" element={<FMCashout />} />
-                                                  <Route path="bridge" element={<FMBridge />} />
-                                                  <Route path="coaches" element={<Navigate to="/coaches" replace />} />
-                                                </Route>
+                                                <Route path="/work" element={<Navigate to="/" replace />} />
+                                                {/* Quarantined — Free Market UI is no longer a route. */}
+                                                <Route path="/fm" element={<Navigate to="/outer-world" replace />} />
+                                                <Route path="/fm/*" element={<Navigate to="/outer-world" replace />} />
 
                                                 {/* Journeys */}
                                                 <Route path="/coaching/journey" element={<CoachingJourney />} />
