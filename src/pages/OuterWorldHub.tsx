@@ -96,10 +96,16 @@ export default function OuterWorldHub() {
   const { isRTL } = useTranslation();
   const tiles = getTiles(isRTL);
   return (
-    <div
+    <main
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="mx-auto w-full max-w-screen-sm px-4 pb-44 pt-[max(env(safe-area-inset-top),1rem)]"
+      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y"
+      data-shellv2-layer="chat"
+      data-shellv2-route="outer-world"
     >
+      <div
+        className="mx-auto w-full max-w-screen-sm px-4 pb-44"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)' }}
+      >
       <ShellHeader
         title={isRTL ? 'העולם החיצוני' : 'Outer World'}
         subtitle={
@@ -137,6 +143,7 @@ export default function OuterWorldHub() {
           </section>
         ))}
       </div>
-    </div>
+      </div>
+    </main>
   );
 }
