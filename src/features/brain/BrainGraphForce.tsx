@@ -88,7 +88,8 @@ export default function BrainGraphForce({
   };
 
   // recenter when selection changes (just reheat a touch)
-  useEffect(() => { if (selectedId) reheat(40); }, [selectedId, reheat]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (selectedId) reheat(40); }, [selectedId]);
 
   const simById = useMemo(() => {
     const m = new Map<string, typeof sim[number]>();
