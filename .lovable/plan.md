@@ -1,96 +1,69 @@
-# Adopt old header/drawer LOOK, drop old shell architecture
+# Brain Graph — Living Mind Atlas
 
-## Visual source (kept as reference, not mounted)
+Replace the current concentric-ring SVG with an explorable force-directed graph that renders nodes by *type* (identity / belief / value / goal / habit / pattern / contradiction / memory / emotion / mission), clusters by pillar, draws relationship edges, supports pinch/zoom + drag, and infers soft edges when the backend returns none.
 
-- `src/components/shell/OSDrawer.tsx` — right-side `Sheet`, MINDOS brand row, button list, profile/settings/sign-out footer (this is the look in your screenshots).
-- `src/components/dashboard/DashboardLayout.tsx` (header block, lines 86–101) — the orb-left / centered-brand / hamburger-right header bar (the look in screenshot IMG_1669).
+Scope: visualization only. No backend, RPC, or schema changes.
 
-Both stay on disk only as copy-paste reference until the new components land; then they get hard-blocked from ever mounting on ShellV2 routes.
+## Files
 
-## New files
+**New**
+- `src/features/brain/BrainGraphForce.tsx` — the new canvas (replaces `BrainGraphCanvas`).
+- `src/features/brain/useForceLayout.ts` — tiny self-contained force simulation (no library, ~120 lines: charge repulsion, link spring, pillar cluster gravity, center gravity, Verlet-ish integration, runs in `requestAnimationFrame`, freezes after ~3s of low energy).
+- `src/features/brain/inferSoftEdges.ts` — derives client-side soft edges when `edges.length === 0` or sparse: same `pillar`, same `type`, shared significant tokens in `content` (length > 3, lowercase, stop-list filtered). Returns edges marked `inferred: true`.
+- `src/features/brain/brainNodeStyle.ts` — maps `node.type` → glyph/icon, color (HSL token), and shape (circle / diamond / ring / soft-square). Central pseudo-node "AION" rendered when `node.type === 'identity'` or as fallback root.
 
-### 1. `src/shellv2/ShellV2Drawer.tsx`
-Extracted from `OSDrawer` JSX/styles, but:
+**Edited**
+- `src/features/brain/BrainView.tsx` — swap `BrainGraphCanvas` for `BrainGraphForce`; pass through filtered nodes/edges and a `softEdges` array from `inferSoftEdges`; remove the giant CTA block from inside `ShellHeader` (move "Refresh brain" into a small icon button beside the title); ensure the graph container is full-bleed and respects safe areas (no `pb-` that hides under composer — graph height becomes `min(70vh, 640px)` and composer/filter chips sit *below* via normal flow inside the existing scroll container).
+- Remove `BrainGraphCanvas.tsx` (delete) so the ring layout cannot regress.
 
-- Wired to `OverlayController` (`useOverlay`, `kind: 'drawer'`) instead of local `useState` — so "one overlay at a time" is enforced.
-- Uses shared `Sheet`/`SheetContent` primitive, side `right` in RTL / `left` in LTR, same `w-[300px] sm:w-[320px]` panel, same `bg-card backdrop-blur-2xl ring-1 ring-white/[0.08]` chrome.
-- Items list is **hard-coded**, no `OS_TABS`, no `useHubModal`, no `HubModalContext`:
-  - Home  → `navigate('/')`
-  - Brain → `navigate('/brain')`
-  - Outer World → `navigate('/outer-world')`
-  - History → `overlay.open('aion')`
-  - Settings → `navigate('/subscriptions')` (or settings modal if available without legacy deps)
-  - Account → `navigate('/profile')`
-  - Sign out → `supabase.auth.signOut()` + `navigate('/', { replace: true })`
-- Footer profile block (avatar circle + display name + "פרופיל"/"Profile") preserved from OSDrawer, but uses `useAuth` only — no `ProfileModalContext` import (navigates to `/profile` instead).
+## BrainGraphForce behavior
 
-### 2. `src/shellv2/ShellV2Header.tsx` (rewrite)
-Replaces the current minimalist top bar with the visual of the old DashboardLayout header:
+- Renders into an `<svg>` with a `<g transform="translate(tx,ty) scale(k)">` wrapper.
+- Pan: pointer drag on empty canvas. Zoom: wheel + pinch (two-pointer distance delta). Tap node: `onSelect(id)`.
+- Force model (per tick, dt fixed):
+  - Charge: O(n²) repulsion, fine for ≤300 nodes (we cap render at 250, sorted by `score`).
+  - Link: spring for real edges (stiffness 0.05) and soft edges (stiffness 0.015, dotted render).
+  - Cluster: gravity toward per-pillar centroid (computed from current positions each tick).
+  - Center gravity: pulls all nodes weakly toward (0,0); identity node pinned at center.
+- Settles in ~120 ticks, then `cancelAnimationFrame`. On node tap or filter change, re-heat for 60 ticks.
 
-- Fixed top, `pt-safe`, full-bleed inside `max-w-screen-md`.
-- **Left:** small orb badge using `AuroraOrbIcon` (no dropdown, no `AppNameDropdown`). Tap → opens `ShellV2Drawer` (same as hamburger), or no-op — pick one in implementation; default: opens drawer to mirror screenshot.
-- **Center:** `מיינד OS` / `Mind OS` (RTL aware via `useTranslation`), no chevron menu attached to it (it was a dropdown in the old shell — we drop the dropdown, keep the visual).
-- **Right:** hamburger button → `overlay.open('drawer')`.
-- No `MindOSSheet`, no `AppNameDropdown`, no hub launcher, no language/theme toggles inline.
+## Visual spec
 
-### 3. (none — just edits below)
+- Dark premium: background transparent (lets ShellV2 backdrop show), edges `stroke="hsl(var(--foreground))"` at opacity 0.12 (real) / 0.06 dashed (inferred / weak).
+- Node fill = type color from `brainNodeStyle` (HSL tokens, no raw hex):
+  - identity → primary
+  - belief → 220 80% 65%
+  - value → 160 70% 60%
+  - goal → 45 95% 60%
+  - habit → 280 70% 65%
+  - pattern → 190 90% 60%
+  - contradiction → 0 80% 65%
+  - memory → 30 70% 60%
+  - emotion → 330 75% 65%
+  - mission → 142 70% 55%
+- Glow: SVG `<filter>` with `feGaussianBlur` on a duplicated circle, opacity scaled by `confidence`.
+- Selected node: 2px ring + label below, others fade to 0.4 opacity, connected edges highlight.
+- Contradiction edges: solid red. Reinforces: green. Triggers: amber. Blocks: red dashed. Belongs_to / evolved_from: muted.
 
-## Edits
+## Empty / low-data state
 
-### `src/shellv2/UnifiedOverlayHost.tsx`
-- Replace `import ShellV2Menu from './ShellV2Menu'` with `import ShellV2Drawer from './ShellV2Drawer'`.
-- Render `<ShellV2Drawer />` in place of `<ShellV2Menu />`.
-- Keep `<ChatHistorySheet />`.
+- If `nodes.length === 0`: keep existing premium "Your brain is still forming" empty card (already in `BrainView`).
+- If `nodes.length > 0 && edges.length < nodes.length / 4`: pass `inferSoftEdges(nodes)` result to the canvas; render dotted, lower opacity. Show a small caption under the graph: "Showing inferred connections — AION will firm them up as it learns."
 
-### `src/shellv2/ShellV2Menu.tsx`
-- Delete (its only consumer is `UnifiedOverlayHost`).
+## Filters
 
-### `src/shellv2/LegacyMountGuard.tsx`
-- No code change needed; we just wrap more components below.
+Keep existing layer + "Weak signals" chips below the graph. Add a horizontally-scrolling "Type" chip row (All, Identity, Beliefs, Values, …) that filters by `node.type`.
 
-### `src/components/shell/OSDrawer.tsx`
-- Wrap default export with `withLegacyGuard('OSDrawer', OSDrawer)` so any stray import becomes `null` on ShellV2 routes, with a `console.warn("[LegacyMountGuard] blocked OSDrawer …")`.
+## Acceptance
 
-### `src/components/shell/MindOSSheet.tsx`
-- Same treatment: `withLegacyGuard('MindOSSheet', MindOSSheet)`.
-
-### `src/components/navigation/AppSideMenu.tsx`, `AppNameDropdown.tsx`, `AppNameMenu.tsx`, `DesktopSideNav.tsx`, `TopNavBar.tsx`, `HubModalHost.tsx`
-- Same treatment for each default export. They remain importable for legacy routes (`/community`, `/messages`, etc. under `ProtectedAppShell`) but render nothing if a route ever puts them under `/`, `/aurora`, `/brain`, `/outer-world`.
-
-### `src/components/dashboard/DashboardLayout.tsx`
-- Already wrapped by `withLegacyGuard`. No further change — but its `OSDrawer` / `MindOSSheet` / `HubModalHost` imports stay (legacy routes still need them). The guard makes the whole layout return `null` on ShellV2 routes, so those imports cannot mount there.
-
-## Active component tree on `/` after the change
-
-```text
-SmartRoot (auth)
-└─ OnboardingGate
-   └─ ShellV2
-      ├─ BackgroundLayer
-      ├─ ChatLayer        (AuroraChatBubbles + ArtifactLayer)
-      ├─ ComposerLayer    (single GlobalChatInput)
-      ├─ ChromeLayer
-      │  └─ ShellV2Header  ← orb left, "מיינד OS" centered, hamburger right
-      ├─ OverlayLayer
-      │  └─ UnifiedOverlayHost
-      │     ├─ ShellV2Drawer       ← right-side Sheet, curated 7 items + profile/sign-out
-      │     └─ ChatHistorySheet
-      └─ BlockingLayer
-```
-
-No `OSDrawer`, no `MindOSSheet`, no `AppNameDropdown`, no `HubModalHost`, no `DashboardLayout` mount inside this tree.
-
-## Acceptance proof returned after implementation
-
-- File used as visual source: `src/components/shell/OSDrawer.tsx` + header block of `src/components/dashboard/DashboardLayout.tsx`.
-- New files: `src/shellv2/ShellV2Drawer.tsx`, rewritten `src/shellv2/ShellV2Header.tsx`.
-- Removed import: `ShellV2Menu` from `UnifiedOverlayHost`; `ShellV2Menu.tsx` deleted.
-- Confirmation that the only drawer on ShellV2 routes is `ShellV2Drawer` (overlay kind `drawer`), enforced by `OverlayController`.
-- Confirmation that `OSDrawer`, `MindOSSheet`, `AppNameDropdown`, `AppSideMenu`, `DesktopSideNav`, `TopNavBar`, `HubModalHost`, `DashboardLayout` all return `null` via `LegacyMountGuard` on `/`, `/aurora`, `/brain`, `/outer-world` (with a `console.warn` if they ever try).
-- No dashboard widgets / hub cards / onboarding ceremony / wizard modals are reachable from the ShellV2 tree (no providers like `HubModalProvider` in `ProtectedAppShellV2`).
+After implementation I will:
+1. Confirm `BrainGraphCanvas.tsx` is deleted and no import remains (`rg BrainGraphCanvas`).
+2. Read the preview, capture node/edge counts via console log already present in `BrainView`.
+3. Screenshot the `/brain` route at the user's viewport (402×716) showing the force layout — no rings.
+4. If real edges = 0, confirm dotted inferred edges render.
 
 ## Out of scope
 
-- No changes to legacy routes (`/community`, `/messages`, `/coaches`, `/fm`, `/admin-hub`, etc.) — they keep `ProtectedAppShell` + the old chrome.
-- No backend / engine deletions. No edge function edits. No DB migrations.
-- No new visual design beyond porting the old header + drawer look 1:1 with the curated item list.
+- WebGL / canvas2d rewrite (SVG is enough for ≤250 nodes and stays themable).
+- Backend edge inference, new node types, RPC changes.
+- Bottom composer / safe-area work outside the Brain route.
