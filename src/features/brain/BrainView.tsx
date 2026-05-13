@@ -53,7 +53,7 @@ export default function BrainView({ onTalkToAion }: Props) {
     return data.nodes.filter((n) => {
       if (layer !== "all" && n.layer !== layer) return false;
       if (typeFilter !== "all" && n.type?.toLowerCase() !== typeFilter) return false;
-      if (!showWeak && n.confidence < 30 && !n.user_confirmed) return false;
+      if (!showWeak && (Number(n.confidence) || 0) < 30 && !n.user_confirmed) return false;
       return true;
     });
   }, [data, layer, showWeak, typeFilter]);
@@ -72,9 +72,15 @@ export default function BrainView({ onTalkToAion }: Props) {
 
   const understanding = useMemo(() => {
     if (!data) return 0;
-    const vals = Object.values(data.pillars);
+    const pillars = data.pillars;
+    const vals =
+      pillars && typeof pillars === "object" && !Array.isArray(pillars)
+        ? Object.values(pillars)
+        : [];
     if (!vals.length) return 0;
-    return Math.round(vals.reduce((s, p) => s + (p.confidence ?? 0), 0) / vals.length);
+    return Math.round(
+      vals.reduce((s, p: any) => s + (Number(p?.confidence) || 0), 0) / vals.length,
+    );
   }, [data]);
 
   const selected = filteredNodes.find((n) => n.id === selectedId) ?? null;

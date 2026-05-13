@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import type { BrainEvidenceRow, BrainOverview } from "./types";
 
 export function useCurrentUserId() {
@@ -24,25 +25,34 @@ export function useBrainOverview(userId: string | null, minConfidence = 25, limi
     staleTime: 30_000,
     retry: false,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("brain_get_overview" as any, {
-        p_user_id: userId,
-        p_min_confidence: minConfidence,
-        p_limit: limit,
-      });
-      if (error) {
-        console.error("[brain] overview RPC error", error);
-        throw new Error(error.message ?? "brain_get_overview failed");
+      try {
+        const { data, error } = await supabase.rpc("brain_get_overview" as any, {
+          p_user_id: userId,
+          p_min_confidence: minConfidence,
+          p_limit: limit,
+        });
+        if (error) {
+          console.error("[brain] overview RPC error", error);
+          throw new Error(error.message ?? "brain_get_overview failed");
+        }
+        const obj = (data ?? {}) as Partial<BrainOverview>;
+        const pillars =
+          obj.pillars && typeof obj.pillars === "object" && !Array.isArray(obj.pillars)
+            ? obj.pillars
+            : {};
+        return {
+          nodes: Array.isArray(obj.nodes) ? obj.nodes : [],
+          edges: Array.isArray(obj.edges) ? obj.edges : [],
+          pillars,
+          contradictions: Array.isArray(obj.contradictions) ? obj.contradictions : [],
+          recent: Array.isArray(obj.recent) ? obj.recent : [],
+          unknown_areas: Array.isArray(obj.unknown_areas) ? obj.unknown_areas : [],
+          generated_at: obj.generated_at ?? new Date().toISOString(),
+        };
+      } catch (e: any) {
+        console.error("[brain] overview fetch failed", e);
+        throw new Error(`brain_get_overview failed: ${e?.message ?? "unknown"}`);
       }
-      const obj = (data ?? {}) as Partial<BrainOverview>;
-      return {
-        nodes: obj.nodes ?? [],
-        edges: obj.edges ?? [],
-        pillars: obj.pillars ?? {},
-        contradictions: obj.contradictions ?? [],
-        recent: obj.recent ?? [],
-        unknown_areas: obj.unknown_areas ?? [],
-        generated_at: obj.generated_at ?? new Date().toISOString(),
-      };
     },
   });
 }
@@ -66,25 +76,35 @@ export function useBrainNodeEvidence(nodeId: string | null) {
 }
 
 export async function confirmBrainNode(nodeId: string) {
-  const { error } = await (supabase as any)
-    .from("aurora_memory_graph")
-    .update({
-      user_confirmed: true,
-      confidence: 95,
-      last_referenced_at: new Date().toISOString(),
-    })
-    .eq("id", nodeId);
-  if (error) throw error;
+  try {
+    const { error } = await (supabase as any)
+      .from("aurora_memory_graph")
+      .update({
+        user_confirmed: true,
+        confidence: 95,
+        last_referenced_at: new Date().toISOString(),
+      })
+      .eq("id", nodeId);
+    if (error) throw error;
+  } catch (e: any) {
+    console.error("[brain] confirm failed", e);
+    toast({ title: "Update failed", description: e?.message ?? "", variant: "destructive" });
+  }
 }
 
 export async function rejectBrainNode(nodeId: string) {
-  const { error } = await (supabase as any)
-    .from("aurora_memory_graph")
-    .update({
-      is_active: false,
-      user_corrected_at: new Date().toISOString(),
-      confidence: 5,
-    })
-    .eq("id", nodeId);
-  if (error) throw error;
+  try {
+    const { error } = await (supabase as any)
+      .from("aurora_memory_graph")
+      .update({
+        is_active: false,
+        user_corrected_at: new Date().toISOString(),
+        confidence: 5,
+      })
+      .eq("id", nodeId);
+    if (error) throw error;
+  } catch (e: any) {
+    console.error("[brain] reject failed", e);
+    toast({ title: "Update failed", description: e?.message ?? "", variant: "destructive" });
+  }
 }

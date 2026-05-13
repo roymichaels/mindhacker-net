@@ -43,8 +43,10 @@ export function useForceLayout(nodes: BrainNode[], opts: Options) {
       const prev = idMapRef.current.get(n.id);
       const angle = (i / Math.max(nodes.length, 1)) * Math.PI * 2;
       const radius = 60 + Math.random() * 120;
+      const score = Math.max(0, Number(n.score) || 0);
+      const r = 6 + Math.min(16, Math.sqrt(score) / 3);
       return prev
-        ? { ...prev, ref: n, type: n.type, pillar: n.pillar, r: 6 + Math.min(16, Math.sqrt(n.score) / 3), pinned: n.type === "identity" }
+        ? { ...prev, ref: n, type: n.type, pillar: n.pillar, r, pinned: n.type === "identity" }
         : {
             id: n.id,
             x: n.type === "identity" ? cx : cx + Math.cos(angle) * radius,
@@ -53,7 +55,7 @@ export function useForceLayout(nodes: BrainNode[], opts: Options) {
             pinned: n.type === "identity",
             pillar: n.pillar,
             type: n.type,
-            r: 6 + Math.min(16, Math.sqrt(n.score) / 3),
+            r,
             ref: n,
           };
     });

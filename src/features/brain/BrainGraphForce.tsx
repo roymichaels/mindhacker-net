@@ -136,10 +136,11 @@ export default function BrainGraphForce({
             if (!a || !b) return null;
             const st = edgeStyle(("relation" in e ? (e as any).relation : "related") as string, e.inferred);
             const dim = connected && !(e.from === selectedId || e.to === selectedId) ? 0.35 : 1;
+            const x1 = num(a.x), y1 = num(a.y), x2 = num(b.x), y2 = num(b.y);
             return (
               <line
                 key={i}
-                x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                x1={x1} y1={y1} x2={x2} y2={y2}
                 stroke={st.stroke}
                 strokeOpacity={st.opacity * dim}
                 strokeWidth={Math.min(2, 0.6 + (e.weight ?? 1) / 5)}
@@ -152,8 +153,9 @@ export default function BrainGraphForce({
             const style = styleForNode(s.ref);
             const isSel = s.id === selectedId;
             const dim = connected && !isSel && !connected.has(s.id) ? 0.3 : 1;
-            const conf = Math.max(0.2, Math.min(1, s.ref.confidence / 100));
-            const r = s.r;
+            const conf = Math.max(0.2, Math.min(1, (Number(s.ref.confidence) || 0) / 100));
+            const r = num(s.r, 6);
+            const cx = num(s.x), cy = num(s.y);
             return (
               <g
                 key={s.id}
@@ -161,35 +163,35 @@ export default function BrainGraphForce({
                 onClick={(ev) => { ev.stopPropagation(); onSelect(s.id); }}
                 style={{ cursor: "pointer", opacity: dim }}
               >
-                <circle cx={s.x} cy={s.y} r={r + 8} fill={style.color} fillOpacity={0.18 * conf} filter="url(#brain-glow)" />
+                <circle cx={cx} cy={cy} r={r + 8} fill={style.color} fillOpacity={0.18 * conf} filter="url(#brain-glow)" />
                 {style.shape === "circle" && (
-                  <circle cx={s.x} cy={s.y} r={r} fill={style.color} fillOpacity={0.85} />
+                  <circle cx={cx} cy={cy} r={r} fill={style.color} fillOpacity={0.85} />
                 )}
                 {style.shape === "ring" && (
                   <>
-                    <circle cx={s.x} cy={s.y} r={r} fill="hsl(var(--background))" />
-                    <circle cx={s.x} cy={s.y} r={r} fill="none" stroke={style.color} strokeWidth={2.4} />
+                    <circle cx={cx} cy={cy} r={r} fill="hsl(var(--background))" />
+                    <circle cx={cx} cy={cy} r={r} fill="none" stroke={style.color} strokeWidth={2.4} />
                   </>
                 )}
                 {style.shape === "diamond" && (
                   <rect
-                    x={s.x - r} y={s.y - r} width={r * 2} height={r * 2}
+                    x={cx - r} y={cy - r} width={r * 2} height={r * 2}
                     fill={style.color} fillOpacity={0.85}
-                    transform={`rotate(45 ${s.x} ${s.y})`}
+                    transform={`rotate(45 ${cx} ${cy})`}
                     rx={1}
                   />
                 )}
                 {style.shape === "square" && (
-                  <rect x={s.x - r} y={s.y - r} width={r * 2} height={r * 2} rx={3}
+                  <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} rx={3}
                     fill={style.color} fillOpacity={0.85} />
                 )}
-                <circle cx={s.x} cy={s.y} r={r + 3}
+                <circle cx={cx} cy={cy} r={r + 3}
                   fill="none" stroke={style.color}
                   strokeOpacity={isSel ? 0.95 : 0}
                   strokeWidth={2}
                 />
                 {isSel && (
-                  <text x={s.x} y={s.y + r + 14} textAnchor="middle"
+                  <text x={cx} y={cy + r + 14} textAnchor="middle"
                     fontSize={11 / t.k + 1}
                     fill="hsl(var(--foreground))"
                     style={{ pointerEvents: "none", paintOrder: "stroke" }}
@@ -215,4 +217,8 @@ export default function BrainGraphForce({
 
 function trunc(s: string, n: number) {
   return s && s.length > n ? s.slice(0, n - 1) + "…" : s ?? "";
+}
+
+function num(v: number, fallback = 0) {
+  return Number.isFinite(v) ? v : fallback;
 }

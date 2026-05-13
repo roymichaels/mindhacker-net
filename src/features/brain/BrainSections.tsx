@@ -38,13 +38,19 @@ export default function BrainSections({ overview, onSelect }: Props) {
       const k = g?.key ?? "other";
       (map[k] ??= []).push(n);
     }
-    Object.values(map).forEach((arr) => arr.sort((a, b) => b.score - a.score));
+    Object.values(map).forEach((arr) =>
+      arr.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0)),
+    );
     return map;
   }, [overview]);
 
-  const pillars = overview?.pillars ?? {};
+  const rawPillars = overview?.pillars;
+  const pillars: Record<string, { confidence: number; signal_count: number }> =
+    rawPillars && typeof rawPillars === "object" && !Array.isArray(rawPillars)
+      ? (rawPillars as any)
+      : {};
   const pillarRows = Object.entries(pillars).sort(
-    (a, b) => (b[1].confidence ?? 0) - (a[1].confidence ?? 0),
+    (a, b) => (Number(b[1]?.confidence) || 0) - (Number(a[1]?.confidence) || 0),
   );
   const contradictions = overview?.contradictions ?? [];
   const recent = overview?.recent ?? [];

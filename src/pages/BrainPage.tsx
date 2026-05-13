@@ -7,6 +7,7 @@
  * about any node without leaving the graph.
  */
 import BrainView from "@/features/brain/BrainView";
+import BrainErrorBoundary from "@/features/brain/BrainErrorBoundary";
 import { zStyle } from "@/shellv2/zindex";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -24,7 +25,9 @@ export default function BrainPage() {
       data-shellv2-layer="chat"
       data-shellv2-route="brain"
     >
-      <BrainView />
+      <BrainErrorBoundary isRTL={isRTL}>
+        <BrainView />
+      </BrainErrorBoundary>
     </main>
   );
 }
