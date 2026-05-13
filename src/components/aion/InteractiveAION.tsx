@@ -13,7 +13,7 @@
  * chat history sheet are NOT in this phase.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, Mic, MicOff, Moon, ChevronUp } from 'lucide-react';
+import { Menu, Mic, MicOff, Moon } from 'lucide-react';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAIONState } from '@/contexts/AIONStateContext';
 import { useOverlay } from '@/shell/overlay/OverlayController';
