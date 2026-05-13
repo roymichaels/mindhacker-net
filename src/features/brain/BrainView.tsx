@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Brain, RefreshCw } from "lucide-react";
 import ShellHeader from "@/shellv2/ShellHeader";
-import BrainGraphCanvas from "./BrainGraphCanvas";
+import BrainGraphForce from "./BrainGraphForce";
+import { inferSoftEdges } from "./inferSoftEdges";
+import { ALL_TYPES, styleForType } from "./brainNodeStyle";
 import BrainNodeSheet from "./BrainNodeSheet";
 import BrainSections from "./BrainSections";
 import { useBackfillBrain } from "./useBackfill";
@@ -34,21 +36,29 @@ export default function BrainView({ onTalkToAion }: Props) {
   const [layer, setLayer] = useState<"all" | BrainLayer>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showWeak, setShowWeak] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<string>("all");
 
   const filteredNodes = useMemo(() => {
     if (!data) return [];
     return data.nodes.filter((n) => {
       if (layer !== "all" && n.layer !== layer) return false;
+      if (typeFilter !== "all" && n.type?.toLowerCase() !== typeFilter) return false;
       if (!showWeak && n.confidence < 30 && !n.user_confirmed) return false;
       return true;
     });
-  }, [data, layer, showWeak]);
+  }, [data, layer, showWeak, typeFilter]);
 
   const visibleIds = useMemo(() => new Set(filteredNodes.map((n) => n.id)), [filteredNodes]);
   const filteredEdges = useMemo(
     () => (data?.edges ?? []).filter((e) => visibleIds.has(e.from) && visibleIds.has(e.to)),
     [data, visibleIds],
   );
+
+  const softEdges = useMemo(() => {
+    if (!filteredNodes.length) return [];
+    if (filteredEdges.length >= filteredNodes.length / 4) return [];
+    return inferSoftEdges(filteredNodes, filteredEdges);
+  }, [filteredNodes, filteredEdges]);
 
   const understanding = useMemo(() => {
     if (!data) return 0;
@@ -151,12 +161,18 @@ export default function BrainView({ onTalkToAion }: Props) {
         <div className="h-[460px] rounded-2xl bg-muted/20 animate-pulse" />
       ) : (
         <div className="-mx-4">
-          <BrainGraphCanvas
+          <BrainGraphForce
             nodes={filteredNodes}
             edges={filteredEdges}
+            softEdges={softEdges}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
+          {softEdges.length > 0 && (
+            <p className="px-4 mt-1 text-[10px] text-muted-foreground/70 text-center">
+              Showing inferred connections — AION will firm them up as it learns.
+            </p>
+          )}
         </div>
       )}
 
@@ -186,6 +202,40 @@ export default function BrainView({ onTalkToAion }: Props) {
           >
             Weak signals
           </button>
+        </div>
+      </div>
+
+      {/* Type chips */}
+      <div className="mt-2 -mx-4 px-4 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1.5 w-max">
+          <button
+            onClick={() => setTypeFilter("all")}
+            className={`text-[11px] px-3 py-1.5 rounded-full transition whitespace-nowrap ${
+              typeFilter === "all"
+                ? "bg-primary/20 text-primary"
+                : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            All types
+          </button>
+          {ALL_TYPES.map((t) => {
+            const st = styleForType(t);
+            const active = typeFilter === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setTypeFilter(active ? "all" : t)}
+                className={`text-[11px] px-3 py-1.5 rounded-full transition whitespace-nowrap inline-flex items-center gap-1.5 ${
+                  active
+                    ? "bg-white/[0.08] text-foreground ring-1 ring-white/10"
+                    : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="inline-block w-2 h-2 rounded-full" style={{ background: st.color }} />
+                {st.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
