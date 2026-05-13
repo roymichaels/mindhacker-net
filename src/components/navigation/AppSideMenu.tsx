@@ -51,7 +51,7 @@ interface AppSideMenuProps {
   onOpenSettings?: () => void;
 }
 
-export function AppSideMenu({ onOpenSettings }: AppSideMenuProps) {
+function AppSideMenuImpl({ onOpenSettings }: AppSideMenuProps) {
   const [open, setOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [bugOpen, setBugOpen] = useState(false);
@@ -354,4 +354,6 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
+export const AppSideMenu = withLegacyGuard('AppSideMenu', AppSideMenuImpl);
 export default AppSideMenu;

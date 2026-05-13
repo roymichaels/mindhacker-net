@@ -1,48 +1,74 @@
 /**
- * OSDrawer — single-source left navigation drawer.
- * Replaces the old AppNameMenu popover. Lovable-style: nav up top, identity at the bottom.
+ * ShellV2Drawer — the only top-level drawer in ShellV2.
+ *
+ * Visual source: copied from `src/components/shell/OSDrawer.tsx` (right-side
+ * Sheet, MINDOS brand row, button list, profile + settings + sign-out
+ * footer). Architecture: zero legacy deps — no HubModalContext, no OS_TABS,
+ * no ProfileModalContext. Wired to OverlayController via `kind: 'drawer'`
+ * so the "one overlay at a time" rule from the shell spec holds.
  */
-import { useState } from 'react';
-import { Menu, Home, LogOut, Settings as SettingsIcon, User } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useNavigate } from 'react-router-dom';
+import {
+  Home,
+  Brain,
+  Globe2,
+  History,
+  Settings as SettingsIcon,
+  User,
+  LogOut,
+} from 'lucide-react';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useTranslation } from '@/hooks/useTranslation';
-import { OS_TABS } from '@/navigation/osNav';
-import { useHubModal, type HubId } from '@/contexts/HubModalContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfileModal } from '@/contexts/ProfileModalContext';
+import { useOverlay, useOverlayBinding } from '@/shell/overlay/OverlayController';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
-interface OSDrawerProps {
-  onOpenSettings: () => void;
+interface DrawerItem {
+  id: string;
+  icon: typeof Home;
+  labelEn: string;
+  labelHe: string;
+  onSelect: () => void | Promise<void>;
 }
 
-export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
+export default function ShellV2Drawer() {
   const { language, isRTL } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const { openHub } = useHubModal();
   const { user } = useAuth();
-  const { openProfile } = useProfileModal();
+  const navigate = useNavigate();
+  const overlay = useOverlay();
+  const binding = useOverlayBinding('drawer');
 
-  const items: { id: HubId; icon: typeof Home; labelEn: string; labelHe: string }[] = [
-    { id: 'home' as HubId, icon: Home, labelEn: 'Home', labelHe: 'בית' },
-    ...OS_TABS.map((t) => ({
-      id: t.id as HubId,
-      icon: t.icon,
-      labelEn: t.labelEn,
-      labelHe: t.labelHe,
-    })),
-  ];
-
-  const go = (id: HubId) => {
-    setOpen(false);
-    openHub(id);
+  const go = (path: string) => {
+    overlay.close();
+    navigate(path);
   };
 
+  const items: DrawerItem[] = [
+    { id: 'home', icon: Home, labelEn: 'Home', labelHe: 'בית', onSelect: () => go('/') },
+    { id: 'brain', icon: Brain, labelEn: 'Brain', labelHe: 'מוח', onSelect: () => go('/brain') },
+    { id: 'outer', icon: Globe2, labelEn: 'Outer World', labelHe: 'עולם חיצוני', onSelect: () => go('/outer-world') },
+    {
+      id: 'history',
+      icon: History,
+      labelEn: 'History',
+      labelHe: 'היסטוריה',
+      onSelect: () => overlay.open('aion'),
+    },
+    {
+      id: 'settings',
+      icon: SettingsIcon,
+      labelEn: 'Settings',
+      labelHe: 'הגדרות',
+      onSelect: () => go('/subscriptions'),
+    },
+    { id: 'account', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: () => go('/profile') },
+  ];
+
   const handleLogout = async () => {
-    setOpen(false);
+    overlay.close();
     await supabase.auth.signOut();
+    navigate('/', { replace: true });
   };
 
   const displayName =
@@ -52,17 +78,7 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
     (language === 'he' ? 'אורח' : 'Guest');
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <button
-          type="button"
-          aria-label={language === 'he' ? 'תפריט' : 'Menu'}
-          className="h-9 w-9 inline-flex items-center justify-center rounded-xl text-foreground/85 hover:bg-white/[0.06] transition-colors focus:outline-none"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </SheetTrigger>
-
+    <Sheet open={binding.open} onOpenChange={binding.onOpenChange}>
       <SheetContent
         side={isRTL ? 'right' : 'left'}
         className="w-[300px] sm:w-[320px] p-0 bg-card backdrop-blur-2xl border-0 ring-1 ring-white/[0.08] shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)]"
@@ -83,7 +99,7 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => go(item.id)}
+                  onClick={item.onSelect}
                   className={cn(
                     'w-full h-11 flex items-center gap-3 px-3 rounded-xl text-[14px] font-medium',
                     'text-foreground/90 hover:bg-white/[0.06] active:bg-white/[0.09] transition-colors text-start',
@@ -102,10 +118,7 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
           <div className="border-t border-white/[0.06] p-3 space-y-1">
             <button
               type="button"
-              onClick={() => {
-                setOpen(false);
-                openProfile();
-              }}
+              onClick={() => go('/profile')}
               className="w-full h-12 flex items-center gap-3 px-2 rounded-xl hover:bg-white/[0.05] transition-colors text-start"
             >
               <div className="h-9 w-9 shrink-0 rounded-full bg-primary/15 ring-1 ring-primary/30 inline-flex items-center justify-center">
@@ -123,23 +136,11 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
 
             <button
               type="button"
-              onClick={() => {
-                setOpen(false);
-                onOpenSettings();
-              }}
-              className="w-full h-10 flex items-center gap-3 px-3 rounded-xl text-[13px] text-foreground/85 hover:bg-white/[0.05] transition-colors text-start"
-            >
-              <SettingsIcon className="h-[16px] w-[16px] opacity-80" />
-              {language === 'he' ? 'הגדרות' : 'Settings'}
-            </button>
-
-            <button
-              type="button"
               onClick={handleLogout}
               className="w-full h-10 flex items-center gap-3 px-3 rounded-xl text-[13px] text-foreground/70 hover:bg-white/[0.05] transition-colors text-start"
             >
               <LogOut className="h-[16px] w-[16px] opacity-80" />
-              {language === 'he' ? 'התנתקות' : 'Logout'}
+              {language === 'he' ? 'התנתקות' : 'Sign out'}
             </button>
           </div>
         </div>
@@ -147,5 +148,3 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
     </Sheet>
   );
 }
-
-export default withLegacyGuard('OSDrawer', OSDrawer);

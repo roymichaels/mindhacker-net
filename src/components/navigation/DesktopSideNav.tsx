@@ -27,7 +27,7 @@ const TAB_COLORS: Record<string, { bg: string; active: string; inactive: string 
   },
 };
 
-export function DesktopSideNav() {
+function DesktopSideNavImpl() {
   const { isRTL } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,3 +84,6 @@ export function DesktopSideNav() {
     </nav>
   );
 }
+
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
+export const DesktopSideNav = withLegacyGuard('DesktopSideNav', DesktopSideNavImpl);
