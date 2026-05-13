@@ -12,6 +12,7 @@ import { useBackfillBrain } from "./useBackfill";
 import BrainBackfillDebug from "./BrainBackfillDebug";
 import { useBrainOverview, useCurrentUserId } from "./useBrainOverview";
 import { useBrainFallback } from "./useBrainFallback";
+import { CORE_DOMAINS } from "@/navigation/lifeDomains";
 import type { BrainLayer, BrainNode } from "./types";
 
 const LAYER_LABEL_EN: Record<BrainLayer | "all", string> = {
@@ -257,9 +258,28 @@ export default function BrainView({ onTalkToAion }: Props) {
       </div>
 
       {data && data.unknown_areas.length > 0 && (
-        <p className="mt-3 text-[11px] text-muted-foreground">
-          {isRTL ? "אזורים לא ידועים: " : "Unknown areas: "}{data.unknown_areas.slice(0, 5).join(" · ")}
-        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">
+            {isRTL ? "אזורים לא ידועים:" : "Unknown areas:"}
+          </span>
+          {data.unknown_areas.slice(0, 6).map((area) => {
+            const d = CORE_DOMAINS.find((x) => x.id === area.toLowerCase());
+            const label = d ? (isRTL ? d.labelHe : d.labelEn) : area;
+            const route = d ? `/strategy/${d.id}/assess` : null;
+            return route ? (
+              <button
+                key={area}
+                onClick={() => navigate(route)}
+                className="text-[11px] px-2 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition"
+                title={isRTL ? "התחל אבחון בצ'אט עם AION" : "Start AION chat assessment"}
+              >
+                {label}
+              </button>
+            ) : (
+              <span key={area} className="text-[11px] text-muted-foreground">{label}</span>
+            );
+          })}
+        </div>
       )}
 
       <BrainNodeSheet
