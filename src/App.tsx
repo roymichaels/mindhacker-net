@@ -41,6 +41,7 @@ import InteractiveAIONHost from "@/components/aion/InteractiveAIONHost";
 import CloudAuthModal from "@/components/auth/CloudAuthModal";
 import SharedOrbStage from "@/components/orb/v2/SharedOrbStage";
 import DiagnosticsHost from "@/diagnostics/DiagnosticsHost";
+import FloatingBackButton from "@/components/navigation/FloatingBackButton";
 
 // Hallway / world-first navigation (Phase 1.4)
 const HallwayShell = lazy(() => import("./hallway/HallwayShell"));
@@ -280,6 +281,7 @@ const App = () => (
                                     <InteractiveAIONHost />
                                     <SharedOrbStage />
                                     <DiagnosticsHost />
+                                    <FloatingBackButton />
 
                                   <FlowAuditProvider>
                                     <AffiliateTracker />
