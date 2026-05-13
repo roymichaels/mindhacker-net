@@ -46,12 +46,36 @@ export function startTurnTrace(seed?: Record<string, unknown>): TurnTracer {
       try {
         const { data: ud } = await supabase.auth.getUser();
         if (!ud.user) return;
-        await supabase.from('aion_signals').insert({
+        // Insert into Phase 1 trace timeline (dedicated table).
+        await supabase.from('aion_turn_trace_events').insert({
+          trace_id: id,
           user_id: ud.user.id,
-          kind: 'trace.mark',
-          payload: { trace_id: id, stage, ...(evt.data ?? {}) } as never,
-          client_at: new Date(evt.at).toISOString(),
+          source: 'client',
+          stage,
+          at: new Date(evt.at).toISOString(),
+          data: (evt.data ?? {}) as never,
         });
+        // On turn.start: open header. On turn.end: close it.
+        if (stage === 'turn.start') {
+          await supabase.from('aion_turn_traces').upsert(
+            {
+              trace_id: id,
+              user_id: ud.user.id,
+              route: (seed as any)?.route ?? null,
+              conversation_id: (seed as any)?.conversationId ?? null,
+              status: 'open',
+              meta: (seed ?? {}) as never,
+            } as never,
+            { onConflict: 'trace_id' },
+          );
+        } else if (stage === 'turn.end') {
+          const dur = Date.now() - t0;
+          await supabase.from('aion_turn_traces').update({
+            ended_at: new Date().toISOString(),
+            duration_ms: dur,
+            status: 'ok',
+          } as never).eq('trace_id', id);
+        }
       } catch {
         /* observation-only */
       }
