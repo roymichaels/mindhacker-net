@@ -1,0 +1,68 @@
+/**
+ * AION Orchestration Phase 1 — turn tracer.
+ *
+ * Pure observation. When `ff_aion_trace` is enabled in localStorage:
+ *  - every chat turn gets a `traceId`
+ *  - each pipeline stage is mirrored into `diagnosticsBus`
+ *  - each stage is also written to `aion_signals` (kind=`trace.mark`)
+ *
+ * Never throws. Never blocks. No behavior change when flag is off.
+ */
+import { supabase } from '@/integrations/supabase/client';
+import { isAionTraceEnabled } from '@/app-shell/featureFlag';
+import { diagnosticsBus, type AionTraceEvent } from './diagnosticsBus';
+
+function rid(): string {
+  return `trc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export interface TurnTracer {
+  id: string;
+  mark: (stage: AionTraceEvent['stage'], data?: Record<string, unknown>) => void;
+  end: (data?: Record<string, unknown>) => void;
+}
+
+const NOOP: TurnTracer = {
+  id: '',
+  mark: () => {},
+  end: () => {},
+};
+
+export function startTurnTrace(seed?: Record<string, unknown>): TurnTracer {
+  if (!isAionTraceEnabled()) return NOOP;
+  const id = rid();
+  const t0 = Date.now();
+
+  const emit = (stage: AionTraceEvent['stage'], data?: Record<string, unknown>) => {
+    const evt: AionTraceEvent = {
+      at: Date.now(),
+      traceId: id,
+      stage,
+      data: { dt_ms: Date.now() - t0, ...(data ?? {}) },
+    };
+    try { diagnosticsBus.emit('aion-trace', evt); } catch { /* swallow */ }
+    // Fire-and-forget; never block the chat turn.
+    void (async () => {
+      try {
+        const { data: ud } = await supabase.auth.getUser();
+        if (!ud.user) return;
+        await supabase.from('aion_signals').insert({
+          user_id: ud.user.id,
+          kind: 'trace.mark',
+          payload: { trace_id: id, stage, ...(evt.data ?? {}) } as never,
+          client_at: new Date(evt.at).toISOString(),
+        });
+      } catch {
+        /* observation-only */
+      }
+    })();
+  };
+
+  emit('turn.start', seed);
+
+  return {
+    id,
+    mark: emit,
+    end: (data) => emit('turn.end', data),
+  };
+}
