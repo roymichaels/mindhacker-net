@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
 interface OSDrawerProps {
   onOpenSettings: () => void;
@@ -147,4 +148,4 @@ export function OSDrawer({ onOpenSettings }: OSDrawerProps) {
   );
 }
 
-export default OSDrawer;
+export default withLegacyGuard('OSDrawer', OSDrawer);
