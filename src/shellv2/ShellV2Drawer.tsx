@@ -28,6 +28,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOverlay, useOverlayBinding } from '@/shell/overlay/OverlayController';
 import { supabase } from '@/integrations/supabase/client';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { cn } from '@/lib/utils';
 
 interface DrawerItem {
@@ -51,10 +52,16 @@ export default function ShellV2Drawer() {
   const navigate = useNavigate();
   const overlay = useOverlay();
   const binding = useOverlayBinding('drawer');
+  const { openProfile } = useProfileModal();
 
   const go = (path: string) => {
     overlay.close();
     navigate(path);
+  };
+
+  const goProfile = () => {
+    overlay.close();
+    openProfile();
   };
 
   const sections: DrawerSection[] = [
@@ -100,7 +107,7 @@ export default function ShellV2Drawer() {
       titleEn: 'Account',
       titleHe: 'חשבון',
       items: [
-        { id: 'profile', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: () => go('/profile') },
+        { id: 'profile', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: goProfile },
         { id: 'settings', icon: SettingsIcon, labelEn: 'Settings', labelHe: 'הגדרות', onSelect: () => go('/subscriptions') },
       ],
     },
@@ -170,7 +177,7 @@ export default function ShellV2Drawer() {
           <div className="border-t border-white/[0.06] p-3 space-y-1">
             <button
               type="button"
-              onClick={() => go('/profile')}
+              onClick={goProfile}
               className="w-full h-12 flex items-center gap-3 px-2 rounded-xl hover:bg-white/[0.05] transition-colors text-start"
             >
               <div className="h-9 w-9 shrink-0 rounded-full bg-primary/15 ring-1 ring-primary/30 inline-flex items-center justify-center">
