@@ -453,9 +453,10 @@ const App = () => (
                                                 <Route path="/learn" element={<LearnLayoutWrapper />} />
                                                 {/* Work Hub */}
                                                 <Route path="/work" element={<Navigate to="/" replace />} />
-                                                {/* Quarantined — Free Market UI is no longer a route. */}
-                                                <Route path="/fm" element={<Navigate to="/outer-world" replace />} />
-                                                <Route path="/fm/*" element={<Navigate to="/outer-world" replace />} />
+                                                {/* Free Market routes */}
+                                                <Route path="/fm" element={<FMMarketLayoutWrapper />} />
+                                                <Route path="/fm/cashout" element={<FMCashout />} />
+                                                <Route path="/fm/bridge" element={<FMBridge />} />
 
                                                 {/* Journeys */}
                                                 <Route path="/coaching/journey" element={<CoachingJourney />} />
