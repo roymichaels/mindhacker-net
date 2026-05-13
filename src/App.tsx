@@ -94,7 +94,6 @@ const BrainPage = lazy(() => import("./pages/BrainPage"));
 const SummonRoute = lazy(() => import("./shellv2/SummonRoute"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
-const Onboarding = lazy(() => import("./pages/Onboarding"));
 const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
 import { BusinessIndexWrapper, BusinessDashboardWrapper, BusinessJourneyWrapper } from './components/careers/business/BusinessLayoutWrapper';
 const FMAppShell = lazy(() => import("./components/fm/FMAppShell"));
@@ -286,7 +285,6 @@ const App = () => (
                                     <UTMTrackerMount />
                                     <AnalyticsProvider>
                                       <StoryWorldProvider>
-                                        <SmartOnboardingProvider>
                                           <Suspense fallback={<PageSkeleton />}>
                                             <Routes>
                                               {/* Public routes */}
@@ -309,7 +307,7 @@ const App = () => (
                                               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                               <Route path="/terms-of-service" element={<TermsOfService />} />
                                               <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                                              <Route path="/onboarding" element={<Onboarding />} />
+                                              <Route path="/onboarding" element={<Navigate to="/" replace />} />
                                               <Route path="/ceremony" element={<OnboardingCeremony />} />
                                               <Route path="/go" element={<Go />} />
                                               <Route path="/founding" element={<FoundingLanding />} />
@@ -512,7 +510,6 @@ const App = () => (
                                               <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
 
                                           </Suspense>
-                                        </SmartOnboardingProvider>
                                       </StoryWorldProvider>
                                     </AnalyticsProvider>
                                   </FlowAuditProvider>
