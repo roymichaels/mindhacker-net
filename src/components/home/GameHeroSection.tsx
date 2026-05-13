@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { Sparkles, Zap } from 'lucide-react';
 import { useWelcomeGate } from '@/contexts/WelcomeGateContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
@@ -22,6 +24,16 @@ export default function GameHeroSection() {
   const { openWelcomeGate } = useWelcomeGate();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
+
+  const handleStart = () => {
+    if (user?.id) {
+      openWelcomeGate();
+    } else {
+      openAuthModal('signup', () => openWelcomeGate());
+    }
+  };
 
   const [activeIndex, setActiveIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -172,7 +184,7 @@ export default function GameHeroSection() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
-                onClick={openWelcomeGate}
+                onClick={handleStart}
                 className="group relative text-lg px-10 py-7 rounded-2xl
                   bg-gradient-to-r from-primary via-primary to-accent
                   hover:from-primary/90 hover:to-accent/90
