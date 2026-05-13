@@ -53,6 +53,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
 const ProtectedAppShell = lazyWithRetry(() => import("./components/layout/ProtectedAppShell"), "ProtectedAppShell");
+const ProtectedAppShellV2 = lazy(() => import("./shellv2/ProtectedAppShellV2"));
 
 import { PageSkeleton } from "@/components/ui/skeleton";
 
@@ -328,6 +329,11 @@ const App = () => (
                                               {/* Avatar configurator — full-screen, no AppShell */}
                                               <Route path="/avatar" element={<ProtectedRoute><AvatarConfiguratorPage /></ProtectedRoute>} />
 
+                                              {/* ShellV2-owned routes — must never mount inside the legacy dashboard shell. */}
+                                              <Route element={<ProtectedAppShellV2 />}>
+                                                <Route path="/aurora" element={<AuroraPage />} />
+                                              </Route>
+
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
                                               <Route element={<ProtectedAppShell />}>
                                                 {/* Community */}
@@ -337,7 +343,6 @@ const App = () => (
                                                 <Route path="/messages" element={<Messages />} />
                                                 <Route path="/messages/:conversationId" element={<MessageThread />} />
                                                 {/* Flat top-level environments (replaces MindOS hub) */}
-                                                <Route path="/aurora" element={<AuroraPage />} />
                                                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
                                                 {/* Phase 5: when ff_shell_v2 is on, /strategy summons the
                                                     `plan` artifact inside ShellV2; otherwise legacy page. */}

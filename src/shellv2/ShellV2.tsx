@@ -20,6 +20,7 @@ import ComposerLayer from './layers/ComposerLayer';
 import ChromeLayer from './layers/ChromeLayer';
 import OverlayLayer from './layers/OverlayLayer';
 import BlockingLayer from './layers/BlockingLayer';
+import ShellV2MountDebug from './dev/ShellV2MountDebug';
 
 export interface ShellV2Props {
   /** Optional override for the chat surface. Defaults to placeholder. */
@@ -36,6 +37,7 @@ export default function ShellV2({ children }: ShellV2Props) {
       <ComposerLayer />
       <ChromeLayer />
       <OverlayLayer />
+      <ShellV2MountDebug />
       <BlockingLayer />
     </div>
   );
