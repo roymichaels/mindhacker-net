@@ -221,6 +221,13 @@ serve(async (req) => {
       });
     }
 
+    // ── AION Phase 1 trace ──
+    const tracer = startServerTrace({
+      traceId: getTraceIdFromRequest(req),
+      userId: user_id,
+      source: "memory-writer",
+    });
+
     // ── Pipeline (each step best-effort) ──
     const writes: Record<string, unknown> = {};
 
