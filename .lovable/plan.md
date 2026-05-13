@@ -1,65 +1,53 @@
 ## Goal
 
-Remove the legacy onboarding surface entirely. First launch (signed‑in, no data) lands directly on Home (`/` → ShellV2 → AION chat). No wizard, no intro splash, no welcome modal, no `/onboarding` route.
+One menu, one shell. Make `ShellV2Drawer` the only drawer in the app, route every authenticated page through `ProtectedAppShellV2`, and delete the legacy `DashboardLayout` chrome (`OSDrawer`, `MindOSSheet`, `AppNameDropdown`, `AppNameMenu`, `AppSideMenu`, `TopNavBar`, `BottomTabBar`, `BottomHudBar`, `HubModalHost`, `FMTopNav`).
 
-## What is still mounting onboarding (root cause)
+## What exists today
 
-1. **`/onboarding` route** in `src/App.tsx` (line 313) → `Onboarding.tsx` → `OnboardingFlow` → `OnboardingIntro` (the "ברוכים הבאים ל‑MindOS / בוא נתחיל" mountain splash).
-2. **Auth `redirectTo`** in `OnboardingIntro` sends new sign‑ups to `/onboarding` (lines 190, 202) — so first sign‑in literally lands on the wizard.
-3. **`WelcomeGateProvider` + `WelcomeGateModal`** mounted globally inside `pages/Index.tsx`; every public CTA (`InlineCTA`, `GameHeroSection`, `FinalCTASection`, `PricingPreviewSection`, `OrbCollectionSection`) calls `openWelcomeGate()` which routes into the same flow.
-4. **`SmartOnboardingProvider`** in `App.tsx` + `useSmartOnboardingRedirect` still hard‑navigates to `/onboarding`.
-5. **`redirects.tsx`** maps `/start`, `/free-journey`, `/free-journey/start` → `/onboarding`; `Go.tsx` CTA → `/onboarding`.
-6. `OnboardingGate` is already a no‑op passthrough — fine, will be removed for clarity.
+- **ShellV2** (`/`, `/aurora`, `/brain`, `/outer-world`): `ShellV2Header` (orb left, MindOS center, hamburger right) opens `ShellV2Drawer` — 6 items: Home, Brain, Outer World, History, Settings, Account.
+- **Legacy `DashboardLayout`** (everything else): header mounts `OSDrawer` (right-side Sheet, items from `OS_TABS` = Free Market, Strategy, Hypnosis, Journal, Community, Study + Profile/Settings/Logout), `MindOSSheet`, `AIONPresenceButton`, plus `HubModalHost`. Uses `HubModalContext` to open hubs as modals instead of routes.
+- The two drawers have different navigation models: ShellV2 routes (`navigate('/...')`), legacy hubs (`openHub('strategy' | 'hypnosis' | …)`).
 
-## Changes
+## Approach
 
-### Routing & providers
-- `src/App.tsx`
-  - Remove `<Route path="/onboarding" …>` and the `Onboarding` lazy import.
-  - Remove `<SmartOnboardingProvider>` wrapper (and import).
-- `src/routes/redirects.tsx` — rewrite `/start`, `/free-journey`, `/free-journey/start`, **and add `/onboarding`** → `/`.
-- `src/pages/Go.tsx` — CTA navigates to `/` instead of `/onboarding` (or delete the page; will replace target only to keep blast radius small).
+1. **Expand `ShellV2Drawer` to the union of menu items** — add the legacy hub destinations as plain routes so nothing is lost when the legacy drawer goes away. New item list:
+   - Home (`/`)
+   - Outer World (`/outer-world`)
+   - Brain (`/brain`)
+   - Free Market (`/fm` → already redirected to `/outer-world`, keep as discoverable label or drop — decide once)
+   - Strategy (`/strategy`)
+   - Hypnosis (`/hypnosis`)
+   - Journal (`/journal`)
+   - Community (`/community`)
+   - Learn (`/learn`)
+   - History (overlay `aion`)
+   - Settings (`/subscriptions`)
+   - Account (`/profile`)
+   - Sign out
+   Hebrew/English labels reused from `OS_TABS`. Section dividers (Core / Practice / Account) inside the same drawer.
 
-### Auth redirects
-- `src/components/onboarding/OnboardingIntro.tsx` is being quarantined (see below); but for any remaining `supabase.auth.signUp/signInWithOAuth` calls in active code, set `redirectTo: window.location.origin + '/'`. Grep `redirectTo.*onboarding` to fix every one (currently only OnboardingIntro itself).
+2. **Route every authenticated page through `ProtectedAppShellV2`** — change `App.tsx` so the `<Route element={<ProtectedAppShell />}>` block becomes `<Route element={<ProtectedAppShellV2 />}>`. Since `ShellV2` renders `children ?? <ChatLayer />`, page routes already provide their own `<Outlet />`-rendered content as the chat slot. Keep the `OnboardingGate` wrapping (already in V2).
 
-### Welcome gate (public marketing CTAs)
-- Delete `src/contexts/WelcomeGateContext.tsx` and `src/components/modals/WelcomeGateModal.tsx`.
-- Replace every `useWelcomeGate()` / `openWelcomeGate()` call site with `navigate('/auth')` (or `/` if signed in). Files: `Index.tsx`, `home/InlineCTA.tsx`, `home/GameHeroSection.tsx`, `home/FinalCTASection.tsx`, `home/PricingPreviewSection.tsx`, `home/OrbCollectionSection.tsx`.
+3. **Quarantine + delete legacy menu surface**:
+   - Move to `src/_legacy/shell/`: `components/shell/OSDrawer.tsx`, `components/shell/MindOSSheet.tsx`, `components/shell/AIONPresenceButton.tsx`, `components/dashboard/DashboardLayout.tsx`, `components/dashboard/DashboardLayoutWrapper.tsx`, `components/layout/ProtectedAppShell.tsx`, `components/navigation/HubModalHost.tsx`, `components/navigation/AppNameDropdown.tsx`, `components/navigation/AppNameMenu.tsx`, `components/navigation/AppSideMenu.tsx`, `components/navigation/TopNavBar.tsx`, `components/navigation/BottomTabBar.tsx`, `components/navigation/BottomHudBar.tsx`, `components/fm/FMTopNav.tsx`.
+   - Drop the lazy imports in `App.tsx`.
+   - Leave `HubModalContext` in place only if other features still call `useHubModal()` for non-nav reasons (will audit; if unused, delete too).
 
-### Smart redirect hook
-- `src/hooks/useSmartOnboardingRedirect.ts` — `smartNavigate()` always navigates to `/` (and still surfaces missing‑quest modals if a plan exists). Remove the `/onboarding` fallback path.
-- Delete `src/contexts/SmartOnboardingContext.tsx` after callers updated, or keep as no‑op shim if too many imports — audit shows only `App.tsx` mounts the provider; will delete.
+4. **Reconcile `ChromeVisibilityProvider` + `SidebarProvider`** — these were owned by the legacy `ProtectedAppShell`. Audit which surviving pages still call `useChromeVisibility` / `useSidebars` and either:
+   - mount the providers inside `ProtectedAppShellV2`, or
+   - replace the calls with no-ops since ShellV2 chrome is constant.
 
-### Quarantine onboarding visuals (no deletion of business logic, just unmount)
-Move the following into `src/_legacy/onboarding/` so nothing in the active tree imports them:
-- `src/pages/Onboarding.tsx`
-- `src/components/onboarding/OnboardingFlow.tsx`
-- `src/components/onboarding/OnboardingIntro.tsx`
-- `src/components/onboarding/OnboardingReveal.tsx`
-- `src/components/onboarding/OnboardingAssessments.tsx`
-- `src/components/onboarding/OnboardingPlanGeneration.tsx`
-- `src/components/onboarding/OnboardingPresenceScan.tsx`
-- Any sibling `Onboarding*` files in `components/onboarding/`
+5. **`FloatingBackButton`** — unchanged, already global, keeps "back" affordance for inner pages.
 
-Keep `src/flows/onboardingFlowSpec.ts` and `FRICTION_PILLAR_MAP` (used by `lib/vitality/dataMap.ts` and brain pillar logic — that's data, not UI).
+## Acceptance
 
-### Runtime kill switch
-- Add a thin `OnboardingFlow` and `OnboardingIntro` re‑export shim at the **original paths** wrapped with `withLegacyGuard('OnboardingFlow', …)` returning `null` and `console.warn("Legacy onboarding blocked")`. This catches any straggler import we missed and prevents the splash from ever painting under ShellV2.
-
-### Cleanup
-- Delete `src/components/layout/OnboardingGate.tsx` and remove its imports from `SmartRoot.tsx` and `ProtectedAppShellV2.tsx`.
-- Update `meta/appMap.ts` to drop the `/onboarding` entry.
-- Update `AIONFloatingWidget` `HIDDEN_ROUTES` to remove `/onboarding`.
-
-## Acceptance proof returned after build
-1. `git diff --stat` of removed/disabled files (route, providers, modal, gate, intro, flow).
-2. `rg "/onboarding"` shows zero active references (only quarantined `_legacy/`).
-3. Network/console proof on `/` after fresh sign‑in: lands on ShellV2 chat, no `/onboarding` redirect, no `OnboardingIntro` DOM.
-4. Manual click of every former Welcome CTA on the marketing page → goes to `/auth`.
-5. Confirm `LegacyMountGuard` warns if anything still tries to mount `OnboardingFlow`.
+- Tapping the hamburger anywhere in the app opens the same `ShellV2Drawer`.
+- Legacy "MINDOS" right-side drawer (the screenshot) never appears again.
+- Strategy / Hypnosis / Journal / Community / Learn / Free Market are reachable from the merged drawer.
+- `rg "OSDrawer|MindOSSheet|AppNameMenu|AppSideMenu|TopNavBar|BottomTabBar|BottomHudBar|AppNameDropdown|HubModalHost|FMTopNav|DashboardLayout"` returns only `_legacy/`, the drawer file, and `LegacyMountGuard`.
 
 ## Out of scope
-- Hebrew copy in `i18n/translations/he.ts` (data, not a mount).
-- DomainAssess "ברוכים הבאים לסריקת…" pillar scan intros (that's the assessment system, not onboarding).
-- `SoulAvatarMintWizard` (a different gated flow, kept).
+
+- AION orb / `InteractiveAIONHost` (already global).
+- Composer (`ComposerLayer`) — stays.
+- Visual redesign of the drawer beyond merging items and adding section labels.
