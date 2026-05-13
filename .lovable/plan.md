@@ -174,3 +174,13 @@ Awaiting approval to implement.
 - Response headers: added `X-Aurora-Router` and `X-Aurora-Capability`, exposed via CORS.
 - Off by default. Activation: `AION_CAPS=1` (edge env).
 - Out of scope: client-side artifact rendering, confirmation sheet UI, and dispatching invokes from the client — Phase 3.
+
+---
+
+## Status — Phase 3 shipped (Client confirmation + artifact loop)
+
+- Sentinel parser already in place (`src/lib/aion/parseArtifactSentinels.ts`); the assistant stream is scanned for `<<AION_ARTIFACT {...}>>` blocks and forwarded to `artifactBus`.
+- `CapabilityInvokerBridge` (mounted in `App.tsx`) listens for `aion:capability:invoke` and dispatches to `aion-capabilities` with the propagated `traceId` so client invocations stitch into the same Phase 1 trace.
+- New deterministic fallback in `useAuroraChat`: when the server router decides `propose` (`X-Aurora-Router=propose` + `X-Aurora-Capability=…`) and the LLM didn't emit a confirm sentinel, the client synthesizes a sticky `confirm` artifact with a labeled CTA (`plan.restart`, `plan.delete`, `daily.generate`, `hypnosis.start`). Tap → registry invocation → trace event → result toast.
+- traceId now flows through every CTA dispatched from sentinels and from the fallback.
+- Off by default end-to-end: requires `AION_CAPS=1` on the edge for the proposal headers to ever appear; the client logic is a no-op otherwise.
