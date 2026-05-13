@@ -683,6 +683,132 @@ export type Database = {
         }
         Relationships: []
       }
+      aion_turn_trace_events: {
+        Row: {
+          at: string
+          data: Json
+          id: string
+          source: string
+          stage: string
+          trace_id: string
+          user_id: string
+        }
+        Insert: {
+          at?: string
+          data?: Json
+          id?: string
+          source: string
+          stage: string
+          trace_id: string
+          user_id: string
+        }
+        Update: {
+          at?: string
+          data?: Json
+          id?: string
+          source?: string
+          stage?: string
+          trace_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aion_turn_traces: {
+        Row: {
+          artifact_kind: string | null
+          brain_refreshed: boolean
+          capability: string | null
+          conversation_id: string | null
+          duration_ms: number | null
+          emotion: string | null
+          ended_at: string | null
+          errors: Json
+          graph_reads: number
+          graph_writes: number
+          hebrew_cleanup: Json
+          id: string
+          input_preview: string | null
+          intent: string | null
+          lanes: string | null
+          language: string | null
+          meta: Json
+          mode: string | null
+          pillar: string | null
+          pillar_deltas: Json
+          repetition: Json
+          route: string | null
+          router_decision: string | null
+          sanitizer: Json
+          signals_written: number
+          started_at: string
+          status: string
+          trace_id: string
+          user_id: string
+        }
+        Insert: {
+          artifact_kind?: string | null
+          brain_refreshed?: boolean
+          capability?: string | null
+          conversation_id?: string | null
+          duration_ms?: number | null
+          emotion?: string | null
+          ended_at?: string | null
+          errors?: Json
+          graph_reads?: number
+          graph_writes?: number
+          hebrew_cleanup?: Json
+          id?: string
+          input_preview?: string | null
+          intent?: string | null
+          lanes?: string | null
+          language?: string | null
+          meta?: Json
+          mode?: string | null
+          pillar?: string | null
+          pillar_deltas?: Json
+          repetition?: Json
+          route?: string | null
+          router_decision?: string | null
+          sanitizer?: Json
+          signals_written?: number
+          started_at?: string
+          status?: string
+          trace_id: string
+          user_id: string
+        }
+        Update: {
+          artifact_kind?: string | null
+          brain_refreshed?: boolean
+          capability?: string | null
+          conversation_id?: string | null
+          duration_ms?: number | null
+          emotion?: string | null
+          ended_at?: string | null
+          errors?: Json
+          graph_reads?: number
+          graph_writes?: number
+          hebrew_cleanup?: Json
+          id?: string
+          input_preview?: string | null
+          intent?: string | null
+          lanes?: string | null
+          language?: string | null
+          meta?: Json
+          mode?: string | null
+          pillar?: string | null
+          pillar_deltas?: Json
+          repetition?: Json
+          route?: string | null
+          router_decision?: string | null
+          sanitizer?: Json
+          signals_written?: number
+          started_at?: string
+          status?: string
+          trace_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_reports: {
         Row: {
           created_at: string | null
