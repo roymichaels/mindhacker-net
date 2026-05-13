@@ -41,7 +41,7 @@ function isStaleAssistantHistoryMessage(content: unknown): boolean {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-aion-trace-id, x-aion-route",
   "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded, x-aurora-history-count, x-aurora-history-assistant-count, x-aurora-history-filtered-count, x-aurora-task-source, x-aurora-current-time, x-aurora-daily-briefing-source, x-aurora-proactive-used, x-aurora-cached-response, x-aurora-intent, x-aurora-lanes, x-aurora-router, x-aurora-capability",
 };
 
