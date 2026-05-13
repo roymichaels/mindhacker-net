@@ -13,6 +13,7 @@ export interface BrainNode {
   last_evidence_at: string | null;
   evidence_count: number;
   score: number;
+  room?: string | null;
 }
 
 export interface BrainEdge {

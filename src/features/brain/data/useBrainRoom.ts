@@ -57,6 +57,7 @@ export function useBrainRoom(userId: string | null, room: string | null) {
         last_evidence_at: n.last_evidence_at ?? null,
         evidence_count: num(n.reference_count),
         score: num(n.confidence) + num(n.reference_count) * 5,
+        room: n.room ?? null,
       }));
       const edges: BrainEdge[] = (Array.isArray(obj.edges) ? obj.edges : []).map((e: any) => ({
         from: String(e.from_node),

@@ -1,8 +1,11 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Check, MessageCircle, X as XIcon } from "lucide-react";
+import { Check, MessageCircle, X as XIcon, DoorOpen } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { confirmBrainNode, rejectBrainNode, useBrainNodeEvidence } from "./useBrainOverview";
+import { getRoomById } from "@/hallway/rooms";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { BrainNode } from "./types";
 
 interface Props {
@@ -13,6 +16,8 @@ interface Props {
 
 export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { isRTL } = useTranslation();
   const { data: evidence = [] } = useBrainNodeEvidence(node?.id ?? null);
 
   const handleConfirm = async () => {
@@ -43,6 +48,25 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
                 )}
               </SheetTitle>
             </SheetHeader>
+
+            {node.room && (() => {
+              const r = getRoomById(node.room);
+              if (!r) return null;
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigate(`/brain?view=room&room=${r.id}`);
+                    onClose();
+                  }}
+                  className="mt-2 inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-white/[0.05] text-foreground hover:bg-white/[0.08] transition"
+                  style={{ color: `hsl(${r.ambience.hue} 65% 70%)` }}
+                >
+                  <DoorOpen className="w-3 h-3" />
+                  {isRTL ? r.copy.label.he : r.copy.label.en}
+                </button>
+              );
+            })()}
 
             <p className="mt-3 text-sm text-foreground leading-relaxed">{node.content}</p>
 
