@@ -363,6 +363,11 @@ serve(async (req) => {
     // 5. upsert
     const upserts = await upsertGraphNodes(supabase, user_id, proposed);
     writes.graph = upserts;
+    if (tracer.enabled) {
+      const inserted = upserts.filter((u: any) => u.action === "inserted").length;
+      const reinforced = upserts.filter((u: any) => u.action === "reinforced").length;
+      tracer.event("graph.write", { inserted, reinforced, total: upserts.length });
+    }
 
     // 5b. pillar_confidence updates
     const pillarUpdates: any[] = [];
@@ -416,6 +421,9 @@ serve(async (req) => {
       }
     }
     writes.pillar_confidence = pillarUpdates;
+    if (tracer.enabled && pillarUpdates.length > 0) {
+      tracer.event("pillar.delta", { updates: pillarUpdates });
+    }
 
     // 5c. contradictions — match `with_statement` to an existing strong graph node
     const contradictionWrites: any[] = [];
