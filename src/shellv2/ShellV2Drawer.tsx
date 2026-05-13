@@ -22,6 +22,7 @@ import {
   Settings as SettingsIcon,
   User,
   LogOut,
+  Shield,
 } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -48,7 +49,7 @@ interface DrawerSection {
 
 export default function ShellV2Drawer() {
   const { language, isRTL } = useTranslation();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const overlay = useOverlay();
   const binding = useOverlayBinding('drawer');
@@ -109,6 +110,9 @@ export default function ShellV2Drawer() {
       items: [
         { id: 'profile', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: goProfile },
         { id: 'settings', icon: SettingsIcon, labelEn: 'Settings', labelHe: 'הגדרות', onSelect: () => go('/subscriptions') },
+        ...(isAdmin
+          ? [{ id: 'admin', icon: Shield, labelEn: 'Admin', labelHe: 'ניהול', onSelect: () => go('/admin') }]
+          : []),
       ],
     },
   ];
