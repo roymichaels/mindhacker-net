@@ -165,16 +165,8 @@ export const useAuroraChat = (conversationId: string | null) => {
         content: m.content,
       }));
 
-      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          messages: chatMessages,
-        }),
+      await supabase.functions.invoke('aurora-analyze', {
+        body: { userId: user.id, messages: chatMessages },
       });
 
       queryClient.invalidateQueries({ queryKey: ['aurora-life-model'] });
@@ -194,17 +186,8 @@ export const useAuroraChat = (conversationId: string | null) => {
         content: m.content,
       }));
 
-      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-summarize-conversation`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          conversationId,
-          messages: chatMessages,
-        }),
+      await supabase.functions.invoke('aurora-summarize-conversation', {
+        body: { userId: user.id, conversationId, messages: chatMessages },
       });
     } catch (err) {
       console.error('Conversation summarization failed:', err);
@@ -214,17 +197,8 @@ export const useAuroraChat = (conversationId: string | null) => {
   // Generate title after first exchange
   const generateTitle = useCallback(async (convId: string, msgs: ChatMessage[]) => {
     try {
-      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-generate-title`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          conversationId: convId,
-          messages: msgs,
-          language,
-        }),
+      await supabase.functions.invoke('aurora-generate-title', {
+        body: { conversationId: convId, messages: msgs, language },
       });
 
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
