@@ -6,7 +6,7 @@
  * `useOverlay()` from `src/shell/overlay/OverlayController`. No hand-rolled
  * `fixed inset-0` portals are allowed inside `src/shellv2/`.
  */
-import ShellV2Menu from './ShellV2Menu';
+import ShellV2Drawer from './ShellV2Drawer';
 import ChatHistorySheet from '@/components/aion/ChatHistorySheet';
 
 /**
@@ -19,7 +19,7 @@ import ChatHistorySheet from '@/components/aion/ChatHistorySheet';
 export default function UnifiedOverlayHost() {
   return (
     <>
-      <ShellV2Menu />
+      <ShellV2Drawer />
       <ChatHistorySheet />
     </>
   );
