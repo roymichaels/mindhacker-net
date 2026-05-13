@@ -19,6 +19,7 @@ import {
   HandCoins,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ShellHeader from '@/shellv2/ShellHeader';
 
 interface Tile {
   label: string;
@@ -61,12 +62,10 @@ export default function OuterWorldHub() {
   const navigate = useNavigate();
   return (
     <div className="mx-auto w-full max-w-screen-sm px-4 pb-20 pt-[max(env(safe-area-inset-top),1rem)]">
-      <header className="mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Outer World</h1>
-        <p className="mt-1 text-sm text-foreground/60">
-          The external economy layer. Inner OS stays in chat.
-        </p>
-      </header>
+      <ShellHeader
+        title="Outer World"
+        subtitle="The external economy layer. Inner OS stays in chat."
+      />
 
       <div className="flex flex-col gap-6">
         {TILES.map((section) => (
