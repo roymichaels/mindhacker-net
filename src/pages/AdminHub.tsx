@@ -34,15 +34,25 @@ export default function AdminHub({ activeTab = 'overview', activeSubTab, onTabCh
 
   return (
     <div className="min-h-[60vh] space-y-4 pb-6">
-      {/* Stats bar */}
-      <AdminStatsBar onNavigate={onTabChange} />
+      {/* Stats bar — isolated so a stats failure can't take down the whole admin */}
+      <ErrorBoundary fallback={<div className="h-12" />}>
+        <AdminStatsBar onNavigate={onTabChange} />
+      </ErrorBoundary>
 
-      {/* Inline navigation */}
-      <AdminInlineNav
-        activeTab={activeTab}
-        activeSubTab={currentSubTab}
-        onTabChange={onTabChange}
-      />
+      {/* Inline navigation — also isolated */}
+      <ErrorBoundary
+        fallback={
+          <Card className="p-4 border-destructive/30 bg-destructive/5 text-sm">
+            Navigation failed to render — try reloading.
+          </Card>
+        }
+      >
+        <AdminInlineNav
+          activeTab={activeTab}
+          activeSubTab={currentSubTab}
+          onTabChange={onTabChange}
+        />
+      </ErrorBoundary>
 
       {/* Active sub-page */}
       <ErrorBoundary
