@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { BrainEdge, BrainNode } from "./types";
 
 export interface SimNode {
@@ -153,7 +153,9 @@ export function useForceLayout(nodes: BrainNode[], opts: Options) {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [opts.edges, nodes.length]);
 
-  const reheat = (n = 80) => { heatRef.current = Math.max(heatRef.current, n); };
+  const reheat = useCallback((n = 80) => {
+    heatRef.current = Math.max(heatRef.current, n);
+  }, []);
 
   return { sim: simRef.current, tick, reheat };
 }
