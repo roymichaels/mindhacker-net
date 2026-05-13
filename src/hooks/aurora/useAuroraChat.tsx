@@ -215,6 +215,14 @@ export const useAuroraChat = (conversationId: string | null) => {
     setIsStreaming(true);
     setStreamingContent('');
 
+    // Phase 1 — AION orchestration trace (observation-only, flag-gated).
+    const tracer = (await import('@/diagnostics/aionTrace')).startTurnTrace({
+      route: typeof window !== 'undefined' ? window.location.pathname : null,
+      conversationId,
+      hasImage: !!imageBase64,
+      msgLen: content.length,
+    });
+
     // Heartbeat: keep the orchestration loop breathing during active chat.
     try { pulse('composer_focus'); } catch { /* never block send */ }
 
@@ -257,6 +265,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         .map((m) => m.content);
       classifyIntent(content, typeof window !== 'undefined' ? window.location.pathname : null);
       detectEmotion([...recentUserMsgs, content]);
+      tracer.mark('sense.dispatched');
     } catch (e) {
       console.warn('[aion-skills] dispatch failed', e);
     }
