@@ -195,7 +195,7 @@ export default function GameHeroSection() {
                 <Sparkles className={cn('h-6 w-6', isRTL ? 'ml-3' : 'mr-3')} />
                 {t('home.gameHero.cta')}
                 <motion.div
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/25 to-white/0"
+                  className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/25 to-white/0"
                   animate={{ x: ['-100%', '200%'] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
                 />
