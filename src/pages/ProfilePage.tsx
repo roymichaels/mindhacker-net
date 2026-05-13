@@ -19,6 +19,7 @@ import { useProfileModal } from '@/contexts/ProfileModalContext';
 import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
 import ProfileHeroSection from '@/components/profile/ProfileHeroSection';
 import BrainView from '@/features/brain/BrainView';
+import BackButton from '@/components/navigation/BackButton';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -53,10 +54,12 @@ export default function ProfilePage() {
       <AchievementGalleryModal open={achievementsOpen} onOpenChange={setAchievementsOpen} />
       <InventoryBagModal open={inventoryOpen} onOpenChange={setInventoryOpen} />
 
-      {/* ═══════ CLOSE BUTTON ═══════ */}
-      <div className="sticky top-0 z-50 flex justify-end p-3">
+      {/* ═══════ HEADER: Back + Close ═══════ */}
+      <div className="sticky top-0 z-50 flex items-center justify-between p-3">
+        <BackButton onBack={closeProfile} />
         <button
           onClick={closeProfile}
+          aria-label={isHe ? 'סגור' : 'Close'}
           className="w-9 h-9 rounded-full bg-muted/60 backdrop-blur-md flex items-center justify-center hover:bg-muted transition-colors"
         >
           <X className="w-5 h-5 text-foreground" />
@@ -147,18 +150,14 @@ export default function ProfilePage() {
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           <div className="flex items-center justify-between px-4 pt-4">
-            <button
-              onClick={() => setTraitsOpen(false)}
-              className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <X className="w-5 h-5 text-foreground" />
-            </button>
+            <BackButton onBack={() => setTraitsOpen(false)} />
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-cyan-400" />
               {isHe ? 'תכונות' : 'Traits'}
             </h2>
             <button
               onClick={() => setTraitsOpen(false)}
+              aria-label={isHe ? 'סגור' : 'Close'}
               className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
             >
               <X className="w-5 h-5 text-foreground" />
