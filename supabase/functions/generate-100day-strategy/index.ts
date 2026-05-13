@@ -1293,10 +1293,11 @@ serve(async (req) => {
               fallbackSkillId = existingSkill.id;
             } else {
               // Create a lightweight fallback trait for this pillar
-              const capitalizedPid = pid.charAt(0).toUpperCase() + pid.slice(1);
+              const fallbackEn = PILLAR_EN_MAP[pid] || (pid.charAt(0).toUpperCase() + pid.slice(1));
+              const fallbackHe = PILLAR_HE_MAP[pid] || pid;
               const { data: newSkill } = await supabaseClient.from('skills').insert({
                 user_id, life_plan_id: plan.id, pillar: pid,
-                name: `${capitalizedPid} Mastery`, name_he: `שליטה ב${pid}`,
+                name: `${fallbackEn} Mastery`, name_he: `שליטה ב${fallbackHe}`,
                 category: 'trait', is_active: true, current_level: 1, xp_total: 0,
               }).select('id').single();
               fallbackSkillId = newSkill?.id || null;
