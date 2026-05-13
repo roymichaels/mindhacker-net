@@ -21,17 +21,23 @@ export function AdminStatsBar({ onNavigate }: AdminStatsBarProps) {
   const { data: stats } = useQuery({
     queryKey: ['admin-sidebar-stats'],
     queryFn: async () => {
-      const [usersRes, leadsRes, ordersRes] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('consciousness_leap_leads').select('id', { count: 'exact', head: true }),
-        supabase.from('orders').select('id', { count: 'exact', head: true }),
-      ]);
-      return {
-        users: usersRes.count || 0,
-        leads: leadsRes.count || 0,
-        orders: ordersRes.count || 0,
+      const safeCount = async (p: Promise<{ count: number | null }>) => {
+        try {
+          const r = await p;
+          return r.count || 0;
+        } catch {
+          return 0;
+        }
       };
+      const [users, leads, orders] = await Promise.all([
+        safeCount(supabase.from('profiles').select('id', { count: 'exact', head: true }) as any),
+        safeCount(supabase.from('consciousness_leap_leads').select('id', { count: 'exact', head: true }) as any),
+        safeCount(supabase.from('orders').select('id', { count: 'exact', head: true }) as any),
+      ]);
+      return { users, leads, orders };
     },
+    retry: false,
+    staleTime: 60_000,
   });
 
   const statItems = [
