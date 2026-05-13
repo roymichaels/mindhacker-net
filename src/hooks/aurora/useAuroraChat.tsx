@@ -308,6 +308,8 @@ export const useAuroraChat = (conversationId: string | null) => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            ...(tracer.id ? { 'X-Aion-Trace-Id': tracer.id } : {}),
+            ...(typeof window !== 'undefined' ? { 'X-Aion-Route': window.location.pathname } : {}),
           },
           body: JSON.stringify({
             messages: chatMessages,
