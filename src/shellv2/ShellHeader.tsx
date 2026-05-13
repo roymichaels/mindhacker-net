@@ -11,17 +11,25 @@
  * only this header is shared.
  */
 import type { ReactNode } from 'react';
+import BackButton from '@/components/navigation/BackButton';
 
 interface ShellHeaderProps {
   title: string;
   subtitle?: string;
   trailing?: ReactNode;
   children?: ReactNode;
+  showBack?: boolean;
+  onBack?: () => void;
 }
 
-export default function ShellHeader({ title, subtitle, trailing, children }: ShellHeaderProps) {
+export default function ShellHeader({ title, subtitle, trailing, children, showBack, onBack }: ShellHeaderProps) {
   return (
     <header className="mb-6 flex items-start justify-between gap-3 pt-[max(env(safe-area-inset-top),0.5rem)]">
+      {showBack && (
+        <div className="shrink-0 pt-1">
+          <BackButton onBack={onBack} />
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-3xl font-semibold tracking-tight text-foreground">
           {title}

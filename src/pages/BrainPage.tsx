@@ -45,14 +45,9 @@ export default function BrainPage() {
       <BrainErrorBoundary isRTL={isRTL}>
         {view === "room" && roomDef ? (
           <div className="space-y-3">
-            <button
-              type="button"
-              onClick={goAtlas}
-              className="text-[11px] text-muted-foreground hover:text-foreground"
-            >
-              {isRTL ? "← חזרה למפה" : "← Back to map"}
-            </button>
             <ShellHeader
+              showBack
+              onBack={goAtlas}
               title={isRTL ? roomDef.copy.label.he : roomDef.copy.label.en}
               subtitle={isRTL ? roomDef.copy.tagline.he : roomDef.copy.tagline.en}
             />
