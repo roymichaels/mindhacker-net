@@ -4,7 +4,6 @@
  */
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,16 +17,15 @@ export default function Go() {
   const navigate = useNavigate();
   const { isRTL } = useTranslation();
   const { trackLead } = useConversionEvents();
-  const { smartNavigate } = useSmartOnboarding();
 
   useEffect(() => {
     flowAudit.route('(entry)', '/go');
   }, []);
 
   const handleStart = () => {
-    flowAudit.redirect('/go', '/onboarding', 'CTA clicked — starting onboarding');
+    flowAudit.redirect('/go', '/', 'CTA clicked — entering Home (AION chat)');
     trackLead({ source: 'go_page' });
-    smartNavigate();
+    navigate('/');
   };
 
   return (
