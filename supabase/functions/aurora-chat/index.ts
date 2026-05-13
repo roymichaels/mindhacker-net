@@ -321,6 +321,12 @@ serve(async (req) => {
     const cleanBody = response.body
       ? response.body.pipeThrough(sanitizeStream())
       : response.body;
+    if (tracer.enabled) {
+      // Stream end + close happen async after the client finishes reading.
+      // We mark logical close here so duration_ms reflects server work.
+      tracer.event("stream.end", { ok: true });
+      tracer.end({ router_decision: "reply" });
+    }
     return new Response(cleanBody, {
       headers: {
         ...corsHeaders,
@@ -345,6 +351,13 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error("Aurora chat error:", error);
     logEdgeFunctionError({ functionName: "aurora-chat", error, userId, requestContext: { mode } });
+    try {
+      const t = startServerTrace({ traceId: getTraceIdFromRequest(req), userId, source: "aurora-chat" });
+      if (t.enabled) {
+        t.event("error", { message: error instanceof Error ? error.message : String(error) });
+        t.end({ status: "error" });
+      }
+    } catch { /* ignore */ }
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
