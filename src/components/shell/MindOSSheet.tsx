@@ -250,4 +250,5 @@ function MindOSSheetImpl({ compact = false, onOpenSettings }: MindOSSheetProps) 
   );
 }
 
+export const MindOSSheet = withLegacyGuard('MindOSSheet', MindOSSheetImpl);
 export default MindOSSheet;
