@@ -13,6 +13,12 @@ import {
   Brain,
   Globe2,
   History,
+  Store,
+  Target,
+  Sparkles,
+  BookOpen,
+  Users,
+  GraduationCap,
   Settings as SettingsIcon,
   User,
   LogOut,
@@ -32,6 +38,13 @@ interface DrawerItem {
   onSelect: () => void | Promise<void>;
 }
 
+interface DrawerSection {
+  id: string;
+  titleEn?: string;
+  titleHe?: string;
+  items: DrawerItem[];
+}
+
 export default function ShellV2Drawer() {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
@@ -44,25 +57,53 @@ export default function ShellV2Drawer() {
     navigate(path);
   };
 
-  const items: DrawerItem[] = [
-    { id: 'home', icon: Home, labelEn: 'Home', labelHe: 'בית', onSelect: () => go('/') },
-    { id: 'brain', icon: Brain, labelEn: 'Brain', labelHe: 'מוח', onSelect: () => go('/brain') },
-    { id: 'outer', icon: Globe2, labelEn: 'Outer World', labelHe: 'עולם חיצוני', onSelect: () => go('/outer-world') },
+  const sections: DrawerSection[] = [
     {
-      id: 'history',
-      icon: History,
-      labelEn: 'History',
-      labelHe: 'היסטוריה',
-      onSelect: () => overlay.open('aion'),
+      id: 'core',
+      titleEn: 'Core',
+      titleHe: 'ליבה',
+      items: [
+        { id: 'home', icon: Home, labelEn: 'Home', labelHe: 'בית', onSelect: () => go('/') },
+        { id: 'brain', icon: Brain, labelEn: 'Brain', labelHe: 'מוח', onSelect: () => go('/brain') },
+        { id: 'outer', icon: Globe2, labelEn: 'Outer World', labelHe: 'עולם חיצוני', onSelect: () => go('/outer-world') },
+      ],
     },
     {
-      id: 'settings',
-      icon: SettingsIcon,
-      labelEn: 'Settings',
-      labelHe: 'הגדרות',
-      onSelect: () => go('/subscriptions'),
+      id: 'practice',
+      titleEn: 'Practice',
+      titleHe: 'תרגול',
+      items: [
+        { id: 'strategy', icon: Target, labelEn: 'Strategy', labelHe: 'אסטרטגיה', onSelect: () => go('/strategy') },
+        { id: 'hypnosis', icon: Sparkles, labelEn: 'Hypnosis', labelHe: 'היפנוזה', onSelect: () => go('/hypnosis') },
+        { id: 'journal', icon: BookOpen, labelEn: 'Journal', labelHe: 'יומן', onSelect: () => go('/journal') },
+        { id: 'fm', icon: Store, labelEn: 'Free Market', labelHe: 'שוק חופשי', onSelect: () => go('/fm') },
+      ],
     },
-    { id: 'account', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: () => go('/profile') },
+    {
+      id: 'world',
+      titleEn: 'World',
+      titleHe: 'עולם',
+      items: [
+        { id: 'community', icon: Users, labelEn: 'Community', labelHe: 'קהילה', onSelect: () => go('/community') },
+        { id: 'learn', icon: GraduationCap, labelEn: 'Learn', labelHe: 'לימוד', onSelect: () => go('/learn') },
+        {
+          id: 'history',
+          icon: History,
+          labelEn: 'History',
+          labelHe: 'היסטוריה',
+          onSelect: () => overlay.open('aion'),
+        },
+      ],
+    },
+    {
+      id: 'account',
+      titleEn: 'Account',
+      titleHe: 'חשבון',
+      items: [
+        { id: 'profile', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: () => go('/profile') },
+        { id: 'settings', icon: SettingsIcon, labelEn: 'Settings', labelHe: 'הגדרות', onSelect: () => go('/subscriptions') },
+      ],
+    },
   ];
 
   const handleLogout = async () => {
@@ -92,26 +133,37 @@ export default function ShellV2Drawer() {
           </div>
 
           {/* Nav list */}
-          <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
-            {items.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={item.onSelect}
-                  className={cn(
-                    'w-full h-11 flex items-center gap-3 px-3 rounded-xl text-[14px] font-medium',
-                    'text-foreground/90 hover:bg-white/[0.06] active:bg-white/[0.09] transition-colors text-start',
-                  )}
-                >
-                  <Icon className="h-[18px] w-[18px] shrink-0 opacity-80" />
-                  <span className="flex-1 truncate">
-                    {language === 'he' ? item.labelHe : item.labelEn}
-                  </span>
-                </button>
-              );
-            })}
+          <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-3">
+            {sections.map((section) => (
+              <div key={section.id}>
+                {(section.titleEn || section.titleHe) && (
+                  <div className="px-3 pt-1 pb-1.5 text-[10px] tracking-[0.18em] uppercase text-foreground/40">
+                    {language === 'he' ? section.titleHe : section.titleEn}
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={item.onSelect}
+                        className={cn(
+                          'w-full h-11 flex items-center gap-3 px-3 rounded-xl text-[14px] font-medium',
+                          'text-foreground/90 hover:bg-white/[0.06] active:bg-white/[0.09] transition-colors text-start',
+                        )}
+                      >
+                        <Icon className="h-[18px] w-[18px] shrink-0 opacity-80" />
+                        <span className="flex-1 truncate">
+                          {language === 'he' ? item.labelHe : item.labelEn}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* Identity / footer */}
