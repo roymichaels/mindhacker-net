@@ -332,6 +332,8 @@ const App = () => (
                                               {/* ShellV2-owned routes — must never mount inside the legacy dashboard shell. */}
                                               <Route element={<ProtectedAppShellV2 />}>
                                                 <Route path="/aurora" element={<AuroraPage />} />
+                                                {/* Outer World — economy index, ShellV2 only */}
+                                                <Route path="/outer-world" element={<OuterWorldHub />} />
                                               </Route>
 
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
@@ -459,8 +461,6 @@ const App = () => (
                                                 <Route path="/arena/:domainId/*" element={<ArenaToMindOSRedirect />} />
                                                 {/* Coaches */}
                                                 <Route path="/coaches" element={<CoachesLayoutWrapper />} />
-                                                {/* Outer World hub — economy index, not a wizard */}
-                                                <Route path="/outer-world" element={<OuterWorldHub />} />
                                                 {/* Admin Hub */}
                                                 <Route path="/admin-hub" element={<AdminRoute><AdminLayoutWrapper /></AdminRoute>} />
                                                 {/* Launchpad */}

@@ -6,6 +6,7 @@ import BrainGraphCanvas from "./BrainGraphCanvas";
 import BrainNodeSheet from "./BrainNodeSheet";
 import BrainSections from "./BrainSections";
 import { useBackfillBrain } from "./useBackfill";
+import BrainBackfillDebug from "./BrainBackfillDebug";
 import { useBrainOverview, useCurrentUserId } from "./useBrainOverview";
 import { useBrainFallback } from "./useBrainFallback";
 import type { BrainLayer, BrainNode } from "./types";
@@ -110,6 +111,9 @@ export default function BrainView({ onTalkToAion }: Props) {
           <RefreshCw className={`h-4 w-4 ${backfill.isPending ? "animate-spin" : ""}`} />
           {backfill.isPending ? "Building…" : "Build my brain"}
         </button>
+        <div className="w-full max-w-md">
+          <BrainBackfillDebug result={backfill.data} />
+        </div>
       </div>
     );
   }
@@ -137,6 +141,8 @@ export default function BrainView({ onTalkToAion }: Props) {
           {ctaLabel}
         </button>
       </ShellHeader>
+
+      <BrainBackfillDebug result={backfill.data} />
 
       <BrainSections overview={data} onSelect={setSelectedId} />
 
