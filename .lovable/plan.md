@@ -1,54 +1,207 @@
-## Goal
+Inventory of every page, modal, and inner tab currently shipping in Mind OS.
+Grouped by surface. Routes are the URL paths registered in `src/App.tsx`.
 
-The `/brain` route is throwing into the global `ErrorBoundary` (the pink "משהו השתבש" card with `ERR-…` id). Without the actual stack we can't pinpoint a single line, but the route has several thin spots that can throw on real user data, and there is no local boundary — any one of them takes the whole page down.
+## A. Public / marketing routes
 
-## What I'll do
+| Route | Page file |
+|---|---|
+| `/` `/index` `/home` | `pages/Index.tsx` (homepage) |
+| `/founding` | `FoundingLanding.tsx` |
+| `/landing` | landing page renderer |
+| `/blog` `/blog/:slug` | `Blog.tsx`, `BlogPost.tsx` |
+| `/docs` | `Documentation.tsx` |
+| `/features/:slug` | `FeatureDetailPage.tsx` |
+| `/install` | `Install.tsx` (PWA install) |
+| `/privacy-policy` | `PrivacyPolicy.tsx` |
+| `/terms-of-service` | `TermsOfService.tsx` |
+| `/unsubscribe` | `Unsubscribe.tsx` |
+| `/affiliate-signup` | `AffiliateSignup.tsx` |
+| `/practitioner/:slug`, `/practitioners/:slug`, `/coach/:slug`, `/therapist` | `PractitionerProfile.tsx` |
+| `/success` | `Success.tsx` (post-checkout) |
 
-### 1. Add a local error boundary around the Brain surface
-- Wrap `<BrainView />` inside `src/pages/BrainPage.tsx` with a small `BrainErrorBoundary` (new file `src/features/brain/BrainErrorBoundary.tsx`) that:
-  - Catches render errors only inside Brain.
-  - Shows a Hebrew/English fallback ("המוח לא נטען — נסה שוב") with a "Rebuild" button that calls `useBackfillBrain` and a "Reload" button.
-  - Logs the real error + component stack via `debug.error` so the next reproduction surfaces in console with a real stack instead of the generic ErrorBoundary id.
+## B. Auth / onboarding
 
-### 2. Defensive fixes in the render path
-These are the hot spots most likely to throw on partial data:
+| Route | Page file |
+|---|---|
+| `/onboarding` | onboarding flow |
+| `/ceremony` | `OnboardingCeremony.tsx` |
+| `/launchpad/complete` | `LaunchpadComplete.tsx` |
+| `/avatar` | `AvatarConfiguratorPage.tsx` |
 
-- **`src/features/brain/useBrainOverview.ts`**
-  - The RPC sometimes returns `null` data on RLS-filtered users. Treat `null` like empty: return the same shape with empty arrays (today it already does, but only when the call resolves; if the JS client throws we still propagate). Wrap the body in a `try/catch` and rethrow a clean `Error("brain_get_overview failed: …")` so React Query stores a serializable error.
-  - In `confirmBrainNode` / `rejectBrainNode`, swallow the network error into a toast instead of throwing into the click handler (a rejected promise from `onClick` currently bubbles to the page boundary because the handlers are `async` without try/catch).
+## C. Core app shell (ProtectedAppShellV2)
 
-- **`src/features/brain/BrainView.tsx`**
-  - Coerce `data.pillars` to a plain object before `Object.values(...)` (RPC could theoretically return an array literal in a misconfigured row): `const pillarVals = data?.pillars && typeof data.pillars === 'object' && !Array.isArray(data.pillars) ? Object.values(data.pillars) : [];`
-  - Guard `n.confidence` / `n.score` / `n.strength` numerics with `Number(... ?? 0)` before they reach math.
-  - Make the ShellHeader subtitle a plain string instead of a JSX fragment (subtitle is typed `string`; the fragment we pass as `children` is fine but the inline `<span>`s read better as `children` only — keep one source of truth).
+| Route | Page file | Notes |
+|---|---|---|
+| `/aurora` | `AuroraPage.tsx` | AION chat |
+| `/brain` | `BrainPage.tsx` | Memory graph |
+| `/hallway`, `/hallway/:slug` | hallway shell | Rooms below |
+| `/dashboard` | `UserDashboard.tsx` | |
+| `/profile` `/profile-hub` | `ProfilePage.tsx` | Tabs below |
+| `/messages` `/messages/:conversationId` | `Messages.tsx`, `MessageThread.tsx` |
+| `/community` `/community/post/:postId` | `Community.tsx`, `CommunityThread.tsx` |
+| `/journal` `/journal-hub` | `JournalingHub.tsx` (+ MindOS Journal) |
+| `/play` `/play-hub` `/now` | `PlayHub.tsx` (Today / Mission Control tabs) |
+| `/work` `/work-hub` | `WorkHub.tsx` (Timer / Log / Stats tabs) |
+| `/strategy` `/plan` `/life-plan` | `StrategyPage.tsx` |
+| `/life` | `LifeHub.tsx` |
+| `/arena` `/arena/:domainId/*` | `ArenaHub.tsx`, `ArenaDomainPage.tsx` |
+| `/quests/:pillar` | `QuestRunnerPage.tsx` |
+| `/orbs` `/dev/orb-gallery` | `OrbGallery.tsx` |
 
-- **`src/features/brain/BrainGraphForce.tsx`**
-  - Early-return a minimal placeholder when `nodes.length === 0` (today the SVG still mounts and the force-loop runs over 0 nodes; harmless but wastes a frame).
-  - Clamp `r`, `cx`, `cy`, `x1/y1/x2/y2` to finite numbers (`Number.isFinite(v) ? v : 0`) so a stray `NaN` from `useForceLayout` cannot throw inside React's SVG attribute serializer in production.
+## D. Hallway rooms (`src/hallway/rooms.ts`)
 
-- **`src/features/brain/useForceLayout.ts`**
-  - Replace `Math.sqrt(n.score) / 3` with `Math.sqrt(Math.max(0, Number(n.score) || 0)) / 3` so a missing/negative `score` cannot produce `NaN` radii.
-  - Initial coordinates: guard against `Math.cos(angle) * radius` being `NaN` when `nodes.length === 0`.
+beliefs · emotions & energy · inner characters (parts) · time & memory · identity & roles · body & soma.
 
-- **`src/features/brain/BrainSections.tsx`**
-  - `arr.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))` — same numeric guard.
-  - Guard `Object.entries(pillars)` the same way as in BrainView.
+## E. MindOS workspace
 
-### 3. Verification
-- Reload `/brain` logged-in (via the browser tool) and confirm:
-  - No ErrorBoundary fallback on initial render.
-  - Empty state still renders the "Build my brain" CTA.
-  - A forced throw inside `BrainGraphForce` (temporary `throw new Error('test')`, then reverted) is caught by the new local boundary and shows the Brain-specific fallback, not the global one.
-- Check console for the `[brain] overview RPC error` log path when RPC fails (force by passing an invalid uuid in dev).
+| Route | Page |
+|---|---|
+| `/mindos` | `MindOSPage.tsx` (entry) |
+| `/mindos/chat` | `MindOS/ChatPage.tsx` |
+| `/mindos/journal` | `MindOS/JournalPage.tsx` (Dream / Reflection / Gratitude tabs) |
+| `/mindos/strategy` | `MindOS/StrategyPage.tsx` |
+| `/mindos/tactics` | `MindOS/TacticsPage.tsx` |
+| `/mindos/work` | `MindOS/WorkPage.tsx` |
 
-## Files touched
+## F. Strategy / pillar assessment routes
 
-- `src/pages/BrainPage.tsx` (wrap with boundary)
-- `src/features/brain/BrainErrorBoundary.tsx` (new)
-- `src/features/brain/BrainView.tsx`
-- `src/features/brain/BrainGraphForce.tsx`
-- `src/features/brain/useForceLayout.ts`
-- `src/features/brain/BrainSections.tsx`
-- `src/features/brain/useBrainOverview.ts`
+For each pillar: `home → assess → results → history` (+ `chat-assess`, `chat-results` where present).
 
-No DB / edge-function / migration changes. UI + presentation only.
+| Pillar | Routes |
+|---|---|
+| Combat | `/strategy/combat`, `/assess`, `/results`, `/chat-results`, `/history` |
+| Power | `/strategy/power`, `/assess`, `/results`, `/chat-results`, `/history` |
+| Focus | `/strategy/focus`, `/assess`, `/results`, `/chat-results`, `/history` |
+| Expansion | `/strategy/expansion`, `/assess`, `/results`, `/chat-results`, `/history` |
+| Vitality | `/strategy/vitality`, `/intake`, `/assess`, `/results`, `/chat-results`, `/history` |
+| Presence | `/strategy/presence`, `/scan`, `/analyzing`, `/assess`, `/results`, `/chat-results`, `/history` |
+| Consciousness | `/strategy/consciousness`, `/assess`, `/results`, `/history` |
+| Business | `/strategy/business/assess`, `/results` |
+| Wealth | `/strategy/wealth/assess`, `/results` |
+| Influence | `/strategy/influence/assess`, `/results` |
+| Projects | `/strategy/projects/assess`, `/results` |
+| Relationships | `/strategy/relationships/assess`, `/results` |
+| Play | `/strategy/play/assess`, `/results` |
+| Generic | `/strategy/:domainId` |
+
+## G. Career / outer-world hubs
+
+| Route | Page |
+|---|---|
+| `/outer-world` | `OuterWorldHub.tsx` (FM, Services, Coaches, Therapists, Learn, Community, Messages, Creator, Freelancer, Business, Affiliate, Wallet) |
+| `/career` | `CareerHub.tsx` (tabs vary by career path — see below) |
+| `/coach-hub` | `CoachHub.tsx` |
+| `/coaches` | `Coaches.tsx` |
+| `/coaching/journey`, `/coaching/journey/:journeyId` | `CoachingJourney.tsx` |
+| `/business`, `/business/:businessId` | `Business.tsx`, `BusinessDashboard.tsx` |
+| `/business/journey`, `/:journeyId` | `BusinessJourney.tsx` |
+| `/projects/journey`, `/:journeyId` | `ProjectsJourney.tsx` |
+| `/admin/journey`, `/:journeyId` | `AdminJourney.tsx` |
+| `/freelancer` `/freelancer-hub` | `Freelancer.tsx`, `FreelancerHub.tsx` |
+| `/creator` `/creator-hub` | `Creator.tsx`, `CreatorHub.tsx` |
+| `/learn` `/courses` `/courses/:slug` `/courses/:slug/watch` | `Learn.tsx`, `Courses.tsx`, `CourseDetail.tsx`, `CourseWatch.tsx` |
+
+### Career hub tabs (`CareerHub.tsx`, per `careerPath`)
+- **Coach**: Dashboard · Clients · Leads · Products · Content · Plans · Marketing · Analytics · Landing Pages · Settings
+- **Therapist**: Dashboard · Clients · Leads · Services · Content · Plans · Marketing · Analytics · Landing Pages · Settings
+- **Freelancer**: Dashboard · Gigs · Projects · Clients · Portfolio · Products · Content · Earnings · Marketing · Analytics · Settings
+- **Creator**: Dashboard · Courses · Products · Content · Clients · Marketing · Analytics · Landing Pages · Settings
+- **Business**: Dashboard · Clients · Leads · Products · Content · Marketing · Analytics · Landing Pages · Settings
+
+## H. Free Market
+
+| Route | Page |
+|---|---|
+| `/fm` | `fm/FMMarket.tsx` |
+| `/fm/bridge` | `fm/FMBridge.tsx` |
+| `/fm/cashout` | `fm/FMCashout.tsx` |
+
+## I. Affiliate panel (`/panel/...`)
+
+Dashboard · `links` · `payouts` · `referrals` (`AffiliateDashboard`, `MyLinks`, `MyPayouts`, `MyReferrals`).
+
+## J. Hypnosis / media
+
+`/hypnosis` (`HypnosisPage.tsx`), `/audio/:token` (`AudioPlayer.tsx`), `/video/:token` (`VideoPlayer.tsx`).
+
+## K. Subscriptions / checkout
+
+`/subscriptions` (`Subscriptions.tsx`), `/go` (`Go.tsx`).
+
+## L. Admin (`/admin-hub`) — tabs from `domain/admin/tabConfig.ts`
+
+| Tab | Sub-tabs |
+|---|---|
+| Overview | Dashboard · Analytics · Notifications |
+| Admin | Users · Coaches · Leads · Businesses · Insights · FM Bounties · Work Monitor · Career Apps |
+| Campaigns | Affiliates · Newsletter · Offers · Purchases |
+| Content | Products · Blog · Content · Videos · Recordings · Forms |
+| Site | Landing Pages · Homepage · Theme · FAQs · Testimonials |
+| System | Bug Reports · Chat Assistant · Template Coverage · Settings |
+
+## M. Profile page tabs (`components/profile/ProfileTabs.tsx`)
+
+Profile · AION · Activity · Purchases · Settings · Avatar/Wand (variants gated by feature flag).
+
+## N. Settings modal tabs (`components/settings/SettingsModal.tsx`)
+
+Profile · Aurora · Energy · Appearance · Account.
+
+## O. Global / context-driven modals
+
+(Each owned by a context provider and openable from anywhere.)
+
+- **AuthModal** (`AuthModalContext` → `auth/AuthModal.tsx`, `CloudAuthModal.tsx`, `Web3AuthModalBridge`)
+- **ProfileModal** (`ProfileModalContext`)
+- **CoachesModal** (`CoachesModalContext` → `careers/coaches/CoachesModal.tsx`)
+- **SubscriptionsModal** (`SubscriptionsModalContext` → `subscription/SubscriptionsModal.tsx`)
+- **WalletModal** (`WalletModalContext` → `fm/WalletModal.tsx`)
+- **WelcomeGate** (`WelcomeGateContext` → `modals/WelcomeGateModal.tsx`)
+- **PWAInstallModal**, **CookieConsent**, **NotificationPermissionPrompt**, **PWAUpdatePrompt**
+
+## P. Dashboard / play / strategy modals
+
+- DailyPrioritiesModal · ExecutionModal · HypnosisModal · MilestoneDetailModal · PillarSynthesisModal · SkillDetailModal (dashboard)
+- FocusQueueModal · MilestoneJourneyModal · StrategyPillarWizard (play)
+- MissionModal · MiniMilestoneModal · PillarModal · MissingQuestModal (missions)
+- PracticesModal · CharacterProfileModal · InventoryBagModal · AchievementGalleryModal · UserDocsModal (top-level `components/modals`)
+- PlanChatWizard · PlanNegotiateModal · AuroraPlanModal · AuroraJournalModal · AuroraBeliefsModal (Aurora)
+- BugReportDialog (bug capture)
+
+## Q. Career / business modals
+
+- BrandingModal · FinancialsModal · GrowthModal · MarketingModal · OperationsModal · StrategyModal (Business Tools Grid)
+- BusinessDashboardModals · AddProjectWizard · AddItemWizard
+- AutoPlanEngineModal · ClientProfilePanel (coach)
+- AvatarRequiredModal (avatar) · SoulAvatarMintWizard (web3)
+
+## R. Community / messaging modals
+
+- CreateThreadModal · CreateStoryModal · SuggestTopicModal · EventsModal · AIMatchModal · AddToPlanModal · CommunityMiniProfile · PostDetailModal · ProjectDetailModal
+- NewMessageDialog (messages)
+
+## S. Commerce modals
+
+- CheckoutDialog · SubscriptionCheckoutDialog · PromoUpgradeModal · UpgradePromptModal · ProGateOverlay · SpendConfirmDialog · EnergySpendModal · EarnLaunchpadModal · LeadCaptureDialog · LessonViewer
+
+## T. Admin-only dialogs
+
+AdminGrantPurchaseDialog · AdminCouponsPanel · LandingPageDialog · AddSectionDialog · FormDialog · FieldEditorDialog · CampaignDialog · ImportSubscribersDialog · EpisodeDialog · ProductDialog · SeriesDialog · AssignAudio/VideoDialog · AudioUploadDialog · VideoUploadDialog · PendingPayments · FMPublishWizard
+
+## U. PlayHub inner tabs
+
+Overview (Today) · Mission Control.
+
+## V. Misc
+
+- WorkChatWizard, PillarSelectionModal, OrbDNAModal — onboarding/contextual wizards
+- Hallway BodyHypnosisSurface (in-room overlay)
+- ConsciousnessField, MatrixRain — ambient overlays (not modals)
+- 404: `NotFound.tsx`
+
+---
+
+If you want, I can next:
+1. Export this as a Markdown/PDF artifact under `/mnt/documents/`,
+2. Add a status column (built / WIP / stub / orphaned) by scanning each file,
+3. Or generate true ASCII wireframes per surface (would be a much bigger doc — ask before I start).
