@@ -80,22 +80,14 @@ export function useSmartOnboardingRedirect() {
    * go to /now and pop missing quests. Otherwise, go to /onboarding normally.
    */
   const smartNavigate = useCallback(() => {
-    if (!hasActivePlan) {
-      // User hasn't completed onboarding — send them there
-      navigate('/onboarding');
-      return;
-    }
-
-    // User completed onboarding — go to /now
+    // Onboarding flow removed — always land in Home (AION chat).
+    // Missing-quest modals still surface so AION can ask follow-ups.
     const missing = questStatus?.missing ?? [];
     if (missing.length > 0) {
-      // Pop the first missing quest, queue the rest
       setMissingQuestQueue(missing.slice(1));
       setMissingQuestModal(missing[0]);
-      navigate('/now');
-    } else {
-      navigate('/now');
     }
+    navigate('/');
   }, [hasActivePlan, questStatus, navigate]);
 
   const handleQuestModalClose = useCallback(() => {
