@@ -611,11 +611,14 @@ async function generatePillarStrategy(
   
   const traits = traitResult?.traits || [];
   
-  // Ensure we have exactly traitCount traits (pad with fallbacks)
+  // Ensure we have exactly traitCount traits (pad with fallbacks).
+  // Use Hebrew pillar names (PILLAR_HE_MAP) so we never render "לוחם הbusiness".
+  const pHe = PILLAR_HE_MAP[pillarId] || pillarId;
+  const pEn = PILLAR_EN_MAP[pillarId] || pillarId;
   const fallbackTraits = [
-    { name_en: `${pillarId} Warrior`, name_he: `לוחם ה${pillarId}`, description_en: `Core ${pillarId} ability`, description_he: `יכולת ליבה`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-    { name_en: `${pillarId} Architect`, name_he: `אדריכל ה${pillarId}`, description_en: `Strategic ${pillarId} ability`, description_he: `יכולת אסטרטגית`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
-    { name_en: `${pillarId} Master`, name_he: `אמן ה${pillarId}`, description_en: `Advanced ${pillarId} ability`, description_he: `יכולת מתקדמת`, icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pEn} Warrior`,   name_he: `לוחם ${pHe}`,   description_en: `Core ${pEn} ability`,        description_he: `יכולת ליבה`,        icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pEn} Architect`, name_he: `אדריכל ${pHe}`, description_en: `Strategic ${pEn} ability`,   description_he: `יכולת אסטרטגית`,   icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
+    { name_en: `${pEn} Master`,    name_he: `אמן ${pHe}`,    description_en: `Advanced ${pEn} ability`,    description_he: `יכולת מתקדמת`,    icon: PILLAR_ICON_MAP[pillarId] || '⭐' },
   ];
   while (traits.length < traitCount) traits.push(fallbackTraits[traits.length % 3]);
 
