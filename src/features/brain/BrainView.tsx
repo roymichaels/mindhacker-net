@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Brain, RefreshCw } from "lucide-react";
 import ShellHeader from "@/shellv2/ShellHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 import BrainGraphForce from "./BrainGraphForce";
 import { inferSoftEdges } from "./inferSoftEdges";
 import { ALL_TYPES, styleForType } from "./brainNodeStyle";
@@ -13,11 +14,17 @@ import { useBrainOverview, useCurrentUserId } from "./useBrainOverview";
 import { useBrainFallback } from "./useBrainFallback";
 import type { BrainLayer, BrainNode } from "./types";
 
-const LAYER_LABEL: Record<BrainLayer | "all", string> = {
+const LAYER_LABEL_EN: Record<BrainLayer | "all", string> = {
   all: "All",
   surface: "Surface",
   pattern: "Pattern",
   deep: "Deep",
+};
+const LAYER_LABEL_HE: Record<BrainLayer | "all", string> = {
+  all: "הכול",
+  surface: "פני שטח",
+  pattern: "דפוס",
+  deep: "עומק",
 };
 
 interface Props {
@@ -27,6 +34,8 @@ interface Props {
 
 export default function BrainView({ onTalkToAion }: Props) {
   const navigate = useNavigate();
+  const { isRTL } = useTranslation();
+  const LAYER_LABEL = isRTL ? LAYER_LABEL_HE : LAYER_LABEL_EN;
   const userId = useCurrentUserId();
   const { data: primary, isLoading, error } = useBrainOverview(userId);
   const backfill = useBackfillBrain();
@@ -71,10 +80,10 @@ export default function BrainView({ onTalkToAion }: Props) {
   const hasNodes = (data?.nodes.length ?? 0) > 0;
   const usingFallback = !!fallback && (!primary || primary.nodes.length === 0);
   const ctaLabel = backfill.isPending
-    ? "Building…"
+    ? (isRTL ? "בונה…" : "Building…")
     : hasNodes
-    ? "Refresh brain"
-    : "Build my brain";
+    ? (isRTL ? "רענון המוח" : "Refresh brain")
+    : (isRTL ? "בנה את המוח שלי" : "Build my brain");
 
   const handleTalkToAion = (node: BrainNode) => {
     if (onTalkToAion) {
@@ -93,7 +102,7 @@ export default function BrainView({ onTalkToAion }: Props) {
   // Premium empty state — no data at all yet
   if (!isLoading && !hasNodes) {
     return (
-      <div className="w-full min-h-[70vh] flex flex-col items-center justify-center text-center px-6 gap-5">
+      <div dir={isRTL ? 'rtl' : 'ltr'} className="w-full min-h-[70vh] flex flex-col items-center justify-center text-center px-6 gap-5">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
           <div className="relative h-24 w-24 rounded-full bg-primary/10 ring-1 ring-primary/30 backdrop-blur-md flex items-center justify-center">
@@ -102,15 +111,17 @@ export default function BrainView({ onTalkToAion }: Props) {
         </div>
         <div className="space-y-1.5 max-w-xs">
           <h2 className="text-xl font-semibold text-foreground">
-            Your brain is still forming
+            {isRTL ? "המוח שלך עדיין מתגבש" : "Your brain is still forming"}
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            AION will build it from your conversations, journals, goals and history.
+            {isRTL
+              ? "אורורה תבנה אותו מהשיחות, היומנים, היעדים וההיסטוריה שלך."
+              : "AION will build it from your conversations, journals, goals and history."}
           </p>
         </div>
         {error && (
           <p className="text-[11px] text-destructive max-w-xs">
-            Backend error: {error.message}
+            {isRTL ? "שגיאת שרת: " : "Backend error: "}{error.message}
           </p>
         )}
         <button
@@ -119,7 +130,7 @@ export default function BrainView({ onTalkToAion }: Props) {
           className="mt-2 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${backfill.isPending ? "animate-spin" : ""}`} />
-          {backfill.isPending ? "Building…" : "Build my brain"}
+          {backfill.isPending ? (isRTL ? "בונה…" : "Building…") : (isRTL ? "בנה את המוח שלי" : "Build my brain")}
         </button>
         <div className="w-full max-w-md">
           <BrainBackfillDebug result={backfill.data} />
@@ -129,17 +140,21 @@ export default function BrainView({ onTalkToAion }: Props) {
   }
 
   return (
-    <div className="w-full">
-      <ShellHeader title="Brain" subtitle="AION is building your map">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="w-full">
+      <ShellHeader
+        title={isRTL ? "מוח" : "Brain"}
+        subtitle={isRTL ? "אורורה בונה את המפה שלך" : "AION is building your map"}
+      >
         {hasNodes && (
           <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-            Understanding {understanding}% · {data?.nodes.length ?? 0} nodes
-            {usingFallback && " · fallback view"}
+            {isRTL
+              ? <>הבנה <span dir="ltr">{understanding}%</span> · <span dir="ltr">{data?.nodes.length ?? 0}</span> צמתים{usingFallback && " · תצוגת גיבוי"}</>
+              : <>Understanding {understanding}% · {data?.nodes.length ?? 0} nodes{usingFallback && " · fallback view"}</>}
           </p>
         )}
         {error && (
           <p className="text-[11px] text-destructive mt-1">
-            Live graph error: {error.message}
+            {isRTL ? "שגיאת גרף: " : "Live graph error: "}{error.message}
           </p>
         )}
         <button
@@ -170,7 +185,9 @@ export default function BrainView({ onTalkToAion }: Props) {
           />
           {softEdges.length > 0 && (
             <p className="px-4 mt-1 text-[10px] text-muted-foreground/70 text-center">
-              Showing inferred connections — AION will firm them up as it learns.
+              {isRTL
+                ? "מוצגים קשרים משוערים — אורורה תחזק אותם בהמשך הלמידה."
+                : "Showing inferred connections — AION will firm them up as it learns."}
             </p>
           )}
         </div>
@@ -200,7 +217,7 @@ export default function BrainView({ onTalkToAion }: Props) {
                 : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
             }`}
           >
-            Weak signals
+            {isRTL ? "אותות חלשים" : "Weak signals"}
           </button>
         </div>
       </div>
@@ -216,7 +233,7 @@ export default function BrainView({ onTalkToAion }: Props) {
                 : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
             }`}
           >
-            All types
+            {isRTL ? "כל הסוגים" : "All types"}
           </button>
           {ALL_TYPES.map((t) => {
             const st = styleForType(t);
@@ -241,7 +258,7 @@ export default function BrainView({ onTalkToAion }: Props) {
 
       {data && data.unknown_areas.length > 0 && (
         <p className="mt-3 text-[11px] text-muted-foreground">
-          Unknown areas: {data.unknown_areas.slice(0, 5).join(" · ")}
+          {isRTL ? "אזורים לא ידועים: " : "Unknown areas: "}{data.unknown_areas.slice(0, 5).join(" · ")}
         </p>
       )}
 
