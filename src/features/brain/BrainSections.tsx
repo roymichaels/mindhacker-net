@@ -1,4 +1,7 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { CORE_DOMAINS } from "@/navigation/lifeDomains";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { BrainNode, BrainOverview } from "./types";
 
 interface Props {
@@ -17,6 +20,17 @@ const GROUPS: Array<{ key: string; label: string; types: string[] }> = [
 ];
 
 export default function BrainSections({ overview, onSelect }: Props) {
+  const navigate = useNavigate();
+  const { isRTL } = useTranslation();
+  const pillarRoute = (id: string) => {
+    const d = CORE_DOMAINS.find((x) => x.id === id.toLowerCase());
+    return d ? `/strategy/${d.id}/assess` : null;
+  };
+  const pillarLabel = (id: string) => {
+    const d = CORE_DOMAINS.find((x) => x.id === id.toLowerCase());
+    if (!d) return id;
+    return isRTL ? d.labelHe : d.labelEn;
+  };
   const grouped = useMemo(() => {
     const map: Record<string, BrainNode[]> = {};
     for (const n of overview?.nodes ?? []) {
@@ -77,22 +91,39 @@ export default function BrainSections({ overview, onSelect }: Props) {
 
       {pillarRows.length > 0 && (
         <div className="rounded-2xl bg-white/[0.03] backdrop-blur-md p-4">
-          <h4 className="text-xs font-semibold text-foreground mb-2">Pillar understanding</h4>
+          <h4 className="text-xs font-semibold text-foreground mb-2">
+            {isRTL ? "הבנה של עמודי תווך" : "Pillar understanding"}
+          </h4>
           <div className="space-y-1.5">
-            {pillarRows.slice(0, 10).map(([id, p]) => (
-              <div key={id} className="flex items-center gap-2">
-                <div className="text-[11px] text-muted-foreground w-24 truncate">{id}</div>
-                <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
-                  <div
-                    className="h-full bg-primary/70"
-                    style={{ width: `${Math.max(2, Math.min(100, p.confidence ?? 0))}%` }}
-                  />
-                </div>
-                <div className="text-[10px] text-muted-foreground w-8 text-end">
-                  {Math.round(p.confidence ?? 0)}%
-                </div>
-              </div>
-            ))}
+            {pillarRows.slice(0, 10).map(([id, p]) => {
+              const route = pillarRoute(id);
+              const content = (
+                <>
+                  <div className="text-[11px] text-foreground w-24 truncate text-start">{pillarLabel(id)}</div>
+                  <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                    <div
+                      className="h-full bg-primary/70"
+                      style={{ width: `${Math.max(2, Math.min(100, p.confidence ?? 0))}%` }}
+                    />
+                  </div>
+                  <div className="text-[10px] text-muted-foreground w-8 text-end" dir="ltr">
+                    {Math.round(p.confidence ?? 0)}%
+                  </div>
+                </>
+              );
+              return route ? (
+                <button
+                  key={id}
+                  onClick={() => navigate(route)}
+                  className="w-full flex items-center gap-2 -mx-1 px-1 py-1 rounded-lg hover:bg-white/[0.04] transition"
+                  title={isRTL ? "פתח שיחת אבחון עם AION" : "Open AION chat assessment"}
+                >
+                  {content}
+                </button>
+              ) : (
+                <div key={id} className="flex items-center gap-2">{content}</div>
+              );
+            })}
           </div>
         </div>
       )}
