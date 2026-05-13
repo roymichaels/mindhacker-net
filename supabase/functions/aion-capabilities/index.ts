@@ -13,6 +13,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { CAPABILITIES, describeRegistry, validateParams } from '../_shared/capabilityRegistry.ts';
+import { startServerTrace, getTraceIdFromRequest } from '../_shared/turnTrace.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -61,7 +62,7 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const capabilityId: string = body?.capability;
-    const traceId: string | null = body?.traceId ?? null;
+    const traceId: string | null = body?.traceId ?? getTraceIdFromRequest(req);
     const cap = CAPABILITIES[capabilityId];
     if (!cap) return json({ ok: false, error: `unknown_capability:${capabilityId}` }, 400);
 
@@ -76,6 +77,12 @@ serve(async (req) => {
       result = { ok: false, error: e instanceof Error ? e.message : 'unknown' };
     }
     const dt = Date.now() - t0;
+
+    const tracer = startServerTrace({ traceId, userId, source: 'aion-capabilities' });
+    if (tracer.enabled) {
+      tracer.event('capability.invoked', { capability: capabilityId, ok: result.ok, ms: dt, destructive: !!cap.destructive });
+      tracer.upsertHeader({ capability: capabilityId, router_decision: 'capability' });
+    }
 
     // Observation-only: record into aion_signals so the brain can react.
     admin

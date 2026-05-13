@@ -24,6 +24,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callSkill } from "../_shared/aiSkill.ts";
 import { SKILLS } from "../_shared/skillRegistry.ts";
 import { upsertGraphNodes, type GraphNodeType, type ProposedNode } from "../_shared/graphUpsert.ts";
+import { startServerTrace, getTraceIdFromRequest } from "../_shared/turnTrace.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -220,6 +221,13 @@ serve(async (req) => {
       });
     }
 
+    // ── AION Phase 1 trace ──
+    const tracer = startServerTrace({
+      traceId: getTraceIdFromRequest(req),
+      userId: user_id,
+      source: "memory-writer",
+    });
+
     // ── Pipeline (each step best-effort) ──
     const writes: Record<string, unknown> = {};
 
@@ -243,6 +251,11 @@ serve(async (req) => {
           payload: { ...r.result, source: body.source },
         });
         writes.emotion = r.result;
+        if (tracer.enabled) {
+          tracer.event("sense.emotion", { emotion: (r.result as any)?.emotion ?? null });
+          tracer.upsertHeader({ emotion: (r.result as any)?.emotion ?? null });
+          tracer.event("signals.write", { kind: skill.signalKind });
+        }
       }
     } catch (e) {
       console.warn("[memory-writer] emotion.detect failed", e);
@@ -355,6 +368,11 @@ serve(async (req) => {
     // 5. upsert
     const upserts = await upsertGraphNodes(supabase, user_id, proposed);
     writes.graph = upserts;
+    if (tracer.enabled) {
+      const inserted = upserts.filter((u: any) => u.action === "inserted").length;
+      const reinforced = upserts.filter((u: any) => u.action === "reinforced").length;
+      tracer.event("graph.write", { inserted, reinforced, total: upserts.length });
+    }
 
     // 5b. pillar_confidence updates
     const pillarUpdates: any[] = [];
@@ -408,6 +426,9 @@ serve(async (req) => {
       }
     }
     writes.pillar_confidence = pillarUpdates;
+    if (tracer.enabled && pillarUpdates.length > 0) {
+      tracer.event("pillar.delta", { updates: pillarUpdates });
+    }
 
     // 5c. contradictions — match `with_statement` to an existing strong graph node
     const contradictionWrites: any[] = [];

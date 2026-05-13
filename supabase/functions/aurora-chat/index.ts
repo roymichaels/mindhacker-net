@@ -10,6 +10,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildContext } from "./contextBuilder.ts";
 import { validateRequest, getWidgetSettings, getKnowledgeBase, prepare, detectIntent, lanesToString } from "./orchestrator.ts";
+import { startServerTrace, getTraceIdFromRequest } from "../_shared/turnTrace.ts";
 import { fetchWithTimeout } from "../_shared/fetchWithRetry.ts";
 import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
@@ -176,6 +177,26 @@ serve(async (req) => {
     const intentResolution = detectIntent(lastUserText, mode);
     console.log(`[aurora-chat] intent=${intentResolution.intent} lanes=${lanesToString(intentResolution.lanes)}`);
 
+    // ── AION Phase 1 trace: header upsert + sense.intent event ──
+    const tracer = startServerTrace({
+      traceId: getTraceIdFromRequest(req),
+      userId,
+      source: "aurora-chat",
+    });
+    if (tracer.enabled) {
+      tracer.upsertHeader({
+        route: req.headers.get("x-aion-route") ?? null,
+        input_preview: (lastUserText || "").slice(0, 140),
+        intent: intentResolution.intent,
+        language,
+        mode,
+        lanes: lanesToString(intentResolution.lanes),
+        pillar,
+      });
+      tracer.event("sense.intent", { intent: intentResolution.intent, lanes: lanesToString(intentResolution.lanes) });
+      tracer.event("graph.read", { nodes_pulled: (context as any)?.memory_graph?.length ?? 0 });
+    }
+
     // 4. Orchestrate (Layer 2 - policy + routing)
     // Phase 4: graph-informed responses + repetition guard (gated by env flag).
     const phase4Enabled = (Deno.env.get("AION_PHASE4") || "").trim() === "1";
@@ -202,6 +223,11 @@ serve(async (req) => {
       : (mode === "widget" ? widgetModel : tierModel);
 
     console.log("Aurora chat - Mode: " + mode + ", User: " + (userId || "guest") + ", Tier: " + userTier + ", Model: " + model + ", Version: " + orchestrated.promptVersion + ", ContextHash: " + context.context_hash.slice(0, 8));
+
+    if (tracer.enabled) {
+      tracer.event("router", { decision: "reply", capability: null, artifact: null });
+      tracer.event("stream.start", { model });
+    }
 
     // 5. Call LLM with timeout (Layer 3 - model call)
     let response: Response;
@@ -295,6 +321,12 @@ serve(async (req) => {
     const cleanBody = response.body
       ? response.body.pipeThrough(sanitizeStream())
       : response.body;
+    if (tracer.enabled) {
+      // Stream end + close happen async after the client finishes reading.
+      // We mark logical close here so duration_ms reflects server work.
+      tracer.event("stream.end", { ok: true });
+      tracer.end({ router_decision: "reply" });
+    }
     return new Response(cleanBody, {
       headers: {
         ...corsHeaders,
@@ -319,6 +351,13 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error("Aurora chat error:", error);
     logEdgeFunctionError({ functionName: "aurora-chat", error, userId, requestContext: { mode } });
+    try {
+      const t = startServerTrace({ traceId: getTraceIdFromRequest(req), userId, source: "aurora-chat" });
+      if (t.enabled) {
+        t.event("error", { message: error instanceof Error ? error.message : String(error) });
+        t.end({ status: "error" });
+      }
+    } catch { /* ignore */ }
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
