@@ -1389,8 +1389,24 @@ serve(async (req) => {
       results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, ai_generated: allAiSuccess });
     }
 
-    // Auto-generate tactical schedules — fire-and-forget (non-blocking)
-    // Uses EdgeRuntime.waitUntil if available, otherwise just fire and forget
+    // Helper: keep async work alive past the response. Without
+    // EdgeRuntime.waitUntil, Deno Deploy kills any pending fetch the moment
+    // we return — which is exactly why tactical_schedules was empty.
+    const keepAlive = (p: Promise<unknown>) => {
+      try {
+        // @ts-ignore — EdgeRuntime is a Deno Deploy global
+        if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime?.waitUntil) {
+          // @ts-ignore
+          EdgeRuntime.waitUntil(p);
+          return;
+        }
+      } catch (_) { /* fall through */ }
+      // Best-effort fallback: at least swallow the rejection.
+      p.catch(() => {});
+    };
+
+    // Auto-generate tactical schedules — backgrounded via waitUntil so it
+    // ACTUALLY completes after the response is sent.
     for (const r of results) {
       if (r.plan_id && r.milestones > 0) {
         const tacticsUrl = `${supabaseUrl}/functions/v1/generate-tactical-schedule`;
@@ -1404,29 +1420,26 @@ serve(async (req) => {
           'Authorization': `Bearer ${supabaseKey}`,
         };
         
-        console.log(`[auto-tactics] Firing tactical schedule for plan ${r.plan_id} phase 1 (non-blocking)...`);
-        
-        // Fire and forget — don't await, don't block the response
-        fetch(tacticsUrl, {
-          method: 'POST',
-          headers: tacticsHeaders,
-          body: tacticsBody,
-        }).then(async (resp) => {
-          if (resp.ok) {
-            const data = await resp.json();
-            console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, data);
-          } else {
-            console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${await resp.text()}`);
-          }
-        }).catch(err => {
-          console.warn(`[auto-tactics] ⚠️ Error:`, err);
-        });
+        console.log(`[auto-tactics] Firing tactical schedule for plan ${r.plan_id} phase 1 (waitUntil)...`);
+
+        keepAlive(
+          fetch(tacticsUrl, { method: 'POST', headers: tacticsHeaders, body: tacticsBody })
+            .then(async (resp) => {
+              if (resp.ok) {
+                const data = await resp.json();
+                console.log(`[auto-tactics] ✅ Generated schedule for plan ${r.plan_id}:`, data);
+              } else {
+                console.warn(`[auto-tactics] ⚠️ Failed for plan ${r.plan_id}: ${await resp.text()}`);
+              }
+            })
+            .catch((err) => console.warn(`[auto-tactics] ⚠️ Error:`, err)),
+        );
         
         r.tactical_schedule_generated = 'pending'; // Will complete in background
       }
     }
 
-    // Auto-generate plan-driven courses — fire-and-forget (non-blocking)
+    // Auto-generate plan-driven courses — backgrounded via waitUntil.
     const planIds = results.map((r: any) => r.plan_id).filter(Boolean);
     if (planIds.length > 0) {
       const orchestratorUrl = `${supabaseUrl}/functions/v1/course-orchestrator`;
@@ -1436,22 +1449,20 @@ serve(async (req) => {
         'Authorization': `Bearer ${supabaseKey}`,
       };
       
-      console.log(`[auto-courses] Firing course orchestrator for ${planIds.length} plans (non-blocking)...`);
-      
-      fetch(orchestratorUrl, {
-        method: 'POST',
-        headers: orchestratorHeaders,
-        body: orchestratorBody,
-      }).then(async (resp) => {
-        if (resp.ok) {
-          const data = await resp.json();
-          console.log(`[auto-courses] ✅ Generated courses:`, data);
-        } else {
-          console.warn(`[auto-courses] ⚠️ Failed: ${await resp.text()}`);
-        }
-      }).catch(err => {
-        console.warn(`[auto-courses] ⚠️ Error:`, err);
-      });
+      console.log(`[auto-courses] Firing course orchestrator for ${planIds.length} plans (waitUntil)...`);
+
+      keepAlive(
+        fetch(orchestratorUrl, { method: 'POST', headers: orchestratorHeaders, body: orchestratorBody })
+          .then(async (resp) => {
+            if (resp.ok) {
+              const data = await resp.json();
+              console.log(`[auto-courses] ✅ Generated courses:`, data);
+            } else {
+              console.warn(`[auto-courses] ⚠️ Failed: ${await resp.text()}`);
+            }
+          })
+          .catch((err) => console.warn(`[auto-courses] ⚠️ Error:`, err)),
+      );
     }
 
     return new Response(
