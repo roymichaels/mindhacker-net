@@ -335,6 +335,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const decoder = new TextDecoder();
       let buffer = '';
       let fullContent = '';
+      tracer.mark('stream.start');
 
       while (true) {
         const { done, value } = await reader.read();
