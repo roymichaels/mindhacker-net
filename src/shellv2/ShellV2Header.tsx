@@ -7,7 +7,7 @@
  * dashboard logic. Hamburger and orb both open ShellV2Drawer via
  * OverlayController.
  */
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Menu, Sparkles, Info, Play, Pause, SkipBack, SkipForward, Volume2, Headphones } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
