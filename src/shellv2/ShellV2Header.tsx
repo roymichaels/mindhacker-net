@@ -33,7 +33,7 @@ export default function ShellV2Header() {
         'pointer-events-none fixed inset-x-0 top-0',
         'bg-background/55 backdrop-blur-2xl backdrop-saturate-150',
         'border-b border-white/[0.06]',
-        'pt-[env(safe-area-inset-top)] pb-1',
+        'pb-1',
       )}
       style={zStyle('chrome')}
       data-shellv2-layer="chrome"
