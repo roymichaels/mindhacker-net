@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Brain, RefreshCw } from "lucide-react";
+import ShellHeader from "@/shellv2/ShellHeader";
 import BrainGraphCanvas from "./BrainGraphCanvas";
 import BrainNodeSheet from "./BrainNodeSheet";
 import BrainSections from "./BrainSections";
@@ -115,14 +116,7 @@ export default function BrainView({ onTalkToAion }: Props) {
 
   return (
     <div className="w-full">
-      {/* iOS-style header */}
-      <header className="mb-5">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Brain
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          AION is building your map
-        </p>
+      <ShellHeader title="Brain" subtitle="AION is building your map">
         {hasNodes && (
           <p className="text-[11px] text-muted-foreground/70 mt-0.5">
             Understanding {understanding}% · {data?.nodes.length ?? 0} nodes
@@ -142,7 +136,7 @@ export default function BrainView({ onTalkToAion }: Props) {
           <RefreshCw className={`h-4 w-4 ${backfill.isPending ? "animate-spin" : ""}`} />
           {ctaLabel}
         </button>
-      </header>
+      </ShellHeader>
 
       <BrainSections overview={data} onSelect={setSelectedId} />
 
