@@ -386,6 +386,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         const parsed = parseArtifactSentinels(cleanedContent);
         if (parsed.artifacts.length > 0) {
           cleanedContent = parsed.cleanText;
+          const traceIdForArt = tracer.id ?? null;
           for (const a of parsed.artifacts) {
             const sticky = a.kind === 'confirm';
             emitArtifact({
@@ -401,7 +402,7 @@ export const useAuroraChat = (conversationId: string | null) => {
                       ? () =>
                           window.dispatchEvent(
                             new CustomEvent('aion:capability:invoke', {
-                              detail: { capability: a.cta!.capability, params: a.cta!.params },
+                              detail: { capability: a.cta!.capability, params: a.cta!.params, traceId: traceIdForArt },
                             }),
                           )
                       : undefined,
@@ -412,7 +413,7 @@ export const useAuroraChat = (conversationId: string | null) => {
                       onClick: () =>
                         window.dispatchEvent(
                           new CustomEvent('aion:capability:invoke', {
-                            detail: { capability: a.confirm!.capability, params: a.confirm!.params },
+                            detail: { capability: a.confirm!.capability, params: a.confirm!.params, traceId: traceIdForArt },
                           }),
                         ),
                     }
@@ -423,6 +424,45 @@ export const useAuroraChat = (conversationId: string | null) => {
         }
       } catch (e) {
         console.warn('[aion-artifacts] parse failed', e);
+      }
+
+      // Phase 3 — Capability proposal fallback. If the server router decided
+      // `propose` (destructive/side-effect cap) and the LLM didn't emit a
+      // confirm sentinel, synthesize a deterministic confirm artifact from
+      // response headers so the user always gets a tappable confirmation.
+      try {
+        const router = (response.headers.get('x-aurora-router') || '').toLowerCase();
+        const capability = response.headers.get('x-aurora-capability') || '';
+        if (router === 'propose' && capability) {
+          const alreadyConfirmed = cleanedContent.includes('<<AION_ARTIFACT');
+          if (!alreadyConfirmed) {
+            const { emitArtifact } = await import('@/components/aion/artifacts/artifactBus');
+            const labels: Record<string, { title: string; cta: string }> = {
+              'plan.restart':   { title: 'Rebuild your 100-day plan?', cta: 'Rebuild' },
+              'plan.delete':    { title: 'Delete your active plan?',    cta: 'Delete' },
+              'daily.generate': { title: "Generate today's queue?",     cta: 'Generate' },
+              'hypnosis.start': { title: 'Start a hypnosis session?',   cta: 'Start' },
+            };
+            const meta = labels[capability] ?? { title: `Run ${capability}?`, cta: 'Confirm' };
+            const traceId = tracer.id ?? null;
+            emitArtifact({
+              kind: 'confirm',
+              title: meta.title,
+              ttl: 0,
+              cta: {
+                label: meta.cta,
+                onClick: () =>
+                  window.dispatchEvent(
+                    new CustomEvent('aion:capability:invoke', {
+                      detail: { capability, params: {}, traceId },
+                    }),
+                  ),
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('[aion-propose] fallback failed', e);
       }
 
       // ── Dev diagnostics: report sanitizer outcome (no behavioural impact) ──
