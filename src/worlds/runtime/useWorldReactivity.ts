@@ -24,6 +24,7 @@ import {
 } from '@/worlds/resonance/worldPropagation';
 import { useWorldHistoryStore } from '@/worlds/resonance/worldStateHistory';
 import type { WorldResonanceSignal } from '@/worlds/resonance/types';
+import { useGestureFieldStore } from '@/worlds/gesture/gestureFieldStore';
 
 const ALL_WORLDS = Object.keys(ATMOSPHERE_PRESETS) as CognitiveWorldId[];
 
@@ -75,6 +76,10 @@ export function useWorldReactivity() {
       const setClimate = useWorldClimateStore.getState().set;
       const climateMap = useWorldClimateStore.getState().climates;
       const active = activeRef.current;
+
+      // Phase 5C.6 — decay all gesture energies in lockstep with the
+      // climate tick so the runtime stays the single scheduler.
+      useGestureFieldStore.getState().decayAll(dt);
 
       const setInfluence = useWorldInfluenceStore.getState().setInfluence;
       const pushHistory = useWorldHistoryStore.getState().pushFrame;

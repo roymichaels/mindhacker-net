@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { getWorld } from '@/worlds/registry';
 import { useWorldAion } from '@/worlds/aion/useWorldAion';
 import { useWorldProjection } from '@/worlds/graph/useWorldProjection';
-import AmbientGesture from './AmbientGesture';
+import WorldGestureField from './WorldGestureField';
 import ScaffoldScene from './scenes/ScaffoldScene';
 import RitualOrbitsScene from './scenes/RitualOrbitsScene';
 import BandStackScene from './scenes/BandStackScene';
@@ -129,7 +129,7 @@ function ImmersiveWorldShell({
         )}
       </AnimatePresence>
 
-      {!embedded && <AmbientGesture worldId={worldId} verbs={verbs} />}
+      {!embedded && <WorldGestureField worldId={worldId} verbs={verbs} />}
     </div>
   );
 }

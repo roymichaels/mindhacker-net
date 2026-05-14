@@ -11,6 +11,8 @@
 import type { CognitiveWorldId } from '../types';
 import type { WorldState } from '@/worlds/state/worldStateTypes';
 import { DEFAULT_SIGNALS, type WorldSignals } from './types';
+import { useGestureFieldStore } from '@/worlds/gesture/gestureFieldStore';
+import type { GestureEnergy } from '@/worlds/gesture/types';
 
 /** Periodic oscillator in [0,1]. period in seconds. */
 const osc = (tMs: number, periodSec: number, phase = 0): number =>
@@ -34,6 +36,28 @@ const baseFromState = (state: WorldState | undefined) => {
   const density = Math.min(1, nodes.length / 14);
   return { momentum: state.momentum, tension, charge: meanCharge, density };
 };
+
+/**
+ * Live gesture energy → signal bias. Dwell deepens recovery + density,
+ * swipe lifts arousal + memory activity, pulse spikes creative + tension.
+ * Worlds get the same nudge shape; per-world climate weights downstream
+ * decide what that nudge *feels* like.
+ */
+function applyGestureBias(s: WorldSignals, g: GestureEnergy): WorldSignals {
+  if (!g || (g.dwell + g.swipe + g.pulse) < 0.01) return s;
+  return {
+    ...s,
+    emotionalIntensity: clamp01(s.emotionalIntensity + g.dwell * 0.18 + g.pulse * 0.22),
+    recoveryLevel:      clamp01(s.recoveryLevel + g.dwell * 0.22 - g.pulse * 0.08),
+    longTermMomentum:   clamp01(s.longTermMomentum + g.dwell * 0.10 + g.swipe * 0.06),
+    memoryActivity:     clamp01(s.memoryActivity + g.swipe * 0.20),
+    journalingDensity:  clamp01(s.journalingDensity + g.dwell * 0.10),
+    creativeActivity:   clamp01(s.creativeActivity + g.pulse * 0.28 + g.swipe * 0.10),
+    relationshipActivity: clamp01(s.relationshipActivity + g.swipe * 0.08),
+    unresolvedTension:  clamp01(s.unresolvedTension + g.pulse * 0.10 - g.dwell * 0.06),
+    burnoutPressure:    clamp01(s.burnoutPressure - g.dwell * 0.12 + g.pulse * 0.04),
+  };
+}
 
 /**
  * Per-world recipe. Each world emphasises a different subset of axes.
@@ -109,5 +133,9 @@ export function deriveWorldSignals(
       break;
   }
 
-  return s;
+  // Phase 5C.6 — fold live gesture energy into the signal vector so the
+  // climate runtime sees the user's touch as just another psychological
+  // input. Reads the store directly (zustand vanilla API) — pure, no React.
+  const energy = useGestureFieldStore.getState().energy[worldId];
+  return energy ? applyGestureBias(s, energy) : s;
 }
