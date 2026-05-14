@@ -33,7 +33,18 @@ serve(async (req) => {
     });
 
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) throw new Error("No Stripe customer found");
+    if (customers.data.length === 0) {
+      return new Response(
+        JSON.stringify({
+          error: "no_customer",
+          message: "No active subscription found. Please subscribe first.",
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 404,
+        },
+      );
+    }
 
     const origin = req.headers.get("origin") || Deno.env.get("SITE_URL") || "https://mindos.space";
     const portalSession = await stripe.billingPortal.sessions.create({
