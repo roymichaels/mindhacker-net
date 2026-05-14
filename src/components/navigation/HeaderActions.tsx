@@ -22,7 +22,7 @@ export function HeaderActions({ compact }: HeaderActionsProps) {
         className="h-8 w-8 text-muted-foreground hover:text-primary"
         onClick={() => navigate('/strategy?tab=missions')}
         title="Play"
-        aria-label="Open Mission Control"
+        aria-label="Open Journey Actions"
       >
         <Play className="h-4 w-4" />
       </Button>
