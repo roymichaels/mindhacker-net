@@ -16,7 +16,7 @@ import { ArrowLeft, ArrowRight, Settings, Map, Play, RefreshCw } from 'lucide-re
 import { toast } from 'sonner';
 import { DomainIntakeFlow } from '@/components/pillars/DomainIntakeFlow';
 
-export default function LifeDomainPage() {
+function LifeDomainPageImpl() {
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
   const { getDomain: getDomainRow, isLoading } = useLifeDomains();
@@ -169,3 +169,7 @@ export default function LifeDomainPage() {
     </PageShell>
   );
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('LifeDomainPage', LifeDomainPageImpl);

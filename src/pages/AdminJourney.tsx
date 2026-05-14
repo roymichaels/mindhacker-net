@@ -14,4 +14,5 @@ const AdminJourney = () => {
   );
 };
 
-export default AdminJourney;
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('AdminJourney', AdminJourney);

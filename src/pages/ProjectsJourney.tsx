@@ -14,4 +14,5 @@ const ProjectsJourney = () => {
   );
 };
 
-export default ProjectsJourney;
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('ProjectsJourney', ProjectsJourney);
