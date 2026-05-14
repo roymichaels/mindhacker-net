@@ -80,6 +80,11 @@ const GlobalChatInput = () => {
     stopRecording,
   } = useAuroraVoice({ onTranscription: handleTranscription });
 
+  // Surface recording errors as a toast so no caption sits under the composer.
+  useEffect(() => {
+    if (recordingError) toast.error(recordingError);
+  }, [recordingError]);
+
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
