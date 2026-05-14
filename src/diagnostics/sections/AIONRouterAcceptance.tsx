@@ -6,6 +6,7 @@
  */
 import { useMemo } from 'react';
 import { routeObserve } from '@/orchestration/router/observeRouter';
+import { previewBridge } from '@/orchestration/artifacts/safeBridge';
 
 const PROMPTS: string[] = [
   'מה כדאי לי לעשות היום?',
@@ -17,7 +18,12 @@ const PROMPTS: string[] = [
 
 export default function AIONRouterAcceptance() {
   const rows = useMemo(
-    () => PROMPTS.map((p) => ({ prompt: p, decision: routeObserve({ content: p, route: '/aurora', language: 'he' }) })),
+    () =>
+      PROMPTS.map((p) => {
+        const decision = routeObserve({ content: p, route: '/aurora', language: 'he' });
+        const bridge = previewBridge(decision);
+        return { prompt: p, decision, bridge };
+      }),
     [],
   );
 
@@ -34,9 +40,9 @@ export default function AIONRouterAcceptance() {
               <th className="text-start py-1">Prompt</th>
               <th className="text-start">Capability</th>
               <th className="text-start">Artifact</th>
-              <th className="text-start">Mode</th>
+              <th className="text-start">Renderer</th>
+              <th className="text-start">Bridge</th>
               <th className="text-start">Reason</th>
-              <th className="text-start">Skipped</th>
             </tr>
           </thead>
           <tbody>
@@ -45,9 +51,11 @@ export default function AIONRouterAcceptance() {
                 <td className="py-1 align-top max-w-[160px] truncate" title={r.prompt}>{r.prompt}</td>
                 <td className="align-top">{r.decision.capability ?? '—'}</td>
                 <td className="align-top">{r.decision.artifactKind ?? '—'}</td>
-                <td className="align-top">{r.decision.mode}</td>
-                <td className="align-top text-muted-foreground">{r.decision.reason}</td>
-                <td className="align-top">{r.decision.skippedReason ?? '—'}</td>
+                <td className="align-top">{r.bridge.rendered ? r.bridge.rendererKind : '—'}</td>
+                <td className="align-top">{r.bridge.rendered ? 'rendered' : 'skipped'}</td>
+                <td className="align-top text-muted-foreground">
+                  {r.bridge.rendered ? r.decision.reason : (r.bridge as { reason: string }).reason}
+                </td>
               </tr>
             ))}
           </tbody>

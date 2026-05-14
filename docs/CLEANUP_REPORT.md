@@ -1,6 +1,75 @@
 
 ## Phase F · Step 1 — AION Orchestration Wiring (DONE — observe mode only)
 
+## Phase F · Step 2 — Safe Artifact Bridge (DONE — observe + safe render)
+
+### What shipped
+1. **Safe bridge module** (`src/orchestration/artifacts/safeBridge.ts`) —
+   pure mapping from capability `artifactKind` (registry) → an EXISTING
+   renderer kind on the artifact bus (`next_action | journal_capture |
+   plan_summary | note | insight | capability | confirm`). One artifact max
+   per turn. CTAs are href-only — no `onClick` handlers, no capability
+   invokes, no DB writes. `journal.entry` (capability marked `unsafe`) is
+   blocked at the bridge with reason `unsafe-capability`.
+2. **Chat wiring** (`src/hooks/aurora/useAuroraChat.tsx`) — replaced the
+   placeholder `artifact.candidate {would_emit:false}` mark with a single
+   call to `bridgeDecisionToArtifact(decision, tracer)`. Errors caught into
+   `artifact.skipped {reason:'bridge-error'}`. Existing `<<AION_ARTIFACT>>`
+   sentinel pipeline (Phase 3) is untouched and still runs after the stream
+   resolves; bridge runs pre-stream so even silent turns get a card.
+3. **Acceptance harness updated** (`src/diagnostics/sections/AIONRouterAcceptance.tsx`)
+   — adds `Renderer / Bridge / Reason` columns powered by `previewBridge()`.
+4. **Trace contract** — every bridged turn emits exactly ONE of:
+   - `artifact.candidate {rendered:true, source_kind, renderer_kind, artifact_id, has_cta}`
+   - `artifact.skipped {reason: missing_renderer | unsafe-capability | no-artifact-kind | bridge-error}`
+   `artifact_id` is `art_<traceId>_<sourceKind>` so the rendered card is
+   trivially linkable back to its trace.
+
+### Capability → Renderer mapping
+
+| Capability `artifactKind` | Renderer kind | CTA href | Notes |
+|---|---|---|---|
+| `brain.room` | `insight` | `/brain` | Brain preview |
+| `journey.next` | `next_action` | `/journey` | Next-action card |
+| `journey.summary` | `plan_summary` | `/journey` | Journey summary |
+| `plan.draft` | `plan_summary` | — | Suggestion only, no save |
+| `task.draft` | `next_action` | — | Suggestion only, no save |
+| `hypnosis.session` | `capability` | `/hypnosis` | Player preview |
+| `outer-world.surface` | `capability` | `/outer-world` | Surface preview |
+| `profile.summary` | `note` | `/brain?panel=profile` | Identity card |
+| `journal.entry` | — | — | BLOCKED (unsafe) |
+| `null` (e.g. `brain.query`) | — | — | `no-artifact-kind` |
+
+### Acceptance — 5 prompts (`previewBridge` + router)
+
+| Prompt (HE) | Capability | Source artifact | Renderer | Result | Reason |
+|---|---|---|---|---|---|
+| מה כדאי לי לעשות היום? | `journey.nextAction` | `journey.next` | `next_action` | rendered | `keyword:מה כדאי…` |
+| אני תקוע | `journey.nextAction` | `journey.next` | `next_action` | rendered | same |
+| תראה לי את המוח שלי | `brain.query` | `null` | — | skipped | `no-artifact-kind` |
+| תבנה לי עסק | `plan.suggest` | `plan.draft` | `plan_summary` | rendered | `keyword:עסק…` |
+| אני רוצה לישון יותר טוב | `hypnosis.recommend` | `hypnosis.session` | `capability` | rendered | `keyword:לישון…` |
+
+`trace_id` per turn is the live `tracer.id` (e.g. `trc_<base36>_<rand>`),
+visible in `AIONTracePanel`. Bridge marks share that `traceId` and the
+`artifact_id` echoes it.
+
+### What did NOT change
+- `effectiveMode()` still hard-pins every capability to `observe`.
+- No edge function, RPC, or DB migration touched.
+- No mutation to plans / tasks / profile / DNA / actions.
+- `<<AION_ARTIFACT>>` server-driven sentinels still flow through unmodified.
+- ArtifactLayer renderer untouched (no new kinds added).
+
+### Known gaps for Step 3+
+- Bridge runs even when the chat eventually ALSO emits a server sentinel of
+  the same `kind`; ArtifactLayer dedupes by `id` but a same-kind card could
+  briefly stack. Acceptable for observe mode.
+- `brain.query` has `artifactKind: null` → silent skip. If we want a Brain
+  preview for plain queries, add `brain.query.artifactKind = 'brain.room'`
+  (or a new dedicated kind) in Step 3.
+- CTAs are href-only; no capability `execute` from a card yet — by design.
+
 ### What shipped
 1. **Trace stages extended** (`src/diagnostics/diagnosticsBus.ts`):
    added `intent.detected`, `emotion.detected`, `graph.read`,
