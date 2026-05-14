@@ -5,15 +5,13 @@
  * Middle: WorldStage (the scene).
  * Bottom: WorldComposer (world-scoped verbs).
  */
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getWorld } from '@/worlds/registry';
 import { useWorldAion } from '@/worlds/aion/useWorldAion';
 import { useWorldProjection } from '@/worlds/graph/useWorldProjection';
-import WorldStage from './WorldStage';
-import WorldComposer from './WorldComposer';
+import AmbientGesture from './AmbientGesture';
 import ScaffoldScene from './scenes/ScaffoldScene';
 import RitualOrbitsScene from './scenes/RitualOrbitsScene';
 import BandStackScene from './scenes/BandStackScene';
@@ -33,7 +31,6 @@ interface Props {
 export default function WorldShell({ worldId, sceneOverride, embedded, onOpenAdvanced }: Props) {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const navigate = useNavigate();
   const world = getWorld(worldId);
   const aion = useWorldAion(worldId);
   const projection = useWorldProjection(worldId);
@@ -60,43 +57,79 @@ export default function WorldShell({ worldId, sceneOverride, embedded, onOpenAdv
 
   const isBandStack = world.scene.kind === 'band-stack';
 
+  // SelfWorld stays in its scrolling band-stack chrome — it's the
+  // identity hub, not a spatial world. Everything else goes full-bleed.
+  if (isBandStack) {
+    return (
+      <div className="relative mx-auto w-full max-w-md px-4 py-4 space-y-5" dir={isHe ? 'rtl' : 'ltr'}>
+        {embedded ? <WorldAtmosphere worldId={worldId} /> : <WorldAtmosphere worldId={worldId} fullBleed />}
+        {scene}
+      </div>
+    );
+  }
+
+  return <ImmersiveWorldShell worldId={worldId} aionLine={aion.shortLine} verbs={aion.verbs} embedded={embedded}>{scene}</ImmersiveWorldShell>;
+}
+
+/**
+ * Immersive world layout — Phase 5C "enter, don't open".
+ * No header, no card frame, no verb bar. Atmosphere = page.
+ * The orb is rendered globally by `PersistentWorldOrb` in App.tsx.
+ */
+function ImmersiveWorldShell({
+  worldId,
+  aionLine,
+  verbs,
+  embedded,
+  children,
+}: {
+  worldId: CognitiveWorldId;
+  aionLine: string;
+  verbs: { id: string; label: string }[];
+  embedded?: boolean;
+  children: React.ReactNode;
+}) {
+  const { language } = useTranslation();
+  const isHe = language === 'he';
+  // Whisper — name of the world surfaces once on entry, then dissolves.
+  const [whisperVisible, setWhisperVisible] = useState(true);
+  useEffect(() => {
+    setWhisperVisible(true);
+    const t = window.setTimeout(() => setWhisperVisible(false), 4200);
+    return () => window.clearTimeout(t);
+  }, [worldId]);
+
   return (
-    <div className="relative mx-auto w-full max-w-md px-4 py-4 space-y-5" dir={isHe ? 'rtl' : 'ltr'}>
-      {/* Cinematic environment — every world owns its own atmosphere. */}
-      {!embedded && <WorldAtmosphere worldId={worldId} fullBleed />}
-      {embedded && <WorldAtmosphere worldId={worldId} />}
-      {!embedded && (
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            aria-label={isHe ? 'חזור' : 'Back'}
-            className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.05] flex items-center justify-center text-foreground/70"
+    <div
+      className={embedded ? 'relative w-full h-full overflow-hidden' : 'fixed inset-0 z-20 overflow-hidden'}
+      dir={isHe ? 'rtl' : 'ltr'}
+    >
+      <WorldAtmosphere worldId={worldId} fullBleed={!embedded} />
+
+      {/* Scene — full-bleed, no card. Centered in the available space. */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-full max-w-2xl">{children}</div>
+      </div>
+
+      {/* AION whisper — surfaces once on entry, dissolves into the atmosphere. */}
+      <AnimatePresence>
+        {whisperVisible && (
+          <motion.div
+            key={`whisper-${worldId}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 0.85, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            className="pointer-events-none absolute inset-x-0 top-[18%] flex justify-center px-6"
           >
-            <ArrowLeft className={`w-4 h-4 ${isHe ? 'rotate-180' : ''}`} />
-          </button>
-          <div className="text-center">
-            <p className="text-[10px] uppercase tracking-[0.32em] text-foreground/40">
-              {isHe ? 'עולם' : 'World'}
+            <p className="text-center text-[12px] text-foreground/65 max-w-xs leading-relaxed">
+              {aionLine}
             </p>
-            <p className="text-[14px] font-medium text-foreground/85">
-              {isHe ? world.labelHe : world.labelEn}
-            </p>
-          </div>
-          <div className="w-9 h-9" />
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {!isBandStack && (
-        <div className="flex flex-col items-center gap-3">
-          <CanonicalAionModel size={140} ariaLabel="AION" />
-          <p className="text-[12px] text-foreground/65 text-center max-w-xs">{aion.shortLine}</p>
-        </div>
-      )}
-
-      {isBandStack ? scene : <WorldStage>{scene}</WorldStage>}
-
-      {!isBandStack && <WorldComposer verbs={aion.verbs} worldId={worldId} />}
+      {!embedded && <AmbientGesture worldId={worldId} verbs={verbs} />}
     </div>
   );
 }
