@@ -92,6 +92,13 @@ function mapToRenderer(sourceKind: string, capability: string): RendererSpec | n
         body: 'תצוגה מקדימה של ה־DNA והפרופיל שלך.',
         cta: { label: 'פתח פרופיל', href: '/brain?panel=profile' },
       };
+    case 'journal.preview':
+      return {
+        kind: 'note',
+        title: 'יומן',
+        body: 'תצוגה מקדימה של רשומות יומן רלוונטיות.',
+        cta: { label: 'פתח את היומן', href: '/journal' },
+      };
     // Intentionally unmapped (would mutate / no safe preview): journal.entry
     default:
       void capability;
