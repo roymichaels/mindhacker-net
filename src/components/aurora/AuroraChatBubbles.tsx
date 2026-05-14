@@ -16,6 +16,7 @@ import { TTSPlayer } from './TTSPlayer';
 import { stripReasoning } from '@/lib/stripReasoning';
 import { stripNiqqud } from '@/lib/hebrew';
 import { AionOrb } from '@/components/aion/ui';
+import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
@@ -219,12 +220,12 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
     <div className="w-full px-5 space-y-7 pb-6" ref={scrollRef}>
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-8 pb-4">
-            <AionOrb size="md" breathing />
+            <CanonicalAionModel size={140} ariaLabel="AION" />
           </div>
         )}
         {messages.length === 0 && !streamingContent && (
           <div className="flex flex-col items-center gap-7 pt-[18vh] pb-12 text-center">
-            <AionOrb size="md" breathing />
+            <CanonicalAionModel size={180} ariaLabel="AION" />
             <p
               className="aion-text-hero text-[15px] font-medium tracking-[0.18em] max-w-[280px] text-foreground/80"
               dir={isRTL ? 'rtl' : 'ltr'}

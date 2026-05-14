@@ -12,7 +12,7 @@
  * composer "+" launcher.
  */
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import AmbientContextCard from './AmbientContextCard';
 
@@ -48,7 +48,7 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="relative">
-        <PersonalizedOrb size={120} state="idle" />
+        <CanonicalAionModel size={160} ariaLabel="AION" />
       </div>
 
       <div className="text-center space-y-1.5">
