@@ -1,79 +1,15 @@
 /**
- * StrategyPage — canonical Journey surface (Phase D).
- * Hosts the existing strategy/plan/mission engines under the new "Journey" label.
- * Tabs: Overview (LifeHub) + Actions (PlayLayoutWrapper). URL-synced via ?tab=.
- * Mounted at both /journey (canonical) and /strategy (legacy deep-links).
+ * StrategyPage — Journey realm host.
+ *
+ * The Journey realm now manifests a single next step instead of a tab grid.
+ * Old tabs (Overview/Actions) are removed; LifeHub and PlayLayoutWrapper
+ * stay reachable via direct URL or AION-summoned artifacts only.
  */
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Eye, ListChecks } from 'lucide-react';
-import LifeHub from '@/pages/LifeHub';
-import PlayLayoutWrapper from '@/components/plan/PlayLayoutWrapper';
-import { useTranslation } from '@/hooks/useTranslation';
-import { cn } from '@/lib/utils';
+import JourneyView from '@/pages/JourneyView';
 import { withLegacyGuard } from '@/shellv2/LegacyMountGuard';
 
-type StrategyTab = 'overview' | 'missions';
-
 function StrategyPageImpl() {
-  const { language, isRTL } = useTranslation();
-  const isHe = language === 'he';
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tab = (searchParams.get('tab') as StrategyTab) === 'missions' ? 'missions' : 'overview';
-
-  const tabs = useMemo(
-    () => [
-      { id: 'overview' as const, label: isHe ? 'מסע' : 'Journey', icon: Eye },
-      { id: 'missions' as const, label: isHe ? 'פעולות' : 'Actions', icon: ListChecks },
-    ],
-    [isHe],
-  );
-
-  const setTab = (next: StrategyTab) => {
-    const params = new URLSearchParams(searchParams);
-    if (next === 'overview') params.delete('tab');
-    else params.set('tab', next);
-    setSearchParams(params, { replace: true });
-  };
-
-  return (
-    <main
-      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y"
-      dir={isRTL ? 'rtl' : 'ltr'}
-      style={{
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.25rem)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6.5rem)',
-      }}
-    >
-      <div className="sticky top-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
-          {tabs.map(({ id, label, icon: Icon }) => {
-            const active = id === tab;
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setTab(id)}
-                className={cn(
-                  'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors',
-                  active
-                    ? 'border-primary/30 bg-primary/10 text-foreground'
-                    : 'border-border bg-background text-muted-foreground hover:bg-muted/50',
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="flex-1">
-        {tab === 'overview' ? <LifeHub /> : <PlayLayoutWrapper />}
-      </div>
-    </main>
-  );
+  return <JourneyView />;
 }
 
 export default withLegacyGuard('StrategyPage', StrategyPageImpl);
