@@ -1,6 +1,6 @@
 ---
 name: World Atmosphere System
-description: Phase 5B.8 + 5C.2 + 5C.3 — every cognitive world owns a cinematic environment via WorldAtmosphere, driven by a continuously evolving WorldClimate (useWorldClimate) AND cross-world resonance bleed (useCrossWorldInfluence); worlds form one shared subconscious field. AION orb stays the shared presence (only halo reflects state).
+description: Phase 5B.8 + 5C.2 + 5C.3 + 5C.4 + 5C.6 — every cognitive world owns a cinematic environment via WorldAtmosphere, driven by climate + cross-world influence + dream layer + live gesture-as-atmosphere field. Worlds form one shared subconscious ecosystem the user touches, not a UI they operate.
 type: architecture
 ---
 # World Atmosphere System
@@ -123,3 +123,39 @@ Rules:
   `useSubconsciousSnapshot` / `useDominantArchetype`, but must never
   over-explain meaning.
 - `useSubconsciousFieldStore` is write-restricted to `dreamEngine`.
+
+## Phase 5C.6 — Gesture as Atmosphere
+
+The world stops being something the user *operates* and starts being a
+field they *affect*. Lives in `src/worlds/gesture/` + `src/worlds/scene/WorldGestureField.tsx`:
+
+- `gesture/types.ts` — `GestureEnergy { dwell, swipe, pulse, swipeAngle, focal, lastAt }`,
+  `GestureKind = 'dwell' | 'swipe-up' | 'swipe-down' | 'swipe-h' | 'pulse' | 'tap'`,
+  `GestureVerbResolver`.
+- `gesture/gestureFieldStore.ts` — zustand store keyed by `CognitiveWorldId`.
+  Energies decay exponentially (τ ≈ 1.4–2.2s). **Decay is owned by
+  `useWorldReactivity` only** — single scheduler.
+- `gesture/gestureBindings.ts` — per-world `GestureKind → verb id`
+  resolvers (defaults by intent shape; `emotions`, `habits`, `memory`,
+  `higher` override).
+- `scene/WorldGestureField.tsx` — transparent overlay (`absolute inset-0`,
+  scoped to the immersive world container, not viewport-fixed).
+  Detects: dwell ≥ 600ms, swipe ≥ 40px in ≤ 600ms, 3-tap-pulse in 800ms.
+  Each gesture pushes energy into the field, anchors a faint accent
+  ripple at the focal point (opacity ≤ 0.32, ≤ 1.4s), and fires a verb
+  via the resolver through the existing `useGraphMutator` pipeline.
+- `worldSignals.ts` folds live `GestureEnergy` into the signal vector
+  (`applyGestureBias`) — dwell deepens recovery+density, swipe lifts
+  arousal+memory activity, pulse spikes creative+tension. Climate
+  runtime then re-maps these into the visible atmosphere.
+- The bottom-edge `AmbientGesture` button is retired; the world itself
+  is the affordance. AmbientGesture file is left as legacy reference.
+
+Rules:
+- The gesture field never opens menus, never shows verb names. Verbs
+  manifest as atmospheric change + the existing graph mutation pipeline.
+- Ripple opacity is capped (`dwell` ≤ 0.32, others ≤ 0.22). Never paint
+  visible UI affordances inside the field.
+- `gestureFieldStore.decayAll` may only be called from `useWorldReactivity`.
+- Pointer events from elements with `[data-no-gesture-field]`, real
+  buttons, links, inputs, or `[role="button"]` are passed through.
