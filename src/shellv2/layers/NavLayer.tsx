@@ -66,7 +66,12 @@ export default function NavLayer() {
       <AionNavDock
         tabs={tabs}
         visible={navVisible}
-        style={{ ...zStyle('nav'), bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
+        style={{
+          ...zStyle('nav'),
+          // Float ABOVE the composer dock so icons are never covered.
+          bottom:
+            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 18px)',
+        }}
       />
     </>
   );
