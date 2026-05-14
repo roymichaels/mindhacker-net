@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Loader2, X } from 'lucide-react';
+import AtmoArtifact from '@/components/aion/artifacts/AtmoArtifact';
 
 type Kind = 'regenerate' | 'delete';
 
@@ -67,24 +68,25 @@ export default function StrategyApprovalCard() {
             initial={{ y: 20, opacity: 0, scale: 0.96 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 20, opacity: 0, scale: 0.96 }}
-            className="relative w-full max-w-sm rounded-2xl border border-border/40 bg-background/95 backdrop-blur-xl p-5 shadow-xl"
+            className="relative w-full max-w-sm"
           >
+            <AtmoArtifact kind="plan" breathing>
             <button
               type="button"
               onClick={() => !busy && close('cancelled')}
-              className="absolute end-3 top-3 p-1.5 rounded-full hover:bg-muted/50"
+              className="absolute end-3 top-3 p-1.5 rounded-full hover:bg-white/[0.05]"
               aria-label="Close"
             >
-              <X className="w-4 h-4 text-muted-foreground" />
+              <X className="w-4 h-4 text-foreground/50" />
             </button>
-            <h3 className="text-lg font-semibold mb-2">{title}</h3>
-            <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{body}</p>
+            <h3 className="text-lg font-semibold mb-2 text-foreground/95">{title}</h3>
+            <p className="text-sm text-foreground/65 mb-5 leading-relaxed">{body}</p>
             <div className="flex gap-2">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => close('cancelled')}
-                className="flex-1 h-11 rounded-xl border border-border/50 bg-background/50 text-sm font-medium hover:bg-muted/50 disabled:opacity-50"
+                className="flex-1 h-11 rounded-full bg-white/[0.04] text-sm font-medium text-foreground/80 hover:bg-white/[0.08] disabled:opacity-50 transition-colors"
               >
                 {isRTL ? 'ביטול' : 'Cancel'}
               </button>
@@ -92,7 +94,7 @@ export default function StrategyApprovalCard() {
                 type="button"
                 disabled={busy}
                 onClick={onConfirm}
-                className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 h-11 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
               >
                 {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                 {kind === 'delete'
@@ -100,6 +102,7 @@ export default function StrategyApprovalCard() {
                   : (isRTL ? 'בנה מחדש' : 'Regenerate')}
               </button>
             </div>
+            </AtmoArtifact>
           </motion.div>
         </motion.div>
       )}
