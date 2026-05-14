@@ -1,153 +1,114 @@
 
-# AION Visual + Product Direction Upgrade
+# AION Cinematic Visual Rebuild
 
-Transform the app from a page/dashboard SaaS into a Jarvis-like intelligence: chat-first, artifact-driven, with five persistent surfaces and a cinematic dark visual language. Reference images guide the *language*, not pixel-copies.
+A presentation-only pass. No orchestration, mutations, capabilities, routes, or DB changes. Existing components are restyled in place; a small set of new atmospheric primitives is introduced.
 
-## Scope (this plan)
+## Guiding principles
 
-This is a **visual + shell + artifact-language pass**, not a routing teardown. No pages deleted, no capabilities added. Confirmation bridge stays the gate for mutations.
+- One entity (the orb) is the brand — replace logo usage where it competes.
+- Bioluminescent palette: deep navy → cyan → electric blue → violet, with restrained magenta accents.
+- Atmosphere over chrome: replace cards/borders with glow, depth layering, and negative space.
+- Cinematic motion: soft easing, breathing, contextual emergence — no flashy mechanical UI motion.
+- Mobile-native by default; desktop inherits the same vocabulary.
 
-## 1. Brand & Visual Foundation
+## 1. Global visual language (`src/index.css`, `tailwind.config.ts`)
 
-- Replace the current AION mark with the glowing **ring** as primary logo (static SVG/PNG variant for headers and icons; the existing `OrbView` blob remains the *living* entity in animated contexts).
-  - Add `src/assets/aion-ring.svg` (and `aion-ring.png` fallback) extracted from the supplied logo.
-  - New `<AionRingMark size wordmark />` component in `src/components/aion/AionRingMark.tsx` — used in headers, splash, app icons, empty states.
-  - `OrbView` stays for: chat assistant avatar, voice mode, brain center, thinking state.
-- Update design tokens in `src/index.css` to lock in the cinematic palette:
-  - `--background` deep navy/black (e.g. `224 40% 4%`)
-  - `--aion-blue` `212 100% 60%`, `--aion-cyan` `190 95% 65%`, `--aion-violet` `265 85% 65%`
-  - `--glass-bg`, `--glass-border`, `--glass-inner-shadow` semantic tokens
-  - `--radius-xl: 1.25rem`, `--radius-2xl: 1.75rem` (mobile cards)
-- New utility classes in `src/index.css`: `.glass-panel`, `.glass-card`, `.aion-glow`, `.thin-border`.
-- Audit and remove any remaining "MindOS" / "Aurora" visible strings (logo alts, splash, manifest, meta, PWA name in `index.html` + `public/manifest.json`).
+Add a new dark token layer (light mode untouched):
 
-## 2. App Shell (mobile-first)
+- `--aion-navy: 230 55% 6%`, `--aion-deep: 232 60% 9%`, `--aion-blue: 212 100% 62%`, `--aion-cyan: 188 95% 65%`, `--aion-violet: 265 85% 66%`, `--aion-magenta: 305 80% 65%`.
+- `--aion-glow-sm/md/lg`: layered radial-gradient strings.
+- `--aion-bg`: vertical `radial-gradient` of navy → near-black with a faint cyan top halo, applied to `.dark body` (replaces the current transparent body so canvas effects layer on top of a real cinematic ground).
 
-- Single safe-area header in `ProtectedAppShell` (kill any duplicate headers in nested routes):
-  - Left: menu icon (24px, ghost)
-  - Center: `AionRingMark` + small "AION" wordmark
-  - Right: small `OrbView` 28px showing live status (idle / thinking / listening)
-- Bottom tab bar reduced to **5 persistent surfaces**:
-  1. Chat (default)
-  2. Brain
-  3. Journey
-  4. Outer World
-  5. Profile
-  - Existing tab bar (`src/components/navigation/StandardizedTabBar.tsx` or similar) re-mapped; legacy items (FM Market, Wallet, Work, Hypnosis, Learn, Create, Community) become *capabilities reachable via Chat composer plus-button* and remain routable but not in the bar.
-- Remove sidebar chrome on mobile entirely; desktop keeps a slim collapsed rail.
+New utilities:
 
-## 3. Chat as Home
+- `.atmo-surface` — borderless soft surface: `background: linear-gradient(180deg, hsl(var(--aion-deep)/0.55), hsl(var(--aion-navy)/0.35)); backdrop-filter: blur(24px) saturate(140%); border-radius: 1.25rem;` plus an inset top hairline (`box-shadow: inset 0 1px 0 hsl(var(--aion-cyan)/0.08)`). No outer border.
+- `.atmo-divider` — 1px gradient line that fades to transparent at both ends; replaces hard `border-border`.
+- `.aion-glow` / `.aion-glow-soft` — outer radial halos for orbs/CTAs.
+- `.aion-text-hero` — tracking-tight, large, gradient-fill cinematic title.
+- `.aion-mask-fade-y` — top/bottom mask for scroll regions so content fades into atmosphere.
 
-- `/` (or `/chat`) becomes the canonical home for authenticated users.
-- Strip dashboard widgets from chat home — only:
-  - Greeting line ("בוקר טוב, {name}" with sun/moon icon)
-  - "מה נבנה היום?" headline
-  - 3–4 quick-action chips (Focus / Plan day / Deep work / Heal / Create) sourced from existing capability registry
-  - Message stream
-  - Persistent native composer (mic, plus, send)
-- Composer plus-button opens **Capability Launcher** sheet (iOS-style bottom sheet) listing capability candidates from `registry.ts` grouped: Plan / Report / Text / Image / Video / Audio / More.
-- Assistant avatar = `OrbView` (already in place); user avatar stays as `Avatar`.
-- Message bubbles: glass-panel, generous padding, inline artifact slot below message.
+Tailwind: extend `colors.aion`, `boxShadow.glow{,Lg}`, `keyframes.{breath,floatY,emerge}`, `animation.{breath,float,emerge}`.
 
-## 4. Artifact Language (visual standard)
+## 2. Header system
 
-Extend `ArtifactLayer` + each renderer to follow one card spec:
+Targets: `src/components/Header.tsx` (public), `src/shellv2/ShellV2Header.tsx` (app), `src/components/panel/AdminSidebar.tsx`, `src/components/panel/AffiliateSidebar.tsx`.
 
-```
-┌─ glass-card, rounded-2xl, thin-border ──────┐
-│ [icon] Title                          [×]   │
-│ One-line summary                            │
-│ ───── compact body / preview ─────          │
-│ source • timestamp     [Primary] [Secondary]│
-└─────────────────────────────────────────────┘
-```
+- Drop `border-b` and `shadow-sm`. Replace with a 1px `atmo-divider` and a downward fade gradient under the header.
+- Background: `bg-transparent` over the global atmosphere; only on scroll add `backdrop-blur-2xl` and a subtle top tint.
+- Three-zone grid retained, but: orb on the right gets a real living halo (`aion-glow-soft` + `animate-breath`), wordmark center uses `aion-text-hero` at 18–20px with `tracking-[0.32em]`, left becomes a single ghost icon (no chevrons, no notification dot competing with the orb — bell folds into drawer).
+- Safe-area: `pt-[env(safe-area-inset-top)]`, content min-height `92px`. No visible container edges.
 
-- Add/refine renderers (presentation only — no new capabilities):
-  - `today.snapshot` (% ring, tasks count)
-  - `next_action`
-  - `journey.workspace` (current stage + next milestone)
-  - `brain.room.preview`
-  - `hypnosis.player`
-  - `journal.preview`
-  - `plan_summary`
-  - `business.canvas`
-  - `landing.preview`
-  - `course.card`
-  - `coach.recommendation`
-  - `marketplace.card`
-  - `wallet.sheet`
-  - `confirmation.card` (sticky)
-- Confirmation cards: sticky, gradient primary CTA ("אשר פעולה"), neutral cancel, warning row "פעולה זו תיצור שינויים במערכת".
-- Read artifacts: non-sticky, dismissable, max 3 stacked.
-- `trace_id` only in metadata tooltip — never visible chrome.
+## 3. Chat / composer experience
 
-## 5. Brain — Consciousness Map
+Targets: `src/pages/AuroraPage.tsx`, `src/components/aurora/AuroraChatArea.tsx`, `AuroraMessageThread.tsx`, `AuroraChatBubbles.tsx`, `AuroraChatInput.tsx`, `AuroraTypingIndicator.tsx`, `composer/*`.
 
-Reframe `BrainView` from analytics into a navigable map (reference image 2/3 right panel):
+- Message bubbles → `atmo-surface` with no border, 18px radius, soft inner top hairline. AION messages get a 1px left/right cyan glow line that fades; user messages get a violet tint.
+- Time/avatar metadata becomes `text-foreground/45 text-[11px]`, single line, never above the bubble.
+- Replace any `Card`/`shadow` wrappers in the message list with plain spacing.
+- Composer: pill-shaped, `atmo-surface`, no border, focus state = expanding cyan glow ring (no outline). Plus, mic, send collapse into a single trailing send orb when the field is empty; chips appear contextually under the field, not always.
+- Typing indicator becomes a small breathing orb dot trio with cyan glow.
+- Background of the chat surface picks up the global `--aion-bg`; remove any solid chat panel background.
 
-- Central node: `OrbView` 120px (figure silhouette) representing the user.
-- Radial arrangement of pillar/room nodes with colored glow halos by domain (purple identity, orange body, green relationships, cyan learning, etc.) — pull from existing pillar registry.
-- Tap a node → bottom-sheet "פרטי צומת" with:
-  - Pillar icon + title + subtitle
-  - Strength bar (existing data)
-  - Source counts (memories / journals / linked nodes)
-  - CTAs: "שאל את AION על זה" / "תקן / עדכן מידע" / "חקור לעומק"
-- Remove dashboard/analytics widgets from Brain route; metrics move into the node sheet.
-- Reuse existing graph data — purely a presentation refactor of `src/features/brain/BrainView.tsx` + new `BrainNodeSheet.tsx`.
+## 4. Artifact system
 
-## 6. Journey, Outer World, Profile (light pass)
+Targets: `src/components/aion/artifacts/ArtifactLayer.tsx`, all renderers under `src/components/aion/artifacts/`, `AuroraActionConfirmation.tsx`, `StrategyApprovalCard.tsx`.
 
-- **Journey**: convert top of `/journey` (or equivalent) to the "מסע החיים" workspace card style — current stage card, next milestone card, "next steps" checklist, full-timeline CTA. Internals reuse existing data hooks.
-- **Outer World**: container shell only — house FM Market / Coaches / Community as *artifact entry points*, not as a dashboard. Default view = chat-style suggestions list.
-- **Profile**: keep existing profile triad (AION / Avatar / DNA) but reflow into native iOS settings-list under the cards. Remove redundant headers.
+- One shared shell `<AtmoArtifact>`: `atmo-surface`, no border, 22px radius, top hairline + outer glow tinted by artifact kind (cyan = read, violet = plan, magenta = confirmation, amber = warning).
+- Entrance: `animate-emerge` (scale 0.96 → 1, opacity 0 → 1, 12px Y, 280ms cubic-bezier(0.22,1,0.36,1)).
+- Replace inner `Card`/`Separator` chains with `atmo-divider` and increased vertical rhythm (16/20/24).
+- Source row fixed at the bottom in micro-text with the trace_id hidden behind a tap.
+- Confirmation artifacts: sticky behavior preserved, but visually anchored by an outer breathing halo so they read as "summoned by AION".
 
-## 7. Capability Launcher Sheet
+## 5. Brain / map system
 
-New `src/components/aion/CapabilityLauncherSheet.tsx`:
+Targets: `src/features/brain/BrainView.tsx`, `BrainSections.tsx`, `BrainNodeSheet.tsx`, `atlas/RoomView.tsx`, `brainNodeStyle.ts`.
 
-- Triggered from chat composer plus-button.
-- Reads `capabilities/registry.ts` (already populated by Phase 2 batches 1–3).
-- Sections: Generate (plan, report, text, image, video, audio), Capture (journal, photo, voice memo), Plan (schedule block, deep work), Heal (hypnosis), Connect (message, marketplace), Wallet.
-- Selecting a capability emits a `capability.candidate` through the existing router → confirmation bridge → executor pipeline. No new mutation paths.
+- Remove dashboard widgets and counters from the top of `BrainView`. The whole route is the map.
+- Center: shared `OrbView` at 96–120px with breathing aura.
+- Nodes: replace flat circles with small living spheres (radial gradient + outer halo tinted by pillar). Edges become 1px gradient lines fading toward endpoints.
+- Background: deep navy with a faint nebula radial gradient and slow particle drift (CSS-only, 6–10 dots, opacity ≤ 0.15).
+- Tap on node → `BrainNodeSheet` becomes `atmo-surface` bottom sheet with strength bar as a thin neon line, not a solid bar.
 
-## 8. Cleanup / Removal of Clutter
+## 6. Navigation simplification
 
-- Remove top-level dashboard widget grids on home, Brain, and any route that still shows them (Today snapshot, etc.). They re-appear only as artifacts when AION offers them.
-- Remove childish gamification visuals from chat home (XP bar moves to Profile).
-- Audit and delete duplicate headers in: `ShellV2`, page-level wrappers, lazy modules under `pages/MindOS/*` re-exports.
-- Replace any remaining blank `AvatarFallback` dots with mini `AionRingMark`.
+Targets: tab bar / drawer in `src/shellv2/`, `src/navigation/`.
 
-## Out of scope (future phases)
+- Trim persistent tabs to 5 max (Chat, Brain, Today, Journey, More). Anything else moves into the drawer or contextual artifacts.
+- Tab bar background: transparent over atmosphere with a top `atmo-divider`. Active tab uses an under-glow dot, not a pill.
+- Drawer adopts `atmo-surface` and removes nested separators.
 
-- Deleting old pages or rewriting routes
-- Enabling new real mutations (still gated by Phase-3 Batch-1 allow-list)
-- New capabilities beyond presentation of existing ones
-- Voice mode redesign beyond using the `OrbView` (already done)
+## 7. Motion refinement
 
-## Technical Notes
+- Single easing token `cubic-bezier(0.22, 1, 0.36, 1)` exported as `--ease-cinema`.
+- Breathing keyframe (4s, scale 1 → 1.03 → 1, glow 0.6 → 0.85 → 0.6) for orbs + sticky artifacts.
+- Emerge keyframe for artifacts/sheets/modals.
+- Reduce framer-motion usage to entrance + layout, no per-hover bounces.
+- Honor `prefers-reduced-motion` (disables breathing/emerge).
 
-**Files to add**
-- `src/assets/aion-ring.svg`
-- `src/components/aion/AionRingMark.tsx`
-- `src/components/aion/CapabilityLauncherSheet.tsx`
-- `src/components/aion/artifacts/renderers/{today,nextAction,journey,brainRoom,hypnosis,journal,planSummary,business,landing,course,coach,marketplace,wallet,confirmation}.tsx` (only the ones not already present)
-- `src/features/brain/BrainNodeSheet.tsx`
+## 8. Environmental atmosphere
 
-**Files to edit**
-- `src/index.css` — tokens + glass utilities
-- `tailwind.config.ts` — extend colors / radii
-- `src/components/layout/ProtectedAppShell.tsx` — single header, safe-area
-- `src/components/navigation/*TabBar.tsx` — reduce to 5 surfaces
-- `src/pages/Index.tsx` (or chat home) — strip widgets, add quick chips + composer
-- `src/components/aion/artifacts/ArtifactLayer.tsx` — enforce card spec
-- `src/features/brain/BrainView.tsx` — consciousness map layout
-- `src/features/journey/*` — workspace card style
-- `src/pages/Profile*` — native settings list under triad
-- `index.html`, `public/manifest.json` — AION naming + ring icon
+- New `<AtmosphereLayer />` mounted once at app root: a fixed full-viewport gradient + 2 slow-drifting nebula blobs (CSS, GPU-only). z-index sits below `OrbView` host, above body.
+- Light mode untouched (atmosphere disabled), only dark mode receives the cinematic ground.
 
-**No DB migrations.** All work is presentation/shell.
+---
 
-**Verification**
-- Mobile preview at 402×716 must show: AION header, 5-tab bar, clean chat home, no legacy widgets.
-- Visible-string scan must return 0 hits for "MindOS" / "Aurora" in rendered routes.
-- Existing artifact + capability traces must continue to fire end-to-end (no router changes).
+## Technical notes
+
+- All colors stay HSL via tokens; no hard-coded hex in components.
+- No new routes, no orchestration / capability changes, no DB migrations, no edge function edits.
+- `OrbView` (the live orb) remains the single entity primitive — `AionRingMark` (static) is kept only for favicon/app-icon surfaces.
+- `confirmationBridge` and `safeMutationExecutor` paths are untouched.
+
+## Out of scope
+
+- Backend, mutations, AI prompts, capabilities registry.
+- Onboarding flow logic (visual treatment only on its existing screens).
+- Marketing landing copy.
+
+## File-change estimate
+
+~25 files: 1 token file (`index.css`), 1 tailwind config, 1 new `AtmosphereLayer`, 1 new `AtmoArtifact` shell, 1 new `atmoUtils.css`, ~6 header/shell files, ~8 chat files, ~4 artifact renderers, ~3 brain files. No file deletions.
+
+## Deliverables on completion
+
+- Files changed, systems redesigned, before/after screenshots (mobile 402×716 + desktop), remaining inconsistencies, and a recommended next pass.
