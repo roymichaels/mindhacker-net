@@ -190,7 +190,7 @@ export const BugReportChat = ({ onSuccess, contextInfo }: BugReportChatProps) =>
     setInput('');
     clearImage();
 
-    // Add Aurora response
+    // Add AION response
     if (nextStep < questions.length) {
       setTimeout(() => {
         setMessages(prev => [...prev, {

@@ -1,10 +1,10 @@
 // @ts-nocheck
 /**
  * PlanChatWizard — "Talk to your plan" free-form chat for surgical plan edits.
- * Uses Aurora + command bus to make targeted changes without regenerating.
- * Reuses the same Aurora chat UI components (messages, input, TTS, voice mode).
+ * Uses AION + command bus to make targeted changes without regenerating.
+ * Reuses the same AION chat UI components (messages, input, TTS, voice mode).
  * 
- * CONFIRMATION FLOW: Aurora proposes changes → user approves/rejects → changes execute.
+ * CONFIRMATION FLOW: AION proposes changes → user approves/rejects → changes execute.
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -409,7 +409,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
     }
   }, [user?.id]);
 
-  /** Extract all pending changes from Aurora's response and resolve human-readable titles */
+  /** Extract all pending changes from AION's response and resolve human-readable titles */
   const extractPendingChanges = useCallback(async (fullText: string): Promise<PendingChange[]> => {
     const changes: PendingChange[] = [];
 
@@ -751,7 +751,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
           </DialogTitle>
         </DialogHeader>
 
-        {/* Messages — uses Aurora's chat message components */}
+        {/* Messages — uses AION's chat message components */}
         <ScrollArea className="flex-1 min-h-0 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 140px)' }}>
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
             {messages.length === 0 ? (
@@ -794,7 +794,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
                   />
                 ))}
 
-                {/* Typing indicator — same as Aurora's page */}
+                {/* Typing indicator — same as AION's page */}
                 {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
                   <AuroraTypingIndicator />
                 )}
@@ -852,7 +852,7 @@ export function PlanChatWizard({ open, onOpenChange, focusDayNumber, focusTaskTi
           </div>
         </ScrollArea>
 
-        {/* Input — full Aurora input with TTS, voice recording, voice mode */}
+        {/* Input — full AION input with TTS, voice recording, voice mode */}
         <AuroraChatInput
           onSend={sendMessage}
           disabled={isStreaming || pendingChanges.length > 0}

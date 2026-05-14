@@ -27,7 +27,7 @@ const DOMAIN_CONFIGS: Record<string, DomainConfig> = {
       { id: "wealth_mindset", description: "0-100. Scarcity vs abundance thinking, money blocks" },
       { id: "strategic_positioning", description: "0-100. Career/business positioning for growth" },
     ],
-    systemPrompt: `You are a wealth diagnostic engine in MindOS.
+    systemPrompt: `You are a wealth diagnostic engine in AION.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Income Clarity (בהירות הכנסה) — Does the user have clear income sources & growth path?
@@ -78,7 +78,7 @@ STYLE: Direct, no fluff, like a sharp business mentor who sees through excuses.`
       { id: "persuasion_skill", description: "0-100. Can they negotiate, sell, convince?" },
       { id: "authenticity_in_power", description: "0-100. Are they influential while being real, or do they perform?" },
     ],
-    systemPrompt: `You are an influence diagnostic engine in MindOS.
+    systemPrompt: `You are an influence diagnostic engine in AION.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Communication Power (כוח תקשורת) — Can they articulate ideas clearly and persuade?
@@ -122,7 +122,7 @@ STYLE: Like a sharp mentor who sees through social masks and performances.`,
       { id: "conflict_capacity", description: "0-100. How they handle disagreement and tension" },
       { id: "reciprocity_balance", description: "0-100. Give vs take balance in relationships" },
     ],
-    systemPrompt: `You are a relationships diagnostic engine in MindOS.
+    systemPrompt: `You are a relationships diagnostic engine in AION.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Connection Depth (עומק קשרים) — Quality of their closest relationships?
@@ -174,7 +174,7 @@ STYLE: Like a sharp friend who asks the questions nobody dares to ask. Not a the
       { id: "conflict_capacity", description: "0-100. How they handle romantic disagreement and tension" },
       { id: "reciprocity_balance", description: "0-100. Give vs take balance in romantic relationships" },
     ],
-    systemPrompt: `You are a romantics diagnostic engine in MindOS.
+    systemPrompt: `You are a romantics diagnostic engine in AION.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Connection Depth (עומק חיבור) — Quality of their intimate/romantic connections?
@@ -226,7 +226,7 @@ STYLE: Like a sharp friend who asks the questions nobody dares to ask about love
       { id: "growth_capacity", description: "0-100. Scalability, growth strategy, expansion readiness?" },
       { id: "founder_resilience", description: "0-100. Founder energy, burnout risk, work-life integration?" },
     ],
-    systemPrompt: `You are a business diagnostic engine in MindOS.
+    systemPrompt: `You are a business diagnostic engine in AION.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Business Clarity (בהירות עסקית) — Clear business model, value proposition, target market?
@@ -272,7 +272,7 @@ STYLE: Like a sharp business mentor who's built and sold companies. No sugarcoat
       { id: "obstacle_navigation", description: "0-100. How they handle blockers, pivots, setbacks?" },
       { id: "completion_rate", description: "0-100. Track record of finishing what they start?" },
     ],
-    systemPrompt: `You are a project execution diagnostic engine in MindOS.
+    systemPrompt: `You are a project execution diagnostic engine in AION.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Vision Clarity (בהירות חזון) — Clear project vision, goals, success criteria?
@@ -318,7 +318,7 @@ STYLE: Like a no-nonsense project manager who's seen a thousand failed launches.
       { id: "posture_presence", description: "0-100. How they carry themselves, body language, physical confidence" },
       { id: "image_awareness", description: "0-100. Self-perception accuracy vs. how others actually see them" },
     ],
-    systemPrompt: `You are an elite image diagnostic engine in MindOS — the "Image Bio-Scan" module.
+    systemPrompt: `You are an elite image diagnostic engine in AION — the "Image Bio-Scan" module.
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Facial Structure (מבנה פנים) — Bone structure awareness, jawline, symmetry, skin quality?
@@ -363,7 +363,7 @@ STYLE: Like a high-end image consultant doing initial intake — clinical, no fl
       { id: "structural_strength", description: "0-100. Grip, core anti-rotation, isometric holds, injury resilience" },
       { id: "training_consistency", description: "0-100. Frequency, programming quality, progressive overload discipline" },
     ],
-    systemPrompt: `You are a power diagnostic engine in MindOS — the "Capability Assessment Engine".
+    systemPrompt: `You are a power diagnostic engine in AION — the "Capability Assessment Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Max Strength (כוח מקסימלי) — Squat, deadlift, bench, OHP numbers relative to bodyweight?
@@ -410,7 +410,7 @@ STYLE: Like a strength coach who's trained elite athletes. Respects numbers, not
       { id: "recovery_capacity", description: "0-100. Post-training recovery, stress management, rest days" },
       { id: "energy_stability", description: "0-100. Energy throughout the day, crashes, mood stability" },
     ],
-    systemPrompt: `You are a vitality diagnostic engine in MindOS — the "Precision Vitality Intelligence Engine".
+    systemPrompt: `You are a vitality diagnostic engine in AION — the "Precision Vitality Intelligence Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Sleep Quality (איכות שינה) — Hours, time to fall asleep, night wake-ups, how they feel waking up?
@@ -455,7 +455,7 @@ STYLE: Like a precision diagnostician — clinical, data-driven, flags contradic
       { id: "distraction_resistance", description: "0-100. Environment control, notification management, saying no" },
       { id: "cognitive_endurance", description: "0-100. Mental stamina for complex tasks over extended periods" },
     ],
-    systemPrompt: `You are a focus diagnostic engine in MindOS — the "Dopamine & Attention Engine".
+    systemPrompt: `You are a focus diagnostic engine in AION — the "Dopamine & Attention Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Deep Work Capacity (יכולת עבודה עמוקה) — Can they do 2-4 hour focused blocks? What's their max?
@@ -499,7 +499,7 @@ STYLE: Like a monk who sees your phone addiction clearly — calm but devastatin
       { id: "pressure_handling", description: "0-100. Performance under stress, sparring comfort, live resistance" },
       { id: "tactical_awareness", description: "0-100. Fight IQ, distance management, strategy adaptation" },
     ],
-    systemPrompt: `You are a combat diagnostic engine in MindOS — the "Warrior Capability Assessment Engine".
+    systemPrompt: `You are a combat diagnostic engine in AION — the "Warrior Capability Assessment Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Striking Ability (יכולת הכאה) — Boxing, kicks, technique quality, power generation?
@@ -551,7 +551,7 @@ STYLE: Like a veteran fighter/coach who's been in real fights — respects exper
       { id: "growth_mindset", description: "0-100. Comfort with being a beginner, failure tolerance, adaptability" },
       { id: "knowledge_application", description: "0-100. Do they apply what they learn? Theory vs practice?" },
     ],
-    systemPrompt: `You are an expansion diagnostic engine in MindOS — the "Intellectual Growth Engine".
+    systemPrompt: `You are an expansion diagnostic engine in AION — the "Intellectual Growth Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Learning Drive (דחף למידה) — Do they actively seek knowledge? Books, courses, podcasts?
@@ -596,7 +596,7 @@ STYLE: Like a philosopher-mentor who values wisdom over information, creation ov
       { id: "guilt_free_rest", description: "0-100. Can they rest/play without guilt or productivity anxiety?" },
       { id: "somatic_connection", description: "0-100. Body awareness during play — flow states, physical joy, presence" },
     ],
-    systemPrompt: `You are a play & regeneration diagnostic engine in MindOS — the "Regeneration Assessment Engine".
+    systemPrompt: `You are a play & regeneration diagnostic engine in AION — the "Regeneration Assessment Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Play Frequency (תדירות משחק) — How often do they intentionally play? Weekly? Monthly? Never?
@@ -641,7 +641,7 @@ STYLE: Like a wise friend who knows that play is essential medicine, not optiona
       { id: "environmental_mastery", description: "0-100. Intentional design of spaces for performance" },
       { id: "minimalism_clarity", description: "0-100. Ability to let go of unnecessary items, clarity through simplicity" },
     ],
-    systemPrompt: `You are an order & cleanliness diagnostic engine in MindOS — the "Environmental Mastery Engine".
+    systemPrompt: `You are an order & cleanliness diagnostic engine in AION — the "Environmental Mastery Engine".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Space Cleanliness (ניקיון סביבה) — How clean are their living and working spaces? Daily, weekly, rarely?
@@ -685,7 +685,7 @@ STYLE: Like a sharp minimalist mentor who knows that external order = internal c
       { id: "presence_depth", description: "0-100. Ability to be fully present in the moment" },
       { id: "shadow_integration", description: "0-100. Awareness and integration of denied/suppressed parts" },
     ],
-    systemPrompt: `You are a consciousness diagnostic engine in MindOS — the "Inner Operating System Scanner".
+    systemPrompt: `You are a consciousness diagnostic engine in AION — the "Inner Operating System Scanner".
 SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
 
 1. Self-Awareness (מודעות עצמית) — How aware are they of their thoughts, emotions, and patterns?

@@ -1,5 +1,5 @@
 /**
- * MindOS Neural Architecture Intake V3
+ * AION Neural Architecture Intake V3
  * 
  * 5-Phase, 16-Step system calibration.
  * Collects ~65-80 measurable behavioral variables to power:
@@ -799,8 +799,8 @@ const onboardingFlowSpec: FlowSpec = {
           id: 'free_blocks_available',
           title_he: 'כמה שעות ביום אתה יכול באמת לשחרר לפיתוח אישי, אימון, או פרויקטים חדשים?',
           title_en: 'How many hours a day can you truly free up for personal growth, training, or new projects?',
-          prompt_he: 'אל תדאג להיות מדויק. MindOS יבנה לך תוכנית שתעבוד עם מה שיש.',
-          prompt_en: 'Don\'t worry about being exact. MindOS will build a plan that works with what you have.',
+          prompt_he: 'אל תדאג להיות מדויק. AION יבנה לך תוכנית שתעבוד עם מה שיש.',
+          prompt_en: 'Don\'t worry about being exact. AION will build a plan that works with what you have.',
           inputType: 'single_select',
           options: [
             { value: 'under_1', label_he: 'פחות משעה', label_en: 'Less than 1 hour', icon: '⏳' },

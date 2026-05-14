@@ -1,5 +1,5 @@
 /**
- * Aurora Opportunity Engine — contextual MOS earning suggestions
+ * AION Opportunity Engine — contextual MOS earning suggestions
  * based on user activity, time of day, and FM state.
  */
 import { useMemo } from 'react';

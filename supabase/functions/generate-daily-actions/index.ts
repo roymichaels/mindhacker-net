@@ -118,7 +118,7 @@ serve(async (req) => {
     };
     const targetCount = intensityMap[day_intensity] || 5;
 
-    const prompt = `You are Aurora, the AI coach for Mind OS. Generate ${targetCount} SPECIFIC DAILY ACTIONS for TODAY.
+    const prompt = `You are AION, the AI coach for AION. Generate ${targetCount} SPECIFIC DAILY ACTIONS for TODAY.
 
 ## TODAY: ${dayOfWeek}, ${today}
 ## Day intensity: ${day_intensity}

@@ -177,7 +177,7 @@ const LEAK_PATTERNS: Array<[string, RegExp]> = [
   ['"Looking at"', /\blooking at the (conversation|history|log|context|system)\b/i],
   ['"As Aurora/AION"', /\bas (aurora|aion)\b/i],
   ['"chain of thought"', /\bchain of thought\b/i],
-  ['HE: כאורורה', /\bכאורורה\b/],
+  ['HE: כAION', /\bכAION\b/],
   ['HE: בואו לחשוב', /\bבואו? (לחשוב|לבדוק|נחשוב|נבדוק)\b/],
 ];
 

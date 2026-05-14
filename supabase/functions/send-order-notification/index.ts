@@ -130,12 +130,12 @@ serve(async (req: Request): Promise<Response> => {
             </center>
             
             <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
-              This is an automated notification from Mind OS order system.
+              This is an automated notification from AION order system.
             </p>
           </div>
           
           <div class="footer">
-            <p style="color: #6b7280; font-size: 14px;">Mind OS - Personal Development Platform</p>
+            <p style="color: #6b7280; font-size: 14px;">AION - Personal Development Platform</p>
           </div>
         </div>
       </body>
@@ -146,7 +146,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "Mind OS <onboarding@resend.dev>",
+      from: "AION <onboarding@resend.dev>",
       to: [adminEmail],
       subject,
       html: emailHtml,

@@ -1,5 +1,5 @@
 /**
- * Room registry — the canonical 6-room foundation for MindOS.
+ * Room registry — the canonical 6-room foundation for AION.
  *
  * Phase 1.3 of the world-first rebuild. Rooms here are PURE CONFIG — they
  * describe environments, not React trees. The HallwayShell renders the door

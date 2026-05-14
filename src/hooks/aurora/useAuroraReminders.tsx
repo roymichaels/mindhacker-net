@@ -24,7 +24,7 @@ interface UseAuroraRemindersResult {
 }
 
 /**
- * Hook for managing Aurora reminders.
+ * Hook for managing AION reminders.
  * Reminders are created through chat tags like [reminder:set:message:YYYY-MM-DD]
  */
 export const useAuroraReminders = (user: User | null): UseAuroraRemindersResult => {

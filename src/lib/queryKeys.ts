@@ -15,7 +15,7 @@ export const QUERY_KEYS = {
   achievements: (userId: string) => ['achievements', userId] as const,
   sessions: (userId: string) => ['hypnosis-sessions', userId] as const,
   
-  // === Aurora Life Model ===
+  // === AION Life Model ===
   aurora: {
     lifeDirection: (userId: string) => ['aurora', 'life-direction', userId] as const,
     energyPatterns: (userId: string) => ['aurora', 'energy-patterns', userId] as const,

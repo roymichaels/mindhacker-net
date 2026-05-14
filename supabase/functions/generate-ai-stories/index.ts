@@ -62,11 +62,11 @@ serve(async (req) => {
     // Pick a random topic for variety
     const topic = MINDOS_TOPICS[Math.floor(Math.random() * MINDOS_TOPICS.length)];
 
-    // Generate 2 stories: 1 MindOS + 1 Aurora
+    // Generate 2 stories: 1 AION + 1 AION
     const storyPrompts = [
       {
         source: "mindos",
-        systemPrompt: `You are MindOS — a gamified personal development operating system. Generate a powerful, concise daily insight story card.
+        systemPrompt: `You are AION — a gamified personal development operating system. Generate a powerful, concise daily insight story card.
 Return ONLY valid JSON with this structure:
 {
   "title_en": "Short powerful title (max 6 words)",
@@ -81,7 +81,7 @@ Return ONLY valid JSON with this structure:
       },
       {
         source: "aurora",
-        systemPrompt: `You are Aurora — an advanced AI life coach with deep emotional intelligence. Generate a personal coaching story card.
+        systemPrompt: `You are AION — an advanced AI life coach with deep emotional intelligence. Generate a personal coaching story card.
 Return ONLY valid JSON with this structure:
 {
   "title_en": "Short coaching title (max 6 words)",

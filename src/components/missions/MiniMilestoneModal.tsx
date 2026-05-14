@@ -127,7 +127,7 @@ export function MiniMilestoneModal({ open, onOpenChange, milestoneId, milestoneT
 
         <ScrollArea className="max-h-[50vh]">
           <div className="p-4 space-y-2">
-            {/* Aurora insight banner */}
+            {/* AION insight banner */}
             {auroraInsight && (
               <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 mb-3">
                 <div className="flex items-start gap-2">
@@ -153,8 +153,8 @@ export function MiniMilestoneModal({ open, onOpenChange, milestoneId, milestoneT
                   </p>
                   <p className="text-xs text-muted-foreground leading-relaxed max-w-[250px] mx-auto">
                     {isHe
-                      ? 'אורורה תנתח את ההתקדמות שלך ותיצור 5 פעולות יומיות מותאמות אישית'
-                      : 'Aurora will analyze your progress and create 5 personalized daily actions'}
+                      ? 'AION תנתח את ההתקדמות שלך ותיצור 5 פעולות יומיות מותאמות אישית'
+                      : 'AION will analyze your progress and create 5 personalized daily actions'}
                   </p>
                 </div>
                 <Button
@@ -212,7 +212,7 @@ export function MiniMilestoneModal({ open, onOpenChange, milestoneId, milestoneT
               </>
             )}
 
-            {/* Aurora chat prompt — always visible */}
+            {/* AION chat prompt — always visible */}
             <div className="pt-3 border-t border-border/30 mt-3">
               <button
                 onClick={handleTalkToAurora}

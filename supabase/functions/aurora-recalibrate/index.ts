@@ -108,7 +108,7 @@ serve(async (req) => {
     if (executionPattern === 'avoid_hard_tasks' && commitment <= 4) {
       const zeroConfDays = pulses.filter(p => p.task_confidence <= 1).length;
       if (zeroConfDays >= 3) {
-        risks.push({ risk: 'Avoidance spiral', severity: 'medium', action: 'Aurora proactive nudge: micro-task' });
+        risks.push({ risk: 'Avoidance spiral', severity: 'medium', action: 'AION proactive nudge: micro-task' });
       }
     }
 

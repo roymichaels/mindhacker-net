@@ -150,7 +150,7 @@ serve(async (req) => {
     // Build user goals context to prevent hallucination
     const userGoalsContext = buildUserGoalsContext(ctx);
 
-    const prompt = `You are Aurora for "Mind OS". Generate exactly 3 WEEKLY OBJECTIVES for this milestone.
+    const prompt = `You are AION for "AION". Generate exactly 3 WEEKLY OBJECTIVES for this milestone.
 
 ## IMPORTANT: These are WEEKLY-LEVEL OBJECTIVES, NOT daily micro-tasks.
 Each objective should represent a meaningful week-long training goal that will later be

@@ -80,7 +80,7 @@ export const en: TranslationKeys = {
     clarity: "Clarity",
   },
   header: {
-    brandName: "MindOS",
+    brandName: "AION",
     navigationMenu: "Navigation Menu",
     adminPanel: "Admin Panel",
     coachPanel: "Coach Panel",
@@ -122,7 +122,7 @@ export const en: TranslationKeys = {
     enterFullName: "Enter full name",
     passwordPlaceholder: "At least 10 characters with uppercase, lowercase, number and special character",
     confirmPasswordPlaceholder: "Enter password again",
-    connectToMindOS: "Connect to MindOS",
+    connectToAION: "Connect to AION",
     connectToContinue: "Login to continue your journey",
     enterCode: "Enter the code",
     codeSentTo: "We sent a 6-digit code to",
@@ -234,14 +234,14 @@ export const en: TranslationKeys = {
       streakSubtitle: "Don't break the chain! Keep your daily momentum going",
       potentialTitle: "Unlock Your Potential",
       potentialSubtitle: "Your journey to the best version of yourself starts here",
-      auroraTitle: "Aurora AI Coach",
+      auroraTitle: "AION Coach",
       auroraSubtitle: "Chat with your personal coach anytime, anywhere",
       transformTitle: "90-Day Transformation",
       transformSubtitle: "A structured plan that changes lives — week by week",
     },
   },
   footer: {
-    copyright: "© 2025 MindOS. All rights reserved.",
+    copyright: "© 2025 AION. All rights reserved.",
     privacyPolicy: "Privacy Policy",
     termsOfService: "Terms of Service",
     contactUs: "Contact Us",
@@ -785,7 +785,7 @@ export const en: TranslationKeys = {
     scheduleSession: "Schedule Session",
     tabs: {
       overview: "Overview",
-      aurora: "Aurora",
+      aurora: "AION",
       purchases: "Purchases",
       activity: "Activity",
       settings: "Settings",
@@ -814,7 +814,7 @@ export const en: TranslationKeys = {
     loginSuccess: "Logged in successfully!",
     welcomeBack: "Welcome back",
     signupSuccess: "Account created successfully!",
-    welcomeNew: "Welcome to Mind OS",
+    welcomeNew: "Welcome to AION",
     logoutSuccess: "Logged out successfully",
     goodbye: "Goodbye!",
     loadError: "Unable to load data",
@@ -837,7 +837,7 @@ export const en: TranslationKeys = {
     startConversation: "Start Conversation",
     newMessage: "New Message",
     typePlaceholder: "Type a message...",
-    aiAssistant: "Aurora (AI)",
+    aiAssistant: "AION (AI)",
     aiSubtitle: "Your smart assistant",
     aiGreeting: "Hey! How can I help you today?",
     searchPlaceholder: "Search conversations...",
@@ -934,29 +934,29 @@ export const en: TranslationKeys = {
     discoverProducts: "Discover Digital Products",
   },
   seo: {
-    loginTitle: "Login | Mind OS",
-    loginDescription: "Login to your Mind OS account and access your digital products, courses and workshops.",
-    signupTitle: "Sign Up | Mind OS",
-    signupDescription: "Sign up for Mind OS and get access to digital products, online courses, and workshops in consciousness training and personal development.",
+    loginTitle: "Login | AION",
+    loginDescription: "Login to your AION account and access your digital products, courses and workshops.",
+    signupTitle: "Sign Up | AION",
+    signupDescription: "Sign up for AION and get access to digital products, online courses, and workshops in consciousness training and personal development.",
     signupKeywords: "signup, create account, registration, online courses",
-    dashboardTitle: "Dashboard | Mind OS",
+    dashboardTitle: "Dashboard | AION",
     dashboardDescription: "Your personal dashboard - access your digital products, subscriptions, and purchased sessions",
-    coursesTitle: "Digital Products | Mind OS",
+    coursesTitle: "Digital Products | AION",
     coursesDescription: "Discover our range of digital products and online courses. Advanced learning, professional guidance, and quality content in consciousness training and personal development.",
     coursesKeywords: "digital courses, online courses, personal development, consciousness training, digital products, video courses",
-    notFoundTitle: "Page Not Found | Mind OS",
+    notFoundTitle: "Page Not Found | AION",
     notFoundDescription: "The page you're looking for was not found. Return to the home page or browse our digital products.",
     breadcrumbHome: "Home",
     breadcrumbDashboard: "Dashboard",
     breadcrumbCourses: "Digital Products",
-    indexTitle: "MindOS | The Game of Your Life — AI-Powered Life MMO",
+    indexTitle: "AION | The Game of Your Life — AI-Powered Life MMO",
     indexDescription: "Turn your real life into a playable system. DNA defines who you are, AION guides who you become, your Avatar represents you. Play, grow, earn, evolve.",
-    indexKeywords: "life game, personal development, AI coach, gamification, life MMO, AION, MindOS, transformation, XP, digital identity",
+    indexKeywords: "life game, personal development, AI coach, gamification, life MMO, AION, AION, transformation, XP, digital identity",
   },
   about: {
     sectionTitle: "About",
-    name: "Mind OS",
-    defaultStory: "Mind OS was built from the ground up by a solo founder since September 2024 — driven by a deep belief that everyone can rewrite their inner code. The platform combines advanced AI, personalized hypnosis, and gamification to create a unique transformation experience that delivers real results.",
+    name: "AION",
+    defaultStory: "AION was built from the ground up by a solo founder since September 2024 — driven by a deep belief that everyone can rewrite their inner code. The platform combines advanced AI, personalized hypnosis, and gamification to create a unique transformation experience that delivers real results.",
     beliefStatement: "I believe everyone can change their inner code — and that's exactly what this platform does with you.",
     watchVideo: "Watch Introduction Video",
     quote: "\"Not therapy, but a consciousness programming experience.\"",
@@ -992,7 +992,7 @@ export const en: TranslationKeys = {
   personalInvitation: {
     title: "A Personal Invitation",
     defaultMessage: "If you've made it this far, something inside you is calling for change. I'm waiting for our first conversation.",
-    signature: "Mind OS",
+    signature: "AION",
     ctaButton: "Schedule a Free Consultation",
     ctaSubtext: "30 minutes — to see if we're a good fit to work together",
   },
@@ -1086,7 +1086,7 @@ export const en: TranslationKeys = {
   chat: {
     openChat: "Open chat with assistant",
     greeting: "Hi! 👋 I'm here to help. Want to ask about consciousness coaching or learn about our platform?",
-    assistantName: "Mind OS Assistant",
+    assistantName: "AION Assistant",
     assistantSubtitle: "Here to help 24/7",
     errorMessage: "Sorry, something went wrong. Please try again 🙏",
     chatAlt: "Chat",
@@ -1121,7 +1121,7 @@ export const en: TranslationKeys = {
     benefit2: "✅ We'll check if we're a match",
     benefit3: "✅ Response within 24 hours",
     dismiss: "No thanks, maybe later",
-    imageAlt: "Mind OS",
+    imageAlt: "AION",
   },
   whatsapp: {
     ariaLabel: "Contact via WhatsApp",
@@ -1180,9 +1180,9 @@ export const en: TranslationKeys = {
     oneTimePayment: "One-time payment",
     purchaseButton: "Purchase your personal video",
     readyNote: "* Video will be ready within 2 business days",
-    seoTitle: "Personal Consciousness Training - Custom Hypnosis Video | Mind OS",
+    seoTitle: "Personal Consciousness Training - Custom Hypnosis Video | AION",
     seoDescription: "Custom hypnosis and consciousness training video to release limitations and create true inner freedom. 10 minutes a day for deep, lasting change.",
-    seoKeywords: "personal hypnosis, consciousness training, hypnosis video, release limitations, inner freedom, Mind OS",
+    seoKeywords: "personal hypnosis, consciousness training, hypnosis video, release limitations, inner freedom, AION",
   },
   booking: {
     sectionTitle: "Let's Program Your Reality.",
@@ -1279,10 +1279,10 @@ export const en: TranslationKeys = {
     notDefined: "Not defined",
   },
   consciousnessLeapLanding: {
-    seoTitle: "Consciousness Leap | Personal Transformation Process | Mind OS",
+    seoTitle: "Consciousness Leap | Personal Transformation Process | AION",
     seoDescription: "A comprehensive and focused process for deep, lasting change. 4 sessions that will bring you clarity, direction and release from old patterns.",
-    seoKeywords: "consciousness, clarity, self-connection, personal process, Mind OS, transformation",
-    brandName: "Mind OS",
+    seoKeywords: "consciousness, clarity, self-connection, personal process, AION, transformation",
+    brandName: "AION",
     navCta: "Let's talk",
     limitedSpots: "Limited spots",
     heroTitle: "Consciousness",
@@ -1353,8 +1353,8 @@ export const en: TranslationKeys = {
     testimonial3Name: "A.R",
     testimonial3Role: "Therapist",
     aboutSectionTitle: "Meet",
-    aboutSectionTitleHighlight: "Mind OS",
-    aboutText1: "Mind OS is an advanced personal transformation platform built by a solo founder since September 2024, combining artificial intelligence, personalized hypnosis, and gamification. With Aurora, our consciousness AI engine, we guide people through deep change processes.",
+    aboutSectionTitleHighlight: "AION",
+    aboutText1: "AION is an advanced personal transformation platform built by a solo founder since September 2024, combining artificial intelligence, personalized hypnosis, and gamification. With AION, our consciousness AI engine, we guide people through deep change processes.",
     aboutText2: "The 'Consciousness Leap' is the framework developed from a passion for helping people who feel stuck. It's a process that brings real results.",
     faqSectionTitle: "Frequently",
     faqSectionTitleHighlight: "Asked Questions",
@@ -1389,12 +1389,12 @@ export const en: TranslationKeys = {
     finalCtaTitle: "Ready to",
     finalCtaTitleHighlight: "play?",
     finalCtaSubtitle: "The first step is always the hardest. But your future self is waiting.",
-    finalCtaProcessName: "MindOS full experience",
+    finalCtaProcessName: "AION full experience",
     finalCtaPriceNote: "Includes everything | Installments available",
     finalCtaButton: "Let's talk",
     finalCtaFooter: "Limited spots | Introductory call is free and without obligation",
-    whatsappMessage: "Hi, I'm interested in MindOS",
-    footerName: "Mind OS - Personal Development Platform",
+    whatsappMessage: "Hi, I'm interested in AION",
+    footerName: "AION - Personal Development Platform",
     footerRights: "All rights reserved",
     errorFillNameEmail: "Please fill in name and email",
     successSubmit: "Details sent successfully! We'll get back to you soon",
@@ -1452,7 +1452,7 @@ export const en: TranslationKeys = {
     spotsAvailableOnly: "🔥 Only {count} spots available this week",
   },
   personalQuote: {
-    signature: "— Mind OS",
+    signature: "— AION",
   },
   adminFaqs: {
     pageTitle: "FAQs",
@@ -1747,18 +1747,18 @@ export const en: TranslationKeys = {
   legal: {
     company: {
       title: "About the Company",
-      name: "MindOS OÜ",
+      name: "AION OÜ",
       country: "Estonia, European Union",
       registrationNote: "Company registered in Estonia",
       contact: "Contact: contact@mindos.space",
     },
     privacy: {
       title: "Privacy Policy",
-      seoTitle: "Privacy Policy | Mind OS",
-      seoDescription: "Mind OS's privacy policy - how we collect, use and protect your information in compliance with GDPR",
+      seoTitle: "Privacy Policy | AION",
+      seoDescription: "AION's privacy policy - how we collect, use and protect your information in compliance with GDPR",
       lastUpdated: "Last Updated",
       introTitle: "Introduction",
-      introText: "MindOS OÜ, a company registered in Estonia, respects your privacy and is committed to protecting your personal information in accordance with the European Union's General Data Protection Regulation (GDPR) and international privacy laws.",
+      introText: "AION OÜ, a company registered in Estonia, respects your privacy and is committed to protecting your personal information in accordance with the European Union's General Data Protection Regulation (GDPR) and international privacy laws.",
       dataCollectionTitle: "Information We Collect",
       dataCollectionIntro: "We collect the following types of information:",
       dataName: "Full name - for communication and personalization",
@@ -1798,13 +1798,13 @@ export const en: TranslationKeys = {
     },
     terms: {
       title: "Terms of Service",
-      seoTitle: "Terms of Service | Mind OS",
-      seoDescription: "Mind OS's terms of service - international agreement for consciousness coaching services",
+      seoTitle: "Terms of Service | AION",
+      seoDescription: "AION's terms of service - international agreement for consciousness coaching services",
       lastUpdated: "Last Updated",
       acceptanceTitle: "Acceptance of Terms",
-      acceptanceText: "By using the website and services of MindOS OÜ, a company registered in Estonia, you agree to these terms of service. If you do not agree to the terms, please refrain from using the website and services.",
+      acceptanceText: "By using the website and services of AION OÜ, a company registered in Estonia, you agree to these terms of service. If you do not agree to the terms, please refrain from using the website and services.",
       servicesTitle: "Description of Services",
-      servicesIntro: "MindOS OÜ provides:",
+      servicesIntro: "AION OÜ provides:",
       servicesHypnosis: "Consciousness coaching and personal guidance",
       servicesDigital: "Digital content and personalized recordings",
       servicesCoaching: "Courses and workshops for personal development",
@@ -1822,7 +1822,7 @@ export const en: TranslationKeys = {
       ipTitle: "Intellectual Property",
       ipText: "All content on the website, including texts, images, videos, and recordings, is protected by copyright under the Berne Convention and European Union laws. Do not copy, distribute, replicate using AI, or use content without prior permission.",
       liabilityTitle: "Limitation of Liability",
-      liabilityText: "MindOS OÜ will not be liable for direct, indirect, consequential damages, loss of profits, or reputational damage. Maximum compensation is limited to the amount paid for the specific service. Results may vary from person to person, and there is no guarantee of specific outcomes. Exemption from liability also applies to circumstances beyond our control (Force Majeure).",
+      liabilityText: "AION OÜ will not be liable for direct, indirect, consequential damages, loss of profits, or reputational damage. Maximum compensation is limited to the amount paid for the specific service. Results may vary from person to person, and there is no guarantee of specific outcomes. Exemption from liability also applies to circumstances beyond our control (Force Majeure).",
       arbitrationTitle: "Dispute Resolution - International Arbitration",
       arbitrationText: "Any dispute arising from these terms or services shall be referred exclusively to binding arbitration under UNCITRAL rules. Arbitration shall take place in Tallinn, Estonia, or online, in the English language. By accepting these terms, you waive your right to court proceedings and participation in class action lawsuits.",
       governingTitle: "Governing Law",
@@ -1887,7 +1887,7 @@ export const en: TranslationKeys = {
     justNow: "just now",
   },
   progressiveEngagement: {
-    welcomeTitle: "Welcome to Mind OS",
+    welcomeTitle: "Welcome to AION",
     welcomeMessage: "We're excited you're here. We have a special gift waiting for you — something that can change how you see yourself.",
     discoverGift: "Discover Your Gift",
     maybeLater: "Maybe later",
@@ -2002,7 +2002,7 @@ export const en: TranslationKeys = {
   },
   community: {
     // Page titles
-    pageTitle: "Community | Mind OS",
+    pageTitle: "Community | AION",
     pageDescription: "Join our community, share experiences and grow together",
     eventsPageTitle: "Events | Community",
     eventsPageDescription: "Community events, meetups and webinars",
@@ -2148,7 +2148,7 @@ export const en: TranslationKeys = {
       behavior: { focus: "Focus", avoidance: "Avoidance", discipline: "Discipline", resistance: "Resistance", strength: "Strength" }
     },
     settings: {
-      title: "Aurora Settings",
+      title: "AION Settings",
       profile: "Profile",
       displayName: "Display Name",
       displayNamePlaceholder: "What should I call you?",
@@ -2170,7 +2170,7 @@ export const en: TranslationKeys = {
       genderMale: "Male",
       genderFemale: "Female",
       genderNeutral: "Neutral",
-      genderNotSet: "Please set your gender in settings so Aurora can address you correctly",
+      genderNotSet: "Please set your gender in settings so AION can address you correctly",
       save: "Save",
       saving: "Saving...",
       saved: "Settings saved",
@@ -2195,7 +2195,7 @@ export const en: TranslationKeys = {
     },
     newChat: "New chat",
     recentConversations: "Recent conversations",
-    footerNote: "Aurora remembers your conversations and grows with you over time",
+    footerNote: "AION remembers your conversations and grows with you over time",
     messagesLeft: "left",
     you: "You",
     regenerate: "Regenerate",
@@ -2214,7 +2214,7 @@ export const en: TranslationKeys = {
     },
     progress: {
       sessions: "Sessions",
-      auroraChats: "Aurora Chats",
+      auroraChats: "AION Chats",
       insightsGained: "New Insights",
       lifeModel: "Life Model Progress",
     },
@@ -2254,11 +2254,11 @@ export const en: TranslationKeys = {
     },
     empty: {
       title: "Your Journey Begins",
-      subtitle: "Start a conversation with Aurora or complete a session to begin building your life model.",
+      subtitle: "Start a conversation with AION or complete a session to begin building your life model.",
     },
   },
   practitioners: {
-    pageTitle: "Coaches & Therapists | Mind OS",
+    pageTitle: "Coaches & Therapists | AION",
     pageDescription: "Find the right coach or therapist for you from a variety of certified experts in personal development and hypnotherapy",
     keywords: "consciousness coach, hypnotherapist, personal coaching, NLP, meditation",
     platformBadge: "Personal Development Platform",
@@ -2566,9 +2566,9 @@ export const en: TranslationKeys = {
     heroSubtitle: "AI-powered personal development with real human coaching",
     heroTagline: "Choose your path: AI, human coach, or both",
     
-    auroraCardTitle: "Aurora AI",
+    auroraCardTitle: "AION",
     auroraCardDesc: "Personal AI coach available 24/7",
-    auroraCardCta: "Start with Aurora",
+    auroraCardCta: "Start with AION",
     aiCoach: "AI Coach",
     
     findCoachCardTitle: "Find a Coach",
@@ -2581,14 +2581,14 @@ export const en: TranslationKeys = {
     freeCardCta: "Start Now",
     freeGift: "Free!",
     
-    auroraPromoTitle: "Meet Aurora",
+    auroraPromoTitle: "Meet AION",
     auroraPromoSubtitle: "An AI coach that truly understands you and guides you at every moment",
     auroraFeature1: "Available 24/7 for any question",
     auroraFeature2: "Personalized plan tailored to you",
     auroraFeature3: "Progress tracking & gamification",
     auroraFeature4: "Custom hypnosis & meditations",
     aiPowered: "AI Powered",
-    startWithAurora: "Start with Aurora - Free",
+    startWithAurora: "Start with AION - Free",
     available: "Available",
     personalizedAI: "Personal AI",
     
@@ -2599,7 +2599,7 @@ export const en: TranslationKeys = {
     step2Title: "Complete Introspection",
     step2Desc: "A deep questionnaire to help us know you",
     step3Title: "Choose Your Path",
-    step3Desc: "Aurora AI, human coach, or both",
+    step3Desc: "AION, human coach, or both",
     step4Title: "Start Your Journey",
     step4Desc: "Personalized guidance for success",
     getStartedFree: "Get Started Free",
@@ -2625,7 +2625,7 @@ export const en: TranslationKeys = {
     
     // AI Pillar
     pillarAiTitle: "Personal AI Coach",
-    pillarAiDesc: "Aurora is an AI coach who knows you, remembers your conversations, and guides you at any hour.",
+    pillarAiDesc: "AION is an AI coach who knows you, remembers your conversations, and guides you at any hour.",
     pillarAiFeature1: "Available 24/7 for any question",
     pillarAiFeature2: "Learns your style",
     pillarAiFeature3: "Remembers everything",
@@ -2659,7 +2659,7 @@ export const en: TranslationKeys = {
     
     // Chat Manages Everything
     chatTitle: "Do Everything Through Chat",
-    chatSubtitle: "Aurora tracks your schedule and automatically marks tasks for you",
+    chatSubtitle: "AION tracks your schedule and automatically marks tasks for you",
     chatTasks: "Tasks",
     chatTasksExample: '"Mark task as done"',
     chatSchedule: "Schedule",
@@ -2690,14 +2690,14 @@ export const en: TranslationKeys = {
     xpDaily: "Daily streak",
     xpMilestone: "Weekly milestone",
     
-    // Aurora Coach Section
-    auroraGreeting: "Hi, I'm Aurora 👋",
+    // AION Coach Section
+    auroraGreeting: "Hi, I'm AION 👋",
     auroraSubtitle: "Your personal coach - 24/7, any topic, no judgment",
     auroraFeature1: "Deep conversations on any topic",
     auroraFeature2: "12 Ego States to explore",
     auroraFeature3: "Personalized hypnosis sessions",
     auroraFeature4: "Pattern and behavior analysis",
-    auroraEasyMessage: "Just type - Aurora handles the rest ✨",
+    auroraEasyMessage: "Just type - AION handles the rest ✨",
     
     // Life Wrapping Section
     wrapBadge: "Life on Autopilot",
@@ -2713,7 +2713,7 @@ export const en: TranslationKeys = {
     wrapLongItem2: "Goals & objectives",
     wrapLongItem3: "Personal Life Model",
     wrapLongItem4: "Pattern analysis",
-    wrapCta: "You just need to type - Aurora manages the rest",
+    wrapCta: "You just need to type - AION manages the rest",
     
     // Gamification Addiction
     dontLoseStreak: "Don't lose your streak!",
@@ -2723,7 +2723,7 @@ export const en: TranslationKeys = {
 
     // Consciousness Coaching (legacy)
     coachingTitle: "Personal Consciousness Coaching 24/7",
-    coachingSubtitle: "Aurora - Your Life Coach",
+    coachingSubtitle: "AION - Your Life Coach",
     coachingFeature1: "Deep conversations on any topic",
     coachingFeature2: "12 Ego States to explore",
     coachingFeature3: "Personalized hypnosis & meditations",
@@ -2762,7 +2762,7 @@ export const en: TranslationKeys = {
     // Why Choose Us Section
     whyChooseUs: {
       badge: "Everything You've Always Wanted",
-      title: "Why Choose Mind OS?",
+      title: "Why Choose AION?",
       subtitle: "Everything in one place — no jumping between apps, no paying for 10 different subscriptions",
       hypnotherapist: {
         title: "Your Personal Hypnotherapist",
@@ -2770,7 +2770,7 @@ export const en: TranslationKeys = {
       },
       coach: {
         title: "Personal Consciousness Coach",
-        desc: "Aurora accompanies you 24/7 — remembers everything, understands you, always there",
+        desc: "AION accompanies you 24/7 — remembers everything, understands you, always there",
       },
       productivity: {
         title: "Productivity System That Gets You",
@@ -2805,8 +2805,8 @@ export const en: TranslationKeys = {
     systemArchIntegration: "All layers synchronize in real-time for holistic growth",
     
     // Layers
-    layerConsciousTitle: "Conscious Layer — Aurora AI",
-    layerConsciousDesc: "Your daily guide and coach. Aurora understands context, remembers everything, and orchestrates your entire journey.",
+    layerConsciousTitle: "Conscious Layer — AION",
+    layerConsciousDesc: "Your daily guide and coach. AION understands context, remembers everything, and orchestrates your entire journey.",
     layerApplicationTitle: "Application Layer — 8 Life Domains",
     layerApplicationDesc: "Personality, Business, Health, Relationships, Finances, Learning, Purpose, Hobbies — all connected, all optimized.",
     layerSubconsciousTitle: "Subconscious Layer — Hypnosis Engine",
@@ -2817,7 +2817,7 @@ export const en: TranslationKeys = {
     // NEW: Transformation Journey Section
     journeyBadge: "The 90-Day Path",
     journeyTitle: "Your Transformation Journey",
-    journeySubtitle: "A structured path from discovery to mastery — with Aurora guiding every step",
+    journeySubtitle: "A structured path from discovery to mastery — with AION guiding every step",
     journeyCta: "Start Your Transformation",
     journeyXpLabel: "Earn up to",
     journeyLevelLabel: "Reach",
@@ -2826,13 +2826,13 @@ export const en: TranslationKeys = {
     
     // Phases
     phaseFoundationTitle: "Foundation",
-    phaseFoundationDesc: "Build your Digital Avatar, complete the Launchpad questionnaire, and let Aurora learn your patterns.",
+    phaseFoundationDesc: "Build your Digital Avatar, complete the Launchpad questionnaire, and let AION learn your patterns.",
     phaseFoundationFeature1: "Complete personality assessment",
     phaseFoundationFeature2: "Build your unique 3D Avatar",
     phaseFoundationFeature3: "Unlock first hypnosis sessions",
     
     phaseDeepWorkTitle: "Deep Work",
-    phaseDeepWorkDesc: "Activate your 100-day plan with daily missions, habit tracking, and weekly insights from Aurora.",
+    phaseDeepWorkDesc: "Activate your 100-day plan with daily missions, habit tracking, and weekly insights from AION.",
     phaseDeepWorkFeature1: "Daily missions across 8 life pillars",
     phaseDeepWorkFeature2: "XP accumulation & level progression",
     phaseDeepWorkFeature3: "Weekly pattern recognition & insights",
@@ -2843,14 +2843,14 @@ export const en: TranslationKeys = {
     phaseMasteryFeature2: "Advanced community features",
     phaseMasteryFeature3: "Continuous evolution of your Avatar",
     
-    // NEW: Aurora Conversation Preview
-    auroraConversationTitle: "Aurora Knows Your Whole Story",
+    // NEW: AION Conversation Preview
+    auroraConversationTitle: "AION Knows Your Whole Story",
     auroraConversationSubtitle: "She connects insights from every domain to guide you holistically",
     auroraConvoExample1: "\"I noticed your business stress is affecting your sleep. Let's address both.\"",
     auroraConvoExample2: "\"Your meditation streak is helping your focus. Ready for a business hypnosis?\"",
     auroraConvoExample3: "\"Based on yesterday's session, here are 3 tasks for today.\"",
     
-    // NEW: Hero - Mind OS Focus
+    // NEW: Hero - AION Focus
     mindOsTitle: "Your Mind's Operating System",
     mindOsSubtitle: "8 life domains. One integrated brain. AI + Hypnosis + Gamification working together.",
 
@@ -2871,11 +2871,11 @@ export const en: TranslationKeys = {
       subtitle: 'Three quest phases that rebuild your life from the ground up.',
       phaseLabel: 'Quest',
       phase1Title: 'Deep Assessment',
-      phase1Desc: 'Aurora scans all 15 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
+      phase1Desc: 'AION scans all 15 life domains — consciousness, power, wealth, combat, relationships and more — mapping your complete identity profile.',
       phase2Title: '100-Day Strategy',
       phase2Desc: 'AI generates a personalized battle plan with missions, milestones, and daily protocols across every domain you unlock.',
       phase3Title: 'Daily Execution',
-      phase3Desc: 'Every morning your tactical queue drops — prioritized actions, habits, and protocols. Aurora adapts in real-time as you level up.',
+      phase3Desc: 'Every morning your tactical queue drops — prioritized actions, habits, and protocols. AION adapts in real-time as you level up.',
     },
 
     // AppPreviewSection
@@ -2944,8 +2944,8 @@ export const en: TranslationKeys = {
       step1Title: 'Take the Assessment',
       step1Desc: '5 minutes of focused questions that uncover your strengths, challenges, and priorities.',
       step2Title: 'Get Your 100-Day Plan',
-      step2Desc: 'Aurora builds a personalized plan with 10 phases, milestones, and daily actions.',
-      step3Title: 'Execute Daily with Aurora',
+      step2Desc: 'AION builds a personalized plan with 10 phases, milestones, and daily actions.',
+      step3Title: 'Execute Daily with AION',
       step3Desc: '24/7 AI coach that guides, reminds, adapts, and keeps you on track.',
     },
 
@@ -2982,14 +2982,14 @@ export const en: TranslationKeys = {
     // DomainCitySection
     domainCity: {
       title: '14 Districts. One City.',
-      subtitle: 'Every life domain is a district in your personal city — all connected, all optimized by Aurora.',
+      subtitle: 'Every life domain is a district in your personal city — all connected, all optimized by AION.',
     },
 
     // HypnosisSection
     hypnosis: {
       badge: 'AI Hypnosis',
       title: 'Reprogram Your Mind',
-      subtitle: 'AI-generated hypnosis sessions personalized from your real conversations with Aurora.',
+      subtitle: 'AI-generated hypnosis sessions personalized from your real conversations with AION.',
       realtimeTitle: 'Real-Time Generation',
       realtimeDesc: 'Sessions built on-the-fly from your current state and goals.',
       karaokeTitle: 'Karaoke Text',
@@ -3072,10 +3072,10 @@ export const en: TranslationKeys = {
     // HandsFreeSection
     handsFree: {
       badge: 'Hands-Free Experience',
-      title: 'Speak. Aurora Does.',
-      subtitle: "No need to navigate anywhere. No need to click anything. Just say what you want and Aurora will do it.",
+      title: 'Speak. AION Does.',
+      subtitle: "No need to navigate anywhere. No need to click anything. Just say what you want and AION will do it.",
       chatTitle: 'Everything Happens in Chat',
-      chatDesc: "Aurora isn't just a chatbot - she's a complete operating interface for the entire system. Everything you can do in the dashboard, you can do simply by speaking or typing to Aurora.",
+      chatDesc: "AION isn't just a chatbot - she's a complete operating interface for the entire system. Everything you can do in the dashboard, you can do simply by speaking or typing to AION.",
       voiceMessage: 'Voice message',
       typeOrRecord: 'Type or record...',
       createTasks: 'Create tasks',
@@ -3083,7 +3083,7 @@ export const en: TranslationKeys = {
       hypnosisSession: 'Hypnosis session',
       checkProgress: 'Check progress',
       voiceTitle: 'Voice Recording in Hebrew & English',
-      voiceDesc: 'Simply record yourself speaking and Aurora will understand you. Accurate transcription, deep understanding, and immediate execution.',
+      voiceDesc: 'Simply record yourself speaking and AION will understand you. Accurate transcription, deep understanding, and immediate execution.',
       cta: 'Try the Voice Experience',
     },
 
@@ -3094,7 +3094,7 @@ export const en: TranslationKeys = {
       titleHighlight: 'Built for You',
       subtitle: 'A learning system that generates personalized courses from your data — every lesson ties to a life domain and feeds your plan.',
       aiCourses: 'AI-Personalized Courses',
-      aiCoursesDesc: 'Aurora builds a tailored curriculum based on your assessment',
+      aiCoursesDesc: 'AION builds a tailored curriculum based on your assessment',
       interactive: 'Interactive Lessons',
       interactiveDesc: 'Lessons with exercises, quizzes, and adaptive content',
       pillarModules: 'Pillar-Based Modules',
@@ -3200,7 +3200,7 @@ export const en: TranslationKeys = {
     emailReadOnly: "Email address cannot be changed",
     tabs: {
       profile: "Profile",
-      aurora: "Aurora",
+      aurora: "AION",
       appearance: "Appearance",
       notifications: "Notifications",
       account: "Account",
@@ -3289,7 +3289,7 @@ export const en: TranslationKeys = {
   // Launchpad final notes translations
   finalNotes: {
     title: "Anything else?",
-    subtitle: "This is the place for anything we didn't ask - or that you want Aurora to know",
+    subtitle: "This is the place for anything we didn't ask - or that you want AION to know",
     ideasLabel: "Ideas for what to write:",
     placeholder: "Write here anything important for us to know...",
     optionalSkip: "Optional - you can skip if you have nothing to add",
@@ -5042,7 +5042,7 @@ export const en: TranslationKeys = {
       prepare: 'Prepare — deep breaths & set intention',
       coreExecution: 'Core execution',
       reflect: "Close — what did I learn? What's next?",
-      auroraComputing: 'Aurora is computing...',
+      auroraComputing: 'AION is computing...',
       letsBegin: "Let's begin.",
       withYou: "I'm with you.",
       progress: 'Progress',
@@ -5057,7 +5057,7 @@ export const en: TranslationKeys = {
     },
     onboarding: {
       intro: {
-        welcomeToMindOS: 'Welcome to MindOS',
+        welcomeToAION: 'Welcome to AION',
         description: 'The operating system that will transform your life in 100 days — body, focus, energy, wealth & consciousness.',
         neuralCalibration: 'Neural Calibration',
         energyOptimization: 'Energy Optimization',

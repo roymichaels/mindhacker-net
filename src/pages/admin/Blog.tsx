@@ -120,7 +120,7 @@ export default function AdminBlog() {
     },
   });
 
-  // Aurora Codex: Generate next in series
+  // AION Codex: Generate next in series
   const codexMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('daily-blog-generator', {
@@ -131,7 +131,7 @@ export default function AdminBlog() {
       return data;
     },
     onSuccess: (data) => {
-      toast.success(`Aurora Codex #${data.day} published: ${data.title}`);
+      toast.success(`AION Codex #${data.day} published: ${data.title}`);
       queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -150,7 +150,7 @@ export default function AdminBlog() {
           <p className="text-sm text-muted-foreground">
             {language === 'he' ? 'צור מאמרים מותאמי SEO עם AI' : 'Create SEO-optimized articles with AI'}
             {' · '}
-            <span className="text-primary font-medium">Aurora Codex: {publishedCount}/100</span>
+            <span className="text-primary font-medium">AION Codex: {publishedCount}/100</span>
             {' · '}
             <Calendar className="inline h-3 w-3" /> {language === 'he' ? 'יומי ב-8:00' : 'Daily at 8:00 AM'}
           </p>
@@ -164,7 +164,7 @@ export default function AdminBlog() {
             disabled={codexMutation.isPending}
           >
             {codexMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
-            {language === 'he' ? 'הפעל Aurora Codex' : 'Run Aurora Codex'}
+            {language === 'he' ? 'הפעל AION Codex' : 'Run AION Codex'}
           </Button>
 
         <Dialog open={wizardOpen} onOpenChange={setWizardOpen}>

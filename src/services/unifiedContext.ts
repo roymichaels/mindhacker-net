@@ -11,7 +11,7 @@ export interface UnifiedUserContext {
     avatarUrl: string | null;
   };
 
-  // Life Model (from Aurora)
+  // Life Model (from AION)
   lifeModel: {
     direction: {
       content: string;
@@ -272,7 +272,7 @@ ${lifeModel.dailyMinimums.map(m => `- ${m.title}`).join('\n') || 'לא הוגד�
 
 ## התקדמות שבועית
 - סשני היפנוזה: ${weeklyProgress.hypnosisSessions}
-- שיחות עם אורורה: ${weeklyProgress.auroraChats}
+- שיחות עם AION: ${weeklyProgress.auroraChats}
 - תובנות: ${weeklyProgress.insightsGained}
 - XP שנצבר: ${weeklyProgress.totalXp}
 
@@ -319,7 +319,7 @@ ${lifeModel.dailyMinimums.map(m => `- ${m.title}`).join('\n') || 'Not defined'}
 
 ## Weekly Progress
 - Hypnosis sessions: ${weeklyProgress.hypnosisSessions}
-- Aurora chats: ${weeklyProgress.auroraChats}
+- AION chats: ${weeklyProgress.auroraChats}
 - Insights: ${weeklyProgress.insightsGained}
 - XP gained: ${weeklyProgress.totalXp}
 

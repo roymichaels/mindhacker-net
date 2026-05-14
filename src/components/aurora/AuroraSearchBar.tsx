@@ -1,5 +1,5 @@
 /**
- * AuroraSearchBar — search across all Aurora chat history
+ * AuroraSearchBar — search across all AION chat history
  */
 import { useState, useRef, useEffect } from 'react';
 import { Search, X, MessageSquare, Loader2 } from 'lucide-react';

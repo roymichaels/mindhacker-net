@@ -124,7 +124,7 @@ export const PROTECTED_REDIRECTS: [string, string][] = [
   ['/creator-hub', '/creator'],
   ['/freelancer-hub', '/freelancer'],
   ['/me', '/aurora'],
-  // Legacy MindOS namespace → flat canonical
+  // Legacy AION namespace → flat canonical
   ['/mindos', '/aurora'],
   ['/mindos/chat', '/aurora'],
   ['/mindos/strategy', '/strategy'],

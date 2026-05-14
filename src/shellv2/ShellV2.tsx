@@ -1,5 +1,5 @@
 /**
- * ShellV2 — the new root layout for authenticated MindOS surfaces.
+ * ShellV2 — the new root layout for authenticated AION surfaces.
  *
  * Layer contract (top → bottom in DOM, z-index in {@link ./zindex}):
  *

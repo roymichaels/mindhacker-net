@@ -1,7 +1,7 @@
 /**
  * SSE sanitizer for the AION chat stream.
  * - Strips <think>…</think> / <reasoning>…</reasoning> blocks across chunk boundaries.
- * - Drops obvious chain-of-thought preambles ("Okay, let me…", "As Aurora…", etc.)
+ * - Drops obvious chain-of-thought preambles ("Okay, let me…", "As AION…", etc.)
  *   until the first real user-facing token has been emitted.
  * - Drops standalone meta lines anywhere ([Reasoning], [Plan], [Analysis], [Internal]).
  */
@@ -40,7 +40,7 @@ const PREAMBLE_PATTERNS: RegExp[] = [
   /\bi should not claim\b/i,
   /\bבואו? (לחשוב|לבדוק|נחשוב|נבדוק)\b/,
   /\bהמערכת אומרת\b/,
-  /\bכאורורה\b/,
+  /\bכAION\b/,
 ];
 
 export interface SanitizerState {

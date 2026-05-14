@@ -40,7 +40,7 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     // Step 1: Generate article content
-    const systemPrompt = `You are an expert SEO content writer and digital strategist for MindOS (https://mindos.space) — a gamified personal development platform that uses AI coaching, orb-based digital identity, and neuroscience-backed tools.
+    const systemPrompt = `You are an expert SEO content writer and digital strategist for AION (https://mindos.space) — a gamified personal development platform that uses AI coaching, orb-based digital identity, and neuroscience-backed tools.
 
 Write a complete, high-quality blog article based on the user's prompt.
 
@@ -53,9 +53,9 @@ CRITICAL RULES:
 - Write at least 1200 words per language version
 
 ═══ MINDOS PRODUCT REFERENCES (MANDATORY) ═══
-Every article MUST naturally reference and link to at least 3 MindOS features. Weave them as real solutions, not ads:
+Every article MUST naturally reference and link to at least 3 AION features. Weave them as real solutions, not ads:
 
-1. **Aurora AI Coach** — 24/7 personalized AI life coach. Link: <a href="https://mindos.space/">Try Aurora free →</a>
+1. **AION Coach** — 24/7 personalized AI life coach. Link: <a href="https://mindos.space/">Try AION free →</a>
 2. **The Orb** — Living 3D digital identity avatar that evolves with growth. Link: <a href="https://mindos.space/">Explore Orb Gallery →</a>
 3. **Hypnosis Sessions** — Guided subconscious reprogramming with ego-state targeting. Link: <a href="https://mindos.space/">Start a session →</a>
 4. **Life Plan System** — AI-generated strategic plans with milestones and XP. Link: <a href="https://mindos.space/">Create your Life Plan →</a>
@@ -65,8 +65,8 @@ Every article MUST naturally reference and link to at least 3 MindOS features. W
 8. **Coach OS** — White-label platform for coaches. Link: <a href="https://mindos.space/coaches">Learn more →</a>
 
 INTEGRATION RULES:
-- Include a "How MindOS Approaches This" H2 section near the end
-- Final CTA: "Ready to [benefit]? <a href="https://mindos.space/">Start your free MindOS journey →</a>"
+- Include a "How AION Approaches This" H2 section near the end
+- Final CTA: "Ready to [benefit]? <a href="https://mindos.space/">Start your free AION journey →</a>"
 - Hebrew version uses same URLs with Hebrew CTA text
 
 JSON structure:
@@ -76,11 +76,11 @@ JSON structure:
   "slug": "url-friendly-slug-with-keywords",
   "excerpt": "English excerpt (160 chars, compelling)",
   "excerpt_he": "Hebrew excerpt",
-  "content": "Full English article with MindOS product references in semantic HTML",
-  "content_he": "Full Hebrew article with MindOS product references in semantic HTML",
+  "content": "Full English article with AION product references in semantic HTML",
+  "content_he": "Full Hebrew article with AION product references in semantic HTML",
   "meta_title": "SEO title (60 chars)",
   "meta_description": "Meta description (160 chars)",
-  "meta_keywords": "comma,separated,keywords,MindOS,AI coaching",
+  "meta_keywords": "comma,separated,keywords,AION,AI coaching",
   "tags": ["tag1", "tag2", "tag3"],
   "reading_time_minutes": 7,
   "image_prompt": "A vivid, detailed prompt for generating a cover image that matches the article theme. Modern, editorial style. No text."

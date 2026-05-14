@@ -78,7 +78,7 @@ export const he = {
     clarity: "בהירות",
   },
   header: {
-    brandName: "מיינד OS",
+    brandName: "AION",
     navigationMenu: "תפריט ניווט",
     adminPanel: "פאנל ניהול",
     coachPanel: "פאנל מאמן",
@@ -120,7 +120,7 @@ export const he = {
     enterFullName: "הכנס שם מלא",
     passwordPlaceholder: "לפחות 10 תווים עם אותיות גדולות, קטנות, מספר ותו מיוחד",
     confirmPasswordPlaceholder: "הכנס סיסמה שוב",
-    connectToMindOS: "התחבר ל-MindOS",
+    connectToAION: "התחבר ל-AION",
     connectToContinue: "התחבר כדי להמשיך את המסע שלך",
     enterCode: "הזן את הקוד",
     codeSentTo: "שלחנו קוד בן 6 ספרות אל",
@@ -232,14 +232,14 @@ export const he = {
       streakSubtitle: "אל תשבור את הרצף! שמור על המומנטום היומי שלך",
       potentialTitle: "שחרר את הפוטנציאל",
       potentialSubtitle: "המסע שלך לגרסה הטובה ביותר שלך מתחיל כאן",
-      auroraTitle: "אורורה — מאמנת AI",
+      auroraTitle: "AION — מאמנת AI",
       auroraSubtitle: "שוחח עם המאמנת האישית שלך בכל רגע",
       transformTitle: "טרנספורמציה ב-90 יום",
       transformSubtitle: "תוכנית מובנית שמשנה חיים — שבוע אחרי שבוע",
     },
   },
   footer: {
-    copyright: "© 2025 MindOS. כל הזכויות שמורות.",
+    copyright: "© 2025 AION. כל הזכויות שמורות.",
     privacyPolicy: "מדיניות פרטיות",
     termsOfService: "תנאי שימוש",
     contactUs: "צור קשר",
@@ -783,7 +783,7 @@ export const he = {
     scheduleSession: "קבע סשן",
     tabs: {
       overview: "סקירה",
-      aurora: "Aurora",
+      aurora: "AION",
       purchases: "רכישות",
       activity: "פעילות",
       settings: "הגדרות",
@@ -812,7 +812,7 @@ export const he = {
     loginSuccess: "התחברת בהצלחה!",
     welcomeBack: "ברוך הבא חזרה",
     signupSuccess: "חשבון נוצר בהצלחה!",
-    welcomeNew: "ברוך הבא ל-מיינד OS",
+    welcomeNew: "ברוך הבא ל-AION",
     logoutSuccess: "התנתקת בהצלחה",
     goodbye: "להתראות!",
     loadError: "לא ניתן לטעון את הנתונים",
@@ -835,7 +835,7 @@ export const he = {
     startConversation: "התחל שיחה",
     newMessage: "הודעה חדשה",
     typePlaceholder: "כתוב הודעה...",
-    aiAssistant: "Aurora (AI)",
+    aiAssistant: "AION (AI)",
     aiSubtitle: "העוזר החכם שלך",
     aiGreeting: "היי! איך אני יכול לעזור לך היום?",
     searchPlaceholder: "חפש שיחות...",
@@ -932,29 +932,29 @@ export const he = {
     discoverProducts: "גלה מוצרים דיגיטליים",
   },
   seo: {
-    loginTitle: "התחברות | מיינד OS",
-    loginDescription: "התחבר לחשבון שלך במיינד OS וקבל גישה למוצרים הדיגיטליים, הקורסים והסדנאות שרכשת.",
-    signupTitle: "הרשמה | מיינד OS",
-    signupDescription: "הירשם למיינד OS וקבל גישה למוצרים דיגיטליים, קורסים אונליין, וסדנאות בתחום אימון התודעה והפיתוח האישי.",
+    loginTitle: "התחברות | AION",
+    loginDescription: "התחבר לחשבון שלך בAION וקבל גישה למוצרים הדיגיטליים, הקורסים והסדנאות שרכשת.",
+    signupTitle: "הרשמה | AION",
+    signupDescription: "הירשם לAION וקבל גישה למוצרים דיגיטליים, קורסים אונליין, וסדנאות בתחום אימון התודעה והפיתוח האישי.",
     signupKeywords: "הרשמה, יצירת חשבון, רישום, קורסים אונליין",
-    dashboardTitle: "דאשבורד | מיינד OS",
+    dashboardTitle: "דאשבורד | AION",
     dashboardDescription: "לוח הבקרה האישי שלך - גישה למוצרים הדיגיטליים, מנויים, ופגישות שרכשת",
-    coursesTitle: "מוצרים דיגיטליים | מיינד OS",
+    coursesTitle: "מוצרים דיגיטליים | AION",
     coursesDescription: "גלה את מגוון המוצרים הדיגיטליים והקורסים המקוונים שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי בתחום אימון התודעה והפיתוח האישי.",
     coursesKeywords: "קורסים דיגיטליים, קורסים אונליין, פיתוח אישי, אימון תודעתי, מוצרים דיגיטליים, קורסי וידאו",
-    notFoundTitle: "דף לא נמצא | מיינד OS",
+    notFoundTitle: "דף לא נמצא | AION",
     notFoundDescription: "הדף שחיפשת לא נמצא. חזור לדף הבית או לדפדף במוצרים הדיגיטליים שלנו.",
     breadcrumbHome: "דף הבית",
     breadcrumbDashboard: "דאשבורד",
     breadcrumbCourses: "מוצרים דיגיטליים",
-    indexTitle: "MindOS | המשחק של החיים שלך — Life MMO מבוסס AI",
+    indexTitle: "AION | המשחק של החיים שלך — Life MMO מבוסס AI",
     indexDescription: "הפוך את החיים האמיתיים שלך למערכת שניתן לשחק בה. DNA מגדיר מי אתה, AION מנחה לאן אתה הולך, האווטאר מייצג אותך. שחק, צמח, הרווח, התפתח.",
-    indexKeywords: "משחק חיים, התפתחות אישית, מאמן AI, גיימיפיקציה, Life MMO, AION, MindOS, טרנספורמציה, XP, זהות דיגיטלית",
+    indexKeywords: "משחק חיים, התפתחות אישית, מאמן AI, גיימיפיקציה, Life MMO, AION, AION, טרנספורמציה, XP, זהות דיגיטלית",
   },
    about: {
     sectionTitle: "הכירו",
-    name: "Mind OS",
-    defaultStory: "Mind OS נבנה מאפס על ידי מייסד יחיד מאז ספטמבר 2024 — מתוך אמונה עמוקה שכל אחד יכול לשכתב את הקוד הפנימי שלו. הפלטפורמה משלבת AI מתקדם, היפנוזה מותאמת אישית וגיימיפיקציה כדי ליצור חוויית טרנספורמציה ייחודית שמביאה תוצאות אמיתיות.",
+    name: "AION",
+    defaultStory: "AION נבנה מאפס על ידי מייסד יחיד מאז ספטמבר 2024 — מתוך אמונה עמוקה שכל אחד יכול לשכתב את הקוד הפנימי שלו. הפלטפורמה משלבת AI מתקדם, היפנוזה מותאמת אישית וגיימיפיקציה כדי ליצור חוויית טרנספורמציה ייחודית שמביאה תוצאות אמיתיות.",
     beliefStatement: "אני מאמין שכל אחד יכול לשנות את הקוד הפנימי שלו — וזה בדיוק מה שהפלטפורמה הזו עושה יחד איתך.",
     watchVideo: "צפה בסרטון הכרות",
     quote: "\"לא טיפול, אלא חוויית תכנות תודעה.\"",
@@ -990,7 +990,7 @@ export const he = {
   personalInvitation: {
     title: "הזמנה אישית",
     defaultMessage: "אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה.",
-    signature: "Mind OS",
+    signature: "AION",
     ctaButton: "קבע שיחת ייעוץ חינם",
     ctaSubtext: "30 דקות — לבדוק אם מתאים לנו לעבוד יחד",
   },
@@ -1084,7 +1084,7 @@ export const he = {
   chat: {
     openChat: "פתח צ'אט עם העוזר",
     greeting: "היי! 👋 אני כאן לעזור. רוצה לשאול משהו על אימון תודעתי או להכיר את הפלטפורמה?",
-    assistantName: "עוזר Mind OS",
+    assistantName: "עוזר AION",
     assistantSubtitle: "כאן לעזור 24/7",
     errorMessage: "סליחה, משהו השתבש. נסה שוב בבקשה 🙏",
     chatAlt: "צ'אט",
@@ -1119,7 +1119,7 @@ export const he = {
     benefit2: "✅ נבדוק אם מתאים לנו",
     benefit3: "✅ תקבל תשובה תוך 24 שעות",
     dismiss: "לא תודה, אולי בפעם אחרת",
-    imageAlt: "Mind OS",
+    imageAlt: "AION",
   },
   whatsapp: {
     ariaLabel: "צור קשר בוואטסאפ",
@@ -1178,9 +1178,9 @@ export const he = {
     oneTimePayment: "תשלום חד פעמי",
     purchaseButton: "רכוש את הסרטון האישי שלך",
     readyNote: "* הסרטון יהיה מוכן תוך 2 ימי עסקים",
-    seoTitle: "אימון תודעתי אישי - סרטון היפנוזה בהתאמה אישית | מיינד OS",
+    seoTitle: "אימון תודעתי אישי - סרטון היפנוזה בהתאמה אישית | AION",
     seoDescription: "סרטון היפנוזה ואימון תודעתי בהתאמה אישית לשחרור מגבלות ויצירת חופש פנימי אמיתי. 10 דקות ביום לשינוי עמוק ומתמשך.",
-    seoKeywords: "היפנוזה אישית, אימון תודעתי, סרטון היפנוזה, שחרור מגבלות, חופש פנימי, Mind OS",
+    seoKeywords: "היפנוזה אישית, אימון תודעתי, סרטון היפנוזה, שחרור מגבלות, חופש פנימי, AION",
   },
   booking: {
     sectionTitle: "בוא נתכנת את המציאות שלך.",
@@ -1277,10 +1277,10 @@ export const he = {
     notDefined: "לא מוגדר",
   },
   consciousnessLeapLanding: {
-    seoTitle: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית | MindOS",
+    seoTitle: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית | AION",
     seoDescription: "תהליך מקיף וממוקד לשינוי עמוק ובר-קיימא. 4 מפגשים שיביאו אותך לבהירות, כיוון ושחרור דפוסים ישנים.",
-    seoKeywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, MindOS, טרנספורמציה",
-    brandName: "מיינד OS",
+    seoKeywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, AION, טרנספורמציה",
+    brandName: "AION",
     navCta: "בוא נדבר",
     limitedSpots: "מקומות מוגבלים",
     heroTitle: "קפיצה",
@@ -1351,8 +1351,8 @@ export const he = {
     testimonial3Name: "א.ר",
     testimonial3Role: "מטפל",
     aboutSectionTitle: "הכירו את",
-    aboutSectionTitleHighlight: "Mind OS",
-    aboutText1: "Mind OS היא פלטפורמה מתקדמת לטרנספורמציה אישית שנבנתה מאפס על ידי מייסד יחיד מאז ספטמבר 2024, המשלבת בינה מלאכותית, היפנוזה מותאמת וגיימיפיקציה. בעזרת אורורה, מנוע ה-AI התודעתי, אנחנו מלווים אנשים בתהליכי שינוי עמוקים.",
+    aboutSectionTitleHighlight: "AION",
+    aboutText1: "AION היא פלטפורמה מתקדמת לטרנספורמציה אישית שנבנתה מאפס על ידי מייסד יחיד מאז ספטמבר 2024, המשלבת בינה מלאכותית, היפנוזה מותאמת וגיימיפיקציה. בעזרת AION, מנוע ה-AI התודעתי, אנחנו מלווים אנשים בתהליכי שינוי עמוקים.",
     aboutText2: "ה\"קפיצה לתודעה חדשה\" היא המסגרת שנוצרה מתוך תשוקה לעזור לאנשים שמרגישים תקועים. זה תהליך שמביא תוצאות אמיתיות.",
     faqSectionTitle: "שאלות",
     faqSectionTitleHighlight: "נפוצות",
@@ -1387,12 +1387,12 @@ export const he = {
     finalCtaTitle: "מוכן",
     finalCtaTitleHighlight: "לשחק?",
     finalCtaSubtitle: "הצעד הראשון הוא תמיד הכי קשה. אבל העתיד שלך מחכה.",
-    finalCtaProcessName: "חווית MindOS המלאה",
+    finalCtaProcessName: "חווית AION המלאה",
     finalCtaPriceNote: "כולל הכל | ניתן לפריסה",
     finalCtaButton: "בוא נדבר",
     finalCtaFooter: "מקומות מוגבלים | שיחת ההיכרות בחינם וללא התחייבות",
-    whatsappMessage: "היי, אני מתעניין ב-MindOS",
-    footerName: "Mind OS - פלטפורמת התפתחות אישית",
+    whatsappMessage: "היי, אני מתעניין ב-AION",
+    footerName: "AION - פלטפורמת התפתחות אישית",
     footerRights: "כל הזכויות שמורות",
     errorFillNameEmail: "נא למלא שם ואימייל",
     successSubmit: "הפרטים נשלחו בהצלחה! נחזור אליך בהקדם",
@@ -1450,7 +1450,7 @@ export const he = {
     spotsAvailableOnly: "🔥 {count} מקומות פנויים השבוע בלבד",
   },
   personalQuote: {
-    signature: "— Mind OS",
+    signature: "— AION",
   },
   adminFaqs: {
     pageTitle: "שאלות נפוצות",
@@ -1745,18 +1745,18 @@ export const he = {
   legal: {
     company: {
       title: "אודות החברה",
-      name: "MindOS OÜ",
+      name: "AION OÜ",
       country: "אסטוניה, האיחוד האירופי",
       registrationNote: "חברה רשומה באסטוניה",
       contact: "ליצירת קשר: contact@mindos.space",
     },
     privacy: {
       title: "מדיניות פרטיות",
-    seoTitle: "מדיניות פרטיות | מיינד OS",
-    seoDescription: "מדיניות הפרטיות של מיינד OS - כיצד אנו אוספים, משתמשים ומגנים על המידע שלך בהתאם ל-GDPR",
+    seoTitle: "מדיניות פרטיות | AION",
+    seoDescription: "מדיניות הפרטיות של AION - כיצד אנו אוספים, משתמשים ומגנים על המידע שלך בהתאם ל-GDPR",
       lastUpdated: "עודכן לאחרונה",
       introTitle: "מבוא",
-      introText: "MindOS OÜ, חברה רשומה באסטוניה, מכבדת את פרטיותך ומחויבת להגן על המידע האישי שלך בהתאם לתקנות הגנת המידע הכללית (GDPR) של האיחוד האירופי ולחוקי הפרטיות הבינלאומיים.",
+      introText: "AION OÜ, חברה רשומה באסטוניה, מכבדת את פרטיותך ומחויבת להגן על המידע האישי שלך בהתאם לתקנות הגנת המידע הכללית (GDPR) של האיחוד האירופי ולחוקי הפרטיות הבינלאומיים.",
       dataCollectionTitle: "מידע שאנו אוספים",
       dataCollectionIntro: "אנו אוספים את סוגי המידע הבאים:",
       dataName: "שם מלא - לצורך התקשרות והתאמה אישית",
@@ -1796,13 +1796,13 @@ export const he = {
     },
     terms: {
       title: "תנאי שימוש",
-      seoTitle: "תנאי שימוש | מיינד OS",
-      seoDescription: "תנאי השימוש של מיינד OS - הסכם בינלאומי לשירותי אימון תודעתי",
+      seoTitle: "תנאי שימוש | AION",
+      seoDescription: "תנאי השימוש של AION - הסכם בינלאומי לשירותי אימון תודעתי",
       lastUpdated: "עודכן לאחרונה",
       acceptanceTitle: "קבלת התנאים",
-      acceptanceText: "בשימוש באתר ובשירותי MindOS OÜ, חברה רשומה באסטוניה, אתה מסכים לתנאי שימוש אלה. אם אינך מסכים לתנאים, אנא הימנע משימוש באתר ובשירותים.",
+      acceptanceText: "בשימוש באתר ובשירותי AION OÜ, חברה רשומה באסטוניה, אתה מסכים לתנאי שימוש אלה. אם אינך מסכים לתנאים, אנא הימנע משימוש באתר ובשירותים.",
       servicesTitle: "תיאור השירותים",
-      servicesIntro: "MindOS OÜ מספקת שירותי:",
+      servicesIntro: "AION OÜ מספקת שירותי:",
       servicesHypnosis: "אימון תודעתי (consciousness coaching) וליווי אישי",
       servicesDigital: "תכנים דיגיטליים והקלטות מותאמות אישית",
       servicesCoaching: "קורסים וסדנאות לפיתוח אישי",
@@ -1820,7 +1820,7 @@ export const he = {
       ipTitle: "קניין רוחני",
       ipText: "כל התכנים באתר, כולל טקסטים, תמונות, סרטונים והקלטות, מוגנים בזכויות יוצרים בהתאם לאמנת ברן הבינלאומית ולחוקי האיחוד האירופי. אין להעתיק, להפיץ, לשכפל באמצעות AI, או להשתמש בתכנים ללא אישור מראש.",
       liabilityTitle: "הגבלת אחריות",
-      liabilityText: "MindOS OÜ לא תהיה אחראית לנזקים ישירים, עקיפים, תוצאתיים, אובדן רווחים או נזק למוניטין. סכום הפיצוי המקסימלי מוגבל לסכום ששולם עבור השירות הספציפי. התוצאות עשויות להשתנות מאדם לאדם, ואין התחייבות לתוצאות ספציפיות. פטור מאחריות חל גם על מצבים שמעבר לשליטתנו (Force Majeure).",
+      liabilityText: "AION OÜ לא תהיה אחראית לנזקים ישירים, עקיפים, תוצאתיים, אובדן רווחים או נזק למוניטין. סכום הפיצוי המקסימלי מוגבל לסכום ששולם עבור השירות הספציפי. התוצאות עשויות להשתנות מאדם לאדם, ואין התחייבות לתוצאות ספציפיות. פטור מאחריות חל גם על מצבים שמעבר לשליטתנו (Force Majeure).",
       arbitrationTitle: "פתרון סכסוכים - בוררות בינלאומית",
       arbitrationText: "כל סכסוך הנובע מתנאים אלה או מהשירותים יופנה לבוררות מחייבת בלבד, בהתאם לכללי UNCITRAL. הבוררות תתקיים בטאלין, אסטוניה, או באופן מקוון, בשפה האנגלית. על ידי קבלת תנאים אלה, אתה מוותר על זכותך לפנות לבתי משפט ועל השתתפות בתביעות ייצוגיות.",
       governingTitle: "דין חל",
@@ -1938,7 +1938,7 @@ export const he = {
     justNow: "עכשיו",
   },
   progressiveEngagement: {
-    welcomeTitle: "ברוכים הבאים ל-מיינד OS",
+    welcomeTitle: "ברוכים הבאים ל-AION",
     welcomeMessage: "אנחנו שמחים שהגעת. יש לנו מתנה מיוחדת שמחכה לך — משהו שיכול לשנות את הדרך שבה אתה רואה את עצמך.",
     discoverGift: "גלה את המתנה שלך",
     maybeLater: "אולי אחר כך",
@@ -2053,7 +2053,7 @@ export const he = {
   },
   community: {
     // Page titles
-    pageTitle: "קהילה | מיינד OS",
+    pageTitle: "קהילה | AION",
     pageDescription: "הצטרף לקהילה שלנו, שתף חוויות והתפתח יחד עם אחרים",
     eventsPageTitle: "אירועים | קהילה",
     eventsPageDescription: "אירועים קהילתיים, מפגשים ווובינרים",
@@ -2201,7 +2201,7 @@ export const he = {
       behavior: { focus: "מיקוד", avoidance: "הימנעות", discipline: "משמעת", resistance: "התנגדות", strength: "חוזק" }
     },
     settings: {
-      title: "הגדרות אורורה",
+      title: "הגדרות AION",
       profile: "פרופיל",
       displayName: "שם תצוגה",
       displayNamePlaceholder: "איך לקרוא לך?",
@@ -2224,7 +2224,7 @@ export const he = {
       genderMale: "זכר",
       genderFemale: "נקבה",
       genderNeutral: "ניטרלי",
-      genderNotSet: "יש להגדיר מגדר בהגדרות כדי שאורורה תדבר אליך נכון",
+      genderNotSet: "יש להגדיר מגדר בהגדרות כדי שAION תדבר אליך נכון",
       save: "שמור",
       saving: "שומר...",
       saved: "ההגדרות נשמרו",
@@ -2249,7 +2249,7 @@ export const he = {
     },
     newChat: "שיחה חדשה",
     recentConversations: "שיחות אחרונות",
-    footerNote: "אורורה זוכרת את השיחות שלך וצומחת איתך לאורך זמן",
+    footerNote: "AION זוכרת את השיחות שלך וצומחת איתך לאורך זמן",
     messagesLeft: "נותרו",
     you: "אתה",
     regenerate: "נסה שוב",
@@ -2268,7 +2268,7 @@ export const he = {
     },
     progress: {
       sessions: "סשנים",
-      auroraChats: "שיחות עם אורורה",
+      auroraChats: "שיחות עם AION",
       insightsGained: "תובנות חדשות",
       lifeModel: "התקדמות במודל החיים",
     },
@@ -2308,11 +2308,11 @@ export const he = {
     },
     empty: {
       title: "המסע שלך מתחיל",
-      subtitle: "התחל שיחה עם אורורה או השלם סשן כדי להתחיל לבנות את מודל החיים שלך.",
+      subtitle: "התחל שיחה עם AION או השלם סשן כדי להתחיל לבנות את מודל החיים שלך.",
     },
   },
   practitioners: {
-    pageTitle: "מאמנים ומטפלים | Mind OS",
+    pageTitle: "מאמנים ומטפלים | AION",
     pageDescription: "מצא את המאמן או המטפל המתאים לך מתוך מגוון מומחים מוסמכים בתחום ההתפתחות האישית והיפנותרפיה",
     keywords: "מאמן תודעה, היפנוטרפיסט, אימון אישי, NLP, מדיטציה",
     platformBadge: "פלטפורמת התפתחות אישית",
@@ -2620,9 +2620,9 @@ export const he = {
     heroSubtitle: "מבוססת בינה מלאכותית עם ליווי אנושי אמיתי",
     heroTagline: "בחר את הדרך שמתאימה לך: AI, מאמן אנושי או שניהם",
     
-    auroraCardTitle: "Aurora AI",
+    auroraCardTitle: "AION",
     auroraCardDesc: "מאמן AI אישי שמלווה אותך 24/7",
-    auroraCardCta: "התחל עם Aurora",
+    auroraCardCta: "התחל עם AION",
     aiCoach: "מאמן AI",
     
     findCoachCardTitle: "מצא מאמן",
@@ -2635,14 +2635,14 @@ export const he = {
     freeCardCta: "התחל עכשיו",
     freeGift: "חינם!",
     
-    auroraPromoTitle: "הכר את Aurora",
+    auroraPromoTitle: "הכר את AION",
     auroraPromoSubtitle: "מאמן AI שמבין אותך באמת ומלווה אותך בכל רגע",
     auroraFeature1: "זמין 24/7 בכל שאלה",
     auroraFeature2: "תוכנית אישית מותאמת",
     auroraFeature3: "מעקב התקדמות וגמיפיקציה",
     auroraFeature4: "היפנוזות ומדיטציות מותאמות",
     aiPowered: "מונע על ידי AI",
-    startWithAurora: "התחל עם Aurora - חינם",
+    startWithAurora: "התחל עם AION - חינם",
     available: "זמין",
     personalizedAI: "AI אישי",
     
@@ -2653,7 +2653,7 @@ export const he = {
     step2Title: "מלא שאלון התבוננות",
     step2Desc: "שאלון מעמיק שעוזר לנו להכיר אותך",
     step3Title: "בחר את הדרך שלך",
-    step3Desc: "Aurora AI, מאמן אנושי או שניהם",
+    step3Desc: "AION, מאמן אנושי או שניהם",
     step4Title: "התחל את המסע",
     step4Desc: "ליווי מותאם אישית להצלחה",
     getStartedFree: "התחל עכשיו - חינם",
@@ -2679,7 +2679,7 @@ export const he = {
     
     // AI Pillar
     pillarAiTitle: "מאמן AI אישי",
-    pillarAiDesc: "Aurora היא מאמנת AI שמכירה אותך, זוכרת את השיחות שלכם, ומלווה אותך בכל שעה.",
+    pillarAiDesc: "AION היא מאמנת AI שמכירה אותך, זוכרת את השיחות שלכם, ומלווה אותך בכל שעה.",
     pillarAiFeature1: "זמינה 24/7 לכל שאלה",
     pillarAiFeature2: "לומדת את הסגנון שלך",
     pillarAiFeature3: "זוכרת הכל ומתייחסת",
@@ -2713,7 +2713,7 @@ export const he = {
     
     // Chat Manages Everything
     chatTitle: "דרך הצ'אט אפשר לעשות הכל",
-    chatSubtitle: "Aurora עוקבת אחרי הלוז שלך ומסמנת משימות אוטומטית",
+    chatSubtitle: "AION עוקבת אחרי הלוז שלך ומסמנת משימות אוטומטית",
     chatTasks: "משימות",
     chatTasksExample: '"סמן משימה כבוצעה"',
     chatSchedule: "לוח זמנים",
@@ -2738,20 +2738,20 @@ export const he = {
     featureTokensDesc: "אסוף tokens לפיצ'רים",
     featureAchievements: "Achievements",
     featureAchievementsDesc: "פתח 20+ הישגים",
-    xpChat: "שיחה עם Aurora",
+    xpChat: "שיחה עם AION",
     xpTask: "משימה שהושלמה",
     xpInsight: "תובנה שנשמרה",
     xpDaily: "יום רצף",
     xpMilestone: "Milestone שבועי",
     
-    // Aurora Coach Section
-    auroraGreeting: "היי, אני אורורה 👋",
+    // AION Coach Section
+    auroraGreeting: "היי, אני AION 👋",
     auroraSubtitle: "המאמנת האישית שלך - 24/7, בכל נושא, בלי שיפוטיות",
     auroraFeature1: "שיחות מעמיקות בכל נושא",
     auroraFeature2: "12 מצבי אגו להתנסות",
     auroraFeature3: "היפנוזות מותאמות אישית",
     auroraFeature4: "ניתוח דפוסים והתנהגויות",
-    auroraEasyMessage: "רק תקליד - אורורה דואגת לכל השאר ✨",
+    auroraEasyMessage: "רק תקליד - AION דואגת לכל השאר ✨",
     
     // Life Wrapping Section
     wrapBadge: "חיים על אוטומט",
@@ -2767,7 +2767,7 @@ export const he = {
     wrapLongItem2: "מטרות ויעדים",
     wrapLongItem3: "Life Model אישי",
     wrapLongItem4: "ניתוח דפוסים",
-    wrapCta: "אתה רק צריך להקליד - אורורה מנהלת את השאר",
+    wrapCta: "אתה רק צריך להקליד - AION מנהלת את השאר",
     
     // Gamification Addiction
     dontLoseStreak: "אל תאבד את הסטריק!",
@@ -2777,7 +2777,7 @@ export const he = {
 
     // Consciousness Coaching (legacy)
     coachingTitle: "אימון תודעתי אישי 24/7",
-    coachingSubtitle: "Aurora - המאמן שלך לחיים",
+    coachingSubtitle: "AION - המאמן שלך לחיים",
     coachingFeature1: "שיחות מעמיקות בכל נושא",
     coachingFeature2: "12 מצבי אגו להתנסות",
     coachingFeature3: "היפנוזות ומדיטציות מותאמות",
@@ -2816,7 +2816,7 @@ export const he = {
     // Why Choose Us Section
     whyChooseUs: {
       badge: "הכל מה שתמיד חיפשת",
-      title: "למה לבחור ב-Mind OS?",
+      title: "למה לבחור ב-AION?",
       subtitle: "הכל במקום אחד — בלי לקפוץ בין אפליקציות, בלי לשלם על 10 מנויים שונים",
       hypnotherapist: {
         title: "היפנוטרפיסט פרטי משלך",
@@ -2824,7 +2824,7 @@ export const he = {
       },
       coach: {
         title: "מאמן תודעתי אישי",
-        desc: "Aurora מלווה אותך 24/7 — זוכרת הכל, מבינה אותך, תמיד שם",
+        desc: "AION מלווה אותך 24/7 — זוכרת הכל, מבינה אותך, תמיד שם",
       },
       productivity: {
         title: "מערכת פרודקטיביות שמבינה אותך",
@@ -2859,8 +2859,8 @@ export const he = {
     systemArchIntegration: "כל השכבות מסונכרנות בזמן אמת לצמיחה הוליסטית",
     
     // Layers
-    layerConsciousTitle: "שכבת התודעה — Aurora AI",
-    layerConsciousDesc: "המדריכה היומית שלך. Aurora מבינה הקשר, זוכרת הכל, ומנהלת את כל המסע שלך.",
+    layerConsciousTitle: "שכבת התודעה — AION",
+    layerConsciousDesc: "המדריכה היומית שלך. AION מבינה הקשר, זוכרת הכל, ומנהלת את כל המסע שלך.",
     layerApplicationTitle: "שכבת האפליקציה — 8 תחומי חיים",
     layerApplicationDesc: "אישיות, עסקים, בריאות, מערכות יחסים, פיננסים, למידה, ייעוד, תחביבים — הכל מחובר, הכל ממוטב.",
     layerSubconsciousTitle: "שכבת התת-מודע — מנוע ההיפנוזה",
@@ -2871,7 +2871,7 @@ export const he = {
     // NEW: Transformation Journey Section
     journeyBadge: "מסלול 90 הימים",
     journeyTitle: "מסע הטרנספורמציה שלך",
-    journeySubtitle: "מסלול מובנה מגילוי לשליטה — עם Aurora שמדריכה בכל צעד",
+    journeySubtitle: "מסלול מובנה מגילוי לשליטה — עם AION שמדריכה בכל צעד",
     journeyCta: "התחל את הטרנספורמציה",
     journeyXpLabel: "צבור עד",
     journeyLevelLabel: "הגע ל",
@@ -2897,14 +2897,14 @@ export const he = {
     phaseMasteryFeature2: "פיצ'רים מתקדמים של קהילה",
     phaseMasteryFeature3: "התפתחות מתמשכת של האווטר",
     
-    // NEW: Aurora Conversation Preview
-    auroraConversationTitle: "Aurora מכירה את כל הסיפור שלך",
+    // NEW: AION Conversation Preview
+    auroraConversationTitle: "AION מכירה את כל הסיפור שלך",
     auroraConversationSubtitle: "היא מחברת תובנות מכל התחומים כדי להנחות אותך באופן הוליסטי",
     auroraConvoExample1: "\"שמתי לב שהלחץ העסקי משפיע על השינה שלך. בוא נטפל בשניהם.\"",
     auroraConvoExample2: "\"רצף המדיטציות עוזר לריכוז. מוכן להיפנוזה עסקית?\"",
     auroraConvoExample3: "\"בהתבסס על הסשן של אתמול, הנה 3 משימות להיום.\"",
     
-    // NEW: Hero - Mind OS Focus
+    // NEW: Hero - AION Focus
     mindOsTitle: "מערכת ההפעלה של התודעה",
     mindOsSubtitle: "8 תחומי חיים. מוח אחד משולב. AI + היפנוזה + גיימיפיקציה עובדים יחד.",
 
@@ -2925,11 +2925,11 @@ export const he = {
       subtitle: 'שלושה שלבי קווסט שבונים מחדש את החיים שלך מהיסוד.',
       phaseLabel: 'קווסט',
       phase1Title: 'אבחון עומק',
-      phase1Desc: 'Aurora סורקת את כל 15 תחומי החיים — תודעה, עוצמה, עושר, לחימה, יחסים ועוד — ומפה את פרופיל הזהות המלא שלך.',
+      phase1Desc: 'AION סורקת את כל 15 תחומי החיים — תודעה, עוצמה, עושר, לחימה, יחסים ועוד — ומפה את פרופיל הזהות המלא שלך.',
       phase2Title: 'אסטרטגיה ל-100 יום',
       phase2Desc: 'ה-AI מייצר תוכנית קרב מותאמת אישית עם משימות, אבני דרך ופרוטוקולים יומיים בכל תחום שפתחת.',
       phase3Title: 'ביצוע יומי',
-      phase3Desc: 'כל בוקר נוחת תור המשימות — פעולות ממוקדות, הרגלים ופרוטוקולים. Aurora מתאימה בזמן אמת ככל שמתקדם.',
+      phase3Desc: 'כל בוקר נוחת תור המשימות — פעולות ממוקדות, הרגלים ופרוטוקולים. AION מתאימה בזמן אמת ככל שמתקדם.',
     },
 
     // AppPreviewSection
@@ -2998,8 +2998,8 @@ export const he = {
       step1Title: 'עבור את האבחון',
       step1Desc: '5 דקות של שאלות ממוקדות שמגלות את נקודות החוזק, האתגרים וסדר העדיפויות שלך.',
       step2Title: 'קבל תוכנית 100 יום',
-      step2Desc: 'Aurora בונה לך תוכנית מותאמת אישית עם 10 פאזות, אבני דרך ומשימות יומיות.',
-      step3Title: 'בצע יומי עם Aurora',
+      step2Desc: 'AION בונה לך תוכנית מותאמת אישית עם 10 פאזות, אבני דרך ומשימות יומיות.',
+      step3Title: 'בצע יומי עם AION',
       step3Desc: 'מאמן AI 24/7 שמלווה, מזכיר, מתאים ושומר אותך על המסלול.',
     },
 
@@ -3036,14 +3036,14 @@ export const he = {
     // DomainCitySection
     domainCity: {
       title: '14 רובעים. עיר אחת.',
-      subtitle: 'כל תחום חיים הוא רובע בעיר האישית שלך — הכל מחובר, הכל ממוטב על ידי Aurora.',
+      subtitle: 'כל תחום חיים הוא רובע בעיר האישית שלך — הכל מחובר, הכל ממוטב על ידי AION.',
     },
 
     // HypnosisSection
     hypnosis: {
       badge: 'היפנוזה AI',
       title: 'תכנת מחדש את המוח',
-      subtitle: 'סשני היפנוזה שנוצרים בזמן אמת מהשיחות שלך עם Aurora.',
+      subtitle: 'סשני היפנוזה שנוצרים בזמן אמת מהשיחות שלך עם AION.',
       realtimeTitle: 'יצירה בזמן אמת',
       realtimeDesc: 'סשנים נבנים תוך כדי תנועה מהמצב והיעדים הנוכחיים שלך.',
       karaokeTitle: 'טקסט קריוקי',
@@ -3126,10 +3126,10 @@ export const he = {
     // HandsFreeSection
     handsFree: {
       badge: 'חוויה ללא ידיים',
-      title: 'דבר. אורורה עושה.',
-      subtitle: 'לא צריך ללכת לשום מקום. לא צריך ללחוץ על כלום. פשוט תגיד מה אתה רוצה ואורורה תעשה את זה.',
+      title: 'דבר. AION עושה.',
+      subtitle: 'לא צריך ללכת לשום מקום. לא צריך ללחוץ על כלום. פשוט תגיד מה אתה רוצה וAION תעשה את זה.',
       chatTitle: 'הכל קורה בצ\'אט',
-      chatDesc: 'אורורה היא לא רק צ\'אטבוט - היא ממשק הפעלה מלא למערכת כולה. כל מה שאפשר לעשות בדאשבורד, אפשר לעשות פשוט על ידי דיבור או הקלדה לאורורה.',
+      chatDesc: 'AION היא לא רק צ\'אטבוט - היא ממשק הפעלה מלא למערכת כולה. כל מה שאפשר לעשות בדאשבורד, אפשר לעשות פשוט על ידי דיבור או הקלדה לAION.',
       voiceMessage: 'הקלטה קולית',
       typeOrRecord: 'הקלד או הקלט...',
       createTasks: 'יצירת משימות',
@@ -3137,7 +3137,7 @@ export const he = {
       hypnosisSession: 'סשן היפנוזה',
       checkProgress: 'בדיקת התקדמות',
       voiceTitle: 'הקלטה קולית בעברית ואנגלית',
-      voiceDesc: 'פשוט תקליט את עצמך מדבר ואורורה תבין אותך. תמלול מדויק, הבנה עמוקה, וביצוע מיידי.',
+      voiceDesc: 'פשוט תקליט את עצמך מדבר וAION תבין אותך. תמלול מדויק, הבנה עמוקה, וביצוע מיידי.',
       cta: 'נסה את החוויה הקולית',
     },
 
@@ -3148,7 +3148,7 @@ export const he = {
       titleHighlight: 'שנבנית בשבילך',
       subtitle: 'מערכת לימוד שמייצרת קורסים מותאמים אישית על סמך הנתונים שלך — כל שיעור קשור ישירות לתחום חיים ומזין את התוכנית שלך.',
       aiCourses: 'קורסים מותאמים אישית ב-AI',
-      aiCoursesDesc: 'Aurora בונה לך קוריקולום מותאם על סמך האבחון שלך',
+      aiCoursesDesc: 'AION בונה לך קוריקולום מותאם על סמך האבחון שלך',
       interactive: 'שיעורים אינטראקטיביים',
       interactiveDesc: 'שיעורים עם תרגילים, שאלות ותוכן מותאם',
       pillarModules: 'מודולים לפי עמוד',
@@ -3254,7 +3254,7 @@ export const he = {
     emailReadOnly: "לא ניתן לשנות את כתובת המייל",
     tabs: {
       profile: "פרופיל",
-      aurora: "אורורה",
+      aurora: "AION",
       appearance: "מראה",
       notifications: "התראות",
       account: "חשבון",
@@ -5123,7 +5123,7 @@ export const he = {
       prepare: 'הכנה — נשימות עמוקות ומיקוד כוונה',
       coreExecution: 'ביצוע ליבה',
       reflect: 'סגירה — מה למדתי? מה הצעד הבא?',
-      auroraComputing: 'אורורה מחשבת...',
+      auroraComputing: 'AION מחשבת...',
       letsBegin: 'בוא נתחיל.',
       withYou: 'אני איתך.',
       progress: 'התקדמות',
@@ -5138,7 +5138,7 @@ export const he = {
     },
     onboarding: {
       intro: {
-        welcomeToMindOS: 'ברוכים הבאים ל-MindOS',
+        welcomeToAION: 'ברוכים הבאים ל-AION',
         description: 'מערכת ההפעלה שתשנה את החיים שלך תוך 100 יום — גוף, מיקוד, אנרגיה, כסף ותודעה.',
         neuralCalibration: 'כיול נוירולוגי',
         energyOptimization: 'אופטימיזציית אנרגיה',

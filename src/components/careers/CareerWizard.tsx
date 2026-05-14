@@ -330,7 +330,7 @@ export default function CareerWizard({ careerPath, onComplete }: CareerWizardPro
             {aiLoading && (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                {isHe ? 'Aurora חושבת...' : 'Aurora is thinking...'}
+                {isHe ? 'AION חושבת...' : 'AION is thinking...'}
               </div>
             )}
             <div ref={chatEndRef} />

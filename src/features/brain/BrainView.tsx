@@ -122,7 +122,7 @@ export default function BrainView({ onTalkToAion }: Props) {
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {isRTL
-              ? "אורורה תבנה אותו מהשיחות, היומנים, היעדים וההיסטוריה שלך."
+              ? "AION תבנה אותו מהשיחות, היומנים, היעדים וההיסטוריה שלך."
               : "AION will build it from your conversations, journals, goals and history."}
           </p>
         </div>
@@ -150,7 +150,7 @@ export default function BrainView({ onTalkToAion }: Props) {
     <div dir={isRTL ? 'rtl' : 'ltr'} className="w-full">
       <ShellHeader
         title={isRTL ? "מוח" : "Brain"}
-        subtitle={isRTL ? "אורורה בונה את המפה שלך" : "AION is building your map"}
+        subtitle={isRTL ? "AION בונה את המפה שלך" : "AION is building your map"}
       >
         {hasNodes && (
           <p className="text-[11px] text-muted-foreground/70 mt-0.5">
@@ -193,7 +193,7 @@ export default function BrainView({ onTalkToAion }: Props) {
           {softEdges.length > 0 && (
             <p className="px-4 mt-1 text-[10px] text-muted-foreground/70 text-center">
               {isRTL
-                ? "מוצגים קשרים משוערים — אורורה תחזק אותם בהמשך הלמידה."
+                ? "מוצגים קשרים משוערים — AION תחזק אותם בהמשך הלמידה."
                 : "Showing inferred connections — AION will firm them up as it learns."}
             </p>
           )}

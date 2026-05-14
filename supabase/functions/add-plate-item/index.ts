@@ -22,7 +22,7 @@ serve(async (req) => {
     const pillarList = pillars.join(", ");
 
     const systemPrompt = isHe
-      ? `אתה אורורה, מאמנת AI אישית. המשתמש רוצה להוסיף דבר חדש לחיים שלו (${hub === "core" ? "פיתוח אישי" : "זירה חיצונית"}).
+      ? `אתה AION, מאמנת AI אישית. המשתמש רוצה להוסיף דבר חדש לחיים שלו (${hub === "core" ? "פיתוח אישי" : "זירה חיצונית"}).
 
 המטרה שלך: לשאול 3-5 שאלות קצרות כדי להבין בדיוק מה הוא רוצה להוסיף, ואז ליצור אותו.
 
@@ -35,7 +35,7 @@ serve(async (req) => {
 6. אל תשאל יותר מ-5 שאלות
 
 **שאלה ראשונה:** שאל מה הוא רוצה להוסיף — פרויקט? עסק? יעד? הרגל? וספר בקצרה.`
-      : `You are Aurora, a personal AI coach. The user wants to add something new to their life (${hub === "core" ? "personal development" : "external execution"}).
+      : `You are AION, a personal AI coach. The user wants to add something new to their life (${hub === "core" ? "personal development" : "external execution"}).
 
 Your goal: Ask 3-5 short questions to understand exactly what they want to add, then create it.
 

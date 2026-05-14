@@ -262,7 +262,7 @@ export default function FMBridge() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">
-                  {h.direction === 'out' ? '→ Solana' : '← MindOS'} · {h.amount.toLocaleString()} MOS
+                  {h.direction === 'out' ? '→ Solana' : '← AION'} · {h.amount.toLocaleString()} MOS
                 </p>
                 <p className="text-[10px] text-muted-foreground font-mono">{h.tx_hash}</p>
               </div>

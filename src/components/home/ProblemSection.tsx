@@ -1,5 +1,5 @@
 /**
- * ProblemSection — "The Problem" — Why MindOS exists
+ * ProblemSection — "The Problem" — Why AION exists
  * Maps to whitepaper §2: cognitive fragmentation, digital overload
  */
 import { motion } from 'framer-motion';

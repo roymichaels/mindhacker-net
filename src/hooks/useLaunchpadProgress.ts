@@ -191,8 +191,8 @@ export const STEPS = [
     titleEn: 'First Chat',
     subtitle: 'מה מפריע לך?',
     subtitleEn: 'What bothers you?',
-    description: 'שיחה עם Aurora על התסכולים והאתגרים',
-    descriptionEn: 'Chat with Aurora about your frustrations and challenges',
+    description: 'שיחה עם AION על התסכולים והאתגרים',
+    descriptionEn: 'Chat with AION about your frustrations and challenges',
     icon: '💬',
   },
   {
@@ -253,7 +253,7 @@ export const STEPS = [
     subtitle: 'משהו נוסף?',
     subtitleEn: 'Anything else?',
     description: 'מקום להוסיף כל מידע שחשוב ש-Aurora תדע',
-    descriptionEn: 'Add any additional information Aurora should know',
+    descriptionEn: 'Add any additional information AION should know',
     icon: '📝',
   },
   {
@@ -264,8 +264,8 @@ export const STEPS = [
     titleEn: 'Dashboard Activation',
     subtitle: 'התחלת המסע',
     subtitleEn: 'Start your journey',
-    description: 'Aurora מוכנה לבנות את מודל החיים שלך',
-    descriptionEn: 'Aurora is ready to build your life model',
+    description: 'AION מוכנה לבנות את מודל החיים שלך',
+    descriptionEn: 'AION is ready to build your life model',
     icon: '🚀',
   },
 ];

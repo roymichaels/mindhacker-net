@@ -287,7 +287,7 @@ export const useDailyHabits = (user: User | null): DailyHabitsResult => {
     }
   }, [user?.id, today]);
 
-  // Generate context string for Aurora
+  // Generate context string for AION
   const getHabitsForAurora = useCallback((): string => {
     if (habits.length === 0) return '';
 

@@ -105,8 +105,8 @@ export function TransformationReportCard() {
   const shareReport = async () => {
     if (!report || !stats) return;
     const shareText = isHe
-      ? `🌟 דו"ח הטרנספורמציה שלי מ-MindOS\n\n📊 רמה ${stats.level} | ${stats.completedTasks} משימות הושלמו | רצף ${stats.streak} ימים\n\n${report.slice(0, 200)}...`
-      : `🌟 My MindOS Transformation Report\n\n📊 Level ${stats.level} | ${stats.completedTasks} tasks completed | ${stats.streak} day streak\n\n${report.slice(0, 200)}...`;
+      ? `🌟 דו"ח הטרנספורמציה שלי מ-AION\n\n📊 רמה ${stats.level} | ${stats.completedTasks} משימות הושלמו | רצף ${stats.streak} ימים\n\n${report.slice(0, 200)}...`
+      : `🌟 My AION Transformation Report\n\n📊 Level ${stats.level} | ${stats.completedTasks} tasks completed | ${stats.streak} day streak\n\n${report.slice(0, 200)}...`;
 
     if (navigator.share) {
       try {

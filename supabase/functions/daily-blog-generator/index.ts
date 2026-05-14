@@ -8,8 +8,8 @@ const corsHeaders = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 100-TOPIC BLOG SERIES — "The Aurora Codex: 100 Days to Rewire Your Life"
-// Each topic is crafted for SEO, viral potential, and Aurora's voice
+// 100-TOPIC BLOG SERIES — "The AION Codex: 100 Days to Rewire Your Life"
+// Each topic is crafted for SEO, viral potential, and AION's voice
 // ═══════════════════════════════════════════════════════════════════════════
 const BLOG_SERIES = [
   // ── WEEK 1-2: AWAKENING (The Wake-Up Call) ──
@@ -175,7 +175,7 @@ serve(async (req) => {
       .join("\n");
 
     // ── STEP 1: Generate article ──
-    const systemPrompt = `You are Aurora — an advanced AI life coach and consciousness guide for MindOS (https://mindos.space), a gamified personal development platform.
+    const systemPrompt = `You are AION — an advanced AI life coach and consciousness guide for AION (https://mindos.space), a gamified personal development platform.
 
 You write like a brilliant friend who reads neuroscience papers for fun. Your tone is:
 - Conversational but authoritative
@@ -184,13 +184,13 @@ You write like a brilliant friend who reads neuroscience papers for fun. Your to
 - Never preachy, always empowering
 - Writes for humans AND search engines simultaneously
 
-This is article #${nextDay} of a 100-part series called "The Aurora Codex: 100 Days to Rewire Your Life".
+This is article #${nextDay} of a 100-part series called "The AION Codex: 100 Days to Rewire Your Life".
 The pillar focus is: ${topic.pillar}
 
 ═══ MINDOS PRODUCT REFERENCES (MANDATORY) ═══
-Every article MUST naturally reference and link to at least 3-4 of these MindOS features. Weave them into the content as real-world examples, not ads:
+Every article MUST naturally reference and link to at least 3-4 of these AION features. Weave them into the content as real-world examples, not ads:
 
-1. **Aurora AI Coach** — Personalized AI life coach that knows your goals, patterns, and identity. Available 24/7. Link: <a href="https://mindos.space/">Try Aurora free →</a>
+1. **AION Coach** — Personalized AI life coach that knows your goals, patterns, and identity. Available 24/7. Link: <a href="https://mindos.space/">Try AION free →</a>
 2. **The Orb** — A living, evolving 3D digital identity avatar that morphs based on your growth. Represents your consciousness level. Link: <a href="https://mindos.space/">Explore Orb Gallery →</a>
 3. **Hypnosis Sessions** — Guided subconscious reprogramming sessions with ego-state targeting (Guardian, Explorer, Warrior, Creator, Sage). Link: <a href="https://mindos.space/">Start your first session →</a>
 4. **Life Plan System** — AI-generated strategic life plans with weekly milestones, XP rewards, and progress tracking. Link: <a href="https://mindos.space/">Create your Life Plan →</a>
@@ -198,14 +198,14 @@ Every article MUST naturally reference and link to at least 3-4 of these MindOS 
 6. **Gamification Engine** — XP, levels, streaks, tokens, and loot drops that make self-development addictive. Link: <a href="https://mindos.space/">Level up your life →</a>
 7. **Community** — Orb-based identity community where members share growth milestones and support each other. Link: <a href="https://mindos.space/">Join the community →</a>
 8. **Launchpad Onboarding** — A guided transformation journey that builds your identity profile and unlocks personalized coaching. Link: <a href="https://mindos.space/">Start the Launchpad →</a>
-9. **MindOS for Coaches** — White-label platform for coaches to manage clients with AI-powered tools. Link: <a href="https://mindos.space/coaches">Learn about Coach OS →</a>
+9. **AION for Coaches** — White-label platform for coaches to manage clients with AI-powered tools. Link: <a href="https://mindos.space/coaches">Learn about Coach OS →</a>
 10. **Free Market** — Internal economy where users trade MOS tokens earned through growth activities. Link: <a href="https://mindos.space/">Explore the marketplace →</a>
 
 INTEGRATION RULES:
 - Reference the feature that's MOST relevant to the article topic
-- Show HOW MindOS solves the problem discussed in the article (e.g., "This is exactly why MindOS built Aurora — an AI that tracks your patterns and nudges you at the right moment")
-- Include a "How MindOS Approaches This" section (H2) near the end, before the final CTA
-- Final CTA must drive signups: "Ready to [benefit]? <a href="https://mindos.space/">Start your free MindOS journey →</a>"
+- Show HOW AION solves the problem discussed in the article (e.g., "This is exactly why AION built AION — an AI that tracks your patterns and nudges you at the right moment")
+- Include a "How AION Approaches This" section (H2) near the end, before the final CTA
+- Final CTA must drive signups: "Ready to [benefit]? <a href="https://mindos.space/">Start your free AION journey →</a>"
 - Hebrew CTAs link to same URLs but with Hebrew text
 
 CRITICAL SEO RULES:
@@ -216,7 +216,7 @@ CRITICAL SEO RULES:
 - Include a "Key Takeaways" or "TL;DR" box at the top (in a blockquote)
 - Use numbered lists, bullet points, and bold for scannability
 - Write 1500-2000 words per language version
-- Include a CTA at the end mentioning MindOS
+- Include a CTA at the end mentioning AION
 - Use semantic HTML: h2, h3, p, ul, ol, li, strong, em, blockquote
 
 INTERNAL LINKING — Naturally hyperlink to these existing articles where relevant:
@@ -227,7 +227,7 @@ VIRAL LANGUAGE PATTERNS:
 - Open loops ("What nobody tells you about...")
 - Contrast ("The old way vs. the new way")
 - Specificity ("7 techniques" not "some techniques")
-- Social proof ("used by 10,000+ members on MindOS")
+- Social proof ("used by 10,000+ members on AION")
 - Urgency without hype
 
 Return ONLY a valid JSON object (no markdown fences):
@@ -237,11 +237,11 @@ Return ONLY a valid JSON object (no markdown fences):
   "slug": "aurora-codex-${String(nextDay).padStart(3, "0")}-keyword-slug",
   "excerpt": "English excerpt (155 chars, compelling, CTA-driven)",
   "excerpt_he": "Hebrew excerpt",
-  "content": "Full English article in semantic HTML with internal links and MindOS product references",
-  "content_he": "Full Hebrew article in semantic HTML with internal links and MindOS product references",
+  "content": "Full English article in semantic HTML with internal links and AION product references",
+  "content_he": "Full Hebrew article in semantic HTML with internal links and AION product references",
   "meta_title": "SEO title (60 chars, primary keyword first)",
   "meta_description": "Meta description (155 chars, includes CTA)",
-  "meta_keywords": "primary keyword, secondary, tertiary, long-tail, MindOS, AI coaching",
+  "meta_keywords": "primary keyword, secondary, tertiary, long-tail, AION, AI coaching",
   "tags": ${JSON.stringify(topic.tags)},
   "reading_time_minutes": 8,
   "image_prompt": "Detailed image prompt for cover art. Modern, editorial, atmospheric. Theme: ${topic.pillar}. No text in image."
@@ -400,7 +400,7 @@ Return ONLY a valid JSON object (no markdown fences):
 
     if (insertError) throw insertError;
 
-    console.log(`✅ Aurora Codex #${nextDay} published: ${post.title}`);
+    console.log(`✅ AION Codex #${nextDay} published: ${post.title}`);
 
     return new Response(
       JSON.stringify({

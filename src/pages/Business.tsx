@@ -93,7 +93,7 @@ export default function Business() {
               {isHe ? 'העסקים שלי' : 'My Businesses'}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {isHe ? 'נהל, בנה והקם את העסקים שלך עם Aurora' : 'Manage, build and launch your businesses with Aurora'}
+              {isHe ? 'נהל, בנה והקם את העסקים שלך עם AION' : 'Manage, build and launch your businesses with AION'}
             </p>
           </div>
         </div>
@@ -124,8 +124,8 @@ export default function Business() {
           </h2>
           <p className="text-muted-foreground max-w-md mb-6">
             {isHe 
-              ? 'Aurora תעזור לך לבנות את העסק שלך צעד אחר צעד — חזון, מודל עסקי, קהל יעד, שיווק ועוד'
-              : 'Aurora will help you build your business step by step — vision, business model, target audience, marketing and more'}
+              ? 'AION תעזור לך לבנות את העסק שלך צעד אחר צעד — חזון, מודל עסקי, קהל יעד, שיווק ועוד'
+              : 'AION will help you build your business step by step — vision, business model, target audience, marketing and more'}
           </p>
           <Button
             size="lg"
@@ -133,7 +133,7 @@ export default function Business() {
             className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-black font-semibold gap-2"
           >
             <Sparkles className="h-5 w-5" />
-            {isHe ? 'צור עסק עם Aurora' : 'Create Business with Aurora'}
+            {isHe ? 'צור עסק עם AION' : 'Create Business with AION'}
           </Button>
         </motion.div>
       ) : (

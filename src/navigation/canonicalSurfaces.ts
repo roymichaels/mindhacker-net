@@ -1,7 +1,7 @@
 /**
  * Canonical Surfaces — the ONLY source of truth for top-level navigation.
  *
- * MindOS has exactly 5 surfaces. Everything else is an overlay, artifact,
+ * AION has exactly 5 surfaces. Everything else is an overlay, artifact,
  * room, or capability output summoned by AION. Do not add a 6th entry here
  * without an architectural decision.
  *

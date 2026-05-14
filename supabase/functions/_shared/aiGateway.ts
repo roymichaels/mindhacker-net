@@ -70,7 +70,7 @@ export async function aiChatCompletion(
   };
   if (provider === "openrouter") {
     headers["HTTP-Referer"] = "https://mind-hacker.net";
-    headers["X-Title"] = "Mind OS";
+    headers["X-Title"] = "AION";
   }
 
   const payload = { ...body, model: resolveModel(body.model, provider) };

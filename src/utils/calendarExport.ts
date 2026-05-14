@@ -25,7 +25,7 @@ export function generateICS(events: CalendarEvent[]): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//MindOS//Action Items//EN',
+    'PRODID:-//AION//Action Items//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
   ];

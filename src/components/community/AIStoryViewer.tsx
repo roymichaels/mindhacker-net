@@ -1,5 +1,5 @@
 /**
- * AIStoryViewer — Full-screen viewer for AI-generated stories (MindOS / Aurora).
+ * AIStoryViewer — Full-screen viewer for AI-generated stories (AION / AION).
  * Features AI image background, cinematic typography overlay, and branded identity.
  */
 import { useState, useEffect, useCallback } from 'react';
@@ -76,7 +76,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
 
   if (!open || !story) return null;
 
-  const isMindOS = story.source === 'mindos';
+  const isAION = story.source === 'mindos';
   const title = isHe ? story.title_he : story.title_en;
   const body = isHe ? story.body_he : story.body_en;
   const subtitle = isHe ? story.subtitle_he : story.subtitle_en;
@@ -108,11 +108,11 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
             {/* Brand identity */}
             <div className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center overflow-hidden",
-              isMindOS
+              isAION
                 ? "bg-gradient-to-br from-primary/80 to-violet-600 border-2 border-white/20"
                 : "border-2 border-violet-400/40"
             )}>
-              {isMindOS ? (
+              {isAION ? (
                 <span className="text-lg font-black text-white tracking-tighter">M</span>
               ) : (
                 <StandaloneMorphOrb size={36} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
@@ -120,7 +120,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
             </div>
             <div>
               <p className="text-white text-sm font-bold tracking-wide">
-                {isMindOS ? 'MindOS' : 'Aurora'}
+                {isAION ? 'AION' : 'AION'}
               </p>
               <p className="text-white/50 text-[10px]">
                 {new Date(story.created_at).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' })}
@@ -143,7 +143,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
           <div className={cn(
             "absolute inset-0",
-            isMindOS
+            isAION
               ? "bg-gradient-to-br from-primary/20 via-transparent to-violet-900/30"
               : "bg-gradient-to-br from-violet-600/20 via-transparent to-cyan-900/30"
           )} />
@@ -159,7 +159,7 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
               transition={{ delay: 0.2 }}
               className={cn(
                 "text-xs font-semibold uppercase tracking-[0.2em] mb-3",
-                isMindOS ? "text-primary/90" : "text-violet-300/90"
+                isAION ? "text-primary/90" : "text-violet-300/90"
               )}
             >
               {subtitle}
@@ -197,11 +197,11 @@ export default function AIStoryViewer({ stories, initialIndex, open, onClose }: 
           >
             <div className={cn(
               "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm",
-              isMindOS
+              isAION
                 ? "bg-primary/20 text-primary border border-primary/30"
                 : "bg-violet-500/20 text-violet-300 border border-violet-400/30"
             )}>
-              {isMindOS ? '🧠 MindOS Daily' : '✨ Aurora Insight'}
+              {isAION ? '🧠 AION Daily' : '✨ AION Insight'}
             </div>
           </motion.div>
         </div>

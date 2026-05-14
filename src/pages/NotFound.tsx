@@ -58,7 +58,7 @@ const NotFound = () => {
             <p className="text-muted-foreground text-sm">
               {isRTL
                 ? 'נראה שהגעת למקום שלא קיים במערכת. בוא נחזיר אותך למסלול.'
-                : "Looks like this route doesn't exist in Mind OS. Let's get you back on track."}
+                : "Looks like this route doesn't exist in AION. Let's get you back on track."}
             </p>
           </div>
 

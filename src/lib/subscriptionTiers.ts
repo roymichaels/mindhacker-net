@@ -33,8 +33,8 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     label: { en: "Awakening", he: "התעוררות" },
     subtitle: { en: "Self Awareness", he: "מודעות עצמית" },
     description: {
-      en: "See your life clearly. Core assessments, daily structure & Aurora basics",
-      he: "ראה את חייך בבהירות. אבחונים, מבנה יומי ואורורה בסיסית",
+      en: "See your life clearly. Core assessments, daily structure & AION basics",
+      he: "ראה את חייך בבהירות. אבחונים, מבנה יומי וAION בסיסית",
     },
   },
   plus: {
@@ -46,8 +46,8 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     label: { en: "Plus", he: "Plus" },
     subtitle: { en: "Self Optimization", he: "אופטימיזציה עצמית" },
     description: {
-      en: "Full pillars, unlimited Aurora, AI hypnosis, proactive coaching & Arena",
-      he: "כל הפילרים, אורורה ללא הגבלה, היפנוזה AI, אימון פרואקטיבי וזירה",
+      en: "Full pillars, unlimited AION, AI hypnosis, proactive coaching & Arena",
+      he: "כל הפילרים, AION ללא הגבלה, היפנוזה AI, אימון פרואקטיבי וזירה",
     },
     trial: 7,
   },
@@ -99,7 +99,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     en: [
       "2 pillars from 15 life domains",
       "Full diagnostic assessment",
-      "5 Aurora messages/day",
+      "5 AION messages/day",
       "Dashboard & daily structure",
       "3 active habits",
       "XP, leveling & streaks",
@@ -107,7 +107,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     he: [
       "2 פילרים מתוך 15 תחומי חיים",
       "אבחון מלא",
-      "5 הודעות יומיות לאורורה",
+      "5 הודעות יומיות לAION",
       "דאשבורד ומבנה יומי",
       "3 הרגלים פעילים",
       "XP, רמות ורצפים",
@@ -116,7 +116,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   plus: {
     en: [
       "6 pillars from all 15 domains",
-      "Unlimited Aurora with memory",
+      "Unlimited AION with memory",
       "Full 100-day Transformation Plan",
       "AI Hypnosis & daily scripts",
       "Arena execution engine",
@@ -127,7 +127,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     ],
     he: [
       "6 פילרים מתוך 15 תחומי חיים",
-      "אורורה ללא הגבלה עם זיכרון",
+      "AION ללא הגבלה עם זיכרון",
       "תוכנית טרנספורמציה 100 יום",
       "היפנוזה AI ותסריטים יומיים",
       "מנוע ביצוע בזירה",

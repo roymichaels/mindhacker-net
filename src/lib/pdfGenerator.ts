@@ -69,7 +69,7 @@ export const generateFormPDF = async (
 ): Promise<void> => {
   // Use brand settings or fallback to defaults
   const brandName = brandSettings?.brandName || "MIND OS";
-  const brandNameEn = brandSettings?.brandNameEn || "Mind OS";
+  const brandNameEn = brandSettings?.brandNameEn || "AION";
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",

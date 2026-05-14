@@ -263,7 +263,7 @@ function buildTraitPrompt(
       : `    { "name_en": "...", "name_he": "...", "description_en": "...", "description_he": "...", "icon": "..." }`
   ).join(',\n');
 
-  return `You are Aurora, elite life transformation AI for "Mind OS".
+  return `You are AION, elite life transformation AI for "AION".
 
 TASK: Generate exactly ${traitCount} CHARACTER TRAIT${traitCount > 1 ? 'S' : ''} (abilities) for the pillar "${pillarId}" (${hub} hub).
 
@@ -333,7 +333,7 @@ function buildMissionsForTraitPrompt(
     ? `\n## PILLAR SCOPE (STRICT BOUNDARIES):\nIN SCOPE: ${scope.scope_en}\n${scope.NOT_en}\n`
     : '';
   
-  return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS).
+  return `You are AION, elite life transformation AI for "AION" (AION).
 
 TASK: Generate exactly 3 MISSIONS for the character trait "${traitName.name_en}" / "${traitName.name_he}" in pillar "${pillarId}" (${hub} hub).
 Each mission is a progressive training arc that develops this specific trait.
@@ -435,7 +435,7 @@ CRITICAL PRACTICE RULES:
 - You may combine practices with progressive overload (e.g., "Tai Chi 15min → 30min daily progression").\n`;
   }
 
-  return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 STRATEGIC PROTOCOLS.
+  return `You are AION for "AION". TASK: Break down each mission into exactly 5 STRATEGIC PROTOCOLS.
 This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 high-level strategic commitments.
 
 ## PILLAR: ${pillarId.toUpperCase()}

@@ -23,7 +23,7 @@ export default function CommunityHeader({ onCreateThread }: CommunityHeaderProps
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">
-            {t('combatCommunity.communityTitle') || 'MindOS Community'}
+            {t('combatCommunity.communityTitle') || 'AION Community'}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             {t('combatCommunity.communitySubtitle') || '15 pillars. One civilization.'}

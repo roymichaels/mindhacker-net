@@ -5,7 +5,7 @@ import AuroraChatBubbles from './AuroraChatBubbles';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 
 /**
- * A self-contained Aurora chat dock for use in journey pages.
+ * A self-contained AION chat dock for use in journey pages.
  * Wraps the chat input and bubbles with its own provider if needed.
  */
 const JourneyChatDockInner = () => {

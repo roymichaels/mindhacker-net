@@ -137,7 +137,7 @@ export function AuroraDock() {
         role="dialog"
         className="fixed inset-0 z-[70] flex flex-col bg-background"
       >
-        {/* Top bar with Aurora branding + back button */}
+        {/* Top bar with AION branding + back button */}
         <div className="relative flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           {/* Close / back */}
           <button
@@ -147,10 +147,10 @@ export function AuroraDock() {
             <X className="w-5 h-5" />
           </button>
 
-          {/* Aurora name + orb logo */}
+          {/* AION name + orb logo */}
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-foreground">
-              {isHe ? 'אורורה' : 'Aurora'}
+              {isHe ? 'AION' : 'AION'}
             </span>
             <StandaloneMorphOrb size={28} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
           </div>

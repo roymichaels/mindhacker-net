@@ -1,5 +1,5 @@
 /**
- * plan-chat — Surgical plan editor via Aurora conversation.
+ * plan-chat — Surgical plan editor via AION conversation.
  * Supports: add/remove practices, modify milestones, adjust tasks, change plan details.
  * NEVER regenerates the plan — only makes targeted changes.
  */
@@ -338,7 +338,7 @@ serve(async (req) => {
       focusTaskContext = `\n\n🎯 USER WANTS TO DISCUSS TASK: "${focus_task}". Focus your response on this specific task — help them swap it, complete it, modify it, or discuss alternatives.`;
     }
 
-    const systemPrompt = `You are Aurora, a plan editor AI. You output COMMAND TAGS that the frontend executes.
+    const systemPrompt = `You are AION, a plan editor AI. You output COMMAND TAGS that the frontend executes.
 
 FORMAT: One brief ${isHe ? 'Hebrew' : 'English'} sentence, then ONLY command tags. Nothing else.
 

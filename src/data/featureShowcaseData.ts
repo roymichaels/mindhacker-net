@@ -16,8 +16,8 @@ export const FEATURES: FeatureItem[] = [
   {
     slug: 'aurora-ai',
     icon: '🧠',
-    titleEn: 'Aurora AI — Your Life Strategist',
-    titleHe: 'Aurora AI — האסטרטגית האישית שלך',
+    titleEn: 'AION — Your Life Strategist',
+    titleHe: 'AION — האסטרטגית האישית שלך',
     hookEn: 'Not a chatbot. A life architect.',
     hookHe: 'לא צ\'אטבוט. ארכיטקטית חיים.',
     descEn: 'An intelligent coaching engine that analyzes your patterns, energy, habits, and goals — then guides you daily with personalized insight, strategy, and accountability.',
@@ -130,7 +130,7 @@ export const FEATURES: FeatureItem[] = [
     titleHe: 'תפעל כמו מייסד',
     hookEn: 'Strategy meets execution.',
     hookHe: 'אסטרטגיה פוגשת ביצוע.',
-    descEn: 'Map projects to life pillars, break goals into actionable tasks, and let Aurora track momentum and execution.',
+    descEn: 'Map projects to life pillars, break goals into actionable tasks, and let AION track momentum and execution.',
     descHe: 'מפה פרויקטים לעמודי חיים, פרק מטרות למשימות ברות-ביצוע, ותן ל-Aurora לעקוב אחרי מומנטום וביצוע.',
   },
   {
@@ -140,8 +140,8 @@ export const FEATURES: FeatureItem[] = [
     titleHe: 'AI שדוחף אותך קדימה',
     hookEn: 'Discipline without burnout.',
     hookHe: 'משמעת בלי שחיקה.',
-    descEn: 'Morning briefings, mid-day check-ins, accountability prompts — Aurora intervenes before you fall off track.',
-    descHe: 'תדרוכי בוקר, צ\'ק-אין בצהריים, תזכורות אחריות — Aurora מתערבת לפני שאתה יורד מהמסלול.',
+    descEn: 'Morning briefings, mid-day check-ins, accountability prompts — AION intervenes before you fall off track.',
+    descHe: 'תדרוכי בוקר, צ\'ק-אין בצהריים, תזכורות אחריות — AION מתערבת לפני שאתה יורד מהמסלול.',
   },
   {
     slug: 'play-system',

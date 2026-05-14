@@ -185,7 +185,7 @@ export default function LessonFocusSession({ lesson, onComplete, onClose }: Prop
               </div>
               <div className="text-center space-y-1">
                 <h3 className="font-bold text-base">
-                  {isHe ? 'Aurora מכינה את השיעור...' : 'Aurora is preparing your lesson...'}
+                  {isHe ? 'AION מכינה את השיעור...' : 'AION is preparing your lesson...'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {isHe ? 'יוצרת תוכן מותאם אישית' : 'Generating personalized content'}

@@ -67,7 +67,7 @@ const FoundingPlatformDeep = () => {
           אז מה זה בעצם?
         </h2>
         <p className="text-base md:text-lg text-white/55 leading-relaxed">
-          MindOS היא <span className="text-white/90 font-semibold">מערכת הפעלה לחיים</span>. 
+          AION היא <span className="text-white/90 font-semibold">מערכת הפעלה לחיים</span>. 
           לא אפליקציית פרודוקטיביות, לא עוד קורס אונליין — 
           אלא פלטפורמה שלמה שמנהלת את כל תחומי החיים שלך במקום אחד.
           <br /><br />

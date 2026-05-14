@@ -38,7 +38,7 @@ function ArenaDomainPageImpl() {
   const isArena = domain ? ARENA_DOMAINS.some(d => d.id === domain.id) : false;
   const { startAssessment } = useAuroraChatContext();
 
-  // Scope Aurora chat to this pillar so history persists
+  // Scope AION chat to this pillar so history persists
   usePillarContext(domainId || '');
 
   

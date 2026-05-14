@@ -20,7 +20,7 @@ export default function Blog() {
   const isHe = language === 'he';
 
   useEffect(() => {
-    document.title = language === 'he' ? 'בלוג | MindOS' : 'Blog | MindOS - Personal Growth & AI Coaching';
+    document.title = language === 'he' ? 'בלוג | AION' : 'Blog | AION - Personal Growth & AI Coaching';
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute('content', 'Explore articles on personal development, AI coaching, gamified growth, and consciousness expansion.');
   }, [language]);

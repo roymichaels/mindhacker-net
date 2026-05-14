@@ -1,6 +1,6 @@
 /**
  * PlanNegotiateModal — "Talk to your plan" wizard.
- * Users can swap, reschedule, or skip tasks through Aurora negotiation.
+ * Users can swap, reschedule, or skip tasks through AION negotiation.
  */
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -97,7 +97,7 @@ export function PlanNegotiateModal({ open, onOpenChange, task, onApplied }: Plan
       setStep('result');
     } catch (err) {
       console.error('Negotiate failed:', err);
-      toast.error(isHe ? 'שגיאה בתקשורת עם Aurora' : 'Failed to communicate with Aurora');
+      toast.error(isHe ? 'שגיאה בתקשורת עם AION' : 'Failed to communicate with AION');
       setStep('input');
     }
   };
@@ -236,7 +236,7 @@ export function PlanNegotiateModal({ open, onOpenChange, task, onApplied }: Plan
                 className="w-full gap-2"
               >
                 <Sparkles className="h-4 w-4" />
-                {isHe ? 'שלח ל-Aurora' : 'Send to Aurora'}
+                {isHe ? 'שלח ל-Aurora' : 'Send to AION'}
               </Button>
             </motion.div>
           )}
@@ -252,7 +252,7 @@ export function PlanNegotiateModal({ open, onOpenChange, task, onApplied }: Plan
             >
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">
-                {isHe ? 'Aurora מעריכה את הבקשה שלך...' : 'Aurora is evaluating your request...'}
+                {isHe ? 'AION מעריכה את הבקשה שלך...' : 'AION is evaluating your request...'}
               </p>
             </motion.div>
           )}
@@ -298,7 +298,7 @@ export function PlanNegotiateModal({ open, onOpenChange, task, onApplied }: Plan
 
               {result.suggestion && !result.approved && (
                 <div className="p-3 rounded-xl bg-muted/50 border border-border/50">
-                  <p className="text-[10px] text-muted-foreground mb-1">{isHe ? 'הצעה של Aurora' : "Aurora's suggestion"}</p>
+                  <p className="text-[10px] text-muted-foreground mb-1">{isHe ? 'הצעה של AION' : "AION's suggestion"}</p>
                   <p className="text-xs text-foreground leading-relaxed">{result.suggestion}</p>
                 </div>
               )}

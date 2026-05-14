@@ -202,7 +202,7 @@ export const useAuroraCommands = () => {
   // Get available commands for AI context
   const getAvailableCommands = useCallback((): string => {
     return `
-Available Aurora commands:
+Available AION commands:
 - [navigate:dashboard] - Open dashboard
 - [navigate:hypnosis] or [navigate:hypnosis:sleep] - Open hypnosis page
 - [navigate:health] - Open health journey

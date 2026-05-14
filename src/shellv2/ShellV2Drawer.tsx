@@ -105,7 +105,7 @@ export default function ShellV2Drawer() {
           {/* Brand row */}
           <div className="px-4 pt-5 pb-3">
             <div className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground/70">
-              MindOS
+              AION
             </div>
           </div>
 

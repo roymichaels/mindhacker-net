@@ -1,6 +1,6 @@
 ﻿/**
- * AIONChatPanel - Floating AION launcher panel for the MindOS layer.
- * Shares the same signature shell pieces as the expanded MindOS surfaces.
+ * AIONChatPanel - Floating AION launcher panel for the AION layer.
+ * Shares the same signature shell pieces as the expanded AION surfaces.
  */
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
@@ -53,7 +53,7 @@ export function AIONChatPanel({ open, onClose }: AIONChatPanelProps) {
             <AIONNamingGate>
               <AIONHeader
                 title={displayName}
-                subtitle={isHe ? `שכבת ה-AI החיה של ${displayName}` : `${displayName}-powered MindOS layer`}
+                subtitle={isHe ? `שכבת ה-AI החיה של ${displayName}` : `${displayName}-powered AION layer`}
                 icon={<MessageSquare className="w-4 h-4" />}
                 onClose={onClose}
               />

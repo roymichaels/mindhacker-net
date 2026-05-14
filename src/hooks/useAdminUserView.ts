@@ -39,7 +39,7 @@ export interface AdminUserData {
     total_purchases: number;
     active_sessions: number;
   };
-  // Aurora data
+  // AION data
   aurora: {
     checklists: {
       id: string;

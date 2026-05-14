@@ -113,7 +113,7 @@ serve(async (req) => {
     // 5. Use AI to score and rank matches
     if (lovableKey && candidates.length > 0) {
       try {
-        const prompt = `You are Aurora, an AI life coach. Analyze compatibility between the requesting user and candidates for real-life collaboration.
+        const prompt = `You are AION, an AI life coach. Analyze compatibility between the requesting user and candidates for real-life collaboration.
 
 Requesting user:
 - Name: ${myProfile?.full_name || "Unknown"}

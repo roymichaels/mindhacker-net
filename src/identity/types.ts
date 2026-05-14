@@ -16,7 +16,7 @@
 export type DNASignalSource =
   | 'pillar_assessment'    // Results from any of the 15 pillar assessments
   | 'habit_pattern'        // Recurring habit completion patterns
-  | 'aurora_conversation'  // Insights from Aurora AI interactions
+  | 'aurora_conversation'  // Insights from AION interactions
   | 'energy_pattern'       // Time-of-day energy/productivity patterns
   | 'ego_state'            // Current ego state from game engine
   | 'streak_consistency'   // Long-term streak maintenance
@@ -135,7 +135,7 @@ export const DEFAULT_AION_IDENTITY: AIONIdentity = {
 export const DNA_SIGNAL_SOURCES: Record<DNASignalSource, { table: string; description: string }> = {
   pillar_assessment:   { table: 'domain_assessments', description: 'Results from 15-pillar assessments' },
   habit_pattern:       { table: 'action_items', description: 'Habit completion patterns' },
-  aurora_conversation: { table: 'aurora_memory_graph', description: 'Aurora AI interaction insights' },
+  aurora_conversation: { table: 'aurora_memory_graph', description: 'AION interaction insights' },
   energy_pattern:      { table: 'aurora_energy_patterns', description: 'Energy/productivity patterns' },
   ego_state:           { table: 'profiles', description: 'Current ego state' },
   streak_consistency:  { table: 'profiles', description: 'Streak maintenance' },

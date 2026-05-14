@@ -93,7 +93,7 @@ export function PracticesModal({ open, onOpenChange }: PracticesModalProps) {
             <button
               onClick={() => setView('suggest')}
               className="p-2 rounded-full bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
-              title={isHe ? 'רענן עם Aurora' : 'Refresh with Aurora'}
+              title={isHe ? 'רענן עם AION' : 'Refresh with AION'}
             >
               <Brain className="w-5 h-5 text-violet-400" />
             </button>
@@ -680,12 +680,12 @@ function AISuggestPanel({ isHe, onDone }: { isHe: boolean; onDone: () => void })
           <Brain className="w-6 h-6 text-violet-400" />
         </div>
         <h3 className="text-sm font-bold text-white/90 mb-1">
-          {isHe ? 'המלצות Aurora' : 'Aurora Suggestions'}
+          {isHe ? 'המלצות AION' : 'AION Suggestions'}
         </h3>
         <p className="text-xs text-white/40 max-w-xs">
           {isHe
-            ? 'Aurora ניתחה את הפרופיל, הזיכרון והיעדים שלך וממליצה על תרגולים חסרים'
-            : 'Aurora analyzed your profile, memory and goals to suggest missing practices'}
+            ? 'AION ניתחה את הפרופיל, הזיכרון והיעדים שלך וממליצה על תרגולים חסרים'
+            : 'AION analyzed your profile, memory and goals to suggest missing practices'}
         </p>
       </div>
 
@@ -698,7 +698,7 @@ function AISuggestPanel({ isHe, onDone }: { isHe: boolean; onDone: () => void })
             </div>
           </div>
           <p className="text-xs text-white/30">
-            {isHe ? 'Aurora חושבת...' : 'Aurora is thinking...'}
+            {isHe ? 'AION חושבת...' : 'AION is thinking...'}
           </p>
         </div>
       ) : error ? (

@@ -156,7 +156,7 @@ export const useProactiveAurora = (options: UseProactiveAuroraOptions = {}) => {
     return () => clearInterval(interval);
   }, [user?.id, enabled, pollInterval, fetchPendingItems, triggerAnalysis]);
 
-  // Convert proactive item to Aurora message format
+  // Convert proactive item to AION message format
   const getProactiveGreeting = useCallback((): string | null => {
     if (!currentItem) return null;
 

@@ -78,7 +78,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
       };
     }
 
-    // Priority 1: Aurora has a proactive coaching message
+    // Priority 1: AION has a proactive coaching message
     if (hasPendingItems && currentItem) {
       return {
         id: 'proactive_coaching',

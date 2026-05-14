@@ -373,7 +373,7 @@ export default function LessonViewer({ lesson, onComplete, onClose }: Props) {
               size="icon"
               className="h-8 w-8 rounded-full"
               onClick={() => tts.isPlaying || tts.isLoading ? tts.stop() : tts.play(lesson)}
-              title={tts.isPlaying ? (isHe ? 'עצור הקראה' : 'Stop reading') : (isHe ? 'Aurora תקריא לך' : 'Aurora reads aloud')}
+              title={tts.isPlaying ? (isHe ? 'עצור הקראה' : 'Stop reading') : (isHe ? 'AION תקריא לך' : 'AION reads aloud')}
             >
               {tts.isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />

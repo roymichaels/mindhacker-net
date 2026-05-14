@@ -12,7 +12,7 @@ const MINDOS_SECTIONS = [
   { to: '/mindos/journal', labelEn: 'Journal', labelHe: 'יומן', icon: BookOpen },
 ];
 
-function MindOSPageImpl() {
+function AIONPageImpl() {
   const { language, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
   const location = useLocation();
@@ -27,7 +27,7 @@ function MindOSPageImpl() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Evolve</p>
-            <h1 className="text-2xl font-bold text-foreground">MindOS</h1>
+            <h1 className="text-2xl font-bold text-foreground">AION</h1>
             <p className="text-sm text-muted-foreground">
               {language === 'he'
                 ? 'מרכז האימון, הביצוע וההתפתחות שלך.'
@@ -73,4 +73,4 @@ function MindOSPageImpl() {
 
 // Phase C — quarantined legacy surface
 import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
-export default withDeprecationLog('MindOSPage', MindOSPageImpl);
+export default withDeprecationLog('AIONPage', AIONPageImpl);

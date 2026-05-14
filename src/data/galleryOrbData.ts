@@ -159,7 +159,7 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: hueProfile(270, 'obsidian', 'shards', 'octa', 0.35),
   },
   {
-    id: 'aurora-skin', nameEn: 'Aurora Skin', nameHe: 'עור אורורה',
+    id: 'aurora-skin', nameEn: 'AION Skin', nameHe: 'עור AION',
     descEn: 'Ever-shifting like northern lights', descHe: 'משתנה כמו הזוהר הצפוני',
     rarity: 'legendary', traits: { material: 'iridescent', pattern: 'cellular', geometry: 'dodeca', glow: 'cosmic', particles: true },
     profile: ORB_PRESETS.find(x => x.id === 'aurora-skin')!.profile,
@@ -413,7 +413,7 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: hueProfile(160, 'iridescent', 'voronoi', 'spiky', 0.93, { particles: true, hueSpread: 45 }),
   },
   {
-    id: 'aurora-veil', nameEn: 'Aurora Veil', nameHe: 'צעיף אורורה',
+    id: 'aurora-veil', nameEn: 'AION Veil', nameHe: 'צעיף AION',
     descEn: 'Northern lights captured in glass', descHe: 'הזוהר הצפוני לכוד בזכוכית',
     rarity: 'rare', traits: { material: 'iridescent', pattern: 'strata', geometry: 'icosa', glow: 'medium', particles: false },
     profile: hueProfile(140, 'iridescent', 'strata', 'icosa', 0.55, { hueSpread: 50 }),
@@ -469,7 +469,7 @@ const HAND_CRAFTED_ORBS: GalleryOrb[] = [
     profile: hueProfile(55, 'plasma', 'shards', 'octa', 0.82, { particles: true }),
   },
   {
-    id: 'aurora-plasma', nameEn: 'Aurora Plasma', nameHe: 'פלזמת אורורה',
+    id: 'aurora-plasma', nameEn: 'AION Plasma', nameHe: 'פלזמת AION',
     descEn: 'Magnetic field made tangible', descHe: 'שדה מגנטי שהפך מוחשי',
     rarity: 'epic', traits: { material: 'plasma', pattern: 'swirl', geometry: 'dodeca', glow: 'intense', particles: true },
     profile: hueProfile(140, 'plasma', 'swirl', 'dodeca', 0.78, { particles: true, hueSpread: 45 }),

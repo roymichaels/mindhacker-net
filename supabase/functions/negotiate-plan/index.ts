@@ -53,7 +53,7 @@ serve(async (req) => {
     const isHebrew = task_title !== task_title_en;
     const lang = isHebrew ? "Hebrew" : "English";
 
-    const systemPrompt = `You are Aurora, an AI life coach. A user wants to ${action_type} a task in their daily plan.
+    const systemPrompt = `You are AION, an AI life coach. A user wants to ${action_type} a task in their daily plan.
 
 Current task: "${task_title_en || task_title}" (pillar: ${task_pillar}, duration: ${task_duration} min)
 User request: "${user_input}"

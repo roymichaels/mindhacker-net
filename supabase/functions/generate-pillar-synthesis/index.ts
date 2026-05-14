@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const SYNTHESIS_SYSTEM_PROMPT = `You are MindOS — a cognitive operating system performing a COMPREHENSIVE LIFE SYNTHESIS.
+const SYNTHESIS_SYSTEM_PROMPT = `You are AION — a cognitive operating system performing a COMPREHENSIVE LIFE SYNTHESIS.
 Unlike the initial onboarding which used basic self-report, you now have DEEP DIAGNOSTIC DATA from all 11 life domains.
 This data includes objective assessments, performance benchmarks, and clinical-grade diagnostics.
 
@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
       .eq('user_id', userId)
       .single();
 
-    // 2b. Gather Aurora conversation memory for richer context
+    // 2b. Gather AION conversation memory for richer context
     const { data: conversationMemory } = await supabase
       .from('aurora_conversation_memory')
       .select('summary, key_topics, emotional_state, action_items')
@@ -452,7 +452,7 @@ function buildSynthesisPrompt(domains: any[], launchpad: any, conversationMemory
     }
   }
 
-  // Aurora conversation memory — what Aurora remembers about the user
+  // AION conversation memory — what AION remembers about the user
   if (conversationMemory.length > 0) {
     sections.push('\n## AURORA MEMORY — What the AI coach has learned about this user');
     for (const mem of conversationMemory.slice(0, 15)) {

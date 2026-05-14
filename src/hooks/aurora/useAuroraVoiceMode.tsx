@@ -147,7 +147,7 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     }
   }, [onSend, startListening]);
 
-  /** Called externally when Aurora's text response arrives */
+  /** Called externally when AION's text response arrives */
   const feedResponse = useCallback(async (text: string) => {
     if (!activeRef.current || !pendingResponseRef.current) return;
     pendingResponseRef.current = false;

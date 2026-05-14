@@ -12,7 +12,7 @@ export const PROJECTS_JOURNEY_STEPS = [
   { id: 5, title: 'אבני דרך', titleEn: 'Milestones & Timeline', subtitle: 'ציוני דרך ולוחות זמנים', subtitleEn: 'Key milestones & deadlines', icon: '🏆' },
   { id: 6, title: 'שיתוף פעולה', titleEn: 'Collaboration', subtitle: 'בעלי עניין ומשאבים', subtitleEn: 'Stakeholders & resources', icon: '🤝' },
   { id: 7, title: 'מעקב התקדמות', titleEn: 'Progress Tracking', subtitle: 'קצב סקירה ומדדים', subtitleEn: 'Review cadence & metrics', icon: '📊' },
-  { id: 8, title: 'אינטגרציית אורורה', titleEn: 'Aurora Integration', subtitle: 'אימון AI לפרויקטים', subtitleEn: 'AI coaching for projects', icon: '🤖' },
+  { id: 8, title: 'אינטגרציית AION', titleEn: 'AION Integration', subtitle: 'אימון AI לפרויקטים', subtitleEn: 'AI coaching for projects', icon: '🤖' },
 ];
 
 export const PROJECTS_JOURNEY_PHASES = [

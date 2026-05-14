@@ -109,7 +109,7 @@ export default function ShiftSection() {
               </ul>
             </div>
             <div className="p-4 rounded-xl bg-primary/5 border border-primary/15">
-              <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">MindOS</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">AION</p>
               <ul className="space-y-1 text-xs text-muted-foreground">
                 <li>{isHe ? 'משימות → קווסטים' : 'Tasks → Quests'}</li>
                 <li>{isHe ? 'הרגלים → מערכות' : 'Habits → Systems'}</li>

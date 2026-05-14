@@ -244,7 +244,7 @@ export function MilestoneJourneyModal({
                     </div>
                   </div>
                   <p className="text-sm font-semibold text-foreground">
-                    {isHe ? 'Aurora בונה את המסע שלך...' : 'Aurora is crafting your journey...'}
+                    {isHe ? 'AION בונה את המסע שלך...' : 'AION is crafting your journey...'}
                   </p>
                   <p className="text-xs text-muted-foreground text-center max-w-xs">
                     {isHe ? 'מתכננת תחנות, אתגרים ורגעי שיא' : 'Planning stops, challenges, and peak moments'}

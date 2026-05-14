@@ -210,7 +210,7 @@ export const ORB_PRESETS: OrbPreset[] = [
   },
   {
     id: 'aurora-skin',
-    name: 'Aurora Skin',
+    name: 'AION Skin',
     profile: preset({
       materialType: 'iridescent',
       gradientMode: 'vertical',

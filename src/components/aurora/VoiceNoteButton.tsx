@@ -1,6 +1,6 @@
 /**
  * VoiceNoteButton — Records and sends voice notes as audio attachments.
- * The audio is transcribed and sent to Aurora with a playable audio indicator.
+ * The audio is transcribed and sent to AION with a playable audio indicator.
  */
 import { useState, useRef, useCallback } from 'react';
 import { Mic, Square, Loader2 } from 'lucide-react';

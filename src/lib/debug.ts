@@ -64,7 +64,7 @@ export const debug = {
    * 
    * @example
    * debug.trace('[TTS]', 'Starting synthesis', { textLength: 500 });
-   * debug.trace('[Aurora]', 'User context loaded');
+   * debug.trace('[AION]', 'User context loaded');
    */
   trace: (context: string, message: string, data?: unknown) => {
     if (isDev) {

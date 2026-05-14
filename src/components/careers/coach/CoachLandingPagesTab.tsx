@@ -122,12 +122,12 @@ export default function CoachLandingPagesTab() {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">{isHe ? 'דפי נחיתה' : 'Landing Pages'}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {isHe ? 'צרו דפי נחיתה מקצועיים בעזרת Aurora' : 'Create professional landing pages with Aurora'}
+            {isHe ? 'צרו דפי נחיתה מקצועיים בעזרת AION' : 'Create professional landing pages with AION'}
           </p>
         </div>
         <Button onClick={() => setShowWizard(true)} className="gap-2 w-full sm:w-auto">
           <Sparkles className="h-4 w-4" />
-          {isHe ? 'דף חדש עם Aurora' : 'New Page with Aurora'}
+          {isHe ? 'דף חדש עם AION' : 'New Page with AION'}
         </Button>
       </div>
 
@@ -141,7 +141,7 @@ export default function CoachLandingPagesTab() {
             <div>
               <h3 className="font-semibold">{isHe ? 'אין דפי נחיתה עדיין' : 'No landing pages yet'}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {isHe ? 'Aurora תעזור לכם לבנות דף נחיתה מושלם בכמה דקות' : 'Aurora will help you build the perfect landing page in minutes'}
+                {isHe ? 'AION תעזור לכם לבנות דף נחיתה מושלם בכמה דקות' : 'AION will help you build the perfect landing page in minutes'}
               </p>
             </div>
             <Button onClick={() => setShowWizard(true)} variant="outline" className="gap-2">
@@ -177,7 +177,7 @@ export default function CoachLandingPagesTab() {
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setEditingPage(page)}>
                   <Wand2 className="h-3.5 w-3.5 me-1" />
-                  <span className="hidden sm:inline">{isHe ? 'ערוך עם Aurora' : 'Edit with Aurora'}</span>
+                  <span className="hidden sm:inline">{isHe ? 'ערוך עם AION' : 'Edit with AION'}</span>
                   <span className="sm:hidden">{isHe ? 'ערוך' : 'Edit'}</span>
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => copyPageLink(page.slug)}>
@@ -208,7 +208,7 @@ export default function CoachLandingPagesTab() {
         </div>
       )}
 
-      {/* Aurora Wizard Dialog */}
+      {/* AION Wizard Dialog */}
       <Dialog open={showWizard} onOpenChange={setShowWizard}>
         <DialogContent preventClose className="max-w-2xl h-[90vh] sm:max-h-[90vh] p-0 overflow-hidden" dir={isHe ? 'rtl' : 'ltr'}>
           <AuroraLandingWizard
@@ -243,7 +243,7 @@ export default function CoachLandingPagesTab() {
   );
 }
 
-// ─── Aurora Chat Wizard ─────────────────────────────────────────────────────
+// ─── AION Chat Wizard ─────────────────────────────────────────────────────
 
 interface WizardProps {
   coachProfile: any;
@@ -268,8 +268,8 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
       const greeting: Msg = {
         role: 'assistant',
         content: isHe
-          ? '✨ שלום! אני Aurora, וביחד ניצור דף נחיתה מושלם עבורך.\n\nלפני שנתחיל — מה המטרה של דף הנחיתה?\n\n1. 🎯 **לכידת לידים** — לאסוף פרטי קשר\n2. 🎥 **הרשמה לוובינר** — אירוע מקוון\n3. 🚀 **השקת תוכנית** — מכירת קורס או תוכנית\n4. 📚 **משאב חינמי** — הורדת מדריך/ebook\n5. 💬 **הזמנת ייעוץ** — תיאום שיחה ראשונית'
-          : "✨ Hi! I'm Aurora, and together we'll create the perfect landing page for you.\n\nBefore we start — what's the goal of your landing page?\n\n1. 🎯 **Lead Capture** — collect contact info\n2. 🎥 **Webinar Signup** — online event\n3. 🚀 **Program Launch** — sell a course or program\n4. 📚 **Free Resource** — download a guide/ebook\n5. 💬 **Book Consultation** — schedule a call",
+          ? '✨ שלום! אני AION, וביחד ניצור דף נחיתה מושלם עבורך.\n\nלפני שנתחיל — מה המטרה של דף הנחיתה?\n\n1. 🎯 **לכידת לידים** — לאסוף פרטי קשר\n2. 🎥 **הרשמה לוובינר** — אירוע מקוון\n3. 🚀 **השקת תוכנית** — מכירת קורס או תוכנית\n4. 📚 **משאב חינמי** — הורדת מדריך/ebook\n5. 💬 **הזמנת ייעוץ** — תיאום שיחה ראשונית'
+          : "✨ Hi! I'm AION, and together we'll create the perfect landing page for you.\n\nBefore we start — what's the goal of your landing page?\n\n1. 🎯 **Lead Capture** — collect contact info\n2. 🎥 **Webinar Signup** — online event\n3. 🚀 **Program Launch** — sell a course or program\n4. 📚 **Free Resource** — download a guide/ebook\n5. 💬 **Book Consultation** — schedule a call",
       };
       setMessages([greeting]);
     }
@@ -346,7 +346,7 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
         }
       }
 
-      // Check if Aurora is ready to build
+      // Check if AION is ready to build
       if (assistantContent.includes('✨')) {
         setReadyToBuild(true);
       }
@@ -426,10 +426,10 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
       <div className="px-6 py-4 border-b bg-gradient-to-r from-purple-500/10 to-indigo-500/10">
         <h3 className="font-bold flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-purple-400" />
-          {isHe ? 'Aurora — בונה דפי נחיתה' : 'Aurora — Landing Page Builder'}
+          {isHe ? 'AION — בונה דפי נחיתה' : 'AION — Landing Page Builder'}
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
-          {isHe ? 'ענו על כמה שאלות ואורורה תבנה את הדף בשבילכם' : 'Answer a few questions and Aurora will build your page'}
+          {isHe ? 'ענו על כמה שאלות וAION תבנה את הדף בשבילכם' : 'Answer a few questions and AION will build your page'}
         </p>
       </div>
 
@@ -468,7 +468,7 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
             className="w-full gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
           >
             {isGenerating ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> {isHe ? 'Aurora בונה את הדף...' : 'Aurora is building...'}</>
+              <><Loader2 className="h-4 w-4 animate-spin" /> {isHe ? 'AION בונה את הדף...' : 'AION is building...'}</>
             ) : (
               <><Sparkles className="h-4 w-4" /> {isHe ? '✨ בנה את הדף!' : '✨ Build the page!'}</>
             )}
@@ -491,7 +491,7 @@ function AuroraLandingWizard({ coachProfile, onComplete, onClose }: WizardProps)
   );
 }
 
-// ─── Aurora Page Editor (Prompt-based editing) ──────────────────────────────
+// ─── AION Page Editor (Prompt-based editing) ──────────────────────────────
 
 interface EditorProps {
   page: LandingPage;
@@ -575,7 +575,7 @@ function AuroraPageEditor({ page, coachProfile, onComplete, onClose }: EditorPro
         <div>
           <h3 className="font-bold flex items-center gap-2">
             <Wand2 className="h-5 w-5 text-primary" />
-            {isHe ? 'עריכה עם Aurora' : 'Edit with Aurora'}
+            {isHe ? 'עריכה עם AION' : 'Edit with AION'}
           </h3>
           <p className="text-xs text-muted-foreground mt-1">{page.title}</p>
         </div>

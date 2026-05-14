@@ -18,8 +18,8 @@ interface FeatureMessage {
 
 const featureMessages: Record<string, FeatureMessage> = {
   aurora_limit: {
-    he: "ניצלת את 5 ההודעות היומיות שלך לאורורה",
-    en: "You've used your 5 daily Aurora messages",
+    he: "ניצלת את 5 ההודעות היומיות שלך לAION",
+    en: "You've used your 5 daily AION messages",
     targetTier: "plus",
   },
   hypnosis: {
