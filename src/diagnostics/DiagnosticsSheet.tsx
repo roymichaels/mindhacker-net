@@ -8,6 +8,7 @@ import LeakGuardSection from './sections/LeakGuardSection';
 import ResponseSourceSection from './sections/ResponseSourceSection';
 import ContextSourcesSection from './sections/ContextSourcesSection';
 import AIONTracePanel from './sections/AIONTracePanel';
+import AIONRouterAcceptance from './sections/AIONRouterAcceptance';
 
 export default function DiagnosticsSheet({ onClose }: { onClose: () => void }) {
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function DiagnosticsSheet({ onClose }: { onClose: () => void }) {
         </header>
         <div className="flex-1 overflow-auto p-4 space-y-5">
           <Section title="0 · AION turn trace"><AIONTracePanel /></Section>
+          <Section title="0b · AION router · acceptance"><AIONRouterAcceptance /></Section>
           <Section title="1 · AION Brain"><BrainSection /></Section>
           <Section title="2 · Environment"><EnvironmentSection /></Section>
           <Section title="3 · Memory Writer"><MemoryWriterSection /></Section>
