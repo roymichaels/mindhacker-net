@@ -6,20 +6,20 @@
  */
 import { useAION } from '@/identity/useAION';
 import { useDNA } from '@/identity/useDNA';
-import type { BrainOverview } from './types';
+import type { BrainAtlas } from './data/useBrainAtlas';
 
 interface SelfPanelProps {
   isRTL: boolean;
-  atlas: BrainOverview | null;
+  atlas: BrainAtlas | null;
 }
 
 export default function SelfPanel({ isRTL, atlas }: SelfPanelProps) {
   const { aion, isLoading: aionLoading } = useAION();
   const { dna, isLoading: dnaLoading } = useDNA();
 
-  const topPillars = atlas
-    ? Object.entries(atlas.pillars ?? {})
-        .sort((a, b) => (b[1]?.confidence ?? 0) - (a[1]?.confidence ?? 0))
+  const topRooms = atlas
+    ? [...(atlas.rooms ?? [])]
+        .sort((a, b) => (b.avg_confidence ?? 0) - (a.avg_confidence ?? 0))
         .slice(0, 3)
     : [];
 
@@ -62,19 +62,19 @@ export default function SelfPanel({ isRTL, atlas }: SelfPanelProps) {
         </div>
       )}
 
-      {topPillars.length > 0 && (
+      {topRooms.length > 0 && (
         <div>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">
             {isRTL ? 'עוגני ביטחון' : 'Confidence anchors'}
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {topPillars.map(([id, p]) => (
+            {topRooms.map((r) => (
               <span
-                key={id}
+                key={r.id}
                 className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] text-foreground/90"
               >
-                <span className="capitalize">{id}</span>
-                <span className="text-muted-foreground">{Math.round(p?.confidence ?? 0)}%</span>
+                <span className="capitalize">{r.slug ?? r.id}</span>
+                <span className="text-muted-foreground">{Math.round((r.avg_confidence ?? 0) * 100)}%</span>
               </span>
             ))}
           </div>
