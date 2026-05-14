@@ -20,6 +20,8 @@ import { getAtmospherePreset, type MotionTemperament } from './atmospherePresets
 import type { CognitiveWorldId } from '../types';
 import type { Climate } from '@/worlds/state/worldStateTypes';
 import { useWorldClimate } from '@/worlds/runtime/useWorldClimate';
+import { useCrossWorldInfluence } from '@/worlds/resonance/useCrossWorldInfluence';
+import { ATMOSPHERE_PRESETS } from './atmospherePresets';
 
 interface Props {
   worldId: CognitiveWorldId;
@@ -52,6 +54,7 @@ export default function WorldAtmosphere({ worldId, fullBleed = false }: Props) {
   const preset = getAtmospherePreset(worldId);
   const state = useWorldState(worldId);
   const climate = useWorldClimate(worldId);
+  const influence = useCrossWorldInfluence(worldId);
   const drift = MOTION_DRIFT[preset.motion];
   const tint = CLIMATE_TINT[state.climate];
 
@@ -78,6 +81,18 @@ export default function WorldAtmosphere({ worldId, fullBleed = false }: Props) {
 
   // Hue bias for the climate veil from emotional temperature (-1 cool .. +1 warm).
   const tempHueBias = climate.emotionalTemperature * 35; // degrees
+
+  // Phase 5C.3 — foreign-world echo. Pulls colour from the dominant
+  // partner's preset, never strong enough to overpower the host world.
+  const echoPartner = influence.echo.partner;
+  const echoPreset = echoPartner ? ATMOSPHERE_PRESETS[echoPartner] : null;
+  const echoStrength = influence.echo.strength;
+  const echoColor = echoPreset ? `hsl(${echoPreset.accentHsl})` : null;
+
+  // Fragmentation pressure → flicker amplitude. Stays subtle.
+  const flicker = influence.bleed.fragmentation;
+  // Contamination → faint dark veil pulled from background.
+  const contamination = influence.bleed.contamination;
 
   const primary = `hsl(${preset.primaryHsl})`;
   const secondary = `hsl(${preset.secondaryHsl})`;
@@ -228,6 +243,50 @@ export default function WorldAtmosphere({ worldId, fullBleed = false }: Props) {
         animate={{ opacity: [0.15, 0.15 + pulseAmp * 0.5, 0.15] }}
         transition={{ duration: 9 / motionMul, repeat: Infinity, ease: 'easeInOut' }}
       />
+
+      {/* Foreign-world echo — subconscious bleed from the dominant partner.
+          Renders only when partner pressure is meaningful. */}
+      {echoColor && echoStrength > 0.08 && (
+        <motion.div
+          className="absolute inset-0 mix-blend-screen pointer-events-none"
+          style={{
+            background: `radial-gradient(70% 50% at 30% 70%, ${echoColor}33, transparent 70%),
+                         radial-gradient(60% 45% at 75% 25%, ${echoColor}22, transparent 70%)`,
+          }}
+          animate={{
+            opacity: [
+              echoStrength * 0.18,
+              echoStrength * 0.32,
+              echoStrength * 0.18,
+            ],
+          }}
+          transition={{ duration: 14 / motionMul, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
+
+      {/* Fragmentation flicker — unresolved cross-world tension.
+          Tiny opacity stutters; no shape distortion. */}
+      {flicker > 0.08 && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(100% 80% at 50% 50%, hsl(0 0% 100% / ${0.04 * flicker}), transparent 70%)`,
+          }}
+          animate={{ opacity: [0, flicker * 0.6, 0, flicker * 0.4, 0] }}
+          transition={{ duration: 1.2 + (1 - flicker) * 2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
+
+      {/* Contamination veil — subtle darkening of the world's edges when
+          downstream pressure is high. Atmosphere "remembers" foreign noise. */}
+      {contamination > 0.1 && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(120% 80% at 50% 50%, transparent 50%, hsl(var(--background) / ${0.25 * contamination}) 100%)`,
+          }}
+        />
+      )}
 
       {/* Edge vignette — pulls focus inward */}
       <div
