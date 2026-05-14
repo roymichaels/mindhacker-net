@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/collapsible';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import RoleSwitcher from './RoleSwitcher';
-import OrbView from '@/components/orb/v2/OrbView';
+import aionOrb from '@/assets/aion-ring.png';
 import { NotificationBell } from '@/components/admin/NotificationBell';
 import {
   LayoutDashboard,
@@ -226,7 +226,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       <div className="p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
           <Link to="/panel" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <OrbView size={32} state="idle" neutral className="flex-shrink-0" />
+            <img src={aionOrb} alt="AION" width={32} height={32} className="h-8 w-8 flex-shrink-0 object-contain" />
             <span className="font-bold text-lg">{t('sidebar.controlCenter')}</span>
           </Link>
           <NotificationBell />
