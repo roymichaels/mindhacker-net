@@ -27,6 +27,28 @@ export const aionPresence = {
     en: 'AION will compose your rhythm',
     he: 'AION יחבר את הקצב שלך',
   },
+  // Phase 4C — trajectory observation lines (AION-voiced, never instructions).
+  trajectoryNoticing: {
+    en: 'I notice this keeps returning.',
+    he: 'אני שם לב שזה ממשיך לחזור.',
+  },
+  trajectoryNowFeelsRight: {
+    en: 'Now feels right for this.',
+    he: 'עכשיו מרגיש נכון לזה.',
+  },
+  trajectoryEnergyShift: {
+    en: 'I noticed your energy shifts here.',
+    he: 'הרגשתי שהאנרגיה שלך משתנה כאן.',
+  },
+  trajectoryStayWithIt: {
+    en: 'Stay with this for a moment.',
+    he: 'הישאר עם זה לרגע.',
+  },
+  // Phase 4F — Self contemplation lines.
+  selfPhase: {
+    en: 'You are in a phase of becoming.',
+    he: 'אתה בשלב של היווצרות.',
+  },
 } as const;
 
 /** Convenience helper — pick the right language. */
