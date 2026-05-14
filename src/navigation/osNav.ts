@@ -1,6 +1,9 @@
 /**
  * @module navigation/osNav
- * @purpose Single source of truth for app-level tabs, routes, and role-gated nav items.
+ * @deprecated Use `src/navigation/canonicalSurfaces.ts` instead. This file is kept
+ * only so existing imports (DesktopSideNav, layout wrappers) keep compiling during
+ * the System Consolidation migration (see `.lovable/plan.md`). Phase C will delete it.
+ * The 5 canonical surfaces are: Chat, Brain, Journey, Outer World, Profile.
  */
 
 import { Sparkles, Shield, Users, Briefcase, GraduationCap, Store, Target, BookOpen, type LucideIcon } from 'lucide-react';
