@@ -72,9 +72,10 @@ export default function BrainGraphForce({
       const k = Math.max(0.4, Math.min(3, pinchRef.current.k * (d / pinchRef.current.d)));
       setT((p) => ({ ...p, k }));
     } else if (dragRef.current && dragRef.current.pid === e.pointerId) {
-      const dx = e.clientX - dragRef.current.x;
-      const dy = e.clientY - dragRef.current.y;
-      setT((p) => ({ ...p, tx: dragRef.current!.tx + dx, ty: dragRef.current!.ty + dy }));
+      const drag = dragRef.current;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      setT((p) => ({ ...p, tx: drag.tx + dx, ty: drag.ty + dy }));
     }
   };
   const onPointerUp = (e: React.PointerEvent) => {
