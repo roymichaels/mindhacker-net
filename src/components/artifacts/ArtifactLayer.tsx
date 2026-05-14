@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { artifactBus, type ArtifactInstance } from '@/lib/aion/artifactBus';
 import { artifactRegistry } from '@/lib/aion/artifactRegistry';
 import ArtifactFrame from './ArtifactFrame';
+import { ManifestedArtifactShell } from '@/components/aion/manifestation';
 
 export default function ArtifactLayer() {
   const [artifacts, setArtifacts] = useState<ArtifactInstance[]>(() => artifactBus.list());
@@ -22,16 +23,17 @@ export default function ArtifactLayer() {
         }
         const close = () => artifactBus.dismiss(art.id);
         return (
-          <ArtifactFrame
-            key={art.id}
-            title={art.kind}
-            onClose={close}
-            defaultFullscreen={art.fullscreen}
-          >
-            <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
-              <Comp params={art.params} onClose={close} />
-            </Suspense>
-          </ArtifactFrame>
+          <ManifestedArtifactShell key={art.id} artifactId={art.id} kind={art.kind}>
+            <ArtifactFrame
+              title={art.kind}
+              onClose={close}
+              defaultFullscreen={art.fullscreen}
+            >
+              <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
+                <Comp params={art.params} onClose={close} />
+              </Suspense>
+            </ArtifactFrame>
+          </ManifestedArtifactShell>
         );
       })}
     </div>
