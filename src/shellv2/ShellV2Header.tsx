@@ -54,7 +54,7 @@ export default function ShellV2Header() {
         </SheetHeader>
         <div className="mt-4 flex items-center gap-2 rounded-2xl bg-white/[0.04] px-3 py-2.5 text-xs text-foreground/60">
           <Info className="h-4 w-4 shrink-0" />
-          <span>{isHe ? 'גרסה 2 · ShellV2' : 'Version 2 · ShellV2'}</span>
+          <span>{isHe ? 'נוכחות חיה · AION' : 'Living presence · AION'}</span>
         </div>
       </SheetContent>
     </Sheet>

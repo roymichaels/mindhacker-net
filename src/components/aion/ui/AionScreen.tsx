@@ -9,6 +9,12 @@ interface AionScreenProps {
   withHeader?: boolean;
   /** Reserve space at bottom for AionComposerDock + AionNavDock. Default true. */
   withDock?: boolean;
+  /**
+   * Phase 4A — chamber mode collapses default padding so the surface reads as
+   * one continuous breathing space rather than a routed page. Opt-in for now;
+   * routes that want the legacy padded look leave this off.
+   */
+  chamber?: boolean;
 }
 
 /**
@@ -21,15 +27,21 @@ export function AionScreen({
   className,
   withHeader = true,
   withDock = true,
+  chamber = false,
 }: AionScreenProps) {
   const { isRTL } = useTranslation();
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
       className={cn(
-        "relative mx-auto flex w-full max-w-screen-md flex-col gap-6 px-4 sm:px-6",
-        withHeader && "pt-[calc(env(safe-area-inset-top)+72px)]",
-        withDock && "pb-[calc(env(safe-area-inset-bottom)+160px)]",
+        "relative mx-auto flex w-full max-w-screen-md flex-col px-4 sm:px-6",
+        chamber ? "gap-4" : "gap-6",
+        withHeader && (chamber
+          ? "pt-[calc(env(safe-area-inset-top)+56px)]"
+          : "pt-[calc(env(safe-area-inset-top)+72px)]"),
+        withDock && (chamber
+          ? "pb-[calc(env(safe-area-inset-bottom)+128px)]"
+          : "pb-[calc(env(safe-area-inset-bottom)+160px)]"),
         className,
       )}
     >
