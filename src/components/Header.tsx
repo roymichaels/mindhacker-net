@@ -176,7 +176,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
         aria-label="פתח מצב AION"
         className="flex-shrink-0 hover:opacity-90 transition-opacity"
       >
-        <img src={aionOrb} alt="" width={40} height={40} className="h-10 w-10 object-contain" draggable={false} />
+        <img src={aionOrb} alt="" width={120} height={120} className="h-[120px] w-[120px] object-contain" draggable={false} />
       </button>
       <Link
         to={isAdminMode ? "/admin" : "/"}
@@ -195,7 +195,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none outline-none">
-          <img src={aionOrb} alt="" width={40} height={40} className="h-10 w-10 flex-shrink-0 object-contain" draggable={false} />
+          <img src={aionOrb} alt="" width={120} height={120} className="h-[120px] w-[120px] flex-shrink-0 object-contain" draggable={false} />
           <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
             {brandName}
           </span>
