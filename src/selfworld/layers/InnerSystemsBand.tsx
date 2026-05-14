@@ -3,13 +3,20 @@
  * placeholders that reveal a presence-aware "AION is preparing this"
  * line on tap. Future phases flip `status: 'live'` per layer.
  */
+import { useNavigate } from 'react-router-dom';
 import LayerCard from '../LayerCard';
-import { SELFWORLD_LAYERS } from '../layerRegistry';
+import { COGNITIVE_WORLDS } from '@/worlds/registry';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useProfileModal } from '@/contexts/ProfileModalContext';
 
 export default function InnerSystemsBand() {
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const navigate = useNavigate();
+  const profileModal = useProfileModal();
+
+  // Show all worlds except SelfWorld itself (we are inside it).
+  const worlds = COGNITIVE_WORLDS.filter((w) => w.id !== 'self');
 
   return (
     <section className="space-y-3 px-1">
@@ -24,15 +31,22 @@ export default function InnerSystemsBand() {
         </p>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {SELFWORLD_LAYERS.map((layer) => (
-          <LayerCard
-            key={layer.id}
-            icon={layer.icon}
-            label={isHe ? layer.labelHe : layer.labelEn}
-            hint={isHe ? layer.hintHe : layer.hintEn}
-            locked={layer.status !== 'live'}
-          />
-        ))}
+        {worlds.map((world) => {
+          const navigable = world.status === 'live' || world.status === 'scaffold';
+          return (
+            <LayerCard
+              key={world.id}
+              icon={world.icon}
+              label={isHe ? world.labelHe : world.labelEn}
+              hint={isHe ? world.hintHe : world.hintEn}
+              locked={!navigable}
+              onOpen={() => {
+                profileModal.closeProfile();
+                navigate(`/worlds/${world.id}`);
+              }}
+            />
+          );
+        })}
       </div>
     </section>
   );
