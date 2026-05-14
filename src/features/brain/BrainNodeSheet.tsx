@@ -1,6 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Check, MessageCircle, X as XIcon, DoorOpen, Pencil, Compass } from "lucide-react";
+import { Check, MessageCircle, X as XIcon, DoorOpen, Pencil, Compass, Sparkles } from "lucide-react";
+import { aionPresence } from "@/copy/aionPresence";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { confirmBrainNode, rejectBrainNode, useBrainNodeEvidence } from "./useBrainOverview";
@@ -122,19 +123,18 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
               )}
             </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-2">
-              <Button variant="secondary" size="sm" onClick={() => onTalkToAion(node)}>
-                <MessageCircle className="w-4 h-4 me-1" /> AION
-              </Button>
-              <Button variant="secondary" size="sm" onClick={handleConfirm}>
-                <Check className="w-4 h-4 me-1" /> Confirm
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleReject}>
-                <XIcon className="w-4 h-4 me-1" /> Not me
-              </Button>
-            </div>
+            {/* Phase 2 — primary affordance is conversation with AION.
+                Confirm / Not me / Correct / Explore demote to secondary. */}
+            <Button
+              className="mt-5 w-full"
+              size="lg"
+              onClick={() => onTalkToAion(node)}
+            >
+              <Sparkles className="w-4 h-4 me-2" />
+              {isRTL ? aionPresence.askAionAboutThis.he : aionPresence.askAionAboutThis.en}
+            </Button>
 
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-3 grid grid-cols-2 gap-2">
               <Button variant="ghost" size="sm" onClick={() => handoffToAion("correct")}>
                 <Pencil className="w-4 h-4 me-1" />
                 {isRTL ? "תקן את זה" : "Correct"}
@@ -142,6 +142,15 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
               <Button variant="ghost" size="sm" onClick={() => handoffToAion("explore")}>
                 <Compass className="w-4 h-4 me-1" />
                 {isRTL ? "חקור לעומק" : "Explore deeper"}
+              </Button>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Button variant="ghost" size="sm" onClick={handleConfirm}>
+                <Check className="w-4 h-4 me-1" /> Confirm
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleReject}>
+                <XIcon className="w-4 h-4 me-1" /> Not me
               </Button>
             </div>
           </>
