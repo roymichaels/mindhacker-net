@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { playTTS } from '@/lib/ttsPlayer';
+import { aionPresenceBus } from '@/aion/presenceState';
 import { useVoicePersona } from '@/hooks/useVoicePersona';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -60,6 +61,7 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     try {
       setError(null);
       setState('listening');
+      aionPresenceBus.set('listening');
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 },
@@ -100,6 +102,7 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
   const stopListening = useCallback(() => {
     if (mediaRecorderRef.current?.state === 'recording') {
       setState('processing');
+      aionPresenceBus.set('forming');
       mediaRecorderRef.current.stop();
     }
   }, []);
@@ -107,6 +110,7 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
   const transcribeAndSend = useCallback(async (audioBlob: Blob) => {
     if (!activeRef.current) return;
     setState('processing');
+    aionPresenceBus.set('forming');
 
     try {
       const formData = new FormData();
@@ -153,6 +157,7 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
     pendingResponseRef.current = false;
     setAuroraResponse(text);
     setState('speaking');
+    aionPresenceBus.set('forming');
 
     const handle = playTTS(text, {
       voiceId: persona.voiceId,
@@ -160,10 +165,12 @@ export function useAuroraVoiceMode({ onSend, onActiveChange, useGlobalResponseEv
       onEnd: () => {
         ttsCancelRef.current = null;
         if (activeRef.current) startListening();
+        else aionPresenceBus.set('resting');
       },
       onError: () => {
         ttsCancelRef.current = null;
         if (activeRef.current) startListening();
+        else aionPresenceBus.set('resting');
       },
     });
 
