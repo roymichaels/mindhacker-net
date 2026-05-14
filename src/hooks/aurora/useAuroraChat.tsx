@@ -1054,6 +1054,12 @@ export const useAuroraChat = (conversationId: string | null) => {
       
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
       try { tracer.end(); } catch { /* ignore */ }
+      // Phase 5B — return to rest after a short tail.
+      try { clearTimeout(_formingTimer); } catch { /* noop */ }
+      setTimeout(() => {
+        const cur = aionPresenceBus.get();
+        if (cur === 'forming' || cur === 'noticing') aionPresenceBus.set('resting');
+      }, 1200);
     }
   }, [user?.id, conversationId, isStreaming, messages, language, dispatchCommands, generateTitle, triggerBackgroundAnalysis, summarizeConversation, queryClient]);
 
