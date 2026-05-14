@@ -11,6 +11,19 @@ import { stripReasoning } from '@/lib/stripReasoning';
 import { diagnosticsBus, detectLeaks } from '@/diagnostics/diagnosticsBus';
 import { AION_CHAT_URL } from '@/lib/chat/canonicalChat';
 import { useAionDecision } from '@/contexts/AionDecisionContext';
+import {
+  bumpTurn,
+  canProbe,
+  rememberProbe,
+  isRepeatProbe,
+  canSurfaceContradiction,
+  rememberContradiction,
+  canShowArtifactKind,
+  rememberArtifactKind,
+  rememberAssistantText,
+  detectAssistantRepetition,
+  getGuardSnapshot,
+} from '@/orchestration/memory/repetitionGuard';
 
 const AURORA_CHAT_URL = AION_CHAT_URL;
 const AION_FALLBACK_HE = 'אני מחובר, אבל הייתה תקלה בחשיבה שלי. נסה שוב רגע.';
@@ -267,6 +280,51 @@ export const useAuroraChat = (conversationId: string | null) => {
       detectEmotion([...recentUserMsgs, content]);
       tracer.mark('sense.dispatched');
 
+      // Phase F · Step 5 — Build compact context packet BEFORE the router.
+      // Token-budgeted; never carries raw rows.
+      let contextPacket: import('@/orchestration/context/contextBuilder').ContextPacket | null = null;
+      try {
+        const turnIndex = bumpTurn();
+        const guard = getGuardSnapshot();
+        const recentAssistantTexts = messages
+          .filter((m) => m.is_ai_message)
+          .slice(-5)
+          .map((m) => m.content);
+        const recentArtifactKinds = Object.keys(guard.recentArtifactKinds).slice(0, 5);
+        const { buildContextPacket, summarizeContext } = await import(
+          '@/orchestration/context/contextBuilder'
+        );
+        contextPacket = await buildContextPacket({
+          userId: user?.id ?? '',
+          message: content,
+          recentAssistantTexts,
+          recentArtifactKinds,
+        });
+        tracer.mark('graph_context_loaded', {
+          turn: turnIndex,
+          ...summarizeContext(contextPacket),
+        });
+        tracer.mark('sparsity_score', {
+          score: contextPacket.graphDepth.sparsityScore,
+          known_pillars: contextPacket.graphDepth.knownPillars.length,
+          neglected: contextPacket.graphDepth.neglectedRooms,
+        });
+        if (contextPacket.contradictions.length > 0) {
+          tracer.mark('contradiction_candidates', {
+            count: contextPacket.contradictions.length,
+            ids: contextPacket.contradictions.map((c) => c.id),
+          });
+        }
+        if (contextPacket.topNodes.length > 0) {
+          tracer.mark('memory_hits', {
+            top_node_count: contextPacket.topNodes.length,
+            pillars: contextPacket.topNodes.map((n) => n.pillar).filter(Boolean),
+          });
+        }
+      } catch (e) {
+        tracer.mark('graph_context_loaded', { ok: false, error: (e as Error)?.message ?? 'unknown' });
+      }
+
       // Phase F P1 — Observe-mode router. Picks a capability candidate and
       // emits trace events. NEVER mutates plans, actions, or artifacts.
       try {
@@ -350,7 +408,10 @@ export const useAuroraChat = (conversationId: string | null) => {
               const { bridgeDecisionToArtifact } = await import(
                 '@/orchestration/artifacts/safeBridge'
               );
-              bridgeDecisionToArtifact(decision, tracer, readResult);
+              const out = bridgeDecisionToArtifact(decision, tracer, readResult);
+              if (out.rendered) {
+                rememberArtifactKind(out.rendererKind);
+              }
             }
           } catch (e) {
             tracer.mark('artifact.skipped', {
@@ -360,6 +421,99 @@ export const useAuroraChat = (conversationId: string | null) => {
           }
         } else {
           tracer.mark('capability.skipped', { reason: decision.reason });
+        }
+
+        // Phase F · Step 5 — Curiosity Probe + Contradiction Engine.
+        // Both are gated by repetitionGuard cooldowns and emit at most one
+        // sticky `insight` artifact. They never block the chat stream.
+        try {
+          if (contextPacket) {
+            // Contradictions take priority over probes (only one of the two).
+            const contradictionGate = canSurfaceContradiction('any');
+            let surfacedContradiction = false;
+            if (contextPacket.contradictions.length > 0 && contradictionGate.ok) {
+              const { chooseContradiction } = await import(
+                '@/orchestration/contradictions/contradictionEngine'
+              );
+              const pick = await chooseContradiction(user?.id ?? '', contextPacket, language as 'he' | 'en');
+              if (pick.ok) {
+                const cooldown = canSurfaceContradiction(pick.pairKey);
+                const kindCooldown = canShowArtifactKind('insight');
+                if (cooldown.ok && kindCooldown.ok) {
+                  const { emitArtifact } = await import('@/components/aion/artifacts/artifactBus');
+                  emitArtifact({
+                    kind: 'insight',
+                    title: 'הבחנה עדינה',
+                    body: pick.text,
+                    ttl: 14000,
+                    meta: { source: 'aurora_contradictions' },
+                  });
+                  rememberContradiction(pick.pairKey);
+                  rememberArtifactKind('insight');
+                  surfacedContradiction = true;
+                  tracer.mark('contradiction.injected', {
+                    pair_key: pick.pairKey,
+                    contradiction_id: pick.contradictionId,
+                    pillar: pick.pillar,
+                    meta: pick.meta,
+                  });
+                } else {
+                  tracer.mark('contradiction.skipped', {
+                    reason: cooldown.ok ? kindCooldown.reason : cooldown.reason,
+                  });
+                  if (!kindCooldown.ok) {
+                    tracer.mark('artifact.cooldown_hit', { kind: 'insight', reason: kindCooldown.reason });
+                  }
+                }
+              } else {
+                tracer.mark('contradiction.skipped', { reason: pick.reason });
+              }
+            } else if (!contradictionGate.ok && contextPacket.contradictions.length > 0) {
+              tracer.mark('contradiction.skipped', { reason: contradictionGate.reason });
+            }
+
+            if (!surfacedContradiction) {
+              const { chooseProbe } = await import('@/orchestration/curiosity/probeEngine');
+              const probe = chooseProbe(contextPacket, decision.capability ?? null, (language as 'he' | 'en'));
+              if (probe.ok) {
+                tracer.mark('probe.candidate', {
+                  reason: probe.reason,
+                  trigger: probe.triggerData,
+                  text_preview: probe.text.slice(0, 80),
+                });
+                const cooldown = canProbe();
+                const repeated = isRepeatProbe(probe.text);
+                const kindCooldown = canShowArtifactKind('insight');
+                if (!cooldown.ok) {
+                  tracer.mark('probe.skipped', { reason: cooldown.reason });
+                } else if (repeated) {
+                  tracer.mark('probe.skipped', { reason: 'repeat-probe' });
+                } else if (!kindCooldown.ok) {
+                  tracer.mark('probe.skipped', { reason: kindCooldown.reason });
+                  tracer.mark('artifact.cooldown_hit', { kind: 'insight', reason: kindCooldown.reason });
+                } else {
+                  const { emitArtifact } = await import('@/components/aion/artifacts/artifactBus');
+                  emitArtifact({
+                    kind: 'insight',
+                    title: 'מחשבה רגעית',
+                    body: probe.text,
+                    ttl: 16000,
+                    meta: { source: `probe:${probe.reason}` },
+                  });
+                  rememberProbe(probe.text);
+                  rememberArtifactKind('insight');
+                  tracer.mark('probe.injected', {
+                    reason: probe.reason,
+                    text_preview: probe.text.slice(0, 80),
+                  });
+                }
+              } else {
+                tracer.mark('probe.skipped', { reason: probe.reason });
+              }
+            }
+          }
+        } catch (e) {
+          tracer.mark('probe.skipped', { reason: 'engine-error', error: (e as Error)?.message ?? 'unknown' });
         }
       } catch (e) {
         tracer.mark('router.error', { error: (e as Error)?.message ?? 'unknown' });
