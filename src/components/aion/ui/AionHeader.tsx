@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -13,6 +13,7 @@ interface AionHeaderProps {
   className?: string;
   /** Pull rendering up to the chrome layer (fixed top). Default true. */
   fixed?: boolean;
+  style?: CSSProperties;
 }
 
 /**
@@ -27,6 +28,7 @@ export function AionHeader({
   onOrbClick,
   className,
   fixed = true,
+  style,
 }: AionHeaderProps) {
   const { isRTL, language } = useTranslation();
   const isHe = language === "he";
@@ -34,6 +36,7 @@ export function AionHeader({
   return (
     <header
       dir={isRTL ? "rtl" : "ltr"}
+      style={style}
       className={cn(
         fixed && "pointer-events-none fixed inset-x-0 top-0",
         "bg-transparent dark:backdrop-blur-xl dark:backdrop-saturate-150",
