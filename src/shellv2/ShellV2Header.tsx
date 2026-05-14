@@ -11,8 +11,8 @@ import { useState } from 'react';
 import { Menu, Info, Play } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
-import { OrbView } from '@/components/orb/v2/OrbView';
 import { AionRingMark } from '@/components/aion/AionRingMark';
+import aionOrb from '@/assets/aion-ring.png';
 import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -47,9 +47,9 @@ export default function ShellV2Header() {
           type="button"
           aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
           onClick={() => openInteractiveAION()}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] backdrop-blur-md transition-colors hover:bg-white/[0.08]"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-95"
         >
-          <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" ariaLabel={isHe ? 'תפריט' : 'Menu'} />
+          <img src={aionOrb} alt="" width={32} height={32} draggable={false} className="block h-8 w-8 object-contain" />
         </button>
 
         {/* Center: brand (tap to open about sheet) */}
@@ -91,7 +91,7 @@ export default function ShellV2Header() {
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
         <SheetHeader className={isRTL ? 'text-right' : 'text-left'}>
           <div className="flex items-center gap-2">
-            <OrbView size={32} neutral tintHue="hsl(0 0% 100%)" tier="presence" />
+            <img src={aionOrb} alt="" width={32} height={32} className="block h-8 w-8 object-contain" />
             <SheetTitle className="text-lg">{brand}</SheetTitle>
           </div>
           <SheetDescription className="text-foreground/70">
