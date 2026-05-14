@@ -1,3 +1,57 @@
+
+## Phase D — Brain + Journey Consolidation (DONE)
+
+### Routes changed
+- Added `/journey` → `StrategyPage` (canonical Journey surface; same engines as `/strategy`).
+- `/strategy` remains mounted only for legacy pillar deep-links (`/strategy/{pillar}/...`).
+- Removed redirect `/journey → /strategy`; added catch-all `/journey/* → /journey`.
+
+### Labels changed
+- StrategyPage tabs: "Overview/Mission Control" → "Journey/Actions" (HE: "מסע/פעולות").
+- ShellV2 mission sheet: "Mission Control / Strategy mission player" → "Actions / Journey action player".
+- HeaderActions aria-label: "Open Mission Control" → "Open Journey Actions".
+- Drawer already shows the 5 canonical labels (Phase C); no change needed.
+
+### Brain source map (consolidated surface)
+`/brain` (BrainPage) now renders, in order:
+1. ShellHeader — "Consciousness Map".
+2. **SelfPanel** (new) — pulls from `useAION` + `useDNA` → AION name/level, dominant+secondary archetype, ego state, mint status, top-3 confidence anchors from `BrainAtlas.rooms`.
+3. ConsciousnessAtlas — rooms grid (`brain_get_atlas` RPC).
+4. Legacy full graph (`BrainView`) collapsed inside `<details>`.
+
+Backfill sources already wired through `useBrainFallback` / `aurora_memory_graph`:
+- `launchpad_summaries` (onboarding history, identity_profile, clarity scores)
+- `aurora_onboarding_progress`
+- `domain_assessments` / pillar assessment results
+- `journal_entries`, `aurora_conversations`
+- `action_items`, `life_plans`
+- `aurora_behavioral_patterns`, `aurora_identity_elements`
+- `profiles` (ego_state, aion_name) via `useAION`
+
+### Journey source map (consolidated surface)
+`/journey` reuses `StrategyPage` engines untouched:
+- `LifeHub` (Overview tab) — pillar overview, plan summaries, progress.
+- `PlayLayoutWrapper` (Actions tab) — `action_items` execution, mission player, daily checklist.
+- Strategy/plan/habit/hypnosis/work engines remain in their existing services and are summoned via deep-routes (`/strategy/{pillar}`, `/hypnosis`, `/journal`) until they migrate to artifacts in a later phase.
+
+### Old pages still reachable
+- `/strategy` — kept for the 60+ pillar deep-link routes; not advertised in nav.
+- `/hypnosis`, `/journal` — reachable directly; will become Journey artifacts in a later phase.
+- `/admin-hub`, `/coaches`, `/creator`, `/freelancer` — still routed (Outer World ecosystem, untouched).
+- All Phase C quarantined pages still mounted with `withDeprecationLog`.
+
+### Still feels dashboard-like (queued for later phases)
+- StrategyPage Overview tab is dense (`LifeHub`); slated to become a single "Journey briefing" artifact.
+- AdminHub, CoachesHub, etc. retain dashboard chrome — Outer World consolidation happens in a later phase.
+- Action sheet on ShellV2 still uses sticky header tabs; acceptable for now.
+
+### Remaining for provider collapse (Phase E)
+- 25 providers in App tree (CoachesModalContext, ProfileModalContext, SubscriptionsModalContext, WalletModalContext, StoryWorldContext, WelcomeGateContext, SmartOnboardingContext, HubModalProvider, SidebarContext, ChromeVisibilityContext, OverlayProvider, etc.).
+- `aion-orchestrator` edge function still active alongside `aion-brain` — consolidate into single writer.
+- 60+ `/strategy/{pillar}/...` routes — collapse into a generic pillar route + room artifact.
+
+### Reversibility
+No DB, no provider, no orchestration touched. Rollback = `git revert`.
 # MindOS Cleanup Report
 
 Tracking the System Consolidation Plan (`.lovable/plan.md`). Items here are
