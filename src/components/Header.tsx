@@ -160,48 +160,50 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   };
 
 
-  // Logo Component — AION brand icon (internal: AuroraOrbIcon kept for compat)
-  // Hidden on mobile when logged in (logo is shown in mobile sidebar instead)
-  const LogoBrand = ({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) => (
-    <div
+  // Wordmark — premium iOS-style center label
+  const Wordmark = () => (
+    <Link
+      to={isAdminMode ? "/admin" : "/"}
       className={cn(
-        "flex items-center gap-2",
-        hiddenOnMobile && "hidden md:flex"
+        "select-none font-semibold text-[20px] sm:text-[22px] tracking-[0.28em] leading-none",
+        "hover:opacity-80 transition-opacity",
+        brandColors?.text || 'text-foreground',
       )}
+      aria-label={isAdminMode ? t('admin.panelTitle') : brandName}
     >
-      {/* Orb taps Interactive AION mode (immersive overlay). */}
-      <button
-        type="button"
-        onClick={openInteractiveAION}
-        aria-label="פתח מצב AION"
-        className="flex-shrink-0 hover:opacity-90 transition-opacity"
-      >
-        <img src={aionOrb} alt="" width={120} height={120} className="h-[120px] w-[120px] object-contain" draggable={false} />
-      </button>
-      <Link
-        to={isAdminMode ? "/admin" : "/"}
-        className={cn(
-          "hover:opacity-80 transition-opacity",
-          `font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`,
-        )}
-      >
-        {isAdminMode ? t('admin.panelTitle') : brandName}
-      </Link>
-    </div>
+      {isAdminMode ? t('admin.panelTitle') : brandName}
+    </Link>
   );
 
-  // Guest Logo Dropdown - app name with dropdown menu for guests
-  const GuestLogoBrandDropdown = () => (
+  // AION orb — visual anchor, opens Interactive AION
+  const OrbAnchor = () => (
+    <button
+      type="button"
+      onClick={openInteractiveAION}
+      aria-label="פתח מצב AION"
+      className="relative flex-shrink-0 active:scale-[0.97] transition-transform"
+    >
+      {/* subtle breathing glow */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 m-auto h-[88px] w-[88px] rounded-full blur-2xl opacity-50"
+        style={{ background: 'radial-gradient(circle, hsl(220 90% 65% / 0.55), transparent 70%)' }}
+      />
+      <img
+        src={aionOrb}
+        alt=""
+        width={88}
+        height={88}
+        draggable={false}
+        className="relative block h-[88px] w-[88px] object-contain"
+      />
+    </button>
+  );
+
+  // Guest dropdown — triggered from the left menu icon
+  const GuestMenu = ({ children }: { children: React.ReactNode }) => (
     <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
-      <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none outline-none">
-          <img src={aionOrb} alt="" width={120} height={120} className="h-[120px] w-[120px] flex-shrink-0 object-contain" draggable={false} />
-          <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-            {brandName}
-          </span>
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        </button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent align={isRTL ? "end" : "start"} className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
         <DropdownMenuLabel className="font-normal">
           <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
@@ -263,73 +265,79 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
 
   return (
     <>
-      <header className="sticky top-0 z-30 w-full border-b border-border bg-background backdrop-blur shadow-sm">
-        <div className="container flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6">
-          {/* Left side - Logo + Brand */}
-          <div className="flex items-center gap-2 sm:gap-3">
+      <header
+        className="sticky top-0 z-30 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        <div
+          className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 sm:px-8"
+          style={{ minHeight: 96 }}
+        >
+          {/* LEFT — menu */}
+          <div className="flex items-center justify-self-start">
             {user ? (
-              // Logged in: Show logo + admin controls (hidden on mobile - shown in sidebar)
               <>
-                <LogoBrand hiddenOnMobile={!isAdminMode} />
+                {(onMenuClick || isAdminMode) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onMenuClick) requestAnimationFrame(() => onMenuClick());
+                      else setMobileMenuOpen(true);
+                    }}
+                    aria-label={t('header.navigationMenu')}
+                    className="h-11 w-11 rounded-full"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                )}
                 {isAdminMode && (
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate("/now")}
                     aria-label={t('common.home')}
-                    className="hidden sm:flex"
+                    className="hidden sm:flex h-11 w-11 rounded-full"
                   >
                     <Home className="h-5 w-5" />
                   </Button>
                 )}
               </>
             ) : (
-              // Logged out: Logo + Brand dropdown with guest menu
-              <GuestLogoBrandDropdown />
+              <GuestMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('header.guestMenu')}
+                  className="h-11 w-11 rounded-full"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </GuestMenu>
             )}
           </div>
 
-          {/* Right side - Avatar/Controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user ? (
-              // Logged in: Show menu controls + notifications
-              <>
-                {loading ? (
-                  <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
-                ) : (
-                  isAdmin && <NotificationBell />
-                )}
-                {onMenuClick && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      requestAnimationFrame(() => onMenuClick());
-                    }}
-                    aria-label={t('header.navigationMenu')}
-                    className="h-9 w-9 md:hidden"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                )}
-                {isAdminMode && (
-                  <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                    <SheetTrigger asChild className="lg:hidden">
-                      <Button variant="ghost" size="icon" aria-label={t('header.navigationMenu')}>
-                        <PanelLeft className="h-5 w-5" />
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-[85vw] max-w-sm" dir={isRTL ? "rtl" : "ltr"}>
-                      <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
-                    </SheetContent>
-                  </Sheet>
-                )}
-              </>
-            ) : null}
+          {/* CENTER — wordmark */}
+          <div className="flex items-center justify-center min-w-0">
+            <Wordmark />
+          </div>
+
+          {/* RIGHT — AION orb anchor */}
+          <div className="flex items-center justify-self-end gap-2">
+            {user && isAdmin && !loading && <NotificationBell />}
+            <OrbAnchor />
           </div>
         </div>
+
+        {isAdminMode && (
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-[85vw] max-w-sm" dir={isRTL ? "rtl" : "ltr"}>
+              <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
+            </SheetContent>
+          </Sheet>
+        )}
       </header>
 
     </>
