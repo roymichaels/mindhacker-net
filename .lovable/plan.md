@@ -1,100 +1,159 @@
-## Phase 5B.4 — SelfWorld + Identity Triad Architecture
+## Phase 5B.5 — Cognitive Worlds Architecture
 
-Reframe Profile/Self from a "settings page with widgets" into **SelfWorld**: an explorable inner OS with a clear three-layer identity model. This phase lays the **shell, hierarchy, navigation, and visual language** — not the deep systems behind every layer.
+Reframe every major hub from "page" into **world** — a spatial, living, semantically-typed layer of consciousness. The graph stops being analytics and becomes the substrate of the OS. AION threads through every world as the same presence.
 
-### Conceptual model (frozen for the rest of the system)
+This phase lays the **architectural primitives** for the worlds system. It does NOT build all the worlds. The first concrete world is wired so the contract is real, not theoretical.
 
-Three distinct entities, never collapsed into one profile object:
+### Core mental model
 
 ```text
-  ┌─────────────────────────────────────┐
-  │  AION NFT      — Intelligence layer │  (canonical orb, persistent guide)
-  ├─────────────────────────────────────┤
-  │  DNA NFT       — Consciousness layer│  (user DNA orb, evolving inner self)
-  ├─────────────────────────────────────┤
-  │  Character NFT — Embodiment layer   │  (avatar, access, world traversal)
-  └─────────────────────────────────────┘
+                    ┌──── AION presence (canonical, shared) ────┐
+                    │                                            │
+   SelfWorld ──┐    │    each world has:                         │
+   Habits     ─┤    │     · spatial scene (its visual language)  │
+   Emotions   ─┤    │     · ontology (node/edge kinds)           │
+   Beliefs    ─┼──► │     · interaction grammar (verbs)          │
+   Memory     ─┤    │     · AION role per world                  │
+   Relations  ─┤    │     · graph projection (shared substrate)  │
+   Archetypes ─┤    │                                            │
+   Creative   ─┤    └────────────────────────────────────────────┘
+   Higher     ─┘
+        │
+        └──► all worlds project into ONE semantic graph
 ```
 
-`ProfileNFTTriad` and `PersonalizedOrb` continue to live **only as identity artifacts** under the AION presence layer. The canonical AION model is never the user's DNA orb.
+A "world" is **not** a route. A world is a typed slice of the user's semantic graph rendered with its own spatial scene and interaction grammar.
 
-### SelfWorld hierarchy (top → bottom)
+### Architectural primitives (this phase ships these)
 
-1. **AION presence band** — canonical AION model + presence-state line (already shipped as `AionPresenceHero`).
-2. **Identity Core** — the triad: AION NFT · DNA NFT · Character NFT, each entering a layer view.
-3. **Inner systems map** — explorable layer registry (Memories, Beliefs, Emotional Patterns, Habits, Archetypes, Roles, Values, Relationships, Trajectory, Shadow, Creative, Higher Self). Most are **placeholder layers** for now — locked/coming-soon, but registered.
-4. **Brain Graph entry** — link to the existing brain/atlas as the cognitive map layer.
-5. **Settings & account** — collapsed, last.
+#### 1. World contract (`src/worlds/types.ts`)
 
-### What gets built now
+```ts
+type CognitiveWorldId =
+  | 'self' | 'habits' | 'emotions' | 'beliefs' | 'memory'
+  | 'relationships' | 'archetypes' | 'creative' | 'higher';
 
-**Shell**
-- New `src/selfworld/` module with:
-  - `SelfWorldShell.tsx` — full-height container, ambient atmosphere, scroll-as-descent feel.
-  - `layers/` — one component per band (PresenceBand, IdentityCoreBand, InnerSystemsBand, BrainGraphBand, SettingsBand).
-  - `layerRegistry.ts` — declarative list of inner-system layers (id, label HE/EN, icon, owner: `dna` | `aion` | `character`, status: `live` | `coming`).
-  - `LayerCard.tsx` — uniform card used by InnerSystemsBand; opens a layer view (or a "coming soon" sheet for unlive layers).
-  - `LayerView.tsx` — generic detail surface used by live layers (Identity Core, DNA, Brain Graph) and as the "coming" stub for the rest.
+interface CognitiveWorld {
+  id: CognitiveWorldId;
+  labelHe: string; labelEn: string;
+  // semantic ontology this world owns
+  nodeKinds: WorldNodeKind[];      // e.g. for habits: ritual, loop, momentum
+  edgeKinds: WorldEdgeKind[];      // e.g. triggers, reinforces, decays
+  // spatial language
+  scene: WorldSceneSpec;           // metaphor + motion + palette tokens
+  interaction: WorldInteractionSpec; // verbs available in this world
+  // AION's role inside the world
+  aionRole: 'guide' | 'interpreter' | 'orchestrator' | 'observer';
+  status: 'live' | 'scaffold' | 'coming';
+}
+```
 
-**Identity Triad reframing**
-- Wrap the existing `ProfileNFTTriad` inside an `IdentityCoreBand` that labels it as the **three-entity identity core** (AION · DNA · Character) with a one-line caption per entity reflecting its layer:
-  - AION → "Intelligence layer · your persistent guide"
-  - DNA → "Consciousness layer · your evolving inner self"
-  - Character → "Embodiment layer · how you appear and access worlds"
-- No visual rebuild of the triad cards themselves; only the surrounding framing and copy.
+Each world declares its **ontology** (node/edge kinds it owns), **scene** (metaphor — constellation, weather, root system, timeline, galaxy…), and **interaction grammar** (verbs the user can perform inside it: traverse, resonate, interrogate, inhabit, etc).
 
-**Self panel migration**
-- `SelfPanel` becomes a thin wrapper that mounts `SelfWorldShell`. The existing sections (`WhatAionKnowsSection`, `CorrectionsSection`, `PrivacySettingsSection`) move under the new **Settings & account** band so nothing is lost.
-- `IdentitySection` is retired in favor of the triad band (its name+orb row was a placeholder for the triad).
+#### 2. World registry (`src/worlds/registry.ts`)
 
-**Visual language**
-- Dark ambient background with soft vertical gradient between bands (no heavy shadows/gradients per design memory — subtle `bg-white/[0.02]` separators, `rounded-2xl`, `backdrop-blur`).
-- Each band has: small uppercase label, optional sublabel, content. No card chrome around bands themselves.
-- Locked layers render with a `Lock` glyph and "coming soon" muted treatment — registered in `layerRegistry` so future phases just flip `status: 'live'`.
+Single source of truth listing all 9 worlds with their ontology + scene + AION role. Most ship as `status: 'scaffold'` (shell + ontology defined, scene stub) or `'coming'` (registered only). One ships as `'live'`.
 
-**Navigation**
-- Tapping a triad card opens its layer view (AION → AION layer stub, DNA → existing `DNAViewer` artifact, Character → existing avatar surface).
-- Tapping an inner-system card opens `LayerView` (live layers route to existing component; locked layers show a presence-aware "AION is preparing this layer" state).
+This **replaces** `src/selfworld/layerRegistry.ts` for the inner-system layers — those layers were a placeholder for what now becomes the worlds registry. SelfWorld becomes one world among many, not a parent of them.
 
-### What is explicitly NOT built yet
+#### 3. Shared semantic graph layer (`src/worlds/graph/`)
 
-- No 3D spatial world / WebGL navigation between layers (the band-stack is the v1 spatial metaphor).
-- No backend tables or NFT/blockchain wiring — these are conceptual labels only.
-- No deep implementation of Memories, Beliefs, Emotional Patterns, Habits, Archetypes, Roles, Values, Relationships, Trajectory, Shadow, Creative, Higher Self. They register as locked layers.
-- No redesign of the triad cards, DNA viewer, brain graph, or avatar.
-- No route changes — `ProfilePage` keeps mounting `SelfPanel`.
+- `worldGraphTypes.ts` — `WorldNode`, `WorldEdge`, `WorldKind`, `WorldProjection`.
+- `useWorldProjection(worldId)` — selects the user's graph slice owned by a world (filters by node/edge kinds). All worlds read from the **same** underlying graph; each just projects its slice. This preserves graph interoperability — a "belief" node can be referenced by the Beliefs world and the Memory world simultaneously.
+- For now, projections read from the existing `useBrainAtlas` / `useBrainOverview` data and tag nodes by inferred kind. No backend changes — pure client-side projection. Backend kind columns come in a later phase.
 
-### Files (planned)
+#### 4. World scene primitives (`src/worlds/scene/`)
+
+Reusable spatial building blocks so each world stays unique without each one rebuilding from scratch:
+
+- `<WorldShell>` — full-bleed container, ambient atmosphere, AION presence anchor (top), exit affordance, world title band.
+- `<WorldStage>` — scene mount point. Accepts a `SceneRenderer` from the registry.
+- `<WorldComposer>` — bottom AION input scoped to the current world's grammar (verbs become quick prompts).
+- Scene renderer types: `Constellation`, `Weather`, `RootSystem`, `Timeline`, `Galaxy`, `EntityCircle`, `Ecosystem`, `Dreamspace`, `BandStack` (the SelfWorld v1 metaphor).
+
+Each scene renderer takes `(projection, presence) => ReactNode`. Scenes are pure renderers; data comes from `useWorldProjection`.
+
+#### 5. AION-in-world contract (`src/worlds/aion/`)
+
+Same canonical AION model everywhere, but AION's **role and copy** vary per world. A `useWorldAion(worldId)` hook exposes:
+
+- presence-aware copy ("AION is reading the weather of your emotions")
+- world-scoped quick verbs ("interpret", "trace origin", "find pattern")
+- scoped suggestions feed (later phases)
+
+Visual orb stays canonical. Voice stays canonical. Only the *framing* shifts.
+
+#### 6. Routing & navigation
+
+- New route shell `/worlds/:worldId` rendering `<WorldShell>` + the registered scene.
+- SelfWorld migrates: `ProfilePage` continues to mount `SelfPanel`, but `SelfPanel` now mounts `<WorldShell worldId="self">` rendering the existing `BandStack` scene. The Phase 5B.4 SelfWorld becomes the reference implementation of the contract.
+- The InnerSystemsBand inside SelfWorld now lists worlds (not layers). Tapping a `live`/`scaffold` world navigates to `/worlds/:id`. `coming` worlds reveal the same presence-aware "AION is preparing this world" line.
+
+### First concrete world: Habits
+
+Habits gets a real (minimal) scene so the contract is provable, not theoretical.
+
+- **Ontology:** node kinds `ritual`, `loop`, `momentum`, `decay`; edge kinds `triggers`, `reinforces`, `interrupts`.
+- **Scene metaphor:** *Ritual loops + behavioral gravity* — circular orbits where each habit ritual is a satellite whose radius represents momentum (smaller = closer = stronger gravity), pulse rate represents recent execution. Decaying habits drift outward.
+- **Interaction grammar verbs:** *follow* (trace the loop), *interrupt*, *amplify*, *reset*.
+- **AION role:** `orchestrator`. Copy: "AION is watching the rhythm of your loops."
+- **Data source:** projection from existing action_items / habit signals via a thin client adapter `useHabitsProjection()`. No backend change — uses what exists, falls back to demo orbits if data is empty.
+
+Other 7 worlds ship as `scaffold`: the route resolves, `<WorldShell>` mounts, scene renders a *registered placeholder* (a labeled empty state describing the world's metaphor and AION's role) instead of the generic "coming soon" lock. This makes the worlds **navigable and conceptually present** without faking deep functionality.
+
+### What is explicitly NOT built
+
+- No 3D WebGL scenes for worlds beyond what already exists (orbs, DNA helix). Habits scene is a 2D motion-driven SVG/Framer composition. WebGL upgrade per world is a later phase.
+- No backend schema changes. No new tables, no edge functions. Node-kind tagging is client-side inference.
+- No deep authoring/editing inside worlds yet — only spatial reading + AION verbs.
+- No replacement of existing `BrainView` / `BrainGraphForce`. The brain graph stays as the cross-world substrate view; worlds are *projections* of it.
+- No collapsing of the AION/DNA/Character triad — that contract is preserved.
+
+### File inventory (planned)
 
 **New**
-- `src/selfworld/SelfWorldShell.tsx`
-- `src/selfworld/layerRegistry.ts`
-- `src/selfworld/LayerCard.tsx`
-- `src/selfworld/LayerView.tsx`
-- `src/selfworld/layers/PresenceBand.tsx` (wraps existing `AionPresenceHero`)
-- `src/selfworld/layers/IdentityCoreBand.tsx` (wraps `ProfileNFTTriad` with triad framing)
-- `src/selfworld/layers/InnerSystemsBand.tsx`
-- `src/selfworld/layers/BrainGraphBand.tsx`
-- `src/selfworld/layers/SettingsBand.tsx` (hosts the existing Self sections)
-- `mem/architecture/identity-triad-and-selfworld.md` + index entry
+- `src/worlds/types.ts`
+- `src/worlds/registry.ts`
+- `src/worlds/graph/worldGraphTypes.ts`
+- `src/worlds/graph/useWorldProjection.ts`
+- `src/worlds/scene/WorldShell.tsx`
+- `src/worlds/scene/WorldStage.tsx`
+- `src/worlds/scene/WorldComposer.tsx`
+- `src/worlds/scene/scenes/BandStackScene.tsx` (extracted from current SelfWorldShell)
+- `src/worlds/scene/scenes/RitualOrbitsScene.tsx` (Habits)
+- `src/worlds/scene/scenes/ScaffoldScene.tsx` (placeholder used by `scaffold` worlds)
+- `src/worlds/aion/useWorldAion.ts`
+- `src/worlds/data/useHabitsProjection.ts`
+- `src/pages/WorldRoute.tsx` (route wrapper for `/worlds/:worldId`)
+- `mem/architecture/cognitive-worlds-system.md` + index entry
 
 **Edited**
-- `src/components/self/SelfPanel.tsx` — replaced body with `<SelfWorldShell />`.
-- `src/components/self/sections/IdentitySection.tsx` — deleted (superseded by IdentityCoreBand). Imports cleaned.
+- `src/App.tsx` — add `/worlds/:worldId` route.
+- `src/selfworld/SelfWorldShell.tsx` — internally swap to `<WorldShell worldId="self" scene={BandStackScene} />`. Public API unchanged so `SelfPanel` keeps working.
+- `src/selfworld/layers/InnerSystemsBand.tsx` — source from worlds registry (not legacy layerRegistry); tap on non-coming worlds navigates to `/worlds/:id`.
 
-### Success criteria
+**Removed (folded into worlds registry)**
+- `src/selfworld/layerRegistry.ts` — superseded. Its labels/hints migrate into `src/worlds/registry.ts`.
 
-Opening Profile/Self:
-1. AION presence is the first thing you feel (canonical model, presence-aware copy).
-2. Below it, the identity **triad** is clearly labeled as three distinct entities (Intelligence · Consciousness · Embodiment), not one profile.
-3. Below that, an **inner systems map** previews the explorable layers of your consciousness — most locked, but visibly registered.
-4. Brain graph entry is a peer band, not buried in settings.
-5. Settings/account is the last, quietest band.
-6. Canonical AION still reads identically in Chat, Voice, Journey, World, Mind, and SelfWorld.
+### Long-term direction this enables
+
+- Each world can independently upgrade its scene to WebGL/3D without touching the contract.
+- Backend node-kind tagging arrives later — projections already accept typed nodes, so the migration is additive.
+- Cross-world edges (a memory tied to a belief tied to a relationship) light up automatically since all worlds project from the same graph.
+- Multiplayer / shared worlds, agent ecosystems, and persistent companion memory all hang off the same `CognitiveWorld` contract.
 
 ### Memory updates
 
-Add `mem://architecture/identity-triad-and-selfworld` documenting:
-- Three-layer identity contract (AION / DNA / Character — never collapsed).
-- SelfWorld as the canonical inner-OS surface.
-- Layer registry pattern for staged rollout of inner systems.
+Add `mem://architecture/cognitive-worlds-system` documenting:
+- Worlds-as-projections rule (one graph, many spatial scenes).
+- World contract (`ontology + scene + interaction grammar + aionRole`).
+- AION-in-world rule (canonical orb, world-scoped framing).
+- Phase 5B.4 SelfWorld is the reference implementation.
+
+### Success criteria
+
+- `/worlds/self`, `/worlds/habits`, `/worlds/emotions`, `/worlds/beliefs`, `/worlds/memory`, `/worlds/relationships`, `/worlds/archetypes`, `/worlds/creative`, `/worlds/higher` all resolve.
+- SelfWorld and Habits render real scenes; the other 7 render their registered scaffold scene (named metaphor + AION role line), not a generic "coming soon" lock.
+- Same canonical AION presence reads in every world; only its framing copy differs.
+- Tapping an inner-systems entry from SelfWorld navigates into the corresponding world.
+- No backend changes, no graph rewrite, no triad regression.
