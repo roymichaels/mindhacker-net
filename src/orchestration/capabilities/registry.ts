@@ -15,7 +15,7 @@
 import type { ZodTypeAny } from 'zod';
 import { z } from 'zod';
 
-export type CapabilityMode = 'observe' | 'suggest' | 'execute';
+export type CapabilityMode = 'observe' | 'read' | 'suggest' | 'mutate' | 'destructive';
 export type CapabilitySafety = 'safe' | 'unsafe';
 
 export interface CapabilityDef<I extends ZodTypeAny = ZodTypeAny> {
@@ -32,22 +32,38 @@ function def<I extends ZodTypeAny>(d: CapabilityDef<I>): CapabilityDef<I> {
 }
 
 export const CAPABILITIES = {
-  'brain.query':        def({ id: 'brain.query',        description: 'Read nodes/edges from the consciousness map.',     inputSchema: z.object({ query: z.string().optional(), pillar: z.string().optional() }), safety: 'safe',   artifactKind: null,        declaredMode: 'execute' }),
-  'brain.openRoom':     def({ id: 'brain.openRoom',     description: 'Open a Brain room artifact.',                       inputSchema: z.object({ roomId: z.string() }),                                          safety: 'safe',   artifactKind: 'brain.room', declaredMode: 'suggest' }),
-  'journey.nextAction': def({ id: 'journey.nextAction', description: 'Surface the next action item from the Journey.',     inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.next', declaredMode: 'suggest' }),
-  'journey.summarize':  def({ id: 'journey.summarize',  description: 'Summarize current Journey progress.',                inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.summary', declaredMode: 'suggest' }),
-  'plan.suggest':       def({ id: 'plan.suggest',       description: 'Suggest a plan adjustment (no write).',              inputSchema: z.object({ pillar: z.string().optional() }),                               safety: 'safe',   artifactKind: 'plan.draft',  declaredMode: 'suggest' }),
-  'task.suggest':       def({ id: 'task.suggest',       description: 'Suggest a single task / next step.',                 inputSchema: z.object({ context: z.string().optional() }),                              safety: 'safe',   artifactKind: 'task.draft',  declaredMode: 'suggest' }),
-  'journal.capture':    def({ id: 'journal.capture',    description: 'Capture a journal entry from the conversation.',     inputSchema: z.object({ snippet: z.string().optional() }),                              safety: 'unsafe', artifactKind: 'journal.entry', declaredMode: 'execute' }),
-  'hypnosis.recommend': def({ id: 'hypnosis.recommend', description: 'Recommend a hypnosis/recovery session.',             inputSchema: z.object({ topic: z.string().optional() }),                                safety: 'safe',   artifactKind: 'hypnosis.session', declaredMode: 'suggest' }),
-  'outerWorld.open':    def({ id: 'outerWorld.open',    description: 'Open an Outer World surface (coaches, market, …).',  inputSchema: z.object({ surface: z.string() }),                                         safety: 'safe',   artifactKind: 'outer-world.surface', declaredMode: 'suggest' }),
-  'profile.summarize':  def({ id: 'profile.summarize',  description: 'Summarize identity/DNA/profile.',                    inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'profile.summary', declaredMode: 'suggest' }),
+  'brain.query':        def({ id: 'brain.query',        description: 'Read nodes/edges from the consciousness map.',     inputSchema: z.object({ query: z.string().optional(), pillar: z.string().optional() }), safety: 'safe',   artifactKind: 'brain.room',         declaredMode: 'read' }),
+  'brain.openRoom':     def({ id: 'brain.openRoom',     description: 'Open a Brain room artifact.',                       inputSchema: z.object({ roomId: z.string().optional() }),                                safety: 'safe',   artifactKind: 'brain.room',         declaredMode: 'read' }),
+  'journey.nextAction': def({ id: 'journey.nextAction', description: 'Surface the next action item from the Journey.',     inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.next',       declaredMode: 'read' }),
+  'journey.summarize':  def({ id: 'journey.summarize',  description: 'Summarize current Journey progress.',                inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.summary',    declaredMode: 'read' }),
+  'plan.suggest':       def({ id: 'plan.suggest',       description: 'Suggest a plan adjustment (no write).',              inputSchema: z.object({ pillar: z.string().optional() }),                               safety: 'safe',   artifactKind: 'plan.draft',         declaredMode: 'suggest' }),
+  'task.suggest':       def({ id: 'task.suggest',       description: 'Suggest a single task / next step.',                 inputSchema: z.object({ context: z.string().optional() }),                              safety: 'safe',   artifactKind: 'task.draft',         declaredMode: 'suggest' }),
+  'journal.capture':    def({ id: 'journal.capture',    description: 'Capture a journal entry from the conversation.',     inputSchema: z.object({ snippet: z.string().optional() }),                              safety: 'safe',   artifactKind: 'journal.entry',      declaredMode: 'suggest' }),
+  'hypnosis.recommend': def({ id: 'hypnosis.recommend', description: 'Recommend a hypnosis/recovery session.',             inputSchema: z.object({ topic: z.string().optional() }),                                safety: 'safe',   artifactKind: 'hypnosis.session',   declaredMode: 'read' }),
+  'outerWorld.open':    def({ id: 'outerWorld.open',    description: 'Open an Outer World surface (coaches, market, …).',  inputSchema: z.object({ surface: z.string().optional() }),                              safety: 'safe',   artifactKind: 'outer-world.surface', declaredMode: 'read' }),
+  'profile.summarize':  def({ id: 'profile.summarize',  description: 'Summarize identity/DNA/profile.',                    inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'profile.summary',    declaredMode: 'read' }),
 } as const;
 
 export type CapabilityId = keyof typeof CAPABILITIES;
 
-/** Phase 1 hard override — no capability ever exits observe mode. */
-export function effectiveMode(_id: CapabilityId): CapabilityMode {
+/**
+ * Phase F · Step 3 — read + suggest are now allowed to execute.
+ *
+ * Policy:
+ *   - 'read'        → executes against safeReadExecutor (no DB writes).
+ *   - 'suggest'     → executes a read for grounding, never writes.
+ *   - 'mutate'      → forced to 'observe' (no capability declares this yet).
+ *   - 'destructive' → forced to 'observe' (no capability declares this yet).
+ *
+ * Anything else (unknown / unsafe) collapses to 'observe'.
+ */
+const ALLOWED_EXECUTION: ReadonlySet<CapabilityMode> = new Set(['read', 'suggest']);
+
+export function effectiveMode(id: CapabilityId): CapabilityMode {
+  const def = CAPABILITIES[id];
+  if (!def) return 'observe';
+  if (def.safety === 'unsafe') return 'observe';
+  if (ALLOWED_EXECUTION.has(def.declaredMode)) return def.declaredMode;
   return 'observe';
 }
 
