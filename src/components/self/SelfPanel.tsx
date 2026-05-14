@@ -1,17 +1,10 @@
 /**
- * SelfPanel — identity-first replacement for the stat-heavy Profile body.
- *
- * Sections:
- *  1. Identity
- *  2. What AION knows
- *  3. Corrections
- *  4. Privacy & settings (collapsed) + Advanced (opens legacy stats)
+ * SelfPanel — Phase 5B.4 thin wrapper. The body is now SelfWorldShell:
+ * an inner-OS shell with the AION presence layer above the user
+ * identity triad (AION · DNA · Character) and the explorable inner
+ * systems registry. See `src/selfworld/`.
  */
-import AionPresenceHero from './sections/AionPresenceHero';
-import IdentitySection from './sections/IdentitySection';
-import WhatAionKnowsSection from './sections/WhatAionKnowsSection';
-import CorrectionsSection from './sections/CorrectionsSection';
-import PrivacySettingsSection from './sections/PrivacySettingsSection';
+import SelfWorldShell from '@/selfworld/SelfWorldShell';
 import { artifactBus } from '@/lib/aion/artifactBus';
 
 interface Props {
@@ -20,20 +13,10 @@ interface Props {
 }
 
 export default function SelfPanel({ onOpenAdvanced }: Props) {
-  const handleAdvanced = onOpenAdvanced ?? (() => {
-    artifactBus.summon('profile-stats', {}, { fullscreen: true, replaceKind: true });
-  });
-  return (
-    <div className="mx-auto w-full max-w-md space-y-6 px-4 py-6">
-      <AionPresenceHero />
-      <div className="h-px bg-white/[0.05]" />
-      <IdentitySection />
-      <div className="h-px bg-white/[0.05]" />
-      <WhatAionKnowsSection />
-      <div className="h-px bg-white/[0.05]" />
-      <CorrectionsSection />
-      <div className="h-px bg-white/[0.05]" />
-      <PrivacySettingsSection onOpenAdvanced={handleAdvanced} />
-    </div>
-  );
+  const handleAdvanced =
+    onOpenAdvanced ??
+    (() => {
+      artifactBus.summon('profile-stats', {}, { fullscreen: true, replaceKind: true });
+    });
+  return <SelfWorldShell onOpenAdvanced={handleAdvanced} />;
 }
