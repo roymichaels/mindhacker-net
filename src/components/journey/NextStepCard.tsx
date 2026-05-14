@@ -30,7 +30,7 @@ export default function NextStepCard({ title, titleEn, onStart }: NextStepCardPr
       <div
         className="aion-text-soft text-[10px] tracking-[0.28em] uppercase opacity-60 mb-2 text-center"
       >
-        {isHe ? 'הצעד הבא שלך' : 'Your one next step'}
+        {isHe ? 'הצעד הבא במסלול' : 'Next step in the trajectory'}
       </div>
 
       <div
@@ -53,7 +53,7 @@ export default function NextStepCard({ title, titleEn, onStart }: NextStepCardPr
                 'bg-foreground/90 text-background hover:bg-foreground transition-colors',
               )}
             >
-              {isHe ? 'התחל' : 'Start'}
+              {isHe ? 'התחל את הצעד' : 'Start this step'}
             </button>
           )}
           <button
@@ -65,7 +65,7 @@ export default function NextStepCard({ title, titleEn, onStart }: NextStepCardPr
               'border border-white/[0.06]',
             )}
           >
-            {isHe ? 'שאל את AION' : 'Ask AION'}
+            {isHe ? 'בקש מ-AION להוביל' : 'Ask AION to guide me'}
           </button>
         </div>
       </div>
