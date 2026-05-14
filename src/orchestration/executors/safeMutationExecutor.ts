@@ -78,24 +78,26 @@ const DISABLED_BATCH1: ReadonlySet<CapabilityId> = new Set<CapabilityId>([
 ]);
 
 // ── Lightweight payload validators (no external dep). ────────────────────
-function vJournal(input: MutationInput): { ok: true; content: string } | { ok: false; reason: string } {
+type Validated<T> = { ok: true; value: T } | { ok: false; reason: string };
+
+function vJournal(input: MutationInput): Validated<{ content: string }> {
   const content = (input.message ?? '').trim();
   if (!content) return { ok: false, reason: 'empty-content' };
   if (content.length > 4000) return { ok: false, reason: 'content-too-long' };
-  return { ok: true, content };
+  return { ok: true, value: { content } };
 }
 function vTitle(input: MutationInput, fallback: string): string {
   const t = (input.message ?? '').trim().slice(0, 80);
   return t || fallback;
 }
-function vMessageSend(input: MutationInput): { ok: true; conversationId: string; content: string } | { ok: false; reason: string } {
+function vMessageSend(input: MutationInput): Validated<{ conversationId: string; content: string }> {
   const conversationId = (input.targetId ?? '').trim();
   const content = (input.message ?? '').trim();
   if (!conversationId) return { ok: false, reason: 'missing-conversation' };
   if (!/^[0-9a-f-]{36}$/i.test(conversationId)) return { ok: false, reason: 'invalid-conversation-id' };
   if (!content) return { ok: false, reason: 'empty-content' };
   if (content.length > 2000) return { ok: false, reason: 'content-too-long' };
-  return { ok: true, conversationId, content };
+  return { ok: true, value: { conversationId, content } };
 }
 
 const now = () => Date.now();
@@ -136,16 +138,16 @@ export async function executeMutationCapability(
     switch (capability) {
       case 'journal.capture': {
         const v = vJournal(input);
-        if (!v.ok) {
+        if (v.ok === false) {
           return { ok: false, capability, source: 'preview',
             durationMs: now() - t0, summary: 'התוכן ליומן אינו תקין.', skippedReason: v.reason };
         }
         const entry = await createJournalEntry({
           user_id: input.userId,
           journal_type: 'reflection',
-          content: v.content,
+          content: v.value.content,
           source: 'aion',
-          title: v.content.slice(0, 60),
+          title: v.value.content.slice(0, 60),
         });
         return {
           ok: true, capability, source: 'mutation',
@@ -199,13 +201,13 @@ export async function executeMutationCapability(
 
       case 'message.send': {
         const v = vMessageSend(input);
-        if (!v.ok) {
+        if (v.ok === false) {
           return { ok: false, capability, source: 'preview', durationMs: now() - t0,
             summary: 'נתוני ההודעה אינם תקינים.', skippedReason: v.reason };
         }
         const { data, error } = await supabase
           .from('messages')
-          .insert({ conversation_id: v.conversationId, sender_id: input.userId, content: v.content } as any)
+          .insert({ conversation_id: v.value.conversationId, sender_id: input.userId, content: v.value.content } as any)
           .select('id')
           .maybeSingle();
         if (error) throw error;
