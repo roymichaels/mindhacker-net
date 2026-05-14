@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import aionOrb from "@/assets/aion-ring.png";
+import CanonicalAionModel from "@/components/orb/CanonicalAionModel";
 
 type Size = "xs" | "sm" | "md" | "lg";
 
@@ -38,16 +38,14 @@ export function AionOrb({
   ariaLabel,
 }: AionOrbProps) {
   const { box, px } = SIZE[size];
-  const Comp: any = onClick ? "button" : "span";
   // Back-compat: `glow={true}` → 'aura' (new default), `glow={false}` → none.
   const halo: "aura" | "ring" | false =
     glow === true ? "aura" : glow === false ? false : glow;
   return (
-    <Comp
-      onClick={onClick}
-      aria-label={ariaLabel}
+    <span
       className={cn(
         "relative inline-flex items-center justify-center",
+        box,
         breathing && "animate-aion-breath",
         onClick && "transition active:scale-95",
         className,
@@ -67,15 +65,13 @@ export function AionOrb({
       {halo === "ring" && (
         <span aria-hidden className="absolute inset-0 -z-0 rounded-full dark:aion-glow-soft" />
       )}
-      <img
-        src={aionOrb}
-        alt=""
-        width={px}
-        height={px}
-        draggable={false}
-        className={cn("relative block object-contain", box)}
+      <CanonicalAionModel
+        size={px}
+        ariaLabel={ariaLabel}
+        onClick={onClick}
+        className="relative block"
       />
-    </Comp>
+    </span>
   );
 }
 
