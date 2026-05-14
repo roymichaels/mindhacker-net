@@ -14,6 +14,7 @@ import AuroraVoiceMode from '@/components/aurora/AuroraVoiceMode';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { cn } from '@/lib/utils';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
+import { aionPresenceBus } from '@/aion/presenceState';
 
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,6 +67,7 @@ const GlobalChatInput = () => {
   // Handle focus to expand chat bubbles
   const handleFocus = () => {
     setIsChatExpanded(true);
+    aionPresenceBus.set('listening');
   };
 
   const handleTranscription = (text: string) => {
