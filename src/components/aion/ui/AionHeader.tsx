@@ -53,52 +53,59 @@ export function AionHeader({
           width: 320,
           height: 110,
           background:
-            "radial-gradient(closest-side, hsl(var(--aion-violet) / 0.18) 0%, hsl(var(--aion-cyan) / 0.06) 45%, transparent 75%)",
+            "radial-gradient(closest-side, hsl(var(--aion-violet) / 0.12) 0%, hsl(var(--aion-cyan) / 0.04) 45%, transparent 75%)",
           filter: "blur(2px)",
         }}
       />
-      <div className="pointer-events-auto relative mx-auto flex min-h-[56px] w-full max-w-screen-md items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="pointer-events-none relative mx-auto min-h-[56px] w-full max-w-screen-md px-2 sm:px-4">
+        {/* Side controls — absolute, so the title stays pixel-centered */}
         <button
           type="button"
           aria-label={isHe ? "תפריט" : "Menu"}
           onClick={onMenuClick}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/35 transition-colors hover:text-foreground/80"
+          className={cn(
+            "pointer-events-auto absolute top-1/2 -translate-y-1/2",
+            isRTL ? "right-2 sm:right-4" : "left-2 sm:left-4",
+            "flex h-11 w-11 items-center justify-center rounded-full text-foreground/30 transition-colors hover:text-foreground/70",
+          )}
         >
-          <Menu className="h-[16px] w-[16px]" strokeWidth={1.5} />
+          <Menu className="h-[18px] w-[18px]" strokeWidth={1.5} />
         </button>
 
-        <button
-          type="button"
-          onClick={onBrandClick}
-          className="flex min-w-0 flex-1 items-center justify-center gap-2 select-none px-3 py-1 active:scale-[0.97] transition"
-          aria-label={isHe ? "אודות" : "About"}
-        >
-          <span
-            className="aion-text-hero text-[18px] font-semibold tracking-[0.42em] leading-none"
-            style={{
-              textShadow:
-                "0 0 18px hsl(var(--aion-violet) / 0.45), 0 0 38px hsl(var(--aion-cyan) / 0.18)",
-            }}
+        {/* Centered AION wordmark */}
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+          <button
+            type="button"
+            onClick={onBrandClick}
+            className="pointer-events-auto select-none px-3 py-1 active:scale-[0.97] transition"
+            aria-label={isHe ? "אודות" : "About"}
           >
-            {brand}
-          </span>
-        </button>
+            <span
+              className="aion-text-hero text-[18px] font-semibold tracking-[0.42em] leading-none"
+              style={{
+                textShadow:
+                  "0 0 18px hsl(var(--aion-violet) / 0.45), 0 0 38px hsl(var(--aion-cyan) / 0.18)",
+              }}
+            >
+              {brand}
+            </span>
+          </button>
+        </div>
 
-        <AionOrb
-          size="sm"
-          onClick={onOrbClick}
-          ariaLabel={isHe ? "מצב אינטראקטיבי" : "Interactive mode"}
-        />
+        {/* Orb — absolute on the trailing edge, no badge wrapper */}
+        <div
+          className={cn(
+            "pointer-events-auto absolute top-1/2 -translate-y-1/2",
+            isRTL ? "left-2 sm:left-4" : "right-2 sm:right-4",
+          )}
+        >
+          <AionOrb
+            size="md"
+            onClick={onOrbClick}
+            ariaLabel={isHe ? "מצב אינטראקטיבי" : "Interactive mode"}
+          />
+        </div>
       </div>
-      {/* Smooth dissolve into the conversation atmosphere — no UI line */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -bottom-10 h-12"
-        style={{
-          background:
-            "linear-gradient(180deg, hsl(var(--background) / 0.0) 0%, transparent 100%)",
-        }}
-      />
     </header>
   );
 }

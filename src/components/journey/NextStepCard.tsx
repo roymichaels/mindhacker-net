@@ -39,7 +39,7 @@ export default function NextStepCard({ title, titleEn, onStart }: NextStepCardPr
           'bg-foreground/[0.035] border border-white/[0.05]',
         )}
       >
-        <div className="text-foreground text-[18px] leading-snug font-medium text-center">
+        <div className="text-foreground text-[18px] leading-snug font-medium text-center text-balance">
           {display}
         </div>
 
