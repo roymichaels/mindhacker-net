@@ -6,7 +6,7 @@
  * and returns null so no legacy DOM ever leaks under ShellV2.
  */
 import { useLocation } from 'react-router-dom';
-import type { ComponentType } from 'react';
+import { useEffect, type ComponentType } from 'react';
 
 const SHELLV2_ROUTES = ['/', '/aurora', '/brain', '/outer-world'];
 
@@ -34,4 +34,27 @@ export function withLegacyGuard<P extends object>(
   };
   Guarded.displayName = `LegacyGuard(${name})`;
   return Guarded;
+}
+
+/**
+ * withDeprecationLog — non-blocking runtime breadcrumb for pages/components
+ * scheduled for deletion in the System Consolidation Plan. Lets us verify
+ * zero real traffic before removing source.
+ *
+ * Usage:  export default withDeprecationLog('PlayHub', PlayHub);
+ */
+export function withDeprecationLog<P extends object>(
+  name: string,
+  Component: ComponentType<P>,
+): ComponentType<P> {
+  const Tracked = (props: P) => {
+    const { pathname } = useLocation();
+    useEffect(() => {
+      // eslint-disable-next-line no-console
+      console.warn(`[Deprecated] ${name} mounted at ${pathname} — slated for deletion (see .lovable/plan.md)`);
+    }, [pathname]);
+    return <Component {...props} />;
+  };
+  Tracked.displayName = `Deprecated(${name})`;
+  return Tracked;
 }
