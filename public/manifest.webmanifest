@@ -1,24 +1,24 @@
 {
-  "name": "Evolve",
-  "short_name": "Evolve",
-  "description": "Evolve is the personal growth platform. MindOS is its AI coaching and execution layer.",
+  "name": "AION",
+  "short_name": "AION",
+  "description": "AION is your future-self AI: coaching, strategy, and execution in one living interface.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#a855f7",
+  "theme_color": "#5b8def",
   "background_color": "#0a0a0f",
   "lang": "en",
   "dir": "ltr",
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "/aion-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "/aion-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
