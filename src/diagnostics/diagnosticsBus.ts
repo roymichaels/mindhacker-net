@@ -88,6 +88,7 @@ export type AionTraceEvent = {
     | 'probe.skipped'
     | 'repetition.detected'
     | 'response.regenerated'
+    | 'aion_context.injected'
     | 'memory_hits'
     | 'artifact.cooldown_hit'
     | 'stream.start'

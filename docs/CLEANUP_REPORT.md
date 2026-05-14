@@ -1,4 +1,49 @@
 
+## Phase F · Step 6 — Graph-Informed Response Composition
+
+**Goal:** AION's actual text reply now grounds in the ContextPacket — not only artifacts/probes.
+
+### Files touched
+- `src/diagnostics/diagnosticsBus.ts` — added `aion_context.injected` trace stage.
+- `src/hooks/aurora/useAuroraChat.tsx` —
+  - Builds a compact `aionContext` payload from the ContextPacket (top nodes, patterns, contradictions, active plan, open actions, emotional drift, recent artifact-cooldown kinds, recent assistant openers) and ships it in the aurora-chat request body.
+  - After the stream, runs a similarity check (≥0.78) against the last 3 assistant openers. On match → emits `repetition.detected`, fires ONE regen call to aurora-chat with `X-Aion-Anti-Repeat: 1`, replaces `cleanedContent`, emits `response.regenerated`.
+  - Persists the final opener via `rememberAssistantText` for the next turn's guard.
+- `supabase/functions/aurora-chat/index.ts` —
+  - Reads `aionContext` from the request body and `X-Aion-Anti-Repeat` from headers.
+  - New `buildAionContextBlock()` produces a natural-language "Context (internal only)" + "Response rules" + "Do NOT reuse these recent openers" block, appended to `orchestrated.systemPrompt`.
+  - Strict rules baked into the prompt:
+    - Never expose internal labels: `pillar`, `confidence`, `sparsity`, `assessment`, `wizard`, `onboarding`, `diagnostic`.
+    - Never say "based on your data".
+    - Max one question.
+    - No niqqud, no biblical Hebrew, no repeated greetings.
+    - Specific user details must come from Context (no fabrication).
+  - Anti-repeat header adds an extra "rewrite from a different angle, shorter" directive.
+  - New trace event `aion_context.injected` and response header `X-Aion-Context-Injected`.
+
+### Acceptance harness (router preview, runs against the 5 prompts)
+
+| Prompt | Decision mode | Capability candidate | Context fields used | Repetition guard |
+| --- | --- | --- | --- | --- |
+| "מה אתה יודע עליי?" | curious | `profile.summarize` | topNodes, patterns, drift | one regen if echo |
+| "אני מרגיש תקוע" | reflective | `journey.summarize` | drift, contradictions, openActions | active |
+| "מה אני מתחמק ממנו?" | reflective | (probe candidate) | contradictions, lowestPillars (server-side only) | active |
+| "מה כדאי לי לעשות עכשיו?" | directive | `journey.nextAction` | activePlan, openActions, topNodes | active |
+| "איך אני מתקדם?" | directive | `journey.summarize` | activePlan, drift, patterns | active |
+
+### Trace proof (per turn)
+- `graph_context_loaded` → ContextPacket built locally.
+- `aion_context.injected` (server-side via shared turnTrace) → block appended to system prompt with `block_len`, `top_nodes`, `contradictions`, `patterns`, `open_actions`, `has_plan`, `drift_samples`, `openers`, `artifact_cooldowns`, `anti_repeat`.
+- `repetition.detected` → similarity ≥ 0.78 vs last 3 openers (client-side).
+- `response.regenerated` → second aurora-chat call with `X-Aion-Anti-Repeat: 1` succeeded and replaced the draft.
+- Existing `stream.start` / `stream.end` + `X-Aion-Context-Injected: true` response header confirm wiring end-to-end.
+
+### Risks
+- One extra LLM round-trip when repetition is detected (~+1.5–3 s latency that turn). Bounded to a single regen per turn.
+- Server prompt grew by ~1 KB per turn when ContextPacket is non-empty; still well under the model context budget.
+- The grounding rule depends on the LLM honoring it — we add explicit "do not fabricate" wording but cannot fully prevent hallucination. Memory-writer + graph reads remain SSOT.
+- No mutations, no new UI, no autonomous actions — strictly prompt-level + one client-side regen.
+
 ## Phase F · Step 1 — AION Orchestration Wiring (DONE — observe mode only)
 
 ## Phase F · Step 3 — Safe Read Capabilities (DONE — read + suggest execute)

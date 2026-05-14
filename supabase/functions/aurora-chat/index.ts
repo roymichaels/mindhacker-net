@@ -41,9 +41,134 @@ function isStaleAssistantHistoryMessage(content: unknown): boolean {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-aion-trace-id, x-aion-route",
-  "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded, x-aurora-history-count, x-aurora-history-assistant-count, x-aurora-history-filtered-count, x-aurora-task-source, x-aurora-current-time, x-aurora-daily-briefing-source, x-aurora-proactive-used, x-aurora-cached-response, x-aurora-intent, x-aurora-lanes, x-aurora-router, x-aurora-capability",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-aion-trace-id, x-aion-route, x-aion-anti-repeat",
+  "Access-Control-Expose-Headers": "x-aurora-source, x-aurora-mode, x-aurora-greeting, x-aurora-degraded, x-aurora-history-count, x-aurora-history-assistant-count, x-aurora-history-filtered-count, x-aurora-task-source, x-aurora-current-time, x-aurora-daily-briefing-source, x-aurora-proactive-used, x-aurora-cached-response, x-aurora-intent, x-aurora-lanes, x-aurora-router, x-aurora-capability, x-aion-context-injected",
 };
+
+/**
+ * Phase F · Step 6 — Graph-Informed Response Composition.
+ * Compact, natural-language ContextPacket block that the LLM uses as
+ * grounding. Strict rules: never expose internal labels (pillar/confidence/
+ * sparsity), never say "based on your data", max one question, no niqqud,
+ * no biblical Hebrew, no repeated greetings, no onboarding/wizard/
+ * assessment language.
+ */
+function buildAionContextBlock(ctx: any, language: string, antiRepeat: boolean): string {
+  if (!ctx || typeof ctx !== "object") return "";
+  const isHe = (language || "he") === "he";
+  const lines: string[] = [];
+
+  const topNodes = Array.isArray(ctx.topNodes) ? ctx.topNodes.slice(0, 5) : [];
+  if (topNodes.length > 0) {
+    lines.push(isHe ? "מה שאני זוכרת ממך:" : "What I remember about you:");
+    for (const n of topNodes) {
+      const c = String(n?.content ?? "").trim().slice(0, 90);
+      if (c) lines.push(`- ${c}`);
+    }
+  }
+
+  const patterns = Array.isArray(ctx.patterns) ? ctx.patterns.slice(0, 3) : [];
+  if (patterns.length > 0) {
+    lines.push(isHe ? "\nדפוסים שעלו לאחרונה:" : "\nPatterns surfacing lately:");
+    for (const p of patterns) {
+      const d = String(p?.description ?? "").trim().slice(0, 100);
+      if (d) lines.push(`- ${d}`);
+    }
+  }
+
+  const contradictions = Array.isArray(ctx.contradictions) ? ctx.contradictions.slice(0, 2) : [];
+  if (contradictions.length > 0) {
+    lines.push(isHe ? "\nמתחים פתוחים:" : "\nOpen tensions:");
+    for (const c of contradictions) {
+      const e = String(c?.explanation ?? "").trim().slice(0, 120);
+      if (e) lines.push(`- ${e}`);
+    }
+  }
+
+  if (ctx.activePlan || typeof ctx.openActions === "number") {
+    const plan = ctx.activePlan;
+    const openActions = Number(ctx.openActions ?? 0);
+    const planTxt = plan ? (isHe ? `תוכנית פעילה (${plan.status}, ${Math.round(Number(plan.progress ?? 0))}%)` : `Active plan (${plan.status}, ${Math.round(Number(plan.progress ?? 0))}%)`) : "";
+    const actionsTxt = openActions > 0 ? (isHe ? `${openActions} משימות פתוחות` : `${openActions} open actions`) : "";
+    const combined = [planTxt, actionsTxt].filter(Boolean).join(" · ");
+    if (combined) lines.push((isHe ? "\nכרגע: " : "\nRight now: ") + combined);
+  }
+
+  const drift = ctx.emotionalDrift;
+  if (drift && drift.samples > 0) {
+    const total = Math.max(1, Number(drift.samples));
+    const neg = Number(drift.negative ?? 0) / total;
+    const pos = Number(drift.positive ?? 0) / total;
+    let mood = "";
+    if (neg > 0.55) mood = isHe ? "כבדות אחרונה" : "recent heaviness";
+    else if (pos > 0.55) mood = isHe ? "מומנטום חיובי" : "positive momentum";
+    else mood = isHe ? "מצב רגשי מעורב" : "mixed emotional tone";
+    lines.push((isHe ? "\nרגש אחרון: " : "\nRecent affect: ") + mood);
+  }
+
+  const openers = Array.isArray(ctx.recentAssistantOpeners) ? ctx.recentAssistantOpeners.slice(0, 3) : [];
+  const cooldownKinds = Array.isArray(ctx.recentArtifactKinds) ? ctx.recentArtifactKinds.slice(0, 4) : [];
+
+  const header = isHe
+    ? "## הקשר (לשימוש פנימי בלבד)\nהשתמשי בידע הזה רק אם הוא משרת את התשובה. אל תצטטי אותו כפי שהוא, אל תזכירי שמות שדות, אל תאמרי 'לפי הנתונים שלך'. אל תזכירי 'עמודים', 'ביטחון', 'דלילות', 'שאלון', 'אתחול', 'מסלול הכרה'."
+    : "## Context (internal only)\nUse this only when it actually helps the reply. Never quote it verbatim, never name fields, never say 'based on your data'. Never reveal labels like pillar / confidence / sparsity / onboarding / assessment.";
+
+  const grounding = isHe
+    ? "כל פרט ספציפי שתזכירי על המשתמש חייב להגיע מההקשר הזה. אם משהו לא מופיע פה — אל תמציאי."
+    : "Any specific detail you mention about the user MUST come from the Context above. If it is not there, do not fabricate.";
+
+  const styleRules = isHe
+    ? `## כללי תגובה
+- דברי טבעי, קצר, אנושי. לא רובוטי, לא טקסי.
+- מקסימום שאלה אחת.
+- בלי ניקוד. בלי עברית מקראית.
+- בלי לחזור על ברכות שכבר נאמרו בשיחה.
+- אם המשתמש כתב משפט קצר — תשובי גם קצר.
+- בלי מילים כמו 'אבחון', 'שאלון', 'אתחול', 'משימת זיהוי'.`
+    : `## Response rules
+- Speak naturally and briefly. Never robotic.
+- Max one question.
+- No biblical phrasing. No vowel marks.
+- Don't repeat greetings already used in this conversation.
+- If the user wrote a short message, keep your reply short too.
+- Avoid 'assessment', 'wizard', 'onboarding', 'diagnostic' wording.`;
+
+  let antiRepeatBlock = "";
+  if (openers.length > 0) {
+    const opLines = openers.map((o: string) => `- ${String(o || "").slice(0, 80)}`).join("\n");
+    antiRepeatBlock = isHe
+      ? `\n\n## אל תחזרי על הפתיחות האלה (רענני ניסוח):\n${opLines}`
+      : `\n\n## Do NOT reuse these recent openers (rephrase):\n${opLines}`;
+  }
+  if (antiRepeat) {
+    antiRepeatBlock += isHe
+      ? "\n\n⚠ התשובה הקודמת שלך הייתה דומה מדי. כתבי מחדש בניסוח שונה לחלוטין, מזווית אחרת, באורך קצר יותר."
+      : "\n\n⚠ Your previous draft was too similar. Rewrite from a different angle, different phrasing, shorter.";
+  }
+
+  const cooldownNote = cooldownKinds.length > 0
+    ? (isHe ? `\n\n(כרטיסי הקשר שכבר הוצגו לאחרונה: ${cooldownKinds.join(", ")} — אל תציעי אותם שוב.)` : `\n\n(Recently shown artifact kinds: ${cooldownKinds.join(", ")} — do not re-suggest them.)`)
+    : "";
+
+  const body = lines.join("\n").trim();
+  if (!body && !antiRepeatBlock) return "";
+  return `\n\n${header}\n${body}\n\n${grounding}\n\n${styleRules}${antiRepeatBlock}${cooldownNote}\n`;
+}
+
+function summarizeAionContext(ctx: any): Record<string, unknown> {
+  if (!ctx || typeof ctx !== "object") return { present: false };
+  return {
+    present: true,
+    top_nodes: Array.isArray(ctx.topNodes) ? ctx.topNodes.length : 0,
+    contradictions: Array.isArray(ctx.contradictions) ? ctx.contradictions.length : 0,
+    patterns: Array.isArray(ctx.patterns) ? ctx.patterns.length : 0,
+    open_actions: Number(ctx.openActions ?? 0),
+    has_plan: !!ctx.activePlan,
+    drift_samples: ctx?.emotionalDrift?.samples ?? 0,
+    openers: Array.isArray(ctx.recentAssistantOpeners) ? ctx.recentAssistantOpeners.length : 0,
+    artifact_cooldowns: Array.isArray(ctx.recentArtifactKinds) ? ctx.recentArtifactKinds.length : 0,
+  };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -60,6 +185,8 @@ serve(async (req) => {
     // 1. Parse & validate request
     const raw = await req.json();
     const parsed = validateRequest(raw);
+    const aionContext = (raw && typeof raw === "object") ? (raw as any).aionContext ?? null : null;
+    const antiRepeatHeader = (req.headers.get("x-aion-anti-repeat") || "") === "1";
 
     if ("error" in parsed) {
       return new Response(JSON.stringify({ error: parsed.error }), {
@@ -260,6 +387,25 @@ serve(async (req) => {
     if (capabilityBlock) {
       orchestrated.systemPrompt = orchestrated.systemPrompt + capabilityBlock;
     }
+
+    // Phase F · Step 6 — graph-informed prompt block. Always-on (gated only
+    // by packet presence). Contains compact memory + response rules + anti-
+    // repeat directive when the client requested a regeneration.
+    let contextBlockLen = 0;
+    if (aionContext) {
+      const block = buildAionContextBlock(aionContext, language, antiRepeatHeader);
+      if (block) {
+        orchestrated.systemPrompt = orchestrated.systemPrompt + block;
+        contextBlockLen = block.length;
+        if (tracer.enabled) {
+          tracer.event("aion_context.injected", {
+            ...summarizeAionContext(aionContext),
+            anti_repeat: antiRepeatHeader,
+            block_len: contextBlockLen,
+          });
+        }
+      }
+    }
     // Use vision-capable model when images are present; otherwise tier-based model
     const tierModel = TIER_MODELS[userTier] || OPENROUTER_DEFAULT;
     const model = hasImages
@@ -399,6 +545,7 @@ serve(async (req) => {
         "X-Aurora-Lanes": lanesToString(intentResolution.lanes),
         "X-Aurora-Router": routerDecisionLabel,
         "X-Aurora-Capability": invokedCapability ?? proposedCapability ?? "",
+        "X-Aion-Context-Injected": contextBlockLen > 0 ? "true" : "false",
       },
     });
   } catch (error: unknown) {
