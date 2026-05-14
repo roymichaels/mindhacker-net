@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Check, MessageCircle, X as XIcon, DoorOpen } from "lucide-react";
+import { Check, MessageCircle, X as XIcon, DoorOpen, Pencil, Compass } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { confirmBrainNode, rejectBrainNode, useBrainNodeEvidence } from "./useBrainOverview";
@@ -30,6 +30,34 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
     if (!node) return;
     await rejectBrainNode(node.id);
     qc.invalidateQueries({ queryKey: ["brain-overview"] });
+    onClose();
+  };
+
+  // Read-only handoffs to AION — no DB writes; the chat composer picks up the
+  // focus from sessionStorage (same pattern as `onTalkToAion`).
+  const handoffToAion = (intent: "correct" | "explore") => {
+    if (!node) return;
+    try {
+      const prompt = intent === "correct"
+        ? (isRTL
+            ? `תקן את ההבנה שלך לגבי: ${node.content}`
+            : `Correct your understanding about: ${node.content}`)
+        : (isRTL
+            ? `קח אותי עמוק יותר לתוך: ${node.content}`
+            : `Take me deeper into: ${node.content}`);
+      sessionStorage.setItem(
+        "aion.brain_focus",
+        JSON.stringify({
+          node_id: node.id,
+          type: node.type,
+          content: node.content,
+          room: node.room ?? null,
+          intent,
+          prompt,
+        }),
+      );
+    } catch {}
+    navigate("/aurora");
     onClose();
   };
 
@@ -103,6 +131,17 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
               </Button>
               <Button variant="ghost" size="sm" onClick={handleReject}>
                 <XIcon className="w-4 h-4 me-1" /> Not me
+              </Button>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Button variant="ghost" size="sm" onClick={() => handoffToAion("correct")}>
+                <Pencil className="w-4 h-4 me-1" />
+                {isRTL ? "תקן את זה" : "Correct"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => handoffToAion("explore")}>
+                <Compass className="w-4 h-4 me-1" />
+                {isRTL ? "חקור לעומק" : "Explore deeper"}
               </Button>
             </div>
           </>
