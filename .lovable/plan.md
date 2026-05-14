@@ -1,112 +1,100 @@
-# Phase 5B — AION Presence State Wiring
+## Phase 5B.4 — SelfWorld + Identity Triad Architecture
 
-Connect the existing `aionPresenceBus` (`src/aion/presenceState.ts`) into the surfaces already in the app so AION reads as one organism. **Zero new components, zero backend, zero route changes.** Only existing visuals subscribe; existing lifecycles emit.
+Reframe Profile/Self from a "settings page with widgets" into **SelfWorld**: an explorable inner OS with a clear three-layer identity model. This phase lays the **shell, hierarchy, navigation, and visual language** — not the deep systems behind every layer.
 
-## State mapping (single source of truth)
+### Conceptual model (frozen for the rest of the system)
 
-| Trigger | State |
-|---|---|
-| Composer focus / voice capture start | `listening` |
-| `sendMessage` invoked (user dispatched) | `noticing` (≤500ms, then transitions) |
-| Streaming start / TTS speaking start | `forming` |
-| `artifactBus.summon` fires | `manifesting` |
-| Stream end + idle ≥1.2s, error, dismiss | `resting` |
-| Profile/DNA/Avatar/Self route active | `evolving` |
-
-Default ambient = `listening`. All transitions debounce at 250ms to avoid flicker; `prefers-reduced-motion` short-circuits visual amplitude (state still updates, motion stays calm).
-
-## 1. Emitters (lifecycle → bus)
-
-### 1a. Chat — `src/hooks/aurora/useAuroraChat.tsx`
-At existing `setIsStreaming` sites:
-- start of `sendMessage` (line ~225): `aionPresenceBus.set('noticing')`
-- right before/after `setIsStreaming(true)` (line ~228): schedule `set('forming')` after 400ms
-- on stream end (lines ~262, ~1046): clear timer, `set('resting')` after 1200ms idle
-- on error path (1046 catch): immediate `set('resting')`
-
-### 1b. Composer — locate the active composer used by `ShellV2/ComposerLayer`
-Wrap textarea `onFocus` → `set('listening')`, `onBlur` (no streaming) → `set('resting')` after 2s. Voice mic button `onPress` → `set('listening')`.
-File: `src/shellv2/layers/ComposerLayer.tsx` (and whichever Composer it renders — confirm during implementation; do not duplicate handlers if `useAuroraVoice` already has them).
-
-### 1c. Voice — `src/hooks/aurora/useAuroraVoice.tsx` + `useAuroraVoiceMode.tsx`
-- start recording → `set('listening')`
-- stop recording / transcribing → `set('forming')`
-- TTS `onStart` callback (line ~161 in voice mode) → `set('forming')` (speaking is part of "forming the moment"; matches existing TTS lifecycle without inventing a 7th state)
-- TTS `onEnd` → if not streaming, `set('resting')` after 800ms
-
-Also bridge legacy window events in one place (extend `AIONStateBridge`): `aurora:tts:start → forming`, `aurora:tts:end → resting`, `aurora:voice:listen:start → listening`, `aurora:voice:listen:end → forming`. Keeps fallback if the hook path is bypassed.
-
-### 1d. Artifacts — `src/lib/aion/artifactBus.ts`
-Inside `emit()` (line 50), after computing snapshot: if `stack.length > prevLen` → `aionPresenceBus.set('manifesting')`; if `stack.length === 0` → `set('resting')` after 600ms. Track `prevLen` in module scope. Pure additive; no API change.
-
-### 1e. Evolving — route-driven
-Add a tiny `PresenceRouteBridge` mounted once in `ShellV2` (or `App.tsx` next to `AIONStateBridge`) that reads `useLocation()` and sets `'evolving'` while pathname matches `/profile`, `/dna`, `/avatar`, `/self`. Pops back to `'resting'` on leave (unless chat/voice override).
-
-## 2. Consumers (bus → visuals)
-
-### 2a. Orb — `src/components/orb/v2/OrbView.tsx`
-Add internal `useAionPresence()`. If parent didn't pass `state`, derive `OrbViewState`:
-- `listening → 'listening'`
-- `noticing → 'focus'`
-- `forming → 'thinking'`
-- `manifesting → 'responding'`
-- `resting → 'idle'`
-- `evolving → 'focus'` (with `tintHue` shifted toward violet via existing `tintHue` prop)
-
-This restores the moving organic AION wherever a static `AionOrb` is used in a "live" context. Static `AionOrb` (chips/sheet handles) stays unchanged — it's intentionally static. Audit list in §4.
-
-### 2b. Atmosphere — `src/shellv2/layers/AtmosphereLayer.tsx` and `src/components/atmosphere/AtmosphereLayer.tsx`
-Add `const presence = useAionPresence()`. Multiply existing blob opacities and shift the cyan/violet mix by a small lookup table:
+Three distinct entities, never collapsed into one profile object:
 
 ```text
-listening    cyan 1.00  violet 0.85
-noticing     cyan 1.10  violet 0.90
-forming      cyan 1.05  violet 1.20
-manifesting  cyan 1.30  violet 1.30  (slow pulse via existing animate-aion-drift)
-resting      cyan 0.70  violet 0.60
-evolving     cyan 0.85  violet 1.40  + magenta 1.30
+  ┌─────────────────────────────────────┐
+  │  AION NFT      — Intelligence layer │  (canonical orb, persistent guide)
+  ├─────────────────────────────────────┤
+  │  DNA NFT       — Consciousness layer│  (user DNA orb, evolving inner self)
+  ├─────────────────────────────────────┤
+  │  Character NFT — Embodiment layer   │  (avatar, access, world traversal)
+  └─────────────────────────────────────┘
 ```
 
-Implementation: drive a single CSS variable on the layer root (`--presence-intensity`, `--presence-violet`, `--presence-cyan`) and reference it from the existing inline `style` blocks. No new DOM. Reduced-motion → pin to `listening` row.
+`ProfileNFTTriad` and `PersonalizedOrb` continue to live **only as identity artifacts** under the AION presence layer. The canonical AION model is never the user's DNA orb.
 
-### 2c. Composer idle
-Composer container reads presence and applies a subtle `opacity` / outline-glow when `listening`. One className swap; no layout change.
+### SelfWorld hierarchy (top → bottom)
 
-## 3. Files changed (final list)
+1. **AION presence band** — canonical AION model + presence-state line (already shipped as `AionPresenceHero`).
+2. **Identity Core** — the triad: AION NFT · DNA NFT · Character NFT, each entering a layer view.
+3. **Inner systems map** — explorable layer registry (Memories, Beliefs, Emotional Patterns, Habits, Archetypes, Roles, Values, Relationships, Trajectory, Shadow, Creative, Higher Self). Most are **placeholder layers** for now — locked/coming-soon, but registered.
+4. **Brain Graph entry** — link to the existing brain/atlas as the cognitive map layer.
+5. **Settings & account** — collapsed, last.
 
-Created:
-- `src/aion/presenceWiring/PresenceRouteBridge.tsx` (route → evolving)
+### What gets built now
 
-Edited:
-- `src/hooks/aurora/useAuroraChat.tsx` — emit noticing/forming/resting around `sendMessage` + stream lifecycle
-- `src/hooks/aurora/useAuroraVoice.tsx` — emit listening/forming around capture & TTS
-- `src/hooks/aurora/useAuroraVoiceMode.tsx` — emit forming/resting around TTS handle
-- `src/components/aion/AIONStateBridge.tsx` — also push to `aionPresenceBus` from existing window events (fallback path)
-- `src/lib/aion/artifactBus.ts` — emit manifesting/resting on stack delta
-- `src/components/orb/v2/OrbView.tsx` — derive `state` from presence when uncontrolled
-- `src/shellv2/layers/AtmosphereLayer.tsx` — presence-driven CSS variables
-- `src/components/atmosphere/AtmosphereLayer.tsx` — same
-- `src/shellv2/layers/ComposerLayer.tsx` — focus/blur emitters + idle outline
-- `src/shellv2/ShellV2.tsx` (or `App.tsx`) — mount `PresenceRouteBridge` once
+**Shell**
+- New `src/selfworld/` module with:
+  - `SelfWorldShell.tsx` — full-height container, ambient atmosphere, scroll-as-descent feel.
+  - `layers/` — one component per band (PresenceBand, IdentityCoreBand, InnerSystemsBand, BrainGraphBand, SettingsBand).
+  - `layerRegistry.ts` — declarative list of inner-system layers (id, label HE/EN, icon, owner: `dna` | `aion` | `character`, status: `live` | `coming`).
+  - `LayerCard.tsx` — uniform card used by InnerSystemsBand; opens a layer view (or a "coming soon" sheet for unlive layers).
+  - `LayerView.tsx` — generic detail surface used by live layers (Identity Core, DNA, Brain Graph) and as the "coming" stub for the rest.
 
-## 4. Remaining static AION visuals (intentionally not migrated)
+**Identity Triad reframing**
+- Wrap the existing `ProfileNFTTriad` inside an `IdentityCoreBand` that labels it as the **three-entity identity core** (AION · DNA · Character) with a one-line caption per entity reflecting its layer:
+  - AION → "Intelligence layer · your persistent guide"
+  - DNA → "Consciousness layer · your evolving inner self"
+  - Character → "Embodiment layer · how you appear and access worlds"
+- No visual rebuild of the triad cards themselves; only the surrounding framing and copy.
 
-- `AionOrb` (PNG glyph) inside chips, sheet handles, list rows, header avatar — stays static for performance/legibility
-- `AionRingMark`, `AionEntityAvatar` — identity glyphs, not live presence
-- `OrbCollectionSection`, `OrbGallery`, `GameHeroSection` — marketing surfaces with their own narrative state
-- `SidebarOrbWidget` — already has its own animation contract; opt-in later
+**Self panel migration**
+- `SelfPanel` becomes a thin wrapper that mounts `SelfWorldShell`. The existing sections (`WhatAionKnowsSection`, `CorrectionsSection`, `PrivacySettingsSection`) move under the new **Settings & account** band so nothing is lost.
+- `IdentitySection` is retired in favor of the triad band (its name+orb row was a placeholder for the triad).
 
-These can be promoted to live `OrbView` in a follow-up sweep if desired.
+**Visual language**
+- Dark ambient background with soft vertical gradient between bands (no heavy shadows/gradients per design memory — subtle `bg-white/[0.02]` separators, `rounded-2xl`, `backdrop-blur`).
+- Each band has: small uppercase label, optional sublabel, content. No card chrome around bands themselves.
+- Locked layers render with a `Lock` glyph and "coming soon" muted treatment — registered in `layerRegistry` so future phases just flip `status: 'live'`.
 
-## 5. Acceptance checks
+**Navigation**
+- Tapping a triad card opens its layer view (AION → AION layer stub, DNA → existing `DNAViewer` artifact, Character → existing avatar surface).
+- Tapping an inner-system card opens `LayerView` (live layers route to existing component; locked layers show a presence-aware "AION is preparing this layer" state).
 
-- Send a chat message → orb transitions noticing → forming → resting; atmosphere violet rises during forming
-- Open voice mode → atmosphere settles into cyan listening tone
-- Trigger any artifact (e.g. summon profile) → manifesting pulse, then resting after dismiss
-- Visit `/profile` → atmosphere shifts to violet/magenta evolving aura
-- `prefers-reduced-motion: reduce` → states still log, visual deltas are minimal
-- Remove `aion/presenceState.ts` import temporarily → app still renders (fallback paths intact)
+### What is explicitly NOT built yet
 
-## Next recommended phase
+- No 3D spatial world / WebGL navigation between layers (the band-stack is the v1 spatial metaphor).
+- No backend tables or NFT/blockchain wiring — these are conceptual labels only.
+- No deep implementation of Memories, Beliefs, Emotional Patterns, Habits, Archetypes, Roles, Values, Relationships, Trajectory, Shadow, Creative, Higher Self. They register as locked layers.
+- No redesign of the triad cards, DNA viewer, brain graph, or avatar.
+- No route changes — `ProfilePage` keeps mounting `SelfPanel`.
 
-**5C — Realm Collapse**: merge `*Journey` and hub pages behind `TrajectoryView` / `InnerView` / `OuterView` shells now that presence is centralized and orb/atmosphere react globally.
+### Files (planned)
+
+**New**
+- `src/selfworld/SelfWorldShell.tsx`
+- `src/selfworld/layerRegistry.ts`
+- `src/selfworld/LayerCard.tsx`
+- `src/selfworld/LayerView.tsx`
+- `src/selfworld/layers/PresenceBand.tsx` (wraps existing `AionPresenceHero`)
+- `src/selfworld/layers/IdentityCoreBand.tsx` (wraps `ProfileNFTTriad` with triad framing)
+- `src/selfworld/layers/InnerSystemsBand.tsx`
+- `src/selfworld/layers/BrainGraphBand.tsx`
+- `src/selfworld/layers/SettingsBand.tsx` (hosts the existing Self sections)
+- `mem/architecture/identity-triad-and-selfworld.md` + index entry
+
+**Edited**
+- `src/components/self/SelfPanel.tsx` — replaced body with `<SelfWorldShell />`.
+- `src/components/self/sections/IdentitySection.tsx` — deleted (superseded by IdentityCoreBand). Imports cleaned.
+
+### Success criteria
+
+Opening Profile/Self:
+1. AION presence is the first thing you feel (canonical model, presence-aware copy).
+2. Below it, the identity **triad** is clearly labeled as three distinct entities (Intelligence · Consciousness · Embodiment), not one profile.
+3. Below that, an **inner systems map** previews the explorable layers of your consciousness — most locked, but visibly registered.
+4. Brain graph entry is a peer band, not buried in settings.
+5. Settings/account is the last, quietest band.
+6. Canonical AION still reads identically in Chat, Voice, Journey, World, Mind, and SelfWorld.
+
+### Memory updates
+
+Add `mem://architecture/identity-triad-and-selfworld` documenting:
+- Three-layer identity contract (AION / DNA / Character — never collapsed).
+- SelfWorld as the canonical inner-OS surface.
+- Layer registry pattern for staged rollout of inner systems.
