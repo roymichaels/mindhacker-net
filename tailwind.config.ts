@@ -53,6 +53,14 @@ export default {
           bg: "hsl(var(--glass-bg))",
           border: "hsl(var(--glass-border))",
         },
+        aion: {
+          navy:    "hsl(var(--aion-navy))",
+          deep:    "hsl(var(--aion-deep))",
+          blue:    "hsl(var(--aion-blue))",
+          cyan:    "hsl(var(--aion-cyan))",
+          violet:  "hsl(var(--aion-violet))",
+          magenta: "hsl(var(--aion-magenta))",
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
@@ -113,6 +121,14 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
           "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.3)" },
         },
+        "aion-breath": {
+          "0%, 100%": { transform: "scale(1)", filter: "brightness(1)" },
+          "50%":      { transform: "scale(1.03)", filter: "brightness(1.15)" },
+        },
+        "aion-emerge": {
+          "0%":   { opacity: "0", transform: "translateY(12px) scale(0.96)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -126,6 +142,8 @@ export default {
         "pop": "pop 0.3s ease-out",
         "attention-pulse": "attention-pulse 2s ease-in-out infinite",
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "aion-breath": "aion-breath 4.5s cubic-bezier(0.22,1,0.36,1) infinite",
+        "aion-emerge": "aion-emerge 360ms cubic-bezier(0.22,1,0.36,1) both",
       },
     },
   },
