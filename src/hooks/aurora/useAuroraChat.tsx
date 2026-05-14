@@ -386,6 +386,14 @@ export const useAuroraChat = (conversationId: string | null) => {
                 row_counts: readResult.rowCounts,
                 error: readResult.error,
               });
+              tracer.mark('capability.result', {
+                capability: decision.capability,
+                ok: readResult.ok,
+                source: 'read',
+                duration_ms: readResult.durationMs,
+                summary: readResult.summary?.slice(0, 200) ?? '',
+                row_counts: readResult.rowCounts,
+              });
               if (readResult.sources.length) {
                 tracer.mark('graph.read', {
                   sources: readResult.sources,
@@ -397,11 +405,23 @@ export const useAuroraChat = (conversationId: string | null) => {
                 capability: decision.capability,
                 error: (e as Error)?.message ?? 'unknown',
               });
+              tracer.mark('capability.result', {
+                capability: decision.capability,
+                ok: false,
+                source: 'read',
+                error: (e as Error)?.message ?? 'unknown',
+              });
             }
           } else {
             tracer.mark('capability.skipped', {
               capability: decision.capability,
               reason: decision.skippedReason ?? 'observe-only',
+            });
+            tracer.mark('capability.result', {
+              capability: decision.capability,
+              ok: false,
+              source: 'observe',
+              skipped_reason: decision.skippedReason ?? 'observe-only',
             });
           }
           try {
