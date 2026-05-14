@@ -86,11 +86,11 @@ const AIONMessage = ({
         {/* Message Bubble */}
         <div className="space-y-2">
           <div className={cn(
-            "rounded-2xl px-4 py-3",
-            isOwn 
-              ? "bg-primary/15 border border-primary/30 text-foreground rounded-br-sm" 
-              : "bg-muted text-foreground rounded-bl-sm",
-            isFailed && "border-destructive/50 bg-destructive/5"
+            "rounded-2xl px-4 py-3 animate-aion-emerge",
+            isOwn
+              ? "bg-primary/15 dark:bg-aion-violet/15 dark:aion-glow-violet text-foreground rounded-br-sm"
+              : "atmo-surface-soft dark:aion-glow-cyan text-foreground rounded-bl-sm",
+            isFailed && "ring-1 ring-destructive/40 bg-destructive/5"
           )}>
             <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
               {cleanContent}
