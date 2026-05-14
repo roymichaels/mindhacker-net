@@ -93,3 +93,33 @@ environment carries the emotional experience.
 - **Cross-world effects must remain subtle, atmospheric, cumulative.**
   Never expose causal arrows, partner names, or influence strengths
   in the UI.
+
+## Phase 5C.4 — Dream Layer
+
+The subconscious field lives in `src/worlds/dreams/`:
+
+- `subconsciousField.ts` — persisted store (motifs, archetype affinities,
+  per-world residue/reinforcement). Write-restricted to `dreamEngine`.
+- `symbolicPatterns.ts` — pure detectors mapping (climate + history +
+  residue) → optional `MotifKind` candidate per world per tick.
+- `archetypeEmergence.ts` — slow EMA across all worlds onto 6 archetype
+  axes (protector/explorer/creator/shadow/sage/rebel).
+- `dreamEngine.ts` — `<DreamRuntime />` mounted once in `App.tsx`. Ticks
+  every ~12s, decays long-term memory, refreshes archetypes, and rolls
+  rare emergence events. Pauses while the tab is hidden.
+- `useDreamState.ts` — read-only hooks (`useActiveDreamEvents`,
+  `useWorldMotifs`, `useSubconsciousSnapshot`, `useDominantArchetype`).
+
+Active `DreamEvent`s render in `WorldAtmosphere` as the `DreamPhenomenon`
+sub-component — single low-opacity motion layers per kind, hue biased
+by the motif's resonant archetype. Lifespans 18–70s, intensities capped
+≤ 0.45.
+
+Rules:
+- Dream effects must remain rare, subtle, ambiguous, never literal.
+- Never surface motif names, archetype labels, residue numbers, or
+  causal explanations in the UI.
+- AION may quietly reference recurring symbolic phenomena via
+  `useSubconsciousSnapshot` / `useDominantArchetype`, but must never
+  over-explain meaning.
+- `useSubconsciousFieldStore` is write-restricted to `dreamEngine`.
