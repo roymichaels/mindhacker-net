@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import NextStepCard from '@/components/journey/NextStepCard';
 import TrajectoryLines from '@/components/journey/TrajectoryLines';
-import { AionOrb } from '@/components/aion/ui';
+import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import { useNextStep } from '@/services/trajectory/useNextStep';
 import { aionPresence } from '@/copy/aionPresence';
 import { useDiagnosticsFlag } from '@/diagnostics/useDiagnosticsFlag';
@@ -84,7 +84,7 @@ export default function JourneyView() {
       }}
     >
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-5">
-        <AionOrb size="md" />
+        <CanonicalAionModel size={160} ariaLabel="AION" />
         <p className="mt-4 text-[13px] italic text-foreground/65 text-center text-balance px-4 leading-relaxed">
           {observation}
         </p>

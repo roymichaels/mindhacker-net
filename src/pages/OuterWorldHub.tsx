@@ -6,7 +6,7 @@
  */
 import { useTranslation } from '@/hooks/useTranslation';
 import AlignedRealities from '@/components/outer/AlignedRealities';
-import { AionOrb } from '@/components/aion/ui';
+import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 
 export default function OuterWorldHub() {
   const { language, isRTL } = useTranslation();
@@ -23,7 +23,7 @@ export default function OuterWorldHub() {
       }}
     >
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-5">
-        <AionOrb size="md" />
+        <CanonicalAionModel size={160} ariaLabel="AION" />
         <div className="mt-3 aion-text-hero text-[12px] tracking-[0.32em] uppercase text-foreground/55">
           {isHe ? 'העולם החיצוני' : 'Outer World'}
         </div>
