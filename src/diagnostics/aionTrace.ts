@@ -9,8 +9,22 @@
  * Never throws. Never blocks. No behavior change when flag is off.
  */
 import { supabase } from '@/integrations/supabase/client';
-import { isAionTraceEnabled } from '@/app-shell/featureFlag';
 import { diagnosticsBus, type AionTraceEvent } from './diagnosticsBus';
+
+/**
+ * Phase-1 AION orchestration trace flag (inlined here after `app-shell/` deletion).
+ * Toggle:  localStorage.setItem("ff_aion_trace", "1")
+ */
+const AION_TRACE_FLAG_KEY = 'ff_aion_trace';
+function isAionTraceEnabled(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const ls = window.localStorage.getItem(AION_TRACE_FLAG_KEY);
+    return ls === '1' || ls === 'true';
+  } catch {
+    return false;
+  }
+}
 
 function rid(): string {
   return `trc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
