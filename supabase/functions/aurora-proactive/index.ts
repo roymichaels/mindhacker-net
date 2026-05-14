@@ -1,5 +1,5 @@
 /**
- * Aurora Proactive Coaching Engine
+ * AION Proactive Coaching Engine
  * 
  * Now uses shared contextBuilder from aurora-chat instead of
  * duplicating getUserContext logic.
@@ -136,7 +136,7 @@ const generateAICoachingMessage = async (
 
     const nextTaskSection = snapshot.next_pending_task_title ? `\n- משימה הבאה שמחכה: "${snapshot.next_pending_task_title}"` : '';
 
-    const prompt = `אתה אורורה, מאמנת חיים אישית בעברית. צרי הודעת מוטיבציה קצרה ואישית למשתמש.
+    const prompt = `אתה AION, מאמנת חיים אישית בעברית. צרי הודעת מוטיבציה קצרה ואישית למשתמש.
 
 סוג ההודעה: ${triggerType}
 נתוני משתמש:
@@ -452,7 +452,7 @@ serve(async (req) => {
 
       const messages = (items || []).map((item: any) => ({
         id: item.id,
-        title: item.title || '💡 הודעה מאורורה',
+        title: item.title || '💡 הודעה מAION',
         body: item.body || 'יש לי משהו לשתף איתך',
         action: item.trigger_type,
         priority: item.priority,
@@ -478,7 +478,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error: any) {
-    console.error('Aurora proactive error:', error);
+    console.error('AION proactive error:', error);
     logEdgeFunctionError({ functionName: "aurora-proactive", error, requestContext: { action: "unknown" } });
     return new Response(JSON.stringify({ error: 'Internal error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }

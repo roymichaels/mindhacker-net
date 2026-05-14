@@ -63,7 +63,7 @@ export const PROJECTS_STEP_CONFIGS: Record<number, {
     fieldKey: 'tracking_text',
   },
   8: {
-    icon: '🤖', titleHe: 'אינטגרציית אורורה', titleEn: 'Aurora Integration',
+    icon: '🤖', titleHe: 'אינטגרציית AION', titleEn: 'AION Integration',
     descriptionHe: 'הגדר אימון AI לפרויקטים שלך',
     descriptionEn: 'Configure AI coaching for your projects',
     promptsHe: ['באילו תחומים אתה צריך עזרה?', 'כמה תזכורות אתה רוצה?', 'מה סגנון האימון המועדף?'],

@@ -1,5 +1,5 @@
 /**
- * AIMatchModal — Location-based player matching via Aurora AI.
+ * AIMatchModal — Location-based player matching via AION.
  * Flow: Request location → Save → Find matches → Show results
  */
 import { useState, useEffect } from 'react';
@@ -211,8 +211,8 @@ export default function AIMatchModal({ open, onOpenChange }: AIMatchModalProps) 
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-sm mx-auto">
                     {isHe
-                      ? 'Aurora תנתח את הפרופיל שלך ותחבר אותך לשחקנים קרובים אליך עם תחומי עניין משותפים — לאימונים, פגישות ושיתופי פעולה'
-                      : 'Aurora analyzes your profile and connects you with nearby players sharing your interests — for training, meetups & real-life collaboration'}
+                      ? 'AION תנתח את הפרופיל שלך ותחבר אותך לשחקנים קרובים אליך עם תחומי עניין משותפים — לאימונים, פגישות ושיתופי פעולה'
+                      : 'AION analyzes your profile and connects you with nearby players sharing your interests — for training, meetups & real-life collaboration'}
                   </p>
 
                   <div className="flex flex-col gap-3 max-w-xs mx-auto">
@@ -273,7 +273,7 @@ export default function AIMatchModal({ open, onOpenChange }: AIMatchModalProps) 
                 >
                   <Loader2 className="w-10 h-10 animate-spin text-amber-500 mx-auto mb-4" />
                   <p className="text-sm font-medium text-foreground">
-                    {isHe ? 'Aurora מחפשת את ההתאמות הטובות ביותר...' : 'Aurora is finding your best matches...'}
+                    {isHe ? 'AION מחפשת את ההתאמות הטובות ביותר...' : 'AION is finding your best matches...'}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {isHe ? 'ניתוח פרופילים, עמודי חיים ומיקום' : 'Analyzing profiles, life pillars & location'}

@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
       manifest: {
-        name: "MindOS - מערכת ההפעלה לחיים שלך",
-        short_name: "MindOS",
+        name: "AION - מערכת ההפעלה לחיים שלך",
+        short_name: "AION",
         description: "משחק החיים האמיתי. AI + היפנוזה + גיימיפיקציה = Level Up Your Life",
         theme_color: "#a855f7",
         background_color: "#0a0a0f",

@@ -103,7 +103,7 @@ serve(async (req) => {
 
     // Format messages for analysis
     const conversationText = messages
-      .map(m => `${m.role === 'user' ? 'User' : 'Aurora'}: ${m.content}`)
+      .map(m => `${m.role === 'user' ? 'User' : 'AION'}: ${m.content}`)
       .join('\n\n');
 
     // Call Lovable AI Gateway for analysis
@@ -284,7 +284,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Aurora analyze error:", error);
+    console.error("AION analyze error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({ error: message }),

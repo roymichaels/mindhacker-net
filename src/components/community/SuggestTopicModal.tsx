@@ -45,7 +45,7 @@ export default function SuggestTopicModal({ open, onOpenChange, pillar }: Sugges
       });
 
       if (error) throw error;
-      toast.success(isHe ? 'ההצעה נשלחה! Aurora תבדוק אותה.' : 'Suggestion sent! Aurora will review it.');
+      toast.success(isHe ? 'ההצעה נשלחה! AION תבדוק אותה.' : 'Suggestion sent! AION will review it.');
       setTitle('');
       setReason('');
       onOpenChange(false);
@@ -66,8 +66,8 @@ export default function SuggestTopicModal({ open, onOpenChange, pillar }: Sugges
           </DialogTitle>
           <DialogDescription>
             {isHe
-              ? `הצע נושא חדש לקהילת ${pillarLabel}. Aurora תבדוק ותאשר.`
-              : `Suggest a new topic for ${pillarLabel} community. Aurora will review.`}
+              ? `הצע נושא חדש לקהילת ${pillarLabel}. AION תבדוק ותאשר.`
+              : `Suggest a new topic for ${pillarLabel} community. AION will review.`}
           </DialogDescription>
         </DialogHeader>
 

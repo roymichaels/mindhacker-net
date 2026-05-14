@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a consciousness diagnostic engine embedded in a personal development platform called MindOS.
+const SYSTEM_PROMPT = `You are a consciousness diagnostic engine embedded in a personal development platform called AION.
 Your job is to have a SHORT, SHARP, ADAPTIVE conversation (6-10 messages from you, total) that uncovers 6 subsystems:
 
 1. Soul-Intent Clarity (בהירות כוונה) — Does the user know what they truly want?

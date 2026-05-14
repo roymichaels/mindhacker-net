@@ -1,6 +1,6 @@
 /**
  * Global hook: registers the "Build Curriculum" pillar action button
- * in the Aurora Dock whenever activePillar === 'learn'.
+ * in the AION Dock whenever activePillar === 'learn'.
  * 
  * This must be mounted globally (e.g. DashboardLayout) so the button
  * appears regardless of which page the user is currently viewing.

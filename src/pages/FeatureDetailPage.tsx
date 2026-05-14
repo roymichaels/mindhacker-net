@@ -220,8 +220,8 @@ export default function FeatureDetailPage() {
             </h2>
             <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
               {isRTL
-                ? 'הצטרף לאלפי אנשים שכבר משתמשים ב-Mind OS כדי לשנות את החיים שלהם.'
-                : 'Join thousands already using Mind OS to transform their lives.'}
+                ? 'הצטרף לאלפי אנשים שכבר משתמשים ב-AION כדי לשנות את החיים שלהם.'
+                : 'Join thousands already using AION to transform their lives.'}
             </p>
             <Button
               size="lg"

@@ -59,7 +59,7 @@ serve(async (req) => {
 
     // Build conversation text for summarization
     const conversationText = messages
-      .map((m: ChatMessage) => `${m.role === 'user' ? 'משתמש' : 'אורורה'}: ${m.content}`)
+      .map((m: ChatMessage) => `${m.role === 'user' ? 'משתמש' : 'AION'}: ${m.content}`)
       .join('\n');
 
     // Call Lovable AI for summarization

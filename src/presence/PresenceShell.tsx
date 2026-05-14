@@ -1,5 +1,5 @@
 /**
- * PresenceShell — the state-space root for MindOS.
+ * PresenceShell — the state-space root for AION.
  *
  * Phase 3.2 of the world-first rebuild. The user does NOT pick a room.
  * AION (or passive signals) move them through states. The hallway *is* the

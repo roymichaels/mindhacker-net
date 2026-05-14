@@ -1,7 +1,7 @@
 /**
- * generate-execution-steps — Aurora Brain-Connected Execution Engine
+ * generate-execution-steps — AION Brain-Connected Execution Engine
  * 
- * Fully integrated with Aurora's shared contextBuilder and memory systems.
+ * Fully integrated with AION's shared contextBuilder and memory systems.
  * Uses user profile, identity, energy patterns, projects, plan milestones,
  * and behavioral patterns to generate hyper-personalized execution steps.
  * 
@@ -164,7 +164,7 @@ function buildUserContextBlock(ctx: AuroraContext, language: string): string {
 function buildSystemPrompt(template: string, language: string, userContext: string): string {
   const lang = language === "he" ? "Hebrew" : "English";
   
-  const baseRules = `You are Aurora — the user's BRAIN and personal operating system. You know EVERYTHING about this user from their profile, assessments, projects, and history. You DO NOT ask the user to think, decide, analyze, reflect, brainstorm, or journal open-ended questions. You have already done the thinking FOR THEM.
+  const baseRules = `You are AION — the user's BRAIN and personal operating system. You know EVERYTHING about this user from their profile, assessments, projects, and history. You DO NOT ask the user to think, decide, analyze, reflect, brainstorm, or journal open-ended questions. You have already done the thinking FOR THEM.
 
 ## USER CONTEXT (use this to personalize every step):
 ${userContext}
@@ -208,7 +208,7 @@ FORMAT: Generate 4-7 concrete sequential steps.
 Every step starts with a PHYSICAL ACTION VERB: open, fill, pour, apply, set, type, send, read, walk, eat, drink.
 For nutrition: "Eat 2 eggs + 1 avocado + handful of spinach" NOT "prepare a healthy breakfast"
 For hydration: "Fill 750ml bottle now. Drink 250ml immediately. Set phone alarm for 90 minutes." NOT "track your water intake"
-For identity/values/consciousness tasks: You KNOW their values (${userContext.includes("VALUES:") ? "see above" : "ask Aurora"}). Reference them directly and give actions based on them.
+For identity/values/consciousness tasks: You KNOW their values (${userContext.includes("VALUES:") ? "see above" : "ask AION"}). Reference them directly and give actions based on them.
 For business tasks: Reference their ACTUAL project names from the context above.
 NEVER include steps like "reflect", "journal freely", or "think about your goals".`,
     
@@ -304,7 +304,7 @@ serve(async (req) => {
 
     const lang = language || "he";
 
-    // ── Build Aurora context (same brain as chat) ──────────
+    // ── Build AION context (same brain as chat) ──────────
     let userContext = "";
     if (userId) {
       try {

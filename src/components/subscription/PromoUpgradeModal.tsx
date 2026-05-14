@@ -36,14 +36,14 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
 
   const features = isHe
     ? [
-        "הודעות ללא הגבלה לאורורה",
+        "הודעות ללא הגבלה לAION",
         "היפנוזה AI מותאמת אישית יומית",
         "נאדג׳ים פרואקטיביים",
         "הרגלים ורשימות ללא הגבלה",
         "תוכנית 90 יום מלאה",
       ]
     : [
-        "Unlimited Aurora messages",
+        "Unlimited AION messages",
         "Daily personalized AI hypnosis",
         "Proactive coaching nudges",
         "Unlimited habits & checklists",

@@ -122,11 +122,11 @@ serve(async (req: Request): Promise<Response> => {
                   <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00f0ff, #8b5cf6); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
                     <span style="font-size: 28px;">⚡</span>
                   </div>
-                  <h2 style="color: #00f0ff; margin: 0;">Mind OS</h2>
+                  <h2 style="color: #00f0ff; margin: 0;">AION</h2>
                 </div>
                 <div class="content">${personalizedContent}</div>
                 <div class="footer">
-                  <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'Mind OS - פלטפורמת התפתחות אישית' : 'Mind OS - Personal Development Platform'}</p>
+                  <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'AION - פלטפורמת התפתחות אישית' : 'AION - Personal Development Platform'}</p>
                   <a href="${unsubscribeUrl}" class="unsubscribe">${isRTL ? 'להסרה מרשימת התפוצה' : 'Unsubscribe'}</a>
                 </div>
               </div>
@@ -135,7 +135,7 @@ serve(async (req: Request): Promise<Response> => {
           `;
 
           const emailResponse = await resend.emails.send({
-            from: "Mind OS <onboarding@resend.dev>",
+            from: "AION <onboarding@resend.dev>",
             to: [subscriber.email],
             subject,
             html: emailHtml,

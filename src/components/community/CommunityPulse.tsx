@@ -1,6 +1,6 @@
 /**
  * CommunityPulse - Homepage section showing latest threads, trending, and active count.
- * Integrates into the dashboard as a "pulse" of the MindOS community.
+ * Integrates into the dashboard as a "pulse" of the AION community.
  */
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';

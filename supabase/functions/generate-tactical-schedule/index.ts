@@ -177,7 +177,7 @@ CRITICAL RULES FOR PRACTICES:
       ? `\n## USER IDENTITY:\nLife Direction: ${direction.content}\nValues: ${identityElements.filter((i: any) => i.element_type === 'value').map((i: any) => i.content).join(', ') || 'N/A'}\n`
       : '';
 
-    const prompt = `You are Aurora, the AI schedule architect for Mind OS. Generate a COMPLETE 10-day tactical schedule organized into THEMED BLOCKS.
+    const prompt = `You are AION, the AI schedule architect for AION. Generate a COMPLETE 10-day tactical schedule organized into THEMED BLOCKS.
 
 ## USER PREFERENCES:
 - Wake time: ${wakeTime}

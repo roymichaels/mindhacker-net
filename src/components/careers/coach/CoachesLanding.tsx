@@ -1,6 +1,6 @@
 /**
  * Coaches Landing — dual-path marketplace entry for non-coach users.
- * Shows "Want a Coach" / "Be a Coach" cards that trigger Aurora dock wizards.
+ * Shows "Want a Coach" / "Be a Coach" cards that trigger AION dock wizards.
  */
 import { Search, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -24,8 +24,8 @@ export default function CoachesLanding() {
     auroraChat.setIsChatExpanded(true);
     auroraChat.setPendingAssistantGreeting(
       isHe
-        ? '👋 שלום! אני Aurora, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**\n\nזה יכול להיות:\n- 🧠 בריאות נפשית ומיינדסט\n- 💪 כושר ותזונה\n- 💼 קריירה ועסקים\n- ❤️ זוגיות ומערכות יחסים\n- 🎯 מטרות ומוטיבציה\n\nככל שתהיה ספציפי יותר, כך אמצא לך התאמה טובה יותר.'
-        : "👋 Hey! I'm Aurora, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**\n\nIt could be:\n- 🧠 Mental health & mindset\n- 💪 Fitness & nutrition\n- 💼 Career & business\n- ❤️ Relationships\n- 🎯 Goals & motivation\n\nThe more specific you are, the better match I'll find for you."
+        ? '👋 שלום! אני AION, ואני אעזור לך למצוא את המאמן המושלם בשבילך.\n\n**ספר/י לי — מה הדבר שהכי רוצה לשפר בחיים שלך עכשיו?**\n\nזה יכול להיות:\n- 🧠 בריאות נפשית ומיינדסט\n- 💪 כושר ותזונה\n- 💼 קריירה ועסקים\n- ❤️ זוגיות ומערכות יחסים\n- 🎯 מטרות ומוטיבציה\n\nככל שתהיה ספציפי יותר, כך אמצא לך התאמה טובה יותר.'
+        : "👋 Hey! I'm AION, and I'll help you find your perfect coach.\n\n**Tell me — what's the one thing you'd most like to improve in your life right now?**\n\nIt could be:\n- 🧠 Mental health & mindset\n- 💪 Fitness & nutrition\n- 💼 Career & business\n- ❤️ Relationships\n- 🎯 Goals & motivation\n\nThe more specific you are, the better match I'll find for you."
     );
   };
 
@@ -65,8 +65,8 @@ export default function CoachesLanding() {
           </h2>
           <p className="text-muted-foreground leading-relaxed">
             {isHe
-              ? 'Aurora תבין מה אתה צריך ותמליץ על המאמנים שהכי מתאימים לך — חינם לגמרי.'
-              : 'Aurora will understand what you need and recommend the coaches who fit you best — completely free.'}
+              ? 'AION תבין מה אתה צריך ותמליץ על המאמנים שהכי מתאימים לך — חינם לגמרי.'
+              : 'AION will understand what you need and recommend the coaches who fit you best — completely free.'}
           </p>
           <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
             {isHe ? 'בוא נתחיל →' : 'Let\'s start →'}

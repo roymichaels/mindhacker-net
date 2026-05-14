@@ -34,7 +34,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
 
-  // Aurora preferences state
+  // AION preferences state
   const [preferences, setPreferences] = useState<AuroraPreferences>({
     tone: 'warm',
     intensity: 'balanced',

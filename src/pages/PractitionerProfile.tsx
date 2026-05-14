@@ -40,7 +40,7 @@ const PractitionerProfile = () => {
     : '';
 
   useSEO({
-    title: practitioner ? `${displayName} | Mind OS` : t('practitioners.loading'),
+    title: practitioner ? `${displayName} | AION` : t('practitioners.loading'),
     description: practitioner?.bio || '',
   });
 

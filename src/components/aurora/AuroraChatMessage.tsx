@@ -108,7 +108,7 @@ const AIONMessage = ({
             )}
           </div>
 
-          {/* Action Buttons - Below message for Aurora */}
+          {/* Action Buttons - Below message for AION */}
           {!isStreaming && !isOwn && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button

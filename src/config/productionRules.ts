@@ -7,7 +7,7 @@
 export const PRODUCTION_RULES = {
   /** Strip <think>/<reasoning>/<analysis> blocks from any rendered text. */
   hideReasoning: true,
-  /** Drop any "Okay let me…/Looking at the conversation…/As Aurora…" preambles. */
+  /** Drop any "Okay let me…/Looking at the conversation…/As AION…" preambles. */
   hideSystemThinking: true,
   /** Never render system-prompt fragments echoed back by the model. */
   hidePromptParsing: true,

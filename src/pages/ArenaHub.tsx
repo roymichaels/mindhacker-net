@@ -302,7 +302,7 @@ export default function ArenaHub() {
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">
                       {scheduleGenerating
-                        ? (isHe ? 'Aurora יוצרת את הלו"ז שלך...' : 'Aurora is crafting your schedule...')
+                        ? (isHe ? 'AION יוצרת את הלו"ז שלך...' : 'AION is crafting your schedule...')
                         : (isHe ? 'טוען...' : 'Loading...')}
                     </p>
                   </div>
@@ -312,7 +312,7 @@ export default function ArenaHub() {
                     <p className="text-xs text-muted-foreground text-center max-w-xs">
                       {isHe
                         ? 'לחץ "צור לו"ז AI" כדי ש-Aurora תבנה לך תוכנית יומית עם בלוקים נושאיים'
-                        : 'Click "Generate AI Schedule" for Aurora to build themed blocks with milestones'}
+                        : 'Click "Generate AI Schedule" for AION to build themed blocks with milestones'}
                     </p>
                   </div>
                 ) : (

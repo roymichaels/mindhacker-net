@@ -220,7 +220,7 @@ export const useAuroraChat = (conversationId: string | null) => {
     }
   }, [language, queryClient]);
 
-  // Send message to Aurora
+  // Send message to AION
   const sendMessage = useCallback(async (content: string, imageBase64?: string) => {
     if (!user?.id || !conversationId || isStreaming) return;
 
@@ -269,7 +269,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         p_user_id: user.id,
         p_amount: 5,
         p_source: 'aurora',
-        p_reason: 'Message sent to Aurora',
+        p_reason: 'Message sent to AION',
       });
     } catch (e) {
       console.warn('Failed to award XP:', e);

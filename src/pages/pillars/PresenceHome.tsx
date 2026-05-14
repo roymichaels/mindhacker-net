@@ -1,6 +1,6 @@
 /**
  * @tab Life
- * @purpose Presence (תדמית) Pillar Home — Scan-first flow: 4-step guided capture → analyzing → Aurora chat for results.
+ * @purpose Presence (תדמית) Pillar Home — Scan-first flow: 4-step guided capture → analyzing → AION chat for results.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
@@ -62,7 +62,7 @@ export default function PresenceHome() {
       await saveScanResult(result);
       toast.success(t('presence.recalculateSuccess'));
       setPhase('home');
-      // After scan completes, open the Aurora chat for analysis discussion
+      // After scan completes, open the AION chat for analysis discussion
       setChatOpen(true);
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed. Please try again.');
@@ -115,7 +115,7 @@ export default function PresenceHome() {
               </Button>
             </div>
 
-            {/* Chat with Aurora about results */}
+            {/* Chat with AION about results */}
             {latest && (
               <Button
                 variant="outline"
@@ -123,7 +123,7 @@ export default function PresenceHome() {
                 onClick={() => setChatOpen(true)}
               >
                 <MessageCircle className="w-4 h-4" />
-                {isRTL ? 'שוחח/י עם אורורה על התוצאות' : 'Discuss results with Aurora'}
+                {isRTL ? 'שוחח/י עם AION על התוצאות' : 'Discuss results with AION'}
               </Button>
             )}
 
@@ -212,7 +212,7 @@ export default function PresenceHome() {
         )}
       </div>
 
-      {/* Aurora Chat Modal — opens after scan or on demand */}
+      {/* AION Chat Modal — opens after scan or on demand */}
       <DomainAssessModal open={chatOpen} onOpenChange={setChatOpen} domainId="presence" />
     </PageShell>
   );

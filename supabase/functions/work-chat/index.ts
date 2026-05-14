@@ -98,7 +98,7 @@ serve(async (req) => {
     const isWizard = mode === "wizard";
 
     const systemPrompt = isWizard
-      ? `You are Aurora, an AI work planning wizard inside Mind OS. Help the user plan their work day efficiently.
+      ? `You are AION, an AI work planning wizard inside AION. Help the user plan their work day efficiently.
 
 ROLE: You analyze the user's pending tasks, energy patterns, and work history to suggest an optimal work schedule.
 
@@ -117,7 +117,7 @@ RULES:
 WORK CONTEXT:${workContext}
 
 Be specific, actionable, and encouraging. Reference actual tasks when possible.`
-      : `You are Aurora, an AI work coach inside Mind OS. Help the user manage their work sessions, analyze productivity, and optimize their work patterns.
+      : `You are AION, an AI work coach inside AION. Help the user manage their work sessions, analyze productivity, and optimize their work patterns.
 
 ROLE: Work productivity coach — analyze patterns, suggest improvements, track progress.
 

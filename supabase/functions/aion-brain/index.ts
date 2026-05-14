@@ -65,7 +65,7 @@ const DECISION_TOOL = {
   },
 };
 
-const SYSTEM_PROMPT = `You are AION's orchestration brain. You decide how the MindOS app should currently feel for ONE user.
+const SYSTEM_PROMPT = `You are AION's orchestration brain. You decide how the AION app should currently feel for ONE user.
 You receive recent signals (route changes, AI messages, completed actions, time-of-day, idle gaps) and a snapshot of their current state (active mission, streak, energy, recent tone).
 Output exactly ONE call to the emit_decision tool.
 Rules:

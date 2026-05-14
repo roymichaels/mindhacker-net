@@ -1,7 +1,7 @@
 /**
  * AddItemWizard — Aurora-powered conversational wizard for adding items to the user's plate.
  * Uses the same chat UI as DomainAssessChat but with a custom edge function for item creation.
- * When Aurora extracts enough info, she creates the item via tool call and optionally triggers plan recalc.
+ * When AION extracts enough info, she creates the item via tool call and optionally triggers plan recalc.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -319,7 +319,7 @@ export function AddItemWizard({ open, onOpenChange, hub }: AddItemWizardProps) {
             <AuroraHoloOrb size={32} glow="subtle" />
             <div className="flex-1">
               <h1 className="text-sm font-bold text-foreground">
-                {isHe ? 'אורורה' : 'Aurora'}
+                {isHe ? 'AION' : 'AION'}
               </h1>
               <p className="text-[10px] text-muted-foreground">
                 {isHe

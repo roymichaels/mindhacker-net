@@ -17,7 +17,7 @@ const intentClassify: SkillDef = {
   kind: "intent.classify",
   signalKind: "intent.classified",
   system:
-    "You classify a user message into ONE intent for the MindOS app. Be terse, decisive, and never explain. Always emit the tool.",
+    "You classify a user message into ONE intent for the AION app. Be terse, decisive, and never explain. Always emit the tool.",
   schema: {
     name: "emit_intent",
     description: "Classify the user's intent.",

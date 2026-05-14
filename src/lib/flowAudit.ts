@@ -1,5 +1,5 @@
 /**
- * FlowAudit — Critical Path Flow Auditor for Mind OS
+ * FlowAudit — Critical Path Flow Auditor for AION
  * 
  * Activated via: localStorage.FLOW_AUDIT = "true"
  * Logs route transitions, auth/subscription/launchpad state, redirect decisions,

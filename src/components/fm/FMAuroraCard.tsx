@@ -42,7 +42,7 @@ export function FMAuroraCard({ opportunities, suggestion, onAction, onSkip }: Pr
         <div className="flex items-start gap-2">
           <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
           <div className="space-y-1">
-            <p className="text-xs font-medium text-primary">{isHe ? 'אורורה מציעה:' : 'Aurora suggests:'}</p>
+            <p className="text-xs font-medium text-primary">{isHe ? 'AION מציעה:' : 'AION suggests:'}</p>
             <p className="text-sm text-foreground/90">{suggestion}</p>
           </div>
         </div>
@@ -86,7 +86,7 @@ export function FMAuroraCard({ opportunities, suggestion, onAction, onSkip }: Pr
               <div className="flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5 text-accent" />
                 <span className="text-[9px] font-semibold text-accent uppercase tracking-wider">
-                  {isHe ? 'אורורה מציעה' : 'Aurora suggests'}
+                  {isHe ? 'AION מציעה' : 'AION suggests'}
                 </span>
               </div>
               <p className="text-xs font-semibold text-foreground leading-tight">{displayed.text}</p>

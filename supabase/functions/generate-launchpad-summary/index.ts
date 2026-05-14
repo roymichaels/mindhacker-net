@@ -817,10 +817,10 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
 
   // First Chat Transcript
   if (data.firstChatTranscript) {
-    sections.push('\n## First Chat with Aurora');
+    sections.push('\n## First Chat with AION');
     if (data.firstChatTranscript.messages && Array.isArray(data.firstChatTranscript.messages)) {
       data.firstChatTranscript.messages.forEach((msg: any) => {
-        sections.push(`${msg.role === 'user' ? 'User' : 'Aurora'}: ${msg.content}`);
+        sections.push(`${msg.role === 'user' ? 'User' : 'AION'}: ${msg.content}`);
       });
     } else {
       sections.push(JSON.stringify(data.firstChatTranscript, null, 2));
@@ -828,7 +828,7 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
   }
 
   if (data.firstChat && Array.isArray(data.firstChat) && data.firstChat.length > 0) {
-    sections.push('\n## Aurora Conversation Messages');
+    sections.push('\n## AION Conversation Messages');
     sections.push(data.firstChat.map((m: any) => `${m.sender_type}: ${m.content}`).slice(0, 15).join('\n'));
   }
 

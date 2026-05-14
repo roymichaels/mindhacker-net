@@ -9,8 +9,8 @@ const STEPS = [
     icon: Gem,
     titleEn: 'Your Skills Have Value',
     titleHe: 'לכישורים שלך יש ערך',
-    bodyEn: 'Your skills, data, and time have real value. FM lets you earn MOS points by contributing to the MindOS community.',
-    bodyHe: 'הכישורים, הנתונים והזמן שלך שווים כסף אמיתי. FM מאפשר לך להרוויח נקודות MOS על ידי תרומה לקהילת MindOS.',
+    bodyEn: 'Your skills, data, and time have real value. FM lets you earn MOS points by contributing to the AION community.',
+    bodyHe: 'הכישורים, הנתונים והזמן שלך שווים כסף אמיתי. FM מאפשר לך להרוויח נקודות MOS על ידי תרומה לקהילת AION.',
   },
   {
     icon: Crown,

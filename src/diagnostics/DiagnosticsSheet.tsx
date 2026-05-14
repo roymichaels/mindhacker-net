@@ -31,7 +31,7 @@ export default function DiagnosticsSheet({ onClose }: { onClose: () => void }) {
         <header className="flex items-center justify-between border-b border-border/40 px-4 py-3">
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">dev only</p>
-            <h2 className="text-sm font-medium text-foreground">MindOS diagnostics</h2>
+            <h2 className="text-sm font-medium text-foreground">AION diagnostics</h2>
           </div>
           <button
             type="button"

@@ -8,7 +8,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are Aurora — an elite AI life architect inside MindOS.
+const SYSTEM_PROMPT = `You are AION — an elite AI life architect inside AION.
 This is the user's FIRST conversation with you. Your mission: understand who they are deeply through natural conversation and extract structured onboarding data matching the Neural Architecture Intake (59 variables across 5 phases).
 
 ## YOUR PERSONALITY
@@ -155,7 +155,7 @@ function buildExtractTool() {
           preferred_reminders: { type: "string", enum: ["minimal", "normal", "strict"] },
           final_notes: { type: "string", description: "Any additional notes" },
 
-          // Aurora's diagnostic assessment
+          // AION's diagnostic assessment
           diagnostic_scores: {
             type: "object",
             properties: {
@@ -169,7 +169,7 @@ function buildExtractTool() {
 
           // Pillar mapping
           selected_pillar: { type: "string", enum: ["mind", "health", "career", "relationships", "money"] },
-          aurora_summary: { type: "string", description: "Aurora's 3-5 sentence assessment, written in the user's language" },
+          aurora_summary: { type: "string", description: "AION's 3-5 sentence assessment, written in the user's language" },
         },
         required: [
           "entry_context", "pressure_zone", "functional_signals", "failure_moment",
@@ -202,8 +202,8 @@ serve(async (req) => {
 
     const langLabel = language === "he" ? "Hebrew" : "English";
     const startQuestion = language === "he"
-      ? "היי! אני אורורה 👋 אני כאן כדי להכיר אותך לעומק ולבנות לך ארכיטקטורת חיים מותאמת אישית ל-90 ימים הקרובים.\n\nלפני שנתחיל — מה הביא אותך לכאן? מה אתה מחפש לשנות?"
-      : "Hey! I'm Aurora 👋 I'm here to get to know you deeply and build a personalized 90-day life architecture.\n\nBefore we start — what brought you here? What are you looking to change?";
+      ? "היי! אני AION 👋 אני כאן כדי להכיר אותך לעומק ולבנות לך ארכיטקטורת חיים מותאמת אישית ל-90 ימים הקרובים.\n\nלפני שנתחיל — מה הביא אותך לכאן? מה אתה מחפש לשנות?"
+      : "Hey! I'm AION 👋 I'm here to get to know you deeply and build a personalized 90-day life architecture.\n\nBefore we start — what brought you here? What are you looking to change?";
 
     const systemContent = `${SYSTEM_PROMPT}\n\nUser's preferred language: ${langLabel}. Always respond in that language.\n\nSTART with: "${startQuestion}"`;
 

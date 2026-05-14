@@ -1,6 +1,6 @@
 /**
  * ┌──────────────────────────────────────────────────────────────────┐
- * │  MindOS — Canonical App Map Registry                            │
+ * │  AION — Canonical App Map Registry                            │
  * │                                                                  │
  * │  This is the SINGLE SOURCE OF TRUTH for the application's        │
  * │  structure. Every route, hub, context, hook, service, and        │
@@ -24,7 +24,7 @@ export type Category =
   | 'avatar' | 'other';
 
 export type Status = 'active' | 'partial' | 'legacy' | 'deprecated' | 'hidden';
-export type IdentityOwner = 'DNA' | 'AION' | 'Orb' | 'Aurora' | 'none';
+export type IdentityOwner = 'DNA' | 'AION' | 'Orb' | 'AION' | 'none';
 export type RenderType = 'orb' | 'dna' | 'none' | 'mixed';
 export type CleanupPriority = 'none' | 'low' | 'medium' | 'high';
 
@@ -186,10 +186,10 @@ export const routes: RouteEntry[] = [
   // ── Play Hub ──────────────────────────────────────
   {
     id: 'play',
-    name: 'MindOS Tactics',
+    name: 'AION Tactics',
     route: '/mindos/tactics',
     category: 'play',
-    purpose: 'Primary MindOS execution surface backed by the original Play Hub UI',
+    purpose: 'Primary AION execution surface backed by the original Play Hub UI',
     protected: true,
     mainComponents: ['PlayHub', 'PlayLayoutWrapper'],
     layoutWrapper: 'ProtectedAppShell',
@@ -359,9 +359,9 @@ export const routes: RouteEntry[] = [
     name: 'AION Chat',
     route: '/mindos/chat',
     category: 'aion',
-    purpose: 'MindOS chat surface and orb-backed conversation interface',
+    purpose: 'AION chat surface and orb-backed conversation interface',
     protected: true,
-    mainComponents: ['MindOS/ChatPage', 'AuroraPage', 'AIONChatPanel'],
+    mainComponents: ['AION/ChatPage', 'AuroraPage', 'AIONChatPanel'],
     layoutWrapper: 'ProtectedAppShell',
     keyContexts: ['AuroraChatContext', 'AuroraActionsContext'],
     keyHooks: ['useAuroraChat', 'useAuroraCommands', 'useAuroraVoice'],
@@ -930,7 +930,7 @@ export const contexts: ContextEntry[] = [
 // ─── HOOKS (grouped by feature) ──────────────────────────────────────
 
 export const hooks: HookEntry[] = [
-  // ── Aurora / AION ──
+  // ── AION / AION ──
   { name: 'useAuroraChat', file: 'src/hooks/aurora/useAuroraChat.tsx', purpose: 'Chat message sending, history, streaming', featureArea: 'aion', status: 'active' },
   { name: 'useAuroraCommands', file: 'src/hooks/aurora/useAuroraCommands.tsx', purpose: 'AION command parsing and execution', featureArea: 'aion', status: 'active' },
   { name: 'useAuroraVoice', file: 'src/hooks/aurora/useAuroraVoice.tsx', purpose: 'Voice input/output for AION', featureArea: 'aion', status: 'active' },
@@ -943,9 +943,9 @@ export const hooks: HookEntry[] = [
   { name: 'useUserContext', file: 'src/hooks/aurora/useUserContext.tsx', purpose: 'Unified user context for AI prompts', featureArea: 'aion', status: 'active' },
   { name: 'useCommandBus', file: 'src/hooks/aurora/useCommandBus.tsx', purpose: 'Cross-component command dispatch', featureArea: 'aion', status: 'active' },
   { name: 'useActionTrust', file: 'src/hooks/aurora/useActionTrust.tsx', purpose: 'Autonomous action trust levels', featureArea: 'aion', status: 'active' },
-  { name: 'useChecklistsData', file: 'src/hooks/aurora/useChecklistsData.tsx', purpose: 'Aurora checklists CRUD', featureArea: 'aion', status: 'active' },
+  { name: 'useChecklistsData', file: 'src/hooks/aurora/useChecklistsData.tsx', purpose: 'AION checklists CRUD', featureArea: 'aion', status: 'active' },
   { name: 'useDailyHabits', file: 'src/hooks/aurora/useDailyHabits.tsx', purpose: 'Daily habit tracking', featureArea: 'aion', status: 'active' },
-  { name: 'useDashboard', file: 'src/hooks/aurora/useDashboard.tsx', purpose: 'Aurora dashboard data aggregation', featureArea: 'aion', status: 'active' },
+  { name: 'useDashboard', file: 'src/hooks/aurora/useDashboard.tsx', purpose: 'AION dashboard data aggregation', featureArea: 'aion', status: 'active' },
   { name: 'useLifeModel', file: 'src/hooks/aurora/useLifeModel.tsx', purpose: 'Life model state (direction, identity, patterns)', featureArea: 'aion', status: 'active' },
   { name: 'useConversationSearch', file: 'src/hooks/aurora/useConversationSearch.ts', purpose: 'Search within conversation history', featureArea: 'aion', status: 'active' },
   { name: 'useAuroraDockUI', file: 'src/hooks/aurora/useAuroraDockUI.ts', purpose: 'Dock panel UI state', featureArea: 'aion', status: 'active' },
@@ -1127,7 +1127,7 @@ export const identityLayers: IdentityLayerEntry[] = [
   },
   {
     name: 'AION',
-    internalName: 'Aurora (engine) + AION (brand)',
+    internalName: 'AION (engine) + AION (brand)',
     purpose: 'User-facing identity abstraction. The "Future Self" entity with a personal name.',
     files: [
       'src/contexts/AuroraChatContext.tsx',
@@ -1136,7 +1136,7 @@ export const identityLayers: IdentityLayerEntry[] = [
       'src/hooks/useAIONDisplayName.ts',
     ],
     status: 'active',
-    notes: 'Internal code uses "Aurora" naming. UI displays personal AION name.',
+    notes: 'Internal code uses "AION" naming. UI displays personal AION name.',
   },
   {
     name: 'Orb (AION Visual Body)',
@@ -1155,8 +1155,8 @@ export const identityLayers: IdentityLayerEntry[] = [
     notes: 'MUST NOT compute identity. Pure visual mapping only. Pipeline: DNA → mapDNAtoVisual → orbProfileGenerator → renderer.',
   },
   {
-    name: 'Aurora (AI Engine)',
-    internalName: 'Aurora',
+    name: 'AION (AI Engine)',
+    internalName: 'AION',
     purpose: 'AI engine powering AION. Handles chat, commands, suggestions, proactive actions.',
     files: [
       'src/contexts/AuroraChatContext.tsx',

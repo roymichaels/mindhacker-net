@@ -66,7 +66,7 @@ export default function CreateThreadModal({ open, onOpenChange, defaultPillar }:
         }
       }
 
-      // Create the post with 'pending' status (Aurora gate)
+      // Create the post with 'pending' status (AION gate)
       const { data: post, error } = await supabase
         .from('community_posts')
         .insert({
@@ -82,7 +82,7 @@ export default function CreateThreadModal({ open, onOpenChange, defaultPillar }:
 
       if (error) throw error;
 
-      // Aurora auto-approves and replies (simulated gate)
+      // AION auto-approves and replies (simulated gate)
       if (post) {
         const auroraReply = generateAuroraReply(selectedPillar, selectedSubCategory, title.trim(), content.trim().slice(0, 200), isHe);
         
@@ -92,7 +92,7 @@ export default function CreateThreadModal({ open, onOpenChange, defaultPillar }:
           .update({ status: 'approved' } as any)
           .eq('id', post.id);
 
-        // Aurora comment
+        // AION comment
         await supabase
           .from('community_comments')
           .insert({
@@ -104,7 +104,7 @@ export default function CreateThreadModal({ open, onOpenChange, defaultPillar }:
 
         // Energy awarded AFTER approval
         await addEnergy(8, 'community', 'Created community thread');
-        toast.success(isHe ? 'השרשור אושר על ידי Aurora' : 'Thread approved by Aurora');
+        toast.success(isHe ? 'השרשור אושר על ידי AION' : 'Thread approved by AION');
         toast('+8 Energy ⚡', { duration: 2000 });
       }
 
@@ -220,11 +220,11 @@ export default function CreateThreadModal({ open, onOpenChange, defaultPillar }:
           >
             {submitting 
               ? t('common.loading') 
-              : (isHe ? '🤖 שלח לאישור Aurora' : '🤖 Submit for Aurora Review')
+              : (isHe ? '🤖 שלח לאישור AION' : '🤖 Submit for AION Review')
             }
           </Button>
           <p className="text-[10px] text-muted-foreground text-center">
-            {isHe ? 'Aurora תאשר ותגיב אוטומטית לשרשור שלך' : 'Aurora will review and auto-reply to your thread'}
+            {isHe ? 'AION תאשר ותגיב אוטומטית לשרשור שלך' : 'AION will review and auto-reply to your thread'}
           </p>
         </div>
       </DialogContent>

@@ -104,7 +104,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
     }
   };
 
-  useSEO({ title: 'MindOS', description: '14 pillars. One civilization.' });
+  useSEO({ title: 'AION', description: '14 pillars. One civilization.' });
 
   useEffect(() => { if (!loading && !user) navigate('/login?redirect=/community'); }, [user, loading, navigate]);
   useEffect(() => { setActivePillar(selectedPillar); return () => { setActivePillar(null); }; }, [selectedPillar, setActivePillar]);

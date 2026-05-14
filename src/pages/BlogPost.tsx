@@ -37,7 +37,7 @@ export default function BlogPost() {
   useEffect(() => {
     if (!post) return;
     const title = isHe && post.title_he ? post.title_he : (post.meta_title || post.title);
-    document.title = `${title} | MindOS Blog`;
+    document.title = `${title} | AION Blog`;
 
     const setMeta = (name: string, content: string) => {
       let el = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
@@ -64,7 +64,7 @@ export default function BlogPost() {
       image: post.cover_image_url,
       datePublished: post.published_at,
       dateModified: post.updated_at,
-      publisher: { '@type': 'Organization', name: 'MindOS' },
+      publisher: { '@type': 'Organization', name: 'AION' },
     };
     let script = document.getElementById('blog-jsonld');
     if (!script) {
@@ -247,8 +247,8 @@ export default function BlogPost() {
             </h3>
             <p className="text-muted-foreground max-w-lg mx-auto mb-6 text-sm md:text-base">
               {isHe
-                ? 'הצטרפו לאלפי אנשים שכבר משתמשים ב-MindOS כדי לשנות את החיים שלהם עם AI, גיימיפיקציה וכלים מבוססי מדע.'
-                : 'Join thousands already using MindOS to transform their lives with AI coaching, gamification, and science-backed tools.'}
+                ? 'הצטרפו לאלפי אנשים שכבר משתמשים ב-AION כדי לשנות את החיים שלהם עם AI, גיימיפיקציה וכלים מבוססי מדע.'
+                : 'Join thousands already using AION to transform their lives with AI coaching, gamification, and science-backed tools.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a

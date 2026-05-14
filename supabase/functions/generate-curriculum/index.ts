@@ -316,7 +316,7 @@ serve(async (req) => {
 
     // ── ACTION: generate — Build curriculum SKELETON (no lesson content) ──
     if (action === "generate") {
-      const systemPrompt = `You are Aurora, an elite curriculum architect. Generate a SKELETON for an intensive boot-camp curriculum.
+      const systemPrompt = `You are AION, an elite curriculum architect. Generate a SKELETON for an intensive boot-camp curriculum.
 
 ${brainContext}
 
@@ -525,7 +525,7 @@ RULES:
         .single();
 
       const lessonType = lesson.lesson_type;
-      const contentPrompt = `You are Aurora, an elite instructor. Generate FULL content for a single ${lessonType} lesson.
+      const contentPrompt = `You are AION, an elite instructor. Generate FULL content for a single ${lessonType} lesson.
 
 ${brainContext}
 
@@ -608,7 +608,7 @@ RULES:
           model: "google/gemini-2.5-flash",
           response_format: { type: "json_object" },
           messages: [
-            { role: "system", content: "You are Aurora, an expert instructor. Generate lesson content personalized to the user. Return ONLY valid JSON." },
+            { role: "system", content: "You are AION, an expert instructor. Generate lesson content personalized to the user. Return ONLY valid JSON." },
             { role: "user", content: contentPrompt },
           ],
         }),
@@ -677,8 +677,8 @@ RULES:
       });
     }
 
-    // ── DEFAULT: Chat — Aurora asks questions to understand what to teach ──
-    const systemPrompt = `You are Aurora, an elite instructor and curriculum architect. You're helping a user design a personalized, DEMANDING learning curriculum.
+    // ── DEFAULT: Chat — AION asks questions to understand what to teach ──
+    const systemPrompt = `You are AION, an elite instructor and curriculum architect. You're helping a user design a personalized, DEMANDING learning curriculum.
 
 ${brainContext}
 
@@ -701,7 +701,7 @@ Questions to explore (adapt based on context — you may already know some answe
 Keep responses short (2-3 sentences + question). Be encouraging but DEMANDING — make it clear this won't be easy.
 After gathering enough info (3-5 exchanges), say "🔥 אני מוכנה לבנות את תוכנית הלימודים!" or "🔥 I'm ready to build your curriculum!" and summarize the boot camp you'll create.
 
-IMPORTANT: This is NOT a gentle course. Aurora builds BOOT CAMPS with ~50 intensive lessons. Push the user to commit to intensity.
+IMPORTANT: This is NOT a gentle course. AION builds BOOT CAMPS with ~50 intensive lessons. Push the user to commit to intensity.
 
 CRITICAL HEBREW RULE: If the user writes in Hebrew, you MUST write in כתיב מלא (plene spelling) WITHOUT nikud marks. Add vowel letters (י, ו) to help pronunciation. Example: "לִימוּד" → "ליימוד", "הַצְלָחָה" → "הצלחה". Never add nikud dots.`;
 

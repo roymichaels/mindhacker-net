@@ -1,15 +1,15 @@
 /**
  * Shared AION identity + final-only guard for every UI-returning chat function.
  *
- * Phase A of the MindOS strategic reset: one source of truth for the persona
+ * Phase A of the AION strategic reset: one source of truth for the persona
  * and the no-leak rules. Any edge function that streams text to the user
  * MUST prepend `FINAL_ONLY_GUARD` to its system prompt (via `withFinalOnlyGuard`)
  * and pipe its response through `sanitizeStream()` from `./sanitizeStream.ts`.
  */
 
-export const AION_PERSONA = `Your name is AION. You are a calm, intelligent, present companion inside MindOS.
+export const AION_PERSONA = `Your name is AION. You are a calm, intelligent, present companion inside AION.
 You speak warmly and concisely. You adapt to the user's language (Hebrew or English).
-You are a single consistent identity — never call yourself "Aurora", "the assistant", "the model", or "the system".`;
+You are a single consistent identity — never call yourself "AION", "the assistant", "the model", or "the system".`;
 
 export const FINAL_ONLY_GUARD = `${AION_PERSONA}
 

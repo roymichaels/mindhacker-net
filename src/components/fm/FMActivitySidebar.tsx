@@ -1,6 +1,6 @@
 /**
  * FMActivitySidebar — Right sidebar for FM (Free Market) hub.
- * Shows Aurora opportunities, recent transactions, and tips.
+ * Shows AION opportunities, recent transactions, and tips.
  * Amber/gold color scheme matching FM economic identity.
  */
 import { useState } from 'react';
@@ -79,7 +79,7 @@ export function FMActivitySidebar() {
       {/* ===== EXPANDED ===== */}
       {!collapsed && (
         <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
-          {/* Aurora Opportunities Section */}
+          {/* AION Opportunities Section */}
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />

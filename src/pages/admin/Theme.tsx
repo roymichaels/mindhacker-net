@@ -700,7 +700,7 @@ const Theme = () => {
                   <Input
                     value={localTheme.brand_name}
                     onChange={(e) => handleChange('brand_name', e.target.value)}
-                    placeholder="מיינד OS"
+                    placeholder="AION"
                     dir="rtl"
                   />
                 </div>
@@ -709,7 +709,7 @@ const Theme = () => {
                   <Input
                     value={localTheme.brand_name_en}
                     onChange={(e) => handleChange('brand_name_en', e.target.value)}
-                    placeholder="MindOS"
+                    placeholder="AION"
                     dir="ltr"
                   />
                 </div>
@@ -721,7 +721,7 @@ const Theme = () => {
                   <Input
                     value={localTheme.company_legal_name}
                     onChange={(e) => handleChange('company_legal_name', e.target.value)}
-                    placeholder="MindOS OÜ"
+                    placeholder="AION OÜ"
                   />
                 </div>
                 <div className="space-y-2">

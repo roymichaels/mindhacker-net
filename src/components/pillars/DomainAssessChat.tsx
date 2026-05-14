@@ -1,5 +1,5 @@
 /**
- * DomainAssessChat — Uses the MindOS chat surface for domain assessments.
+ * DomainAssessChat — Uses the AION chat surface for domain assessments.
  * Streams messages from domain-assess, extracts profile data via tool call,
  * and persists messages for continuity across sessions.
  */
@@ -483,7 +483,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
       }
       autoContinueAttempts.current += 1;
       
-      // Re-send the full history to get the MindOS response
+      // Re-send the full history to get the AION response
       setIsStreaming(true);
       setStreamingContent('');
       let assistantSoFar = '';
@@ -544,7 +544,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
         style={asDock && dockHeightVh ? { height: `${dockHeightVh}vh` } : undefined}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Header — MindOS style (hidden when parent provides its own) */}
+        {/* Header — AION style (hidden when parent provides its own) */}
         {!hideHeader && (
         <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
           {!asModal && !asDock && (
@@ -555,10 +555,10 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           <AuroraHoloOrb size={32} glow="subtle" />
           <div className="flex-1">
             <h1 className="text-sm font-bold text-foreground">
-              {isHe ? 'MindOS' : 'MindOS'} — {isHe ? 'סריקת' : 'Scanning'} {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
+              {isHe ? 'AION' : 'AION'} — {isHe ? 'סריקת' : 'Scanning'} {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
             </h1>
             <p className="text-[10px] text-muted-foreground">
-              {isHe ? 'ענה על השאלות כדי ש-MindOS יבנה לך פרופיל מדויק' : 'Answer the questions so MindOS can build your accurate profile'}
+              {isHe ? 'ענה על השאלות כדי ש-AION יבנה לך פרופיל מדויק' : 'Answer the questions so AION can build your accurate profile'}
             </p>
           </div>
           <button
@@ -571,7 +571,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           </button>
         </div>
         )}
-        {/* Chat messages — MindOS style */}
+        {/* Chat messages — AION style */}
         <ScrollArea className="flex-1 min-h-0">
           <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
             <div className="space-y-6">
@@ -619,7 +619,7 @@ export default function DomainAssessChat({ domainId, asModal, asDock, dockHeight
           </div>
         </ScrollArea>
 
-        {/* Input — MindOS style (hidden when docked, uses root GlobalChatInput instead) */}
+        {/* Input — AION style (hidden when docked, uses root GlobalChatInput instead) */}
         {!asDock && <AuroraChatInput onSend={sendMessage} disabled={isStreaming} bypassLimits={asModal} />}
       </div>
     </Wrapper>

@@ -1,6 +1,6 @@
 /**
  * SocraticModeToggle — Toggle for Socratic questioning mode.
- * When enabled, Aurora asks progressively deeper questions instead of giving answers.
+ * When enabled, AION asks progressively deeper questions instead of giving answers.
  */
 import { useState, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';

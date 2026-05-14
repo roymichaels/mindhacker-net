@@ -43,13 +43,13 @@ const MessageThread = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
 
-  // Check if this is the MindOS AI thread - either by param OR by route path
+  // Check if this is the AION AI thread - either by param OR by route path
   const isAI = conversationId === 'ai' || location.pathname === '/messages/ai';
 
   // Hide sidebars for message threads
   useSidebars(null, null);
 
-  // If this is an AI conversation, render the MindOS thread instead
+  // If this is an AI conversation, render the AION thread instead
   if (isAI) {
     return <AuroraMessageThread conversationId="ai" />;
   }

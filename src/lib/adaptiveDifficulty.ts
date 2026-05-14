@@ -2,7 +2,7 @@
  * Adaptive Difficulty Engine
  * 
  * Analyzes user's completion rates, pulse data, and streaks to suggest
- * difficulty adjustments via Aurora. User approves before changes apply.
+ * difficulty adjustments via AION. User approves before changes apply.
  */
 
 export interface DifficultySignals {
@@ -112,7 +112,7 @@ export function analyzeDifficulty(signals: DifficultySignals): DifficultyAnalysi
 }
 
 /**
- * Format the analysis into a message Aurora can present to the user
+ * Format the analysis into a message AION can present to the user
  */
 export function formatDifficultyMessage(analysis: DifficultyAnalysis, language: string): string {
   const isHe = language === 'he';

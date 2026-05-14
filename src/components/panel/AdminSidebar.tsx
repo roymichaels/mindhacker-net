@@ -134,7 +134,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
         { to: '/panel/practitioners', icon: UserCog, label: 'Practitioners', labelHe: 'מאמנים' },
         { to: '/panel/businesses', icon: Briefcase, label: 'Businesses', labelHe: 'עסקים' },
         { to: '/panel/leads', icon: Mail, label: 'Leads', labelHe: 'לידים', badge: newLeadsCount },
-        { to: '/panel/aurora-insights', icon: Brain, label: 'Aurora Insights', labelHe: 'תובנות Aurora' },
+        { to: '/panel/aurora-insights', icon: Brain, label: 'AION Insights', labelHe: 'תובנות AION' },
       ],
     },
     {

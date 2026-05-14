@@ -129,7 +129,7 @@ serve(async (req) => {
       return `- ${a.domain_id}: ${score != null ? score + '/100' : 'assessed'}`;
     }).join('\n');
 
-    const systemPrompt = `You are Aurora, an elite curriculum strategist analyzing a user's 100-day transformation plan to recommend targeted courses.
+    const systemPrompt = `You are AION, an elite curriculum strategist analyzing a user's 100-day transformation plan to recommend targeted courses.
 
 USER CONTEXT:
 - Level: ${profile?.level || 1}

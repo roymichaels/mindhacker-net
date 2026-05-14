@@ -71,7 +71,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     dockUI.openChatAndScrollToMessage(conversationId, messageId, conversations.setCurrentConversationId);
   }, [dockUI, conversations.setCurrentConversationId]);
 
-  // Listen for global Aurora events
+  // Listen for global AION events
   useEffect(() => {
     const handleNewChatEvent = () => {
       conversations.handleNewChat();

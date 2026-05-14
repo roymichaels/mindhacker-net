@@ -78,7 +78,7 @@ function AIONFloatingWidgetInner() {
             exit={{ opacity: 0, scale: 0.4, y: 24 }}
             transition={{ type: 'spring', stiffness: 240, damping: 18 }}
             onClick={handleClick}
-            aria-label="Open MindOS"
+            aria-label="Open AION"
             className={cn(
               // z=35 sits below the chrome header (z=40) so it's clipped under
               // the top bar — only the orb living inside the header is visible there.

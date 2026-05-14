@@ -29,7 +29,7 @@ serve(async (req) => {
 
     const { messages, action, pageId, coachProfile, currentContent, editPrompt } = await req.json();
 
-    // Action: edit — Aurora modifies existing landing page content based on a prompt
+    // Action: edit — AION modifies existing landing page content based on a prompt
     if (action === "edit") {
       if (!currentContent || !editPrompt) {
         return new Response(JSON.stringify({ error: "Missing currentContent or editPrompt" }), {
@@ -37,7 +37,7 @@ serve(async (req) => {
         });
       }
 
-      const editSystemPrompt = `You are Aurora, an expert landing page editor. You will receive the current landing page JSON content and a user instruction. Apply the requested changes and return the COMPLETE updated JSON.
+      const editSystemPrompt = `You are AION, an expert landing page editor. You will receive the current landing page JSON content and a user instruction. Apply the requested changes and return the COMPLETE updated JSON.
 
 IMPORTANT: Return ONLY raw JSON, no markdown, no explanations. Keep the same structure. Only modify what the user asked for, preserve everything else.
 
@@ -88,9 +88,9 @@ ${coachProfile ? JSON.stringify(coachProfile) : "Not provided"}`;
       });
     }
 
-    // Action: generate — Aurora builds the landing page from conversation
+    // Action: generate — AION builds the landing page from conversation
     if (action === "generate") {
-      const systemPrompt = `You are Aurora, an expert landing page architect for coaches. Based on the conversation, generate a complete landing page in JSON format.
+      const systemPrompt = `You are AION, an expert landing page architect for coaches. Based on the conversation, generate a complete landing page in JSON format.
 
 Return a JSON object with this EXACT structure (no markdown, just raw JSON):
 {
@@ -185,8 +185,8 @@ Generate content in the same language the coach used in the conversation. Make i
       });
     }
 
-    // Action: chat — Aurora asks questions to understand needs (streaming)
-    const systemPrompt = `You are Aurora, a warm and strategic AI assistant helping a coach create the perfect landing page.
+    // Action: chat — AION asks questions to understand needs (streaming)
+    const systemPrompt = `You are AION, a warm and strategic AI assistant helping a coach create the perfect landing page.
 
 Your goal: Through 3-5 focused questions, understand exactly what landing page to build. Ask one question at a time.
 

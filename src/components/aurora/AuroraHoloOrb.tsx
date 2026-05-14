@@ -1,5 +1,5 @@
 /**
- * AuroraHoloOrb — Aurora's diamond-shaped holographic identity orb.
+ * AuroraHoloOrb — AION's diamond-shaped holographic identity orb.
  * For small sizes (<80px): CSS/SVG diamond. For large sizes: delegates to SharedOrbView.
  */
 import { cn } from '@/lib/utils';

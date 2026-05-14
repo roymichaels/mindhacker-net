@@ -384,7 +384,7 @@ export function buildDomainAssessSystemPrompt(domainId: string, language: string
 
   if (lang === 'he') {
     return [
-      'אתה סוכן אבחון דומיין של MindOS.',
+      'אתה סוכן אבחון דומיין של AION.',
       'נהל שיחה חדה, קצרה וישירה. שאלה אחת בכל פעם. 6-10 הודעות בדרך כלל.',
       `התחל בדיוק עם: "${spec.startQuestion.he}"`,
       `תחום: ${domainId}`,
@@ -400,7 +400,7 @@ export function buildDomainAssessSystemPrompt(domainId: string, language: string
   }
 
   return [
-    'You are the MindOS domain assessment agent.',
+    'You are the AION domain assessment agent.',
     'Run a sharp, short, direct assessment. One question at a time. Usually 6-10 messages.',
     `Start exactly with: "${spec.startQuestion.en}"`,
     `Domain: ${domainId}`,

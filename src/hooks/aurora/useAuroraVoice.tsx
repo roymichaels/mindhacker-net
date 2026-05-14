@@ -119,7 +119,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
     }
   }, [options]);
 
-  // Play Aurora's voice for a message — uses shared TTS engine with chunking & fallback
+  // Play AION's voice for a message — uses shared TTS engine with chunking & fallback
   const playMessage = useCallback(async (messageId: string, content: string) => {
     if (isPlaying) {
       // Stop current playback

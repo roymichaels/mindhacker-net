@@ -89,9 +89,9 @@ export interface ThemePreset {
 }
 
 const defaultTheme: ThemeSettings = {
-  brand_name: "מיינד OS",
-  brand_name_en: "MindOS",
-  company_legal_name: "MindOS OÜ",
+  brand_name: "AION",
+  brand_name_en: "AION",
+  company_legal_name: "AION OÜ",
   company_country: "Estonia",
   founder_name: "דין אושר אזולאי",
   founder_name_en: "Dean Osher Azulay",

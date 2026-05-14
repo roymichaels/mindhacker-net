@@ -1,5 +1,5 @@
 /**
- * useConversationSearch — search across all Aurora conversations
+ * useConversationSearch — search across all AION conversations
  */
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';

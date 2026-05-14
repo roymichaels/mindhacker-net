@@ -57,7 +57,7 @@ const AuroraInsights = () => {
           <div>
             <h1 className="text-2xl sm:text-3xl font-black cyber-glow flex items-center gap-2">
               <Brain className="h-6 w-6 sm:hidden text-primary" />
-              Aurora Insights
+              AION Insights
             </h1>
             <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               {language === 'he' 

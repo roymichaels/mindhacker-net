@@ -437,7 +437,7 @@ export async function buildContext(
     supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).gte("log_date", new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]).order("log_date", { ascending: false }),
     // Latest recalibration
     supabase.from("recalibration_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
-    // Cross-conversation history: recent USER messages from THIS USER's Aurora conversations only.
+    // Cross-conversation history: recent USER messages from THIS USER's AION conversations only.
     // Exclude assistant briefing-style text so old generated summaries never become facts.
     (async () => {
       const { data: aiConvs } = await supabase.from("conversations").select("id, context").eq("participant_1", userId).eq("type", "ai").order("updated_at", { ascending: false }).limit(10);

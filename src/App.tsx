@@ -110,8 +110,8 @@ const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvat
 // Phase A shell collapse: AIONFloatingWidget retired in favor of shell/AIONPresenceButton.
 // Component file kept under legacy until Phase E cleanup.
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
-const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
-const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
+const AIONWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
+const AIONJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const JournalingHub = lazy(() => import("./pages/JournalingHub"));
 const StrategyPage = lazy(() => import("./pages/StrategyPage"));
 const HypnosisPage = lazy(() => import("./pages/HypnosisPage"));
@@ -209,13 +209,13 @@ const CoachesLayoutWrapper = lazy(() => import('./components/careers/coach/Coach
 const OuterWorldHub = lazy(() => import('./pages/OuterWorldHub'));
 
 // Redirect old /arena/:domainId/* → /play (via /strategy/:domainId/*)
-function StrategyToMindOSRedirect() {
+function StrategyToAIONRedirect() {
   const loc = window.location.pathname + window.location.search;
   const newPath = loc.replace(/^\/strategy/, '/mindos/strategy');
   return <Navigate to={newPath} replace />;
 }
 
-function ArenaToMindOSRedirect() {
+function ArenaToAIONRedirect() {
   const loc = window.location.pathname;
   const newPath = loc.replace(/^\/arena/, '/mindos/strategy');
   return <Navigate to={newPath} replace />;
@@ -411,7 +411,7 @@ const App = () => (
                                                 {/* Strategy domain catch-all */}
                                                 <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
                                                 {renderProtectedRedirectRoutes()}
-                                                <Route path="/arena/:domainId/*" element={<ArenaToMindOSRedirect />} />
+                                                <Route path="/arena/:domainId/*" element={<ArenaToAIONRedirect />} />
                                                 {/* Coaches */}
                                                 <Route path="/coaches" element={<CoachesLayoutWrapper />} />
                                                 {/* Admin Hub */}

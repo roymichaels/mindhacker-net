@@ -423,7 +423,7 @@ export const PILLAR_TOPIC_GROUPS: Record<string, TopicGroup[]> = {
   ],
 };
 
-/* ── Aurora deterministic auto-reply ── */
+/* ── AION deterministic auto-reply ── */
 export function generateAuroraReply(pillar: string, category: string | null, title: string, snippet: string, isHe: boolean): string {
   const summaryTemplates: Record<string, { en: string; he: string }> = {
     'combat': { en: 'Combat thread.', he: 'שרשור לחימה.' },
@@ -445,7 +445,7 @@ export function generateAuroraReply(pillar: string, category: string | null, tit
   const summary = summaryTemplates[pillar] || { en: 'Discussion thread.', he: 'שרשור דיון.' };
 
   if (isHe) {
-    return `🤖 **Aurora**
+    return `🤖 **AION**
 
 🧠 **סיכום:** ${summary.he} "${title}"
 
@@ -454,7 +454,7 @@ export function generateAuroraReply(pillar: string, category: string | null, tit
 🎯 **שאלה:** מה הדבר הראשון שאתה מרגיש ששובר לך את הביצוע — עייפות, חוסר ביטחון, או תזמון?`;
   }
 
-  return `🤖 **Aurora**
+  return `🤖 **AION**
 
 🧠 **Summary:** ${summary.en} "${title}"
 

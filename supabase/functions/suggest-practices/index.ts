@@ -62,7 +62,7 @@ serve(async (req) => {
     const planVision = plansRes.data?.[0]?.vision || "";
     const focusPillars = plansRes.data?.[0]?.focus_pillars || [];
 
-    const prompt = `You are Aurora, an AI life coach. Analyze the user's profile and suggest missing practices they should add.
+    const prompt = `You are AION, an AI life coach. Analyze the user's profile and suggest missing practices they should add.
 
 USER CONTEXT:
 - Selected pillars: ${JSON.stringify(selectedPillars)}
@@ -100,7 +100,7 @@ Return suggestions using the suggest_practices tool.`;
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "You are Aurora, an intelligent life coaching AI. Suggest relevant practices based on user data." },
+          { role: "system", content: "You are AION, an intelligent life coaching AI. Suggest relevant practices based on user data." },
           { role: "user", content: prompt },
         ],
         tools: [{

@@ -45,7 +45,7 @@ export function PDFCoverPage({ userName, language }: PDFCoverPageProps) {
       
       {/* Footer */}
       <div className="absolute bottom-10 text-center">
-        <p className="text-sm text-white/30">MindOS</p>
+        <p className="text-sm text-white/30">AION</p>
       </div>
     </div>
   );

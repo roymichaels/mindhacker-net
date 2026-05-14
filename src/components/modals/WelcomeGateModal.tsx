@@ -38,7 +38,7 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <VisuallyHidden>
-          <DialogTitle>{isRTL ? 'התחברות ל-MindOS' : 'Sign in to MindOS'}</DialogTitle>
+          <DialogTitle>{isRTL ? 'התחברות ל-AION' : 'Sign in to AION'}</DialogTitle>
           <DialogDescription>
             {isRTL ? 'התחבר כדי להתחיל את המסע שלך.' : 'Sign in to start your journey.'}
           </DialogDescription>

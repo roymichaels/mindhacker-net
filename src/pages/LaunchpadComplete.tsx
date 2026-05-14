@@ -223,8 +223,8 @@ export default function LaunchpadComplete() {
 
           <p className="text-muted-foreground">
             {language === 'he'
-              ? 'אורורה ניתחה את כל המידע שלך ויצרה עבורך פרופיל אישי ותוכנית טרנספורמציה'
-              : 'MindOS analyzed all your data and created a personal profile and transformation path for you'}
+              ? 'AION ניתחה את כל המידע שלך ויצרה עבורך פרופיל אישי ותוכנית טרנספורמציה'
+              : 'AION analyzed all your data and created a personal profile and transformation path for you'}
           </p>
 
           {/* Rewards */}

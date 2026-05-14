@@ -1,6 +1,6 @@
 /**
- * useUnreadBadge — tracks unread Aurora proactive messages
- * Shows a badge on the Aurora tab when there are unsent/pending notifications
+ * useUnreadBadge — tracks unread AION proactive messages
+ * Shows a badge on the AION tab when there are unsent/pending notifications
  */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';

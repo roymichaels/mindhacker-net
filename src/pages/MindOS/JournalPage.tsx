@@ -15,7 +15,7 @@ export default function JournalPage() {
             <BookOpen className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">{isHe ? 'יומן MindOS' : 'MindOS Journal'}</h2>
+            <h2 className="text-xl font-bold">{isHe ? 'יומן AION' : 'AION Journal'}</h2>
             <p className="text-sm text-muted-foreground">
               {isHe
                 ? 'חלל אחד לחלומות, רפלקציה והכרת תודה.'

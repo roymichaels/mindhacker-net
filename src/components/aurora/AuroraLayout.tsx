@@ -23,7 +23,7 @@ const AuroraLayout = () => {
 
   const { shouldShowPromo, dismissPromo } = usePromoPopup();
 
-  // Aurora uses default sidebars
+  // AION uses default sidebars
   useSidebars(undefined, undefined);
 
   if (isLoading || launchpadLoading) {

@@ -41,7 +41,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
     registerSendMessage(sendMessage);
   }, [registerSendMessage, sendMessage]);
 
-  // Auto-send pending proactive message when Aurora opens
+  // Auto-send pending proactive message when AION opens
   useEffect(() => {
     if (pendingProactiveMessage && !proactiveHandled.current && conversationId && !isStreaming) {
       proactiveHandled.current = true;

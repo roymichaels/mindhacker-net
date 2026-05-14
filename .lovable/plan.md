@@ -1,89 +1,82 @@
-## Phase G — Brain + Rooms Visualization
+## AION Brand Rebrand — UI/Layer Only
 
-Make `/brain` feel like a navigable consciousness map. Reuse what already works (room registry, `useBrainAtlas`, `useBrainRoom`, `BrainGraphForce`, `BrainNodeSheet`, `inferSoftEdges`, `useBrainFallback`). No mutations, no new shells, no unrelated UI.
+Replace public-facing **MindOS / Aurora / Mind OS / אורורה / מיינד OS** with **AION** across the UI, metadata, and brand assets. Keep all backend code, file names, edge functions, table names, and internal identifiers untouched.
 
-### What's already in place (keep)
-- `src/features/brain/data/useBrainAtlas.ts` → `brain_get_atlas` RPC: per-room aggregates + cross-room edges.
-- `src/features/brain/data/useBrainRoom.ts` → `brain_get_room` RPC: nodes/edges/gaps per room.
-- `src/features/brain/atlas/RoomView.tsx` → already wraps `BrainGraphForce` + `BrainNodeSheet` + gaps list. Solid; only minor polish.
-- `BrainGraphForce` already does force-directed layout with pinch/drag/zoom.
-- `BrainNodeSheet` already a native-feeling bottom sheet.
-- `inferSoftEdges` + `useBrainFallback` already produce client-inferred soft edges.
+### Scope
 
-### What violates the spec today (fix)
-1. `ConsciousnessAtlas.tsx` lays rooms out on a **perfect circle around a center** — explicitly forbidden ("no orbit rings, no perfect circles").
-2. Atlas is rendered inside a scrolling `<main>` with cards above it (`SelfPanel`) and a `<details>` "Full graph (legacy)" + `BrainView` below — reads as a dashboard, not a map.
-3. Only 8 rooms (`beliefs, emotions, parts, time, identity, body, dreams, beyond`). Spec asks for 10 clusters incl. **Journey / Mission**, **Relationships**, **Outer World links**.
-4. Atlas isn't pinch/drag/zoomable; not full-screen; no safe-area top.
-5. Cross-room edges are drawn but only between fixed circle positions — they need to come from the same organic simulation.
+- ~91 source files contain user-facing brand strings (~328 occurrences).
+- Three categories: (1) HTML/PWA metadata, (2) i18n strings, (3) inline JSX/TS labels.
+- Backend, hooks, contexts, file paths, supabase functions: **untouched**.
 
-### Plan
+### 1. Brand assets
 
-#### 1. Atlas becomes an organic force-directed map
-Rewrite `src/features/brain/atlas/ConsciousnessAtlas.tsx` to use the same `useForceLayout` hook that `BrainGraphForce` uses, but at the **room level**:
-- Treat each room as a single super-node (radius scaled by `sqrt(node_count)`, ring opacity = `avg_confidence`, fill = `coverage`, ambience hue from registry).
-- Treat `cross_edges` as the simulation links (weighted). Empty rooms still participate but with weaker links.
-- Add gentle initial seeding (jittered around a poisson-disc-ish layout, not a circle) so the simulation settles into an organic blob, not a wheel.
-- Pan / pinch / zoom mirror `BrainGraphForce` (extract the gesture block into `src/features/brain/useGraphGestures.ts` and reuse in both — small shared hook, no new system).
-- No orbit rings, no decorative particles, no gradients.
-- Tap on a room super-node → existing `onRoomTap(roomId)` (atlas → room view) for implemented rooms; for virtual rooms (#2) → `navigate()` to their canonical surface.
+- Copy uploaded logo → `public/aion-logo.png` (full mark with wordmark) and `src/assets/aion-logo.png` (for component imports).
+- Add `public/aion-icon.png` (cropped ring only) for favicon / PWA icons.
+- Keep existing `aurora-icon.svg` file but stop referencing it from `index.html`.
+- Replace favicon + apple-touch-icon + PWA 192/512 icons with the AION ring.
 
-#### 2. Add 3 virtual "atlas-only" rooms (no new shell, no new route)
-Instead of extending the hallway `RoomId` union (which would force route + surface implementations), add a small adapter file `src/features/brain/atlas/atlasRooms.ts`:
-- Re-exports `listRooms()` from the hallway registry **plus** 3 virtual entries:
-  - `journey` → tagline "Mission & 100-day arc", deep-link `/play`.
-  - `relationships` → tagline "People in your field", deep-link `/messages`.
-  - `outer` → tagline "World you act in", deep-link `/outer-world`.
-- Each virtual room carries `ambience.hue`, copy (he/en), and a `kind: 'virtual' | 'room'` flag.
-- `useBrainAtlas` is left untouched; virtual rooms simply have no entry in `atlas.rooms` (they render as "AION is still learning" until we have aggregates) and tapping them deep-links instead of opening RoomView.
-- `BrainPage.goRoom` keeps current behavior for hallway rooms; virtual rooms route via the deep-link.
+### 2. HTML / SEO / PWA metadata
 
-#### 3. Strip dashboard chrome from `/brain`
-In `src/pages/BrainPage.tsx` (atlas view branch only):
-- Drop `SelfPanel` and the `<details>` "Full graph (legacy)" `BrainView` block — they make Brain look like a dashboard. Keep `BrainView` file for now (still imported by no one after this — leave the file, just unmount).
-- Remove the outer page padding/scroll on the atlas branch and render the `ConsciousnessAtlas` as a full-screen surface (`fixed inset-0` within the chat slot, with `pt-[max(env(safe-area-inset-top),1rem)]` and bottom inset for the composer).
-- `ShellHeader` becomes a translucent overlay (absolute, top, safe-area aware) so the map feels native.
-- RoomView branch keeps the back header + gaps list; only minor padding cleanup.
+Files: `index.html`, `public/manifest.webmanifest`, `src/lib/seo.ts`.
 
-#### 4. Node detail sheet — fill in missing actions
-`BrainNodeSheet` currently exists. Verify and (where missing) add:
-- "What this means" → `node.content` + small humanized type label.
-- "Source / evidence" → `node.source` + link to journal/action if `source_id` present.
-- "Confidence / strength" → existing.
-- "Related nodes" → derived from edges of the active room.
-- "Ask AION about this" → already wired via `onTalkToAion` (sessionStorage handoff).
-- "Correct this" → opens AION composer with a prefilled prompt `"תקן את ההבנה שלך לגבי …"` (read-only handoff, no mutation).
-- "Explore deeper" → triggers `journey.nextAction` capability suggestion via the existing safe-suggest path (no direct mutation).
+- Title → `AION — Your Future Self`
+- Description → AION-centric copy (drop "MindOS"/"Evolve" from public meta).
+- og:site_name, og:title, twitter:title, JSON-LD `name`, `application-name`, `apple-mobile-web-app-title` → `AION`.
+- Manifest `name` / `short_name` / `description` → AION.
+- Favicon link → `/aion-icon.png`.
 
-#### 5. Empty / sparse fallback
-`useBrainFallback` already infers soft edges client-side. Wire the same logic at the **atlas level**: if `atlas.rooms` is empty or `atlas.cross_edges.length === 0`, render rooms anyway, sized by a heuristic (count of related nodes from any cached room queries), and label every empty room with the existing "AION עדיין חוקר / AION exploring" string. No empty/blank dashboard ever.
+### 3. i18n strings (Hebrew + English)
 
-#### 6. Acceptance checks (manual, after code lands)
-- Open `/brain` → full-screen organic map, no perfect circle, no decorative rings, safe-area respected.
-- 10 room clusters visible (8 real + 3 virtual) with ambience-tinted colors.
-- Pinch + drag + zoom feel native on the 402px viewport.
-- Tap a real room → `RoomView` with internal force-graph + gaps list.
-- Tap Journey/Relationships/Outer → deep-link to `/play`, `/messages`, `/outer-world`.
-- Tap a node → bottom sheet with all 6 sections; "Ask AION" hands off via sessionStorage; "Correct" / "Explore" route through existing safe-suggest pipeline (no DB writes).
-- Sparse user: every room visible with "AION exploring" hint; soft edges inferred; no blank dashboard.
+Files: `src/i18n/translations/he.ts`, `src/i18n/translations/en.ts`.
 
-### Files touched
+Find/replace user-visible values only (not keys):
+- `Aurora`, `Aurora AI`, `MindOS`, `Mind OS` → `AION`
+- `אורורה`, `מיינד OS`, `המיינד OS`, `מערכת MindOS` → `AION`
+- Sentences like "אורורה חושבת..." → "AION חושב..." (masculine, matches existing AION persona rules).
 
-```text
-ADD     src/features/brain/atlas/atlasRooms.ts          (virtual room adapter)
-ADD     src/features/brain/useGraphGestures.ts          (shared pinch/drag/zoom hook)
-EDIT    src/features/brain/atlas/ConsciousnessAtlas.tsx (force-directed rewrite, full-screen, gestures)
-EDIT    src/features/brain/atlas/RoomView.tsx           (minor padding / safe-area)
-EDIT    src/features/brain/BrainGraphForce.tsx          (use shared gesture hook)
-EDIT    src/features/brain/BrainNodeSheet.tsx           (add missing actions: correct / explore / related)
-EDIT    src/pages/BrainPage.tsx                         (drop SelfPanel + legacy BrainView block, full-screen atlas, overlay header)
-EDIT    docs/CLEANUP_REPORT.md                          (Phase G acceptance log)
-```
+### 4. Inline UI labels
 
-No DB migrations. No edge function changes. No new routes. No mutations.
+Sweep through visible string literals in:
+
+- **Shell**: `src/shellv2/ShellV2.tsx`, `ShellV2Header.tsx`, `ShellV2Drawer.tsx`, `layers/ChromeLayer.tsx`, `layers/ChatLayer.tsx`.
+- **Pages**: `MindOSPage.tsx` (header text only — keep filename), `MindOS/JournalPage.tsx`, `Blog.tsx`, `BlogPost.tsx`, `Documentation.tsx`, `Install.tsx`, `Learn.tsx`, `LaunchpadComplete.tsx`, `Community.tsx`, `MessageThread.tsx`, `NotFound.tsx`, `Unsubscribe.tsx`, `PractitionerProfile.tsx`, `CourseDetail.tsx`, `FeatureDetailPage.tsx`, `pillars/PresenceHome.tsx`, `fm/FMMarket.tsx`, `fm/FMBridge.tsx`.
+- **Components**: `aurora/AuroraDock.tsx`, `orb/AIONFloatingWidget.tsx`, `orb/AIONChatPanel.tsx`, `community/*`, `fm/FMOnboarding.tsx`, `fm/FMAuroraCard.tsx` (label only), `modals/WelcomeGateModal.tsx`, `modals/UserDocsModal.tsx`, `subscription/*Modal.tsx`, `pillars/DomainAssessChat.tsx`, `missions/MiniMilestoneModal.tsx`, `pdf/PDFCoverPage.tsx`, `docs/VisualWhitepaper.tsx`, `founding/FoundingPlatformDeep.tsx`, `profile/TransformationReportCard.tsx`, `story/StorySurfaceHost.tsx`.
+- **Brain**: `features/brain/BrainView.tsx` → "AION is building your map" / "AION בונה לך את המפה".
+- **Data files**: `data/galleryOrbData.ts`, `data/featureShowcaseData.ts`, `data/featureDetailData.ts`, `meta/appMap.ts`, `navigation/canonicalSurfaces.ts`, `flows/onboardingFlowSpec.ts`, `flows/pillarSpecs/mindQuestSpec.ts`, `lib/storyWorld.ts`, `lib/subscriptionTiers.ts`, `lib/tools/extractDomainProfile.ts`, `lib/pdfGenerator.ts`, `lib/flowAudit.ts`, `lib/stripReasoning.ts`, `config/tokenomics.ts` — replace display strings only.
+- **Misc**: `utils/calendarExport.ts` (event titles), `services/unifiedContext.ts` (system text shown to user), `hooks/usePWA.ts`, `hooks/useThemeSettings.ts` defaults, `App.tsx` document.title.
+
+### 5. Menu / header / chat labels
+
+- App header brand → AION wordmark image (small) + "AION" text.
+- Drawer header → AION logo.
+- Chat thread label → use `useAIONDisplayName()` (already returns AION fallback) — replace any hard-coded "Aurora"/"MindOS" labels with that hook's `displayName`.
+- `MindOSPage` tab `key: 'chat'` already shows `aionName` — keep; rebrand surrounding `h1` from "MindOS" → "AION" and update subtitle copy.
+
+### 6. Explicitly NOT touched
+
+- File/folder names (`MindOSPage.tsx`, `pages/MindOS/*`, `aurora-chat`, `useAuroraChat`, `AuroraChatContext`, `aurora-icon.svg`, edge functions `aurora-*`, `mindos-sw-reset-version` localStorage key, `__MINDOS_BOOTSTRAP__`).
+- All Supabase tables, RPC names, edge function URLs.
+- Internal types, hook names, context names, route paths (`/mindos/*` routes stay; only their displayed labels change).
+- `_legacy/`, `docs/`, `mem/`, `management/`, `openclaw-workspace/`, `supabase/functions/` — internal only.
+- `DEPLOYMENT.md`, comments, JSDoc.
+
+### 7. Verification
+
+- Grep `src/` for `MindOS|Mind OS|Aurora AI|Aurora|אורורה|מיינד` after edits — every remaining hit must be either (a) an identifier/import/path/comment, or (b) explicitly listed as intentional internal.
+- Manual preview check on: home, /mindos/chat, /brain, /community, drawer, install prompt, PWA add-to-home title.
+- Verify `<title>`, og tags, manifest in DevTools.
+
+### 8. Deliverable
+
+Single batched edit pass producing:
+- updated `index.html`, `manifest.webmanifest`, copied logo assets
+- updated i18n files
+- updated visible JSX/TS strings across the file list above
+- a final report listing: files changed, count of replacements, intentional internal residue (file paths, hooks, edge functions), and any preview screenshots of header/drawer/Brain/PWA title.
 
 ### Risks
-- Force-layout at room scale (~10 super-nodes) is cheap, but seeding matters — bad seeding can collapse all rooms to the center for a frame. Mitigation: deterministic jittered grid seed before first tick.
-- Removing `SelfPanel` from `/brain` may surprise users who relied on it; it remains accessible via `/brain?panel=profile` (already wired) and the profile modal.
-- Virtual rooms have no `brain_get_atlas` aggregates → they always render as "exploring" until we extend the RPC. Acceptable for Phase G (read-only visualization step); a follow-up phase can light them up.
-- Pinch/zoom on iOS Safari occasionally fights the page scroll — the atlas full-screen surface uses `touch-none` on the SVG layer to avoid that; `RoomView` already does the same.
+
+- Over-replacement could break a route name or storage key — mitigated by replacing **string literals shown to users only**, never identifiers.
+- Hebrew gender agreement: "אורורה" was feminine; "AION" treated as masculine per existing AION identity standard — adjust verbs in copied sentences.
+- SEO churn: canonical URL stays `mindos.space` (domain unchanged); only displayed brand changes. If you want the canonical/domain rebrand too, that's a separate task.
+- Some marketing pages (Blog, FoundingPlatformDeep, VisualWhitepaper) carry long-form copy referencing "MindOS as the AI layer of Evolve" — those sentences will be rewritten to AION-centric phrasing, which is a light copy edit, not just a token swap. Flag if you'd prefer to preserve original marketing narrative and only swap the brand token.

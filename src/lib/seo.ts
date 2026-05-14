@@ -130,8 +130,8 @@ export const addStructuredData = (data: StructuredData | StructuredData[]) => {
 export const getOrganizationSchema = (brand?: BrandSettings): StructuredData => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: brand?.brandName || 'מיינד OS',
-  alternateName: brand?.brandNameEn || 'Mind OS',
+  name: brand?.brandName || 'AION',
+  alternateName: brand?.brandNameEn || 'AION',
   url: brand?.siteUrl || window.location.origin,
   logo: brand?.ogImageUrl || 'https://mindos.space/og-image.png',
   description: 'פלטפורמת התפתחות אישית מבוססת AI - אימון תודעתי, היפנוזה מותאמת וגיימיפיקציה',
@@ -218,8 +218,8 @@ export const getProductSchema = (product: {
 export const getWebsiteSchema = (brand?: BrandSettings): StructuredData => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: brand?.brandName || 'מיינד OS',
-  alternateName: brand?.brandNameEn || 'Mind OS',
+  name: brand?.brandName || 'AION',
+  alternateName: brand?.brandNameEn || 'AION',
   url: brand?.siteUrl || window.location.origin,
   potentialAction: {
     '@type': 'SearchAction',

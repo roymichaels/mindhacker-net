@@ -42,7 +42,7 @@ const LABELS: Record<FMPublishType, { en: string; he: string; icon: string }> = 
 function getSystemPrompt(type: FMPublishType, isHe: boolean): string {
   if (isHe) {
     const typeMap: Record<FMPublishType, string> = {
-      service: `אתה Aurora, עוזרת AI שעוזרת למשתמש לפרסם שירות חדש במרקט.
+      service: `אתה AION, עוזרת AI שעוזרת למשתמש לפרסם שירות חדש במרקט.
 אספי את המידע הבא דרך שיחה טבעית (שאלה אחת בכל פעם):
 1. כותרת השירות
 2. תיאור מפורט - מה כולל השירות
@@ -52,7 +52,7 @@ function getSystemPrompt(type: FMPublishType, isHe: boolean): string {
 כשיש לך מספיק מידע, סכמי את הפרטים ושאלי "הכל נכון?" והוסיפי [READY] בסוף.
 בתשובת [READY] הוסיפי גם את ה-JSON הבא בשורה נפרדת:
 [DATA]{"title":"...","description":"...","category":"...","budget_mos":...}[/DATA]`,
-      bounty: `אתה Aurora, עוזרת AI שעוזרת למשתמש ליצור באונטי (משימה עם תגמול) חדש.
+      bounty: `אתה AION, עוזרת AI שעוזרת למשתמש ליצור באונטי (משימה עם תגמול) חדש.
 אספי את המידע הבא דרך שיחה טבעית (שאלה אחת בכל פעם):
 1. כותרת הבאונטי - מה המשימה
 2. תיאור מפורט - מה צריך לעשות
@@ -63,7 +63,7 @@ function getSystemPrompt(type: FMPublishType, isHe: boolean): string {
 כשיש לך מספיק מידע, סכמי את הפרטים ושאלי "הכל נכון?" והוסיפי [READY] בסוף.
 בתשובת [READY] הוסיפי גם:
 [DATA]{"title":"...","description":"...","category":"...","reward_mos":...,"estimated_minutes":...}[/DATA]`,
-      marketplace: `אתה Aurora, עוזרת AI שעוזרת למשתמש לפרסם פריט במרקטפלייס.
+      marketplace: `אתה AION, עוזרת AI שעוזרת למשתמש לפרסם פריט במרקטפלייס.
 אספי את המידע הבא דרך שיחה טבעית (שאלה אחת בכל פעם):
 1. שם הפריט
 2. תיאור - מה הפריט כולל
@@ -78,7 +78,7 @@ function getSystemPrompt(type: FMPublishType, isHe: boolean): string {
   }
 
   const typeMap: Record<FMPublishType, string> = {
-    service: `You are Aurora, an AI assistant helping the user publish a new service on the marketplace.
+    service: `You are AION, an AI assistant helping the user publish a new service on the marketplace.
 Gather the following through natural conversation (one question at a time):
 1. Service title
 2. Detailed description - what's included
@@ -88,7 +88,7 @@ Gather the following through natural conversation (one question at a time):
 When you have enough info, summarize and ask "Does this look right?" and add [READY] at the end.
 In the [READY] message, also include on a separate line:
 [DATA]{"title":"...","description":"...","category":"...","budget_mos":...}[/DATA]`,
-    bounty: `You are Aurora, an AI assistant helping the user create a new bounty (task with reward).
+    bounty: `You are AION, an AI assistant helping the user create a new bounty (task with reward).
 Gather the following through natural conversation (one question at a time):
 1. Bounty title - what's the task
 2. Detailed description - what needs to be done
@@ -99,7 +99,7 @@ Gather the following through natural conversation (one question at a time):
 When you have enough info, summarize and ask "Does this look right?" and add [READY] at the end.
 In the [READY] message, also include:
 [DATA]{"title":"...","description":"...","category":"...","reward_mos":...,"estimated_minutes":...}[/DATA]`,
-    marketplace: `You are Aurora, an AI assistant helping the user list an item on the marketplace.
+    marketplace: `You are AION, an AI assistant helping the user list an item on the marketplace.
 Gather the following through natural conversation (one question at a time):
 1. Item name
 2. Description - what's included
@@ -303,7 +303,7 @@ export default function FMPublishWizard({ open, onOpenChange, type }: FMPublishW
       <AlertDialogContent className="max-w-lg p-0 gap-0 overflow-hidden flex flex-col" style={{ maxHeight: '85vh' }}>
         <AlertDialogTitle className="sr-only">{isHe ? label.he : label.en}</AlertDialogTitle>
         <AlertDialogDescription className="sr-only">
-          {isHe ? 'אשף פרסום עם Aurora' : 'Aurora-powered publish wizard'}
+          {isHe ? 'אשף פרסום עם AION' : 'Aurora-powered publish wizard'}
         </AlertDialogDescription>
 
         {/* Header */}
@@ -315,7 +315,7 @@ export default function FMPublishWizard({ open, onOpenChange, type }: FMPublishW
             <span className="text-lg">{label.icon}</span>
             <div>
               <h2 className="text-sm font-bold text-foreground">{isHe ? label.he : label.en}</h2>
-              <p className="text-[10px] text-muted-foreground">{isHe ? 'Aurora תעזור לך' : 'Aurora will guide you'}</p>
+              <p className="text-[10px] text-muted-foreground">{isHe ? 'AION תעזור לך' : 'AION will guide you'}</p>
             </div>
           </div>
         </div>

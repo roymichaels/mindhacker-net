@@ -90,7 +90,7 @@ export function useLaunchpadAutoSave() {
             deep_dive: data,
           };
           break;
-        case 5: // First Chat with Aurora
+        case 5: // First Chat with AION
           updates.step_2_summary = JSON.stringify(data);
           break;
         case 8: // Focus Areas
@@ -202,7 +202,7 @@ export function useLaunchpadAutoSave() {
             dbData = { answers: launchpadData.deepDive };
           }
           break;
-        case 5: // First Chat with Aurora
+        case 5: // First Chat with AION
           if (launchpadData.firstChat) {
             dbData = launchpadData.firstChat as Record<string, unknown>;
           }

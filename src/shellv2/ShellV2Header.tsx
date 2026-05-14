@@ -2,8 +2,8 @@
  * ShellV2Header — fixed top chrome for ShellV2 routes.
  *
  * Visual source: header block of `src/components/dashboard/DashboardLayout.tsx`
- * (orb-left brand badge, centered "מיינד OS" title, hamburger right).
- * Architecture: zero legacy deps — no AppNameDropdown, no MindOSSheet, no
+ * (orb-left brand badge, centered "AION" title, hamburger right).
+ * Architecture: zero legacy deps — no AppNameDropdown, no AIONSheet, no
  * dashboard logic. Hamburger and orb both open ShellV2Drawer via
  * OverlayController.
  */
@@ -23,7 +23,7 @@ export default function ShellV2Header() {
   const { language, isRTL } = useTranslation();
   const [brandOpen, setBrandOpen] = useState(false);
   const [playerOpen, setPlayerOpen] = useState(false);
-  const brand = 'MindOS';
+  const brand = 'AION';
   const isHe = language === 'he';
 
   return (

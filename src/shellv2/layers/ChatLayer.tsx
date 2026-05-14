@@ -6,7 +6,7 @@
  *  - `ArtifactLayer`      — inline summon-able artifacts (artifactBus)
  *
  * No composer here (Phase 3). No legacy chrome, no DashboardLayout, no
- * HubModalHost, no MindOSSheet. Providers (AuroraChat, AION, Environment,
+ * HubModalHost, no AIONSheet. Providers (AuroraChat, AION, Environment,
  * AionDecision) are mounted in `App.tsx` and reach this layer through the
  * normal React tree.
  */

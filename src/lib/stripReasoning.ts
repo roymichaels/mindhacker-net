@@ -27,7 +27,7 @@ const PREAMBLES: RegExp[] = [
   /^\s*chain of thought\b.*$/i,
   /^\s*בואו? (לחשוב|לבדוק|נחשוב|נבדוק)\b.*$/,
   /^\s*המערכת אומרת\b.*$/,
-  /^\s*כאורורה\b.*$/,
+  /^\s*כAION\b.*$/,
 ];
 
 export function stripReasoning(text: string | null | undefined): string {

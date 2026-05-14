@@ -4,8 +4,8 @@ export const tokenomicsConfig = {
     totalSupply: 100_000_000,
     rate: '100 MOS = $1.00',
     description: {
-      en: 'MOS is the native utility token of the MindOS ecosystem. It powers payments, rewards, access, and marketplace activity. MOS is earned through growth and contribution — not mining.',
-      he: 'MOS הוא טוקן השימוש המקומי של אקוסיסטם MindOS. הוא מניע תשלומים, תגמולים, גישה ופעילות בשוק. MOS מרוויחים דרך צמיחה ותרומה — לא כרייה.',
+      en: 'MOS is the native utility token of the AION ecosystem. It powers payments, rewards, access, and marketplace activity. MOS is earned through growth and contribution — not mining.',
+      he: 'MOS הוא טוקן השימוש המקומי של אקוסיסטם AION. הוא מניע תשלומים, תגמולים, גישה ופעילות בשוק. MOS מרוויחים דרך צמיחה ותרומה — לא כרייה.',
     },
   },
 
@@ -38,7 +38,7 @@ export const tokenomicsConfig = {
     { icon: 'GraduationCap', en: 'Coaching', he: 'אימון', descEn: 'Unlock premium coaching sessions.', descHe: 'גישה למפגשי אימון פרמיום.' },
     { icon: 'Unlock', en: 'Feature Unlocks', he: 'פתיחת תכונות', descEn: 'Access advanced tools and AI modes.', descHe: 'גישה לכלים מתקדמים ומצבי AI.' },
     { icon: 'Zap', en: 'Boosts', he: 'שיפורים', descEn: 'Accelerate progress with power-ups.', descHe: 'האץ התקדמות עם חיזוקים.' },
-    { icon: 'Globe', en: 'Ecosystem Access', he: 'גישה לאקוסיסטם', descEn: 'Full participation in the MindOS economy.', descHe: 'השתתפות מלאה בכלכלת MindOS.' },
+    { icon: 'Globe', en: 'Ecosystem Access', he: 'גישה לאקוסיסטם', descEn: 'Full participation in the AION economy.', descHe: 'השתתפות מלאה בכלכלת AION.' },
   ],
 
   earningSources: [
@@ -97,8 +97,8 @@ export const tokenomicsConfig = {
 
   dataContribution: {
     description: {
-      en: 'Users can opt in to share anonymized behavioral data with the MindOS research layer and earn MOS in return. This is always optional, fully anonymized, and user-controlled.',
-      he: 'משתמשים יכולים להצטרף לשיתוף נתונים התנהגותיים אנונימיים עם שכבת המחקר של MindOS ולהרוויח MOS בתמורה. זה תמיד אופציונלי, אנונימי לחלוטין ובשליטת המשתמש.',
+      en: 'Users can opt in to share anonymized behavioral data with the AION research layer and earn MOS in return. This is always optional, fully anonymized, and user-controlled.',
+      he: 'משתמשים יכולים להצטרף לשיתוף נתונים התנהגותיים אנונימיים עם שכבת המחקר של AION ולהרוויח MOS בתמורה. זה תמיד אופציונלי, אנונימי לחלוטין ובשליטת המשתמש.',
     },
     principles: [
       { en: 'Opt-in only — never default-enabled.', he: 'הסכמה בלבד — אף פעם לא מופעל כברירת מחדל.' },

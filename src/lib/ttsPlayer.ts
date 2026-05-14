@@ -1,5 +1,5 @@
 /**
- * ttsPlayer — Shared TTS playback engine used by Aurora chat, voice mode, and lessons.
+ * ttsPlayer — Shared TTS playback engine used by AION chat, voice mode, and lessons.
  * Handles chunking, nikud stripping, ElevenLabs calls, and browser fallback.
  */
 

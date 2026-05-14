@@ -1,5 +1,5 @@
 /**
- * StoriesStrip — Horizontal scrollable strip with AI stories (MindOS/Aurora) + user stories.
+ * StoriesStrip — Horizontal scrollable strip with AI stories (AION/Aurora) + user stories.
  * AI-generated stories appear first with branded bubbles; user stories follow.
  */
 import { useState } from 'react';
@@ -122,8 +122,8 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
     return acc;
   }, []);
 
-  // Get latest MindOS and Aurora stories
-  const latestMindOS = aiStories.find(s => s.source === 'mindos');
+  // Get latest AION and AION stories
+  const latestAION = aiStories.find(s => s.source === 'mindos');
   const latestAurora = aiStories.find(s => s.source === 'aurora');
 
   const navigateUserStory = (dir: 1 | -1) => {
@@ -147,8 +147,8 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
           <span className="text-[10px] font-medium text-muted-foreground">{isHe ? 'סטורי' : 'Story'}</span>
         </button>
 
-        {/* MindOS AI Story Bubble */}
-        {latestMindOS && (
+        {/* AION AI Story Bubble */}
+        {latestAION && (
           <button
             onClick={() => {
               setAiViewerIndex(0);
@@ -158,17 +158,17 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
           >
             <div className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-br from-primary via-violet-500 to-fuchsia-500 relative">
               <div className="w-full h-full rounded-full overflow-hidden border-2 border-background relative">
-                <img src={latestMindOS.media_url} alt="MindOS" className="w-full h-full object-cover" />
+                <img src={latestAION.media_url} alt="AION" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                   <span className="text-white font-black text-lg">M</span>
                 </div>
               </div>
             </div>
-            <span className="text-[10px] font-bold text-primary">MindOS</span>
+            <span className="text-[10px] font-bold text-primary">AION</span>
           </button>
         )}
 
-        {/* Aurora AI Story Bubble */}
+        {/* AION Story Bubble */}
         {latestAurora && (
           <button
             onClick={() => {
@@ -183,7 +183,7 @@ export default function StoriesStrip({ pillarFilter = 'all', topicFilter, onCrea
                 <StandaloneMorphOrb size={40} profile={AURORA_ORB_PROFILE} geometryFamily="octa" level={100} />
               </div>
             </div>
-            <span className="text-[10px] font-bold text-violet-400">Aurora</span>
+            <span className="text-[10px] font-bold text-violet-400">AION</span>
           </button>
         )}
 

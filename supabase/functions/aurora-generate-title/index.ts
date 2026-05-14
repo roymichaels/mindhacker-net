@@ -96,7 +96,7 @@ ${relevantMessages}`;
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Aurora generate title error:", error);
+    console.error("AION generate title error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({ error: message }),
