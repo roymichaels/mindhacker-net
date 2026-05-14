@@ -133,9 +133,6 @@ export default function BrainView({ onTalkToAion }: Props) {
           <RefreshCw className={`h-4 w-4 ${backfill.isPending ? "animate-spin" : ""}`} />
           {backfill.isPending ? (isRTL ? "בונה…" : "Building…") : (isRTL ? "בנה את המוח שלי" : "Build my brain")}
         </button>
-        <div className="w-full max-w-md">
-          <BrainBackfillDebug result={backfill.data} />
-        </div>
       </div>
     );
   }
