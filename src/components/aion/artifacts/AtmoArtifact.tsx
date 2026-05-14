@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useAionManifestation } from "@/components/aion/manifestation";
 
 export type AtmoArtifactKind = "default" | "read" | "plan" | "confirm" | "warn";
 
@@ -21,6 +22,8 @@ interface AtmoArtifactProps {
   title?: ReactNode;
   /** Optional micro source row anchored at the bottom. */
   source?: ReactNode;
+  /** Opt-in manifestation lifecycle. Provide a stable id per card. */
+  artifactId?: string;
 }
 
 /**
@@ -34,11 +37,21 @@ export function AtmoArtifact({
   breathing = false,
   title,
   source,
+  artifactId,
 }: AtmoArtifactProps) {
+  const { phase, reducedMotion } = useAionManifestation(artifactId, kind);
+  const lifecycleClass = artifactId
+    ? phase === "manifesting"
+      ? reducedMotion ? "aion-manifest-reduced-in" : "aion-manifest-in"
+      : phase === "dissolving"
+      ? reducedMotion ? "aion-manifest-reduced-out" : "aion-manifest-out"
+      : ""
+    : "animate-aion-emerge";
   return (
     <div
       className={cn(
-        "atmo-surface animate-aion-emerge relative",
+        "atmo-surface relative",
+        lifecycleClass,
         GLOW[kind],
         breathing && "animate-aion-breath",
         "p-5 sm:p-6",
