@@ -6,9 +6,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
-import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { useOrbProfile } from '@/hooks/useOrbProfile';
-import { useXpProgress } from '@/hooks/useGameState';
+import OrbView from '@/components/orb/v2/OrbView';
 import { TTSPlayer } from './TTSPlayer';
 import { stripReasoning } from '@/lib/stripReasoning';
 
@@ -53,8 +51,6 @@ const AIONMessage = ({
 }: AIONMessageProps) => {
   const { t, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
-  const { profile: orbProfile } = useOrbProfile();
-  const { level } = useXpProgress();
   
   const { cleanContent, ctas } = extractCTAs(content);
 
@@ -77,9 +73,14 @@ const AIONMessage = ({
         "flex gap-3",
         isOwn && "flex-row-reverse"
       )}>
-        {/* Avatar - AION's personalized orb */}
+        {/* Avatar — canonical AION orb (live state) */}
         {!isOwn && (
-          <StandaloneMorphOrb size={32} profile={orbProfile} geometryFamily={orbProfile.geometryFamily || 'sphere'} level={level} />
+          <OrbView
+            size={32}
+            state={isStreaming ? 'thinking' : 'idle'}
+            tier="presence"
+            className="flex-shrink-0 self-start"
+          />
         )}
 
         {/* Message Bubble */}
