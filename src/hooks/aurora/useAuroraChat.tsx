@@ -266,6 +266,41 @@ export const useAuroraChat = (conversationId: string | null) => {
       classifyIntent(content, typeof window !== 'undefined' ? window.location.pathname : null);
       detectEmotion([...recentUserMsgs, content]);
       tracer.mark('sense.dispatched');
+
+      // Phase F P1 — Observe-mode router. Picks a capability candidate and
+      // emits trace events. NEVER mutates plans, actions, or artifacts.
+      try {
+        const { routeObserve } = await import('@/orchestration/router/observeRouter');
+        const decision = routeObserve({
+          content,
+          route: typeof window !== 'undefined' ? window.location.pathname : null,
+          language,
+        });
+        if (decision.capability) {
+          tracer.mark('capability.candidate', {
+            capability: decision.capability,
+            mode: decision.mode,
+            reason: decision.reason,
+            matched: decision.matchedKeywords,
+          });
+          if (decision.artifactKind) {
+            tracer.mark('artifact.candidate', {
+              kind: decision.artifactKind,
+              capability: decision.capability,
+              would_emit: false,
+              skipped_reason: 'phase-1-observe-only',
+            });
+          }
+          tracer.mark('capability.skipped', {
+            capability: decision.capability,
+            reason: decision.skippedReason ?? 'observe-mode',
+          });
+        } else {
+          tracer.mark('capability.skipped', { reason: decision.reason });
+        }
+      } catch (e) {
+        tracer.mark('router.error', { error: (e as Error)?.message ?? 'unknown' });
+      }
     } catch (e) {
       console.warn('[aion-skills] dispatch failed', e);
     }
