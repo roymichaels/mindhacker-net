@@ -15,14 +15,14 @@ const AIONTypingIndicator = () => {
     <div className="flex gap-2 animate-fade-in">
       <StandaloneMorphOrb size={32} profile={profile} geometryFamily={profile.geometryFamily || 'sphere'} level={level} />
       
-      <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-        <p className="mb-2 text-xs font-medium text-muted-foreground">
+      <div className="atmo-surface-soft px-4 py-3 dark:aion-glow-cyan animate-aion-emerge">
+        <p className="mb-2 text-xs font-medium text-foreground/55">
           {isHe ? `${aionName} כותב...` : `${aionName} is typing...`}
         </p>
         <div className="flex items-center gap-1">
-          <span className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <span className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <span className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-cyan/70 bg-foreground/40 dark:aion-glow-cyan" />
+          <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-blue/70 bg-foreground/40" style={{ animationDelay: '300ms' }} />
+          <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-violet/70 bg-foreground/40 dark:aion-glow-violet" style={{ animationDelay: '600ms' }} />
         </div>
       </div>
     </div>
