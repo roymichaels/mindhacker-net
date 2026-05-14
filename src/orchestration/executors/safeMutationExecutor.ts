@@ -1,26 +1,31 @@
 /**
- * AION Safe Mutation Executor — Phase F · Step 4.
+ * AION Safe Mutation Executor — Phase 3 · Batch 1 (Controlled Real Execution).
  *
- * Performs the *minimal* set of mutations AION may execute AFTER explicit
- * user confirmation through a `confirm` artifact. Anything outside this
- * allow-list returns `{ ok:false, source:'preview', skippedReason:'no-mutation-endpoint' }`
- * so the caller can log `mutation.skipped` and behave as preview-only.
+ * Performs the *minimal* set of real mutations AION may execute AFTER explicit
+ * user confirmation through a `confirm` artifact. Anything outside the
+ * `ALLOWED_REAL` allow-list — or that lacks a canonical endpoint/table —
+ * returns `{ ok:false, source:'preview', skippedReason:... }` so the caller
+ * logs `mutation.skipped` and the UI stays preview-only.
  *
- * Allow-list (Phase F · Step 4):
- *   - journal.capture    → insert into `journal_entries` (source:'aion')
- *   - action.complete    → set `action_items.status='done'` for an existing row
- *   - hypnosis.start     → preview-only (no canonical start endpoint yet)
+ * Phase 3 · Batch 1 — allowed real mutations:
+ *   - journal.capture      → insert into `journal_entries` (source:'aion')
+ *   - action.complete      → set `action_items.status='done'` on existing row
+ *   - work.startSession    → insert into `work_sessions`
+ *   - schedule.block       → insert into `action_items` (schedule_block metadata)
+ *   - message.send         → insert into `messages` (existing conversation)
+ *   - hypnosis.start       → preview-only (no canonical start endpoint yet)
  *
- * Disabled (still observe/suggest only):
- *   plan.create, plan.restart, plan.delete, action.create, mission.create,
- *   habit.create, identity.updateProfile, landing.generate, business.createDraft.
+ * Disabled (router may still suggest, executor refuses):
+ *   plan.create, plan.restart, plan.delete, business.createDraft,
+ *   landing.generate, curriculum.generate, fm.listing.create, checkout.create,
+ *   subscription.portal, wallet.mint, identity.updateProfile, avatar.configure,
+ *   tts.speak, action.create, mission.create, habit.create.
  */
 import { supabase } from '@/integrations/supabase/client';
 import { createJournalEntry } from '@/services/journalEntries';
 import { completeAction } from '@/services/actionItems';
 import type { CapabilityId } from '@/orchestration/capabilities/registry';
 import { startWorkSession } from '@/services/workSessions';
-import { previewTTS } from '@/services/ttsSpeak';
 
 export interface MutationInput {
   userId: string;
@@ -43,19 +48,55 @@ export interface MutationResult {
   skippedReason?: string;
 }
 
-const ALLOWED: ReadonlySet<CapabilityId> = new Set<CapabilityId>([
+/** Phase 3 · Batch 1 — strict allow-list of real-mutation capabilities. */
+const ALLOWED_REAL: ReadonlySet<CapabilityId> = new Set<CapabilityId>([
   'journal.capture',
   'action.complete',
-  'hypnosis.start',
-  // Phase 2 · Batch 3
-  'fm.listing.create',
-  'message.send',
-  'subscription.portal',
-  'checkout.create',
-  'tts.speak',
   'work.startSession',
   'schedule.block',
+  'message.send',
+  // hypnosis.start is allowed by spec but has no canonical endpoint yet —
+  // handler returns preview-only with skippedReason='no-mutation-endpoint'.
+  'hypnosis.start',
 ]);
+
+/** Capabilities explicitly disabled in Phase 3 · Batch 1 (router may still suggest). */
+const DISABLED_BATCH1: ReadonlySet<CapabilityId> = new Set<CapabilityId>([
+  'plan.create' as CapabilityId,
+  'plan.restart' as CapabilityId,
+  'plan.delete' as CapabilityId,
+  'business.createDraft' as CapabilityId,
+  'landing.generate' as CapabilityId,
+  'curriculum.generate' as CapabilityId,
+  'fm.listing.create' as CapabilityId,
+  'checkout.create' as CapabilityId,
+  'subscription.portal' as CapabilityId,
+  'wallet.mint' as CapabilityId,
+  'identity.updateProfile' as CapabilityId,
+  'avatar.configure' as CapabilityId,
+  'tts.speak' as CapabilityId,
+]);
+
+// ── Lightweight payload validators (no external dep). ────────────────────
+function vJournal(input: MutationInput): { ok: true; content: string } | { ok: false; reason: string } {
+  const content = (input.message ?? '').trim();
+  if (!content) return { ok: false, reason: 'empty-content' };
+  if (content.length > 4000) return { ok: false, reason: 'content-too-long' };
+  return { ok: true, content };
+}
+function vTitle(input: MutationInput, fallback: string): string {
+  const t = (input.message ?? '').trim().slice(0, 80);
+  return t || fallback;
+}
+function vMessageSend(input: MutationInput): { ok: true; conversationId: string; content: string } | { ok: false; reason: string } {
+  const conversationId = (input.targetId ?? '').trim();
+  const content = (input.message ?? '').trim();
+  if (!conversationId) return { ok: false, reason: 'missing-conversation' };
+  if (!/^[0-9a-f-]{36}$/i.test(conversationId)) return { ok: false, reason: 'invalid-conversation-id' };
+  if (!content) return { ok: false, reason: 'empty-content' };
+  if (content.length > 2000) return { ok: false, reason: 'content-too-long' };
+  return { ok: true, conversationId, content };
+}
 
 const now = () => Date.now();
 
@@ -64,13 +105,23 @@ export async function executeMutationCapability(
   input: MutationInput,
 ): Promise<MutationResult> {
   const t0 = now();
-  if (!ALLOWED.has(capability)) {
+
+  // Disabled-by-policy capabilities short-circuit BEFORE any DB call.
+  if (DISABLED_BATCH1.has(capability)) {
+    return {
+      ok: false, capability, source: 'preview',
+      durationMs: now() - t0,
+      summary: 'תצוגה מקדימה בלבד — הפעולה הזאת מושבתת כרגע.',
+      skippedReason: 'disabled-by-policy',
+    };
+  }
+  if (!ALLOWED_REAL.has(capability)) {
     return {
       ok: false,
       capability,
       source: 'preview',
       durationMs: now() - t0,
-      summary: 'Capability not in allow-list.',
+      summary: 'הפעולה אינה ברשימת הפעולות המאושרות.',
       skippedReason: 'not-allowed',
     };
   }
@@ -84,19 +135,17 @@ export async function executeMutationCapability(
   try {
     switch (capability) {
       case 'journal.capture': {
-        const content = (input.message ?? '').trim();
-        if (!content) {
-          return {
-            ok: false, capability, source: 'preview',
-            durationMs: now() - t0, summary: 'אין תוכן ליומן.', skippedReason: 'empty-content',
-          };
+        const v = vJournal(input);
+        if (!v.ok) {
+          return { ok: false, capability, source: 'preview',
+            durationMs: now() - t0, summary: 'התוכן ליומן אינו תקין.', skippedReason: v.reason };
         }
         const entry = await createJournalEntry({
           user_id: input.userId,
           journal_type: 'reflection',
-          content,
+          content: v.content,
           source: 'aion',
-          title: content.slice(0, 60),
+          title: v.content.slice(0, 60),
         });
         return {
           ok: true, capability, source: 'mutation',
@@ -138,7 +187,8 @@ export async function executeMutationCapability(
       }
 
       case 'hypnosis.start': {
-        // No canonical start endpoint yet — log preview-only.
+        // Allowed by Phase 3 spec but no canonical mutation endpoint exists.
+        // Caller logs `mutation.skipped` with this reason.
         return {
           ok: false, capability, source: 'preview',
           durationMs: now() - t0,
@@ -147,29 +197,15 @@ export async function executeMutationCapability(
         };
       }
 
-      case 'fm.listing.create': {
-        const title = (input.message ?? '').trim().slice(0, 80) || 'מודעה חדשה';
-        const { data, error } = await supabase
-          .from('fm_gigs')
-          .insert({ user_id: input.userId, title, status: 'draft' } as any)
-          .select('id')
-          .maybeSingle();
-        if (error) throw error;
-        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
-          summary: 'נוצרה טיוטת מודעה.', rowsWritten: 1, table: 'fm_gigs',
-          data: { id: (data as any)?.id } };
-      }
-
       case 'message.send': {
-        const conversationId = input.targetId ?? null;
-        const content = (input.message ?? '').trim();
-        if (!conversationId || !content) {
+        const v = vMessageSend(input);
+        if (!v.ok) {
           return { ok: false, capability, source: 'preview', durationMs: now() - t0,
-            summary: 'חסר תוכן או מזהה שיחה.', skippedReason: 'missing-target-or-content' };
+            summary: 'נתוני ההודעה אינם תקינים.', skippedReason: v.reason };
         }
         const { data, error } = await supabase
           .from('messages')
-          .insert({ conversation_id: conversationId, sender_id: input.userId, content } as any)
+          .insert({ conversation_id: v.conversationId, sender_id: input.userId, content: v.content } as any)
           .select('id')
           .maybeSingle();
         if (error) throw error;
@@ -178,50 +214,8 @@ export async function executeMutationCapability(
           data: { id: (data as any)?.id } };
       }
 
-      case 'subscription.portal': {
-        const { data, error } = await supabase.functions.invoke('customer-portal', {});
-        if (error) throw error;
-        const url = (data as any)?.url;
-        if (typeof window !== 'undefined' && url) window.open(url, '_blank');
-        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
-          summary: 'נפתח Stripe Portal.', table: 'customer-portal',
-          data: { url, external: true } };
-      }
-
-      case 'checkout.create': {
-        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-          body: { tier: input.targetId ?? 'plus' },
-        });
-        if (error) throw error;
-        const url = (data as any)?.url;
-        if (typeof window !== 'undefined' && url) window.open(url, '_blank');
-        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
-          summary: 'נפתח עמוד תשלום.', table: 'create-checkout-session',
-          data: { url, external: true } };
-      }
-
-      case 'tts.speak': {
-        const preview = previewTTS(input.message ?? '');
-        if (!preview.ok) {
-          return { ok: false, capability, source: 'preview', durationMs: now() - t0,
-            summary: 'אין טקסט להקראה.', skippedReason: 'empty-text' };
-        }
-        const { data, error } = await supabase.functions.invoke('elevenlabs-tts', {
-          body: { text: input.message, voiceId: preview.voiceId },
-        });
-        if (error) throw error;
-        const audioContent = (data as any)?.audioContent;
-        if (audioContent && typeof window !== 'undefined') {
-          const audio = new Audio(`data:audio/mpeg;base64,${audioContent}`);
-          void audio.play().catch(() => {});
-        }
-        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
-          summary: 'מתבצעת השמעה.', table: 'elevenlabs-tts',
-          data: { chars: preview.charCount, external: true } };
-      }
-
       case 'work.startSession': {
-        const title = (input.message ?? '').trim().slice(0, 80) || 'סשן עבודה';
+        const title = vTitle(input, 'סשן עבודה');
         const session = await startWorkSession({ user_id: input.userId, title });
         return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
           summary: 'סשן פוקוס התחיל.', rowsWritten: 1, table: 'work_sessions',
@@ -229,7 +223,7 @@ export async function executeMutationCapability(
       }
 
       case 'schedule.block': {
-        const title = (input.message ?? '').trim().slice(0, 80) || 'בלוק זמן';
+        const title = vTitle(input, 'בלוק זמן');
         const date = new Date().toISOString().slice(0, 10);
         const { data, error } = await supabase
           .from('action_items')
