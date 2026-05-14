@@ -6,6 +6,7 @@
  * composer, and overlay layers all stay live so the user can talk to AION
  * about any node without leaving the graph.
  */
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import BrainView from "@/features/brain/BrainView";
 import BrainErrorBoundary from "@/features/brain/BrainErrorBoundary";
@@ -18,6 +19,7 @@ import { getRoomById } from "@/hallway/rooms";
 import ShellHeader from "@/shellv2/ShellHeader";
 import { zStyle } from "@/shellv2/zindex";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useProfileModal } from "@/contexts/ProfileModalContext";
 
 /**
  * BrainPage — rendered inside ProtectedAppShellV2 → ShellV2 via <Outlet />.
@@ -28,8 +30,23 @@ export default function BrainPage() {
   const [params, setParams] = useSearchParams();
   const view = params.get("view") ?? "atlas";
   const room = params.get("room");
+  const panel = params.get("panel");
   const userId = useCurrentUserId();
   const { data: atlas, isLoading: atlasLoading, error: atlasError } = useBrainAtlas(userId);
+  const { openProfile } = useProfileModal();
+
+  // Phase E — /profile is consolidated into Brain. Opening /brain?panel=profile
+  // surfaces the profile overlay once, then strips the param so back/forward
+  // doesn't re-trigger.
+  useEffect(() => {
+    if (panel === "profile") {
+      openProfile();
+      const next = new URLSearchParams(params);
+      next.delete("panel");
+      setParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panel]);
 
   const goAtlas = () => setParams({});
   const goRoom = (roomId: string) => setParams({ view: "room", room: roomId });
