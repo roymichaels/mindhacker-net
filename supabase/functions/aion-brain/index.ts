@@ -14,7 +14,11 @@ const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 // Always route through OpenRouter free model. The shared aiGateway helper
 // auto-selects OpenRouter when OPENROUTER_API_KEY is set, and `:free` models
 // are passed through untouched (see isOpenRouterOnly).
-const BRAIN_MODEL = "nvidia/nemotron-nano-9b-v2:free";
+// Allow runtime override via AION_BRAIN_MODEL secret without redeploying.
+// Default: Llama 3.3 70B free — reliable tool-calling on OpenRouter.
+const BRAIN_MODEL =
+  Deno.env.get("AION_BRAIN_MODEL") ||
+  "meta-llama/llama-3.3-70b-instruct:free";
 
 const DECISION_TOOL = {
   type: "function",
@@ -175,11 +179,24 @@ async function decideForUser(admin: any, userId: string, force: boolean) {
     return await persist(heuristicDecision(), "heuristic");
   }
 
-  const aiJson = await aiResp.json();
-  const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
+  // OpenRouter sometimes returns 200 with an `{error:{...}}` body and no
+  // `choices` array (rate-limits, provider downtime, content filtering).
+  // Read as text first so we can log the raw payload on the unhappy path.
+  const rawBody = await aiResp.text();
+  let aiJson: any = null;
+  try { aiJson = JSON.parse(rawBody); } catch {
+    console.warn(`[aion-brain] non-JSON body (${rawBody.length}b): ${rawBody.slice(0, 300)} — fallback`);
+    return await persist(heuristicDecision(), "heuristic");
+  }
+  if (aiJson?.error) {
+    console.warn(`[aion-brain] provider error: ${JSON.stringify(aiJson.error).slice(0, 300)} — fallback`);
+    return await persist(heuristicDecision(), "heuristic");
+  }
+  const toolCall = aiJson?.choices?.[0]?.message?.tool_calls?.[0];
   if (!toolCall) {
-    const msg = aiJson.choices?.[0]?.message;
-    console.warn(`[aion-brain] no tool_call returned, message=${JSON.stringify(msg)?.slice(0, 300)} — falling back to heuristic`);
+    console.warn(
+      `[aion-brain] no tool_call (model=${BRAIN_MODEL}) raw=${rawBody.slice(0, 500)} — fallback`,
+    );
     return await persist(heuristicDecision(), "heuristic");
   }
   let decision: any;
