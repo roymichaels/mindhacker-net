@@ -19,6 +19,7 @@ import RitualOrbitsScene from './scenes/RitualOrbitsScene';
 import BandStackScene from './scenes/BandStackScene';
 import type { CognitiveWorldId } from '@/worlds/types';
 import { useWorldEvolution } from '@/worlds/evolution/useWorldEvolution';
+import WorldAtmosphere from '@/worlds/atmosphere/WorldAtmosphere';
 
 interface Props {
   worldId: CognitiveWorldId;
@@ -60,7 +61,10 @@ export default function WorldShell({ worldId, sceneOverride, embedded, onOpenAdv
   const isBandStack = world.scene.kind === 'band-stack';
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-4 space-y-5" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="relative mx-auto w-full max-w-md px-4 py-4 space-y-5" dir={isHe ? 'rtl' : 'ltr'}>
+      {/* Cinematic environment — every world owns its own atmosphere. */}
+      {!embedded && <WorldAtmosphere worldId={worldId} fullBleed />}
+      {embedded && <WorldAtmosphere worldId={worldId} />}
       {!embedded && (
         <div className="flex items-center justify-between">
           <button
