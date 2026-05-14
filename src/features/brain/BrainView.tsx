@@ -2,18 +2,13 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RefreshCw } from "lucide-react";
 import OrbView from "@/components/orb/v2/OrbView";
-import ShellHeader from "@/shellv2/ShellHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import BrainGraphForce from "./BrainGraphForce";
 import { inferSoftEdges } from "./inferSoftEdges";
-import { ALL_TYPES, styleForType } from "./brainNodeStyle";
 import BrainNodeSheet from "./BrainNodeSheet";
-import BrainSections from "./BrainSections";
 import { useBackfillBrain } from "./useBackfill";
-import BrainBackfillDebug from "./BrainBackfillDebug";
 import { useBrainOverview, useCurrentUserId } from "./useBrainOverview";
 import { useBrainFallback } from "./useBrainFallback";
-import { CORE_DOMAINS } from "@/navigation/lifeDomains";
 import type { BrainLayer, BrainNode } from "./types";
 
 const LAYER_LABEL_EN: Record<BrainLayer | "all", string> = {
@@ -46,8 +41,8 @@ export default function BrainView({ onTalkToAion }: Props) {
   const data = !primary || primary.nodes.length === 0 ? fallback ?? primary : primary;
   const [layer, setLayer] = useState<"all" | BrainLayer>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showWeak, setShowWeak] = useState(false);
-  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [showWeak] = useState(true);
+  const [typeFilter] = useState<string>("all");
 
   const filteredNodes = useMemo(() => {
     if (!data) return [];
@@ -86,12 +81,6 @@ export default function BrainView({ onTalkToAion }: Props) {
 
   const selected = filteredNodes.find((n) => n.id === selectedId) ?? null;
   const hasNodes = (data?.nodes.length ?? 0) > 0;
-  const usingFallback = !!fallback && (!primary || primary.nodes.length === 0);
-  const ctaLabel = backfill.isPending
-    ? (isRTL ? "בונה…" : "Building…")
-    : hasNodes
-    ? (isRTL ? "רענון המוח" : "Refresh brain")
-    : (isRTL ? "בנה את המוח שלי" : "Build my brain");
 
   const handleTalkToAion = (node: BrainNode) => {
     if (onTalkToAion) {
@@ -153,50 +142,23 @@ export default function BrainView({ onTalkToAion }: Props) {
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="w-full">
-      <ShellHeader
-        title={isRTL ? "מוח" : "Brain"}
-        subtitle={isRTL ? "AION בונה את המפה שלך" : "AION is building your map"}
-      >
-        {hasNodes && (
-          <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-            {isRTL
-              ? <>הבנה <span dir="ltr">{understanding}%</span> · <span dir="ltr">{data?.nodes.length ?? 0}</span> צמתים{usingFallback && " · תצוגת גיבוי"}</>
-              : <>Understanding {understanding}% · {data?.nodes.length ?? 0} nodes{usingFallback && " · fallback view"}</>}
-          </p>
-        )}
-        {error && (
-          <p className="text-[11px] text-destructive mt-1">
-            {isRTL ? "שגיאת גרף: " : "Live graph error: "}{error.message}
-          </p>
-        )}
-        <button
-          onClick={() => backfill.mutate()}
-          disabled={backfill.isPending}
-          className="mt-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${backfill.isPending ? "animate-spin" : ""}`} />
-          {ctaLabel}
-        </button>
-      </ShellHeader>
+      {/* Ambient header — single hero word, no card */}
+      <div className="relative px-6 pt-6 pb-3 text-center">
+        <h1 className="aion-text-hero text-[22px] font-light tracking-[0.32em] uppercase">
+          {isRTL ? "מוח" : "Brain"}
+        </h1>
+        <p className="mt-1 text-[11px] text-foreground/45 tracking-wide">
+          {isRTL
+            ? <>{understanding}% · <span dir="ltr">{data?.nodes.length ?? 0}</span> {isRTL ? "צמתים חיים" : "living signals"}</>
+            : <>{understanding}% understanding · {data?.nodes.length ?? 0} living signals</>}
+        </p>
+      </div>
 
-      <BrainBackfillDebug result={backfill.data} />
-
-      <BrainSections overview={data} onSelect={setSelectedId} />
-
-      {/* Graph — full-bleed, no card chrome */}
+      {/* Cinematic full-bleed graph */}
       {isLoading ? (
-        <div className="h-[460px] rounded-3xl atmo-surface-soft animate-aion-breath" />
+        <div className="h-[520px] mx-4 rounded-3xl atmo-surface-soft animate-aion-breath" />
       ) : (
         <div className="-mx-4 relative">
-          {/* Cinematic neural ground halo behind the graph */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 hidden dark:block"
-            style={{
-              background:
-                'radial-gradient(60% 50% at 50% 50%, hsl(var(--aion-blue) / 0.12), transparent 70%)',
-            }}
-          />
           <BrainGraphForce
             nodes={filteredNodes}
             edges={filteredEdges}
@@ -204,103 +166,35 @@ export default function BrainView({ onTalkToAion }: Props) {
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
-          {softEdges.length > 0 && (
-            <p className="px-4 mt-1 text-[10px] text-muted-foreground/70 text-center">
-              {isRTL
-                ? "מוצגים קשרים משוערים — AION תחזק אותם בהמשך הלמידה."
-                : "Showing inferred connections — AION will firm them up as it learns."}
-            </p>
-          )}
         </div>
       )}
 
-      {/* Filters — below graph, horizontal scroll */}
-      <div className="mt-3 -mx-4 px-4 overflow-x-auto scrollbar-none">
-        <div className="flex items-center gap-1.5 w-max">
-          {(["all", "surface", "pattern", "deep"] as const).map((l) => (
-            <button
-              key={l}
-              onClick={() => setLayer(l)}
-              className={`text-[11px] px-3 py-1.5 rounded-full transition whitespace-nowrap ${
-                layer === l
-                  ? "bg-primary/20 text-primary"
-                  : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {LAYER_LABEL[l]}
-            </button>
-          ))}
+      {/* Layer drift selector — minimal ghost row, single line */}
+      <div className="mt-2 px-6 flex items-center justify-center gap-5 text-[10px] uppercase tracking-[0.22em]">
+        {(["all", "surface", "pattern", "deep"] as const).map((l) => (
           <button
-            onClick={() => setShowWeak((v) => !v)}
-            className={`text-[11px] px-3 py-1.5 rounded-full transition whitespace-nowrap ${
-              showWeak
-                ? "bg-primary/20 text-primary"
-                : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
+            key={l}
+            onClick={() => setLayer(l)}
+            className={`transition ${
+              layer === l
+                ? "text-foreground/90"
+                : "text-foreground/30 hover:text-foreground/60"
             }`}
           >
-            {isRTL ? "אותות חלשים" : "Weak signals"}
+            {LAYER_LABEL[l]}
           </button>
-        </div>
+        ))}
       </div>
 
-      {/* Type chips */}
-      <div className="mt-2 -mx-4 px-4 overflow-x-auto scrollbar-none">
-        <div className="flex items-center gap-1.5 w-max">
-          <button
-            onClick={() => setTypeFilter("all")}
-            className={`text-[11px] px-3 py-1.5 rounded-full transition whitespace-nowrap ${
-              typeFilter === "all"
-                ? "bg-primary/20 text-primary"
-                : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {isRTL ? "כל הסוגים" : "All types"}
-          </button>
-          {ALL_TYPES.map((t) => {
-            const st = styleForType(t);
-            const active = typeFilter === t;
-            return (
-              <button
-                key={t}
-                onClick={() => setTypeFilter(active ? "all" : t)}
-                className={`text-[11px] px-3 py-1.5 rounded-full transition whitespace-nowrap inline-flex items-center gap-1.5 ${
-                  active
-                    ? "bg-white/[0.08] text-foreground ring-1 ring-white/10"
-                    : "bg-white/[0.04] text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <span className="inline-block w-2 h-2 rounded-full" style={{ background: st.color }} />
-                {st.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {data && data.unknown_areas.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] text-muted-foreground">
-            {isRTL ? "אזורים לא ידועים:" : "Unknown areas:"}
-          </span>
-          {data.unknown_areas.slice(0, 6).map((area) => {
-            const d = CORE_DOMAINS.find((x) => x.id === area.toLowerCase());
-            const label = d ? (isRTL ? d.labelHe : d.labelEn) : area;
-            const route = d ? `/strategy/${d.id}/assess` : null;
-            return route ? (
-              <button
-                key={area}
-                onClick={() => navigate(route)}
-                className="text-[11px] px-2 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition"
-                title={isRTL ? "התחל אבחון בצ'אט עם AION" : "Start AION chat assessment"}
-              >
-                {label}
-              </button>
-            ) : (
-              <span key={area} className="text-[11px] text-muted-foreground">{label}</span>
-            );
-          })}
-        </div>
-      )}
+      {/* Floating refresh — bottom-right, ghost */}
+      <button
+        onClick={() => backfill.mutate()}
+        disabled={backfill.isPending}
+        aria-label={isRTL ? "רענן" : "Refresh"}
+        className="fixed bottom-24 right-4 z-30 h-10 w-10 inline-flex items-center justify-center rounded-full atmo-surface-soft text-foreground/70 hover:text-foreground transition disabled:opacity-50"
+      >
+        <RefreshCw className={`h-4 w-4 ${backfill.isPending ? "animate-spin" : ""}`} />
+      </button>
 
       <BrainNodeSheet
         node={selected}
