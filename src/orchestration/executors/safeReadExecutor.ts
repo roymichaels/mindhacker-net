@@ -242,7 +242,7 @@ async function readIdentity(userId: string) {
     sources: ['profiles:self', 'aurora_identity_elements:count', 'avatar_customizations:self'],
     rowCounts: { profile: s.hasProfile ? 1 : 0, identity: s.hasIdentityElements ? 1 : 0, avatar: s.hasAvatar ? 1 : 0 },
     summary: s.text,
-    data: s,
+    data: { ...s },
   };
 }
 
