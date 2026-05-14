@@ -26,7 +26,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Auto-reload on stale dynamic import errors (Vite HMR cache issue)
-    if (error.message?.includes('Failed to fetch dynamically imported module')) {
+    const msg = error.message ?? '';
+    const isStaleModule =
+      msg.includes('Failed to fetch dynamically imported module') ||
+      msg.includes('Importing a module script failed') ||
+      msg.includes('error loading dynamically imported module') ||
+      (msg.includes('Unable to preload CSS') && msg.includes('chunk'));
+    if (isStaleModule) {
       const reloadKey = 'error_boundary_reload';
       const lastReload = sessionStorage.getItem(reloadKey);
       const now = Date.now();
