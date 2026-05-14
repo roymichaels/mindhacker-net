@@ -115,8 +115,10 @@ export const PROTECTED_REDIRECTS: [string, string][] = [
   ['/life', '/'],
   ['/life-plan', '/strategy'],
   ['/career', '/outer-world'],
-  ['/profile', '/aurora'],
-  ['/profile-hub', '/aurora'],
+  // Phase E — /profile is the lightweight account/profile surface inside Brain.
+  // BrainPage reads ?panel=profile and opens the profile overlay.
+  ['/profile', '/brain?panel=profile'],
+  ['/profile-hub', '/brain?panel=profile'],
   ['/coach-hub', '/coaches'],
   ['/creator-hub', '/creator'],
   ['/freelancer-hub', '/freelancer'],

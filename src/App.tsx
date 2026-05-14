@@ -110,7 +110,6 @@ const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvat
 // Phase A shell collapse: AIONFloatingWidget retired in favor of shell/AIONPresenceButton.
 // Component file kept under legacy until Phase E cleanup.
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
-const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
 const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const JournalingHub = lazy(() => import("./pages/JournalingHub"));
@@ -481,7 +480,10 @@ const App = () => (
                                               <Suspense fallback={null}><ProfilePage /></Suspense>
                                               <SoulAvatarMintWizardGlobal />
                                               {/* AIONFloatingWidget removed — single AION presence lives in DashboardLayout shell */}
-                                              <Suspense fallback={null}><AvatarRequiredModal /></Suspense>
+                                              {/* Phase E — AvatarRequiredModal global mount removed.
+                                                  Auto profile-completion gates are no longer allowed at root.
+                                                  Avatar requirement is enforced inline within the avatar
+                                                  feature surfaces (/avatar, profile overlay) when needed. */}
 
                                           </Suspense>
                                         </SmartOnboardingProvider>

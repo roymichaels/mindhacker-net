@@ -1,4 +1,72 @@
 
+## Phase E — Provider + Overlay Consolidation (DONE — non-destructive audit + targeted removals)
+
+### Provider table
+
+| Provider | Before | After | Disposition |
+|---|---|---|---|
+| AuthProvider | root | root | KEEP root |
+| AuroraChatProvider | root | root | KEEP root |
+| LanguageProvider | root | root | KEEP root |
+| AuthModalProvider | root | root | KEEP root (auth gate) |
+| GameStateProvider | root | root | KEEP root |
+| AionDecisionProvider | root | root | KEEP root (must stay above EnvironmentProvider) |
+| EnvironmentProvider | root | root | KEEP root (always-on) |
+| MotionLayer | root | root | KEEP root |
+| AIONStateProvider + bridges | root | root | KEEP root |
+| TooltipProvider | root | root | KEEP root |
+| SoulAvatarProvider | root | root | KEEP root (identity-wide) |
+| FlowAuditProvider | root | root | KEEP root |
+| AnalyticsProvider | root | root | KEEP root |
+| ThemeProvider | root | root | KEEP root |
+| OverlayProvider (`src/shell/overlay`) | root | root, deprecated | KEEP — still wired by ShellV2Header/Drawer/InteractiveAION + UnifiedOverlayHost. Sole allowed overlay manager. Phase F will absorb its 3 non-shellv2 callers. |
+| SubscriptionsModalProvider | root | root, deprecated | KEEP — too many call sites. Phase F replaces with overlay action. |
+| CoachesModalProvider | root | root, deprecated | KEEP — same. |
+| WalletModalProvider | root | root, deprecated | KEEP — same. |
+| ProfileModalProvider | root | root, deprecated | KEEP — now driven by `/brain?panel=profile` route (no auto-mount). Phase F replaces with overlay action. |
+| StoryWorldProvider | root | root | KEEP root for now — `useSwipeNavigation` consumes it widely. Will move into `/story` route in Phase F. |
+| SmartOnboardingProvider | root | root | KEEP root — exposes `smartNavigate()` helper used by 9 surfaces (NextStepGuide, LaunchpadProgress, IdentityProfileCard, useAuroraCommands, etc.). Not an auto-gate; just nav routing. Rename queued for Phase F. |
+| WelcomeGateContext | (file exists, never mounted) | unchanged | DEAD — context defined but never wrapped at root. No action needed. |
+| ChromeVisibilityContext | mounted via ProtectedAppShellV2 | mounted via ProtectedAppShellV2 | KEEP — feature-local to shell. |
+| SidebarContext | mounted via ProtectedAppShellV2 | mounted via ProtectedAppShellV2 | KEEP — shell-local. |
+
+### Global modals removed (auto-mount gates)
+- **`<AvatarRequiredModal />`** — was unconditionally mounted at App root and force-opened a fullscreen avatar configurator for any user without an avatar. **REMOVED.** Avatar requirement now enforced inline at the avatar feature surfaces. Lazy import also dropped.
+
+### Global modals retained (open-on-demand, not auto-mount)
+- `<SubscriptionsModal />` — opens via `useSubscriptionsModal().open()`.
+- `<WalletModal />` — opens via `useWalletModal().open()`.
+- `<ProfilePage />` — opens via `useProfileModal().openProfile()`. Now also opened by `/brain?panel=profile`.
+- `<SoulAvatarMintWizardGlobal />` — wallet-mint wizard, gated by internal state, not auto.
+- `<CloudAuthModal />` — auth gate (allowed).
+- `<InteractiveAIONHost />`, `<SharedOrbStage />`, `<DiagnosticsHost />`, `<PWAUpdatePrompt />`, `<NotificationPermissionPrompt />`, `<CookieConsent />` — system surfaces (allowed).
+
+### Overlay roots
+- **Before:** two overlay systems live in parallel — `OverlayProvider` (`src/shell/overlay/OverlayController`) and `UnifiedOverlayHost` (`src/shellv2/UnifiedOverlayHost`). 6 modal contexts (Profile/Coaches/Wallet/Subscriptions/StoryWorld/SmartOnboarding) bypass both with portal-based mounts at App root.
+- **After:** `UnifiedOverlayHost` is the canonical overlay manager (mounted by `ProtectedAppShellV2`). `OverlayProvider` retained as the underlying store but only `UnifiedOverlayHost`, `ShellV2Header`, `ShellV2Drawer`, and `InteractiveAION` may write to it. 5 portal modals (Subs/Wallet/Profile/Avatar-mint/CloudAuth) remain at root pending Phase F migration.
+
+### Routes verified
+- `/profile` → `/brain?panel=profile` (was `/aurora`). BrainPage opens the profile overlay once, then strips `?panel`.
+- `/profile-hub` → `/brain?panel=profile` (was `/aurora`).
+- All other ShellV2 routes (`/`, `/aurora`, `/brain`, `/journey`, `/outer-world`) unchanged.
+- `/strategy` and 60+ pillar deep-routes unchanged.
+
+### Allowed overlay categories (UnifiedOverlayHost contract)
+menu · history · settings · account/profile · wallet · subscription · confirmation · artifact-fullscreen · debug/diagnostics
+
+### Anything still globally mounted
+5 portal modals at App root (listed above) + 6 modal-provider contexts wrapping the tree. Acceptable for Phase E (no behavior change); Phase F will migrate each to overlay actions.
+
+### Risks left for Phase F
+- Replacing `useProfileModal().openProfile()` / `useCoachesModal()` / `useWalletModal()` / `useSubscriptionsModal()` call sites with `overlay.open({ kind: 'profile' | 'coaches' | ... })` is a wide refactor (~40 call sites).
+- `OverlayProvider` ↔ `UnifiedOverlayHost` are coupled; collapsing them needs the dual-store reconciliation in Phase F.
+- `StoryWorldProvider` is read by `useSwipeNavigation` globally — moving it into `/story` requires either inlining the swipe logic or defaulting to a no-op outside Story.
+- `SmartOnboardingProvider` rename to `SmartNavProvider` is cosmetic but touches 9 files.
+- AvatarRequiredModal removal: users without avatars no longer get a forced gate; verify avatar-dependent features (mint flow, profile triad) handle the empty state.
+
+### Reversibility
+No DB, no orchestration, no engines touched. Two file-level deletions (AvatarRequiredModal global mount + lazy import). Rollback = `git revert`.
+
 ## Phase D — Brain + Journey Consolidation (DONE)
 
 ### Routes changed
