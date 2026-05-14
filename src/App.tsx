@@ -97,6 +97,7 @@ const SummonRoute = lazy(() => import("./shellv2/SummonRoute"));
 const WorldRoute = lazy(() => import("./pages/WorldRoute"));
 import PersistentWorldOrb from "@/worlds/orb/PersistentWorldOrb";
 import { WorldsRuntime } from "@/worlds/runtime/useWorldReactivity";
+import { DreamRuntime } from "@/worlds/dreams/dreamEngine";
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
@@ -290,6 +291,7 @@ const App = () => (
                                     <DiagnosticsHost />
                                     <PersistentWorldOrb />
                                     <WorldsRuntime />
+                                    <DreamRuntime />
 
                                   <FlowAuditProvider>
                                     <AffiliateTracker />
