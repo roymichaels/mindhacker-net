@@ -63,10 +63,18 @@ export type AionTraceEvent = {
   stage:
     | 'turn.start'
     | 'sense.dispatched'
+    | 'intent.detected'
+    | 'emotion.detected'
+    | 'graph.read'
+    | 'capability.candidate'
+    | 'capability.skipped'
+    | 'artifact.candidate'
+    | 'artifact.skipped'
     | 'stream.start'
     | 'stream.end'
     | 'post.memory-writer'
     | 'post.signals'
+    | 'router.error'
     | 'turn.end';
   data?: Record<string, unknown>;
 };
