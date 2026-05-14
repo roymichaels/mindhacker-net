@@ -15,6 +15,7 @@ import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import { getAtmospherePreset } from '@/worlds/atmosphere/atmospherePresets';
 import { getWorld } from '@/worlds/registry';
 import type { CognitiveWorldId } from '@/worlds/types';
+import { useWorldClimate } from '@/worlds/runtime/useWorldClimate';
 
 const BASE_SIZE = 180;
 
@@ -37,7 +38,14 @@ export default function PersistentWorldOrb() {
   }
 
   const preset = getAtmospherePreset(worldId);
+  const climate = useWorldClimate(worldId);
   const size = Math.round(BASE_SIZE * preset.orbAnchor.scale);
+
+  // Halo only — orb identity is canonical and never recoloured.
+  // Hue gently shifts cool→warm with emotionalTemperature.
+  const haloHue = 270 + climate.emotionalTemperature * 30;
+  const haloOpacity = 0.18 + climate.luminosity * 0.25;
+  const haloScale = 1.15 + climate.atmosphericDensity * 0.25;
 
   return (
     <AnimatePresence>
@@ -56,7 +64,17 @@ export default function PersistentWorldOrb() {
         transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
         style={{ width: size, height: size }}
       >
-        <div className="pointer-events-auto">
+        <div className="relative pointer-events-auto" style={{ width: size, height: size }}>
+          {/* Climate halo — atmosphere around AION, never the orb itself. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
+            style={{
+              background: `radial-gradient(closest-side, hsl(${haloHue} 80% 65% / ${haloOpacity}), transparent 70%)`,
+              transform: `scale(${haloScale})`,
+              transition: 'background 1200ms ease, transform 1200ms ease',
+            }}
+          />
           <CanonicalAionModel size={size} ariaLabel="AION" />
         </div>
       </motion.div>
