@@ -22,6 +22,8 @@ import type { Climate } from '@/worlds/state/worldStateTypes';
 import { useWorldClimate } from '@/worlds/runtime/useWorldClimate';
 import { useCrossWorldInfluence } from '@/worlds/resonance/useCrossWorldInfluence';
 import { ATMOSPHERE_PRESETS } from './atmospherePresets';
+import { useActiveDreamEvents } from '@/worlds/dreams/useDreamState';
+import type { ArchetypeId, MotifKind } from '@/worlds/dreams/types';
 
 interface Props {
   worldId: CognitiveWorldId;
@@ -97,6 +99,9 @@ export default function WorldAtmosphere({ worldId, fullBleed = false }: Props) {
   const primary = `hsl(${preset.primaryHsl})`;
   const secondary = `hsl(${preset.secondaryHsl})`;
   const accent = `hsl(${preset.accentHsl})`;
+
+  // Phase 5C.4 — subconscious dream events. Rare, subtle.
+  const dreamEvents = useActiveDreamEvents(worldId);
 
   // Particulate field — generated once per worldId so it stays stable.
   const particles = useMemo(() => {
@@ -295,6 +300,146 @@ export default function WorldAtmosphere({ worldId, fullBleed = false }: Props) {
           background: 'radial-gradient(120% 80% at 50% 50%, transparent 55%, hsl(var(--background) / 0.55) 100%)',
         }}
       />
+
+      {/* Dream layer — symbolic emergence. Each active event renders one
+          ultra-subtle phenomenon. Never literal, never labelled. */}
+      {dreamEvents.map((e) => (
+        <DreamPhenomenon
+          key={e.id}
+          kind={e.kind}
+          archetype={e.archetype}
+          intensity={e.intensity}
+          accent={accent}
+          primary={primary}
+        />
+      ))}
     </div>
   );
+}
+
+const ARCHETYPE_HUE_BIAS: Record<ArchetypeId, number> = {
+  protector: 200,
+  explorer:  140,
+  creator:   45,
+  shadow:    280,
+  sage:      220,
+  rebel:     0,
+};
+
+interface DreamPhenomenonProps {
+  kind: MotifKind;
+  archetype: ArchetypeId | null;
+  intensity: number;
+  accent: string;
+  primary: string;
+}
+
+/** Renders one symbolic dream phenomenon. Pure CSS + motion, no labels. */
+function DreamPhenomenon({ kind, archetype, intensity, accent, primary }: DreamPhenomenonProps) {
+  const hue = archetype != null ? ARCHETYPE_HUE_BIAS[archetype] : 250;
+  const tint = `hsl(${hue} 70% 60% / ${(0.06 + intensity * 0.12).toFixed(3)})`;
+  const op = Math.min(0.5, 0.18 + intensity * 0.5);
+
+  switch (kind) {
+    case 'distant-echo':
+    case 'recursive-constellation':
+    case 'impossible-timeline':
+      return (
+        <motion.div
+          className="absolute inset-0 mix-blend-screen pointer-events-none"
+          style={{
+            background: `radial-gradient(40% 30% at 25% 35%, ${tint}, transparent 70%),
+                         radial-gradient(35% 28% at 78% 60%, ${tint}, transparent 70%),
+                         radial-gradient(28% 22% at 50% 80%, ${tint}, transparent 70%)`,
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, op * 0.7, op, op * 0.6, 0] }}
+          transition={{ duration: 22, ease: 'easeInOut' }}
+        />
+      );
+    case 'symbolic-storm':
+    case 'pressure-wave':
+    case 'atmospheric-mirror':
+      return (
+        <motion.div
+          className="absolute inset-0 mix-blend-screen pointer-events-none blur-2xl"
+          style={{
+            background: `linear-gradient(110deg, transparent, ${tint}, transparent)`,
+          }}
+          initial={{ opacity: 0, x: '-10%' }}
+          animate={{ opacity: [0, op, 0], x: ['-10%', '10%', '-10%'] }}
+          transition={{ duration: 18, ease: 'easeInOut' }}
+        />
+      );
+    case 'fading-bridge':
+    case 'harmonic-pairing':
+    case 'resonance-shadow':
+      return (
+        <motion.div
+          className="absolute inset-x-0 top-1/2 h-[2px] mix-blend-screen pointer-events-none blur-sm"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${tint}, transparent)`,
+          }}
+          initial={{ opacity: 0, scaleX: 0.4 }}
+          animate={{ opacity: [0, op, 0], scaleX: [0.4, 1, 0.4] }}
+          transition={{ duration: 16, ease: 'easeInOut' }}
+        />
+      );
+    case 'spontaneous-geometry':
+    case 'unfinished-structure':
+      return (
+        <motion.div
+          className="absolute inset-0 pointer-events-none mix-blend-screen"
+          style={{
+            background: `conic-gradient(from 120deg at 50% 50%, transparent, ${tint}, transparent 30%, ${tint} 60%, transparent 80%)`,
+            maskImage: 'radial-gradient(closest-side, black 40%, transparent 70%)',
+          }}
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: [0, op * 0.8, 0], rotate: [0, 18, 0] }}
+          transition={{ duration: 20, ease: 'easeInOut' }}
+        />
+      );
+    case 'sacred-stillness':
+    case 'impossible-depth':
+    case 'luminous-alignment':
+      return (
+        <motion.div
+          className="absolute inset-0 mix-blend-screen pointer-events-none"
+          style={{
+            background: `radial-gradient(60% 60% at 50% 50%, ${tint}, transparent 70%)`,
+          }}
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: [0, op, op * 0.6, 0], scale: [0.85, 1, 1.04, 0.95] }}
+          transition={{ duration: 26, ease: 'easeInOut' }}
+        />
+      );
+    case 'sacred-orbit':
+      return (
+        <motion.div
+          className="absolute inset-0 pointer-events-none mix-blend-screen"
+          style={{
+            background: `radial-gradient(closest-side, transparent 48%, ${tint} 49%, ${tint} 50%, transparent 51%)`,
+          }}
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: [0, op * 0.7, 0], rotate: [0, 360] }}
+          transition={{ duration: 24, ease: 'linear' }}
+        />
+      );
+    case 'collapsing-structure':
+    case 'glitch-silhouette':
+    case 'dream-corridor':
+    default:
+      return (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(35% 25% at 50% 60%, ${primary}30, transparent 70%)`,
+            filter: 'contrast(1.05)',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, op * 0.6, 0, op * 0.4, 0] }}
+          transition={{ duration: 14, ease: 'easeInOut' }}
+        />
+      );
+  }
 }
