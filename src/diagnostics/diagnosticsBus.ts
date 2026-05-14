@@ -68,6 +68,8 @@ export type AionTraceEvent = {
     | 'graph.read'
     | 'capability.candidate'
     | 'capability.skipped'
+    | 'capability.executed'
+    | 'capability.error'
     | 'artifact.candidate'
     | 'artifact.skipped'
     | 'stream.start'
