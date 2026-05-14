@@ -70,7 +70,7 @@ export default function StrategyApprovalCard() {
             exit={{ y: 20, opacity: 0, scale: 0.96 }}
             className="relative w-full max-w-sm"
           >
-            <AtmoArtifact kind="plan" breathing>
+            <AtmoArtifact kind="confirm" breathing artifactId={`strategy-confirm-${kind}`}>
             <button
               type="button"
               onClick={() => !busy && close('cancelled')}

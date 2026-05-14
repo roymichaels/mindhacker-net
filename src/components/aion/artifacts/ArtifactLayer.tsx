@@ -18,6 +18,8 @@ import {
 import type { AionArtifact, ArtifactKind } from './artifactBus';
 import { onArtifact } from './artifactBus';
 import { cn } from '@/lib/utils';
+import { ManifestedArtifactShell } from '@/components/aion/manifestation';
+import { isStickyKind } from '@/components/aion/manifestation';
 
 const MAX_VISIBLE = 3;
 
@@ -98,7 +100,7 @@ export default function ArtifactLayer({ bottomOffset = 220 }: ArtifactLayerProps
         const next = [artifact, ...prev.filter((a) => a.id !== artifact.id)].slice(0, MAX_VISIBLE);
         return next;
       });
-      if (artifact.ttl && artifact.ttl > 0) {
+      if (!isStickyKind(artifact.kind) && artifact.ttl && artifact.ttl > 0) {
         window.setTimeout(() => dismiss(artifact.id), artifact.ttl);
       }
     });
@@ -114,15 +116,17 @@ export default function ArtifactLayer({ bottomOffset = 220 }: ArtifactLayerProps
       {items.map((art, idx) => {
         const Icon = ICONS[art.kind] ?? Sparkles;
         return (
-          <div
+          <ManifestedArtifactShell
             key={art.id}
+            artifactId={art.id}
+            kind={art.kind}
             className={cn(
               'pointer-events-auto w-full max-w-sm rounded-2xl border border-white/10',
               'bg-card/70 backdrop-blur-xl px-4 py-3 text-start',
-              'animate-in fade-in slide-in-from-bottom-4 duration-300',
             )}
-            style={{ opacity: 1 - idx * 0.15 }}
+            onDissolved={() => dismiss(art.id)}
           >
+            <div style={{ opacity: 1 - idx * 0.15 }}>
             <div className="flex items-start gap-3">
               <div className="mt-0.5 h-8 w-8 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0">
                 <Icon className="h-4 w-4 text-primary" />
@@ -179,7 +183,8 @@ export default function ArtifactLayer({ bottomOffset = 220 }: ArtifactLayerProps
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
-          </div>
+            </div>
+          </ManifestedArtifactShell>
         );
       })}
     </div>

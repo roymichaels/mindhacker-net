@@ -15,6 +15,10 @@ import { ChromeVisibilityProvider } from '@/contexts/ChromeVisibilityContext';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 import GameLayerBootstrap from '@/components/game/GameLayerBootstrap';
 import { useEffect } from 'react';
+import {
+  ManifestationProvider,
+  ManifestationLayer,
+} from '@/components/aion/manifestation';
 
 /**
  * Phase B tripwire — fires once on mount in dev to confirm ShellV2 is the
@@ -48,11 +52,14 @@ export default function ProtectedAppShellV2() {
         <ChromeVisibilityProvider>
           <SidebarProvider>
             <AuroraActionsProvider>
-              <ShellV2>
-                <ShellSentinel />
-                <GameLayerBootstrap />
-                <Outlet />
-              </ShellV2>
+              <ManifestationProvider>
+                <ShellV2>
+                  <ShellSentinel />
+                  <GameLayerBootstrap />
+                  <Outlet />
+                </ShellV2>
+                <ManifestationLayer />
+              </ManifestationProvider>
             </AuroraActionsProvider>
           </SidebarProvider>
         </ChromeVisibilityProvider>

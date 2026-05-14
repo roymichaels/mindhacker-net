@@ -84,7 +84,11 @@ const AuroraActionConfirmation = ({
       className={cn('max-w-sm', className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <AtmoArtifact kind="confirm" breathing>
+      <AtmoArtifact
+        kind="confirm"
+        breathing
+        artifactId={`aurora-action-${actionType}`}
+      >
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base opacity-80">{getActionIcon()}</span>
