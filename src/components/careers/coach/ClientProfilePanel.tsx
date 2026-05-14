@@ -192,7 +192,7 @@ const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
             <DialogTrigger asChild>
               <Button size="sm" className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white">
                 <Sparkles className="h-4 w-4 me-2" />
-                {isHebrew ? 'צור תוכנית' : 'Generate Plan'}
+                {isHebrew ? 'המשך את המסע' : 'Continue your journey'}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -227,7 +227,7 @@ const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
                 >
                   {generateMutation.isPending
                     ? (isHebrew ? 'מייצר...' : 'Generating...')
-                    : (isHebrew ? 'צור תוכנית עם AI' : 'Generate with AI')}
+                    : (isHebrew ? 'שאל את AION' : 'Ask AION')}
                 </Button>
               </div>
             </DialogContent>

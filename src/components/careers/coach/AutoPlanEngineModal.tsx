@@ -147,7 +147,7 @@ const AutoPlanEngineModal = ({ open, onOpenChange, preselectedClientId }: AutoPl
           <DialogDescription>
             {isHe
               ? 'צור תוכנית אימון מותאמת אישית באמצעות AI. התוכנית תהפוך למשימות בדאשבורד של המתאמן.'
-              : 'Generate a personalized coaching plan with AI. The plan becomes playable tasks on the client\'s dashboard.'}
+              : 'Ask AION to compose a coaching journey. It becomes playable tasks in your client\'s space.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -234,7 +234,7 @@ const AutoPlanEngineModal = ({ open, onOpenChange, preselectedClientId }: AutoPl
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 me-2" />
-                  {isHe ? 'צור תוכנית AI' : 'Generate AI Plan'}
+                  {isHe ? 'שאל את AION' : 'Ask AION'}
                 </>
               )}
             </Button>

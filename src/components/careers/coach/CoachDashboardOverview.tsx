@@ -19,7 +19,7 @@ const CoachDashboardOverview = () => {
   const quickActions = [
     {
       icon: Sparkles,
-      label: isHe ? 'צור תוכנית AI' : 'Generate AI Plan',
+      label: isHe ? 'שאל את AION' : 'Ask AION',
       desc: isHe ? 'תוכנית מותאמת שהופכת למשימות' : 'Custom plan that becomes playable tasks',
       color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30',
       iconColor: 'text-purple-400',
@@ -77,7 +77,7 @@ const CoachDashboardOverview = () => {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>
-            <span>{isHe ? 'צרו תוכנית AI שהופכת למשימות אוטומטיות' : 'Generate an AI plan that auto-converts to playable tasks'}</span>
+            <span>{isHe ? 'AION יחבר מסע שמתורגם אוטומטית למשימות' : 'AION composes a journey that auto-converts into playable tasks'}</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>

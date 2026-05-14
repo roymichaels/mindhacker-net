@@ -223,7 +223,7 @@ function AIAnalysisModal({
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 me-2" />
-                    {language === 'he' ? 'צור ניתוח' : 'Generate Analysis'}
+                    {language === 'he' ? 'שאל את AION' : 'Ask AION'}
                   </>
                 )}
               </Button>
@@ -288,7 +288,7 @@ function NinetyDayPlanModal({
       
       // Create plan with generated milestones
       createPlan({
-        title: data.title || (language === 'he' ? 'תוכנית 100 יום' : '100-Day Plan'),
+        title: data.title || (language === 'he' ? 'המסע שלך' : 'Your Journey'),
         description: data.description,
         milestones: data.milestones,
       });
@@ -308,7 +308,7 @@ function NinetyDayPlanModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-amber-500" />
-            {language === 'he' ? 'תוכנית 100 יום' : '100-Day Business Plan'}
+            {language === 'he' ? 'המסע העסקי שלך' : 'Your Business Journey'}
           </DialogTitle>
         </DialogHeader>
         
@@ -405,7 +405,7 @@ function NinetyDayPlanModal({
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 me-2" />
-                    {language === 'he' ? 'צור תוכנית AI' : 'Generate AI Plan'}
+                    {language === 'he' ? 'שאל את AION' : 'Ask AION'}
                   </>
                 )}
               </Button>

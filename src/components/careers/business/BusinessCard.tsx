@@ -117,7 +117,7 @@ export function BusinessCard({ journey, onDelete, isDeleting }: BusinessCardProp
                 }}
               >
                 {journey.journey_complete 
-                  ? (language === 'he' ? 'לוח בקרה' : 'Dashboard')
+                  ? (language === 'he' ? 'מרחב' : 'Space')
                   : (language === 'he' ? 'המשך' : 'Continue')
                 }
                 <ArrowRight className="h-4 w-4 ms-1" />
