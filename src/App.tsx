@@ -337,6 +337,7 @@ const App = () => (
                                                 <Route path="/outer-world" element={<OuterWorldHub />} />
                                                 {/* Brain — ShellV2 graph + identity surface */}
                                                 <Route path="/brain" element={<BrainPage />} />
+                                                <Route path="/worlds/:worldId" element={<WorldRoute />} />
                                               </Route>
 
                                               {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
