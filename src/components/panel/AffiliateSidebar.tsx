@@ -4,7 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import RoleSwitcher from './RoleSwitcher';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
-import aionOrb from '@/assets/aion-ring.png';
+import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import {
   LayoutDashboard,
   Link2,
@@ -60,7 +60,7 @@ const AffiliateSidebar = () => {
       {/* Logo and Brand at top */}
       <div className="p-4 border-b border-border flex-shrink-0">
         <Link to="/affiliate" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <img src={aionOrb} alt="AION" width={32} height={32} className="h-8 w-8 flex-shrink-0 object-contain" />
+          <CanonicalAionModel size={32} ariaLabel="AION" />
           <span className="font-bold text-lg">{t('sidebar.controlCenter')}</span>
         </Link>
       </div>

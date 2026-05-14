@@ -33,7 +33,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { openInteractiveAION } from "@/components/aion/InteractiveAIONHost";
-import aionOrb from "@/assets/aion-ring.png";
+import CanonicalAionModel from "@/components/orb/CanonicalAionModel";
 
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import AdminSidebar from "./panel/AdminSidebar";
@@ -177,26 +177,19 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
 
   // AION orb — small living anchor, opens Interactive AION
   const OrbAnchor = () => (
-    <button
-      type="button"
-      onClick={openInteractiveAION}
-      aria-label="פתח מצב AION"
-      className="relative flex h-9 w-9 items-center justify-center rounded-full active:scale-95 transition-transform animate-aion-breath"
-    >
+    <span className="relative flex h-9 w-9 items-center justify-center rounded-full animate-aion-breath">
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-full blur-xl opacity-60"
         style={{ background: 'radial-gradient(circle, hsl(var(--aion-blue) / 0.55), hsl(var(--aion-cyan) / 0.18) 50%, transparent 75%)' }}
       />
-      <img
-        src={aionOrb}
-        alt=""
-        width={28}
-        height={28}
-        draggable={false}
-        className="relative block h-7 w-7 object-contain"
+      <CanonicalAionModel
+        size={28}
+        onClick={openInteractiveAION}
+        ariaLabel="פתח מצב AION"
+        className="relative block"
       />
-    </button>
+    </span>
   );
 
   // Guest dropdown — triggered from the left menu icon
