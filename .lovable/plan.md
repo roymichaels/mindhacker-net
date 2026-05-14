@@ -1,104 +1,168 @@
-# Phase 1.5 — Native Navigation + Idle Chamber Behavior
+# AION OS Transition Pass — Remove SaaS Scaffolding
 
-Frontend-only. No backend, no orchestration, no routes, no capabilities.
+Frontend-only structural rewrite. No backend, no orchestration, no schemas, no APIs.
+Aligns the visible product with the 5-realm OS model: **Chat · Brain · Journey · Outer World · Self**.
 
-## Current state (verified)
+---
 
-- ShellV2 has **no persistent bottom tab bar** today. The 5 surfaces only live inside `ShellV2Drawer`.
-- `AionNavDock` primitive exists but is **unmounted** anywhere.
-- Composer has the right minimal pill but does not react to idle/streaming.
-- Drawer (`ShellV2Drawer`) still feels like a classic admin sidebar (white-tinted card, "Account" label, hard divider, brand row "AION" caption).
-- `ChatLayer` already pads top/bottom and has fade mask. Good.
-- `ShellV2Header` mounts brand "About" sheet — keep, but it should stay calm.
-- No persistent CTA captions under composer (already cleaned in Phase 1).
+## A. Audit — surfaces still carrying SaaS / generator UX
 
-## Design intent (matches reference image)
+| # | Surface | File | What's wrong | Verdict |
+|---|---------|------|--------------|---------|
+| 1 | **"Create 100-Day Plan" empty state** | `src/pages/LifeHub.tsx` (lines 329-351) | Big CTA "צור תוכנית 100 יום" + sparkle button → classic "generate X" pattern. | **Kill.** Replace with ambient "AION is observing you" presence + nothing to click. |
+| 2 | **Journey tab bar** | `src/pages/StrategyPage.tsx` | "Journey / Actions" pill tabs + sticky border bar = SaaS dashboard. Hosts entire LifeHub + PlayLayoutWrapper. | **Replace** with `JourneyView` — single next step, no tabs, no sticky bar. Old tabs become summonable artifacts. |
+| 3 | **Pillar wizard CTA exposure** | `StrategyPillarWizard` opened from LifeHub, ArenaHub | Public "select pillars + assess" flow. | **Demote.** Wizard component stays alive but is summon-only (AION can open it via artifact). Remove all user-facing entry points. |
+| 4 | **`/strategy/<pillar>/assess` routes** (Power, Vitality, Focus, Combat, Expansion, Presence, Consciousness, Wealth, Influence, Relationships, Business, Projects, Play) | `src/App.tsx` 363-414, `src/pages/pillars/*` | 30+ assessment screens directly addressable via URL → "fill this form" UX. | **Keep routes** (deep-links, AION can summon), **remove discovery** from all hubs/menus. Add a soft redirect notice on direct nav: "AION is learning this through conversation". |
+| 5 | **OuterWorldHub grid** | `src/pages/OuterWorldHub.tsx` | 12-tile 3-section "marketplace" grid with `Build & earn` etc. | **Reduce** to ≤4 contextual "aligned reality" portals. AION-curated copy. |
+| 6 | **`featureShowcaseData` / `featureDetailData` / `/features/:slug`** | `src/data/featureShowcaseData.ts`, `src/data/featureDetailData.ts`, `src/pages/FeatureDetailPage.tsx` | "Feature pages" by definition. | **Mark legacy.** Keep file + route for marketing; remove any in-app links from authed surfaces. |
+| 7 | **CareerHub, ArenaHub, BusinessDashboard, FreelancerHub, CreatorHub, JournalingHub, WorkHub, HypnosisPage, LifeHub** entry points in nav/drawer | various | "Hub" naming = SaaS. Most should not be permanent realms. | **Hide** from drawer + ghost nav. Keep routes for AION-summoned deep-links. Drawer shows only the 5 realms (already true after Phase 1.5). |
+| 8 | **BrainPage copy** | `src/pages/BrainPage.tsx` | Says "Consciousness Map" / "מפת התודעה" — fine. But no "Ask AION about this" affordance on rooms. | **Add** primary "Ask AION about this" interaction (next phase). |
+| 9 | **ProfilePage tab modals** | `src/pages/ProfilePage.tsx` | Practices / Achievements / Inventory / OrbDNA modal grid = gamified stats dashboard. | **Soften** to a single "what AION understands about you" reflection card (next phase). |
+
+---
+
+## B. Per-realm transformation
+
+### Chat (already on track)
+Phase 1–1.5 done. Rules: no in-feed CTAs, no tool menus, no feature grids. Artifacts emerge contextually only.
+
+### Journey — full rewrite
+Replace `StrategyPage` shell with a new `JourneyView`:
 
 ```
-ACTIVE CONVERSATION       IDLE CHAMBER         REVEAL ON SCROLL
-┌──────────────────┐      ┌──────────────────┐  ┌──────────────────┐
-│  ☰   AION    ◉   │      │  ☰   AION    ◉   │  │  ...messages...  │
-│                  │      │                  │  │                  │
-│  …messages…      │      │     ◉ orb        │  │  ──────────────  │
-│                  │      │   "אני כאן…"     │  │  ◉  ✦  ⌖  ◯  ◌   │ ← ghost dock
-│  [ 🎤  …    + ]  │      │  [ 🎤  …    + ]  │  │  [ 🎤  …    + ]  │
-└──────────────────┘      └──────────────────┘  └──────────────────┘
-   nav fully hidden        nav fully hidden       nav softly faded in
+┌──────────────────────────────────────────┐
+│         [orb]   Today                    │
+│                                          │
+│   "Your one next step"                   │
+│   ───────────────────                    │
+│   Write the strategy memo                │
+│   ─                                      │
+│   [ Start ]   [ Ask AION ]               │
+│                                          │
+│  ··· current trajectory ···              │  ← one line, italic
+│  ··· hidden friction ···                 │  ← one line, dim
+│  ··· momentum insight ···                │  ← one line, dim
+│                                          │
+│  (no plan, no tabs, no checklist)        │
+└──────────────────────────────────────────┘
 ```
 
-Nav rules:
-- Default: **hidden** (opacity 0, pointer-events none).
-- Reveal triggers (any one):
-  - User scrolls **up** in the conversation (intent to navigate, not read).
-  - User is **idle** > 6s with no streaming, no input focus, no recent send.
-  - User taps a small grabber chevron above the composer.
-  - User opens the drawer (drawer already covers nav use case).
-- Hide triggers:
-  - Composer focused.
-  - AION is streaming.
-  - User scrolls **down** (reading new content).
-  - User sends a message.
-  - Tapping anywhere in the chat surface.
-- Transition: 320ms opacity + 8px translate-y, no spring.
+Behavior:
+- Pulls **the single highest-priority `action_item`** for today (already exists via `useTodayExecution`). Read-only data; no new RPC.
+- "Ask AION" routes back to `/` with a prefilled prompt about the item (`navigate('/', { state: { prompt: ... }})`).
+- "Start" toggles existing `action_items` completion (existing hook).
+- Trajectory / friction / momentum lines: read from existing brain overview (`useBrainOverview`), never generated. If empty → show only the next step.
+- **No "create plan" button.** If the user has no plan, the line says: *"AION is still listening. Speak to it in chat."* with a single `Open Chat` ghost link.
 
-## Files to change
+Old `StrategyPage` becomes `JourneyView` mounted at `/journey` and `/strategy`. Old LifeHub + PlayLayoutWrapper stay reachable as **summoned artifacts** only (e.g. `/journey?summon=plan` or `/journey?summon=missions`) — handled by an internal `<JourneySummon />` switch.
 
+### Brain — copy & affordance shift (next phase)
+- Keep atlas. Add "Ask AION about this" as the primary tap action on rooms.
+- Strip the word "Consciousness Map" → softer "Inner field".
+- No charts, no widgets (already none).
+
+### Outer World — portal layer
+Replace 12-tile 3-section grid with a small "aligned realities" view:
+
+```
+┌──────────────────────────────────────────┐
+│         [orb]   Outer World              │
+│                                          │
+│   Realities aligned with you now         │
+│   ───────────────────                    │
+│   ⌖ Coaches that fit your trajectory     │
+│   ⌖ Learning that closes a gap           │
+│   ⌖ Community for your current shift     │
+│   ⌖ Marketplace                          │
+│                                          │
+│   (each opens existing route as portal)  │
+└──────────────────────────────────────────┘
+```
+
+- Max 4 portals visible. Contextual labels (no "Build & earn" / "Browse practitioners").
+- Routes stay (`/coaches`, `/learn`, `/community`, `/fm`).
+- Wallet, Affiliate, Creator, Freelancer, Business, Therapists → moved off the realm. Reachable via AION-summoned artifacts or direct URL.
+
+### Self — softened presence (next phase)
+- Drop the 4 modal launchers in the hero.
+- Keep AION / Avatar / DNA triad.
+- Add a single reflection card: "What AION understands about you" pulling from existing `useBrainOverview`.
+
+---
+
+## C. Phase 1 implementation (this pass)
+
+Scope kept tight so nothing breaks. Visual + structural only; data hooks are reused.
+
+### Files to add
+| File | Purpose |
+|------|---------|
+| `src/pages/JourneyView.tsx` *(new)* | The new single-step Journey surface. Replaces `StrategyPage` body. |
+| `src/components/journey/NextStepCard.tsx` *(new)* | One-action presentation: title, Start, Ask AION. |
+| `src/components/journey/TrajectoryLines.tsx` *(new)* | 3 dim italic lines (current phase / friction / momentum). |
+| `src/components/outer/AlignedRealities.tsx` *(new)* | 4-portal contextual list. |
+
+### Files to edit
 | File | Change |
 |------|--------|
-| `src/shellv2/layers/NavLayer.tsx` *(new)* | Mounts `AionNavDock` with the 5 canonical surfaces; subscribes to a tiny `useChamberIdle()` hook for visibility. |
-| `src/shellv2/hooks/useChamberIdle.ts` *(new)* | Tracks `isStreaming` (from `useAuroraChatContext`), composer focus, scroll direction in the chat scroller, last-activity timestamp. Returns `{ navVisible, isIdle }`. |
-| `src/shellv2/ShellV2.tsx` | Mount `<NavLayer />` between Composer and Chrome. |
-| `src/shellv2/zindex.ts` | Add `nav` slot just under composer (z=28). |
-| `src/components/aion/ui/AionNavDock.tsx` | Add `visible` prop; when false → opacity 0 + translate-y-2 pointer-events-none. Tighten icon stroke to 1.5, label to 9px, hairline divider only when visible. Add a tiny grabber chevron at top center that flips the visibility. |
-| `src/shellv2/layers/ChatLayer.tsx` | Forward scroll events to a chamber idle context (provider mounted in ShellV2). |
-| `src/shellv2/ShellV2Drawer.tsx` | Reskin to AION portal: remove `bg-card`/ring stack, use `bg-background/70` + `backdrop-blur-2xl` + soft violet→cyan radial bloom on first paint; replace the "AION" caption with a small breathing orb + display name; soften "Account" header to a hairline label; replace `border-t` footer with a fade gradient; switch button surfaces to `aion-pill-surface` hover. No new items. |
-| `src/components/dashboard/GlobalChatInput.tsx` | Idle visual: when `!input && !isStreaming && !isRecording`, dim placeholder to `text-foreground/30`, drop pill background to `foreground/[0.025]`. When streaming: replace send icon area with a static breathing dot (no spinner). Remove the `recordingError` paragraph from inside the form (toast it instead) so no caption sits under composer. |
-| `src/components/aion/ui/AionComposerDock.tsx` | Add `data-composer-state` (idle/focus/streaming) attribute hook so the underglow can dim 60% when idle. |
+| `src/pages/StrategyPage.tsx` | Replace tab-shell body with `<JourneyView />`. Tabs removed. `?tab=` param ignored (no redirect needed). Keep `withLegacyGuard` wrapper. |
+| `src/pages/LifeHub.tsx` | Delete the empty-state "Create 100-Day Plan" block (lines ~329-351). When `!hasPlan`, render an ambient "AION is observing" presence (orb + 1 line) with a single ghost link "Open chat" → `/`. The wizard mount stays in the file but only opens via `?summon=wizard` URL param (AION-summoned, not visible). |
+| `src/pages/OuterWorldHub.tsx` | Replace tile grid with `<AlignedRealities />`. |
+| `src/components/play/StrategyPillarWizard.tsx` | No code change — keep behavior; just stop being opened from anywhere user-discoverable (LifeHub change covers it). |
+| `src/pages/ArenaHub.tsx` | Remove any wizard/assess/generate CTAs; demote to AION-summoned only. (Verify and trim — single small change.) |
+| `.lovable/aion-ux-architecture.md` | Update doc with the new Journey/OuterWorld wireframes and OS-transition status. |
 
-## Idle chamber behavior
+### Out of scope this phase
+- Brain "Ask AION about this" interaction (next pass).
+- Profile/Self softening (next pass).
+- Removing/renaming the 30+ pillar `assess` routes (kept reachable; just not advertised).
+- Marketing routes (`/features/:slug`, `featureShowcaseData`).
+- Any backend, RPC, schema, or orchestration change.
 
-Source of truth: `useChamberIdle()` returns:
-```ts
-{ navVisible: boolean; isIdle: boolean; composerState: 'idle'|'focus'|'streaming' }
-```
-- `isIdle` becomes true after 6s of no `pointerdown`, no `keydown`, no scroll, no streaming.
-- When `isIdle`: orb (existing `AionOrb` in header + background) keeps its current breathing; composer underglow dims; nav stays hidden unless the user opens it.
-- When `streaming`: nav forced hidden; composer underglow softly pulses (existing CSS only — no new keyframes).
+---
 
-## Drawer changes (AION portal feel)
+## D. Behavior contracts
 
-- Background: `bg-background/70 backdrop-blur-2xl` + radial violet→cyan bloom top-right (RTL: top-left).
-- Header: small `AionOrb size="xs"` + display name in `aion-text-hero` instead of the uppercase "AION" caption.
-- Section headers: 9px tracked label, no border.
-- List buttons: rounded-2xl, hover `bg-foreground/[0.04]`, icon stroke 1.5, opacity 70.
-- Footer: fade gradient instead of `border-t`; sign-out as ghost pill.
-- No new items, no new routes.
+- **Single next step rule:** `JourneyView` shows at most 1 action card. Source: first non-completed item from `useTodayExecution()` for today. If none → empty state ("AION is composing your next move. Talk to it.").
+- **No generators visible:** No "Generate", "Create plan", "Run assessment", "Start wizard" copy reachable from the 5 realms. Verified by `rg` over Hebrew + English copy.
+- **Routes unchanged:** All legacy paths remain mountable; only their entry points are removed. Old deep-links keep working for AION-summoned flows.
 
-## Mobile acceptance checklist
+---
 
-- iOS safe-area: nav uses `pb-[max(env(safe-area-inset-bottom),0.5rem)]`; composer keeps its existing safe-area; nav sits **below** composer in z (composer always tappable).
-- When nav appears, composer stays at its bottom anchor — nav fades in **above** the home indicator but **behind** the composer dock visually (composer floats with underglow over the nav row → no double bottom controls).
-- Drawer side respects `isRTL` (already correct).
-- 402×716 viewport: nav row height 56px; composer height ~48px; total bottom stack ≤ 120px when nav is visible. No artifact occlusion (artifact stack is anchored 220px above bottom, already verified Phase 1).
+## E. Manifestation replacements (where killed UX goes)
 
-## Out of scope (defer to Phase 2)
+| Killed UX | Replacement |
+|-----------|-------------|
+| "Create 100-Day Plan" CTA | AION conversational nudges → summons a `Plan` artifact when ready. |
+| Pillar assessment selection | Invisible inference via chat. AION may still summon `StrategyPillarWizard` as a contextual artifact. |
+| Outer World 12-tile grid | Contextual `AlignedRealities` list, AION-curated. |
+| Strategy/Actions tab bar | Single `Today` view; deeper plan summoned via artifact. |
+| ArenaHub generator entries | None. Surface remains reachable via direct URL only. |
 
-- Brain inner-map UX.
-- Journey single-step view.
-- Replacing legacy `FMBottomNav` / `DesktopSideNav` (they live on non-ShellV2 routes).
-- Any backend, orchestration, or RPC.
+---
 
-## Risks
+## F. Remaining architecture conflicts (call out before next phases)
 
-- Hiding nav by default means new users may not discover the 5 surfaces. Mitigation: drawer hamburger is always visible in the header, plus the grabber chevron. If discoverability is still weak we can auto-reveal once on first session.
-- Scroll-direction detection on a short conversation can flicker. Mitigation: 80px scroll threshold + 250ms debounce.
-- Drawer reskin risks regressing admin link visibility — keep `isAdmin` branch untouched.
+1. **Many "Hub" pages still routable** (`CareerHub`, `ArenaHub`, `BusinessDashboard`, `FreelancerHub`, `CreatorHub`, `JournalingHub`, `WorkHub`, `HypnosisPage`, `LifeHub`). They no longer have menu entries but exist as URLs. Decide later: convert to artifacts (modal-style), keep as deep-links, or delete.
+2. **`PlayLayoutWrapper`** (the action/missions surface) is still 100% built. We orphan it from Journey but keep mountable. Worth a Phase-2 review to decide if its content should be "summonable plan artifact" only.
+3. **Onboarding ceremony** still runs first-time. Worth confirming it's framed as ritual, not assessment.
+4. **Profile modal** still has Practices / Achievements / Inventory / OrbDNA modal launchers — the most visible remaining "stats dashboard" feeling. Phase-2 priority.
+5. **Marketing pages** (`/features/:slug`, blog, courses) live outside the 5 realms — fine, but ensure no in-app links push users back to those.
 
-## Return after implementation
+---
 
-1. Files changed
-2. Nav idle rules (final thresholds)
-3. Composer behavior changes
-4. Drawer changes
-5. 402×716 preview notes (idle / active / streaming / drawer open)
-6. Remaining issues before Phase 2 Brain
+## G. Risks
+
+- Removing the empty-state CTA could leave a brand-new user on `/journey` with no obvious next step. Mitigation: ambient "Open chat" ghost link is the one explicit affordance.
+- Pillar `assess` routes still work via URL — AION must summon them deliberately. If something old still link-pushes the user there, it'll feel orphaned. We'll leave a soft redirect notice as future cleanup.
+- `LifeHub` is huge (759 lines) and embedded inside StrategyPage. Removing only the empty-state block is safe; refactoring further would balloon scope.
+
+---
+
+## H. Deliverable on implementation
+
+- Files changed
+- Wireframe decisions (Journey, Outer World)
+- Manifestation replacements
+- Remaining old-SaaS surfaces still routable
+- What still breaks the OS illusion (Phase-2 backlog)
