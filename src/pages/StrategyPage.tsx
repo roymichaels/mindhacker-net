@@ -1,6 +1,8 @@
 /**
- * StrategyPage — flat top-level Strategy environment (replaces MindOS hub layer).
- * Tabs: Overview (LifeHub) + Mission Control (PlayLayoutWrapper). URL-synced via ?tab=.
+ * StrategyPage — canonical Journey surface (Phase D).
+ * Hosts the existing strategy/plan/mission engines under the new "Journey" label.
+ * Tabs: Overview (LifeHub) + Actions (PlayLayoutWrapper). URL-synced via ?tab=.
+ * Mounted at both /journey (canonical) and /strategy (legacy deep-links).
  */
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -21,8 +23,8 @@ function StrategyPageImpl() {
 
   const tabs = useMemo(
     () => [
-      { id: 'overview' as const, label: isHe ? 'סקירה' : 'Overview', icon: Eye },
-      { id: 'missions' as const, label: isHe ? 'בקרת משימות' : 'Mission Control', icon: ListChecks },
+      { id: 'overview' as const, label: isHe ? 'מסע' : 'Journey', icon: Eye },
+      { id: 'missions' as const, label: isHe ? 'פעולות' : 'Actions', icon: ListChecks },
     ],
     [isHe],
   );

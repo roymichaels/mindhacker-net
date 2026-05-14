@@ -117,8 +117,8 @@ export default function ShellV2Header() {
       >
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
         <SheetHeader className="sr-only">
-          <SheetTitle>{isHe ? 'בקרת משימות' : 'Mission Control'}</SheetTitle>
-          <SheetDescription>{isHe ? 'נגן המשימות מהאסטרטגיה' : 'Strategy mission player'}</SheetDescription>
+          <SheetTitle>{isHe ? 'פעולות' : 'Actions'}</SheetTitle>
+          <SheetDescription>{isHe ? 'נגן הפעולות של המסע' : 'Journey action player'}</SheetDescription>
         </SheetHeader>
         <MissionControlTab />
       </SheetContent>
