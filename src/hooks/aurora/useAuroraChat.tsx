@@ -265,6 +265,8 @@ export const useAuroraChat = (conversationId: string | null) => {
       console.error('Failed to save message:', insertError);
       setError('Failed to send message');
       setIsStreaming(false);
+      try { clearTimeout(_formingTimer); } catch { /* noop */ }
+      aionPresenceBus.set('resting');
       return;
     }
 
