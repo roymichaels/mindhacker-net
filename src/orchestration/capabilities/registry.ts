@@ -47,6 +47,22 @@ export const CAPABILITIES = {
   'daily.generate':     def({ id: 'daily.generate',     description: 'Preview today\'s queue (suggestion, no write).',       inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.next',       declaredMode: 'suggest' }),
   'plan.summarize':     def({ id: 'plan.summarize',     description: 'Summarize the active life plan.',                      inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.summary',    declaredMode: 'read' }),
   'journal.search':     def({ id: 'journal.search',     description: 'Search recent journal entries (read-only).',           inputSchema: z.object({ query: z.string().optional() }),                                safety: 'safe',   artifactKind: 'journal.preview',    declaredMode: 'read' }),
+  // Phase 2 · Batch 2 — Business / Creator / Freelancer
+  'business.summarize':       def({ id: 'business.summarize',       description: 'Summarize the active business journey + plan.',        inputSchema: z.object({}).optional(),                          safety: 'safe', artifactKind: 'business.canvas',         declaredMode: 'read' }),
+  'business.createDraft':     def({ id: 'business.createDraft',     description: 'Draft a new business plan (confirm-required).',         inputSchema: z.object({ topic: z.string().optional() }),       safety: 'safe', artifactKind: 'business.canvas',         declaredMode: 'mutate' }),
+  'creator.content.generate': def({ id: 'creator.content.generate', description: 'Generate content for creator/freelancer (confirm).',    inputSchema: z.object({ topic: z.string().optional() }),       safety: 'safe', artifactKind: 'business.canvas',         declaredMode: 'mutate' }),
+  // Landing pages
+  'landing.preview':          def({ id: 'landing.preview',          description: 'Preview existing landing pages (read-only).',           inputSchema: z.object({}).optional(),                          safety: 'safe', artifactKind: 'landing.preview',         declaredMode: 'read' }),
+  'landing.generate':         def({ id: 'landing.generate',         description: 'Generate a new landing page draft (confirm-required).', inputSchema: z.object({ offer: z.string().optional() }),       safety: 'safe', artifactKind: 'landing.preview',         declaredMode: 'mutate' }),
+  // Course / Learning
+  'course.recommend':         def({ id: 'course.recommend',         description: 'Recommend courses from the catalog (read-only).',       inputSchema: z.object({ query: z.string().optional() }),       safety: 'safe', artifactKind: 'course.card',             declaredMode: 'read' }),
+  'curriculum.generate':      def({ id: 'curriculum.generate',      description: 'Generate a personalised curriculum (confirm-required).',inputSchema: z.object({ topic: z.string().optional() }),       safety: 'safe', artifactKind: 'curriculum.preview',      declaredMode: 'mutate' }),
+  // Coach / Practitioner matching
+  'coach.recommend':          def({ id: 'coach.recommend',          description: 'Recommend a practitioner from the marketplace.',        inputSchema: z.object({ query: z.string().optional() }),       safety: 'safe', artifactKind: 'coach.recommendation',    declaredMode: 'read' }),
+  'coach.match':              def({ id: 'coach.match',              description: 'Surface best coach match (external/payment intent).',   inputSchema: z.object({ query: z.string().optional() }),       safety: 'safe', artifactKind: 'coach.recommendation',    declaredMode: 'mutate' }),
+  // Profile / Identity / Avatar
+  'identity.bootstrap':       def({ id: 'identity.bootstrap',       description: 'Bootstrap identity (profile/DNA/avatar status).',       inputSchema: z.object({}).optional(),                          safety: 'safe', artifactKind: 'identity.summary',        declaredMode: 'read' }),
+  'avatar.configure':         def({ id: 'avatar.configure',         description: 'Open avatar configurator (confirm-required mutate).',   inputSchema: z.object({}).optional(),                          safety: 'safe', artifactKind: 'avatar.configurator',     declaredMode: 'mutate' }),
 } as const;
 
 export type CapabilityId = keyof typeof CAPABILITIES;
@@ -74,6 +90,12 @@ export const CONFIRM_REQUIRED_CAPABILITIES: ReadonlySet<CapabilityId> = new Set<
   'journal.capture',
   'action.complete',
   'hypnosis.start',
+  'business.createDraft',
+  'creator.content.generate',
+  'landing.generate',
+  'curriculum.generate',
+  'coach.match',
+  'avatar.configure',
 ]);
 
 export function effectiveMode(id: CapabilityId): CapabilityMode {

@@ -25,6 +25,10 @@ import {
 import { summarizeBrain } from '@/services/brainQuery';
 import { recommendHypnosis } from '@/services/hypnosisCatalog';
 import { searchJournalEntries } from '@/services/journalEntries';
+import { summarizeBusiness, previewLandingPages } from '@/services/businessSummary';
+import { recommendCoaches } from '@/services/coachMatch';
+import { recommendCourses, summarizeCurriculum } from '@/services/courseCatalog';
+import { identityBootstrapStatus, getAvatarConfig } from '@/services/avatarConfig';
 
 export interface ReadResult {
   ok: boolean;
@@ -180,6 +184,78 @@ async function readOuterWorld(): Promise<Pick<ReadResult, 'sources' | 'rowCounts
   };
 }
 
+/* ─── Phase 2 · Batch 2 reads ─── */
+
+async function readBusiness(userId: string) {
+  const s = await summarizeBusiness(userId);
+  return {
+    sources: ['business_journeys:latest', 'business_plans:latest', 'business_branding:latest'],
+    rowCounts: { business_journeys: s.journey ? 1 : 0, business_plans: s.plan ? 1 : 0, business_branding: s.branding ? 1 : 0 },
+    summary: s.text,
+    data: { journey: s.journey, plan: s.plan, hasBranding: !!s.branding },
+  };
+}
+
+async function readLanding(userId: string) {
+  const s = await previewLandingPages(userId);
+  return {
+    sources: ['coach_landing_pages:recent'],
+    rowCounts: { coach_landing_pages: s.total },
+    summary: s.text,
+    data: { recent: s.recent, total: s.total },
+  };
+}
+
+async function readCourses(query?: string) {
+  const r = await recommendCourses(query);
+  return {
+    sources: ['content_products:courses-published'],
+    rowCounts: { content_products: r.total },
+    summary: r.text,
+    data: { samples: r.samples, pick: r.pick },
+  };
+}
+
+async function readCurriculum(userId: string) {
+  const r = await summarizeCurriculum(userId);
+  return {
+    sources: ['learning_curricula:latest'],
+    rowCounts: { learning_curricula: r.curriculum ? 1 : 0 },
+    summary: r.text,
+    data: { curriculum: r.curriculum },
+  };
+}
+
+async function readCoaches(query?: string) {
+  const r = await recommendCoaches(query);
+  return {
+    sources: ['practitioners:featured'],
+    rowCounts: { practitioners: r.total },
+    summary: r.text,
+    data: { samples: r.samples, pick: r.pick },
+  };
+}
+
+async function readIdentity(userId: string) {
+  const s = await identityBootstrapStatus(userId);
+  return {
+    sources: ['profiles:self', 'aurora_identity_elements:count', 'avatar_customizations:self'],
+    rowCounts: { profile: s.hasProfile ? 1 : 0, identity: s.hasIdentityElements ? 1 : 0, avatar: s.hasAvatar ? 1 : 0 },
+    summary: s.text,
+    data: { ...s },
+  };
+}
+
+async function readAvatar(userId: string) {
+  const s = await getAvatarConfig(userId);
+  return {
+    sources: ['avatar_customizations:self'],
+    rowCounts: { avatar_customizations: s.hasCustomization ? 1 : 0 },
+    summary: s.text,
+    data: { hasCustomization: s.hasCustomization },
+  };
+}
+
 /* ───────────────────────────── public dispatcher ───────────────────────────── */
 
 export interface ReadCapabilityOptions {
@@ -219,6 +295,24 @@ export async function executeReadCapability(
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJournalSearch(userId, options.query)) };
       case 'outerWorld.open':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readOuterWorld()) };
+      case 'business.summarize':
+      case 'business.createDraft':
+      case 'creator.content.generate':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readBusiness(userId)) };
+      case 'landing.preview':
+      case 'landing.generate':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readLanding(userId)) };
+      case 'course.recommend':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readCourses(options.query)) };
+      case 'curriculum.generate':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readCurriculum(userId)) };
+      case 'coach.recommend':
+      case 'coach.match':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readCoaches(options.query)) };
+      case 'identity.bootstrap':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readIdentity(userId)) };
+      case 'avatar.configure':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readAvatar(userId)) };
       default:
         return fail(capability, t0, 'no-read-handler');
     }
