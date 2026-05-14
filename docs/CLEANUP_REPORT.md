@@ -1,4 +1,62 @@
 
+## Phase F · Step 1 — AION Orchestration Wiring (DONE — observe mode only)
+
+### What shipped
+1. **Trace stages extended** (`src/diagnostics/diagnosticsBus.ts`):
+   added `intent.detected`, `emotion.detected`, `graph.read`,
+   `capability.candidate`, `capability.skipped`, `artifact.candidate`,
+   `artifact.skipped`, `router.error` to `AionTraceEvent.stage`.
+   Existing `AIONTracePanel` timeline renders them generically.
+2. **Capability registry** (`src/orchestration/capabilities/registry.ts`) —
+   typed-only, 10 capabilities (`brain.query`, `brain.openRoom`,
+   `journey.nextAction`, `journey.summarize`, `plan.suggest`, `task.suggest`,
+   `journal.capture`, `hypnosis.recommend`, `outerWorld.open`,
+   `profile.summarize`). Each has id, description, Zod input schema, safety,
+   artifactKind, declaredMode. `effectiveMode()` hard-overrides every entry
+   to `observe` for Phase 1.
+3. **Observe-mode router** (`src/orchestration/router/observeRouter.ts`) —
+   pure function with bilingual (HE/EN) keyword rules. Returns
+   `{ capability, artifactKind, mode, reason, matchedKeywords, skipped, skippedReason }`.
+   Never invokes anything.
+4. **Wired into chat turn** (`src/hooks/aurora/useAuroraChat.tsx`) — after
+   `sense.dispatched`, the router runs and emits up to three trace marks per
+   turn (`capability.candidate`, `artifact.candidate`, `capability.skipped`).
+   Errors caught into `router.error`. No mutation, no UI change.
+5. **Acceptance harness** (`src/diagnostics/sections/AIONRouterAcceptance.tsx`)
+   added as section "0b" in DiagnosticsSheet. Runs the 5 prompts through
+   `routeObserve()` and prints the decision table inline.
+
+### Acceptance trace (router output for the 5 prompts)
+
+| Prompt (HE) | Capability | Artifact | Mode | Reason | Skipped |
+|---|---|---|---|---|---|
+| מה כדאי לי לעשות היום? | `journey.nextAction` | `journey.next` | observe | `keyword:מה כדאי\|מה לעשות\|אני תקוע\|הצעד הבא` | phase-1-observe-only |
+| אני תקוע | `journey.nextAction` | `journey.next` | observe | same | phase-1-observe-only |
+| תראה לי את המוח שלי | `brain.query` | — | observe | `keyword:המוח שלי\|מפת תודעה\|מי אני` | phase-1-observe-only |
+| תבנה לי עסק | `plan.suggest` | `plan.draft` | observe | `keyword:תוכנית\|אסטרטגיה\|מסלול\|עסק` | phase-1-observe-only |
+| אני רוצה לישון יותר טוב | `hypnosis.recommend` | `hypnosis.session` | observe | `keyword:לישון\|להירדם\|להירגע\|היפנוזה` | phase-1-observe-only |
+
+On every live turn the same decision is now visible in dev:
+`turn.start → sense.dispatched → capability.candidate → artifact.candidate → capability.skipped → stream.start → stream.end → post.memory-writer → turn.end`.
+
+### What did NOT change
+- `aion-orchestrator` edge function untouched.
+- `aion-brain`, memory-writer, planning engines untouched.
+- No DB migrations.
+- No new UI for end users; the harness lives only inside `DiagnosticsSheet` (dev-only).
+- All capabilities locked to `observe` regardless of declared mode.
+
+### Risks queued for Step 2
+- Router heuristics are keyword-based; needs reconciliation with real
+  `intent.classify` results (currently fire-and-forget).
+- Capability execution paths still live in the chat hook + plan engine
+  rather than behind the registry — Step 2 will move them.
+- `aion-orchestrator` and `aion-brain` overlap; Step 2 will pick a single
+  writer.
+
+### Reversibility
+Two new files + 3 patches. Rollback = `git revert`.
+
 ## Phase E — Provider + Overlay Consolidation (DONE — non-destructive audit + targeted removals)
 
 ### Provider table
