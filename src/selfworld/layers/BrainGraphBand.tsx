@@ -15,7 +15,7 @@ export default function BrainGraphBand() {
   const profileModal = useProfileModal();
 
   const open = () => {
-    try { profileModal.closeProfile?.(); } catch {}
+    profileModal.closeProfile();
     navigate('/brain');
   };
 
