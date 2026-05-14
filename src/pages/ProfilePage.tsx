@@ -20,6 +20,7 @@ import ProfileNFTTriad from '@/components/profile/ProfileNFTTriad';
 import ProfileHeroSection from '@/components/profile/ProfileHeroSection';
 import BrainView from '@/features/brain/BrainView';
 import BackButton from '@/components/navigation/BackButton';
+import SelfPanel from '@/components/self/SelfPanel';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -66,32 +67,14 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* ═══════ HERO: Full Avatar + User Info + Stats ═══════ */}
-      <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        <ProfileHeroSection />
-      </div>
-
-      {/* ═══════ NFT TRIAD ═══════ */}
-      <div className="px-4 pb-2 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        <ProfileNFTTriad />
-      </div>
-
-      {/* ═══════ BRAIN VIEW (primary) ═══════ */}
-      <div className="px-4 mt-3 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        <BrainView />
-      </div>
-
-      {/* ═══════ CLASSIC TOGGLE ═══════ */}
-      <div className="px-4 mt-3 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        <button
-          onClick={() => setClassicOpen((v) => !v)}
-          className="w-full text-[11px] text-muted-foreground hover:text-foreground py-2 rounded-xl border border-border/30"
-        >
-          {classicOpen ? (isHe ? 'הסתר תצוגה קלאסית' : 'Hide classic view') : (isHe ? 'הצג תצוגה קלאסית' : 'Show classic view')}
-        </button>
-      </div>
-
-      {!classicOpen && <div className="h-16" />}
+      {/* Phase 2 — identity-first SelfPanel by default. Legacy stat-heavy
+          surfaces remain reachable via the "Advanced" link inside SelfPanel. */}
+      {!classicOpen && (
+        <>
+          <SelfPanel onOpenAdvanced={() => setClassicOpen(true)} />
+          <div className="h-16" />
+        </>
+      )}
 
       {classicOpen && <>
       {/* ═══════ ACTION BUTTONS (2x2 grid) ═══════ */}
