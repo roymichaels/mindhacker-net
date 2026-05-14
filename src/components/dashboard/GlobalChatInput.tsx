@@ -327,6 +327,11 @@ const GlobalChatInput = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={handleFocus}
+              onBlur={() => {
+                setTimeout(() => {
+                  if (aionPresenceBus.get() === 'listening') aionPresenceBus.set('resting');
+                }, 2000);
+              }}
               placeholder={isRTL ? `שלח/י הודעה ל-${aionName}...` : `Message ${aionName}...`}
               disabled={isStreaming || isRecording}
               rows={1}
