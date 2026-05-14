@@ -227,19 +227,20 @@ const GlobalChatInput = () => {
 
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         {/* Single cinematic atmo pill */}
-        <div className="atmo-surface relative flex items-end gap-1 rounded-full px-2 py-1.5 focus-within:aion-glow-cyan transition-shadow">
+        {/* Command dock — barely-there pill, hovers on the environmental glow */}
+        <div className="relative flex items-end gap-1 rounded-full px-2 py-1.5 bg-foreground/[0.035] backdrop-blur-2xl border border-white/[0.04] focus-within:border-white/10 focus-within:shadow-[0_0_36px_hsl(var(--aion-violet)/0.18)] transition-all">
           {/* Plus Button with Attach Menu */}
           <div className="relative" ref={menuRef}>
             <button
               type="button"
               onClick={() => setShowAttachMenu(!showAttachMenu)}
               className={cn(
-                "h-9 w-9 flex items-center justify-center rounded-full text-foreground/55 hover:text-foreground hover:bg-white/[0.05] transition-all shrink-0",
+                "h-9 w-9 flex items-center justify-center rounded-full text-foreground/30 hover:text-foreground/80 transition-all shrink-0",
                 showAttachMenu && "rotate-45 text-foreground"
               )}
               aria-label="More"
             >
-              <Plus className="w-[18px] h-[18px] transition-transform" />
+              <Plus className="w-4 h-4 transition-transform" strokeWidth={1.6} />
             </button>
 
             {/* Attach Menu Popover */}
