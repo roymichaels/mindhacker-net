@@ -11,11 +11,11 @@ import { useState } from 'react';
 import { Info } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
-import aionOrb from '@/assets/aion-ring.png';
 import { zStyle } from './zindex';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
 import { AionHeader } from '@/components/aion/ui';
+import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 
 export default function ShellV2Header() {
   const overlay = useOverlay();
@@ -43,7 +43,7 @@ export default function ShellV2Header() {
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
         <SheetHeader className={isRTL ? 'text-right' : 'text-left'}>
           <div className="flex items-center gap-2">
-            <img src={aionOrb} alt="" width={32} height={32} className="block h-8 w-8 object-contain" />
+            <CanonicalAionModel size={32} ariaLabel="AION" />
             <SheetTitle className="text-lg">{brand}</SheetTitle>
           </div>
           <SheetDescription className="text-foreground/70">
