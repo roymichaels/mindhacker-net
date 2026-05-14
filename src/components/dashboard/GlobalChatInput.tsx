@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Send, Loader2, Plus, Image, Camera, X, Mic, Sparkles } from 'lucide-react';
+import { Send, Loader2, Plus, Image, Camera, X, Mic } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
@@ -17,7 +17,6 @@ import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import CapabilityLauncherSheet from '@/components/aion/CapabilityLauncherSheet';
 
 const GlobalChatInput = () => {
   const queryClient = useQueryClient();
@@ -28,7 +27,6 @@ const GlobalChatInput = () => {
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
-  const [showLauncher, setShowLauncher] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -252,26 +250,24 @@ const GlobalChatInput = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   className={cn(
-                    "absolute bottom-full mb-2 bg-background/95 backdrop-blur-xl",
-                    "border border-border rounded-xl shadow-lg",
-                    "p-2 min-w-[140px]",
+                    "atmo-surface absolute bottom-full mb-2 rounded-2xl p-2 min-w-[160px]",
                     isRTL ? "right-0" : "left-0"
                   )}
                 >
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors text-sm aion-text-soft hover:text-foreground"
                   >
-                    <Image className="w-4 h-4 text-foreground/60" />
+                    <Image className="w-4 h-4 aion-text-mute" />
                     <span>{isRTL ? 'תמונה' : 'Photo'}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => cameraInputRef.current?.click()}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors text-sm aion-text-soft hover:text-foreground"
                   >
-                    <Camera className="w-4 h-4 text-foreground/60" />
+                    <Camera className="w-4 h-4 aion-text-mute" />
                     <span>{isRTL ? 'מצלמה' : 'Camera'}</span>
                   </button>
                   <button
@@ -280,21 +276,10 @@ const GlobalChatInput = () => {
                       setShowAttachMenu(false);
                       voiceMode.open();
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors text-sm aion-text-soft hover:text-foreground"
                   >
-                    <Mic className="w-4 h-4 text-foreground/60" />
+                    <Mic className="w-4 h-4 aion-text-mute" />
                     <span>{isRTL ? 'מצב קול' : 'Voice mode'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAttachMenu(false);
-                      setShowLauncher(true);
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
-                  >
-                    <Sparkles className="w-4 h-4 text-foreground/60" />
-                    <span>{isRTL ? 'יכולות AION' : 'AION capabilities'}</span>
                   </button>
                 </motion.div>
               )}
@@ -379,13 +364,6 @@ const GlobalChatInput = () => {
       </form>
 
       {/* Free tier message counter */}
-      {!isPro && (
-        <p className="text-[10px] text-muted-foreground text-center mt-1">
-          {isRTL
-            ? `${messagesRemaining} הודעות נותרו היום`
-            : `${messagesRemaining} messages remaining today`}
-        </p>
-      )}
 
       <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
       <AuroraVoiceMode
@@ -397,7 +375,6 @@ const GlobalChatInput = () => {
         onClose={voiceMode.close}
         onStopListening={voiceMode.stopListening}
       />
-      <CapabilityLauncherSheet open={showLauncher} onOpenChange={setShowLauncher} />
     </div>
   );
 };
