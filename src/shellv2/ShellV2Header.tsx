@@ -8,15 +8,14 @@
  * OverlayController.
  */
 import { useState } from 'react';
-import { Menu, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
-import { AionRingMark } from '@/components/aion/AionRingMark';
 import aionOrb from '@/assets/aion-ring.png';
 import { zStyle } from './zindex';
-import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
+import { AionHeader } from '@/components/aion/ui';
 
 export default function ShellV2Header() {
   const overlay = useOverlay();
@@ -27,71 +26,13 @@ export default function ShellV2Header() {
 
   return (
     <>
-    <header
-      className={cn(
-        'pointer-events-none fixed inset-x-0 top-0',
-        'bg-transparent dark:backdrop-blur-xl dark:backdrop-saturate-150',
-        'pt-[env(safe-area-inset-top)]',
-      )}
+    <AionHeader
+      brand={brand}
       style={zStyle('chrome')}
-      data-shellv2-layer="chrome"
-      data-shellv2-header
-      dir={isRTL ? 'rtl' : 'ltr'}
-    >
-      {/* Cinematic top tint — subtle gradient that fades into the atmosphere */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-full hidden dark:block"
-        style={{
-          background:
-            'linear-gradient(180deg, hsl(var(--aion-navy) / 0.55) 0%, transparent 100%)',
-        }}
-      />
-      <div className="pointer-events-auto relative mx-auto flex min-h-[56px] w-full max-w-screen-md items-center justify-between gap-3 px-4 sm:px-6">
-        {/* Left: ghost menu */}
-        <button
-          type="button"
-          aria-label={language === 'he' ? 'תפריט' : 'Menu'}
-          onClick={() => overlay.open('drawer')}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/70 transition-colors hover:text-foreground hover:bg-white/[0.04]"
-        >
-          <Menu className="h-[18px] w-[18px]" />
-        </button>
-
-        {/* Center: brand (tap to open about sheet) */}
-        <button
-          type="button"
-          onClick={() => setBrandOpen(true)}
-          className="flex min-w-0 flex-1 items-center justify-center gap-2 select-none px-3 py-1 active:scale-[0.97] transition"
-          aria-label={isHe ? 'אודות' : 'About'}
-        >
-          <span className="aion-text-hero text-[18px] font-semibold tracking-[0.32em] leading-none">
-            {brand}
-          </span>
-        </button>
-
-        {/* Right: small living orb (taps into Interactive AION) */}
-        <button
-          type="button"
-          aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
-          onClick={() => openInteractiveAION()}
-          className="relative flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-95 animate-aion-breath"
-        >
-          <span
-            aria-hidden
-            className="absolute inset-0 -z-0 rounded-full dark:aion-glow-soft"
-          />
-          <img
-            src={aionOrb}
-            alt=""
-            width={28}
-            height={28}
-            draggable={false}
-            className="relative block h-7 w-7 object-contain"
-          />
-        </button>
-      </div>
-    </header>
+      onMenuClick={() => overlay.open('drawer')}
+      onBrandClick={() => setBrandOpen(true)}
+      onOrbClick={() => openInteractiveAION()}
+    />
 
     <Sheet open={brandOpen} onOpenChange={setBrandOpen}>
       <SheetContent
