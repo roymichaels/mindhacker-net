@@ -7,13 +7,14 @@
 import { useMemo } from 'react';
 import { routeObserve } from '@/orchestration/router/observeRouter';
 import { previewBridge } from '@/orchestration/artifacts/safeBridge';
+import { CONFIRM_REQUIRED_CAPABILITIES } from '@/orchestration/capabilities/registry';
 
 const PROMPTS: string[] = [
-  'מה אתה יודע עליי?',
-  'מה כדאי לי לעשות היום?',
-  'תראה לי את המוח שלי',
-  'מה המצב של המסע שלי?',
+  'תשמור את זה ביומן',
+  'סמן שסיימתי את זה',
   'אני רוצה לישון יותר טוב',
+  'מה כדאי לי לעשות עכשיו?',
+  'פתח לי את החדר של האמונות',
 ];
 
 export default function AIONRouterAcceptance() {
@@ -22,7 +23,10 @@ export default function AIONRouterAcceptance() {
       PROMPTS.map((p) => {
         const decision = routeObserve({ content: p, route: '/aurora', language: 'he' });
         const bridge = previewBridge(decision);
-        return { prompt: p, decision, bridge };
+        const needsConfirm = decision.capability
+          ? CONFIRM_REQUIRED_CAPABILITIES.has(decision.capability)
+          : false;
+        return { prompt: p, decision, bridge, needsConfirm };
       }),
     [],
   );
@@ -42,7 +46,7 @@ export default function AIONRouterAcceptance() {
               <th className="text-start">Mode</th>
               <th className="text-start">Artifact</th>
               <th className="text-start">Renderer</th>
-              <th className="text-start">Bridge</th>
+              <th className="text-start">Flow</th>
               <th className="text-start">Reason</th>
             </tr>
           </thead>
@@ -53,8 +57,12 @@ export default function AIONRouterAcceptance() {
                 <td className="align-top">{r.decision.capability ?? '—'}</td>
                 <td className="align-top">{r.decision.mode}</td>
                 <td className="align-top">{r.decision.artifactKind ?? '—'}</td>
-                <td className="align-top">{r.bridge.rendered ? r.bridge.rendererKind : '—'}</td>
-                <td className="align-top">{r.bridge.rendered ? 'rendered' : 'skipped'}</td>
+                <td className="align-top">
+                  {r.needsConfirm ? 'confirm' : (r.bridge.rendered ? r.bridge.rendererKind : '—')}
+                </td>
+                <td className="align-top">
+                  {r.needsConfirm ? 'confirmation' : (r.bridge.rendered ? 'rendered' : 'skipped')}
+                </td>
                 <td className="align-top text-muted-foreground">
                   {r.bridge.rendered ? r.decision.reason : (r.bridge as { reason: string }).reason}
                 </td>

@@ -504,3 +504,51 @@ capability. Add ESLint `no-restricted-syntax` rule.
 - `LegacyMountGuard` zero hits for 48 h before any source delete.
 - `knip` + `ts-prune` must report 0 unused files in `src/`.
 - Update `docs/APP_MAP.md` and memory index to the 5-surface model.
+
+## Phase F · Step 4 — Confirmation Flow (executed)
+
+Added confirm-required capabilities and the confirmation bridge.
+
+### New capabilities (registry.ts)
+
+| id | mode | safety | confirm-required | mutation endpoint |
+|---|---|---|---|---|
+| action.complete | mutate | safe | yes | `completeAction()` → `action_items` |
+| hypnosis.start  | mutate | safe | yes | preview-only (no endpoint) |
+| journal.capture | suggest | safe | yes | `createJournalEntry()` → `journal_entries` |
+
+`effectiveMode()` now demotes any `mutate` capability to `observe`. Mutations
+flow exclusively through the confirm artifact.
+
+### Files
+
+- `src/orchestration/capabilities/registry.ts` — `CONFIRM_REQUIRED_CAPABILITIES`
+- `src/orchestration/router/observeRouter.ts` — keyword rules for
+  `action.complete`, `hypnosis.start`, refined `journal.capture`,
+  tightened `brain.openRoom`
+- `src/orchestration/executors/safeMutationExecutor.ts` (new)
+- `src/orchestration/artifacts/confirmationBridge.ts` (new)
+- `src/components/aion/artifacts/artifactBus.ts` — `secondaryCta`, `meta`
+- `src/components/aion/artifacts/ArtifactLayer.tsx` — render confirm/cancel pair
+- `src/diagnostics/diagnosticsBus.ts` — new stages
+  (`suggestion.generated`, `confirmation.shown/accepted/cancelled`,
+  `mutation.executed/skipped`)
+- `src/hooks/aurora/useAuroraChat.tsx` — confirmation bridge wiring
+- `src/diagnostics/sections/AIONRouterAcceptance.tsx` — new acceptance prompts
+
+### Acceptance prompts (router preview)
+
+| Prompt | Capability | Mode | Flow |
+|---|---|---|---|
+| תשמור את זה ביומן | journal.capture | observe (mutate-gated) | confirm |
+| סמן שסיימתי את זה | action.complete | observe (mutate-gated) | confirm |
+| אני רוצה לישון יותר טוב | hypnosis.recommend | read | rendered (capability) |
+| מה כדאי לי לעשות עכשיו? | journey.nextAction | read | rendered (next_action) |
+| פתח לי את החדר של האמונות | brain.openRoom | read | rendered (insight) |
+
+### Still disabled (forced to observe)
+
+`plan.create`, `plan.restart`, `plan.delete`, `action.create`,
+`mission.create`, `habit.create`, `identity.updateProfile`,
+`landing.generate`, `business.createDraft`. None appear in registry; no
+router rule maps to them; bridge has no renderer.

@@ -42,6 +42,8 @@ export const CAPABILITIES = {
   'hypnosis.recommend': def({ id: 'hypnosis.recommend', description: 'Recommend a hypnosis/recovery session.',             inputSchema: z.object({ topic: z.string().optional() }),                                safety: 'safe',   artifactKind: 'hypnosis.session',   declaredMode: 'read' }),
   'outerWorld.open':    def({ id: 'outerWorld.open',    description: 'Open an Outer World surface (coaches, market, …).',  inputSchema: z.object({ surface: z.string().optional() }),                              safety: 'safe',   artifactKind: 'outer-world.surface', declaredMode: 'read' }),
   'profile.summarize':  def({ id: 'profile.summarize',  description: 'Summarize identity/DNA/profile.',                    inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'profile.summary',    declaredMode: 'read' }),
+  'action.complete':    def({ id: 'action.complete',    description: 'Mark an existing action item as completed (confirm).', inputSchema: z.object({ actionId: z.string().optional() }),                            safety: 'safe',   artifactKind: 'action.complete',    declaredMode: 'mutate' }),
+  'hypnosis.start':     def({ id: 'hypnosis.start',     description: 'Start a hypnosis session for the user (confirm).',     inputSchema: z.object({ audioId: z.string().optional() }),                              safety: 'safe',   artifactKind: 'hypnosis.start',     declaredMode: 'mutate' }),
 } as const;
 
 export type CapabilityId = keyof typeof CAPABILITIES;
@@ -59,10 +61,24 @@ export type CapabilityId = keyof typeof CAPABILITIES;
  */
 const ALLOWED_EXECUTION: ReadonlySet<CapabilityMode> = new Set(['read', 'suggest']);
 
+/**
+ * Phase F · Step 4 — capabilities that may mutate the database, but ONLY
+ * after explicit user confirmation through the confirm artifact flow.
+ * The bridge produces a sticky `confirm` artifact for these IDs; nothing
+ * runs until the user taps the confirm CTA.
+ */
+export const CONFIRM_REQUIRED_CAPABILITIES: ReadonlySet<CapabilityId> = new Set<CapabilityId>([
+  'journal.capture',
+  'action.complete',
+  'hypnosis.start',
+]);
+
 export function effectiveMode(id: CapabilityId): CapabilityMode {
   const def = CAPABILITIES[id];
   if (!def) return 'observe';
   if (def.safety === 'unsafe') return 'observe';
+  // Mutate capabilities never auto-execute; they go through confirmation.
+  if (def.declaredMode === 'mutate') return 'observe';
   if (ALLOWED_EXECUTION.has(def.declaredMode)) return def.declaredMode;
   return 'observe';
 }
