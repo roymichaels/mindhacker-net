@@ -100,10 +100,9 @@ export const PROTECTED_REDIRECTS: [string, string][] = [
   ['/play-hub', '/strategy?tab=missions'],
   ['/tactics', '/strategy?tab=missions'],
   ['/arena', '/strategy'],
-  // Phase C — /journey is canonical; alias to /strategy until the dedicated
-  // surface ships. /profile stays at /aurora (Profile is opened as overlay).
-  ['/journey', '/strategy'],
-  ['/journey/*', '/strategy'],
+  // Phase D — /journey is the canonical action surface and renders directly
+  // (see App.tsx). Legacy /journey deep-paths fall back to it.
+  ['/journey/*', '/journey'],
   ['/personal-hypnosis/success', '/strategy?tab=missions'],
   ['/personal-hypnosis/pending', '/strategy?tab=missions'],
   // Legacy hub aliases

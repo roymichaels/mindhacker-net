@@ -345,6 +345,10 @@ const App = () => (
                                                     `plan` artifact inside ShellV2; otherwise legacy page. */}
                                                 {/* Quarantined — legacy surfaces redirect to ShellV2 home. */}
                                                 <Route path="/strategy" element={<StrategyPage />} />
+                                                {/* Phase D — /journey is the canonical action surface.
+                                                    Hosts the same Strategy/Mission engines under the new label.
+                                                    /strategy stays mounted for legacy deep-links (pillar pages). */}
+                                                <Route path="/journey" element={<StrategyPage />} />
                                                 <Route path="/hypnosis" element={<HypnosisPage />} />
                                                 <Route path="/journal" element={<JournalingHub />} />
                                                 {/* All legacy aliases (/play /now /plan /hallway /mindos/* /work /life /career /*-hub …)
