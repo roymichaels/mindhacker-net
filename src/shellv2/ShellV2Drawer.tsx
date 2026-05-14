@@ -23,9 +23,10 @@ import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { cn } from '@/lib/utils';
 import { CANONICAL_SURFACES } from '@/navigation/canonicalSurfaces';
 
+import type { LucideIcon } from 'lucide-react';
 interface DrawerItem {
   id: string;
-  icon: typeof Home;
+  icon: LucideIcon;
   labelEn: string;
   labelHe: string;
   onSelect: () => void | Promise<void>;
