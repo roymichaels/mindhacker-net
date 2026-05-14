@@ -283,24 +283,56 @@ export const useAuroraChat = (conversationId: string | null) => {
             reason: decision.reason,
             matched: decision.matchedKeywords,
           });
-          // Phase F · Step 2 — Safe Artifact Bridge.
-          // Renders ONE existing safe artifact per turn, or logs a structured
-          // skip reason. Strictly non-destructive (no DB / no execution).
+          // Phase F · Step 3 — Safe Read execution + Artifact bridge.
+          //   - mode === 'read' | 'suggest' → run safeReadExecutor (READ-only)
+          //   - mode === 'observe'          → skip read, still try the bridge
+          // Bridge then renders ONE existing safe artifact, grounded in the
+          // read summary when available. Never mutates user data.
+          let readResult: import('@/orchestration/executors/safeReadExecutor').ReadResult | null = null;
+          if ((decision.mode === 'read' || decision.mode === 'suggest') && user?.id) {
+            try {
+              const { executeReadCapability } = await import(
+                '@/orchestration/executors/safeReadExecutor'
+              );
+              readResult = await executeReadCapability(decision.capability, user.id);
+              tracer.mark('capability.executed', {
+                capability: decision.capability,
+                mode: decision.mode,
+                ok: readResult.ok,
+                duration_ms: readResult.durationMs,
+                sources: readResult.sources,
+                row_counts: readResult.rowCounts,
+                error: readResult.error,
+              });
+              if (readResult.sources.length) {
+                tracer.mark('graph.read', {
+                  sources: readResult.sources,
+                  row_counts: readResult.rowCounts,
+                });
+              }
+            } catch (e) {
+              tracer.mark('capability.error', {
+                capability: decision.capability,
+                error: (e as Error)?.message ?? 'unknown',
+              });
+            }
+          } else {
+            tracer.mark('capability.skipped', {
+              capability: decision.capability,
+              reason: decision.skippedReason ?? 'observe-only',
+            });
+          }
           try {
             const { bridgeDecisionToArtifact } = await import(
               '@/orchestration/artifacts/safeBridge'
             );
-            bridgeDecisionToArtifact(decision, tracer);
+            bridgeDecisionToArtifact(decision, tracer, readResult);
           } catch (e) {
             tracer.mark('artifact.skipped', {
               reason: 'bridge-error',
               error: (e as Error)?.message ?? 'unknown',
             });
           }
-          tracer.mark('capability.skipped', {
-            capability: decision.capability,
-            reason: decision.skippedReason ?? 'observe-mode',
-          });
         } else {
           tracer.mark('capability.skipped', { reason: decision.reason });
         }
