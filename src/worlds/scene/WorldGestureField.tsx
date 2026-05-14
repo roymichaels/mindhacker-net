@@ -216,7 +216,7 @@ export default function WorldGestureField({ worldId, verbs }: Props) {
   return (
     <div
       id={`world-gesture-field-${worldId}`}
-      className="fixed inset-0 z-[25]"
+      className="absolute inset-0 z-[5]"
       style={{ touchAction: 'pan-y', background: 'transparent' }}
       aria-hidden
       data-no-gesture-field-passthrough
