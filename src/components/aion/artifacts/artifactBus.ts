@@ -18,7 +18,27 @@ export type ArtifactKind =
   | 'note'
   | 'insight'
   | 'capability'
-  | 'confirm';
+  | 'confirm'
+  // Phase 2 · Batch 4 — specialized renderers
+  | 'journey_workspace'
+  | 'journal_preview'
+  | 'hypnosis_player'
+  | 'business_canvas'
+  | 'landing_preview'
+  | 'course_card'
+  | 'curriculum_preview'
+  | 'coach_recommendation'
+  | 'marketplace_card'
+  | 'wallet_sheet'
+  | 'community_preview'
+  | 'message_preview'
+  | 'subscription_card'
+  | 'checkout_confirmation'
+  | 'work_session'
+  | 'schedule_block_preview'
+  | 'profile_triad'
+  | 'identity_summary'
+  | 'avatar_configurator';
 
 export interface AionArtifact {
   id: string;
