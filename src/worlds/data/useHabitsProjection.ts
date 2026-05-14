@@ -9,6 +9,7 @@
  */
 import { useMemo } from 'react';
 import type { WorldProjection, WorldNode } from '../graph/worldGraphTypes';
+import { useWorldState } from '../state/useWorldState';
 
 const DEMO_RITUALS: Array<Pick<WorldNode, 'id' | 'label' | 'weight'> & { kind: string }> = [
   { id: 'ritual-morning', kind: 'ritual', label: 'Morning anchor', weight: 0.85 },
@@ -20,15 +21,25 @@ const DEMO_RITUALS: Array<Pick<WorldNode, 'id' | 'label' | 'weight'> & { kind: s
 ];
 
 export function useHabitsProjection(enabled: boolean): WorldProjection {
+  const state = useWorldState('habits');
   return useMemo<WorldProjection>(() => {
     if (!enabled) return { worldId: 'habits', nodes: [], edges: [], isEmpty: true };
-    const nodes: WorldNode[] = DEMO_RITUALS.map((r) => ({
-      id: r.id,
-      kind: r.kind,
-      label: r.label,
-      weight: r.weight,
-      worldId: 'habits',
-    }));
-    return { worldId: 'habits', nodes, edges: [], isEmpty: false };
-  }, [enabled]);
+    const live = Object.values(state.activeNodes);
+    const baseNodes: WorldNode[] = live.length
+      ? live.map((n) => ({
+          id: n.id,
+          kind: n.kind === 'signal' ? 'ritual' : n.kind,
+          label: n.label,
+          weight: n.weight,
+          worldId: 'habits',
+        }))
+      : DEMO_RITUALS.map((r) => ({
+          id: r.id,
+          kind: r.kind,
+          label: r.label,
+          weight: r.weight,
+          worldId: 'habits',
+        }));
+    return { worldId: 'habits', nodes: baseNodes, edges: [], isEmpty: false };
+  }, [enabled, state.activeNodes]);
 }
