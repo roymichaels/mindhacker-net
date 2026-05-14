@@ -32,8 +32,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import OrbView from "@/components/orb/v2/OrbView";
 import { openInteractiveAION } from "@/components/aion/InteractiveAIONHost";
+import aionOrb from "@/assets/aion-ring.png";
 
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import AdminSidebar from "./panel/AdminSidebar";
@@ -170,13 +170,14 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
       )}
     >
       {/* Orb taps Interactive AION mode (immersive overlay). */}
-      <OrbView
-        size={40}
-        state="idle"
-        ariaLabel="פתח מצב AION"
+      <button
+        type="button"
         onClick={openInteractiveAION}
+        aria-label="פתח מצב AION"
         className="flex-shrink-0 hover:opacity-90 transition-opacity"
-      />
+      >
+        <img src={aionOrb} alt="" width={40} height={40} className="h-10 w-10 object-contain" draggable={false} />
+      </button>
       <Link
         to={isAdminMode ? "/admin" : "/"}
         className={cn(
@@ -194,7 +195,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none outline-none">
-          <OrbView size={40} state="idle" neutral className="flex-shrink-0" />
+          <img src={aionOrb} alt="" width={40} height={40} className="h-10 w-10 flex-shrink-0 object-contain" draggable={false} />
           <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
             {brandName}
           </span>
