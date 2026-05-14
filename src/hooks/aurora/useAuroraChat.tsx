@@ -236,6 +236,12 @@ export const useAuroraChat = (conversationId: string | null) => {
       msgLen: content.length,
     });
 
+    // Phase F · Step 6 — pre-build a small "context payload" sent to the
+    // edge function so AION's text response is informed by ContextPacket
+    // (not only by artifacts/probes).
+    let contextPayloadForServer: Record<string, unknown> | null = null;
+    let recentAssistantOpenersForGuard: string[] = [];
+
     // Heartbeat: keep the orchestration loop breathing during active chat.
     try { pulse('composer_focus'); } catch { /* never block send */ }
 
@@ -304,6 +310,24 @@ export const useAuroraChat = (conversationId: string | null) => {
           turn: turnIndex,
           ...summarizeContext(contextPacket),
         });
+
+        // Build a compact server payload — strip heavy fields, keep
+        // only what the LLM needs as natural-language grounding.
+        recentAssistantOpenersForGuard = recentAssistantTexts
+          .map((t) => (t || '').split(/\r?\n/)[0]?.slice(0, 80) || '')
+          .filter(Boolean);
+        contextPayloadForServer = {
+          topNodes: contextPacket.topNodes.map((n) => ({ content: n.content })),
+          patterns: contextPacket.patterns,
+          contradictions: contextPacket.contradictions.map((c) => ({ explanation: c.explanation })),
+          activePlan: contextPacket.activePlan
+            ? { status: contextPacket.activePlan.status, progress: contextPacket.activePlan.progress }
+            : null,
+          openActions: contextPacket.openActions,
+          emotionalDrift: contextPacket.emotionalDrift,
+          recentArtifactKinds,
+          recentAssistantOpeners: recentAssistantOpenersForGuard,
+        };
         tracer.mark('sparsity_score', {
           score: contextPacket.graphDepth.sparsityScore,
           known_pillars: contextPacket.graphDepth.knownPillars.length,
@@ -574,6 +598,7 @@ export const useAuroraChat = (conversationId: string | null) => {
             hasImages: !!imageBase64,
             tier: 'from_db',
             timezone: clientTimezone,
+            aionContext: contextPayloadForServer,
           }),
           signal: abortControllerRef.current.signal,
         }
@@ -629,6 +654,93 @@ export const useAuroraChat = (conversationId: string | null) => {
       // Defense in depth: server's sanitizeStream already strips chain-of-thought,
       // but apply stripReasoning here too so any leak never reaches the database.
       let cleanedContent = stripReasoning(stripAllTags(fullContent));
+
+      // Phase F · Step 6 — repetition guard with one regen attempt.
+      // If the freshly-streamed reply is too similar to a recent assistant
+      // opener, fire ONE more aurora-chat call with X-Aion-Anti-Repeat: 1
+      // and replace the content with the new draft.
+      try {
+        if (cleanedContent && recentAssistantOpenersForGuard.length > 0) {
+          const newOpener = cleanedContent.split(/\r?\n/)[0] || cleanedContent;
+          let maxSim = 0;
+          for (const prev of recentAssistantOpenersForGuard) {
+            const s = _similarityRatio(newOpener, prev);
+            if (s > maxSim) maxSim = s;
+          }
+          if (maxSim >= 0.78 && cleanedContent.length > 30) {
+            tracer.mark('repetition.detected', {
+              similarity: Number(maxSim.toFixed(2)),
+              opener_preview: newOpener.slice(0, 80),
+            });
+            try {
+              const regen = await fetch(AURORA_CHAT_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${authToken}`,
+                  apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                  'X-Aion-Anti-Repeat': '1',
+                  ...(tracer.id ? { 'X-Aion-Trace-Id': tracer.id } : {}),
+                  ...(typeof window !== 'undefined' ? { 'X-Aion-Route': window.location.pathname } : {}),
+                },
+                body: JSON.stringify({
+                  messages: chatMessages,
+                  userId: user.id,
+                  conversationId,
+                  sessionKey: `${user.id}:${conversationId}`,
+                  language,
+                  pillar: chatContext?.activePillar || null,
+                  hasImages: !!imageBase64,
+                  tier: 'from_db',
+                  timezone: clientTimezone,
+                  aionContext: contextPayloadForServer,
+                }),
+              });
+              if (regen.ok && regen.body) {
+                const r = regen.body.getReader();
+                const dec = new TextDecoder();
+                let buf = '';
+                let regenFull = '';
+                while (true) {
+                  const { done, value } = await r.read();
+                  if (done) break;
+                  buf += dec.decode(value, { stream: true });
+                  let nl: number;
+                  while ((nl = buf.indexOf('\n')) !== -1) {
+                    let line = buf.slice(0, nl);
+                    buf = buf.slice(nl + 1);
+                    if (line.endsWith('\r')) line = line.slice(0, -1);
+                    if (!line.startsWith('data: ')) continue;
+                    const j = line.slice(6).trim();
+                    if (j === '[DONE]') break;
+                    try {
+                      const p = JSON.parse(j);
+                      const d = p.choices?.[0]?.delta?.content;
+                      if (d) regenFull += d;
+                    } catch { /* swallow */ }
+                  }
+                }
+                const regenClean = stripReasoning(stripAllTags(regenFull));
+                if (regenClean && regenClean.trim().length > 0) {
+                  cleanedContent = regenClean;
+                  setStreamingContent(regenClean);
+                  tracer.mark('response.regenerated', {
+                    new_len: regenClean.length,
+                    new_opener_preview: (regenClean.split(/\r?\n/)[0] || '').slice(0, 80),
+                  });
+                }
+              }
+            } catch (e) {
+              console.warn('[aurora-chat] regen failed:', e);
+            }
+          }
+        }
+      } catch { /* guard never blocks */ }
+
+      // Remember this opener so the next turn can avoid copying it.
+      try {
+        if (cleanedContent) rememberAssistantText(cleanedContent);
+      } catch { /* ignore */ }
 
       // Phase 3 — Artifact router. Extract <<AION_ARTIFACT …>> sentinels from
       // the assistant reply and forward them to the artifact bus. Only the
