@@ -17,7 +17,7 @@
  * A faint ripple anchors at the touch point during a gesture, then
  * dissolves. Opacity ≤ 0.35 by design — peripheral, not foregrounded.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGestureFieldStore } from '@/worlds/gesture/gestureFieldStore';
 import { resolveVerbForGesture } from '@/worlds/gesture/gestureBindings';
@@ -243,7 +243,6 @@ export default function WorldGestureField({ worldId, verbs }: Props) {
 }
 
 /** Tiny re-render trigger without bringing a state library along. */
-import { useReducer } from 'react';
 function useReducerTick() {
   return useReducer((n: number) => (n + 1) % 1_000_000, 0);
 }
