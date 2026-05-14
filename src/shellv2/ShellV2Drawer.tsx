@@ -23,6 +23,8 @@ import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { cn } from '@/lib/utils';
 import { CANONICAL_SURFACES } from '@/navigation/canonicalSurfaces';
 import { AionOrb } from '@/components/aion/ui';
+import { useEffect } from 'react';
+import { useChamberIdle } from '@/shellv2/hooks/useChamberIdle';
 
 import type { LucideIcon } from 'lucide-react';
 interface DrawerItem {
@@ -47,6 +49,13 @@ export default function ShellV2Drawer() {
   const overlay = useOverlay();
   const binding = useOverlayBinding('drawer');
   const { openProfile } = useProfileModal();
+  const { hideNav } = useChamberIdle();
+
+  // When the drawer opens, recede the bottom chamber UI so the sheet
+  // doesn't visually collide with the composer / nav dock.
+  useEffect(() => {
+    if (binding.open) hideNav();
+  }, [binding.open, hideNav]);
 
   const go = (path: string) => {
     overlay.close();
@@ -100,7 +109,8 @@ export default function ShellV2Drawer() {
     <Sheet open={binding.open} onOpenChange={binding.onOpenChange}>
       <SheetContent
         side={isRTL ? 'right' : 'left'}
-        className="w-[300px] sm:w-[320px] p-0 bg-background/70 backdrop-blur-2xl border-0 ring-1 ring-white/[0.05] shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)] overflow-hidden"
+        className="w-[300px] sm:w-[320px] p-0 bg-background/55 backdrop-blur-2xl border-0 shadow-none overflow-hidden"
+        style={{ height: '100dvh' }}
       >
         {/* Portal bloom — soft violet→cyan radial in the top corner */}
         <div
@@ -113,10 +123,17 @@ export default function ShellV2Drawer() {
             filter: 'blur(6px)',
           }}
         />
-        <div className="relative flex h-full flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div
+          className="relative flex h-full min-h-0 flex-col"
+          dir={isRTL ? 'rtl' : 'ltr'}
+          style={{
+            paddingTop: 'max(env(safe-area-inset-top), 1rem)',
+            paddingBottom: 'max(env(safe-area-inset-bottom), 5.5rem)',
+          }}
+        >
           {/* Identity row */}
-          <div className="flex items-center gap-3 px-4 pt-6 pb-4">
-            <AionOrb size="xs" />
+          <div className="flex items-center gap-3 px-4 pt-2 pb-4">
+            <AionOrb size="md" />
             <div
               className="aion-text-hero text-[15px] font-semibold tracking-[0.32em] leading-none"
               style={{
