@@ -22,14 +22,16 @@ export default function ArtifactLayer() {
           return null;
         }
         const close = () => artifactBus.dismiss(art.id);
+        // Title omitted by default — artifacts feel manifested, not labeled.
+        const titleParam = typeof art.params?.title === 'string' ? (art.params.title as string) : undefined;
         return (
           <ManifestedArtifactShell key={art.id} artifactId={art.id} kind={art.kind}>
             <ArtifactFrame
-              title={art.kind}
+              title={titleParam}
               onClose={close}
               defaultFullscreen={art.fullscreen}
             >
-              <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
+              <Suspense fallback={<div className="p-6 text-sm text-foreground/40">Manifesting…</div>}>
                 <Comp params={art.params} onClose={close} />
               </Suspense>
             </ArtifactFrame>
