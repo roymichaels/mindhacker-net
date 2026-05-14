@@ -8,7 +8,7 @@
  * OverlayController.
  */
 import { useState } from 'react';
-import { Menu, Info, Play } from 'lucide-react';
+import { Menu, Info } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
 import { AionRingMark } from '@/components/aion/AionRingMark';
@@ -16,14 +16,12 @@ import aionOrb from '@/assets/aion-ring.png';
 import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { MissionControlTab } from '@/components/play/MissionControlTab';
 import { openInteractiveAION } from '@/components/aion/InteractiveAIONHost';
 
 export default function ShellV2Header() {
   const overlay = useOverlay();
   const { language, isRTL } = useTranslation();
   const [brandOpen, setBrandOpen] = useState(false);
-  const [playerOpen, setPlayerOpen] = useState(false);
   const brand = 'AION';
   const isHe = language === 'he';
 
@@ -49,27 +47,15 @@ export default function ShellV2Header() {
             'linear-gradient(180deg, hsl(var(--aion-navy) / 0.55) 0%, transparent 100%)',
         }}
       />
-      <div className="pointer-events-auto relative mx-auto flex min-h-[64px] w-full max-w-screen-md items-center justify-between gap-3 px-4 sm:px-6">
-        {/* Left: orb badge */}
+      <div className="pointer-events-auto relative mx-auto flex min-h-[56px] w-full max-w-screen-md items-center justify-between gap-3 px-4 sm:px-6">
+        {/* Left: ghost menu */}
         <button
           type="button"
-          aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
-          onClick={() => openInteractiveAION()}
-          className="relative flex h-10 w-10 items-center justify-center rounded-full transition-transform active:scale-95"
+          aria-label={language === 'he' ? 'תפריט' : 'Menu'}
+          onClick={() => overlay.open('drawer')}
+          className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/70 transition-colors hover:text-foreground hover:bg-white/[0.04]"
         >
-          {/* Living halo behind the orb */}
-          <span
-            aria-hidden
-            className="absolute inset-0 -z-0 rounded-full animate-aion-breath dark:aion-glow-soft"
-          />
-          <img
-            src={aionOrb}
-            alt=""
-            width={36}
-            height={36}
-            draggable={false}
-            className="relative block h-9 w-9 object-contain"
-          />
+          <Menu className="h-[18px] w-[18px]" />
         </button>
 
         {/* Center: brand (tap to open about sheet) */}
@@ -84,26 +70,27 @@ export default function ShellV2Header() {
           </span>
         </button>
 
-        {/* Right: hamburger */}
+        {/* Right: small living orb (taps into Interactive AION) */}
         <button
           type="button"
-          aria-label={isHe ? 'נגן' : 'Player'}
-          onClick={() => setPlayerOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground/75 transition-colors hover:text-foreground hover:bg-white/[0.04]"
+          aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
+          onClick={() => openInteractiveAION()}
+          className="relative flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-95 animate-aion-breath"
         >
-          <Play className="h-[18px] w-[18px]" />
-        </button>
-        <button
-          type="button"
-          aria-label={language === 'he' ? 'תפריט' : 'Menu'}
-          onClick={() => overlay.open('drawer')}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground/75 transition-colors hover:text-foreground hover:bg-white/[0.04]"
-        >
-          <Menu className="h-5 w-5" />
+          <span
+            aria-hidden
+            className="absolute inset-0 -z-0 rounded-full dark:aion-glow-soft"
+          />
+          <img
+            src={aionOrb}
+            alt=""
+            width={28}
+            height={28}
+            draggable={false}
+            className="relative block h-7 w-7 object-contain"
+          />
         </button>
       </div>
-      {/* Hairline divider that fades at endpoints */}
-      <div className="atmo-divider" />
     </header>
 
     <Sheet open={brandOpen} onOpenChange={setBrandOpen}>
@@ -131,20 +118,6 @@ export default function ShellV2Header() {
       </SheetContent>
     </Sheet>
 
-    <Sheet open={playerOpen} onOpenChange={setPlayerOpen}>
-      <SheetContent
-        side="bottom"
-        dir={isRTL ? 'rtl' : 'ltr'}
-        className="rounded-t-3xl border-white/10 bg-background/95 backdrop-blur-2xl pb-[max(env(safe-area-inset-bottom),1rem)] max-h-[90vh] overflow-y-auto"
-      >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
-        <SheetHeader className="sr-only">
-          <SheetTitle>{isHe ? 'פעולות' : 'Actions'}</SheetTitle>
-          <SheetDescription>{isHe ? 'נגן הפעולות של המסע' : 'Journey action player'}</SheetDescription>
-        </SheetHeader>
-        <MissionControlTab />
-      </SheetContent>
-    </Sheet>
     </>
   );
 }

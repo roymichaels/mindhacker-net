@@ -175,27 +175,26 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     </Link>
   );
 
-  // AION orb — visual anchor, opens Interactive AION
+  // AION orb — small living anchor, opens Interactive AION
   const OrbAnchor = () => (
     <button
       type="button"
       onClick={openInteractiveAION}
       aria-label="פתח מצב AION"
-      className="relative flex-shrink-0 active:scale-[0.97] transition-transform animate-aion-breath"
+      className="relative flex h-9 w-9 items-center justify-center rounded-full active:scale-95 transition-transform animate-aion-breath"
     >
-      {/* Living halo behind the orb */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 m-auto h-[96px] w-[96px] rounded-full blur-2xl opacity-60"
-        style={{ background: 'radial-gradient(circle, hsl(var(--aion-blue) / 0.55), hsl(var(--aion-cyan) / 0.18) 45%, transparent 70%)' }}
+        className="pointer-events-none absolute inset-0 rounded-full blur-xl opacity-60"
+        style={{ background: 'radial-gradient(circle, hsl(var(--aion-blue) / 0.55), hsl(var(--aion-cyan) / 0.18) 50%, transparent 75%)' }}
       />
       <img
         src={aionOrb}
         alt=""
-        width={88}
-        height={88}
+        width={28}
+        height={28}
         draggable={false}
-        className="relative block h-[88px] w-[88px] object-contain"
+        className="relative block h-7 w-7 object-contain"
       />
     </button>
   );
@@ -276,8 +275,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           style={{ background: 'linear-gradient(180deg, hsl(var(--aion-navy) / 0.55) 0%, transparent 100%)' }}
         />
         <div
-          className="relative grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 sm:px-8"
-          style={{ minHeight: 96 }}
+          className="relative grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6"
+          style={{ minHeight: 56 }}
         >
           {/* LEFT — menu */}
           <div className="flex items-center justify-self-start">
@@ -294,9 +293,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                       else setMobileMenuOpen(true);
                     }}
                     aria-label={t('header.navigationMenu')}
-                    className="h-11 w-11 rounded-full"
+                    className="h-9 w-9 rounded-full"
                   >
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-[18px] w-[18px]" />
                   </Button>
                 )}
                 {isAdminMode && (
@@ -317,9 +316,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   variant="ghost"
                   size="icon"
                   aria-label={t('header.guestMenu')}
-                  className="h-11 w-11 rounded-full"
+                  className="h-9 w-9 rounded-full"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-[18px] w-[18px]" />
                 </Button>
               </GuestMenu>
             )}
@@ -336,9 +335,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
             <OrbAnchor />
           </div>
         </div>
-        {/* Hairline divider that fades at endpoints */}
-        <div className="atmo-divider" />
-
         {isAdminMode && (
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-[85vw] max-w-sm" dir={isRTL ? "rtl" : "ltr"}>

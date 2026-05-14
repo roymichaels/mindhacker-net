@@ -18,9 +18,7 @@ export default function ComposerLayer() {
       style={{ ...zStyle('composer'), bottom: 'max(env(safe-area-inset-bottom), 12px)' }}
       data-shellv2-layer="composer"
     >
-      <div
-        className="pointer-events-auto w-full max-w-screen-md rounded-2xl bg-background/70 backdrop-blur-xl border border-border/40 px-2 py-2"
-      >
+      <div className="pointer-events-auto w-full max-w-screen-md">
         <GlobalChatInput />
       </div>
     </div>

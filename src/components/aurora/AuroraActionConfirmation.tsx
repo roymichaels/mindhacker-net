@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import AtmoArtifact from '@/components/aion/artifacts/AtmoArtifact';
 
 interface AuroraActionConfirmationProps {
   actionType: string;
@@ -80,23 +81,20 @@ const AuroraActionConfirmation = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={cn(
-        'bg-card/80 backdrop-blur-sm border border-border rounded-xl p-4 shadow-lg',
-        'max-w-sm',
-        className
-      )}
+      className={cn('max-w-sm', className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
+      <AtmoArtifact kind="confirm" breathing>
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg">{getActionIcon()}</span>
-        <span className="text-sm font-medium text-foreground/80">
+        <span className="text-base opacity-80">{getActionIcon()}</span>
+        <span className="text-xs font-medium tracking-wide text-foreground/65">
           {getActionLabel()}
         </span>
       </div>
 
       {/* Description */}
-      <p className="text-sm text-foreground mb-4">
+      <p className="text-sm text-foreground/90 mb-4 leading-relaxed">
         {actionDescription}
       </p>
 
@@ -157,6 +155,7 @@ const AuroraActionConfirmation = ({
           </motion.div>
         )}
       </AnimatePresence>
+      </AtmoArtifact>
     </motion.div>
   );
 };
