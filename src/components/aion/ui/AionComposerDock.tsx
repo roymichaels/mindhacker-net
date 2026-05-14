@@ -13,7 +13,7 @@ interface AionComposerDockProps {
  * Centers content, applies safe-area, no chrome of its own.
  */
 export function AionComposerDock({ children, className, style }: AionComposerDockProps) {
-  const { composerState, navVisible } = useChamberIdle();
+  const { composerState } = useChamberIdle();
   const isIdle = composerState === 'idle';
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -32,9 +32,6 @@ export function AionComposerDock({ children, className, style }: AionComposerDoc
     return () => ro.disconnect();
   }, []);
 
-  // Extra cushion when the ghost nav dock is up so they never stack tight.
-  const navCushion = navVisible ? 28 : 0;
-
   return (
     <div
       ref={hostRef}
@@ -43,7 +40,8 @@ export function AionComposerDock({ children, className, style }: AionComposerDoc
         className,
       )}
       style={{
-        bottom: `calc(max(env(safe-area-inset-bottom), 22px) + ${navCushion}px)`,
+        // Composer stays anchored — the ghost nav dock floats above it instead.
+        bottom: 'max(env(safe-area-inset-bottom), 22px)',
         transition: 'bottom 280ms ease',
         ...style,
       }}

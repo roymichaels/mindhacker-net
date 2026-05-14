@@ -27,8 +27,7 @@ export function AionNavDock({ tabs, className, visible = true, style }: AionNavD
     <nav
       style={style}
       className={cn(
-        "fixed inset-x-0 bottom-0",
-        "pb-[max(env(safe-area-inset-bottom),0.5rem)]",
+        "fixed inset-x-0",
         "transition-[opacity,transform] duration-300 ease-out",
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"

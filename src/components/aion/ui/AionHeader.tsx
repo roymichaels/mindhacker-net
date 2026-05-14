@@ -40,7 +40,6 @@ export function AionHeader({
       className={cn(
         fixed && "pointer-events-none fixed inset-x-0 top-0",
         "bg-transparent",
-        "pt-[env(safe-area-inset-top)]",
         className,
       )}
       data-aion-header
