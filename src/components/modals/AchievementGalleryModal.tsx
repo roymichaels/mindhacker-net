@@ -1,5 +1,5 @@
 /**
- * AchievementGalleryModal — Fullscreen portal modal for achievement collection.
+ * AchievementGalleryModal — Fullscreen portal modal for milestone collection.
  * Matches the Royal Empire aesthetic of PracticesModal.
  */
 import { createPortal } from 'react-dom';
@@ -35,7 +35,7 @@ export function AchievementGalleryModal({ open, onOpenChange }: AchievementGalle
         </button>
         <h2 className="text-base font-bold text-white/90 flex items-center gap-2">
           <Trophy className="w-4 h-4 text-amber-400" />
-          {isHe ? 'אוסף הישגים' : 'Achievements'}
+          {isHe ? 'אבני דרך' : 'Milestones'}
         </h2>
         <div className="w-9" />
       </div>

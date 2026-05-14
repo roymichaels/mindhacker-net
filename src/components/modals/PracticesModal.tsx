@@ -217,7 +217,7 @@ function PracticesGallery({ isHe, isPopulating, onSelect }: { isHe: boolean; isP
 }
 
 // ═══════════════════════════════════════════════════
-// PRACTICE CARD — NFT-style card in grid
+// PRACTICE CARD — Collectible-style card in grid
 // ═══════════════════════════════════════════════════
 function PracticeCard({ practice, isHe, index, onClick }: {
   practice: UserPractice; isHe: boolean; index: number; onClick: () => void;
@@ -331,7 +331,7 @@ function PracticeDetail({ practice, isHe, onBack, onRemoved }: {
         </div>
       </div>
 
-      {/* Stats cards */}
+      {/* Signals cards */}
       <div className="grid grid-cols-3 gap-2.5 mb-4">
         <StatCard
           icon={<Clock className="w-4 h-4 text-blue-400" />}
@@ -346,7 +346,7 @@ function PracticeDetail({ practice, isHe, onBack, onRemoved }: {
         <StatCard
           icon={<Zap className="w-4 h-4 text-amber-400" />}
           value={`Lv.${practice.skill_level}`}
-          label={isHe ? 'רמה' : 'Level'}
+          label={isHe ? 'שלב' : 'Phase'}
         />
       </div>
 

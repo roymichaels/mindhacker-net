@@ -1,5 +1,5 @@
 /**
- * InventoryBag — RPG-style inventory grid showing collected loot items.
+ * InventoryBag — Grid showing collectibles in your collection.
  * MapleStory merchant aesthetic with rarity filtering.
  */
 import { useState } from 'react';
@@ -58,7 +58,7 @@ export function InventoryBag() {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <Package className="w-4 h-4 text-amber-400" />
-          {isHe ? 'שק השלל' : 'Loot Bag'}
+          {isHe ? 'אוסף' : 'Collection'}
         </h3>
         <span className="text-xs font-mono text-muted-foreground">
           {totalItems} {isHe ? 'פריטים' : 'items'}
@@ -105,7 +105,7 @@ export function InventoryBag() {
             <div className="col-span-4 py-8 text-center">
               <Package className="w-8 h-8 mx-auto text-muted-foreground/30 mb-2" />
               <p className="text-xs text-muted-foreground">
-                {isHe ? 'השק ריק — השלם משימות כדי לקבל שלל!' : 'Bag empty — complete quests to earn loot!'}
+                {isHe ? 'האוסף ריק — השלם משימות כדי להוסיף פריטים' : 'Collection empty — complete quests to earn collectibles'}
               </p>
             </div>
           )}

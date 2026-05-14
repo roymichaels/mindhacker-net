@@ -144,7 +144,7 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
           />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-[60px] opacity-10 bg-amber-400" />
 
-          {/* NFT Triad replaces single avatar */}
+          {/* Identity Triad replaces single avatar */}
           <div className="relative w-full max-w-[340px]">
             <ProfileNFTTriad />
             {/* Admin-only edit avatar button */}
@@ -175,11 +175,11 @@ export function CharacterProfileModal({ open, onOpenChange, userId }: CharacterP
             </div>
           </div>
 
-          {/* Level + XP — premium bar */}
+          {/* Phase + Energy — premium bar */}
           <div className="w-full max-w-[280px] mt-4 space-y-2">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 border border-amber-500/20">
-                <Star className="h-3 w-3 fill-amber-400" /> Lv.{xp.level}
+                <Star className="h-3 w-3 fill-amber-400" /> {isHe ? 'שלב' : 'Phase'} {xp.level}
               </span>
               <div className="flex-1 h-2 rounded-full bg-muted border border-border overflow-hidden">
                 <motion.div
@@ -433,7 +433,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
   return (
     <div className="space-y-3">
 
-      {/* Stats Strip */}
+      {/* Signals Strip */}
       <PlayStatsStrip />
 
       {/* Stat Wheel */}
@@ -477,7 +477,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </EmpireCard>
       )}
 
-      {/* ── IDENTITY & VALUES: Below stats ── */}
+      {/* ── IDENTITY & VALUES: Below signals ── */}
       {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
         <EmpireCard className="text-center">
           <SectionTitle
@@ -590,7 +590,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 }
 
 // ═══════════════════════════════════════════════
-// TRAITS TAB — NFT-style trait gallery grid
+// TRAITS TAB — Trait gallery grid
 // ═══════════════════════════════════════════════
 export function TraitsTab({ isHe }: { isHe: boolean }) {
   const { data: traits, isLoading } = useTraitGallery();

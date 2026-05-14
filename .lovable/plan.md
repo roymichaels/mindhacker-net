@@ -1,87 +1,84 @@
-## Phase 3A — Copy + Legacy UX Leak Sweep
+## Phase 3B.1 — Legacy Profile Copy Softening
 
-Pure copy pass. No layout, no logic, no routes, no DB.
+Frontend-only copy pass inside the Advanced Profile artifact. No logic, props, DB, routes, or variable names change. Only strings rendered to the user.
 
-### 1. Expand the copy SSOT (`src/copy/aionPresence.ts`)
+### Replacement map (visible strings only)
 
-Add new bilingual keys so all replacements pull from one file:
+| Old | New (EN / HE) |
+|---|---|
+| XP | Energy / אנרגיה |
+| Level / Lv. | Phase / שלב |
+| Streak / רצף | Rhythm / מקצב |
+| NFT (in comments only — drop word) | — |
+| Loot / Loot Bag / שק השלל / שלל | Collectibles / אוסף |
+| Achievement / Achievements / Achievement Collection / הישגים / אוסף הישגים | Milestone / Milestones / Milestone Collection / אבני דרך / אוסף אבני דרך |
+| Inventory / Bag empty | Collection / Collection empty |
+| Stats / Stats Strip / Stats cards | Signals |
+| Score | Signal |
+| Rank | Phase |
+| Game | Journey |
 
-- `aionLearning` — "AION is learning this" / "AION עדיין לומד"
-- `feelsClear` — "This feels clear" / "זה מרגיש ברור"
-- `whatShapedThis` — "What shaped this" / "מה עיצב את זה"
-- `memory`, `pattern`, `connection` (for Node/Graph/Edge)
-- `space`, `realm` (for Hub/Dashboard)
-- `reflection` (for Assessment)
-- `continueJourney` already exists — reuse for "Generate plan" / "Create 100‑Day Plan"
-- `askAion` already exists — reuse for "Generate" / "Create with AI"
+Hebrew already standardized for some terms via `aionPresence.ts`; reuse where practical, otherwise inline literals (this is a copy-only pass, no SSOT refactor).
 
-### 2. Surfaces to sweep (visible legacy copy → AION voice)
+### Files to edit (visible copy only)
 
-| File | Current legacy string | Replacement |
-|---|---|---|
-| `src/pages/LifeHub.tsx` | `"100-Day Plan"` button + title | `continueJourney` |
-| `src/pages/ArenaHub.tsx` | `"Generate AI Schedule"`, `"Click Generate AI Schedule…"` empty state | `askAion` + "AION will compose your rhythm" |
-| `src/pages/WorkHub.tsx` | `"🔧 Work Hub"`, `"AI Work Wizard"` headers, tab `"Stats"` | "Work" / "Ask AION about work" / "Rhythm" |
-| `src/pages/CareerHub.tsx` | `"Career Hub"` heading, "Wizard" | "Career" / "Path" |
-| `src/pages/JournalingHub.tsx` | header / placeholder copy | "Journal" / "Speak freely" |
-| `src/pages/HypnosisPage.tsx` | "Generate session" CTA | `askAion` |
-| `src/pages/ProfilePage.tsx` + `src/components/self/*` | any remaining "Dashboard"/"Stats" labels | "Self" / "What AION knows" |
-| `src/features/brain/BrainNodeSheet.tsx` | `"Confidence"`, `"Strength"`, `"Evidence"`, `"Node"`, `"Graph"` UI labels | `feelsClear`, `aionLearning`, `whatShapedThis`, `memory`, `connection` |
-| `src/features/brain/atlas/RoomView.tsx` | `"{n}% confidence"` chip | "AION feels this strongly" / softened tier label |
-| `src/components/journey/NextStepCard.tsx` + `JourneyView` empty | any "Generate plan" CTAs | `continueJourney` / `askAion` |
-| `src/components/outer/AlignedRealities.tsx` | row labels saying "Hub" | drop the word, just the realm name |
-| `src/pages/OuterWorldHub.tsx` | header copy if it says "Hub" | "Outer World" |
-| `src/components/missions/PillarModal.tsx` | `"Generate 100-Day Plan"` | `continueJourney` |
-| `src/components/missions/MiniMilestoneModal.tsx` | `"Generate Daily Actions"` | `askAion` |
-| `src/components/profile/OrbNarrativeCard.tsx` | `"Generate new story"` | `askAion` |
-| `src/components/play/StrategyPillarWizard.tsx`, `DailyMilestones.tsx` | `"Assessments completed"` | "Reflections so far" |
-| `src/components/pillars/LifeActivitySidebar.tsx`, `ArenaActivitySidebar.tsx` | `"100-Day Plan"` chips | `continueJourney` |
-| `src/components/career/*`, `src/components/careers/business/BusinessCard.tsx`, `BusinessDashboardModals.tsx`, `CoachDashboardOverview.tsx`, `ClientProfilePanel.tsx`, `AutoPlanEngineModal.tsx` | "Dashboard", "Generate Plan", "Generate AI Plan", "Generate Analysis" | "Space" / `askAion` / `continueJourney` |
-| `src/pages/NotFound.tsx` | `"Dashboard"` link | "Open AION" |
-| `src/pages/BusinessDashboard.tsx` | `"Generate Plan"` button | `continueJourney` |
-| `src/components/aion/manifestation/moods.ts` (if any "Dashboard" copy) | revisit | AION voice |
+1. **src/components/profile/TransformationReportCard.tsx**
+   - L197 `'רמה' / 'Level'` → `'שלב' / 'Phase'`
+   - L205 `'רצף' / 'Streak'` → `'מקצב' / 'Rhythm'`
+   - L108–109 share text: `רמה {n}` → `שלב {n}`, `streak` → `rhythm`, keep `📊` emoji
+   - L193 comment `Stats bar` → `Signals bar` (comment, low priority but quick)
 
-### 3. XP / Level / Streak / NFT — hide by default
+2. **src/components/modals/PracticesModal.tsx**
+   - L349 `'רמה' / 'Level'` → `'שלב' / 'Phase'` (the `Lv.{n}` value stays as-is since it comes from `practice.skill_level`; only label changes)
+   - L334 comment `Stats cards` → `Signals cards`
+   - L220 comment `NFT-style card` → `Collectible-style card`
 
-These already live behind the "Advanced" toggle in `SelfPanel` (Phase 2). Sweep:
+3. **src/components/modals/AchievementGalleryModal.tsx**
+   - L38 `'אוסף הישגים' / 'Achievements'` → `'אבני דרך' / 'Milestones'`
+   - L2 file header comment: `achievement collection` → `milestone collection`
 
-- `src/components/gamification/AchievementGallery.tsx` — keep, it's only shown under Advanced. No copy change needed.
-- `src/components/energy/EnergyHistory.tsx` `"Streak Bonus"` — keep, advanced surface.
-- `src/components/hypnosis/SessionStats.tsx` `"XP"` chip — replace label with `"Energy"` (already our user-facing currency).
-- `src/components/modals/UserDocsModal.tsx` — left as-is (docs/help surface, technical by nature).
-- `src/components/founding/FoundingPlatformDeep.tsx`, `src/components/home/*` (Pricing, Plan cinematic, Guild, Gamification) — **public marketing pages, not the in-app OS**. Leave untouched per scope ("user-facing app", not landing).
+4. **src/components/modals/InventoryBagModal.tsx**
+   - L38 `'שק השלל' / 'Loot Bag'` → `'אוסף' / 'Collection'`
+   - L2 comment `loot inventory` → `collectibles collection`
 
-### 4. Intentionally NOT touched
+5. **src/components/gamification/AchievementGallery.tsx**
+   - L52 `'אוסף הישגים' / 'Achievement Collection'` → `'אוסף אבני דרך' / 'Milestone Collection'`
+   - L17 category `labelEn: 'Streaks' / labelHe: 'רצפים'` → `'Rhythms' / 'מקצבים'`
+   - L2 file comment, L36 comment "by XP" → "by Energy"
 
-- `src/pages/admin/*`, `src/pages/AdminHub.tsx`, `src/pages/AdminJourney.tsx`, `src/pages/panel/*` — admin/affiliate.
-- `src/diagnostics/*` — dev trace.
-- `src/features/brain/data/*`, `useBrainFallback.ts`, `inferSoftEdges.ts`, `types.ts` — internal data shapes (`confidence`, `strength`, `score` are field names, not UI).
-- `src/components/web3/SoulAvatarMintWizard.tsx` description — wallet flow, technical.
-- `src/components/launchpad/*` — internal launchpad name kept until a separate rename pass.
-- `src/components/home/*`, `src/pages/FoundingLanding.tsx`, `src/pages/Index.tsx` marketing — outside the OS shell.
-- `src/_legacy/*` — already legacy-fenced.
+6. **src/components/gamification/InventoryBag.tsx**
+   - L61 `'שק השלל' / 'Loot Bag'` → `'אוסף' / 'Collection'`
+   - L108 `'השק ריק — השלם משימות כדי לקבל שלל!' / 'Bag empty — complete quests to earn loot!'` → `'האוסף ריק — השלם משימות כדי להוסיף פריטים' / 'Collection empty — complete quests to earn collectibles'`
+   - L2 file header comment softened
 
-### 5. Mechanics
+7. **src/components/modals/CharacterProfileModal.tsx**
+   - L178 comment `Level + XP — premium bar` → `Phase + Energy — premium bar`
+   - L182 visible text `Lv.{xp.level}` → `{isHe ? 'שלב' : 'Phase'} {xp.level}`
+   - L193 visible `{xp.current}/{xp.required}` keeps numbers; no label there
+   - L201 streak chip: pure number + flame icon, no visible "streak" label — leave value, no copy change needed
+   - L147 comment `NFT Triad` → `Identity Triad`
+   - L436 comment `Stats Strip` → `Signals Strip`
+   - L480 comment `Below stats` → `Below signals`
+   - L593 comment `NFT-style trait gallery grid` → `Trait gallery grid`
 
-- One pull request, copy-only diffs.
-- Every replacement reads from `aionPresence` (or its t() equivalent) so a future tone tweak is single-file.
-- Hebrew strict full spelling preserved; LTR isolation kept where numbers appear.
-- No file deletions, no prop renames, no component splits.
+8. **src/components/gamification/OrbDNAModal.tsx**
+   - L3 file comment `orb stats` → `orb signals`
+   - Title `'ה-DNA של האורב שלך' / 'Your Orb DNA'` already neutral — no change
 
-### 6. Acceptance / report
+9. **src/components/profile/OrbNarrativeCard.tsx** — no offending visible strings found. Skip.
 
-After the sweep the deliverable returns:
+### Intentionally left untouched (internal / non-visible / out of scope)
 
-- files changed (expected ~25)
-- forbidden terms found (table by file)
-- replacements made (count per term)
-- terms intentionally left (admin/dev/marketing — listed above)
-- remaining visible UX leaks (any dynamic copy from edge functions / DB strings — flagged for Phase 3B)
-- next recommended phase: **3B — Profile-stats artifact bridge**, then **3C — hub pages as artifact-only visual shells** (the structural follow-up to this copy pass)
+- All variable/hook/type names: `xp`, `useXpProgress`, `useStreak`, `level`, `streak`, `score`, `scores`, `pillarScores`, `unlockedAchievements`, `LootItemCard`, `useInventory`, `practice.skill_level`, `xp_total`, `xp.percentage`, `consciousness_score`, `clarity_score`, etc.
+- DB columns / API field names.
+- Achievement/Loot/Inventory in import paths and component file names.
+- Diagnostics / dev / admin surfaces.
+- `aionPresence.ts` SSOT — not extended in this pass; literals are inlined to keep diff small per scope rules.
+- Numeric values like `Lv.{practice.skill_level}` stay as numbers; only the surrounding label is softened.
 
-### 7. Out of scope (deferred)
+### Acceptance / return after build
 
-- Renaming exported symbols (`LifeHub`, `ArenaHub`, `WorkHub`) — internal identifiers, not visible.
-- Replacing `Wizard` component class names — same reason.
-- Marketing/landing pages.
-- Help/docs modal.
+- Files changed: 8 (list above; OrbNarrativeCard untouched).
+- Copy terms replaced: per map above.
+- Internal terms intentionally kept: variable names, hook names, DB fields, import paths, file names.
+- Remaining copy leaks flagged for a future pass: `LootItemCard` rendered item names (data-driven, not in scope), category id `'streak'` stored in state, achievement category metadata in `@/lib/achievements`, and the "Lv." prefix that lives inside `practice.skill_level` value rendering — left numeric.

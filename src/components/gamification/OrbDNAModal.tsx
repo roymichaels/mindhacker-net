@@ -1,6 +1,6 @@
 /**
  * OrbDNAModal – Compact dialog showing Orb DNA breakdown.
- * View-only: archetype blend, orb stats, color palette.
+ * View-only: archetype blend, orb signals, color palette.
  * Tight layout with smaller orb preview.
  */
 
