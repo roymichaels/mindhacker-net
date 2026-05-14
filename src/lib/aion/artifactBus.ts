@@ -9,6 +9,7 @@
  * No React. Pure event emitter so non-component code (capability
  * handlers, AI tool-call results, deep-link parsers) can summon.
  */
+import { aionPresenceBus } from '@/aion/presenceState';
 
 export type ArtifactKind =
   | 'assessment'
@@ -62,10 +63,7 @@ function emit() {
   });
 
   // Phase 5B — drive the AION presence bus from artifact lifecycle.
-  // Lazy import to avoid any module-init ordering surprises.
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { aionPresenceBus } = require('@/aion/presenceState') as typeof import('@/aion/presenceState');
     if (snapshot.length > prevLen) {
       if (restTimer) { clearTimeout(restTimer); restTimer = null; }
       aionPresenceBus.set('manifesting');
