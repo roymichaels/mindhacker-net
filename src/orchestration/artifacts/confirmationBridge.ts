@@ -69,6 +69,48 @@ function describe(capability: CapabilityId, ctx: ConfirmContext, read?: ReadResu
         source: 'hypnosis_audios',
         confirmLabel: 'הבנתי',
       };
+    case 'business.createDraft':
+      return {
+        title: 'ליצור טיוטה עסקית?',
+        whatHappens: 'תופעל פונקציה חיצונית שתייצר טיוטת תוכנית. לא נשמרת ללא אישור.',
+        source: 'generate-business-plan',
+        confirmLabel: 'צור טיוטה',
+      };
+    case 'creator.content.generate':
+      return {
+        title: 'לייצר תוכן?',
+        whatHappens: 'AION תייצר טיוטת תוכן עבורך. שמירה תידרש בנפרד.',
+        source: 'creator-content',
+        confirmLabel: 'צור טיוטה',
+      };
+    case 'landing.generate':
+      return {
+        title: 'לייצר דף נחיתה?',
+        whatHappens: 'תופעל פונקציה חיצונית שתייצר טיוטת דף נחיתה. לא תפורסם ללא אישור.',
+        source: 'generate-landing-page',
+        confirmLabel: 'צור דף',
+      };
+    case 'curriculum.generate':
+      return {
+        title: 'לייצר מסלול לימוד אישי?',
+        whatHappens: 'תופעל פונקציה חיצונית שתבנה מסלול. לא יישמר ללא אישור.',
+        source: 'course-orchestrator',
+        confirmLabel: 'בנה מסלול',
+      };
+    case 'coach.match':
+      return {
+        title: 'לפנות למאמן?',
+        whatHappens: 'פתיחת המלצת מאמן · פעולת תשלום/חיבור חיצוני תידרש בנפרד.',
+        source: 'practitioners',
+        confirmLabel: 'הצג מאמן',
+      };
+    case 'avatar.configure':
+      return {
+        title: 'לעדכן את האווטאר?',
+        whatHappens: 'פתיחת ה־Configurator. שינוי בפועל מתבצע רק בתוך הכלי.',
+        source: 'avatar_customizations',
+        confirmLabel: 'פתח Configurator',
+      };
     default:
       return {
         title: 'לאשר פעולה?',
