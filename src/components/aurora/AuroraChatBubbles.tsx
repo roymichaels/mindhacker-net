@@ -216,16 +216,23 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   if (!user) return null;
 
   return (
-    <div className="w-full px-4 space-y-4 pb-4" ref={scrollRef}>
+    <div className="w-full px-5 space-y-7 pb-6" ref={scrollRef}>
         {showOrbAboveMessages && (
-          <div className="flex justify-center pt-6 pb-2">
-            <AionOrb size="md" />
+          <div className="flex justify-center pt-8 pb-4">
+            <AionOrb size="md" breathing />
           </div>
         )}
         {messages.length === 0 && !streamingContent && (
-          <div className="flex flex-col items-center gap-4 pt-16 pb-6 text-center">
-            <AionOrb size="md" />
-            <p className="aion-text-hero text-base font-medium tracking-wide max-w-[260px]" dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="flex flex-col items-center gap-7 pt-[18vh] pb-12 text-center">
+            <AionOrb size="md" breathing />
+            <p
+              className="aion-text-hero text-[15px] font-medium tracking-[0.18em] max-w-[280px] text-foreground/80"
+              dir={isRTL ? 'rtl' : 'ltr'}
+              style={{
+                textShadow:
+                  '0 0 24px hsl(var(--aion-violet) / 0.35)',
+              }}
+            >
               {language === 'he'
                 ? `אני ${aion.name}. הגרסה שלך — בלי הרעש.`
                 : `I'm ${aion.name}. Your version — without the noise.`}
@@ -233,8 +240,10 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
           </div>
         )}
 
-        {messages.map((message) => {
+        {messages.map((message, idx) => {
           const isAI = message.is_ai_message;
+          // Subtle stagger so messages don't perfectly align — feels alive.
+          const staggerX = isAI ? (idx % 2 === 0 ? 0 : 6) : (idx % 2 === 0 ? 0 : -6);
           
           return (
             <motion.div
@@ -242,27 +251,34 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               ref={(el) => {
                 if (el) messageRefs.current.set(message.id, el);
               }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: isAI ? 18 : 10, filter: isAI ? 'blur(6px)' : 'blur(0px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: isAI ? 0.7 : 0.32, ease: [0.22, 0.61, 0.36, 1] }}
+              style={{ transform: `translateX(${staggerX}px)` }}
               className={cn(
-                "group flex gap-3 transition-all duration-300",
+                "group flex gap-3",
                 isAI ? "justify-start" : "justify-end"
               )}
             >
               {/* AION avatar */}
               {isAI && (
-                <div className="flex-shrink-0 mt-1">
+                <div className="flex-shrink-0 mt-2">
                   <AionOrb size="xs" breathing={false} glow={false} />
                 </div>
               )}
 
-              <div className="space-y-1 max-w-[82%]">
+              <div
+                className={cn(
+                  "space-y-1.5",
+                  isAI ? "max-w-[88%]" : "max-w-[72%]",
+                )}
+              >
                 <div
                   className={cn(
-                    "rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed",
+                    "rounded-[22px] px-4 py-3 text-[15px] leading-[1.65]",
                     isAI
-                      ? "atmo-surface-soft text-foreground rounded-ss-md"
-                      : "aion-pill-surface text-foreground rounded-ee-md"
+                      ? "bg-foreground/[0.025] text-foreground/90 rounded-ss-[8px] backdrop-blur-md"
+                      : "aion-pill-surface text-foreground/95 rounded-ee-[8px]"
                   )}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
@@ -299,15 +315,16 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
         {/* Streaming content */}
         {streamingContent && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
             className="flex gap-3 justify-start"
           >
-            <div className="flex-shrink-0 mt-1">
+            <div className="flex-shrink-0 mt-2">
               <AionOrb size="xs" breathing glow={false} />
             </div>
-            <div className="max-w-[82%]">
-              <div className="rounded-2xl rounded-ss-md px-4 py-2.5 text-[15px] atmo-surface-soft text-foreground">
+            <div className="max-w-[88%]">
+              <div className="rounded-[22px] rounded-ss-[8px] px-4 py-3 text-[15px] leading-[1.65] bg-foreground/[0.025] text-foreground/90 backdrop-blur-md">
                 <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
                   <ReactMarkdown>{stripNiqqud(stripReasoning(streamingContent))}</ReactMarkdown>
                 </div>
@@ -323,10 +340,10 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             animate={{ opacity: 1 }}
             className="flex gap-3 justify-start"
           >
-            <div className="flex-shrink-0 mt-1">
+            <div className="flex-shrink-0 mt-2">
               <AionOrb size="xs" breathing />
             </div>
-            <div className="atmo-surface-soft rounded-ss-md px-4 py-3">
+            <div className="bg-foreground/[0.025] rounded-[22px] rounded-ss-[8px] px-4 py-3 backdrop-blur-md">
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full animate-aion-breath bg-foreground/55" />
                 <span className="w-1.5 h-1.5 rounded-full animate-aion-breath bg-foreground/55" style={{ animationDelay: '300ms' }} />
