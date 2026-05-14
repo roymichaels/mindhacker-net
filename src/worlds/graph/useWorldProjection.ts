@@ -11,13 +11,9 @@
 import type { CognitiveWorldId } from '../types';
 import { type WorldProjection, emptyProjection } from './worldGraphTypes';
 import { useHabitsProjection } from '../data/useHabitsProjection';
-import { useSelfProjection } from '../data/useSelfProjection';
 
 export function useWorldProjection(worldId: CognitiveWorldId): WorldProjection {
   const habits = useHabitsProjection(worldId === 'habits');
-  const self = useSelfProjection(worldId === 'self');
-
   if (worldId === 'habits') return habits;
-  if (worldId === 'self') return self;
   return emptyProjection(worldId);
 }
