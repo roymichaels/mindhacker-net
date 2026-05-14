@@ -99,6 +99,63 @@ function mapToRenderer(sourceKind: string, capability: string): RendererSpec | n
         body: 'תצוגה מקדימה של רשומות יומן רלוונטיות.',
         cta: { label: 'פתח את היומן', href: '/journal' },
       };
+    // Phase 2 · Batch 2 — Business / Landing / Courses / Coaches / Identity / Avatar
+    case 'business.canvas':
+      return {
+        kind: 'capability',
+        title: 'קנבס עסקי',
+        body: 'תצוגה מקדימה של המסע העסקי שלך.',
+        cta: { label: 'פתח את העסק', href: '/business' },
+      };
+    case 'landing.preview':
+      return {
+        kind: 'capability',
+        title: 'דפי נחיתה',
+        body: 'תצוגה מקדימה של דפי הנחיתה שלך.',
+        cta: { label: 'פתח את הבונה', href: '/coach-landing-builder' },
+      };
+    case 'course.card':
+      return {
+        kind: 'capability',
+        title: 'קורס מומלץ',
+        body: 'AION מצאה קורס שעשוי להתאים.',
+        cta: { label: 'פתח קורסים', href: '/courses' },
+      };
+    case 'curriculum.preview':
+      return {
+        kind: 'capability',
+        title: 'מסלול לימוד',
+        body: 'תצוגה מקדימה של מסלול לימוד אישי.',
+        cta: { label: 'פתח לימוד', href: '/learn' },
+      };
+    case 'coach.recommendation':
+      return {
+        kind: 'capability',
+        title: 'מאמן מומלץ',
+        body: 'AION מצאה מאמן שמתאים.',
+        cta: { label: 'פתח מאמנים', href: '/coaches' },
+      };
+    case 'identity.summary':
+      return {
+        kind: 'note',
+        title: 'מצב הזהות',
+        body: 'תצוגה מקדימה של פרופיל / DNA / אווטאר.',
+        cta: { label: 'פתח פרופיל', href: '/profile' },
+      };
+    case 'avatar.configurator':
+      return {
+        kind: 'capability',
+        title: 'אווטאר',
+        body: 'התאמת האווטאר שלך — נדרש אישור לפני שינוי.',
+        cta: { label: 'פתח Configurator', href: '/avatar-configurator' },
+      };
+    case 'profile.triad':
+      return {
+        kind: 'note',
+        title: 'פרופיל זהות',
+        body: 'AION · Avatar · DNA',
+        cta: { label: 'פתח פרופיל', href: '/profile' },
+      };
     // Intentionally unmapped (would mutate / no safe preview): journal.entry
     default:
       void capability;
