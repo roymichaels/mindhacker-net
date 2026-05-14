@@ -21,7 +21,7 @@ import FreelancerPortfolioTab from '@/components/careers/freelancer/FreelancerPo
 import FreelancerEarningsTab from '@/components/careers/freelancer/FreelancerEarningsTab';
 import FreelancerSettingsTab from '@/components/careers/freelancer/FreelancerSettingsTab';
 
-export default function FreelancerHub() {
+function FreelancerHubImpl() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -118,3 +118,7 @@ export default function FreelancerHub() {
     </PageShell>
   );
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('FreelancerHub', FreelancerHubImpl);

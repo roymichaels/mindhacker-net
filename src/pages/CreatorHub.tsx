@@ -21,7 +21,7 @@ import CreatorContentTab from '@/components/careers/creator/CreatorContentTab';
 import CreatorAnalyticsTab from '@/components/careers/creator/CreatorAnalyticsTab';
 import CreatorSettingsTab from '@/components/careers/creator/CreatorSettingsTab';
 
-export default function CreatorHub() {
+function CreatorHubImpl() {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
@@ -118,3 +118,7 @@ export default function CreatorHub() {
     </PageShell>
   );
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('CreatorHub', CreatorHubImpl);

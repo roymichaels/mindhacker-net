@@ -22,7 +22,7 @@ import { MissionControlTab } from '@/components/play/MissionControlTab';
 const LifeHub = lazy(() => import('./LifeHub'));
 const WorkHub = lazy(() => import('./WorkHub'));
 
-export default function PlayHub() {
+function PlayHubImpl() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [activeTab, setActiveTab] = useState<'overview' | 'control'>('overview');
@@ -126,3 +126,7 @@ export default function PlayHub() {
     </div>
   );
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('PlayHub', PlayHubImpl);

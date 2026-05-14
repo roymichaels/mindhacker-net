@@ -9,16 +9,6 @@
  */
 import { useNavigate } from 'react-router-dom';
 import {
-  Home,
-  Brain,
-  Globe2,
-  History,
-  Store,
-  Target,
-  Sparkles,
-  BookOpen,
-  Users,
-  GraduationCap,
   Settings as SettingsIcon,
   User,
   LogOut,
@@ -31,10 +21,12 @@ import { useOverlay, useOverlayBinding } from '@/shell/overlay/OverlayController
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileModal } from '@/contexts/ProfileModalContext';
 import { cn } from '@/lib/utils';
+import { CANONICAL_SURFACES } from '@/navigation/canonicalSurfaces';
 
+import type { LucideIcon } from 'lucide-react';
 interface DrawerItem {
   id: string;
-  icon: typeof Home;
+  icon: LucideIcon;
   labelEn: string;
   labelHe: string;
   onSelect: () => void | Promise<void>;
@@ -67,48 +59,22 @@ export default function ShellV2Drawer() {
 
   const sections: DrawerSection[] = [
     {
-      id: 'core',
-      titleEn: 'Core',
-      titleHe: 'ליבה',
-      items: [
-        { id: 'home', icon: Home, labelEn: 'Home', labelHe: 'בית', onSelect: () => go('/') },
-        { id: 'brain', icon: Brain, labelEn: 'Brain', labelHe: 'מוח', onSelect: () => go('/brain') },
-        { id: 'outer', icon: Globe2, labelEn: 'Outer World', labelHe: 'עולם חיצוני', onSelect: () => go('/outer-world') },
-      ],
-    },
-    {
-      id: 'practice',
-      titleEn: 'Practice',
-      titleHe: 'תרגול',
-      items: [
-        { id: 'strategy', icon: Target, labelEn: 'Strategy', labelHe: 'אסטרטגיה', onSelect: () => go('/strategy') },
-        { id: 'hypnosis', icon: Sparkles, labelEn: 'Hypnosis', labelHe: 'היפנוזה', onSelect: () => go('/hypnosis') },
-        { id: 'journal', icon: BookOpen, labelEn: 'Journal', labelHe: 'יומן', onSelect: () => go('/journal') },
-        { id: 'fm', icon: Store, labelEn: 'Free Market', labelHe: 'שוק חופשי', onSelect: () => go('/fm') },
-      ],
-    },
-    {
-      id: 'world',
-      titleEn: 'World',
-      titleHe: 'עולם',
-      items: [
-        { id: 'community', icon: Users, labelEn: 'Community', labelHe: 'קהילה', onSelect: () => go('/community') },
-        { id: 'learn', icon: GraduationCap, labelEn: 'Learn', labelHe: 'לימוד', onSelect: () => go('/learn') },
-        {
-          id: 'history',
-          icon: History,
-          labelEn: 'History',
-          labelHe: 'היסטוריה',
-          onSelect: () => overlay.open('aion'),
-        },
-      ],
+      // Phase C — only the 5 canonical surfaces remain in user-facing nav.
+      // Everything else is summoned by AION as artifact / overlay / room.
+      id: 'surfaces',
+      items: CANONICAL_SURFACES.map((s) => ({
+        id: s.id,
+        icon: s.icon,
+        labelEn: s.labelEn,
+        labelHe: s.labelHe,
+        onSelect: s.id === 'profile' ? goProfile : () => go(s.path),
+      })),
     },
     {
       id: 'account',
       titleEn: 'Account',
       titleHe: 'חשבון',
       items: [
-        { id: 'profile', icon: User, labelEn: 'Account', labelHe: 'חשבון', onSelect: goProfile },
         { id: 'settings', icon: SettingsIcon, labelEn: 'Settings', labelHe: 'הגדרות', onSelect: () => go('/subscriptions') },
         ...(isAdmin
           ? [{ id: 'admin', icon: Shield, labelEn: 'Admin', labelHe: 'ניהול', onSelect: () => go('/admin') }]

@@ -12,7 +12,7 @@ const MINDOS_SECTIONS = [
   { to: '/mindos/journal', labelEn: 'Journal', labelHe: 'יומן', icon: BookOpen },
 ];
 
-export default function MindOSPage() {
+function MindOSPageImpl() {
   const { language, isRTL } = useTranslation();
   const { displayName: aionName } = useAIONDisplayName();
   const location = useLocation();
@@ -70,3 +70,7 @@ export default function MindOSPage() {
     </div>
   );
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('MindOSPage', MindOSPageImpl);

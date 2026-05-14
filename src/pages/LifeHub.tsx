@@ -74,7 +74,7 @@ interface PillarGroup {
   completedMilestones: number;
 }
 
-export default function LifeHub() {
+function LifeHubImpl() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { plan, isLoading } = useLifePlanWithMilestones();
@@ -753,3 +753,7 @@ function categoryToPillar(category: string): string {
   };
   return map[category] || category;
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('LifeHub', LifeHubImpl);

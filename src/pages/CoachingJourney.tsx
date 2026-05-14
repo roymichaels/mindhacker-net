@@ -22,4 +22,5 @@ const CoachingJourney = () => {
   );
 };
 
-export default CoachingJourney;
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('CoachingJourney', CoachingJourney);

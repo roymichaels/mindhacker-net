@@ -26,7 +26,7 @@ function scoreColor(v: number): string {
   return 'text-red-400';
 }
 
-export default function ArenaDomainPage() {
+function ArenaDomainPageImpl() {
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
   const { statusMap, isLoading } = useLifeDomains();
@@ -244,3 +244,7 @@ export default function ArenaDomainPage() {
     </PageShell>
   );
 }
+
+// Phase C — quarantined legacy surface
+import { withDeprecationLog } from '@/shellv2/LegacyMountGuard';
+export default withDeprecationLog('ArenaDomainPage', ArenaDomainPageImpl);
