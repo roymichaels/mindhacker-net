@@ -465,7 +465,7 @@ export const useAuroraChat = (conversationId: string | null) => {
                     tracer.mark('artifact.cooldown_hit', { kind: 'insight', reason: kindCooldown.reason });
                   }
                 }
-              } else {
+              } else if (!pick.ok) {
                 tracer.mark('contradiction.skipped', { reason: pick.reason });
               }
             } else if (!contradictionGate.ok && contextPacket.contradictions.length > 0) {
