@@ -110,7 +110,6 @@ const SoulAvatarMintWizardGlobal = lazy(() => import("./components/web3/SoulAvat
 // Phase A shell collapse: AIONFloatingWidget retired in favor of shell/AIONPresenceButton.
 // Component file kept under legacy until Phase E cleanup.
 const AvatarConfiguratorPage = lazy(() => import("./pages/AvatarConfiguratorPage"));
-const AvatarRequiredModal = lazy(() => import("./components/avatar/AvatarRequiredModal").then(m => ({ default: m.AvatarRequiredModal })));
 const MindOSWorkPage = lazy(() => import("./pages/MindOS/WorkPage"));
 const MindOSJournalPage = lazy(() => import("./pages/MindOS/JournalPage"));
 const JournalingHub = lazy(() => import("./pages/JournalingHub"));
