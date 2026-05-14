@@ -8,11 +8,9 @@
  */
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import BrainView from "@/features/brain/BrainView";
 import BrainErrorBoundary from "@/features/brain/BrainErrorBoundary";
 import ConsciousnessAtlas from "@/features/brain/atlas/ConsciousnessAtlas";
 import RoomView from "@/features/brain/atlas/RoomView";
-import SelfPanel from "@/features/brain/SelfPanel";
 import { useBrainAtlas } from "@/features/brain/data/useBrainAtlas";
 import { useCurrentUserId } from "@/features/brain/useBrainOverview";
 import { getRoomById } from "@/hallway/rooms";
@@ -55,14 +53,14 @@ export default function BrainPage() {
   return (
     <main
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-44"
+      className="relative flex min-h-0 flex-1 flex-col overflow-hidden"
       style={zStyle("chat")}
       data-shellv2-layer="chat"
       data-shellv2-route="brain"
     >
       <BrainErrorBoundary isRTL={isRTL}>
         {view === "room" && roomDef ? (
-          <div className="space-y-3">
+          <div className="flex flex-col h-full overflow-y-auto overscroll-contain touch-pan-y px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-44 space-y-3">
             <ShellHeader
               showBack
               onBack={goAtlas}
@@ -72,35 +70,40 @@ export default function BrainPage() {
             <RoomView roomId={roomDef.id} />
           </div>
         ) : (
-          <div className="space-y-4">
-            <ShellHeader
-              title={isRTL ? "מפת התודעה" : "Consciousness Map"}
-              subtitle={
-                isRTL
-                  ? "כל חדר הוא מערכת תודעה ש־AION מעדכן"
-                  : "Each room is a consciousness system AION keeps updating"
-              }
-            />
-            <SelfPanel isRTL={isRTL} atlas={atlas ?? null} />
-            {atlasError && (
-              <p className="text-[11px] text-destructive">
-                {isRTL ? "שגיאת מפה: " : "Atlas error: "}
-                {atlasError.message}
-              </p>
-            )}
-            {atlasLoading ? (
-              <div className="h-[480px] rounded-2xl bg-muted/20 animate-pulse" />
-            ) : (
-              <ConsciousnessAtlas atlas={atlas ?? null} onRoomTap={goRoom} />
-            )}
-            <details className="rounded-2xl bg-white/[0.03] p-3">
-              <summary className="text-[11px] text-muted-foreground cursor-pointer">
-                {isRTL ? "תצוגת גרף מלא (מורשת)" : "Full graph (legacy)"}
-              </summary>
-              <div className="mt-3">
-                <BrainView />
+          <div className="relative h-full w-full">
+            {/* Translucent floating header — does not occupy layout space */}
+            <div
+              className="absolute inset-x-0 top-0 z-10 px-4 pt-[max(env(safe-area-inset-top),0.75rem)] pb-2 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-md pointer-events-none"
+            >
+              <div className="pointer-events-auto">
+                <ShellHeader
+                  title={isRTL ? "מפת התודעה" : "Consciousness Map"}
+                  subtitle={
+                    isRTL
+                      ? "כל חדר הוא מערכת תודעה ש־AION מעדכן"
+                      : "Each room is a consciousness system AION keeps updating"
+                  }
+                />
+                {atlasError && (
+                  <p className="mt-1 text-[11px] text-destructive">
+                    {isRTL ? "שגיאת מפה: " : "Atlas error: "}
+                    {atlasError.message}
+                  </p>
+                )}
               </div>
-            </details>
+            </div>
+
+            <div className="absolute inset-0 pb-32">
+              {atlasLoading ? (
+                <div className="h-full w-full bg-muted/10 animate-pulse" />
+              ) : (
+                <ConsciousnessAtlas
+                  atlas={atlas ?? null}
+                  onRoomTap={goRoom}
+                  height={typeof window !== "undefined" ? window.innerHeight : 720}
+                />
+              )}
+            </div>
           </div>
         )}
       </BrainErrorBoundary>
