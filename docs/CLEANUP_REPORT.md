@@ -12,13 +12,43 @@ scheduled for deletion / merge once `LegacyMountGuard` confirms zero hits.
 - `src/app-shell/surfaces.ts` — re-exports `CANONICAL_SURFACES`. Marked `@deprecated`.
 - `src/app-shell/AppShell.tsx` — marked `@deprecated` (dead skeleton).
 
-## Phase B — shell collapse (queued)
+## Phase B — shell collapse (DONE)
 
-Delete after guard confirms zero mounts:
-- `src/app-shell/**`
-- `src/shell/overlay/**`
-- `src/components/layout/DashboardLayout.tsx`
-- `src/components/layout/ProtectedAppShell.tsx`
+Verified state:
+- `App.tsx` mounts only `ProtectedAppShellV2` → `ShellV2` for every protected
+  route. No `ProtectedAppShell` / `DashboardLayout` / `HubModalProvider` /
+  `HubModalHost` / `MindOSSheet` symbols are imported anywhere in `src/`.
+- `/`, `/aurora`, `/brain`, `/outer-world` mount inside `ShellV2`. `/profile`
+  redirects to `/aurora` (still ShellV2-owned); a dedicated `/profile`
+  surface route lands in Phase C.
+- `OnboardingGate` is the existing no-op passthrough — no legacy onboarding
+  redirects fire.
+
+Deleted:
+- `src/app-shell/**` (AppShell skeleton, surfaces re-export, featureFlag,
+  empty OverlayHost / overlayStore / registry).
+
+Inlined:
+- `isAionTraceEnabled` moved from `src/app-shell/featureFlag.ts` into
+  `src/diagnostics/aionTrace.ts` (only consumer).
+
+Added:
+- `ShellSentinel` tripwire inside `ProtectedAppShellV2`. Sets
+  `window.__MINDOS_SHELL__ = 'ShellV2'`; logs `console.error` if any other
+  shell ever sets that key in the same session. Dev-only `console.info`
+  confirms ShellV2 is live.
+- `withDeprecationLog(name, Component)` in `LegacyMountGuard` for Phase C
+  page wrapping.
+
+Reversibility:
+- Phase B touches no DB, no edge functions, no providers, no pillar routes,
+  no orchestration. Restoring `app-shell/` from git history is the only
+  rollback step.
+
+Still queued for later phases (NOT done in B):
+
+- `src/shell/overlay/**` — used by `OverlayProvider` in App.tsx; collapses
+  in Phase E together with the modal contexts.
 - Modal contexts (Coaches, Profile, Subscriptions, Wallet, Story, Welcome,
   SmartOnboarding, HubModal, Sidebar, ChromeVisibility) — collapse into
   `shellv2/UnifiedOverlayHost`.
