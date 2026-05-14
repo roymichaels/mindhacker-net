@@ -22,7 +22,7 @@ const GlobalChatInput = () => {
   const queryClient = useQueryClient();
   const { t, tg, isRTL } = useGenderedTranslation();
   const { user } = useAuth();
-  const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
+  const { canSendMessage, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   const { displayName: aionName } = useAIONDisplayName();
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
