@@ -1,159 +1,72 @@
-## Phase 5B.5 — Cognitive Worlds Architecture
 
-Reframe every major hub from "page" into **world** — a spatial, living, semantically-typed layer of consciousness. The graph stops being analytics and becomes the substrate of the OS. AION threads through every world as the same presence.
+# Phase 5B.7 — Living Cognitive Systems
 
-This phase lays the **architectural primitives** for the worlds system. It does NOT build all the worlds. The first concrete world is wired so the contract is real, not theoretical.
+Goal: every world interaction captures meaning, mutates a shared graph, accumulates continuity, and changes how AION responds over time. No new pages — extend the worlds layer already shipped in 5B.5.
 
-### Core mental model
+## Architecture additions
 
 ```text
-                    ┌──── AION presence (canonical, shared) ────┐
-                    │                                            │
-   SelfWorld ──┐    │    each world has:                         │
-   Habits     ─┤    │     · spatial scene (its visual language)  │
-   Emotions   ─┤    │     · ontology (node/edge kinds)           │
-   Beliefs    ─┼──► │     · interaction grammar (verbs)          │
-   Memory     ─┤    │     · AION role per world                  │
-   Relations  ─┤    │     · graph projection (shared substrate)  │
-   Archetypes ─┤    │                                            │
-   Creative   ─┤    └────────────────────────────────────────────┘
-   Higher     ─┘
-        │
-        └──► all worlds project into ONE semantic graph
+src/worlds/
+├── state/
+│   ├── worldStateTypes.ts        ← per-world state shape (momentum, climate, tensions…)
+│   ├── useWorldState.ts          ← read+subscribe hook
+│   └── worldStateStore.ts        ← Zustand store, persisted to localStorage
+├── graph/
+│   ├── graphMutationTypes.ts     ← MutationEvent union (create/reinforce/weaken/connect/contradict)
+│   ├── useGraphMutator.ts        ← single entry point: mutate(event)
+│   └── graphMutationBus.ts       ← emits events to memory-writer + state reducers
+├── continuity/
+│   ├── aionMemoryTypes.ts        ← recurring themes, dominant climate, avoided worlds…
+│   ├── useAionContinuity.ts      ← derives signals from graph + world state
+│   └── continuityStore.ts        ← persisted, hydrates on app boot
+├── evolution/
+│   ├── worldEvolution.ts         ← rules per world (decay curves, momentum gravity…)
+│   └── useWorldEvolution.ts      ← runs reducers when state/projection changes
+└── aion/useWorldAion.ts          ← extended to consume continuity signals
 ```
 
-A "world" is **not** a route. A world is a typed slice of the user's semantic graph rendered with its own spatial scene and interaction grammar.
+## Behaviour contract
 
-### Architectural primitives (this phase ships these)
+1. **Mutation pipeline.** Every world verb / interaction calls `mutate({worldId, kind, payload})` from `useGraphMutator`. The mutator:
+   - updates local `worldStateStore` (optimistic),
+   - emits to `graphMutationBus`,
+   - fires the existing `memory-writer` edge function with `source: 'world'` and the world id, so the persistent graph grows the same way chat/journal already do.
+2. **World state.** Each world reduces mutation events into a typed `WorldState` with: `activeNodes`, `dormantNodes`, `recurringPatterns`, `unresolvedTensions`, `momentum`, `climate`, `confidence`, `contradictions`, `reinforcement`. Persisted per-user key.
+3. **Graph evolution.** `worldEvolution.ts` defines per-world rules (Habits = momentum + decay, Beliefs = contradiction detection, Emotions = climate history, Memory = era clustering, Relationships = attachment weight, Archetypes = dominance/shadow, Creative = idea lineage, Higher = alignment drift). Runs on a debounced tick + on every mutation.
+4. **AION continuity.** `useAionContinuity` aggregates across worlds → `{ recurringThemes, dominantClimate, unresolvedLoops, avoidedWorlds, highEnergyNodes, identityDrift }`. `useWorldAion` blends it into the line/verbs so AION sounds aware ("you keep returning to…", "this loop is gaining gravity…").
+5. **Visual evolution.** Scenes read `useWorldState(worldId)` and adjust:
+   - RitualOrbits: orbits tighten with momentum, decay drifts outward, streak gravity pulses.
+   - ScaffoldScene becomes `LivingScaffoldScene` — even unbuilt worlds show climate/tension haze derived from cross-world signals.
+   - BandStack picks up subtle highlights for bands with high recent activity.
 
-#### 1. World contract (`src/worlds/types.ts`)
+## Concrete file changes
 
-```ts
-type CognitiveWorldId =
-  | 'self' | 'habits' | 'emotions' | 'beliefs' | 'memory'
-  | 'relationships' | 'archetypes' | 'creative' | 'higher';
+- **New (11):** the 11 files listed in the tree above.
+- **Edit:**
+  - `src/worlds/scene/WorldComposer.tsx` → buttons call `mutate()` instead of being display-only.
+  - `src/worlds/scene/scenes/RitualOrbitsScene.tsx` → drive radius/opacity/pulse from `useWorldState('habits')` instead of demo array.
+  - `src/worlds/scene/scenes/ScaffoldScene.tsx` → consume continuity to render an evolving haze + "AION is forming this world" hint.
+  - `src/worlds/aion/useWorldAion.ts` → blend continuity signals into `line`.
+  - `src/worlds/data/useHabitsProjection.ts` → projection now derives from `worldState.activeNodes` (falls back to demo only on cold start).
+  - `src/worlds/scene/WorldShell.tsx` → mount a `<WorldEvolutionTicker worldId={…} />` invisible component.
+  - `mem/architecture/cognitive-worlds-system.md` → add "Living Cognitive Systems" section + reference new files.
+  - `mem/index.md` → add memory entry.
 
-interface CognitiveWorld {
-  id: CognitiveWorldId;
-  labelHe: string; labelEn: string;
-  // semantic ontology this world owns
-  nodeKinds: WorldNodeKind[];      // e.g. for habits: ritual, loop, momentum
-  edgeKinds: WorldEdgeKind[];      // e.g. triggers, reinforces, decays
-  // spatial language
-  scene: WorldSceneSpec;           // metaphor + motion + palette tokens
-  interaction: WorldInteractionSpec; // verbs available in this world
-  // AION's role inside the world
-  aionRole: 'guide' | 'interpreter' | 'orchestrator' | 'observer';
-  status: 'live' | 'scaffold' | 'coming';
-}
-```
+## Persistence strategy
 
-Each world declares its **ontology** (node/edge kinds it owns), **scene** (metaphor — constellation, weather, root system, timeline, galaxy…), and **interaction grammar** (verbs the user can perform inside it: traverse, resonate, interrogate, inhabit, etc).
+- Local first: `worldStateStore` + `continuityStore` use Zustand `persist` middleware keyed by `user_id`. Survives reloads, lets evolution feel real immediately.
+- Server side: every mutation also dispatches to existing `memory-writer` edge function — no schema change required (it already accepts arbitrary `source` + `context` and writes typed nodes via `graphUpsert`). Future phase can add a typed `world_state` table; not in scope here.
 
-#### 2. World registry (`src/worlds/registry.ts`)
+## Explicitly NOT in scope
 
-Single source of truth listing all 9 worlds with their ontology + scene + AION role. Most ship as `status: 'scaffold'` (shell + ontology defined, scene stub) or `'coming'` (registered only). One ships as `'live'`.
+- No new edge functions, no DB migration, no new tables.
+- No 3D scene upgrades, no new world routes, no triad changes.
+- Composer verbs remain the same labels — only their behaviour upgrades from display to mutation.
+- Scaffold worlds stay scaffolded; they just gain living atmosphere from continuity.
 
-This **replaces** `src/selfworld/layerRegistry.ts` for the inner-system layers — those layers were a placeholder for what now becomes the worlds registry. SelfWorld becomes one world among many, not a parent of them.
+## Success check
 
-#### 3. Shared semantic graph layer (`src/worlds/graph/`)
-
-- `worldGraphTypes.ts` — `WorldNode`, `WorldEdge`, `WorldKind`, `WorldProjection`.
-- `useWorldProjection(worldId)` — selects the user's graph slice owned by a world (filters by node/edge kinds). All worlds read from the **same** underlying graph; each just projects its slice. This preserves graph interoperability — a "belief" node can be referenced by the Beliefs world and the Memory world simultaneously.
-- For now, projections read from the existing `useBrainAtlas` / `useBrainOverview` data and tag nodes by inferred kind. No backend changes — pure client-side projection. Backend kind columns come in a later phase.
-
-#### 4. World scene primitives (`src/worlds/scene/`)
-
-Reusable spatial building blocks so each world stays unique without each one rebuilding from scratch:
-
-- `<WorldShell>` — full-bleed container, ambient atmosphere, AION presence anchor (top), exit affordance, world title band.
-- `<WorldStage>` — scene mount point. Accepts a `SceneRenderer` from the registry.
-- `<WorldComposer>` — bottom AION input scoped to the current world's grammar (verbs become quick prompts).
-- Scene renderer types: `Constellation`, `Weather`, `RootSystem`, `Timeline`, `Galaxy`, `EntityCircle`, `Ecosystem`, `Dreamspace`, `BandStack` (the SelfWorld v1 metaphor).
-
-Each scene renderer takes `(projection, presence) => ReactNode`. Scenes are pure renderers; data comes from `useWorldProjection`.
-
-#### 5. AION-in-world contract (`src/worlds/aion/`)
-
-Same canonical AION model everywhere, but AION's **role and copy** vary per world. A `useWorldAion(worldId)` hook exposes:
-
-- presence-aware copy ("AION is reading the weather of your emotions")
-- world-scoped quick verbs ("interpret", "trace origin", "find pattern")
-- scoped suggestions feed (later phases)
-
-Visual orb stays canonical. Voice stays canonical. Only the *framing* shifts.
-
-#### 6. Routing & navigation
-
-- New route shell `/worlds/:worldId` rendering `<WorldShell>` + the registered scene.
-- SelfWorld migrates: `ProfilePage` continues to mount `SelfPanel`, but `SelfPanel` now mounts `<WorldShell worldId="self">` rendering the existing `BandStack` scene. The Phase 5B.4 SelfWorld becomes the reference implementation of the contract.
-- The InnerSystemsBand inside SelfWorld now lists worlds (not layers). Tapping a `live`/`scaffold` world navigates to `/worlds/:id`. `coming` worlds reveal the same presence-aware "AION is preparing this world" line.
-
-### First concrete world: Habits
-
-Habits gets a real (minimal) scene so the contract is provable, not theoretical.
-
-- **Ontology:** node kinds `ritual`, `loop`, `momentum`, `decay`; edge kinds `triggers`, `reinforces`, `interrupts`.
-- **Scene metaphor:** *Ritual loops + behavioral gravity* — circular orbits where each habit ritual is a satellite whose radius represents momentum (smaller = closer = stronger gravity), pulse rate represents recent execution. Decaying habits drift outward.
-- **Interaction grammar verbs:** *follow* (trace the loop), *interrupt*, *amplify*, *reset*.
-- **AION role:** `orchestrator`. Copy: "AION is watching the rhythm of your loops."
-- **Data source:** projection from existing action_items / habit signals via a thin client adapter `useHabitsProjection()`. No backend change — uses what exists, falls back to demo orbits if data is empty.
-
-Other 7 worlds ship as `scaffold`: the route resolves, `<WorldShell>` mounts, scene renders a *registered placeholder* (a labeled empty state describing the world's metaphor and AION's role) instead of the generic "coming soon" lock. This makes the worlds **navigable and conceptually present** without faking deep functionality.
-
-### What is explicitly NOT built
-
-- No 3D WebGL scenes for worlds beyond what already exists (orbs, DNA helix). Habits scene is a 2D motion-driven SVG/Framer composition. WebGL upgrade per world is a later phase.
-- No backend schema changes. No new tables, no edge functions. Node-kind tagging is client-side inference.
-- No deep authoring/editing inside worlds yet — only spatial reading + AION verbs.
-- No replacement of existing `BrainView` / `BrainGraphForce`. The brain graph stays as the cross-world substrate view; worlds are *projections* of it.
-- No collapsing of the AION/DNA/Character triad — that contract is preserved.
-
-### File inventory (planned)
-
-**New**
-- `src/worlds/types.ts`
-- `src/worlds/registry.ts`
-- `src/worlds/graph/worldGraphTypes.ts`
-- `src/worlds/graph/useWorldProjection.ts`
-- `src/worlds/scene/WorldShell.tsx`
-- `src/worlds/scene/WorldStage.tsx`
-- `src/worlds/scene/WorldComposer.tsx`
-- `src/worlds/scene/scenes/BandStackScene.tsx` (extracted from current SelfWorldShell)
-- `src/worlds/scene/scenes/RitualOrbitsScene.tsx` (Habits)
-- `src/worlds/scene/scenes/ScaffoldScene.tsx` (placeholder used by `scaffold` worlds)
-- `src/worlds/aion/useWorldAion.ts`
-- `src/worlds/data/useHabitsProjection.ts`
-- `src/pages/WorldRoute.tsx` (route wrapper for `/worlds/:worldId`)
-- `mem/architecture/cognitive-worlds-system.md` + index entry
-
-**Edited**
-- `src/App.tsx` — add `/worlds/:worldId` route.
-- `src/selfworld/SelfWorldShell.tsx` — internally swap to `<WorldShell worldId="self" scene={BandStackScene} />`. Public API unchanged so `SelfPanel` keeps working.
-- `src/selfworld/layers/InnerSystemsBand.tsx` — source from worlds registry (not legacy layerRegistry); tap on non-coming worlds navigates to `/worlds/:id`.
-
-**Removed (folded into worlds registry)**
-- `src/selfworld/layerRegistry.ts` — superseded. Its labels/hints migrate into `src/worlds/registry.ts`.
-
-### Long-term direction this enables
-
-- Each world can independently upgrade its scene to WebGL/3D without touching the contract.
-- Backend node-kind tagging arrives later — projections already accept typed nodes, so the migration is additive.
-- Cross-world edges (a memory tied to a belief tied to a relationship) light up automatically since all worlds project from the same graph.
-- Multiplayer / shared worlds, agent ecosystems, and persistent companion memory all hang off the same `CognitiveWorld` contract.
-
-### Memory updates
-
-Add `mem://architecture/cognitive-worlds-system` documenting:
-- Worlds-as-projections rule (one graph, many spatial scenes).
-- World contract (`ontology + scene + interaction grammar + aionRole`).
-- AION-in-world rule (canonical orb, world-scoped framing).
-- Phase 5B.4 SelfWorld is the reference implementation.
-
-### Success criteria
-
-- `/worlds/self`, `/worlds/habits`, `/worlds/emotions`, `/worlds/beliefs`, `/worlds/memory`, `/worlds/relationships`, `/worlds/archetypes`, `/worlds/creative`, `/worlds/higher` all resolve.
-- SelfWorld and Habits render real scenes; the other 7 render their registered scaffold scene (named metaphor + AION role line), not a generic "coming soon" lock.
-- Same canonical AION presence reads in every world; only its framing copy differs.
-- Tapping an inner-systems entry from SelfWorld navigates into the corresponding world.
-- No backend changes, no graph rewrite, no triad regression.
+- Tapping a verb in any live world updates persistent state, immediately re-renders the scene, and is reflected in AION's next line.
+- After multiple sessions, AION's `useWorldAion` line changes to reference recurring themes / dominant climate.
+- Refreshing the app preserves momentum/decay/climate (localStorage hydration).
+- Build passes; no regressions to SelfWorld band-stack or existing routes.

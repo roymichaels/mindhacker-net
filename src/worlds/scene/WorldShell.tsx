@@ -18,6 +18,7 @@ import ScaffoldScene from './scenes/ScaffoldScene';
 import RitualOrbitsScene from './scenes/RitualOrbitsScene';
 import BandStackScene from './scenes/BandStackScene';
 import type { CognitiveWorldId } from '@/worlds/types';
+import { useWorldEvolution } from '@/worlds/evolution/useWorldEvolution';
 
 interface Props {
   worldId: CognitiveWorldId;
@@ -35,6 +36,7 @@ export default function WorldShell({ worldId, sceneOverride, embedded, onOpenAdv
   const world = getWorld(worldId);
   const aion = useWorldAion(worldId);
   const projection = useWorldProjection(worldId);
+  useWorldEvolution(worldId);
 
   if (!world || !aion) {
     return (
@@ -90,7 +92,7 @@ export default function WorldShell({ worldId, sceneOverride, embedded, onOpenAdv
 
       {isBandStack ? scene : <WorldStage>{scene}</WorldStage>}
 
-      {!isBandStack && <WorldComposer verbs={aion.verbs} />}
+      {!isBandStack && <WorldComposer verbs={aion.verbs} worldId={worldId} />}
     </div>
   );
 }
