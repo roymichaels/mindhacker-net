@@ -1,166 +1,101 @@
-# AION North-Star Gap Closure Pass
+# AION Manifestation Engine — Phase 1
 
-## Status — Foundation shipped
+Add a thin visual lifecycle around artifacts so they feel summoned rather than rendered. Pure presentation; no changes to backend, orchestration, capabilities, or DB.
 
-This turn shipped the **token + primitive foundation** that the rest of the
-pass depends on. Migrations of Brain / Journey / Outer World / artifact
-sweep are deliberately left for follow-up turns so each migration can be
-verified visually on mobile.
+## 1. New primitives (under `src/components/aion/manifestation/`)
 
-**Delivered:**
+- **`ManifestationProvider.tsx`** — React context provider, mounted once at the app shell root (inside `ProtectedAppShell`). Subscribes to **both** existing buses:
+  - `onArtifact` from `src/components/aion/artifacts/artifactBus.ts` (AionArtifact / floating cards)
+  - `artifactBus.subscribe` from `src/lib/aion/artifactBus.ts` (summoned ArtifactInstance)
+  
+  Maintains a small state machine per artifact id:
+  ```
+  pending → manifesting (≈260ms) → stable → dissolving (≈220ms) → gone
+  ```
+  Exposes context: `{ phase, kind, mood, primaryId, registerLifecycle(id, kind) }` and emits dev events (`manifestation.started/stable/dismissed` via `console.debug` when `import.meta.env.DEV`).
+  
+  Behavior rules:
+  - Only **one primary** manifestation at a time (most recent wins; older ones move to "stable" silently without re-pulse).
+  - Confirm artifacts (`kind: 'confirm'`, `checkout_confirmation`, or AtmoArtifact `kind: 'confirm'/'warn'`) are **sticky** (no auto-dissolve).
+  - Read artifacts keep their existing `ttl` auto-dismiss → triggers `dissolving` instead of instant unmount.
+  - Respects `prefers-reduced-motion` → collapses lifecycle to a 1-frame fade with no scale/blur.
 
-- Tokens (`src/index.css`): `aion-glow-gold`, `aion-glow-danger`,
-  `aion-text-soft`/`-mute`/`-faint`, `aion-surface-strong`, `aion-pill-surface`.
-- Primitive kit under `src/components/aion/ui/` with barrel `index.ts`:
-  `AionScreen`, `AionHeader`, `AionComposerDock`, `AionNavDock`,
-  `AionSurface`, `AionOrb`, `AionEntityAvatar`, `AionBottomSheet`,
-  `AionButton`, `AionPill`, `AionArtifactCard`.
-- `ShellV2Header` rewritten to consume `AionHeader` (single source of truth
-  for the top bar across the app).
+- **`ManifestationLayer.tsx`** — Single absolutely-positioned overlay placed inside the ShellV2 chrome (above composer, below header). Renders:
+  - **`ManifestationPulse`** — one-shot ring expanding from a "summon point" near the orb (top-center on mobile). CSS keyframes only.
+  - **`ManifestationAura`** — full-screen radial gradient (very low alpha, 6–10%) tinted by the active artifact's mood color. Cross-fades when mood changes; fades out when no primary artifact.
+  - Both are `pointer-events-none` and z-indexed below the artifact cards.
 
-**Next turns (in order):**
+- **`ManifestedArtifactShell.tsx`** — Wrapper component that any artifact card opts into. Reads its phase from context (by `artifactId`) and applies:
+  - `manifesting`: `opacity-0 scale-[0.92] blur-md` → animate to `opacity-100 scale-100 blur-0` (motion easing token `--aion-ease`).
+  - `stable`: identity.
+  - `dissolving`: reverse, then unmount via `onDissolved` callback.
+  - Reduced-motion: pure opacity 0→1 / 1→0 in ~120ms.
 
-1. Wire `AionNavDock` into `ChromeLayer` with the 5 canonical tabs.
-2. Brain north-star: nebula clusters, curved energy edges, sheet rewrite,
-   copy sweep.
-3. Journey north-star: `PlayHub` + Mind OS pages onto `AionScreen` /
-   `AionSurface` / `AionArtifactCard`.
-4. Outer World north-star: portal cards on `AionSurface strong`.
-5. Artifact sweep: Journal, Hypnosis, Wallet, Coach, Business, Work, Profile.
-6. Copy cleanup pass + density reduction per migrated screen.
+- **`useAionManifestation(artifactId, kind)`** hook — registers the artifact on mount, returns `{ phase, mood, dissolve() }`. Used by cards that don't want the shell wrapper.
 
-This pass stops touching one screen at a time. We codify the cinematic system as **tokens + primitives**, then sweep the high-impact surfaces onto them. No backend, route, orchestration, or capability changes.
+## 2. Artifact-kind → mood color mapping
 
-## 1. Token layer (`src/index.css` + `tailwind.config.ts`)
+Single map exported from `manifestation/moods.ts`. Values are token names already defined in `index.css` (cyan/violet/gold/soft glows).
 
-Audit existing `aion-*` / `atmo-*` tokens and fill gaps so every surface uses tokens, never raw colors.
-
-Add / verify in `:root` and `.dark`:
-
-- Background: `--aion-bg`, `--aion-bg-deep`, `--aion-bg-fade` (radial nebula stops).
-- Surfaces: `--aion-surface`, `--aion-surface-strong`, `--aion-surface-translucent`, `--aion-border-hairline`.
-- Glow: `--aion-glow-cyan`, `--aion-glow-violet`, `--aion-glow-gold`, `--aion-glow-soft`, `--aion-glow-danger`.
-- Text: `--aion-text`, `--aion-text-soft` (foreground/70), `--aion-text-mute` (foreground/45), `--aion-text-faint` (foreground/25).
-- Semantic: `--aion-success`, `--aion-warn`, `--aion-danger`, `--aion-action` (cyan).
-- Radius scale: `--aion-r-sm 12px`, `--aion-r 18px`, `--aion-r-lg 26px`, `--aion-r-pill 9999px`.
-- Spacing scale (CSS vars consumed by primitives): `--aion-s-1..6` on a 4/8/12/16/24/40 grid.
-- Motion: `--ease-cinema`, `--ease-soft`, `--dur-fast 180ms`, `--dur 320ms`, `--dur-slow 540ms`.
-- Shadow/glow scale: `--aion-shadow-1..3` mapped to existing glow utilities.
-
-Remove ad-hoc `bg-*-500/10`, `border-border/40`, `shadow-[0_…]` from migrated screens — replace with tokens.
-
-## 2. Core primitives (`src/components/aion/ui/`)
-
-Create the shared kit. Each is a thin presentation component, no business logic:
-
-```text
-src/components/aion/ui/
-  AionScreen.tsx        // safe-area, vertical rhythm, max-w container
-  AionHeader.tsx        // 56px compact header: ghost menu / centered AION / orb status
-  AionComposerDock.tsx  // floating pill wrapper; wraps GlobalChatInput
-  AionSurface.tsx       // borderless atmo-surface card w/ kind tint + breathing prop
-  AionOrb.tsx           // shared orb glyph (xs/sm/md/lg) — reuses SharedOrbStage handle
-  AionEntityAvatar.tsx  // mini AION presence chip (orb + name/status)
-  AionBottomSheet.tsx   // cinematic sheet (atmo-surface, drag handle, emerge anim)
-  AionModal.tsx         // dialog variant of AionBottomSheet for desktop
-  AionButton.tsx        // primary / ghost / pill variants on tokens
-  AionPill.tsx          // status / filter chip
-  AionArtifactCard.tsx  // re-exports AtmoArtifact w/ enforced kind + source slot
-  AionNavDock.tsx       // 5-tab bottom dock (Chat · Brain · Journey · Outer · Profile)
-```
-
-`AionArtifactCard` is the single artifact shell — `AtmoArtifact` becomes its implementation.
-
-## 3. Mobile shell
-
-- `ShellV2Header` → re-implement on top of `AionHeader`. Confirms 56px height, `pt-[env(safe-area-inset-top)]`, no border, fade-down mask only.
-- `ChromeLayer` mounts `AionHeader`; `ComposerLayer` wraps `GlobalChatInput` with `AionComposerDock`.
-- Add `AionNavDock` (replacing whatever bottom chrome currently double-stacks). Composer sits **above** dock; both share one safe-area calc.
-- Z-index: confirm `Z` scale in `src/shellv2/zindex.ts` covers nav dock (insert `nav: 35` between composer and chrome).
-- Sheet stacking: route all bottom sheets through `AionBottomSheet` so backdrop, scrim, and exit anim are uniform.
-
-## 4. Brain north star (`src/features/brain/`)
-
-Pure presentation refactor on top of existing data hooks.
-
-- `BrainGraphForce`: keep current radial-orb work, add **room nebula clusters** — each room renders a soft radial gradient field (40% alpha) behind its nodes; nodes drift inside.
-- Replace straight edges with curved Bézier energy lines, gradient cyan→violet, 0.08–0.18 alpha based on relation strength (no numeric label).
-- Selected node opens `AionBottomSheet` (replace current `BrainNodeSheet` shell) with: name, one-line human description, "Explore deeper" / "Correct this" / "Ask AION" actions.
-- Strip user-facing copy: "confidence", "strength", "node", "edges", counters → human phrases ("AION is still learning this", "This feels strong", "Quiet for now").
-- Move dev counters/toggles behind `useDiagnosticsFlag`.
-
-## 5. Journey north star (`src/pages/PlayHub.tsx` + Mind OS pages)
-
-- Wrap in `AionScreen`. Hero block: AION guidance line (one sentence), today's single mission title, next-step CTA.
-- Below: optional `AionArtifactCard kind="plan"` for the generated plan, then a soft vertical timeline (no card chrome — just dots + text on `atmo-divider`).
-- Remove tabs, action grids, "Modes" launcher chips → fold into a single "More" entry that opens an `AionBottomSheet`.
-- StrategyPage / TacticsPage / WorkPage / JournalPage: convert their root container to `AionScreen` and their primary panels to `AionSurface` / `AionArtifactCard`.
-
-## 6. Outer World north star (`src/pages/OuterWorldHub.tsx` + market pages)
-
-- Replace grid of generic cards with **portal cards**: large `AionArtifactCard` per world (Marketplace, Coaches, Learning, Wallet/Economy), each with an orb-tinted glow, one-line invite, and chevron.
-- Max 4 portals on screen; secondary entries summoned from each portal.
-- `Coaches.tsx`, `PractitionerProfile.tsx`, `Subscriptions.tsx`, wallet modal: re-skin headers/cards with `AionSurface` and `AionArtifactCard`.
-
-## 7. Artifact sweep
-
-Wrap with `AionArtifactCard` (kind in parens):
-
-- Journal: `JournalTab.tsx`, `AuroraJournalModal.tsx` (`read`).
-- Hypnosis: `HypnosisPage.tsx`, `BodyHypnosisSurface.tsx` (`default`).
-- Wallet: wallet modal contents (`confirm`).
-- Marketplace / Coach: `Coaches.tsx` cards, `PractitionerProfile.tsx` (`default`).
-- Business: `BusinessJourney.tsx`, business plan generators (`plan`).
-- Work: `WorkPage.tsx` block panels (`default`).
-- Plan / Confirmation: already done — verify `AuroraPlanModal.tsx` and `AuroraActionConfirmation.tsx` use the shared shell.
-- Profile: `ProfilePage.tsx` triad cards (`default`, breathing).
-
-`ArtifactLayer` keeps emitting through registry; the registry components migrate one by one to `AionArtifactCard`.
-
-## 8. Copy cleanup
-
-Project-wide string sweep (UI files only) to replace technical terms with human phrasing:
-
-| Old | New |
+| Kind family | Mood token |
 |---|---|
-| confidence / strength | "feels strong" / "still learning" |
-| node / edge / graph | "room" / "thread" / "map" |
-| status unknown | "quiet for now" |
-| onboarding | "first steps" |
-| evidence / source | hidden unless `useDiagnosticsFlag()` |
-| profileVisual / material metal | removed from user copy |
+| `next_action`, `plan_summary`, `journey_workspace`, `schedule_block_preview`, `work_session`, `today-list`, `plan`, `journey` | `cyan` |
+| `hypnosis_player` | `violet` |
+| `journal_capture`, `journal_preview`, `identity_summary`, `profile_triad`, `avatar_configurator` | `indigo` (alias of violet-soft) |
+| `business_canvas`, `landing_preview`, `marketplace_card`, `wallet_sheet`, `subscription_card`, `checkout_confirmation`, `coach_recommendation`, `course_card`, `curriculum_preview`, `business-canvas`, `landing-builder`, `job-mode` | `gold` |
+| `insight`, `note`, `capability`, `community_preview`, `message_preview`, `assessment` | `blue/violet` (soft) |
+| `confirm` | `cyan` (danger reserved for later) |
 
-Touch points: Brain views, Journey rows, Outer World portals, artifact source slots. Dev labels gated behind diagnostics.
+`AtmoArtifactKind` (`read/plan/confirm/warn/default`) maps in the same file so legacy callers work.
 
-## 9. Density reduction (~30%)
+## 3. Wiring (files edited)
 
-For each migrated screen, remove: secondary action buttons, helper subtitles, duplicate tabs, decorative chips, redundant dividers, permanent "feature access" rails. Move them into the relevant `AionBottomSheet`.
+- **`src/shellv2/ShellV2.tsx`** (or current shell root): wrap children with `<ManifestationProvider>` and mount `<ManifestationLayer />` once.
+- **`src/components/aion/artifacts/ArtifactLayer.tsx`**: keep current content, just wrap each card in `<ManifestedArtifactShell artifactId={art.id} kind={art.kind}>`. Replace the current `animate-in fade-in slide-in-from-bottom-4` classes (the shell now owns the entrance). Auto-dismiss `setTimeout` calls `shell.dissolve()` instead of `dismiss()` directly; actual removal happens after dissolve completes.
+- **`src/components/aion/artifacts/AtmoArtifact.tsx`**: accept optional `artifactId` and `manifest` props. When provided, replaces `animate-aion-emerge` with the lifecycle classes from `useAionManifestation`.
+- **`src/components/aion/ui/AionArtifactCard.tsx`**: same opt-in `artifactId`/`manifest` pass-through (re-exports `AtmoArtifact`).
+- **`src/components/aurora/StrategyApprovalCard.tsx`**: pass a stable `artifactId` (existing strategy id) and `kind="confirm"` → sticky breathing aura.
+- **`src/components/aurora/AuroraActionConfirmation.tsx`**: same — sticky confirm.
+- **`src/components/artifacts/ArtifactLayer.tsx`** (legacy/summon stack from `lib/aion/artifactBus`): wrap each `ArtifactInstance` render in `ManifestedArtifactShell` keyed by `inst.id`, kind translated via mood map.
 
-## 10. Out of scope
+No changes to:
+- `artifactBus.ts` (either copy)
+- capability registry, sentinels parser, confirmation bridge, safe bridge
+- any DB / edge function
 
-Backend, edge functions, RPCs, routes, capability registry, AI prompts, onboarding flows, marketing/landing copy, light-mode rebrand, new artifact kinds.
+## 4. Tokens
 
-## Acceptance / report
+All new motion uses existing tokens (`--aion-ease`, `aion-glow-*`, surface tokens). No new CSS variables required. Two new `@keyframes` added to `src/index.css`:
+- `aion-manifest-in` (scale 0.92 → 1, blur 8px → 0, opacity 0 → 1, 260ms)
+- `aion-manifest-out` (reverse, 220ms)
+- `aion-aura-pulse` (ring scale 0.6 → 2.4, opacity 0.35 → 0, 700ms one-shot)
 
-Final reply will list:
+## 5. Behavior summary
 
-1. Tokens added (with names).
-2. Primitives created (file list).
-3. Screens migrated to primitives.
-4. SaaS/card patterns removed.
-5. Copy replacements (table).
-6. Mobile shell fixes (header height, dock, safe-area).
-7. Brain changes (visuals + copy).
-8. Journey changes.
-9. Outer World changes.
-10. Artifact adoption coverage (which kinds wrapped).
-11. Remaining gap vs reference images.
-12. Mobile preview screenshot notes (402×716).
+- Single primary at a time; secondary artifacts in `ArtifactLayer`'s stack render in `stable` immediately (no re-pulse, no aura change).
+- Confirm/warn are sticky; ttl ignored.
+- Read artifacts dissolve gracefully on ttl expiry.
+- Composer/chat input is **not blocked** unless the primary artifact is `confirm`/`warn` (existing behavior in StrategyApprovalCard / AuroraActionConfirmation already handles modal blocking — we don't change it).
+- No layout jump: shell uses `transform`/`opacity`/`filter` only; reserves space via existing card sizing.
+- `prefers-reduced-motion`: aura still cross-fades (slow), pulse skipped, shell collapses to opacity fade.
 
-## Technical notes
+## 6. Dev tracing
 
-- All new primitives live under `src/components/aion/ui/` and re-export from an `index.ts` barrel for clean imports.
-- `AionOrb` consumes the existing `SharedOrbStage` (per memory `unified-orb-stage-v4`) — no new WebGL contexts.
-- RTL: every primitive uses Tailwind logical props (`ps-`, `pe-`, `ms-`, `me-`) and respects `useTranslation().isRTL` per Hebrew standards memory.
-- Z-index strictly via `src/shellv2/zindex.ts`; no new arbitrary `z-[…]` classes.
-- No edits to `src/integrations/supabase/*`, `supabase/config.toml`, or migration files.
+Inside `ManifestationProvider`, when `import.meta.env.DEV`:
+```ts
+console.debug('[manifestation] started', { id, kind, mood });
+console.debug('[manifestation] stable', { id });
+console.debug('[manifestation] dismissed', { id });
+```
+No user-visible UI.
+
+## 7. Acceptance / deliverable on implementation
+
+Final report will list: files changed, primitives created, lifecycle phases wired, kind→mood map, reduced-motion behavior, confirm stickiness verification, mobile (402×716) preview notes, and any artifact surfaces still rendering raw (not yet wrapped).
+
+## Out of scope (future phases)
+
+- Redesigning card internals
+- Danger/red mood for destructive confirms
+- Per-artifact bespoke entrance choreography
+- Sound / haptics
