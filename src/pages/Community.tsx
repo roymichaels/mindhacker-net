@@ -196,7 +196,7 @@ const Community = ({ selectedPillar = 'all', onPillarSelect, selectedTopic = nul
                   disabled={generatingStories}
                 >
                   {generatingStories ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
-                  {isHe ? 'צור סטוריז' : 'Generate Stories'}
+                  {isHe ? 'שאל את AION' : 'Ask AION'}
                 </Button>
               )}
             </div>

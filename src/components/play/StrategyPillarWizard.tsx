@@ -222,7 +222,7 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
               {selectedCount > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
-                    <span>{isHe ? 'אבחונים שהושלמו' : 'Assessments completed'}</span>
+                    <span>{isHe ? 'השתקפויות עד כה' : 'Reflections so far'}</span>
                     <span>{assessedPillars.length}/{selectedCount}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
@@ -301,7 +301,7 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
                   className="w-full mt-5 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   <Sparkles className="w-4 h-4" />
-                  {isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}
+                  {isHe ? 'המשך את המסע' : 'Continue your journey'}
                 </motion.button>
               )}
 

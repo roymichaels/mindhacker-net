@@ -13,4 +13,26 @@ export const aionPresence = {
     en: 'AION is still listening. Speak to it.',
     he: 'AION עדיין מקשיב. דבר איתו.',
   },
+  aionLearning: { en: 'AION is learning this', he: 'AION עדיין לומד את זה' },
+  feelsClear: { en: 'This feels clear', he: 'זה מרגיש ברור' },
+  whatShapedThis: { en: 'What shaped this', he: 'מה עיצב את זה' },
+  memory: { en: 'Memory', he: 'זיכרון' },
+  pattern: { en: 'Pattern', he: 'דפוס' },
+  connection: { en: 'Connection', he: 'חיבור' },
+  space: { en: 'Space', he: 'מרחב' },
+  realm: { en: 'Realm', he: 'ממלכה' },
+  reflection: { en: 'Reflection', he: 'השתקפות' },
+  reflectionsSoFar: { en: 'Reflections so far', he: 'השתקפויות עד כה' },
+  composeRhythm: {
+    en: 'AION will compose your rhythm',
+    he: 'AION יחבר את הקצב שלך',
+  },
 } as const;
+
+/** Convenience helper — pick the right language. */
+export function aionPresenceText(
+  key: keyof typeof aionPresence,
+  lang: 'en' | 'he',
+): string {
+  return aionPresence[key][lang];
+}

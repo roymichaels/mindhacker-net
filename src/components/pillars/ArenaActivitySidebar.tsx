@@ -215,7 +215,7 @@ export function ArenaActivitySidebar() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-xs font-bold text-foreground truncate">
-                  {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
+                  {isHe ? 'המשך את המסע' : 'Continue your journey'}
                 </h3>
                 <p className="text-[10px] text-muted-foreground">
                   {isHe ? `שלב ${PHASE_LABELS[currentPhase - 1]}/${TOTAL_PHASES}` : `Phase ${PHASE_LABELS[currentPhase - 1]}/${TOTAL_PHASES}`}

@@ -14,7 +14,7 @@ function getSurfaceMeta(pathname: string) {
   if (pathname.startsWith('/community')) return { title: 'Community', tone: 'emerald' };
   if (pathname.startsWith('/learn')) return { title: 'Study', tone: 'violet' };
   if (pathname.startsWith('/mindos')) return { title: 'AION', tone: 'cyan' };
-  if (pathname.startsWith('/strategy')) return { title: 'Assessment', tone: 'cyan' };
+  if (pathname.startsWith('/strategy')) return { title: 'Reflection', tone: 'cyan' };
   if (pathname.startsWith('/work')) return { title: 'Work', tone: 'cyan' };
   return { title: 'Evolve', tone: 'cyan' };
 }
@@ -23,7 +23,7 @@ function getSurfaceMetaFromActiveSurface(activeSurface: string | null, pathname:
   if (activeSurface === 'fm') return { title: 'Free Market', tone: 'amber' };
   if (activeSurface === 'community') return { title: 'Community', tone: 'emerald' };
   if (activeSurface === 'study') return { title: 'Study', tone: 'violet' };
-  if (activeSurface === 'assessment') return { title: 'Assessment', tone: 'cyan' };
+  if (activeSurface === 'assessment') return { title: 'Reflection', tone: 'cyan' };
   if (activeSurface === 'plan') return { title: 'Work', tone: 'cyan' };
   if (activeSurface === 'journal') return { title: 'Journal', tone: 'cyan' };
   if (activeSurface === 'mindos') return { title: 'AION', tone: 'cyan' };

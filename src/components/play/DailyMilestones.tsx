@@ -323,7 +323,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         {/* Assessment progress */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{isHe ? 'אבחונים שהושלמו' : 'Assessments completed'}</span>
+            <span>{isHe ? 'השתקפויות עד כה' : 'Reflections so far'}</span>
             <span className="font-semibold">{completedAssessments}/{totalAssessments}</span>
           </div>
           <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
@@ -375,7 +375,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           {isGenerating ? (
             <><Loader2 className="w-3.5 h-3.5 animate-spin" />{isHe ? 'מייצר...' : 'Generating...'}</>
           ) : (
-            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}</>
+            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'המשך את המסע' : 'Continue your journey'}</>
           )}
         </Button>
 

@@ -103,7 +103,7 @@ export default function RoomView({ roomId }: Props) {
       {data?.gaps && data.gaps.length > 0 && (
         <div className="rounded-2xl bg-white/[0.03] p-3 space-y-2">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-            {isRTL ? "פערים שזוהו" : "Detected gaps"}
+            {isRTL ? "AION עדיין לומד את זה" : "AION is still learning"}
           </p>
           <ul className="space-y-1.5">
             {data.gaps.slice(0, 5).map((g) => (
@@ -112,8 +112,10 @@ export default function RoomView({ roomId }: Props) {
                 className="flex items-start justify-between gap-2 text-xs text-foreground"
               >
                 <span className="flex-1">{g.content}</span>
-                <span className="text-[10px] text-muted-foreground tabular-nums">
-                  {Math.round(g.confidence)}%
+                <span className="text-[10px] text-muted-foreground/70">
+                  {g.confidence >= 70
+                    ? (isRTL ? "מתבהר" : "clearer")
+                    : (isRTL ? "עדיין לומד" : "learning")}
                 </span>
               </li>
             ))}

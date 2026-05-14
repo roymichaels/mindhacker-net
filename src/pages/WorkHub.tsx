@@ -354,7 +354,7 @@ export default function WorkHub() {
   const tabs = [
     { id: 'timer', labelHe: 'טיימר', labelEn: 'Timer', icon: Timer },
     { id: 'log', labelHe: 'יומן', labelEn: 'Log', icon: Clock },
-    { id: 'stats', labelHe: 'סטטיסטיקה', labelEn: 'Stats', icon: BarChart3 },
+    { id: 'stats', labelHe: 'קצב', labelEn: 'Rhythm', icon: BarChart3 },
   ];
 
   return (

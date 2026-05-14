@@ -78,7 +78,7 @@ const NotFound = () => {
               className="gap-2"
             >
               <Compass className="h-4 w-4" />
-              {isRTL ? 'לדשבורד' : 'Dashboard'}
+              {isRTL ? 'פתח את AION' : 'Open AION'}
             </Button>
           </div>
         </div>

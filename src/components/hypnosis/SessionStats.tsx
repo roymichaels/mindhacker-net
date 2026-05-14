@@ -14,7 +14,7 @@ export function SessionStats({ language, className }: SessionStatsProps) {
   const stats = [
     { icon: Target, value: sessionStats?.totalSessions || 0, label: language === 'he' ? 'סשנים' : 'Sessions', color: 'text-blue-500' },
     { icon: Clock, value: sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0, label: language === 'he' ? 'דקות' : 'Min', color: 'text-green-500' },
-    { icon: Zap, value: gameState?.experience || 0, label: 'XP', color: 'text-amber-500' },
+    { icon: Zap, value: gameState?.experience || 0, label: 'Energy', color: 'text-amber-500' },
     { icon: TrendingUp, value: gameState?.level || 1, label: language === 'he' ? 'רמה' : 'Lvl', color: 'text-purple-500' },
   ];
 

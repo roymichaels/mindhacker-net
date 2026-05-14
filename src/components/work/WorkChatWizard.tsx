@@ -241,7 +241,7 @@ export function WorkChatWizard({ open, onOpenChange, mode }: WorkChatWizardProps
             </h3>
             <p className="text-sm text-muted-foreground max-w-xs">
               {mode === 'wizard'
-                ? (isHe ? 'הוויזארד AI לתכנון עבודה זמין למנויי Plus ומעלה' : 'AI Work Wizard is available for Plus subscribers and above')
+                ? (isHe ? '"שאל את AION על העבודה" זמין למנויי Plus ומעלה' : '"Ask AION about work" is available for Plus subscribers and above')
                 : (isHe ? 'שיחת AI על תוכנית העבודה זמינה למנויי Plus ומעלה' : 'AI Work Plan chat is available for Plus subscribers and above')
               }
             </p>
@@ -276,7 +276,7 @@ export function WorkChatWizard({ open, onOpenChange, mode }: WorkChatWizardProps
             <div>
               <span className="block">
                 {mode === 'wizard'
-                  ? (isHe ? 'אשף עבודה AI' : 'AI Work Wizard')
+                  ? (isHe ? 'שאל את AION על העבודה' : 'Ask AION about work')
                   : (isHe ? 'דבר עם תוכנית העבודה' : 'Talk to Work Plan')
                 }
               </span>
