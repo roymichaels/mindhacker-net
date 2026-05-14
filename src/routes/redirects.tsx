@@ -19,6 +19,7 @@ const PUBLIC_REDIRECTS: [string, string][] = [
 
 const SIMPLE_REDIRECTS: [string, string][] = [
   // Auth (modal-based now)
+  ['/auth', '/'],
   ['/signup', '/'],
   ['/login', '/'],
   // Legacy products
