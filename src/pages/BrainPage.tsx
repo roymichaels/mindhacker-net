@@ -11,6 +11,7 @@ import BrainView from "@/features/brain/BrainView";
 import BrainErrorBoundary from "@/features/brain/BrainErrorBoundary";
 import ConsciousnessAtlas from "@/features/brain/atlas/ConsciousnessAtlas";
 import RoomView from "@/features/brain/atlas/RoomView";
+import SelfPanel from "@/features/brain/SelfPanel";
 import { useBrainAtlas } from "@/features/brain/data/useBrainAtlas";
 import { useCurrentUserId } from "@/features/brain/useBrainOverview";
 import { getRoomById } from "@/hallway/rooms";
@@ -63,6 +64,7 @@ export default function BrainPage() {
                   : "Each room is a consciousness system AION keeps updating"
               }
             />
+            <SelfPanel isRTL={isRTL} atlas={atlas ?? null} />
             {atlasError && (
               <p className="text-[11px] text-destructive">
                 {isRTL ? "שגיאת מפה: " : "Atlas error: "}
