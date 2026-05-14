@@ -49,5 +49,3 @@ export default function ShellV2({ children }: ShellV2Props) {
     </ChamberIdleProvider>
   );
 }
-  );
-}
