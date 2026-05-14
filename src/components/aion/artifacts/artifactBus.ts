@@ -27,6 +27,10 @@ export interface AionArtifact {
   body?: string;
   /** Optional CTA — label + action handler. */
   cta?: { label: string; href?: string; onClick?: () => void };
+  /** Optional secondary CTA (e.g. Cancel for confirm artifacts). */
+  secondaryCta?: { label: string; onClick?: () => void };
+  /** Optional metadata exposed to renderer (data source, etc.). */
+  meta?: { source?: string; whatHappens?: string; [k: string]: unknown };
   /** ms before auto-dismiss. 0 = sticky. Default 9000. */
   ttl?: number;
   createdAt: number;
