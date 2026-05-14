@@ -18,6 +18,8 @@ import ShellHeader from "@/shellv2/ShellHeader";
 import { zStyle } from "@/shellv2/zindex";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useProfileModal } from "@/contexts/ProfileModalContext";
+import { aionPresence } from "@/copy/aionPresence";
+import { useDiagnosticsFlag } from "@/diagnostics/useDiagnosticsFlag";
 
 /**
  * BrainPage — rendered inside ProtectedAppShellV2 → ShellV2 via <Outlet />.
@@ -32,6 +34,7 @@ export default function BrainPage() {
   const userId = useCurrentUserId();
   const { data: atlas, isLoading: atlasLoading, error: atlasError } = useBrainAtlas(userId);
   const { openProfile } = useProfileModal();
+  const diag = useDiagnosticsFlag();
 
   // Phase E — /profile is consolidated into Brain. Opening /brain?panel=profile
   // surfaces the profile overlay once, then strips the param so back/forward
@@ -71,14 +74,14 @@ export default function BrainPage() {
           </div>
         ) : (
           <div className="relative h-full w-full">
-            {/* Ambient label — no card, no backdrop */}
             <div className="pointer-events-none absolute inset-x-0 top-0 z-10 px-6 pt-[max(env(safe-area-inset-top),1rem)] text-center">
-              <p className="aion-text-hero text-[12px] font-medium tracking-[0.32em] uppercase text-foreground/55">
-                {isRTL ? "מפת התודעה" : "Consciousness Map"}
+              <p className="text-[12px] italic text-foreground/55">
+                {isRTL ? aionPresence.aionInnerView.he : aionPresence.aionInnerView.en}
               </p>
               {atlasError && (
-                <p className="mt-1 text-[10px] text-destructive/80">
-                  {atlasError.message}
+                <p className="mt-1 text-[10px] text-muted-foreground/70">
+                  {isRTL ? aionPresence.aionLostFocus.he : aionPresence.aionLostFocus.en}
+                  {diag && <span className="ms-2 text-destructive/70">{atlasError.message}</span>}
                 </p>
               )}
             </div>

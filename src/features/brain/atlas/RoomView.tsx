@@ -16,6 +16,8 @@ import type { BrainNode } from "../types";
 import { getRoomById } from "@/hallway/rooms";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Sparkles } from "lucide-react";
+import { aionPresence } from "@/copy/aionPresence";
+import { useDiagnosticsFlag } from "@/diagnostics/useDiagnosticsFlag";
 
 interface Props {
   roomId: string;
@@ -28,6 +30,7 @@ export default function RoomView({ roomId }: Props) {
   const room = getRoomById(roomId);
   const { data, isLoading, error } = useBrainRoom(userId, roomId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const diag = useDiagnosticsFlag();
 
   const nodes = data?.nodes ?? [];
   const edges = data?.edges ?? [];
@@ -57,9 +60,9 @@ export default function RoomView({ roomId }: Props) {
 
   if (error) {
     return (
-      <p className="text-[11px] text-destructive">
-        {isRTL ? "שגיאת חדר: " : "Room error: "}
-        {error.message}
+      <p className="text-[11px] text-muted-foreground/70">
+        {isRTL ? aionPresence.aionLostFocus.he : aionPresence.aionLostFocus.en}
+        {diag && <span className="ms-2 text-destructive/70">{error.message}</span>}
       </p>
     );
   }
@@ -69,21 +72,17 @@ export default function RoomView({ roomId }: Props) {
       <div className="rounded-2xl bg-white/[0.03] p-6 text-center space-y-2">
         <Sparkles className="w-6 h-6 mx-auto text-primary/70" />
         <p className="text-sm text-foreground">
-          {isRTL
-            ? `${room?.copy.label.he ?? "החדר"} עדיין ריק`
-            : `${room?.copy.label.en ?? "This room"} is still empty`}
+          {isRTL ? aionPresence.roomStillForming.he : aionPresence.roomStillForming.en}
         </p>
         <p className="text-[11px] text-muted-foreground">
-          {isRTL
-            ? "AION יבנה אותו משיחות, יומנים ומשימות."
-            : "AION will build it from conversations, journals and missions."}
+          {isRTL ? aionPresence.aionPiecingTogether.he : aionPresence.aionPiecingTogether.en}
         </p>
         <button
           type="button"
           onClick={() => navigate("/aurora")}
           className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-primary text-primary-foreground text-xs font-medium"
         >
-          {isRTL ? "דבר עם AION" : "Talk to AION"}
+          {isRTL ? aionPresence.askAionAboutThis.he : aionPresence.askAionAboutThis.en}
         </button>
       </div>
     );
@@ -91,6 +90,10 @@ export default function RoomView({ roomId }: Props) {
 
   return (
     <div className="space-y-3">
+      <p className="text-[12px] text-foreground/70 italic px-1">
+        {isRTL ? aionPresence.roomNoticingPattern.he : aionPresence.roomNoticingPattern.en}
+      </p>
+
       <div className="-mx-4">
         <BrainGraphForce
           nodes={nodes}
@@ -103,20 +106,15 @@ export default function RoomView({ roomId }: Props) {
       {data?.gaps && data.gaps.length > 0 && (
         <div className="rounded-2xl bg-white/[0.03] p-3 space-y-2">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-            {isRTL ? "AION עדיין לומד את זה" : "AION is still learning"}
+            {isRTL ? aionPresence.aionPiecingTogether.he : aionPresence.aionPiecingTogether.en}
           </p>
           <ul className="space-y-1.5">
             {data.gaps.slice(0, 5).map((g) => (
               <li
                 key={g.id}
-                className="flex items-start justify-between gap-2 text-xs text-foreground"
+                className="text-xs text-foreground/85"
               >
-                <span className="flex-1">{g.content}</span>
-                <span className="text-[10px] text-muted-foreground/70">
-                  {g.confidence >= 70
-                    ? (isRTL ? "מתבהר" : "clearer")
-                    : (isRTL ? "עדיין לומד" : "learning")}
-                </span>
+                {g.content}
               </li>
             ))}
           </ul>

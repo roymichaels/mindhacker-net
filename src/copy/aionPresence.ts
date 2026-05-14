@@ -49,6 +49,39 @@ export const aionPresence = {
     en: 'You are in a phase of becoming.',
     he: 'אתה בשלב של היווצרות.',
   },
+  // Phase 4D — Brain conversationalization lines.
+  roomStillForming: {
+    en: 'This area is still forming.',
+    he: 'האזור הזה עדיין נוצר.',
+  },
+  roomNoticingPattern: {
+    en: 'AION keeps noticing this pattern.',
+    he: 'AION ממשיך להבחין בדפוס הזה.',
+  },
+  roomConnectedTo: {
+    en: 'This seems connected to something deeper.',
+    he: 'זה נראה קשור למשהו עמוק יותר.',
+  },
+  exploreDeeper: {
+    en: 'Explore deeper',
+    he: 'חקור לעומק',
+  },
+  aionPiecingTogether: {
+    en: 'AION is still piecing this together.',
+    he: 'AION עדיין מחבר את החלקים.',
+  },
+  aionLostFocus: {
+    en: 'AION lost focus for a moment.',
+    he: 'AION איבד מיקוד לרגע.',
+  },
+  aionInnerView: {
+    en: "AION's view of your inner world",
+    he: 'כך AION רואה אותך מבפנים',
+  },
+  tellMeMoreAboutPattern: {
+    en: 'Tell me more about this pattern.',
+    he: 'ספר לי עוד על הדפוס הזה.',
+  },
 } as const;
 
 /** Convenience helper — pick the right language. */

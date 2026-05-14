@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { confirmBrainNode, rejectBrainNode, useBrainNodeEvidence } from "./useBrainOverview";
 import { getRoomById } from "@/hallway/rooms";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useDiagnosticsFlag } from "@/diagnostics/useDiagnosticsFlag";
 import type { BrainNode } from "./types";
 
 interface Props {
@@ -19,7 +20,8 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { isRTL } = useTranslation();
-  const { data: evidence = [] } = useBrainNodeEvidence(node?.id ?? null);
+  const diag = useDiagnosticsFlag();
+  const { data: evidence = [] } = useBrainNodeEvidence(diag ? (node?.id ?? null) : null);
 
   const handleConfirm = async () => {
     if (!node) return;
@@ -44,8 +46,8 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
             ? `תקן את ההבנה שלך לגבי: ${node.content}`
             : `Correct your understanding about: ${node.content}`)
         : (isRTL
-            ? `קח אותי עמוק יותר לתוך: ${node.content}`
-            : `Take me deeper into: ${node.content}`);
+            ? aionPresence.tellMeMoreAboutPattern.he
+            : aionPresence.tellMeMoreAboutPattern.en);
       sessionStorage.setItem(
         "aion.brain_focus",
         JSON.stringify({
@@ -62,21 +64,48 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
     onClose();
   };
 
+  const handleOpenAsArtifact = () => {
+    if (!node) return;
+    try {
+      sessionStorage.setItem(
+        "aion.brain_focus",
+        JSON.stringify({
+          node_id: node.id,
+          type: node.type,
+          content: node.content,
+          room: node.room ?? null,
+          intent: "artifact",
+          prompt: isRTL
+            ? aionPresence.tellMeMoreAboutPattern.he
+            : aionPresence.tellMeMoreAboutPattern.en,
+        }),
+      );
+    } catch {}
+    if (node.room) {
+      navigate(`/brain?view=room&room=${node.room}`);
+    } else {
+      navigate("/brain");
+    }
+    onClose();
+  };
+
   return (
     <Sheet open={!!node} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="bottom" className="rounded-t-3xl max-h-[80vh] overflow-y-auto border-0 dark:atmo-surface dark:aion-glow-cyan">
         {node && (
           <>
-            <SheetHeader>
-              <SheetTitle className="text-start">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground me-2">
-                  {node.type}
-                </span>
-                {node.pillar && (
-                  <span className="text-xs text-muted-foreground">· {node.pillar}</span>
-                )}
-              </SheetTitle>
-            </SheetHeader>
+            {diag && (
+              <SheetHeader>
+                <SheetTitle className="text-start">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground me-2">
+                    {node.type}
+                  </span>
+                  {node.pillar && (
+                    <span className="text-xs text-muted-foreground">· {node.pillar}</span>
+                  )}
+                </SheetTitle>
+              </SheetHeader>
+            )}
 
             {node.room && (() => {
               const r = getRoomById(node.room);
@@ -99,36 +128,38 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
 
             <p className="mt-3 text-sm text-foreground leading-relaxed">{node.content}</p>
 
-            <div className="mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
-              <Bar label={isRTL ? aionPresence.feelsClear.he : aionPresence.feelsClear.en} value={node.confidence} />
-              <Bar label={isRTL ? aionPresence.pattern.he : aionPresence.pattern.en} value={node.strength * 10} />
-            </div>
+            {diag && (
+              <>
+                <div className="mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <Bar label={isRTL ? aionPresence.feelsClear.he : aionPresence.feelsClear.en} value={node.confidence} />
+                  <Bar label={isRTL ? aionPresence.pattern.he : aionPresence.pattern.en} value={node.strength * 10} />
+                </div>
+                <div className="mt-5">
+                  <h4 className="text-xs font-semibold text-muted-foreground mb-2">
+                    {isRTL ? aionPresence.whatShapedThis.he : aionPresence.whatShapedThis.en}
+                  </h4>
+                  {evidence.length === 0 ? (
+                    <p className="text-xs text-muted-foreground/70">
+                      {isRTL ? aionPresence.aionLearning.he : aionPresence.aionLearning.en}
+                    </p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {evidence.map((ev) => (
+                        <li
+                          key={ev.id}
+                          className="text-xs text-muted-foreground atmo-surface-soft rounded-xl px-3 py-2"
+                        >
+                          <span className="font-medium text-foreground/80 me-2">{ev.source_kind}</span>
+                          {ev.summary}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
 
-            <div className="mt-5">
-              <h4 className="text-xs font-semibold text-muted-foreground mb-2">
-                {isRTL ? aionPresence.whatShapedThis.he : aionPresence.whatShapedThis.en}
-              </h4>
-              {evidence.length === 0 ? (
-                <p className="text-xs text-muted-foreground/70">
-                  {isRTL ? aionPresence.aionLearning.he : aionPresence.aionLearning.en}
-                </p>
-              ) : (
-                <ul className="space-y-1.5">
-                  {evidence.map((ev) => (
-                    <li
-                      key={ev.id}
-                      className="text-xs text-muted-foreground atmo-surface-soft rounded-xl px-3 py-2"
-                    >
-                      <span className="font-medium text-foreground/80 me-2">{ev.source_kind}</span>
-                      {ev.summary}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Phase 2 — primary affordance is conversation with AION.
-                Confirm / Not me / Correct / Explore demote to secondary. */}
+            {/* Phase 4D — single conversational stack. AION-voiced primary CTA. */}
             <Button
               className="mt-5 w-full"
               size="lg"
@@ -141,22 +172,31 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Button variant="ghost" size="sm" onClick={() => handoffToAion("correct")}>
                 <Pencil className="w-4 h-4 me-1" />
-                {isRTL ? "תקן את זה" : "Correct"}
+                {isRTL ? "תקן את זה" : "Correct this"}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => handoffToAion("explore")}>
                 <Compass className="w-4 h-4 me-1" />
-                {isRTL ? "חקור לעומק" : "Explore deeper"}
+                {isRTL ? aionPresence.exploreDeeper.he : aionPresence.exploreDeeper.en}
               </Button>
             </div>
 
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Button variant="ghost" size="sm" onClick={handleConfirm}>
-                <Check className="w-4 h-4 me-1" /> {isRTL ? "כן, זה אני" : "Yes, that's me"}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleReject}>
-                <XIcon className="w-4 h-4 me-1" /> {isRTL ? "לא אני" : "Not me"}
+            <div className="mt-2">
+              <Button variant="ghost" size="sm" className="w-full" onClick={handleOpenAsArtifact}>
+                <DoorOpen className="w-4 h-4 me-1" />
+                {isRTL ? aionPresence.openAsArtifact.he : aionPresence.openAsArtifact.en}
               </Button>
             </div>
+
+            {diag && (
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Button variant="ghost" size="sm" onClick={handleConfirm}>
+                  <Check className="w-4 h-4 me-1" /> {isRTL ? "כן, זה אני" : "Yes, that's me"}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleReject}>
+                  <XIcon className="w-4 h-4 me-1" /> {isRTL ? "לא אני" : "Not me"}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </SheetContent>
