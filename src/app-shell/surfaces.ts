@@ -1,15 +1,14 @@
 /**
- * Canonical surface registry — the 7 top-level surfaces of MindOS.
- * Anything not on this list must be a nested route, an overlay, or backend.
+ * @deprecated Superseded by `src/navigation/canonicalSurfaces.ts` (5 surfaces).
+ * This file's 7-surface model is no longer authoritative. Scheduled for deletion
+ * in Phase B of the System Consolidation Plan (`.lovable/plan.md`).
  */
-export const SURFACES = [
-  { id: "chat",        path: "/aurora",      label: "Chat" },
-  { id: "brain",       path: "/brain",       label: "Brain" },
-  { id: "hallway",     path: "/",            label: "Hallway" },
-  { id: "strategy",    path: "/strategy",    label: "Strategy" },
-  { id: "outer-world", path: "/outer-world", label: "Outer World" },
-  { id: "me",          path: "/me",          label: "Profile" },
-  { id: "settings",    path: "/settings",    label: "Settings" },
-] as const;
+import { CANONICAL_SURFACES } from "@/navigation/canonicalSurfaces";
+
+export const SURFACES = CANONICAL_SURFACES.map((s) => ({
+  id: s.id,
+  path: s.path,
+  label: s.labelEn,
+})) as ReadonlyArray<{ id: string; path: string; label: string }>;
 
 export type SurfaceId = (typeof SURFACES)[number]["id"];
