@@ -1,142 +1,109 @@
-## Phase 2 — Legacy Surface Collapse
+## Phase 2.5 — Mobile-Native Polish + Phase 3 Roadmap
 
-Goal: Outside the 5 permanent realms (Chat, Brain, Journey, Outer World, Self), nothing should be reachable as a "page" with its own dashboard chrome. Capabilities stay; surfaces collapse into Chat, redirects, or AION-summoned artifacts.
-
-No backend, DB, or capability changes. No deleted routes — only redirect, summon-wrap, or quiet.
+A small, focused cleanup pass before resuming architecture work. No backend, no DB, no capability or mutation changes — only presentation.
 
 ---
 
-### 1. Legacy route audit & disposition
+### A. Polish tasks
 
-| Route(s) | Today | Phase 2 disposition |
-|---|---|---|
-| `/life`, `/life-plan` | already redirect to `/`, `/strategy` | keep |
-| `/work`, `/work-hub` | redirect `/` | keep |
-| `/play`, `/play-hub`, `/tactics`, `/now`, `/plan`, `/today` | redirect to `/strategy?tab=missions` | rewrite all to `/journey` (single canonical) |
-| `/arena`, `/arena/:domain/*` | redirect / `ArenaToAIONRedirect` | keep, point to `/aurora` |
-| `/journal`, `/journal-hub` | renders `JournalingHub` page | wrap with `SummonRoute kind="journal"` (fallback = old page); nav entries removed |
-| `/hypnosis` | renders `HypnosisPage` | wrap with `SummonRoute kind="hypnosis"`; remove visible entry points |
-| `/business`, `/business/:id`, `/business/journey/*` | full BusinessDashboard | keep route, wrap each with `SummonRoute kind="business-*"`; redirect bare `/business` → `/outer-world` when not summoned via deep-link |
-| `/freelancer` | FreelancerHub | `SummonRoute kind="freelancer"`; nav removed |
-| `/creator` | CreatorHub | `SummonRoute kind="creator"`; nav removed |
-| `/therapist` | TherapistHub | `SummonRoute kind="therapist"`; nav removed |
-| `/career`, `/career-hub` | redirect `/outer-world` | keep |
-| `/strategy/:pillar/*` (assess/results/history × 12 pillars) | full pillar pages | keep route IDs, wrap with `SummonRoute kind="pillar-assess" params={{pillar}}` so deep-links open them as Brain artifacts, not dashboard pages |
-| `/quests/:pillar` | QuestRunnerPage | `SummonRoute kind="quest" params={{pillar}}` |
-| `/launchpad/complete` | onboarding completion | keep, but stop linking from anywhere user-facing |
-| `/ceremony` | OnboardingCeremony | keep route; remove from any visible flow; only invoked by AION when needed |
-| `/learn` | LearnLayoutWrapper | keep (Outer World portal already points here as artifact target) |
-| `/coaches`, `/community`, `/messages` | already inside realms | keep |
-| `/admin-hub`, `/affiliate`, `/dev/*`, `/orbs` | admin/dev | keep, role-gated as today |
-| `PlayLayoutWrapper` / `LifeHub` / `ArenaHub` | rendered inside `/strategy?tab=…` | already replaced by `JourneyView`; PlayLayoutWrapper becomes summon-only target for `kind="missions"` artifact |
-| `/profile` (Brain `?panel=profile` overlay) | currently renders stat-heavy ProfilePage modal | replace overlay body with new `SelfPanel` (identity model, corrections, what AION knows, settings). Old stats screens become summonable `kind="profile-stats"` for power users |
+#### A1. Header orb — kill the dark badge, restore presence
 
-### 2. Visible entry-point removal sweep
+`src/components/aion/ui/AionOrb.tsx`
+- Remove the `dark:aion-glow-soft` shadow span from the default header path — that ring is what reads as "black badge behind the orb". Keep glow available but opt-in (`glow="ring"` for chip contexts only).
+- Keep the wrapper `relative inline-flex` but drop `rounded-full` from the container — the orb image is already round. Removing the round mask eliminates the visible disc edge on dark backgrounds.
+- Add a soft radial light *behind the image* via pseudo-element instead of a ring: `radial-gradient(closest-side, hsl(var(--aion-violet)/0.22), transparent 70%)`. Lives, not framed.
+- Sizes stay the same; the header just calls `size="md"` instead of `"sm"` (32 → 48 px) so it returns to the previous visual weight.
 
-Remove or replace links that point at any of the legacy hubs above. Search targets:
+`src/components/aion/ui/AionHeader.tsx`
+- Change `<AionOrb size="sm" …/>` → `size="md"`.
+- Keep the orb button visually borderless: no `rounded-full bg-*` wrapper.
 
-- `to="/life"`, `/work`, `/journal`, `/hypnosis`, `/business`, `/freelancer`, `/creator`, `/therapist`, `/strategy/<pillar>` outside of artifact code, `/quests/`, `/launchpad/complete`, `/ceremony`, `/play`, `/today`, `/now`, `/tactics`, `/arena`, `/plan`.
-- All "Open dashboard / Hub / Generate / Assess / Create plan / Start onboarding" buttons.
+#### A2. Header polish
 
-Replacement copy library (single source `src/copy/aionPresence.ts` — new):
+`src/components/aion/ui/AionHeader.tsx`
+- Hamburger: shrink hit-target padding without changing tap area. Move from `h-9 w-9` flex-centered icon to `h-11 w-11` tap area with the icon at `h-[18px]` and `text-foreground/30 hover:text-foreground/70`. This trims visual weight while keeping a 44 px target.
+- Title centering: the orb (md = 48) and menu button (44) are different widths; current `flex-1` brand block ends up 6 px off-center. Wrap brand in `absolute inset-x-0 flex justify-center pointer-events-none` and make brand button `pointer-events-auto`. Side controls (`Menu`, `AionOrb`) become absolute-positioned at the inset edges. Header height fixed at 56 px + safe-area top.
+- Keep the soft bloom; reduce intensity from 0.18 → 0.12 so it dissolves more.
+- Drop the bottom dissolve gradient (it adds nothing on transparent bg).
 
-| Old | New |
+#### A3. Drawer / portal polish
+
+`src/shellv2/ShellV2Drawer.tsx`
+- Add `paddingTop: max(env(safe-area-inset-top), 1rem)` and `paddingBottom: max(env(safe-area-inset-bottom), 5.5rem)` so the bottom doesn't run under the composer/dock.
+- Cap height to `100dvh` and make the inner column `flex flex-col min-h-0` with the items list `overflow-y-auto`. Footer (sign-out) sticks to bottom inside the safe area.
+- Remove the legacy `ring-1 ring-white/[0.05]` and the `shadow-[0_20px_60px_…]` — those read as old desktop sidebar. Replace with `bg-background/55 backdrop-blur-2xl`, no border, no shadow.
+- Identity row: increase top padding to `pt-[max(env(safe-area-inset-top),1.5rem)]`, swap `<AionOrb size="xs"/>` for `size="md"` matching the new header weight, drop the "MINDOS" wordmark if still present.
+- When drawer opens, dispatch `chamberIdle.hideNav()` and `setComposerState('idle')` so the nav dock + composer underglow recede; eliminates the "two stacked bottom UIs" feeling. (Hook already exists; just call it from the drawer's open effect.)
+
+#### A4. Composer breathing room
+
+`src/components/aion/ui/AionComposerDock.tsx`
+- Bump base `bottom` from `max(env(safe-area-inset-bottom), 14px)` → `max(env(safe-area-inset-bottom), 22px)`.
+- When `navVisible` is true, add an extra `28px` to bottom via inline style (read from `useChamberIdle`). Prevents overlap with `AionNavDock` (which sits at `safe-bottom + 12`).
+- The grabber chevron in `NavLayer.tsx` currently sits at `safe-bottom + 70/88px`. Recompute against the new composer height: `bottom = composerBottom + composerHeight + 8`. Use a CSS variable `--composer-h` set on the dock root; chevron reads it.
+- Last assistant bubble in `ChatLayer.tsx` should reserve `padding-bottom: calc(var(--composer-h, 88px) + 96px)` so artifacts and bubbles never tuck under the composer.
+
+#### A5. Native sweep (one-off)
+
+Targeted file passes (no global rewrites):
+- `src/components/aurora/AuroraChatBubbles.tsx`: ensure `.message-bubble` uses `px-4 py-3` and `max-w-[88%]`; remove any leftover `border` class.
+- `src/components/journey/NextStepCard.tsx`: pad to `p-5`, ensure `text-balance` on titles to prevent clipping.
+- `src/components/outer/AlignedRealities.tsx`: row touch target `min-h-[56px]`, edge inset `px-5`, no divider lines.
+- `src/components/aion/ui/AionNavDock.tsx`: confirm icons are uniform `h-5 w-5` `strokeWidth={1.5}` and label `text-[10px] tracking-[0.16em]`.
+- `src/shellv2/ShellV2.tsx`: add `--composer-h` CSS var on the shell root and update on resize observer of the composer.
+
+---
+
+### B. Files expected to change (Phase 2.5)
+
+| File | Change |
 |---|---|
-| "Create 100-Day Plan" | "Continue your journey" → `/aurora` |
-| "Choose pillars" | "AION is still learning this" (no CTA) |
-| "Take assessment" | "Ask AION" → `/aurora?intent=assess&pillar=…` |
-| "Generate …" | "Ask AION" |
-| "Open Dashboard" / "Open Hub" | "Open as artifact" (calls `artifactBus.summon`) |
-| "Start onboarding" | (removed; AION nudges in chat) |
+| `src/components/aion/ui/AionOrb.tsx` | Remove dark badge ring, replace with soft radial light, drop rounded mask |
+| `src/components/aion/ui/AionHeader.tsx` | Absolute-centered title, larger orb (`md`), trimmed hamburger, cleaner header |
+| `src/shellv2/ShellV2Drawer.tsx` | Safe-area padding, no border/shadow, native sheet feel, hide nav/composer when open |
+| `src/components/aion/ui/AionComposerDock.tsx` | Bottom inset bump, nav-aware spacing, expose `--composer-h` |
+| `src/shellv2/layers/NavLayer.tsx` | Chevron position reads `--composer-h` |
+| `src/shellv2/ShellV2.tsx` | Composer height observer → CSS var |
+| `src/components/aurora/AuroraChatBubbles.tsx` | Bubble padding/border sweep |
+| `src/components/journey/NextStepCard.tsx` | Padding + text-balance |
+| `src/components/outer/AlignedRealities.tsx` | Row hit area + edge inset |
 
-### 3. Realm-level UX changes
+### C. Mobile UX bugs not solved by this pass (track for later)
 
-**Chat (`/aurora`)** — unchanged from Phase 1.5. Already the home.
+- Profile modal (`ProfilePage`) uses a fixed gradient bg that doesn't honor `100dvh`; on iOS Safari the bottom strip shows the under-page when keyboard collapses.
+- `BrainGraphForce` SVG can overflow horizontally on narrow widths; needs `viewBox` recalc.
+- Some pillar pages (still reachable via deep-links) render their own headers and double-stack with the chamber header.
+- Toasts (`sonner`) currently anchor `bottom-right` and collide with the composer at `safe-bottom + 22`. Need to move to `top-center` or above-composer.
 
-**Brain (`/brain`)** — every room/node sheet gains a single primary affordance:
-```
-[ Ask AION about this ]   (default action)
-```
-Implementation: extend `BrainNodeSheet` (or equivalent room sheet) footer with a primary button that calls `aurora.send({intent:'explain', nodeId, label})` and routes to `/aurora`. Secondary "Open as artifact" link replaces any "Open page" button.
+---
 
-**Journey (`/journey` → `JourneyView`)** — already simplified. Phase 2 additions:
-- Remove any remaining direct links to `/strategy/:pillar/assess` from JourneyView; replace with summon (`artifactBus.summon('pillar-assess', {pillar})`).
-- Add a quiet `Summon plan history` ghost link → opens `kind="missions"` artifact (PlayLayoutWrapper inside artifact frame). No "Generate" buttons anywhere.
+### D. Recommended Phase 3 sequence
 
-**Outer World (`/outer-world`)** — already collapsed to `AlignedRealities`. Verify portals route to: Coaches (`/coaches`), Learning (`/learn`), Community (`/community`), Marketplace (`/fm`). No further change.
+Execute strictly in this order — each phase removes a class of "still feels like an app" leaks:
 
-**Self (Brain `?panel=profile`)** — new `SelfPanel` component replaces the current stats-heavy `ProfilePage` modal body. Sections, in order:
-1. **Identity** — name, AION avatar, archetype line, current phase. Read-only, no badges.
-2. **What AION knows** — bullet list of inferred traits/preferences pulled from `aion_user_facts` (existing). Empty state: "AION is still learning."
-3. **Corrections** — single textarea + send → records a correction note (existing endpoint or local for now; UI only this phase).
-4. **Privacy & settings** — collapsed accordion ("Account", "Notifications", "Data"). Old Profile tabs (XP, levels, achievements, NFT, etc.) remain reachable via "Advanced" link → opens `kind="profile-stats"` artifact.
+1. **Phase 3A — Copy sweep across hidden legacy surfaces.** Cheapest, biggest perceived win. Replace every "Generate / Create plan / Hub / Dashboard / Choose / Take assessment / Open Hub" string in legacy pages with `aionPresence` constants. Keep pages otherwise intact. *Why first:* deep-links + drawer-rare paths still leak SaaS language; one regex sweep + manual review of ~20 files clears it.
 
-### 4. Files to add
+2. **Phase 3B — Profile-stats artifact bridge.** Right now `<ProfileStatsArtifact/>` only renders the legacy `ProfilePage` if `isOpen` is true. Add a tiny bridge: artifact mount calls `openProfile()` on mount and `closeProfile()` on dismiss. Closes the only Phase 2 wiring gap.
 
-- `src/copy/aionPresence.ts` — copy constants used everywhere old empty states lived.
-- `src/components/self/SelfPanel.tsx` — new identity-first Self surface.
-- `src/components/self/sections/IdentitySection.tsx`
-- `src/components/self/sections/WhatAionKnowsSection.tsx`
-- `src/components/self/sections/CorrectionsSection.tsx`
-- `src/components/self/sections/PrivacySettingsSection.tsx`
-- `src/lib/aion/artifactKinds.ts` — extend with `journal`, `hypnosis`, `business-dashboard`, `business-journey`, `freelancer`, `creator`, `therapist`, `pillar-assess`, `pillar-results`, `pillar-history`, `quest`, `missions`, `profile-stats`. (Just kind constants; renderers reuse existing components.)
-- `src/lib/aion/artifactRegistry.tsx` — map new kinds → existing page components rendered inside artifact frame.
+3. **Phase 3C — Remaining hub pages become artifact-only visual shells.** `LifeHub`, `ArenaHub`, `CareerHub`, `JournalingHub`, `WorkHub`, `BusinessIndexWrapper`, `FreelancerLayoutWrapper`, `CreatorLayoutWrapper`, `TherapistLayoutWrapper`: strip their internal page chrome (own header, own back button, own bottom nav). They render purely as artifact bodies. Visual unification with the chamber.
 
-### 5. Files to edit
+4. **Phase 3D — Brain room sheet & "Ask AION" interaction polish.** Sheet open animation, RoomView haptic-feel, primary CTA pulse on first open, back-from-AION returns to the same node. Sheet dismiss should pre-fill the composer with the focus context as a soft prompt chip rather than navigating away cold.
 
-- `src/App.tsx` — wrap legacy page routes with `<SummonRoute kind=…> fallback={<LegacyPage/>}` so when ShellV2 is on, route opens as artifact above chat. Keep `fallback` so deep-linked, flag-off users still see content.
-  - `/journal`, `/hypnosis`, `/freelancer`, `/creator`, `/therapist`, `/business`, `/business/journey`, `/business/journey/:id`, `/business/:id`, `/quests/:pillar`, all `/strategy/:pillar/*` pillar routes.
-- `src/routes/redirects.tsx` — collapse `?tab=missions` aliases to `/journey`; add `/profile` overlay alias if missing.
-- `src/components/aion/ui/AionNavDock.tsx` — confirm only 5 realms surfaced; nothing else.
-- `src/pages/BrainPage.tsx` — node/room sheet: add primary "Ask AION about this" CTA, demote any "Open page" buttons.
-- `src/pages/BrainPage.tsx` (or wherever `?panel=profile` is handled) — render `<SelfPanel/>` instead of legacy `ProfilePage` body.
-- `src/pages/JourneyView.tsx` — replace any direct links into `/strategy/:pillar/...` with `artifactBus.summon` calls; add ghost "Plan history" summon link.
-- Any nav/menu/CTA component still pointing at legacy hubs (sweep listed in §2). Specifically check: `src/components/dashboard/*`, `src/components/profile/*`, `src/pages/LifeHub.tsx`, `src/pages/ArenaHub.tsx`, `src/pages/CareerHub.tsx`, `src/components/career/*`, `src/components/work/*`, any onboarding banners.
+5. **Phase 3E — Journey as one living mission.** Remove the "queue" mental model from `useTodayExecution`-driven UI: show only `next` + the *why* line (pillar, phase, AION's reasoning). Completion triggers an ambient transition to the next step in-place — no list reveal. Plan history available only via summon ("show me the plan").
 
-### 6. Wireframe — Self panel (mobile 402px)
+6. **Phase 3F — Outer World portal polish.** `AlignedRealities` rows should breathe and react to focus (subtle glow on press, AION whisper line per row). Add a single ambient line at top: "the world AION is aligning around you".
 
-```text
-┌──────────────────────────────────┐
-│   ◯  AION orb  ·  Lior            │  identity row
-│   "Architect · Phase 2 of 4"      │
-├──────────────────────────────────┤
-│ What AION knows                   │
-│  · prefers evening deep work      │
-│  · reading 30 min/day             │
-│  · …                              │
-├──────────────────────────────────┤
-│ Corrections                       │
-│  ┌────────────────────────────┐   │
-│  │ tell AION something…       │   │
-│  └────────────────────────────┘   │
-├──────────────────────────────────┤
-│ ▾ Privacy & settings              │
-│ ▾ Advanced (stats, NFT, XP)       │  → summon profile-stats artifact
-└──────────────────────────────────┘
-```
+7. **Phase 3G — Artifact UX lifecycle refinement.** Standardize summon → settle → dismiss animation across all artifacts. One header strip with `← back` + `done`. Auto-dismiss after action complete + fade. Stack rules: max 1 visible, others minimized into a single chip stack above composer.
 
-### 7. Acceptance / "still feels like app" checks
+Order rationale: copy first (free wins), then close known wiring gap (3B), then visual unification of artifacts (3C), then deepen the two highest-traffic realms (3D, 3E), then peripheral polish (3F), then cross-cutting motion language (3G).
 
-- [ ] No nav item, drawer item, or button outside the 5 realms is reachable in 1 tap from the chamber.
-- [ ] Direct typing of `/journal`, `/hypnosis`, `/business`, `/freelancer`, `/creator`, `/therapist`, `/strategy/<pillar>/assess`, `/quests/<pillar>` mounts ShellV2 with the page as a summoned artifact above chat (not as a standalone page).
-- [ ] Empty states across the app no longer contain the words: Generate, Create plan, Choose, Assessment, Dashboard, Hub.
-- [ ] Brain sheets show "Ask AION about this" as the primary CTA.
-- [ ] Self panel does not render XP/level/streak/NFT cards by default.
+---
 
-### 8. Out of scope (Phase 3)
+### E. Acceptance for this phase
 
-- Removing legacy components from disk.
-- Changing onboarding logic (still runs first-time; just no longer linked from product surfaces).
-- Marketing site (`/landing`, `/blog`, `/founding`).
-- Admin / affiliate panels.
-- Backend, capability, or DB work.
-
-### 9. Risks
-
-- `SummonRoute` requires `ff_shell_v2`; users with the flag off will still see legacy pages as full pages. Mitigation: copy/empty-state cleanup applies to both modes since it's edited inside the legacy components themselves.
-- Some pillar pages are deep-linked from emails / push. Wrapping with `SummonRoute` keeps them reachable but reframes them — verify by hand that artifact frame renders the legacy page body without layout collisions.
-- `BusinessDashboardWrapper` etc. assume their own shell; rendering inside the artifact frame may need a `compact` prop. If conflicts arise, allow `fullscreen={true}` on `SummonRoute` for those kinds as a safety valve.
-
-### 10. Phase 2 deliverable — single PR
-
-One commit per group: (a) routes + SummonRoute wraps, (b) copy sweep + `aionPresence.ts`, (c) `SelfPanel`, (d) Brain sheet "Ask AION", (e) JourneyView pillar de-linking. End with a manual sweep using `rg` for the forbidden copy strings and the legacy `to="/…"` patterns.
+- [ ] Header orb has no dark disc; reads as a glowing AION presence, ~48 px.
+- [ ] AION title is pixel-centered regardless of side controls.
+- [ ] Drawer has top + bottom safe-area; no overlap with composer/nav dock; no shadow/border.
+- [ ] Composer never closer than 22 px to the home indicator; never under nav dock.
+- [ ] Grabber chevron sits 8 px above the composer at all states.
+- [ ] No global className changes; all edits scoped to the files listed in §B.
