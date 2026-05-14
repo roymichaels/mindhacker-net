@@ -34,14 +34,14 @@ export interface RouterDecision {
 const RULES: Array<{ cap: CapabilityId; kws: RegExp[] }> = [
   { cap: 'brain.query',        kws: [/\bbrain\b/i, /\bmind\s*map\b/i, /המוח שלי/, /מפת תודעה/, /מי אני/] },
   { cap: 'brain.openRoom',     kws: [/open\s+room/i, /\broom\b/i, /חדר/, /הראה לי את/] },
-  { cap: 'profile.summarize',  kws: [/who\s+am\s+i/i, /my\s+identity/i, /\bdna\b/i, /הזהות שלי/, /ה־?DNA/] },
+  { cap: 'profile.summarize',  kws: [/who\s+am\s+i/i, /my\s+identity/i, /\bdna\b/i, /what\s+do\s+you\s+know\s+about\s+me/i, /הזהות שלי/, /ה־?DNA/, /מה אתה יודע עליי?/, /מה ידוע לך עליי?/] },
   { cap: 'hypnosis.recommend', kws: [/sleep|insomnia|relax|hypnosis/i, /לישון|להירדם|להירגע|היפנוזה/] },
   { cap: 'outerWorld.open',    kws: [/coach|marketplace|market\b|community/i, /מאמן|קהילה|שוק/] },
   { cap: 'journal.capture',    kws: [/journal|write\s+down|note this/i, /יומן|לכתוב|תרשום/] },
   { cap: 'plan.suggest',       kws: [/plan|strategy|roadmap|business/i, /תוכנית|אסטרטגיה|מסלול|עסק/] },
   { cap: 'journey.nextAction', kws: [/what\s+(should|do)\s+i\s+do|stuck|next\s+step/i, /מה כדאי|מה לעשות|אני תקוע|הצעד הבא/] },
   { cap: 'task.suggest',       kws: [/give\s+me\s+a\s+task|small\s+win/i, /משימה|ניצחון קטן/] },
-  { cap: 'journey.summarize',  kws: [/summary|progress|where\s+am\s+i\s+at/i, /סיכום|התקדמות|איפה אני/] },
+  { cap: 'journey.summarize',  kws: [/summary|progress|where\s+am\s+i\s+at/i, /סיכום|התקדמות|איפה אני|מצב המסע|המצב של המסע/] },
 ];
 
 export function routeObserve(input: RouterInput): RouterDecision {
