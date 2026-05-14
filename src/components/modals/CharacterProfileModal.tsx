@@ -433,7 +433,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
   return (
     <div className="space-y-3">
 
-      {/* Stats Strip */}
+      {/* Signals Strip */}
       <PlayStatsStrip />
 
       {/* Stat Wheel */}
@@ -477,7 +477,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
         </EmpireCard>
       )}
 
-      {/* ── IDENTITY & VALUES: Below stats ── */}
+      {/* ── IDENTITY & VALUES: Below signals ── */}
       {(dashboard.values.length > 0 || dashboard.selfConcepts.length > 0) && (
         <EmpireCard className="text-center">
           <SectionTitle
@@ -590,7 +590,7 @@ export function ProfileTab({ isHe, language, dashboard, isOwner }: {
 }
 
 // ═══════════════════════════════════════════════
-// TRAITS TAB — NFT-style trait gallery grid
+// TRAITS TAB — Trait gallery grid
 // ═══════════════════════════════════════════════
 export function TraitsTab({ isHe }: { isHe: boolean }) {
   const { data: traits, isLoading } = useTraitGallery();
