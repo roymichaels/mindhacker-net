@@ -29,6 +29,15 @@ import { summarizeBusiness, previewLandingPages } from '@/services/businessSumma
 import { recommendCoaches } from '@/services/coachMatch';
 import { recommendCourses, summarizeCurriculum } from '@/services/courseCatalog';
 import { identityBootstrapStatus, getAvatarConfig } from '@/services/avatarConfig';
+import { searchListings, previewListing, summarizeFM } from '@/services/fmMarket';
+import { getWalletStatus } from '@/services/walletStatus';
+import { getFeed, getThread } from '@/services/communityFeed';
+import { searchMessages } from '@/services/messaging';
+import { getSubscriptionStatus } from '@/services/subscriptionStatus';
+import { describeVoiceCapture } from '@/services/voiceCapture';
+import { previewTTS } from '@/services/ttsSpeak';
+import { summarizeWorkToday } from '@/services/workSummary';
+import { summarizeUpcomingBlocks } from '@/services/scheduleBlocks';
 
 export interface ReadResult {
   ok: boolean;
@@ -260,6 +269,8 @@ async function readAvatar(userId: string) {
 
 export interface ReadCapabilityOptions {
   query?: string;
+  id?: string;
+  text?: string;
 }
 
 export async function executeReadCapability(
@@ -313,10 +324,162 @@ export async function executeReadCapability(
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readIdentity(userId)) };
       case 'avatar.configure':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readAvatar(userId)) };
+      // Phase 2 · Batch 3
+      case 'fm.search':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readFMSearch(options.query)) };
+      case 'fm.listing.preview':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readFMListing(options.id)) };
+      case 'fm.listing.create':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readFMSummary(userId)) };
+      case 'wallet.open':
+      case 'wallet.status':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readWallet(userId)) };
+      case 'community.feed':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readCommunityFeed(options.query)) };
+      case 'community.thread':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readCommunityThread(options.id)) };
+      case 'message.search':
+      case 'message.send':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readMessages(userId, options.query)) };
+      case 'subscription.status':
+      case 'subscription.portal':
+      case 'checkout.create':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readSubscription(userId)) };
+      case 'voice.transcribe':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(readVoice()) };
+      case 'tts.speak':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(readTTS(options.text ?? options.query)) };
+      case 'work.summarize':
+      case 'work.startSession':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readWorkToday(userId)) };
+      case 'schedule.block':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readScheduleBlocks(userId)) };
       default:
         return fail(capability, t0, 'no-read-handler');
     }
   } catch (e) {
     return fail(capability, t0, (e as Error)?.message ?? 'unknown-error');
   }
+}
+
+/* ─── Phase 2 · Batch 3 reads ─── */
+
+async function readFMSearch(query?: string) {
+  const r = await searchListings(query);
+  return {
+    sources: ['fm_gigs:open', 'fm_bounties:active'],
+    rowCounts: { listings: r.total },
+    summary: r.text,
+    data: { samples: r.samples, total: r.total, query: query ?? null },
+  };
+}
+
+async function readFMListing(id?: string) {
+  const r = await previewListing(id ?? '');
+  return {
+    sources: ['fm_gigs:by-id', 'fm_bounties:by-id'],
+    rowCounts: { listing: r.listing ? 1 : 0 },
+    summary: r.text,
+    data: { listing: r.listing },
+  };
+}
+
+async function readFMSummary(userId: string) {
+  const r = await summarizeFM(userId);
+  return {
+    sources: ['fm_gigs:count', 'fm_bounties:count', 'fm_bounty_claims:count'],
+    rowCounts: { gigs: r.openGigs, bounties: r.activeBounties, claims: r.myClaims },
+    summary: r.text,
+    data: { ...r },
+  };
+}
+
+async function readWallet(userId: string) {
+  const r = await getWalletStatus(userId);
+  return {
+    sources: ['fm_wallets:self', 'fm_transactions:recent'],
+    rowCounts: { wallet: r.wallet ? 1 : 0, transactions: r.recent.length },
+    summary: r.text,
+    data: { wallet: r.wallet, recent: r.recent },
+  };
+}
+
+async function readCommunityFeed(query?: string) {
+  const r = await getFeed(query);
+  return {
+    sources: ['community_posts:approved'],
+    rowCounts: { community_posts: r.total },
+    summary: r.text,
+    data: { posts: r.posts, total: r.total },
+  };
+}
+
+async function readCommunityThread(id?: string) {
+  const r = await getThread(id ?? '');
+  return {
+    sources: ['community_posts:by-id', 'community_comments:by-post'],
+    rowCounts: { post: r.post ? 1 : 0, comments: r.comments.length },
+    summary: r.text,
+    data: { post: r.post, comments: r.comments },
+  };
+}
+
+async function readMessages(userId: string, query?: string) {
+  const r = await searchMessages(userId, query);
+  return {
+    sources: ['conversations:self', 'messages:recent'],
+    rowCounts: { messages: r.total },
+    summary: r.text,
+    data: { messages: r.messages, total: r.total },
+  };
+}
+
+async function readSubscription(userId: string) {
+  const r = await getSubscriptionStatus(userId);
+  return {
+    sources: ['profiles:subscription'],
+    rowCounts: { subscription: r.tier ? 1 : 0 },
+    summary: r.text,
+    data: { tier: r.tier, active: r.active },
+  };
+}
+
+function readVoice() {
+  const r = describeVoiceCapture();
+  return {
+    sources: ['edge:elevenlabs-transcribe'],
+    rowCounts: {},
+    summary: r.text,
+    data: { endpoint: r.endpoint },
+  };
+}
+
+function readTTS(text?: string) {
+  const r = previewTTS(text ?? '');
+  return {
+    sources: ['edge:elevenlabs-tts'],
+    rowCounts: { chars: r.charCount },
+    summary: r.text,
+    data: { ...r },
+  };
+}
+
+async function readWorkToday(userId: string) {
+  const r = await summarizeWorkToday(userId);
+  return {
+    sources: ['work_sessions:today', 'work_scores:today'],
+    rowCounts: { sessions: r.sessions, total_min: r.totalMinutes, deep_min: r.deepWorkMinutes },
+    summary: r.text,
+    data: { ...r },
+  };
+}
+
+async function readScheduleBlocks(userId: string) {
+  const r = await summarizeUpcomingBlocks(userId);
+  return {
+    sources: ['action_items:schedule_blocks'],
+    rowCounts: { blocks: r.blocks.length },
+    summary: r.text,
+    data: { date: r.date, blocks: r.blocks },
+  };
 }
