@@ -7,17 +7,15 @@ import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { StandaloneMorphOrb } from '@/components/orb/GalleryMorphOrb';
-import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 
 import { toast } from 'sonner';
-import { OrbView } from '@/components/orb/v2/OrbView';
 import { useAION } from '@/identity';
 import { TTSPlayer } from './TTSPlayer';
 import { stripReasoning } from '@/lib/stripReasoning';
 import { stripNiqqud } from '@/lib/hebrew';
+import { AionOrb } from '@/components/aion/ui';
 
 interface AuroraChatBubblesProps {
   showOrbAboveMessages?: boolean;
@@ -27,8 +25,6 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   const { user } = useAuth();
   const { language, isRTL, t } = useTranslation();
   const { aion } = useAION();
-  const { profile: orbProfile } = useOrbProfile();
-  const aiDisplayName = aion.name;
   const { 
     activeConversationId, 
     isChatExpanded, 
@@ -220,18 +216,20 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
   if (!user) return null;
 
   return (
-    <div className="w-full px-4 space-y-3 pb-4" ref={scrollRef}>
-        {/* Persistent orb */}
+    <div className="w-full px-4 space-y-4 pb-4" ref={scrollRef}>
         {showOrbAboveMessages && (
           <div className="flex justify-center pt-6 pb-2">
-            <StandaloneMorphOrb size={56} profile={orbProfile} geometryFamily={orbProfile.geometryFamily || 'sphere'} level={100} />
+            <AionOrb size="md" />
           </div>
         )}
         {messages.length === 0 && !streamingContent && (
-          <div className="text-center text-muted-foreground text-sm pb-4">
-            {language === 'he'
-              ? `אני ${aion.name}. הגרסה שלך — בלי הרעש.`
-              : `I'm ${aion.name}. Your version — without the noise.`}
+          <div className="flex flex-col items-center gap-4 pt-16 pb-6 text-center">
+            <AionOrb size="md" />
+            <p className="aion-text-hero text-base font-medium tracking-wide max-w-[260px]" dir={isRTL ? 'rtl' : 'ltr'}>
+              {language === 'he'
+                ? `אני ${aion.name}. הגרסה שלך — בלי הרעש.`
+                : `I'm ${aion.name}. Your version — without the noise.`}
+            </p>
           </div>
         )}
 
@@ -247,34 +245,24 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
-                "group flex gap-2.5 transition-all duration-300",
+                "group flex gap-3 transition-all duration-300",
                 isAI ? "justify-start" : "justify-end"
               )}
             >
               {/* AION avatar */}
               {isAI && (
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
-                    <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" />
-                  </div>
+                  <AionOrb size="xs" breathing={false} glow={false} />
                 </div>
               )}
 
-              <div className="space-y-1 max-w-[80%]">
-                {/* Name label */}
-                <span className={cn(
-                  "text-[10px] font-semibold block px-1",
-                  isAI ? "text-fuchsia-400/70" : "text-primary/50 text-end"
-                )}>
-                  {isAI ? aiDisplayName : (language === 'he' ? 'את/ה' : 'You')}
-                </span>
-
+              <div className="space-y-1 max-w-[82%]">
                 <div
                   className={cn(
-                    "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+                    "rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed",
                     isAI
-                      ? "atmo-surface-soft text-foreground rounded-ss-md dark:aion-glow-cyan"
-                      : "rounded-ee-md text-primary-foreground bg-primary dark:bg-aion-violet/85 dark:aion-glow-violet"
+                      ? "atmo-surface-soft text-foreground rounded-ss-md"
+                      : "aion-pill-surface text-foreground rounded-ee-md"
                   )}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
@@ -293,11 +281,11 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 aion-text-mute hover:text-foreground"
                       onClick={() => handleCopy(message.content)}
                       title={t('messages.copy')}
                     >
-                      <Copy className="h-3 w-3 text-muted-foreground" />
+                      <Copy className="h-3 w-3" />
                     </Button>
                     <TTSPlayer messageId={message.id} content={message.content} compact className="h-6 w-6" />
                     <SaveToJournalButton excerpt={message.content} />
@@ -313,16 +301,13 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-2.5 justify-start"
+            className="flex gap-3 justify-start"
           >
             <div className="flex-shrink-0 mt-1">
-              <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
-                <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" />
-              </div>
+              <AionOrb size="xs" breathing glow={false} />
             </div>
-            <div className="max-w-[80%] space-y-1">
-              <span className="text-[10px] font-semibold text-fuchsia-400/70 block px-1">{aiDisplayName}</span>
-              <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm atmo-surface-soft text-foreground dark:aion-glow-cyan">
+            <div className="max-w-[82%]">
+              <div className="rounded-2xl rounded-ss-md px-4 py-2.5 text-[15px] atmo-surface-soft text-foreground">
                 <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
                   <ReactMarkdown>{stripNiqqud(stripReasoning(streamingContent))}</ReactMarkdown>
                 </div>
@@ -336,18 +321,16 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex gap-2.5 justify-start"
+            className="flex gap-3 justify-start"
           >
             <div className="flex-shrink-0 mt-1">
-              <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
-                <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" state="thinking" />
-              </div>
+              <AionOrb size="xs" breathing />
             </div>
-            <div className="atmo-surface-soft rounded-ss-md px-4 py-3 dark:aion-glow-cyan">
+            <div className="atmo-surface-soft rounded-ss-md px-4 py-3">
               <div className="flex gap-1">
-                <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-cyan/80 bg-foreground/40 dark:aion-glow-cyan" />
-                <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-blue/80 bg-foreground/40" style={{ animationDelay: '300ms' }} />
-                <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-violet/80 bg-foreground/40 dark:aion-glow-violet" style={{ animationDelay: '600ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full animate-aion-breath bg-foreground/55" />
+                <span className="w-1.5 h-1.5 rounded-full animate-aion-breath bg-foreground/55" style={{ animationDelay: '300ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full animate-aion-breath bg-foreground/55" style={{ animationDelay: '600ms' }} />
               </div>
             </div>
           </motion.div>
