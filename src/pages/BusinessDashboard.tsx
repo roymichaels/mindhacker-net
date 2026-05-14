@@ -303,7 +303,7 @@ const BusinessDashboard = () => {
                 className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-white"
               >
                 <Sparkles className="h-4 w-4 me-2" />
-                {language === 'he' ? 'צור תוכנית' : 'Generate Plan'}
+                {language === 'he' ? 'המשך את המסע' : 'Continue your journey'}
               </Button>
             </CardContent>
           </Card>

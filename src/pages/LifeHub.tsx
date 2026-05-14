@@ -351,9 +351,9 @@ function LifeHubImpl() {
                     <Trophy className="w-4 h-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-foreground">
-                      {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
-                    </h3>
+                     <h3 className="text-sm font-bold text-foreground">
+                       {isHe ? 'המסע שלך' : 'Your Journey'}
+                     </h3>
                     <p className="text-[10px] text-muted-foreground">
                       {overallPct}% · {completedMilestones}/{totalMilestones} {isHe ? 'אבני דרך' : 'milestones'}
                     </p>

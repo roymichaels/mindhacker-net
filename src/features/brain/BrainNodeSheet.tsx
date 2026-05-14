@@ -100,14 +100,18 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
             <p className="mt-3 text-sm text-foreground leading-relaxed">{node.content}</p>
 
             <div className="mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
-              <Bar label="Confidence" value={node.confidence} />
-              <Bar label="Strength" value={node.strength * 10} />
+              <Bar label={isRTL ? aionPresence.feelsClear.he : aionPresence.feelsClear.en} value={node.confidence} />
+              <Bar label={isRTL ? aionPresence.pattern.he : aionPresence.pattern.en} value={node.strength * 10} />
             </div>
 
             <div className="mt-5">
-              <h4 className="text-xs font-semibold text-muted-foreground mb-2">Evidence</h4>
+              <h4 className="text-xs font-semibold text-muted-foreground mb-2">
+                {isRTL ? aionPresence.whatShapedThis.he : aionPresence.whatShapedThis.en}
+              </h4>
               {evidence.length === 0 ? (
-                <p className="text-xs text-muted-foreground/70">No recorded evidence yet.</p>
+                <p className="text-xs text-muted-foreground/70">
+                  {isRTL ? aionPresence.aionLearning.he : aionPresence.aionLearning.en}
+                </p>
               ) : (
                 <ul className="space-y-1.5">
                   {evidence.map((ev) => (
@@ -147,10 +151,10 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
 
             <div className="mt-2 grid grid-cols-2 gap-2">
               <Button variant="ghost" size="sm" onClick={handleConfirm}>
-                <Check className="w-4 h-4 me-1" /> Confirm
+                <Check className="w-4 h-4 me-1" /> {isRTL ? "כן, זה אני" : "Yes, that's me"}
               </Button>
               <Button variant="ghost" size="sm" onClick={handleReject}>
-                <XIcon className="w-4 h-4 me-1" /> Not me
+                <XIcon className="w-4 h-4 me-1" /> {isRTL ? "לא אני" : "Not me"}
               </Button>
             </div>
           </>

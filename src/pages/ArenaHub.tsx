@@ -217,11 +217,11 @@ export default function ArenaHub() {
                       ) : (
                         <Wand2 className="w-3.5 h-3.5" />
                       )}
-                      {scheduleGenerating
-                        ? (isHe ? 'יוצר לו"ז...' : 'Generating...')
-                        : hasAiSchedule
-                          ? (isHe ? 'כיול מחדש' : 'Recalibrate')
-                          : (isHe ? 'צור לו"ז AI' : 'Generate AI Schedule')}
+                       {scheduleGenerating
+                         ? (isHe ? 'AION מחבר...' : 'AION is composing…')
+                         : hasAiSchedule
+                           ? (isHe ? 'כייל מחדש' : 'Recalibrate')
+                           : (isHe ? 'שאל את AION' : 'Ask AION')}
                     </button>
                     <button
                       onClick={() => {
@@ -301,9 +301,9 @@ export default function ArenaHub() {
                   <div className="flex flex-col items-center gap-3 py-8">
                     <Wand2 className="w-8 h-8 text-muted-foreground/30" />
                     <p className="text-xs text-muted-foreground text-center max-w-xs">
-                      {isHe
-                        ? 'לחץ "צור לו"ז AI" כדי ש-Aurora תבנה לך תוכנית יומית עם בלוקים נושאיים'
-                        : 'Click "Generate AI Schedule" for AION to build themed blocks with milestones'}
+                       {isHe
+                         ? 'AION יחבר את הקצב שלך — בקש כשאתה מוכן.'
+                         : 'AION will compose your rhythm — ask when you are ready.'}
                     </p>
                   </div>
                 ) : (

@@ -168,7 +168,7 @@ export function MiniMilestoneModal({ open, onOpenChange, milestoneId, milestoneT
                   ) : (
                     <Sparkles className="w-4 h-4" />
                   )}
-                  {isHe ? 'צור פעולות יומיות' : 'Generate Daily Actions'}
+                  {isHe ? 'שאל את AION' : 'Ask AION'}
                 </Button>
               </div>
             ) : (

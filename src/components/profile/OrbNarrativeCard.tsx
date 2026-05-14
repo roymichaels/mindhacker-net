@@ -123,7 +123,7 @@ export function OrbNarrativeCard() {
                 className="mt-3 text-xs text-violet-400 hover:text-violet-300 gap-1.5"
               >
                 <RefreshCw className="h-3 w-3" />
-                {isHe ? 'צור סיפור חדש' : 'Generate new story'}
+                {isHe ? 'שאל את AION' : 'Ask AION'}
               </Button>
             </div>
           </motion.div>

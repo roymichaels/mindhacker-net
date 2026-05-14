@@ -141,7 +141,7 @@ export function PillarModal({ open, onOpenChange, hub, pillar, missions, milesto
                   ) : (
                     <Rocket className="w-4 h-4" />
                   )}
-                  {isHe ? 'ייצר תוכנית 100 יום' : 'Generate 100-Day Plan'}
+                  {isHe ? 'המשך את המסע' : 'Continue your journey'}
                 </Button>
               </div>
             ) : (

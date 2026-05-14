@@ -323,7 +323,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
         {/* Assessment progress */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{isHe ? 'אבחונים שהושלמו' : 'Assessments completed'}</span>
+            <span>{isHe ? 'השתקפויות עד כה' : 'Reflections so far'}</span>
             <span className="font-semibold">{completedAssessments}/{totalAssessments}</span>
           </div>
           <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">

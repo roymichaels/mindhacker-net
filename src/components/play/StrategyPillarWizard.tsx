@@ -222,7 +222,7 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
               {selectedCount > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
-                    <span>{isHe ? 'אבחונים שהושלמו' : 'Assessments completed'}</span>
+                    <span>{isHe ? 'השתקפויות עד כה' : 'Reflections so far'}</span>
                     <span>{assessedPillars.length}/{selectedCount}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
