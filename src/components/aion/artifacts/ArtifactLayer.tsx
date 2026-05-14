@@ -9,7 +9,12 @@
  * subtle border + blur (per project design rules).
  */
 import { useEffect, useState, useCallback } from 'react';
-import { X, Sparkles, NotebookPen, Target, Lightbulb, ListChecks, Wand2, ShieldAlert } from 'lucide-react';
+import {
+  X, Sparkles, NotebookPen, Target, Lightbulb, ListChecks, Wand2, ShieldAlert,
+  Compass, BookOpen, Headphones, Briefcase, LayoutTemplate, GraduationCap,
+  Map as MapIcon, UserCheck, Store, Wallet, Users, MessageSquare, CreditCard,
+  ShoppingCart, Timer, CalendarClock, IdCard, UserCircle2, UserCog,
+} from 'lucide-react';
 import type { AionArtifact, ArtifactKind } from './artifactBus';
 import { onArtifact } from './artifactBus';
 import { cn } from '@/lib/utils';
@@ -24,6 +29,25 @@ const ICONS: Record<ArtifactKind, React.ComponentType<{ className?: string }>> =
   insight: Lightbulb,
   capability: Wand2,
   confirm: ShieldAlert,
+  journey_workspace: Compass,
+  journal_preview: BookOpen,
+  hypnosis_player: Headphones,
+  business_canvas: Briefcase,
+  landing_preview: LayoutTemplate,
+  course_card: GraduationCap,
+  curriculum_preview: MapIcon,
+  coach_recommendation: UserCheck,
+  marketplace_card: Store,
+  wallet_sheet: Wallet,
+  community_preview: Users,
+  message_preview: MessageSquare,
+  subscription_card: CreditCard,
+  checkout_confirmation: ShoppingCart,
+  work_session: Timer,
+  schedule_block_preview: CalendarClock,
+  profile_triad: IdCard,
+  identity_summary: UserCircle2,
+  avatar_configurator: UserCog,
 };
 
 const KIND_LABEL: Record<ArtifactKind, string> = {
@@ -34,6 +58,25 @@ const KIND_LABEL: Record<ArtifactKind, string> = {
   insight: 'תובנה',
   capability: 'יכולת',
   confirm: 'אישור נדרש',
+  journey_workspace: 'מסע',
+  journal_preview: 'יומן',
+  hypnosis_player: 'היפנוזה',
+  business_canvas: 'קנבס עסקי',
+  landing_preview: 'דף נחיתה',
+  course_card: 'קורס',
+  curriculum_preview: 'מסלול לימוד',
+  coach_recommendation: 'מאמן',
+  marketplace_card: 'שוק חופשי',
+  wallet_sheet: 'ארנק',
+  community_preview: 'קהילה',
+  message_preview: 'הודעות',
+  subscription_card: 'מנוי',
+  checkout_confirmation: 'תשלום',
+  work_session: 'עבודה',
+  schedule_block_preview: 'בלוק זמן',
+  profile_triad: 'פרופיל',
+  identity_summary: 'זהות',
+  avatar_configurator: 'אווטאר',
 };
 
 interface ArtifactLayerProps {
