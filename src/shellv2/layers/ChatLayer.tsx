@@ -27,8 +27,14 @@ export default function ChatLayer() {
       <div
         className="flex flex-1 flex-col"
         style={{
-          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.25rem)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6.5rem)',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 5rem)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 7.5rem)',
+          // Soft fade so messages emerge from / dissolve into darkness rather
+          // than hitting hard chrome edges.
+          maskImage:
+            'linear-gradient(180deg, transparent 0px, black 56px, black calc(100% - 80px), transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(180deg, transparent 0px, black 56px, black calc(100% - 80px), transparent 100%)',
         }}
       >
         <AuroraChatBubbles showOrbAboveMessages={false} />

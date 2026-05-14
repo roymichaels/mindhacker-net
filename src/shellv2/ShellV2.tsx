@@ -15,6 +15,7 @@
  * branch must be skipped.
  */
 import BackgroundLayer from './layers/BackgroundLayer';
+import AtmosphereLayer from './layers/AtmosphereLayer';
 import ChatLayer from './layers/ChatLayer';
 import ComposerLayer from './layers/ComposerLayer';
 import ChromeLayer from './layers/ChromeLayer';
@@ -31,6 +32,7 @@ export default function ShellV2({ children }: ShellV2Props) {
   return (
     <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-background">
       <BackgroundLayer />
+      <AtmosphereLayer />
       {/* Chat slot — children override the default placeholder so route-level
           summon pages can swap their own artifact stage in. */}
       {children ?? <ChatLayer />}
