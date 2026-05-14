@@ -47,6 +47,20 @@ const SUMMON_KIND_MOOD: Record<SummonArtifactKind, ManifestationMood> = {
   'landing-builder': 'gold',
   'business-canvas': 'gold',
   'job-mode': 'gold',
+  // Phase 2 — legacy hubs summoned as artifacts.
+  journal: 'indigo',
+  hypnosis: 'violet',
+  'business-dashboard': 'gold',
+  'business-journey': 'gold',
+  freelancer: 'gold',
+  creator: 'gold',
+  therapist: 'soft',
+  'pillar-assess': 'cyan',
+  'pillar-results': 'cyan',
+  'pillar-history': 'soft',
+  quest: 'cyan',
+  missions: 'cyan',
+  'profile-stats': 'indigo',
 };
 
 const ATMO_KIND_MOOD: Record<AtmoArtifactKind, ManifestationMood> = {
