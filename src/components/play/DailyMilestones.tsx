@@ -375,7 +375,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           {isGenerating ? (
             <><Loader2 className="w-3.5 h-3.5 animate-spin" />{isHe ? 'מייצר...' : 'Generating...'}</>
           ) : (
-            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}</>
+            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'המשך את המסע' : 'Continue your journey'}</>
           )}
         </Button>
 

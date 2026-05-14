@@ -111,7 +111,7 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
           <div className="flex items-center gap-2 mb-2">
             <Target className="h-4 w-4 text-primary" />
             <span className="text-sm font-bold text-primary">
-              {isRTL ? 'צור תוכנית 100 יום' : 'Generate 100-Day Strategy'}
+              {isRTL ? 'המשך את המסע' : 'Continue your journey'}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mb-3">

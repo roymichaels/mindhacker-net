@@ -301,7 +301,7 @@ export function StrategyPillarWizard({ open, onOpenChange, onPlanGenerated }: St
                   className="w-full mt-5 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   <Sparkles className="w-4 h-4" />
-                  {isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}
+                  {isHe ? 'המשך את המסע' : 'Continue your journey'}
                 </motion.button>
               )}
 
