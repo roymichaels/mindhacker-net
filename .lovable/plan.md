@@ -1,114 +1,116 @@
+# Cinematic Pass 2 — Remove Dashboard Energy
 
-# AION Cinematic Visual Rebuild
+Pure visual/structural pass. No backend, orchestration, capability, or feature changes. All edits stay in presentation layers.
 
-A presentation-only pass. No orchestration, mutations, capabilities, routes, or DB changes. Existing components are restyled in place; a small set of new atmospheric primitives is introduced.
+## 1. Header — compact cinematic top bar
+**Files:** `src/shellv2/ShellV2Header.tsx`, `src/shellv2/ShellHeader.tsx`, `src/components/Header.tsx`
 
-## Guiding principles
+- Drop height to ~64px (from ~92px). Safe-area top stays.
+- Layout: `[ghost menu 36px] · [centered AION wordmark, 16px, tracking-[0.32em]] · [small living orb 28px with breath halo]`.
+- Remove `border-b`, remove `atmo-divider` strip — replace with a 24px downward `bg-gradient-to-b from-background/60 to-transparent` fade only.
+- Remove all secondary icons from the bar (search, bell, settings) — relocate into the drawer.
+- The ShellHeader title/subtitle block is removed from `BrainPage` floating header (moves to atmospheric overlay text, see §5).
 
-- One entity (the orb) is the brand — replace logo usage where it competes.
-- Bioluminescent palette: deep navy → cyan → electric blue → violet, with restrained magenta accents.
-- Atmosphere over chrome: replace cards/borders with glow, depth layering, and negative space.
-- Cinematic motion: soft easing, breathing, contextual emergence — no flashy mechanical UI motion.
-- Mobile-native by default; desktop inherits the same vocabulary.
+## 2. Composer — single floating cinematic dock
+**Files:** `src/shellv2/layers/ComposerLayer.tsx`, `src/components/dashboard/GlobalChatInput.tsx`, `src/components/aurora/composer/*`
 
-## 1. Global visual language (`src/index.css`, `tailwind.config.ts`)
+- Single pill: `atmo-surface` rounded-full, no nested boxes, no border.
+- Visible controls: `[+]` (32px ghost, opens action sheet) · `[ multiline input, placeholder only ]` · `[mic | send]` (one swap based on input).
+- Hide attachment chips, mode toggles, model picker, suggestion chips behind the `+` sheet.
+- Vertical rhythm: `py-3 px-4`, min-height 52px, max 5 lines auto-grow.
+- Focus state: cyan glow ring (`aion-glow-cyan`) replaces border highlight.
+- Bottom anchor: `bottom: max(env(safe-area-inset-bottom), 12px)` already in `ComposerLayer`; raise z to stay above sheets/artifacts but defer to modals.
+- Remove the wrapper `border border-border/40 px-2 py-2` div in `ComposerLayer` — composer renders its own atmo pill.
 
-Add a new dark token layer (light mode untouched):
+## 3. Remove dashboard cards from primary flows
+**Targets:** `src/components/dashboard/v2/StatsGrid.tsx`, `src/components/dashboard/*` widgets used in Index/Journey/Profile, `src/pages/UserDashboard.tsx`, `src/pages/PlayHub.tsx`.
 
-- `--aion-navy: 230 55% 6%`, `--aion-deep: 232 60% 9%`, `--aion-blue: 212 100% 62%`, `--aion-cyan: 188 95% 65%`, `--aion-violet: 265 85% 66%`, `--aion-magenta: 305 80% 65%`.
-- `--aion-glow-sm/md/lg`: layered radial-gradient strings.
-- `--aion-bg`: vertical `radial-gradient` of navy → near-black with a faint cyan top halo, applied to `.dark body` (replaces the current transparent body so canvas effects layer on top of a real cinematic ground).
+- Replace `Card` + `CardContent` chains with `atmo-surface` divs (no border, no shadow).
+- Drop the 2×2 stats grid in primary flows; keep only one consolidated breathing strip (level + streak inline, text-only) where stats are essential.
+- Remove decorative `bg-*-500/10` blobs and colored icon tiles — replace with monochrome glyphs at `text-foreground/50`.
+- Eliminate `Progress` bar chrome → replace with thin `atmo-divider` fill.
 
-New utilities:
+## 4. Journey — active mission workspace
+**Files:** `src/pages/PlayHub.tsx`, `src/pages/MindOS/StrategyPage.tsx`, `src/pages/MindOS/TacticsPage.tsx`, `src/pages/QuestRunnerPage.tsx`, `src/pages/CoachingJourney.tsx`, `src/pages/BusinessJourney.tsx`, `src/pages/ProjectsJourney.tsx`.
 
-- `.atmo-surface` — borderless soft surface: `background: linear-gradient(180deg, hsl(var(--aion-deep)/0.55), hsl(var(--aion-navy)/0.35)); backdrop-filter: blur(24px) saturate(140%); border-radius: 1.25rem;` plus an inset top hairline (`box-shadow: inset 0 1px 0 hsl(var(--aion-cyan)/0.08)`). No outer border.
-- `.atmo-divider` — 1px gradient line that fades to transparent at both ends; replaces hard `border-border`.
-- `.aion-glow` / `.aion-glow-soft` — outer radial halos for orbs/CTAs.
-- `.aion-text-hero` — tracking-tight, large, gradient-fill cinematic title.
-- `.aion-mask-fade-y` — top/bottom mask for scroll regions so content fades into atmosphere.
+Restructure each Journey surface to a single-focus layout:
 
-Tailwind: extend `colors.aion`, `boxShadow.glow{,Lg}`, `keyframes.{breath,floatY,emerge}`, `animation.{breath,float,emerge}`.
+```text
+┌─────────────────────────────┐
+│  (atmospheric backdrop)     │
+│                             │
+│   Today's mission title     │  <- aion-text-hero, 22px
+│   one-line context          │  <- foreground/55
+│                             │
+│   [ Primary action pill ]   │  <- single CTA, atmo
+│                             │
+│   ▸ Next step (subtle)      │  <- ghost row
+│   ▸ Skip / reschedule       │
+└─────────────────────────────┘
+```
 
-## 2. Header system
+- Delete the colorful action grid / app-icon row at the top.
+- Tab strips collapse into a single contextual segmented control only when ≥2 modes are truly required; otherwise removed.
+- Secondary widgets (history, stats, leaderboard) move behind a single "More" drawer trigger.
 
-Targets: `src/components/Header.tsx` (public), `src/shellv2/ShellV2Header.tsx` (app), `src/components/panel/AdminSidebar.tsx`, `src/components/panel/AffiliateSidebar.tsx`.
+## 5. Brain — living consciousness landscape
+**Files:** `src/features/brain/atlas/ConsciousnessAtlas.tsx`, `src/features/brain/BrainGraphForce.tsx`, `src/features/brain/brainNodeStyle.ts`, `src/pages/BrainPage.tsx`.
 
-- Drop `border-b` and `shadow-sm`. Replace with a 1px `atmo-divider` and a downward fade gradient under the header.
-- Background: `bg-transparent` over the global atmosphere; only on scroll add `backdrop-blur-2xl` and a subtle top tint.
-- Three-zone grid retained, but: orb on the right gets a real living halo (`aion-glow-soft` + `animate-breath`), wordmark center uses `aion-text-hero` at 18–20px with `tracking-[0.32em]`, left becomes a single ghost icon (no chevrons, no notification dot competing with the orb — bell folds into drawer).
-- Safe-area: `pt-[env(safe-area-inset-top)]`, content min-height `92px`. No visible container edges.
+- Replace the floating header chrome on `BrainPage` with a top-anchored ambient label (`aion-text-hero` 14px, tracking, `text-foreground/60`, no card, no backdrop). Subtitle drops.
+- Nodes:
+  - Render as radial-gradient orbs (`hsl(var(--aion-cyan)) → transparent`), inner 2px solid core, outer halo blur 16px tinted by pillar.
+  - Hierarchy by node radius + halo opacity: primary 28px / secondary 18px / tertiary 12px.
+  - Hover/active: scale 1.08 + halo to 0.85 alpha, cubic-bezier(0.22,1,0.36,1) 220ms.
+- Edges: 1px lines at `hsl(var(--aion-cyan)/0.10)` with subtle gradient toward stronger end. Drop dashed/grey debug edges.
+- Background: keep the BrainView neural halo; add 6 CSS-only drift particles (`aion-drift`, opacity ≤0.12) inside the atlas container — no canvas, no Three.js.
+- Remove any "X nodes / Y edges" counter strips, debug toggles, and analytics widgets from the visible surface (DiagnosticsHost remains gated).
 
-## 3. Chat / composer experience
+## 6. AtmoArtifact adoption
+Wrap each artifact's outer container with `<AtmoArtifact kind=…>`, drop internal `Card`/`border`/`shadow` chrome. `kind` mapping:
 
-Targets: `src/pages/AuroraPage.tsx`, `src/components/aurora/AuroraChatArea.tsx`, `AuroraMessageThread.tsx`, `AuroraChatBubbles.tsx`, `AuroraChatInput.tsx`, `AuroraTypingIndicator.tsx`, `composer/*`.
+| Component | File | kind |
+|---|---|---|
+| Confirmation | `src/components/aurora/AuroraActionConfirmation.tsx` | `confirm` (breathing) |
+| Strategy approval | `src/components/aurora/StrategyApprovalCard.tsx` | `plan` |
+| Plan modal body | `src/components/aurora/AuroraPlanModal.tsx` | `plan` |
+| Journal preview | `src/components/aurora/JournalTab.tsx` + `AuroraJournalModal.tsx` | `read` |
+| Hypnosis player | `src/hallway/surfaces/BodyHypnosisSurface.tsx`, `src/pages/HypnosisPage.tsx` player card | `default` |
+| Business canvas | `src/pages/Business.tsx` / `BusinessDashboard.tsx` canvas tile | `plan` |
+| Coach recommendation | `src/pages/Coaches.tsx` recommendation card, `src/pages/PractitionerProfile.tsx` summary | `default` |
+| Wallet/payment | wallet modal contents (via `WalletModalContext` consumer), `Subscriptions.tsx` tier cards | `confirm` |
+| Work session | `src/pages/MindOS/WorkPage.tsx` active session card | `default` |
+| Today list / Plan / JobMode artifacts | `src/components/artifacts/kinds/*` | `default`/`plan` |
 
-- Message bubbles → `atmo-surface` with no border, 18px radius, soft inner top hairline. AION messages get a 1px left/right cyan glow line that fades; user messages get a violet tint.
-- Time/avatar metadata becomes `text-foreground/45 text-[11px]`, single line, never above the bubble.
-- Replace any `Card`/`shadow` wrappers in the message list with plain spacing.
-- Composer: pill-shaped, `atmo-surface`, no border, focus state = expanding cyan glow ring (no outline). Plus, mic, send collapse into a single trailing send orb when the field is empty; chips appear contextually under the field, not always.
-- Typing indicator becomes a small breathing orb dot trio with cyan glow.
-- Background of the chat surface picks up the global `--aion-bg`; remove any solid chat panel background.
+For each: remove `Card`, `border-*`, `shadow-*`, `bg-card`. Padding handled by AtmoArtifact.
 
-## 4. Artifact system
+## 7. Navigation — 5 primary surfaces
+**Files:** `src/navigation/osNav.ts`, `src/navigation/canonicalSurfaces.ts`, `src/shellv2/ShellV2Drawer.tsx`, any tab-bar consumer.
 
-Targets: `src/components/aion/artifacts/ArtifactLayer.tsx`, all renderers under `src/components/aion/artifacts/`, `AuroraActionConfirmation.tsx`, `StrategyApprovalCard.tsx`.
+- Primary tabs: **Chat · Brain · Journey · Outer World · Profile**. Everything else becomes summoned (artifacts) or drawer entries.
+- Tab bar: transparent over atmosphere, `atmo-divider` top hairline, active state = under-glow cyan dot, no pill background, no labels under icons on small screens (only active tab labelled).
+- Drawer (`ShellV2Drawer`) absorbs: Coaches, Wallet, Subscriptions, Settings, Admin, Affiliate, Blog, etc. Render as plain text rows on `atmo-surface` — no colored icon tiles.
+- Remove any feature grid / hub launcher rendered on Index, PlayHub, BrainPage, etc.
 
-- One shared shell `<AtmoArtifact>`: `atmo-surface`, no border, 22px radius, top hairline + outer glow tinted by artifact kind (cyan = read, violet = plan, magenta = confirmation, amber = warning).
-- Entrance: `animate-emerge` (scale 0.96 → 1, opacity 0 → 1, 12px Y, 280ms cubic-bezier(0.22,1,0.36,1)).
-- Replace inner `Card`/`Separator` chains with `atmo-divider` and increased vertical rhythm (16/20/24).
-- Source row fixed at the bottom in micro-text with the trace_id hidden behind a tap.
-- Confirmation artifacts: sticky behavior preserved, but visually anchored by an outer breathing halo so they read as "summoned by AION".
+## 8. Visual density reduction (~30–40%)
+Cross-cutting cleanup applied while touching the files above:
 
-## 5. Brain / map system
-
-Targets: `src/features/brain/BrainView.tsx`, `BrainSections.tsx`, `BrainNodeSheet.tsx`, `atlas/RoomView.tsx`, `brainNodeStyle.ts`.
-
-- Remove dashboard widgets and counters from the top of `BrainView`. The whole route is the map.
-- Center: shared `OrbView` at 96–120px with breathing aura.
-- Nodes: replace flat circles with small living spheres (radial gradient + outer halo tinted by pillar). Edges become 1px gradient lines fading toward endpoints.
-- Background: deep navy with a faint nebula radial gradient and slow particle drift (CSS-only, 6–10 dots, opacity ≤ 0.15).
-- Tap on node → `BrainNodeSheet` becomes `atmo-surface` bottom sheet with strength bar as a thin neon line, not a solid bar.
-
-## 6. Navigation simplification
-
-Targets: tab bar / drawer in `src/shellv2/`, `src/navigation/`.
-
-- Trim persistent tabs to 5 max (Chat, Brain, Today, Journey, More). Anything else moves into the drawer or contextual artifacts.
-- Tab bar background: transparent over atmosphere with a top `atmo-divider`. Active tab uses an under-glow dot, not a pill.
-- Drawer adopts `atmo-surface` and removes nested separators.
-
-## 7. Motion refinement
-
-- Single easing token `cubic-bezier(0.22, 1, 0.36, 1)` exported as `--ease-cinema`.
-- Breathing keyframe (4s, scale 1 → 1.03 → 1, glow 0.6 → 0.85 → 0.6) for orbs + sticky artifacts.
-- Emerge keyframe for artifacts/sheets/modals.
-- Reduce framer-motion usage to entrance + layout, no per-hover bounces.
-- Honor `prefers-reduced-motion` (disables breathing/emerge).
-
-## 8. Environmental atmosphere
-
-- New `<AtmosphereLayer />` mounted once at app root: a fixed full-viewport gradient + 2 slow-drifting nebula blobs (CSS, GPU-only). z-index sits below `OrbView` host, above body.
-- Light mode untouched (atmosphere disabled), only dark mode receives the cinematic ground.
-
----
-
-## Technical notes
-
-- All colors stay HSL via tokens; no hard-coded hex in components.
-- No new routes, no orchestration / capability changes, no DB migrations, no edge function edits.
-- `OrbView` (the live orb) remains the single entity primitive — `AionRingMark` (static) is kept only for favicon/app-icon surfaces.
-- `confirmationBridge` and `safeMutationExecutor` paths are untouched.
+- Remove redundant section headings where context is obvious.
+- Increase vertical rhythm: section gap 16→24, card inner padding 16→20.
+- Drop secondary metadata rows (e.g., "Updated 2m ago" sub-labels) unless functionally required.
+- Replace dividers `<Separator />` with `atmo-divider` (1px, fading).
+- Strip duplicate icon+label combos to icon-only or label-only.
 
 ## Out of scope
+- Backend, edge functions, RPCs, capability registry, AI prompts.
+- Onboarding, marketing landing copy.
+- Light-mode theming changes (atmosphere stays dark-first; light mode unchanged).
+- New features, new routes, new artifact kinds.
 
-- Backend, mutations, AI prompts, capabilities registry.
-- Onboarding flow logic (visual treatment only on its existing screens).
-- Marketing landing copy.
-
-## File-change estimate
-
-~25 files: 1 token file (`index.css`), 1 tailwind config, 1 new `AtmosphereLayer`, 1 new `AtmoArtifact` shell, 1 new `atmoUtils.css`, ~6 header/shell files, ~8 chat files, ~4 artifact renderers, ~3 brain files. No file deletions.
-
-## Deliverables on completion
-
-- Files changed, systems redesigned, before/after screenshots (mobile 402×716 + desktop), remaining inconsistencies, and a recommended next pass.
+## Acceptance signals
+- Header ≤64px content, no border, single orb glyph.
+- Composer is one floating pill, no border, no nested boxes.
+- Journey shows a single mission focus per route, no app-icon grid.
+- Brain renders glowing radial nodes with halos and atmosphere particles, no counter strip.
+- All listed artifacts wrap in AtmoArtifact, no `Card`/`border` chrome inside.
+- Tab bar shows exactly 5 primary entries; everything else moved to drawer or summon.
+- Mobile (375×812 / 402×716) renders without clipping or scroll-locked chrome.
