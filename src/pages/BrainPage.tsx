@@ -71,26 +71,16 @@ export default function BrainPage() {
           </div>
         ) : (
           <div className="relative h-full w-full">
-            {/* Translucent floating header — does not occupy layout space */}
-            <div
-              className="absolute inset-x-0 top-0 z-10 px-4 pt-[max(env(safe-area-inset-top),0.75rem)] pb-2 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-md pointer-events-none"
-            >
-              <div className="pointer-events-auto">
-                <ShellHeader
-                  title={isRTL ? "מפת התודעה" : "Consciousness Map"}
-                  subtitle={
-                    isRTL
-                      ? "כל חדר הוא מערכת תודעה ש־AION מעדכן"
-                      : "Each room is a consciousness system AION keeps updating"
-                  }
-                />
-                {atlasError && (
-                  <p className="mt-1 text-[11px] text-destructive">
-                    {isRTL ? "שגיאת מפה: " : "Atlas error: "}
-                    {atlasError.message}
-                  </p>
-                )}
-              </div>
+            {/* Ambient label — no card, no backdrop */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 px-6 pt-[max(env(safe-area-inset-top),1rem)] text-center">
+              <p className="aion-text-hero text-[12px] font-medium tracking-[0.32em] uppercase text-foreground/55">
+                {isRTL ? "מפת התודעה" : "Consciousness Map"}
+              </p>
+              {atlasError && (
+                <p className="mt-1 text-[10px] text-destructive/80">
+                  {atlasError.message}
+                </p>
+              )}
             </div>
 
             <div className="absolute inset-0 pb-32">
