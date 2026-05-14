@@ -44,6 +44,13 @@ export interface AtmospherePreset {
   particles: number;
   /** Base ambient opacity for the atmosphere relative to BG. */
   ambient: number;
+  /**
+   * Where AION's persistent orb rests inside this world. Normalised viewport
+   * coordinates (0..1, top-left origin) plus a relative scale (1 = base).
+   * The orb glides between these anchors as the user crosses worlds — it
+   * never re-mounts, only the environment around it dissolves.
+   */
+  orbAnchor: { x: number; y: number; scale: number };
 }
 
 export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
@@ -56,6 +63,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'volumetric',
     particles: 0.55,
     ambient: 0.85,
+    orbAnchor: { x: 0.5, y: 0.42, scale: 1.0 },
   },
   habits: {
     primaryHsl: '188 95% 65%',
@@ -66,6 +74,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'rim-light',
     particles: 0.45,
     ambient: 0.75,
+    orbAnchor: { x: 0.5, y: 0.5, scale: 1.1 },
   },
   emotions: {
     primaryHsl: '210 80% 60%',
@@ -76,6 +85,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'aurora',
     particles: 0.4,
     ambient: 0.9,
+    orbAnchor: { x: 0.62, y: 0.38, scale: 0.9 },
   },
   beliefs: {
     primaryHsl: '30 70% 55%',
@@ -86,6 +96,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'depth-fog',
     particles: 0.3,
     ambient: 0.7,
+    orbAnchor: { x: 0.5, y: 0.62, scale: 1.05 },
   },
   memory: {
     primaryHsl: '280 70% 65%',
@@ -96,6 +107,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'particulate',
     particles: 0.85,
     ambient: 0.85,
+    orbAnchor: { x: 0.5, y: 0.7, scale: 0.85 },
   },
   relationships: {
     primaryHsl: '340 75% 65%',
@@ -106,6 +118,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'soft-glow',
     particles: 0.55,
     ambient: 0.75,
+    orbAnchor: { x: 0.38, y: 0.46, scale: 0.95 },
   },
   archetypes: {
     primaryHsl: '15 80% 60%',
@@ -116,6 +129,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'rim-light',
     particles: 0.35,
     ambient: 0.8,
+    orbAnchor: { x: 0.5, y: 0.48, scale: 1.0 },
   },
   creative: {
     primaryHsl: '160 70% 55%',
@@ -126,6 +140,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'aurora',
     particles: 0.6,
     ambient: 0.8,
+    orbAnchor: { x: 0.66, y: 0.55, scale: 0.9 },
   },
   higher: {
     primaryHsl: '255 80% 70%',
@@ -136,6 +151,7 @@ export const ATMOSPHERE_PRESETS: Record<CognitiveWorldId, AtmospherePreset> = {
     light: 'volumetric',
     particles: 0.5,
     ambient: 0.95,
+    orbAnchor: { x: 0.5, y: 0.3, scale: 1.15 },
   },
 };
 

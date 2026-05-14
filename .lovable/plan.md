@@ -1,62 +1,117 @@
-# Why the orb still looks "wrong" in the logged-in app
+# Phase 5C — "Enter, don't open"
 
-The homepage uses the **live WebGL AION model** (`SharedOrbView` + `OrganicSphere`, driven by `CANONICAL_AION_PROFILE` — the iridescent cyan→violet liquid orb).
+The shift you're describing is concrete: stop framing worlds inside chrome. Let them **be the screen**. The orb stops floating *in* a layout — it becomes the only persistent reality across morphing environments.
 
-But large parts of the **logged-in shell still render a static PNG** (`src/assets/aion-ring.png`) via the legacy `AionOrb` component. So as soon as you're inside the app, the orb downgrades to a flat ring graphic — not the alive sphere.
+This plan is the first executable wave toward that. No new features. We **remove interface** and **promote atmosphere**.
 
-Surfaces already canonical (correct):
-- `WorldShell`, `OuterWorldHub`, `JourneyView`, `AionPresenceHero`, `InteractiveAION` — all use `CanonicalAionModel`.
+## What's blocking the feeling today
 
-Surfaces still on the static PNG (wrong):
-- `src/shellv2/ShellV2Header.tsx` → renders `<AionHeader>` whose orb slot is `<AionOrb>` (PNG).
-- `src/shellv2/ShellV2Drawer.tsx` (line 136) → `<AionOrb size="md" />`.
-- `src/components/aion/ui/AionHeader.tsx` → orb slot hardcoded to `<AionOrb>`.
-- `src/components/aion/ui/AionEntityAvatar.tsx` → `<AionOrb size="xs" />` (used in chat/voice chips).
-- `src/components/Header.tsx` → imports `aion-ring.png` directly.
-- `src/components/panel/AffiliateSidebar.tsx` → imports `aion-ring.png` directly.
-- `ShellV2Header` brand sheet header → `<img src={aionOrb} />`.
+Reading `WorldShell.tsx`, every world today is structured as:
 
-`AionRingMark` (the literal logo ring glyph) is intentionally a flat mark and stays as-is.
+```text
+[ back btn | "WORLD" label | spacer ]   ← page chrome
+[      AION orb (140px, centered)   ]   ← embedded component
+[      WorldStage (card box)        ]   ← framed scene
+[      WorldComposer (verb pills)   ]   ← bottom action bar
+        max-w-md, px-4, py-4            ← phone-app gutters
+```
 
-# Plan
+Symptoms this produces:
+- The world is a **card inside a layout**, not the layout itself.
+- The orb is **a widget on the page**, not the constant anchor.
+- Atmosphere is a **background**, not the substance.
+- Verbs read as **buttons**, not as gestures into the world.
+- Every world inherits the same skeleton → they all feel like the same screen wearing different paint.
 
-## 1. Make `AionOrb` itself canonical
-Refactor `src/components/aion/ui/AionOrb.tsx` so the small/medium "chip" orb renders `CanonicalAionModel` at the requested pixel size instead of `<img src={aion-ring.png}>`. Keep the same API (`size`, `onClick`, `ariaLabel`, halo) so every existing call site upgrades automatically.
+## The architectural inversion
 
-- xs (24) / sm (32) / md (48) / lg (80) → forward to `CanonicalAionModel size={px}`.
-- Preserve breathing + click + halo.
-- Drop the `aion-ring.png` import.
+```text
+BEFORE                          AFTER
+─────────                       ─────────
+Page > Atmosphere               Atmosphere = Page
+Orb in page                     Page in orb's gravity
+Scene in card                   Scene = full bleed
+Verbs as buttons                Verbs as drift / approach
+"Open Habits"                   "Drift toward ritual"
+Back button                     Pull-down to surface
+World label header              World *is* the label
+```
 
-This single change fixes: `ShellV2Drawer`, `AionHeader` orb slot (→ `ShellV2Header`), `AionEntityAvatar`, and any other consumer of `AionOrb`.
+The orb is the only constant. Everything else dissolves and re-forms per world.
 
-## 2. Replace remaining direct `aion-ring.png` consumers in the shell
-- `src/components/Header.tsx` — swap the `<img src={aionOrb}>` button for a `<CanonicalAionModel size={36} onClick={openInteractiveAION} />`.
-- `src/shellv2/ShellV2Header.tsx` brand-sheet header — swap the 32px `<img>` for `<CanonicalAionModel size={32} />`.
-- `src/components/panel/AffiliateSidebar.tsx` — swap for `<CanonicalAionModel size={...} />` at the same size.
+## Wave 1 — concrete moves (this is what to build now)
 
-`AionRingMark` is left alone (it's the flat brand mark, not the presence orb).
+Scope: structural only. No new visuals authored yet — we let the existing `WorldAtmosphere` finally *be* the screen.
 
-## 3. Performance guardrails
-The canonical model is WebGL. To avoid spinning up many contexts in chrome:
-- Keep the existing `SharedOrbStage` integration (`OrbView` already routes through it), so all chip orbs share one canvas instead of allocating per instance.
-- Confirm `CanonicalAionModel` defaults route through `OrbView` (it does — `CanonicalAionModel.tsx` wraps `OrbView`, which uses `CANONICAL_AION_PROFILE` and the shared stage).
-- For the very small xs (24px) avatar inside dense lists, allow an opt-out prop `glyph` that falls back to a CSS-only mini glow so we don't pay WebGL cost in feed rows. Default everywhere in the shell = live model.
+### 1. Full-bleed `WorldShell`
+- Remove `max-w-md px-4 py-4 space-y-5` container. Shell becomes `fixed inset-0`.
+- `WorldAtmosphere` always `fullBleed`, behind everything, owning 100vh/100vw.
+- Delete the top chrome row (back button + "WORLD" label + spacer).
+- Add a **silent edge-gesture**: pull-down from the top edge to "surface" (return to hallway). No visible button. The atmosphere is the boundary.
 
-## 4. Memory
-Update `mem/architecture/orb-pure-renderer-standard` (or add a short note in `mem/index.md` Core) saying:
-> AION presence in chrome (header, drawer, chips) MUST render `CanonicalAionModel`. `aion-ring.png` is reserved for the flat brand mark (`AionRingMark`) only.
+### 2. Orb becomes the sky, not a card
+- Orb sits in a calm, off-center position per world (each world's atmosphere preset declares an `orbAnchor: { x, y, scale }` so the orb lives differently in each world — high in Higher Self, low in Memory, central in SelfWorld, eccentric in Creative).
+- Orb is rendered through the existing shared stage (`CanonicalAionModel`) so it's still the same entity — but it **persists across world transitions** instead of being mounted per shell. This requires hoisting the orb mount above `WorldRoute` (into the app shell) and letting each world pass an `orbAnchor` that the orb animates toward.
+- Result: when you move between worlds, the orb glides to a new resting place. *It* doesn't change — the world around it does.
 
-## Files touched
-- `src/components/aion/ui/AionOrb.tsx` (rewrite body, keep API)
-- `src/components/Header.tsx`
-- `src/shellv2/ShellV2Header.tsx`
-- `src/components/panel/AffiliateSidebar.tsx`
-- `mem/index.md` (one-line core rule)
+### 3. Scene = atmosphere, not a stage
+- Delete the `<WorldStage>` card wrapper around scenes (`RitualOrbitsScene`, `BandStackScene`, `ScaffoldScene`). Scenes render directly into the atmosphere layer at full viewport.
+- Existing scenes get a `mode: 'environmental'` prop and switch from "fit inside a box" to "occupy the full canvas with depth bands."
 
-## Out of scope
-- No changes to homepage hero, world scenes, profile triad, or any surface already on `CanonicalAionModel`.
-- No new orb profiles or palette changes.
-- No backend / data changes.
+### 4. Verbs become drift, not buttons
+- `WorldComposer` retired in its current form. Replace with a single ambient affordance per world:
+  - A faint glyph at the bottom edge that **breathes** in the world's accent color.
+  - Tap-and-hold = the world "responds" (the existing mutation pipeline still fires under the hood — we keep `useGraphMutator` exactly as is). Release = the response settles into the atmosphere.
+  - Optional: long-press shows the verb name briefly; otherwise it stays unnamed. Verbs become **gestures**, not menu items.
+- This preserves the entire living-systems engine; only the UI surface changes.
 
-## Success check
-After the change, every AION orb visible in the logged-in shell (top-left header orb, drawer header orb, chat avatar, sidebar) renders the same iridescent cyan→violet living sphere as the homepage hero — not the flat ring PNG.
+### 5. World identity carried by atmosphere, not labels
+- Remove the visible world title from the shell.
+- Each world's name only appears in **the AION whisper line** ("AION is walking inward with you"), once, on entry. Then it dissolves.
+- Identification = palette + motion + orb position + ambient sound (deferred). No chrome label.
+
+### 6. Transitions = **enter**, not navigate
+- `/worlds/:id` route changes are wrapped in a long crossfade (1.2s) where:
+  - Old atmosphere palette dissolves into new atmosphere palette.
+  - Orb glides from old `orbAnchor` to new `orbAnchor` along a curved path.
+  - Scene particles re-form, never wipe.
+- No router page transition. The orb is the through-line.
+
+## What we explicitly do NOT do in Wave 1
+
+- No new scenes, no new 3D, no Three.js work, no audio.
+- No new worlds, no new mutations, no AI changes.
+- No changes to graph mutation bus, world state store, evolution ticker, AION continuity. Those stay exactly as built in 5B.7.
+- No homepage changes. The marketing shell keeps its hero.
+
+## File map (Wave 1)
+
+```text
+src/worlds/scene/WorldShell.tsx         rewrite — full-bleed, no chrome
+src/worlds/scene/WorldStage.tsx         deleted (or kept as no-op for back-compat)
+src/worlds/scene/WorldComposer.tsx      replaced by AmbientGesture.tsx
+src/worlds/scene/AmbientGesture.tsx     NEW — single breathing glyph, gesture handler
+src/worlds/scene/scenes/*.tsx           pass `mode='environmental'`, render full-bleed
+src/worlds/atmosphere/atmospherePresets.ts  add `orbAnchor` per world
+src/worlds/orb/PersistentOrbAnchor.tsx  NEW — single mount, animates between anchors
+src/App.tsx                             mount PersistentOrbAnchor above WorldRoute
+src/pages/WorldRoute.tsx                strip route chrome; pass world id only
+mem/architecture/cognitive-worlds-system.md   add "Enter, don't open" addendum
+```
+
+## Success check (no metrics, sensory)
+
+After Wave 1:
+- Loading `/worlds/habits` should feel like the screen *became* the habits world, not like a new page opened.
+- Switching to `/worlds/emotions` should feel like the same orb is still here, but the weather changed.
+- There should be no visible back button, no visible world title, no visible verb bar.
+- A new user, shown the screen for 2 seconds, should not be able to describe it as "an app." They should describe it as "a place."
+
+## After Wave 1 (preview, not in scope)
+
+- **Wave 2** — emotional reactivity: atmosphere reads `presenceState` (valence/arousal/hour) live, so the world breathes with the user.
+- **Wave 3** — continuity bridges: residue from the previous world bleeds into the next (a habit ritual carried into Memory shows up as a faint orbiting echo).
+- **Wave 4** — silence as feature: long idle = the world goes quiet, orb dims, no notifications. The OS *rests* with you.
+- **Wave 5** — remove last app surfaces: the hallway becomes a single drift between worlds, not a menu.
+
+This plan is the first irreversible step. Once chrome is gone and the orb persists across worlds, the rest of the app starts feeling wrong by comparison — and that pressure naturally pulls the remaining surfaces into the same language.
