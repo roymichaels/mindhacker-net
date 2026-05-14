@@ -1,173 +1,89 @@
+## Phase G — Brain + Rooms Visualization
 
-# MindOS Consolidation Plan
+Make `/brain` feel like a navigable consciousness map. Reuse what already works (room registry, `useBrainAtlas`, `useBrainRoom`, `BrainGraphForce`, `BrainNodeSheet`, `inferSoftEdges`, `useBrainFallback`). No mutations, no new shells, no unrelated UI.
 
-A staged, reversible collapse of the codebase into a single AION-orchestrated operating system. No new features. Every step either **merges**, **demotes to artifact**, or **deletes**.
+### What's already in place (keep)
+- `src/features/brain/data/useBrainAtlas.ts` → `brain_get_atlas` RPC: per-room aggregates + cross-room edges.
+- `src/features/brain/data/useBrainRoom.ts` → `brain_get_room` RPC: nodes/edges/gaps per room.
+- `src/features/brain/atlas/RoomView.tsx` → already wraps `BrainGraphForce` + `BrainNodeSheet` + gaps list. Solid; only minor polish.
+- `BrainGraphForce` already does force-directed layout with pinch/drag/zoom.
+- `BrainNodeSheet` already a native-feeling bottom sheet.
+- `inferSoftEdges` + `useBrainFallback` already produce client-inferred soft edges.
 
-## 1. Diagnosis — what is fragmenting the system today
+### What violates the spec today (fix)
+1. `ConsciousnessAtlas.tsx` lays rooms out on a **perfect circle around a center** — explicitly forbidden ("no orbit rings, no perfect circles").
+2. Atlas is rendered inside a scrolling `<main>` with cards above it (`SelfPanel`) and a `<details>` "Full graph (legacy)" + `BrainView` below — reads as a dashboard, not a map.
+3. Only 8 rooms (`beliefs, emotions, parts, time, identity, body, dreams, beyond`). Spec asks for 10 clusters incl. **Journey / Mission**, **Relationships**, **Outer World links**.
+4. Atlas isn't pinch/drag/zoomable; not full-screen; no safe-area top.
+5. Cross-room edges are drawn but only between fixed circle positions — they need to come from the same organic simulation.
 
-**Three competing shells still wired:**
-- `ShellV2` (canonical, `ProtectedAppShellV2`) — chat-first, layered.
-- `app-shell/AppShell` skeleton (`ff_app_shell` flag) — dead scaffold + empty `OverlayHost`/registry.
-- Legacy `DashboardLayout` + `MindOSPage` tabbed shell — referenced by `MINDOS_SECTIONS`, `DesktopSideNav`, `osNav`, `LayoutWrapper` files.
+### Plan
 
-**Two navigation sources of truth:**
-- `src/navigation/osNav.ts` → `OS_TABS` (FM, Strategy, Hypnosis, Journal, Community, Study) — driving `DesktopSideNav`.
-- `src/app-shell/surfaces.ts` → `SURFACES` (Chat, Brain, Hallway, Strategy, OuterWorld, Me, Settings) — aspirational, unused.
-- `src/pages/MindOSPage.tsx` → its own NavLink tab strip.
+#### 1. Atlas becomes an organic force-directed map
+Rewrite `src/features/brain/atlas/ConsciousnessAtlas.tsx` to use the same `useForceLayout` hook that `BrainGraphForce` uses, but at the **room level**:
+- Treat each room as a single super-node (radius scaled by `sqrt(node_count)`, ring opacity = `avg_confidence`, fill = `coverage`, ambience hue from registry).
+- Treat `cross_edges` as the simulation links (weighted). Empty rooms still participate but with weaker links.
+- Add gentle initial seeding (jittered around a poisson-disc-ish layout, not a circle) so the simulation settles into an organic blob, not a wheel.
+- Pan / pinch / zoom mirror `BrainGraphForce` (extract the gesture block into `src/features/brain/useGraphGestures.ts` and reuse in both — small shared hook, no new system).
+- No orbit rings, no decorative particles, no gradients.
+- Tap on a room super-node → existing `onRoomTap(roomId)` (atlas → room view) for implemented rooms; for virtual rooms (#2) → `navigate()` to their canonical surface.
 
-**Page-oriented hubs that contradict the state-oriented vision:**
-- `MindOSPage` + `pages/MindOS/*` (Chat, Tactics, Strategy, Work, Journal)
-- `PlayHub`, `UserDashboard`, `OuterWorldHub`, `LifeDomainPage`, `ArenaDomainPage`, `ArenaLayoutWrapper`, `WorkPage`, `BusinessJourney`, `CoachingJourney`, `ProjectsJourney`, `AdminJourney`, `CreatorHub`, `FreelancerHub`, `Coaches` listing, `HypnosisPage` (route).
-- 60+ pillar assessment pages (`pages/pillars/*`) shaped as standalone screens instead of AION-summoned artifacts.
+#### 2. Add 3 virtual "atlas-only" rooms (no new shell, no new route)
+Instead of extending the hallway `RoomId` union (which would force route + surface implementations), add a small adapter file `src/features/brain/atlas/atlasRooms.ts`:
+- Re-exports `listRooms()` from the hallway registry **plus** 3 virtual entries:
+  - `journey` → tagline "Mission & 100-day arc", deep-link `/play`.
+  - `relationships` → tagline "People in your field", deep-link `/messages`.
+  - `outer` → tagline "World you act in", deep-link `/outer-world`.
+- Each virtual room carries `ambience.hue`, copy (he/en), and a `kind: 'virtual' | 'room'` flag.
+- `useBrainAtlas` is left untouched; virtual rooms simply have no entry in `atlas.rooms` (they render as "AION is still learning" until we have aggregates) and tapping them deep-links instead of opening RoomView.
+- `BrainPage.goRoom` keeps current behavior for hallway rooms; virtual rooms route via the deep-link.
 
-**Duplicate orchestration / engines:**
-- `aurora-chat` ↔ `aion-orchestrator` ↔ `aion-brain` (all interpret intent).
-- `useAuroraChat` + `AuroraChatContext` + `AuroraActionsContext` + `AionDecisionContext` + `AIONStateContext` + `useCommandBus` + `useSmartSuggestions`.
-- Two orb stacks: legacy `components/orb/*` (v1) vs `components/orb/v2/SharedOrbStage` + `OrbView` (canonical per memory).
-- Two overlay systems: `shell/overlay/OverlayController` + `app-shell/overlay/OverlayHost` + ad-hoc `*ModalProvider`s (Auth, Coaches, Profile, Subscriptions, Wallet, Avatar, Story, Welcome, SmartOnboarding, HubModal).
-- Two hallway/presence layers: `hallway/HallwayShell` + `presence/PresenceShell` (both quarantined, still imported lazily).
+#### 3. Strip dashboard chrome from `/brain`
+In `src/pages/BrainPage.tsx` (atlas view branch only):
+- Drop `SelfPanel` and the `<details>` "Full graph (legacy)" `BrainView` block — they make Brain look like a dashboard. Keep `BrainView` file for now (still imported by no one after this — leave the file, just unmount).
+- Remove the outer page padding/scroll on the atlas branch and render the `ConsciousnessAtlas` as a full-screen surface (`fixed inset-0` within the chat slot, with `pt-[max(env(safe-area-inset-top),1rem)]` and bottom inset for the composer).
+- `ShellHeader` becomes a translucent overlay (absolute, top, safe-area aware) so the map feels native.
+- RoomView branch keeps the back header + gaps list; only minor padding cleanup.
 
-**Single-writer rule violations:**
-- `useAuroraChat`, `useDailyHabits`, `useLifeModel` and several pillar assess pages mutate plans/actions/habits directly instead of going through `aion-capabilities`.
+#### 4. Node detail sheet — fill in missing actions
+`BrainNodeSheet` currently exists. Verify and (where missing) add:
+- "What this means" → `node.content` + small humanized type label.
+- "Source / evidence" → `node.source` + link to journal/action if `source_id` present.
+- "Confidence / strength" → existing.
+- "Related nodes" → derived from edges of the active room.
+- "Ask AION about this" → already wired via `onTalkToAion` (sessionStorage handoff).
+- "Correct this" → opens AION composer with a prefilled prompt `"תקן את ההבנה שלך לגבי …"` (read-only handoff, no mutation).
+- "Explore deeper" → triggers `journey.nextAction` capability suggestion via the existing safe-suggest path (no direct mutation).
 
-**Dead / orphan code:**
-- `src/_legacy/onboarding/*`, `src/app-shell/*`, `src/shell/overlay/*`, `src/hallway/*`, `src/presence/*` (PresenceShell), `pages/MindOSPage`, `pages/PlayHub`, `pages/UserDashboard`, all `*Hub`/`*Journey` pages above, `StrategyToMindOSRedirect`, `ArenaToMindOSRedirect`, `MotionLayer` if unused, redundant `AuroraPage` wrapper.
+#### 5. Empty / sparse fallback
+`useBrainFallback` already infers soft edges client-side. Wire the same logic at the **atlas level**: if `atlas.rooms` is empty or `atlas.cross_edges.length === 0`, render rooms anyway, sized by a heuristic (count of related nodes from any cached room queries), and label every empty room with the existing "AION עדיין חוקר / AION exploring" string. No empty/blank dashboard ever.
 
----
+#### 6. Acceptance checks (manual, after code lands)
+- Open `/brain` → full-screen organic map, no perfect circle, no decorative rings, safe-area respected.
+- 10 room clusters visible (8 real + 3 virtual) with ambience-tinted colors.
+- Pinch + drag + zoom feel native on the 402px viewport.
+- Tap a real room → `RoomView` with internal force-graph + gaps list.
+- Tap Journey/Relationships/Outer → deep-link to `/play`, `/messages`, `/outer-world`.
+- Tap a node → bottom sheet with all 6 sections; "Ask AION" hands off via sessionStorage; "Correct" / "Explore" route through existing safe-suggest pipeline (no DB writes).
+- Sparse user: every room visible with "AION exploring" hint; soft edges inferred; no blank dashboard.
 
-## 2. Target architecture (canonical, single source of truth)
+### Files touched
 
 ```text
-                 ┌─────────────────────────────┐
-                 │           AION              │  (aion-brain + aion-capabilities)
-                 │  intent → capability → fx   │
-                 └──────────────┬──────────────┘
-                                │ writes
-   ┌─────────────┬──────────────┼──────────────┬─────────────┐
-   ▼             ▼              ▼              ▼             ▼
- plans        actions         memory         identity      graph
- (capabilities are the ONLY writers; UI is read-only)
-
- UI layer (ShellV2 only):
-   BackgroundLayer → ChatLayer → ComposerLayer → ChromeLayer → OverlayLayer → BlockingLayer
-   Surfaces (5):  Chat · Brain · Journey · OuterWorld · Profile
-   Everything else = overlay / artifact / room summoned by AION
+ADD     src/features/brain/atlas/atlasRooms.ts          (virtual room adapter)
+ADD     src/features/brain/useGraphGestures.ts          (shared pinch/drag/zoom hook)
+EDIT    src/features/brain/atlas/ConsciousnessAtlas.tsx (force-directed rewrite, full-screen, gestures)
+EDIT    src/features/brain/atlas/RoomView.tsx           (minor padding / safe-area)
+EDIT    src/features/brain/BrainGraphForce.tsx          (use shared gesture hook)
+EDIT    src/features/brain/BrainNodeSheet.tsx           (add missing actions: correct / explore / related)
+EDIT    src/pages/BrainPage.tsx                         (drop SelfPanel + legacy BrainView block, full-screen atlas, overlay header)
+EDIT    docs/CLEANUP_REPORT.md                          (Phase G acceptance log)
 ```
 
-**Five canonical surfaces** (replace both `OS_TABS` and `SURFACES`):
+No DB migrations. No edge function changes. No new routes. No mutations.
 
-| id          | path           | role                                            |
-|-------------|----------------|-------------------------------------------------|
-| chat        | `/` (= aurora) | AION conversation + artifact dock               |
-| brain       | `/brain`       | semantic graph / atlas / rooms                  |
-| journey     | `/journey`     | plans, missions, actions, hypnosis (artifacts)  |
-| outer-world | `/outer-world` | economy, community, coaches, FM                 |
-| profile     | `/profile`     | identity, DNA, avatar, settings                 |
-
-`/aurora`, `/strategy`, `/hypnosis`, `/journal`, `/community`, `/learn`, `/coaches`, `/fm`, `/messages` all become **redirects into a surface + overlay/artifact intent** (e.g. `/strategy` → `/journey?artifact=plan`).
-
----
-
-## 3. Migration phases
-
-### Phase A — Freeze & inventory (no behavior change)
-1. Mark dead modules with `@deprecated` JSDoc + add to `docs/CLEANUP_REPORT.md`.
-2. Lock `osNav.OS_TABS` and `app-shell/surfaces.SURFACES` to a single new `src/navigation/canonicalSurfaces.ts` (5 entries above). Both old files re-export from it during transition.
-3. Add a `LegacyMountGuard` warning log on every legacy shell/page render so we can verify zero hits before deletion.
-
-### Phase B — Collapse the shell
-1. Delete `src/app-shell/*` (unused skeleton, empty registry, feature flag).
-2. Delete legacy `components/layout/ProtectedAppShell.tsx` and `DashboardLayout` (and all its drawer/header children) once `LegacyMountGuard` shows zero hits.
-3. Delete `src/shell/overlay/*`; collapse all `*ModalProvider` contexts (Auth, Coaches, Profile, Subscriptions, Wallet, HubModal, Welcome, Story, SmartOnboarding) into a single `OverlayLayer` registry inside `shellv2/UnifiedOverlayHost`.
-4. Remove `MotionLayer`, `EnvironmentProvider`, `OnboardingGate` (no-op), and `SmartOnboardingProvider` if AION owns onboarding.
-5. `App.tsx` provider stack drops from ~25 nested providers to: `Auth → Language → Query → ShellV2Providers (Aion + Overlay + Sidebar + Theme) → Routes`.
-
-### Phase C — Collapse navigation & routes
-1. Replace `App.tsx` route table with the 5 canonical surfaces + dynamic artifact routes:
-   - `/` → ChatSurface (currently `AuroraPage`)
-   - `/brain` → BrainPage (already ShellV2)
-   - `/journey` → JourneySurface (merges Strategy + Tactics + Work + Hypnosis + Journal as artifacts toggled by query string)
-   - `/outer-world` → OuterWorldSurface (merges FM + Community + Coaches + Messages as inner panels)
-   - `/profile` → ProfileSurface (merges Profile + Avatar + Subscriptions overlays)
-2. Move every legacy path (`/strategy*`, `/mindos/*`, `/hypnosis`, `/journal`, `/play*`, `/now`, `/plan`, `/work*`, `/dashboard`, `/life*`, `/career`, `/me`, `/coaches`, `/fm`, `/community`, `/messages`, `/learn`, `/business*`, `/freelancer`, `/creator`, `/therapist`, `/arena*`, `/quests/*`, all `*Hub`/`*Journey`) into `PROTECTED_REDIRECTS` pointing at one of the 5 surfaces with the right artifact intent.
-3. Pillar assessments (`pages/pillars/*`, ~60 files) become **artifacts mounted inside `/brain?artifact=pillar:<id>`**, not standalone routes. Existing components are reused as artifact bodies; routes deleted.
-4. Delete: `MindOSPage`, `pages/MindOS/*`, `PlayHub`, `UserDashboard`, `OuterWorldHub` (replace with new surface), `LifeDomainPage`, `ArenaDomainPage`, `ArenaLayoutWrapper`, `*Journey` (Coaching/Admin/Projects/Business), `CreatorHub`, `FreelancerHub`, redirect-only redirector components.
-5. Delete `src/hallway/*` and `src/presence/PresenceShell` + `StateTransition` + `presenceSignals` (PresenceShell is documented as quarantined; SmartRoot already routes around it).
-6. Delete `src/_legacy/onboarding/*`.
-
-### Phase D — Single-writer enforcement
-1. Audit every `supabase.from('plans'|'action_items'|'habits'|'identity'|'profiles'|'journal_entries'|'missions'|'graph_*').upsert/insert/update/delete` call in `src/`. Each one must move behind an `aion-capabilities` capability.
-2. Hooks `useAuroraChat`, `useDailyHabits`, `useLifeModel`, `useChecklistsData` become read-only + `invokeCapability(name, args)` callers. The chat can never mutate; only capability handlers can.
-3. Add an ESLint rule (`no-restricted-syntax`) forbidding `.from('<owned-table>')` writes outside `supabase/functions/aion-capabilities/**` and `supabase/functions/_shared/capabilityRegistry.ts`.
-
-### Phase E — Orchestration consolidation
-1. `aion-brain` becomes the only intent interpreter. `aurora-chat` becomes a thin SSE streamer that calls `aion-brain` for tool selection, then renders.
-2. Delete `aion-orchestrator` (functionality already in brain + capabilities). Keep `memory-writer` as a capability.
-3. Collapse contexts: `AuroraChatContext` + `AuroraActionsContext` + `AionDecisionContext` + `AIONStateContext` → single `AIONContext` exposing `{ state, send(intent), invoke(capability), subscribe(events) }`.
-4. `useCommandBus` + `useSmartSuggestions` merge into `AIONContext.suggestions` derived from brain output.
-
-### Phase F — Visual layer cleanup
-1. Delete legacy `components/orb/*` v1; keep only `components/orb/v2/SharedOrbStage` + `OrbView` (per memory rule).
-2. Brain graph: replace decorative `BrainGraphForce` defaults with the documented Obsidian-style atlas (`atlas/ConsciousnessAtlas` + `RoomView`); enforce the look via design tokens, not color literals.
-3. Remove duplicated background effect chooser noise — keep `BackgroundLayer` as the single owner.
-
-### Phase G — Verification & deletion
-1. `LegacyMountGuard` must show zero hits for 48 h of preview/published usage before any source delete.
-2. Run `knip` + `ts-prune`; delete every file flagged that's not in the keep-list.
-3. Update `docs/APP_MAP.md` + memory `mem://architecture/...` entries to reflect the 5-surface model and unified orchestration. Retire stale memory entries (Hallway World-First, Play Hub variants, AION Persistent Widget, Standardized Shell V3, Pillar Continuity if redundant).
-
----
-
-## 4. Deletion candidates (concrete list)
-
-Folders / files to remove at end of phases B–G:
-
-- `src/app-shell/**`
-- `src/shell/overlay/**`
-- `src/_legacy/**`
-- `src/hallway/**`
-- `src/presence/PresenceShell.tsx`, `presence/StateTransition.tsx`, `presence/presenceSignals.ts`, `presence/useActiveState.ts`
-- `src/pages/MindOSPage.tsx`, `src/pages/MindOS/**`
-- `src/pages/PlayHub.tsx`, `src/pages/UserDashboard.tsx`, `src/pages/OuterWorldHub.tsx` (replaced)
-- `src/pages/LifeDomainPage.tsx`, `src/pages/ArenaDomainPage.tsx`, `src/components/pillars/ArenaLayoutWrapper.tsx`
-- `src/pages/CoachingJourney.tsx`, `src/pages/AdminJourney.tsx`, `src/pages/ProjectsJourney.tsx`, `src/pages/BusinessJourney.tsx`
-- `src/pages/CreatorHub.tsx`, `src/pages/FreelancerHub.tsx`
-- `src/components/layout/DashboardLayout.tsx` and legacy `ProtectedAppShell.tsx` (after guard zeroes)
-- `src/components/orb/` v1 renderers (keep only `v2/`)
-- `src/contexts/{Auth,Coaches,Profile,Subscriptions,Wallet,Story,Welcome,SmartOnboarding,Sidebar,ChromeVisibility}ModalContext.tsx` after merge into unified overlay registry (Auth stays; the rest collapse)
-- `src/navigation/osNav.ts`, `src/app-shell/surfaces.ts` (replaced by `canonicalSurfaces.ts`)
-- `supabase/functions/aion-orchestrator/**` (after brain absorbs it)
-
-Estimated reduction: ~120 source files, ~25 providers → 6, ~70 routes → 5 surfaces + redirects.
-
----
-
-## 5. Risks & mitigations
-
-- **External deep-links / SEO** → keep redirects forever; never 404 a legacy path.
-- **Capability gaps** → before deleting a writer, confirm a capability exists (`plan.create`, `plan.delete`, `plan.restart`, `action.toggle`, `habit.upsert`, `journal.write`, `identity.update`, `mission.generate`, `hypnosis.start`).
-- **Hebrew RTL regressions** → snapshot every surface in `he` before/after the merge; enforce logical Tailwind props, no hardcoded `left/right`.
-- **Mobile chrome** → ShellV2 already targets `100dvh`; verify `BackgroundLayer` z-stack on iOS Safari after provider stack collapse.
-
----
-
-## 6. Acceptance criteria
-
-1. Exactly one shell component renders for any authed route (`ShellV2`).
-2. Exactly one navigation file (`canonicalSurfaces.ts`) with exactly 5 entries.
-3. `App.tsx` `<Routes>` declares ≤ 10 protected routes (5 surfaces + auth/legal/dev) plus the redirect map.
-4. `grep -R "supabase.from(" src/ | grep -E "(insert|update|delete|upsert)"` returns **zero** results outside read-only data access hooks.
-5. `aion-brain` is the only edge function that calls the LLM for intent; `aurora-chat` only streams its decisions.
-6. `knip` reports 0 unused files in `src/` after Phase G.
-7. APP_MAP.md and memory index reflect the 5-surface model; no references to MindOSPage / PlayHub / Hallway remain.
-
----
-
-## 7. Out of scope (explicitly)
-
-- New features, new visuals, new copy.
-- Backend schema changes beyond capability routing.
-- Stripe/economy logic, FM tokenomics, ElevenLabs TTS.
-- Auth provider swap.
-
-The plan is a **demolition + re-wiring** project, not a build. Awaiting approval to begin Phase A.
+### Risks
+- Force-layout at room scale (~10 super-nodes) is cheap, but seeding matters — bad seeding can collapse all rooms to the center for a frame. Mitigation: deterministic jittered grid seed before first tick.
+- Removing `SelfPanel` from `/brain` may surprise users who relied on it; it remains accessible via `/brain?panel=profile` (already wired) and the profile modal.
+- Virtual rooms have no `brain_get_atlas` aggregates → they always render as "exploring" until we extend the RPC. Acceptable for Phase G (read-only visualization step); a follow-up phase can light them up.
+- Pinch/zoom on iOS Safari occasionally fights the page scroll — the atlas full-screen surface uses `touch-none` on the SVG layer to avoid that; `RoomView` already does the same.
