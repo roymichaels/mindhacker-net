@@ -17,6 +17,7 @@ import type { RouterDecision } from '@/orchestration/router/observeRouter';
 import { CAPABILITIES } from '@/orchestration/capabilities/registry';
 import { emitArtifact, type ArtifactKind } from '@/components/aion/artifacts/artifactBus';
 import type { TurnTracer } from '@/diagnostics/aionTrace';
+import type { ReadResult } from '@/orchestration/executors/safeReadExecutor';
 
 export type BridgeOutcome =
   | { rendered: true; artifactId: string; rendererKind: ArtifactKind; capability: string; sourceKind: string }
@@ -105,6 +106,7 @@ function mapToRenderer(sourceKind: string, capability: string): RendererSpec | n
 export function bridgeDecisionToArtifact(
   decision: RouterDecision,
   tracer: Pick<TurnTracer, 'id' | 'mark'>,
+  read?: ReadResult | null,
 ): BridgeOutcome {
   // No candidate → nothing to bridge.
   if (!decision.capability) {
@@ -142,6 +144,13 @@ export function bridgeDecisionToArtifact(
     return { rendered: false, reason: 'missing_renderer', capability: decision.capability, sourceKind };
   }
 
+  // If a read result is attached, prefer the live summary as the body. We
+  // never overwrite the title (keeps card recognizable) and we clamp the
+  // body length so a noisy summary cannot break the layout.
+  const liveBody = read?.ok && read.summary
+    ? read.summary.slice(0, 220)
+    : undefined;
+
   // Build href-only CTA (no onClick handlers → no side effects).
   const cta = spec.cta?.href ? { label: spec.cta.label, href: spec.cta.href } : undefined;
 
@@ -150,7 +159,7 @@ export function bridgeDecisionToArtifact(
     id: artifactId,
     kind: spec.kind,
     title: spec.title,
-    body: spec.body,
+    body: liveBody ?? spec.body,
     cta,
     ttl: spec.ttl ?? 9000,
   });
@@ -162,6 +171,8 @@ export function bridgeDecisionToArtifact(
     rendered: true,
     artifact_id: artifactId,
     has_cta: !!cta,
+    grounded: !!liveBody,
+    read_sources: read?.sources ?? [],
   });
 
   return {

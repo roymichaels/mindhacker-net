@@ -9,10 +9,10 @@ import { routeObserve } from '@/orchestration/router/observeRouter';
 import { previewBridge } from '@/orchestration/artifacts/safeBridge';
 
 const PROMPTS: string[] = [
+  'מה אתה יודע עליי?',
   'מה כדאי לי לעשות היום?',
-  'אני תקוע',
   'תראה לי את המוח שלי',
-  'תבנה לי עסק',
+  'מה המצב של המסע שלי?',
   'אני רוצה לישון יותר טוב',
 ];
 
@@ -39,6 +39,7 @@ export default function AIONRouterAcceptance() {
             <tr>
               <th className="text-start py-1">Prompt</th>
               <th className="text-start">Capability</th>
+              <th className="text-start">Mode</th>
               <th className="text-start">Artifact</th>
               <th className="text-start">Renderer</th>
               <th className="text-start">Bridge</th>
@@ -50,6 +51,7 @@ export default function AIONRouterAcceptance() {
               <tr key={r.prompt} className="border-t border-white/5">
                 <td className="py-1 align-top max-w-[160px] truncate" title={r.prompt}>{r.prompt}</td>
                 <td className="align-top">{r.decision.capability ?? '—'}</td>
+                <td className="align-top">{r.decision.mode}</td>
                 <td className="align-top">{r.decision.artifactKind ?? '—'}</td>
                 <td className="align-top">{r.bridge.rendered ? r.bridge.rendererKind : '—'}</td>
                 <td className="align-top">{r.bridge.rendered ? 'rendered' : 'skipped'}</td>

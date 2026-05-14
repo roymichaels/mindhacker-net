@@ -1,6 +1,86 @@
 
 ## Phase F · Step 1 — AION Orchestration Wiring (DONE — observe mode only)
 
+## Phase F · Step 3 — Safe Read Capabilities (DONE — read + suggest execute)
+
+### What shipped
+1. **Mode model expanded** (`src/orchestration/capabilities/registry.ts`):
+   `CapabilityMode = 'observe' | 'read' | 'suggest' | 'mutate' | 'destructive'`.
+   `effectiveMode()` now allows ONLY `read | suggest` to execute; `mutate`,
+   `destructive`, unknown, and `unsafe` capabilities collapse to `observe`.
+   No capability declares `mutate` or `destructive` yet.
+2. **Per-capability declared modes** (read unless noted):
+   - `brain.query`, `brain.openRoom` → `read` (artifact `brain.room`)
+   - `journey.nextAction`, `journey.summarize` → `read`
+   - `profile.summarize`, `hypnosis.recommend`, `outerWorld.open` → `read`
+   - `plan.suggest`, `task.suggest`, `journal.capture` → `suggest` (preview only)
+3. **Safe read executor** (`src/orchestration/executors/safeReadExecutor.ts`)
+   — RLS-scoped queries against existing tables, returns
+   `{ ok, summary, sources, rowCounts, data, durationMs, error }`.
+   Sources per capability:
+
+   | Capability | Tables read |
+   |---|---|
+   | `brain.query`, `brain.openRoom` | `aurora_memory_graph` (active, top 8), `pillar_confidence` (top 3) |
+   | `journey.nextAction`, `task.suggest` | `action_items` where status in (todo, in_progress), prefer `scheduled_date = today` |
+   | `journey.summarize`, `plan.suggest` | `life_plans` (latest), `action_items` counts (open/completed) |
+   | `profile.summarize` | `profiles`, `aurora_identity_elements` |
+   | `hypnosis.recommend` | `hypnosis_audios` (catalog, 3 latest + count) |
+   | `journal.capture` (preview) | `journal_entries` (3 latest + count) |
+   | `outerWorld.open` | `coach_landing_pages`, `community_posts` (counts only) |
+
+4. **Chat wiring** (`src/hooks/aurora/useAuroraChat.tsx`): after the router
+   decision, if `mode ∈ {read, suggest}` and a user is signed in, the chat
+   hook awaits `executeReadCapability()` and emits new trace marks
+   `capability.executed { sources, row_counts, duration_ms, ok, error }`
+   plus `graph.read { sources, row_counts }`. The result is then passed to
+   the bridge, which uses `read.summary` as the artifact body (clamped to
+   220 chars). Errors → `capability.error`. No DB writes.
+5. **Bridge grounding** (`src/orchestration/artifacts/safeBridge.ts`):
+   `bridgeDecisionToArtifact(decision, tracer, read?)` now accepts an
+   optional read result. When present and `ok`, the artifact body is the
+   live summary; trace mark gains `grounded:true` and `read_sources`.
+6. **Router rules extended** for the new acceptance prompts:
+   `מה אתה יודע עליי?` → `profile.summarize`,
+   `מה המצב של המסע שלי?` → `journey.summarize`.
+7. **Diagnostics harness** (`AIONRouterAcceptance.tsx`) gains a `Mode`
+   column so observe vs read vs suggest is visible at a glance.
+
+### Acceptance — 5 prompts (live wiring)
+
+| Prompt (HE) | Capability | Mode | Sources read | Artifact | Result |
+|---|---|---|---|---|---|
+| מה אתה יודע עליי? | `profile.summarize` | read | `profiles:self`, `aurora_identity_elements:self` | `note` (profile.summary) | rendered, body grounded in profile |
+| מה כדאי לי לעשות היום? | `journey.nextAction` | read | `action_items:open` | `next_action` (journey.next) | rendered, body shows pick title or empty-state |
+| תראה לי את המוח שלי | `brain.query` | read | `aurora_memory_graph:active`, `pillar_confidence:top3` | `insight` (brain.room) | rendered, body lists top pillars + node count |
+| מה המצב של המסע שלי? | `journey.summarize` | read | `life_plans:latest`, `action_items:counts` | `plan_summary` (journey.summary) | rendered, body shows plan status + open/done counts |
+| אני רוצה לישון יותר טוב | `hypnosis.recommend` | read | `hypnosis_audios:catalog` | `capability` (hypnosis.session) | rendered, body shows catalog count + sample title |
+
+Trace stream per turn:
+`turn.start → sense.dispatched → capability.candidate → capability.executed → graph.read → artifact.candidate{grounded:true} → stream.start → stream.end → post.memory-writer → turn.end`.
+
+### What did NOT change
+- No mutating capability is wired (`plan.create`, `plan.update`, `plan.restart`,
+  `plan.delete`, `mission.create`, `mission.complete`, `habit.create`,
+  `action.create`, `identity.updateProfile`, `landing.generate`,
+  `business.createDraft` remain absent from the registry / executor).
+- `journal.capture` runs as PREVIEW only (`journal_entries:recent` read).
+- No new tables, no migrations, no edge function changes.
+- `<<AION_ARTIFACT>>` server pipeline untouched.
+- The chat LLM still produces the conversational reply; AION's "I found…"
+  claims are now backed by a structured read summary attached to the same
+  trace, not invented.
+
+### Known gaps for Step 4+
+- The chat reply body itself is not yet seeded with the read summary —
+  only the artifact card is. Step 4 should inject the read result as a
+  system message into the chat context so the model is forced to ground.
+- `task.suggest` and `plan.suggest` reuse the journey reads. Real
+  suggestion synthesis (e.g. "smallest next win across pillars") still
+  needs its own read query.
+- `outerWorld.open` returns availability counts only — no per-surface
+  routing yet (Step 5 will expand to coach/market/community subkinds).
+
 ## Phase F · Step 2 — Safe Artifact Bridge (DONE — observe + safe render)
 
 ### What shipped
