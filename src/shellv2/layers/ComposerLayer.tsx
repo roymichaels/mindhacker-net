@@ -9,18 +9,15 @@
  * delegated to `GlobalChatInput` itself.
  */
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
+import { AionComposerDock } from '@/components/aion/ui';
 import { zStyle } from '../zindex';
 
 export default function ComposerLayer() {
   return (
-    <div
-      className="pointer-events-none fixed inset-x-0 px-3 flex justify-center"
-      style={{ ...zStyle('composer'), bottom: 'max(env(safe-area-inset-bottom), 12px)' }}
-      data-shellv2-layer="composer"
-    >
-      <div className="pointer-events-auto w-full max-w-screen-md">
+    <AionComposerDock style={zStyle('composer')}>
+      <div data-shellv2-layer="composer">
         <GlobalChatInput />
       </div>
-    </div>
+    </AionComposerDock>
   );
 }
