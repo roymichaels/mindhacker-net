@@ -175,27 +175,26 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     </Link>
   );
 
-  // AION orb — visual anchor, opens Interactive AION
+  // AION orb — small living anchor, opens Interactive AION
   const OrbAnchor = () => (
     <button
       type="button"
       onClick={openInteractiveAION}
       aria-label="פתח מצב AION"
-      className="relative flex-shrink-0 active:scale-[0.97] transition-transform animate-aion-breath"
+      className="relative flex h-9 w-9 items-center justify-center rounded-full active:scale-95 transition-transform animate-aion-breath"
     >
-      {/* Living halo behind the orb */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 m-auto h-[96px] w-[96px] rounded-full blur-2xl opacity-60"
-        style={{ background: 'radial-gradient(circle, hsl(var(--aion-blue) / 0.55), hsl(var(--aion-cyan) / 0.18) 45%, transparent 70%)' }}
+        className="pointer-events-none absolute inset-0 rounded-full blur-xl opacity-60"
+        style={{ background: 'radial-gradient(circle, hsl(var(--aion-blue) / 0.55), hsl(var(--aion-cyan) / 0.18) 50%, transparent 75%)' }}
       />
       <img
         src={aionOrb}
         alt=""
-        width={88}
-        height={88}
+        width={28}
+        height={28}
         draggable={false}
-        className="relative block h-[88px] w-[88px] object-contain"
+        className="relative block h-7 w-7 object-contain"
       />
     </button>
   );
