@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/collapsible';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import RoleSwitcher from './RoleSwitcher';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import OrbView from '@/components/orb/v2/OrbView';
 import { NotificationBell } from '@/components/admin/NotificationBell';
 import {
   LayoutDashboard,
@@ -226,7 +226,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       <div className="p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
           <Link to="/panel" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
+            <OrbView size={32} state="idle" neutral className="flex-shrink-0" />
             <span className="font-bold text-lg">{t('sidebar.controlCenter')}</span>
           </Link>
           <NotificationBell />

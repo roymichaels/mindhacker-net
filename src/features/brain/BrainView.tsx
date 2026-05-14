@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brain, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import OrbView from "@/components/orb/v2/OrbView";
 import ShellHeader from "@/shellv2/ShellHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import BrainGraphForce from "./BrainGraphForce";
@@ -112,9 +113,13 @@ export default function BrainView({ onTalkToAion }: Props) {
       <div dir={isRTL ? 'rtl' : 'ltr'} className="w-full min-h-[70vh] flex flex-col items-center justify-center text-center px-6 gap-5">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
-          <div className="relative h-24 w-24 rounded-full bg-primary/10 ring-1 ring-primary/30 backdrop-blur-md flex items-center justify-center">
-            <Brain className="h-12 w-12 text-primary" strokeWidth={1.5} />
-          </div>
+          <OrbView
+            size={120}
+            state="thinking"
+            tier="standard"
+            tintHue="hsl(265 85% 65%)"
+            className="relative"
+          />
         </div>
         <div className="space-y-1.5 max-w-xs">
           <h2 className="text-xl font-semibold text-foreground">

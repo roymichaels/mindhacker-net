@@ -1,0 +1,1 @@
+UPDATE public.theme_settings SET setting_value = 'AION' WHERE setting_key IN ('brand_name', 'brand_name_en');
