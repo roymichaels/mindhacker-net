@@ -230,4 +230,14 @@ const LEGACY_STATE_MAP = {
   hypnosis: 'session',
 } as const;
 
+/** Phase 5B — bridge AION's global presence to OrbView's motion vocabulary. */
+const PRESENCE_TO_ORB: Record<AionPresenceState, OrbViewState> = {
+  listening: 'listening',
+  noticing: 'focus',
+  forming: 'thinking',
+  manifesting: 'responding',
+  resting: 'idle',
+  evolving: 'focus',
+};
+
 export default OrbView;
