@@ -11,10 +11,17 @@ import IdentitySection from './sections/IdentitySection';
 import WhatAionKnowsSection from './sections/WhatAionKnowsSection';
 import CorrectionsSection from './sections/CorrectionsSection';
 import PrivacySettingsSection from './sections/PrivacySettingsSection';
+import { artifactBus } from '@/lib/aion/artifactBus';
 
-interface Props { onOpenAdvanced?: () => void; }
+interface Props {
+  /** Optional override. If omitted, "Advanced" summons the profile-stats artifact. */
+  onOpenAdvanced?: () => void;
+}
 
 export default function SelfPanel({ onOpenAdvanced }: Props) {
+  const handleAdvanced = onOpenAdvanced ?? (() => {
+    artifactBus.summon('profile-stats', {}, { fullscreen: true, replaceKind: true });
+  });
   return (
     <div className="mx-auto w-full max-w-md space-y-6 px-4 py-6">
       <IdentitySection />
@@ -23,7 +30,7 @@ export default function SelfPanel({ onOpenAdvanced }: Props) {
       <div className="h-px bg-white/[0.05]" />
       <CorrectionsSection />
       <div className="h-px bg-white/[0.05]" />
-      <PrivacySettingsSection onOpenAdvanced={onOpenAdvanced} />
+      <PrivacySettingsSection onOpenAdvanced={handleAdvanced} />
     </div>
   );
 }
