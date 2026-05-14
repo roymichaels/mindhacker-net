@@ -80,7 +80,7 @@ export function VisualWhitepaper({ onExit }: Props) {
     switch (current) {
       case 0: // Hero
         return (
-          <VisualSection index={0} isActive title={brandName || 'MindOS'} subtitle={t('The First AI-Powered Human Operating System', 'מערכת ההפעלה האנושית הראשונה מבוססת AI')} isHe={he} layout="center">
+          <VisualSection index={0} isActive title={brandName || 'AION'} subtitle={t('The First AI-Powered Human Operating System', 'מערכת ההפעלה האנושית הראשונה מבוססת AI')} isHe={he} layout="center">
             <div className="flex justify-center pt-4">
               <WhitepaperOrb size={180} />
             </div>
