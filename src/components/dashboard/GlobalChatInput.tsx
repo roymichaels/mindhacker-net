@@ -229,25 +229,20 @@ const GlobalChatInput = () => {
       </AnimatePresence>
 
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
-        <div className="relative flex items-end gap-2 py-1">
-          {/* Voice Mode Button — outermost, closest to page edge */}
-          <VoiceModeButton
-            onClick={voiceMode.open}
-            disabled={isStreaming || isRecording}
-            className="h-11 w-11 shrink-0 bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl"
-          />
-
+        {/* Single cinematic atmo pill */}
+        <div className="atmo-surface relative flex items-end gap-1 rounded-full px-2 py-1.5 focus-within:aion-glow-cyan transition-shadow">
           {/* Plus Button with Attach Menu */}
           <div className="relative" ref={menuRef}>
             <button
               type="button"
               onClick={() => setShowAttachMenu(!showAttachMenu)}
               className={cn(
-                "h-11 w-11 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl hover:bg-muted/50 transition-all shrink-0",
-                showAttachMenu && "bg-muted/50 rotate-45"
+                "h-9 w-9 flex items-center justify-center rounded-full text-foreground/55 hover:text-foreground hover:bg-white/[0.05] transition-all shrink-0",
+                showAttachMenu && "rotate-45 text-foreground"
               )}
+              aria-label="More"
             >
-              <Plus className="w-5 h-5 text-muted-foreground transition-transform" />
+              <Plus className="w-[18px] h-[18px] transition-transform" />
             </button>
 
             {/* Attach Menu Popover */}
@@ -267,22 +262,29 @@ const GlobalChatInput = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
                   >
-                    <div className="p-1.5 rounded-full bg-primary/10">
-                      <Image className="w-4 h-4 text-primary" />
-                    </div>
+                    <Image className="w-4 h-4 text-foreground/60" />
                     <span>{isRTL ? 'תמונה' : 'Photo'}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => cameraInputRef.current?.click()}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
                   >
-                    <div className="p-1.5 rounded-full bg-accent/30">
-                      <Camera className="w-4 h-4 text-accent-foreground" />
-                    </div>
+                    <Camera className="w-4 h-4 text-foreground/60" />
                     <span>{isRTL ? 'מצלמה' : 'Camera'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAttachMenu(false);
+                      voiceMode.open();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
+                  >
+                    <Mic className="w-4 h-4 text-foreground/60" />
+                    <span>{isRTL ? 'מצב קול' : 'Voice mode'}</span>
                   </button>
                   <button
                     type="button"
@@ -290,11 +292,9 @@ const GlobalChatInput = () => {
                       setShowAttachMenu(false);
                       setShowLauncher(true);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors text-sm text-foreground/80"
                   >
-                    <div className="p-1.5 rounded-full bg-primary/15">
-                      <Sparkles className="w-4 h-4 text-primary" />
-                    </div>
+                    <Sparkles className="w-4 h-4 text-foreground/60" />
                     <span>{isRTL ? 'יכולות AION' : 'AION capabilities'}</span>
                   </button>
                 </motion.div>
@@ -319,8 +319,8 @@ const GlobalChatInput = () => {
             />
           </div>
 
-          {/* Input Container */}
-          <div className="flex-1 min-h-11 relative bg-background/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center">
+          {/* Input — borderless, sits inside the pill */}
+          <div className="flex-1 min-h-9 relative flex items-center">
             <textarea
               ref={textareaRef}
               value={input}
@@ -331,45 +331,45 @@ const GlobalChatInput = () => {
               disabled={isStreaming || isRecording}
               rows={1}
               className={cn(
-                "w-full bg-transparent px-3 py-3 pe-12 text-base leading-snug",
+                "w-full bg-transparent px-2 py-2 text-base leading-snug",
                 "resize-none overflow-hidden",
                 "focus:outline-none",
                 "disabled:opacity-50",
-                "placeholder:text-muted-foreground"
+                "placeholder:text-foreground/40"
               )}
               dir={isRTL ? 'rtl' : 'ltr'}
-              style={{ maxHeight: '120px', minHeight: '44px' }}
+              style={{ maxHeight: '120px', minHeight: '36px' }}
             />
-
-            {/* Voice recording button inside input */}
-            <div className="absolute end-1 flex items-center gap-0.5">
-              <VoiceRecordingButton
-                isRecording={isRecording}
-                isTranscribing={isTranscribing}
-                onStartRecording={handleStartRecording}
-                onStopRecording={handleStopRecording}
-                disabled={isStreaming}
-                compact
-                className="h-9 w-9"
-              />
-            </div>
           </div>
 
-          {/* Send Button */}
-          <button
-            type="submit"
-            disabled={isStreaming || (!input.trim() && !selectedImage) || isRecording}
-            className={cn(
-              "h-11 w-11 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl hover:bg-muted/50 transition-colors shrink-0",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-          >
-            {isStreaming ? (
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            ) : (
-              <Send className="w-5 h-5 text-muted-foreground" />
-            )}
-          </button>
+          {/* Mic ⇄ Send swap */}
+          {input.trim() || selectedImage ? (
+            <button
+              type="submit"
+              disabled={isStreaming || isRecording}
+              className={cn(
+                "h-9 w-9 flex items-center justify-center rounded-full bg-foreground/90 text-background hover:bg-foreground transition-colors shrink-0",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+              aria-label="Send"
+            >
+              {isStreaming ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </button>
+          ) : (
+            <VoiceRecordingButton
+              isRecording={isRecording}
+              isTranscribing={isTranscribing}
+              onStartRecording={handleStartRecording}
+              onStopRecording={handleStopRecording}
+              disabled={isStreaming}
+              compact
+              className="h-9 w-9 shrink-0"
+            />
+          )}
         </div>
 
         {recordingError && (
