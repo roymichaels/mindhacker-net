@@ -13,7 +13,6 @@ import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
 import VoiceModeButton from '@/components/aurora/VoiceModeButton';
 import AuroraVoiceMode from '@/components/aurora/AuroraVoiceMode';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
 import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
