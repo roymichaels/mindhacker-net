@@ -185,9 +185,18 @@ export default function BrainView({ onTalkToAion }: Props) {
 
       {/* Graph — full-bleed, no card chrome */}
       {isLoading ? (
-        <div className="h-[460px] rounded-2xl bg-muted/20 animate-pulse" />
+        <div className="h-[460px] rounded-3xl atmo-surface-soft animate-aion-breath" />
       ) : (
-        <div className="-mx-4">
+        <div className="-mx-4 relative">
+          {/* Cinematic neural ground halo behind the graph */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 hidden dark:block"
+            style={{
+              background:
+                'radial-gradient(60% 50% at 50% 50%, hsl(var(--aion-blue) / 0.12), transparent 70%)',
+            }}
+          />
           <BrainGraphForce
             nodes={filteredNodes}
             edges={filteredEdges}
