@@ -21,6 +21,8 @@ import ComposerLayer from './layers/ComposerLayer';
 import ChromeLayer from './layers/ChromeLayer';
 import OverlayLayer from './layers/OverlayLayer';
 import BlockingLayer from './layers/BlockingLayer';
+import NavLayer from './layers/NavLayer';
+import { ChamberIdleProvider } from './hooks/useChamberIdle';
 import StrategyApprovalCard from '@/components/aurora/StrategyApprovalCard';
 
 export interface ShellV2Props {
@@ -30,17 +32,22 @@ export interface ShellV2Props {
 
 export default function ShellV2({ children }: ShellV2Props) {
   return (
-    <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-background">
-      <BackgroundLayer />
-      <AtmosphereLayer />
-      {/* Chat slot — children override the default placeholder so route-level
-          summon pages can swap their own artifact stage in. */}
-      {children ?? <ChatLayer />}
-      <ComposerLayer />
-      <ChromeLayer />
-      <OverlayLayer />
-      <BlockingLayer />
-      <StrategyApprovalCard />
-    </div>
+    <ChamberIdleProvider>
+      <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-background">
+        <BackgroundLayer />
+        <AtmosphereLayer />
+        {/* Chat slot — children override the default placeholder so route-level
+            summon pages can swap their own artifact stage in. */}
+        {children ?? <ChatLayer />}
+        <NavLayer />
+        <ComposerLayer />
+        <ChromeLayer />
+        <OverlayLayer />
+        <BlockingLayer />
+        <StrategyApprovalCard />
+      </div>
+    </ChamberIdleProvider>
+  );
+}
   );
 }
