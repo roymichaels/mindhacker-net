@@ -1,4 +1,14 @@
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { useAionPresence, type AionPresenceState } from "@/aion/presenceState";
+
+const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; magenta: number }> = {
+  listening:   { cyan: 1.00, violet: 0.85, magenta: 0.6 },
+  noticing:    { cyan: 1.10, violet: 0.90, magenta: 0.7 },
+  forming:     { cyan: 1.05, violet: 1.20, magenta: 0.8 },
+  manifesting: { cyan: 1.30, violet: 1.30, magenta: 1.0 },
+  resting:     { cyan: 0.70, violet: 0.60, magenta: 0.5 },
+  evolving:    { cyan: 0.85, violet: 1.40, magenta: 1.30 },
+};
 
 /**
  * Cinematic environmental ground.
@@ -7,6 +17,9 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
  */
 export default function AtmosphereLayer() {
   const { theme } = useThemeSettings();
+  const presence = useAionPresence();
+  const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const tone = reduce ? PRESENCE_TONE.listening : PRESENCE_TONE[presence];
 
   // Only render the cinematic atmosphere when no other background effect is active.
   if (theme.background_effect === "matrix_rain" || theme.background_effect === "consciousness_field") return null;
@@ -24,6 +37,8 @@ export default function AtmosphereLayer() {
           left: "10%",
           width: "70vmax",
           height: "70vmax",
+          opacity: tone.cyan,
+          transition: 'opacity 800ms ease',
           background:
             "radial-gradient(circle at 50% 50%, hsl(var(--aion-cyan) / 0.18), transparent 60%)",
         }}
@@ -36,6 +51,8 @@ export default function AtmosphereLayer() {
           right: "-10%",
           width: "80vmax",
           height: "80vmax",
+          opacity: tone.violet,
+          transition: 'opacity 800ms ease',
           background:
             "radial-gradient(circle at 50% 50%, hsl(var(--aion-violet) / 0.16), transparent 60%)",
         }}
@@ -48,7 +65,8 @@ export default function AtmosphereLayer() {
           left: "-15%",
           width: "50vmax",
           height: "50vmax",
-          opacity: 0.25,
+          opacity: 0.25 * tone.magenta,
+          transition: 'opacity 800ms ease',
           background:
             "radial-gradient(circle at 50% 50%, hsl(var(--aion-magenta) / 0.12), transparent 65%)",
         }}
