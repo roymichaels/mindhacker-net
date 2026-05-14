@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BrainEdge, BrainNode } from "./types";
 import { useForceLayout } from "./useForceLayout";
-import { edgeStyle, styleForNode } from "./brainNodeStyle";
+import { styleForNode } from "./brainNodeStyle";
 
 interface Props {
   nodes: BrainNode[];
@@ -108,6 +108,30 @@ export default function BrainGraphForce({
     return s;
   }, [selectedId, allEdges]);
 
+  // Unique colors present in this graph — one radial-gradient per color.
+  const colorMap = useMemo(() => {
+    const m = new Map<string, string>(); // color -> gradient id
+    nodes.forEach((n) => {
+      const c = styleForNode(n).color;
+      if (!m.has(c)) m.set(c, `g${m.size}`);
+    });
+    return m;
+  }, [nodes]);
+
+  // Stable atmospheric drift particles (positions seeded once per mount)
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 8 }).map((_, i) => ({
+        id: i,
+        cx: 10 + Math.random() * 80, // %
+        cy: 10 + Math.random() * 80,
+        r: 0.6 + Math.random() * 1.4,
+        delay: Math.random() * 8,
+        dur: 14 + Math.random() * 12,
+      })),
+    [],
+  );
+
   return (
     <div
       ref={containerRef}
@@ -119,37 +143,88 @@ export default function BrainGraphForce({
       onPointerCancel={onPointerUp}
       onWheel={onWheel}
     >
+      {/* Atmospheric vignette behind graph */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 50% 50%, hsl(var(--aion-cyan) / 0.10), transparent 70%)",
+        }}
+      />
+      {/* Drifting consciousness particles */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        {particles.map((p) => (
+          <span
+            key={p.id}
+            className="absolute rounded-full bg-white/60 animate-aion-float"
+            style={{
+              left: `${p.cx}%`,
+              top: `${p.cy}%`,
+              width: `${p.r}px`,
+              height: `${p.r}px`,
+              filter: "blur(0.5px)",
+              opacity: 0.4,
+              animationDelay: `${p.delay}s`,
+              animationDuration: `${p.dur}s`,
+            }}
+          />
+        ))}
+      </div>
+
       <svg width={size.w} height={size.h} className="block">
         <defs>
-          <filter id="brain-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="b" />
+          <filter id="brain-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="6" result="b" />
             <feMerge>
               <feMergeNode in="b" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          {/* Radial halo gradients (large, transparent edge) per node color */}
+          {Array.from(colorMap.entries()).map(([color, id]) => (
+            <radialGradient key={`halo-${id}`} id={`halo-${id}`} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor={color} stopOpacity="0.55" />
+              <stop offset="40%" stopColor={color} stopOpacity="0.18" />
+              <stop offset="100%" stopColor={color} stopOpacity="0" />
+            </radialGradient>
+          ))}
+          {/* Orb gradients — bright core, soft falloff */}
+          {Array.from(colorMap.entries()).map(([color, id]) => (
+            <radialGradient key={`orb-${id}`} id={`orb-${id}`} cx="40%" cy="38%" r="60%">
+              <stop offset="0%" stopColor="white" stopOpacity="0.95" />
+              <stop offset="35%" stopColor={color} stopOpacity="0.95" />
+              <stop offset="100%" stopColor={color} stopOpacity="0.25" />
+            </radialGradient>
+          ))}
+          {/* Edge gradient — atmospheric cyan link */}
+          <linearGradient id="edge-soft" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"  stopColor="hsl(var(--aion-cyan))" stopOpacity="0.05" />
+            <stop offset="50%" stopColor="hsl(var(--aion-cyan))" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="hsl(var(--aion-violet))" stopOpacity="0.05" />
+          </linearGradient>
         </defs>
         <g transform={`translate(${t.tx} ${t.ty}) scale(${t.k})`}>
-          {/* edges */}
+          {/* atmospheric edges — single soft language, no debug dashes */}
           {allEdges.map((e, i) => {
             const a = simById.get(e.from);
             const b = simById.get(e.to);
             if (!a || !b) return null;
-            const st = edgeStyle(("relation" in e ? (e as any).relation : "related") as string, e.inferred);
-            const dim = connected && !(e.from === selectedId || e.to === selectedId) ? 0.35 : 1;
+            const isFocus = selectedId && (e.from === selectedId || e.to === selectedId);
+            const dim = connected && !isFocus ? 0.25 : 1;
             const x1 = num(a.x), y1 = num(a.y), x2 = num(b.x), y2 = num(b.y);
             return (
               <line
                 key={i}
                 x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke={st.stroke}
-                strokeOpacity={st.opacity * dim}
-                strokeWidth={Math.min(2, 0.6 + (e.weight ?? 1) / 5)}
-                strokeDasharray={st.dash}
+                stroke="url(#edge-soft)"
+                strokeOpacity={(isFocus ? 0.9 : 0.55) * dim}
+                strokeWidth={isFocus ? 1.4 : 0.8}
+                strokeLinecap="round"
               />
             );
           })}
-          {/* nodes */}
+          {/* living orb nodes */}
           {sim.map((s) => {
             const style = styleForNode(s.ref);
             const isSel = s.id === selectedId;
@@ -157,6 +232,8 @@ export default function BrainGraphForce({
             const conf = Math.max(0.2, Math.min(1, (Number(s.ref.confidence) || 0) / 100));
             const r = num(s.r, 6);
             const cx = num(s.x), cy = num(s.y);
+            const gid = colorMap.get(style.color) ?? "g0";
+            const haloR = (isSel ? r * 4.2 : r * 2.8) * (0.7 + conf * 0.4);
             return (
               <g
                 key={s.id}
@@ -164,54 +241,59 @@ export default function BrainGraphForce({
                 onClick={(ev) => { ev.stopPropagation(); onSelect(s.id); }}
                 style={{ cursor: "pointer", opacity: dim }}
               >
-                <circle cx={cx} cy={cy} r={r + 8} fill={style.color} fillOpacity={0.18 * conf} filter="url(#brain-glow)" />
-                {style.shape === "circle" && (
-                  <circle cx={cx} cy={cy} r={r} fill={style.color} fillOpacity={0.85} />
-                )}
-                {style.shape === "ring" && (
-                  <>
-                    <circle cx={cx} cy={cy} r={r} fill="hsl(var(--background))" />
-                    <circle cx={cx} cy={cy} r={r} fill="none" stroke={style.color} strokeWidth={2.4} />
-                  </>
-                )}
-                {style.shape === "diamond" && (
-                  <rect
-                    x={cx - r} y={cy - r} width={r * 2} height={r * 2}
-                    fill={style.color} fillOpacity={0.85}
-                    transform={`rotate(45 ${cx} ${cy})`}
-                    rx={1}
+                {/* Outer breathing halo */}
+                <circle
+                  cx={cx} cy={cy} r={haloR}
+                  fill={`url(#halo-${gid})`}
+                  filter="url(#brain-glow)"
+                  opacity={0.55 * conf}
+                >
+                  <animate
+                    attributeName="r"
+                    values={`${haloR};${haloR * 1.08};${haloR}`}
+                    dur={`${4 + (parseInt(s.id.slice(0, 4), 36) % 4)}s`}
+                    repeatCount="indefinite"
                   />
-                )}
-                {style.shape === "square" && (
-                  <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} rx={3}
-                    fill={style.color} fillOpacity={0.85} />
-                )}
-                <circle cx={cx} cy={cy} r={r + 3}
-                  fill="none" stroke={style.color}
-                  strokeOpacity={isSel ? 0.95 : 0}
-                  strokeWidth={2}
+                </circle>
+                {/* Orb body — radial gradient sphere */}
+                <circle
+                  cx={cx} cy={cy} r={r * 1.35}
+                  fill={`url(#orb-${gid})`}
+                  opacity={0.9}
+                />
+                {/* Inner luminous core */}
+                <circle
+                  cx={cx - r * 0.15} cy={cy - r * 0.2}
+                  r={Math.max(1.2, r * 0.35)}
+                  fill="white"
+                  opacity={isSel ? 0.95 : 0.7}
                 />
                 {isSel && (
-                  <text x={cx} y={cy + r + 14} textAnchor="middle"
-                    fontSize={11 / t.k + 1}
-                    fill="hsl(var(--foreground))"
-                    style={{ pointerEvents: "none", paintOrder: "stroke" }}
-                    stroke="hsl(var(--background))" strokeWidth={3}
-                  >
-                    {trunc(s.ref.content, 32)}
-                  </text>
+                  <>
+                    <circle
+                      cx={cx} cy={cy} r={haloR * 1.15}
+                      fill="none"
+                      stroke={style.color}
+                      strokeOpacity={0.35}
+                      strokeWidth={0.8}
+                    />
+                    <text
+                      x={cx} y={cy + r * 1.6 + 14}
+                      textAnchor="middle"
+                      fontSize={11 / t.k + 1}
+                      fill="hsl(var(--foreground) / 0.92)"
+                      style={{ pointerEvents: "none", paintOrder: "stroke", letterSpacing: "0.04em" }}
+                      stroke="hsl(230 60% 4% / 0.85)" strokeWidth={3}
+                    >
+                      {trunc(s.ref.content, 32)}
+                    </text>
+                  </>
                 )}
               </g>
             );
           })}
         </g>
       </svg>
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-1 flex items-center justify-center gap-2 text-[10px] text-muted-foreground/70">
-        <span>{nodes.length} nodes</span>
-        <span>·</span>
-        <span>{edges.length} edges{softEdges.length ? ` + ${softEdges.length} soft` : ""}</span>
-      </div>
     </div>
   );
 }
