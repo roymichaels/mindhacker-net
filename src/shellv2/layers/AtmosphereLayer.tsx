@@ -66,18 +66,22 @@ export default function AtmosphereLayer() {
       />
       {/* Distant glow field A — cyan, slow drift */}
       <div
-        className="absolute -top-[12%] -left-[18%] h-[55vh] w-[55vh] rounded-full blur-3xl opacity-[0.18] animate-aion-drift-a"
+        className="absolute -top-[12%] -left-[18%] h-[55vh] w-[55vh] rounded-full blur-3xl animate-aion-drift-a"
         style={{
+          opacity: 0.18 * tone.cyan,
           background:
             'radial-gradient(closest-side, hsl(var(--aion-cyan) / 0.55), transparent 70%)',
+          transition: 'opacity 800ms ease',
         }}
       />
       {/* Distant glow field B — violet, opposite drift */}
       <div
-        className="absolute top-[20%] -right-[20%] h-[60vh] w-[60vh] rounded-full blur-3xl opacity-[0.15] animate-aion-drift-b"
+        className="absolute top-[20%] -right-[20%] h-[60vh] w-[60vh] rounded-full blur-3xl animate-aion-drift-b"
         style={{
+          opacity: 0.15 * tone.violet,
           background:
             'radial-gradient(closest-side, hsl(var(--aion-violet) / 0.55), transparent 70%)',
+          transition: 'opacity 800ms ease',
         }}
       />
       {/* Faint particle haze */}
