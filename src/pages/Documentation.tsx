@@ -5,7 +5,7 @@ import { useWhitepaperPDF } from '@/hooks/useWhitepaperPDF';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Download, Loader2, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import OrbView from '@/components/orb/v2/OrbView';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Web3Roadmap } from '@/components/docs/Web3Roadmap';
@@ -488,7 +488,7 @@ export default function Documentation() {
             {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
 
-          <AuroraOrbIcon className="w-7 h-7 text-foreground" size={28} />
+          <OrbView size={28} state="idle" neutral className="flex-shrink-0" />
           <span className="font-bold text-foreground text-sm">{brandName}</span>
           <span className="text-muted-foreground text-sm hidden sm:inline">—</span>
           <span className="text-muted-foreground text-sm hidden sm:inline">{he ? 'ספר לבן' : 'White Paper'}</span>
@@ -526,7 +526,7 @@ export default function Documentation() {
               className="text-center space-y-5 pb-10 border-b border-border"
             >
               <div className="flex justify-center">
-                <AuroraOrbIcon className="w-24 h-24 text-primary" size={96} />
+                <OrbView size={96} state="idle" neutral className="flex-shrink-0" />
               </div>
               <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
                 {brandName}
