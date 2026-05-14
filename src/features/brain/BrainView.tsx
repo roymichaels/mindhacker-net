@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brain, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import OrbView from "@/components/orb/v2/OrbView";
 import ShellHeader from "@/shellv2/ShellHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import BrainGraphForce from "./BrainGraphForce";
