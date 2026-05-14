@@ -94,6 +94,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 const ShellV2DevPage = lazy(() => import("./shellv2/dev/ShellV2DevPage"));
 const BrainPage = lazy(() => import("./pages/BrainPage"));
 const SummonRoute = lazy(() => import("./shellv2/SummonRoute"));
+const WorldRoute = lazy(() => import("./pages/WorldRoute"));
 
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const OnboardingCeremony = lazy(() => import("./pages/OnboardingCeremony"));
