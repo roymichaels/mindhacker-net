@@ -26,19 +26,13 @@ export default function ShellV2Header() {
 
   return (
     <>
-    <div
+    <AionHeader
+      brand={brand}
       style={zStyle('chrome')}
-      data-shellv2-layer="chrome"
-      data-shellv2-header
-      className="contents"
-    >
-      <AionHeader
-        brand={brand}
-        onMenuClick={() => overlay.open('drawer')}
-        onBrandClick={() => setBrandOpen(true)}
-        onOrbClick={() => openInteractiveAION()}
-      />
-    </div>
+      onMenuClick={() => overlay.open('drawer')}
+      onBrandClick={() => setBrandOpen(true)}
+      onOrbClick={() => openInteractiveAION()}
+    />
 
     <Sheet open={brandOpen} onOpenChange={setBrandOpen}>
       <SheetContent
