@@ -1,5 +1,5 @@
 /**
- * InventoryBagModal — Fullscreen portal modal for loot inventory.
+ * InventoryBagModal — Fullscreen portal modal for collectibles collection.
  * Matches the Royal Empire aesthetic of PracticesModal.
  */
 import { createPortal } from 'react-dom';
@@ -35,7 +35,7 @@ export function InventoryBagModal({ open, onOpenChange }: InventoryBagModalProps
         </button>
         <h2 className="text-base font-bold text-white/90 flex items-center gap-2">
           <Package className="w-4 h-4 text-amber-400" />
-          {isHe ? 'שק השלל' : 'Loot Bag'}
+          {isHe ? 'אוסף' : 'Collection'}
         </h2>
         <div className="w-9" />
       </div>

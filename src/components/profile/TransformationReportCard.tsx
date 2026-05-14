@@ -105,8 +105,8 @@ export function TransformationReportCard() {
   const shareReport = async () => {
     if (!report || !stats) return;
     const shareText = isHe
-      ? `🌟 דו"ח הטרנספורמציה שלי מ-AION\n\n📊 רמה ${stats.level} | ${stats.completedTasks} משימות הושלמו | רצף ${stats.streak} ימים\n\n${report.slice(0, 200)}...`
-      : `🌟 My AION Transformation Report\n\n📊 Level ${stats.level} | ${stats.completedTasks} tasks completed | ${stats.streak} day streak\n\n${report.slice(0, 200)}...`;
+      ? `🌟 דו"ח הטרנספורמציה שלי מ-AION\n\n📊 שלב ${stats.level} | ${stats.completedTasks} משימות הושלמו | מקצב ${stats.streak} ימים\n\n${report.slice(0, 200)}...`
+      : `🌟 My AION Transformation Report\n\n📊 Phase ${stats.level} | ${stats.completedTasks} tasks completed | ${stats.streak} day rhythm\n\n${report.slice(0, 200)}...`;
 
     if (navigator.share) {
       try {
@@ -190,11 +190,11 @@ export function TransformationReportCard() {
             className="overflow-hidden"
           >
             <div ref={reportRef} className="px-4 pb-4 border-t border-border/30 pt-3 space-y-4">
-              {/* Stats bar */}
+              {/* Signals bar */}
               <div className="grid grid-cols-3 gap-2">
                 <div className="rounded-lg bg-primary/5 border border-primary/10 p-2 text-center">
                   <p className="text-lg font-black text-primary">{stats.level}</p>
-                  <p className="text-[10px] text-muted-foreground">{isHe ? 'רמה' : 'Level'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isHe ? 'שלב' : 'Phase'}</p>
                 </div>
                 <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/10 p-2 text-center">
                   <p className="text-lg font-black text-emerald-400">{stats.completionRate}%</p>
@@ -202,7 +202,7 @@ export function TransformationReportCard() {
                 </div>
                 <div className="rounded-lg bg-amber-500/5 border border-amber-500/10 p-2 text-center">
                   <p className="text-lg font-black text-amber-400">{stats.streak}</p>
-                  <p className="text-[10px] text-muted-foreground">{isHe ? 'רצף' : 'Streak'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isHe ? 'מקצב' : 'Rhythm'}</p>
                 </div>
               </div>
 

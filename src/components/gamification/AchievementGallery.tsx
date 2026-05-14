@@ -1,5 +1,5 @@
 /**
- * AchievementGallery — NFT-style collection grid of all achievement cards.
+ * AchievementGallery — Collection grid of all milestone cards.
  * Shows unlocked vs locked status with rarity styling.
  */
 import { useState } from 'react';
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 const CATEGORIES = [
   { id: 'all' as const, labelEn: 'All', labelHe: 'הכל', icon: Trophy },
   { id: 'session' as const, labelEn: 'Sessions', labelHe: 'סשנים', icon: Crown },
-  { id: 'streak' as const, labelEn: 'Streaks', labelHe: 'רצפים', icon: Flame },
+  { id: 'streak' as const, labelEn: 'Rhythms', labelHe: 'מקצבים', icon: Flame },
   { id: 'exploration' as const, labelEn: 'Explorer', labelHe: 'חקירה', icon: Compass },
   { id: 'mastery' as const, labelEn: 'Mastery', labelHe: 'שליטה', icon: Crown },
   { id: 'social' as const, labelEn: 'Social', labelHe: 'חברתי', icon: Users },
@@ -33,7 +33,7 @@ export function AchievementGallery() {
     ? allAchievements
     : getAchievementsByCategory(filter as Achievement['category']);
 
-  // Sort: unlocked first, then by XP descending
+  // Sort: unlocked first, then by Energy descending
   const sorted = [...filtered].sort((a, b) => {
     const aUnlocked = unlockedAchievements.includes(a.id) ? 1 : 0;
     const bUnlocked = unlockedAchievements.includes(b.id) ? 1 : 0;
@@ -49,7 +49,7 @@ export function AchievementGallery() {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <Trophy className="w-4 h-4 text-amber-400" />
-          {isHe ? 'אוסף הישגים' : 'Achievement Collection'}
+          {isHe ? 'אוסף אבני דרך' : 'Milestone Collection'}
         </h3>
         <span className="text-xs font-mono text-muted-foreground">
           {unlockedCount}/{allAchievements.length}
