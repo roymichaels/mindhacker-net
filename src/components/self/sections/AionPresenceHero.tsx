@@ -35,8 +35,7 @@ const EN_COPY: Record<string, string> = {
 export default function AionPresenceHero() {
   const { language } = useTranslation();
   const isHe = language === 'he';
-  const presence = useAionPresence();
-  const state = presence?.state ?? 'resting';
+  const state = useAionPresence();
   const label = (isHe ? HE_COPY : EN_COPY)[state] ?? (isHe ? HE_COPY.resting : EN_COPY.resting);
 
   return (
