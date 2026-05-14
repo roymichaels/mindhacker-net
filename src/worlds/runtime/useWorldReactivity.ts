@@ -16,6 +16,14 @@ import { DEFAULT_CLIMATE } from './types';
 import { ATMOSPHERE_PRESETS } from '@/worlds/atmosphere/atmospherePresets';
 import { getWorld } from '@/worlds/registry';
 import type { CognitiveWorldId } from '../types';
+import {
+  emitResonanceSignal,
+  propagateInfluence,
+  applyBleed,
+  useWorldInfluenceStore,
+} from '@/worlds/resonance/worldPropagation';
+import { useWorldHistoryStore } from '@/worlds/resonance/worldStateHistory';
+import type { WorldResonanceSignal } from '@/worlds/resonance/types';
 
 const ALL_WORLDS = Object.keys(ATMOSPHERE_PRESETS) as CognitiveWorldId[];
 
@@ -68,12 +76,41 @@ export function useWorldReactivity() {
       const climateMap = useWorldClimateStore.getState().climates;
       const active = activeRef.current;
 
+      const setInfluence = useWorldInfluenceStore.getState().setInfluence;
+      const pushHistory = useWorldHistoryStore.getState().pushFrame;
+
+      // Pass 1 — evolve each world's own climate.
+      const evolved: Partial<Record<CognitiveWorldId, ReturnType<typeof evolveClimate>>> = {};
       for (const worldId of ALL_WORLDS) {
         if (active !== worldId && Math.random() < 0.4) continue;
-        const signals = deriveWorldSignals(worldId, stateMap[worldId], now);
+        const sig = deriveWorldSignals(worldId, stateMap[worldId], now);
         const prev = climateMap[worldId] ?? DEFAULT_CLIMATE;
-        const next = evolveClimate(prev, signals, dt, worldId);
-        setClimate(worldId, next);
+        evolved[worldId] = evolveClimate(prev, sig, dt, worldId);
+      }
+
+      // Pass 2 — emit a resonance signal for every world (use freshly
+      // evolved climate when available, otherwise the prior committed one).
+      const tNow = Date.now();
+      const signalsOut: Partial<Record<CognitiveWorldId, WorldResonanceSignal>> = {};
+      for (const worldId of ALL_WORLDS) {
+        const c = evolved[worldId] ?? climateMap[worldId] ?? DEFAULT_CLIMATE;
+        signalsOut[worldId] = emitResonanceSignal(worldId, c, tNow);
+      }
+
+      // Pass 3 — propagate cross-world influence (sources looked up from
+      // history at each edge's delay).
+      const influenceMap = propagateInfluence(signalsOut, tNow);
+
+      // Pass 4 — apply bleed and commit.
+      for (const worldId of ALL_WORLDS) {
+        const evClimate = evolved[worldId];
+        const inf = influenceMap[worldId];
+        if (evClimate) {
+          const finalClimate = inf ? applyBleed(evClimate, inf.bleed) : evClimate;
+          setClimate(worldId, finalClimate);
+          pushHistory(worldId, finalClimate, signalsOut[worldId]!);
+        }
+        if (inf) setInfluence(worldId, inf);
       }
     };
 
