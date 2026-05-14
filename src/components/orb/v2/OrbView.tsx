@@ -17,6 +17,7 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { cn } from '@/lib/utils';
 import { useAionPresence, type AionPresenceState } from '@/aion/presenceState';
 import type { OrbProfile } from '../types';
+import { CANONICAL_AION_PROFILE } from '../CanonicalAionModel';
 
 export type OrbViewState =
   | 'idle'
@@ -39,6 +40,13 @@ interface OrbViewProps {
   profile?: OrbProfile;
   /** Disable personalization (use neutral theme palette) */
   neutral?: boolean;
+  /**
+   * Identity selector. Defaults to `'aion'` — the canonical cyan/violet
+   * AION model used everywhere AION is the entity. Pass `'user'` on
+   * surfaces where the live orb represents the *user's* DNA (Profile,
+   * Identity card, NFT triad).
+   */
+  identity?: 'aion' | 'user';
   /** Hue override in HSL CSS string ("hsl(265 90% 65%)") for ambient tinting */
   tintHue?: string;
   ariaLabel?: string;
@@ -67,6 +75,7 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
     className,
     profile: profileOverride,
     neutral = false,
+    identity = 'aion',
     tintHue,
     ariaLabel,
     onClick,
@@ -87,21 +96,28 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   const { profile: userProfile } = useOrbProfile();
   const { theme } = useThemeSettings();
 
-  // Choose profile: explicit override > user profile > defaults tinted with theme/hue
+  // Profile resolution:
+  //   1. explicit `profile` override (always wins)
+  //   2. `neutral` → theme-tinted defaults (small/icon contexts)
+  //   3. `identity === 'user'` → DNA-derived user profile
+  //   4. default → CANONICAL_AION_PROFILE (the live AION entity)
   const profile = useMemo<OrbProfile>(() => {
     if (profileOverride) return profileOverride;
-    if (!neutral && userProfile) return userProfile;
-    const primary =
-      tintHue || `hsl(${theme.primary_h}, ${theme.primary_s}, ${theme.primary_l})`;
-    const accent = `hsl(${theme.accent_h}, ${theme.accent_s}, ${theme.accent_l})`;
-    const secondary = `hsl(${theme.secondary_h}, ${theme.secondary_s}, ${theme.secondary_l})`;
-    return {
-      ...DEFAULT_ORB_PROFILE,
-      primaryColor: primary,
-      secondaryColors: [secondary],
-      accentColor: accent,
-    } as OrbProfile;
-  }, [profileOverride, neutral, userProfile, tintHue, theme]);
+    if (neutral) {
+      const primary =
+        tintHue || `hsl(${theme.primary_h}, ${theme.primary_s}, ${theme.primary_l})`;
+      const accent = `hsl(${theme.accent_h}, ${theme.accent_s}, ${theme.accent_l})`;
+      const secondary = `hsl(${theme.secondary_h}, ${theme.secondary_s}, ${theme.secondary_l})`;
+      return {
+        ...DEFAULT_ORB_PROFILE,
+        primaryColor: primary,
+        secondaryColors: [secondary],
+        accentColor: accent,
+      } as OrbProfile;
+    }
+    if (identity === 'user' && userProfile) return userProfile;
+    return CANONICAL_AION_PROFILE;
+  }, [profileOverride, neutral, identity, userProfile, tintHue, theme]);
 
   const resolvedTier = resolveTier(size, tier);
   const segments = tierSegments(resolvedTier);
