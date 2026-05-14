@@ -15,6 +15,7 @@ import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { cn } from '@/lib/utils';
+import { useAionPresence, type AionPresenceState } from '@/aion/presenceState';
 import type { OrbProfile } from '../types';
 
 export type OrbViewState =
@@ -60,7 +61,7 @@ function tierSegments(t: 'presence' | 'standard' | 'cinematic'): number {
 export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView(
   {
     size = 56,
-    state = 'idle',
+    state,
     tier = 'auto',
     audioLevel = 0,
     className,
@@ -72,6 +73,10 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   },
   ref,
 ) {
+  // Phase 5B — when no explicit state is passed, derive from the global
+  // AION presence bus so every live orb breathes with the same organism.
+  const presence = useAionPresence();
+  const resolvedState: OrbViewState = state ?? PRESENCE_TO_ORB[presence];
   const trackRef = useRef<HTMLDivElement | null>(null);
   const setRef = (el: HTMLDivElement | null) => {
     trackRef.current = el;
@@ -130,7 +135,7 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
   }, []);
 
   // State multipliers — applied on top of OrganicSphere's base params via props
-  const baseMul = STATE_MULTIPLIERS[state];
+  const baseMul = STATE_MULTIPLIERS[resolvedState];
   // Dampen displacement at small sizes — keeps presence orbs smooth & legible.
   const tierDamp =
     resolvedTier === 'presence'
@@ -145,7 +150,7 @@ export const OrbView = forwardRef<HTMLDivElement, OrbViewProps>(function OrbView
     timeFreq: baseMul.timeFreq * tierDamp.timeFreq,
     intensityBoost: baseMul.intensityBoost * tierDamp.intensityBoost,
   };
-  const legacyState = LEGACY_STATE_MAP[state];
+  const legacyState = LEGACY_STATE_MAP[resolvedState];
   // Use the WebGL stage at every tier (header → cinematic). Only fall back
   // to the CSS renderer when WebGL is genuinely unavailable.
   const shouldUseFallback = !stageReady;
