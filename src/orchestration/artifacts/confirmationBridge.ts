@@ -111,21 +111,22 @@ function describe(capability: CapabilityId, ctx: ConfirmContext, read?: ReadResu
         source: 'avatar_customizations',
         confirmLabel: 'פתח Configurator',
       };
-    // Phase 2 · Batch 3
-    case 'fm.listing.create':
-      return { title: 'לפרסם מודעה חדשה?', whatHappens: 'תיווצר טיוטת מודעה בשוק החופשי. סטטוס: draft.', source: 'fm_gigs', confirmLabel: 'פרסם טיוטה' };
+    // Phase 3 · Batch 1 — real execution
     case 'message.send':
       return { title: 'לשלוח את ההודעה?', whatHappens: `תישלח הודעה: "${ctx.message.slice(0, 80)}"`, source: 'messages', confirmLabel: 'שלח' };
-    case 'subscription.portal':
-      return { title: 'לפתוח את ניהול המנוי?', whatHappens: 'פתיחת Stripe Customer Portal בחלון נפרד.', source: 'customer-portal', confirmLabel: 'פתח Portal' };
-    case 'checkout.create':
-      return { title: 'להמשיך לתשלום?', whatHappens: 'תיפתח עמוד Stripe Checkout בחלון נפרד.', source: 'create-checkout-session', confirmLabel: 'המשך לתשלום' };
-    case 'tts.speak':
-      return { title: 'להשמיע בקול?', whatHappens: `הקראה של "${ctx.message.slice(0, 80)}".`, source: 'elevenlabs-tts', confirmLabel: 'השמע' };
     case 'work.startSession':
       return { title: 'להתחיל סשן פוקוס?', whatHappens: `יתחיל טיימר עבור "${ctx.message.slice(0, 60) || 'סשן עבודה'}".`, source: 'work_sessions', confirmLabel: 'התחל סשן' };
     case 'schedule.block':
       return { title: 'להוסיף בלוק ליומן?', whatHappens: `יתווסף בלוק "${ctx.message.slice(0, 60) || 'בלוק זמן'}" ליום הנוכחי.`, source: 'action_items:schedule_block', confirmLabel: 'קבע בלוק' };
+    // Phase 3 · Batch 1 — disabled-by-policy (preview-only confirm)
+    case 'fm.listing.create':
+      return { title: 'לפרסם מודעה חדשה?', whatHappens: 'תצוגה מקדימה בלבד — הפרסום בשוק החופשי מושבת כרגע.', source: 'fm_gigs', confirmLabel: 'הבנתי' };
+    case 'subscription.portal':
+      return { title: 'לפתוח את ניהול המנוי?', whatHappens: 'תצוגה מקדימה בלבד — פתיחת Stripe Portal מושבתת כרגע.', source: 'customer-portal', confirmLabel: 'הבנתי' };
+    case 'checkout.create':
+      return { title: 'להמשיך לתשלום?', whatHappens: 'תצוגה מקדימה בלבד — מסלול התשלום מושבת כרגע.', source: 'create-checkout-session', confirmLabel: 'הבנתי' };
+    case 'tts.speak':
+      return { title: 'להשמיע בקול?', whatHappens: 'תצוגה מקדימה בלבד — הקראה אוטומטית מושבתת כרגע.', source: 'elevenlabs-tts', confirmLabel: 'הבנתי' };
     default:
       return {
         title: 'לאשר פעולה?',
