@@ -14,10 +14,8 @@ import { zStyle } from '../zindex';
 
 export default function ComposerLayer() {
   return (
-    <AionComposerDock
-      className="px-3"
-    >
-      <div style={zStyle('composer')} data-shellv2-layer="composer">
+    <AionComposerDock style={zStyle('composer')}>
+      <div data-shellv2-layer="composer">
         <GlobalChatInput />
       </div>
     </AionComposerDock>
