@@ -276,8 +276,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           style={{ background: 'linear-gradient(180deg, hsl(var(--aion-navy) / 0.55) 0%, transparent 100%)' }}
         />
         <div
-          className="relative grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 sm:px-8"
-          style={{ minHeight: 96 }}
+          className="relative grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6"
+          style={{ minHeight: 56 }}
         >
           {/* LEFT — menu */}
           <div className="flex items-center justify-self-start">
@@ -294,9 +294,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                       else setMobileMenuOpen(true);
                     }}
                     aria-label={t('header.navigationMenu')}
-                    className="h-11 w-11 rounded-full"
+                    className="h-9 w-9 rounded-full"
                   >
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-[18px] w-[18px]" />
                   </Button>
                 )}
                 {isAdminMode && (
@@ -317,9 +317,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   variant="ghost"
                   size="icon"
                   aria-label={t('header.guestMenu')}
-                  className="h-11 w-11 rounded-full"
+                  className="h-9 w-9 rounded-full"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-[18px] w-[18px]" />
                 </Button>
               </GuestMenu>
             )}
@@ -336,9 +336,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
             <OrbAnchor />
           </div>
         </div>
-        {/* Hairline divider that fades at endpoints */}
-        <div className="atmo-divider" />
-
         {isAdminMode && (
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-[85vw] max-w-sm" dir={isRTL ? "rtl" : "ltr"}>
