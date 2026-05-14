@@ -398,6 +398,7 @@ const GlobalChatInput = () => {
         onClose={voiceMode.close}
         onStopListening={voiceMode.stopListening}
       />
+      <CapabilityLauncherSheet open={showLauncher} onOpenChange={setShowLauncher} />
     </div>
   );
 };
