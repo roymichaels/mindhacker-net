@@ -62,14 +62,16 @@ export function routeObserve(input: RouterInput): RouterDecision {
     const matched = rule.kws.filter((re) => re.test(text)).map((re) => re.source);
     if (matched.length === 0) continue;
     const def = CAPABILITIES[rule.cap];
+    const mode = effectiveMode(rule.cap);
+    const willExecute = mode === 'read' || mode === 'suggest';
     return {
       capability: rule.cap,
       artifactKind: def.artifactKind,
-      mode: effectiveMode(rule.cap),
+      mode,
       reason: `keyword:${matched[0]}`,
       matchedKeywords: matched,
-      skipped: true,
-      skippedReason: 'phase-1-observe-only',
+      skipped: !willExecute,
+      skippedReason: willExecute ? undefined : 'observe-only',
     };
   }
 
