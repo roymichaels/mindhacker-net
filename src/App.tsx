@@ -19,6 +19,7 @@ import { EnvironmentProvider, MotionLayer } from "@/orchestration";
 import { AIONStateProvider } from "@/contexts/AIONStateContext";
 import { AionDecisionProvider } from "@/contexts/AionDecisionContext";
 import { AIONStateBridge } from "@/components/aion/AIONStateBridge";
+import PresenceRouteBridge from "@/aion/presenceWiring/PresenceRouteBridge";
 import { CapabilityInvokerBridge } from "@/components/aion/CapabilityInvokerBridge";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -270,6 +271,7 @@ const App = () => (
                         <MotionLayer>
                          <AIONStateProvider>
                           <AIONStateBridge />
+                          <PresenceRouteBridge />
                           <CapabilityInvokerBridge />
                          <SubscriptionsModalProvider>
                           <CoachesModalProvider>

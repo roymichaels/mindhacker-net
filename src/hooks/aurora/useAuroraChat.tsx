@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { debug } from '@/lib/debug';
+import { aionPresenceBus } from '@/aion/presenceState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -228,6 +229,10 @@ export const useAuroraChat = (conversationId: string | null) => {
     setIsStreaming(true);
     setStreamingContent('');
 
+    // Phase 5B — presence: noticing → forming (debounced).
+    aionPresenceBus.set('noticing');
+    const _formingTimer = setTimeout(() => aionPresenceBus.set('forming'), 400);
+
     // Phase 1 — AION orchestration trace (observation-only, flag-gated).
     const tracer = (await import('@/diagnostics/aionTrace')).startTurnTrace({
       route: typeof window !== 'undefined' ? window.location.pathname : null,
@@ -260,6 +265,8 @@ export const useAuroraChat = (conversationId: string | null) => {
       console.error('Failed to save message:', insertError);
       setError('Failed to send message');
       setIsStreaming(false);
+      try { clearTimeout(_formingTimer); } catch { /* noop */ }
+      aionPresenceBus.set('resting');
       return;
     }
 
@@ -1049,6 +1056,12 @@ export const useAuroraChat = (conversationId: string | null) => {
       
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
       try { tracer.end(); } catch { /* ignore */ }
+      // Phase 5B — return to rest after a short tail.
+      try { clearTimeout(_formingTimer); } catch { /* noop */ }
+      setTimeout(() => {
+        const cur = aionPresenceBus.get();
+        if (cur === 'forming' || cur === 'noticing') aionPresenceBus.set('resting');
+      }, 1200);
     }
   }, [user?.id, conversationId, isStreaming, messages, language, dispatchCommands, generateTitle, triggerBackgroundAnalysis, summarizeConversation, queryClient]);
 

@@ -9,6 +9,7 @@
  * No React. Pure event emitter so non-component code (capability
  * handlers, AI tool-call results, deep-link parsers) can summon.
  */
+import { aionPresenceBus } from '@/aion/presenceState';
 
 export type ArtifactKind =
   | 'assessment'
@@ -46,6 +47,8 @@ type Listener = (artifacts: ArtifactInstance[]) => void;
 
 let stack: ArtifactInstance[] = [];
 const listeners = new Set<Listener>();
+let prevLen = 0;
+let restTimer: ReturnType<typeof setTimeout> | null = null;
 
 function emit() {
   // Snapshot so subscribers can compare references safely.
@@ -58,6 +61,23 @@ function emit() {
       console.error('[artifactBus] listener error', err);
     }
   });
+
+  // Phase 5B — drive the AION presence bus from artifact lifecycle.
+  try {
+    if (snapshot.length > prevLen) {
+      if (restTimer) { clearTimeout(restTimer); restTimer = null; }
+      aionPresenceBus.set('manifesting');
+    } else if (snapshot.length === 0 && prevLen > 0) {
+      if (restTimer) clearTimeout(restTimer);
+      restTimer = setTimeout(() => {
+        if (aionPresenceBus.get() === 'manifesting') aionPresenceBus.set('resting');
+        restTimer = null;
+      }, 600);
+    }
+    prevLen = snapshot.length;
+  } catch {
+    /* presence bus optional — fail silent */
+  }
 }
 
 function uid(): string {

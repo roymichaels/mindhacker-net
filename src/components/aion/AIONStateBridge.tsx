@@ -12,6 +12,7 @@
 import { useEffect } from 'react';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useAIONState } from '@/contexts/AIONStateContext';
+import { aionPresenceBus } from '@/aion/presenceState';
 
 export function AIONStateBridge() {
   const chat = useAuroraChatContextSafe();
@@ -27,10 +28,15 @@ export function AIONStateBridge() {
 
   // Voice + TTS via global events (existing bus)
   useEffect(() => {
-    const onListenStart = () => setState('listening');
-    const onListenEnd = () => setState('idle');
-    const onSpeakStart = () => setState('speaking');
-    const onSpeakEnd = () => setState('idle');
+    const onListenStart = () => { setState('listening'); aionPresenceBus.set('listening'); };
+    const onListenEnd = () => { setState('idle'); aionPresenceBus.set('forming'); };
+    const onSpeakStart = () => { setState('speaking'); aionPresenceBus.set('forming'); };
+    const onSpeakEnd = () => {
+      setState('idle');
+      setTimeout(() => {
+        if (aionPresenceBus.get() === 'forming') aionPresenceBus.set('resting');
+      }, 600);
+    };
 
     window.addEventListener('aion:voice:listen:start', onListenStart);
     window.addEventListener('aion:voice:listen:end', onListenEnd);
