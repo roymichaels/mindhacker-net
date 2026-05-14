@@ -1,78 +1,61 @@
-# Cleanup Report — Full Audit Pass
+# MindOS Cleanup Report
 
-## Date: 2026-03-10
+Tracking the System Consolidation Plan (`.lovable/plan.md`). Items here are
+scheduled for deletion / merge once `LegacyMountGuard` confirms zero hits.
 
-## Rename: /plan → /play
+## Phase A — frozen (this commit)
 
-All references to `/plan` route renamed to `/play` across 20+ files:
+- `src/navigation/canonicalSurfaces.ts` is now the **only** source of truth
+  for top-level navigation. Five surfaces: Chat, Brain, Journey, Outer World,
+  Profile.
+- `src/navigation/osNav.ts` — marked `@deprecated`, kept for compat.
+- `src/app-shell/surfaces.ts` — re-exports `CANONICAL_SURFACES`. Marked `@deprecated`.
+- `src/app-shell/AppShell.tsx` — marked `@deprecated` (dead skeleton).
 
-| File | Change |
-|------|--------|
-| `src/navigation/osNav.ts` | Tab id `plan` → `play`, path `/plan` → `/play` |
-| `src/pages/PlanHub.tsx` → `src/pages/PlayHub.tsx` | Renamed file + export |
-| `src/components/plan/PlanLayoutWrapper.tsx` → `src/components/plan/PlayLayoutWrapper.tsx` | Renamed file + import |
-| `src/App.tsx` | Updated lazy import, route, all legacy redirects → `/play` |
-| `src/pages/Index.tsx` | Redirect target → `/play` |
-| `src/hooks/aurora/useAuroraCommands.tsx` | `life_plan` nav → `/play` |
-| `src/hooks/aurora/useCommandBus.tsx` | Route map → `/play` |
-| `src/hooks/useSwipeNavigation.ts` | Tab order → `/play` |
-| `src/lib/guards.ts` | Protected routes list |
-| `src/components/navigation/BottomTabBar.tsx` | Active check → `/play` |
-| `src/components/navigation/DesktopSideNav.tsx` | Active check → `/play` |
-| `src/components/dashboard/v2/NextActionBanner.tsx` | Nav target → `/play` |
-| `src/components/dashboard/MobileHeroGrid.tsx` | Nav target → `/play` |
-| `src/components/business-hub/BusinessToolsGrid.tsx` | Nav target → `/play` |
-| `src/components/fm/EarnLaunchpadModal.tsx` | Nav targets → `/play` |
-| `src/pages/Onboarding.tsx` | Redirect → `/play` |
-| `src/pages/ProjectsJourney.tsx` | onComplete/onClose → `/play` |
-| `src/pages/presence/PresenceHome.tsx` | Back nav → `/play` |
-| `src/pages/power/PowerHome.tsx` | Back nav → `/play` |
-| `src/pages/vitality/VitalityHome.tsx` | Back nav → `/play` |
-| `src/pages/focus/FocusHome.tsx` | Back nav → `/play` |
-| `src/pages/combat/CombatHome.tsx` | Back nav → `/play` |
-| `src/pages/expansion/ExpansionHome.tsx` | Back nav → `/play` |
-| `src/pages/consciousness/ConsciousnessHome.tsx` | Back nav → `/play` |
-| `src/pages/ArenaDomainPage.tsx` | Back nav → `/play` |
-| `src/pages/LifeDomainPage.tsx` | Back nav → `/play` |
+## Phase B — shell collapse (queued)
 
-## Files DELETED
+Delete after guard confirms zero mounts:
+- `src/app-shell/**`
+- `src/shell/overlay/**`
+- `src/components/layout/DashboardLayout.tsx`
+- `src/components/layout/ProtectedAppShell.tsx`
+- Modal contexts (Coaches, Profile, Subscriptions, Wallet, Story, Welcome,
+  SmartOnboarding, HubModal, Sidebar, ChromeVisibility) — collapse into
+  `shellv2/UnifiedOverlayHost`.
 
-| File | Reason |
-|------|--------|
-| `src/pages/FormView.tsx` | Unused form viewer, route redirected to `/` |
-| `src/pages/PersonalHypnosisLanding.tsx` | Legacy product page |
-| `src/pages/PersonalHypnosisSuccess.tsx` | Legacy product page |
-| `src/pages/PersonalHypnosisPending.tsx` | Legacy product page |
-| `src/pages/ConsciousnessLeapLanding.tsx` | Legacy product page |
-| `src/pages/ConsciousnessLeapApply.tsx` | Legacy product page |
-| `src/pages/DynamicLandingPage.tsx` | Unused dynamic landing system |
+## Phase C — route collapse (queued)
 
-## Legacy Imports Cleaned from App.tsx
+Pages to delete (replaced by 5 surfaces + artifact intents):
+- `src/pages/MindOSPage.tsx`, `src/pages/MindOS/**`
+- `src/pages/PlayHub.tsx`, `src/pages/UserDashboard.tsx`, `src/pages/OuterWorldHub.tsx`
+- `src/pages/LifeDomainPage.tsx`, `src/pages/ArenaDomainPage.tsx`
+- `src/pages/CoachingJourney.tsx`, `src/pages/AdminJourney.tsx`,
+  `src/pages/ProjectsJourney.tsx`, `src/pages/BusinessJourney.tsx`
+- `src/pages/CreatorHub.tsx`, `src/pages/FreelancerHub.tsx`
+- `src/components/pillars/ArenaLayoutWrapper.tsx`
+- `src/hallway/**`, `src/presence/PresenceShell.tsx` + neighbors
+- `src/_legacy/**`
 
-Removed lazy imports for:
-- `FormView`
-- `PersonalHypnosisLanding`, `PersonalHypnosisSuccess`, `PersonalHypnosisPending`
-- `ConsciousnessLeapLanding`, `ConsciousnessLeapApply`
-- `DynamicLandingPage`
+## Phase D — single-writer enforcement (queued)
 
-Routes replaced with `<Navigate>` redirects.
+Audit `supabase.from('<owned-table>').{insert|update|upsert|delete}` outside
+`supabase/functions/aion-capabilities/**`; route every writer through a
+capability. Add ESLint `no-restricted-syntax` rule.
 
-## Files KEPT (still actively used)
+## Phase E — orchestration consolidation (queued)
 
-| Category | Files | Reason |
-|----------|-------|--------|
-| Pillar pages | `presence/*`, `power/*`, `vitality/*`, `focus/*`, `combat/*`, `expansion/*`, `consciousness/*` | Active under `/strategy/*` routes |
-| `AudioPlayer.tsx` | Still routed at `/audio/:token` |
-| `VideoPlayer.tsx` | Still routed at `/video/:token` |
-| `Go.tsx` | Ad landing page at `/go` |
+- Delete `supabase/functions/aion-orchestrator/**`.
+- `aurora-chat` becomes a thin SSE streamer over `aion-brain` decisions.
+- Collapse `AuroraChatContext + AuroraActionsContext + AionDecisionContext +
+  AIONStateContext` into a single `AIONContext`.
 
-## Documents Updated
+## Phase F — visual layer (queued)
 
-| Document | Changes |
-|----------|---------|
-| `PRODUCT_SPEC.md` | Complete rewrite: 5-tab structure, Play hub, Aurora journal tabs, current gating, strategy routes, deleted pages |
-| `docs/APP_MAP.md` | Complete rewrite: current route map, redirect table, rename log, nav config |
-| `.lovable/plan.md` | Updated: nav architecture, route changes, Aurora UI, deleted pages |
-| `docs/CLEANUP_REPORT.md` | This file — full changelog |
+- Delete legacy orb (`src/components/orb/` v1); keep only `v2/SharedOrbStage`.
+- Brain graph: enforce Obsidian-style atlas via design tokens.
 
-## Total: 7 files deleted, 26 files modified, 3 docs rewritten
+## Phase G — verification (queued)
+
+- `LegacyMountGuard` zero hits for 48 h before any source delete.
+- `knip` + `ts-prune` must report 0 unused files in `src/`.
+- Update `docs/APP_MAP.md` and memory index to the 5-surface model.
