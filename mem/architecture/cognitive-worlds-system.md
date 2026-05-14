@@ -46,3 +46,11 @@ Hubs are not pages. Each major hub is a **cognitive world** — a typed projecti
 - WebGL scenes per world (Habits ships as 2D motion). Scene contract supports upgrading any world independently.
 - Backend node-kind tagging — projections are client-side adapters; later phases swap in typed graph queries without changing scenes.
 - Composer verbs are display-only; piping into the AION composer comes later.
+
+## Phase 5C — "Enter, don't open" (Wave 1)
+
+- Non-`band-stack` worlds render via `ImmersiveWorldShell` (in `src/worlds/scene/WorldShell.tsx`): `fixed inset-0`, no header, no card frame, no verb bar. Atmosphere = page.
+- The AION orb is mounted **once globally** as `PersistentWorldOrb` in `src/App.tsx`. It listens to `/worlds/:id` and animates between per-world `AtmospherePreset.orbAnchor` positions. Worlds MUST NOT mount their own floating AION orb.
+- World verbs are issued through `AmbientGesture` (single breathing glyph, tap-and-hold) — `WorldComposer` is retired for immersive worlds.
+- `WorldAtmosphere` is always full-bleed for immersive worlds. No `WorldStage` card wrapper around scenes.
+- SelfWorld (`band-stack`) is exempt — it remains the scrolling identity hub, with its own AION presence inside `BandStackScene`.
