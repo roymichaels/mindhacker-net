@@ -53,7 +53,93 @@ Still queued for later phases (NOT done in B):
   SmartOnboarding, HubModal, Sidebar, ChromeVisibility) — collapse into
   `shellv2/UnifiedOverlayHost`.
 
-## Phase C — route collapse (queued)
+## Phase C — surface consolidation (IN PROGRESS)
+
+Goal: user-facing perception collapses to **Chat / Brain / Journey / Outer
+World / Profile**. Everything else becomes overlay, artifact, room, or
+quarantined legacy route. No source deletions yet — this phase only hides,
+redirects, and tags. Reversible.
+
+### Quarantined pages (wrapped with `withDeprecationLog`)
+
+Each emits a console breadcrumb on mount so we can verify zero real traffic
+before deletion in a later phase.
+
+- `src/pages/PlayHub.tsx` (still mounted via `PlayLayoutWrapper` inside
+  `StrategyPage` Mission Control tab)
+- `src/pages/MindOSPage.tsx` (orphan; no active route)
+- `src/pages/LifeHub.tsx` (mounted via `LifeLayoutWrapper` inside
+  `StrategyPage` Overview tab)
+- `src/pages/UserDashboard.tsx` (orphan)
+- `src/pages/ArenaDomainPage.tsx` (orphan; import only)
+- `src/pages/LifeDomainPage.tsx` (mounted at `/strategy/:domainId`)
+- `src/pages/CreatorHub.tsx`, `src/pages/FreelancerHub.tsx` (orphans)
+- `src/pages/CoachingJourney.tsx`, `src/pages/AdminJourney.tsx`,
+  `src/pages/ProjectsJourney.tsx` (mounted under `/coaching/journey`,
+  `/admin/journey`, `/projects/journey`)
+
+### Navigation collapsed to 5 surfaces
+
+- `src/shellv2/ShellV2Drawer.tsx` — single section now renders the 5
+  `CANONICAL_SURFACES` (Chat, Brain, Journey, Outer World, Profile). Old
+  Practice / World / Core sections removed; FM / Strategy / Hypnosis /
+  Journal / Community / Learn / History entries deleted from the drawer.
+  Account footer keeps Settings + Sign-out (and Admin for admins).
+- `src/components/navigation/DesktopSideNav.tsx` — switched from
+  `getVisibleTabs(osNav)` (6 tabs incl. FM, Strategy, Hypnosis, Journal,
+  Community, Study) to `CANONICAL_SURFACES`. No more per-tab color brand
+  scheme; uses a single `primary` accent for the active surface.
+
+### Redirects added
+
+- `/journey`, `/journey/*` → `/strategy` (Journey surface alias until
+  dedicated route exists).
+- `/profile`, `/me`, `/dashboard`, `/hallway`, `/play*`, `/work*`, `/life`,
+  `/career`, `/*-hub`, `/mindos*` redirects already in
+  `PROTECTED_REDIRECTS` from Phase B remain.
+
+### Hallway status
+
+Still loaded (`HallwayShell`, `RoomEnvironment`) only because they are
+imported at the top of `App.tsx`; **no public route mounts them**. They are
+now reachable only via Brain exploration / AION actions, per spec. Kept
+for the brain-room subsystem; do NOT delete in Phase C.
+
+### Remaining leaks (NOT addressed in C — tracked for later phases)
+
+1. **Legacy terminology in copy**: hundreds of UI strings still say
+   "Hub", "Dashboard", "Launchpad", "Onboarding", "Wizard", "Arena",
+   "Mission Control", "Workspace". A repo-wide rg shows >150 component
+   files. A copy pass is its own phase — does not affect orchestration.
+2. **Pillar route surface area**: ~45 `/strategy/<pillar>/...` routes
+   remain in `App.tsx`. They live under the Journey surface conceptually
+   but visually still feel like a SaaS pillar grid. Phase F (visual layer)
+   will consolidate these into in-Journey artifacts.
+3. **`osNav.ts`** — still imported by `ShellV2Drawer` *removed* and by
+   `_legacy/README.md` (doc only). Safe to delete in Phase G after the
+   `getVisibleTabs` callsite confirmation period.
+4. **Career layout wrappers** (`Creator`, `Freelancer`, `Therapist`) still
+   mount under `/creator`, `/freelancer`, `/therapist`. They are now
+   reachable only via the Outer World surface (Coaches/Career rooms);
+   `DesktopSideNav` and `ShellV2Drawer` no longer link to them.
+5. **`ProfilePage`** is a portal-rendered modal opened via
+   `ProfileModalContext`. The drawer Profile entry calls `openProfile()`;
+   `/profile` URL still redirects to `/aurora`. A dedicated `/profile`
+   route lands in Phase E together with the modal-context collapse.
+6. Pages alive only because of orphan imports in `App.tsx`:
+   `ArenaDomainPage`, `MindOSPage`. Imports kept until Phase D / E so
+   tree-shaking & deprecation telemetry can confirm zero hits.
+
+### Phase C did NOT touch (per scope):
+
+- providers / context tree
+- `aion-orchestrator` and friends
+- `aion-capabilities` (single-writer enforcement is Phase D)
+- DB schema or RPCs
+- pillar route deletion
+- hallway internals
+
+## Phase C — route collapse (original draft, superseded above)
 
 Pages to delete (replaced by 5 surfaces + artifact intents):
 - `src/pages/MindOSPage.tsx`, `src/pages/MindOS/**`
