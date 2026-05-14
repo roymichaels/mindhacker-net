@@ -12,6 +12,7 @@ export function AionArtifactCard(props: {
   breathing?: boolean;
   title?: ReactNode;
   source?: ReactNode;
+  artifactId?: string;
 }) {
   return <AtmoArtifact {...props} />;
 }
