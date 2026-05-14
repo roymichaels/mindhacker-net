@@ -165,9 +165,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <Link
       to={isAdminMode ? "/admin" : "/"}
       className={cn(
-        "select-none font-semibold text-[20px] sm:text-[22px] tracking-[0.28em] leading-none",
+        "select-none font-semibold text-[18px] sm:text-[20px] tracking-[0.32em] leading-none",
         "hover:opacity-80 transition-opacity",
-        brandColors?.text || 'text-foreground',
+        brandColors?.text || 'text-foreground dark:aion-text-hero',
       )}
       aria-label={isAdminMode ? t('admin.panelTitle') : brandName}
     >
@@ -181,13 +181,13 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
       type="button"
       onClick={openInteractiveAION}
       aria-label="פתח מצב AION"
-      className="relative flex-shrink-0 active:scale-[0.97] transition-transform"
+      className="relative flex-shrink-0 active:scale-[0.97] transition-transform animate-aion-breath"
     >
-      {/* subtle breathing glow */}
+      {/* Living halo behind the orb */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 m-auto h-[88px] w-[88px] rounded-full blur-2xl opacity-50"
-        style={{ background: 'radial-gradient(circle, hsl(220 90% 65% / 0.55), transparent 70%)' }}
+        className="pointer-events-none absolute inset-0 m-auto h-[96px] w-[96px] rounded-full blur-2xl opacity-60"
+        style={{ background: 'radial-gradient(circle, hsl(var(--aion-blue) / 0.55), hsl(var(--aion-cyan) / 0.18) 45%, transparent 70%)' }}
       />
       <img
         src={aionOrb}
@@ -266,11 +266,17 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   return (
     <>
       <header
-        className="sticky top-0 z-30 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl"
+        className="sticky top-0 z-30 w-full bg-transparent dark:backdrop-blur-xl"
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
+        {/* Cinematic top tint, fades into atmosphere */}
         <div
-          className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 sm:px-8"
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-full hidden dark:block"
+          style={{ background: 'linear-gradient(180deg, hsl(var(--aion-navy) / 0.55) 0%, transparent 100%)' }}
+        />
+        <div
+          className="relative grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 sm:px-8"
           style={{ minHeight: 96 }}
         >
           {/* LEFT — menu */}
@@ -330,6 +336,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
             <OrbAnchor />
           </div>
         </div>
+        {/* Hairline divider that fades at endpoints */}
+        <div className="atmo-divider" />
 
         {isAdminMode && (
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

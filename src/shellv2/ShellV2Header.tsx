@@ -32,34 +32,56 @@ export default function ShellV2Header() {
     <header
       className={cn(
         'pointer-events-none fixed inset-x-0 top-0',
-        'bg-background/55 backdrop-blur-2xl backdrop-saturate-150',
-        'border-b border-white/[0.06]',
-        'pb-1',
+        'bg-transparent dark:backdrop-blur-xl dark:backdrop-saturate-150',
+        'pt-[env(safe-area-inset-top)]',
       )}
       style={zStyle('chrome')}
       data-shellv2-layer="chrome"
       data-shellv2-header
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="pointer-events-auto mx-auto flex h-11 w-full max-w-screen-md items-center justify-between gap-2 px-3">
+      {/* Cinematic top tint — subtle gradient that fades into the atmosphere */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-full hidden dark:block"
+        style={{
+          background:
+            'linear-gradient(180deg, hsl(var(--aion-navy) / 0.55) 0%, transparent 100%)',
+        }}
+      />
+      <div className="pointer-events-auto relative mx-auto flex min-h-[64px] w-full max-w-screen-md items-center justify-between gap-3 px-4 sm:px-6">
         {/* Left: orb badge */}
         <button
           type="button"
           aria-label={isHe ? 'מצב אינטראקטיבי' : 'Interactive mode'}
           onClick={() => openInteractiveAION()}
-          className="flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-95"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full transition-transform active:scale-95"
         >
-          <img src={aionOrb} alt="" width={32} height={32} draggable={false} className="block h-8 w-8 object-contain" />
+          {/* Living halo behind the orb */}
+          <span
+            aria-hidden
+            className="absolute inset-0 -z-0 rounded-full animate-aion-breath dark:aion-glow-soft"
+          />
+          <img
+            src={aionOrb}
+            alt=""
+            width={36}
+            height={36}
+            draggable={false}
+            className="relative block h-9 w-9 object-contain"
+          />
         </button>
 
         {/* Center: brand (tap to open about sheet) */}
         <button
           type="button"
           onClick={() => setBrandOpen(true)}
-          className="flex min-w-0 flex-1 items-center justify-center gap-2 select-none rounded-full px-3 py-1 active:scale-[0.97] transition"
+          className="flex min-w-0 flex-1 items-center justify-center gap-2 select-none px-3 py-1 active:scale-[0.97] transition"
           aria-label={isHe ? 'אודות' : 'About'}
         >
-          <AionRingMark size={22} withWordmark ariaLabel={brand} />
+          <span className="aion-text-hero text-[18px] font-semibold tracking-[0.32em] leading-none">
+            {brand}
+          </span>
         </button>
 
         {/* Right: hamburger */}
@@ -67,19 +89,21 @@ export default function ShellV2Header() {
           type="button"
           aria-label={isHe ? 'נגן' : 'Player'}
           onClick={() => setPlayerOpen(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] text-foreground/85 backdrop-blur-md transition-colors hover:bg-white/[0.08]"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground/75 transition-colors hover:text-foreground hover:bg-white/[0.04]"
         >
-          <Play className="h-4 w-4" />
+          <Play className="h-[18px] w-[18px]" />
         </button>
         <button
           type="button"
           aria-label={language === 'he' ? 'תפריט' : 'Menu'}
           onClick={() => overlay.open('drawer')}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] text-foreground/85 backdrop-blur-md transition-colors hover:bg-white/[0.08]"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground/75 transition-colors hover:text-foreground hover:bg-white/[0.04]"
         >
           <Menu className="h-5 w-5" />
         </button>
       </div>
+      {/* Hairline divider that fades at endpoints */}
+      <div className="atmo-divider" />
     </header>
 
     <Sheet open={brandOpen} onOpenChange={setBrandOpen}>

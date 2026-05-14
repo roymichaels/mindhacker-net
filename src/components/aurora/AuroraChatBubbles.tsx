@@ -273,8 +273,8 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                   className={cn(
                     "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
                     isAI
-                      ? "bg-muted/30 text-foreground border border-border/30 rounded-ss-md"
-                      : "bg-primary text-primary-foreground rounded-ee-md"
+                      ? "atmo-surface-soft text-foreground rounded-ss-md dark:aion-glow-cyan"
+                      : "rounded-ee-md text-primary-foreground bg-primary dark:bg-aion-violet/85 dark:aion-glow-violet"
                   )}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
@@ -322,7 +322,7 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
             </div>
             <div className="max-w-[80%] space-y-1">
               <span className="text-[10px] font-semibold text-fuchsia-400/70 block px-1">{aiDisplayName}</span>
-              <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm bg-muted/30 text-foreground border border-border/30">
+              <div className="rounded-2xl rounded-ss-md px-3.5 py-2.5 text-sm atmo-surface-soft text-foreground dark:aion-glow-cyan">
                 <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0">
                   <ReactMarkdown>{stripNiqqud(stripReasoning(streamingContent))}</ReactMarkdown>
                 </div>
@@ -343,11 +343,11 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
                 <OrbView size={28} neutral tintHue="hsl(0 0% 100%)" tier="presence" state="thinking" />
               </div>
             </div>
-            <div className="bg-muted/30 border border-border/30 rounded-2xl rounded-ss-md px-4 py-3">
+            <div className="atmo-surface-soft rounded-ss-md px-4 py-3 dark:aion-glow-cyan">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-fuchsia-400/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-cyan-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-amber-400/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-cyan/80 bg-foreground/40 dark:aion-glow-cyan" />
+                <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-blue/80 bg-foreground/40" style={{ animationDelay: '300ms' }} />
+                <span className="w-2 h-2 rounded-full animate-aion-breath dark:bg-aion-violet/80 bg-foreground/40 dark:aion-glow-violet" style={{ animationDelay: '600ms' }} />
               </div>
             </div>
           </motion.div>

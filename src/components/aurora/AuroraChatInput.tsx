@@ -129,7 +129,8 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
   };
 
   return (
-    <div className="shrink-0 w-full bg-background backdrop-blur-xl border-t border-border pt-3 pb-4 px-4">
+    <div className="shrink-0 w-full bg-transparent dark:backdrop-blur-xl pt-3 pb-4 px-4">
+      <div className="atmo-divider mb-3" />
       <form onSubmit={handleSubmit} className="w-full">
         <div className="relative flex items-end gap-3">
           {/* Composer "+" — capability launcher (replaces module nav) */}
@@ -139,7 +140,10 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
             onVoice={!bypassLimits ? voiceMode.open : undefined}
           />
           {/* Input Container */}
-          <div className="flex-1 relative bg-muted rounded-2xl border border-border">
+          <div className={cn(
+            "flex-1 relative atmo-surface-soft transition-shadow",
+            "focus-within:dark:aion-glow-cyan focus-within:ring-1 focus-within:ring-aion-cyan/30",
+          )}>
             <textarea
               ref={textareaRef}
               value={input}
@@ -185,7 +189,7 @@ const AuroraChatInput = ({ onSend, disabled, bypassLimits }: AuroraChatInputProp
             type="submit"
             size="icon"
             disabled={disabled || !input.trim() || isRecording}
-            className="rounded-full h-11 w-11 shrink-0"
+            className="rounded-full h-11 w-11 shrink-0 dark:bg-aion-blue dark:hover:bg-aion-blue/90 dark:aion-glow-soft"
           >
             {disabled ? (
               <Loader2 className="w-5 h-5 animate-spin" />

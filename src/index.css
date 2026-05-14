@@ -924,3 +924,155 @@
   direction: ltr !important;
   text-align: left !important;
 }
+
+/* ==========================================================================
+ * AION CINEMATIC LAYER
+ * Bioluminescent intelligence OS — atmospheric tokens, surfaces, motion.
+ * Dark-mode only; light mode keeps the existing SaaS palette.
+ * ========================================================================== */
+
+:root {
+  --ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.dark, .dark {
+  /* Bioluminescent palette */
+  --aion-navy:    230 55% 6%;
+  --aion-deep:    232 60% 9%;
+  --aion-blue:    212 100% 62%;
+  --aion-cyan:    188 95% 65%;
+  --aion-violet:  265 85% 66%;
+  --aion-magenta: 305 80% 65%;
+
+  /* Cinematic ground gradient */
+  --aion-bg:
+    radial-gradient(120% 80% at 50% -10%, hsl(var(--aion-cyan) / 0.10) 0%, transparent 55%),
+    radial-gradient(80% 60% at 80% 110%, hsl(var(--aion-violet) / 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, hsl(var(--aion-navy)) 0%, hsl(230 60% 4%) 100%);
+}
+
+/* Apply cinematic ground in dark mode (overrides earlier transparent body rule) */
+.dark body {
+  background: var(--aion-bg) !important;
+  background-attachment: fixed;
+}
+
+@layer utilities {
+  /* Borderless atmospheric surface */
+  .atmo-surface {
+    background: linear-gradient(180deg,
+      hsl(var(--aion-deep) / 0.55),
+      hsl(var(--aion-navy) / 0.35));
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border-radius: 1.25rem;
+    box-shadow:
+      inset 0 1px 0 hsl(var(--aion-cyan) / 0.08),
+      0 30px 60px -30px hsl(230 60% 2% / 0.8);
+  }
+  .atmo-surface-soft {
+    background: hsl(var(--aion-deep) / 0.40);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-radius: 1rem;
+    box-shadow: inset 0 1px 0 hsl(var(--aion-cyan) / 0.06);
+  }
+
+  /* Gradient hairline divider, fades at endpoints */
+  .atmo-divider {
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      hsl(var(--aion-cyan) / 0.18) 20%,
+      hsl(var(--aion-violet) / 0.18) 80%,
+      transparent);
+  }
+  .atmo-divider-y {
+    width: 1px;
+    background: linear-gradient(180deg,
+      transparent,
+      hsl(var(--aion-cyan) / 0.18) 20%,
+      hsl(var(--aion-violet) / 0.18) 80%,
+      transparent);
+  }
+
+  /* Living halos */
+  .aion-glow-soft {
+    box-shadow:
+      0 0 24px hsl(var(--aion-blue) / 0.30),
+      0 0 64px hsl(var(--aion-cyan) / 0.18);
+  }
+  .aion-glow {
+    box-shadow:
+      0 0 32px hsl(var(--aion-blue) / 0.45),
+      0 0 96px hsl(var(--aion-violet) / 0.22);
+  }
+  .aion-glow-cyan { box-shadow: 0 0 28px hsl(var(--aion-cyan) / 0.35), 0 0 80px hsl(var(--aion-cyan) / 0.15); }
+  .aion-glow-violet { box-shadow: 0 0 28px hsl(var(--aion-violet) / 0.40), 0 0 80px hsl(var(--aion-violet) / 0.18); }
+  .aion-glow-magenta { box-shadow: 0 0 28px hsl(var(--aion-magenta) / 0.35), 0 0 80px hsl(var(--aion-magenta) / 0.15); }
+
+  /* Cinematic hero text */
+  .aion-text-hero {
+    background: linear-gradient(180deg,
+      hsl(0 0% 100%) 0%,
+      hsl(var(--aion-cyan) / 0.85) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 30px hsl(var(--aion-cyan) / 0.25);
+  }
+
+  .aion-mask-fade-y {
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, black 8%, black 92%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, black 8%, black 92%, transparent 100%);
+  }
+
+  /* Floating nebula blob (used by AtmosphereLayer) */
+  .aion-nebula {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.45;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+}
+
+/* Cinematic motion */
+@keyframes aion-breath {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50%      { transform: scale(1.03); filter: brightness(1.15); }
+}
+@keyframes aion-floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes aion-emerge {
+  0%   { opacity: 0; transform: translateY(12px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes aion-drift-a {
+  0%, 100% { transform: translate3d(-4%, -2%, 0) scale(1); }
+  50%      { transform: translate3d(4%, 3%, 0)   scale(1.08); }
+}
+@keyframes aion-drift-b {
+  0%, 100% { transform: translate3d(3%, 4%, 0)   scale(1.05); }
+  50%      { transform: translate3d(-3%, -2%, 0) scale(0.95); }
+}
+
+.animate-aion-breath  { animation: aion-breath 4.5s var(--ease-cinema) infinite; }
+.animate-aion-float   { animation: aion-floatY 6s   var(--ease-cinema) infinite; }
+.animate-aion-emerge  { animation: aion-emerge 360ms var(--ease-cinema) both; }
+.animate-aion-drift-a { animation: aion-drift-a 22s ease-in-out infinite; }
+.animate-aion-drift-b { animation: aion-drift-b 28s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-aion-breath,
+  .animate-aion-float,
+  .animate-aion-emerge,
+  .animate-aion-drift-a,
+  .animate-aion-drift-b {
+    animation: none !important;
+  }
+}

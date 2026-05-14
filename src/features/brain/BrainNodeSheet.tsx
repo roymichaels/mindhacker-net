@@ -63,7 +63,7 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
 
   return (
     <Sheet open={!!node} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent side="bottom" className="rounded-t-2xl max-h-[80vh] overflow-y-auto">
+      <SheetContent side="bottom" className="rounded-t-3xl max-h-[80vh] overflow-y-auto border-0 dark:atmo-surface dark:aion-glow-cyan">
         {node && (
           <>
             <SheetHeader>
@@ -112,7 +112,7 @@ export default function BrainNodeSheet({ node, onClose, onTalkToAion }: Props) {
                   {evidence.map((ev) => (
                     <li
                       key={ev.id}
-                      className="text-xs text-muted-foreground bg-muted/30 rounded-xl px-3 py-2"
+                      className="text-xs text-muted-foreground atmo-surface-soft rounded-xl px-3 py-2"
                     >
                       <span className="font-medium text-foreground/80 me-2">{ev.source_kind}</span>
                       {ev.summary}
@@ -159,8 +159,11 @@ function Bar({ label, value }: { label: string; value: number }) {
         <span>{label}</span>
         <span>{Math.round(v)}</span>
       </div>
-      <div className="h-1 mt-1 rounded-full bg-muted overflow-hidden">
-        <div className="h-full bg-primary" style={{ width: `${v}%` }} />
+      <div className="h-px mt-1 rounded-full bg-white/[0.06] overflow-hidden">
+        <div
+          className="h-full dark:bg-aion-cyan bg-primary"
+          style={{ width: `${v}%`, boxShadow: '0 0 8px hsl(var(--aion-cyan) / 0.6)' }}
+        />
       </div>
     </div>
   );
