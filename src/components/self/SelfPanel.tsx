@@ -7,6 +7,7 @@
  *  3. Corrections
  *  4. Privacy & settings (collapsed) + Advanced (opens legacy stats)
  */
+import AionPresenceHero from './sections/AionPresenceHero';
 import IdentitySection from './sections/IdentitySection';
 import WhatAionKnowsSection from './sections/WhatAionKnowsSection';
 import CorrectionsSection from './sections/CorrectionsSection';
@@ -24,6 +25,8 @@ export default function SelfPanel({ onOpenAdvanced }: Props) {
   });
   return (
     <div className="mx-auto w-full max-w-md space-y-6 px-4 py-6">
+      <AionPresenceHero />
+      <div className="h-px bg-white/[0.05]" />
       <IdentitySection />
       <div className="h-px bg-white/[0.05]" />
       <WhatAionKnowsSection />
