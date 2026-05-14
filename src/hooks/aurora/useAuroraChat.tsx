@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { debug } from '@/lib/debug';
+import { aionPresenceBus } from '@/aion/presenceState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
@@ -227,6 +228,10 @@ export const useAuroraChat = (conversationId: string | null) => {
     setError(null);
     setIsStreaming(true);
     setStreamingContent('');
+
+    // Phase 5B — presence: noticing → forming (debounced).
+    aionPresenceBus.set('noticing');
+    const _formingTimer = setTimeout(() => aionPresenceBus.set('forming'), 400);
 
     // Phase 1 — AION orchestration trace (observation-only, flag-gated).
     const tracer = (await import('@/diagnostics/aionTrace')).startTurnTrace({
