@@ -17,7 +17,21 @@ export type ArtifactKind =
   | 'journey'
   | 'landing-builder'
   | 'business-canvas'
-  | 'job-mode';
+  | 'job-mode'
+  // Phase 2 — legacy surface collapse: hubs become summonable artifacts.
+  | 'journal'
+  | 'hypnosis'
+  | 'business-dashboard'
+  | 'business-journey'
+  | 'freelancer'
+  | 'creator'
+  | 'therapist'
+  | 'pillar-assess'
+  | 'pillar-results'
+  | 'pillar-history'
+  | 'quest'
+  | 'missions'
+  | 'profile-stats';
 
 export interface ArtifactInstance {
   id: string;
