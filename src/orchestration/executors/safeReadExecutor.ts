@@ -201,8 +201,9 @@ export async function executeReadCapability(
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readBrain(userId)) };
       case 'journey.nextAction':
       case 'task.suggest':
-      case 'daily.generate':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJourneyNext(userId)) };
+      case 'daily.generate':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readDailyPreview(userId)) };
       case 'journey.summarize':
       case 'plan.suggest':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJourneySummary(userId)) };
