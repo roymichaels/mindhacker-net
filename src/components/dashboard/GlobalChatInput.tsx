@@ -10,7 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuroraVoiceMode } from '@/hooks/aurora/useAuroraVoiceMode';
 import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
-import VoiceModeButton from '@/components/aurora/VoiceModeButton';
 import AuroraVoiceMode from '@/components/aurora/AuroraVoiceMode';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { cn } from '@/lib/utils';
