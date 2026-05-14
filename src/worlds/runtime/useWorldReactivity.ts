@@ -16,6 +16,14 @@ import { DEFAULT_CLIMATE } from './types';
 import { ATMOSPHERE_PRESETS } from '@/worlds/atmosphere/atmospherePresets';
 import { getWorld } from '@/worlds/registry';
 import type { CognitiveWorldId } from '../types';
+import {
+  emitResonanceSignal,
+  propagateInfluence,
+  applyBleed,
+  useWorldInfluenceStore,
+} from '@/worlds/resonance/worldPropagation';
+import { useWorldHistoryStore } from '@/worlds/resonance/worldStateHistory';
+import type { WorldResonanceSignal } from '@/worlds/resonance/types';
 
 const ALL_WORLDS = Object.keys(ATMOSPHERE_PRESETS) as CognitiveWorldId[];
 
