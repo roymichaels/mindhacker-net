@@ -1,117 +1,159 @@
-# Phase 5C — "Enter, don't open"
 
-The shift you're describing is concrete: stop framing worlds inside chrome. Let them **be the screen**. The orb stops floating *in* a layout — it becomes the only persistent reality across morphing environments.
+# Phase 5C.2 — Living Worlds Reactivity Layer
 
-This plan is the first executable wave toward that. No new features. We **remove interface** and **promote atmosphere**.
+Goal: evolve the Cognitive Worlds from static immersive scenes into continuously living psychological environments. Each world derives a live `WorldClimate` from simulated signals (habits consistency, emotional intensity, memory density, social activity, creative flow, recovery, momentum, tension), and `WorldAtmosphere` reads that climate to physically reshape light, fog, depth, motion, particle density, harmonic gradients, and pulse — even while the user is idle.
 
-## What's blocking the feeling today
+AION never changes. The orb stays canonical and persistent. The worlds change around it.
 
-Reading `WorldShell.tsx`, every world today is structured as:
+No dashboards, no numbers, no analytics UI. The user feels the system; never reads it.
 
-```text
-[ back btn | "WORLD" label | spacer ]   ← page chrome
-[      AION orb (140px, centered)   ]   ← embedded component
-[      WorldStage (card box)        ]   ← framed scene
-[      WorldComposer (verb pills)   ]   ← bottom action bar
-        max-w-md, px-4, py-4            ← phone-app gutters
-```
+---
 
-Symptoms this produces:
-- The world is a **card inside a layout**, not the layout itself.
-- The orb is **a widget on the page**, not the constant anchor.
-- Atmosphere is a **background**, not the substance.
-- Verbs read as **buttons**, not as gestures into the world.
-- Every world inherits the same skeleton → they all feel like the same screen wearing different paint.
-
-## The architectural inversion
+## Architecture
 
 ```text
-BEFORE                          AFTER
-─────────                       ─────────
-Page > Atmosphere               Atmosphere = Page
-Orb in page                     Page in orb's gravity
-Scene in card                   Scene = full bleed
-Verbs as buttons                Verbs as drift / approach
-"Open Habits"                   "Drift toward ritual"
-Back button                     Pull-down to surface
-World label header              World *is* the label
+                           simulated signals
+                                  │
+          ┌───────────────────────┴───────────────────────┐
+          ▼                                               ▼
+  worldSignals.ts  ──►  worldReactivity.ts  ──►  useWorldClimate(worldId)
+          │                     ▲                          │
+          │                     │                          ▼
+          │             useWorldMomentum             WorldAtmosphere
+          │             useCrossWorldResonance       (reads climate live)
+          │                     ▲                          │
+          └─── worldStateStore ─┘                          ▼
+                                                   PersistentWorldOrb
+                                                   (subtle climate halo only)
+
+                    useWorldReactivity()  ── hidden runtime tick (rAF / interval)
+                       evolves all worlds even when user is idle
 ```
 
-The orb is the only constant. Everything else dissolves and re-forms per world.
+`worldStateStore` (already exists) remains the source of truth for real interaction-derived state (momentum, climate, tensions). Phase 5C.2 adds a **runtime layer on top** that fuses that real state with simulated derived signals into a richer continuous `WorldClimate` consumed by the atmosphere.
 
-## Wave 1 — concrete moves (this is what to build now)
+---
 
-Scope: structural only. No new visuals authored yet — we let the existing `WorldAtmosphere` finally *be* the screen.
+## New files
 
-### 1. Full-bleed `WorldShell`
-- Remove `max-w-md px-4 py-4 space-y-5` container. Shell becomes `fixed inset-0`.
-- `WorldAtmosphere` always `fullBleed`, behind everything, owning 100vh/100vw.
-- Delete the top chrome row (back button + "WORLD" label + spacer).
-- Add a **silent edge-gesture**: pull-down from the top edge to "surface" (return to hallway). No visible button. The atmosphere is the boundary.
+### `src/worlds/runtime/types.ts`
+Defines:
+- `WorldSignals` — the raw per-world input axes:
+  ```
+  habitsConsistency, emotionalIntensity, journalingDensity,
+  memoryActivity, relationshipActivity, creativeActivity,
+  burnoutPressure, recoveryLevel, longTermMomentum,
+  unresolvedTension
+  ```
+  All `0..1`. Optional per world; runtime fills sensible defaults.
+- `WorldClimate` (exact shape specified):
+  ```
+  luminosity, atmosphericDensity, motionIntensity,
+  harmonicStability, particleActivity, resonance,
+  emotionalTemperature, temporalCoherence
+  ```
+- `WorldMomentumSnapshot`, `CrossWorldResonance` — small typed structs.
 
-### 2. Orb becomes the sky, not a card
-- Orb sits in a calm, off-center position per world (each world's atmosphere preset declares an `orbAnchor: { x, y, scale }` so the orb lives differently in each world — high in Higher Self, low in Memory, central in SelfWorld, eccentric in Creative).
-- Orb is rendered through the existing shared stage (`CanonicalAionModel`) so it's still the same entity — but it **persists across world transitions** instead of being mounted per shell. This requires hoisting the orb mount above `WorldRoute` (into the app shell) and letting each world pass an `orbAnchor` that the orb animates toward.
-- Result: when you move between worlds, the orb glides to a new resting place. *It* doesn't change — the world around it does.
+### `src/worlds/runtime/worldSignals.ts`
+- Pure functions that **derive simulated signals** per world from existing `worldStateStore` state plus time-based oscillators (sine drifts at world-specific periods so nothing ever feels frozen).
+- Per-world signal recipes (e.g. Habits emphasises consistency/momentum, Emotions emphasises intensity/tension, Memory emphasises density/longTermMomentum, Higher reduces noise toward coherence).
+- No external data required. Believable scaffolding now; trivial to swap to real signals later.
 
-### 3. Scene = atmosphere, not a stage
-- Delete the `<WorldStage>` card wrapper around scenes (`RitualOrbitsScene`, `BandStackScene`, `ScaffoldScene`). Scenes render directly into the atmosphere layer at full viewport.
-- Existing scenes get a `mode: 'environmental'` prop and switch from "fit inside a box" to "occupy the full canvas with depth bands."
+### `src/worlds/runtime/worldReactivity.ts`
+- Pure mapping `signals → WorldClimate`, world-aware (each world weights axes differently — Habits favours `harmonicStability`, Emotions favours `emotionalTemperature`/`atmosphericDensity`, Memory favours `particleActivity`/`temporalCoherence`, Creative favours `resonance`/`motionIntensity`, Higher favours `temporalCoherence`/low `motionIntensity`).
+- Smooths between previous and next climate using a per-axis lerp (so changes are continuous, never jumpy).
+- Exposes `evolveClimate(prev, signals, dt)`.
 
-### 4. Verbs become drift, not buttons
-- `WorldComposer` retired in its current form. Replace with a single ambient affordance per world:
-  - A faint glyph at the bottom edge that **breathes** in the world's accent color.
-  - Tap-and-hold = the world "responds" (the existing mutation pipeline still fires under the hood — we keep `useGraphMutator` exactly as is). Release = the response settles into the atmosphere.
-  - Optional: long-press shows the verb name briefly; otherwise it stays unnamed. Verbs become **gestures**, not menu items.
-- This preserves the entire living-systems engine; only the UI surface changes.
+### `src/worlds/runtime/useWorldClimate.ts`
+- React hook returning the current `WorldClimate` for a `worldId`.
+- Subscribes to a tiny zustand store (`worldClimateStore`, internal to this module) that the runtime loop updates.
+- Selector-friendly so consumers re-render only when their world's climate slice changes.
 
-### 5. World identity carried by atmosphere, not labels
-- Remove the visible world title from the shell.
-- Each world's name only appears in **the AION whisper line** ("AION is walking inward with you"), once, on entry. Then it dissolves.
-- Identification = palette + motion + orb position + ambient sound (deferred). No chrome label.
+### `src/worlds/runtime/useWorldMomentum.ts`
+- Hook deriving a smoothed momentum snapshot per world (long-window EMA over `worldStateStore.momentum` + simulated `longTermMomentum` oscillation).
+- Used by `WorldAtmosphere` to bias depth and bloom.
 
-### 6. Transitions = **enter**, not navigate
-- `/worlds/:id` route changes are wrapped in a long crossfade (1.2s) where:
-  - Old atmosphere palette dissolves into new atmosphere palette.
-  - Orb glides from old `orbAnchor` to new `orbAnchor` along a curved path.
-  - Scene particles re-form, never wipe.
-- No router page transition. The orb is the through-line.
+### `src/worlds/runtime/useCrossWorldResonance.ts`
+- Computes pairwise resonance between worlds (e.g. Emotions ↔ Relationships, Habits ↔ Higher, Memory ↔ Self) from their climates and recent interaction overlap.
+- Returns the active world's `resonance` value (already part of `WorldClimate`) plus the dominant partner world id (for future use; not rendered yet).
 
-## What we explicitly do NOT do in Wave 1
+### `src/worlds/runtime/useWorldReactivity.ts`
+- The **hidden runtime loop**. Mounted once at app root (next to `PersistentWorldOrb`).
+- Uses a single `setInterval` (~250ms) plus an idle `requestAnimationFrame` micro-tick for the active world only.
+- For each known world: gathers signals → evolves climate → writes to `worldClimateStore`.
+- Pauses heavy work when `document.hidden`; resumes on visibility.
 
-- No new scenes, no new 3D, no Three.js work, no audio.
-- No new worlds, no new mutations, no AI changes.
-- No changes to graph mutation bus, world state store, evolution ticker, AION continuity. Those stay exactly as built in 5B.7.
-- No homepage changes. The marketing shell keeps its hero.
+---
 
-## File map (Wave 1)
+## Edits to existing files
 
-```text
-src/worlds/scene/WorldShell.tsx         rewrite — full-bleed, no chrome
-src/worlds/scene/WorldStage.tsx         deleted (or kept as no-op for back-compat)
-src/worlds/scene/WorldComposer.tsx      replaced by AmbientGesture.tsx
-src/worlds/scene/AmbientGesture.tsx     NEW — single breathing glyph, gesture handler
-src/worlds/scene/scenes/*.tsx           pass `mode='environmental'`, render full-bleed
-src/worlds/atmosphere/atmospherePresets.ts  add `orbAnchor` per world
-src/worlds/orb/PersistentOrbAnchor.tsx  NEW — single mount, animates between anchors
-src/App.tsx                             mount PersistentOrbAnchor above WorldRoute
-src/pages/WorldRoute.tsx                strip route chrome; pass world id only
-mem/architecture/cognitive-worlds-system.md   add "Enter, don't open" addendum
-```
+### `src/worlds/atmosphere/WorldAtmosphere.tsx`
+Extend (do not rewrite) so atmosphere reads `useWorldClimate(worldId)` in addition to the existing preset + `worldStateStore`. Climate now drives:
+- **fog density** → secondary gradient alpha + bottom haze opacity
+- **light bloom** → glow A/B size and opacity scaled by `luminosity`
+- **volumetric depth** → parallax distance + extra depth band when `temporalCoherence` high
+- **particle count / activity** → `particles` density multiplied by `particleActivity`; per-particle twinkle speed from `motionIntensity`
+- **motion speed** → `MOTION_DRIFT` durations divided by `(0.6 + motionIntensity)`
+- **environmental pulse** → low-frequency opacity oscillation amplitude scaled by `1 - harmonicStability`
+- **background harmonic gradient** → hue blended by `emotionalTemperature` (cool → warm) on the climate veil
+- **resonance shimmer** → faint cross-world hue tint when `resonance > 0.5`
 
-## Success check (no metrics, sensory)
+All changes are additive to the existing CSS layers. No new images, no canvas. Keeps `pointer-events: none`.
 
-After Wave 1:
-- Loading `/worlds/habits` should feel like the screen *became* the habits world, not like a new page opened.
-- Switching to `/worlds/emotions` should feel like the same orb is still here, but the weather changed.
-- There should be no visible back button, no visible world title, no visible verb bar.
-- A new user, shown the screen for 2 seconds, should not be able to describe it as "an app." They should describe it as "a place."
+### `src/worlds/orb/PersistentWorldOrb.tsx`
+- Keep canonical orb identical.
+- Wrap orb in a thin halo `div` whose `box-shadow`/`background` opacity is biased by the active world's `luminosity` and `emotionalTemperature` (hue shift only on the *halo*, never the orb itself).
+- Orb palette, geometry, and motion remain untouched. This satisfies "subtly reflects world climate through surrounding atmosphere only".
 
-## After Wave 1 (preview, not in scope)
+### `src/App.tsx`
+- Mount `useWorldReactivity()` once (e.g. inside a tiny `<WorldsRuntime />` component placed next to `<PersistentWorldOrb />`).
+- No other changes.
 
-- **Wave 2** — emotional reactivity: atmosphere reads `presenceState` (valence/arousal/hour) live, so the world breathes with the user.
-- **Wave 3** — continuity bridges: residue from the previous world bleeds into the next (a habit ritual carried into Memory shows up as a faint orbiting echo).
-- **Wave 4** — silence as feature: long idle = the world goes quiet, orb dims, no notifications. The OS *rests* with you.
-- **Wave 5** — remove last app surfaces: the hallway becomes a single drift between worlds, not a menu.
+### `src/worlds/scene/WorldShell.tsx`
+- Pass through nothing new structurally. `WorldAtmosphere` already self-subscribes.
+- Optional: forward `motionIntensity` to `AmbientGesture` so the gesture's breathing rate matches the world's pulse (small, optional; can be deferred).
 
-This plan is the first irreversible step. Once chrome is gone and the orb persists across worlds, the rest of the app starts feeling wrong by comparison — and that pressure naturally pulls the remaining surfaces into the same language.
+---
+
+## Reactivity recipes per world
+
+Implemented inside `worldReactivity.ts`. Examples:
+
+- **Habits** — high `harmonicStability` from consistency; momentum boosts `luminosity` and `resonance`; inconsistency raises `motionIntensity` (orbital wobble).
+- **Emotions** — `emotionalIntensity` raises `motionIntensity` + `atmosphericDensity` (storms); unresolved tension raises `1 - harmonicStability` (turbulence); calm lowers both.
+- **Memory** — `journalingDensity`/`memoryActivity` raise `particleActivity` (constellation count); `longTermMomentum` raises `temporalCoherence` (depth draw distance); inactive memories fade via low `luminosity`.
+- **Relationships** — `relationshipActivity` raises `resonance` and `luminosity`; isolation raises `atmosphericDensity` low (emptiness) and lowers `particleActivity`.
+- **Creative** — `creativeActivity` raises `motionIntensity` and `resonance` (geometry fractures); stagnation collapses `particleActivity`.
+- **Higher Self** — coherence raises `temporalCoherence`, lowers `motionIntensity` and `atmosphericDensity` (silence becomes spatial).
+- **Beliefs / Archetypes / Self** — slower tectonic/ritual/inward responses; long EMAs.
+
+All recipes are pure functions in `worldReactivity.ts`, easy to tune.
+
+---
+
+## Memory updates
+
+Update `mem://architecture/world-atmosphere-system.md` (and add a one-liner to `mem://index.md`):
+- New core principle: **environment = interface**. Atmosphere is driven by `WorldClimate` from `useWorldClimate`, not by static presets alone.
+- Document that `useWorldReactivity()` is the only writer to `worldClimateStore`; consumers read via hooks.
+- Reaffirm: AION orb identity is canonical and never recoloured by climate — only its surrounding halo reflects the world.
+
+---
+
+## Out of scope (explicitly)
+
+- No dashboards, charts, numeric overlays, or any visible signal readouts.
+- No new scenes, no 3D, no audio.
+- No changes to AION canonical orb (geometry, palette, shader).
+- No backend or schema changes; all signals are simulated client-side.
+- No changes to homepage, navigation, auth, or any page outside `/worlds/*` and the global runtime mount.
+
+---
+
+## Success check
+
+After this phase:
+- Sit on any world without interacting → light, fog, particles, and motion continue to evolve subtly.
+- Switch worlds repeatedly → each world feels unmistakably *itself*, with its own breathing rhythm.
+- Heavy interaction in one world (mutations) visibly shifts its atmosphere within seconds and leaves a faint resonance trace in related worlds.
+- Orb is unchanged across all worlds; only its halo subtly inherits the world's emotional temperature.
