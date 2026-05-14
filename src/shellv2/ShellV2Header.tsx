@@ -8,7 +8,7 @@
  * OverlayController.
  */
 import { useState } from 'react';
-import { Menu, Sparkles, Info, Play } from 'lucide-react';
+import { Menu, Info, Play } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
 import { OrbView } from '@/components/orb/v2/OrbView';
