@@ -323,10 +323,35 @@ export const useAuroraChat = (conversationId: string | null) => {
             });
           }
           try {
-            const { bridgeDecisionToArtifact } = await import(
-              '@/orchestration/artifacts/safeBridge'
+            const { CONFIRM_REQUIRED_CAPABILITIES } = await import(
+              '@/orchestration/capabilities/registry'
             );
-            bridgeDecisionToArtifact(decision, tracer, readResult);
+            // Phase F · Step 4 — capability requires confirmation → emit
+            // a sticky confirm artifact instead of running silently.
+            if (decision.capability && CONFIRM_REQUIRED_CAPABILITIES.has(decision.capability)) {
+              // For action.complete we want the latest open action as target.
+              let confirmRead = readResult;
+              if (decision.capability === 'action.complete' && user?.id && !confirmRead) {
+                try {
+                  const { executeReadCapability } = await import(
+                    '@/orchestration/executors/safeReadExecutor'
+                  );
+                  confirmRead = await executeReadCapability('journey.nextAction', user.id);
+                } catch { /* non-fatal */ }
+              }
+              const { bridgeDecisionToConfirmation } = await import(
+                '@/orchestration/artifacts/confirmationBridge'
+              );
+              bridgeDecisionToConfirmation(decision, tracer, {
+                userId: user?.id ?? '',
+                message: content,
+              }, confirmRead);
+            } else {
+              const { bridgeDecisionToArtifact } = await import(
+                '@/orchestration/artifacts/safeBridge'
+              );
+              bridgeDecisionToArtifact(decision, tracer, readResult);
+            }
           } catch (e) {
             tracer.mark('artifact.skipped', {
               reason: 'bridge-error',
