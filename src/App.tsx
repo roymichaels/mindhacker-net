@@ -352,8 +352,8 @@ const App = () => (
                                                     Hosts the same Strategy/Mission engines under the new label.
                                                     /strategy stays mounted for legacy deep-links (pillar pages). */}
                                                 <Route path="/journey" element={<StrategyPage />} />
-                                                <Route path="/hypnosis" element={<HypnosisPage />} />
-                                                <Route path="/journal" element={<JournalingHub />} />
+                                                <Route path="/hypnosis" element={<SummonRoute kind="hypnosis" fallback={<HypnosisPage />} />} />
+                                                <Route path="/journal" element={<SummonRoute kind="journal" fallback={<JournalingHub />} />} />
                                                 {/* All legacy aliases (/play /now /plan /hallway /mindos/* /work /life /career /*-hub …)
                                                     are owned by PROTECTED_REDIRECTS in src/routes/redirects.tsx. */}
                                                 <Route path="/strategy/presence" element={<PresenceHome />} />
@@ -423,7 +423,7 @@ const App = () => (
                                                 {/* Launchpad */}
                                                 <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
                                                 {/* Quests */}
-                                                <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
+                                                <Route path="/quests/:pillar" element={<SummonRoute kind="quest" fallback={<QuestRunnerPage />} />} />
                                                 {/* Learn */}
                                                 <Route path="/learn" element={<LearnLayoutWrapper />} />
                                                 {/* Work Hub */}
@@ -440,16 +440,16 @@ const App = () => (
                                                 <Route path="/projects/journey" element={<ProjectsJourney />} />
                                                 <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
                                                 {/* Business */}
-                                                <Route path="/business" element={<BusinessIndexWrapper />} />
-                                                <Route path="/business/journey" element={<BusinessJourneyWrapper />} />
-                                                <Route path="/business/journey/:journeyId" element={<BusinessJourneyWrapper />} />
-                                                <Route path="/business/:businessId" element={<BusinessDashboardWrapper />} />
+                                                <Route path="/business" element={<SummonRoute kind="business-dashboard" fallback={<BusinessIndexWrapper />} />} />
+                                                <Route path="/business/journey" element={<SummonRoute kind="business-journey" fallback={<BusinessJourneyWrapper />} />} />
+                                                <Route path="/business/journey/:journeyId" element={<SummonRoute kind="business-journey" fallback={<BusinessJourneyWrapper />} />} />
+                                                <Route path="/business/:businessId" element={<SummonRoute kind="business-dashboard" fallback={<BusinessDashboardWrapper />} />} />
                                                 {/* Freelancer */}
-                                                <Route path="/freelancer" element={<FreelancerLayoutWrapper />} />
+                                                <Route path="/freelancer" element={<SummonRoute kind="freelancer" fallback={<FreelancerLayoutWrapper />} />} />
                                                 {/* Creator */}
-                                                <Route path="/creator" element={<CreatorLayoutWrapper />} />
+                                                <Route path="/creator" element={<SummonRoute kind="creator" fallback={<CreatorLayoutWrapper />} />} />
                                                 {/* Therapist */}
-                                                <Route path="/therapist" element={<TherapistLayoutWrapper />} />
+                                                <Route path="/therapist" element={<SummonRoute kind="therapist" fallback={<TherapistLayoutWrapper />} />} />
                                                 {/* Success */}
                                                 <Route path="/success" element={<Success />} />
                                               </Route>
