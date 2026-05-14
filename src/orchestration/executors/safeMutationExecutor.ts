@@ -19,6 +19,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { createJournalEntry } from '@/services/journalEntries';
 import { completeAction } from '@/services/actionItems';
 import type { CapabilityId } from '@/orchestration/capabilities/registry';
+import { startWorkSession } from '@/services/workSessions';
+import { previewTTS } from '@/services/ttsSpeak';
 
 export interface MutationInput {
   userId: string;
@@ -45,6 +47,14 @@ const ALLOWED: ReadonlySet<CapabilityId> = new Set<CapabilityId>([
   'journal.capture',
   'action.complete',
   'hypnosis.start',
+  // Phase 2 · Batch 3
+  'fm.listing.create',
+  'message.send',
+  'subscription.portal',
+  'checkout.create',
+  'tts.speak',
+  'work.startSession',
+  'schedule.block',
 ]);
 
 const now = () => Date.now();
@@ -135,6 +145,109 @@ export async function executeMutationCapability(
           summary: 'תצוגה מקדימה בלבד — מפגש ההיפנוזה לא נפתח אוטומטית.',
           skippedReason: 'no-mutation-endpoint',
         };
+      }
+
+      case 'fm.listing.create': {
+        const title = (input.message ?? '').trim().slice(0, 80) || 'מודעה חדשה';
+        const { data, error } = await supabase
+          .from('fm_gigs')
+          .insert({ user_id: input.userId, title, status: 'draft' } as any)
+          .select('id')
+          .maybeSingle();
+        if (error) throw error;
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'נוצרה טיוטת מודעה.', rowsWritten: 1, table: 'fm_gigs',
+          data: { id: (data as any)?.id } };
+      }
+
+      case 'message.send': {
+        const conversationId = input.targetId ?? null;
+        const content = (input.message ?? '').trim();
+        if (!conversationId || !content) {
+          return { ok: false, capability, source: 'preview', durationMs: now() - t0,
+            summary: 'חסר תוכן או מזהה שיחה.', skippedReason: 'missing-target-or-content' };
+        }
+        const { data, error } = await supabase
+          .from('messages')
+          .insert({ conversation_id: conversationId, sender_id: input.userId, content } as any)
+          .select('id')
+          .maybeSingle();
+        if (error) throw error;
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'ההודעה נשלחה.', rowsWritten: 1, table: 'messages',
+          data: { id: (data as any)?.id } };
+      }
+
+      case 'subscription.portal': {
+        const { data, error } = await supabase.functions.invoke('customer-portal', {});
+        if (error) throw error;
+        const url = (data as any)?.url;
+        if (typeof window !== 'undefined' && url) window.open(url, '_blank');
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'נפתח Stripe Portal.', table: 'customer-portal',
+          data: { url, external: true } };
+      }
+
+      case 'checkout.create': {
+        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+          body: { tier: input.targetId ?? 'plus' },
+        });
+        if (error) throw error;
+        const url = (data as any)?.url;
+        if (typeof window !== 'undefined' && url) window.open(url, '_blank');
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'נפתח עמוד תשלום.', table: 'create-checkout-session',
+          data: { url, external: true } };
+      }
+
+      case 'tts.speak': {
+        const preview = previewTTS(input.message ?? '');
+        if (!preview.ok) {
+          return { ok: false, capability, source: 'preview', durationMs: now() - t0,
+            summary: 'אין טקסט להקראה.', skippedReason: 'empty-text' };
+        }
+        const { data, error } = await supabase.functions.invoke('elevenlabs-tts', {
+          body: { text: input.message, voiceId: preview.voiceId },
+        });
+        if (error) throw error;
+        const audioContent = (data as any)?.audioContent;
+        if (audioContent && typeof window !== 'undefined') {
+          const audio = new Audio(`data:audio/mpeg;base64,${audioContent}`);
+          void audio.play().catch(() => {});
+        }
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'מתבצעת השמעה.', table: 'elevenlabs-tts',
+          data: { chars: preview.charCount, external: true } };
+      }
+
+      case 'work.startSession': {
+        const title = (input.message ?? '').trim().slice(0, 80) || 'סשן עבודה';
+        const session = await startWorkSession({ user_id: input.userId, title });
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'סשן פוקוס התחיל.', rowsWritten: 1, table: 'work_sessions',
+          data: { id: (session as any)?.id, title } };
+      }
+
+      case 'schedule.block': {
+        const title = (input.message ?? '').trim().slice(0, 80) || 'בלוק זמן';
+        const date = new Date().toISOString().slice(0, 10);
+        const { data, error } = await supabase
+          .from('action_items')
+          .insert({
+            user_id: input.userId,
+            title,
+            type: 'task',
+            source: 'aion',
+            status: 'todo',
+            scheduled_date: date,
+            metadata: { schedule_block: true, block_type: 'focus', intensity: 'med' },
+          } as any)
+          .select('id')
+          .maybeSingle();
+        if (error) throw error;
+        return { ok: true, capability, source: 'mutation', durationMs: now() - t0,
+          summary: 'בלוק נוסף ליום הנוכחי.', rowsWritten: 1, table: 'action_items',
+          data: { id: (data as any)?.id, date, title } };
       }
     }
   } catch (e) {

@@ -156,6 +156,27 @@ function mapToRenderer(sourceKind: string, capability: string): RendererSpec | n
         body: 'AION · Avatar · DNA',
         cta: { label: 'פתח פרופיל', href: '/profile' },
       };
+    // Phase 2 · Batch 3 — Economy / Social / Payments / Voice / Work
+    case 'marketplace.card':
+      return { kind: 'capability', title: 'שוק חופשי', body: 'תצוגה מקדימה של מודעות בשוק.', cta: { label: 'פתח שוק', href: '/free-market' } };
+    case 'wallet.sheet':
+      return { kind: 'capability', title: 'ארנק', body: 'יתרה ופעולות אחרונות.', cta: { label: 'פתח ארנק', href: '/free-market?wallet=open' } };
+    case 'community.preview':
+      return { kind: 'capability', title: 'קהילה', body: 'פוסטים אחרונים בקהילה.', cta: { label: 'פתח קהילה', href: '/community' } };
+    case 'message.preview':
+      return { kind: 'capability', title: 'הודעות', body: 'תצוגה מקדימה של הודעות.', cta: { label: 'פתח הודעות', href: '/messages' } };
+    case 'subscription.card':
+      return { kind: 'note', title: 'מצב מנוי', body: 'תצוגה מקדימה של המנוי שלך.', cta: { label: 'פתח מנוי', href: '/subscriptions' } };
+    case 'checkout.confirmation':
+      return { kind: 'capability', title: 'מסך תשלום', body: 'פעולה חיצונית — נפתחת בחלון Stripe.', cta: { label: 'פתח מנוי', href: '/subscriptions' } };
+    case 'voice.capture':
+      return { kind: 'note', title: 'הקלטה קולית', body: 'מוכן להקליט הודעה קולית.' };
+    case 'audio.preview':
+      return { kind: 'note', title: 'השמעת טקסט', body: 'תצוגה מקדימה של ההשמעה.' };
+    case 'work.session-card':
+      return { kind: 'capability', title: 'עבודה', body: 'סיכום סשן/פוקוס.', cta: { label: 'פתח Work Hub', href: '/work' } };
+    case 'schedule.block-preview':
+      return { kind: 'capability', title: 'בלוק זמן', body: 'תצוגה מקדימה של בלוק יומי.', cta: { label: 'פתח Work Hub', href: '/work' } };
     // Intentionally unmapped (would mutate / no safe preview): journal.entry
     default:
       void capability;

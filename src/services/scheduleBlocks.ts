@@ -113,3 +113,46 @@ export async function generateDayBlocks(
   if (error) throw error;
   return data as unknown as ScheduleBlock[];
 }
+
+/* ─── Phase 2 Batch 3 — preview & summary helpers (read-only) ─── */
+
+export interface BlockPreview {
+  text: string;
+  title: string;
+  start_time: string;
+  end_time: string;
+  date: string;
+  block_type: BlockType;
+}
+
+export function previewBlock(input: {
+  title?: string;
+  start_time?: string;
+  end_time?: string;
+  date?: string;
+  block_type?: BlockType;
+}): BlockPreview {
+  const date = input.date ?? new Date().toISOString().slice(0, 10);
+  const start = input.start_time ?? '09:00';
+  const end = input.end_time ?? '10:00';
+  const title = (input.title ?? 'בלוק זמן').slice(0, 80);
+  const block_type: BlockType = input.block_type ?? 'focus';
+  return {
+    text: `בלוק "${title}" · ${date} ${start}–${end}`,
+    title, start_time: start, end_time: end, date, block_type,
+  };
+}
+
+export async function summarizeUpcomingBlocks(userId: string): Promise<{
+  text: string;
+  blocks: ScheduleBlock[];
+  date: string;
+}> {
+  const date = new Date().toISOString().slice(0, 10);
+  const blocks = await getScheduleBlocks(userId, date).catch(() => [] as ScheduleBlock[]);
+  const next = blocks.find((b) => b.status === 'todo');
+  const text = blocks.length
+    ? `${blocks.length} בלוקים היום${next ? ` · הבא: "${next.title}" ${next.start_time?.slice(0, 5) ?? ''}` : ''}`
+    : 'אין בלוקים מתוכננים להיום.';
+  return { text, blocks, date };
+}

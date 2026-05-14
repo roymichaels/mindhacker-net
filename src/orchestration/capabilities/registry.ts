@@ -63,6 +63,24 @@ export const CAPABILITIES = {
   // Profile / Identity / Avatar
   'identity.bootstrap':       def({ id: 'identity.bootstrap',       description: 'Bootstrap identity (profile/DNA/avatar status).',       inputSchema: z.object({}).optional(),                          safety: 'safe', artifactKind: 'identity.summary',        declaredMode: 'read' }),
   'avatar.configure':         def({ id: 'avatar.configure',         description: 'Open avatar configurator (confirm-required mutate).',   inputSchema: z.object({}).optional(),                          safety: 'safe', artifactKind: 'avatar.configurator',     declaredMode: 'mutate' }),
+  // Phase 2 · Batch 3 — Economy / Social / Payments / Voice / Work
+  'fm.search':            def({ id: 'fm.search',            description: 'Search Free Market gigs/bounties.',                  inputSchema: z.object({ query: z.string().optional() }), safety: 'safe', artifactKind: 'marketplace.card',      declaredMode: 'read' }),
+  'fm.listing.preview':   def({ id: 'fm.listing.preview',   description: 'Preview a single Free Market listing.',                inputSchema: z.object({ id: z.string().optional() }),    safety: 'safe', artifactKind: 'marketplace.card',      declaredMode: 'read' }),
+  'fm.listing.create':    def({ id: 'fm.listing.create',    description: 'Create a Free Market listing draft (confirm-required).', inputSchema: z.object({ title: z.string().optional() }), safety: 'safe', artifactKind: 'marketplace.card',      declaredMode: 'mutate' }),
+  'wallet.open':          def({ id: 'wallet.open',          description: 'Open the Free Market wallet sheet.',                   inputSchema: z.object({}).optional(),                    safety: 'safe', artifactKind: 'wallet.sheet',          declaredMode: 'read' }),
+  'wallet.status':        def({ id: 'wallet.status',        description: 'Read wallet balance and recent transactions.',         inputSchema: z.object({}).optional(),                    safety: 'safe', artifactKind: 'wallet.sheet',          declaredMode: 'read' }),
+  'community.feed':       def({ id: 'community.feed',       description: 'Read recent community posts.',                          inputSchema: z.object({ query: z.string().optional() }), safety: 'safe', artifactKind: 'community.preview',     declaredMode: 'read' }),
+  'community.thread':     def({ id: 'community.thread',     description: 'Read a community thread + comments.',                   inputSchema: z.object({ id: z.string().optional() }),    safety: 'safe', artifactKind: 'community.preview',     declaredMode: 'read' }),
+  'message.search':       def({ id: 'message.search',       description: 'Search the user\'s messages (read-only).',              inputSchema: z.object({ query: z.string().optional() }), safety: 'safe', artifactKind: 'message.preview',       declaredMode: 'read' }),
+  'message.send':         def({ id: 'message.send',         description: 'Send a message in an existing conversation (confirm).', inputSchema: z.object({ conversationId: z.string().optional(), body: z.string().optional() }), safety: 'safe', artifactKind: 'message.preview', declaredMode: 'mutate' }),
+  'subscription.status':  def({ id: 'subscription.status',  description: 'Read current subscription tier and status.',            inputSchema: z.object({}).optional(),                    safety: 'safe', artifactKind: 'subscription.card',     declaredMode: 'read' }),
+  'subscription.portal':  def({ id: 'subscription.portal',  description: 'Open Stripe Customer Portal (external, confirm).',      inputSchema: z.object({}).optional(),                    safety: 'safe', artifactKind: 'checkout.confirmation', declaredMode: 'mutate' }),
+  'checkout.create':      def({ id: 'checkout.create',      description: 'Create a Stripe checkout session (external, confirm).', inputSchema: z.object({ tier: z.string().optional() }),  safety: 'safe', artifactKind: 'checkout.confirmation', declaredMode: 'mutate' }),
+  'voice.transcribe':     def({ id: 'voice.transcribe',     description: 'Describe voice capture availability (read).',           inputSchema: z.object({}).optional(),                    safety: 'safe', artifactKind: 'voice.capture',         declaredMode: 'read' }),
+  'tts.speak':            def({ id: 'tts.speak',            description: 'Speak a text aloud via TTS (confirm-required).',         inputSchema: z.object({ text: z.string().optional(), voiceId: z.string().optional() }), safety: 'safe', artifactKind: 'audio.preview', declaredMode: 'mutate' }),
+  'work.startSession':    def({ id: 'work.startSession',    description: 'Start a focus work session (confirm-required).',         inputSchema: z.object({ title: z.string().optional(), isDeepWork: z.boolean().optional() }), safety: 'safe', artifactKind: 'work.session-card', declaredMode: 'mutate' }),
+  'work.summarize':       def({ id: 'work.summarize',       description: 'Summarize today\'s work sessions and score.',            inputSchema: z.object({}).optional(),                    safety: 'safe', artifactKind: 'work.session-card',     declaredMode: 'read' }),
+  'schedule.block':       def({ id: 'schedule.block',       description: 'Add a schedule block to the day (confirm-required).',   inputSchema: z.object({ title: z.string().optional(), start_time: z.string().optional(), end_time: z.string().optional(), date: z.string().optional() }), safety: 'safe', artifactKind: 'schedule.block-preview', declaredMode: 'mutate' }),
 } as const;
 
 export type CapabilityId = keyof typeof CAPABILITIES;
@@ -96,6 +114,14 @@ export const CONFIRM_REQUIRED_CAPABILITIES: ReadonlySet<CapabilityId> = new Set<
   'curriculum.generate',
   'coach.match',
   'avatar.configure',
+  // Phase 2 · Batch 3
+  'fm.listing.create',
+  'message.send',
+  'subscription.portal',
+  'checkout.create',
+  'tts.speak',
+  'work.startSession',
+  'schedule.block',
 ]);
 
 export function effectiveMode(id: CapabilityId): CapabilityMode {

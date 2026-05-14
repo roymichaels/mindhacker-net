@@ -1,82 +1,195 @@
-## AION Brand Rebrand — UI/Layer Only
+## Phase 2 — Capability Extraction, Batch 3
 
-Replace public-facing **MindOS / Aurora / Mind OS / אורורה / מיינד OS** with **AION** across the UI, metadata, and brand assets. Keep all backend code, file names, edge functions, table names, and internal identifiers untouched.
+Extract economy, social, payment, voice, and work capabilities into reusable services and register them in the AION capability system. No page deletions, no route changes, no silent writes. All mutations stay behind `confirmationBridge`. All payments/external/messaging stay confirm-required.
 
-### Scope
+### 1. New service modules (read-only adapters around existing logic)
 
-- ~91 source files contain user-facing brand strings (~328 occurrences).
-- Three categories: (1) HTML/PWA metadata, (2) i18n strings, (3) inline JSX/TS labels.
-- Backend, hooks, contexts, file paths, supabase functions: **untouched**.
+| Service file | Wraps existing | Exposes |
+|---|---|---|
+| `src/services/fmMarket.ts` | `useFMBounties`, `fm_listings`, `fm_bounties` tables | `searchListings(query?)`, `previewListing(id)`, `summarizeFM(userId)` |
+| `src/services/walletStatus.ts` | `useFMWallet`, `useFMTransactions` | `getWalletStatus(userId)`, `getRecentTransactions(userId)` |
+| `src/services/communityFeed.ts` | `community_posts`, `community_threads` | `getFeed(query?)`, `getThread(threadId)` |
+| `src/services/messaging.ts` | `messages`, `message_threads` | `searchMessages(userId, query?)`, `previewSend(userId, recipientId, body)` (no write) |
+| `src/services/subscriptionStatus.ts` | edge fn `check-subscription`, `subscribers` table | `getSubscriptionStatus(userId)` (read-only summary) |
+| `src/services/voiceCapture.ts` | edge fn `elevenlabs-transcribe` | `describeVoiceCapture()` (returns capability descriptor; actual transcription stays in existing hook, wrapped only) |
+| `src/services/ttsSpeak.ts` | edge fn `elevenlabs-tts`, existing `ttsPlayer` | `previewTTS(text, voiceId?)` returns metadata only; actual playback through confirmation |
+| `src/services/workSummary.ts` | `useTodayWorkSessions`, `useTodayWorkScore` | `summarizeWorkToday(userId)`, `previewStartSession(input)` |
+| `src/services/scheduleBlocks.ts` (already exists — extend) | `schedule_blocks` table | Add `previewBlock(input)`, `summarizeUpcomingBlocks(userId)` |
 
-### 1. Brand assets
+All services follow the Batch 1/2 pattern: read-only Supabase queries with RLS, return `{ text, samples?, total?, ... }` shaped payloads. No writes.
 
-- Copy uploaded logo → `public/aion-logo.png` (full mark with wordmark) and `src/assets/aion-logo.png` (for component imports).
-- Add `public/aion-icon.png` (cropped ring only) for favicon / PWA icons.
-- Keep existing `aurora-icon.svg` file but stop referencing it from `index.html`.
-- Replace favicon + apple-touch-icon + PWA 192/512 icons with the AION ring.
+### 2. Capability registry additions (`src/orchestration/capabilities/registry.ts`)
 
-### 2. HTML / SEO / PWA metadata
+| ID | declaredMode | safety | artifactKind |
+|---|---|---|---|
+| `fm.search` | read | safe | `marketplace.card` |
+| `fm.listing.preview` | read | safe | `marketplace.card` |
+| `fm.listing.create` | mutate | safe | `marketplace.card` |
+| `wallet.open` | read | safe | `wallet.sheet` |
+| `wallet.status` | read | safe | `wallet.sheet` |
+| `community.feed` | read | safe | `community.preview` |
+| `community.thread` | read | safe | `community.preview` |
+| `message.search` | read | safe | `message.preview` |
+| `message.send` | mutate | safe | `message.preview` |
+| `subscription.status` | read | safe | `subscription.card` |
+| `subscription.portal` | mutate | safe | `checkout.confirmation` |
+| `checkout.create` | mutate | safe | `checkout.confirmation` |
+| `voice.transcribe` | read | safe | `voice.capture` |
+| `tts.speak` | mutate | safe | `audio.preview` |
+| `work.startSession` | mutate | safe | `work.session-card` |
+| `work.summarize` | read | safe | `work.session-card` |
+| `schedule.block` | mutate | safe | `schedule.block-preview` |
 
-Files: `index.html`, `public/manifest.webmanifest`, `src/lib/seo.ts`.
+Add these IDs to `CONFIRM_REQUIRED_CAPABILITIES`:
+`fm.listing.create`, `message.send`, `subscription.portal`, `checkout.create`, `tts.speak`, `work.startSession`, `schedule.block`.
 
-- Title → `AION — Your Future Self`
-- Description → AION-centric copy (drop "MindOS"/"Evolve" from public meta).
-- og:site_name, og:title, twitter:title, JSON-LD `name`, `application-name`, `apple-mobile-web-app-title` → `AION`.
-- Manifest `name` / `short_name` / `description` → AION.
-- Favicon link → `/aion-icon.png`.
+(`voice.transcribe` is read because it captures transient audio without DB write; the actual edge call already requires user mic gesture.)
 
-### 3. i18n strings (Hebrew + English)
+### 3. Router rules (`observeRouter.ts`)
 
-Files: `src/i18n/translations/he.ts`, `src/i18n/translations/en.ts`.
+Add bilingual keyword buckets above existing rules where higher priority is needed (mutate-before-read pattern):
 
-Find/replace user-visible values only (not keys):
-- `Aurora`, `Aurora AI`, `MindOS`, `Mind OS` → `AION`
-- `אורורה`, `מיינד OS`, `המיינד OS`, `מערכת MindOS` → `AION`
-- Sentences like "אורורה חושבת..." → "AION חושב..." (masculine, matches existing AION persona rules).
+```text
+fm.listing.create   → /list.*(item|on market)|create.*listing/i, /העלה למרקט|פרסם.*מודעה|תפרסם.*מוצר/
+message.send        → /send.*message|reply to/i, /שלח הודעה|תשלח לו|תענה ל/
+subscription.portal → /manage.*(subscription|plan|billing)/i, /נהל.*מנוי|בטל מנוי|חיוב/
+checkout.create     → /upgrade|buy|subscribe|checkout/i, /שדרג|קנה|הרשם.*פלוס|שלם/
+work.startSession   → /start.*(focus|deep work|session)/i, /התחל.*פוקוס|פתח טיימר|זמן עבודה/
+schedule.block      → /schedule.*block|block.*time|put.*calendar/i, /קבע בלוק|חסום זמן|תוסיף ליומן/
+tts.speak           → /read.*aloud|speak.*this/i, /הקרא לי|תקרא לי|דבר את זה/
+voice.transcribe    → /transcribe|voice note/i, /תמלל|הקלטה קולית/
+```
 
-### 4. Inline UI labels
+Reads:
+```text
+fm.search          → /marketplace|free market|bounties/i, /שוק חופשי|באונטיז|מרקט|מודעות/
+fm.listing.preview → /show.*listing|preview.*listing/i, /הצג מודעה|תראה לי את ה?מודעה/
+wallet.status      → /wallet|balance|mos\b/i, /ארנק|יתרה|כמה MOS/
+wallet.open        → /open.*wallet/i, /פתח.*ארנק/
+community.feed     → /community|feed/i, /קהילה|פיד/
+community.thread   → /thread|discussion/i, /שיחה|דיון/
+message.search     → /search.*messages|find.*messages/i, /חפש בהודעות|הודעות/
+subscription.status→ /my.*subscription|plan.*status/i, /המנוי שלי|מצב מנוי/
+work.summarize     → /work.*today|focus.*summary/i, /כמה עבדתי|סיכום עבודה|פוקוס היום/
+```
 
-Sweep through visible string literals in:
+### 4. `safeReadExecutor.ts` — add cases
 
-- **Shell**: `src/shellv2/ShellV2.tsx`, `ShellV2Header.tsx`, `ShellV2Drawer.tsx`, `layers/ChromeLayer.tsx`, `layers/ChatLayer.tsx`.
-- **Pages**: `MindOSPage.tsx` (header text only — keep filename), `MindOS/JournalPage.tsx`, `Blog.tsx`, `BlogPost.tsx`, `Documentation.tsx`, `Install.tsx`, `Learn.tsx`, `LaunchpadComplete.tsx`, `Community.tsx`, `MessageThread.tsx`, `NotFound.tsx`, `Unsubscribe.tsx`, `PractitionerProfile.tsx`, `CourseDetail.tsx`, `FeatureDetailPage.tsx`, `pillars/PresenceHome.tsx`, `fm/FMMarket.tsx`, `fm/FMBridge.tsx`.
-- **Components**: `aurora/AuroraDock.tsx`, `orb/AIONFloatingWidget.tsx`, `orb/AIONChatPanel.tsx`, `community/*`, `fm/FMOnboarding.tsx`, `fm/FMAuroraCard.tsx` (label only), `modals/WelcomeGateModal.tsx`, `modals/UserDocsModal.tsx`, `subscription/*Modal.tsx`, `pillars/DomainAssessChat.tsx`, `missions/MiniMilestoneModal.tsx`, `pdf/PDFCoverPage.tsx`, `docs/VisualWhitepaper.tsx`, `founding/FoundingPlatformDeep.tsx`, `profile/TransformationReportCard.tsx`, `story/StorySurfaceHost.tsx`.
-- **Brain**: `features/brain/BrainView.tsx` → "AION is building your map" / "AION בונה לך את המפה".
-- **Data files**: `data/galleryOrbData.ts`, `data/featureShowcaseData.ts`, `data/featureDetailData.ts`, `meta/appMap.ts`, `navigation/canonicalSurfaces.ts`, `flows/onboardingFlowSpec.ts`, `flows/pillarSpecs/mindQuestSpec.ts`, `lib/storyWorld.ts`, `lib/subscriptionTiers.ts`, `lib/tools/extractDomainProfile.ts`, `lib/pdfGenerator.ts`, `lib/flowAudit.ts`, `lib/stripReasoning.ts`, `config/tokenomics.ts` — replace display strings only.
-- **Misc**: `utils/calendarExport.ts` (event titles), `services/unifiedContext.ts` (system text shown to user), `hooks/usePWA.ts`, `hooks/useThemeSettings.ts` defaults, `App.tsx` document.title.
+For each new capability, add a `read*` helper and a `case` branch wired to its service. Mutate capabilities still execute the read path for grounding (same pattern as `landing.generate` → `readLanding`).
 
-### 5. Menu / header / chat labels
+Mapping:
+- `fm.search` → `searchListings`
+- `fm.listing.preview` / `fm.listing.create` → `previewListing` / `summarizeFM`
+- `wallet.open` / `wallet.status` → `getWalletStatus`
+- `community.feed` → `getFeed`
+- `community.thread` → `getThread`
+- `message.search` / `message.send` → `searchMessages`
+- `subscription.status` / `subscription.portal` / `checkout.create` → `getSubscriptionStatus`
+- `voice.transcribe` → `describeVoiceCapture` (pure metadata)
+- `tts.speak` → `previewTTS` (text validation only)
+- `work.summarize` / `work.startSession` → `summarizeWorkToday`
+- `schedule.block` → `summarizeUpcomingBlocks`
 
-- App header brand → AION wordmark image (small) + "AION" text.
-- Drawer header → AION logo.
-- Chat thread label → use `useAIONDisplayName()` (already returns AION fallback) — replace any hard-coded "Aurora"/"MindOS" labels with that hook's `displayName`.
-- `MindOSPage` tab `key: 'chat'` already shows `aionName` — keep; rebrand surrounding `h1` from "MindOS" → "AION" and update subtitle copy.
+### 5. `safeBridge.ts` — artifact mappings
 
-### 6. Explicitly NOT touched
+Add `case` branches mapping new `artifactKind` values to existing renderers. Since `marketplace.card`, `wallet.sheet`, `community.preview`, `message.preview`, `subscription.card`, `checkout.confirmation`, `voice.capture`, `audio.preview`, `work.session-card`, `schedule.block-preview` do **not** have dedicated renderers in `artifactRegistry`, fall back to existing safe kinds:
 
-- File/folder names (`MindOSPage.tsx`, `pages/MindOS/*`, `aurora-chat`, `useAuroraChat`, `AuroraChatContext`, `aurora-icon.svg`, edge functions `aurora-*`, `mindos-sw-reset-version` localStorage key, `__MINDOS_BOOTSTRAP__`).
-- All Supabase tables, RPC names, edge function URLs.
-- Internal types, hook names, context names, route paths (`/mindos/*` routes stay; only their displayed labels change).
-- `_legacy/`, `docs/`, `mem/`, `management/`, `openclaw-workspace/`, `supabase/functions/` — internal only.
-- `DEPLOYMENT.md`, comments, JSDoc.
+| sourceKind | renderer kind | CTA href |
+|---|---|---|
+| `marketplace.card` | `capability` | `/free-market` |
+| `wallet.sheet` | `capability` | `/free-market?wallet=open` (opens existing modal) |
+| `community.preview` | `capability` | `/community` |
+| `message.preview` | `capability` | `/messages` |
+| `subscription.card` | `note` | `/subscriptions` |
+| `checkout.confirmation` | `capability` | `/subscriptions` |
+| `voice.capture` | `note` | none (transient) |
+| `audio.preview` | `note` | none |
+| `work.session-card` | `capability` | `/work` |
+| `schedule.block-preview` | `capability` | `/work` |
 
-### 7. Verification
+Each mapped entry emits `artifact.candidate` with `rendered:true`. If a true dedicated renderer is later wanted, it can replace the fallback without touching capability code. Mappings that genuinely have no safe surface (none in this batch) would emit `artifact.skipped(reason: missing_renderer)`.
 
-- Grep `src/` for `MindOS|Mind OS|Aurora AI|Aurora|אורורה|מיינד` after edits — every remaining hit must be either (a) an identifier/import/path/comment, or (b) explicitly listed as intentional internal.
-- Manual preview check on: home, /mindos/chat, /brain, /community, drawer, install prompt, PWA add-to-home title.
-- Verify `<title>`, og tags, manifest in DevTools.
+### 6. `confirmationBridge.ts` — describe() additions
 
-### 8. Deliverable
+Add cases for each confirm-required capability. Examples:
+- `fm.listing.create`: title "לפרסם מודעה?", source `fm_listings`, label "פרסם".
+- `message.send`: title "לשלוח את ההודעה?", source `messages`, label "שלח".
+- `subscription.portal`: title "לפתוח את ניהול המנוי?", source `customer-portal` (external), label "פתח Portal".
+- `checkout.create`: title "להמשיך לתשלום?", source `create-checkout-session`, label "המשך לתשלום".
+- `tts.speak`: title "להשמיע בקול?", source `elevenlabs-tts`, label "השמע".
+- `work.startSession`: title "להתחיל סשן פוקוס?", source `work_sessions`, label "התחל".
+- `schedule.block`: title "להוסיף בלוק ליומן?", source `schedule_blocks`, label "קבע בלוק".
 
-Single batched edit pass producing:
-- updated `index.html`, `manifest.webmanifest`, copied logo assets
-- updated i18n files
-- updated visible JSX/TS strings across the file list above
-- a final report listing: files changed, count of replacements, intentional internal residue (file paths, hooks, edge functions), and any preview screenshots of header/drawer/Brain/PWA title.
+### 7. `safeMutationExecutor.ts` — wiring
 
-### Risks
+Add minimal handlers (still no auto-execution; only run after confirm tap):
+- `subscription.portal` / `checkout.create` → `supabase.functions.invoke('customer-portal' | 'create-checkout-session')`, return URL in `data.url`. Trace event `mutation.executed` includes `external:true`.
+- `message.send` → `supabase.from('messages').insert(...)` (uses `targetId` as recipient + `ctx.message`).
+- `fm.listing.create` → `supabase.from('fm_listings').insert(...)` (draft only, status='draft').
+- `tts.speak` → invoke `elevenlabs-tts` edge function, play via existing `ttsPlayer`.
+- `work.startSession` → `startWorkSession` from existing service.
+- `schedule.block` → `createBlock` from existing `scheduleBlocks` service.
 
-- Over-replacement could break a route name or storage key — mitigated by replacing **string literals shown to users only**, never identifiers.
-- Hebrew gender agreement: "אורורה" was feminine; "AION" treated as masculine per existing AION identity standard — adjust verbs in copied sentences.
-- SEO churn: canonical URL stays `mindos.space` (domain unchanged); only displayed brand changes. If you want the canonical/domain rebrand too, that's a separate task.
-- Some marketing pages (Blog, FoundingPlatformDeep, VisualWhitepaper) carry long-form copy referencing "MindOS as the AI layer of Evolve" — those sentences will be rewritten to AION-centric phrasing, which is a light copy edit, not just a token swap. Flag if you'd prefer to preserve original marketing narrative and only swap the brand token.
+All branches keep current trace contract: `mutation.executed` / `mutation.skipped` with `source`, `rows_written`, `duration_ms`.
+
+### 8. Trace events (no code change required — bridge already emits)
+
+For every new capability the existing pipeline already produces:
+- `capability.candidate` (router)
+- `capability.executed` / `capability.skipped` / `capability.error` (read executor)
+- `capability.result` (chat hook wraps read result)
+- `artifact.candidate` (rendered:true) or `artifact.skipped` (reason:missing_renderer)
+- For confirm-required: `suggestion.generated`, `confirmation.shown`, `confirmation.accepted|cancelled`, `mutation.executed|skipped`
+
+No new trace plumbing needed.
+
+### Acceptance table
+
+| Capability | Old page source | Service extracted | Artifact mapped | Write mode | Trace proof |
+|---|---|---|---|---|---|
+| `fm.search` | `pages/fm/FMMarket.tsx` | `services/fmMarket.ts` | `marketplace.card` → `capability` | read | candidate→executed→artifact.candidate |
+| `fm.listing.preview` | `FMMarket.tsx` | `fmMarket.previewListing` | `marketplace.card` | read | candidate→executed→artifact.candidate |
+| `fm.listing.create` | `components/fm/FMPublishWizard.tsx` | `fmMarket` (read) + mutation insert | `marketplace.card` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
+| `wallet.open` | `WalletModalContext` | `walletStatus` | `wallet.sheet` → `capability` | read | candidate→executed→artifact.candidate |
+| `wallet.status` | `useFMWallet` | `walletStatus.getWalletStatus` | `wallet.sheet` | read | candidate→executed→artifact.candidate |
+| `community.feed` | `pages/Community.tsx` | `communityFeed.getFeed` | `community.preview` → `capability` | read | candidate→executed→artifact.candidate |
+| `community.thread` | `pages/MessageThread.tsx` | `communityFeed.getThread` | `community.preview` | read | candidate→executed→artifact.candidate |
+| `message.search` | `pages/Messages.tsx` | `messaging.searchMessages` | `message.preview` → `capability` | read | candidate→executed→artifact.candidate |
+| `message.send` | `pages/MessageThread.tsx` | `messaging` + insert | `message.preview` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
+| `subscription.status` | `pages/Subscriptions.tsx`, `check-subscription` | `subscriptionStatus` | `subscription.card` → `note` | read | candidate→executed→artifact.candidate |
+| `subscription.portal` | `customer-portal` edge fn | `subscriptionStatus` (read) + portal call | `checkout.confirmation` | external (confirm-required) | suggestion→shown→accepted→mutation.executed(external) |
+| `checkout.create` | `create-checkout-session` edge fn | `subscriptionStatus` (read) + checkout call | `checkout.confirmation` | external (confirm-required) | suggestion→shown→accepted→mutation.executed(external) |
+| `voice.transcribe` | `useAuroraVoice` + `elevenlabs-transcribe` | `voiceCapture` | `voice.capture` → `note` | read | candidate→executed→artifact.candidate |
+| `tts.speak` | `ttsPlayer` + `elevenlabs-tts` | `ttsSpeak.previewTTS` | `audio.preview` → `note` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
+| `work.startSession` | `pages/WorkHub.tsx` + `useStartWorkSession` | `workSummary` (read) + start call | `work.session-card` → `capability` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
+| `work.summarize` | `useTodayWorkScore`, `useTodayWorkSessions` | `workSummary.summarizeWorkToday` | `work.session-card` | read | candidate→executed→artifact.candidate |
+| `schedule.block` | `services/scheduleBlocks.ts` (existing) | extend with `previewBlock` + insert | `schedule.block-preview` → `capability` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
+
+### Files to be created / edited
+
+**New:**
+- `src/services/fmMarket.ts`
+- `src/services/walletStatus.ts`
+- `src/services/communityFeed.ts`
+- `src/services/messaging.ts`
+- `src/services/subscriptionStatus.ts`
+- `src/services/voiceCapture.ts`
+- `src/services/ttsSpeak.ts`
+- `src/services/workSummary.ts`
+
+**Edited:**
+- `src/orchestration/capabilities/registry.ts` (17 new IDs + confirm set)
+- `src/orchestration/router/observeRouter.ts` (16 new keyword rules)
+- `src/orchestration/executors/safeReadExecutor.ts` (17 new read branches)
+- `src/orchestration/artifacts/safeBridge.ts` (10 new artifactKind→renderer mappings)
+- `src/orchestration/artifacts/confirmationBridge.ts` (7 new describe() cases)
+- `src/orchestration/executors/safeMutationExecutor.ts` (7 new mutation branches)
+- `src/services/scheduleBlocks.ts` (extend with `previewBlock` + `summarizeUpcomingBlocks`)
+
+### Guardrails
+
+- No page deleted, no route removed.
+- No `tts.speak`, `message.send`, `checkout.create`, `subscription.portal`, `fm.listing.create`, `work.startSession`, `schedule.block` runs without explicit confirm tap.
+- All payment/external actions return URLs only; no card capture in app.
+- Voice transcribe runs only on user mic gesture (existing rule preserved).
+- Existing UI hooks (`useFMWallet`, `useStartWorkSession`, `useStripe*`) untouched — services adapt over them.
