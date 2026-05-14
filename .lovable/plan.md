@@ -1,101 +1,104 @@
-# AION Manifestation Engine — Phase 1
+# Phase 1.5 — Native Navigation + Idle Chamber Behavior
 
-Add a thin visual lifecycle around artifacts so they feel summoned rather than rendered. Pure presentation; no changes to backend, orchestration, capabilities, or DB.
+Frontend-only. No backend, no orchestration, no routes, no capabilities.
 
-## 1. New primitives (under `src/components/aion/manifestation/`)
+## Current state (verified)
 
-- **`ManifestationProvider.tsx`** — React context provider, mounted once at the app shell root (inside `ProtectedAppShell`). Subscribes to **both** existing buses:
-  - `onArtifact` from `src/components/aion/artifacts/artifactBus.ts` (AionArtifact / floating cards)
-  - `artifactBus.subscribe` from `src/lib/aion/artifactBus.ts` (summoned ArtifactInstance)
-  
-  Maintains a small state machine per artifact id:
-  ```
-  pending → manifesting (≈260ms) → stable → dissolving (≈220ms) → gone
-  ```
-  Exposes context: `{ phase, kind, mood, primaryId, registerLifecycle(id, kind) }` and emits dev events (`manifestation.started/stable/dismissed` via `console.debug` when `import.meta.env.DEV`).
-  
-  Behavior rules:
-  - Only **one primary** manifestation at a time (most recent wins; older ones move to "stable" silently without re-pulse).
-  - Confirm artifacts (`kind: 'confirm'`, `checkout_confirmation`, or AtmoArtifact `kind: 'confirm'/'warn'`) are **sticky** (no auto-dissolve).
-  - Read artifacts keep their existing `ttl` auto-dismiss → triggers `dissolving` instead of instant unmount.
-  - Respects `prefers-reduced-motion` → collapses lifecycle to a 1-frame fade with no scale/blur.
+- ShellV2 has **no persistent bottom tab bar** today. The 5 surfaces only live inside `ShellV2Drawer`.
+- `AionNavDock` primitive exists but is **unmounted** anywhere.
+- Composer has the right minimal pill but does not react to idle/streaming.
+- Drawer (`ShellV2Drawer`) still feels like a classic admin sidebar (white-tinted card, "Account" label, hard divider, brand row "AION" caption).
+- `ChatLayer` already pads top/bottom and has fade mask. Good.
+- `ShellV2Header` mounts brand "About" sheet — keep, but it should stay calm.
+- No persistent CTA captions under composer (already cleaned in Phase 1).
 
-- **`ManifestationLayer.tsx`** — Single absolutely-positioned overlay placed inside the ShellV2 chrome (above composer, below header). Renders:
-  - **`ManifestationPulse`** — one-shot ring expanding from a "summon point" near the orb (top-center on mobile). CSS keyframes only.
-  - **`ManifestationAura`** — full-screen radial gradient (very low alpha, 6–10%) tinted by the active artifact's mood color. Cross-fades when mood changes; fades out when no primary artifact.
-  - Both are `pointer-events-none` and z-indexed below the artifact cards.
+## Design intent (matches reference image)
 
-- **`ManifestedArtifactShell.tsx`** — Wrapper component that any artifact card opts into. Reads its phase from context (by `artifactId`) and applies:
-  - `manifesting`: `opacity-0 scale-[0.92] blur-md` → animate to `opacity-100 scale-100 blur-0` (motion easing token `--aion-ease`).
-  - `stable`: identity.
-  - `dissolving`: reverse, then unmount via `onDissolved` callback.
-  - Reduced-motion: pure opacity 0→1 / 1→0 in ~120ms.
-
-- **`useAionManifestation(artifactId, kind)`** hook — registers the artifact on mount, returns `{ phase, mood, dissolve() }`. Used by cards that don't want the shell wrapper.
-
-## 2. Artifact-kind → mood color mapping
-
-Single map exported from `manifestation/moods.ts`. Values are token names already defined in `index.css` (cyan/violet/gold/soft glows).
-
-| Kind family | Mood token |
-|---|---|
-| `next_action`, `plan_summary`, `journey_workspace`, `schedule_block_preview`, `work_session`, `today-list`, `plan`, `journey` | `cyan` |
-| `hypnosis_player` | `violet` |
-| `journal_capture`, `journal_preview`, `identity_summary`, `profile_triad`, `avatar_configurator` | `indigo` (alias of violet-soft) |
-| `business_canvas`, `landing_preview`, `marketplace_card`, `wallet_sheet`, `subscription_card`, `checkout_confirmation`, `coach_recommendation`, `course_card`, `curriculum_preview`, `business-canvas`, `landing-builder`, `job-mode` | `gold` |
-| `insight`, `note`, `capability`, `community_preview`, `message_preview`, `assessment` | `blue/violet` (soft) |
-| `confirm` | `cyan` (danger reserved for later) |
-
-`AtmoArtifactKind` (`read/plan/confirm/warn/default`) maps in the same file so legacy callers work.
-
-## 3. Wiring (files edited)
-
-- **`src/shellv2/ShellV2.tsx`** (or current shell root): wrap children with `<ManifestationProvider>` and mount `<ManifestationLayer />` once.
-- **`src/components/aion/artifacts/ArtifactLayer.tsx`**: keep current content, just wrap each card in `<ManifestedArtifactShell artifactId={art.id} kind={art.kind}>`. Replace the current `animate-in fade-in slide-in-from-bottom-4` classes (the shell now owns the entrance). Auto-dismiss `setTimeout` calls `shell.dissolve()` instead of `dismiss()` directly; actual removal happens after dissolve completes.
-- **`src/components/aion/artifacts/AtmoArtifact.tsx`**: accept optional `artifactId` and `manifest` props. When provided, replaces `animate-aion-emerge` with the lifecycle classes from `useAionManifestation`.
-- **`src/components/aion/ui/AionArtifactCard.tsx`**: same opt-in `artifactId`/`manifest` pass-through (re-exports `AtmoArtifact`).
-- **`src/components/aurora/StrategyApprovalCard.tsx`**: pass a stable `artifactId` (existing strategy id) and `kind="confirm"` → sticky breathing aura.
-- **`src/components/aurora/AuroraActionConfirmation.tsx`**: same — sticky confirm.
-- **`src/components/artifacts/ArtifactLayer.tsx`** (legacy/summon stack from `lib/aion/artifactBus`): wrap each `ArtifactInstance` render in `ManifestedArtifactShell` keyed by `inst.id`, kind translated via mood map.
-
-No changes to:
-- `artifactBus.ts` (either copy)
-- capability registry, sentinels parser, confirmation bridge, safe bridge
-- any DB / edge function
-
-## 4. Tokens
-
-All new motion uses existing tokens (`--aion-ease`, `aion-glow-*`, surface tokens). No new CSS variables required. Two new `@keyframes` added to `src/index.css`:
-- `aion-manifest-in` (scale 0.92 → 1, blur 8px → 0, opacity 0 → 1, 260ms)
-- `aion-manifest-out` (reverse, 220ms)
-- `aion-aura-pulse` (ring scale 0.6 → 2.4, opacity 0.35 → 0, 700ms one-shot)
-
-## 5. Behavior summary
-
-- Single primary at a time; secondary artifacts in `ArtifactLayer`'s stack render in `stable` immediately (no re-pulse, no aura change).
-- Confirm/warn are sticky; ttl ignored.
-- Read artifacts dissolve gracefully on ttl expiry.
-- Composer/chat input is **not blocked** unless the primary artifact is `confirm`/`warn` (existing behavior in StrategyApprovalCard / AuroraActionConfirmation already handles modal blocking — we don't change it).
-- No layout jump: shell uses `transform`/`opacity`/`filter` only; reserves space via existing card sizing.
-- `prefers-reduced-motion`: aura still cross-fades (slow), pulse skipped, shell collapses to opacity fade.
-
-## 6. Dev tracing
-
-Inside `ManifestationProvider`, when `import.meta.env.DEV`:
-```ts
-console.debug('[manifestation] started', { id, kind, mood });
-console.debug('[manifestation] stable', { id });
-console.debug('[manifestation] dismissed', { id });
 ```
-No user-visible UI.
+ACTIVE CONVERSATION       IDLE CHAMBER         REVEAL ON SCROLL
+┌──────────────────┐      ┌──────────────────┐  ┌──────────────────┐
+│  ☰   AION    ◉   │      │  ☰   AION    ◉   │  │  ...messages...  │
+│                  │      │                  │  │                  │
+│  …messages…      │      │     ◉ orb        │  │  ──────────────  │
+│                  │      │   "אני כאן…"     │  │  ◉  ✦  ⌖  ◯  ◌   │ ← ghost dock
+│  [ 🎤  …    + ]  │      │  [ 🎤  …    + ]  │  │  [ 🎤  …    + ]  │
+└──────────────────┘      └──────────────────┘  └──────────────────┘
+   nav fully hidden        nav fully hidden       nav softly faded in
+```
 
-## 7. Acceptance / deliverable on implementation
+Nav rules:
+- Default: **hidden** (opacity 0, pointer-events none).
+- Reveal triggers (any one):
+  - User scrolls **up** in the conversation (intent to navigate, not read).
+  - User is **idle** > 6s with no streaming, no input focus, no recent send.
+  - User taps a small grabber chevron above the composer.
+  - User opens the drawer (drawer already covers nav use case).
+- Hide triggers:
+  - Composer focused.
+  - AION is streaming.
+  - User scrolls **down** (reading new content).
+  - User sends a message.
+  - Tapping anywhere in the chat surface.
+- Transition: 320ms opacity + 8px translate-y, no spring.
 
-Final report will list: files changed, primitives created, lifecycle phases wired, kind→mood map, reduced-motion behavior, confirm stickiness verification, mobile (402×716) preview notes, and any artifact surfaces still rendering raw (not yet wrapped).
+## Files to change
 
-## Out of scope (future phases)
+| File | Change |
+|------|--------|
+| `src/shellv2/layers/NavLayer.tsx` *(new)* | Mounts `AionNavDock` with the 5 canonical surfaces; subscribes to a tiny `useChamberIdle()` hook for visibility. |
+| `src/shellv2/hooks/useChamberIdle.ts` *(new)* | Tracks `isStreaming` (from `useAuroraChatContext`), composer focus, scroll direction in the chat scroller, last-activity timestamp. Returns `{ navVisible, isIdle }`. |
+| `src/shellv2/ShellV2.tsx` | Mount `<NavLayer />` between Composer and Chrome. |
+| `src/shellv2/zindex.ts` | Add `nav` slot just under composer (z=28). |
+| `src/components/aion/ui/AionNavDock.tsx` | Add `visible` prop; when false → opacity 0 + translate-y-2 pointer-events-none. Tighten icon stroke to 1.5, label to 9px, hairline divider only when visible. Add a tiny grabber chevron at top center that flips the visibility. |
+| `src/shellv2/layers/ChatLayer.tsx` | Forward scroll events to a chamber idle context (provider mounted in ShellV2). |
+| `src/shellv2/ShellV2Drawer.tsx` | Reskin to AION portal: remove `bg-card`/ring stack, use `bg-background/70` + `backdrop-blur-2xl` + soft violet→cyan radial bloom on first paint; replace the "AION" caption with a small breathing orb + display name; soften "Account" header to a hairline label; replace `border-t` footer with a fade gradient; switch button surfaces to `aion-pill-surface` hover. No new items. |
+| `src/components/dashboard/GlobalChatInput.tsx` | Idle visual: when `!input && !isStreaming && !isRecording`, dim placeholder to `text-foreground/30`, drop pill background to `foreground/[0.025]`. When streaming: replace send icon area with a static breathing dot (no spinner). Remove the `recordingError` paragraph from inside the form (toast it instead) so no caption sits under composer. |
+| `src/components/aion/ui/AionComposerDock.tsx` | Add `data-composer-state` (idle/focus/streaming) attribute hook so the underglow can dim 60% when idle. |
 
-- Redesigning card internals
-- Danger/red mood for destructive confirms
-- Per-artifact bespoke entrance choreography
-- Sound / haptics
+## Idle chamber behavior
+
+Source of truth: `useChamberIdle()` returns:
+```ts
+{ navVisible: boolean; isIdle: boolean; composerState: 'idle'|'focus'|'streaming' }
+```
+- `isIdle` becomes true after 6s of no `pointerdown`, no `keydown`, no scroll, no streaming.
+- When `isIdle`: orb (existing `AionOrb` in header + background) keeps its current breathing; composer underglow dims; nav stays hidden unless the user opens it.
+- When `streaming`: nav forced hidden; composer underglow softly pulses (existing CSS only — no new keyframes).
+
+## Drawer changes (AION portal feel)
+
+- Background: `bg-background/70 backdrop-blur-2xl` + radial violet→cyan bloom top-right (RTL: top-left).
+- Header: small `AionOrb size="xs"` + display name in `aion-text-hero` instead of the uppercase "AION" caption.
+- Section headers: 9px tracked label, no border.
+- List buttons: rounded-2xl, hover `bg-foreground/[0.04]`, icon stroke 1.5, opacity 70.
+- Footer: fade gradient instead of `border-t`; sign-out as ghost pill.
+- No new items, no new routes.
+
+## Mobile acceptance checklist
+
+- iOS safe-area: nav uses `pb-[max(env(safe-area-inset-bottom),0.5rem)]`; composer keeps its existing safe-area; nav sits **below** composer in z (composer always tappable).
+- When nav appears, composer stays at its bottom anchor — nav fades in **above** the home indicator but **behind** the composer dock visually (composer floats with underglow over the nav row → no double bottom controls).
+- Drawer side respects `isRTL` (already correct).
+- 402×716 viewport: nav row height 56px; composer height ~48px; total bottom stack ≤ 120px when nav is visible. No artifact occlusion (artifact stack is anchored 220px above bottom, already verified Phase 1).
+
+## Out of scope (defer to Phase 2)
+
+- Brain inner-map UX.
+- Journey single-step view.
+- Replacing legacy `FMBottomNav` / `DesktopSideNav` (they live on non-ShellV2 routes).
+- Any backend, orchestration, or RPC.
+
+## Risks
+
+- Hiding nav by default means new users may not discover the 5 surfaces. Mitigation: drawer hamburger is always visible in the header, plus the grabber chevron. If discoverability is still weak we can auto-reveal once on first session.
+- Scroll-direction detection on a short conversation can flicker. Mitigation: 80px scroll threshold + 250ms debounce.
+- Drawer reskin risks regressing admin link visibility — keep `isAdmin` branch untouched.
+
+## Return after implementation
+
+1. Files changed
+2. Nav idle rules (final thresholds)
+3. Composer behavior changes
+4. Drawer changes
+5. 402×716 preview notes (idle / active / streaming / drawer open)
+6. Remaining issues before Phase 2 Brain

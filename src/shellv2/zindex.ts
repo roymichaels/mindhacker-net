@@ -11,6 +11,7 @@ export const Z = {
   base: 0,
   background: 10, // SharedOrbStage canvas
   chat: 20,
+  nav: 28, // ghost dock; sits just under composer
   composer: 30,
   chrome: 40, // minimal top bar
   scrim: 55,

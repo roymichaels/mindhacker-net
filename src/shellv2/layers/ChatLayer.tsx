@@ -13,8 +13,13 @@
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
 import { zStyle } from '../zindex';
+import { useChamberIdle } from '../hooks/useChamberIdle';
+import { useRef } from 'react';
 
 export default function ChatLayer() {
+  const { notifyScroll } = useChamberIdle();
+  const lastY = useRef(0);
+
   return (
     <main
       className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y px-1"
@@ -23,6 +28,12 @@ export default function ChatLayer() {
       // Native-app safe areas: top = header (3rem) + status bar; bottom = composer (~5rem) + home indicator
       // Tailwind cannot interpolate env() so this lives inline.
       // eslint-disable-next-line react/no-unknown-property
+      onScroll={(e) => {
+        const y = (e.target as HTMLElement).scrollTop;
+        const delta = y - lastY.current;
+        lastY.current = y;
+        notifyScroll(delta);
+      }}
     >
       <div
         className="flex flex-1 flex-col"

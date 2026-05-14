@@ -80,6 +80,11 @@ const GlobalChatInput = () => {
     stopRecording,
   } = useAuroraVoice({ onTranscription: handleTranscription });
 
+  // Surface recording errors as a toast so no caption sits under the composer.
+  useEffect(() => {
+    if (recordingError) toast.error(recordingError);
+  }, [recordingError]);
+
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
@@ -228,7 +233,15 @@ const GlobalChatInput = () => {
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         {/* Single cinematic atmo pill */}
         {/* Command dock — barely-there pill, hovers on the environmental glow */}
-        <div className="relative flex items-end gap-1 rounded-full px-2 py-1.5 bg-foreground/[0.035] backdrop-blur-2xl border border-white/[0.04] focus-within:border-white/10 focus-within:shadow-[0_0_36px_hsl(var(--aion-violet)/0.18)] transition-all">
+          <div
+            className={cn(
+              "relative flex items-end gap-1 rounded-full px-2 py-1.5 backdrop-blur-2xl border transition-all",
+              !input && !isStreaming && !isRecording
+                ? "bg-foreground/[0.025] border-white/[0.03]"
+                : "bg-foreground/[0.04] border-white/[0.06]",
+              "focus-within:border-white/10 focus-within:bg-foreground/[0.05] focus-within:shadow-[0_0_36px_hsl(var(--aion-violet)/0.18)]",
+            )}
+          >
           {/* Plus Button with Attach Menu */}
           <div className="relative" ref={menuRef}>
             <button
@@ -320,7 +333,9 @@ const GlobalChatInput = () => {
                 "resize-none overflow-hidden",
                 "focus:outline-none",
                 "disabled:opacity-50",
-                "placeholder:text-foreground/40"
+                !input && !isStreaming && !isRecording
+                  ? "placeholder:text-foreground/30"
+                  : "placeholder:text-foreground/45",
               )}
               dir={isRTL ? 'rtl' : 'ltr'}
               style={{ maxHeight: '120px', minHeight: '36px' }}
@@ -357,11 +372,6 @@ const GlobalChatInput = () => {
           )}
         </div>
 
-        {recordingError && (
-          <p className="text-xs text-destructive mt-2 text-center">
-            {recordingError}
-          </p>
-        )}
       </form>
 
       {/* Free tier message counter */}
