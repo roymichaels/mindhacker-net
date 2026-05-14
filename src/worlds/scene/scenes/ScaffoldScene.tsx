@@ -33,28 +33,14 @@ export default function ScaffoldScene({ world }: { world: CognitiveWorld }) {
   const state = useWorldState(world.id);
   const continuity = useAionContinuity();
 
-  // Living atmosphere — even unbuilt worlds breathe with cross-world climate.
-  const climate = state.climate;
-  const climateAtmosphere =
-    climate === 'turbulent' ? 0.95 :
-    climate === 'heavy' ? 0.5 :
-    climate === 'charged' ? 0.85 :
-    climate === 'open' ? 0.8 :
-    climate === 'calm' ? 0.65 : 0.55;
+  // Atmosphere is now owned by `WorldAtmosphere` mounted in WorldShell.
+  // Scaffold scenes just contribute the metaphor + AION role + tiny glyph.
   const dominantHint = continuity.dominantClimate !== 'still'
     ? (isHe ? `אקלים פנימי: ${continuity.dominantClimate}` : `inner climate: ${continuity.dominantClimate}`)
     : null;
 
   return (
     <div className="relative flex flex-col items-center justify-center py-10 gap-6">
-      <motion.div
-        className="absolute inset-0 rounded-3xl pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at 50% 40%, ${accent}${Math.round(climateAtmosphere * 80).toString(16).padStart(2, '0')}, transparent 60%)`,
-        }}
-        animate={{ opacity: [climateAtmosphere * 0.6, climateAtmosphere, climateAtmosphere * 0.6] }}
-        transition={{ duration: climate === 'turbulent' ? 3 : 6, repeat: Infinity, ease: 'easeInOut' }}
-      />
       <div className="relative text-center space-y-2 max-w-sm px-6">
         <p className="text-[11px] uppercase tracking-[0.32em] text-foreground/45">
           {isHe ? 'מטאפורת העולם' : 'World metaphor'}
