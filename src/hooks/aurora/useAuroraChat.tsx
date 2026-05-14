@@ -283,12 +283,18 @@ export const useAuroraChat = (conversationId: string | null) => {
             reason: decision.reason,
             matched: decision.matchedKeywords,
           });
-          if (decision.artifactKind) {
-            tracer.mark('artifact.candidate', {
-              kind: decision.artifactKind,
-              capability: decision.capability,
-              would_emit: false,
-              skipped_reason: 'phase-1-observe-only',
+          // Phase F · Step 2 — Safe Artifact Bridge.
+          // Renders ONE existing safe artifact per turn, or logs a structured
+          // skip reason. Strictly non-destructive (no DB / no execution).
+          try {
+            const { bridgeDecisionToArtifact } = await import(
+              '@/orchestration/artifacts/safeBridge'
+            );
+            bridgeDecisionToArtifact(decision, tracer);
+          } catch (e) {
+            tracer.mark('artifact.skipped', {
+              reason: 'bridge-error',
+              error: (e as Error)?.message ?? 'unknown',
             });
           }
           tracer.mark('capability.skipped', {
