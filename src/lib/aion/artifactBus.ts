@@ -84,6 +84,27 @@ export const artifactBus = {
     emit();
     return inst.id;
   },
+  /**
+   * Summon by semantic intent rather than artifact kind.
+   *
+   * Phase 4B — capabilities and skills should describe *what they want
+   * to manifest* ("explain memory", "continue journey", "open work")
+   * and let the bus map that to the right artifact kind. This keeps the
+   * UX vocabulary aligned with AION's voice instead of the registry.
+   */
+  summonFromIntent(
+    intent: string,
+    params: Record<string, unknown> = {},
+    opts: { fullscreen?: boolean; replaceKind?: boolean } = {},
+  ): string | null {
+    const kind = INTENT_KIND_MAP[intent.toLowerCase().trim()];
+    if (!kind) {
+      // eslint-disable-next-line no-console
+      console.warn('[artifactBus] unknown intent', intent);
+      return null;
+    }
+    return this.summon(kind, params, opts);
+  },
   dismiss(id: string) {
     const next = stack.filter((a) => a.id !== id);
     if (next.length !== stack.length) {
@@ -108,3 +129,40 @@ export const artifactBus = {
 };
 
 export type ArtifactBus = typeof artifactBus;
+
+/**
+ * Intent → ArtifactKind. Lowercased keys. Aliases welcome.
+ * Behavioral abstraction only — adding intents does not change capabilities.
+ */
+const INTENT_KIND_MAP: Record<string, ArtifactKind> = {
+  // Self / identity
+  'profile-stats': 'profile-stats',
+  'self-stats': 'profile-stats',
+  'advanced-self': 'profile-stats',
+  // Trajectory
+  'continue-journey': 'journey',
+  'journey': 'journey',
+  'today': 'today-list',
+  'plan': 'plan',
+  'missions': 'missions',
+  'quest': 'quest',
+  // Practice
+  'journal': 'journal',
+  'capture-journal': 'journal',
+  'hypnosis': 'hypnosis',
+  // Manifestation
+  'business': 'business-dashboard',
+  'business-canvas': 'business-canvas',
+  'business-journey': 'business-journey',
+  'landing': 'landing-builder',
+  'freelancer': 'freelancer',
+  'creator': 'creator',
+  'therapist': 'therapist',
+  'job': 'job-mode',
+  // Pillar
+  'assess-pillar': 'pillar-assess',
+  'pillar-results': 'pillar-results',
+  'pillar-history': 'pillar-history',
+  // Generic
+  'assessment': 'assessment',
+};
