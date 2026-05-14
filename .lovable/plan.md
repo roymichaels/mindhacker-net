@@ -1,5 +1,34 @@
 # AION North-Star Gap Closure Pass
 
+## Status — Foundation shipped
+
+This turn shipped the **token + primitive foundation** that the rest of the
+pass depends on. Migrations of Brain / Journey / Outer World / artifact
+sweep are deliberately left for follow-up turns so each migration can be
+verified visually on mobile.
+
+**Delivered:**
+
+- Tokens (`src/index.css`): `aion-glow-gold`, `aion-glow-danger`,
+  `aion-text-soft`/`-mute`/`-faint`, `aion-surface-strong`, `aion-pill-surface`.
+- Primitive kit under `src/components/aion/ui/` with barrel `index.ts`:
+  `AionScreen`, `AionHeader`, `AionComposerDock`, `AionNavDock`,
+  `AionSurface`, `AionOrb`, `AionEntityAvatar`, `AionBottomSheet`,
+  `AionButton`, `AionPill`, `AionArtifactCard`.
+- `ShellV2Header` rewritten to consume `AionHeader` (single source of truth
+  for the top bar across the app).
+
+**Next turns (in order):**
+
+1. Wire `AionNavDock` into `ChromeLayer` with the 5 canonical tabs.
+2. Brain north-star: nebula clusters, curved energy edges, sheet rewrite,
+   copy sweep.
+3. Journey north-star: `PlayHub` + Mind OS pages onto `AionScreen` /
+   `AionSurface` / `AionArtifactCard`.
+4. Outer World north-star: portal cards on `AionSurface strong`.
+5. Artifact sweep: Journal, Hypnosis, Wallet, Coach, Business, Work, Profile.
+6. Copy cleanup pass + density reduction per migrated screen.
+
 This pass stops touching one screen at a time. We codify the cinematic system as **tokens + primitives**, then sweep the high-impact surfaces onto them. No backend, route, orchestration, or capability changes.
 
 ## 1. Token layer (`src/index.css` + `tailwind.config.ts`)
