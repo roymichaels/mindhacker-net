@@ -165,7 +165,4 @@ const INTENT_KIND_MAP: Record<string, ArtifactKind> = {
   'pillar-history': 'pillar-history',
   // Generic
   'assessment': 'assessment',
-  // Brain
-  'brain-room': 'note',
-  'brain-node': 'note',
 };
