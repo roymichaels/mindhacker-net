@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Loader2, GraduationCap, BookOpen } from 'lucide-react';
+import { Copy, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
@@ -353,28 +353,11 @@ const AuroraChatBubbles = ({ showOrbAboveMessages = false }: AuroraChatBubblesPr
           </motion.div>
         )}
 
-        {/* Pillar action button */}
-        {activePillar && pillarActionCallback && pillarActionLabel && messages.length >= 2 && !isStreaming && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex justify-center pt-2 pb-1"
-          >
-            <Button
-              onClick={pillarActionCallback}
-              disabled={pillarActionLoading}
-              size="lg"
-              className="gap-2 rounded-full shadow-lg shadow-primary/20 bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8"
-            >
-              {pillarActionLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <GraduationCap className="h-4 w-4" />
-              )}
-              {pillarActionLabel}
-            </Button>
-          </motion.div>
-        )}
+        {/* Pillar action button — Phase 1 UX reset:
+            persistent CTAs no longer live in the chat surface.
+            Pillar actions will be summoned as Today / Confirmation artifacts
+            via the capability layer in Phase 6. The state hook still tracks
+            `activePillar` so summoned artifacts can carry the context. */}
         {/* Bottom anchor — always pinned target for auto-scroll. */}
         <div ref={bottomRef} aria-hidden className="h-px w-full" />
     </div>
