@@ -552,3 +552,79 @@ flow exclusively through the confirm artifact.
 `mission.create`, `habit.create`, `identity.updateProfile`,
 `landing.generate`, `business.createDraft`. None appear in registry; no
 router rule maps to them; bridge has no renderer.
+
+## Phase F · Step 5 — Contextual Intelligence + Curiosity Engine (executed)
+
+AION now builds a token-budgeted context packet before every routed turn,
+emits a single curiosity probe or contradiction mirror under strict cooldowns,
+and tracks repetition / artifact-cooldown state in `sessionStorage`.
+
+### New modules
+
+- `src/orchestration/context/contextBuilder.ts` — `buildContextPacket()`,
+  `summarizeContext()`. Reads top nodes, lowest pillars, open contradictions,
+  active plan, open actions, behavioral patterns, emotion drift. Compact
+  output only — no raw rows leave the function.
+- `src/orchestration/graph/graphDepth.ts` — `computeGraphDepth()`. Sparsity
+  score, top + neglected rooms, average confidence.
+- `src/orchestration/curiosity/probeEngine.ts` — `chooseProbe()`. One probe
+  max; templates are HE/EN; FORBIDDEN regex blocks "assessment / pillar /
+  confidence / intake / analysis" in either language; single-question rule
+  enforced.
+- `src/orchestration/contradictions/contradictionEngine.ts` —
+  `chooseContradiction()`. Both source nodes must have strength ≥ 5 and
+  graph average confidence ≥ 35; mirroring tone only.
+- `src/orchestration/memory/repetitionGuard.ts` — turn-based probe gap (3),
+  6h contradiction cooldown per pair, 5min artifact-kind cooldown,
+  assistant-text + probe-text hash caches.
+
+### Wiring (`src/hooks/aurora/useAuroraChat.tsx`)
+
+Per turn, before the router fires:
+1. `bumpTurn()` + `buildContextPacket()` → `graph_context_loaded`,
+   `sparsity_score`, `contradiction_candidates` (when present), `memory_hits`.
+2. Router runs as before. After bridge:
+   - `chooseContradiction()` first (priority); on success →
+     `contradiction.injected` + sticky `insight` artifact; otherwise
+     `contradiction.skipped` with reason.
+   - Otherwise `chooseProbe()` → `probe.candidate`, then either
+     `probe.injected` (sticky `insight` artifact) or `probe.skipped` with
+     reason (`urgent-intent`, `cooldown:turn-gap`, `repeat-probe`,
+     `cooldown:insight`, …). `artifact.cooldown_hit` emitted on kind clash.
+3. Confirmation flow from Step 4 still runs first for mutation capabilities.
+
+### New trace stages (`src/diagnostics/diagnosticsBus.ts`)
+
+`graph_context_loaded`, `sparsity_score`, `contradiction_candidates`,
+`contradiction.injected`, `contradiction.skipped`, `probe.candidate`,
+`probe.injected`, `probe.skipped`, `repetition.detected`,
+`response.regenerated`, `memory_hits`, `artifact.cooldown_hit`.
+
+### Constraints honored
+
+- No new UI surfaces — all output reuses the existing artifact bus
+  (`insight` kind) and trace bus.
+- No new mutations — context builder is read-only; probe + contradiction
+  emit artifacts only.
+- Probe never asks more than one question, never uses forbidden vocabulary,
+  and is suppressed on directive turns + during 3-turn cooldown.
+- Contradictions blocked when graph is too thin (`avg_confidence < 35`).
+- Repetition guard suppresses identical probes and same-kind artifacts in
+  short windows (sessionStorage scoped, no DB writes).
+
+### Acceptance prompts
+
+Designed to be re-run live (the harness still focuses on Step 4 router
+preview; probe + contradiction need a real ContextPacket):
+
+| Prompt | Expected behavior |
+|---|---|
+| אני מרגיש אבוד | reflective mode → probe candidate (`reflective-open` or `sparsity`); no urgent capability |
+| אני לא יודע מה לעשות | directive mode → router routes `journey.nextAction`; probe suppressed (`urgent-intent`) |
+| הכל מרגיש תקוע | reflective mode → probe eligible; contradiction surfaces if open + trust ≥ 35 |
+| מה אתה יודע עליי? | curious mode → `profile.summarize` artifact; probe suppressed first turn after artifact |
+| אני רוצה להשתנות | reflective mode → probe candidate, room-aware copy when neglected room exists |
+
+Still disabled this phase: response regeneration on repetition (only the
+detection event is emitted), autonomous probe injection into the streamed
+assistant text (probes ride the artifact bus instead).
