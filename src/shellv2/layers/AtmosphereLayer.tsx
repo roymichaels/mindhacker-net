@@ -12,13 +12,33 @@
  * 90% darkness, 10% divine light.
  */
 import { zStyle } from '../zindex';
+import { useAionPresence, type AionPresenceState } from '@/aion/presenceState';
+
+const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; magenta: number }> = {
+  listening:   { cyan: 1.00, violet: 0.85, magenta: 0.6 },
+  noticing:    { cyan: 1.10, violet: 0.90, magenta: 0.7 },
+  forming:     { cyan: 1.05, violet: 1.20, magenta: 0.8 },
+  manifesting: { cyan: 1.30, violet: 1.30, magenta: 1.0 },
+  resting:     { cyan: 0.70, violet: 0.60, magenta: 0.5 },
+  evolving:    { cyan: 0.85, violet: 1.40, magenta: 1.30 },
+};
 
 export default function AtmosphereLayer() {
+  const presence = useAionPresence();
+  const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const tone = reduce ? PRESENCE_TONE.listening : PRESENCE_TONE[presence];
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 overflow-hidden"
-      style={{ ...zStyle('background'), zIndex: 12 }}
+      style={{
+        ...zStyle('background'),
+        zIndex: 12,
+        ['--presence-cyan' as any]: tone.cyan,
+        ['--presence-violet' as any]: tone.violet,
+        ['--presence-magenta' as any]: tone.magenta,
+        transition: 'opacity 800ms ease',
+      }}
     >
       {/* Deep top vignette — sacred sky fade */}
       <div
