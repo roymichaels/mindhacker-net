@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { debug } from '@/lib/debug';
+import { aionPresenceBus } from '@/aion/presenceState';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { speakWithBrowser } from '@/services/voice';
 import { playTTS } from '@/lib/ttsPlayer';
@@ -64,6 +65,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
+      aionPresenceBus.set('listening');
     } catch (err) {
       console.error('Failed to start recording:', err);
       setRecordingError('Microphone access denied');
@@ -75,6 +77,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      aionPresenceBus.set('forming');
     }
   }, [isRecording]);
 
@@ -164,11 +167,15 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
         setIsPlaying(false);
         setActiveMessageId(null);
         cancelRef.current = null;
+        setTimeout(() => {
+          if (aionPresenceBus.get() === 'forming') aionPresenceBus.set('resting');
+        }, 800);
       },
       onError: () => {
         setIsPlaying(false);
         setActiveMessageId(null);
         cancelRef.current = null;
+        aionPresenceBus.set('resting');
       },
     });
 
