@@ -1,6 +1,6 @@
 ---
 name: World Atmosphere System
-description: Phase 5B.8 + 5C.2 — every cognitive world owns a cinematic environment via per-world AtmospherePreset rendered by WorldAtmosphere, now driven by a continuously evolving WorldClimate from useWorldClimate; AION orb stays the shared presence (only its halo reflects climate)
+description: Phase 5B.8 + 5C.2 + 5C.3 — every cognitive world owns a cinematic environment via WorldAtmosphere, driven by a continuously evolving WorldClimate (useWorldClimate) AND cross-world resonance bleed (useCrossWorldInfluence); worlds form one shared subconscious field. AION orb stays the shared presence (only halo reflects state).
 type: architecture
 ---
 # World Atmosphere System
@@ -46,6 +46,34 @@ environment carries the emotional experience.
   - `PersistentWorldOrb` renders a thin climate halo around AION
     (hue from `emotionalTemperature`, opacity from `luminosity`).
     The orb itself (`CanonicalAionModel`) is never recoloured.
+- **Phase 5C.3 — Cross-World Resonance + Subconscious Continuity:**
+  - `src/worlds/resonance/types.ts` — `WorldResonanceSignal`,
+    `WorldClimateBleed`, `WorldEcho`, `WorldInfluence`,
+    `WorldHistoryFrame`, `WorldHistorySummary`.
+  - `src/worlds/resonance/resonanceGraph.ts` — directed
+    `RESONANCE_GRAPH[from][to] = { weight, delayMs, axes }` encoding
+    psychological priors (Higher Self stabilises all; Habits steady
+    Emotions; Memory colours Emotions; Relationships fuel Creativity;
+    unresolved tension fragments downstream).
+  - `src/worlds/resonance/worldStateHistory.ts` — persisted ring buffer
+    + EMA summary per world. Used to look up source signals at each
+    edge's `delayMs` so cross-world echoes arrive subconsciously, not
+    instantly.
+  - `src/worlds/resonance/worldPropagation.ts` — `emitResonanceSignal`,
+    `propagateInfluence`, `applyBleed`, plus the write-only
+    `useWorldInfluenceStore`. The runtime tick now does:
+    1) evolve own climate, 2) emit signals, 3) propagate via graph,
+    4) apply small bleed to climate, 5) publish influence + push history.
+  - `src/worlds/resonance/useCrossWorldInfluence.ts` — read hook for
+    atmosphere consumers.
+  - `WorldAtmosphere` adds three subconscious layers driven by influence:
+    foreign-world echo (accent of dominant partner), fragmentation
+    flicker (low-stability cross-pressure), contamination veil (high
+    cumulative downstream pressure).
+  - **Bleed is capped tiny.** Foreign signals can only colour a world,
+    never override its identity.
+  - **`useWorldInfluenceStore` and `useWorldHistoryStore` are
+    write-restricted to the runtime loop.**
 
 ## Rules
 
@@ -62,3 +90,6 @@ environment carries the emotional experience.
   may surface raw climate or signal values. The user feels the system.
 - **`worldClimateStore` is write-restricted to `useWorldReactivity()`.**
   All consumers read via `useWorldClimate` / `useAllWorldClimates`.
+- **Cross-world effects must remain subtle, atmospheric, cumulative.**
+  Never expose causal arrows, partner names, or influence strengths
+  in the UI.
