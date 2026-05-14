@@ -327,27 +327,18 @@ function LifeHubImpl() {
       <div className="flex flex-col gap-4 max-w-xl w-full px-4 pt-4">
 
         {!hasPlan && !isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Flame className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">
-                {isHe ? 'טרם יצרת תוכנית 100 יום' : 'No 100-Day Plan Yet'}
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
-                {isHe ? 'בחר עמודים, אבחן אותם, וצור את תוכנית הטרנספורמציה שלך' : 'Select pillars, assess them, and create your transformation plan'}
-              </p>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setWizardOpen(true)}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
+          <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
+            <p className="text-[14px] leading-relaxed text-foreground/55 max-w-xs">
+              {isHe
+                ? 'AION עדיין לומד אותך. דבר איתו — המסע יופיע מתוך השיחה.'
+                : 'AION is still learning you. Speak to it — your path will emerge from the conversation.'}
+            </p>
+            <a
+              href="/"
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] border border-white/[0.06] px-5 py-2 text-[13px] text-foreground/80 transition-colors"
             >
-              <Sparkles className="w-4 h-4" />
-              {isHe ? 'צור תוכנית 100 יום' : 'Create 100-Day Plan'}
-            </motion.button>
+              {isHe ? 'פתח את AION' : 'Open AION'}
+            </a>
           </div>
         ) : hasPlan ? (
           <>
