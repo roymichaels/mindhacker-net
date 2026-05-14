@@ -1,195 +1,153 @@
-## Phase 2 — Capability Extraction, Batch 3
 
-Extract economy, social, payment, voice, and work capabilities into reusable services and register them in the AION capability system. No page deletions, no route changes, no silent writes. All mutations stay behind `confirmationBridge`. All payments/external/messaging stay confirm-required.
+# AION Visual + Product Direction Upgrade
 
-### 1. New service modules (read-only adapters around existing logic)
+Transform the app from a page/dashboard SaaS into a Jarvis-like intelligence: chat-first, artifact-driven, with five persistent surfaces and a cinematic dark visual language. Reference images guide the *language*, not pixel-copies.
 
-| Service file | Wraps existing | Exposes |
-|---|---|---|
-| `src/services/fmMarket.ts` | `useFMBounties`, `fm_listings`, `fm_bounties` tables | `searchListings(query?)`, `previewListing(id)`, `summarizeFM(userId)` |
-| `src/services/walletStatus.ts` | `useFMWallet`, `useFMTransactions` | `getWalletStatus(userId)`, `getRecentTransactions(userId)` |
-| `src/services/communityFeed.ts` | `community_posts`, `community_threads` | `getFeed(query?)`, `getThread(threadId)` |
-| `src/services/messaging.ts` | `messages`, `message_threads` | `searchMessages(userId, query?)`, `previewSend(userId, recipientId, body)` (no write) |
-| `src/services/subscriptionStatus.ts` | edge fn `check-subscription`, `subscribers` table | `getSubscriptionStatus(userId)` (read-only summary) |
-| `src/services/voiceCapture.ts` | edge fn `elevenlabs-transcribe` | `describeVoiceCapture()` (returns capability descriptor; actual transcription stays in existing hook, wrapped only) |
-| `src/services/ttsSpeak.ts` | edge fn `elevenlabs-tts`, existing `ttsPlayer` | `previewTTS(text, voiceId?)` returns metadata only; actual playback through confirmation |
-| `src/services/workSummary.ts` | `useTodayWorkSessions`, `useTodayWorkScore` | `summarizeWorkToday(userId)`, `previewStartSession(input)` |
-| `src/services/scheduleBlocks.ts` (already exists — extend) | `schedule_blocks` table | Add `previewBlock(input)`, `summarizeUpcomingBlocks(userId)` |
+## Scope (this plan)
 
-All services follow the Batch 1/2 pattern: read-only Supabase queries with RLS, return `{ text, samples?, total?, ... }` shaped payloads. No writes.
+This is a **visual + shell + artifact-language pass**, not a routing teardown. No pages deleted, no capabilities added. Confirmation bridge stays the gate for mutations.
 
-### 2. Capability registry additions (`src/orchestration/capabilities/registry.ts`)
+## 1. Brand & Visual Foundation
 
-| ID | declaredMode | safety | artifactKind |
-|---|---|---|---|
-| `fm.search` | read | safe | `marketplace.card` |
-| `fm.listing.preview` | read | safe | `marketplace.card` |
-| `fm.listing.create` | mutate | safe | `marketplace.card` |
-| `wallet.open` | read | safe | `wallet.sheet` |
-| `wallet.status` | read | safe | `wallet.sheet` |
-| `community.feed` | read | safe | `community.preview` |
-| `community.thread` | read | safe | `community.preview` |
-| `message.search` | read | safe | `message.preview` |
-| `message.send` | mutate | safe | `message.preview` |
-| `subscription.status` | read | safe | `subscription.card` |
-| `subscription.portal` | mutate | safe | `checkout.confirmation` |
-| `checkout.create` | mutate | safe | `checkout.confirmation` |
-| `voice.transcribe` | read | safe | `voice.capture` |
-| `tts.speak` | mutate | safe | `audio.preview` |
-| `work.startSession` | mutate | safe | `work.session-card` |
-| `work.summarize` | read | safe | `work.session-card` |
-| `schedule.block` | mutate | safe | `schedule.block-preview` |
+- Replace the current AION mark with the glowing **ring** as primary logo (static SVG/PNG variant for headers and icons; the existing `OrbView` blob remains the *living* entity in animated contexts).
+  - Add `src/assets/aion-ring.svg` (and `aion-ring.png` fallback) extracted from the supplied logo.
+  - New `<AionRingMark size wordmark />` component in `src/components/aion/AionRingMark.tsx` — used in headers, splash, app icons, empty states.
+  - `OrbView` stays for: chat assistant avatar, voice mode, brain center, thinking state.
+- Update design tokens in `src/index.css` to lock in the cinematic palette:
+  - `--background` deep navy/black (e.g. `224 40% 4%`)
+  - `--aion-blue` `212 100% 60%`, `--aion-cyan` `190 95% 65%`, `--aion-violet` `265 85% 65%`
+  - `--glass-bg`, `--glass-border`, `--glass-inner-shadow` semantic tokens
+  - `--radius-xl: 1.25rem`, `--radius-2xl: 1.75rem` (mobile cards)
+- New utility classes in `src/index.css`: `.glass-panel`, `.glass-card`, `.aion-glow`, `.thin-border`.
+- Audit and remove any remaining "MindOS" / "Aurora" visible strings (logo alts, splash, manifest, meta, PWA name in `index.html` + `public/manifest.json`).
 
-Add these IDs to `CONFIRM_REQUIRED_CAPABILITIES`:
-`fm.listing.create`, `message.send`, `subscription.portal`, `checkout.create`, `tts.speak`, `work.startSession`, `schedule.block`.
+## 2. App Shell (mobile-first)
 
-(`voice.transcribe` is read because it captures transient audio without DB write; the actual edge call already requires user mic gesture.)
+- Single safe-area header in `ProtectedAppShell` (kill any duplicate headers in nested routes):
+  - Left: menu icon (24px, ghost)
+  - Center: `AionRingMark` + small "AION" wordmark
+  - Right: small `OrbView` 28px showing live status (idle / thinking / listening)
+- Bottom tab bar reduced to **5 persistent surfaces**:
+  1. Chat (default)
+  2. Brain
+  3. Journey
+  4. Outer World
+  5. Profile
+  - Existing tab bar (`src/components/navigation/StandardizedTabBar.tsx` or similar) re-mapped; legacy items (FM Market, Wallet, Work, Hypnosis, Learn, Create, Community) become *capabilities reachable via Chat composer plus-button* and remain routable but not in the bar.
+- Remove sidebar chrome on mobile entirely; desktop keeps a slim collapsed rail.
 
-### 3. Router rules (`observeRouter.ts`)
+## 3. Chat as Home
 
-Add bilingual keyword buckets above existing rules where higher priority is needed (mutate-before-read pattern):
+- `/` (or `/chat`) becomes the canonical home for authenticated users.
+- Strip dashboard widgets from chat home — only:
+  - Greeting line ("בוקר טוב, {name}" with sun/moon icon)
+  - "מה נבנה היום?" headline
+  - 3–4 quick-action chips (Focus / Plan day / Deep work / Heal / Create) sourced from existing capability registry
+  - Message stream
+  - Persistent native composer (mic, plus, send)
+- Composer plus-button opens **Capability Launcher** sheet (iOS-style bottom sheet) listing capability candidates from `registry.ts` grouped: Plan / Report / Text / Image / Video / Audio / More.
+- Assistant avatar = `OrbView` (already in place); user avatar stays as `Avatar`.
+- Message bubbles: glass-panel, generous padding, inline artifact slot below message.
 
-```text
-fm.listing.create   → /list.*(item|on market)|create.*listing/i, /העלה למרקט|פרסם.*מודעה|תפרסם.*מוצר/
-message.send        → /send.*message|reply to/i, /שלח הודעה|תשלח לו|תענה ל/
-subscription.portal → /manage.*(subscription|plan|billing)/i, /נהל.*מנוי|בטל מנוי|חיוב/
-checkout.create     → /upgrade|buy|subscribe|checkout/i, /שדרג|קנה|הרשם.*פלוס|שלם/
-work.startSession   → /start.*(focus|deep work|session)/i, /התחל.*פוקוס|פתח טיימר|זמן עבודה/
-schedule.block      → /schedule.*block|block.*time|put.*calendar/i, /קבע בלוק|חסום זמן|תוסיף ליומן/
-tts.speak           → /read.*aloud|speak.*this/i, /הקרא לי|תקרא לי|דבר את זה/
-voice.transcribe    → /transcribe|voice note/i, /תמלל|הקלטה קולית/
+## 4. Artifact Language (visual standard)
+
+Extend `ArtifactLayer` + each renderer to follow one card spec:
+
+```
+┌─ glass-card, rounded-2xl, thin-border ──────┐
+│ [icon] Title                          [×]   │
+│ One-line summary                            │
+│ ───── compact body / preview ─────          │
+│ source • timestamp     [Primary] [Secondary]│
+└─────────────────────────────────────────────┘
 ```
 
-Reads:
-```text
-fm.search          → /marketplace|free market|bounties/i, /שוק חופשי|באונטיז|מרקט|מודעות/
-fm.listing.preview → /show.*listing|preview.*listing/i, /הצג מודעה|תראה לי את ה?מודעה/
-wallet.status      → /wallet|balance|mos\b/i, /ארנק|יתרה|כמה MOS/
-wallet.open        → /open.*wallet/i, /פתח.*ארנק/
-community.feed     → /community|feed/i, /קהילה|פיד/
-community.thread   → /thread|discussion/i, /שיחה|דיון/
-message.search     → /search.*messages|find.*messages/i, /חפש בהודעות|הודעות/
-subscription.status→ /my.*subscription|plan.*status/i, /המנוי שלי|מצב מנוי/
-work.summarize     → /work.*today|focus.*summary/i, /כמה עבדתי|סיכום עבודה|פוקוס היום/
-```
+- Add/refine renderers (presentation only — no new capabilities):
+  - `today.snapshot` (% ring, tasks count)
+  - `next_action`
+  - `journey.workspace` (current stage + next milestone)
+  - `brain.room.preview`
+  - `hypnosis.player`
+  - `journal.preview`
+  - `plan_summary`
+  - `business.canvas`
+  - `landing.preview`
+  - `course.card`
+  - `coach.recommendation`
+  - `marketplace.card`
+  - `wallet.sheet`
+  - `confirmation.card` (sticky)
+- Confirmation cards: sticky, gradient primary CTA ("אשר פעולה"), neutral cancel, warning row "פעולה זו תיצור שינויים במערכת".
+- Read artifacts: non-sticky, dismissable, max 3 stacked.
+- `trace_id` only in metadata tooltip — never visible chrome.
 
-### 4. `safeReadExecutor.ts` — add cases
+## 5. Brain — Consciousness Map
 
-For each new capability, add a `read*` helper and a `case` branch wired to its service. Mutate capabilities still execute the read path for grounding (same pattern as `landing.generate` → `readLanding`).
+Reframe `BrainView` from analytics into a navigable map (reference image 2/3 right panel):
 
-Mapping:
-- `fm.search` → `searchListings`
-- `fm.listing.preview` / `fm.listing.create` → `previewListing` / `summarizeFM`
-- `wallet.open` / `wallet.status` → `getWalletStatus`
-- `community.feed` → `getFeed`
-- `community.thread` → `getThread`
-- `message.search` / `message.send` → `searchMessages`
-- `subscription.status` / `subscription.portal` / `checkout.create` → `getSubscriptionStatus`
-- `voice.transcribe` → `describeVoiceCapture` (pure metadata)
-- `tts.speak` → `previewTTS` (text validation only)
-- `work.summarize` / `work.startSession` → `summarizeWorkToday`
-- `schedule.block` → `summarizeUpcomingBlocks`
+- Central node: `OrbView` 120px (figure silhouette) representing the user.
+- Radial arrangement of pillar/room nodes with colored glow halos by domain (purple identity, orange body, green relationships, cyan learning, etc.) — pull from existing pillar registry.
+- Tap a node → bottom-sheet "פרטי צומת" with:
+  - Pillar icon + title + subtitle
+  - Strength bar (existing data)
+  - Source counts (memories / journals / linked nodes)
+  - CTAs: "שאל את AION על זה" / "תקן / עדכן מידע" / "חקור לעומק"
+- Remove dashboard/analytics widgets from Brain route; metrics move into the node sheet.
+- Reuse existing graph data — purely a presentation refactor of `src/features/brain/BrainView.tsx` + new `BrainNodeSheet.tsx`.
 
-### 5. `safeBridge.ts` — artifact mappings
+## 6. Journey, Outer World, Profile (light pass)
 
-Add `case` branches mapping new `artifactKind` values to existing renderers. Since `marketplace.card`, `wallet.sheet`, `community.preview`, `message.preview`, `subscription.card`, `checkout.confirmation`, `voice.capture`, `audio.preview`, `work.session-card`, `schedule.block-preview` do **not** have dedicated renderers in `artifactRegistry`, fall back to existing safe kinds:
+- **Journey**: convert top of `/journey` (or equivalent) to the "מסע החיים" workspace card style — current stage card, next milestone card, "next steps" checklist, full-timeline CTA. Internals reuse existing data hooks.
+- **Outer World**: container shell only — house FM Market / Coaches / Community as *artifact entry points*, not as a dashboard. Default view = chat-style suggestions list.
+- **Profile**: keep existing profile triad (AION / Avatar / DNA) but reflow into native iOS settings-list under the cards. Remove redundant headers.
 
-| sourceKind | renderer kind | CTA href |
-|---|---|---|
-| `marketplace.card` | `capability` | `/free-market` |
-| `wallet.sheet` | `capability` | `/free-market?wallet=open` (opens existing modal) |
-| `community.preview` | `capability` | `/community` |
-| `message.preview` | `capability` | `/messages` |
-| `subscription.card` | `note` | `/subscriptions` |
-| `checkout.confirmation` | `capability` | `/subscriptions` |
-| `voice.capture` | `note` | none (transient) |
-| `audio.preview` | `note` | none |
-| `work.session-card` | `capability` | `/work` |
-| `schedule.block-preview` | `capability` | `/work` |
+## 7. Capability Launcher Sheet
 
-Each mapped entry emits `artifact.candidate` with `rendered:true`. If a true dedicated renderer is later wanted, it can replace the fallback without touching capability code. Mappings that genuinely have no safe surface (none in this batch) would emit `artifact.skipped(reason: missing_renderer)`.
+New `src/components/aion/CapabilityLauncherSheet.tsx`:
 
-### 6. `confirmationBridge.ts` — describe() additions
+- Triggered from chat composer plus-button.
+- Reads `capabilities/registry.ts` (already populated by Phase 2 batches 1–3).
+- Sections: Generate (plan, report, text, image, video, audio), Capture (journal, photo, voice memo), Plan (schedule block, deep work), Heal (hypnosis), Connect (message, marketplace), Wallet.
+- Selecting a capability emits a `capability.candidate` through the existing router → confirmation bridge → executor pipeline. No new mutation paths.
 
-Add cases for each confirm-required capability. Examples:
-- `fm.listing.create`: title "לפרסם מודעה?", source `fm_listings`, label "פרסם".
-- `message.send`: title "לשלוח את ההודעה?", source `messages`, label "שלח".
-- `subscription.portal`: title "לפתוח את ניהול המנוי?", source `customer-portal` (external), label "פתח Portal".
-- `checkout.create`: title "להמשיך לתשלום?", source `create-checkout-session`, label "המשך לתשלום".
-- `tts.speak`: title "להשמיע בקול?", source `elevenlabs-tts`, label "השמע".
-- `work.startSession`: title "להתחיל סשן פוקוס?", source `work_sessions`, label "התחל".
-- `schedule.block`: title "להוסיף בלוק ליומן?", source `schedule_blocks`, label "קבע בלוק".
+## 8. Cleanup / Removal of Clutter
 
-### 7. `safeMutationExecutor.ts` — wiring
+- Remove top-level dashboard widget grids on home, Brain, and any route that still shows them (Today snapshot, etc.). They re-appear only as artifacts when AION offers them.
+- Remove childish gamification visuals from chat home (XP bar moves to Profile).
+- Audit and delete duplicate headers in: `ShellV2`, page-level wrappers, lazy modules under `pages/MindOS/*` re-exports.
+- Replace any remaining blank `AvatarFallback` dots with mini `AionRingMark`.
 
-Add minimal handlers (still no auto-execution; only run after confirm tap):
-- `subscription.portal` / `checkout.create` → `supabase.functions.invoke('customer-portal' | 'create-checkout-session')`, return URL in `data.url`. Trace event `mutation.executed` includes `external:true`.
-- `message.send` → `supabase.from('messages').insert(...)` (uses `targetId` as recipient + `ctx.message`).
-- `fm.listing.create` → `supabase.from('fm_listings').insert(...)` (draft only, status='draft').
-- `tts.speak` → invoke `elevenlabs-tts` edge function, play via existing `ttsPlayer`.
-- `work.startSession` → `startWorkSession` from existing service.
-- `schedule.block` → `createBlock` from existing `scheduleBlocks` service.
+## Out of scope (future phases)
 
-All branches keep current trace contract: `mutation.executed` / `mutation.skipped` with `source`, `rows_written`, `duration_ms`.
+- Deleting old pages or rewriting routes
+- Enabling new real mutations (still gated by Phase-3 Batch-1 allow-list)
+- New capabilities beyond presentation of existing ones
+- Voice mode redesign beyond using the `OrbView` (already done)
 
-### 8. Trace events (no code change required — bridge already emits)
+## Technical Notes
 
-For every new capability the existing pipeline already produces:
-- `capability.candidate` (router)
-- `capability.executed` / `capability.skipped` / `capability.error` (read executor)
-- `capability.result` (chat hook wraps read result)
-- `artifact.candidate` (rendered:true) or `artifact.skipped` (reason:missing_renderer)
-- For confirm-required: `suggestion.generated`, `confirmation.shown`, `confirmation.accepted|cancelled`, `mutation.executed|skipped`
+**Files to add**
+- `src/assets/aion-ring.svg`
+- `src/components/aion/AionRingMark.tsx`
+- `src/components/aion/CapabilityLauncherSheet.tsx`
+- `src/components/aion/artifacts/renderers/{today,nextAction,journey,brainRoom,hypnosis,journal,planSummary,business,landing,course,coach,marketplace,wallet,confirmation}.tsx` (only the ones not already present)
+- `src/features/brain/BrainNodeSheet.tsx`
 
-No new trace plumbing needed.
+**Files to edit**
+- `src/index.css` — tokens + glass utilities
+- `tailwind.config.ts` — extend colors / radii
+- `src/components/layout/ProtectedAppShell.tsx` — single header, safe-area
+- `src/components/navigation/*TabBar.tsx` — reduce to 5 surfaces
+- `src/pages/Index.tsx` (or chat home) — strip widgets, add quick chips + composer
+- `src/components/aion/artifacts/ArtifactLayer.tsx` — enforce card spec
+- `src/features/brain/BrainView.tsx` — consciousness map layout
+- `src/features/journey/*` — workspace card style
+- `src/pages/Profile*` — native settings list under triad
+- `index.html`, `public/manifest.json` — AION naming + ring icon
 
-### Acceptance table
+**No DB migrations.** All work is presentation/shell.
 
-| Capability | Old page source | Service extracted | Artifact mapped | Write mode | Trace proof |
-|---|---|---|---|---|---|
-| `fm.search` | `pages/fm/FMMarket.tsx` | `services/fmMarket.ts` | `marketplace.card` → `capability` | read | candidate→executed→artifact.candidate |
-| `fm.listing.preview` | `FMMarket.tsx` | `fmMarket.previewListing` | `marketplace.card` | read | candidate→executed→artifact.candidate |
-| `fm.listing.create` | `components/fm/FMPublishWizard.tsx` | `fmMarket` (read) + mutation insert | `marketplace.card` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
-| `wallet.open` | `WalletModalContext` | `walletStatus` | `wallet.sheet` → `capability` | read | candidate→executed→artifact.candidate |
-| `wallet.status` | `useFMWallet` | `walletStatus.getWalletStatus` | `wallet.sheet` | read | candidate→executed→artifact.candidate |
-| `community.feed` | `pages/Community.tsx` | `communityFeed.getFeed` | `community.preview` → `capability` | read | candidate→executed→artifact.candidate |
-| `community.thread` | `pages/MessageThread.tsx` | `communityFeed.getThread` | `community.preview` | read | candidate→executed→artifact.candidate |
-| `message.search` | `pages/Messages.tsx` | `messaging.searchMessages` | `message.preview` → `capability` | read | candidate→executed→artifact.candidate |
-| `message.send` | `pages/MessageThread.tsx` | `messaging` + insert | `message.preview` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
-| `subscription.status` | `pages/Subscriptions.tsx`, `check-subscription` | `subscriptionStatus` | `subscription.card` → `note` | read | candidate→executed→artifact.candidate |
-| `subscription.portal` | `customer-portal` edge fn | `subscriptionStatus` (read) + portal call | `checkout.confirmation` | external (confirm-required) | suggestion→shown→accepted→mutation.executed(external) |
-| `checkout.create` | `create-checkout-session` edge fn | `subscriptionStatus` (read) + checkout call | `checkout.confirmation` | external (confirm-required) | suggestion→shown→accepted→mutation.executed(external) |
-| `voice.transcribe` | `useAuroraVoice` + `elevenlabs-transcribe` | `voiceCapture` | `voice.capture` → `note` | read | candidate→executed→artifact.candidate |
-| `tts.speak` | `ttsPlayer` + `elevenlabs-tts` | `ttsSpeak.previewTTS` | `audio.preview` → `note` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
-| `work.startSession` | `pages/WorkHub.tsx` + `useStartWorkSession` | `workSummary` (read) + start call | `work.session-card` → `capability` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
-| `work.summarize` | `useTodayWorkScore`, `useTodayWorkSessions` | `workSummary.summarizeWorkToday` | `work.session-card` | read | candidate→executed→artifact.candidate |
-| `schedule.block` | `services/scheduleBlocks.ts` (existing) | extend with `previewBlock` + insert | `schedule.block-preview` → `capability` | confirm-required mutate | suggestion→shown→accepted→mutation.executed |
-
-### Files to be created / edited
-
-**New:**
-- `src/services/fmMarket.ts`
-- `src/services/walletStatus.ts`
-- `src/services/communityFeed.ts`
-- `src/services/messaging.ts`
-- `src/services/subscriptionStatus.ts`
-- `src/services/voiceCapture.ts`
-- `src/services/ttsSpeak.ts`
-- `src/services/workSummary.ts`
-
-**Edited:**
-- `src/orchestration/capabilities/registry.ts` (17 new IDs + confirm set)
-- `src/orchestration/router/observeRouter.ts` (16 new keyword rules)
-- `src/orchestration/executors/safeReadExecutor.ts` (17 new read branches)
-- `src/orchestration/artifacts/safeBridge.ts` (10 new artifactKind→renderer mappings)
-- `src/orchestration/artifacts/confirmationBridge.ts` (7 new describe() cases)
-- `src/orchestration/executors/safeMutationExecutor.ts` (7 new mutation branches)
-- `src/services/scheduleBlocks.ts` (extend with `previewBlock` + `summarizeUpcomingBlocks`)
-
-### Guardrails
-
-- No page deleted, no route removed.
-- No `tts.speak`, `message.send`, `checkout.create`, `subscription.portal`, `fm.listing.create`, `work.startSession`, `schedule.block` runs without explicit confirm tap.
-- All payment/external actions return URLs only; no card capture in app.
-- Voice transcribe runs only on user mic gesture (existing rule preserved).
-- Existing UI hooks (`useFMWallet`, `useStartWorkSession`, `useStripe*`) untouched — services adapt over them.
+**Verification**
+- Mobile preview at 402×716 must show: AION header, 5-tab bar, clean chat home, no legacy widgets.
+- Visible-string scan must return 0 hits for "MindOS" / "Aurora" in rendered routes.
+- Existing artifact + capability traces must continue to fire end-to-end (no router changes).

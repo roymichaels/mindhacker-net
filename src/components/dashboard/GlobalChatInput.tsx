@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Send, Loader2, Plus, Image, Camera, X, Mic } from 'lucide-react';
+import { Send, Loader2, Plus, Image, Camera, X, Mic, Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
@@ -18,6 +18,7 @@ import { useAIONDisplayName } from '@/hooks/useAIONDisplayName';
 
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import CapabilityLauncherSheet from '@/components/aion/CapabilityLauncherSheet';
 
 const GlobalChatInput = () => {
   const queryClient = useQueryClient();
@@ -28,6 +29,7 @@ const GlobalChatInput = () => {
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showLauncher, setShowLauncher] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -282,6 +284,19 @@ const GlobalChatInput = () => {
                     </div>
                     <span>{isRTL ? 'מצלמה' : 'Camera'}</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAttachMenu(false);
+                      setShowLauncher(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                  >
+                    <div className="p-1.5 rounded-full bg-primary/15">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                    </div>
+                    <span>{isRTL ? 'יכולות AION' : 'AION capabilities'}</span>
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -383,6 +398,7 @@ const GlobalChatInput = () => {
         onClose={voiceMode.close}
         onStopListening={voiceMode.stopListening}
       />
+      <CapabilityLauncherSheet open={showLauncher} onOpenChange={setShowLauncher} />
     </div>
   );
 };

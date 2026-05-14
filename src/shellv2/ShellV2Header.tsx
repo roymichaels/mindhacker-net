@@ -8,10 +8,11 @@
  * OverlayController.
  */
 import { useState } from 'react';
-import { Menu, Sparkles, Info, Play } from 'lucide-react';
+import { Menu, Info, Play } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOverlay } from '@/shell/overlay/OverlayController';
 import { OrbView } from '@/components/orb/v2/OrbView';
+import { AionRingMark } from '@/components/aion/AionRingMark';
 import { zStyle } from './zindex';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -55,13 +56,10 @@ export default function ShellV2Header() {
         <button
           type="button"
           onClick={() => setBrandOpen(true)}
-          className="flex min-w-0 flex-1 items-center justify-center gap-1.5 select-none rounded-full px-3 py-1 active:scale-[0.97] transition"
+          className="flex min-w-0 flex-1 items-center justify-center gap-2 select-none rounded-full px-3 py-1 active:scale-[0.97] transition"
           aria-label={isHe ? 'אודות' : 'About'}
         >
-          <span className="truncate text-[15px] font-bold tracking-wide text-foreground/90">
-            {brand}
-          </span>
-          <Sparkles className="h-3 w-3 text-foreground/40" />
+          <AionRingMark size={22} withWordmark ariaLabel={brand} />
         </button>
 
         {/* Right: hamburger */}
