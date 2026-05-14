@@ -92,18 +92,39 @@ export default function ArtifactLayer({ bottomOffset = 220 }: ArtifactLayerProps
                 {art.body && (
                   <div className="text-xs text-foreground/70 mt-0.5 line-clamp-2">{art.body}</div>
                 )}
-                {art.cta && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      art.cta?.onClick?.();
-                      if (art.cta?.href) window.location.href = art.cta.href;
-                      dismiss(art.id);
-                    }}
-                    className="mt-2 text-xs font-medium text-primary hover:text-primary/80"
-                  >
-                    {art.cta.label} →
-                  </button>
+                {art.meta?.source && (
+                  <div className="text-[10px] text-foreground/50 mt-1">
+                    מקור: {art.meta.source}
+                  </div>
+                )}
+                {(art.cta || art.secondaryCta) && (
+                  <div className="flex items-center gap-3 mt-2">
+                    {art.cta && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          art.cta?.onClick?.();
+                          if (art.cta?.href) window.location.href = art.cta.href;
+                          dismiss(art.id);
+                        }}
+                        className="text-xs font-medium text-primary hover:text-primary/80"
+                      >
+                        {art.cta.label} →
+                      </button>
+                    )}
+                    {art.secondaryCta && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          art.secondaryCta?.onClick?.();
+                          dismiss(art.id);
+                        }}
+                        className="text-xs font-medium text-foreground/60 hover:text-foreground/80"
+                      >
+                        {art.secondaryCta.label}
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               <button
