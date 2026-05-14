@@ -74,6 +74,10 @@ export function ManifestationProvider({ children }: { children: ReactNode }) {
   const [primaryId, setPrimaryId] = useState<string | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const timers = useRef<Map<string, number>>(new Map());
+  const entriesRef = useRef<Map<string, LifecycleEntry>>(entries);
+  useEffect(() => {
+    entriesRef.current = entries;
+  }, [entries]);
 
   // Track reduced-motion preference.
   useEffect(() => {
@@ -175,7 +179,7 @@ export function ManifestationProvider({ children }: { children: ReactNode }) {
   // Bridge: AION artifact bus (floating cards)
   useEffect(() => {
     return onArtifact((art) => {
-      if (!entries.has(art.id)) {
+      if (!entriesRef.current.has(art.id)) {
         register(art.id, art.kind);
       }
       // Sticky kinds ignore ttl entirely.
@@ -184,7 +188,6 @@ export function ManifestationProvider({ children }: { children: ReactNode }) {
         window.setTimeout(() => dissolve(art.id), art.ttl);
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [register, dissolve]);
 
   // Bridge: summon stack
@@ -193,16 +196,15 @@ export function ManifestationProvider({ children }: { children: ReactNode }) {
       const ids = new Set(stack.map((a) => a.id));
       // Register newcomers.
       stack.forEach((inst) => {
-        if (!entries.has(inst.id)) register(inst.id, inst.kind);
+        if (!entriesRef.current.has(inst.id)) register(inst.id, inst.kind);
       });
       // Dissolve any tracked summon-bus ids that disappeared.
-      entries.forEach((entry) => {
+      entriesRef.current.forEach((entry) => {
         if (entry.kind in SUMMON_KEYS && !ids.has(entry.id)) {
           dissolve(entry.id);
         }
       });
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [register, dissolve]);
 
   // Cleanup timers on unmount.
