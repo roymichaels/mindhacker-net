@@ -8,9 +8,8 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 export default function AtmosphereLayer() {
   const { theme } = useThemeSettings();
 
-  // Respect the user's theme background_effect choice — only render
-  // the cinematic atmosphere when the project default is active.
-  if (theme.background_effect && theme.background_effect !== "default") return null;
+  // Only render the cinematic atmosphere when no other background effect is active.
+  if (theme.background_effect === "matrix_rain" || theme.background_effect === "consciousness_field") return null;
 
   return (
     <div
