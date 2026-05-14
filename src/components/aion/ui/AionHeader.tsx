@@ -53,7 +53,7 @@ export function AionHeader({
           width: 320,
           height: 110,
           background:
-            "radial-gradient(closest-side, hsl(var(--aion-violet) / 0.18) 0%, hsl(var(--aion-cyan) / 0.06) 45%, transparent 75%)",
+            "radial-gradient(closest-side, hsl(var(--aion-violet) / 0.12) 0%, hsl(var(--aion-cyan) / 0.04) 45%, transparent 75%)",
           filter: "blur(2px)",
         }}
       />
