@@ -16,6 +16,15 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 import type { CapabilityId } from '@/orchestration/capabilities/registry';
+import {
+  getNextOpenAction,
+  summarizeJourney,
+  summarizePlan,
+  previewDailyQueue,
+} from '@/services/journeyPlan';
+import { summarizeBrain } from '@/services/brainQuery';
+import { recommendHypnosis } from '@/services/hypnosisCatalog';
+import { searchJournalEntries } from '@/services/journalEntries';
 
 export interface ReadResult {
   ok: boolean;
@@ -37,91 +46,52 @@ function fail(capability: CapabilityId, t0: number, error: string): ReadResult {
 /* ───────────────────────────── individual reads ───────────────────────────── */
 
 async function readBrain(userId: string): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
-  const sources: string[] = [];
-  const rowCounts: Record<string, number> = {};
-
-  const { data: nodes } = await supabase
-    .from('aurora_memory_graph')
-    .select('id, node_type, content, pillar, confidence, layer, last_referenced_at')
-    .eq('user_id', userId)
-    .eq('is_active', true)
-    .order('last_referenced_at', { ascending: false })
-    .limit(8);
-  sources.push('aurora_memory_graph:active');
-  rowCounts['aurora_memory_graph'] = nodes?.length ?? 0;
-
-  const { data: pillars } = await supabase
-    .from('pillar_confidence')
-    .select('pillar_id, confidence, signal_count')
-    .eq('user_id', userId)
-    .order('confidence', { ascending: false })
-    .limit(3);
-  sources.push('pillar_confidence:top3');
-  rowCounts['pillar_confidence'] = pillars?.length ?? 0;
-
-  const topPillars = (pillars ?? []).map((p) => `${p.pillar_id} (${Math.round(Number(p.confidence))}%)`);
-  const topNodes = (nodes ?? []).slice(0, 3).map((n) => n.content?.slice(0, 60)).filter(Boolean);
-
-  const summary = nodes?.length || pillars?.length
-    ? `${rowCounts.aurora_memory_graph} צמתים פעילים · עמודים מובילים: ${topPillars.join(', ') || '—'}`
-    : 'המוח שלך עוד ריק. נתחיל לאסוף.';
-
-  return { sources, rowCounts, summary, data: { topPillars, topNodes } };
+  const s = await summarizeBrain(userId);
+  return {
+    sources: ['aurora_memory_graph:active', 'pillar_confidence:top3'],
+    rowCounts: { aurora_memory_graph: s.nodes.length, pillar_confidence: s.pillars.length },
+    summary: s.text,
+    data: { topPillars: s.topPillars, topNodes: s.topNodes },
+  };
 }
 
 async function readJourneyNext(userId: string): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
-  const today = new Date();
-  const ymd = today.toISOString().slice(0, 10);
-  const { data: items } = await supabase
-    .from('action_items')
-    .select('id, title, pillar, status, scheduled_date, due_at, order_index')
-    .eq('user_id', userId)
-    .in('status', ['todo', 'in_progress'])
-    .order('order_index', { ascending: true })
-    .limit(5);
-
-  // Prefer items scheduled for today.
-  const todayItems = (items ?? []).filter((i) => i.scheduled_date === ymd);
-  const pick = todayItems[0] ?? items?.[0] ?? null;
-
+  const r = await getNextOpenAction(userId);
   return {
     sources: ['action_items:open'],
-    rowCounts: { action_items: items?.length ?? 0 },
-    summary: pick
-      ? `הצעד הבא: ${pick.title}`
-      : 'אין משימות פתוחות כרגע.',
-    data: { pick, total: items?.length ?? 0, todayCount: todayItems.length },
+    rowCounts: { action_items: r.total },
+    summary: r.pick ? `הצעד הבא: ${r.pick.title}` : 'אין משימות פתוחות כרגע.',
+    data: { pick: r.pick, total: r.total, todayCount: r.todayCount },
   };
 }
 
 async function readJourneySummary(userId: string): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
-  const { data: plans } = await supabase
-    .from('life_plans')
-    .select('id, status, progress_percentage, start_date, end_date, duration_months')
-    .eq('user_id', userId)
-    .order('updated_at', { ascending: false })
-    .limit(1);
-  const active = plans?.[0] ?? null;
-
-  const { count: openCount } = await supabase
-    .from('action_items')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .in('status', ['todo', 'in_progress']);
-
-  const { count: doneCount } = await supabase
-    .from('action_items')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'completed');
-
+  const s = await summarizeJourney(userId);
   return {
     sources: ['life_plans:latest', 'action_items:counts'],
-    rowCounts: { life_plans: plans?.length ?? 0, open: openCount ?? 0, completed: doneCount ?? 0 },
-    summary: active
-      ? `מסע ${active.status} · ${active.progress_percentage ?? 0}% · ${openCount ?? 0} פתוח / ${doneCount ?? 0} הושלם`
-      : `אין מסע פעיל · ${openCount ?? 0} פעולות פתוחות`,
-    data: { plan: active, openCount: openCount ?? 0, doneCount: doneCount ?? 0 },
+    rowCounts: { life_plans: s.plan ? 1 : 0, open: s.open, completed: s.completed },
+    summary: s.text,
+    data: { plan: s.plan, openCount: s.open, doneCount: s.completed },
+  };
+}
+
+async function readPlanSummary(userId: string): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
+  const s = await summarizePlan(userId);
+  return {
+    sources: ['life_plans:latest', 'action_items:counts'],
+    rowCounts: { life_plans: s.plan ? 1 : 0, open: s.open, completed: s.completed },
+    summary: s.text,
+    data: { plan: s.plan },
+  };
+}
+
+async function readDailyPreview(userId: string): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
+  const p = await previewDailyQueue(userId);
+  return {
+    sources: ['action_items:today-preview'],
+    rowCounts: { action_items: p.items.length },
+    summary: p.text,
+    data: { items: p.items, todayCount: p.todayCount, mode: 'preview' },
   };
 }
 
@@ -152,19 +122,12 @@ async function readProfile(userId: string): Promise<Pick<ReadResult, 'sources' |
 }
 
 async function readHypnosis(): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
-  const { data: audios, count } = await supabase
-    .from('hypnosis_audios')
-    .select('id, title, duration_seconds', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .limit(3);
-
+  const r = await recommendHypnosis();
   return {
     sources: ['hypnosis_audios:catalog'],
-    rowCounts: { hypnosis_audios: count ?? audios?.length ?? 0 },
-    summary: audios && audios.length
-      ? `${count ?? audios.length} מפגשי היפנוזה זמינים. למשל: "${audios[0].title}".`
-      : 'אין כרגע מפגשי היפנוזה זמינים.',
-    data: { samples: audios ?? [] },
+    rowCounts: { hypnosis_audios: r.total },
+    summary: r.text,
+    data: { samples: r.samples, pick: r.pick },
   };
 }
 
@@ -182,6 +145,22 @@ async function readJournalPreview(userId: string): Promise<Pick<ReadResult, 'sou
       ? `${count ?? entries.length} רשומות יומן. אחרונה: "${entries[0].title ?? entries[0].journal_type}".`
       : 'עוד אין רשומות יומן. אפשר להתחיל.',
     data: { recent: entries ?? [] },
+  };
+}
+
+async function readJournalSearch(userId: string, query?: string): Promise<Pick<ReadResult, 'sources' | 'rowCounts' | 'summary' | 'data'>> {
+  const entries = await searchJournalEntries(userId, query, 5);
+  const top = entries[0];
+  const summary = entries.length
+    ? `נמצאו ${entries.length} רשומות יומן${query ? ` עבור "${query.slice(0, 40)}"` : ''}${top ? ` · אחרונה: "${(top.title ?? top.content ?? '').slice(0, 60)}"` : ''}.`
+    : query
+      ? `לא נמצאו רשומות יומן עבור "${query.slice(0, 40)}".`
+      : 'אין עדיין רשומות יומן.';
+  return {
+    sources: ['journal_entries:search'],
+    rowCounts: { journal_entries: entries.length },
+    summary,
+    data: { entries, query: query ?? null },
   };
 }
 
@@ -203,9 +182,14 @@ async function readOuterWorld(): Promise<Pick<ReadResult, 'sources' | 'rowCounts
 
 /* ───────────────────────────── public dispatcher ───────────────────────────── */
 
+export interface ReadCapabilityOptions {
+  query?: string;
+}
+
 export async function executeReadCapability(
   capability: CapabilityId,
   userId: string,
+  options: ReadCapabilityOptions = {},
 ): Promise<ReadResult> {
   const t0 = nowMs();
   if (!userId) return fail(capability, t0, 'no-user');
@@ -218,15 +202,21 @@ export async function executeReadCapability(
       case 'journey.nextAction':
       case 'task.suggest':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJourneyNext(userId)) };
+      case 'daily.generate':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readDailyPreview(userId)) };
       case 'journey.summarize':
       case 'plan.suggest':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJourneySummary(userId)) };
+      case 'plan.summarize':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readPlanSummary(userId)) };
       case 'profile.summarize':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readProfile(userId)) };
       case 'hypnosis.recommend':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readHypnosis()) };
       case 'journal.capture':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJournalPreview(userId)) };
+      case 'journal.search':
+        return { ok: true, capability, durationMs: nowMs() - t0, ...(await readJournalSearch(userId, options.query)) };
       case 'outerWorld.open':
         return { ok: true, capability, durationMs: nowMs() - t0, ...(await readOuterWorld()) };
       default:

@@ -44,6 +44,9 @@ export const CAPABILITIES = {
   'profile.summarize':  def({ id: 'profile.summarize',  description: 'Summarize identity/DNA/profile.',                    inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'profile.summary',    declaredMode: 'read' }),
   'action.complete':    def({ id: 'action.complete',    description: 'Mark an existing action item as completed (confirm).', inputSchema: z.object({ actionId: z.string().optional() }),                            safety: 'safe',   artifactKind: 'action.complete',    declaredMode: 'mutate' }),
   'hypnosis.start':     def({ id: 'hypnosis.start',     description: 'Start a hypnosis session for the user (confirm).',     inputSchema: z.object({ audioId: z.string().optional() }),                              safety: 'safe',   artifactKind: 'hypnosis.start',     declaredMode: 'mutate' }),
+  'daily.generate':     def({ id: 'daily.generate',     description: 'Preview today\'s queue (suggestion, no write).',       inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.next',       declaredMode: 'suggest' }),
+  'plan.summarize':     def({ id: 'plan.summarize',     description: 'Summarize the active life plan.',                      inputSchema: z.object({}).optional(),                                                   safety: 'safe',   artifactKind: 'journey.summary',    declaredMode: 'read' }),
+  'journal.search':     def({ id: 'journal.search',     description: 'Search recent journal entries (read-only).',           inputSchema: z.object({ query: z.string().optional() }),                                safety: 'safe',   artifactKind: 'journal.preview',    declaredMode: 'read' }),
 } as const;
 
 export type CapabilityId = keyof typeof CAPABILITIES;
