@@ -10,7 +10,7 @@
  * router's only job is to make the decision visible BEFORE skill results
  * land, so the diagnostics panel has something to show on every turn.
  */
-import { CAPABILITIES, effectiveMode, type CapabilityId } from '@/orchestration/capabilities/registry';
+import { CAPABILITIES, effectiveMode, type CapabilityId, type CapabilityMode } from '@/orchestration/capabilities/registry';
 
 export interface RouterInput {
   content: string;
@@ -23,7 +23,7 @@ export interface RouterInput {
 export interface RouterDecision {
   capability: CapabilityId | null;
   artifactKind: string | null;
-  mode: 'observe' | 'suggest' | 'execute';
+  mode: CapabilityMode;
   reason: string;
   matchedKeywords: string[];
   skipped: boolean;
