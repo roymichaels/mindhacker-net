@@ -271,6 +271,7 @@ const App = () => (
                         <MotionLayer>
                          <AIONStateProvider>
                           <AIONStateBridge />
+                          <PresenceRouteBridge />
                           <CapabilityInvokerBridge />
                          <SubscriptionsModalProvider>
                           <CoachesModalProvider>
