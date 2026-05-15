@@ -10,6 +10,7 @@ import { useProfileModal } from '@/contexts/ProfileModalContext';
 import BackButton from '@/components/navigation/BackButton';
 import SelfPanel from '@/components/self/SelfPanel';
 import { artifactBus } from '@/lib/aion/artifactBus';
+import { ViewIdentityScope } from '@/viewIdentity';
 
 export default function ProfilePage() {
   const { language, isRTL } = useTranslation();
@@ -38,6 +39,7 @@ export default function ProfilePage() {
       dir={isRTL ? 'rtl' : 'ltr'}
       style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end, var(--background))) 40%, hsl(var(--background)) 100%)' }}
     >
+      <ViewIdentityScope id="profile" />
       {/* ═══════ HEADER: Back + Close ═══════ */}
       <div className="sticky top-0 z-50 flex items-center justify-between p-3">
         <BackButton onBack={closeProfile} />

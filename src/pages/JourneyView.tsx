@@ -15,6 +15,7 @@ import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import { useNextStep } from '@/services/trajectory/useNextStep';
 import { aionPresence } from '@/copy/aionPresence';
 import { useDiagnosticsFlag } from '@/diagnostics/useDiagnosticsFlag';
+import { ViewIdentityScope } from '@/viewIdentity';
 
 export default function JourneyView() {
   const { language, isRTL } = useTranslation();
@@ -83,6 +84,7 @@ export default function JourneyView() {
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8rem)',
       }}
     >
+      <ViewIdentityScope id="journey" />
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-5">
         <CanonicalAionModel size={160} ariaLabel="AION" />
         <p className="mt-4 text-[13px] italic text-foreground/65 text-center text-balance px-4 leading-relaxed">
