@@ -14,7 +14,7 @@
 import { zStyle } from '../zindex';
 import { useAionPresence, type AionPresenceState } from '@/aion/presenceState';
 import { useActiveViewIdentity } from '@/viewIdentity';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Phase 5F.6 — singleton mount guard.
@@ -54,14 +54,12 @@ const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; m
 
 export default function AtmosphereLayer() {
   const [active, setActive] = useState(false);
-  const subRef = useRef<(a: boolean) => void>();
   useEffect(() => {
     const sub = (a: boolean) => setActive(a);
-    subRef.current = sub;
     atmosphereSubscribers.add(sub);
     atmosphereMountCount += 1;
     notify();
-    if (process.env.NODE_ENV !== 'production' && atmosphereMountCount > 1) {
+    if (import.meta.env.DEV && atmosphereMountCount > 1) {
       // eslint-disable-next-line no-console
       console.warn(
         `[universe/atmosphere-guard] ${atmosphereMountCount} AtmosphereLayer instances mounted — only the first renders. ` +
