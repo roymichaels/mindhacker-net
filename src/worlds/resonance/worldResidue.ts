@@ -9,8 +9,6 @@
  * a world for a week genuinely fades its residue, not just its visit
  * counter.
  */
-import type { CognitiveWorldId } from '@/worlds/types';
-
 const STORAGE_KEY = 'aion.world.residue.v1';
 const DECAY_HALF_LIFE_MS = 1000 * 60 * 60 * 36; // 36h
 const MAX_DWELL_MS = 1000 * 60 * 30;            // 30min cap per visit
@@ -27,7 +25,12 @@ interface ResidueRecord {
   lastVisitAt: number;
 }
 
-type ResidueMap = Partial<Record<CognitiveWorldId, ResidueRecord>>;
+/**
+ * Residue is keyed by stable string id (cognitive world id, canonical
+ * surface id, etc). The store is intentionally id-agnostic so behavioural
+ * memory works for both worlds and surfaces without two parallel stores.
+ */
+type ResidueMap = Record<string, ResidueRecord>;
 
 function load(): ResidueMap {
   if (typeof localStorage === 'undefined') return {};
@@ -53,7 +56,7 @@ function decay(value: number, sinceMs: number): number {
   return value * k;
 }
 
-function read(worldId: CognitiveWorldId): ResidueRecord {
+function read(worldId: string): ResidueRecord {
   const map = load();
   const rec = map[worldId];
   const now = Date.now();
@@ -67,7 +70,7 @@ function read(worldId: CognitiveWorldId): ResidueRecord {
   };
 }
 
-function write(worldId: CognitiveWorldId, next: ResidueRecord) {
+function write(worldId: string, next: ResidueRecord) {
   const map = load();
   map[worldId] = next;
   save(map);
@@ -81,7 +84,7 @@ function subscribe(fn: () => void): () => void {
 }
 
 /** Record a visit. `dwellMs` is clamped to `MAX_DWELL_MS`. */
-export function recordVisit(worldId: CognitiveWorldId, dwellMs: number) {
+export function recordVisit(worldId: string, dwellMs: number) {
   const cur = read(worldId);
   const dwell = Math.max(0, Math.min(MAX_DWELL_MS, dwellMs));
   const gain = dwell / MAX_DWELL_MS;          // 0..1
@@ -94,7 +97,7 @@ export function recordVisit(worldId: CognitiveWorldId, dwellMs: number) {
 }
 
 /** Tick avoidance for any world the user has not visited recently. */
-export function tickAvoidance(allWorlds: CognitiveWorldId[]) {
+export function tickAvoidance(allWorlds: string[]) {
   const now = Date.now();
   const map = load();
   let changed = false;
@@ -116,7 +119,7 @@ export function tickAvoidance(allWorlds: CognitiveWorldId[]) {
 }
 
 /** Read the current (decayed) residue for a single world. */
-export function getResidue(worldId: CognitiveWorldId): { engagement: number; avoidance: number } {
+export function getResidue(worldId: string): { engagement: number; avoidance: number } {
   const r = read(worldId);
   return { engagement: r.engagement, avoidance: r.avoidance };
 }
@@ -127,7 +130,7 @@ export const worldResidueBus = { subscribe };
 import { useEffect, useState } from 'react';
 
 /** React hook: live residue for a single world. */
-export function useWorldResidue(worldId: CognitiveWorldId) {
+export function useWorldResidue(worldId: string) {
   const [r, setR] = useState(() => getResidue(worldId));
   useEffect(() => {
     setR(getResidue(worldId));
