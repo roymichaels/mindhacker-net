@@ -11,6 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import NextStepCard from '@/components/journey/NextStepCard';
 import TrajectoryLines from '@/components/journey/TrajectoryLines';
+import StrategyContextEcho from '@/components/journey/StrategyContextEcho';
 import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import { useNextStep } from '@/services/trajectory/useNextStep';
 import { aionPresence } from '@/copy/aionPresence';
@@ -86,6 +87,7 @@ export default function JourneyView() {
     >
       <ViewIdentityScope id="journey" />
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-5">
+        <StrategyContextEcho />
         <CanonicalAionModel size={160} ariaLabel="AION" />
         <p className="mt-4 text-[13px] italic text-foreground/65 text-center text-balance px-4 leading-relaxed">
           {observation}
