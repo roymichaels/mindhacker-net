@@ -237,12 +237,15 @@ const GlobalChatInput = () => {
         {/* Command dock — barely-there pill, hovers on the environmental glow */}
           <div
             className={cn(
-              "relative flex items-end gap-1 rounded-full px-2 py-1.5 backdrop-blur-2xl border transition-all",
+              "relative flex items-end gap-1 rounded-full px-2 py-1.5 backdrop-blur-xl border transition-all",
+              // Floating glass: own visual plane, never inherits page dimming.
+              "shadow-[0_8px_32px_-12px_hsl(var(--background)/0.7),inset_0_1px_0_hsl(var(--foreground)/0.06)]",
               !input && !isStreaming && !isRecording
-                ? "bg-foreground/[0.025] border-white/[0.03]"
-                : "bg-foreground/[0.04] border-white/[0.06]",
-              "focus-within:border-white/10 focus-within:bg-foreground/[0.05] focus-within:shadow-[0_0_36px_hsl(var(--aion-violet)/0.18)]",
+                ? "bg-foreground/[0.07] border-white/[0.08]"
+                : "bg-foreground/[0.10] border-white/[0.12]",
+              "focus-within:border-white/[0.18] focus-within:bg-foreground/[0.12] focus-within:shadow-[0_0_36px_hsl(var(--aion-violet)/0.22),inset_0_1px_0_hsl(var(--foreground)/0.08)]",
             )}
+            style={{ isolation: 'isolate' }}
           >
           {/* Plus Button with Attach Menu */}
           <div className="relative" ref={menuRef}>
@@ -341,8 +344,8 @@ const GlobalChatInput = () => {
                 "focus:outline-none",
                 "disabled:opacity-50",
                 !input && !isStreaming && !isRecording
-                  ? "placeholder:text-foreground/30"
-                  : "placeholder:text-foreground/45",
+                  ? "placeholder:text-foreground/55"
+                  : "placeholder:text-foreground/65",
               )}
               dir={isRTL ? 'rtl' : 'ltr'}
               style={{ maxHeight: '120px', minHeight: '36px' }}
