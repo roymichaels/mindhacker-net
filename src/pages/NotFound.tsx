@@ -74,7 +74,7 @@ const NotFound = () => {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/")}
               className="gap-2"
             >
               <Compass className="h-4 w-4" />

@@ -211,7 +211,7 @@ const AuroraAccountDropdown = ({
           {/* Back to Dashboard */}
           {(showBackToAurora || isInPanel) && (
             <>
-              <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+              <DropdownMenuItem onClick={() => navigate('/')}>
                 <LayoutDashboard className="h-4 w-4 me-2" />
                 {language === 'he' ? 'חזרה לדשבורד' : 'Back to Dashboard'}
               </DropdownMenuItem>
