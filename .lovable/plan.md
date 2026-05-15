@@ -1,159 +1,190 @@
 
-# Phase 5C.2 — Living Worlds Reactivity Layer
+# Phase 5D.1 — Living Cognitive Universe (Depth Spine + Flagship World)
 
-Goal: evolve the Cognitive Worlds from static immersive scenes into continuously living psychological environments. Each world derives a live `WorldClimate` from simulated signals (habits consistency, emotional intensity, memory density, social activity, creative flow, recovery, momentum, tension), and `WorldAtmosphere` reads that climate to physically reshape light, fog, depth, motion, particle density, harmonic gradients, and pulse — even while the user is idle.
+## Intent
 
-AION never changes. The orb stays canonical and persistent. The worlds change around it.
+Stop rendering "UI on top of atmosphere." Start rendering **a world that the
+UI emerges from**. This phase lands two things together so neither drifts:
 
-No dashboards, no numbers, no analytics UI. The user feels the system; never reads it.
+1. A **shared depth/atmosphere spine** every future surface inherits.
+2. The **World surface** as the proof — turned from a centered orb + grid
+   into a planetary cognitive terrain with glowing node anchors (matches
+   reference image #2).
 
----
+Other surfaces (Journey, Self, Chat, Mind) are explicitly out of scope; they
+follow as 5D.2 → 5D.5 reusing the same primitives.
 
-## Architecture
+## Guardrails (do not violate)
+
+- No new dashboards, no new cards, no new dock icons.
+- AION orb keeps its single canonical render path (`SharedOrbStage` /
+  `PersistentWorldOrb`). We add presence behaviour, not a second orb.
+- Dream layer stays subliminal — no "subconscious detected" UI.
+- ViewIdentity registry from 5C.8 is the only place that tunes per-view
+  atmosphere. New depth layers read its CSS vars.
+- All new colors via HSL semantic tokens; no raw hex in components.
+- RTL-safe (logical props, `dir` honoured).
+
+## What "depth spine" means
+
+A formal 5-layer stack rendered behind every authenticated route:
 
 ```text
-                           simulated signals
-                                  │
-          ┌───────────────────────┴───────────────────────┐
-          ▼                                               ▼
-  worldSignals.ts  ──►  worldReactivity.ts  ──►  useWorldClimate(worldId)
-          │                     ▲                          │
-          │                     │                          ▼
-          │             useWorldMomentum             WorldAtmosphere
-          │             useCrossWorldResonance       (reads climate live)
-          │                     ▲                          │
-          └─── worldStateStore ─┘                          ▼
-                                                   PersistentWorldOrb
-                                                   (subtle climate halo only)
-
-                    useWorldReactivity()  ── hidden runtime tick (rAF / interval)
-                       evolves all worlds even when user is idle
+  z=10  CosmosLayer        — far stars, deep nebula, almost still
+  z=11  HazeLayer          — environmental fog/atmospheric perspective
+  z=12  EnergyFieldLayer   — slow drifting glow fields, light bridges
+  z=13  StructureLayer     — per-route terrain / sacred geometry / river
+  z=14  AnchorLayer        — interactive cognitive nodes (pins, milestones)
+  z=15+ ChromeTraces       — minimal text whispers, nav ghost
 ```
 
-`worldStateStore` (already exists) remains the source of truth for real interaction-derived state (momentum, climate, tensions). Phase 5C.2 adds a **runtime layer on top** that fuses that real state with simulated derived signals into a richer continuous `WorldClimate` consumed by the atmosphere.
+Layers 10–12 are global and always mounted (`ShellV2`'s
+`BackgroundLayer` + `AtmosphereLayer` already cover 10 and 12; we add
+`HazeLayer` between them and let the existing AtmosphereLayer evolve into
+the EnergyField role). Layers 13–14 are per-route — each surface
+contributes its own scene component.
 
----
+## Deliverable A — Shared depth primitives
 
-## New files
+New folder `src/universe/`:
 
-### `src/worlds/runtime/types.ts`
-Defines:
-- `WorldSignals` — the raw per-world input axes:
-  ```
-  habitsConsistency, emotionalIntensity, journalingDensity,
-  memoryActivity, relationshipActivity, creativeActivity,
-  burnoutPressure, recoveryLevel, longTermMomentum,
-  unresolvedTension
-  ```
-  All `0..1`. Optional per world; runtime fills sensible defaults.
-- `WorldClimate` (exact shape specified):
-  ```
-  luminosity, atmosphericDensity, motionIntensity,
-  harmonicStability, particleActivity, resonance,
-  emotionalTemperature, temporalCoherence
-  ```
-- `WorldMomentumSnapshot`, `CrossWorldResonance` — small typed structs.
+- `depth/zindex.ts` — extends `shellv2/zindex.ts` with `cosmos`, `haze`,
+  `energy`, `structure`, `anchor` tokens.
+- `depth/CosmosLayer.tsx` — pure CSS deep-space backdrop: large-radius
+  radial gradients + ultra-faint star noise, drift speed driven by
+  `--view-drift`. Replaces the current flat `bg-background` paint role
+  inside `BackgroundLayer`.
+- `depth/HazeLayer.tsx` — atmospheric fog band: two large blurred
+  gradients tinted by the active world's `primaryHsl` / `secondaryHsl`,
+  modulated by `WorldClimate` (already live).
+- `primitives/AnchorPin.tsx` — the canonical "glowing node on terrain":
+  ring + halo + dropped-light cone + label that fades in via
+  `motion/framer` with sacred easing. RTL-aware label placement.
+- `primitives/EnergyPath.tsx` — animated SVG/CSS light-bridge between
+  two coordinates (used to connect anchors and dissolve sections).
+- `primitives/SacredEasings.ts` — exported easing curves: `breath`,
+  `drift`, `dissolve`, `orbit`. All > 800ms, all `cubic-bezier` style.
+- `primitives/usePresenceParallax.ts` — tiny parallax hook (pointer +
+  device-orientation if available, gated by reduced-motion) returning
+  a small offset vector consumed by anchors and structure layers.
 
-### `src/worlds/runtime/worldSignals.ts`
-- Pure functions that **derive simulated signals** per world from existing `worldStateStore` state plus time-based oscillators (sine drifts at world-specific periods so nothing ever feels frozen).
-- Per-world signal recipes (e.g. Habits emphasises consistency/momentum, Emotions emphasises intensity/tension, Memory emphasises density/longTermMomentum, Higher reduces noise toward coherence).
-- No external data required. Believable scaffolding now; trivial to swap to real signals later.
+These primitives are pure presentation — no data, no business logic.
 
-### `src/worlds/runtime/worldReactivity.ts`
-- Pure mapping `signals → WorldClimate`, world-aware (each world weights axes differently — Habits favours `harmonicStability`, Emotions favours `emotionalTemperature`/`atmosphericDensity`, Memory favours `particleActivity`/`temporalCoherence`, Creative favours `resonance`/`motionIntensity`, Higher favours `temporalCoherence`/low `motionIntensity`).
-- Smooths between previous and next climate using a per-axis lerp (so changes are continuous, never jumpy).
-- Exposes `evolveClimate(prev, signals, dt)`.
+## Deliverable B — AION presence upgrade (subtle pass)
 
-### `src/worlds/runtime/useWorldClimate.ts`
-- React hook returning the current `WorldClimate` for a `worldId`.
-- Subscribes to a tiny zustand store (`worldClimateStore`, internal to this module) that the runtime loop updates.
-- Selector-friendly so consumers re-render only when their world's climate slice changes.
+Inside `src/aion/presence/`:
 
-### `src/worlds/runtime/useWorldMomentum.ts`
-- Hook deriving a smoothed momentum snapshot per world (long-window EMA over `worldStateStore.momentum` + simulated `longTermMomentum` oscillation).
-- Used by `WorldAtmosphere` to bias depth and bloom.
+- `useOrbPresenceBehaviour.ts` — derives orb anchor (x, y, scale) over
+  time from: ViewIdentity anchor (5C.8), pointer dwell, route entry,
+  AION presence state. Output is a smoothed (lerp, tau≈1.2s) target
+  consumed by `SharedOrbStage`'s existing position channel.
+- Adds three behaviours: **anticipate** (drift 8% toward next likely
+  anchor on dwell), **observe** (still + slow breath when idle >12s),
+  **precede** (slide ahead on route change before content fades in).
+- No new orb mount. No new geometry. Behaviour only.
 
-### `src/worlds/runtime/useCrossWorldResonance.ts`
-- Computes pairwise resonance between worlds (e.g. Emotions ↔ Relationships, Habits ↔ Higher, Memory ↔ Self) from their climates and recent interaction overlap.
-- Returns the active world's `resonance` value (already part of `WorldClimate`) plus the dominant partner world id (for future use; not rendered yet).
+## Deliverable C — Flagship World surface
 
-### `src/worlds/runtime/useWorldReactivity.ts`
-- The **hidden runtime loop**. Mounted once at app root (next to `PersistentWorldOrb`).
-- Uses a single `setInterval` (~250ms) plus an idle `requestAnimationFrame` micro-tick for the active world only.
-- For each known world: gathers signals → evolves climate → writes to `worldClimateStore`.
-- Pauses heavy work when `document.hidden`; resumes on visibility.
+Rewrite `src/pages/OuterWorldHub.tsx` from the current 37-line orb +
+`AlignedRealities` layout into a single `WorldTerrainScene`:
 
----
+- New folder `src/world/terrain/`:
+  - `WorldTerrainScene.tsx` — full-bleed scene composing `CosmosLayer`,
+    `HazeLayer`, a `PlanetHorizonLayer`, and an `AnchorField`.
+  - `PlanetHorizonLayer.tsx` — large CSS-only curved horizon glow
+    (one big radial gradient + rim light) anchored top-right, tinted
+    via current ViewIdentity. No 3D, no asset.
+  - `AnchorField.tsx` — positions 5–7 `AnchorPin`s using a deterministic
+    layout function over the existing `AlignedRealities` data (people,
+    opportunities, places, events, environmental influences). No new
+    data sources.
+  - `useWorldAnchors.ts` — adapts whatever `AlignedRealities` consumes
+    today into the anchor data contract; falls back to seed anchors
+    when empty so the place is never lifeless.
+- Uses `EnergyPath` to draw subliminal light-bridges between connected
+  anchors (e.g., a person tied to an opportunity).
+- Tap on an anchor opens the existing detail flow (whatever
+  `AlignedRealities` items currently link to). No new navigation.
+- Header text becomes a single fading whisper ("העולם החיצוני /
+  Outer World") that dissolves after ~4s, like `WorldShell`'s
+  whisper. No card, no overall summary panel.
 
-## Edits to existing files
+The legacy `AlignedRealities` component is **kept** but only rendered
+behind a diagnostic flag for fallback during QA, not in the user path.
 
-### `src/worlds/atmosphere/WorldAtmosphere.tsx`
-Extend (do not rewrite) so atmosphere reads `useWorldClimate(worldId)` in addition to the existing preset + `worldStateStore`. Climate now drives:
-- **fog density** → secondary gradient alpha + bottom haze opacity
-- **light bloom** → glow A/B size and opacity scaled by `luminosity`
-- **volumetric depth** → parallax distance + extra depth band when `temporalCoherence` high
-- **particle count / activity** → `particles` density multiplied by `particleActivity`; per-particle twinkle speed from `motionIntensity`
-- **motion speed** → `MOTION_DRIFT` durations divided by `(0.6 + motionIntensity)`
-- **environmental pulse** → low-frequency opacity oscillation amplitude scaled by `1 - harmonicStability`
-- **background harmonic gradient** → hue blended by `emotionalTemperature` (cool → warm) on the climate veil
-- **resonance shimmer** → faint cross-world hue tint when `resonance > 0.5`
+## Deliverable D — Chrome de-emphasis (scoped, World-only)
 
-All changes are additive to the existing CSS layers. No new images, no canvas. Keeps `pointer-events: none`.
+- On `/outer-world`, `NavLayer` opacity drops to ~0.55 with a 1.4s
+  ease and lifts back to full on tap/dwell near the bottom edge.
+  Implemented via a `useChromeDeemphasis(routeId)` hook reading
+  ViewIdentity. No removal — only ambient.
 
-### `src/worlds/orb/PersistentWorldOrb.tsx`
-- Keep canonical orb identical.
-- Wrap orb in a thin halo `div` whose `box-shadow`/`background` opacity is biased by the active world's `luminosity` and `emotionalTemperature` (hue shift only on the *halo*, never the orb itself).
-- Orb palette, geometry, and motion remain untouched. This satisfies "subtly reflects world climate through surrounding atmosphere only".
+## Deliverable E — Memory + docs
 
-### `src/App.tsx`
-- Mount `useWorldReactivity()` once (e.g. inside a tiny `<WorldsRuntime />` component placed next to `<PersistentWorldOrb />`).
-- No other changes.
+- New mem file `mem/architecture/living-cognitive-universe.md` with
+  the depth-spine contract, the primitives list, and the rule:
+  *every new surface must compose primitives, not invent backgrounds.*
+- Update `mem/architecture/world-atmosphere-system.md` with the link
+  to depth spine and the AnchorField pattern.
 
-### `src/worlds/scene/WorldShell.tsx`
-- Pass through nothing new structurally. `WorldAtmosphere` already self-subscribes.
-- Optional: forward `motionIntensity` to `AmbientGesture` so the gesture's breathing rate matches the world's pulse (small, optional; can be deferred).
+## Out of scope for 5D.1 (named so I don't drift)
 
----
+- Journey "river of milestones" rewrite → 5D.2.
+- Self/Profile "sacred chamber" rewrite → 5D.3.
+- Chat "conversation inside a field" → 5D.4.
+- Mind constellation upgrade → 5D.5.
+- Per-cognitive-world physics expansion (Emotions weather, Beliefs
+  cathedral, Memory fragments, etc.) → 5D.6 (builds on 5C.7 physics
+  registry).
+- WebGL terrain, generated textures, or any image asset.
+- New nav model. The dock stays; it just dims.
 
-## Reactivity recipes per world
+## Technical notes
 
-Implemented inside `worldReactivity.ts`. Examples:
+- All new layers are CSS / SVG / framer-motion only. No three.js
+  beyond what `SharedOrbStage` already mounts.
+- Performance budget: zero new continuous JS RAF loops. Drift comes
+  from CSS animations whose `animationDuration` is read from
+  `--view-drift` (already wired in `AtmosphereLayer`).
+- Reduced-motion: parallax disabled, drifts pinned to base, energy
+  paths stop pulsing but still render.
+- Hebrew: all whispers / labels read `useTranslation`, RTL via `dir`
+  on the scene root.
 
-- **Habits** — high `harmonicStability` from consistency; momentum boosts `luminosity` and `resonance`; inconsistency raises `motionIntensity` (orbital wobble).
-- **Emotions** — `emotionalIntensity` raises `motionIntensity` + `atmosphericDensity` (storms); unresolved tension raises `1 - harmonicStability` (turbulence); calm lowers both.
-- **Memory** — `journalingDensity`/`memoryActivity` raise `particleActivity` (constellation count); `longTermMomentum` raises `temporalCoherence` (depth draw distance); inactive memories fade via low `luminosity`.
-- **Relationships** — `relationshipActivity` raises `resonance` and `luminosity`; isolation raises `atmosphericDensity` low (emptiness) and lowers `particleActivity`.
-- **Creative** — `creativeActivity` raises `motionIntensity` and `resonance` (geometry fractures); stagnation collapses `particleActivity`.
-- **Higher Self** — coherence raises `temporalCoherence`, lowers `motionIntensity` and `atmosphericDensity` (silence becomes spatial).
-- **Beliefs / Archetypes / Self** — slower tectonic/ritual/inward responses; long EMAs.
+## Files touched (summary)
 
-All recipes are pure functions in `worldReactivity.ts`, easy to tune.
+Added:
+- `src/universe/depth/{zindex,CosmosLayer,HazeLayer}.tsx`
+- `src/universe/primitives/{AnchorPin,EnergyPath,SacredEasings,usePresenceParallax}.{tsx,ts}`
+- `src/aion/presence/useOrbPresenceBehaviour.ts`
+- `src/world/terrain/{WorldTerrainScene,PlanetHorizonLayer,AnchorField,useWorldAnchors}.{tsx,ts}`
+- `src/hooks/useChromeDeemphasis.ts`
+- `mem/architecture/living-cognitive-universe.md`
 
----
+Edited:
+- `src/pages/OuterWorldHub.tsx` (rewrite to mount `WorldTerrainScene`)
+- `src/shellv2/layers/BackgroundLayer.tsx` (add `CosmosLayer`)
+- `src/shellv2/layers/AtmosphereLayer.tsx` (add `HazeLayer` slot)
+- `src/shellv2/layers/NavLayer.tsx` (consume `useChromeDeemphasis`)
+- `src/components/orb/v2/SharedOrbStage.tsx` (consume orb presence
+  behaviour anchor — read-only)
+- `mem/architecture/world-atmosphere-system.md`
 
-## Memory updates
+Untouched: all data hooks, all routes other than `/outer-world`, all
+other main views, all backend, all auth, all RPCs.
 
-Update `mem://architecture/world-atmosphere-system.md` (and add a one-liner to `mem://index.md`):
-- New core principle: **environment = interface**. Atmosphere is driven by `WorldClimate` from `useWorldClimate`, not by static presets alone.
-- Document that `useWorldReactivity()` is the only writer to `worldClimateStore`; consumers read via hooks.
-- Reaffirm: AION orb identity is canonical and never recoloured by climate — only its surrounding halo reflects the world.
+## Success criteria
 
----
+- Opening `/outer-world` feels like walking onto a planetary terrain.
+  Glowing pins float above a horizon; light bridges link related
+  anchors; the orb drifts to anticipate.
+- The dock fades back when you arrive and returns when you reach for it.
+- No card frames, no list, no summary panel anywhere on the surface.
+- Other routes (Chat, Brain, Journey, Profile) still work exactly as
+  they did — they just inherit the new CosmosLayer in the background.
+- Reduced-motion users get a calm, still version with the same
+  composition.
 
-## Out of scope (explicitly)
-
-- No dashboards, charts, numeric overlays, or any visible signal readouts.
-- No new scenes, no 3D, no audio.
-- No changes to AION canonical orb (geometry, palette, shader).
-- No backend or schema changes; all signals are simulated client-side.
-- No changes to homepage, navigation, auth, or any page outside `/worlds/*` and the global runtime mount.
-
----
-
-## Success check
-
-After this phase:
-- Sit on any world without interacting → light, fog, particles, and motion continue to evolve subtly.
-- Switch worlds repeatedly → each world feels unmistakably *itself*, with its own breathing rhythm.
-- Heavy interaction in one world (mutations) visibly shifts its atmosphere within seconds and leaves a faint resonance trace in related worlds.
-- Orb is unchanged across all worlds; only its halo subtly inherits the world's emotional temperature.
+After this lands and feels right, 5D.2 (Journey) can reuse
+`AnchorPin`, `EnergyPath`, `SacredEasings` and the depth spine
+directly — no new primitives needed.
