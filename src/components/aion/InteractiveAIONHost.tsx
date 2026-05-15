@@ -15,6 +15,7 @@ import { useEffect, useState, useRef, Suspense, Component, ReactNode } from 'rea
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { lazyWithRetry } from '@/lib/lazyWithRetry';
+import { ViewIdentityScope } from '@/viewIdentity';
 
 const InteractiveAION = lazyWithRetry(
   () => import('./InteractiveAION'),
@@ -103,6 +104,7 @@ export default function InteractiveAIONHost() {
           never sits on top of ShellV2 layers as a hidden overlay. */}
       {!open ? null : (
         <>
+          <ViewIdentityScope id="interactive" />
           {/* Backdrop — dismisses on tap */}
           <div
             onClick={() => setOpen(false)}
