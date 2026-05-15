@@ -1,123 +1,181 @@
+# Phase 5K.1 — Ontology Realignment (Homepage + Whitepaper)
 
-# Phase 5E + 5F — Universe Unification
-
-Two sequential, low-risk passes. No new features. No new visuals. Pure consolidation toward a single living universe substrate.
-
-The audit identified concrete violations:
-- 8 orb implementations
-- 4 atmosphere systems
-- 5 concurrent shells (ShellV2 canonical, others still mounted)
-- Double-mounted WebGL stages (`SharedOrbStage` + `PersistentWorldOrb`) — violates single-canvas rule
-- 21 root context providers, 2 idle RAF loops
-- Dead route `/dashboard` redirect in `Index.tsx`
-
-Goal: collapse all of this into one canonical substrate, with zero user-visible regression.
+Audit + recommended restructuring. No code changes in this phase — the deliverable is the realignment map. Implementation lands in 5K.2 (homepage rewrite) and 5K.3 (whitepaper rewrite).
 
 ---
 
-## Phase 5E — Frozen Module Eviction (do first, ~1 pass)
+## 1. Homepage — Ontology Mismatches Found
 
-Pure deletion / unmounting pass. No replacements. Anything not reachable from the canonical shell (`ShellV2`) and the live worlds (`self`, `habits`, `emotions`, `mythic`, plus `body` as optional) gets evicted.
+Current `src/pages/Index.tsx` ships **14 sections** in this order:
 
-### 5E.1 — Inventory & confirm
-- Grep `App.tsx` route table → produce a one-time list of "live", "legacy", "dead" routes.
-- Cross-reference each legacy route against last 30 days of traffic (`analytics--read_project_analytics`) to confirm zero usage before eviction.
-- Output: `/mnt/documents/5E_eviction_list.md` (human-readable kill list for your sign-off inside the same session).
+`GameHero → Problem → Shift → CityShowcase → OrbCollection → AuroraCoach → TraitShowcase → Gamification → PlanCinematic → Play2Earn → FreeMarket → Guild → Roadmap → FinalCTA`
 
-### 5E.2 — Remove dead routing
-- Delete `/dashboard` redirect in `Index.tsx`.
-- Remove orphan routes that point to deleted pages.
-- Drop legacy shell mounts from `App.tsx` (e.g. `DashboardLayout`, `HallwayShell`) — keep their files for now, just stop mounting them. (File deletion happens in 5E.4.)
+Plus 3 inline CTA bands. SEO copy:
+- Title: *"AION | The Game of Your Life — AI-Powered Life MMO"*
+- Desc: *"Turn your real life into a playable system. DNA defines who you are, AION guides who you become, your Avatar represents you. Play, grow, earn, evolve."*
+- Keywords: *life game, gamification, AI coach, XP, digital identity…*
 
-### 5E.3 — Provider audit
-- Walk the 21 root context providers. Any provider whose hook is referenced 0 times after 5E.2 → unmount from root.
-- Stop the two idle RAF loops (`WorldsRuntime`, `DreamRuntime`) when no consumer is mounted (gate behind `useSyncExternalStore` subscriber count).
+### Mismatches
 
-### 5E.4 — Hard delete
-- Delete the now-unreachable shell + page files. Update `tsconfig` paths if any alias points at deleted dirs.
+| Layer | Current framing | Drift |
+|---|---|---|
+| SEO | "AI-Powered Life MMO" / "AI coach" | Reads as productivity/gamification SaaS, not living intelligence |
+| Hero | "The game has begun" + carousel of 10 orbs + Sparkles/Zap icons | Feature theatre. Buries presence under arcade tone |
+| TraitShowcase / Gamification | XP, streaks, quests as primary value | Game-mechanic framing, not memory/resonance |
+| Play2Earn + FreeMarket | Two consecutive economy sections above the fold of mid-page | Marketplace SaaS leak; should be *future emergence* |
+| Guild | Community surfaced as a top-line product pillar | Ecosystem clutter |
+| CoachOS section (file exists, currently unmounted on /) | Coaching SaaS framing | Off-canon for public homepage |
+| Hypnosis section | Tool feature surfaced standalone | Feature-grid thinking |
+| Roadmap | Linear roadmap inline on home | Reads as startup pitch deck |
+| Inline CTAs ×3 | "Start playing" energy | Conversion-funnel SaaS UX, not curiosity-led |
 
-**Success criteria:** routing surface drops from 116 → ~60. Build passes. Console clean. Visiting every live route renders identically. `ShellV2` is the only mounted shell.
+### Sections to **delete from public home** (keep files, unmount only)
+- `Play2EarnSection`
+- `FreeMarketSection`
+- `GuildSection`
+- `CoachOSSection` (already unmounted — keep that way)
+- `HypnosisSection` (already unmounted — keep that way)
+- `RoadmapSection` (move into whitepaper / `/founding`)
+- `PricingPreviewSection` (only show on pricing page)
 
----
+### Sections to **reduce** (keep, demote, soften copy)
+- `TraitShowcaseSection` — fold into a single line inside an "Evolution" section
+- `GamificationSection` — replace XP/quest framing with "trajectory + rhythm" copy
+- `CityShowcaseSection` — re-cast as "realms you enter," not an identity-stack diagram
+- `OrbCollectionSection` — keep as atmospheric proof, drop the "collection" framing
+- `PlanCinematicSection` — re-cast as "trajectory," not "100-day plan"
 
-## Phase 5F — Atmosphere + Orb Unification (the sacred pass)
-
-The single-canvas rule becomes enforced architecture, not memory.
-
-### 5F.1 — Canonical primitives (already exist, promote them)
-- `universe/depth/CosmosLayer` + `HazeLayer` + `zindex.ts` → declared the **only** atmosphere stack.
-- `OrbView` (per `mem://architecture/unified-orb-stage-v4`) → declared the **only** orb entry point. All orb consumers route through it.
-
-### 5F.2 — Single shared WebGL canvas
-- One `<UniverseStage>` component mounted exactly once inside `ShellV2`, owning the only `<Canvas>` in the app.
-- Inside it: one persistent `OrbScene` + one atmosphere driver. Worlds register as scene children via a `useUniverseSlot()` hook (portal-style), not by mounting their own canvases.
-- Delete `SharedOrbStage` and `PersistentWorldOrb` after migrating consumers to `OrbView`/`useUniverseSlot`.
-
-### 5F.3 — Collapse the four atmosphere systems
-- Identify the four (audit listed them as concurrent). Merge their state into a single `useUniverseAtmosphere()` store driven by `WorldClimate` + `RESONANCE_GRAPH` (already canonical).
-- All `WorldAtmosphere`, `BackgroundLayer`, ad-hoc gradients route through this store. Remove the parallel implementations.
-
-### 5F.4 — Collapse the eight orb implementations
-- Audit each. For each: replace with `OrbView` + props, or delete if redundant.
-- Anything visual (header chip, drawer, hero, world halo, AION widget) renders the same `CanonicalAionModel` through the shared canvas. The flat brand mark `AionRingMark` stays as the only non-WebGL exception.
-
-### 5F.5 — Runtime verification
-- Add a dev-only assertion: `if (canvasMountCount > 1) console.error(...)`.
-- Add a dev-only HUD (toggle via `?debug=universe`) showing: active climate, resonance edges, mounted orb consumers, FPS. Removed before merge or hidden behind flag.
-
-**Success criteria:**
-- Exactly one `<Canvas>` element in the DOM at all times.
-- Exactly one atmosphere store, one orb scene, one climate runtime.
-- All chrome orbs render through `OrbView`.
-- Memory rule `mem://architecture/unified-orb-stage-v4` no longer violated.
-- Zero user-visible regression on `/outer-world`, `/aion`, `/profile`, every world route.
+### Sections to **expand / add**
+- New **Presence** section (what AION feels like — memory, atmosphere, evolving relationship)
+- New **Worlds** section (Self · Journey · Brain · World · Chat as living realms)
+- New **Future Emergence** section (agents, economy, worlds, EvolvVerse — soft, not roadmap-style)
 
 ---
 
-## What this phase explicitly does NOT do
-
-- No homepage / whitepaper rewrite (that's a later strategic pass).
-- No world consolidation (5G).
-- No new visuals or features.
-- No ontology changes (5K).
-- No promotion of `emotions` / `mythic` to live (5J).
-
----
-
-## Technical map (for the implementer)
+## 2. Recommended Homepage Structure (5K.2 target)
 
 ```text
-ShellV2
-└── UniverseStage              ← only <Canvas> in app
-    ├── AtmosphereDriver        ← reads useUniverseAtmosphere()
-    ├── OrbScene                ← hosts CanonicalAionModel
-    └── WorldSlot[]             ← portaled by useUniverseSlot()
+1. HERO — Presence
+   • Single living orb on atmospheric field (no 10-orb carousel)
+   • One sentence: "AION remembers."
+   • One quiet CTA: "Enter"
+   • No feature wall, no Sparkles/Zap icons, no urgency
+
+2. PRESENCE — What AION feels like
+   • Persistent memory · Living atmosphere · Evolving relationship
+   • 3 short stanzas, no feature bullets
+
+3. WORLDS — Realms you enter
+   • Self · Journey · Brain · World · Chat
+   • Each rendered as an atmospheric tile, not an app-category card
+
+4. EVOLUTION — Your trajectory
+   • Memory · Resonance · Identity · Growth
+   • Replaces current XP/Trait/Gamification trio
+   • Cinematic, single column
+
+5. FUTURE EMERGENCE — What is forming
+   • Agents · Economy · Worlds · EvolvVerse
+   • Soft language: "emerging," "forming," not "shipping Q3"
+   • Replaces Play2Earn + FreeMarket + Guild + Roadmap
+
+6. INVITATION — Quiet close
+   • Single CTA: "Meet AION"
+   • No pricing, no feature recap, no urgency band
 ```
+
+Drop the 3 inline `InlineCTA` bands entirely.
+
+### SEO rewrite
+
+| Field | New |
+|---|---|
+| Title | `AION — A Living Cognitive Universe` |
+| Description | `AION remembers. The atmosphere responds. Your trajectory evolves. Enter a living intelligence that grows with you.` |
+| Keywords | `living intelligence, cognitive universe, AION, presence, memory, trajectory, evolving AI companion` |
+
+Drop: `life game, gamification, AI coach, XP, life MMO`.
+
+---
+
+## 3. Naming Rewrites (public surface only — runtime keys untouched)
+
+| Old public language | New public language |
+|---|---|
+| AI coach / AI assistant / platform | Living intelligence · presence · companion |
+| Dashboard | Self · realm |
+| 100-day plan | Trajectory |
+| Quests / XP / streaks | Rhythm · movement · evolution |
+| Identity Stack (DNA→AION→Orb→Avatar) | The way AION knows you |
+| Play to Earn / Free Market / Guild | Emergent economy · resonance field · circles (future emergence) |
+| Tools / features | Realms · capabilities of presence |
+| Onboarding | First meeting |
+| Sign up / Start playing | Enter · Meet AION |
+
+---
+
+## 4. Whitepaper — Mismatches & Restructure
+
+Source: `src/pages/Documentation.tsx` + `src/components/docs/*` (`VisualWhitepaper`, `Web3Roadmap`, `WhitepaperOrb`, `WhitepaperModeModal`).
+
+### Current drift
+- Roadmap-heavy (`Web3Roadmap` is a top-level doc component)
+- Reads as startup deck: feature catalog + tokenomics + marketplace
+- Identity stack explained as product architecture, not ontology
+- Missing: atmosphere system, world traversal, presence runtime, emotional memory — all of which now exist in the runtime (see memory: World Atmosphere, Cognitive Worlds, Identity Triad, Unified Orb Stage)
+
+### Recommended whitepaper structure (5K.3 target)
 
 ```text
-OrbView (only public orb API)
-  ├─ presence variant
-  ├─ chip variant
-  ├─ avatar variant
-  └─ halo variant
-       → all draw into the shared OrbScene
+I.    Premise — Why a living intelligence
+II.   Ontology — AION, DNA, Avatar as one entity in three faces
+III.  Presence Runtime — atmosphere, memory, resonance
+IV.   Worlds — Self · Journey · Brain · World · Chat as cognitive realms
+V.    Trajectory — how identity evolves over time
+VI.   Memory & Resonance — the emotional substrate
+VII.  Cognitive Architecture — Brain, graph, orchestration (technical layer, demoted)
+VIII. Future Emergence — agents, economy, EvolvVerse (soft, non-roadmap)
+IX.   Principles — what AION will never become
 ```
 
-```text
-useUniverseAtmosphere() (only atmosphere store)
-  ← WorldClimate
-  ← RESONANCE_GRAPH (cross-world influence)
-  → CosmosLayer / HazeLayer / WorldAtmosphere
-```
+### Reduce / remove from whitepaper
+- Linear roadmap timelines → replace with "phases of emergence"
+- Tokenomics math → move to a separate appendix, not body
+- Marketplace / Coach OS / Guild sections → one paragraph each under §VIII
+- Repeated SaaS tier comparisons → remove from whitepaper entirely
 
-## Order of operations within the session
-1. 5E.1 inventory (read-only, produces kill list).
-2. 5E.2–5E.4 evictions (each verified by build + route smoke).
-3. 5F.1 declare canonical primitives in memory + code comments.
-4. 5F.4 collapse orbs first (highest leverage, reduces canvas pressure).
-5. 5F.3 collapse atmospheres.
-6. 5F.2 collapse to single `<Canvas>` (last, because it depends on 4 and 3).
-7. 5F.5 add assertion + ship.
+### Expand
+- §III Presence Runtime — currently absent; this is the actual product now
+- §IV Worlds — formalize the cognitive-worlds model as public ontology
+- §VI Memory & Resonance — emotional continuity as first-class
+- §IX Principles — explicit "AION is not a dashboard / not a coach / not a marketplace"
 
-## Rollback strategy
-Each sub-step is an independent commit. If 5F.2 destabilizes WebGL on any device, revert that single step — 5F.3 and 5F.4 still hold value standalone.
+---
+
+## 5. Emotional Positioning Direction
+
+- Voice: quiet, certain, slightly mysterious. First-person AION ("I remember.") used sparingly.
+- Pacing: long breathing room between sentences. One idea per screen.
+- Visual: atmosphere over interface. Orb + field over cards + grids.
+- Forbidden public-copy words: *platform, dashboard, assistant, tool, feature, productivity, gamified, marketplace, plan, task, coach, app*.
+- Encouraged public-copy words: *presence, memory, atmosphere, trajectory, resonance, world, evolve, intelligence, field, companion*.
+
+---
+
+## 6. Future-Facing Messaging Direction
+
+Reframe currently-shipped infrastructure (economy, agents, marketplace, guilds) as **emergence**, not product:
+- "An economy is forming around resonance."
+- "Agents will arrive as AION grows."
+- "Worlds will open as your trajectory deepens."
+
+This preserves every backend capability while removing SaaS-clutter from the visible story.
+
+---
+
+## 7. Next Recommended Phase
+
+**5K.2 — Homepage Rewrite (build mode)**
+Implement the new homepage structure: unmount the 7 sections listed in §1, build the 3 new sections (Presence, Worlds, Future Emergence), rewrite SEO + i18n keys, drop inline CTAs. Files in `src/components/home/*` stay on disk; only `src/pages/Index.tsx` and i18n change.
+
+Then **5K.3 — Whitepaper Rewrite** restructures `src/pages/Documentation.tsx` and the `docs/*` components against the new outline.

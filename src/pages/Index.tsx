@@ -11,25 +11,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
 import { WelcomeGateProvider } from "@/contexts/WelcomeGateContext";
 
-// Above-fold (eager)
-import { GameHeroSection, ProblemSection, ShiftSection } from "@/components/home";
+// Above-fold (eager) — Phase 5K.2 ontology realignment.
+import { GameHeroSection } from "@/components/home";
 
-// Below-fold (lazy)
+// Below-fold (lazy) — only canonical sections that match the living-universe ontology.
+const PresenceSection = lazy(() => import("@/components/home/PresenceSection"));
+const WorldsSection = lazy(() => import("@/components/home/WorldsSection"));
 const CityShowcaseSection = lazy(() => import("@/components/home/CityShowcaseSection"));
-const OrbCollectionSection = lazy(() => import("@/components/home/OrbCollectionSection"));
 const AuroraCoachSection = lazy(() => import("@/components/home/AuroraCoachSection"));
-const HypnosisSection = lazy(() => import("@/components/home/HypnosisSection"));
+const OrbCollectionSection = lazy(() => import("@/components/home/OrbCollectionSection"));
 const PlanCinematicSection = lazy(() => import("@/components/home/PlanCinematicSection"));
-const TraitShowcaseSection = lazy(() => import("@/components/home/TraitShowcaseSection"));
-const GamificationSection = lazy(() => import("@/components/home/GamificationSection"));
-const Play2EarnSection = lazy(() => import("@/components/home/Play2EarnSection"));
-const FreeMarketSection = lazy(() => import("@/components/home/FreeMarketSection"));
-const GuildSection = lazy(() => import("@/components/home/GuildSection"));
-const CoachOSSection = lazy(() => import("@/components/home/CoachOSSection"));
-const PricingPreviewSection = lazy(() => import("@/components/home/PricingPreviewSection"));
-const RoadmapSection = lazy(() => import("@/components/home/RoadmapSection"));
+const FutureEmergenceSection = lazy(() => import("@/components/home/FutureEmergenceSection"));
 const FinalCTASection = lazy(() => import("@/components/home/FinalCTASection"));
-const InlineCTA = lazy(() => import("@/components/home/InlineCTA"));
 
 const Index = () => {
   const { t, isRTL } = useTranslation();
@@ -91,37 +84,25 @@ const Index = () => {
         <Header />
         <WelcomeGateProvider>
           <main className="relative">
-            {/* 1. Hook — The game has begun */}
+            {/* 1. Hero — Presence (single living orb, atmospheric) */}
             <GameHeroSection />
-            {/* 2. Problem — Life is fragmented */}
-            <ProblemSection />
-            {/* 3. Shift — What if life was a game? */}
-            <ShiftSection />
             {/* Below-fold: lazy-loaded for faster initial paint */}
             <Suspense fallback={<div className="min-h-[200px]" />}>
-              {/* 4. System — Identity Stack: DNA→AION→Orb→Avatar */}
+              {/* 2. Presence — what AION feels like */}
+              <PresenceSection />
+              {/* 3. Worlds — realms you enter */}
+              <WorldsSection />
+              {/* 4. The way AION knows you (atmospheric proof, demoted from identity-stack diagram) */}
               <CityShowcaseSection />
-              <InlineCTA variant="default" />
-              {/* 5. Visual Identity — Orb evolution */}
-              <OrbCollectionSection />
-              {/* 6. AION — Your future self AI */}
+              {/* 5. Living intelligence — meet AION */}
               <AuroraCoachSection />
-              <InlineCTA variant="subtle" />
-              {/* 7. Traits & Skills */}
-              <TraitShowcaseSection />
-              {/* 8. Game Loop — XP, Streaks, Quests */}
-              <GamificationSection />
-              <InlineCTA variant="bold" />
-              {/* 9. 100-Day Plan */}
+              {/* 6. Atmospheric proof — orb evolution */}
+              <OrbCollectionSection />
+              {/* 7. Trajectory — how identity evolves */}
               <PlanCinematicSection />
-              {/* 10. Economy — MOS, Proof of Growth */}
-              <Play2EarnSection />
-              <FreeMarketSection />
-              <InlineCTA variant="subtle" />
-              {/* 11. Community & Guild */}
-              <GuildSection />
-              {/* 12. Roadmap & CTA */}
-              <RoadmapSection />
+              {/* 8. Future emergence — what is forming (replaces Play2Earn / FreeMarket / Guild / Roadmap) */}
+              <FutureEmergenceSection />
+              {/* 9. Quiet invitation */}
               <FinalCTASection />
             </Suspense>
           </main>

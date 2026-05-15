@@ -16,3 +16,6 @@ export { default as RoadmapSection } from './RoadmapSection';
 export { default as GamificationSection } from './GamificationSection';
 export { default as FreeMarketSection } from './FreeMarketSection';
 export { default as InlineCTA } from './InlineCTA';
+export { default as PresenceSection } from './PresenceSection';
+export { default as WorldsSection } from './WorldsSection';
+export { default as FutureEmergenceSection } from './FutureEmergenceSection';
