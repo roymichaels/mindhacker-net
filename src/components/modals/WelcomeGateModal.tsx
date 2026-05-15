@@ -8,7 +8,7 @@ import { Sparkles, Rocket } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
-import { Orb } from '@/components/orb/Orb';
+import OrbView from '@/components/orb/v2/OrbView';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';

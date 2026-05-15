@@ -36,7 +36,7 @@ function mapState(s: unknown): OrbViewState | undefined {
 
 export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
   function PersonalizedOrb(
-    { size = 300, state, audioLevel, className, disablePersonalization = false, onClick, ariaLabel },
+    { size = 300, state, audioLevel, className, disablePersonalization = false },
     _ref,
   ) {
     return (
@@ -46,8 +46,8 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
         audioLevel={audioLevel}
         className={className}
         identity={disablePersonalization ? 'aion' : 'user'}
-        onClick={onClick as (() => void) | undefined}
-        ariaLabel={ariaLabel}
+        
+        
       />
     );
   },

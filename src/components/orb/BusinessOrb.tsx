@@ -14,7 +14,7 @@ export interface BusinessOrbProps extends Omit<OrbProps, 'profile' | 'egoState'>
 }
 
 export const BusinessOrb = forwardRef<OrbRef, BusinessOrbProps>(function BusinessOrb(
-  { businessId, size = 200, audioLevel, className, onClick, ariaLabel },
+  { businessId, size = 200, audioLevel, className },
   _ref,
 ) {
   const { profile } = useBusinessOrbProfile(businessId);
@@ -24,8 +24,8 @@ export const BusinessOrb = forwardRef<OrbRef, BusinessOrbProps>(function Busines
       profile={profile ?? DEFAULT_BUSINESS_ORB_PROFILE}
       audioLevel={audioLevel}
       className={className}
-      onClick={onClick as (() => void) | undefined}
-      ariaLabel={ariaLabel}
+      
+      
     />
   );
 });
