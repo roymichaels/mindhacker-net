@@ -947,9 +947,9 @@ export const he = {
     breadcrumbHome: "דף הבית",
     breadcrumbDashboard: "דאשבורד",
     breadcrumbCourses: "מוצרים דיגיטליים",
-    indexTitle: "AION | המשחק של החיים שלך — Life MMO מבוסס AI",
-    indexDescription: "הפוך את החיים האמיתיים שלך למערכת שניתן לשחק בה. DNA מגדיר מי אתה, AION מנחה לאן אתה הולך, האווטאר מייצג אותך. שחק, צמח, הרווח, התפתח.",
-    indexKeywords: "משחק חיים, התפתחות אישית, מאמן AI, גיימיפיקציה, Life MMO, AION, AION, טרנספורמציה, XP, זהות דיגיטלית",
+    indexTitle: "AION — יקום קוגניטיבי חי",
+    indexDescription: "AION זוכר. האווירה מגיבה. המסלול שלך מתפתח. היכנס לתוך תודעה חיה שגדלה איתך.",
+    indexKeywords: "תודעה חיה, יקום קוגניטיבי, AION, נוכחות, זיכרון, מסלול, בן לוויה מתפתח",
   },
    about: {
     sectionTitle: "הכירו",
