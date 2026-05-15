@@ -34,3 +34,17 @@ export function StandaloneMorphOrb({ profile, size, className }: StandaloneMorph
 }
 
 export default GalleryOrbView;
+
+/**
+ * @deprecated GalleryCanvas — was the legacy per-gallery WebGL provider.
+ * Kept as a passthrough Fragment so consumers still mount; the real Canvas
+ * lives in SharedOrbStage and inner orbs tunnel into it via OrbView.
+ */
+import type { ReactNode, RefObject } from 'react';
+interface GalleryCanvasProps {
+  children: ReactNode;
+  containerRef?: RefObject<HTMLElement>;
+}
+export function GalleryCanvas({ children }: GalleryCanvasProps) {
+  return <>{children}</>;
+}
