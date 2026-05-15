@@ -44,6 +44,8 @@ import InteractiveAIONHost from "@/components/aion/InteractiveAIONHost";
 import CloudAuthModal from "@/components/auth/CloudAuthModal";
 import SharedOrbStage from "@/components/orb/v2/SharedOrbStage";
 import DiagnosticsHost from "@/diagnostics/DiagnosticsHost";
+// Phase 5G — single canonical redirect for the legacy strategy/pillar maze.
+import StrategyMazeRedirect from "@/routes/StrategyMazeRedirect";
 
 // Phase 5E — HallwayShell / RoomEnvironment evicted (no routes mounted them).
 // Phase 3.1 — PresenceShell replaces the homepage mental model.
@@ -363,64 +365,14 @@ const App = () => (
                                                 <Route path="/journal" element={<SummonRoute kind="journal" fallback={<JournalingHub />} />} />
                                                 {/* All legacy aliases (/play /now /plan /hallway /mindos/* /work /life /career /*-hub …)
                                                     are owned by PROTECTED_REDIRECTS in src/routes/redirects.tsx. */}
-                                                <Route path="/strategy/presence" element={<PresenceHome />} />
-                                                <Route path="/strategy/presence/scan" element={<PresenceScan />} />
-                                                <Route path="/strategy/presence/analyzing" element={<PresenceAnalyzing />} />
-                                                <Route path="/strategy/presence/results" element={<PresenceResultsPage />} />
-                                                <Route path="/strategy/presence/assess" element={<PresenceChatAssess />} />
-                                                <Route path="/strategy/presence/chat-results" element={<PresenceChatResults />} />
-                                                <Route path="/strategy/presence/history" element={<PresenceHistory />} />
-                                                {/* Power */}
-                                                <Route path="/strategy/power" element={<PowerHome />} />
-                                                <Route path="/strategy/power/assess" element={<PowerChatAssess />} />
-                                                <Route path="/strategy/power/chat-results" element={<PowerChatResults />} />
-                                                <Route path="/strategy/power/results" element={<PowerResultsPage />} />
-                                                <Route path="/strategy/power/history" element={<PowerHistory />} />
-                                                {/* Vitality */}
-                                                <Route path="/strategy/vitality" element={<VitalityHome />} />
-                                                <Route path="/strategy/vitality/assess" element={<VitalityChatAssess />} />
-                                                <Route path="/strategy/vitality/chat-results" element={<VitalityChatResults />} />
-                                                <Route path="/strategy/vitality/intake" element={<VitalityIntake />} />
-                                                <Route path="/strategy/vitality/results" element={<VitalityResults />} />
-                                                <Route path="/strategy/vitality/history" element={<VitalityHistory />} />
-                                                {/* Focus */}
-                                                <Route path="/strategy/focus" element={<FocusHome />} />
-                                                <Route path="/strategy/focus/assess" element={<FocusChatAssess />} />
-                                                <Route path="/strategy/focus/chat-results" element={<FocusChatResults />} />
-                                                <Route path="/strategy/focus/results" element={<FocusResults />} />
-                                                <Route path="/strategy/focus/history" element={<FocusHistory />} />
-                                                {/* Combat */}
-                                                <Route path="/strategy/combat" element={<CombatHome />} />
-                                                <Route path="/strategy/combat/assess" element={<CombatChatAssess />} />
-                                                <Route path="/strategy/combat/chat-results" element={<CombatChatResults />} />
-                                                <Route path="/strategy/combat/results" element={<CombatResults />} />
-                                                <Route path="/strategy/combat/history" element={<CombatHistory />} />
-                                                {/* Expansion */}
-                                                <Route path="/strategy/expansion" element={<ExpansionHome />} />
-                                                <Route path="/strategy/expansion/assess" element={<ExpansionChatAssess />} />
-                                                <Route path="/strategy/expansion/chat-results" element={<ExpansionChatResults />} />
-                                                <Route path="/strategy/expansion/results" element={<ExpansionResults />} />
-                                                <Route path="/strategy/expansion/history" element={<ExpansionHistory />} />
-                                                {/* Consciousness */}
-                                                <Route path="/strategy/consciousness" element={<ConsciousnessHome />} />
-                                                <Route path="/strategy/consciousness/assess" element={<ConsciousnessAssess />} />
-                                                <Route path="/strategy/consciousness/results" element={<ConsciousnessResults />} />
-                                                <Route path="/strategy/consciousness/history" element={<ConsciousnessHistory />} />
-                                                {/* Arena domain routes — now under /strategy */}
-                                                <Route path="/strategy/wealth/assess" element={<WealthAssess />} />
-                                                <Route path="/strategy/wealth/results" element={<WealthResults />} />
-                                                <Route path="/strategy/influence/assess" element={<InfluenceAssess />} />
-                                                <Route path="/strategy/influence/results" element={<InfluenceResults />} />
-                                                <Route path="/strategy/relationships/assess" element={<RelationshipsAssess />} />
-                                                <Route path="/strategy/relationships/results" element={<RelationshipsResults />} />
-                                                <Route path="/strategy/business/assess" element={<BusinessAssess />} />
-                                                <Route path="/strategy/business/results" element={<BusinessResults />} />
-                                                <Route path="/strategy/projects/assess" element={<ProjectsAssess />} />
-                                                <Route path="/strategy/projects/results" element={<ProjectsResults />} />
-                                                <Route path="/strategy/play/assess" element={<PlayAssess />} />
-                                                <Route path="/strategy/play/results" element={<PlayResults />} />
-                                                {/* Strategy domain catch-all */}
-                                                <Route path="/strategy/:domainId" element={<LifeDomainPage />} />
+                                                {/* Phase 5G — Strategy Maze Collapse.
+                                                    All legacy `/strategy/:pillar/*` deep links (assess, results,
+                                                    history, intake, chat-results, scan, analyzing, domain pages)
+                                                    funnel into one redirect that captures pillar context in
+                                                    sessionStorage and lands the user on /journey. The underlying
+                                                    pillar pages remain on disk for AION-summoned artifact reuse. */}
+                                                <Route path="/strategy/:pillar" element={<StrategyMazeRedirect />} />
+                                                <Route path="/strategy/:pillar/*" element={<StrategyMazeRedirect />} />
                                                 {renderProtectedRedirectRoutes()}
                                                 <Route path="/arena/:domainId/*" element={<ArenaToAIONRedirect />} />
                                                 {/* Coaches */}
