@@ -156,3 +156,59 @@ threat model changes.
   optional move to the `apps/evolve` + `backend/supabase` monorepo target.
 
 See `.lovable/plan.md` for the full audit and rationale.
+---
+
+## Pre-Export Audit Index
+
+- [AUDIT_REPORT.md](./AUDIT_REPORT.md) — P1: full dead/legacy mapping (309 orphans, 6-wave plan)
+- [AUDIT_P2_ARCHITECTURE.md](./AUDIT_P2_ARCHITECTURE.md) — P2: runtime + ownership maps, Mermaid diagrams
+- [AUDIT_P3_DEPENDENCIES.md](./AUDIT_P3_DEPENDENCIES.md) — P3: hubs, duplicates, cleanup order
+- [AUDIT_P4_PERFORMANCE.md](./AUDIT_P4_PERFORMANCE.md) — P4: providers, bundle, canvas, leak risks
+- [scripts/audit-deadcode.mjs](./scripts/audit-deadcode.mjs) — regenerate orphan list (~3s)
+- [scripts/orphans.snapshot.txt](./scripts/orphans.snapshot.txt) — baseline orphan snapshot
+- [scripts/export-storage.ts](./scripts/export-storage.ts) — Supabase Storage dumper
+
+## Export Readiness Summary
+
+**Status: READY** to export. No code changes required pre-export.
+
+Confirmed safe seams:
+- `_shared/aiGateway.ts` auto-flips to OpenRouter when `OPENROUTER_API_KEY` is set.
+- `_shared/cors.ts` is wildcard `*` — portable.
+- 257 migrations + 73 edge functions live in repo and replay cleanly.
+- Single Lovable OAuth call site (`src/integrations/lovable/index.ts`) — replace post-export.
+
+## Exact Files / Commands Before Leaving Lovable
+
+1. **Snapshot generated types** (no auto-regen outside Lovable):
+   ```bash
+   cp src/integrations/supabase/types.ts src/integrations/supabase/types.snapshot.ts
+   ```
+2. **Dump Storage buckets**:
+   ```bash
+   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… bun run scripts/export-storage.ts
+   ```
+3. **Capture migration list** for replay parity:
+   ```bash
+   ls supabase/migrations | tee supabase/migrations.manifest.txt
+   ```
+4. **Note these env values** from Lovable Cloud → Connectors:
+   - `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`
+   - All edge-function secrets (LOVABLE_API_KEY, ELEVENLABS, STRIPE_*, WEB3AUTH_*, etc.)
+5. **Export the repo** (Lovable → GitHub).
+
+## Exact Next Step After Export
+
+Run **Phase A — Stabilization** locally:
+```bash
+git clone <repo> && cd <repo>
+bun install
+cp .env.example .env  # fill from Lovable values above
+supabase link --project-ref tsvfsbluyuaajqmkpzdv
+supabase db pull           # verify schema parity
+supabase functions deploy  # redeploy 73 fns
+echo "OPENROUTER_API_KEY=…" | supabase secrets set --env-file -
+bun run dev
+```
+
+Verify: login, AION chat (should hit OpenRouter), one world transition, one edge fn invocation. Then proceed to **Wave 1 — orphan deletion** using `scripts/audit-deadcode.mjs` to regenerate the list.
