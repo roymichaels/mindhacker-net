@@ -94,7 +94,7 @@ export default function NavLayer() {
         style={{
           ...zStyle('nav'),
           bottom:
-            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 6px)',
+            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 10px)',
           transition: 'bottom 320ms ease, color 200ms ease, opacity 1400ms ease',
           opacity: Math.max(0.3, chromeWeight),
         }}
@@ -111,7 +111,7 @@ export default function NavLayer() {
           ...zStyle('nav'),
           // Anchors bloom ABOVE the composer; safe area respected.
           bottom:
-            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 22px)',
+            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 32px)',
           opacity: chromeWeight,
           transition: 'opacity 1400ms ease',
         }}

@@ -25,6 +25,9 @@ import { useAionPresence } from '@/aion/presenceState';
 import { useActiveViewIdentity } from '@/viewIdentity';
 import { BEHAVIOR_PROFILE, behaviorFromPresence } from '@/aion/presence/orbBehavior';
 import { attentionBus } from '@/aion/presence/attentionBus';
+import { realmTransitionBus } from '@/shellv2/transitions/realmTransitionBus';
+import { moodForPath } from '@/aion/realms/realmMood';
+import { aionPresenceBus } from '@/aion/presenceState';
 
 const PRESENCE_SCALE: Record<string, number> = {
   listening: 1.00,
@@ -79,6 +82,34 @@ export function useOrbPresenceBehaviour(): void {
     }, 1400);
     return () => window.clearTimeout(t);
   }, [location.pathname, view]);
+
+  // 5N.3 — orb continuity across realm transitions.
+  // departing → guiding, arriving → resonating, idle → realm default mood.
+  useEffect(() => {
+    return realmTransitionBus.subscribe((frame) => {
+      if (frame.phase === 'departing') {
+        aionPresenceBus.set('manifesting'); // maps to 'guiding' behavior
+      } else if (frame.phase === 'arriving') {
+        aionPresenceBus.set('noticing');    // brief resonant lean
+      } else if (frame.phase === 'idle') {
+        const mood = moodForPath(location.pathname);
+        if (!mood) return;
+        // Map realm default behavior back through presence vocabulary.
+        const map: Record<string, Parameters<typeof aionPresenceBus.set>[0]> = {
+          listening: 'listening',
+          noticing: 'noticing',
+          thinking: 'forming',
+          guiding: 'manifesting',
+          resonating: 'noticing',
+          evolving: 'evolving',
+          resting: 'resting',
+          hesitating: 'resting',
+          dreaming: 'resting',
+        };
+        aionPresenceBus.set(map[mood.presence] ?? 'listening');
+      }
+    });
+  }, [location.pathname]);
 
   // Pointer + activity tracking.
   useEffect(() => {

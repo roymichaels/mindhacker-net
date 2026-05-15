@@ -13,7 +13,7 @@ interface AionComposerDockProps {
  * Centers content, applies safe-area, no chrome of its own.
  */
 export function AionComposerDock({ children, className, style }: AionComposerDockProps) {
-  const { composerState } = useChamberIdle();
+  const { composerState, navVisible } = useChamberIdle();
   const isIdle = composerState === 'idle';
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +36,7 @@ export function AionComposerDock({ children, className, style }: AionComposerDoc
     <div
       ref={hostRef}
       className={cn(
-        "pointer-events-none fixed inset-x-0 px-3 flex justify-center",
+        "pointer-events-none fixed inset-x-0 px-4 flex justify-center",
         className,
       )}
       style={{
@@ -46,14 +46,18 @@ export function AionComposerDock({ children, className, style }: AionComposerDoc
         ...style,
       }}
       data-composer-state={composerState}
+      data-nav-open={navVisible ? 'true' : 'false'}
     >
-      <div className="relative pointer-events-auto w-full max-w-screen-md">
+      <div
+        className="relative pointer-events-auto w-full"
+        style={{ maxWidth: 'min(640px, 100%)' }}
+      >
         {/* Soft environmental underglow — composer hovers like a holographic dock */}
         <div
           aria-hidden
           className={cn(
             "pointer-events-none absolute inset-x-6 -bottom-6 h-24 -z-10 transition-opacity duration-700",
-            isIdle ? "opacity-40" : "opacity-100",
+            navVisible ? "opacity-20" : isIdle ? "opacity-40" : "opacity-100",
           )}
           style={{
             background:

@@ -1,140 +1,173 @@
-# Phase 5L — Living World Physics
 
-Behavioral life on top of the runtime that already exists. No new canvases, no DB, no routes, no features. Extends `aionPresenceBus`, `WorldPhysics`, `WorldGestureField`, `WorldClimate`, and `SharedOrbStage` rather than replacing them.
+# Phase 5N — Living Universe Transition + Realm Embodiment Pass
 
-## What already exists (do not rebuild)
+Goal: stop feeling like five improved screens. Start feeling like one continuous cognitive universe AION moves through with the user. Plus an urgent bottom-chrome fix so the composer/nav/safe-area stop colliding on mobile.
 
-| Capability | Location |
-|---|---|
-| AION presence states (6) | `src/aion/presenceState.ts` |
-| Orb behavioural mapping (mood/scale/anchor) | `src/aion/presence/useOrbPresenceBehaviour.ts` |
-| Per-world physics registry | `src/worlds/physics/{types,worldPhysicsRegistry,dispatchGesture}.ts` |
-| Gesture field + bindings | `src/worlds/gesture/*` + `src/worlds/scene/WorldGestureField.tsx` |
-| Climate + reactivity + cross-world resonance | `src/worlds/runtime/*`, `src/worlds/resonance/*` |
-| Env memory (history) | `src/worlds/resonance/worldStateHistory.ts` |
-| Single WebGL canvas | `src/components/orb/v2/SharedOrbStage.tsx` |
-| Atmosphere (singleton) | `src/shellv2/layers/AtmosphereLayer.tsx` |
-| Nav dock | `src/shellv2/layers/NavLayer.tsx` + `AionNavDock` |
-
-5L is a **thin behavioural skin** over these.
+Hard constraints (re-stated): no backend, no DB, no new routes, no new realms, no second canvas, no new providers unless absolutely required, no resurrected dashboards. CSS-first, event-driven, reuse the existing runtime (`OrbView`, atmosphere, `attentionBus`, `worldResidueBus`, `realmIntentBus`, presence/behavior).
 
 ---
 
-## 5L.1 — Orb Behavioural Runtime
+## Part A — Atmospheric Route Transitions
 
-Extend, don't replace. The bus already has 6 states; add the 3 missing: `thinking`, `guiding`, `hesitating`, `dreaming` (4 actually). Map `forming → thinking`, keep both as aliases for one cycle so nothing breaks.
+**New: `src/shellv2/transitions/realmTransitionBus.ts`** (tiny pub/sub, no RAF)
+- State: `idle | departing | arriving`, plus `from`, `to`, `energy`, `startedAt`, `durationMs` (default 520ms; 0 if `prefers-reduced-motion`).
+- Subscribes to `realmIntentBus`. On intent: set `departing` → after 220ms `arriving` → after total duration `idle`.
 
-- New file `src/aion/presence/orbBehavior.ts` — `OrbBehaviorState` union + `BEHAVIOR_PROFILE` table (drift, pulse, glow, response-delay, environmental-influence per state).
-- Extend `presenceState.ts` to accept the new states (additive union, no breaking change).
-- `useOrbPresenceBehaviour.ts` reads the profile table → publishes additional CSS vars: `--aion-orb-drift`, `--aion-orb-pulse-rate`, `--aion-orb-glow`, `--aion-orb-influence`.
-- Orb shader (`OrbView.tsx`) reads those vars (no per-state branching in JS RAF).
+**New: `src/shellv2/layers/RealmTransitionLayer.tsx`** (one DOM node, no canvas, no RAF)
+- Full-viewport overlay between content and nav (`z = 25`, new token between `chat:20` and `nav:28`).
+- Two stacked radial-gradient veils tinted by `from` / `to` realm mood; opacity driven by transition phase via CSS variables only.
+- Mounted once in `ShellV2.tsx`.
 
-## 5L.2 — Orb Attention System
+**Edit `src/shellv2/zindex.ts`** — add `realmVeil: 25`.
 
-- New file `src/aion/presence/attentionBus.ts` — tiny bus, `AttentionTarget = 'user' | 'world-node' | 'artifact' | 'memory' | 'self' | 'idle'` plus optional focal point `{x,y}` in viewport [0..1].
-- `useOrbPresenceBehaviour` adds an "attention bias" that tugs `targetCx/targetCy` slightly toward focal (clamped, ≤6vw) — single existing RAF, no new loop.
-- Hooks: `useNoticeArtifact(ref)` (intersection-observer based) and `useNoticePointer()` already implicit via pointer ref.
+**Edit `src/aion/presence/useOrbPresenceBehaviour.ts`** — when transition is `departing`, set behavior to `guiding`; on `arriving`, briefly `resonating`; on `idle`, hand back to realm-default mood. Pull attention focal toward target anchor's last-known position (cached when nav emitted intent).
 
-## 5L.3 — World Physics Runtime (shared field)
-
-Augment, don't fork. Per-world `WorldPhysics` already exists; what's missing is the **shared ambient field** that runs even when no gesture fires.
-
-- New file `src/worlds/physics/sharedPhysicsField.ts` — single tick driven by the existing climate evolve loop. Outputs: `driftVector`, `inertia`, `currents`, `gravityAnchor`. No new RAF — piggyback `useWorldMomentum`.
-- New `useSharedPhysicsField()` hook reads from the same store; consumed by `WorldAtmosphere` and orb.
-
-## 5L.4 — Gesture-as-Atmosphere
-
-`WorldGestureField` already captures hold/drag/dwell. Wire its outputs to atmosphere directly.
-
-- Extend `dispatchGesture.ts` so each gesture also nudges climate (already does via `mutateClimate`) AND publishes a transient ripple to `attentionBus` (`world-node`, focal=touch point) for ~600ms.
-- Orb subtly leans toward the touch via 5L.2 path.
-
-## 5L.5 — Environmental Memory
-
-Already partial in `worldStateHistory.ts`. Add an emotional residue layer.
-
-- New file `src/worlds/resonance/worldResidue.ts` — `recordVisit(worldId, dwellMs)` + `recordAvoidance(worldId)`; persists to `localStorage` (no DB). Decays over real time.
-- `WorldAtmosphere` reads residue → dims unloved worlds, warms engaged ones (CSS vars on the world root, not new render).
-
-## 5L.6 — Living Navigation (transitions)
-
-- New file `src/shellv2/transitions/atmosphericTransition.ts` — small helper `beginTraversal(fromWorldId, toWorldId)`. Runs:
-  1. Snapshot source climate.
-  2. Cross-fade atmosphere CSS vars over 600ms instead of route swap.
-  3. Carry orb position; do not unmount.
-- Hook `useAtmosphericNavigate()` returns a navigate fn used by `AionNavDock` (opt-in). React Router still does the route change underneath; the visual carryover is purely CSS-var/atmosphere.
-
-## 5L.7 — Identity Triad Runtime
-
-DNA + Avatar + AION already exist as separate hooks. Add a thin organism layer.
-
-- New file `src/identity/triadOrganism.ts` — `useTriadOrganism()` reads `useDNA`, `useAION`, avatar state and writes:
-  - `--aion-orb-material-tint` (from DNA)
-  - `--aion-avatar-posture-bias` (from presence)
-  - `--aion-resonance-tendency` (from DNA × presence)
-- One `useEffect`, no RAF.
-
-## 5L.8 — Bottom Navigation Evolution (foundation only)
-
-Per constraint: "do not fully redesign yet — lay runtime foundation."
-
-- Extend `AionNavDock` props to accept `glyphEnergy` (0..1) per tab, computed from `worldResidue` + `attentionBus` target. Visual: stronger soft glow on active realm, gentle dim on avoided ones. No layout change. No constellation rewrite this phase.
-
-## 5L.9 — Remove Explicit Explanations
-
-Audit + delete. Targets identified during exploration:
-- "AION is learning…" / "Planning ontology trajectory" style microcopy in: `src/components/self/sections/AionPresenceHero.tsx`, journey/strategy echo banners, presence chips. Replace with silence + glow change (already wired via 5L.1 vars).
-- Collected list compiled before edits; nothing removed without an environmental substitute already in place.
-
-## 5L.10 — Performance Constraints (audit)
-
-Check before merge:
-- ✅ No new `<Canvas>` mounts (all orb work stays in `SharedOrbStage`).
-- ✅ No new `requestAnimationFrame` loops; all new work hooks into existing loops (`useOrbPresenceBehaviour` RAF, `useWorldMomentum` tick, climate evolve).
-- ✅ `useCanvasGuard` (already in place from 5F.4) re-run as smoke test.
-- ✅ `AtmosphereLayer` singleton guard untouched.
+Result: no white flash, no hard cut, atmosphere darkens then target color emerges, orb leans then settles. Routes still navigate immediately — only visual scrim transitions.
 
 ---
 
-## Files (planned)
+## Part B — Realm Mood Contract (single SSOT)
 
-**New (~8 small files)**
-- `src/aion/presence/orbBehavior.ts`
-- `src/aion/presence/attentionBus.ts`
-- `src/worlds/physics/sharedPhysicsField.ts`
-- `src/worlds/resonance/worldResidue.ts`
-- `src/shellv2/transitions/atmosphericTransition.ts`
-- `src/shellv2/transitions/useAtmosphericNavigate.ts`
-- `src/identity/triadOrganism.ts`
-- `src/aion/presence/useNoticeArtifact.ts`
+**New: `src/aion/realms/realmMood.ts`**
+```ts
+export interface RealmMood {
+  id: CanonicalSurfaceId;
+  hue: { primary: string; accent: string }; // hsl tokens
+  presence: OrbBehaviorState;               // default behavior on arrival
+  atmosphereIntensity: number;              // 0..1
+  navResonance: number;                     // baseline glyphEnergy floor
+  transitionTone: 'cool' | 'warm' | 'deep' | 'soft';
+  interaction: 'speak' | 'explore' | 'follow' | 'traverse' | 'resonate';
+}
+export const REALM_MOOD: Record<CanonicalSurfaceId, RealmMood> = { /* … */ };
+```
 
-**Edited (additive only)**
-- `src/aion/presenceState.ts` — extend union with `thinking | guiding | hesitating | dreaming`
-- `src/aion/presence/useOrbPresenceBehaviour.ts` — read profile + attention focal
-- `src/components/orb/v2/OrbView.tsx` — read new CSS vars in shader uniforms
-- `src/worlds/physics/dispatchGesture.ts` — emit attention ripple
-- `src/worlds/atmosphere/WorldAtmosphere.tsx` — apply residue + shared field vars
-- `src/components/aion/ui/AionNavDock.tsx` — accept `glyphEnergy`
-- `src/shellv2/layers/NavLayer.tsx` — pass residue/attention into dock
-- `src/components/self/sections/AionPresenceHero.tsx` (+ small explanatory chips) — strip diagnostic copy
+Defaults:
+- **chat** — cyan / deep blue, presence `listening`, soft tone, interaction `speak`
+- **brain** — indigo / violet, presence `noticing`, deep tone, interaction `explore`
+- **journey** — cyan / gold, presence `guiding`, warm tone, interaction `follow`
+- **outer-world** — teal / gold over deep space, presence `resonating`, deep tone, interaction `traverse`
+- **profile** (Self) — violet / magenta / soft cyan, presence `evolving`, soft tone, interaction `resonate`
 
-## Order of execution
+Consumers (read-only):
+- `RealmTransitionLayer` (veil colors)
+- `useOrbPresenceBehaviour` (default state per realm)
+- `WorldAtmosphere` (intensity)
+- `AionNavDock` (residual energy floor)
 
-1. 5L.1 orb behaviour table + state extension
-2. 5L.2 attention bus + orb tug
-3. 5L.3 shared physics field
-4. 5L.4 gesture → atmosphere ripple
-5. 5L.5 environmental memory (residue)
-6. 5L.7 triad organism (small, safe)
-7. 5L.6 atmospheric transitions (opt-in via nav dock)
-8. 5L.8 nav glyphEnergy wiring
-9. 5L.9 explanatory-copy removal sweep
-10. 5L.10 canvas + RAF audit, ship
+No new providers — pure constant table imported where needed.
 
-## Out of scope (explicit)
+---
 
-- No new routes, no new pages, no constellation nav rewrite, no DNA/Avatar visual redesign, no marketplace/economy, no dashboard resurrection, no second canvas, no per-world RAF.
+## Part C — Per-Realm Embodiment (one meaningful change each)
 
-## Recommended next sub-phase after 5L lands
+Audit fix only — no rewrites.
 
-**5M — Constellation Navigation**: now that `glyphEnergy` + atmospheric transitions exist, replace the literal tab bar with realm anchors orbiting the orb. Pure visual; runtime is already in place.
+1. **Chat (`/`, ChatLayer)** — when conversation is empty, suppress the centered diagnostic/intro slab; let orb + atmosphere be primary; first message slides up from composer. Remove any visible "still learning / planning ontology / confidence" lines via grep sweep across `src/components/aurora/**`, `src/components/chat/**`, `ChatLayer.tsx`.
+2. **Brain (`BrainPage.tsx`)** — soften room labels (smaller, lower opacity, no chart chrome); rooms render as breathing blurred masses (CSS radial blobs) instead of cards; primary CTA → "Ask AION about this" routes to `/aurora` with pillar context (reuses 5G.1 strategyContext pattern).
+3. **Journey (`JourneyView.tsx`)** — replace empty-state CTA stack with a single trajectory line (SVG path) curving from now → next; remove visible diagnostics (priority-needed badges, kind chips) — gate behind `?debug=1`.
+4. **World (`OuterWorldHub.tsx` / `WorldRoute.tsx`)** — convert portal grid into landmark cluster: 3–5 anchored glyphs at uneven coordinates, no card backgrounds, labels appear on focus only. No new portals added.
+5. **Self (`ProfilePage.tsx`)** — collapse three disconnected cards into one **Identity Triad** layout: AION orb top, DNA helix and Avatar as orbital companions sharing one frame; removes empty post-simplification feel without restoring stat dashboards. Reuses `CanonicalAionModel` + existing DNA/Avatar components.
+
+---
+
+## Part D — Diagnostic Copy Sweep
+
+Grep across `src/` for: `still learning`, `Planning ontology`, `priority-needed`, `confidence:`, `kind:`, `trajectory kind`, debug-style subtitles. For each visible occurrence in user-facing chrome:
+- delete entirely, OR
+- replace with a short poetic line (≤6 words), OR
+- gate behind `import.meta.env.DEV` / `?debug=1`.
+
+No diagnostic text remains visible to normal users.
+
+---
+
+## Part E — URGENT Bottom-Chrome Fix (composer + nav + safe area)
+
+**Z-index fix** (`src/shellv2/zindex.ts`)
+```
+background: 10
+chat:       20
+realmVeil:  25   (new)
+nav:        32   (was 28 — now ABOVE composer)
+composer:   30
+chrome:     40
+…
+```
+Nav layer is intentionally above composer because anchors bloom upward over it; closed state has zero anchor footprint, so no obscuring.
+
+**`AionNavDock.tsx`**
+- When `visible={false}`: anchors get `display: none` instead of just `opacity:0`, so ghost icons can never bleed through composer underglow. The constellation hint (3-dot) is the only affordance left.
+- When `visible={true}`: increase contrast floor — base anchor opacity floor `0.7` (was `0.4`), active gets full glow; labels readable.
+
+**`NavLayer.tsx`**
+- Constellation hint sits at `bottom: calc(safe-area + composer-h + 10px)`; when nav opens, hint slides up alongside anchors so they read as one cluster.
+- Anchors bottom: `calc(safe-area + composer-h + 32px)` — clearly above composer, never behind.
+
+**`AionComposerDock.tsx`**
+- Horizontal margin standardized: `px-4` (was `px-3`); `max-w-[min(640px,100%-32px)]` so it never touches edges on 402px viewport.
+- When nav is open, composer gets `data-nav-open="true"` and dims its underglow (opacity 0.25) so anchors above are visually dominant. Composer itself does not move (stability) — anchors lift instead.
+- Bottom anchor stays `max(env(safe-area-inset-bottom), 22px)` so it clears browser bottom UI.
+
+**Bottom content fade** (`ChatLayer.tsx`)
+- Add a non-interactive gradient mask: bottom 96px fades chat content to background before reaching composer. CSS-only `mask-image: linear-gradient(...)`. Solves "content slammed into composer" feel.
+
+**Acceptance @ 402×716**
+- Closed: only composer dock + tiny 3-dot hint. Zero anchor pixels.
+- Open: 5 anchors fully visible above composer, labels legible, active anchor glowing, no overlap.
+- No icon ghosts behind composer underglow.
+- No content text clipped by composer (gradient mask absorbs it).
+- Safe-area inset respected; no collision with browser chrome.
+
+---
+
+## Part F — Performance / Canvas Audit
+
+Re-confirm and document in `.lovable/plan.md`:
+- Single `SharedOrbStage` canvas (unchanged).
+- One atmosphere runtime in `WorldAtmosphere` (unchanged).
+- `realmTransitionBus` uses `setTimeout` only — no RAF.
+- `RealmTransitionLayer` is one DOM node with CSS variable transitions — no JS animation.
+- No new global providers (mood table is a const; bus is a singleton).
+- Orb continuity = state changes on existing presence runtime, no new loop.
+
+---
+
+## Files Changed (estimate)
+
+**New (3)**
+- `src/shellv2/transitions/realmTransitionBus.ts`
+- `src/shellv2/layers/RealmTransitionLayer.tsx`
+- `src/aion/realms/realmMood.ts`
+
+**Edited (≈10)**
+- `src/shellv2/zindex.ts` (+`realmVeil:25`, `nav:32`)
+- `src/shellv2/ShellV2.tsx` (mount `RealmTransitionLayer`)
+- `src/components/aion/ui/AionNavDock.tsx` (display:none when hidden, opacity floor)
+- `src/shellv2/layers/NavLayer.tsx` (lifted anchor bottom, hint coordination, cache anchor focal for orb continuity)
+- `src/components/aion/ui/AionComposerDock.tsx` (margins, nav-open dim, max-width clamp)
+- `src/shellv2/layers/ChatLayer.tsx` (bottom gradient mask, suppress empty diagnostic slab)
+- `src/aion/presence/useOrbPresenceBehaviour.ts` (transition-aware behavior + realm default)
+- `src/pages/BrainPage.tsx` (label softening, blob masses, Ask-AION CTA)
+- `src/pages/JourneyView.tsx` (trajectory line, gate diagnostics)
+- `src/pages/OuterWorldHub.tsx` (landmark cluster, drop card chrome)
+- `src/pages/ProfilePage.tsx` (Identity Triad layout)
+- diagnostic-copy sweep across `src/components/aurora/**`, `src/components/chat/**`
+
+---
+
+## Sub-phase order
+
+5N.1 transitions (bus + layer + zindex + mount)
+5N.2 realm mood contract
+5N.3 orb continuity wiring
+5N.4 URGENT bottom-chrome fix (composer + nav + mask + display:none)
+5N.5 per-realm embodiment (Chat → Brain → Journey → World → Self)
+5N.6 diagnostic copy sweep
+5N.7 audit pass + `.lovable/plan.md` update
+
+---
+
+## Recommended next phase
+
+**5O — World Becoming**: convert each realm into a true cognitive world (per-world ontology consumed by atmosphere + orb behavior + landmark layout), now that the transition spine, mood contract, and embodiment cleanup are in place.

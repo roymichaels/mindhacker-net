@@ -48,13 +48,16 @@ export function AionNavDock({ tabs, className, visible = true, style }: AionNavD
       aria-hidden={!visible}
       aria-label="Realm anchors"
     >
+      {/* 5N.4 — when nav is closed, anchors do not exist in the layout, so
+          they cannot ghost behind the composer underglow. */}
+      {!visible ? null : (
       <div className="mx-auto flex max-w-screen-md items-center justify-around px-8 pt-3 pb-1">
         {tabs.map((t, i) => {
           const energy = typeof t.energy === 'number'
             ? Math.max(0, Math.min(1, t.energy))
             : 0.6;
-          // Quiet visual modulation.
-          const baseOpacity = 0.4 + energy * 0.55;
+          // 5N.4 — readable contrast floor when anchors are open.
+          const baseOpacity = 0.7 + energy * 0.3;
           const glowAlpha = (energy - 0.55) * 0.6; // negative => no glow
           const driftSeed = (i * 1.37) % 1;
           const animDur = 7 + (1 - energy) * 5; // calmer realms drift slower
@@ -138,6 +141,7 @@ export function AionNavDock({ tabs, className, visible = true, style }: AionNavD
           );
         })}
       </div>
+      )}
       {/* per-anchor drift keyframes (tiny vertical breathe, no horizontal jitter) */}
       <style>{tabs.map((_, i) => `
         @keyframes aion-anchor-drift-${seedBase.replace(/[^a-z0-9]/gi,'')}-${i} {
