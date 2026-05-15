@@ -116,12 +116,18 @@ export default function AtmosphereLayer() {
             'radial-gradient(120% 70% at 50% -10%, hsl(var(--aion-violet) / 0.10) 0%, transparent 55%)',
         }}
       />
-      {/* Bottom void — composer floats on near-black */}
+      {/* Bottom void — fades BEFORE the composer zone so the interaction
+          plane never sits on a near-black wash. The mask carves out the
+          composer + safe-area band so backdrop-blur stays luminous. */}
       <div
-        className="absolute inset-x-0 bottom-0 h-[40vh]"
+        className="absolute inset-x-0 bottom-0 h-[28vh]"
         style={{
           background:
-            'linear-gradient(180deg, transparent 0%, hsl(var(--background) / 0.85) 60%, hsl(var(--background)) 100%)',
+            'linear-gradient(180deg, transparent 0%, hsl(var(--background) / 0.45) 70%, hsl(var(--background) / 0.55) 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to top, transparent 0, transparent calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 28px), black calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 110px))',
+          maskImage:
+            'linear-gradient(to top, transparent 0, transparent calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 28px), black calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 110px))',
         }}
       />
       {/* Edge vignette — pulls focus toward center; intensity = per-view */}
