@@ -1,9 +1,10 @@
 /**
- * PresetOrb - Lightweight showcase orb that morphs through presets.
- * No auth dependency, no personalization — pure visual showcase.
+ * @deprecated Phase 5F.4 — orb canonicalization.
+ * Thin wrapper around `OrbView`. Cycles preset profiles via
+ * `useOrbPresetMorph` and renders through the single shared canvas.
  */
+import OrbView from './v2/OrbView';
 import { useOrbPresetMorph } from '@/hooks/useOrbPresetMorph';
-import { Orb } from './Orb';
 
 interface PresetOrbProps {
   startIndex?: number;
@@ -12,16 +13,8 @@ interface PresetOrbProps {
 }
 
 export function PresetOrb({ startIndex = 0, size = 180, className }: PresetOrbProps) {
-  const currentProfile = useOrbPresetMorph({ startIndex });
-
-  return (
-    <Orb
-      profile={currentProfile}
-      size={size}
-      state="breathing"
-      className={className}
-    />
-  );
+  const profile = useOrbPresetMorph({ startIndex });
+  return <OrbView size={size} profile={profile} className={className} />;
 }
 
 export default PresetOrb;
