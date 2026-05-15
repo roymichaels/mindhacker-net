@@ -159,3 +159,37 @@ Rules:
 - `gestureFieldStore.decayAll` may only be called from `useWorldReactivity`.
 - Pointer events from elements with `[data-no-gesture-field]`, real
   buttons, links, inputs, or `[role="button"]` are passed through.
+
+## Phase 5C.7 — World-Specific Interaction Physics
+
+Each Cognitive World owns a `WorldPhysics` law in
+`src/worlds/physics/worldPhysicsRegistry.ts`. Identical gestures shape
+each world differently:
+
+- `mutateSignals(signals, energy)` — slow per-world signal bias
+  (replaces the generic `applyGenericGestureBias` for any world that
+  has a registered law). Read by `worldSignals.deriveWorldSignals`.
+- `mutateClimate(climate, energy)` — fast climate shove applied AFTER
+  `evolveClimate` each tick. Bypasses climate time-constants for the
+  immediate felt response (turbulence, fog, fracture, drift).
+- `onGesture(event)` — symbolic emergence hook. May return a
+  low-intensity (≤ 0.4) `DreamEvent` that is pushed into the
+  subconscious field by `physics/dispatchGesture.ts` (de-duped per
+  active kind/world).
+
+Per-world feel summary:
+- Emotions: dwell thickens fog, slow swipes calm weather, sharp swipes turbulent.
+- Habits: circular gestures stabilise orbits, pulse builds rhythm, sharp lateral swipes drift.
+- Memory: drag wakes timeline + particles, dwell summons fragments, fast movement blurs.
+- Relationships: dwell pulls + reveals tension, sharp swipes increase distance.
+- Beliefs: dwell stabilises structure, sharp swipes fracture, pulse charges.
+- Creativity: pulse births shards, swipes scatter, dwell allows form.
+- Higher Self: stillness coheres, movement fades the field, dwell expands depth.
+- Archetypes: dwell reveals silhouettes, movement shifts masks, pulse awakens.
+- Self: calm container — dwell deepens, never chaotic.
+
+Rules:
+- Physics laws are pure functions; clamp 0..1 (or -1..1 for temperature).
+- `onGesture` events must cap `intensity ≤ 0.4` and lifespan ≤ ~40s.
+- No UI, no labels, no controls. Effects are felt only via climate +
+  dream layer.

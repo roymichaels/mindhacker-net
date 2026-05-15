@@ -23,6 +23,7 @@ import { useGestureFieldStore } from '@/worlds/gesture/gestureFieldStore';
 import { resolveVerbForGesture } from '@/worlds/gesture/gestureBindings';
 import { useGraphMutator, inferKindFromVerb } from '@/worlds/graph/useGraphMutator';
 import { getAtmospherePreset } from '@/worlds/atmosphere/atmospherePresets';
+import { dispatchPhysicsGesture } from '@/worlds/physics/dispatchGesture';
 import type { CognitiveWorldId } from '@/worlds/types';
 import type { GestureKind } from '@/worlds/gesture/types';
 
@@ -111,6 +112,7 @@ export default function WorldGestureField({ worldId, verbs }: Props) {
         pushDwell(worldId, 0.55, s.focal);
         showRipple('dwell', s.focal);
         fireRef.current('dwell');
+        dispatchPhysicsGesture(worldId, 'dwell', 0.55, null, s.focal);
       }, DWELL_MS);
     };
 
@@ -149,6 +151,7 @@ export default function WorldGestureField({ worldId, verbs }: Props) {
             : 'swipe-h';
         showRipple(kind, focal);
         fireRef.current(kind);
+        dispatchPhysicsGesture(worldId, kind, intensity, angle, focal);
         return;
       }
 
@@ -159,11 +162,13 @@ export default function WorldGestureField({ worldId, verbs }: Props) {
           pushPulse(worldId, 0.7, focal);
           showRipple('pulse', focal);
           fireRef.current('pulse');
+          dispatchPhysicsGesture(worldId, 'pulse', 0.7, null, focal);
           s.tapTimes = [];
         } else {
           // Single tap = a whisper to the field. No verb.
           pushDwell(worldId, 0.12, focal);
           showRipple('tap', focal);
+          dispatchPhysicsGesture(worldId, 'tap', 0.12, null, focal);
         }
       }
     };

@@ -13,6 +13,7 @@ import type { WorldState } from '@/worlds/state/worldStateTypes';
 import { DEFAULT_SIGNALS, type WorldSignals } from './types';
 import { useGestureFieldStore } from '@/worlds/gesture/gestureFieldStore';
 import type { GestureEnergy } from '@/worlds/gesture/types';
+import { getWorldPhysics } from '@/worlds/physics/worldPhysicsRegistry';
 
 /** Periodic oscillator in [0,1]. period in seconds. */
 const osc = (tMs: number, periodSec: number, phase = 0): number =>
@@ -38,12 +39,10 @@ const baseFromState = (state: WorldState | undefined) => {
 };
 
 /**
- * Live gesture energy → signal bias. Dwell deepens recovery + density,
- * swipe lifts arousal + memory activity, pulse spikes creative + tension.
- * Worlds get the same nudge shape; per-world climate weights downstream
- * decide what that nudge *feels* like.
+ * Generic fallback gesture → signal bias for worlds that have no physics
+ * law registered. Per-world physics (Phase 5C.7) override this.
  */
-function applyGestureBias(s: WorldSignals, g: GestureEnergy): WorldSignals {
+function applyGenericGestureBias(s: WorldSignals, g: GestureEnergy): WorldSignals {
   if (!g || (g.dwell + g.swipe + g.pulse) < 0.01) return s;
   return {
     ...s,
@@ -135,7 +134,11 @@ export function deriveWorldSignals(
 
   // Phase 5C.6 — fold live gesture energy into the signal vector so the
   // climate runtime sees the user's touch as just another psychological
-  // input. Reads the store directly (zustand vanilla API) — pure, no React.
+  // input. Phase 5C.7 — delegate to per-world physics when available so
+  // identical gestures shape each world differently.
   const energy = useGestureFieldStore.getState().energy[worldId];
-  return energy ? applyGestureBias(s, energy) : s;
+  if (!energy) return s;
+  const physics = getWorldPhysics(worldId);
+  if (physics?.mutateSignals) return physics.mutateSignals(s, energy);
+  return applyGenericGestureBias(s, energy);
 }
