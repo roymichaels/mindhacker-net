@@ -24,6 +24,8 @@ import BlockingLayer from './layers/BlockingLayer';
 import NavLayer from './layers/NavLayer';
 import { ChamberIdleProvider } from './hooks/useChamberIdle';
 import StrategyApprovalCard from '@/components/aurora/StrategyApprovalCard';
+import { CosmosLayer, HazeLayer } from '@/universe';
+import { OrbPresenceBridge } from '@/aion/presence/useOrbPresenceBehaviour';
 
 export interface ShellV2Props {
   /** Optional override for the chat surface. Defaults to placeholder. */
@@ -34,8 +36,14 @@ export default function ShellV2({ children }: ShellV2Props) {
   return (
     <ChamberIdleProvider>
       <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-background">
+        {/* Phase 5D.1 — universe depth spine (cosmos, haze) sits beneath
+            the orb canvas and AtmosphereLayer. */}
+        <CosmosLayer />
         <BackgroundLayer />
+        <HazeLayer />
         <AtmosphereLayer />
+        {/* Behavioural orb presence — publishes intent CSS vars. */}
+        <OrbPresenceBridge />
         {/* Chat slot — children override the default placeholder so route-level
             summon pages can swap their own artifact stage in. */}
         {children ?? <ChatLayer />}

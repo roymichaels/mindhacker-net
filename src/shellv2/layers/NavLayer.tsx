@@ -15,6 +15,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useChamberIdle } from '../hooks/useChamberIdle';
 import { zStyle } from '../zindex';
 import { cn } from '@/lib/utils';
+import { useChromeDeemphasis } from '@/hooks/useChromeDeemphasis';
 
 export default function NavLayer() {
   const { language } = useTranslation();
@@ -22,6 +23,7 @@ export default function NavLayer() {
   const location = useLocation();
   const { navVisible, toggleNav, hideNav } = useChamberIdle();
   const isHe = language === 'he';
+  const { weight: chromeWeight } = useChromeDeemphasis();
 
   const tabs: AionNavTab[] = CANONICAL_SURFACES.map((s) => {
     const Icon = s.icon;
@@ -54,7 +56,8 @@ export default function NavLayer() {
           // Sit just above the live composer (height tracked in --composer-h).
           bottom:
             'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 8px)',
-          transition: 'bottom 320ms ease, color 200ms ease, opacity 200ms ease',
+          transition: 'bottom 320ms ease, color 200ms ease, opacity 1400ms ease',
+          opacity: Math.max(0.35, chromeWeight),
         }}
       >
         <ChevronUp
@@ -71,6 +74,8 @@ export default function NavLayer() {
           // Float ABOVE the composer dock so icons are never covered.
           bottom:
             'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 18px)',
+          opacity: chromeWeight,
+          transition: 'opacity 1400ms ease',
         }}
       />
     </>
