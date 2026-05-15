@@ -13,6 +13,7 @@
  */
 import { zStyle } from '../zindex';
 import { useAionPresence, type AionPresenceState } from '@/aion/presenceState';
+import { useActiveViewIdentity } from '@/viewIdentity';
 
 const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; magenta: number }> = {
   listening:   { cyan: 1.00, violet: 0.85, magenta: 0.6 },
@@ -25,8 +26,20 @@ const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; m
 
 export default function AtmosphereLayer() {
   const presence = useAionPresence();
+  const view = useActiveViewIdentity();
   const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const tone = reduce ? PRESENCE_TONE.listening : PRESENCE_TONE[presence];
+  const baseTone = reduce ? PRESENCE_TONE.listening : PRESENCE_TONE[presence];
+  // Phase 5C.8 — the active view modulates the chamber. Presence is the
+  // pulse, view identity is the room.
+  const tone = {
+    cyan: baseTone.cyan * view.atmosphere.cyan,
+    violet: baseTone.violet * view.atmosphere.violet,
+    magenta: baseTone.magenta * view.atmosphere.magenta,
+  };
+  const driftMul = reduce ? 1 : view.motion.drift;
+  const ambient = view.atmosphere.ambient;
+  const vignette = view.spatial.vignette;
+  const particles = view.atmosphere.particles;
   return (
     <div
       aria-hidden
@@ -37,7 +50,13 @@ export default function AtmosphereLayer() {
         ['--presence-cyan' as any]: tone.cyan,
         ['--presence-violet' as any]: tone.violet,
         ['--presence-magenta' as any]: tone.magenta,
-        transition: 'opacity 800ms ease',
+        ['--view-drift' as any]: driftMul,
+        ['--view-ambient' as any]: ambient,
+        ['--view-orb-x' as any]: `${view.spatial.orbX * 100}%`,
+        ['--view-orb-y' as any]: `${view.spatial.orbY * 100}%`,
+        ['--view-orb-scale' as any]: view.spatial.orbScale,
+        opacity: ambient,
+        transition: 'opacity 1200ms ease',
       }}
     >
       {/* Deep top vignette — sacred sky fade */}
@@ -56,22 +75,24 @@ export default function AtmosphereLayer() {
             'linear-gradient(180deg, transparent 0%, hsl(var(--background) / 0.85) 60%, hsl(var(--background)) 100%)',
         }}
       />
-      {/* Edge vignette — pulls focus toward center */}
+      {/* Edge vignette — pulls focus toward center; intensity = per-view */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(120% 80% at 50% 50%, transparent 50%, hsl(var(--background) / 0.55) 100%)',
+            `radial-gradient(120% 80% at 50% 50%, transparent ${50 - vignette * 20}%, hsl(var(--background) / ${0.30 + vignette * 0.45}) 100%)`,
+          transition: 'background 1200ms ease',
         }}
       />
-      {/* Distant glow field A — cyan, slow drift */}
+      {/* Distant glow field A — cyan, drift varies per view */}
       <div
         className="absolute -top-[12%] -left-[18%] h-[55vh] w-[55vh] rounded-full blur-3xl animate-aion-drift-a"
         style={{
           opacity: 0.18 * tone.cyan,
           background:
             'radial-gradient(closest-side, hsl(var(--aion-cyan) / 0.55), transparent 70%)',
-          transition: 'opacity 800ms ease',
+          transition: 'opacity 1200ms ease, animation-duration 1200ms ease',
+          animationDuration: `${28 / driftMul}s`,
         }}
       />
       {/* Distant glow field B — violet, opposite drift */}
@@ -81,13 +102,16 @@ export default function AtmosphereLayer() {
           opacity: 0.15 * tone.violet,
           background:
             'radial-gradient(closest-side, hsl(var(--aion-violet) / 0.55), transparent 70%)',
-          transition: 'opacity 800ms ease',
+          transition: 'opacity 1200ms ease',
+          animationDuration: `${34 / driftMul}s`,
         }}
       />
-      {/* Faint particle haze */}
+      {/* Faint particle haze — density per view */}
       <div
-        className="absolute inset-0 opacity-[0.20] mix-blend-screen"
+        className="absolute inset-0 mix-blend-screen"
         style={{
+          opacity: 0.10 + particles * 0.25,
+          transition: 'opacity 1200ms ease',
           backgroundImage:
             'radial-gradient(1px 1px at 12% 18%, hsl(var(--foreground) / 0.55), transparent 60%),' +
             'radial-gradient(1px 1px at 78% 32%, hsl(var(--foreground) / 0.45), transparent 60%),' +
