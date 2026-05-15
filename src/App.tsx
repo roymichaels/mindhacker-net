@@ -45,10 +45,7 @@ import CloudAuthModal from "@/components/auth/CloudAuthModal";
 import SharedOrbStage from "@/components/orb/v2/SharedOrbStage";
 import DiagnosticsHost from "@/diagnostics/DiagnosticsHost";
 
-// Hallway / world-first navigation (Phase 1.4)
-const HallwayShell = lazy(() => import("./hallway/HallwayShell"));
-const RoomEnvironment = lazy(() => import("./hallway/RoomEnvironment"));
-
+// Phase 5E — HallwayShell / RoomEnvironment evicted (no routes mounted them).
 // Phase 3.1 — PresenceShell replaces the homepage mental model.
 const SmartRoot = lazy(() => import("./presence/SmartRoot"));
 

@@ -45,8 +45,9 @@ const Index = () => {
 
   // Authenticated users: home IS the dashboard. The chat lives at /aurora as
   // its own dedicated surface, separate from the dashboard.
+  // Phase 5E — `/` is the authed home (SmartRoot). Skip the dashboard hop.
   if (!loading && user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const brandSettings: BrandSettings = {

@@ -50,7 +50,7 @@ const Success = () => {
 
       const timer = setTimeout(() => {
         flowAudit.markFlag('reachedDashboard', true);
-        navigate('/dashboard');
+        navigate('/');
       }, 4000);
 
       return () => clearTimeout(timer);
@@ -185,7 +185,7 @@ const Success = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <Button onClick={() => navigate("/dashboard")} className="w-full">
+              <Button onClick={() => navigate("/")} className="w-full">
                 <LayoutDashboard className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t('common.dashboard')}
               </Button>
@@ -211,7 +211,7 @@ const Success = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <Button onClick={() => navigate("/dashboard")} className="w-full">
+              <Button onClick={() => navigate("/")} className="w-full">
                 {t('success.viewPurchases')}
               </Button>
               <Button onClick={() => navigate("/")} variant="outline" className="w-full">
@@ -239,7 +239,7 @@ const Success = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <Button onClick={() => navigate("/dashboard")} className="w-full">
+              <Button onClick={() => navigate("/")} className="w-full">
                 {t('success.viewPurchases')}
               </Button>
               <Button onClick={() => navigate("/")} variant="outline" className="w-full">
@@ -375,7 +375,7 @@ const Success = () => {
           {/* Navigation Buttons */}
           <div className="flex flex-col md:flex-row gap-4">
             <Button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/")}
               variant="default"
               className="flex-1"
               size="lg"

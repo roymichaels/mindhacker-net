@@ -1,113 +1,123 @@
-## Phase 5D.1B — World Terrain Deepening
 
-The wiring is correct but everything reads as flat CSS halos on a void. This pass keeps the architecture intact and pushes the visual language toward the reference: a planetary horizon arc, textured terrain valley, glowing rivers between landmarks, and pins that look like *places* — vertical light columns rooted in the ground, not floating UI badges.
+# Phase 5E + 5F — Universe Unification
 
-No new routes, data, or behaviour. Pure visual deepening of existing primitives plus one new structural sub-layer (the terrain valley), and a small reorder so the legacy feed is no longer the default surface.
+Two sequential, low-risk passes. No new features. No new visuals. Pure consolidation toward a single living universe substrate.
 
-### 1. Planet horizon — from disc to arc
+The audit identified concrete violations:
+- 8 orb implementations
+- 4 atmosphere systems
+- 5 concurrent shells (ShellV2 canonical, others still mounted)
+- Double-mounted WebGL stages (`SharedOrbStage` + `PersistentWorldOrb`) — violates single-canvas rule
+- 21 root context providers, 2 idle RAF loops
+- Dead route `/dashboard` redirect in `Index.tsx`
 
-`src/world/terrain/PlanetHorizonLayer.tsx`
+Goal: collapse all of this into one canonical substrate, with zero user-visible regression.
 
-- Replace the off-frame radial disc with a true horizon **arc**: planet edge spans the top ~40% of the viewport in a wide curve, terminator visible across the whole width (matches reference image #2).
-- Three stacked layers:
-  1. Planet **mass** — large dark disc with subtle violet body tint, pushed up so only the lower curve is visible.
-  2. **Rim terminator** — bright cyan/violet hairline along the curve with outer bloom (the "atmospheric edge" in the reference).
-  3. Surface **city-light field** — clipped to the planet body via radial mask so the warm specks only appear *on* the curved surface, not in the sky.
-- Add a thin **atmospheric scatter band** above the rim (cyan glow falling off into space) for the "atmosphere visible from orbit" feel.
-- Parallax: rim and body translate at slightly different rates (rim slower) → real depth.
+---
 
-### 2. New structural sub-layer — terrain valley
+## Phase 5E — Frozen Module Eviction (do first, ~1 pass)
 
-`src/world/terrain/TerrainValleyLayer.tsx` (new, `UZ.structure - 0.5`)
+Pure deletion / unmounting pass. No replacements. Anything not reachable from the canonical shell (`ShellV2`) and the live worlds (`self`, `habits`, `emotions`, `mythic`, plus `body` as optional) gets evicted.
 
-A pure-CSS/SVG textured valley occupying the lower ~60% of the viewport. Composed of:
+### 5E.1 — Inventory & confirm
+- Grep `App.tsx` route table → produce a one-time list of "live", "legacy", "dead" routes.
+- Cross-reference each legacy route against last 30 days of traffic (`analytics--read_project_analytics`) to confirm zero usage before eviction.
+- Output: `/mnt/documents/5E_eviction_list.md` (human-readable kill list for your sign-off inside the same session).
 
-- **Distant ridges** — three horizontal SVG silhouette bands at varying heights with low opacity and progressive blur (far → close). Shapes are smooth low-frequency curves, not geometric.
-- **Ground plane** — a subtle perspective gradient from horizon (warm magenta bleed) down to near-camera (deep navy), with a faint hex/noise texture mask to avoid feeling like a flat fill.
-- **Drifting fog band** — single soft horizontal blur at ~mid-screen, animated very slowly (60s drift) tied to `--view-drift`.
-- Honours reduced-motion (drift disabled, three ridges still render).
+### 5E.2 — Remove dead routing
+- Delete `/dashboard` redirect in `Index.tsx`.
+- Remove orphan routes that point to deleted pages.
+- Drop legacy shell mounts from `App.tsx` (e.g. `DashboardLayout`, `HallwayShell`) — keep their files for now, just stop mounting them. (File deletion happens in 5E.4.)
 
-This layer is what kills the "diagram on void" feeling.
+### 5E.3 — Provider audit
+- Walk the 21 root context providers. Any provider whose hook is referenced 0 times after 5E.2 → unmount from root.
+- Stop the two idle RAF loops (`WorldsRuntime`, `DreamRuntime`) when no consumer is mounted (gate behind `useSyncExternalStore` subscriber count).
 
-### 3. Glowing rivers between anchors
+### 5E.4 — Hard delete
+- Delete the now-unreachable shell + page files. Update `tsconfig` paths if any alias points at deleted dirs.
 
-`src/universe/primitives/EnergyPath.tsx`
+**Success criteria:** routing surface drops from 116 → ~60. Build passes. Console clean. Visiting every live route renders identically. `ShellV2` is the only mounted shell.
 
-- Replace the single dashed stroke with a **3-pass** river:
-  1. wide soft glow underlay (strokeWidth ~2.4, low opacity, blurred via `filter`)
-  2. mid stroke with the existing travelling shimmer
-  3. bright **light particles** — 2–3 small circles animated along the path via `<animateMotion>` (or CSS offset-path) so the bridges feel like flowing energy, not static lines.
-- Curve generation: bias the control point lower so paths arc *along* the terrain (river-like) instead of arcing upward.
-- Keep SVG-only; no canvas.
+---
 
-### 4. Anchor pins as landmarks
+## Phase 5F — Atmosphere + Orb Unification (the sacred pass)
 
-`src/universe/primitives/AnchorPin.tsx`
+The single-canvas rule becomes enforced architecture, not memory.
 
-- Add a tall **vertical light column** rising from the ground rings up through the icon halo (a thin blurred gradient bar, ~1.5px wide, height ~80px). This is the single change that turns a UI badge into a "place" — it looks like a beacon planted on the surface.
-- Strengthen the **ground rings**: 3 concentric ellipses (existing 2 + one larger faint one), with the outermost very faint and slowly pulsing on a long offset.
-- Halo: switch the hard `boxShadow` ring to a softer **double bloom** (inner saturated, outer wide diffuse) so the pin glows into the scene instead of sitting on top of it.
-- Label whisper: drop the side-of-pin layout in favour of the reference's pattern — label sits **above** the icon in RTL/LTR-respecting alignment, smaller and dimmer (`text-[11px] text-foreground/60`), no meta line by default; meta only appears on hover/focus.
-- Slight **pin sway** — 6s sinusoidal `translateY ±2px` per pin with staggered phase, disabled in reduced-motion.
+### 5F.1 — Canonical primitives (already exist, promote them)
+- `universe/depth/CosmosLayer` + `HazeLayer` + `zindex.ts` → declared the **only** atmosphere stack.
+- `OrbView` (per `mem://architecture/unified-orb-stage-v4`) → declared the **only** orb entry point. All orb consumers route through it.
 
-### 5. Parallax depth — multi-rate
+### 5F.2 — Single shared WebGL canvas
+- One `<UniverseStage>` component mounted exactly once inside `ShellV2`, owning the only `<Canvas>` in the app.
+- Inside it: one persistent `OrbScene` + one atmosphere driver. Worlds register as scene children via a `useUniverseSlot()` hook (portal-style), not by mounting their own canvases.
+- Delete `SharedOrbStage` and `PersistentWorldOrb` after migrating consumers to `OrbView`/`useUniverseSlot`.
 
-`src/world/terrain/WorldTerrainScene.tsx`
+### 5F.3 — Collapse the four atmosphere systems
+- Identify the four (audit listed them as concurrent). Merge their state into a single `useUniverseAtmosphere()` store driven by `WorldClimate` + `RESONANCE_GRAPH` (already canonical).
+- All `WorldAtmosphere`, `BackgroundLayer`, ad-hoc gradients route through this store. Remove the parallel implementations.
 
-- Compute three parallax slices from one `usePresenceParallax`:
-  - `parallaxDistant` (×0.25) → planet body
-  - `parallaxMid` (×0.6) → terrain valley + rim
-  - `parallaxNear` (×1.0) → anchor field
-- Pass each into the matching layer. Result: turning the head feels like real depth, not a single-plane shift.
+### 5F.4 — Collapse the eight orb implementations
+- Audit each. For each: replace with `OrbView` + props, or delete if redundant.
+- Anything visual (header chip, drawer, hero, world halo, AION widget) renders the same `CanonicalAionModel` through the shared canvas. The flat brand mark `AionRingMark` stays as the only non-WebGL exception.
 
-### 6. Environmental lighting cohesion
+### 5F.5 — Runtime verification
+- Add a dev-only assertion: `if (canvasMountCount > 1) console.error(...)`.
+- Add a dev-only HUD (toggle via `?debug=universe`) showing: active climate, resonance edges, mounted orb consumers, FPS. Removed before merge or hidden behind flag.
 
-`src/world/terrain/WorldTerrainScene.tsx`
+**Success criteria:**
+- Exactly one `<Canvas>` element in the DOM at all times.
+- Exactly one atmosphere store, one orb scene, one climate runtime.
+- All chrome orbs render through `OrbView`.
+- Memory rule `mem://architecture/unified-orb-stage-v4` no longer violated.
+- Zero user-visible regression on `/outer-world`, `/aion`, `/profile`, every world route.
 
-- Add a **top-light wash** (single `radial-gradient` covering the upper viewport) tinted by the active world's hue, so pins, rim, and atmosphere all share one light source.
-- Add a faint **bottom void gradient** specific to this scene to anchor the composer area into the terrain (without conflicting with `AtmosphereLayer`'s global bottom void — this one is darker and warmer near the horizon).
+---
 
-### 7. Default-vs-legacy reorder
+## What this phase explicitly does NOT do
 
-`src/pages/OuterWorldHub.tsx`
+- No homepage / whitepaper rewrite (that's a later strategic pass).
+- No world consolidation (5G).
+- No new visuals or features.
+- No ontology changes (5K).
+- No promotion of `emotions` / `mythic` to live (5J).
 
-- Today: `?legacy=1` shows feed, default shows terrain. Keep that contract — terrain stays default.
-- Move the legacy `AlignedRealities` access from a URL param to a quiet, dismissable affordance: a single tiny `…` chevron at the very bottom of the terrain that, on tap, slides the legacy feed up as an overlay (uses the existing OverlayLayer; no new route). Still hidden by default.
-- Confirm `OuterWorldHub` always mounts `WorldTerrainScene` first; the legacy surface is never the primary view.
+---
 
-### 8. Whisper title
+## Technical map (for the implementer)
 
-`src/world/terrain/WorldTerrainScene.tsx`
+```text
+ShellV2
+└── UniverseStage              ← only <Canvas> in app
+    ├── AtmosphereDriver        ← reads useUniverseAtmosphere()
+    ├── OrbScene                ← hosts CanonicalAionModel
+    └── WorldSlot[]             ← portaled by useUniverseSlot()
+```
 
-- Shorten visible window from 4.2s → 3.0s and reduce opacity peak to 0.45 so the title evaporates faster — the world should be the headline, not a label.
+```text
+OrbView (only public orb API)
+  ├─ presence variant
+  ├─ chip variant
+  ├─ avatar variant
+  └─ halo variant
+       → all draw into the shared OrbScene
+```
 
-### Out of scope
+```text
+useUniverseAtmosphere() (only atmosphere store)
+  ← WorldClimate
+  ← RESONANCE_GRAPH (cross-world influence)
+  → CosmosLayer / HazeLayer / WorldAtmosphere
+```
 
-- WebGL / Three.js / canvas.
-- Any new data, RPCs, or feature surfaces.
-- Touching `BackgroundLayer`, `AtmosphereLayer`, `CosmosLayer`, `HazeLayer` (already correct globally — this pass only deepens what lives at `structure` + `anchor` for the World route).
-- Changes to other views (Brain, Journey, Profile, Chat, Interactive).
-- Replacing `AlignedRealities` content; just demoting it.
+## Order of operations within the session
+1. 5E.1 inventory (read-only, produces kill list).
+2. 5E.2–5E.4 evictions (each verified by build + route smoke).
+3. 5F.1 declare canonical primitives in memory + code comments.
+4. 5F.4 collapse orbs first (highest leverage, reduces canvas pressure).
+5. 5F.3 collapse atmospheres.
+6. 5F.2 collapse to single `<Canvas>` (last, because it depends on 4 and 3).
+7. 5F.5 add assertion + ship.
 
-### Files
-
-**Edit**
-- `src/world/terrain/PlanetHorizonLayer.tsx` — horizon arc rewrite
-- `src/world/terrain/WorldTerrainScene.tsx` — multi-rate parallax, top-light wash, mount terrain valley, shorter whisper, legacy overlay trigger
-- `src/universe/primitives/EnergyPath.tsx` — 3-pass river + flowing particles
-- `src/universe/primitives/AnchorPin.tsx` — light column, ground rings, double bloom, label-above, sway
-- `src/pages/OuterWorldHub.tsx` — legacy as bottom-sheet overlay instead of `?legacy=1` route fork
-- `mem/architecture/world-atmosphere-system.md` — note the deepening pass
-
-**Add**
-- `src/world/terrain/TerrainValleyLayer.tsx` — new ridges + ground plane + fog band
-
-### Success check
-
-Open `/outer-world` on the 402×716 viewport. You should see:
-- A planet **arc** across the top with a glowing terminator and atmosphere band.
-- A textured **valley** below with three ridges fading into distance.
-- Anchor pins rooted on the ground via **vertical beacon columns** and concentric rings.
-- Rivers of light **flowing** between linked pins (visible particle motion).
-- Subtle multi-rate **parallax** when tilting / pointer move.
-- The old card feed is **gone** from the default view; reachable only by an inconspicuous chevron at the bottom edge.
+## Rollback strategy
+Each sub-step is an independent commit. If 5F.2 destabilizes WebGL on any device, revert that single step — 5F.3 and 5F.4 still hold value standalone.
