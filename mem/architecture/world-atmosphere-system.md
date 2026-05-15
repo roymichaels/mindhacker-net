@@ -9,6 +9,35 @@ Concept-art north star reinterpreted natively: worlds are not pages with
 backgrounds — they are cinematic environments. UI stays minimal; the
 environment carries the emotional experience.
 
+## Phase 5D.1B — World Terrain Deepening
+
+`/outer-world` is the flagship "living planetary terrain" surface and
+is **always** the primary view. Composition (top → bottom in z, all
+below `UZ.anchor`):
+
+- `PlanetHorizonLayer` — wide horizon arc (260vw disc), separate
+  parallax planes for body (slow) and rim (mid). Surface city-light
+  field is masked to the disc.
+- `TerrainValleyLayer` (new, `UZ.structure - 1`) — three SVG ridge
+  silhouettes (far/mid/near with progressive blur), perspective ground
+  plane, slow drifting fog band (`60s / var(--view-drift)`).
+- `AnchorField` → `AnchorPin`s with vertical light **beacon columns**,
+  three concentric ground rings (outer one slowly pulses), label
+  whisper ABOVE the icon (reference pattern), 6s pin sway.
+- `EnergyPath` — 3-pass river (wide soft glow underlay, shimmer stroke,
+  flowing light particles via `<animateMotion>`); curve biased downward
+  so paths arc *along* the terrain.
+- Multi-rate parallax: one `usePresenceParallax` source split into
+  distant×0.25 (planet body), mid×0.6 (rim + valley), near×1.0
+  (anchors). Real depth, not single-plane shift.
+- Top-light wash + scene-local bottom void unify lighting and hand off
+  to the composer area.
+
+Legacy `AlignedRealities` is reachable only via a tiny chevron at the
+bottom edge that opens it as a `Sheet` overlay. The card-feed surface
+is no longer addressable as a primary view — terrain is the only
+default for `/outer-world`.
+
 ## Contract
 
 - `src/worlds/atmosphere/atmospherePresets.ts` — `AtmospherePreset` per

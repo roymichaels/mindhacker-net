@@ -1,190 +1,113 @@
+## Phase 5D.1B — World Terrain Deepening
 
-# Phase 5D.1 — Living Cognitive Universe (Depth Spine + Flagship World)
+The wiring is correct but everything reads as flat CSS halos on a void. This pass keeps the architecture intact and pushes the visual language toward the reference: a planetary horizon arc, textured terrain valley, glowing rivers between landmarks, and pins that look like *places* — vertical light columns rooted in the ground, not floating UI badges.
 
-## Intent
+No new routes, data, or behaviour. Pure visual deepening of existing primitives plus one new structural sub-layer (the terrain valley), and a small reorder so the legacy feed is no longer the default surface.
 
-Stop rendering "UI on top of atmosphere." Start rendering **a world that the
-UI emerges from**. This phase lands two things together so neither drifts:
+### 1. Planet horizon — from disc to arc
 
-1. A **shared depth/atmosphere spine** every future surface inherits.
-2. The **World surface** as the proof — turned from a centered orb + grid
-   into a planetary cognitive terrain with glowing node anchors (matches
-   reference image #2).
+`src/world/terrain/PlanetHorizonLayer.tsx`
 
-Other surfaces (Journey, Self, Chat, Mind) are explicitly out of scope; they
-follow as 5D.2 → 5D.5 reusing the same primitives.
+- Replace the off-frame radial disc with a true horizon **arc**: planet edge spans the top ~40% of the viewport in a wide curve, terminator visible across the whole width (matches reference image #2).
+- Three stacked layers:
+  1. Planet **mass** — large dark disc with subtle violet body tint, pushed up so only the lower curve is visible.
+  2. **Rim terminator** — bright cyan/violet hairline along the curve with outer bloom (the "atmospheric edge" in the reference).
+  3. Surface **city-light field** — clipped to the planet body via radial mask so the warm specks only appear *on* the curved surface, not in the sky.
+- Add a thin **atmospheric scatter band** above the rim (cyan glow falling off into space) for the "atmosphere visible from orbit" feel.
+- Parallax: rim and body translate at slightly different rates (rim slower) → real depth.
 
-## Guardrails (do not violate)
+### 2. New structural sub-layer — terrain valley
 
-- No new dashboards, no new cards, no new dock icons.
-- AION orb keeps its single canonical render path (`SharedOrbStage` /
-  `PersistentWorldOrb`). We add presence behaviour, not a second orb.
-- Dream layer stays subliminal — no "subconscious detected" UI.
-- ViewIdentity registry from 5C.8 is the only place that tunes per-view
-  atmosphere. New depth layers read its CSS vars.
-- All new colors via HSL semantic tokens; no raw hex in components.
-- RTL-safe (logical props, `dir` honoured).
+`src/world/terrain/TerrainValleyLayer.tsx` (new, `UZ.structure - 0.5`)
 
-## What "depth spine" means
+A pure-CSS/SVG textured valley occupying the lower ~60% of the viewport. Composed of:
 
-A formal 5-layer stack rendered behind every authenticated route:
+- **Distant ridges** — three horizontal SVG silhouette bands at varying heights with low opacity and progressive blur (far → close). Shapes are smooth low-frequency curves, not geometric.
+- **Ground plane** — a subtle perspective gradient from horizon (warm magenta bleed) down to near-camera (deep navy), with a faint hex/noise texture mask to avoid feeling like a flat fill.
+- **Drifting fog band** — single soft horizontal blur at ~mid-screen, animated very slowly (60s drift) tied to `--view-drift`.
+- Honours reduced-motion (drift disabled, three ridges still render).
 
-```text
-  z=10  CosmosLayer        — far stars, deep nebula, almost still
-  z=11  HazeLayer          — environmental fog/atmospheric perspective
-  z=12  EnergyFieldLayer   — slow drifting glow fields, light bridges
-  z=13  StructureLayer     — per-route terrain / sacred geometry / river
-  z=14  AnchorLayer        — interactive cognitive nodes (pins, milestones)
-  z=15+ ChromeTraces       — minimal text whispers, nav ghost
-```
+This layer is what kills the "diagram on void" feeling.
 
-Layers 10–12 are global and always mounted (`ShellV2`'s
-`BackgroundLayer` + `AtmosphereLayer` already cover 10 and 12; we add
-`HazeLayer` between them and let the existing AtmosphereLayer evolve into
-the EnergyField role). Layers 13–14 are per-route — each surface
-contributes its own scene component.
+### 3. Glowing rivers between anchors
 
-## Deliverable A — Shared depth primitives
+`src/universe/primitives/EnergyPath.tsx`
 
-New folder `src/universe/`:
+- Replace the single dashed stroke with a **3-pass** river:
+  1. wide soft glow underlay (strokeWidth ~2.4, low opacity, blurred via `filter`)
+  2. mid stroke with the existing travelling shimmer
+  3. bright **light particles** — 2–3 small circles animated along the path via `<animateMotion>` (or CSS offset-path) so the bridges feel like flowing energy, not static lines.
+- Curve generation: bias the control point lower so paths arc *along* the terrain (river-like) instead of arcing upward.
+- Keep SVG-only; no canvas.
 
-- `depth/zindex.ts` — extends `shellv2/zindex.ts` with `cosmos`, `haze`,
-  `energy`, `structure`, `anchor` tokens.
-- `depth/CosmosLayer.tsx` — pure CSS deep-space backdrop: large-radius
-  radial gradients + ultra-faint star noise, drift speed driven by
-  `--view-drift`. Replaces the current flat `bg-background` paint role
-  inside `BackgroundLayer`.
-- `depth/HazeLayer.tsx` — atmospheric fog band: two large blurred
-  gradients tinted by the active world's `primaryHsl` / `secondaryHsl`,
-  modulated by `WorldClimate` (already live).
-- `primitives/AnchorPin.tsx` — the canonical "glowing node on terrain":
-  ring + halo + dropped-light cone + label that fades in via
-  `motion/framer` with sacred easing. RTL-aware label placement.
-- `primitives/EnergyPath.tsx` — animated SVG/CSS light-bridge between
-  two coordinates (used to connect anchors and dissolve sections).
-- `primitives/SacredEasings.ts` — exported easing curves: `breath`,
-  `drift`, `dissolve`, `orbit`. All > 800ms, all `cubic-bezier` style.
-- `primitives/usePresenceParallax.ts` — tiny parallax hook (pointer +
-  device-orientation if available, gated by reduced-motion) returning
-  a small offset vector consumed by anchors and structure layers.
+### 4. Anchor pins as landmarks
 
-These primitives are pure presentation — no data, no business logic.
+`src/universe/primitives/AnchorPin.tsx`
 
-## Deliverable B — AION presence upgrade (subtle pass)
+- Add a tall **vertical light column** rising from the ground rings up through the icon halo (a thin blurred gradient bar, ~1.5px wide, height ~80px). This is the single change that turns a UI badge into a "place" — it looks like a beacon planted on the surface.
+- Strengthen the **ground rings**: 3 concentric ellipses (existing 2 + one larger faint one), with the outermost very faint and slowly pulsing on a long offset.
+- Halo: switch the hard `boxShadow` ring to a softer **double bloom** (inner saturated, outer wide diffuse) so the pin glows into the scene instead of sitting on top of it.
+- Label whisper: drop the side-of-pin layout in favour of the reference's pattern — label sits **above** the icon in RTL/LTR-respecting alignment, smaller and dimmer (`text-[11px] text-foreground/60`), no meta line by default; meta only appears on hover/focus.
+- Slight **pin sway** — 6s sinusoidal `translateY ±2px` per pin with staggered phase, disabled in reduced-motion.
 
-Inside `src/aion/presence/`:
+### 5. Parallax depth — multi-rate
 
-- `useOrbPresenceBehaviour.ts` — derives orb anchor (x, y, scale) over
-  time from: ViewIdentity anchor (5C.8), pointer dwell, route entry,
-  AION presence state. Output is a smoothed (lerp, tau≈1.2s) target
-  consumed by `SharedOrbStage`'s existing position channel.
-- Adds three behaviours: **anticipate** (drift 8% toward next likely
-  anchor on dwell), **observe** (still + slow breath when idle >12s),
-  **precede** (slide ahead on route change before content fades in).
-- No new orb mount. No new geometry. Behaviour only.
+`src/world/terrain/WorldTerrainScene.tsx`
 
-## Deliverable C — Flagship World surface
+- Compute three parallax slices from one `usePresenceParallax`:
+  - `parallaxDistant` (×0.25) → planet body
+  - `parallaxMid` (×0.6) → terrain valley + rim
+  - `parallaxNear` (×1.0) → anchor field
+- Pass each into the matching layer. Result: turning the head feels like real depth, not a single-plane shift.
 
-Rewrite `src/pages/OuterWorldHub.tsx` from the current 37-line orb +
-`AlignedRealities` layout into a single `WorldTerrainScene`:
+### 6. Environmental lighting cohesion
 
-- New folder `src/world/terrain/`:
-  - `WorldTerrainScene.tsx` — full-bleed scene composing `CosmosLayer`,
-    `HazeLayer`, a `PlanetHorizonLayer`, and an `AnchorField`.
-  - `PlanetHorizonLayer.tsx` — large CSS-only curved horizon glow
-    (one big radial gradient + rim light) anchored top-right, tinted
-    via current ViewIdentity. No 3D, no asset.
-  - `AnchorField.tsx` — positions 5–7 `AnchorPin`s using a deterministic
-    layout function over the existing `AlignedRealities` data (people,
-    opportunities, places, events, environmental influences). No new
-    data sources.
-  - `useWorldAnchors.ts` — adapts whatever `AlignedRealities` consumes
-    today into the anchor data contract; falls back to seed anchors
-    when empty so the place is never lifeless.
-- Uses `EnergyPath` to draw subliminal light-bridges between connected
-  anchors (e.g., a person tied to an opportunity).
-- Tap on an anchor opens the existing detail flow (whatever
-  `AlignedRealities` items currently link to). No new navigation.
-- Header text becomes a single fading whisper ("העולם החיצוני /
-  Outer World") that dissolves after ~4s, like `WorldShell`'s
-  whisper. No card, no overall summary panel.
+`src/world/terrain/WorldTerrainScene.tsx`
 
-The legacy `AlignedRealities` component is **kept** but only rendered
-behind a diagnostic flag for fallback during QA, not in the user path.
+- Add a **top-light wash** (single `radial-gradient` covering the upper viewport) tinted by the active world's hue, so pins, rim, and atmosphere all share one light source.
+- Add a faint **bottom void gradient** specific to this scene to anchor the composer area into the terrain (without conflicting with `AtmosphereLayer`'s global bottom void — this one is darker and warmer near the horizon).
 
-## Deliverable D — Chrome de-emphasis (scoped, World-only)
+### 7. Default-vs-legacy reorder
 
-- On `/outer-world`, `NavLayer` opacity drops to ~0.55 with a 1.4s
-  ease and lifts back to full on tap/dwell near the bottom edge.
-  Implemented via a `useChromeDeemphasis(routeId)` hook reading
-  ViewIdentity. No removal — only ambient.
+`src/pages/OuterWorldHub.tsx`
 
-## Deliverable E — Memory + docs
+- Today: `?legacy=1` shows feed, default shows terrain. Keep that contract — terrain stays default.
+- Move the legacy `AlignedRealities` access from a URL param to a quiet, dismissable affordance: a single tiny `…` chevron at the very bottom of the terrain that, on tap, slides the legacy feed up as an overlay (uses the existing OverlayLayer; no new route). Still hidden by default.
+- Confirm `OuterWorldHub` always mounts `WorldTerrainScene` first; the legacy surface is never the primary view.
 
-- New mem file `mem/architecture/living-cognitive-universe.md` with
-  the depth-spine contract, the primitives list, and the rule:
-  *every new surface must compose primitives, not invent backgrounds.*
-- Update `mem/architecture/world-atmosphere-system.md` with the link
-  to depth spine and the AnchorField pattern.
+### 8. Whisper title
 
-## Out of scope for 5D.1 (named so I don't drift)
+`src/world/terrain/WorldTerrainScene.tsx`
 
-- Journey "river of milestones" rewrite → 5D.2.
-- Self/Profile "sacred chamber" rewrite → 5D.3.
-- Chat "conversation inside a field" → 5D.4.
-- Mind constellation upgrade → 5D.5.
-- Per-cognitive-world physics expansion (Emotions weather, Beliefs
-  cathedral, Memory fragments, etc.) → 5D.6 (builds on 5C.7 physics
-  registry).
-- WebGL terrain, generated textures, or any image asset.
-- New nav model. The dock stays; it just dims.
+- Shorten visible window from 4.2s → 3.0s and reduce opacity peak to 0.45 so the title evaporates faster — the world should be the headline, not a label.
 
-## Technical notes
+### Out of scope
 
-- All new layers are CSS / SVG / framer-motion only. No three.js
-  beyond what `SharedOrbStage` already mounts.
-- Performance budget: zero new continuous JS RAF loops. Drift comes
-  from CSS animations whose `animationDuration` is read from
-  `--view-drift` (already wired in `AtmosphereLayer`).
-- Reduced-motion: parallax disabled, drifts pinned to base, energy
-  paths stop pulsing but still render.
-- Hebrew: all whispers / labels read `useTranslation`, RTL via `dir`
-  on the scene root.
+- WebGL / Three.js / canvas.
+- Any new data, RPCs, or feature surfaces.
+- Touching `BackgroundLayer`, `AtmosphereLayer`, `CosmosLayer`, `HazeLayer` (already correct globally — this pass only deepens what lives at `structure` + `anchor` for the World route).
+- Changes to other views (Brain, Journey, Profile, Chat, Interactive).
+- Replacing `AlignedRealities` content; just demoting it.
 
-## Files touched (summary)
+### Files
 
-Added:
-- `src/universe/depth/{zindex,CosmosLayer,HazeLayer}.tsx`
-- `src/universe/primitives/{AnchorPin,EnergyPath,SacredEasings,usePresenceParallax}.{tsx,ts}`
-- `src/aion/presence/useOrbPresenceBehaviour.ts`
-- `src/world/terrain/{WorldTerrainScene,PlanetHorizonLayer,AnchorField,useWorldAnchors}.{tsx,ts}`
-- `src/hooks/useChromeDeemphasis.ts`
-- `mem/architecture/living-cognitive-universe.md`
+**Edit**
+- `src/world/terrain/PlanetHorizonLayer.tsx` — horizon arc rewrite
+- `src/world/terrain/WorldTerrainScene.tsx` — multi-rate parallax, top-light wash, mount terrain valley, shorter whisper, legacy overlay trigger
+- `src/universe/primitives/EnergyPath.tsx` — 3-pass river + flowing particles
+- `src/universe/primitives/AnchorPin.tsx` — light column, ground rings, double bloom, label-above, sway
+- `src/pages/OuterWorldHub.tsx` — legacy as bottom-sheet overlay instead of `?legacy=1` route fork
+- `mem/architecture/world-atmosphere-system.md` — note the deepening pass
 
-Edited:
-- `src/pages/OuterWorldHub.tsx` (rewrite to mount `WorldTerrainScene`)
-- `src/shellv2/layers/BackgroundLayer.tsx` (add `CosmosLayer`)
-- `src/shellv2/layers/AtmosphereLayer.tsx` (add `HazeLayer` slot)
-- `src/shellv2/layers/NavLayer.tsx` (consume `useChromeDeemphasis`)
-- `src/components/orb/v2/SharedOrbStage.tsx` (consume orb presence
-  behaviour anchor — read-only)
-- `mem/architecture/world-atmosphere-system.md`
+**Add**
+- `src/world/terrain/TerrainValleyLayer.tsx` — new ridges + ground plane + fog band
 
-Untouched: all data hooks, all routes other than `/outer-world`, all
-other main views, all backend, all auth, all RPCs.
+### Success check
 
-## Success criteria
-
-- Opening `/outer-world` feels like walking onto a planetary terrain.
-  Glowing pins float above a horizon; light bridges link related
-  anchors; the orb drifts to anticipate.
-- The dock fades back when you arrive and returns when you reach for it.
-- No card frames, no list, no summary panel anywhere on the surface.
-- Other routes (Chat, Brain, Journey, Profile) still work exactly as
-  they did — they just inherit the new CosmosLayer in the background.
-- Reduced-motion users get a calm, still version with the same
-  composition.
-
-After this lands and feels right, 5D.2 (Journey) can reuse
-`AnchorPin`, `EnergyPath`, `SacredEasings` and the depth spine
-directly — no new primitives needed.
+Open `/outer-world` on the 402×716 viewport. You should see:
+- A planet **arc** across the top with a glowing terminator and atmosphere band.
+- A textured **valley** below with three ridges fading into distance.
+- Anchor pins rooted on the ground via **vertical beacon columns** and concentric rings.
+- Rivers of light **flowing** between linked pins (visible particle motion).
+- Subtle multi-rate **parallax** when tilting / pointer move.
+- The old card feed is **gone** from the default view; reachable only by an inconspicuous chevron at the bottom edge.
