@@ -1,14 +1,13 @@
 /**
- * NavLayer — ghost dock for the 5 canonical surfaces.
+ * NavLayer — constellation realm anchors (Phase 5M).
  *
- * Hidden by default. Reveals on scroll-up, idle tap, or the small grabber
- * chevron above the composer. Hidden again on streaming, composer focus,
- * scroll-down, or message send.
+ * Hidden by default. Reveals on idle tap, scroll-up, or the small
+ * constellation hint above the composer. When revealed, AION notices
+ * the active realm; hovering an anchor pulls attention there.
  *
  * No new routes. No new capabilities. Pure UX behavior.
  */
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronUp } from 'lucide-react';
 import { AionNavDock, type AionNavTab } from '@/components/aion/ui';
 import { CANONICAL_SURFACES } from '@/navigation/canonicalSurfaces';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -17,7 +16,9 @@ import { zStyle } from '../zindex';
 import { cn } from '@/lib/utils';
 import { useChromeDeemphasis } from '@/hooks/useChromeDeemphasis';
 import { getResidue, worldResidueBus } from '@/worlds/resonance/worldResidue';
-import { useEffect, useState } from 'react';
+import { attentionBus } from '@/aion/presence/attentionBus';
+import { realmIntentBus } from '@/aion/presence/realmIntentBus';
+import { useEffect, useRef, useState } from 'react';
 
 export default function NavLayer() {
   const { language } = useTranslation();
@@ -27,53 +28,80 @@ export default function NavLayer() {
   const isHe = language === 'he';
   const { weight: chromeWeight } = useChromeDeemphasis();
 
-  // 5L.8 — re-render whenever residue updates so glyph energy stays live.
   const [, bump] = useState(0);
   useEffect(() => worldResidueBus.subscribe(() => bump((n) => n + 1)), []);
+
+  const previousPathRef = useRef<string>(location.pathname);
+
+  // 5M.3 — when nav blooms open, AION notices the active realm.
+  useEffect(() => {
+    if (!navVisible) return;
+    const active = CANONICAL_SURFACES.find((s) => s.path === location.pathname);
+    if (!active) return;
+    // No precise focal yet (anchors haven't laid out) — symbolic notice only.
+    attentionBus.notice('self', { x: 0.5, y: 0.85 }, 1200);
+  }, [navVisible, location.pathname]);
 
   const tabs: AionNavTab[] = CANONICAL_SURFACES.map((s) => {
     const Icon = s.icon;
     const r = getResidue(s.id);
-    // Energy = base 0.55 + engagement boost − avoidance dim, clamped 0..1.
     const energy = Math.max(0, Math.min(1, 0.55 + r.engagement * 0.45 - r.avoidance * 0.35));
+    const isActive = s.path === location.pathname;
     return {
       key: s.id,
       label: isHe ? s.labelHe : s.labelEn,
       icon: <Icon className="h-5 w-5" strokeWidth={1.5} />,
-      active: s.path === location.pathname,
+      active: isActive,
       energy,
+      onHoverFocal: (focal) => {
+        // 5M.3 — pull AION's attention toward this anchor.
+        attentionBus.notice('self', focal, 700);
+      },
       onClick: () => {
+        // 5M.5 — emit realm intent BEFORE navigation completes.
+        realmIntentBus.emit({
+          target: s.id,
+          previous:
+            CANONICAL_SURFACES.find((c) => c.path === previousPathRef.current)?.id ?? null,
+          timestamp: Date.now(),
+          energy,
+        });
+        previousPathRef.current = s.path;
         hideNav();
-        navigate(s.path);
+        if (!isActive) navigate(s.path);
       },
     };
   });
 
   return (
     <>
-      {/* Grabber chevron — small affordance to reveal nav */}
+      {/* Constellation hint — three tiny dots above the composer.
+          Tapping it blooms the anchors upward. */}
       <button
         type="button"
-        aria-label={isHe ? (navVisible ? 'הסתר ניווט' : 'הצג ניווט') : navVisible ? 'Hide nav' : 'Show nav'}
+        aria-label={
+          isHe
+            ? navVisible ? 'הסתר עוגני עולמות' : 'הצג עוגני עולמות'
+            : navVisible ? 'Hide realm anchors' : 'Show realm anchors'
+        }
+        aria-expanded={navVisible}
         onClick={toggleNav}
         className={cn(
-          'fixed left-1/2 -translate-x-1/2 flex items-center justify-center',
-          'h-5 w-10 rounded-full text-foreground/25 hover:text-foreground/60 transition-all',
-          'pointer-events-auto',
+          'fixed left-1/2 -translate-x-1/2 flex items-center justify-center gap-1',
+          'h-5 px-2 rounded-full text-foreground/30 hover:text-foreground/70',
+          'pointer-events-auto focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground/40',
         )}
         style={{
           ...zStyle('nav'),
-          // Sit just above the live composer (height tracked in --composer-h).
           bottom:
-            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 8px)',
+            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 6px)',
           transition: 'bottom 320ms ease, color 200ms ease, opacity 1400ms ease',
-          opacity: Math.max(0.35, chromeWeight),
+          opacity: Math.max(0.3, chromeWeight),
         }}
       >
-        <ChevronUp
-          className={cn('h-3.5 w-3.5 transition-transform', navVisible && 'rotate-180')}
-          strokeWidth={1.5}
-        />
+        <span aria-hidden className={cn('h-[3px] w-[3px] rounded-full bg-current transition-transform', navVisible && 'scale-125')} />
+        <span aria-hidden className={cn('h-[3px] w-[3px] rounded-full bg-current transition-transform', navVisible && 'scale-150')} />
+        <span aria-hidden className={cn('h-[3px] w-[3px] rounded-full bg-current transition-transform', navVisible && 'scale-125')} />
       </button>
 
       <AionNavDock
@@ -81,9 +109,9 @@ export default function NavLayer() {
         visible={navVisible}
         style={{
           ...zStyle('nav'),
-          // Float ABOVE the composer dock so icons are never covered.
+          // Anchors bloom ABOVE the composer; safe area respected.
           bottom:
-            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 18px)',
+            'calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 22px)',
           opacity: chromeWeight,
           transition: 'opacity 1400ms ease',
         }}
