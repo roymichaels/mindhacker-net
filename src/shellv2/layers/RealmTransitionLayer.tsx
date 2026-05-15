@@ -27,6 +27,13 @@ export default function RealmTransitionLayer() {
         position: 'fixed',
         inset: 0,
         pointerEvents: 'none',
+        // Chamber clarity: veils + tints fade out before reaching the
+        // composer/safe-area band so the interaction plane stays luminous
+        // during realm transitions.
+        WebkitMaskImage:
+          'linear-gradient(to top, transparent 0, transparent calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 28px), black calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 110px))',
+        maskImage:
+          'linear-gradient(to top, transparent 0, transparent calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 28px), black calc(env(safe-area-inset-bottom, 0px) + var(--composer-h, 64px) + 110px))',
       }}
     >
       {/* dim wash */}
