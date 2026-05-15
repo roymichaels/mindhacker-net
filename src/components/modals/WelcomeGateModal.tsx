@@ -8,7 +8,7 @@ import { Sparkles, Rocket } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { useSmartOnboarding } from '@/contexts/SmartOnboardingContext';
-import { Orb } from '@/components/orb/Orb';
+import OrbView from '@/components/orb/v2/OrbView';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
 import { cn } from '@/lib/utils';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -58,7 +58,7 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
           >
             <div className="relative">
               <div className="absolute inset-[-30%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.2),transparent_70%)] blur-xl pointer-events-none animate-pulse" />
-              <Orb profile={DEFAULT_ORB_PROFILE} size={80} state="breathing" renderer="css" showGlow />
+              <OrbView size={80} profile={DEFAULT_ORB_PROFILE} />
             </div>
           </motion.div>
 
