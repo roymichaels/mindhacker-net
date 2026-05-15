@@ -7,15 +7,14 @@
  * data is empty (or before it loads), seed anchors keep the place
  * alive so the user never sees a dead world.
  */
-import { Compass, GraduationCap, MessageSquare, Sparkles, Users } from 'lucide-react';
-import type { ComponentType } from 'react';
+import { Compass, GraduationCap, MessageSquare, Sparkles, Users, type LucideIcon } from 'lucide-react';
 
 export interface WorldAnchor {
   id: string;
   /** Normalised viewport coords (0..1). */
   x: number;
   y: number;
-  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   labelHe: string;
   labelEn: string;
   metaHe?: string;
