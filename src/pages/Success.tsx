@@ -50,7 +50,7 @@ const Success = () => {
 
       const timer = setTimeout(() => {
         flowAudit.markFlag('reachedDashboard', true);
-        navigate('/dashboard');
+        navigate('/');
       }, 4000);
 
       return () => clearTimeout(timer);
