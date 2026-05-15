@@ -949,9 +949,9 @@ export const en: TranslationKeys = {
     breadcrumbHome: "Home",
     breadcrumbDashboard: "Dashboard",
     breadcrumbCourses: "Digital Products",
-    indexTitle: "AION | The Game of Your Life — AI-Powered Life MMO",
-    indexDescription: "Turn your real life into a playable system. DNA defines who you are, AION guides who you become, your Avatar represents you. Play, grow, earn, evolve.",
-    indexKeywords: "life game, personal development, AI coach, gamification, life MMO, AION, AION, transformation, XP, digital identity",
+    indexTitle: "AION — A Living Cognitive Universe",
+    indexDescription: "AION remembers. The atmosphere responds. Your trajectory evolves. Enter a living intelligence that grows with you.",
+    indexKeywords: "living intelligence, cognitive universe, AION, presence, memory, trajectory, evolving AI companion",
   },
   about: {
     sectionTitle: "About",
