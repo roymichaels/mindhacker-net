@@ -26,6 +26,8 @@ import { ChamberIdleProvider } from './hooks/useChamberIdle';
 import StrategyApprovalCard from '@/components/aurora/StrategyApprovalCard';
 import { CosmosLayer, HazeLayer } from '@/universe';
 import { OrbPresenceBridge } from '@/aion/presence/useOrbPresenceBehaviour';
+import { TriadOrganismBridge } from '@/identity/triadOrganism';
+import { SurfaceVisitTrackerBridge } from './hooks/useSurfaceVisitTracker';
 
 export interface ShellV2Props {
   /** Optional override for the chat surface. Defaults to placeholder. */
@@ -44,6 +46,10 @@ export default function ShellV2({ children }: ShellV2Props) {
         <AtmosphereLayer />
         {/* Behavioural orb presence — publishes intent CSS vars. */}
         <OrbPresenceBridge />
+        {/* 5L.7 — DNA × AION × Avatar broadcast as one organism (CSS vars). */}
+        <TriadOrganismBridge />
+        {/* 5L.5 — record dwell + tick avoidance per canonical surface. */}
+        <SurfaceVisitTrackerBridge />
         {/* Chat slot — children override the default placeholder so route-level
             summon pages can swap their own artifact stage in. */}
         {children ?? <ChatLayer />}

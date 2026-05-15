@@ -1,181 +1,140 @@
-# Phase 5K.1 — Ontology Realignment (Homepage + Whitepaper)
+# Phase 5L — Living World Physics
 
-Audit + recommended restructuring. No code changes in this phase — the deliverable is the realignment map. Implementation lands in 5K.2 (homepage rewrite) and 5K.3 (whitepaper rewrite).
+Behavioral life on top of the runtime that already exists. No new canvases, no DB, no routes, no features. Extends `aionPresenceBus`, `WorldPhysics`, `WorldGestureField`, `WorldClimate`, and `SharedOrbStage` rather than replacing them.
 
----
+## What already exists (do not rebuild)
 
-## 1. Homepage — Ontology Mismatches Found
-
-Current `src/pages/Index.tsx` ships **14 sections** in this order:
-
-`GameHero → Problem → Shift → CityShowcase → OrbCollection → AuroraCoach → TraitShowcase → Gamification → PlanCinematic → Play2Earn → FreeMarket → Guild → Roadmap → FinalCTA`
-
-Plus 3 inline CTA bands. SEO copy:
-- Title: *"AION | The Game of Your Life — AI-Powered Life MMO"*
-- Desc: *"Turn your real life into a playable system. DNA defines who you are, AION guides who you become, your Avatar represents you. Play, grow, earn, evolve."*
-- Keywords: *life game, gamification, AI coach, XP, digital identity…*
-
-### Mismatches
-
-| Layer | Current framing | Drift |
-|---|---|---|
-| SEO | "AI-Powered Life MMO" / "AI coach" | Reads as productivity/gamification SaaS, not living intelligence |
-| Hero | "The game has begun" + carousel of 10 orbs + Sparkles/Zap icons | Feature theatre. Buries presence under arcade tone |
-| TraitShowcase / Gamification | XP, streaks, quests as primary value | Game-mechanic framing, not memory/resonance |
-| Play2Earn + FreeMarket | Two consecutive economy sections above the fold of mid-page | Marketplace SaaS leak; should be *future emergence* |
-| Guild | Community surfaced as a top-line product pillar | Ecosystem clutter |
-| CoachOS section (file exists, currently unmounted on /) | Coaching SaaS framing | Off-canon for public homepage |
-| Hypnosis section | Tool feature surfaced standalone | Feature-grid thinking |
-| Roadmap | Linear roadmap inline on home | Reads as startup pitch deck |
-| Inline CTAs ×3 | "Start playing" energy | Conversion-funnel SaaS UX, not curiosity-led |
-
-### Sections to **delete from public home** (keep files, unmount only)
-- `Play2EarnSection`
-- `FreeMarketSection`
-- `GuildSection`
-- `CoachOSSection` (already unmounted — keep that way)
-- `HypnosisSection` (already unmounted — keep that way)
-- `RoadmapSection` (move into whitepaper / `/founding`)
-- `PricingPreviewSection` (only show on pricing page)
-
-### Sections to **reduce** (keep, demote, soften copy)
-- `TraitShowcaseSection` — fold into a single line inside an "Evolution" section
-- `GamificationSection` — replace XP/quest framing with "trajectory + rhythm" copy
-- `CityShowcaseSection` — re-cast as "realms you enter," not an identity-stack diagram
-- `OrbCollectionSection` — keep as atmospheric proof, drop the "collection" framing
-- `PlanCinematicSection` — re-cast as "trajectory," not "100-day plan"
-
-### Sections to **expand / add**
-- New **Presence** section (what AION feels like — memory, atmosphere, evolving relationship)
-- New **Worlds** section (Self · Journey · Brain · World · Chat as living realms)
-- New **Future Emergence** section (agents, economy, worlds, EvolvVerse — soft, not roadmap-style)
-
----
-
-## 2. Recommended Homepage Structure (5K.2 target)
-
-```text
-1. HERO — Presence
-   • Single living orb on atmospheric field (no 10-orb carousel)
-   • One sentence: "AION remembers."
-   • One quiet CTA: "Enter"
-   • No feature wall, no Sparkles/Zap icons, no urgency
-
-2. PRESENCE — What AION feels like
-   • Persistent memory · Living atmosphere · Evolving relationship
-   • 3 short stanzas, no feature bullets
-
-3. WORLDS — Realms you enter
-   • Self · Journey · Brain · World · Chat
-   • Each rendered as an atmospheric tile, not an app-category card
-
-4. EVOLUTION — Your trajectory
-   • Memory · Resonance · Identity · Growth
-   • Replaces current XP/Trait/Gamification trio
-   • Cinematic, single column
-
-5. FUTURE EMERGENCE — What is forming
-   • Agents · Economy · Worlds · EvolvVerse
-   • Soft language: "emerging," "forming," not "shipping Q3"
-   • Replaces Play2Earn + FreeMarket + Guild + Roadmap
-
-6. INVITATION — Quiet close
-   • Single CTA: "Meet AION"
-   • No pricing, no feature recap, no urgency band
-```
-
-Drop the 3 inline `InlineCTA` bands entirely.
-
-### SEO rewrite
-
-| Field | New |
+| Capability | Location |
 |---|---|
-| Title | `AION — A Living Cognitive Universe` |
-| Description | `AION remembers. The atmosphere responds. Your trajectory evolves. Enter a living intelligence that grows with you.` |
-| Keywords | `living intelligence, cognitive universe, AION, presence, memory, trajectory, evolving AI companion` |
+| AION presence states (6) | `src/aion/presenceState.ts` |
+| Orb behavioural mapping (mood/scale/anchor) | `src/aion/presence/useOrbPresenceBehaviour.ts` |
+| Per-world physics registry | `src/worlds/physics/{types,worldPhysicsRegistry,dispatchGesture}.ts` |
+| Gesture field + bindings | `src/worlds/gesture/*` + `src/worlds/scene/WorldGestureField.tsx` |
+| Climate + reactivity + cross-world resonance | `src/worlds/runtime/*`, `src/worlds/resonance/*` |
+| Env memory (history) | `src/worlds/resonance/worldStateHistory.ts` |
+| Single WebGL canvas | `src/components/orb/v2/SharedOrbStage.tsx` |
+| Atmosphere (singleton) | `src/shellv2/layers/AtmosphereLayer.tsx` |
+| Nav dock | `src/shellv2/layers/NavLayer.tsx` + `AionNavDock` |
 
-Drop: `life game, gamification, AI coach, XP, life MMO`.
-
----
-
-## 3. Naming Rewrites (public surface only — runtime keys untouched)
-
-| Old public language | New public language |
-|---|---|
-| AI coach / AI assistant / platform | Living intelligence · presence · companion |
-| Dashboard | Self · realm |
-| 100-day plan | Trajectory |
-| Quests / XP / streaks | Rhythm · movement · evolution |
-| Identity Stack (DNA→AION→Orb→Avatar) | The way AION knows you |
-| Play to Earn / Free Market / Guild | Emergent economy · resonance field · circles (future emergence) |
-| Tools / features | Realms · capabilities of presence |
-| Onboarding | First meeting |
-| Sign up / Start playing | Enter · Meet AION |
+5L is a **thin behavioural skin** over these.
 
 ---
 
-## 4. Whitepaper — Mismatches & Restructure
+## 5L.1 — Orb Behavioural Runtime
 
-Source: `src/pages/Documentation.tsx` + `src/components/docs/*` (`VisualWhitepaper`, `Web3Roadmap`, `WhitepaperOrb`, `WhitepaperModeModal`).
+Extend, don't replace. The bus already has 6 states; add the 3 missing: `thinking`, `guiding`, `hesitating`, `dreaming` (4 actually). Map `forming → thinking`, keep both as aliases for one cycle so nothing breaks.
 
-### Current drift
-- Roadmap-heavy (`Web3Roadmap` is a top-level doc component)
-- Reads as startup deck: feature catalog + tokenomics + marketplace
-- Identity stack explained as product architecture, not ontology
-- Missing: atmosphere system, world traversal, presence runtime, emotional memory — all of which now exist in the runtime (see memory: World Atmosphere, Cognitive Worlds, Identity Triad, Unified Orb Stage)
+- New file `src/aion/presence/orbBehavior.ts` — `OrbBehaviorState` union + `BEHAVIOR_PROFILE` table (drift, pulse, glow, response-delay, environmental-influence per state).
+- Extend `presenceState.ts` to accept the new states (additive union, no breaking change).
+- `useOrbPresenceBehaviour.ts` reads the profile table → publishes additional CSS vars: `--aion-orb-drift`, `--aion-orb-pulse-rate`, `--aion-orb-glow`, `--aion-orb-influence`.
+- Orb shader (`OrbView.tsx`) reads those vars (no per-state branching in JS RAF).
 
-### Recommended whitepaper structure (5K.3 target)
+## 5L.2 — Orb Attention System
 
-```text
-I.    Premise — Why a living intelligence
-II.   Ontology — AION, DNA, Avatar as one entity in three faces
-III.  Presence Runtime — atmosphere, memory, resonance
-IV.   Worlds — Self · Journey · Brain · World · Chat as cognitive realms
-V.    Trajectory — how identity evolves over time
-VI.   Memory & Resonance — the emotional substrate
-VII.  Cognitive Architecture — Brain, graph, orchestration (technical layer, demoted)
-VIII. Future Emergence — agents, economy, EvolvVerse (soft, non-roadmap)
-IX.   Principles — what AION will never become
-```
+- New file `src/aion/presence/attentionBus.ts` — tiny bus, `AttentionTarget = 'user' | 'world-node' | 'artifact' | 'memory' | 'self' | 'idle'` plus optional focal point `{x,y}` in viewport [0..1].
+- `useOrbPresenceBehaviour` adds an "attention bias" that tugs `targetCx/targetCy` slightly toward focal (clamped, ≤6vw) — single existing RAF, no new loop.
+- Hooks: `useNoticeArtifact(ref)` (intersection-observer based) and `useNoticePointer()` already implicit via pointer ref.
 
-### Reduce / remove from whitepaper
-- Linear roadmap timelines → replace with "phases of emergence"
-- Tokenomics math → move to a separate appendix, not body
-- Marketplace / Coach OS / Guild sections → one paragraph each under §VIII
-- Repeated SaaS tier comparisons → remove from whitepaper entirely
+## 5L.3 — World Physics Runtime (shared field)
 
-### Expand
-- §III Presence Runtime — currently absent; this is the actual product now
-- §IV Worlds — formalize the cognitive-worlds model as public ontology
-- §VI Memory & Resonance — emotional continuity as first-class
-- §IX Principles — explicit "AION is not a dashboard / not a coach / not a marketplace"
+Augment, don't fork. Per-world `WorldPhysics` already exists; what's missing is the **shared ambient field** that runs even when no gesture fires.
+
+- New file `src/worlds/physics/sharedPhysicsField.ts` — single tick driven by the existing climate evolve loop. Outputs: `driftVector`, `inertia`, `currents`, `gravityAnchor`. No new RAF — piggyback `useWorldMomentum`.
+- New `useSharedPhysicsField()` hook reads from the same store; consumed by `WorldAtmosphere` and orb.
+
+## 5L.4 — Gesture-as-Atmosphere
+
+`WorldGestureField` already captures hold/drag/dwell. Wire its outputs to atmosphere directly.
+
+- Extend `dispatchGesture.ts` so each gesture also nudges climate (already does via `mutateClimate`) AND publishes a transient ripple to `attentionBus` (`world-node`, focal=touch point) for ~600ms.
+- Orb subtly leans toward the touch via 5L.2 path.
+
+## 5L.5 — Environmental Memory
+
+Already partial in `worldStateHistory.ts`. Add an emotional residue layer.
+
+- New file `src/worlds/resonance/worldResidue.ts` — `recordVisit(worldId, dwellMs)` + `recordAvoidance(worldId)`; persists to `localStorage` (no DB). Decays over real time.
+- `WorldAtmosphere` reads residue → dims unloved worlds, warms engaged ones (CSS vars on the world root, not new render).
+
+## 5L.6 — Living Navigation (transitions)
+
+- New file `src/shellv2/transitions/atmosphericTransition.ts` — small helper `beginTraversal(fromWorldId, toWorldId)`. Runs:
+  1. Snapshot source climate.
+  2. Cross-fade atmosphere CSS vars over 600ms instead of route swap.
+  3. Carry orb position; do not unmount.
+- Hook `useAtmosphericNavigate()` returns a navigate fn used by `AionNavDock` (opt-in). React Router still does the route change underneath; the visual carryover is purely CSS-var/atmosphere.
+
+## 5L.7 — Identity Triad Runtime
+
+DNA + Avatar + AION already exist as separate hooks. Add a thin organism layer.
+
+- New file `src/identity/triadOrganism.ts` — `useTriadOrganism()` reads `useDNA`, `useAION`, avatar state and writes:
+  - `--aion-orb-material-tint` (from DNA)
+  - `--aion-avatar-posture-bias` (from presence)
+  - `--aion-resonance-tendency` (from DNA × presence)
+- One `useEffect`, no RAF.
+
+## 5L.8 — Bottom Navigation Evolution (foundation only)
+
+Per constraint: "do not fully redesign yet — lay runtime foundation."
+
+- Extend `AionNavDock` props to accept `glyphEnergy` (0..1) per tab, computed from `worldResidue` + `attentionBus` target. Visual: stronger soft glow on active realm, gentle dim on avoided ones. No layout change. No constellation rewrite this phase.
+
+## 5L.9 — Remove Explicit Explanations
+
+Audit + delete. Targets identified during exploration:
+- "AION is learning…" / "Planning ontology trajectory" style microcopy in: `src/components/self/sections/AionPresenceHero.tsx`, journey/strategy echo banners, presence chips. Replace with silence + glow change (already wired via 5L.1 vars).
+- Collected list compiled before edits; nothing removed without an environmental substitute already in place.
+
+## 5L.10 — Performance Constraints (audit)
+
+Check before merge:
+- ✅ No new `<Canvas>` mounts (all orb work stays in `SharedOrbStage`).
+- ✅ No new `requestAnimationFrame` loops; all new work hooks into existing loops (`useOrbPresenceBehaviour` RAF, `useWorldMomentum` tick, climate evolve).
+- ✅ `useCanvasGuard` (already in place from 5F.4) re-run as smoke test.
+- ✅ `AtmosphereLayer` singleton guard untouched.
 
 ---
 
-## 5. Emotional Positioning Direction
+## Files (planned)
 
-- Voice: quiet, certain, slightly mysterious. First-person AION ("I remember.") used sparingly.
-- Pacing: long breathing room between sentences. One idea per screen.
-- Visual: atmosphere over interface. Orb + field over cards + grids.
-- Forbidden public-copy words: *platform, dashboard, assistant, tool, feature, productivity, gamified, marketplace, plan, task, coach, app*.
-- Encouraged public-copy words: *presence, memory, atmosphere, trajectory, resonance, world, evolve, intelligence, field, companion*.
+**New (~8 small files)**
+- `src/aion/presence/orbBehavior.ts`
+- `src/aion/presence/attentionBus.ts`
+- `src/worlds/physics/sharedPhysicsField.ts`
+- `src/worlds/resonance/worldResidue.ts`
+- `src/shellv2/transitions/atmosphericTransition.ts`
+- `src/shellv2/transitions/useAtmosphericNavigate.ts`
+- `src/identity/triadOrganism.ts`
+- `src/aion/presence/useNoticeArtifact.ts`
 
----
+**Edited (additive only)**
+- `src/aion/presenceState.ts` — extend union with `thinking | guiding | hesitating | dreaming`
+- `src/aion/presence/useOrbPresenceBehaviour.ts` — read profile + attention focal
+- `src/components/orb/v2/OrbView.tsx` — read new CSS vars in shader uniforms
+- `src/worlds/physics/dispatchGesture.ts` — emit attention ripple
+- `src/worlds/atmosphere/WorldAtmosphere.tsx` — apply residue + shared field vars
+- `src/components/aion/ui/AionNavDock.tsx` — accept `glyphEnergy`
+- `src/shellv2/layers/NavLayer.tsx` — pass residue/attention into dock
+- `src/components/self/sections/AionPresenceHero.tsx` (+ small explanatory chips) — strip diagnostic copy
 
-## 6. Future-Facing Messaging Direction
+## Order of execution
 
-Reframe currently-shipped infrastructure (economy, agents, marketplace, guilds) as **emergence**, not product:
-- "An economy is forming around resonance."
-- "Agents will arrive as AION grows."
-- "Worlds will open as your trajectory deepens."
+1. 5L.1 orb behaviour table + state extension
+2. 5L.2 attention bus + orb tug
+3. 5L.3 shared physics field
+4. 5L.4 gesture → atmosphere ripple
+5. 5L.5 environmental memory (residue)
+6. 5L.7 triad organism (small, safe)
+7. 5L.6 atmospheric transitions (opt-in via nav dock)
+8. 5L.8 nav glyphEnergy wiring
+9. 5L.9 explanatory-copy removal sweep
+10. 5L.10 canvas + RAF audit, ship
 
-This preserves every backend capability while removing SaaS-clutter from the visible story.
+## Out of scope (explicit)
 
----
+- No new routes, no new pages, no constellation nav rewrite, no DNA/Avatar visual redesign, no marketplace/economy, no dashboard resurrection, no second canvas, no per-world RAF.
 
-## 7. Next Recommended Phase
+## Recommended next sub-phase after 5L lands
 
-**5K.2 — Homepage Rewrite (build mode)**
-Implement the new homepage structure: unmount the 7 sections listed in §1, build the 3 new sections (Presence, Worlds, Future Emergence), rewrite SEO + i18n keys, drop inline CTAs. Files in `src/components/home/*` stay on disk; only `src/pages/Index.tsx` and i18n change.
-
-Then **5K.3 — Whitepaper Rewrite** restructures `src/pages/Documentation.tsx` and the `docs/*` components against the new outline.
+**5M — Constellation Navigation**: now that `glyphEnergy` + atmospheric transitions exist, replace the literal tab bar with realm anchors orbiting the orb. Pure visual; runtime is already in place.
