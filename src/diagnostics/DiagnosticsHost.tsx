@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from 'react';
 import { Brain } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDiagnosticsFlag } from './useDiagnosticsFlag';
+import { useCanvasGuard } from '@/universe/dev/useCanvasGuard';
 
 const DiagnosticsSheet = lazy(() => import('./DiagnosticsSheet'));
 
@@ -14,6 +15,8 @@ export default function DiagnosticsHost() {
   const enabled = useDiagnosticsFlag();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  // Phase 5F.5 — dev-only single-Canvas enforcement (no-op in prod).
+  useCanvasGuard();
 
   if (!enabled || !user) return null;
 
