@@ -43,6 +43,9 @@ export function AionComposerDock({ children, className, style }: AionComposerDoc
         // Composer stays anchored — the ghost nav dock floats above it instead.
         bottom: 'max(env(safe-area-inset-bottom), 22px)',
         transition: 'bottom 280ms ease',
+        // Hard isolate the composer plane so atmosphere/realm dimming
+        // can never bleed opacity into the interaction surface.
+        isolation: 'isolate',
         ...style,
       }}
       data-composer-state={composerState}
@@ -57,7 +60,7 @@ export function AionComposerDock({ children, className, style }: AionComposerDoc
           aria-hidden
           className={cn(
             "pointer-events-none absolute inset-x-6 -bottom-6 h-24 -z-10 transition-opacity duration-700",
-            navVisible ? "opacity-20" : isIdle ? "opacity-40" : "opacity-100",
+            navVisible ? "opacity-15" : isIdle ? "opacity-25" : "opacity-60",
           )}
           style={{
             background:
