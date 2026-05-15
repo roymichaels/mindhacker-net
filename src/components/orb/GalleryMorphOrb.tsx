@@ -1,10 +1,12 @@
 /**
  * @deprecated Phase 5F.4 — orb canonicalization.
- * GalleryMorphOrb / GalleryOrbView / StandaloneMorphOrb are now thin
- * compatibility wrappers around `OrbView`. The legacy per-orb WebGL Canvas
- * has been removed; every orb tunnels into the single shared Canvas.
- * `geometryFamily`, `level`, `randomShapeCount` are accepted but ignored.
+ * GalleryMorphOrb / GalleryOrbView / StandaloneMorphOrb / GalleryCanvas
+ * are now thin compatibility wrappers around `OrbView`. The legacy per-orb
+ * WebGL Canvas has been removed; every orb tunnels into the single shared
+ * SharedOrbStage Canvas. `geometryFamily`, `level`, `randomShapeCount` are
+ * accepted but ignored.
  */
+import type { ReactNode, RefObject } from 'react';
 import OrbView from './v2/OrbView';
 import type { OrbProfile } from './types';
 
@@ -33,14 +35,10 @@ export function StandaloneMorphOrb({ profile, size, className }: StandaloneMorph
   return <OrbView size={size} profile={profile} className={className} />;
 }
 
-export default GalleryOrbView;
-
 /**
- * @deprecated GalleryCanvas — was the legacy per-gallery WebGL provider.
- * Kept as a passthrough Fragment so consumers still mount; the real Canvas
- * lives in SharedOrbStage and inner orbs tunnel into it via OrbView.
+ * @deprecated Was the legacy per-gallery WebGL provider. Now a passthrough
+ * Fragment — the real Canvas lives in SharedOrbStage.
  */
-import type { ReactNode, RefObject } from 'react';
 interface GalleryCanvasProps {
   children: ReactNode;
   containerRef?: RefObject<HTMLElement>;
@@ -48,3 +46,5 @@ interface GalleryCanvasProps {
 export function GalleryCanvas({ children }: GalleryCanvasProps) {
   return <>{children}</>;
 }
+
+export default GalleryOrbView;
