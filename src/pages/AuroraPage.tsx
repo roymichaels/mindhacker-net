@@ -14,6 +14,7 @@ import { zStyle } from '@/shellv2/zindex';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import ArtifactLayer from '@/components/artifacts/ArtifactLayer';
 import ShellHeader from '@/shellv2/ShellHeader';
+import { ViewIdentityScope } from '@/viewIdentity';
 
 export default function AIONPage() {
   useTranslation();
@@ -45,7 +46,12 @@ export default function AIONPage() {
   // Interactive AION Mode (opt-in via `?ff_interactive_mode=1`).
   // Falls back to compact chat surface for assessment flows.
   if (interactive && !isAssessing) {
-    return <InteractiveAION />;
+    return (
+      <>
+        <ViewIdentityScope id="interactive" />
+        <InteractiveAION />
+      </>
+    );
   }
 
   return (
@@ -55,6 +61,7 @@ export default function AIONPage() {
         data-shellv2-layer="chat"
         data-shellv2-route="aurora"
       >
+        <ViewIdentityScope id="chat" />
         {!isAssessing && (
           <div className="mx-auto w-full max-w-screen-sm px-4">
             <ShellHeader title="AION" subtitle="Your Future Self. Ask anything." />

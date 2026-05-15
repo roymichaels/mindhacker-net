@@ -20,6 +20,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useProfileModal } from "@/contexts/ProfileModalContext";
 import { aionPresence } from "@/copy/aionPresence";
 import { useDiagnosticsFlag } from "@/diagnostics/useDiagnosticsFlag";
+import { ViewIdentityScope } from "@/viewIdentity";
 
 /**
  * BrainPage — rendered inside ProtectedAppShellV2 → ShellV2 via <Outlet />.
@@ -61,6 +62,7 @@ export default function BrainPage() {
       data-shellv2-layer="chat"
       data-shellv2-route="brain"
     >
+      <ViewIdentityScope id="brain" />
       <BrainErrorBoundary isRTL={isRTL}>
         {view === "room" && roomDef ? (
           <div className="flex flex-col h-full overflow-y-auto overscroll-contain touch-pan-y px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-44 space-y-3">
