@@ -11,44 +11,26 @@
  * `WorldTerrainScene` as a full-bleed living terrain. Legacy
  * `AlignedRealities` is preserved behind `?legacy=1` for diagnostics.
  */
-import { useSearchParams } from 'react-router-dom';
+/**
+ * OuterWorldHub — Phase 5D.1B.
+ *
+ * The route ALWAYS opens as the living terrain (`WorldTerrainScene`).
+ * The legacy `AlignedRealities` feed is reachable only via a quiet
+ * chevron at the bottom edge that slides it up as a Sheet overlay —
+ * never the primary surface.
+ */
+import { useState } from 'react';
+import { ChevronUp } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import AlignedRealities from '@/components/outer/AlignedRealities';
-import CanonicalAionModel from '@/components/orb/CanonicalAionModel';
 import { ViewIdentityScope } from '@/viewIdentity';
 import WorldTerrainScene from '@/world/terrain/WorldTerrainScene';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 export default function OuterWorldHub() {
-  const [params] = useSearchParams();
-  const legacy = params.get('legacy') === '1';
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-
-  if (legacy) {
-    return (
-      <main
-        dir={isRTL ? 'rtl' : 'ltr'}
-        className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain touch-pan-y"
-        data-shellv2-layer="chat"
-        data-shellv2-route="outer-world"
-        style={{
-          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4.5rem)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8rem)',
-        }}
-      >
-        <ViewIdentityScope id="world" />
-        <div className="mx-auto flex w-full max-w-md flex-col items-center px-5">
-          <CanonicalAionModel size={160} ariaLabel="AION" />
-          <div className="mt-3 aion-text-hero text-[12px] tracking-[0.32em] uppercase text-foreground/55">
-            {isHe ? 'העולם החיצוני' : 'Outer World'}
-          </div>
-          <div className="mt-10 w-full">
-            <AlignedRealities />
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const [legacyOpen, setLegacyOpen] = useState(false);
 
   return (
     <main
@@ -58,7 +40,34 @@ export default function OuterWorldHub() {
       data-shellv2-route="outer-world"
     >
       <ViewIdentityScope id="world" />
-      <WorldTerrainScene />
+      <WorldTerrainScene
+        footer={
+          <button
+            type="button"
+            onClick={() => setLegacyOpen(true)}
+            aria-label={isHe ? 'מבט מצטבר' : 'Aggregate view'}
+            className="flex items-center justify-center h-7 w-12 rounded-full text-foreground/25 hover:text-foreground/55 transition-colors"
+          >
+            <ChevronUp className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
+        }
+      />
+
+      <Sheet open={legacyOpen} onOpenChange={setLegacyOpen}>
+        <SheetContent
+          side="bottom"
+          className="h-[80vh] overflow-y-auto bg-background/95 backdrop-blur-xl border-t border-border/40"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-[13px] tracking-[0.28em] uppercase text-foreground/60 text-start">
+              {isHe ? 'מבט מצטבר' : 'Aggregate view'}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 pb-10">
+            <AlignedRealities />
+          </div>
+        </SheetContent>
+      </Sheet>
     </main>
   );
 }

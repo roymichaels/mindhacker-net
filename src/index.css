@@ -1100,12 +1100,29 @@ html.dark, .dark {
 .animate-aion-drift-a { animation: aion-drift-a 22s ease-in-out infinite; }
 .animate-aion-drift-b { animation: aion-drift-b 28s ease-in-out infinite; }
 
+/* Phase 5D.1B — landmark pin sway + outer ground-ring pulse */
+@keyframes aion-pin-sway {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-2px); }
+}
+@keyframes aion-ring-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1);    opacity: 0.45; }
+  50%      { transform: translateX(-50%) scale(1.06); opacity: 0.65; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-aion-breath,
   .animate-aion-float,
   .animate-aion-emerge,
   .animate-aion-drift-a,
   .animate-aion-drift-b {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="aion-pin-sway"],
+  [style*="aion-ring-pulse"] {
     animation: none !important;
   }
 }
