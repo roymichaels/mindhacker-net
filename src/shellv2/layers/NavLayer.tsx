@@ -16,6 +16,8 @@ import { useChamberIdle } from '../hooks/useChamberIdle';
 import { zStyle } from '../zindex';
 import { cn } from '@/lib/utils';
 import { useChromeDeemphasis } from '@/hooks/useChromeDeemphasis';
+import { getResidue, worldResidueBus } from '@/worlds/resonance/worldResidue';
+import { useEffect, useState } from 'react';
 
 export default function NavLayer() {
   const { language } = useTranslation();
@@ -25,13 +27,21 @@ export default function NavLayer() {
   const isHe = language === 'he';
   const { weight: chromeWeight } = useChromeDeemphasis();
 
+  // 5L.8 — re-render whenever residue updates so glyph energy stays live.
+  const [, bump] = useState(0);
+  useEffect(() => worldResidueBus.subscribe(() => bump((n) => n + 1)), []);
+
   const tabs: AionNavTab[] = CANONICAL_SURFACES.map((s) => {
     const Icon = s.icon;
+    const r = getResidue(s.id);
+    // Energy = base 0.55 + engagement boost − avoidance dim, clamped 0..1.
+    const energy = Math.max(0, Math.min(1, 0.55 + r.engagement * 0.45 - r.avoidance * 0.35));
     return {
       key: s.id,
       label: isHe ? s.labelHe : s.labelEn,
       icon: <Icon className="h-5 w-5" strokeWidth={1.5} />,
       active: s.path === location.pathname,
+      energy,
       onClick: () => {
         hideNav();
         navigate(s.path);
