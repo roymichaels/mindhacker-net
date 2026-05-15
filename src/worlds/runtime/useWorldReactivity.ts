@@ -25,6 +25,7 @@ import {
 import { useWorldHistoryStore } from '@/worlds/resonance/worldStateHistory';
 import type { WorldResonanceSignal } from '@/worlds/resonance/types';
 import { useGestureFieldStore } from '@/worlds/gesture/gestureFieldStore';
+import { getWorldPhysics } from '@/worlds/physics/worldPhysicsRegistry';
 
 const ALL_WORLDS = Object.keys(ATMOSPHERE_PRESETS) as CognitiveWorldId[];
 
@@ -90,7 +91,16 @@ export function useWorldReactivity() {
         if (active !== worldId && Math.random() < 0.4) continue;
         const sig = deriveWorldSignals(worldId, stateMap[worldId], now);
         const prev = climateMap[worldId] ?? DEFAULT_CLIMATE;
-        evolved[worldId] = evolveClimate(prev, sig, dt, worldId);
+        let next = evolveClimate(prev, sig, dt, worldId);
+        // Phase 5C.7 — fast per-world climate shove (turbulence, fog,
+        // fracture, drift). Applied AFTER evolveClimate so it bypasses
+        // climate time-constants for immediate felt response.
+        const physics = getWorldPhysics(worldId);
+        const energy = useGestureFieldStore.getState().get(worldId);
+        if (physics?.mutateClimate && energy) {
+          next = physics.mutateClimate(next, energy);
+        }
+        evolved[worldId] = next;
       }
 
       // Pass 2 — emit a resonance signal for every world (use freshly
