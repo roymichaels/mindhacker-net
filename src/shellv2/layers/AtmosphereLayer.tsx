@@ -14,6 +14,34 @@
 import { zStyle } from '../zindex';
 import { useAionPresence, type AionPresenceState } from '@/aion/presenceState';
 import { useActiveViewIdentity } from '@/viewIdentity';
+import { useEffect, useState } from 'react';
+
+/**
+ * Phase 5F.6 — singleton mount guard.
+ *
+ * Multiple shells (legacy `App.tsx` background slot, `ShellV2`, future
+ * surfaces) all want a "cinematic atmosphere" present. To collapse the
+ * runtime to a single canonical layer without breaking pages that don't
+ * yet live under ShellV2, we ref-count instances at the module level and
+ * only let the FIRST mounted instance render its DOM + react to presence
+ * / view identity. Later mounts become inert no-ops.
+ *
+ * This means there is exactly one live atmosphere runtime regardless of
+ * how many entry points instantiate it.
+ */
+let atmosphereMountCount = 0;
+const atmosphereSubscribers = new Set<(active: boolean) => void>();
+function notify() {
+  atmosphereSubscribers.forEach((fn, i) => {
+    // The first subscriber in insertion order is the active one.
+    fn(false);
+  });
+  // Mark only the first subscriber active.
+  const first = atmosphereSubscribers.values().next().value as
+    | ((active: boolean) => void)
+    | undefined;
+  first?.(true);
+}
 
 const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; magenta: number }> = {
   listening:   { cyan: 1.00, violet: 0.85, magenta: 0.6 },
@@ -25,9 +53,30 @@ const PRESENCE_TONE: Record<AionPresenceState, { cyan: number; violet: number; m
 };
 
 export default function AtmosphereLayer() {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const sub = (a: boolean) => setActive(a);
+    atmosphereSubscribers.add(sub);
+    atmosphereMountCount += 1;
+    notify();
+    if (import.meta.env.DEV && atmosphereMountCount > 1) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[universe/atmosphere-guard] ${atmosphereMountCount} AtmosphereLayer instances mounted — only the first renders. ` +
+          `Phase 5F.6 unifies atmosphere into a single canonical runtime.`,
+      );
+    }
+    return () => {
+      atmosphereSubscribers.delete(sub);
+      atmosphereMountCount -= 1;
+      notify();
+    };
+  }, []);
+
   const presence = useAionPresence();
   const view = useActiveViewIdentity();
   const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (!active) return null;
   const baseTone = reduce ? PRESENCE_TONE.listening : PRESENCE_TONE[presence];
   // Phase 5C.8 — the active view modulates the chamber. Presence is the
   // pulse, view identity is the room.
