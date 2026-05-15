@@ -23,6 +23,8 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAionPresence } from '@/aion/presenceState';
 import { useActiveViewIdentity } from '@/viewIdentity';
+import { BEHAVIOR_PROFILE, behaviorFromPresence } from '@/aion/presence/orbBehavior';
+import { attentionBus } from '@/aion/presence/attentionBus';
 
 const PRESENCE_SCALE: Record<string, number> = {
   listening: 1.00,
@@ -137,12 +139,41 @@ export function useOrbPresenceBehaviour(): void {
       root.style.setProperty('--aion-orb-scale', sc.current.toFixed(3));
       root.style.setProperty('--aion-orb-mood', moodRef.current);
 
+      // 5L.1 — publish behavioural profile so atmosphere/shaders/surfaces
+      // can read drift / pulse / glow / influence without per-state branches.
+      const profile = BEHAVIOR_PROFILE[behaviorFromPresence(presence)];
+      root.style.setProperty('--aion-orb-drift', profile.drift.toFixed(3));
+      root.style.setProperty('--aion-orb-pulse-rate', profile.pulseRate.toFixed(3));
+      root.style.setProperty('--aion-orb-glow', profile.glow.toFixed(3));
+      root.style.setProperty('--aion-orb-influence', profile.influence.toFixed(3));
+
       raf.current = window.requestAnimationFrame(tick);
     };
     raf.current = window.requestAnimationFrame(tick);
     return () => {
       if (raf.current) window.cancelAnimationFrame(raf.current);
     };
+  }, [view, presence]);
+
+  // 5L.2 — attention pull. When the bus carries a focal point, bias the
+  // base target by up to ±6vw / ±4vh toward it (clamped). Reuses the same
+  // RAF loop above through targetCx/targetCy state mutation.
+  useEffect(() => {
+    return attentionBus.subscribe((frame) => {
+      if (!frame.focal || frame.target === 'idle') {
+        // Restore base anchor.
+        targetCx.current = view.spatial.orbX * 100;
+        targetCy.current = view.spatial.orbY * 100;
+        return;
+      }
+      const baseX = view.spatial.orbX * 100;
+      const baseY = view.spatial.orbY * 100;
+      const dx = (frame.focal.x * 100 - baseX) * 0.10;
+      const dy = (frame.focal.y * 100 - baseY) * 0.08;
+      // Clamp tug.
+      targetCx.current = baseX + Math.max(-6, Math.min(6, dx));
+      targetCy.current = baseY + Math.max(-4, Math.min(4, dy));
+    });
   }, [view]);
 }
 
