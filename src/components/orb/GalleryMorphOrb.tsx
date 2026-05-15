@@ -48,3 +48,12 @@ export function GalleryCanvas({ children }: GalleryCanvasProps) {
 }
 
 export default GalleryOrbView;
+
+/** @deprecated stub — used to compute shape count from XP level. */
+export function getShapeCountForLevel(level: number): number {
+  if (level >= 100) return 6;
+  if (level >= 75) return 5;
+  if (level >= 50) return 4;
+  if (level >= 25) return 3;
+  return 2;
+}
