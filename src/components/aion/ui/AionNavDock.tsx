@@ -7,6 +7,12 @@ export interface AionNavTab {
   icon: ReactNode;
   active?: boolean;
   onClick?: () => void;
+  /**
+   * 5L.8 — soft glyph energy for this tab, 0..1. Higher = warmer presence,
+   * lower = dimmed (avoidance). Drives a subtle opacity/glow modulation only;
+   * no layout change.
+   */
+  energy?: number;
 }
 
 interface AionNavDockProps {
@@ -37,13 +43,20 @@ export function AionNavDock({ tabs, className, visible = true, style }: AionNavD
       aria-hidden={!visible}
     >
       <div className="mx-auto flex max-w-screen-md items-center justify-around px-6 pt-2">
-        {tabs.map((t) => (
+        {tabs.map((t) => {
+          const energy = typeof t.energy === 'number'
+            ? Math.max(0, Math.min(1, t.energy))
+            : 0.6;
+          // Quiet visual modulation: opacity 0.55..1.0, faint glow only when warm.
+          const opacity = 0.55 + energy * 0.45;
+          return (
           <button
             key={t.key}
             type="button"
             onClick={t.onClick}
             aria-label={t.label}
             aria-current={t.active ? "page" : undefined}
+            style={{ opacity }}
             className={cn(
               "relative flex flex-col items-center gap-0.5 px-2 py-1.5 transition active:scale-[0.95]",
               t.active ? "text-foreground" : "aion-text-mute hover:text-foreground/80",
@@ -58,7 +71,8 @@ export function AionNavDock({ tabs, className, visible = true, style }: AionNavD
               />
             )}
           </button>
-        ))}
+          );
+        })}
       </div>
     </nav>
   );
