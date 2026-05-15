@@ -58,7 +58,7 @@ export function WelcomeGateModal({ open, onOpenChange }: WelcomeGateModalProps) 
           >
             <div className="relative">
               <div className="absolute inset-[-30%] rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.2),transparent_70%)] blur-xl pointer-events-none animate-pulse" />
-              <Orb profile={DEFAULT_ORB_PROFILE} size={80} state="breathing" renderer="css" showGlow />
+              <OrbView size={80} profile={DEFAULT_ORB_PROFILE} />
             </div>
           </motion.div>
 
