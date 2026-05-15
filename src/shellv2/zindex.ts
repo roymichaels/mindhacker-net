@@ -11,8 +11,9 @@ export const Z = {
   base: 0,
   background: 10, // SharedOrbStage canvas
   chat: 20,
-  nav: 28, // ghost dock; sits just under composer
+  realmVeil: 25, // 5N.1 — atmospheric route transition scrim
   composer: 30,
+  nav: 32, // 5N.4 — anchors bloom ABOVE composer; closed state is invisible
   chrome: 40, // minimal top bar
   scrim: 55,
   overlay: 60, // Radix dialog/sheet/drawer

@@ -22,6 +22,7 @@ import ChromeLayer from './layers/ChromeLayer';
 import OverlayLayer from './layers/OverlayLayer';
 import BlockingLayer from './layers/BlockingLayer';
 import NavLayer from './layers/NavLayer';
+import RealmTransitionLayer from './layers/RealmTransitionLayer';
 import { ChamberIdleProvider } from './hooks/useChamberIdle';
 import StrategyApprovalCard from '@/components/aurora/StrategyApprovalCard';
 import { CosmosLayer, HazeLayer } from '@/universe';
@@ -53,6 +54,8 @@ export default function ShellV2({ children }: ShellV2Props) {
         {/* Chat slot — children override the default placeholder so route-level
             summon pages can swap their own artifact stage in. */}
         {children ?? <ChatLayer />}
+        {/* 5N.1 — atmospheric scrim bridging realm-to-realm traversal */}
+        <RealmTransitionLayer />
         <NavLayer />
         <ComposerLayer />
         <ChromeLayer />
