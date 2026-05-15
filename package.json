@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "bootstrap": "node scripts/bootstrap.mjs",
     "bootstrap:ci": "node scripts/bootstrap.mjs --ci",
-    "export:storage": "tsx scripts/export-storage.ts ./storage-dump",
+    "export:storage": "npx -y tsx scripts/export-storage.ts ./storage-dump",
     "audit:dead": "node scripts/audit-deadcode.mjs",
     "types:pull": "supabase gen types typescript --linked > src/integrations/supabase/types.ts",
     "db:push": "supabase db push",
