@@ -14,6 +14,7 @@ import { useMemo } from 'react';
 import { useAionDecision } from '@/contexts/AionDecisionContext';
 import { useSmartSuggestions } from './useSmartSuggestions';
 import { useTranslation } from '@/hooks/useTranslation';
+import { pickLang } from '@/lib/i18nPick';
 
 export interface AmbientLine {
   text: string;
@@ -32,7 +33,6 @@ export function useAmbientContext(): AmbientContext {
   const { decision } = useAionDecision();
   const { suggestions, isLoading } = useSmartSuggestions();
   const { language } = useTranslation();
-  const isHe = language === 'he';
 
   return useMemo(() => {
     // Understanding: derive a soft summary from AION's current mode/reasoning.
@@ -41,9 +41,11 @@ export function useAmbientContext(): AmbientContext {
       ? { text: reasoning.length > 140 ? reasoning.slice(0, 138) + '…' : reasoning }
       : decision?.mode
         ? {
-            text: isHe
-              ? `המצב הנוכחי שלך מרגיש ${MODE_HE[decision.mode] ?? decision.mode}.`
-              : `Your current state feels ${decision.mode}.`,
+            text: pickLang(language, {
+              he: `המצב הנוכחי שלך מרגיש ${MODE_HE[decision.mode] ?? decision.mode}.`,
+              en: `Your current state feels ${decision.mode}.`,
+              es: `Tu estado actual se siente ${MODE_ES[decision.mode] ?? decision.mode}.`,
+            }),
           }
         : null;
 
@@ -59,13 +61,21 @@ export function useAmbientContext(): AmbientContext {
       ? { text: nextSugg.text, prompt: nextSugg.action.prompt }
       : !isLoading
         ? {
-            text: isHe ? 'מה ברצונך שנעשה עכשיו?' : 'What shall we do right now?',
-            prompt: isHe ? 'מה הכי חשוב לי לעשות עכשיו?' : 'What matters most for me to do right now?',
+            text: pickLang(language, {
+              he: 'מה ברצונך שנעשה עכשיו?',
+              en: 'What shall we do right now?',
+              es: '¿Qué hacemos ahora mismo?',
+            }),
+            prompt: pickLang(language, {
+              he: 'מה הכי חשוב לי לעשות עכשיו?',
+              en: 'What matters most for me to do right now?',
+              es: '¿Qué es lo más importante que debo hacer ahora?',
+            }),
           }
         : null;
 
     return { understanding, focus, nextStep, isLoading };
-  }, [decision, suggestions, isLoading, isHe]);
+  }, [decision, suggestions, isLoading, language]);
 }
 
 const MODE_HE: Record<string, string> = {
@@ -76,4 +86,14 @@ const MODE_HE: Record<string, string> = {
   hypnosis: 'מופנם',
   calm: 'רגוע',
   neutral: 'מאוזן',
+};
+
+const MODE_ES: Record<string, string> = {
+  flow: 'en flujo',
+  focus: 'enfocado',
+  recovery: 'en recuperación',
+  overwhelmed: 'abrumado',
+  hypnosis: 'introspectivo',
+  calm: 'en calma',
+  neutral: 'equilibrado',
 };

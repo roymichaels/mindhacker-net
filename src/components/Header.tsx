@@ -240,6 +240,13 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 <span className={isRTL ? "ml-2" : "mr-2"}>🇺🇸</span>
                 English
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLanguage('es')}
+                className={language === 'es' ? 'bg-primary/10 text-primary' : ''}
+              >
+                <span className={isRTL ? "ml-2" : "mr-2"}>🇪🇸</span>
+                Español
+              </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>

@@ -316,7 +316,9 @@ export async function buildContext(
 ): Promise<AuroraContext> {
   const now = new Date();
   // Use client-provided timezone > language-based fallback > UTC
-  const userTimezone = clientTimezone || (language === 'he' ? 'Asia/Jerusalem' : 'UTC');
+  const userTimezone =
+    clientTimezone ||
+    (language === 'he' ? 'Asia/Jerusalem' : language === 'es' ? 'Europe/Madrid' : 'UTC');
   const today = dateInTimezone(now, userTimezone);
   
   // Use toLocaleString with timezone directly — avoid parsing locale strings back into Date
@@ -334,7 +336,8 @@ export async function buildContext(
     console.log(`[contextBuilder] tz="${userTimezone}" clientTz="${clientTimezone}" utc="${now.toISOString()}" local="${localTimeStr}" day="${dayOfWeek}"`);
   } catch (e) {
     console.warn(`[contextBuilder] timezone error for "${userTimezone}":`, e);
-    const fallbackTz = language === 'he' ? 'Asia/Jerusalem' : 'UTC';
+    const fallbackTz =
+      language === 'he' ? 'Asia/Jerusalem' : language === 'es' ? 'Europe/Madrid' : 'UTC';
     localTimeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: fallbackTz });
     const localWeekday = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: fallbackTz }).format(now);
     const dayIdx = dayNames.indexOf(localWeekday);

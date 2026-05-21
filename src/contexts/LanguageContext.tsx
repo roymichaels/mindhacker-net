@@ -1,8 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
+import type { Language } from '@/i18n';
 
-type Language = 'he' | 'en';
+const SPANISH_COUNTRY_CODES = new Set([
+  'ES', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'UY', 'PY',
+  'BO', 'EC', 'GT', 'HN', 'SV', 'NI', 'CR', 'PA', 'DO', 'CU', 'PR',
+]);
 
 interface LanguageContextType {
   language: Language;
@@ -25,14 +29,22 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   // Detect location and set initial language
   const detectLocation = async (): Promise<Language> => {
+    // Honor browser locale as a fast tiebreaker before hitting the network.
+    const navLang = typeof navigator !== 'undefined' ? navigator.language?.toLowerCase() : '';
+    if (navLang?.startsWith('he')) return 'he';
+    if (navLang?.startsWith('es')) return 'es';
+
     try {
       const response = await fetch('https://ipapi.co/json/', { 
         signal: AbortSignal.timeout(3000) 
       });
       const data = await response.json();
-      return data.country_code === 'IL' ? 'he' : 'en';
+      const cc = data?.country_code;
+      if (cc === 'IL') return 'he';
+      if (cc && SPANISH_COUNTRY_CODES.has(cc)) return 'es';
+      return 'en';
     } catch {
-      return 'en'; // Default fallback
+      return navLang?.startsWith('es') ? 'es' : 'en';
     }
   };
 

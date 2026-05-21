@@ -154,7 +154,8 @@ const MAX_MESSAGES = 200;
 const MAX_CONTENT_LENGTH = 8000;
 
 export function validateRequest(raw: any): ValidatedRequest | { error: string; status: number } {
-  const { messages, userId, language = "he", mode = "full", pillar = null, hasImages = false, timezone = null } = raw;
+  const { messages, userId, language: rawLang = "he", mode = "full", pillar = null, hasImages = false, timezone = null } = raw;
+  const language = (rawLang === "he" || rawLang === "en" || rawLang === "es") ? rawLang : "en";
 
   if (!messages || !Array.isArray(messages)) {
     return { error: "Messages array is required", status: 400 };
@@ -255,10 +256,14 @@ export function prepare(
 ): OrchestratorResult {
   const promptVersion = PROMPT_VERSIONS[mode];
 
+  // Universal language directive — forces the model to reply in the user's
+  // language, even when downstream prompt scaffolding stays English.
+  const languageDirective = buildLanguageDirective(language);
+
   // Custom system prompt override
   if (customSystemPrompt) {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + customSystemPrompt,
+      systemPrompt: languageDirective + FINAL_ONLY_GUARD + customSystemPrompt,
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
@@ -277,7 +282,7 @@ export function prepare(
 
   if (mode === "widget") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildWidgetPrompt(language, knowledgeBase),
+      systemPrompt: languageDirective + FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + buildWidgetPrompt(language, knowledgeBase),
       model: "google/gemini-2.5-flash",
       maxTokens: 1000,
       temperature: 0.7,
@@ -289,7 +294,7 @@ export function prepare(
 
   if (mode === "lite") {
     return {
-      systemPrompt: FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + intakeBlock.prompt + phase4Block + buildLitePrompt(language, contextMarkdown),
+      systemPrompt: languageDirective + FINAL_ONLY_GUARD + HISTORY_ONLY_RULES + laneRules + intakeBlock.prompt + phase4Block + buildLitePrompt(language, contextMarkdown),
       model: "google/gemini-2.5-flash",
       maxTokens: 500,
       temperature: 0.7,
@@ -307,6 +312,7 @@ export function prepare(
   const socraticSection = buildSocraticSection(context, language);
   return {
     systemPrompt:
+      languageDirective +
       FINAL_ONLY_GUARD +
       HISTORY_ONLY_RULES +
       laneRules +
@@ -325,6 +331,22 @@ export function prepare(
     surfacedContradictionId: intakeBlock.surfacedContradictionId,
     intakeSummary: intakeBlock.summary,
   };
+}
+
+// ─── Language Directive ────────────────────────────────────
+/**
+ * Returns a universal language directive prepended to every system prompt.
+ * Forces the model to respond in the user's selected language, even when
+ * downstream prompt scaffolding is written in English.
+ */
+function buildLanguageDirective(language: string): string {
+  if (language === "he") {
+    return `LANGUAGE: ענה אך ורק בעברית. כל הטקסט המופנה למשתמש — ברכות, שאלות, רשימות, כותרות — חייב להיות בעברית. שמות פרטיים (AION, MindOS) נשארים באנגלית.\n\n`;
+  }
+  if (language === "es") {
+    return `LANGUAGE: Responde íntegramente en español (neutro, cálido, con tuteo informal). Todo el texto visible para el usuario — saludos, preguntas, listas, encabezados — debe estar en español. Los nombres propios (AION, MindOS) permanecen sin traducir.\n\n`;
+  }
+  return `LANGUAGE: Respond entirely in English. All user-facing text — greetings, questions, lists, headings — must be in English. Proper nouns (AION, MindOS) stay untranslated.\n\n`;
 }
 
 // ─── Phase 4: Graph-Informed Compact Block + Repetition Guard ──────────

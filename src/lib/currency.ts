@@ -1,4 +1,7 @@
-// Currency formatting utility for ILS to USD conversion based on language
+// Currency formatting utility for ILS → USD / EUR conversion based on language.
+// Spanish-speaking markets get EUR pricing by default; Hebrew gets ILS; English gets USD.
+
+type Lang = 'he' | 'en' | 'es';
 
 // Marketing-friendly USD price mapping (ILS -> USD)
 const USD_PRICE_MAP: Record<number, number> = {
@@ -36,11 +39,14 @@ export const convertToUSD = (ilsPrice: number): number => {
  */
 export const formatPrice = (
   priceInILS: number,
-  language: 'he' | 'en'
+  language: Lang,
 ): string => {
   if (language === 'en') {
-    const usdPrice = convertToUSD(priceInILS);
-    return `$${usdPrice}`;
+    return `$${convertToUSD(priceInILS)}`;
+  }
+  if (language === 'es') {
+    // EUR ≈ USD for marketing rounding; reuse USD ladder.
+    return `€${convertToUSD(priceInILS)}`;
   }
   return `₪${priceInILS.toLocaleString()}`;
 };
@@ -48,15 +54,19 @@ export const formatPrice = (
 /**
  * Get currency symbol based on language
  */
-export const getCurrencySymbol = (language: 'he' | 'en'): string => {
-  return language === 'en' ? '$' : '₪';
+export const getCurrencySymbol = (language: Lang): string => {
+  if (language === 'en') return '$';
+  if (language === 'es') return '€';
+  return '₪';
 };
 
 /**
  * Get currency code based on language
  */
-export const getCurrencyCode = (language: 'he' | 'en'): string => {
-  return language === 'en' ? 'USD' : 'ILS';
+export const getCurrencyCode = (language: Lang): string => {
+  if (language === 'en') return 'USD';
+  if (language === 'es') return 'EUR';
+  return 'ILS';
 };
 
 /**
