@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, Star } from 'lucide-react';
+import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, Star, Check } from 'lucide-react';
 import { Flame, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,6 +9,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,9 +78,8 @@ const AuroraAccountDropdown = ({
     ? fullName.split('@')[0] 
     : (fullName || user?.email?.split('@')[0] || 'User');
 
-  const handleLanguageToggle = () => {
-    setLanguage(language === 'he' ? 'en' : 'he');
-  };
+  const languageNative: Record<string, string> = { he: 'עברית', en: 'English', es: 'Español' };
+  const languageFlag: Record<string, string> = { he: '🇮🇱', en: '🇺🇸', es: '🇪🇸' };
 
   const handleThemeToggle = () => {
     setTheme(isDark ? 'light' : 'dark');
@@ -264,11 +267,28 @@ const AuroraAccountDropdown = ({
             {language === 'he' ? 'הצטרף למייסדים' : 'Join Founding Members'}
           </DropdownMenuItem>
 
-          {/* Language Toggle */}
-          <DropdownMenuItem onClick={handleLanguageToggle}>
-            <Globe className="h-4 w-4 me-2" />
-            {language === 'he' ? 'English' : 'עברית'}
-          </DropdownMenuItem>
+          {/* Language Picker — three-way */}
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Globe className="h-4 w-4 me-2" />
+              {languageNative[language] ?? 'Language'}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent className="bg-popover border border-border shadow-xl z-[80]">
+                {(['he', 'en', 'es'] as const).map((code) => (
+                  <DropdownMenuItem
+                    key={code}
+                    onClick={() => setLanguage(code)}
+                    className={language === code ? 'bg-primary/10 text-primary' : ''}
+                  >
+                    <span className="me-2">{languageFlag[code]}</span>
+                    {languageNative[code]}
+                    {language === code && <Check className="h-3 w-3 ms-auto" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
           
           {/* Theme Toggle */}
           <DropdownMenuItem onClick={handleThemeToggle}>

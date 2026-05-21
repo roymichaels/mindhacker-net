@@ -11,6 +11,7 @@ import { getWorld } from '../registry';
 import { useWorldState } from '../state/useWorldState';
 import { useAionContinuity } from '../continuity/useAionContinuity';
 import type { CognitiveWorldId } from '../types';
+import { pickLang } from '@/lib/i18nPick';
 
 const HE_PRESENCE: Record<string, string> = {
   resting: 'נמצא איתך',
@@ -28,19 +29,33 @@ const EN_PRESENCE: Record<string, string> = {
   manifesting: 'is manifesting',
   evolving: 'is evolving with you',
 };
+const ES_PRESENCE: Record<string, string> = {
+  resting: 'está contigo',
+  listening: 'está escuchando',
+  noticing: 'está observando',
+  forming: 'está formando un pensamiento',
+  manifesting: 'se está manifestando',
+  evolving: 'evoluciona contigo',
+};
 
 export function useWorldAion(worldId: CognitiveWorldId) {
   const presence = useAionPresence();
   const { language } = useTranslation();
-  const isHe = language === 'he';
   const world = getWorld(worldId);
   const state = useWorldState(worldId);
   const continuity = useAionContinuity();
 
   return useMemo(() => {
     if (!world) return null;
-    const presenceLine = (isHe ? HE_PRESENCE : EN_PRESENCE)[presence] ?? '';
-    const baseLine = isHe ? world.aionLineHe : world.aionLineEn;
+    const presenceMap =
+      language === 'he' ? HE_PRESENCE : language === 'es' ? ES_PRESENCE : EN_PRESENCE;
+    const presenceLine = presenceMap[presence] ?? '';
+    const baseLine = pickLang(language, {
+      he: world.aionLineHe,
+      en: world.aionLineEn,
+      // World definitions only carry he/en today; Spanish falls back to en.
+      es: world.aionLineEn,
+    });
 
     // Continuity-aware coloring — AION sounds aware of recurring themes,
     // unresolved loops, and the dominant climate as state accumulates.
@@ -48,19 +63,35 @@ export function useWorldAion(worldId: CognitiveWorldId) {
     const recurringHere = continuity.recurringThemes.find((t) => t.worlds.includes(worldId));
     const tensionHere = continuity.unresolvedLoops.find((l) => l.worldId === worldId);
     if (recurringHere && recurringHere.count >= 3) {
-      awareness = isHe
-        ? `שמתי לב שאתה חוזר ל"${recurringHere.label}"`
-        : `I notice you keep returning to “${recurringHere.label}”`;
+      awareness = pickLang(language, {
+        he: `שמתי לב שאתה חוזר ל"${recurringHere.label}"`,
+        en: `I notice you keep returning to “${recurringHere.label}”`,
+        es: `Noto que sigues volviendo a "${recurringHere.label}"`,
+      });
     } else if (tensionHere) {
-      awareness = isHe
-        ? 'משהו פה עוד לא נפתר'
-        : 'something here is still unresolved';
+      awareness = pickLang(language, {
+        he: 'משהו פה עוד לא נפתר',
+        en: 'something here is still unresolved',
+        es: 'algo aquí aún no está resuelto',
+      });
     } else if (state.climate === 'turbulent') {
-      awareness = isHe ? 'יש פה תנועה חזקה כרגע' : 'there is strong motion here right now';
+      awareness = pickLang(language, {
+        he: 'יש פה תנועה חזקה כרגע',
+        en: 'there is strong motion here right now',
+        es: 'hay un movimiento fuerte aquí ahora mismo',
+      });
     } else if (state.climate === 'heavy') {
-      awareness = isHe ? 'יש פה כובד' : 'there is weight here';
+      awareness = pickLang(language, {
+        he: 'יש פה כובד',
+        en: 'there is weight here',
+        es: 'hay peso aquí',
+      });
     } else if (state.climate === 'open') {
-      awareness = isHe ? 'משהו פה נפתח' : 'something here is opening';
+      awareness = pickLang(language, {
+        he: 'משהו פה נפתח',
+        en: 'something here is opening',
+        es: 'algo aquí se está abriendo',
+      });
     }
 
     const composed = [baseLine, awareness, presenceLine ? `AION ${presenceLine}` : null]
@@ -71,7 +102,7 @@ export function useWorldAion(worldId: CognitiveWorldId) {
       role: world.aionRole,
       verbs: world.interaction.verbs.map((v) => ({
         id: v.id,
-        label: isHe ? v.labelHe : v.labelEn,
+        label: pickLang(language, { he: v.labelHe, en: v.labelEn, es: v.labelEn }),
       })),
       presence,
       /** Composed line: world tagline + continuity awareness + presence. */
@@ -82,5 +113,5 @@ export function useWorldAion(worldId: CognitiveWorldId) {
       momentum: state.momentum,
       continuity,
     };
-  }, [world, presence, isHe, state.climate, state.momentum, continuity, worldId]);
+  }, [world, presence, language, state.climate, state.momentum, continuity, worldId]);
 }

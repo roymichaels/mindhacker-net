@@ -8,6 +8,7 @@ metadata:
   languages:
     - he
     - en
+    - es
 system_prompt: |
   You are Aurora, the MindOS operating-system companion.
 

@@ -42,7 +42,7 @@ const AppearanceSettingsTab = () => {
           <div>
             <Label className="text-sm font-medium">{t('settings.appearance.language')}</Label>
             <p className="text-xs text-muted-foreground">
-              {language === 'he' ? 'עברית' : 'English'}
+              {language === 'he' ? 'עברית' : language === 'es' ? 'Español' : 'English'}
             </p>
           </div>
         </div>
@@ -56,6 +56,16 @@ const AppearanceSettingsTab = () => {
             }`}
           >
             EN
+          </button>
+          <button
+            onClick={() => setLanguage('es')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              language === 'es'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted hover:bg-accent'
+            }`}
+          >
+            ES
           </button>
           <button
             onClick={() => setLanguage('he')}
